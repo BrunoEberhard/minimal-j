@@ -1,0 +1,51 @@
+package ch.openech.mj.edit.form;
+
+import java.util.List;
+
+import ch.openech.mj.edit.fields.AbstractEditField;
+import ch.openech.mj.edit.fields.EditField;
+import ch.openech.mj.edit.validation.Indicator;
+import ch.openech.mj.edit.validation.ValidationMessage;
+
+public abstract class DependenceDecorator<T> extends AbstractEditField<T> implements DependingOnFieldAbove<T>, Indicator {
+
+	private final EditField<T> field;
+	private final String nameOfDependedField;
+	
+	public DependenceDecorator(EditField<T> field, String nameOfDependedField) {
+		super(field.getName() + DependenceDecorator.class.getSimpleName());
+		this.field = field;
+		this.nameOfDependedField = nameOfDependedField;
+	}
+	
+	@Override
+	public Object getComponent() {
+		return field.getComponent();
+	}
+
+	@Override
+	public String getNameOfDependedField() {
+		return nameOfDependedField;
+	}
+
+	@Override
+	public abstract void setDependedField(EditField<T> field);
+	
+	@Override
+	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+		if (field instanceof Indicator) {
+			Indicator indicator = (Indicator) field;
+			indicator.setValidationMessages(validationMessages);
+		}
+	}
+
+	@Override
+	public T getObject() {
+		return field.getObject();
+	}
+
+	@Override
+	public void setObject(T object) {
+		field.setObject(object);
+	}
+}

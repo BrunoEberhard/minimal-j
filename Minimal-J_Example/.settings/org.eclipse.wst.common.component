@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="Minimal-J_Example">
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/Minimal-J/Minimal-J">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="derbyclient.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Minimal-J/lib/derbyclient.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="lucene-core-3.4.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Minimal-J/lib/lucene-core-3.4.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="derby.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Minimal-J/lib/derby.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="vaadin-6.7.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Minimal-J/lib/vaadin-6.7.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="java-output-path" value="/Minimal-J_Example/classes"/>
+        <property name="context-root" value="Minimal-J_Example"/>
+    </wb-module>
+</project-modules>
