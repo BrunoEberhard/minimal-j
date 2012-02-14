@@ -32,7 +32,6 @@ import ch.openech.mj.edit.fields.NumberEditField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TypeUnknownField;
-import ch.openech.mj.edit.fields.Visual;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
@@ -41,12 +40,14 @@ import ch.openech.mj.edit.value.Required;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.GridFormLayout;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
 
 import com.vaadin.ui.Component;
 
-public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
+public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(AbstractFormVisual.class.getName());
 
 	protected final boolean editable;
@@ -55,7 +56,7 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	private final int columns;
 	private final GridFormLayout layout;
 	
-	private final List<Visual> fields = new ArrayList<Visual>();
+	private final List<FormField<?>> fields = new ArrayList<FormField<?>>();
 	private final List<EditField<?>> mandatoryFields = new ArrayList<EditField<?>>();
 
 	private KeyListener keyListener;
@@ -123,36 +124,26 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 		return layout;
 	}
 
-	public Component getVaadinComponent() {
-		return (Component) layout;
-	}
-
-	
-	@Override
-	public String getName() {
-		return null;
-	}
-
 	@Override
 	public void setSaveAction(Action saveAction) {
 		// TODO sollte noch für ctrl - S verwendet werden.
 		this.saveAction = saveAction;
 	}
 
-	public Visual createField(Object keyObject) {
+	public FormField<?> createField(Object keyObject) {
 		if (keyObject == null) {
 			throw new NullPointerException("Key must not be null");
-		} else if (keyObject instanceof Visual) {
-			Visual component = (Visual) keyObject;
+		} else if (keyObject instanceof FormField) {
+			FormField<?> component = (FormField<?>) keyObject;
 			if (StringUtils.isBlank(component.getName())) {
-				throw new IllegalArgumentException(Visual.class.getSimpleName() + " has no name");
+				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no name");
 			}
 			return component;
 		} else {
 			// keyString ist beispielsweise : "nationality" oder "address.zip"
 			String keyString = Constants.getConstant(keyObject);
 			AccessorInterface accessor = PropertyAccessor.getAccessor(objectClass, keyString);
-			Visual field;
+			FormField<?> field;
 			if (accessor.getClazz() == String.class) {
 				Format format = Formats.getInstance().getFormat(accessor);
 				if (format != null) {
@@ -170,11 +161,11 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 		}
 	}
 	
-	protected Visual createField(String name, AccessorInterface accessor) {
+	protected FormField<?> createField(String name, AccessorInterface accessor) {
 		throw new IllegalArgumentException("Unknown Field:" + accessor.getName());
 	}
 	
-	protected Visual createStringField(String name, Format format) {
+	protected FormField<?> createStringField(String name, Format format) {
 		if (!editable) {
 			return new TextFormField(name, format);
 		} else {
@@ -202,21 +193,21 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 
 
 	public void line(Object key) {
-		Visual visual = createField(key);
+		FormField<?> visual = createField(key);
 		add(visual, columns);
 	}
 	
 	public void line(Object... keys) {
 		int span = columns / keys.length;
 		for (Object key : keys) {
-			Visual visual = createField(key);
+			FormField<?> visual = createField(key);
 			add(visual, span);
 		}
 	}
 	
-	private void add(Visual visual, int span) {
-		layout.add(caption(visual), visual.getComponent(), span);
-		registerNamedField(visual);
+	private void add(FormField<?> c, int span) {
+		layout.add(caption(c), c, span);
+		registerNamedField(c);
 	}
 	
 	// 
@@ -224,13 +215,13 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	public void area(Object... keys) {
 		int span = columns / keys.length;
 		for (Object key : keys) {
-			Visual visual = createField(key);
-			area(visual, span);
+			FormField<?> field = createField(key);
+			area(field, span);
 		}
 	}
 
-	private void area(Visual visual, int span) {
-		layout.addArea(caption(visual), visual.getComponent(), span);
+	private void area(FormField<?> visual, int span) {
+		layout.addArea(caption(visual), visual, span);
 		registerNamedField(visual);
 	}
 	
@@ -241,12 +232,12 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	}
 	
 	public void text(String text, int span) {
-		Object label = ClientToolkit.getToolkit().createLabel(text);
+		IComponent label = ClientToolkit.getToolkit().createLabel(text);
 		layout.add(null, label, span);
 	}
 
 	public void addTitle(String text) {
-		Object label = ClientToolkit.getToolkit().createTitle(text);
+		IComponent label = ClientToolkit.getToolkit().createTitle(text);
 		layout.add(null, label, columns);
 	}
 
@@ -257,7 +248,7 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	}
 		
 	public void setRequired(Object keyObject, boolean required) {
-		Visual component = getField(Constants.getConstant(keyObject));
+		IComponent component = getField(Constants.getConstant(keyObject));
 		if (component == null) {
 			throw new IllegalArgumentException("Field not found: " + keyObject);
 		} else if (!(component instanceof EditField<?>)) {
@@ -276,9 +267,9 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	
 	//
 	
-	protected Visual getField(Object keyObject) {
+	protected FormField<?> getField(Object keyObject) {
 		String name = Constants.getConstant(keyObject);
-		for (Visual field : fields) {
+		for (FormField<?> field : fields) {
 			if (StringUtils.equals(name, field.getName())) {
 				return field;
 			}
@@ -288,7 +279,7 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	
 	//
 
-	protected void registerNamedField(Visual field) {
+	protected void registerNamedField(FormField<?> field) {
 		fields.add(field);
 		if (field instanceof ChangeableValue<?>) {
 			ChangeableValue<?> changeable = (ChangeableValue<?>) field;
@@ -327,7 +318,7 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 
 	@Override
 	public void fillWithDemoData() {
-		for (Visual field : fields) {
+		for (IComponent field : fields) {
 			if (field instanceof DemoEnabled) {
 				DemoEnabled demoEnabledField = (DemoEnabled) field;
 				demoEnabledField.fillWithDemoData();
@@ -337,7 +328,7 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 
 	//
 
-	protected String caption(Visual visual) {
+	protected String caption(FormField<?> visual) {
 		return Resources.getObjectFieldName(resourceBundle, objectClass, visual.getName());
 	}
 	
@@ -365,7 +356,7 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void writesValueToFields() {
-		for (Visual visual : fields) {
+		for (IComponent visual : fields) {
 			if (visual instanceof FormField) {
 				FormField formField = (FormField) visual;
 				String name =  formField.getName();
@@ -426,7 +417,7 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void forwardToDependingFields(EditField<?> changedField) {
 		boolean possibleDepending = false;
-		for (Visual field : fields) {
+		for (IComponent field : fields) {
 			if (field == changedField) {
 				possibleDepending = true;
 				continue;
@@ -449,15 +440,15 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	
 	@Override
 	public void validate(List<ValidationMessage> resultList) {
-		for (Visual visual : fields) {
-			if (visual instanceof EditField) {
-				EditField<?> editField = (EditField<?>) visual;
+		for (FormField<?> field : fields) {
+			if (field instanceof EditField) {
+				EditField<?> editField = (EditField<?>) field;
 				if (mandatoryFields.contains(editField) && editField.isEmpty()) {
-					resultList.add(new ValidationMessage(visual.getName(), "Eingabe erforderlich"));
+					resultList.add(new ValidationMessage(field.getName(), "Eingabe erforderlich"));
 				}
 			}
-			if (visual instanceof Validatable) {
-				Validatable validatable = (Validatable) visual;
+			if (field instanceof Validatable) {
+				Validatable validatable = (Validatable) field;
 				validateProtected(resultList, validatable);
 			} 
 		}
@@ -467,9 +458,9 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 		try {
 			validatable.validate(resultList);
 		} catch (Exception x) {
-			if (validatable instanceof Visual && !StringUtils.isBlank(((Visual) validatable).getName())) {
-				Visual visual = (Visual) validatable;
-				logger.log(Level.SEVERE, "Exception in validation of " + visual.getName(), x);
+			if (validatable instanceof FormField && !StringUtils.isBlank(((FormField<?>) validatable).getName())) {
+				FormField<?> field = (FormField<?>) validatable;
+				logger.log(Level.SEVERE, "Exception in validation of " + field.getName(), x);
 			} else {
 				logger.log(Level.SEVERE, "Exception in validation", x);
 			}
@@ -480,10 +471,10 @@ public class AbstractFormVisual<T> implements FormVisual<T>, DemoEnabled {
 	
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		for (Visual visual : fields) {
-			if (visual instanceof Indicator) {
-				Indicator indicator = (Indicator) visual;
-				List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, visual.getName());
+		for (FormField<?> field : fields) {
+			if (field instanceof Indicator) {
+				Indicator indicator = (Indicator) field;
+				List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, field.getName());
 				indicator.setValidationMessages(filteredValidationMessages);
 			}
 		}

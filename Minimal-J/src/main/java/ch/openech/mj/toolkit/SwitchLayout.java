@@ -3,8 +3,8 @@ package ch.openech.mj.toolkit;
 
 public interface SwitchLayout extends AbstractComponentContainer {
 
-	public void show(Object component);
+	public void show(IComponent component);
 
-	public Object getShownComponent();
+	public IComponent getShownComponent();
 	
 }

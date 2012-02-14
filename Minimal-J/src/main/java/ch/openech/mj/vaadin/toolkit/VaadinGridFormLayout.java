@@ -1,6 +1,7 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import ch.openech.mj.toolkit.GridFormLayout;
+import ch.openech.mj.toolkit.IComponent;
 
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Component;
@@ -22,13 +23,13 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	}
 
 	@Override
-	public void add(String caption, Object field) {
+	public void add(String caption, IComponent field) {
 		add(caption, field, defaultSpan);
 	}
 
 	@Override
-	public void add(String caption, Object field, int span) {
-		Component component = (Component) field;
+	public void add(String caption, IComponent field, int span) {
+		Component component = VaadinClientToolkit.getComponent(field);
 		component.setCaption(caption);
 		component.setWidth("100%");
 
@@ -43,8 +44,8 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	}
 
 	@Override
-	public void addArea(String caption, Object field, int span) {
-		Component component = (Component) field;
+	public void addArea(String caption, IComponent field, int span) {
+		Component component = VaadinClientToolkit.getComponent(field);
 		component.setHeight(100, Sizeable.UNITS_PIXELS);
 		
 		add(caption, field, span);

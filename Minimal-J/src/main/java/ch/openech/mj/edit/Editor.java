@@ -154,7 +154,7 @@ public abstract class Editor<T> {
 		List<ValidationMessage> validationResult = validate(getObject());
 		boolean valid = validationResult.isEmpty();
 		if (valid) {
-			int answer = ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+			int answer = ClientToolkit.getToolkit().showConfirmDialog(form, "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
 					JOptionPane.YES_NO_CANCEL_OPTION);
 
 			if (answer == JOptionPane.YES_OPTION) {
@@ -167,7 +167,7 @@ public abstract class Editor<T> {
 				finish();
 			}
 		} else {
-			int answer = ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+			int answer = ClientToolkit.getToolkit().showConfirmDialog(form, "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
 					"Schliessen", JOptionPane.YES_NO_OPTION);
 			
 			if (answer == JOptionPane.NO_OPTION) {
@@ -187,7 +187,7 @@ public abstract class Editor<T> {
 						finish();
 					}
 				} else {
-					ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
+					ClientToolkit.getToolkit().showNotification(form, "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
 				}
 			}
 		};

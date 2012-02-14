@@ -14,6 +14,8 @@ import javax.swing.Timer;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.swing.component.PanzerGlassPane;
+import ch.openech.mj.swing.toolkit.SwingComponentDelegate;
+import ch.openech.mj.toolkit.IComponent;
 
 // TODO migrate AsyncPage
 @Deprecated
@@ -33,14 +35,14 @@ public abstract class AsyncPage extends Page {
 	 * Use createPanel to define content of Page
 	 */
 	@Override
-	public final Object getPanel() {
+	public final IComponent getPanel() {
 		if (glassPane == null) {
 			glassPane = new PanzerGlassPane();
 			// glassPane should be ready on the call of createPanel
 			// so don't use glassPane = new PanzerGlassPane(createPanel());
 			glassPane.setContent((Component) createPanel());
 		}
-		return glassPane;
+		return new SwingComponentDelegate(glassPane);
 	}
 
 	protected abstract Object createPanel();

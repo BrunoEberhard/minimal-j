@@ -5,12 +5,13 @@ import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 
 public class EditorPage extends Page implements EditorFinishedListener {
 
 	private final Editor<?> editor;
 	private final FormVisual<?> form;
-	private final Object layout;
+	private final IComponent layout;
 	
 	public EditorPage(String[] editorClassAndArguments) {
 		this(createEditor(editorClassAndArguments));
@@ -43,7 +44,7 @@ public class EditorPage extends Page implements EditorFinishedListener {
 		super();
 		this.editor = editor;
 		form = editor.startEditor();
-		layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form.getComponent(), editor.getActions());
+		layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
 
 		setTitle(editor.getTitle());
 		editor.setEditorFinishedListener(this);
@@ -60,7 +61,7 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	}
 	
 	@Override
-	public Object getPanel() {
+	public IComponent getPanel() {
 		return layout;
 	}
 

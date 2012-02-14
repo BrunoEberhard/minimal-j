@@ -1,10 +1,11 @@
 package ch.openech.mj.application;
 
-import ch.openech.mj.edit.fields.Visual;
 import ch.openech.mj.page.History;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.History.HistoryListener;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.SwitchLayout;
 
 /**
@@ -12,7 +13,7 @@ import ch.openech.mj.toolkit.SwitchLayout;
  * After a page change the focus is set according the policy of the page.
  * 
  */
-public class HistoryPanel implements Visual {
+public class HistoryPanel implements IComponentDelegate {
 
 	private final HistoryPanelListener listener;
 	private final History<Page> history;
@@ -25,11 +26,6 @@ public class HistoryPanel implements Visual {
 		history = new History<Page>(historyListener);
 		
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
-	}
-
-	@Override
-	public String getName() {
-		return null;
 	}
 
 	@Override

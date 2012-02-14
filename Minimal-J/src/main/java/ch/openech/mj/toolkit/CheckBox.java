@@ -4,7 +4,7 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.fields.Focusable;
 
-public interface CheckBox extends Focusable {
+public interface CheckBox extends IComponent, Focusable {
 	
 	public void setSelected(boolean selected);
 

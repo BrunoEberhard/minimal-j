@@ -4,9 +4,10 @@ import ch.openech.mj.db.model.AccessorInterface;
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.Format;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.TextField;
 
-public class TypeUnknownField implements ch.openech.mj.edit.fields.FormField<Object> {
+public class TypeUnknownField implements IComponentDelegate, ch.openech.mj.edit.fields.FormField<Object> {
 
 	private final String name;
 	private final TextField textField;

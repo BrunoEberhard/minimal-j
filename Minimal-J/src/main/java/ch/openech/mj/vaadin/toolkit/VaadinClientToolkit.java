@@ -10,14 +10,16 @@ import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.MultiLineTextField;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
+import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisibilityLayout;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualList;
 import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.vaadin.VaadinWindow;
 
 import com.vaadin.terminal.ExternalResource;
@@ -31,19 +33,28 @@ import com.vaadin.ui.Window.Notification;
 
 public class VaadinClientToolkit extends ClientToolkit {
 
-	@Override
-	public Object createEmptyComponent() {
-		return new Panel();
+	public static Component getComponent(IComponent component) {
+		if (component instanceof IComponentDelegate) {
+			IComponentDelegate delegate = (IComponentDelegate) component;
+			return (Component) delegate.getComponent();
+		} else {
+			return (Component) component;
+		}
 	}
 	
 	@Override
-	public Object createLabel(String string) {
-		return new Label(string);
+	public IComponent createEmptyComponent() {
+		return new VaadinComponentDelegate(new Panel());
+	}
+	
+	@Override
+	public IComponent createLabel(String string) {
+		return new VaadinComponentDelegate(new Label(string));
 	}
 
 	@Override
-	public Object createTitle(String string) {
-		return new Label(string);
+	public IComponent createTitle(String string) {
+		return new VaadinComponentDelegate(new Label(string));
 	}
 
 	@Override
@@ -82,17 +93,17 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public HorizontalLayout createHorizontalLayout(Object... components) {
+	public HorizontalLayout createHorizontalLayout(IComponent... components) {
 		return new VaadinHorizontalLayout(components);
 	}
 
 	@Override
-	public ContextLayout createContextLayout(Object content) {
+	public ContextLayout createContextLayout(IComponent content) {
 		return new VaadinContextLayout(content);
 	}
 
 	@Override
-	public VisibilityLayout createVisibilityLayout(Object content) {
+	public VisibilityLayout createVisibilityLayout(IComponent content) {
 		return new VaadinVisibilityLayout(content);
 	}
 
@@ -107,35 +118,35 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showNotification(Object c, String text) {
-		Component component = (Component) c;
+	public void showNotification(IComponent c, String text) {
+		Component component = getComponent(c);
 		Window window = component.getWindow();
 		window.showNotification("Hinweis", text, Notification.TYPE_HUMANIZED_MESSAGE);
 	}
 
 	@Override
-	public void focusFirstComponent(Object component) {
+	public void focusFirstComponent(IComponent component) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void showMessage(Object c, String text) {
+	public void showMessage(IComponent c, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component component = (Component) c;
+		Component component = getComponent(c);
 		Window window = component.getWindow();
 		window.showNotification("Information", text, Notification.TYPE_HUMANIZED_MESSAGE);
 	}
 	
 	@Override
-	public void showError(Object c, String text) {
+	public void showError(IComponent c, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component component = (Component) c;
+		Component component = getComponent(c);
 		Window window = component.getWindow();
 		window.showNotification("Fehler", text, Notification.TYPE_ERROR_MESSAGE);
 	}
 
 	@Override
-	public int showConfirmDialog(Object component, Object message, String title, int optionType) {
+	public int showConfirmDialog(IComponent component, Object message, String title, int optionType) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -146,15 +157,15 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public VisualDialog openDialog(Object c, Object content, String title) {
-		Component component = (Component) c;
+	public VisualDialog openDialog(IComponent c, IComponent content, String title) {
+		Component component = getComponent(content);
 		Window window = component.getWindow();
 		return new VaadinDialog(window, (ComponentContainer) content, title);
 	}
 
 	@Override
-	public Object createEditorLayout(String information, Object content, Action[] actions) {
-		return new VaadinEditorLayout(information, (ComponentContainer) content, actions);
+	public IComponent createEditorLayout(String information, IComponent content, Action[] actions) {
+		return new VaadinEditorLayout(information, content, actions);
 	}
 
 	@Override
@@ -171,15 +182,15 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public Object createFormAlignLayout(Object content) {
+	public IComponent createFormAlignLayout(IComponent content) {
 		GridLayout gridLayout = new GridLayout(3, 3);
-		gridLayout.addComponent((Component) content, 1, 1);
+		gridLayout.addComponent(getComponent(content), 1, 1);
 		gridLayout.setRowExpandRatio(0, 0.1f);
 		gridLayout.setRowExpandRatio(1, 0.7f);
 		gridLayout.setRowExpandRatio(2, 0.2f);
 		gridLayout.setColumnExpandRatio(0, 0.1f);
 		gridLayout.setColumnExpandRatio(1, 0.7f);
 		gridLayout.setColumnExpandRatio(2, 0.2f);
-		return gridLayout;
+		return new VaadinComponentDelegate(gridLayout);
 	}
 }

@@ -2,7 +2,6 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -18,15 +17,16 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentInputMapUIResource;
 
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
 
-public class SwingEditorLayout extends JPanel {
+public class SwingEditorLayout extends JPanel implements IComponent {
 
-	public SwingEditorLayout(String information, Object content, Action[] actions) {
+	public SwingEditorLayout(String information, IComponent content, Action[] actions) {
 		super(new BorderLayout());
 		addInformation(information);
 		JPanel centerPanel = new JPanel(new SwingFormAlignLayoutManager());
-		centerPanel.add((Component) content);
+		centerPanel.add(SwingClientToolkit.getComponent(content));
 		add(centerPanel, BorderLayout.CENTER);
 		add(createButtonBar(actions), BorderLayout.SOUTH);
 	}

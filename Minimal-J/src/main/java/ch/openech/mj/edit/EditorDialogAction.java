@@ -9,13 +9,14 @@ import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualDialog;
 
 public class EditorDialogAction extends AbstractAction {
 	private final Editor<?> editor;
-	private final Object parentComponent;
+	private final IComponent parentComponent;
 	
-	public EditorDialogAction(Object parentComponent, Editor<?> editor) {
+	public EditorDialogAction(IComponent parentComponent, Editor<?> editor) {
 		this.editor = editor;
 		this.parentComponent = parentComponent;
 		
@@ -35,7 +36,7 @@ public class EditorDialogAction extends AbstractAction {
 	
 	private void doActionPerformed(ActionEvent e) throws Exception {
 		FormVisual<?> form = editor.startEditor();
-		Object layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form.getComponent(), editor.getActions());
+		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
 		
 		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(parentComponent, layout, editor.getTitle());
 		dialog.setResizable(form.isResizable());

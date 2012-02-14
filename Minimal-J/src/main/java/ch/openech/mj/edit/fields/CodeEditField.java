@@ -17,6 +17,7 @@ import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ContextLayout;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -188,7 +189,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 		}
 
 		@Override
-		public String filter(Object textField, String str) {
+		public String filter(IComponent textField, String str) {
 			if (str == null)
 				return null;
 

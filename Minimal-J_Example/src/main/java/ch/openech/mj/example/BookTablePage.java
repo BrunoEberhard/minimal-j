@@ -8,6 +8,7 @@ import ch.openech.mj.example.model.Book;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualTable;
 import ch.openech.mj.toolkit.VisualTable.ClickListener;
 
@@ -35,7 +36,7 @@ public class BookTablePage extends Page implements RefreshablePage {
 	}
 	
 	@Override
-	public Object getPanel() {
+	public IComponent getPanel() {
 		return table;
 	}
 

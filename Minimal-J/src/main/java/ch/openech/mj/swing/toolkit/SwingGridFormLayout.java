@@ -13,6 +13,8 @@ import javax.swing.UIManager;
 import javax.swing.plaf.PanelUI;
 
 import ch.openech.mj.toolkit.GridFormLayout;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
 
 public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
@@ -55,18 +57,18 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	}
 	
 	@Override
-	public void add(String caption, Object field) {
+	public void add(String caption, IComponent field) {
 		add(caption, field, defaultSpan);
 	}
 
 	@Override
-	public void add(String caption, Object field, int span) {
+	public void add(String caption, IComponent field, int span) {
 		GridBagConstraints constraints = createLayoutConstraints(span);
 		add(caption(caption, field), constraints);
 	}
 
 	@Override
-	public void addArea(String caption, Object field, int span) {
+	public void addArea(String caption, IComponent field, int span) {
 		GridBagConstraints constraints = createLayoutConstraints(span);
 		constraints.weighty = 1.0;
 		Component component = caption(caption, field);
@@ -74,16 +76,17 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 		add(component, constraints);
 	}
 
-	private Component caption(String caption, Object field) {
+	private Component caption(String caption, IComponent field) {
+		Component component = SwingClientToolkit.getComponent(field);
 		if (caption != null) {
 			JPanel panel = new JPanel(new BorderLayout());
 			panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 			panel.add(createCaptionLabel(caption), BorderLayout.NORTH);
-			panel.add((Component) field, BorderLayout.CENTER);
+			panel.add(component, BorderLayout.CENTER);
 			
 			return panel;
 		} else {
-			return (Component) field;
+			return component;
 		}
 	}
 

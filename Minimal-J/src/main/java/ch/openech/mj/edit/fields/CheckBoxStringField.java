@@ -5,6 +5,7 @@ import java.util.List;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponentDelegate;
 
 
 public class CheckBoxStringField extends AbstractEditField<String> {

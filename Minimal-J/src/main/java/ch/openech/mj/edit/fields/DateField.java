@@ -18,6 +18,7 @@ import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ContextLayout;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.util.DateUtils;
@@ -227,7 +228,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 		private static final int limit = 10;
 		
 		@Override
-		public String filter(Object textField, String str) {
+		public String filter(IComponent textField, String str) {
 			if (str == null)
 				return str;
 

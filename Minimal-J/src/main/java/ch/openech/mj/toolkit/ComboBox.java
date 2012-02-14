@@ -7,7 +7,7 @@ import javax.swing.event.ChangeListener;
 import ch.openech.mj.edit.fields.Focusable;
 import ch.openech.mj.edit.validation.Indicator;
 
-public interface ComboBox extends Indicator, Focusable {
+public interface ComboBox extends IComponent, Indicator, Focusable {
 
 	public void setObjects(List<?> object);
 	

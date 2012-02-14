@@ -3,18 +3,20 @@ package ch.openech.mj.swing.toolkit;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.fields.AbstractEditField;
+import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.swing.component.IndicatingTextField;
 
 public class SwingDirectoryField extends AbstractEditField<String> {
 
-	private final JTextField textField;
+	private final IndicatingTextField textField;
 	private final JButton button;
 	private final JPanel panel;
 	
@@ -23,7 +25,7 @@ public class SwingDirectoryField extends AbstractEditField<String> {
 		
 		panel = new JPanel(new BorderLayout());
 
-		textField = new JTextField();
+		textField = new IndicatingTextField();
 		button = new JButton("...");
 		
 		panel.add(textField, BorderLayout.CENTER);
@@ -56,5 +58,10 @@ public class SwingDirectoryField extends AbstractEditField<String> {
 	public Object getComponent() {
 		return panel;
 	}
+	
+	@Override
+	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+		textField.setValidationMessages(validationMessages);
+	};
 
 }

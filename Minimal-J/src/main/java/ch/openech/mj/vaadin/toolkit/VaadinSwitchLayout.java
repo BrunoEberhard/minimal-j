@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 
 import com.vaadin.ui.Component;
@@ -7,7 +8,7 @@ import com.vaadin.ui.GridLayout;
 
 public class VaadinSwitchLayout extends GridLayout implements SwitchLayout {
 
-	private Component showComponent;
+	private IComponent showComponent;
 	
 	public VaadinSwitchLayout() {
 	}
@@ -19,25 +20,22 @@ public class VaadinSwitchLayout extends GridLayout implements SwitchLayout {
 	}
 
 	@Override
-	public void show(Object component) {
-		if (component != null) {
-			Component c = (Component) component;
-			c.setWidth("100%");
-			if (showComponent != null) {
-				replaceComponent(showComponent, c);
-			} else {
-				addComponent(c);
-			}
-		} else {
-			if (showComponent != null) {
-				removeComponent(showComponent);
-			}
+	public void show(IComponent c) {
+		if (showComponent != null) {
+			Component component = VaadinClientToolkit.getComponent(showComponent);
+			removeComponent(component);
 		}
-		this.showComponent = (Component)component;
+
+		if (c != null) {
+			Component component = VaadinClientToolkit.getComponent(c);
+			component.setWidth("100%");
+			addComponent(component);
+		}
+		this.showComponent = c;
 	}
 
 	@Override
-	public Object getShownComponent() {
+	public IComponent getShownComponent() {
 		return showComponent;
 	}
 

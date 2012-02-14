@@ -1,7 +1,7 @@
 package ch.openech.mj.toolkit;
 
 
-public interface AbstractComponentContainer {
+public interface AbstractComponentContainer extends IComponent {
 
 	// public void addComponent(Object component);
 	

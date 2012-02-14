@@ -46,11 +46,6 @@ public class SplitPaneForm<T> implements FormVisual<T> {
 	}
 
 	@Override
-	public String getName() {
-		return formComponent.getName();
-	}
-
-	@Override
 	public Object getComponent() {
 		return formComponent.getComponent();
 	}

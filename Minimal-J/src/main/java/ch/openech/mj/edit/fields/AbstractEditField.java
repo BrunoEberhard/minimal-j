@@ -12,9 +12,11 @@ import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.TextField;
 
-public abstract class AbstractEditField<T> implements EditField<T>, Indicator {
+public abstract class AbstractEditField<T> implements IComponentDelegate, EditField<T>, Indicator {
 
 	private final String name;
 	
@@ -87,19 +89,19 @@ public abstract class AbstractEditField<T> implements EditField<T>, Indicator {
 	
 	//
 	
-	protected static void showBubble(Object component, String text) {
+	protected static void showBubble(IComponent component, String text) {
 		ClientToolkit.getToolkit().showNotification(component, text);
 	}
 	
 	//
 	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		if (getComponent() instanceof Indicator) {
-			Indicator indicator = (Indicator) getComponent();
-			indicator.setValidationMessages(validationMessages);
-		} else {
-			throw new RuntimeException("You must override setValidationMessages in " + this.getClass().getName());
-		}
-	}
+//	@Override
+//	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+//		if (getComponent() instanceof Indicator) {
+//			Indicator indicator = (Indicator) getComponent();
+//			indicator.setValidationMessages(validationMessages);
+//		} else {
+//			throw new RuntimeException("You must override setValidationMessages in " + this.getClass().getName());
+//		}
+//	}
 }

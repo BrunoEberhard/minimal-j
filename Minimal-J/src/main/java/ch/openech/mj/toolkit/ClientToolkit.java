@@ -36,11 +36,11 @@ public abstract class ClientToolkit {
 
 	// Widgets
 	
-	public abstract Object createEmptyComponent();
+	public abstract IComponent createEmptyComponent();
 	
-	public abstract Object createLabel(String string);
+	public abstract IComponent createLabel(String string);
 	
-	public abstract Object createTitle(String string);
+	public abstract IComponent createTitle(String string);
 
 	public abstract TextField createTextField();
 
@@ -60,35 +60,35 @@ public abstract class ClientToolkit {
 
 	// Layouts
 	
-	public abstract HorizontalLayout createHorizontalLayout(Object... components);
+	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
 
-	public abstract ContextLayout createContextLayout(Object content);
+	public abstract ContextLayout createContextLayout(IComponent content);
 	
-	public abstract VisibilityLayout createVisibilityLayout(Object content);
+	public abstract VisibilityLayout createVisibilityLayout(IComponent content);
 	
 	public abstract SwitchLayout createSwitchLayout();
 	
 	public abstract GridFormLayout createGridLayout(int columns, int defaultSpan);
 
-	public abstract Object createFormAlignLayout(Object content);
+	public abstract IComponent createFormAlignLayout(IComponent content);
 
-	public abstract Object createEditorLayout(String information, Object content, Action[] actions);
+	public abstract IComponent createEditorLayout(String information, IComponent content, Action[] actions);
 
 	// Notification
 	
-	public abstract void showMessage(Object component, String text);
+	public abstract void showMessage(IComponent component, String text);
 	
-	public abstract void showNotification(Object component, String text);
+	public abstract void showNotification(IComponent component, String text);
 
-	public abstract void showError(Object component, String text);
+	public abstract void showError(IComponent component, String text);
 	
-	public abstract int showConfirmDialog(Object component, Object message, String title, int optionType);
+	public abstract int showConfirmDialog(IComponent component, Object message, String title, int optionType);
 	
-	public abstract VisualDialog openDialog(Object parent, Object content, String title);
+	public abstract VisualDialog openDialog(IComponent parent, IComponent content, String title);
 	        
 	// Focus
 	
-	public abstract void focusFirstComponent(Object component);
+	public abstract void focusFirstComponent(IComponent component);
 	
 	// TODO openPageContext ist ev in ClientToolkit am falschen Ort
 	public abstract PageContext openPageContext(PageContext parentPageContext, WindowConfig windowConfig);

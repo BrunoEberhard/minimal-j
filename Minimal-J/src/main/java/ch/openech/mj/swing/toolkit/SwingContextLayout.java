@@ -10,12 +10,14 @@ import javax.swing.JPanel;
 
 import ch.openech.mj.swing.component.SwingContextMenu;
 import ch.openech.mj.toolkit.ContextLayout;
+import ch.openech.mj.toolkit.IComponent;
 
 public class SwingContextLayout extends JPanel implements ContextLayout {
 
-	public SwingContextLayout(Object content) {
+	public SwingContextLayout(IComponent content) {
 		super(new BorderLayout());
-		add((Component) content, BorderLayout.CENTER);
+		Component component = SwingClientToolkit.getComponent(content);
+		add(component, BorderLayout.CENTER);
 	}
 
 	@Override

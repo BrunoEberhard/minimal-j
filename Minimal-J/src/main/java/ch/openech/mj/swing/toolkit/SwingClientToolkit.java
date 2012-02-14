@@ -26,6 +26,8 @@ import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.MultiLineTextField;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
@@ -37,21 +39,30 @@ import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 
 public class SwingClientToolkit extends ClientToolkit {
 
-	@Override
-	public Object createEmptyComponent() {
-		return new JPanel();
+	public static Component getComponent(IComponent component) {
+		if (component instanceof IComponentDelegate) {
+			IComponentDelegate delegate = (IComponentDelegate) component;
+			return (Component) delegate.getComponent();
+		} else {
+			return (Component) component;
+		}
 	}
 	
 	@Override
-	public Object createLabel(String string) {
-		return new JLabel(string);
+	public IComponent createEmptyComponent() {
+		return new SwingComponentDelegate(new JPanel());
+	}
+	
+	@Override
+	public IComponent createLabel(String string) {
+		return new SwingComponentDelegate(new JLabel(string));
 	}
 
 	@Override
-	public Object createTitle(String string) {
+	public IComponent createTitle(String string) {
 		JLabel label = new JLabel(string);
 		label.setFont(label.getFont().deriveFont(Font.BOLD));
-		return label;
+		return new SwingComponentDelegate(label);
 	}
 	
 	@Override
@@ -85,7 +96,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public HorizontalLayout createHorizontalLayout(Object... components) {
+	public HorizontalLayout createHorizontalLayout(IComponent... components) {
 		return new SwingHorizontalLayout(components);
 	}
 
@@ -96,12 +107,12 @@ public class SwingClientToolkit extends ClientToolkit {
 
 
 	@Override
-	public ContextLayout createContextLayout(Object content) {
+	public ContextLayout createContextLayout(IComponent content) {
 		return new SwingContextLayout(content);
 	}
 	
 	@Override
-	public VisibilityLayout createVisibilityLayout(Object content) {
+	public VisibilityLayout createVisibilityLayout(IComponent content) {
 		return new SwingVisibilityLayout(content);
 	}
 
@@ -116,16 +127,18 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public Object createFormAlignLayout(Object content) {
+	public IComponent createFormAlignLayout(IComponent content) {
 		JPanel panel = new JPanel(new SwingFormAlignLayoutManager());
-		panel.add((Component) content);
-		return panel;
+		Component component = getComponent(content);
+		panel.add(component);
+		return new SwingComponentDelegate(panel);
 	}
 
 	@Override
-	public void showNotification(Object component, String text) {
+	public void showNotification(IComponent c, String text) {
 		try {
-			BubbleMessageSupport.showBubble((JComponent) component, text);
+			JComponent component = (JComponent) getComponent(c);
+			BubbleMessageSupport.showBubble(component, text);
 		} catch (Exception x) {
 			// TODO
 			x.printStackTrace();
@@ -133,12 +146,15 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void focusFirstComponent(Object object) {
-		JComponent component = (JComponent) object;
-		if (component.isShowing()) {
-			focusFirstComponentNow(component);
-		} else {
-			focusFirstComponentLater(component);
+	public void focusFirstComponent(IComponent object) {
+		Component component = SwingClientToolkit.getComponent(object);
+		if (component instanceof JComponent) {
+			JComponent jComponent = (JComponent) component;
+			if (component.isShowing()) {
+				focusFirstComponentNow(jComponent);
+			} else {
+				focusFirstComponentLater(jComponent, object);
+			}
 		}
 	}
 
@@ -151,29 +167,29 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 	}
 
-	private void focusFirstComponentLater(final JComponent component) {
+	private void focusFirstComponentLater(final JComponent component, final IComponent object) {
 		component.addHierarchyListener(new HierarchyListener() {
 			@Override
 			public void hierarchyChanged(HierarchyEvent e) {
 				component.removeHierarchyListener(this);
-				focusFirstComponent(component);
+				focusFirstComponent(object);
 			}
 		});
 	}
 
 	@Override
-	public void showMessage(Object component, String text) {
-		JOptionPane.showMessageDialog((Component) component, text, "Information", JOptionPane.INFORMATION_MESSAGE); 
+	public void showMessage(IComponent component, String text) {
+		JOptionPane.showMessageDialog(getComponent(component), text, "Information", JOptionPane.INFORMATION_MESSAGE); 
 	}
 	
 	@Override
-	public void showError(Object component, String text) {
-		JOptionPane.showMessageDialog((Component) component, text, "Fehler", JOptionPane.ERROR_MESSAGE); 
+	public void showError(IComponent component, String text) {
+		JOptionPane.showMessageDialog(getComponent(component), text, "Fehler", JOptionPane.ERROR_MESSAGE); 
 	}
 
 	@Override
-	public int showConfirmDialog(Object c, Object message, String title, int optionType) {
-		JComponent parentComponent = (JComponent) c;
+	public int showConfirmDialog(IComponent c, Object message, String title, int optionType) {
+		JComponent parentComponent = (JComponent) getComponent(c);
 		return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
 	}
 
@@ -183,24 +199,24 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public VisualDialog openDialog(Object parent, Object content, String title) {
-		Component parentComponent = (Component) parent;
-		Component contentComponent = (Component) content;
+	public VisualDialog openDialog(IComponent parent, IComponent content, String title) {
+		Component parentComponent = getComponent(parent);
+		Component contentComponent = getComponent(content);
 		
-		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parentComponent);
+		EditablePanel editablePanel = EditablePanel.getEditablePanel(parentComponent);
 		
 		if (editablePanel != null) {
 			SwingInternalFrame internalFrame = new SwingInternalFrame(editablePanel, contentComponent, title);
 			editablePanel.openModalDialog(internalFrame);
 			return internalFrame;
 		} else {
-			Window window = SwingUtilities.getWindowAncestor((Component) parentComponent);
+			Window window = SwingUtilities.getWindowAncestor(parentComponent);
 			return new SwingEditorDialog(window, contentComponent, title);
 		}		
 	}
 
 	@Override
-	public Object createEditorLayout(String information, Object content, Action[] actions) {
+	public IComponent createEditorLayout(String information, IComponent content, Action[] actions) {
 		return new SwingEditorLayout(information, content, actions);
 	}
 

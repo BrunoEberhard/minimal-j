@@ -5,6 +5,7 @@ import java.util.List;
 import javax.swing.Action;
 
 import ch.openech.mj.toolkit.ContextLayout;
+import ch.openech.mj.toolkit.IComponent;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -21,10 +22,10 @@ public class VaadinContextLayout extends GridLayout implements ContextLayout {
 	private Button firstButton;
 	private PopupView pv;
 	
-	public VaadinContextLayout(Object content) {
+	public VaadinContextLayout(IComponent content) {
 		super(2, 1);
 		
-		Component component = (Component) content;
+		Component component = VaadinClientToolkit.getComponent(content);
 		component.setWidth("100%");
 		addComponent(component);
 		this.setColumnExpandRatio(0, 1.0F);

@@ -4,10 +4,11 @@ import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 
-import ch.openech.mj.application.EmptyPage;
 import ch.openech.mj.application.AsyncPage.PageWorkListener;
+import ch.openech.mj.application.EmptyPage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
 
 
@@ -68,7 +69,7 @@ public abstract class Page {
 		return name;
 	}
 	
-	public abstract Object getPanel();
+	public abstract IComponent getPanel();
 
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
 		// should be done in subclass

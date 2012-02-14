@@ -14,14 +14,18 @@ import javax.swing.plaf.ComponentInputMapUIResource;
 
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
+import ch.openech.mj.swing.toolkit.SwingComponentDelegate;
+import ch.openech.mj.toolkit.IComponent;
 
 
 public class SwingContextMenu extends JPopupMenu {
 	
-	private JComponent component;
+	private final JComponent component;
+	private final IComponent iComponent;
 	
 	public SwingContextMenu(JComponent component) {
 		this.component = component;
+		this.iComponent = new SwingComponentDelegate(component);
 	}
 		
 	@Override
@@ -31,7 +35,7 @@ public class SwingContextMenu extends JPopupMenu {
 	}
 	
 	public JMenuItem add(Editor<?> editor) {
-		Action a = new EditorDialogAction(component, editor);
+		Action a = new EditorDialogAction(iComponent, editor);
 		installAccelerator(a);
 		return super.add(a);
 	}
@@ -63,7 +67,7 @@ public class SwingContextMenu extends JPopupMenu {
 	}
 
 	public void add(JMenu menu, Editor<?> editor) {
-		Action a = new EditorDialogAction(menu, editor);
+		Action a = new EditorDialogAction(iComponent, editor);
 		installAccelerator(a);
 		menu.add(a);
 	}

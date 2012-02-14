@@ -5,7 +5,7 @@ import java.util.List;
 import ch.openech.mj.edit.fields.Focusable;
 import ch.openech.mj.edit.validation.Indicator;
 
-public interface VisualList extends Indicator, Focusable {
+public interface VisualList extends IComponent, Indicator, Focusable {
 
 	public void setObjects(List<?> object);
 

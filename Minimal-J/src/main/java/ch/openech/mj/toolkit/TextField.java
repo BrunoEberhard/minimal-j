@@ -7,7 +7,7 @@ import javax.swing.event.ChangeListener;
 import ch.openech.mj.edit.fields.Focusable;
 import ch.openech.mj.edit.validation.Indicator;
 
-public interface TextField extends Indicator, Focusable {
+public interface TextField extends IComponent, Indicator, Focusable {
 	
 	public void setText(String text);
 
@@ -21,7 +21,7 @@ public interface TextField extends Indicator, Focusable {
 	
 	public static interface TextFieldFilter {
 		
-		public String filter(Object textField, String requestedString);
+		public String filter(IComponent textField, String requestedString);
 		
 	}
 	

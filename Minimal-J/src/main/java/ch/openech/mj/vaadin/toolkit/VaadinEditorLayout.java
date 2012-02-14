@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.Action;
 
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
 
 import com.vaadin.ui.Alignment;
@@ -13,7 +14,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -21,13 +21,13 @@ import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
-public class VaadinEditorLayout extends VerticalLayout {
+public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 
-	public VaadinEditorLayout(String information, ComponentContainer content, Action[] actions) {
+	public VaadinEditorLayout(String information, IComponent content, Action[] actions) {
 		addInformation(information);
 		
-		content.setWidth("100%");
-		GridLayout formAlign = (GridLayout) VaadinClientToolkit.getToolkit().createFormAlignLayout(content);
+		VaadinClientToolkit.getComponent(content).setWidth("100%");
+		GridLayout formAlign = (GridLayout) VaadinClientToolkit.getComponent(VaadinClientToolkit.getToolkit().createFormAlignLayout(content));
 		formAlign.setWidth("100%");
 		
 		Panel panel = new Panel();

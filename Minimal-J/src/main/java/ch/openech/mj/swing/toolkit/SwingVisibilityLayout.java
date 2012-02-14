@@ -5,13 +5,15 @@ import java.awt.Component;
 
 import javax.swing.JPanel;
 
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisibilityLayout;
 
 public class SwingVisibilityLayout extends JPanel implements VisibilityLayout {
 
-	public SwingVisibilityLayout(Object content) {
+	public SwingVisibilityLayout(IComponent content) {
 		super(new BorderLayout());
-		add((Component) content, BorderLayout.CENTER);
+		Component component = SwingClientToolkit.getComponent(content);
+		add(component, BorderLayout.CENTER);
 	}
 
 	@Override

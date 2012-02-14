@@ -11,6 +11,7 @@ import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -215,7 +216,8 @@ public class VaadinWindow extends Window implements PageContext {
 			String pageLink = source.getUriFragmentUtility().getFragment();
 			Page page = Page.createPage(pageLink);
 			page.setPageContext(VaadinWindow.this);
-			updateContent((ComponentContainer) page.getPanel());
+			Component component = VaadinClientToolkit.getComponent(page.getPanel());
+			updateContent((ComponentContainer) component);
 		}
 	}
 	

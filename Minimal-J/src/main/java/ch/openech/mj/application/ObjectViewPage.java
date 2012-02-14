@@ -5,12 +5,13 @@ import ch.openech.mj.page.ObjectPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 
 public abstract class ObjectViewPage<T> extends Page implements RefreshablePage, ObjectPage<T> {
 
 	private T actualObject;
 	private FormVisual<T> objectPanel;
-	private Object alignLayout;
+	private IComponent alignLayout;
 	
 	public ObjectViewPage() {
 		super();
@@ -21,10 +22,10 @@ public abstract class ObjectViewPage<T> extends Page implements RefreshablePage,
 	protected abstract FormVisual<T> createForm();
 	
 	@Override
-	public Object getPanel() {
+	public IComponent getPanel() {
 		if (alignLayout == null) {
 			objectPanel = createForm();
-			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel.getComponent());
+			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel);
 		}
 		refresh();
 		return alignLayout;

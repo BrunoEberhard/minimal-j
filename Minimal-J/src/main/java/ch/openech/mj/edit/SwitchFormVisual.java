@@ -8,6 +8,7 @@ import javax.swing.event.ChangeListener;
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 
 public class SwitchFormVisual<T> implements FormVisual<T> {
@@ -18,13 +19,9 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 	public SwitchFormVisual() {
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
 	}
-	@Override
-	public String getName() {
-		return null;
-	}
 
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return switchLayout;
 	}
 
@@ -60,7 +57,7 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 	
 	public void setFormVisual(FormVisual<?> formVisual) {
 		this.formVisual = formVisual;
-		switchLayout.show(formVisual.getComponent());
+		switchLayout.show(formVisual);
 	}
 	
 	@Override

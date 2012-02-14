@@ -6,14 +6,15 @@ import java.awt.GridLayout;
 import javax.swing.JPanel;
 
 import ch.openech.mj.toolkit.HorizontalLayout;
+import ch.openech.mj.toolkit.IComponent;
 
 
 public class SwingHorizontalLayout extends JPanel implements HorizontalLayout {
 
-	public SwingHorizontalLayout(Object... components) {
+	public SwingHorizontalLayout(IComponent... components) {
 		super(new GridLayout(1, components.length));
-		for (Object c : components) {
-			Component component = (Component) c;
+		for (IComponent c : components) {
+			Component component = SwingClientToolkit.getComponent(c);
 			add(component);
 		}
 	}

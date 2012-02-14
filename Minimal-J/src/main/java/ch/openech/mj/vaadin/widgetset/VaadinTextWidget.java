@@ -8,7 +8,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
+import ch.openech.mj.vaadin.toolkit.VaadinComponentDelegate;
 import ch.openech.mj.vaadin.toolkit.VaadinIndication;
 import ch.openech.mj.vaadin.widgetset.client.ui.VVaadinTextField;
 
@@ -20,6 +22,7 @@ import com.vaadin.terminal.PaintTarget;
 public class VaadinTextWidget extends com.vaadin.ui.TextField {
 
 	private final TextFieldFilter filter;
+	private final IComponent vaadinComponentDelegate;
 	private TextFieldChangeListener changeListener;
 	
 	public VaadinTextWidget() {
@@ -29,6 +32,7 @@ public class VaadinTextWidget extends com.vaadin.ui.TextField {
 	public VaadinTextWidget(TextFieldFilter filter) {
 		setReadOnly(false);
 		this.filter = filter;
+		this.vaadinComponentDelegate = new VaadinComponentDelegate(this);
 	}
 	
 //	@Override
@@ -112,7 +116,7 @@ public class VaadinTextWidget extends com.vaadin.ui.TextField {
 		String requested = (String)variables.get(VVaadinTextField.TEXT_REQUEST);
 		if (requested != null) {
 			if (filter != null) {
-				response = filter.filter(VaadinTextWidget.this, requested);
+				response = filter.filter(vaadinComponentDelegate, requested);
 				requestRepaint();
 			}
 		}

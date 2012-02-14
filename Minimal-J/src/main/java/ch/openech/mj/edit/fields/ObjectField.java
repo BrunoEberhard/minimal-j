@@ -15,6 +15,7 @@ import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ContextLayout;
+import ch.openech.mj.toolkit.IComponent;
 
 public abstract class ObjectField<T> extends AbstractEditField<T> implements Indicator {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
@@ -41,7 +42,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	
 	@Override
 	public final Object getComponent() {
-		Object component = getComponent0();
+		IComponent component = getComponent0();
 		if (!actions.isEmpty()) {
 			if (contextLayout == null) {
 				contextLayout = ClientToolkit.getToolkit().createContextLayout(component);
@@ -53,7 +54,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 		}
 	}
 	
-	protected abstract Object getComponent0();
+	protected abstract IComponent getComponent0();
 	
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {

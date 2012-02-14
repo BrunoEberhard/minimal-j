@@ -3,10 +3,11 @@ package ch.openech.mj.edit.fields;
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.Format;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.TextField;
 
 
-public class TextFormField implements FormField<String> {
+public class TextFormField implements IComponentDelegate, FormField<String> {
 
 	private final String name;
 	private final Format format;

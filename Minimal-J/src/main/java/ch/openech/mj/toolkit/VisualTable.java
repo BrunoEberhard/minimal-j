@@ -4,7 +4,7 @@ import java.util.List;
 
 import ch.openech.mj.edit.fields.Focusable;
 
-public interface VisualTable<T> extends Focusable {
+public interface VisualTable<T> extends IComponent, Focusable {
 
 	public void setObjects(List<T> object);
 

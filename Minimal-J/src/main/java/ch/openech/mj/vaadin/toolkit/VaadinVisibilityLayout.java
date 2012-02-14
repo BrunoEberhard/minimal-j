@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisibilityLayout;
 
 import com.vaadin.ui.Component;
@@ -9,8 +10,8 @@ public class VaadinVisibilityLayout extends GridLayout implements VisibilityLayo
 
 	private final Component component;
 	
-	public VaadinVisibilityLayout(Object content) {
-		component = (Component) content;
+	public VaadinVisibilityLayout(IComponent content) {
+		component = VaadinClientToolkit.getComponent(content);
 		component.setWidth("100%");
 		addComponent(component);
 	}

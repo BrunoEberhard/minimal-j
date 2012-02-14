@@ -13,6 +13,7 @@ import javax.swing.text.PlainDocument;
 import ch.openech.mj.edit.fields.Focusable;
 import ch.openech.mj.swing.component.IndicatingTextField;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingTextField extends IndicatingTextField implements TextField, Focusable {
@@ -113,7 +114,7 @@ public class SwingTextField extends IndicatingTextField implements TextField, Fo
 		}
 
 		@Override
-		public String filter(Object textField, String str) {
+		public String filter(IComponent textField, String str) {
 			if (str == null)
 				return null;
 			
