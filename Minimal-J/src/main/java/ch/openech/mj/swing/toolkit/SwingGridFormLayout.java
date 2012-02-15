@@ -14,7 +14,6 @@ import javax.swing.plaf.PanelUI;
 
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
 
 public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
