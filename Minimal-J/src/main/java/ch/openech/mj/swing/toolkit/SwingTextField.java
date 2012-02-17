@@ -95,7 +95,7 @@ public class SwingTextField extends IndicatingTextField implements TextField, Fo
 			String filteredString = filter.filter(textField, requestedString);
 			if (requestedString.equals(filteredString)) {
 				super.insertString(offset, str, attr);
-			} else {
+			} else if (!actualText.equals(filteredString)) {
 				replace(0, length, filteredString, attr);
 			}
 		}
