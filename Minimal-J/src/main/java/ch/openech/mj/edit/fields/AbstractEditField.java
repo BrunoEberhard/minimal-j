@@ -1,20 +1,18 @@
 package ch.openech.mj.edit.fields;
 
-import java.util.List;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.TextField;
+import ch.openech.mj.util.StringUtils;
 
 public abstract class AbstractEditField<T> implements IComponentDelegate, EditField<T>, Indicator {
 
@@ -37,7 +35,8 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 	
 	@Override
 	public boolean isEmpty() {
-		return getObject() == null;
+		Object object = getObject();
+		return object == null || (object instanceof String) && StringUtils.isEmpty((String) object);
 	}
 	
 	// Listener
