@@ -39,6 +39,7 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 	private VaadinTextField(ChangeListener changeListener, VaadinTextWidget vaadinTextWidget) {
 		textWidget = vaadinTextWidget;
 		textWidget.setNullRepresentation("");
+		textWidget.setImmediate(true);
 		if (changeListener != null) {
 			textWidget.setChangeListener(changeListener);
 		} else {

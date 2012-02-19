@@ -12,6 +12,7 @@ public class VaadinCheckBox extends CheckBox implements ch.openech.mj.toolkit.Ch
 	public VaadinCheckBox(ChangeListener listener, String text) {
 		super(text);
 		this.listener = listener;
+		setImmediate(true);
 		addListener(new CheckBoxChangeListener());
 	}
 

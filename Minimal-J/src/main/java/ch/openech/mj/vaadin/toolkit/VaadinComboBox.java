@@ -16,6 +16,7 @@ public class VaadinComboBox extends Select implements ComboBox {
 
 	public VaadinComboBox(ChangeListener listener) {
 		setNullSelectionAllowed(false);
+		setImmediate(true);
 		this.listener = listener;
 		addListener(new ComboBoxChangeListener());
 	}
