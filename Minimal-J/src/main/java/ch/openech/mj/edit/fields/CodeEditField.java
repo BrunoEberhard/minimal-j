@@ -202,7 +202,6 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		validationMessages = ValidationMessage.filterValidationMessage(validationMessages, getName());
 		textField.setValidationMessages(validationMessages);
 		comboBox.setValidationMessages(validationMessages);
 	}
