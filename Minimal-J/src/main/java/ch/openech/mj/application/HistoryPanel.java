@@ -4,7 +4,6 @@ import ch.openech.mj.page.History;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.History.HistoryListener;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.SwitchLayout;
 

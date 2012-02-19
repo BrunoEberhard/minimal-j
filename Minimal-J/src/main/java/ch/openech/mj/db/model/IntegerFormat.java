@@ -1,7 +1,5 @@
 package ch.openech.mj.db.model;
 
-import ch.openech.mj.util.DateUtils;
-
 public class IntegerFormat implements Format {
 
 	private final Class<?> clazz;

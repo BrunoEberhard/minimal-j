@@ -13,7 +13,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.application.WindowConfig;
@@ -31,11 +33,10 @@ import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.MultiLineTextField;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.VisibilityLayout;
+import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualList;
 import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 
 public class SwingClientToolkit extends ClientToolkit {
 
@@ -66,18 +67,18 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public TextField createTextField() {
+	public TextField createReadOnlyTextField() {
 		return new SwingTextField();
 	}
 	
 	@Override
-	public TextField createTextField(int maxLength) {
-		return new SwingTextField(maxLength);
+	public TextField createTextField(ChangeListener changeListener, int maxLength) {
+		return new SwingTextField(changeListener, maxLength);
 	}
 	
 	@Override
-	public TextField createTextField(TextFieldFilter filter) {
-		return new SwingTextField(filter);
+	public TextField createTextField(ChangeListener changeListener, TextFieldFilter filter) {
+		return new SwingTextField(changeListener, filter);
 	}
 
 	@Override
@@ -86,13 +87,13 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ComboBox createComboBox() {
-		return new SwingComboBox();
+	public ComboBox createComboBox(ChangeListener changeListener) {
+		return new SwingComboBox(changeListener);
 	}
 
 	@Override
-	public CheckBox createCheckBox(String text) {
-		return new SwingCheckBox(text);
+	public CheckBox createCheckBox(ChangeListener changeListener, String text) {
+		return new SwingCheckBox(changeListener, text);
 	}
 
 	@Override
@@ -111,11 +112,6 @@ public class SwingClientToolkit extends ClientToolkit {
 		return new SwingContextLayout(content);
 	}
 	
-	@Override
-	public VisibilityLayout createVisibilityLayout(IComponent content) {
-		return new SwingVisibilityLayout(content);
-	}
-
 	@Override
 	public VisualList createVisualList() {
 		return new SwingVisualList();
@@ -199,8 +195,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public VisualDialog openDialog(IComponent parent, IComponent content, String title) {
-		Component parentComponent = getComponent(parent);
+	public VisualDialog openDialog(Object parent, IComponent content, String title) {
+		Component parentComponent = (Component) parent;
 		Component contentComponent = getComponent(content);
 		
 		EditablePanel editablePanel = EditablePanel.getEditablePanel(parentComponent);
@@ -230,6 +226,26 @@ public class SwingClientToolkit extends ClientToolkit {
 	public PageContext openPageContext(PageContext parentPageContext, WindowConfig windowConfig) {
 		SwingFrame frame = new SwingFrame(windowConfig);
 		return frame.getVisiblePageContext();
+	}
+
+	@Override
+	public PageContext findPageContext(Object source) {
+		if (source instanceof IComponent) {
+			source = getComponent((IComponent)source);
+		}
+		Component c = (Component) source;
+		while (!(c instanceof PageContext) && c != null) {
+			if (c instanceof JPopupMenu) {
+				JPopupMenu popupMenu = (JPopupMenu) c;
+				c = popupMenu.getInvoker();
+			} else if (c instanceof SwingFrame) {
+				SwingFrame frame = (SwingFrame) c;
+				c = frame.getVisiblePageContext();
+			} else {
+				c = c.getParent();
+			}
+		}
+		return (PageContext) c;
 	}
 	
 }

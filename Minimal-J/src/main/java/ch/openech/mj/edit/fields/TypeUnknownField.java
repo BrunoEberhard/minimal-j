@@ -15,8 +15,7 @@ public class TypeUnknownField implements IComponentDelegate, ch.openech.mj.edit.
 	public TypeUnknownField(Object key, AccessorInterface accessor) {
 		this.name = Constants.getConstant(key);
 		
-		textField = ClientToolkit.getToolkit().createTextField();
-		textField.setEditable(false);
+		textField = ClientToolkit.getToolkit().createReadOnlyTextField();
 		textField.setText(Format.class.getSimpleName() + " not found:" + accessor.getName());
 	}
 

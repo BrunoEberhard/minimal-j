@@ -17,48 +17,34 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingTextField extends IndicatingTextField implements TextField, Focusable {
-	private TextFieldChangeListener changeListener;
+	private final ChangeListener changeListener;
 	private FocusListener focusListener;
 //	private KeyListener keyListener;
 
 	public SwingTextField() {
-	}
-
-	public SwingTextField(int maxLength) {
-		// TODO Eigenes Document verwenden, das effizienter ist, als das generelle FilteredDocument
-		this(new LimitTextFieldFilter(maxLength));
+		super();
+		this.changeListener = null;
+		setEditable(false);
+		setInheritsPopupMenu(true);
 	}
 	
-	public SwingTextField(TextFieldFilter filter) {
+	public SwingTextField(ChangeListener changeListener, int maxLength) {
+		// TODO Eigenes Document verwenden, das effizienter ist, als das generelle FilteredDocument
+		this(changeListener, new LimitTextFieldFilter(maxLength));
+	}
+	
+	public SwingTextField(ChangeListener changeListener, TextFieldFilter filter) {
 		super(new FilteredDocument(filter));
 		((FilteredDocument) getDocument()).setTextField(this);
+		
+		this.changeListener = changeListener;
+		getDocument().addDocumentListener(new TextFieldChangeListener());
+		
+		setInheritsPopupMenu(true);
 	}
 
-	@Override
-	public void setChangeListener(ChangeListener listener) {
-		if (changeListener == null) {
-			changeListener = new TextFieldChangeListener();
-		}
-		changeListener.setChangeListener(listener);
-	}
-	
 	public class TextFieldChangeListener implements DocumentListener {
 
-		private ChangeListener changeListener;
-		
-		public void setChangeListener(ChangeListener changeListener) {
-			if (changeListener == null) {
-				if (this.changeListener != null) {
-					getDocument().removeDocumentListener(this);
-				}
-			} else {
-				if (this.changeListener == null) {
-					getDocument().addDocumentListener(this);
-				}
-			}		
-			this.changeListener = changeListener;
-		}
-		
 		@Override
 		public void changedUpdate(DocumentEvent arg0) {
 			fireChangeEvent();

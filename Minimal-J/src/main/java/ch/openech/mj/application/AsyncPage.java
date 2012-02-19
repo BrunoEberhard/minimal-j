@@ -12,6 +12,7 @@ import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
 import ch.openech.mj.page.Page;
+import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.swing.component.PanzerGlassPane;
 import ch.openech.mj.swing.toolkit.SwingComponentDelegate;
@@ -21,8 +22,8 @@ import ch.openech.mj.toolkit.IComponent;
 @Deprecated
 public abstract class AsyncPage extends Page {
 
-	public AsyncPage() {
-		super();
+	public AsyncPage(PageContext context) {
+		super(context);
 	}
 
 	private PanzerGlassPane glassPane;

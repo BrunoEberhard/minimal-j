@@ -6,12 +6,9 @@ import javax.swing.event.ChangeListener;
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
-import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
 public abstract class AbstractEditField<T> implements IComponentDelegate, EditField<T>, Indicator {
@@ -45,23 +42,11 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 		this.adjusting = adjusting;
 	}
 
-	protected void listenTo(TextField textField) {
-		textField.setChangeListener(getForwardingChangeListener());
-	}
-
-	protected void listenTo(ComboBox comboBox) {
-		comboBox.setChangeListener(getForwardingChangeListener());
-	}
-
-	protected void listenTo(CheckBox comboBox) {
-		comboBox.setChangeListener(getForwardingChangeListener());
-	}
-	
 	protected void listenTo(ChangeableValue<?> changeable) {
-		changeable.setChangeListener(getForwardingChangeListener());
+		changeable.setChangeListener(listener());
 	}
 
-	protected ChangeListener getForwardingChangeListener() {
+	protected ChangeListener listener() {
 		if (forwardingChangeListener == null) {
 			forwardingChangeListener = new ForwardingChangeListener();
 		}
@@ -92,15 +77,4 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 		ClientToolkit.getToolkit().showNotification(component, text);
 	}
 	
-	//
-	
-//	@Override
-//	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-//		if (getComponent() instanceof Indicator) {
-//			Indicator indicator = (Indicator) getComponent();
-//			indicator.setValidationMessages(validationMessages);
-//		} else {
-//			throw new RuntimeException("You must override setValidationMessages in " + this.getClass().getName());
-//		}
-//	}
 }

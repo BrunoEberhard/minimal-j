@@ -25,14 +25,9 @@ public class NumberEditField implements IComponentDelegate, EditField<Object>, D
 	public NumberEditField(String name, Class<?> clazz, int size, boolean nonNegative) {
 		this.name = name;
 		this.clazz = clazz;
-		this.textField = ClientToolkit.getToolkit().createTextField(new LimitTextFieldFilter(size, nonNegative));
-
-		textField.setChangeListener(new ForwardingChangeListener());
+		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), new LimitTextFieldFilter(size, nonNegative));
 	}
 
-	public void setEditable(boolean editable) {
-		textField.setEditable(editable);
-	}
 
 	@Override
 	public String getName() {

@@ -1,6 +1,7 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -69,11 +70,11 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	}
 
 	protected void addActionButton(HorizontalLayout buttonBar, final Action action) {
-		Button button = new NativeButton((String) action.getValue(Action.NAME));
+		final Button button = new NativeButton((String) action.getValue(Action.NAME));
 		button.addListener(new ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
-				action.actionPerformed(null);
+				action.actionPerformed(new ActionEvent(button, 0, null));
 			}
 		});
 		installAdditionalActionListener(action, button);

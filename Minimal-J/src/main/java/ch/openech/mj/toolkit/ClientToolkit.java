@@ -1,6 +1,7 @@
 package ch.openech.mj.toolkit;
 
 import javax.swing.Action;
+import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.PageContext;
@@ -42,17 +43,17 @@ public abstract class ClientToolkit {
 	
 	public abstract IComponent createTitle(String string);
 
-	public abstract TextField createTextField();
+	public abstract TextField createReadOnlyTextField();
 
-	public abstract TextField createTextField(int maxLength);
+	public abstract TextField createTextField(ChangeListener changeListener, int maxLength);
 	
-	public abstract TextField createTextField(TextFieldFilter filter);
+	public abstract TextField createTextField(ChangeListener changeListener, TextFieldFilter filter);
 
 	public abstract MultiLineTextField createMultiLineTextField();
 
-	public abstract ComboBox createComboBox();
+	public abstract ComboBox createComboBox(ChangeListener changeListener);
 	
-	public abstract CheckBox createCheckBox(String text);
+	public abstract CheckBox createCheckBox(ChangeListener changeListener, String text);
 
 	public abstract VisualList createVisualList();
 	
@@ -63,8 +64,6 @@ public abstract class ClientToolkit {
 	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
 
 	public abstract ContextLayout createContextLayout(IComponent content);
-	
-	public abstract VisibilityLayout createVisibilityLayout(IComponent content);
 	
 	public abstract SwitchLayout createSwitchLayout();
 	
@@ -84,7 +83,7 @@ public abstract class ClientToolkit {
 	
 	public abstract int showConfirmDialog(IComponent component, Object message, String title, int optionType);
 	
-	public abstract VisualDialog openDialog(IComponent parent, IComponent content, String title);
+	public abstract VisualDialog openDialog(Object parent, IComponent content, String title);
 	        
 	// Focus
 	
@@ -94,4 +93,6 @@ public abstract class ClientToolkit {
 	public abstract PageContext openPageContext(PageContext parentPageContext, WindowConfig windowConfig);
 	
 	public abstract PageContext openPageContext(PageContext parentPageContext);
+	
+	public abstract PageContext findPageContext(Object source);
 }

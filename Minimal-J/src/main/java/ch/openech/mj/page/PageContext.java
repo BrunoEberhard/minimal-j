@@ -1,6 +1,5 @@
 package ch.openech.mj.page;
 
-import java.util.prefs.Preferences;
 
 
 
@@ -11,7 +10,7 @@ import java.util.prefs.Preferences;
 public interface PageContext {
 
 	/**
-	 * Close the visible Page. Meaning: go backward without possibility to go forward
+	 * The page wants to closte itself. Meaning: go backward without possibility to go forward
 	 * 
 	 */
 	void close();
@@ -29,17 +28,5 @@ public interface PageContext {
 	 * @return the new PageContext
 	 */
 	PageContext addTab();
-	
-	/**
-	 * 
-	 * @return the actual visible Page in this context
-	 */
-	Page getVisiblePage();
-	
-	/**
-	 * 
-	 * @return the users preferences in this context / window
-	 */
-	Preferences getPreferences();
-	
+
 }

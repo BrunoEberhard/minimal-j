@@ -3,6 +3,7 @@ package ch.openech.mj.application;
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.page.ObjectPage;
 import ch.openech.mj.page.Page;
+import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
@@ -13,8 +14,8 @@ public abstract class ObjectViewPage<T> extends Page implements RefreshablePage,
 	private FormVisual<T> objectPanel;
 	private IComponent alignLayout;
 	
-	public ObjectViewPage() {
-		super();
+	public ObjectViewPage(PageContext context) {
+		super(context);
 	}
 
 	protected abstract T loadObject();
@@ -26,8 +27,8 @@ public abstract class ObjectViewPage<T> extends Page implements RefreshablePage,
 		if (alignLayout == null) {
 			objectPanel = createForm();
 			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel);
+			refresh();
 		}
-		refresh();
 		return alignLayout;
 	}
 	

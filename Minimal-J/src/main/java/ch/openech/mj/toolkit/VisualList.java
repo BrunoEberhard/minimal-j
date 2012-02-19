@@ -15,8 +15,6 @@ public interface VisualList extends IComponent, Indicator, Focusable {
 
 	public int getSelectedIndex();
 	
-	// public void setChangeListener(ChangeListener changeListener);
-	
 	public void setEnabled(boolean enabled);
 
 	public void setClickListener(ClickListener clickListener);

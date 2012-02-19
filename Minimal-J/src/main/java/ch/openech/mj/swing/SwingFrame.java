@@ -674,7 +674,6 @@ public class SwingFrame extends JFrame {
 			}
 		}
 
-		@Override
 		public Page getVisiblePage() {
 			return historyPanel.getPresent();
 		}
@@ -685,17 +684,12 @@ public class SwingFrame extends JFrame {
 				PageContext newPageContext = addTab();
 				newPageContext.show(pageLink);
 			} else {
-				Page page = Page.createPage(pageLink);
-				page.setPageContext(this);
+				Page page = Page.createPage(this, pageLink);
+				page.setPreviousPage(historyPanel.getPresent());
 				historyPanel.add(page);
 			}
 		}
 
-		@Override
-		public Preferences getPreferences() {
-			return SwingPreferences.getPreferences();
-		}
-		
 		@Override
 		public void onPageWorkStart(String workName) {
 			updateActions();

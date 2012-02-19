@@ -6,6 +6,7 @@ import java.util.List;
 
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.page.Page;
+import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
@@ -27,8 +28,8 @@ public class BookTablePage extends Page implements RefreshablePage {
 		BOOK.available, //
 	};
 
-	public BookTablePage(String text) {
-		super();
+	public BookTablePage(PageContext context, String text) {
+		super(context);
 		this.text = text;
 		table = ClientToolkit.getToolkit().createVisualTable(Book.class, FIELD_NAMES);
 		table.setClickListener(new BookTableClickListener());

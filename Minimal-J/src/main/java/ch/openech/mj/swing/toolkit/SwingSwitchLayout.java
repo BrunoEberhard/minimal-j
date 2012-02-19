@@ -14,6 +14,7 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 	
 	public SwingSwitchLayout() {
 		super(new BorderLayout());
+		setInheritsPopupMenu(true);
 	}
 
 	@Override

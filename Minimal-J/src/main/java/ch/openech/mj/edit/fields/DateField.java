@@ -58,13 +58,11 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 		super(Constants.getConstant(key));
 		this.partialAllowed = partialAllowed;
 		
-		textField = ClientToolkit.getToolkit().createTextField(new DateFilter());
+		textField = ClientToolkit.getToolkit().createTextField(listener(), new DateFilter());
 		
 		installFocusLostListener();
 		contextLayout = ClientToolkit.getToolkit().createContextLayout(textField);
 		createMenu();
-        
-        listenTo(textField);
 	}
 
 	@Override
@@ -169,7 +167,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 	}
 
 	public void setEnabled(boolean enabled) {
-		textField.setEditable(enabled);
+		textField.setEnabled(enabled);
 		if (!enabled) {
 			setObject(null);
 		}

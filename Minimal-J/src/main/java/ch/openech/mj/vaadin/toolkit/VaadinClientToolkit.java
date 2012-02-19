@@ -1,6 +1,7 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import javax.swing.Action;
+import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.PageContext;
@@ -16,7 +17,6 @@ import ch.openech.mj.toolkit.MultiLineTextField;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
-import ch.openech.mj.toolkit.VisibilityLayout;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualList;
 import ch.openech.mj.toolkit.VisualTable;
@@ -58,18 +58,18 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField() {
+	public TextField createReadOnlyTextField() {
 		return new VaadinTextField();
 	}
 
 	@Override
-	public TextField createTextField(int maxLength) {
-		return new VaadinTextField(maxLength);
+	public TextField createTextField(ChangeListener changeListener, int maxLength) {
+		return new VaadinTextField(changeListener, maxLength);
 	}
 	
 	@Override
-	public TextField createTextField(TextFieldFilter filter) {
-		return new VaadinTextField(filter);
+	public TextField createTextField(ChangeListener changeListener, TextFieldFilter filter) {
+		return new VaadinTextField(changeListener, filter);
 	}
 
 	@Override
@@ -78,8 +78,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ComboBox createComboBox() {
-		return new VaadinComboBox();
+	public ComboBox createComboBox(ChangeListener listener) {
+		return new VaadinComboBox(listener);
 	}
 
 	@Override
@@ -88,8 +88,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public CheckBox createCheckBox(String text) {
-		return new VaadinCheckBox(text);
+	public CheckBox createCheckBox(ChangeListener listener, String text) {
+		return new VaadinCheckBox(listener, text);
 	}
 
 	@Override
@@ -100,11 +100,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public ContextLayout createContextLayout(IComponent content) {
 		return new VaadinContextLayout(content);
-	}
-
-	@Override
-	public VisibilityLayout createVisibilityLayout(IComponent content) {
-		return new VaadinVisibilityLayout(content);
 	}
 
 	@Override
@@ -157,10 +152,11 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public VisualDialog openDialog(IComponent c, IComponent content, String title) {
+	public VisualDialog openDialog(Object parent, IComponent content, String title) {
 		Component component = getComponent(content);
-		Window window = component.getWindow();
-		return new VaadinDialog(window, (ComponentContainer) content, title);
+		Component parentComponent = (Component) parent;
+		Window window = parentComponent.getWindow();
+		return new VaadinDialog(window, (ComponentContainer) component, title);
 	}
 
 	@Override
@@ -193,4 +189,17 @@ public class VaadinClientToolkit extends ClientToolkit {
 		gridLayout.setColumnExpandRatio(2, 0.2f);
 		return new VaadinComponentDelegate(gridLayout);
 	}
+	
+	@Override
+	public PageContext findPageContext(Object source) {
+		if (source instanceof IComponent) {
+			source = getComponent((IComponent)source);
+		}
+		Component c = (Component) source;
+		while (!(c instanceof PageContext) && c != null) {
+			c = c.getParent();
+		}
+		return (PageContext) c;
+	}
+	
 }

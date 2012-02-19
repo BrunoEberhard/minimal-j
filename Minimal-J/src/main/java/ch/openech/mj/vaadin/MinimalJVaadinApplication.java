@@ -1,7 +1,6 @@
 package ch.openech.mj.vaadin;
 
 import java.util.ResourceBundle;
-import java.util.prefs.Preferences;
 
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.resources.Resources;
@@ -25,7 +24,7 @@ public class MinimalJVaadinApplication extends Application {
 
 		mainWindow = new VaadinWindow(ApplicationConfig.getApplicationConfig().getInitialWindowConfig());
 		// TODO Preferences in MinimalJVaadinApplication
-		mainWindow.setPreferences(Preferences.userNodeForPackage(MinimalJVaadinApplication.class));
+		// mainWindow.setPreferences(Preferences.userNodeForPackage(MinimalJVaadinApplication.class));
 		setMainWindow(mainWindow);
 	}
 

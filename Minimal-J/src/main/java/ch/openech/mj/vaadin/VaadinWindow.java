@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin;
 
+import java.awt.event.ActionEvent;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -43,7 +44,7 @@ public class VaadinWindow extends Window implements PageContext {
 	private Preferences preferences;
 	private final UriFragmentUtility ufu;
 	
-	private Page visiblePage = new EmptyPage();
+	private Page visiblePage = new EmptyPage(this);
 	private ComponentContainer content;
 	
 	public VaadinWindow(WindowConfig windowConfig) {
@@ -170,7 +171,7 @@ public class VaadinWindow extends Window implements PageContext {
 		}
 	}
 	
-	private static class ActionCommand implements Command {
+	private class ActionCommand implements Command {
 		private final Action action;
 		
 		public ActionCommand(Action action) {
@@ -179,7 +180,7 @@ public class VaadinWindow extends Window implements PageContext {
 
 		@Override
 		public void menuSelected(MenuItem selectedItem) {
-			action.actionPerformed(null);
+			action.actionPerformed(new ActionEvent(menubar, 0, null));
 		}
 	}
 
@@ -187,20 +188,6 @@ public class VaadinWindow extends Window implements PageContext {
 	public PageContext addTab() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public Page getVisiblePage() {
-		return visiblePage;
-	}
-	
-	public void setPreferences(Preferences preferences) {
-		this.preferences = preferences;
-	}
-	
-	@Override
-	public Preferences getPreferences() {
-		return preferences;
 	}
 	
 	@Override
@@ -214,9 +201,10 @@ public class VaadinWindow extends Window implements PageContext {
 		@Override
 		public void fragmentChanged(FragmentChangedEvent source) {
 			String pageLink = source.getUriFragmentUtility().getFragment();
-			Page page = Page.createPage(pageLink);
-			page.setPageContext(VaadinWindow.this);
-			Component component = VaadinClientToolkit.getComponent(page.getPanel());
+			Page previousPage = visiblePage;
+			visiblePage = Page.createPage(VaadinWindow.this, pageLink);
+			visiblePage.setPreviousPage(previousPage);
+			Component component = VaadinClientToolkit.getComponent(visiblePage.getPanel());
 			updateContent((ComponentContainer) component);
 		}
 	}

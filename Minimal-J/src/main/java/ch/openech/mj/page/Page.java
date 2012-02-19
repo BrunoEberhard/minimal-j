@@ -14,22 +14,25 @@ import ch.openech.mj.util.StringUtils;
 
 public abstract class Page {
 
-	private PageContext context;
+	private final PageContext context;
 
 	private String title;
 	private Icon titleIcon;
 	private String titleToolTip;
 	
-	public Page() {
+	public Page(PageContext context) {
+		this.context = context;
 		initProperties(Resources.getResourceBundle(), getResourceBaseName());
 	}
 	
 	/**
-	 * @param context The context the page lives in. If the context implements PageListener 
-	 * its informed when title of Page changes
+	 * <i>warning:</i> Do not simply save the previous Page in a variable it could
+	 * be a memory leak.
+	 * 
+	 * @param page The page displayed in the PageContext before this Page
 	 */
-	public void setPageContext(PageContext pageContext) {
-		this.context = pageContext;
+	public void setPreviousPage(Page page) {
+		// by default do nothing
 	}
 
 	/**
@@ -146,7 +149,7 @@ public abstract class Page {
 		public void onPageTitleChanged(Page page);
 	}
 	
-	public static Page createPage(String pageLink) {
+	public static Page createPage(PageContext context, String pageLink) {
 		try {
 			if (!StringUtils.isEmpty(pageLink)) {
 				int pos = pageLink.indexOf('/');
@@ -155,20 +158,26 @@ public abstract class Page {
 				if (pos > 0) {
 					String[] fragmentParts = pageLink.substring(pos+1).split("/");
 					if (fragmentParts.length > 1) {
-						Class<?>[] argumentClasses = new Class[1];
-						argumentClasses[0] = new String[0].getClass();
-						return (Page) clazz.getConstructor(argumentClasses).newInstance(new Object[]{fragmentParts});
+						Class<?>[] argumentClasses = new Class[2];
+						argumentClasses[0] = PageContext.class;
+						argumentClasses[1] = new String[0].getClass();
+						return (Page) clazz.getConstructor(argumentClasses).newInstance(new Object[]{context, fragmentParts});
 					} else {
-						return (Page) clazz.getConstructor(String.class).newInstance(fragmentParts[0]);
+						Class<?>[] argumentClasses = new Class[2];
+						argumentClasses[0] = PageContext.class;
+						argumentClasses[1] = String.class;
+						return (Page) clazz.getConstructor(argumentClasses).newInstance(context, fragmentParts[0]);
 					}
 				} else {
-					return (Page) clazz.newInstance();
+					Class<?>[] argumentClasses = new Class[1];
+					argumentClasses[0] = PageContext.class;
+					return (Page) clazz.getConstructor(argumentClasses).newInstance(context);
 				}
 			}
 		} catch (Exception x) {
-			throw new RuntimeException("UriFragment Auflösung fehlgeschlagen", x);
+			throw new RuntimeException("UriFragment Auflösung fehlgeschlagen: " + pageLink, x);
 		}
-		return new EmptyPage();
+		return new EmptyPage(context);
 	}
 
 
@@ -195,4 +204,5 @@ public abstract class Page {
 			return s.toString();
 		}
 	}
+	
 }

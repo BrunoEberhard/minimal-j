@@ -4,6 +4,8 @@ public interface VisualDialog {
 
 	public void setResizable(boolean resizable);
 
+	public void setTitle(String title);
+	
 	public void setCloseListener(CloseListener closeListener);
 
 	public void setVisible(boolean visible);

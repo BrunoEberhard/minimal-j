@@ -2,8 +2,6 @@ package ch.openech.mj.toolkit;
 
 import java.util.List;
 
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.edit.fields.Focusable;
 import ch.openech.mj.edit.validation.Indicator;
 
@@ -15,8 +13,6 @@ public interface ComboBox extends IComponent, Indicator, Focusable {
 
 	public Object getSelectedObject();
 
-	public void setChangeListener(ChangeListener changeListener);
-	
 	public void setEnabled(boolean enabled);
 
 }

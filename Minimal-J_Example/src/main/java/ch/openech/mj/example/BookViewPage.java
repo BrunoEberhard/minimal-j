@@ -5,12 +5,14 @@ import java.sql.SQLException;
 import ch.openech.mj.application.ObjectViewPage;
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.example.model.Book;
+import ch.openech.mj.page.PageContext;
 
 public class BookViewPage extends ObjectViewPage<Book> {
 
 	private final Book book;
 
-	public BookViewPage(String bookId) {
+	public BookViewPage(PageContext context, String bookId) {
+		super(context);
 		book = lookup(bookId);
 	}
 	

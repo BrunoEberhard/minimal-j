@@ -7,4 +7,6 @@ public interface MultiLineTextField extends IComponent, Indicator, Focusable {
 
 	public void setText(String text);
 	
+	public void setEnabled(boolean enabled);
+	
 }

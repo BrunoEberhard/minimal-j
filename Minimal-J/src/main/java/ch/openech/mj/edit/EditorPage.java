@@ -13,15 +13,15 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	private final FormVisual<?> form;
 	private final IComponent layout;
 	
-	public EditorPage(String[] editorClassAndArguments) {
-		this(createEditor(editorClassAndArguments));
+	public EditorPage(PageContext context, String[] editorClassAndArguments) {
+		this(context, createEditor(editorClassAndArguments));
 	}
 	
-	public EditorPage(String editorClass) {
-		this(createEditor(editorClass));
+	public EditorPage(PageContext context, String editorClass) {
+		this(context, createEditor(editorClass));
 	}
 	
-	private static Editor<?> createEditor(String... editorClassAndArguments) {
+	static Editor<?> createEditor(String... editorClassAndArguments) {
 		try {
 			Class<?> clazz = Class.forName(editorClassAndArguments[0]);
 			if (editorClassAndArguments.length > 1) {
@@ -40,8 +40,8 @@ public class EditorPage extends Page implements EditorFinishedListener {
 		}
 	}
 	
-	public EditorPage(Editor<?> editor) {
-		super();
+	protected EditorPage(PageContext context, Editor<?> editor) {
+		super(context);
 		this.editor = editor;
 		form = editor.startEditor();
 		layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
@@ -56,11 +56,6 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	}
 
 	@Override
-	public void setPageContext(PageContext pageContext) {
-		super.setPageContext(pageContext);
-	}
-	
-	@Override
 	public IComponent getPanel() {
 		return layout;
 	}
@@ -72,6 +67,10 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	
 	public void checkedClose() {
 		editor.checkedClose();
+	}
+	
+	protected FormVisual getFormVisual() {
+		return form;
 	}
 
 }

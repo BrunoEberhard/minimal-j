@@ -26,6 +26,9 @@ public class SwingVisualList extends JScrollPane implements VisualList, Focusabl
 		list = new IndicatingList();
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setViewportView(list);
+		
+		setInheritsPopupMenu(true);
+		list.setInheritsPopupMenu(true);
 	}
 	
 	@Override
@@ -35,6 +38,13 @@ public class SwingVisualList extends JScrollPane implements VisualList, Focusabl
 		for (Object object : objects) {
 			model.addElement(object);
 		}
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		setInheritsPopupMenu(enabled);
+		setViewportView(enabled ? list : null);
 	}
 
 	@Override

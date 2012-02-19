@@ -14,11 +14,9 @@ import ch.openech.mj.toolkit.VisualDialog;
 
 public class EditorDialogAction extends AbstractAction {
 	private final Editor<?> editor;
-	private final IComponent parentComponent;
 	
-	public EditorDialogAction(IComponent parentComponent, Editor<?> editor) {
+	public EditorDialogAction(Editor<?> editor) {
 		this.editor = editor;
-		this.parentComponent = parentComponent;
 		
 		String actionName = editor.getClass().getSimpleName();
 		ResourceHelper.initProperties(this, Resources.getResourceBundle(), actionName);
@@ -38,7 +36,7 @@ public class EditorDialogAction extends AbstractAction {
 		FormVisual<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
 		
-		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(parentComponent, layout, editor.getTitle());
+		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(e.getSource(), layout, editor.getTitle());
 		dialog.setResizable(form.isResizable());
 		
 		editor.setEditorFinishedListener(new EditorFinishedListener() {

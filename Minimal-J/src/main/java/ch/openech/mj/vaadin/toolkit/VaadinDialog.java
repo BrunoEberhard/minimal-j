@@ -35,4 +35,9 @@ public class VaadinDialog extends Window implements VisualDialog {
 		this.closeListener = closeListener;
 	}
 
+	@Override
+	public void setTitle(String title) {
+		super.setCaption(title);
+	}
+
 }

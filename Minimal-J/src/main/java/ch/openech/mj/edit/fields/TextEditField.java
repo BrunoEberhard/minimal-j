@@ -30,13 +30,7 @@ public class TextEditField implements IComponentDelegate, Indicator, EditField<S
 	public TextEditField(String name, int maxLength) {
 		this.name = name;
 		this.maxLength = maxLength;
-		this.textField = ClientToolkit.getToolkit().createTextField(maxLength);
-		
-		textField.setChangeListener(new ForwardingChangeListener());
-	}
-
-	public void setEditable(boolean editable) {
-		textField.setEditable(editable);
+		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), maxLength);
 	}
 
 	@Override

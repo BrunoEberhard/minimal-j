@@ -14,19 +14,15 @@ import ch.openech.mj.toolkit.ComboBox;
 
 public class SwingComboBox extends IndicatingComboBox implements ComboBox, Focusable {
 
-	private ComboBoxChangeListener changeListener;
+	private final ChangeListener listener;
 
-	public SwingComboBox() {
+	public SwingComboBox(ChangeListener listener) {
+		this.listener = listener;
+		addItemListener(new ComboBoxChangeListener());
+		
+		setInheritsPopupMenu(true);
 	}
 	
-	@Override
-	public void setChangeListener(ChangeListener listener) {
-		if (changeListener == null) {
-			changeListener = new ComboBoxChangeListener();
-		}
-		changeListener.setChangeListener(listener);
-	}
-
 	@Override
 	public void setObjects(List<?> objects) {
 		setModel(new DefaultComboBoxModel(objects.toArray()));
@@ -43,23 +39,9 @@ public class SwingComboBox extends IndicatingComboBox implements ComboBox, Focus
 	}
 
 	public class ComboBoxChangeListener implements ItemListener {
-		private ChangeListener changeListener;
 		
-		public void setChangeListener(ChangeListener changeListener) {
-			if (changeListener == null) {
-				if (this.changeListener != null) {
-					removeItemListener(this);
-				}
-			} else {
-				if (this.changeListener == null) {
-					addItemListener(this);
-				}
-			}		
-			this.changeListener = changeListener;
-		}
-
 		private void fireChangeEvent() {
-			changeListener.stateChanged(new ChangeEvent(SwingComboBox.this));
+			listener.stateChanged(new ChangeEvent(SwingComboBox.this));
 		}
 
 		@Override

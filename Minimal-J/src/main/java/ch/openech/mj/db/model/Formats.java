@@ -10,6 +10,7 @@ import ch.openech.mj.db.model.annotation.FormatName;
 import ch.openech.mj.db.model.annotation.Int;
 import ch.openech.mj.db.model.annotation.NonNegative;
 import ch.openech.mj.db.model.annotation.Varchar;
+import ch.openech.mj.edit.value.PropertyAccessor;
 import ch.openech.mj.util.StringUtils;
 
 public class Formats {
@@ -63,6 +64,11 @@ public class Formats {
 			String formatName = getFormatName(accessor);
 			return getFormat(formatName);
 		}
+	}
+	
+	public Format getFormat(Class<?> clazz, Object key) {
+		AccessorInterface accessor = PropertyAccessor.getAccessor(clazz, Constants.getConstant(key));
+		return getFormat(accessor);
 	}
 
 	private Format getFormat(String name) {

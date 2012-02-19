@@ -16,6 +16,7 @@ import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.SwitchLayout;
 
 public abstract class ObjectField<T> extends AbstractEditField<T> implements Indicator {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
@@ -34,10 +35,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	}
 	
 	protected void addAction(Editor<?> editor) {
-		if (getComponent0() == null) {
-			throw new IllegalStateException("You can use addAction only AFTER initialize the component returned at getComponent0()");
-		}
-		actions.add(new EditorDialogAction(getComponent0(), editor));
+		actions.add(new EditorDialogAction(editor));
 	}
 	
 	@Override
@@ -56,15 +54,24 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	
 	protected abstract IComponent getComponent0();
 	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		// the getComponent() method wraps the component in a contextLayout which is not
-		// an indicator. So we have to use getComponent0 here.
-		if (getComponent0() instanceof Indicator) {
-			Indicator indicator = (Indicator) getComponent0();
-			indicator.setValidationMessages(validationMessages);
+	protected Indicator[] getIndicatingComponents() {
+		IComponent component = getComponent0();
+		while (component instanceof SwitchLayout) {
+			SwitchLayout switchLayout = (SwitchLayout) component;
+			component = switchLayout.getShownComponent();
+		}
+		if (component instanceof Indicator) {
+			return new Indicator[]{(Indicator) component};
 		} else {
-			throw new RuntimeException("You must override setValidationMessages in " + this.getClass().getName());
+			// TODO warn
+			return new Indicator[0];
+		}
+	}
+	
+	@Override
+	public final void setValidationMessages(List<ValidationMessage> validationMessages) {
+		for (Indicator indicator : getIndicatingComponents()) {
+			indicator.setValidationMessages(validationMessages);
 		}
 	}
 	
@@ -117,7 +124,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 		@Override
 		public boolean save(P part) {
 			setPart(ObjectField.this.getObject(), part);
-			display(ObjectField.this.getObject());
 			fireChange();
 			return true;
 		}
@@ -159,14 +165,18 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 //				throw new RuntimeException(e);
 //			}
 //		}
-		setAdjusting(true);
 		this.object = object;
-		display(object);
-		setAdjusting(false);
-		
 		fireChange();
 	}
 	
+	@Override
+	protected void fireChange() {
+		setAdjusting(true);
+		display(object);
+		setAdjusting(false);
+		super.fireChange();
+	}
+
 	@Override
 	public boolean isEmpty() {
 		Object object = getObject();
@@ -174,7 +184,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	}
 	
 	protected abstract void display(T object);
-
 
 
 }

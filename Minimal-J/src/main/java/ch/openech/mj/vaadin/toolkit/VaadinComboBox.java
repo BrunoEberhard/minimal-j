@@ -12,10 +12,12 @@ import com.vaadin.ui.Select;
 
 public class VaadinComboBox extends Select implements ComboBox {
 
-	private ComboBoxChangeListener changeListener;
+	private final ChangeListener listener;
 
-	public VaadinComboBox() {
+	public VaadinComboBox(ChangeListener listener) {
 		setNullSelectionAllowed(false);
+		this.listener = listener;
+		addListener(new ComboBoxChangeListener());
 	}
 	
 	@Override
@@ -41,34 +43,11 @@ public class VaadinComboBox extends Select implements ComboBox {
 		return super.getValue();
 	}
 
-	@Override
-	public void setChangeListener(ChangeListener listener) {
-		if (changeListener == null) {
-			changeListener = new ComboBoxChangeListener();
-		}
-		changeListener.setChangeListener(listener);
-	}
-	
 	public class ComboBoxChangeListener implements ValueChangeListener {
 
-		private ChangeListener changeListener;
-		
-		public void setChangeListener(ChangeListener changeListener) {
-			if (changeListener == null) {
-				if (this.changeListener != null) {
-					removeListener(this);
-				}
-			} else {
-				if (this.changeListener == null) {
-					addListener(this);
-				}
-			}		
-			this.changeListener = changeListener;
-		}
-		
 		@Override
 		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
-			changeListener.stateChanged(new ChangeEvent(VaadinComboBox.this));
+			listener.stateChanged(new ChangeEvent(VaadinComboBox.this));
 		}
 	}
 

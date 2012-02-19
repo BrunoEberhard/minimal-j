@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.Action;
@@ -69,7 +70,7 @@ public class VaadinContextLayout extends GridLayout implements ContextLayout {
     }
     
     private Button createButton(final Action action) {
-    	Button button = new NativeButton();
+    	final Button button = new NativeButton();
     	button.setStyleName("borderless");
     	button.setCaption((String) action.getValue(Action.NAME));
     	button.setDescription((String) action.getValue(Action.LONG_DESCRIPTION));
@@ -79,7 +80,7 @@ public class VaadinContextLayout extends GridLayout implements ContextLayout {
     	button.addListener(new ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
-				action.actionPerformed(null);
+				action.actionPerformed(new ActionEvent(button, 0, null));
 				pv.setPopupVisible(false);
 			}
 		});

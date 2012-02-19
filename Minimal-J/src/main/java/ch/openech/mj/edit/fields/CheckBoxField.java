@@ -5,7 +5,6 @@ import java.util.List;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponentDelegate;
 
 public class CheckBoxField extends AbstractEditField<Boolean> {
 	
@@ -13,8 +12,7 @@ public class CheckBoxField extends AbstractEditField<Boolean> {
 	
 	public CheckBoxField(Object key, String text) {
 		super(key);
-		checkBox = ClientToolkit.getToolkit().createCheckBox(text);
-		listenTo(checkBox);
+		checkBox = ClientToolkit.getToolkit().createCheckBox(listener(), text);
 	}
 	
 	@Override

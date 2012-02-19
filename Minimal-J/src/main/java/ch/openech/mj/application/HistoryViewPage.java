@@ -17,6 +17,7 @@ import javax.swing.table.AbstractTableModel;
 
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.page.ObjectPage;
+import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.util.StringUtils;
@@ -30,8 +31,8 @@ public abstract class HistoryViewPage<T> extends AsyncPage implements Refreshabl
 	private JTable table;
 	private HistoryTableModel tableModel;
 	
-	public HistoryViewPage() {
-		super();
+	public HistoryViewPage(PageContext context) {
+		super(context);
 	}
 
 	protected abstract List<T> loadObjects();

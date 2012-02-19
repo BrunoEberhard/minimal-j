@@ -14,7 +14,6 @@ import javax.swing.table.TableRowSorter;
 import ch.openech.mj.db.model.AccessorInterface;
 import ch.openech.mj.db.model.BooleanFormat;
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.DateFormat;
 import ch.openech.mj.db.model.Format;
 import ch.openech.mj.db.model.Formats;
 import ch.openech.mj.db.model.IntegerFormat;

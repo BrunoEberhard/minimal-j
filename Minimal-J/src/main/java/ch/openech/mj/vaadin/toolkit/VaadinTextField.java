@@ -24,21 +24,26 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 	private VaadinTextWidget textWidget;
 
 	public VaadinTextField() {
-		this(new VaadinTextWidget());
+		this(null, new VaadinTextWidget());
 	}
 	
-	public VaadinTextField(int maxLength) {
-		this(new VaadinTextWidget());
+	public VaadinTextField(ChangeListener changeListener, int maxLength) {
+		this(changeListener, new VaadinTextWidget());
 		textWidget.setMaxLength(maxLength);
 	}
 	
-	public VaadinTextField(TextFieldFilter filter) {
-		this(new VaadinTextWidget(filter));
+	public VaadinTextField(ChangeListener changeListener, TextFieldFilter filter) {
+		this(changeListener, new VaadinTextWidget(filter));
 	}
 	
-	private VaadinTextField(VaadinTextWidget vaadinTextWidget) {
+	private VaadinTextField(ChangeListener changeListener, VaadinTextWidget vaadinTextWidget) {
 		textWidget = vaadinTextWidget;
 		textWidget.setNullRepresentation("");
+		if (changeListener != null) {
+			textWidget.setChangeListener(changeListener);
+		} else {
+			textWidget.setEditable(false);
+		}
 		addComponent(textWidget);
 		textWidget.setSizeFull();
 	}
@@ -61,16 +66,6 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 	@Override
 	public String getText() {
 		return textWidget.getText();
-	}
-
-	@Override
-	public void setChangeListener(ChangeListener changeListener) {
-		textWidget.setChangeListener(changeListener);
-	}
-
-	@Override
-	public void setEditable(boolean editable) {
-		textWidget.setEditable(editable);
 	}
 
 	@Override

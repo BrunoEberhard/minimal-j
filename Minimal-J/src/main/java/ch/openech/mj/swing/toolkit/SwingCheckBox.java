@@ -12,39 +12,18 @@ import ch.openech.mj.toolkit.CheckBox;
 
 public class SwingCheckBox extends JCheckBox implements CheckBox, Focusable {
 
-	private CheckBoxChangeListener changeListener;
+	private final ChangeListener listener;
 
-	public SwingCheckBox(String text) {
+	public SwingCheckBox(ChangeListener listener, String text) {
 		super(text, false);
+		this.listener = listener;
+		addActionListener(new CheckBoxChangeListener());
 	}
 	
-	@Override
-	public void setChangeListener(ChangeListener listener) {
-		if (changeListener == null) {
-			changeListener = new CheckBoxChangeListener();
-			addActionListener(changeListener);
-		}
-		changeListener.setChangeListener(listener);
-	}
-
 	public class CheckBoxChangeListener implements ActionListener {
-		private ChangeListener changeListener;
 		
-		public void setChangeListener(ChangeListener changeListener) {
-			if (changeListener == null) {
-				if (this.changeListener != null) {
-					removeActionListener(this);
-				}
-			} else {
-				if (this.changeListener == null) {
-					addActionListener(this);
-				}
-			}		
-			this.changeListener = changeListener;
-		}
-
 		private void fireChangeEvent() {
-			changeListener.stateChanged(new ChangeEvent(SwingCheckBox.this));
+			listener.stateChanged(new ChangeEvent(SwingCheckBox.this));
 		}
 
 		@Override

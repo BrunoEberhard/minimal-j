@@ -2,10 +2,7 @@ package ch.openech.mj.application;
 
 import java.util.ResourceBundle;
 
-import ch.openech.mj.edit.Editor;
-import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.page.ActionGroup;
-import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
 
@@ -44,32 +41,6 @@ public abstract class ApplicationConfig {
 
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
 		// should be done in subclass
-	}
-	
-	public Page getPage(String... uriFragment) {
-		if (uriFragment.length == 2) {
-			String type = uriFragment[0];
-			String className = uriFragment[1];
-			
-			if ("edit".equals(type)) {
-				try {
-					Class<?> clazz = Class.forName(className);
-					Editor<?> editor = (Editor<?>) clazz.newInstance();
-					return new EditorPage(editor);
-				} catch (Exception x) {
-					throw new RuntimeException(x);
-				}
-			} else if ("view".equals(type)) {
-//			try {
-//				Class<?> clazz = Class.forName(className);
-//				Editor<?> editor = (Editor<?>) clazz.newInstance();
-//				return new EditorPage(editor);
-//			} catch (Exception x) {
-//				throw new RuntimeException(x);
-//			}
-			}
-		}
-		return null;
 	}
 
 }

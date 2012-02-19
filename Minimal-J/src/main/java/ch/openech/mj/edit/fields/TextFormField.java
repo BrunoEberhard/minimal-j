@@ -16,9 +16,7 @@ public class TextFormField implements IComponentDelegate, FormField<String> {
 	public TextFormField(Object key, Format format) {
 		this.name = Constants.getConstant(key);
 		this.format = format;
-		this.textField = ClientToolkit.getToolkit().createTextField();
-		
-		textField.setEditable(false);
+		this.textField = ClientToolkit.getToolkit().createReadOnlyTextField();
 	}
 	
 	@Override
@@ -37,6 +35,10 @@ public class TextFormField implements IComponentDelegate, FormField<String> {
 			string = format.display(string);
 		}
 		textField.setText(string);
+	}
+
+	public void setEnabled(boolean enabled) {
+		textField.setEnabled(enabled);
 	}
 
 }

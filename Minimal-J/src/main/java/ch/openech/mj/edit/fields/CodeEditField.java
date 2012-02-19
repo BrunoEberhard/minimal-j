@@ -27,21 +27,23 @@ import ch.openech.mj.util.StringUtils;
 public class CodeEditField extends AbstractEditField<String> implements PreferenceAware, DemoEnabled, Indicator {
 	private Code code;
 	
-	private final SwitchLayout switchLayout;
 	private final ContextLayout contextLayout;
+	private final SwitchLayout switchLayout;
 	private final ComboBox comboBox;
 	private final TextField textField;
-	private boolean unknown;
+	private final TextField textFieldUnknown;
 
 	public CodeEditField(Object key, Code code) {
 		super(Constants.getConstant(key));
 		this.code = code;
 
-		comboBox = ClientToolkit.getToolkit().createComboBox();
+		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
 		comboBox.setObjects(code.getTexts());
 		
-		textField = ClientToolkit.getToolkit().createTextField(new CodeTextFieldFilter(code.getSize()));
-		textField.setEditable(false);
+		textField = ClientToolkit.getToolkit().createTextField(listener(), new CodeTextFieldFilter(code.getSize()));
+
+		textFieldUnknown = ClientToolkit.getToolkit().createReadOnlyTextField();
+		textFieldUnknown.setText(code.getUnknownText());
 
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
 		switchLayout.show(comboBox);
@@ -49,9 +51,6 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 		
 		createMenu();
 		setDefault();
-		
-		listenTo(textField);
-		listenTo(comboBox);
 	}
 	
 	@Override
@@ -60,8 +59,8 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	}
 
 	public void createMenu() {
-		boolean codesFree = PreferencesHelper.preferences() == null || PreferencesHelper.preferences().getBoolean("codesFree", false);
-		boolean codesClear = PreferencesHelper.preferences() == null || PreferencesHelper.preferences().getBoolean("codesClear", false);
+		boolean codesFree = true || PreferencesHelper.preferences() == null || PreferencesHelper.preferences().getBoolean("codesFree", false);
+		boolean codesClear = true || PreferencesHelper.preferences() == null || PreferencesHelper.preferences().getBoolean("codesClear", false);
 		
 		if (codesFree || codesClear) {
 			List<Action> actions = new ArrayList<Action>();
@@ -108,9 +107,9 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 
 	
 	private void modeChoice() {
-		int index = code.indexOf(textField.getText());
+		int index = code.indexOf(getObject());
 		if (index >= 0) {
-			comboBox.setSelectedObject(textField.getText()); 
+			comboBox.setSelectedObject(getObject()); 
 		} else {
 			setDefault();
 		}
@@ -119,16 +118,11 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	}
 
 	private void modeUnknown() {
-		unknown = true;
-		textField.setEditable(false);
-		textField.setText(code.getUnknownText());
-		switchLayout.show(textField);
+		switchLayout.show(textFieldUnknown);
 	}
 
 	private void modeFreeEntry() {
-		textField.setText(!unknown ? CodeEditField.this.getObject() : "");
-		unknown = false;
-		textField.setEditable(true);
+		textField.setText(getObject() != null ? getObject() : null);
 		textField.requestFocus();
 		switchLayout.show(textField);
 	}
@@ -146,7 +140,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 		if (switchLayout.getShownComponent() == comboBox) {
 			String text = (String) comboBox.getSelectedObject();
 			return code.getKey(text);
-		} else if (!unknown && switchLayout.getShownComponent() == textField) {
+		} else if (switchLayout.getShownComponent() == textField) {
 			return textField.getText();
 		} else{
 			return null;

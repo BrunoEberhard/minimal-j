@@ -45,8 +45,6 @@ import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
 
-import com.vaadin.ui.Component;
-
 public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(AbstractFormVisual.class.getName());
 
@@ -97,10 +95,6 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	protected Class<T> getObjectOfFormClass() {
 		return (Class<T>) GenericUtils.getGenericClass(this.getClass());
 	}
-
-//	private void addBorder() {
-//		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//	}
 
 	// Variante des Demo-Fillers mit dem Accelerator - Mechanismus
 	// Nachteil: Funktioniert bei Textfeldern nicht, da die Felder das Zeichen
@@ -190,7 +184,6 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	}
 
 	// 
-
 
 	public void line(Object key) {
 		FormField<?> visual = createField(key);

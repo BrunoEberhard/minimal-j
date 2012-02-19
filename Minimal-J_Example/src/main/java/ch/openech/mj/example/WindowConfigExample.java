@@ -18,7 +18,7 @@ public class WindowConfigExample implements WindowConfig {
 	@Override
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
 		ActionGroup create = actionGroup.getOrCreateActionGroup(ActionGroup.NEW);
-		create.add(new EditorPageAction(pageContext, AddBookEditor.class));
+		create.add(new EditorPageAction(AddBookEditor.class));
 	}
 	
 	@Override

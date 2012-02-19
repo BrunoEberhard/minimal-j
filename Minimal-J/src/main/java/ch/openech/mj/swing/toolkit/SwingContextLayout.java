@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.Action;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import ch.openech.mj.swing.component.SwingContextMenu;
@@ -30,17 +29,17 @@ public class SwingContextLayout extends JPanel implements ContextLayout {
 		SwingContextMenu contextMenu = new SwingContextMenu(this);
 		contextMenu.add(actions);
 		setComponentPopupMenu(contextMenu);
-		inheritPopupMenu(this);
+//		inheritPopupMenu(this);
 	}
 
-	private static void inheritPopupMenu(JComponent component) {
-		component.setInheritsPopupMenu(true);
-		for (Component c : component.getComponents()) {
-			if (c instanceof JComponent) {
-				JComponent j = (JComponent) c;
-				inheritPopupMenu(j);
-			}
-		}
-	}
+//	private static void inheritPopupMenu(JComponent component) {
+//		component.setInheritsPopupMenu(true);
+//		for (Component c : component.getComponents()) {
+//			if (c instanceof JComponent) {
+//				JComponent j = (JComponent) c;
+//				inheritPopupMenu(j);
+//			}
+//		}
+//	}
 	
 }

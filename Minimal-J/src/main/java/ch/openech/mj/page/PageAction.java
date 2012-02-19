@@ -6,42 +6,39 @@ import javax.swing.AbstractAction;
 
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.ClientToolkit;
 
 
 public class PageAction extends AbstractAction {
-	public static final String PAGE = "Page";
 	
-	private final PageContext context;
 	private final Class<? extends Page> pageClass;
-	private final String parameter;
+	private final String[] parameter;
 	
-	public PageAction(PageContext context, Class<? extends Page> pageClass) {
-		this(context, pageClass, null);
-	}
-	
-	public PageAction(PageContext context, Class<? extends Page> pageClass, String parameter) {
-		this(context, pageClass, parameter, getBaseName(pageClass));
+	public PageAction(Class<? extends Page> pageClass) {
+		this(pageClass, new String[0]);
 	}
 
-	private static String getBaseName(Class<? extends Page> pageClass) {
-		String baseName = pageClass.getSimpleName();
-		if (baseName.endsWith(PAGE)) baseName = baseName.substring(0, baseName.length() - PAGE.length());
-		return baseName;
+	public PageAction(Class<? extends Page> pageClass, String... parameter) {
+		this(pageClass, getBaseName(pageClass), parameter);
 	}
 	
-	public PageAction(PageContext context, Class<? extends Page> pageClass, String parameter, String baseName) {
-		ResourceHelper.initProperties(this, Resources.getResourceBundle(), baseName);
-		this.context = context;
+	protected PageAction(Class<? extends Page> pageClass, String baseName, String... parameter) {
 		this.pageClass = pageClass;
 		this.parameter = parameter;
+		ResourceHelper.initProperties(this, Resources.getResourceBundle(), baseName);
+	}
+	
+	private static String getBaseName(Class<? extends Page> pageClass) {
+		return pageClass.getSimpleName();
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		showPageOn(context.addTab());
+		PageContext pageContext = ClientToolkit.getToolkit().findPageContext(e.getSource());
+		showPageOn(pageContext);
 	}
 
-	protected void showPageOn(PageContext context) {
+	private void showPageOn(PageContext context) {
 		context.show(Page.link(pageClass, parameter));
 	}
 	
