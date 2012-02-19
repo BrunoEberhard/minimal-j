@@ -19,7 +19,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
 	private final int columns, defaultSpan;
 	private int gridx, gridy;
-	private boolean canVerticalGrow = false;
+	private int verticalGrows = 0;
 	
 	public SwingGridFormLayout(int columns, int defaultSpan) {
 		super(new GridBagLayout());
@@ -31,11 +31,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		if (canVerticalGrow) {
-			return new Dimension(200 * columns, 100000);
-		} else {
-			return new Dimension(200 * columns, super.getPreferredSize().height);
-		}
+		return new Dimension(200 * columns, super.getPreferredSize().height + 100 * verticalGrows);
 	}
 
 	@Override
@@ -45,7 +41,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	
 	@Override
 	public Dimension getMinimumSize() {
-		return new Dimension(200 * columns, super.getMinimumSize().height);
+		return new Dimension(200 * columns, super.getMinimumSize().height + 40 * verticalGrows);
 	}
 
 	@Override
@@ -70,8 +66,10 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	public void addArea(String caption, IComponent field, int span) {
 		GridBagConstraints constraints = createLayoutConstraints(span);
 		constraints.weighty = 1.0;
+		if (constraints.gridx == 0) {
+			verticalGrows += 1;
+		}
 		Component component = caption(caption, field);
-		canVerticalGrow = true;
 		add(component, constraints);
 	}
 
