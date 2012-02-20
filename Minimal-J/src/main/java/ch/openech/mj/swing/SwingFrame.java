@@ -316,7 +316,7 @@ public class SwingFrame extends JFrame {
 		for (Action action : actionGroup.getActions()) {
 			if (action instanceof ActionGroup) {
 				ActionGroup subGroup = (ActionGroup) action;
-				JMenu subMenu = new JMenu((String) actionGroup.getValue(Action.NAME));
+				JMenu subMenu = new JMenu((String) subGroup.getValue(Action.NAME));
 				fillMenu(subMenu, subGroup);
 				menu.add(subMenu);
 			} else {
