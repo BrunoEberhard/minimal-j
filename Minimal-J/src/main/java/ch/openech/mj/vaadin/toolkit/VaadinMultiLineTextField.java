@@ -17,9 +17,7 @@ public class VaadinMultiLineTextField extends Panel implements MultiLineTextFiel
 		customLayout = new CustomLayout("");
 		customLayout.addStyleName("v-html-readonly");
 		customLayout.setReadOnly(true);
-		customLayout.setHeight(100, Sizeable.UNITS_PERCENTAGE);
 		customLayout.setImmediate(true);
-		setHeight(100, Sizeable.UNITS_PERCENTAGE);
 		
 		setContent(customLayout);
 		setScrollable(true);

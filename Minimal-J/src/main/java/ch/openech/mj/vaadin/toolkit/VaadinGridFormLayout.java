@@ -45,9 +45,6 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 
 	@Override
 	public void addArea(String caption, IComponent field, int span) {
-		Component component = VaadinClientToolkit.getComponent(field);
-		component.setHeight(100, Sizeable.UNITS_PIXELS);
-		
 		add(caption, field, span);
 	}
 
