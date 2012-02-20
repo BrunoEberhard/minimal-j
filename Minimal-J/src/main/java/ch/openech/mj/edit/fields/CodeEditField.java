@@ -156,7 +156,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 
 		int index = code.indexOf(value);
 		if (index >= 0) {
-			comboBox.setSelectedObject(value);
+			comboBox.setSelectedObject(code.getText(index));
 			switchLayout.show(comboBox);
 			return;
 		} else {
