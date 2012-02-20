@@ -156,15 +156,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 
 	@Override
 	public void setObject(T object) {
-// Einige Felder machen das in ihrem setObject, anderem machen gar kein super.setObject
-// Was ist schöner? Hier sich auf Generics verlassen, oder die ganzen new-Commands?
-//		if (object == null) {
-//			try {
-//				object = (T) GenericUtils.getGenericClass(this.getClass()).newInstance();
-//			} catch (Exception e) {
-//				throw new RuntimeException(e);
-//			}
-//		}
 		this.object = object;
 		fireChange();
 	}
@@ -172,7 +163,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	@Override
 	protected void fireChange() {
 		setAdjusting(true);
-		display(object);
+		display(getObject());
 		setAdjusting(false);
 		super.fireChange();
 	}
