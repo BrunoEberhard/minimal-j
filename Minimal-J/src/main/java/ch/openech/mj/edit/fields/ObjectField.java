@@ -163,7 +163,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	@Override
 	protected void fireChange() {
 		setAdjusting(true);
-		display(getObject());
+		display(object);
 		setAdjusting(false);
 		super.fireChange();
 	}
