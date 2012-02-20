@@ -22,6 +22,7 @@ import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.swing.SwingFrame;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
+import ch.openech.mj.swing.component.SwingContextMenu;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
@@ -196,19 +197,29 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public VisualDialog openDialog(Object parent, IComponent content, String title) {
-		Component parentComponent = (Component) parent;
+		Window window = findWindow((Component) parent);
 		Component contentComponent = getComponent(content);
 		
-		EditablePanel editablePanel = EditablePanel.getEditablePanel(parentComponent);
+		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
 		
 		if (editablePanel != null) {
 			SwingInternalFrame internalFrame = new SwingInternalFrame(editablePanel, contentComponent, title);
 			editablePanel.openModalDialog(internalFrame);
 			return internalFrame;
 		} else {
-			Window window = SwingUtilities.getWindowAncestor(parentComponent);
 			return new SwingEditorDialog(window, contentComponent, title);
 		}		
+	}
+
+	private Window findWindow(Component parentComponent) {
+		while (parentComponent !=null && !(parentComponent instanceof Window)) {
+			if (parentComponent instanceof JPopupMenu) {
+				parentComponent = ((JPopupMenu) parentComponent).getInvoker();
+			} else {
+				parentComponent = parentComponent.getParent();
+			}
+		}
+		return (Window) parentComponent;
 	}
 
 	@Override
