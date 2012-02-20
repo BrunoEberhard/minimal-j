@@ -53,7 +53,7 @@ public class VaadinWindow extends Window implements PageContext {
 		setContent(windowContent);
 		setSizeFull();
 		windowContent.setSizeFull();
-		setCaption(Resources.getString(windowConfig.getTitle()));
+		setCaption(windowConfig.getTitle());
 		
 		HorizontalLayout nav = new HorizontalLayout();
 		windowContent.addComponent(nav);

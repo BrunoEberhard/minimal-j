@@ -68,7 +68,7 @@ public class SwingFrame extends JFrame {
 		super();
 		this.windowConfig = windowConfig;
 
-		setTitle(Resources.getString("Application.title"));
+		setTitle(windowConfig.getTitle());
 		setDefaultSize();
 		setLocationRelativeTo(null);
 		addWindowListener();
