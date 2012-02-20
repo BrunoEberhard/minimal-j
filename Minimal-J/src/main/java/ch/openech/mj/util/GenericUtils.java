@@ -7,11 +7,19 @@ import java.lang.reflect.Type;
 public class GenericUtils {
 
 	public static Class<?> getGenericClass(Class<?> c) {
-		Type genericSuperclass = c.getGenericSuperclass();
-		if (!(genericSuperclass instanceof ParameterizedType)) {
-			throw new IllegalArgumentException(c + " must be parameterized!");
+		ParameterizedType type = null;
+		while (c != Object.class) {
+			Type genericSuperclass = c.getGenericSuperclass();
+			if (!(genericSuperclass instanceof ParameterizedType)) {
+				c = c.getSuperclass();
+			} else {
+				type = (ParameterizedType) genericSuperclass;
+				break;
+			}
 		}
-		ParameterizedType type = (ParameterizedType) genericSuperclass;
+		if (type == null) {
+			throw new IllegalArgumentException(c.toString() + " must be parameterized!");
+		}
 		return (Class<?>) type.getActualTypeArguments()[0];
 	}
 	
