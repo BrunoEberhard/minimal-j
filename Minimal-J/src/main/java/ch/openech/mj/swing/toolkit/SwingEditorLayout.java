@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentInputMapUIResource;
@@ -27,7 +28,9 @@ public class SwingEditorLayout extends JPanel implements IComponent {
 		addInformation(information);
 		JPanel centerPanel = new JPanel(new SwingFormAlignLayoutManager());
 		centerPanel.add(SwingClientToolkit.getComponent(content));
-		add(centerPanel, BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane(centerPanel);
+		scrollPane.setBorder(null);
+		add(scrollPane, BorderLayout.CENTER);
 		add(createButtonBar(actions), BorderLayout.SOUTH);
 	}
 

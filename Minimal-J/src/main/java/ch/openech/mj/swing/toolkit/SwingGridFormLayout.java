@@ -2,9 +2,6 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -12,38 +9,25 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.plaf.PanelUI;
 
+import net.miginfocom.swing.MigLayout;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
-	private final int columns, defaultSpan;
-	private int gridx, gridy;
-	private int verticalGrows = 0;
+	private final int defaultSpan;
 	
 	public SwingGridFormLayout(int columns, int defaultSpan) {
-		super(new GridBagLayout());
-		this.columns = columns;
-		this.defaultSpan = defaultSpan;
+		String columnConstraints = "";
+		for (int i = 0; i<columns; i++) {
+			columnConstraints += "[200lp!]";
+		}
+		setLayout(new MigLayout("wrap " + columns, columnConstraints));
 		
+		this.defaultSpan = defaultSpan;
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 	}
 	
-	@Override
-	public Dimension getPreferredSize() {
-		return new Dimension(200 * columns, super.getPreferredSize().height + 100 * verticalGrows);
-	}
-
-	@Override
-	public Dimension getMaximumSize() {
-		return getPreferredSize();
-	}
-	
-	@Override
-	public Dimension getMinimumSize() {
-		return new Dimension(200 * columns, super.getMinimumSize().height + 40 * verticalGrows);
-	}
-
 	@Override
 	public void setUI(PanelUI ui) {
 		// Hauptsächlich für Windows nötig
@@ -58,19 +42,13 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
 	@Override
 	public void add(String caption, IComponent field, int span) {
-		GridBagConstraints constraints = createLayoutConstraints(span);
-		add(caption(caption, field), constraints);
+		add(caption(caption, field), "spanx " + span + ", grow");
 	}
 
 	@Override
 	public void addArea(String caption, IComponent field, int span) {
-		GridBagConstraints constraints = createLayoutConstraints(span);
-		constraints.weighty = 1.0;
-		if (constraints.gridx == 0) {
-			verticalGrows += 1;
-		}
 		Component component = caption(caption, field);
-		add(component, constraints);
+		add(component, "spanx " + span + ", height 70lp:150lp:150lp, growprioy 100, grow");
 	}
 
 	private Component caption(String caption, IComponent field) {
@@ -92,20 +70,4 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 		return label;
 	}
 
-	private GridBagConstraints createLayoutConstraints(int span) {
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridx = gridx;
-		constraints.gridwidth = span;
-		constraints.gridy = gridy;
-		constraints.anchor = GridBagConstraints.CENTER;
-		constraints.fill = GridBagConstraints.BOTH;
-		constraints.weightx = 1.0;
-		
-		gridx += span;
-		if (gridx >= columns) {
-			gridx = 0;
-			gridy += 1;
-		}
-		return constraints;
-	}
 }

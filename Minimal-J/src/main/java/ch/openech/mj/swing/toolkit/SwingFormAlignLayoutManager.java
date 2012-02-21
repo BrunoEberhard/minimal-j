@@ -74,7 +74,7 @@ public class SwingFormAlignLayoutManager implements LayoutManager {
 				height = parentHeight;
 			} else {
 				int delta = parentHeight - preferredHeight;
-				int additionalBorderTop = Math.min(delta / 2, parentHeight / 12);
+				int additionalBorderTop = Math.min(delta / 4, parentHeight / 12);
 				y = insets.top + additionalBorderTop;
 				height = preferredHeight;
 			}
