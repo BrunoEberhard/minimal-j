@@ -20,7 +20,7 @@ public abstract class DependenceDecorator<T> extends AbstractEditField<T> implem
 	}
 	
 	@Override
-	public IComponent getComponent() {
+	public IComponent getComponent0() {
 		return field;
 	}
 
@@ -33,10 +33,12 @@ public abstract class DependenceDecorator<T> extends AbstractEditField<T> implem
 	public abstract void setDependedField(EditField<T> field);
 	
 	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+	protected Indicator[] getIndicatingComponents() {
 		if (field instanceof Indicator) {
 			Indicator indicator = (Indicator) field;
-			indicator.setValidationMessages(validationMessages);
+			return new Indicator[]{indicator};
+		} else {
+			return new Indicator[0];
 		}
 	}
 

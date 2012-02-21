@@ -1,78 +1,34 @@
 package ch.openech.mj.edit.fields;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.edit.Editor;
-import ch.openech.mj.edit.EditorDialogAction;
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.ContextLayout;
-import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.SwitchLayout;
 
+/**
+ * The state of an ObjectField is saved in the object variable.<p>
+ * 
+ * You have to implement for an ObjectField:
+ * <ul>
+ * <li>display: The widgets have to be updated according to the object</li>
+ * <li>fireChange: The object has to be updated according the widgets</li>
+ * </ul>
+ *
+ * @param <T>
+ */
 public abstract class ObjectField<T> extends AbstractEditField<T> implements Indicator {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
 	private T object;
 	
-	private final List<Action> actions = new ArrayList<Action>();
-	private ContextLayout contextLayout;
-	
 	public ObjectField(Object key) {
 		super(key);
-	}
-	
-	protected void addAction(Action action) {
-		actions.add(action);
-	}
-	
-	protected void addAction(Editor<?> editor) {
-		actions.add(new EditorDialogAction(editor));
-	}
-	
-	@Override
-	public final Object getComponent() {
-		IComponent component = getComponent0();
-		if (!actions.isEmpty()) {
-			if (contextLayout == null) {
-				contextLayout = ClientToolkit.getToolkit().createContextLayout(component);
-				contextLayout.setActions(actions);
-			}
-			return contextLayout;
-		} else {
-			return component;
-		}
-	}
-	
-	protected abstract IComponent getComponent0();
-	
-	protected Indicator[] getIndicatingComponents() {
-		IComponent component = getComponent0();
-		while (component instanceof SwitchLayout) {
-			SwitchLayout switchLayout = (SwitchLayout) component;
-			component = switchLayout.getShownComponent();
-		}
-		if (component instanceof Indicator) {
-			return new Indicator[]{(Indicator) component};
-		} else {
-			// TODO warn
-			return new Indicator[0];
-		}
-	}
-	
-	@Override
-	public final void setValidationMessages(List<ValidationMessage> validationMessages) {
-		for (Indicator indicator : getIndicatingComponents()) {
-			indicator.setValidationMessages(validationMessages);
-		}
 	}
 	
 	public class ObjectFieldEditor extends Editor<T> {
@@ -124,7 +80,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 		@Override
 		public boolean save(P part) {
 			setPart(ObjectField.this.getObject(), part);
-			fireChange();
+			fireObjectChange();
 			return true;
 		}
 
@@ -157,14 +113,11 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	@Override
 	public void setObject(T object) {
 		this.object = object;
-		fireChange();
+		fireObjectChange();
 	}
 	
-	@Override
-	protected void fireChange() {
-		setAdjusting(true);
+	protected void fireObjectChange() {
 		display(object);
-		setAdjusting(false);
 		super.fireChange();
 	}
 
@@ -175,6 +128,5 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	}
 	
 	protected abstract void display(T object);
-
 
 }

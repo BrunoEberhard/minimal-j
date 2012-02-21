@@ -17,7 +17,6 @@ import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -41,7 +40,6 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 	public static final boolean PARTIAL_ALLOWED = true;
 	
 	private final TextField textField;
-	private final ContextLayout contextLayout;
 	
 	private final boolean partialAllowed;
 	private Format format = Format.CH;
@@ -61,19 +59,17 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 		textField = ClientToolkit.getToolkit().createTextField(listener(), new DateFilter());
 		
 		installFocusLostListener();
-		contextLayout = ClientToolkit.getToolkit().createContextLayout(textField);
 		createMenu();
 	}
 
 	@Override
-	public Object getComponent() {
-		return contextLayout != null ? contextLayout : textField;
+	public IComponent getComponent0() {
+		return textField;
 	}
 	
 	public void createMenu() {
 		boolean hasMenu = PreferencesHelper.preferences() == null || PreferencesHelper.preferences().getBoolean("dateFormat", false);
 		if (hasMenu) {
-			List<Action> actions = new ArrayList<Action>();
 	        Action formatCH = new AbstractAction("Format TT.MM.JJJJ / TTMMJJJJ") {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -84,7 +80,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 					}
 				}
 	        };
-	        actions.add(formatCH);
+	        addAction(formatCH);
 	        
 	        Action formatUS = new AbstractAction("Format JJJJ-MM-TT / JJJJMMTT") {
 				@Override
@@ -96,7 +92,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 					}
 				}
 	        };
-	        actions.add(formatUS);
+	        addAction(formatUS);
 	        
 	        Action freeEntry = new AbstractAction("Freie Eingabe") {
 				@Override
@@ -108,9 +104,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 					}
 				}
 	        };
-	        actions.add(freeEntry);
-	        
-	        contextLayout.setActions(actions);
+	        addAction(freeEntry);
 		} else {
 			if (format != Format.CH) {
 				String value = DateField.this.getObject();
@@ -217,11 +211,6 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 		}
 	}
 	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		textField.setValidationMessages(validationMessages);
-	}
-
 	private class DateFilter implements TextFieldFilter {
 		private static final int limit = 10;
 		

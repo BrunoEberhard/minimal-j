@@ -8,20 +8,25 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.edit.fields.AbstractEditField;
+import ch.openech.mj.edit.fields.EditField;
+import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.swing.component.IndicatingTextField;
+import ch.openech.mj.toolkit.IComponentDelegate;
+import ch.openech.mj.util.StringUtils;
 
-public class SwingDirectoryField extends AbstractEditField<String> {
+public class SwingDirectoryField implements EditField<String>, IComponentDelegate, Indicator {
 
+	private final String name;
 	private final IndicatingTextField textField;
 	private final JButton button;
 	private final JPanel panel;
 	
 	public SwingDirectoryField(Object key) {
-		super(Constants.getConstant(key));
+		name = Constants.getConstant(key);
 		
 		panel = new JPanel(new BorderLayout());
 
@@ -62,6 +67,21 @@ public class SwingDirectoryField extends AbstractEditField<String> {
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
 		textField.setValidationMessages(validationMessages);
-	};
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setChangeListener(ChangeListener changeListener) {
+		// TODO
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return StringUtils.isEmpty(textField.getText());
+	}
 
 }

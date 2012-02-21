@@ -1,11 +1,10 @@
 package ch.openech.mj.edit.fields;
 
-import java.util.List;
-
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 
+// TODO Validierung für CheckBoxFelder
 public class CheckBoxField extends AbstractEditField<Boolean> {
 	
 	private final CheckBox checkBox;
@@ -16,7 +15,7 @@ public class CheckBoxField extends AbstractEditField<Boolean> {
 	}
 	
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent0() {
 		return checkBox;
 	}
 	
@@ -30,8 +29,4 @@ public class CheckBoxField extends AbstractEditField<Boolean> {
 		checkBox.setSelected(Boolean.TRUE.equals(value));
 	}
 
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		// TODO Validierung für CheckBoxFelder
-	}
 }

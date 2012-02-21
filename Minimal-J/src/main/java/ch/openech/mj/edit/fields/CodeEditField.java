@@ -1,8 +1,6 @@
 package ch.openech.mj.edit.fields;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -12,11 +10,9 @@ import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.Code;
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
-import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
@@ -27,7 +23,6 @@ import ch.openech.mj.util.StringUtils;
 public class CodeEditField extends AbstractEditField<String> implements PreferenceAware, DemoEnabled, Indicator {
 	private Code code;
 	
-	private final ContextLayout contextLayout;
 	private final SwitchLayout switchLayout;
 	private final ComboBox comboBox;
 	private final TextField textField;
@@ -47,15 +42,14 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
 		switchLayout.show(comboBox);
-		contextLayout = ClientToolkit.getToolkit().createContextLayout(switchLayout);
 		
 		createMenu();
 		setDefault();
 	}
 	
 	@Override
-	public Object getComponent() {
-		return contextLayout;
+	public IComponent getComponent0() {
+		return switchLayout;
 	}
 
 	public void createMenu() {
@@ -63,15 +57,13 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 		boolean codesClear = true || PreferencesHelper.preferences() == null || PreferencesHelper.preferences().getBoolean("codesClear", false);
 		
 		if (codesFree || codesClear) {
-			List<Action> actions = new ArrayList<Action>();
-
 			Action select = new AbstractAction("Auswahl " + code.getDisplayName()) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					modeChoice();
 				}
 	        };
-	        actions.add(select);
+	        addAction(select);
 	
 	        if (codesClear) {
 	        	Action unbekannt = new AbstractAction(code.getDisplayName() + " entfernen") {
@@ -83,7 +75,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	        			textField.requestFocus();
 	        		}
 	        	};
-	        	actions.add(unbekannt);
+	        	addAction(unbekannt);
 	        }
 	        
 	        if (codesFree) {
@@ -93,10 +85,8 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	        			modeFreeEntry();
 	        		}
 	        	};
-	        	actions.add(freeEntry);
+	        	addAction(freeEntry);
 	        }
-	        
-	        contextLayout.setActions(actions);
 		}
 	}
 
@@ -198,12 +188,6 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 				return str.substring(0, limit);
 			}
 		}
-	}
-
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		textField.setValidationMessages(validationMessages);
-		comboBox.setValidationMessages(validationMessages);
 	}
 	
 }
