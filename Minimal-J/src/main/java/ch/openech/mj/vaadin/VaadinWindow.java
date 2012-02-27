@@ -8,6 +8,7 @@ import javax.swing.Action;
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.application.EmptyPage;
 import ch.openech.mj.application.WindowConfig;
+import ch.openech.mj.edit.Editor;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
@@ -207,6 +208,11 @@ public class VaadinWindow extends Window implements PageContext {
 			Component component = VaadinClientToolkit.getComponent(visiblePage.getPanel());
 			updateContent((ComponentContainer) component);
 		}
+	}
+
+	@Override
+	public Object getComponent() {
+		return this;
 	}
 	
 }

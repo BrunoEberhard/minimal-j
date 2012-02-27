@@ -203,9 +203,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
 		
 		if (editablePanel != null) {
-			SwingInternalFrame internalFrame = new SwingInternalFrame(editablePanel, contentComponent, title);
-			editablePanel.openModalDialog(internalFrame);
-			return internalFrame;
+			return new SwingInternalFrame(editablePanel, contentComponent, title);
 		} else {
 			return new SwingEditorDialog(window, contentComponent, title);
 		}		

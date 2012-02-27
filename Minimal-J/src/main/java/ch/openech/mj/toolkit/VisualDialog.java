@@ -8,7 +8,9 @@ public interface VisualDialog {
 	
 	public void setCloseListener(CloseListener closeListener);
 
-	public void setVisible(boolean visible);
+	public void openDialog();
+	
+	public void closeDialog();
 
 	public interface CloseListener {
 		

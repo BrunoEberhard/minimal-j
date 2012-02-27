@@ -216,6 +216,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	private void area(FormField<?> visual, int span) {
 		layout.addArea(caption(visual), visual, span);
 		registerNamedField(visual);
+		resizable = true;
 	}
 	
 	//

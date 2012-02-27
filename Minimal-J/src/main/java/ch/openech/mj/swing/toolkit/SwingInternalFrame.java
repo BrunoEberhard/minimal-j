@@ -2,10 +2,11 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 
 import javax.swing.JInternalFrame;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.toolkit.VisualDialog;
@@ -14,6 +15,7 @@ import ch.openech.mj.toolkit.VisualDialog;
 public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 	// private static final Logger logger = Logger.getLogger(EditorInternalFrameDecorator.class.getName());
 	
+	private final EditablePanel editablePanel;
 	private final Component focusAfterClose;
 	private CloseListener closeListener;
 	
@@ -24,6 +26,7 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 	}
 
 	public SwingInternalFrame(EditablePanel editablePanel, Component content, String title, Component focusAfterClose) {
+		this.editablePanel = editablePanel;
 		this.focusAfterClose = focusAfterClose;
 		
 		setTitle(title);
@@ -34,24 +37,18 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 		add(content, BorderLayout.CENTER);
 		pack();
 		
-		addInternalFrameListener(new EditorDialogInternalFrameListener());
-		editablePanel.openModalDialog(this);
+		addVetoableChangeListener(new EditorDialogInternalFrameListener());
 	}
 	
-	private class EditorDialogInternalFrameListener extends InternalFrameAdapter {
+	private class EditorDialogInternalFrameListener implements VetoableChangeListener {
 
 		@Override
-		public void internalFrameClosed(InternalFrameEvent e) {
-			if (focusAfterClose != null) {
-				focusAfterClose.requestFocus();
-			}
-		}
-		
-		@Override
-		public void internalFrameClosing(InternalFrameEvent e) {
-			if (closeListener == null || closeListener.close()) {
-				SwingInternalFrame.this.setVisible(false);
-				SwingInternalFrame.this.dispose();
+		public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
+			if (IS_CLOSED_PROPERTY.equals(evt.getPropertyName())) {
+				if (closeListener != null && !closeListener.close()) {
+					PropertyChangeEvent event = new PropertyChangeEvent(evt.getSource(), evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+					throw new PropertyVetoException("Closing aborted", event);
+				}
 			}
 		}
 	}
@@ -64,6 +61,26 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 	@Override
 	public void setResizable(boolean resizable) {
 		super.setResizable(resizable);
+	}
+
+	@Override
+	public void closeDialog() {
+		try {
+			setClosed(true);
+			if (focusAfterClose != null) {
+				focusAfterClose.requestFocus();
+			}
+			if (closeListener != null) {
+				closeListener.close();
+			}
+		} catch (PropertyVetoException e) {
+			// nothing to do, simply dont close
+		}
+	}
+
+	@Override
+	public void openDialog() {
+		editablePanel.openModalDialog(this);
 	}
 	
 }

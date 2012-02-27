@@ -53,8 +53,7 @@ public class SwingEditorDialog extends JDialog implements VisualDialog {
 		@Override
 		public void windowClosing(WindowEvent e) {
 			if (closeListener == null || closeListener.close()) {
-				SwingEditorDialog.this.setVisible(false);
-				SwingEditorDialog.this.dispose();
+				closeDialog();
 			}
 		}
 	}
@@ -62,6 +61,17 @@ public class SwingEditorDialog extends JDialog implements VisualDialog {
 	@Override
 	public void setCloseListener(CloseListener closeListener) {
 		this.closeListener = closeListener;
+	}
+
+	@Override
+	public void closeDialog() {
+		setVisible(false);
+		dispose();
+	}
+
+	@Override
+	public void openDialog() {
+		setVisible(true);
 	}
 
 }

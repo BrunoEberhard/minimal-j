@@ -20,6 +20,8 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 		setSpacing(true);
 		setMargin(true);
 		addStyleName("gridForm");
+		
+		setWidth(300 * columns + "px");
 	}
 
 	@Override

@@ -17,6 +17,10 @@ public class EditorPage extends Page implements EditorFinishedListener {
 		this(context, createEditor(editorClassAndArguments));
 	}
 	
+	public EditorPage(PageContext context, Class<?> editorClass, String[] arguments) {
+		this(context, createEditor(editorClass, arguments));
+	}
+	
 	public EditorPage(PageContext context, String editorClass) {
 		this(context, createEditor(editorClass));
 	}
@@ -34,6 +38,22 @@ public class EditorPage extends Page implements EditorFinishedListener {
 				return (Editor<?>) clazz.getConstructor(argumentClasses).newInstance(arguments);
 			} else {
 				return (Editor<?>) clazz.newInstance();
+			}
+		} catch (Exception x) {
+			throw new RuntimeException("EditorPage Erstellung fehlgeschlagen", x);
+		}
+	}
+	
+	static Editor<?> createEditor(Class<?> editorClass, String... arguments) {
+		try {
+			if (arguments.length > 0) {
+				Class<?>[] argumentClasses = new Class[arguments.length];
+				for (int i = 0; i<argumentClasses.length; i++) {
+					argumentClasses[i] = String.class;
+				}
+				return (Editor<?>) editorClass.getConstructor(argumentClasses).newInstance(arguments);
+			} else {
+				return (Editor<?>) editorClass.newInstance();
 			}
 		} catch (Exception x) {
 			throw new RuntimeException("EditorPage Erstellung fehlgeschlagen", x);

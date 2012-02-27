@@ -42,8 +42,7 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	@Override
 	public boolean isResizable() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

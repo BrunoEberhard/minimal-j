@@ -1,6 +1,7 @@
 package ch.openech.mj.edit;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -12,40 +13,34 @@ import ch.openech.mj.resources.Resources;
 
 public abstract class Wizard<T> extends Editor<T> {
 
+	private WizardPage<?> currentPage;
+	
 	protected final Action prevAction;
 	protected final Action nextAction;
 //	protected final Action finishAction;
-	private Editor<?> actualEditor;
 	private SwitchFormVisual<?> switchFormVisual;
 	
-	/**
-	 * 
-	 * @return the next editor (page)
-	 */
-	protected abstract Editor<?> getNextEditor();
-	
-	protected abstract Editor<?> getPrevEditor();
-
-	@Override
-	protected Action[] getActions() {
-		return new Action[]{cancelAction, prevAction, nextAction, saveAction};
-	}
-
 	protected Wizard() {
 		nextAction = createNextAction();
 		prevAction = createPrevAction();
 	}
+
+	protected abstract WizardPage<?> getFirstPage();
 	
+	@Override
+	public Action[] getActions() {
+		return new Action[]{cancelAction, prevAction, nextAction, saveAction};
+	}
 
 	protected Action createNextAction() {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				actualEditor.save();
-				setActualEditor(getNextEditor());
+				currentPage.save();
+				setCurrentPage(currentPage.getNextPage());
 			}
 		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "NextWizardPageAction");
+		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "NextWizardPage<?>Action");
 		return action;
 	}
 
@@ -53,23 +48,23 @@ public abstract class Wizard<T> extends Editor<T> {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setActualEditor(getPrevEditor());
+				setCurrentPage(currentPage.getPreviousPage());
 			}
 		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "PreviousWizardPageAction");
+		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "PreviousWizardPage<?>Action");
 		return action;
 	}
 
 	@Override
 	protected final FormVisual createForm() {
 		switchFormVisual = new SwitchFormVisual<Object>();
-		setActualEditor(getNextEditor());
+		setCurrentPage(getFirstPage());
 		return switchFormVisual;
 	}
 	
-	protected void setActualEditor(Editor<?> editor) {
-		this.actualEditor = editor;
-		switchFormVisual.setFormVisual(actualEditor.startEditor());
+	private void setCurrentPage(WizardPage<?> page) {
+		this.currentPage = page;
+		switchFormVisual.setFormVisual(currentPage.startEditor());
 	}
 
 	@Override
@@ -77,7 +72,7 @@ public abstract class Wizard<T> extends Editor<T> {
 
 	@Override
 	protected void validate(T object, List resultList) {
-		// TODO Auto-generated method stub
+		// not used
 	}
 
 	@Override

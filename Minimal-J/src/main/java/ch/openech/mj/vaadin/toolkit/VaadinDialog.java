@@ -17,7 +17,7 @@ public class VaadinDialog extends Window implements VisualDialog {
 		setModal(true);
 		addListener(new VaadinDialogListener());
 		parentWindow.addWindow(this);
-		setVisible(true);
+		setScrollable(false);
 	}
 
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {
@@ -38,6 +38,16 @@ public class VaadinDialog extends Window implements VisualDialog {
 	@Override
 	public void setTitle(String title) {
 		super.setCaption(title);
+	}
+
+	@Override
+	public void openDialog() {
+		setVisible(true);
+	}
+
+	@Override
+	public void closeDialog() {
+		setVisible(false);
 	}
 
 }

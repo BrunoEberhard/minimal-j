@@ -1,8 +1,5 @@
 package ch.openech.mj.page;
 
-
-
-
 /**
  * These are the possibilities of a page or an action opening a page
  * 
@@ -28,5 +25,11 @@ public interface PageContext {
 	 * @return the new PageContext
 	 */
 	PageContext addTab();
+
+	/**
+	 * 
+	 * @return The component used as parent for Dialogs
+	 */
+	Object getComponent();
 
 }

@@ -15,7 +15,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeButton;
@@ -28,11 +28,9 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		addInformation(information);
 		
 		VaadinClientToolkit.getComponent(content).setWidth("100%");
-		GridLayout formAlign = (GridLayout) VaadinClientToolkit.getComponent(VaadinClientToolkit.getToolkit().createFormAlignLayout(content));
-		formAlign.setWidth("100%");
 		
 		Panel panel = new Panel();
-		panel.setContent(formAlign);
+		panel.setContent((ComponentContainer) VaadinClientToolkit.getComponent(content));
 		panel.setScrollable(true);
 		
 		panel.setSizeFull();
@@ -40,6 +38,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		setExpandRatio(panel, 1.0F);
 		
 		addComponent(createButtonBar(actions));
+		setWidth("800px");
 	}
 
 	protected void addInformation(String information) {

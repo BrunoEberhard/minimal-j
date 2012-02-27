@@ -52,12 +52,12 @@ public abstract class Editor<T> {
 
 	protected abstract boolean save(T object);
 
-	protected String getTitle() {
+	public String getTitle() {
 		String resourceName = getClass().getSimpleName() + ".text";
 		return Resources.getString(resourceName);
 	}
 	
-	protected Action[] getActions() {
+	public Action[] getActions() {
 		return new Action[]{cancelAction, saveAction};
 	}
 
@@ -66,7 +66,7 @@ public abstract class Editor<T> {
 	 * 
 	 * @return null (nothing) if not overwritten
 	 */
-	protected String getInformation() {
+	public String getInformation() {
 		return null;
 	}
 	
@@ -110,8 +110,14 @@ public abstract class Editor<T> {
 		return form.getObject();
 	}
 	
-	protected boolean save() {
-		return save(getObject());
+	protected void save() {
+		if (true || saveable) {
+			if (save(getObject())) {
+				finish();
+			}
+		} else {
+			ClientToolkit.getToolkit().showNotification(form, "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
+		}
 	}
 
 	private class EditorChangeListener implements ChangeListener {
@@ -150,6 +156,10 @@ public abstract class Editor<T> {
 		}
 	}
 	
+	protected boolean isSaveable() {
+		return saveable;
+	}
+	
 	public void checkedClose() {
 		List<ValidationMessage> validationResult = validate(getObject());
 		boolean valid = validationResult.isEmpty();
@@ -182,13 +192,7 @@ public abstract class Editor<T> {
 		return new SaveAction("OkAction") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (saveable) {
-					if (save(getObject())) {
-						finish();
-					}
-				} else {
-					ClientToolkit.getToolkit().showNotification(form, "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
-				}
+				save();
 			}
 		};
 	}

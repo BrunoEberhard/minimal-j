@@ -36,7 +36,7 @@ public class AddBookEditor extends Editor<Book> {
 	}
 
 	@Override
-	protected String getTitle() {
+	public String getTitle() {
 		return "Buch hinzufügen";
 	}
 

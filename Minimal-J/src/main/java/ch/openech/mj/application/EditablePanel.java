@@ -2,9 +2,9 @@ package ch.openech.mj.application;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dialog.ModalityType;
 import java.awt.Graphics;
 import java.awt.Window;
-import java.awt.Dialog.ModalityType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +12,7 @@ import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
+import javax.swing.JPopupMenu;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
@@ -21,7 +22,6 @@ import javax.swing.event.InternalFrameListener;
 // Must be a JDesktopPane (not only a JPanel) in order to
 // work as a parent of a JInternalFrame or JOptionPane.showInternal
 public class EditablePanel extends JDesktopPane {
-	private static final boolean NORMAL_FRAMES = false;
 	private JComponent content;
 	private List<JInternalFrame> openFrames = new ArrayList<JInternalFrame>();
 
@@ -87,38 +87,19 @@ public class EditablePanel extends JDesktopPane {
 	}
 
 	public void openModalDialog(JInternalFrame internalFrame, boolean resizeToMax) {
-		if (!NORMAL_FRAMES) {
-			openFrames.add(internalFrame);
-			
-			removeAll();
-			add(internalFrame);
+		openFrames.add(internalFrame);
+		
+		removeAll();
+		add(internalFrame);
 
-			internalFrame.addInternalFrameListener(listener);
+		internalFrame.addInternalFrameListener(listener);
 
-			internalFrame.pack();
-			arrangeFrames(resizeToMax);
-			internalFrame.setVisible(true);
-			
-			repaintLater();
-		} else {
-			JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this));
-			dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
-//			JDesktopPane pane = new JDesktopPane();
-//			pane.add(internalFrame);
-//			internalFrame.setUI(new BasicInternalFrameUI(internalFrame));
-//			internalFrame.pack();
-			dialog.setContentPane(internalFrame.getContentPane());
-			dialog.pack();
-			dialog.setTitle(internalFrame.getTitle());
-			dialog.setResizable(internalFrame.isResizable());
-			dialog.setLocationRelativeTo(this);
-			dialog.setVisible(true);
-		}
+		internalFrame.pack();
+		arrangeFrames(resizeToMax);
+		internalFrame.setVisible(true);
+		
+		repaintLater();
 	}
-	
-//	private static class VoidFrameUI extends BasicInternalFrameUI {
-//		
-//	}
 	
 	private void closeModalDialog(JInternalFrame internalFrame) {
 		if (openFrames.get(openFrames.size()-1) != internalFrame) {
@@ -183,33 +164,14 @@ public class EditablePanel extends JDesktopPane {
 
 	// helper
 	
-	public static EditablePanel getEditablePanel(final Component component) {
-		EditablePanel editablePanel = findEditablePanelByParent(component);
-		if (editablePanel == null) {
-			editablePanel = findEditablePanelInChildren(component);
-		}
-		return editablePanel;
-	}
-
-	private static EditablePanel findEditablePanelByParent(final Component component) {
-		if (component == null) {
-			return null;
-		} else if (component instanceof EditablePanel) {
-			return (EditablePanel) component;
-		} else {
-			return findEditablePanelByParent(component.getParent());
-		}
-	}
-
-	private static EditablePanel findEditablePanelInChildren(final Component component) {
-		if (component instanceof EditablePanel) {
-			return (EditablePanel) component;
-		} else if (component instanceof Container) {
-			Container container = (Container) component;
-			for (Component c : container.getComponents()) {
-				EditablePanel editablePanel = findEditablePanelInChildren(c);
-				if (editablePanel != null)
-					return editablePanel;
+	public static EditablePanel getEditablePanel(Component component) {
+		while (component != null) {
+			if (component instanceof EditablePanel) {
+				return (EditablePanel) component;
+			} else if (component instanceof JPopupMenu) {
+				component = ((JPopupMenu) component).getInvoker();
+			} else {
+				component = component.getParent();
 			}
 		}
 		return null;

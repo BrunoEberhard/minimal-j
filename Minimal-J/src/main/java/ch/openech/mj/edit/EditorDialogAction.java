@@ -6,6 +6,7 @@ import javax.swing.AbstractAction;
 
 import ch.openech.mj.edit.Editor.EditorFinishedListener;
 import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -25,27 +26,28 @@ public class EditorDialogAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			doActionPerformed(e);
+			PageContext pageContext = ClientToolkit.getToolkit().findPageContext(e.getSource());
+			showPageOn(pageContext);
 		} catch (Exception x) {
 			// TODO show dialog
 			x.printStackTrace();
 		}
 	}
 	
-	private void doActionPerformed(ActionEvent e) throws Exception {
+	private void showPageOn(PageContext context) {
 		FormVisual<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
 		
-		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(e.getSource(), layout, editor.getTitle());
+		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context.getComponent(), layout, editor.getTitle());
 		dialog.setResizable(form.isResizable());
 		
 		editor.setEditorFinishedListener(new EditorFinishedListener() {
 			@Override
 			public void finished() {
-				dialog.setVisible(false);
+				dialog.closeDialog();
 			}
 		});
-		dialog.setVisible(true);
+		dialog.openDialog();
 	}
 	
 }
