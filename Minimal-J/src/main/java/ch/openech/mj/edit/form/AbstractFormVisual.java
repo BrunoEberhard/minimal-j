@@ -366,17 +366,6 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 		return object;
 	}
 
-	// private class FillWithDemoDataAction extends AbstractAction {
-	// @Override
-	// public void actionPerformed(ActionEvent arg0) {
-	// boolean generateData =
-	// AbstractApplication.preferences().getBoolean("generateData", false);
-	// if (generateData) {
-	// fillWithDemoData();
-	// }
-	// }
-	// }
-
 	@Override
 	public boolean isResizable() {
 		return resizable;
@@ -411,7 +400,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void forwardToDependingFields(EditField<?> changedField) {
 		boolean possibleDepending = false;
-		for (IComponent field : fields) {
+		for (FormField<?> field : fields) {
 			if (field == changedField) {
 				possibleDepending = true;
 				continue;
@@ -424,7 +413,11 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 			if (field instanceof DependingOnFieldAbove) {
 				DependingOnFieldAbove dependingOnFieldAbove = (DependingOnFieldAbove) field;
 				if (StringUtils.equals(changedField.getName(), dependingOnFieldAbove.getNameOfDependedField())) {
-					dependingOnFieldAbove.setDependedField(changedField);
+					try {
+						dependingOnFieldAbove.setDependedField(changedField);
+					} catch (Exception x) {
+						logger.severe("Could not forward value from " + changedField.getName() + " to " + field.getName() + " (" + x.getLocalizedMessage() + ")");
+					}
 				}
 			}
 		}

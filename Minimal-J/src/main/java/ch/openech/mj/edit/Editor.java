@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
@@ -40,6 +41,7 @@ public abstract class Editor<T> {
 	protected final Action cancelAction;
 	private FormVisual<T> form;
 	private EditorFinishedListener editorFinishedListener;
+	private Indicator indicator;
 	private boolean saveable = true;
 	
 	// what to implement
@@ -95,7 +97,11 @@ public abstract class Editor<T> {
 		this.editorFinishedListener = editorFinishedListener;
 	}
 	
-	private void finish() {
+	public void setIndicator(Indicator indicator) {
+		this.indicator = indicator;
+	}
+
+	public void finish() {
 		form = null;
 		fireEditorFinished();
 	}
@@ -111,7 +117,7 @@ public abstract class Editor<T> {
 	}
 	
 	protected void save() {
-		if (true || saveable) {
+		if (saveable) {
 			if (save(getObject())) {
 				finish();
 			}
@@ -153,6 +159,9 @@ public abstract class Editor<T> {
 		form.setValidationMessages(validationResult);
 		if (saveAction instanceof Indicator) {
 			((Indicator) saveAction).setValidationMessages(validationResult);
+		}
+		if (indicator != null) {
+			indicator.setValidationMessages(validationResult);
 		}
 	}
 	
@@ -216,5 +225,10 @@ public abstract class Editor<T> {
 		
 	}
 	
+	public void fillWithDemoData() {
+		if (form instanceof DemoEnabled) {
+			((DemoEnabled) form).fillWithDemoData();
+		}
+	}
 	
 }
