@@ -20,12 +20,12 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	public SwingGridFormLayout(int columns, int defaultSpan) {
 		String columnConstraints = "";
 		for (int i = 0; i<columns; i++) {
-			columnConstraints += "[200lp!]";
+			columnConstraints += "[100lp:100lp:300lp, grow 1]";
 		}
-		setLayout(new MigLayout("wrap " + columns, columnConstraints));
+		setLayout(new MigLayout("ins 5, wrap " + columns, columnConstraints));
 		
 		this.defaultSpan = defaultSpan;
-		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		setBorder(null);
 	}
 	
 	@Override
@@ -48,7 +48,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	@Override
 	public void addArea(String caption, IComponent field, int span) {
 		Component component = caption(caption, field);
-		add(component, "spanx " + span + ", height 70lp:150lp:150lp, growprioy 100, grow");
+		add(component, "spanx " + span + ", height 100lp:100lp:500lp, push, grow");
 	}
 
 	private Component caption(String caption, IComponent field) {
