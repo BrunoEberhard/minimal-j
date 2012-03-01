@@ -75,6 +75,12 @@ public abstract class Wizard<T> extends Editor<T> {
 		return switchFormVisual;
 	}
 	
+	@Override
+	public void finish() {
+		currentPage.finish();
+		super.finish();
+	}
+
 	private void setCurrentPage(WizardPage<?> page) {
 		currentPage = page;
 		currentPage.setIndicator(indicator);
