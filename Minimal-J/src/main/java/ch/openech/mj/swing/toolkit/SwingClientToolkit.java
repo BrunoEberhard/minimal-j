@@ -1,5 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
@@ -8,13 +9,13 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.application.EditablePanel;
@@ -22,7 +23,6 @@ import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.swing.SwingFrame;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
-import ch.openech.mj.swing.component.SwingContextMenu;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
@@ -199,6 +199,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	public VisualDialog openDialog(Object parent, IComponent content, String title) {
 		Window window = findWindow((Component) parent);
 		Component contentComponent = getComponent(content);
+		// TODO check for OS or move this to UI
+		((JComponent) contentComponent).setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
 		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
 		
