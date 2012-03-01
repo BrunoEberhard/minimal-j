@@ -2,15 +2,15 @@ package ch.openech.mj.application;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.RepaintManager;
@@ -31,6 +31,7 @@ public class EditablePanel extends JDesktopPane {
 		
 		// The panel must not behave special
 		setFocusCycleRoot(false);
+		setDesktopManager(new BoundedDesktopManager());
 	}
 
 	public void setContent(JComponent content) {
@@ -175,6 +176,49 @@ public class EditablePanel extends JDesktopPane {
 			}
 		}
 		return null;
+	}
+
+	// see http://stackoverflow.com/questions/8136944/preventing-jinternalframe-from-being-moved-out-of-a-jdesktoppane
+	public class BoundedDesktopManager extends DefaultDesktopManager {
+
+		@Override
+		public void beginDraggingFrame(JComponent f) {
+			// Don't do anything. Needed to prevent the DefaultDesktopManager
+			// setting the dragMode
+		}
+
+		@Override
+		public void beginResizingFrame(JComponent f, int direction) {
+			// Don't do anything. Needed to prevent the DefaultDesktopManager
+			// setting the dragMode
+		}
+
+		@Override
+		public void setBoundsForFrame(JComponent f, int newX, int newY, int newWidth, int newHeight) {
+			boolean didResize = (f.getWidth() != newWidth || f.getHeight() != newHeight);
+			if (!inBounds((JInternalFrame) f, newX, newY, newWidth, newHeight)) {
+				Container parent = f.getParent();
+				Dimension parentSize = parent.getSize();
+				int boundedX = (int) Math.min(Math.max(0, newX), parentSize.getWidth() - newWidth);
+				int boundedY = (int) Math.min(Math.max(0, newY), parentSize.getHeight() - newHeight);
+				f.setBounds(boundedX, boundedY, newWidth, newHeight);
+			} else {
+				f.setBounds(newX, newY, newWidth, newHeight);
+			}
+			if (didResize) {
+				f.validate();
+			}
+		}
+
+		protected boolean inBounds(JInternalFrame f, int newX, int newY, int newWidth, int newHeight) {
+			if (newX < 0 || newY < 0)
+				return false;
+			if (newX + newWidth > f.getDesktopPane().getWidth())
+				return false;
+			if (newY + newHeight > f.getDesktopPane().getHeight())
+				return false;
+			return true;
+		}
 	}
 
 //	public static void main(String... args) {
