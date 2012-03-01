@@ -2,9 +2,7 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 
 import javax.swing.JInternalFrame;
 
@@ -30,25 +28,20 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 		this.focusAfterClose = focusAfterClose;
 		
 		setTitle(title);
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
 		// TODO: tuts ein simples setContent(internalFrameEditorPanel) auch?
 		setLayout(new BorderLayout());
 		add(content, BorderLayout.CENTER);
 		pack();
 		
-		addVetoableChangeListener(new EditorDialogInternalFrameListener());
+		setClosable(true);
 	}
 	
-	private class EditorDialogInternalFrameListener implements VetoableChangeListener {
-
-		@Override
-		public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
-			if (IS_CLOSED_PROPERTY.equals(evt.getPropertyName())) {
-				if (closeListener != null && !closeListener.close()) {
-					PropertyChangeEvent event = new PropertyChangeEvent(evt.getSource(), evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
-					throw new PropertyVetoException("Closing aborted", event);
-				}
+	@Override
+	public void doDefaultCloseAction() {
+		if (closeListener != null) {
+			if (closeListener.close()) {
+				closeDialog();
 			}
 		}
 	}
@@ -67,20 +60,22 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 	public void closeDialog() {
 		try {
 			setClosed(true);
-			if (focusAfterClose != null) {
-				focusAfterClose.requestFocus();
-			}
-			if (closeListener != null) {
-				closeListener.close();
-			}
+			focusAfterCloseComponent();
 		} catch (PropertyVetoException e) {
-			// nothing to do, simply dont close
+			// there is no Vetoable Listener attached, should never happen
+		}
+	}
+
+	private void focusAfterCloseComponent() {
+		if (focusAfterClose != null) {
+			focusAfterClose.requestFocus();
 		}
 	}
 
 	@Override
 	public void openDialog() {
 		editablePanel.openModalDialog(this);
+		setLocation(getLocation().x, 0);
 	}
 	
 }

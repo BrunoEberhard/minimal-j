@@ -12,6 +12,7 @@ import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualDialog;
+import ch.openech.mj.toolkit.VisualDialog.CloseListener;
 
 public class EditorDialogAction extends AbstractAction {
 	private final Editor<?> editor;
@@ -40,6 +41,14 @@ public class EditorDialogAction extends AbstractAction {
 		
 		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context.getComponent(), layout, editor.getTitle());
 		dialog.setResizable(form.isResizable());
+		
+		dialog.setCloseListener(new CloseListener() {
+			@Override
+			public boolean close() {
+				editor.checkedClose();
+				return editor.isFinished();
+			}
+		});
 		
 		editor.setEditorFinishedListener(new EditorFinishedListener() {
 			@Override

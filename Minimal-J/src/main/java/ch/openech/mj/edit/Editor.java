@@ -101,9 +101,17 @@ public abstract class Editor<T> {
 		this.indicator = indicator;
 	}
 
-	public void finish() {
+	/**
+	 * 
+	 * Disposes the editor and calls the editorFinished Listener
+	 */
+	void finish() {
 		form = null;
 		fireEditorFinished();
+	}
+	
+	public boolean isFinished() {
+		return form == null;
 	}
 	
 	private void fireEditorFinished() {
