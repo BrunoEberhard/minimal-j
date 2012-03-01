@@ -202,9 +202,7 @@ public class VaadinWindow extends Window implements PageContext {
 		@Override
 		public void fragmentChanged(FragmentChangedEvent source) {
 			String pageLink = source.getUriFragmentUtility().getFragment();
-			Page previousPage = visiblePage;
 			visiblePage = Page.createPage(VaadinWindow.this, pageLink);
-			visiblePage.setPreviousPage(previousPage);
 			Component component = VaadinClientToolkit.getComponent(visiblePage.getPanel());
 			updateContent((ComponentContainer) component);
 		}

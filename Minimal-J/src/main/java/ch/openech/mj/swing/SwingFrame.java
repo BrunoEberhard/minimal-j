@@ -691,7 +691,6 @@ public class SwingFrame extends JFrame {
 				newPageContext.show(pageLink);
 			} else {
 				Page page = Page.createPage(this, pageLink);
-				page.setPreviousPage(historyPanel.getPresent());
 				historyPanel.add(page);
 			}
 		}

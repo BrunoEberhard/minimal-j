@@ -26,16 +26,6 @@ public abstract class Page {
 	}
 	
 	/**
-	 * <i>warning:</i> Do not simply save the previous Page in a variable it could
-	 * be a memory leak.
-	 * 
-	 * @param page The page displayed in the PageContext before this Page
-	 */
-	public void setPreviousPage(Page page) {
-		// by default do nothing
-	}
-
-	/**
 	 * 
 	 * @return true if this is a page that cannot be replaced by a new one. Used for editors.
 	 */
