@@ -176,7 +176,8 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 				return new NumberEditField(name, String.class, integerformat.getSize(), integerformat.isNonNegative());
 			} else if (format instanceof BooleanFormat) {
 				BooleanFormat booleanTypeDescription = (BooleanFormat) format;
-				return new CheckBoxStringField(name, "", editable);
+				String checkBoxText = Resources.getObjectFieldName(resourceBundle, objectClass, name + ".checkBoxText");
+				return new CheckBoxStringField(name, checkBoxText, editable);
 			}
 		}
 		
