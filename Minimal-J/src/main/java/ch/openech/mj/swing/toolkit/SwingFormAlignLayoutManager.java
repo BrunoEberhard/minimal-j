@@ -55,7 +55,6 @@ public class SwingFormAlignLayoutManager implements LayoutManager {
 			int parentWidth = parent.getWidth() - insets.left - insets.right;
 			int parentHeight = parent.getHeight() - insets.top - insets.bottom;
 			int preferredWidth = component.getPreferredSize().width;
-			int preferredHeight = component.getPreferredSize().height;
 
 			int x, y, width, height;
 			
@@ -69,15 +68,8 @@ public class SwingFormAlignLayoutManager implements LayoutManager {
 				width = preferredWidth;
 			}
 			
-			if (parentHeight <= preferredHeight) {
-				y = insets.top;
-				height = parentHeight;
-			} else {
-				int delta = parentHeight - preferredHeight;
-				int additionalBorderTop = Math.min(delta / 4, parentHeight / 12);
-				y = insets.top + additionalBorderTop;
-				height = preferredHeight;
-			}
+			y = insets.top;
+			height = parentHeight;
 			
 			component.setBounds(x, y, width, height);
 		}

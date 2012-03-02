@@ -1,5 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FocusTraversalPolicy;
@@ -16,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.application.EditablePanel;
@@ -128,7 +130,10 @@ public class SwingClientToolkit extends ClientToolkit {
 		JPanel panel = new JPanel(new SwingFormAlignLayoutManager());
 		Component component = getComponent(content);
 		panel.add(component);
-		return new SwingComponentDelegate(panel);
+		
+		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(panel));
+		scrollPane.setBorder(null);
+		return new SwingComponentDelegate(scrollPane);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	public SwingGridFormLayout(int columns, int defaultSpan) {
 		String columnConstraints = "";
 		for (int i = 0; i<columns; i++) {
-			columnConstraints += "[100lp:100lp:300lp, grow 1]";
+			columnConstraints += "[170lp:170lp:300lp, grow 1]";
 		}
 		setLayout(new MigLayout("ins 5, wrap " + columns, columnConstraints));
 		
