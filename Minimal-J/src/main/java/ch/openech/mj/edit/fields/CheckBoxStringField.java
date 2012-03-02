@@ -30,4 +30,7 @@ public class CheckBoxStringField extends AbstractEditField<String> {
 		checkBox.setSelected("1".equals(value));
 	}
 
+	public static boolean isTrue(Object value) {
+		return "1".equals(value);
+	}
 }
