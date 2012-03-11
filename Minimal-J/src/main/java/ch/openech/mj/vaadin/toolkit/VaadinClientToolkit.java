@@ -165,6 +165,11 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
+	public IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action[] actions) {
+		return new VaadinEditorLayout(text, searchAction, content, actions);
+	}
+
+	@Override
 	public PageContext openPageContext(PageContext parentPageContext, WindowConfig windowConfig) {
 		VaadinWindow parentVaadinWindow = (VaadinWindow) parentPageContext;
 		VaadinWindow vaadinWindow = new VaadinWindow(parentVaadinWindow);

@@ -8,6 +8,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
 import com.vaadin.ui.Alignment;
@@ -25,7 +26,17 @@ import com.vaadin.ui.VerticalLayout;
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 
 	public VaadinEditorLayout(String information, IComponent content, Action[] actions) {
-		addInformation(information);
+		this(createHeaderComponent(information), content, actions);
+	}
+
+	public VaadinEditorLayout(TextField text, Action searchAction, IComponent content, Action[] actions) {
+		this(createHeaderComponent(text, searchAction), content, actions);
+	}
+
+	private VaadinEditorLayout(Component header, IComponent content, Action[] actions) {
+		if (header != null) {
+			addComponent(header);
+		}
 		
 		VaadinClientToolkit.getComponent(content).setWidth("100%");
 		
@@ -38,17 +49,38 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		setExpandRatio(panel, 1.0F);
 		
 		addComponent(createButtonBar(actions));
-		setWidth("800px");
+		setWidth("100%");
 	}
 
-	protected void addInformation(String information) {
+	private static Component createHeaderComponent(String information) {
 		if (!StringUtils.isBlank(information)) {
-			Label help = new Label(information);
-			addComponent(help);
+			return new Label(information);
+		} else {
+			return null;
 		}
 	}
+	
+	private static Component createHeaderComponent(TextField text, final Action searchAction) {
+		HorizontalLayout horizontalLayout = new HorizontalLayout();
+		horizontalLayout.setWidth("100%");
+		
+		Component textFieldComponent = VaadinClientToolkit.getComponent(text);
+		textFieldComponent.setWidth("100%");
+        horizontalLayout.addComponent(textFieldComponent);
+        
+        final Button button = new Button("Suche");
+        button.addListener(new ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				searchAction.actionPerformed(new ActionEvent(button, 0, null));
+			}
+		});
+        
+        horizontalLayout.addComponent(button);
+		return horizontalLayout;
+	}
 
-	protected Component createButtonBar(Action... actions) {
+	private Component createButtonBar(Action... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
 		horizontalLayout.setWidth("100%");
@@ -59,7 +91,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		return horizontalLayout;
 	}
 	
-	protected void addButtons(HorizontalLayout buttonBar, Action... actions) {
+	private void addButtons(HorizontalLayout buttonBar, Action... actions) {
 		for (Action action: actions) {
 			addActionButton(buttonBar, action);
 		}
@@ -68,7 +100,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		}
 	}
 
-	protected void addActionButton(HorizontalLayout buttonBar, final Action action) {
+	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
 		final Button button = new NativeButton((String) action.getValue(Action.NAME));
 		button.addListener(new ClickListener() {
 			@Override

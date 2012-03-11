@@ -73,6 +73,8 @@ public abstract class ClientToolkit {
 
 	public abstract IComponent createEditorLayout(String information, IComponent content, Action[] actions);
 
+	public abstract IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions);
+
 	// Notification
 	
 	public abstract void showMessage(IComponent component, String text);

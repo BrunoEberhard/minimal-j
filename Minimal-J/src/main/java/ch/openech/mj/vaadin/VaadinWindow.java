@@ -96,7 +96,6 @@ public class VaadinWindow extends Window implements PageContext {
 		horizontalLayout.addComponent(comboBox);
 		
         textFieldSearch.setWidth("160px");
-        // textFieldSearch.setInputPrompt("Search");
         horizontalLayout.addComponent(textFieldSearch);
         
         textFieldSearch.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {

@@ -1,6 +1,5 @@
 package ch.openech.mj.swing.toolkit;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FocusTraversalPolicy;
@@ -232,6 +231,11 @@ public class SwingClientToolkit extends ClientToolkit {
 		return new SwingEditorLayout(information, content, actions);
 	}
 
+	@Override
+	public IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions) {
+		return new SwingSearchLayout(text, searchAction, content, actions);
+	}
+	
 	@Override
 	public PageContext openPageContext(PageContext parentPageContext) {
 		SwingFrame swingFrame = (SwingFrame) parentPageContext;

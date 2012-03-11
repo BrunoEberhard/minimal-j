@@ -5,7 +5,6 @@ import java.util.List;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.MultiLineTextField;
 
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.Panel;
 
@@ -21,6 +20,8 @@ public class VaadinMultiLineTextField extends Panel implements MultiLineTextFiel
 		
 		setContent(customLayout);
 		setScrollable(true);
+
+		customLayout.setHeight("50px");
 	}
 	
 	@Override
