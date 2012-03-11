@@ -1,12 +1,10 @@
 package ch.openech.mj.edit.form;
 
-import java.util.List;
-
 import ch.openech.mj.edit.fields.AbstractEditField;
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IComponentDelegate;
 
 public abstract class DependenceDecorator<T> extends AbstractEditField<T> implements DependingOnFieldAbove<T>, Indicator {
 
@@ -21,7 +19,11 @@ public abstract class DependenceDecorator<T> extends AbstractEditField<T> implem
 	
 	@Override
 	public IComponent getComponent0() {
-		return field;
+		if (field instanceof IComponentDelegate) {
+			return (IComponent) ((IComponentDelegate) field).getComponent();
+		} else {
+			return field;
+		}
 	}
 
 	@Override
