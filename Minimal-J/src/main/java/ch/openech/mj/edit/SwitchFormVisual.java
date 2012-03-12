@@ -15,8 +15,6 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	private SwitchLayout switchLayout;
 	private FormVisual<?> formVisual;
-	private ChangeListener changeListener;
-	private Action saveAction;
 	
 	public SwitchFormVisual() {
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
@@ -29,24 +27,15 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	@Override
 	public void setChangeListener(ChangeListener changeListener) {
-		this.changeListener = changeListener;
-		if (formVisual != null) {
-			formVisual.setChangeListener(changeListener);
-		}
+		// a SwitchFormVisual doesnt change (only the contained forms)
 	}
 
 	@Override
 	public void validate(List<ValidationMessage> resultList) {
-		if (formVisual != null) {
-			formVisual.validate(resultList);
-		}
 	}
 
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		if (formVisual != null) {
-			formVisual.setValidationMessages(validationMessages);
-		}
 	}
 
 	@Override
@@ -56,9 +45,7 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	@Override
 	public void setSaveAction(Action saveAction) {
-		if (formVisual != null) {
-			formVisual.setSaveAction(saveAction);
-		}
+		// no save
 	}
 	
 	public FormVisual<?> getFormVisual() {
@@ -67,9 +54,6 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 	
 	public void setFormVisual(FormVisual<?> formVisual) {
 		this.formVisual = formVisual;
-		formVisual.setChangeListener(changeListener);
-		formVisual.setSaveAction(saveAction);
-		
 		switchLayout.show(formVisual);
 	}
 	
