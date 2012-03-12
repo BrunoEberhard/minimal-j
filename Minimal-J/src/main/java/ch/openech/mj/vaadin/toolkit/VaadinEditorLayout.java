@@ -102,6 +102,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 
 	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
 		final Button button = new NativeButton((String) action.getValue(Action.NAME));
+		button.setEnabled(Boolean.TRUE.equals(action.getValue("enabled")));
 		button.addListener(new ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -122,6 +123,8 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 				} else if ("foreground".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Color)) {
 					// TODO Color of Vaadion ButtonBar Buttons
 					// button.set((Color) evt.getNewValue());
+				} else if ("enabled".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
+					button.setEnabled((Boolean) evt.getNewValue());
 				}
 			}
 		});
