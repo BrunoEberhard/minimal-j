@@ -15,6 +15,8 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	private SwitchLayout switchLayout;
 	private FormVisual<?> formVisual;
+	private ChangeListener changeListener;
+	private Action saveAction;
 	
 	public SwitchFormVisual() {
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
@@ -27,17 +29,24 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	@Override
 	public void setChangeListener(ChangeListener changeListener) {
-		// TODO Auto-generated method stub
+		this.changeListener = changeListener;
+		if (formVisual != null) {
+			formVisual.setChangeListener(changeListener);
+		}
 	}
 
 	@Override
 	public void validate(List<ValidationMessage> resultList) {
-		// TODO Auto-generated method stub
+		if (formVisual != null) {
+			formVisual.validate(resultList);
+		}
 	}
 
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		// TODO Auto-generated method stub
+		if (formVisual != null) {
+			formVisual.setValidationMessages(validationMessages);
+		}
 	}
 
 	@Override
@@ -47,29 +56,31 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	@Override
 	public void setSaveAction(Action saveAction) {
-		// TODO Auto-generated method stub
-		
+		if (formVisual != null) {
+			formVisual.setSaveAction(saveAction);
+		}
 	}
+	
 	public FormVisual<?> getFormVisual() {
 		return formVisual;
 	}
 	
 	public void setFormVisual(FormVisual<?> formVisual) {
 		this.formVisual = formVisual;
+		formVisual.setChangeListener(changeListener);
+		formVisual.setSaveAction(saveAction);
+		
 		switchLayout.show(formVisual);
 	}
 	
 	@Override
 	public T getObject() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
 	public void setObject(T object) {
-		// TODO Auto-generated method stub
-		
+		// not used
 	}
-
 
 }
