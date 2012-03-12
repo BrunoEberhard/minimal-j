@@ -3,7 +3,6 @@ package ch.openech.mj.edit.fields;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -53,13 +52,21 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 	}
 	
 	public DateField(Object key, boolean partialAllowed) {
+		this(key, partialAllowed, true);
+	}
+	
+	public DateField(Object key, boolean partialAllowed, boolean editable) {
 		super(Constants.getConstant(key));
 		this.partialAllowed = partialAllowed;
 		
-		textField = ClientToolkit.getToolkit().createTextField(listener(), new DateFilter());
-		
-		installFocusLostListener();
-		createMenu();
+		if (editable) {
+			textField = ClientToolkit.getToolkit().createTextField(listener(), new DateFilter());
+			
+			installFocusLostListener();
+			createMenu();
+		} else {
+			textField = ClientToolkit.getToolkit().createReadOnlyTextField();
+		}
 	}
 
 	@Override
