@@ -27,6 +27,7 @@ import ch.openech.mj.swing.component.BubbleMessageSupport;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
+import ch.openech.mj.toolkit.ConfirmDialogListener;
 import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
@@ -189,9 +190,10 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public int showConfirmDialog(IComponent c, Object message, String title, int optionType) {
+	public void showConfirmDialog(IComponent c, String message, String title, int optionType, ConfirmDialogListener listener) {
 		JComponent parentComponent = (JComponent) getComponent(c);
-		return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
+		int result = JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
+		listener.onClose(result);
 	}
 
 	@Override

@@ -1,8 +1,14 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import java.util.Iterator;
+
+import sun.security.krb5.internal.PAEncTSEnc;
+
 import ch.openech.mj.toolkit.VisualDialog;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.Window;
 
 public class VaadinDialog extends Window implements VisualDialog {
@@ -18,6 +24,7 @@ public class VaadinDialog extends Window implements VisualDialog {
 		addListener(new VaadinDialogListener());
 		parentWindow.addWindow(this);
 		setScrollable(false);
+		setWidth(guessWidth(content) + "px");
 	}
 
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {
@@ -48,6 +55,40 @@ public class VaadinDialog extends Window implements VisualDialog {
 	@Override
 	public void closeDialog() {
 		setVisible(false);
+	}
+	
+	public static int guessWidth(ComponentContainer content) {
+		VaadinGridFormLayout formLayout = findFormLayout(content);
+		if (formLayout != null) {
+			return 200 * formLayout.getColumns();
+			
+		}
+		return 300;
+	}
+	
+	private static VaadinGridFormLayout findFormLayout(Component c) {
+		if (c instanceof VaadinGridFormLayout) {
+			return (VaadinGridFormLayout) c;
+		} else if (c instanceof Panel) {
+			Panel panel = (Panel) c;
+			return findFormLayout(panel.getContent());
+		} else if (c instanceof ComponentContainer) {
+			ComponentContainer container = (ComponentContainer) c;
+			Iterator<Component> componentIterator = container.getComponentIterator();
+			while (componentIterator.hasNext()) {
+				VaadinGridFormLayout formLayout = findFormLayout(componentIterator.next());
+				if (formLayout != null) {
+					return formLayout;
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	protected void close() {
+		// super.close(); DONT, would always close without ask
+		fireClose();
 	}
 
 }

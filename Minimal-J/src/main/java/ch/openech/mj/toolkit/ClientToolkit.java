@@ -83,7 +83,7 @@ public abstract class ClientToolkit {
 
 	public abstract void showError(IComponent component, String text);
 	
-	public abstract int showConfirmDialog(IComponent component, Object message, String title, int optionType);
+	public abstract void showConfirmDialog(IComponent component, String message, String title, int type, ConfirmDialogListener listener);
 	
 	public abstract VisualDialog openDialog(Object parent, IComponent content, String title);
 	        

@@ -18,6 +18,7 @@ import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.ConfirmDialogListener;
 
 /**
  * An <code>Editor</code> knows
@@ -181,27 +182,37 @@ public abstract class Editor<T> {
 		List<ValidationMessage> validationResult = validate(getObject());
 		boolean valid = validationResult.isEmpty();
 		if (valid) {
-			int answer = ClientToolkit.getToolkit().showConfirmDialog(form, "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
-					JOptionPane.YES_NO_CANCEL_OPTION);
-
-			if (answer == JOptionPane.YES_OPTION) {
-				if (save(getObject())) {
-					finish();
+			ConfirmDialogListener listener = new ConfirmDialogListener() {
+				@Override
+				public void onClose(int answer) {
+					if (answer == JOptionPane.YES_OPTION) {
+						if (save(getObject())) {
+							finish();
+						}
+					} else if (answer == JOptionPane.NO_OPTION) {
+						finish();
+					} else { // Cancel or Close
+						// do nothing
+					}
 				}
-			} else if (answer == JOptionPane.CANCEL_OPTION) {
-				// do nothing
-			} else {
-				finish();
-			}
+			};
+			ClientToolkit.getToolkit().showConfirmDialog(form, "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+					JOptionPane.YES_NO_CANCEL_OPTION, listener);
+
 		} else {
-			int answer = ClientToolkit.getToolkit().showConfirmDialog(form, "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
-					"Schliessen", JOptionPane.YES_NO_OPTION);
+			ConfirmDialogListener listener = new ConfirmDialogListener() {
+				@Override
+				public void onClose(int answer) {
+					if (answer == JOptionPane.YES_OPTION) {
+						finish();
+					} else { // No or Close
+						// do nothing
+					}
+				}
+			};
 			
-			if (answer == JOptionPane.NO_OPTION) {
-				// do nothing
-			} else {
-				finish();
-			}
+			ClientToolkit.getToolkit().showConfirmDialog(form, "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+					"Schliessen", JOptionPane.YES_NO_OPTION, listener);
 		}
 	}
 
