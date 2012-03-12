@@ -179,9 +179,7 @@ public abstract class Editor<T> {
 	}
 	
 	public void checkedClose() {
-		List<ValidationMessage> validationResult = validate(getObject());
-		boolean valid = validationResult.isEmpty();
-		if (valid) {
+		if (isSaveable()) {
 			ConfirmDialogListener listener = new ConfirmDialogListener() {
 				@Override
 				public void onClose(int answer) {
