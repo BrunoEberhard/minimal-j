@@ -46,9 +46,11 @@ public abstract class Wizard<T> extends Editor<T> {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				currentPage.save();
-				currentPageIndex++;
-				setCurrentPage(currentPage.getNextPage());
+				if (currentPage.isSaveable()) {
+					currentPage.save();
+					currentPageIndex++;
+					setCurrentPage(currentPage.getNextPage());
+				}
 			}
 		};
 		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "NextWizardPageAction");
@@ -71,10 +73,16 @@ public abstract class Wizard<T> extends Editor<T> {
 	@Override
 	protected final FormVisual createForm() {
 		switchFormVisual = new SwitchFormVisual<Object>();
-		setCurrentPage(getFirstPage());
 		return switchFormVisual;
 	}
 	
+	@Override
+	public FormVisual<T> startEditor() {
+		FormVisual<T> formVisual = super.startEditor();
+		setCurrentPage(getFirstPage());
+		return formVisual;
+	}
+
 	@Override
 	public void finish() {
 		currentPage.finish();
@@ -102,10 +110,10 @@ public abstract class Wizard<T> extends Editor<T> {
 	private class WizardIndicator implements Indicator {
 
 		@Override
-		public void setValidationMessages(List<ValidationMessage> validationMessages) {
-			boolean noErrors = validationMessages.isEmpty();
-			nextAction.setEnabled(noErrors);
-			saveAction.setEnabled(noErrors && currentPage.canFinish());
+		public void setValidationMessages(List<ValidationMessage> validationResult) {
+			Wizard.this.indicate(validationResult);
+			nextAction.setEnabled(isSaveable());
+			saveAction.setEnabled(isSaveable() && currentPage.canFinish());
 		}
 	}
 	
