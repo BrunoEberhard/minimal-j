@@ -13,7 +13,7 @@ import ch.openech.mj.db.model.ColumnAccess;
  * ein beginVersion und ein EndVersion 
  * 
  */
-//@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class SubTable extends AbstractTable {
 
 	private PreparedStatement selectByIdAndTimeStatement;
@@ -44,9 +44,9 @@ public class SubTable extends AbstractTable {
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
-			setParameter(insertStatement, parameterPos++, parentId);
-			setParameter(insertStatement, parameterPos++, position);
-			setParameter(insertStatement, parameterPos++, version);
+			setParameterInt(insertStatement, parameterPos++, parentId);
+			setParameterInt(insertStatement, parameterPos++, position);
+			setParameterInt(insertStatement, parameterPos++, version);
 			insertStatement.execute();
 		}
 	}
@@ -76,9 +76,9 @@ public class SubTable extends AbstractTable {
 			
 			if (insert) {
 				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
-				setParameter(insertStatement, parameterPos++, parentId);
-				setParameter(insertStatement, parameterPos++, position);
-				setParameter(insertStatement, parameterPos++, version);
+				setParameterInt(insertStatement, parameterPos++, parentId);
+				setParameterInt(insertStatement, parameterPos++, position);
+				setParameterInt(insertStatement, parameterPos++, version);
 				insertStatement.execute();
 			}
 			position++;

@@ -4,13 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.derby.client.am.Types;
 
 import ch.openech.mj.db.model.AccessorInterface;
 import ch.openech.mj.db.model.ColumnAccess;
@@ -275,6 +276,7 @@ public abstract class AbstractTable<T> {
 	 * @throws SQLException
 	 */
 	protected <D> Integer lookupReference(D value, boolean insertIfNotExisting) throws SQLException{
+		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
 		logger.fine("Clazz: " + clazz.getSimpleName() + " Value: " + value);
 		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
@@ -306,16 +308,6 @@ public abstract class AbstractTable<T> {
 		if (value instanceof Integer) {
 			if (fieldClass.equals(String.class)) {
 				return value.toString();
-			}
-		}
-		return value;
-	}
-
-	protected static Object convertToDbClass(int sqlType, Object value) {
-		if (value instanceof String) {
-			String string = (String) value;
-			if (sqlType == Types.INTEGER || sqlType == Types.SMALLINT) {
-				return Integer.parseInt(string);
 			}
 		}
 		return value;
@@ -355,8 +347,8 @@ public abstract class AbstractTable<T> {
 					loggerStringBuilder.append(' ');
 				}
 			}
-			setParameter(statement, parameterPos++, value);
-			if (doubleValues) setParameter(statement, parameterPos++, value);
+			setParameter(statement, parameterPos++, value, accessor.getClazz());
+			if (doubleValues) setParameter(statement, parameterPos++, value, accessor.getClazz());
 		}
 
 		if (loggerStringBuilder != null) {
@@ -365,14 +357,23 @@ public abstract class AbstractTable<T> {
 		return parameterPos;
 	}
 			
-	protected static void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
-		int sqlType = preparedStatement.getParameterMetaData().getParameterType(param);
+	protected static void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
 		if (value != null) {
-			value = convertToDbClass(sqlType, value);
+			if (clazz.equals(Integer.class) && value instanceof String) {
+				value = Integer.parseInt((String) value); 
+			}
 			preparedStatement.setObject(param, value);
 		} else {
-			preparedStatement.setNull(param, sqlType);
+			if (clazz.equals(Integer.class)) {
+				preparedStatement.setNull(param, Types.INTEGER);
+			} else {
+				preparedStatement.setNull(param, Types.VARCHAR);
+			}
 		}
+	}
+	
+	protected static void setParameterInt(PreparedStatement preparedStatement, int param, int value) throws SQLException {
+		preparedStatement.setInt(param, value);
 	}
 	
 	protected abstract PreparedStatement prepareInsert() throws SQLException;

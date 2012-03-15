@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.derby.jdbc.EmbeddedDriver;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DbPersistence {
 	public static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
@@ -37,15 +40,24 @@ public class DbPersistence {
 	}
 	
 	public void connect(String connectionUrl, String user, String password) throws SQLException {
-		this.isDerbyDb = connectionUrl.startsWith("jdbc:derby");
-		this.isMySqlDb = connectionUrl.startsWith("jdbc:mysql");
-		this.isDerbyMemoryDb = connectionUrl.startsWith("jdbc:derby:memory");
-		
-		if (isDerbyMemoryDb) {
-			DriverManager.registerDriver(new EmbeddedDriver());
+		try {
+			connectToCloudFoundry();
+		} catch (Exception x) {
+			x.printStackTrace();
 		}
 		
-		connection = DriverManager.getConnection(connectionUrl, user, password);
+		if (connection == null) {
+			this.isDerbyDb = connectionUrl.startsWith("jdbc:derby");
+			this.isMySqlDb = connectionUrl.startsWith("jdbc:mysql");
+			this.isDerbyMemoryDb = connectionUrl.startsWith("jdbc:derby:memory");
+			
+			if (isDerbyMemoryDb) {
+				DriverManager.registerDriver(new EmbeddedDriver());
+			}
+			
+			connection = DriverManager.getConnection(connectionUrl, user, password);
+		}
+		
 		connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		connection.setAutoCommit(false);
 		
@@ -56,6 +68,34 @@ public class DbPersistence {
 		}
 	}
 	
+	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
+		String vcap_services = System.getenv("VCAP_SERVICES");
+		System.out.println("VCAP_SERVICES " + vcap_services);
+		
+		if (vcap_services != null && vcap_services.length() > 0) {
+			JSONObject root = new JSONObject(vcap_services);
+
+			JSONArray mysqlNode = (JSONArray) root.get("mysql-5.1");
+			JSONObject firstSqlNode = (JSONObject) mysqlNode.get(0);
+			JSONObject credentials = (JSONObject) firstSqlNode.get("credentials");
+
+			String dbname = credentials.getString("name");
+			String hostname = credentials.getString("hostname");
+			String user = credentials.getString("user");
+			String password = credentials.getString("password");
+			String port = credentials.getString("port");
+			
+			String dbUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbname;
+
+			Class.forName("com.mysql.jdbc.Driver");
+			connection = DriverManager.getConnection(dbUrl, user, password);
+			
+			isDerbyDb = false;
+			isDerbyMemoryDb = false;
+			isMySqlDb = true;
+		}
+	}
+
 	public void disconnect() throws SQLException {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {

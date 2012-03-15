@@ -115,7 +115,7 @@ public class Table<T> extends AbstractTable<T> {
 		endStatement.execute();	
 		
 		int parameterPos = setParameters(updateStatement, object, false, true);
-		setParameter(updateStatement, parameterPos++, id);
+		setParameterInt(updateStatement, parameterPos++, id);
 		logger.info("UpdateStatement: id=" + id);
 		updateStatement.execute();
 		
