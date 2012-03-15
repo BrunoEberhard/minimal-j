@@ -104,7 +104,11 @@ public class DbCreator {
 			s.append(" position INTEGER NOT NULL,\n");
 		}
 		
-		s.delete(s.length()-2, s.length()-1);
+		if (dbPersistence.isMySqlDb()) {
+			s.append(" PRIMARY KEY (id)\n");
+		} else {
+			s.delete(s.length()-2, s.length()-1);
+		}
 		
 		s.append(")");
 		appendTableEnd(s);
