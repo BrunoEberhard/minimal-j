@@ -8,10 +8,10 @@ import javax.swing.Action;
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.application.EmptyPage;
 import ch.openech.mj.application.WindowConfig;
-import ch.openech.mj.edit.Editor;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
+import ch.openech.mj.page.SeparatorAction;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
 
@@ -165,6 +165,8 @@ public class VaadinWindow extends Window implements PageContext {
 				ActionGroup subGroup = (ActionGroup) action;
 				MenuBar.MenuItem subItem = item.addItem((String) subGroup.getValue(Action.NAME), null);
 				fillMenu(subItem, subGroup);
+			} else if (action instanceof SeparatorAction) {
+				item.addSeparator();
 			} else {
 				item.addItem((String) action.getValue(Action.NAME), null, new ActionCommand(action));
 			}
