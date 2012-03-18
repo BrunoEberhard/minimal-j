@@ -46,6 +46,7 @@ public abstract class AbstractTable<T> {
 	protected PreparedStatement selectByIdStatement;
 	protected PreparedStatement insertStatement;
 	protected PreparedStatement selectMaxIdStatement;
+	protected PreparedStatement clearStatement;
 
 	public AbstractTable(DbPersistence dbPersistence, String prefix, Class<T> clazz) {
 		this.dbPersistence = dbPersistence;
@@ -98,6 +99,13 @@ public abstract class AbstractTable<T> {
 		creator.createDb(this);
 	}
 	
+	public void clear() throws SQLException {
+		clearStatement.execute();
+		for (AbstractTable<?> table : subTables.values()) {
+			table.clear();
+		}
+	}
+	
 	protected String getTableName() {
 		if (name != null) {
 			return name;
@@ -147,12 +155,14 @@ public abstract class AbstractTable<T> {
 		insertStatement = prepareInsert();
 		selectByIdStatement = prepareSelectById();
 		selectMaxIdStatement = prepareSelectMaxId();
+		clearStatement = prepareClear();
 	}
 	
 	public void closeStatements() throws SQLException {
 		selectByIdStatement.close();
 		insertStatement.close();
 		selectMaxIdStatement.close();
+		clearStatement.close();
 		
 		for (AbstractTable<?> table : subTables.values()) {
 			table.closeStatements();
@@ -383,6 +393,12 @@ public abstract class AbstractTable<T> {
 	protected PreparedStatement prepareSelectMaxId() throws SQLException {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT MAX(id) FROM "); query.append(getTableName()); 
+		return getConnection().prepareStatement(query.toString());
+	}
+	
+	protected PreparedStatement prepareClear() throws SQLException {
+		StringBuilder query = new StringBuilder();
+		query.append("DELETE FROM "); query.append(getTableName()); 
 		return getConnection().prepareStatement(query.toString());
 	}
 	

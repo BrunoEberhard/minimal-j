@@ -77,15 +77,56 @@ public abstract class SearchableTable<T> extends Table<T> {
 	@Override
 	public int insert(T object) throws SQLException {
 		int id = super.insert(object);
+		
 		writeInIndex(id, object);
+		
+		// TODO clean
+		QueryParser	parser = new QueryParser(Version.LUCENE_34, "id", analyzer);
+		try {
+			Query query = parser.parse(Integer.toString(id));
+			
+			IndexSearcher isearcher = new IndexSearcher(directory, true); // read-only=true
+			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
+			if (hits.length != 1) throw new IllegalStateException("Twice in index : " + id);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}		
+		
 		return id;
 	}
 
 	@Override
 	public void update(T object) throws SQLException {
 		super.update(object);
+
+		// TODO clean
+		Integer id = getId(object);
+		QueryParser	parser = new QueryParser(Version.LUCENE_34, "id", analyzer);
+		try {
+			Query query = parser.parse(Integer.toString(id));
+			
+			IndexSearcher isearcher = new IndexSearcher(directory, true); // read-only=true
+			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
+			if (hits.length != 1) throw new IllegalStateException("Id : " + id);
+			
+			iwriter.deleteDocuments(query);
+			writeInIndex(id, object);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}		
 	}
 	
+	
+	@Override
+	public void clear() throws SQLException {
+		super.clear();
+		try {
+			iwriter.deleteAll();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}	
+	}
+
 	public int count(String text) {
 		return find(text).size();
 	}

@@ -70,7 +70,6 @@ public class DbPersistence {
 	
 	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
 		String vcap_services = System.getenv("VCAP_SERVICES");
-		System.out.println("VCAP_SERVICES " + vcap_services);
 		
 		if (vcap_services != null && vcap_services.length() > 0) {
 			JSONObject root = new JSONObject(vcap_services);
@@ -103,6 +102,13 @@ public class DbPersistence {
 		}
 		
 		connection.close();
+	}
+	
+	public void clear() throws SQLException {
+		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		for (AbstractTable<?> table : tableList) {
+			table.clear();
+		}
 	}
 	
 	public void commit() throws SQLException {
