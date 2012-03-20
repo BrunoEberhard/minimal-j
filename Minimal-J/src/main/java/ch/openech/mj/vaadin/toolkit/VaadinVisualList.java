@@ -14,6 +14,7 @@ public class VaadinVisualList extends ListSelect implements VisualList {
 	@Override
 	public void requestFocus() {
 		super.focus();
+		setNullSelectionAllowed(false);
 		setImmediate(true);
 	}
 
