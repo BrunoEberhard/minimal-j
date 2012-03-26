@@ -119,6 +119,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	private void setDefault() {
         if (!StringUtils.isBlank(code.getDefault())) {
         	setObject(code.getDefault());
+			fireChange();
         } else {
     		modeUnknown();
         }
@@ -138,8 +139,12 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 
 	@Override
 	public void setObject(String value) {
-		if (StringUtils.isBlank(value)) {
-			modeUnknown();
+		if (StringUtils.isEmpty(value)) {
+			if (isEditable()) {
+				setDefault();
+			} else {
+				modeUnknown();
+			}
 			return;
 		}
 
