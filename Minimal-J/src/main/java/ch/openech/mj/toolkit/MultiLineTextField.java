@@ -11,6 +11,8 @@ public interface MultiLineTextField extends IComponent, Indicator, Focusable {
 	
 	public void addObject(Object object);
 
+	public void addHtml(String html);
+
 	public void addAction(Action action);
 	
 	public void addGap();

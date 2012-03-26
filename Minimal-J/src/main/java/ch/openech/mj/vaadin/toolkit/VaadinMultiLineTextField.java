@@ -4,9 +4,11 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.JLabel;
 
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.MultiLineTextField;
+import ch.openech.mj.util.StringUtils;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -46,6 +48,15 @@ public class VaadinMultiLineTextField extends VerticalLayout implements MultiLin
 		if (object != null) {
 			Label label = new Label(object.toString());
 			label.setContentMode(Label.CONTENT_TEXT);
+			addComponent(label);
+		}
+	}
+	
+	@Override
+	public void addHtml(String html) {
+		if (!StringUtils.isBlank(html)) {
+			Label label = new Label(html);
+			label.setContentMode(Label.CONTENT_XHTML);
 			addComponent(label);
 		}
 	}

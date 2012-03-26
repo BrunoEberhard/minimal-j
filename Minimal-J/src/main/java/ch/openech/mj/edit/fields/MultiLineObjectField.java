@@ -5,6 +5,8 @@ import javax.swing.Action;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
 import ch.openech.mj.edit.validation.Indicator;
+import ch.openech.mj.resources.ResourceHelper;
+import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.MultiLineTextField;
 
@@ -33,15 +35,14 @@ public abstract class MultiLineObjectField<T> extends ObjectField<T> implements 
 		visual = ClientToolkit.getToolkit().createMultiLineTextField();
 	}
 
-	protected void setText(Object object) {
-		clearVisual();
-		addObject(object);
-	}
-	
 	protected void addObject(Object object) {
 		visual.addObject(object);
 	}
-	
+
+	protected void addHtml(String html) {
+		visual.addHtml(html);
+	}
+
 	protected void addGap() {
 		visual.addGap();
 	}
@@ -54,10 +55,16 @@ public abstract class MultiLineObjectField<T> extends ObjectField<T> implements 
 		visual.addAction(new EditorDialogAction(editor));
 	}
 	
-	protected void clearVisual() {
-		visual.clear();
+	protected void addAction(Editor<?> editor, String actionName) {
+		visual.addAction(new EditorDialogAction(editor, actionName));
 	}
-
+	
+	@Override
+	protected void fireObjectChange() {
+		visual.clear();
+		super.fireObjectChange();
+	}
+	
 	protected MultiLineTextField getVisual() {
 		return visual;
 	}

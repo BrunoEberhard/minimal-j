@@ -16,11 +16,13 @@ import ch.openech.mj.toolkit.VisualDialog.CloseListener;
 
 public class EditorDialogAction extends AbstractAction {
 	private final Editor<?> editor;
-	
+
 	public EditorDialogAction(Editor<?> editor) {
+		this(editor, editor.getClass().getSimpleName());
+	}
+	
+	public EditorDialogAction(Editor<?> editor, String actionName) {
 		this.editor = editor;
-		
-		String actionName = editor.getClass().getSimpleName();
 		ResourceHelper.initProperties(this, Resources.getResourceBundle(), actionName);
 	}
 

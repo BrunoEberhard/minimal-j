@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.MultiLineTextField;
+import ch.openech.mj.util.StringUtils;
 
 
 public class SwingMultiLineTextField extends JPanel implements MultiLineTextField {
@@ -67,10 +68,16 @@ public class SwingMultiLineTextField extends JPanel implements MultiLineTextFiel
 	}
 
 	@Override
+	public void addHtml(String html) {
+		if (StringUtils.isBlank(html)) {
+			JLabel label = new JLabel(html);
+			add(label);
+		}
+	}
+
+	@Override
 	public void addGap() {
 		JLabel label = new JLabel(" ");
 		add(label);
 	}
-	
-	
 }
