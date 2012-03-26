@@ -40,10 +40,7 @@ import ch.openech.mj.application.AsyncPage.PageWorkListener;
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.application.HistoryPanel;
 import ch.openech.mj.application.WindowConfig;
-import ch.openech.mj.edit.Editor;
-import ch.openech.mj.edit.Editor.EditorFinishedListener;
 import ch.openech.mj.edit.EditorPage;
-import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.Page.PageListener;
@@ -55,9 +52,6 @@ import ch.openech.mj.resources.Resources;
 import ch.openech.mj.swing.lookAndFeel.LookAndFeelAction;
 import ch.openech.mj.swing.lookAndFeel.PrintLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
-import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.VisualDialog;
 
 public class SwingFrame extends JFrame {
 	private final WindowConfig windowConfig;
