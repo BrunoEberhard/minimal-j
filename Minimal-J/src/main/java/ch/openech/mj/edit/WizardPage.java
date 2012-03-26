@@ -1,11 +1,5 @@
 package ch.openech.mj.edit;
 
-import java.util.List;
-
-import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
-
-
 /**
  * Interface for a wizard page.
  * <p>
