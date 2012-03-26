@@ -28,7 +28,7 @@ public class SwingFormAlignLayoutManager implements LayoutManager {
 		synchronized (parent.getTreeLock()) {
 			Component component = parent.getComponent(0);
 			Insets insets = parent.getInsets();
-			return new Dimension(insets.left + insets.right + component.getPreferredSize().width, insets.top
+			return new Dimension(insets.left + insets.right + component.getMaximumSize().width, insets.top
 					+ insets.bottom + component.getPreferredSize().height);
 		}
 	}
@@ -54,7 +54,7 @@ public class SwingFormAlignLayoutManager implements LayoutManager {
 			Insets insets = parent.getInsets();
 			int parentWidth = parent.getWidth() - insets.left - insets.right;
 			int parentHeight = parent.getHeight() - insets.top - insets.bottom;
-			int preferredWidth = component.getPreferredSize().width;
+			int preferredWidth = component.getMaximumSize().width;
 
 			int x, y, width, height;
 			

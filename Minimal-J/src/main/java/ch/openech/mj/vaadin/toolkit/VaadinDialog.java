@@ -24,6 +24,7 @@ public class VaadinDialog extends Window implements VisualDialog {
 		addListener(new VaadinDialogListener());
 		parentWindow.addWindow(this);
 		setScrollable(false);
+		content.setSizeFull();
 		setWidth(guessWidth(content) + "px");
 	}
 

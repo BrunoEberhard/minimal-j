@@ -76,7 +76,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	}
 	
 	protected AbstractFormVisual(boolean editable, int columns) {
-		this(null, Resources.getResourceBundle(), editable, columns);
+		this(null, null, editable, columns);
 	}
 	
 	public AbstractFormVisual(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable) {
@@ -85,17 +85,25 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 
 	public AbstractFormVisual(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable, int columns) {
 		this.objectClass = objectClass != null ? objectClass : getObjectOfFormClass();
-		this.resourceBundle = resourceBundle;
+		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;
 		this.columns = columns;
-		this.layout = ClientToolkit.getToolkit().createGridLayout(columns, 1);
+		this.layout = ClientToolkit.getToolkit().createGridLayout(columns, getColumnWidthPercentage());
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected Class<T> getObjectOfFormClass() {
 		return (Class<T>) GenericUtils.getGenericClass(this.getClass());
 	}
+	
+	protected int getColumnWidthPercentage() {
+		return 100;
+	}
 
+	protected int getAreaHeightPercentage() {
+		return 100;
+	}
+	
 	// Variante des Demo-Fillers mit dem Accelerator - Mechanismus
 	// Nachteil: Funktioniert bei Textfeldern nicht, da die Felder das Zeichen
 	// selber abfangen.

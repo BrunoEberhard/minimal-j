@@ -56,7 +56,7 @@ public class StringUtils {
 	public static void appendLine(StringBuilder stringBuilder, String string) {
 		if (!isEmpty(string)) {
 			stringBuilder.append(string);
-			stringBuilder.append("<BR>");
+			stringBuilder.append("\n");
 		}
 	}
 	
@@ -64,10 +64,10 @@ public class StringUtils {
 		boolean first = true;
 		for (String string : strings) {
 			if (isEmpty(string)) continue;
-			if (!first) stringBuilder.append("&nbsp;"); else first = false;
+			if (!first) stringBuilder.append(" "); else first = false;
 			stringBuilder.append(string);
 		}
-		if (!first) stringBuilder.append("<BR>");
+		if (!first) stringBuilder.append("\n");
 	}
 	
 	public static void appendSeparated(StringBuilder stringBuilder, String... strings) {

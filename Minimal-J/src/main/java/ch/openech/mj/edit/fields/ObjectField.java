@@ -28,9 +28,13 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	private T object;
 	
 	public ObjectField(Object key) {
-		super(key);
+		this(key, true);
 	}
 	
+	public ObjectField(Object key, boolean editable) {
+		super(key, editable);
+	}
+
 	public class ObjectFieldEditor extends Editor<T> {
 
 		@Override

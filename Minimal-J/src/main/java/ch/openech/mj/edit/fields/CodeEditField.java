@@ -8,7 +8,6 @@ import javax.swing.text.JTextComponent;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.Code;
-import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -29,7 +28,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	private final TextField textFieldUnknown;
 
 	public CodeEditField(Object key, Code code) {
-		super(Constants.getConstant(key));
+		super(key, true);
 		this.code = code;
 
 		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
@@ -48,8 +47,8 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	}
 	
 	@Override
-	public IComponent getComponent0() {
-		return switchLayout;
+	public Object getComponent() {
+		return decorateWithContextActions(switchLayout);
 	}
 
 	public void createMenu() {
@@ -63,7 +62,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 					modeChoice();
 				}
 	        };
-	        addAction(select);
+	        addContextAction(select);
 	
 	        if (codesClear) {
 	        	Action unbekannt = new AbstractAction(code.getDisplayName() + " entfernen") {
@@ -75,7 +74,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	        			textField.requestFocus();
 	        		}
 	        	};
-	        	addAction(unbekannt);
+	        	addContextAction(unbekannt);
 	        }
 	        
 	        if (codesFree) {
@@ -85,7 +84,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	        			modeFreeEntry();
 	        		}
 	        	};
-	        	addAction(freeEntry);
+	        	addContextAction(freeEntry);
 	        }
 		}
 	}

@@ -19,7 +19,6 @@ import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
-import ch.openech.mj.toolkit.VisualList;
 import ch.openech.mj.toolkit.VisualTable;
 import ch.openech.mj.vaadin.VaadinWindow;
 
@@ -60,7 +59,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 	@Override
 	public TextField createReadOnlyTextField() {
-		return new VaadinTextField();
+		return new VaadinReadOnlyTextField();
 	}
 
 	@Override
@@ -81,11 +80,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public ComboBox createComboBox(ChangeListener listener) {
 		return new VaadinComboBox(listener);
-	}
-
-	@Override
-	public VisualList createVisualList() {
-		return new VaadinVisualList();
 	}
 
 	@Override

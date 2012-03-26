@@ -48,7 +48,9 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		addComponent(panel);
 		setExpandRatio(panel, 1.0F);
 		
-		addComponent(createButtonBar(actions));
+		Component buttonBar = createButtonBar(actions);
+		addComponent(buttonBar);
+		setExpandRatio(buttonBar, 0.0F);
 		setWidth("100%");
 	}
 

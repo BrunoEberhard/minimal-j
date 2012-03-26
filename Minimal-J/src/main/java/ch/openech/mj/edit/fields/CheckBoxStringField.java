@@ -2,7 +2,6 @@ package ch.openech.mj.edit.fields;
 
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
 
 // TODO Validierung für CheckBoxFelder
 public class CheckBoxStringField extends AbstractEditField<String> {
@@ -10,13 +9,13 @@ public class CheckBoxStringField extends AbstractEditField<String> {
 	private final CheckBox checkBox;
 	
 	public CheckBoxStringField(Object key, String text, boolean editable) {
-		super(key);
+		super(key, editable);
 		checkBox = ClientToolkit.getToolkit().createCheckBox(listener(), text);
 		checkBox.setEnabled(editable);
 	}
 	
 	@Override
-	public IComponent getComponent0() {
+	public Object getComponent() {
 		return checkBox;
 	}
 	

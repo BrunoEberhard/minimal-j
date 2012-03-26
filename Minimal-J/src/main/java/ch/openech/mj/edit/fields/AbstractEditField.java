@@ -22,6 +22,7 @@ import ch.openech.mj.util.StringUtils;
 
 public abstract class AbstractEditField<T> implements IComponentDelegate, EditField<T>, Indicator {
 
+	private final boolean editable;
 	private final String name;
 	
 	private ChangeListener forwardingChangeListener;
@@ -30,18 +31,29 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 	private final List<Action> actions = new ArrayList<Action>();
 	private ContextLayout contextLayout;
 	
-	protected AbstractEditField(Object key) {
+	protected AbstractEditField(Object key, boolean editable) {
 		this.name = Constants.getConstant(key);
+		this.editable = editable;
 	}
 
+	protected boolean isEditable() {
+		return editable;
+	}
+	
 	@Override
 	public String getName() {
 		return name;
 	}
 	
-	@Override
-	public final Object getComponent() {
-		IComponent component = getComponent0();
+	protected void addContextAction(Action action) {
+		actions.add(action);
+	}
+	
+	protected void addContextAction(Editor<?> editor) {
+		actions.add(new EditorDialogAction(editor));
+	}
+	
+	protected Object decorateWithContextActions(IComponent component) {
 		if (!actions.isEmpty()) {
 			if (contextLayout == null) {
 				contextLayout = ClientToolkit.getToolkit().createContextLayout(component);
@@ -53,17 +65,8 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 		}
 	}
 	
-	
-	protected void addAction(Action action) {
-		actions.add(action);
-	}
-	
-	protected void addAction(Editor<?> editor) {
-		actions.add(new EditorDialogAction(editor));
-	}
-	
 	protected Indicator[] getIndicatingComponents() {
-		IComponent component = getComponent0();
+		Object component = getComponent();
 		while (component instanceof SwitchLayout) {
 			SwitchLayout switchLayout = (SwitchLayout) component;
 			component = switchLayout.getShownComponent();
@@ -83,7 +86,6 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 		}
 	}
 	
-	protected abstract IComponent getComponent0();
 	//
 	
 	@Override

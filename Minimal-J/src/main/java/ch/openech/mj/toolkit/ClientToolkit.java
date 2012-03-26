@@ -55,8 +55,6 @@ public abstract class ClientToolkit {
 	
 	public abstract CheckBox createCheckBox(ChangeListener changeListener, String text);
 
-	public abstract VisualList createVisualList();
-	
 	public abstract <T> VisualTable<T> createVisualTable(Class<T> clazz, Object[] fields);
 
 	// Layouts
@@ -67,7 +65,7 @@ public abstract class ClientToolkit {
 	
 	public abstract SwitchLayout createSwitchLayout();
 	
-	public abstract GridFormLayout createGridLayout(int columns, int defaultSpan);
+	public abstract GridFormLayout createGridLayout(int columns, int columnWidth);
 
 	public abstract IComponent createFormAlignLayout(IComponent content);
 

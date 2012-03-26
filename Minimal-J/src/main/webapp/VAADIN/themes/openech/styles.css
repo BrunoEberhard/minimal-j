@@ -7,14 +7,14 @@ font-size: smaller;
 
 input.v-textfield-readonly,
 textarea.v-textarea-readonly {
-border-color: darkgray;
+border-color: activeborder;
 border-width: thin;
 border-style: solid;
 }
 
 .v-html-readonly {
 background-color: white;
-border-color: darkgray;
+border-color: activeborder;
 border-width: thin;
 border-style: solid;
 }

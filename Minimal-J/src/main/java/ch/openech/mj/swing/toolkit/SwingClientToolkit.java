@@ -38,7 +38,6 @@ import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
-import ch.openech.mj.toolkit.VisualList;
 import ch.openech.mj.toolkit.VisualTable;
 
 public class SwingClientToolkit extends ClientToolkit {
@@ -71,7 +70,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	
 	@Override
 	public TextField createReadOnlyTextField() {
-		return new SwingTextField();
+		return new SwingReadOnlyTextField();
 	}
 	
 	@Override
@@ -109,15 +108,9 @@ public class SwingClientToolkit extends ClientToolkit {
 		return new SwingSwitchLayout();
 	}
 
-
 	@Override
 	public ContextLayout createContextLayout(IComponent content) {
 		return new SwingContextLayout(content);
-	}
-	
-	@Override
-	public VisualList createVisualList() {
-		return new SwingVisualList();
 	}
 
 	@Override

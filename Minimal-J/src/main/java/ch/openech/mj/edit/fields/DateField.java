@@ -11,7 +11,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.swing.PreferencesHelper;
@@ -56,7 +55,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 	}
 	
 	public DateField(Object key, boolean partialAllowed, boolean editable) {
-		super(Constants.getConstant(key));
+		super(key, editable);
 		this.partialAllowed = partialAllowed;
 		
 		if (editable) {
@@ -70,8 +69,8 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 	}
 
 	@Override
-	public IComponent getComponent0() {
-		return textField;
+	public Object getComponent() {
+		return decorateWithContextActions(textField);
 	}
 	
 	public void createMenu() {
@@ -87,7 +86,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 					}
 				}
 	        };
-	        addAction(formatCH);
+	        addContextAction(formatCH);
 	        
 	        Action formatUS = new AbstractAction("Format JJJJ-MM-TT / JJJJMMTT") {
 				@Override
@@ -99,7 +98,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 					}
 				}
 	        };
-	        addAction(formatUS);
+	        addContextAction(formatUS);
 	        
 	        Action freeEntry = new AbstractAction("Freie Eingabe") {
 				@Override
@@ -111,7 +110,7 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 					}
 				}
 	        };
-	        addAction(freeEntry);
+	        addContextAction(freeEntry);
 		} else {
 			if (format != Format.CH) {
 				String value = DateField.this.getObject();

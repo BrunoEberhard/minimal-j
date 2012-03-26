@@ -12,13 +12,13 @@ public abstract class DependenceDecorator<T> extends AbstractEditField<T> implem
 	private final String nameOfDependedField;
 	
 	public DependenceDecorator(EditField<T> field, String nameOfDependedField) {
-		super(field.getName() + DependenceDecorator.class.getSimpleName());
+		super(field.getName() + DependenceDecorator.class.getSimpleName(), true);
 		this.field = field;
 		this.nameOfDependedField = nameOfDependedField;
 	}
 	
 	@Override
-	public IComponent getComponent0() {
+	public Object getComponent() {
 		if (field instanceof IComponentDelegate) {
 			return (IComponent) ((IComponentDelegate) field).getComponent();
 		} else {

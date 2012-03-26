@@ -12,24 +12,24 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
+import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.VerticalLayout;
 
-public class VaadinContextLayout extends GridLayout implements ContextLayout {
+public class VaadinContextLayout extends HorizontalLayout implements ContextLayout {
 
 	private Button firstButton;
 	private PopupView pv;
 	
 	public VaadinContextLayout(IComponent content) {
-		super(2, 1);
-		
 		Component component = VaadinClientToolkit.getComponent(content);
 		component.setWidth("100%");
+		
 		addComponent(component);
-		this.setColumnExpandRatio(0, 1.0F);
+		this.setExpandRatio(component, 1.0F);
 	}
 
 	@Override
@@ -63,9 +63,9 @@ public class VaadinContextLayout extends GridLayout implements ContextLayout {
         });
         pv.setStyleName("contextMenu");
         pv.setDescription("Kontext Menu");
-        pv.setSizeFull();
         pv.setWidth("24px");
-
+        pv.setHeight("24px");
+        
         return pv;
     }
     
