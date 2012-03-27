@@ -65,19 +65,22 @@ public class SwingMultiLineTextField extends JPanel implements MultiLineTextFiel
 			JLabel label = new JLabel(object.toString());
 			add(label);
 		}
+		revalidate();
 	}
 
 	@Override
 	public void addHtml(String html) {
-		if (StringUtils.isBlank(html)) {
+		if (!StringUtils.isBlank(html)) {
 			JLabel label = new JLabel(html);
 			add(label);
 		}
+		revalidate();
 	}
 
 	@Override
 	public void addGap() {
 		JLabel label = new JLabel(" ");
 		add(label);
+		revalidate();
 	}
 }
