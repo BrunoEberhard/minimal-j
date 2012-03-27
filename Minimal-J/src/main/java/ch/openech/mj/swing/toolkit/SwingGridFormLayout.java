@@ -22,14 +22,14 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 		String columnConstraints = "";
 		int columnWidth = getColumnWidth() * 100 / columnWidthPercentage;
 		for (int i = 0; i<columns; i++) {
-			columnConstraints += "[" + columnWidth + "px:" + columnWidth + "px:" + (columnWidth * 2) + "px, grow 1]";
+			columnConstraints += "[" + columnWidth + "px:" + columnWidth + "px:" + (columnWidth * 2) + "px, grow 1, push]";
 		}
-		setLayout(new MigLayout("ins 5, wrap " + columns, columnConstraints));
+		setLayout(new MigLayout("ins 5, gapy 0px, wrap " + columns, columnConstraints));
 		
 		setBorder(null);
 	}
 	
-	protected int getColumnWidth() {
+	private int getColumnWidth() {
 		FontMetrics fm = getFontMetrics(getFont());
 		return (int)fm.getStringBounds("The quick brown fox jumps over the lazy dog", getGraphics()).getWidth() / 2;
 	}
