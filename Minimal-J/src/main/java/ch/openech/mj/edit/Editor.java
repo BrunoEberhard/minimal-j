@@ -19,6 +19,7 @@ import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
+import ch.openech.mj.util.GenericUtils;
 
 /**
  * An <code>Editor</code> knows
@@ -86,12 +87,26 @@ public abstract class Editor<T> {
 		}
 		form = createForm();
 		T object = load();
+		if (object == null) {
+			object = newObject();
+		}
 		form.setObject(object);
 		
 		form.setSaveAction(saveAction);
 		form.setChangeListener(new EditorChangeListener());
 		
 		return form;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private T newObject() {
+		try {
+			return (T) GenericUtils.getGenericClass(this.getClass()).newInstance();
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public void setEditorFinishedListener(EditorFinishedListener editorFinishedListener) {
