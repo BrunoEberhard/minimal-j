@@ -12,7 +12,7 @@ public abstract class DependenceDecorator<T> extends AbstractEditField<T> implem
 	private final String nameOfDependedField;
 	
 	public DependenceDecorator(EditField<T> field, String nameOfDependedField) {
-		super(field.getName() + DependenceDecorator.class.getSimpleName(), true);
+		super(field.getName(), true);
 		this.field = field;
 		this.nameOfDependedField = nameOfDependedField;
 	}
