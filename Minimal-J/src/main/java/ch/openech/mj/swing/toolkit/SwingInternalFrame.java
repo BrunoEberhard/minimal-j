@@ -75,7 +75,9 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 	@Override
 	public void openDialog() {
 		editablePanel.openModalDialog(this);
-		setLocation(getLocation().x, 0);
+		if (getHeight() >= editablePanel.getHeight()) {
+			setLocation(getLocation().x, 0);
+		}
 	}
 	
 }
