@@ -201,9 +201,12 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	
 	public void line(Object... keys) {
 		int span = columns / keys.length;
-		for (Object key : keys) {
+		int rest = columns;
+		for (int i = 0; i<keys.length; i++) {
+			Object key = keys[i];
 			FormField<?> visual = createField(key);
-			add(visual, span);
+			add(visual, i < keys.length - 1 ? span : rest);
+			rest = rest - span;
 		}
 	}
 	
