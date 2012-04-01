@@ -14,14 +14,14 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.toolkit.MultiLineTextField;
+import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.util.StringUtils;
 
 
-public class SwingMultiLineTextField extends JPanel implements MultiLineTextField {
+public class SwingFlowField extends JPanel implements FlowField {
 
-	public SwingMultiLineTextField() {
-		super(new MigLayout("ins 4 4 0 0, gap 0 0, wrap 1"));
+	public SwingFlowField(boolean vertical) {
+		super(new MigLayout(vertical ? "ins 4 4 0 0, gap 0 0, wrap 1" : "ins 0, gap 0 0"));
 	}
 	
 	@Override

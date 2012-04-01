@@ -1,26 +1,19 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.Action;
-import javax.swing.JLabel;
 
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.toolkit.MultiLineTextField;
+import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.util.StringUtils;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.BaseTheme;
 
-public class VaadinMultiLineTextField extends VerticalLayout implements MultiLineTextField {
+public class VaadinHorizontalFlowField extends HorizontalLayout implements FlowField {
 
-	public VaadinMultiLineTextField() {
+	public VaadinHorizontalFlowField() {
 	}
 	
 	@Override
@@ -63,25 +56,12 @@ public class VaadinMultiLineTextField extends VerticalLayout implements MultiLin
 	
     @Override
 	public void addAction(final Action action) {
-		addComponent(createActionLink(action));
+		addComponent(VaadinVerticalFlowField.createActionLink(action));
 	}
 
 	@Override
 	public void addGap() {
-		addComponent(new Label("."));
-	}
-
-	private static Component createActionLink(final Action action) {
-		final Button button = new Button((String) action.getValue(Action.NAME));
-		button.setDescription((String) action.getValue(Action.LONG_DESCRIPTION));
-		button.setStyleName(BaseTheme.BUTTON_LINK);
-		button.addListener(new ClickListener() {
-			@Override
-			public void buttonClick(ClickEvent event) {
-				action.actionPerformed(new ActionEvent(button, 0, null));
-			}
-		});
-		return button;
+		addComponent(new Label(" "));
 	}
 	
 }

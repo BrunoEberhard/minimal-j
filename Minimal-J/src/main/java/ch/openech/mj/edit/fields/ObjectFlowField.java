@@ -5,10 +5,8 @@ import javax.swing.Action;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.resources.ResourceHelper;
-import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.MultiLineTextField;
+import ch.openech.mj.toolkit.FlowField;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -21,18 +19,22 @@ import ch.openech.mj.toolkit.MultiLineTextField;
  *
  * @param <T>
  */
-public abstract class MultiLineObjectField<T> extends ObjectField<T> implements Indicator {
+public abstract class ObjectFlowField<T> extends ObjectField<T> implements Indicator {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
-	private final MultiLineTextField visual;
+	private final FlowField visual;
 	
-	public MultiLineObjectField(Object key) {
+	public ObjectFlowField(Object key) {
 		this(key, true);
 	}
+
+	public ObjectFlowField(Object key, boolean editable) {
+		this(key, editable, true);
+	}
 	
-	public MultiLineObjectField(Object key, boolean editable) {
+	public ObjectFlowField(Object key, boolean editable, boolean vertical) {
 		super(key, editable);
-		visual = ClientToolkit.getToolkit().createMultiLineTextField();
+		visual = ClientToolkit.getToolkit().createFlowField(vertical);
 	}
 
 	protected void addObject(Object object) {
@@ -65,7 +67,7 @@ public abstract class MultiLineObjectField<T> extends ObjectField<T> implements 
 		super.fireObjectChange();
 	}
 	
-	protected MultiLineTextField getVisual() {
+	protected FlowField getVisual() {
 		return visual;
 	}
 

@@ -121,7 +121,12 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 	}
 	
 	protected void fireObjectChange() {
-		display(object);
+		if (object != null) {
+			show(object);
+		}
+		if (isEditable()) {
+			showActions();
+		}
 		super.fireChange();
 	}
 
@@ -131,6 +136,10 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ind
 		return object == null || EmptyObjects.isEmpty(object);
 	}
 	
-	protected abstract void display(T object);
+	protected abstract void show(T object);
+
+	protected void showActions() {
+		// to be overwritten
+	}
 
 }

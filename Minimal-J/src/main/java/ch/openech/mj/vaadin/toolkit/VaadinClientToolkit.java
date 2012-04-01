@@ -14,7 +14,7 @@ import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
-import ch.openech.mj.toolkit.MultiLineTextField;
+import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -73,8 +73,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public MultiLineTextField createMultiLineTextField() {
-		return new VaadinMultiLineTextField();
+	public FlowField createFlowField(boolean vertical) {
+		return vertical ? new VaadinVerticalFlowField() : new VaadinHorizontalFlowField();
 	}
 
 	@Override

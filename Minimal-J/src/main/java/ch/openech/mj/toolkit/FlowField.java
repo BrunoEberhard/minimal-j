@@ -5,7 +5,7 @@ import javax.swing.Action;
 import ch.openech.mj.edit.fields.Focusable;
 import ch.openech.mj.edit.validation.Indicator;
 
-public interface MultiLineTextField extends IComponent, Indicator, Focusable {
+public interface FlowField extends IComponent, Indicator, Focusable {
 
 	public void clear();
 	
