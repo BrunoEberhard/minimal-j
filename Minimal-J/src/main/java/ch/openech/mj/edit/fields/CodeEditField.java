@@ -26,6 +26,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	private final ComboBox comboBox;
 	private final TextField textField;
 	private final TextField textFieldUnknown;
+	private final TextField textFieldDisabled;
 
 	public CodeEditField(Object key, Code code) {
 		super(key, true);
@@ -39,6 +40,9 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 		textFieldUnknown = ClientToolkit.getToolkit().createReadOnlyTextField();
 		textFieldUnknown.setText(code.getUnknownText());
 
+		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
+		textFieldDisabled.setText("-");
+		
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
 		switchLayout.show(comboBox);
 		
@@ -89,6 +93,15 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 		}
 	}
 
+	public void setEnabled(boolean enabled) {
+		if (enabled) {
+			switchLayout.show(textFieldUnknown);
+			setDefault();
+		} else {
+			switchLayout.show(textFieldDisabled);
+		}
+	}
+	
 	@Override
 	public String[] getKeys() {
 		return new String[]{"codesFree", "codesClear"};
@@ -132,13 +145,17 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 			return code.getKey(text);
 		} else if (switchLayout.getShownComponent() == textField) {
 			return textField.getText();
-		} else{
+		} else {
 			return null;
 		}
 	}
 
 	@Override
 	public void setObject(String value) {
+		if (switchLayout.getShownComponent() == textFieldDisabled) {
+			return;
+		}
+		
 		if (StringUtils.isEmpty(value)) {
 			setDefault();
 			return;
@@ -177,9 +194,6 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 			if (str == null)
 				return null;
 
-			if (textField instanceof JTextComponent && !((JTextComponent) textField).isEditable()) {
-				return str;
-			}
 			if (str.length() <= limit) {
 				return str;
 			} else {
