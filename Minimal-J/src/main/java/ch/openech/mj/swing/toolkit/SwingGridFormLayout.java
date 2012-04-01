@@ -22,7 +22,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 		String columnConstraints = "";
 		int columnWidth = getColumnWidth() * 100 / columnWidthPercentage;
 		for (int i = 0; i<columns; i++) {
-			columnConstraints += "[" + columnWidth + "px:" + columnWidth + "px:" + (columnWidth * 2) + "px, grow 1, push]";
+			columnConstraints += "[" + columnWidth + "px:" + columnWidth + "px:" + (columnWidth * 2) + "px, grow 1, push, sizegroup c]";
 		}
 		setLayout(new MigLayout("ins 5, gapy 0px, wrap " + columns, columnConstraints));
 		
