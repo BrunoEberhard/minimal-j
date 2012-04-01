@@ -363,7 +363,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void writesValueToFields() {
 		for (IComponent visual : fields) {
-			if (visual instanceof DependingOnFieldAbove<?>) {
+			if (editable && visual instanceof DependingOnFieldAbove<?>) {
 				DependingOnFieldAbove<?> dependingOnFieldAbove = (DependingOnFieldAbove<?>) visual;
 				String nameOfDependedField = dependingOnFieldAbove.getNameOfDependedField();
 				EditField dependedField = (EditField) getField(nameOfDependedField);
