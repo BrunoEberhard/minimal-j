@@ -140,11 +140,7 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 	@Override
 	public void setObject(String value) {
 		if (StringUtils.isEmpty(value)) {
-			if (isEditable()) {
-				setDefault();
-			} else {
-				modeUnknown();
-			}
+			setDefault();
 			return;
 		}
 
@@ -181,11 +177,10 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 			if (str == null)
 				return null;
 
-			// TODO TextField.isEditable()
 			if (textField instanceof JTextComponent && !((JTextComponent) textField).isEditable()) {
 				return str;
 			}
-			if (/* isUnknown() ||  !textField.isEditable() || */ str.length() <= limit) {
+			if (str.length() <= limit) {
 				return str;
 			} else {
 				showBubble(textField, "Eingabe auf " + limit + " Zeichen beschränkt");
