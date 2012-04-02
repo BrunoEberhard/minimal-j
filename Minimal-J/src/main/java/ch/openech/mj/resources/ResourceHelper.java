@@ -25,7 +25,6 @@ public class ResourceHelper {
 		
 		// Action.text => Action.NAME,MNEMONIC_KEY,DISPLAYED_MNEMONIC_INDEX_KEY
 		String text = getString(resourceBundle, baseName + ".text");
-		if (StringUtils.isBlank(text)) text = getString(resourceBundle, baseName + ".text");
 		if (text != null) {
 			MnemonicText.configure(action, text);
 		}
