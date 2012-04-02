@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
@@ -537,10 +538,11 @@ public class SwingFrame extends JFrame {
 		}
 	}
 	
-	protected static class NewWindowAction extends ResourceAction {
+	protected static class NewWindowAction extends AbstractAction {
 		private final WindowConfig windowConfig;
 		
 		public NewWindowAction(WindowConfig windowConfig) {
+			putValue(Action.NAME, windowConfig.getTitle());
 			this.windowConfig = windowConfig;
 		}
 
