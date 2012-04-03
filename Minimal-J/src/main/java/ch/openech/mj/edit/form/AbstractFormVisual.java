@@ -449,7 +449,11 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 			if (field instanceof EditField) {
 				EditField<?> editField = (EditField<?>) field;
 				if (mandatoryFields.contains(editField) && editField.isEmpty()) {
-					resultList.add(new ValidationMessage(field.getName(), "Eingabe erforderlich"));
+					String caption = caption(field);
+					if (StringUtils.isEmpty(caption)) {
+						caption = "Eingabe";
+					}
+					resultList.add(new ValidationMessage(field.getName(), caption + " erforderlich"));
 				}
 			}
 			if (field instanceof Validatable) {

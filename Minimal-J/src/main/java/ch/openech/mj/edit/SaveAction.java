@@ -29,7 +29,7 @@ public abstract class SaveAction extends ResourceAction implements Indicator {
 			description = "Eingaben speichern";
 		} else {
 			iconKey = resourceBase + ".icon.Error";
-			description = validationMessages.size() +" Validierungsfehler";
+			description = ValidationMessage.formatHtml(validationMessages);
 		}
 		
 		Icon icon = ResourceHelper.getIcon(Resources.getResourceBundle(), iconKey);
