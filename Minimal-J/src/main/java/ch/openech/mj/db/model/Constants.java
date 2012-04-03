@@ -30,6 +30,10 @@ public class Constants {
 	}
 
 	public static <T> void fillFields(String prefix, T object) throws IllegalAccessException, InstantiationException {
+		fillFields(prefix, object, 0);
+	}
+	
+	private static <T> void fillFields(String prefix, T object, int depth) throws IllegalAccessException, InstantiationException {
 		Class<?> clazz = object.getClass();
 		for (Field field : clazz.getFields()) {
 			if (FieldUtils.isStatic(field)) continue;
@@ -47,7 +51,9 @@ public class Constants {
 					value = field.getType().newInstance();
 					field.set(object, value);
 				} 
-				fillFields(fieldName + ".", value);
+				if (depth < 6) {
+					fillFields(fieldName + ".", value, depth + 1);
+				}
 				constantNames.add(new ConstantName(value, fieldName));
 			}
 		}
