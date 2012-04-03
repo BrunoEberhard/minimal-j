@@ -9,7 +9,7 @@ import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
-public class CodeEditField extends AbstractEditField<String> implements PreferenceAware, DemoEnabled, Indicator {
+public class CodeEditField extends AbstractEditField<String> implements DemoEnabled, Indicator {
 	private final Code code;
 	
 	private final SwitchLayout switchLayout;
@@ -43,11 +43,6 @@ public class CodeEditField extends AbstractEditField<String> implements Preferen
 		} else {
 			switchLayout.show(textFieldDisabled);
 		}
-	}
-	
-	@Override
-	public String[] getKeys() {
-		return new String[]{"codesFree", "codesClear"};
 	}
 
 	private void setDefault() {
