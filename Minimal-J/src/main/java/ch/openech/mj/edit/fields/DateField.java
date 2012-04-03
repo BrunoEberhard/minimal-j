@@ -1,19 +1,12 @@
 package ch.openech.mj.edit.fields;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.List;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
@@ -32,7 +25,7 @@ so gut wie möglich ergänzt. Die Übersetzung geschieht wie folgt:
 
  */
 
-public class DateField extends AbstractEditField<String> implements PreferenceAware, Validatable, DemoEnabled {
+public class DateField extends AbstractEditField<String> implements Validatable, DemoEnabled {
 	public static final boolean REQUIRED = true;
 	public static final boolean NOT_REQUIRED = !REQUIRED;
 	public static final boolean PARTIAL_ALLOWED = true;
@@ -62,7 +55,6 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 			textField = ClientToolkit.getToolkit().createTextField(listener(), new DateFilter());
 			
 			installFocusLostListener();
-			createMenu();
 		} else {
 			textField = ClientToolkit.getToolkit().createReadOnlyTextField();
 		}
@@ -71,58 +63,6 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 	@Override
 	public Object getComponent() {
 		return decorateWithContextActions(textField);
-	}
-	
-	public void createMenu() {
-		boolean hasMenu = PreferencesHelper.preferences() == null || PreferencesHelper.preferences().getBoolean("dateFormat", false);
-		if (hasMenu) {
-	        Action formatCH = new AbstractAction("Format TT.MM.JJJJ / TTMMJJJJ") {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (format !=  Format.CH) {
-						String value = DateField.this.getObject();
-						format = Format.CH;
-						setObject(value);
-					}
-				}
-	        };
-	        addContextAction(formatCH);
-	        
-	        Action formatUS = new AbstractAction("Format JJJJ-MM-TT / JJJJMMTT") {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (format !=  Format.US) {
-						String value = DateField.this.getObject();
-						format = Format.US;
-						setObject(value);
-					}
-				}
-	        };
-	        addContextAction(formatUS);
-	        
-	        Action freeEntry = new AbstractAction("Freie Eingabe") {
-				@Override
-				public void actionPerformed(ActionEvent e) {				
-					if (format !=  Format.Free) {
-						String value = DateField.this.getObject();
-						format = Format.Free;
-						setObject(value);
-					}
-				}
-	        };
-	        addContextAction(freeEntry);
-		} else {
-			if (format != Format.CH) {
-				String value = DateField.this.getObject();
-				format = Format.CH;
-				setObject(value);
-			}
-		}
-	}
-
-	@Override
-	public String[] getKeys() {
-		return new String[]{"dateFormat"};
 	}
 
 	private void installFocusLostListener() {
@@ -136,8 +76,6 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 				}
 			}
 		});
-        // TODO
-        // textField.setKeyListener(new DateKeyListener(this));
 	}
 	
 	@Override
@@ -249,14 +187,4 @@ public class DateField extends AbstractEditField<String> implements PreferenceAw
 		}
 	}
 	
-	private class DateFieldPreferenceListener implements PreferenceChangeListener  {
-		@Override
-		public void preferenceChange(PreferenceChangeEvent evt) {
-			String propertyName = evt.getKey();
-			if (!"dateFormat".equals(propertyName)) return;
-			createMenu();
-		}
-		
-	}
-
 }
