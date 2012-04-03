@@ -8,20 +8,20 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.swing.component.IndicatingTextField;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.StringUtils;
 
 public class SwingDirectoryField implements EditField<String>, IComponentDelegate, Indicator {
 
 	private final String name;
-	private final IndicatingTextField textField;
+	private final JTextField textField;
 	private final JButton button;
 	private final JPanel panel;
 	
@@ -30,7 +30,7 @@ public class SwingDirectoryField implements EditField<String>, IComponentDelegat
 		
 		panel = new JPanel(new BorderLayout());
 
-		textField = new IndicatingTextField();
+		textField = new JTextField();
 		button = new JButton("...");
 		
 		panel.add(textField, BorderLayout.CENTER);
@@ -66,7 +66,8 @@ public class SwingDirectoryField implements EditField<String>, IComponentDelegat
 	
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		textField.setValidationMessages(validationMessages);
+		// TODO
+		// textField.setValidationMessages(validationMessages);
 	}
 
 	@Override

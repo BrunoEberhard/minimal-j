@@ -1,37 +1,30 @@
 package ch.openech.mj.swing.toolkit;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.util.List;
 
-import javax.swing.JScrollPane;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.resources.ResourceHelper;
 
 public class SwingIndication {
 
-	public static void setValidationMessages(List<ValidationMessage> validationMessages, Container container) {
-		List<ValidationMessage> filteredMessages = ValidationMessage.filterValidationMessage(validationMessages, container.getName());
-		setIndicationToComponents(filteredMessages, container);
-	}
-
-	private static void setIndicationToComponents(List<ValidationMessage> validationMessages, Container container) {
-		for (Component child : container.getComponents()) {
-			setIndicationToComponent(validationMessages, child);
-		}
-	}
-
-	private static void setIndicationToComponent(List<ValidationMessage> validationMessages, Component component) {
-		if (component instanceof JScrollPane) {
-			component = ((JScrollPane) component).getViewport().getView();
-		}
-		if (component instanceof Indicator) {
-			((Indicator) component).setValidationMessages(validationMessages);
-		}
-		if (component instanceof Container) {
-			Container container = (Container) component;
-			setIndicationToComponents(validationMessages, container);
+	public static void setValidationMessagesToCaption(List<ValidationMessage> validationMessages, Component component) {
+		if (component.getParent() instanceof JPanel) {
+			JPanel panel = (JPanel) component.getParent();
+			if (panel.getComponent(0) instanceof JLabel) {
+				JLabel captionLabel = (JLabel)panel.getComponent(0);
+				if (!validationMessages.isEmpty()) {
+					captionLabel.setIcon(ResourceHelper.getIcon("field_error.png"));
+					String validationMessage = ValidationMessage.formatHtml(validationMessages);
+					captionLabel.setToolTipText(validationMessage);
+				} else {
+					captionLabel.setIcon(null);
+					captionLabel.setToolTipText(null);
+				}
+			}
 		}
 	}
 

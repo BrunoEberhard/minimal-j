@@ -35,7 +35,7 @@ public class SwingFlowField extends JPanel implements FlowField {
 
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		// super.setValidationMessages(validationMessages);
+		SwingIndication.setValidationMessagesToCaption(validationMessages, this);
 	}
 	
 	@Override

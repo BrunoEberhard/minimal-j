@@ -6,14 +6,15 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.fields.Focusable;
-import ch.openech.mj.swing.component.IndicatingComboBox;
+import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ComboBox;
 
-public class SwingComboBox extends IndicatingComboBox implements ComboBox, Focusable {
+public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 
 	private final ChangeListener listener;
 
@@ -87,6 +88,11 @@ public class SwingComboBox extends IndicatingComboBox implements ComboBox, Focus
 		public Object getSelectedItem() {
 			return selectedObject;
 		}
+	}
+	
+	@Override
+	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+		SwingIndication.setValidationMessagesToCaption(validationMessages, this);
 	}
 	
 }

@@ -8,6 +8,7 @@ import java.awt.FontMetrics;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.plaf.LabelUI;
 import javax.swing.plaf.PanelUI;
@@ -73,6 +74,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
 	public JLabel createCaptionLabel(String caption) {
 		JLabel label = new CaptionLabel(caption);
+		label.setHorizontalTextPosition(SwingConstants.LEADING);
 		return label;
 	}
 	

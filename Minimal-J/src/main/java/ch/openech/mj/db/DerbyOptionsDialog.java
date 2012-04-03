@@ -14,8 +14,7 @@ package ch.openech.mj.db;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JRadioButton;
-
-import ch.openech.mj.swing.component.IndicatingTextField;
+import javax.swing.JTextField;
 
 
 /**
@@ -34,7 +33,7 @@ public class DerbyOptionsDialog extends javax.swing.JDialog {
 		return choiceButtonGroup;
 	}
 
-	public IndicatingTextField getDirectoryTextField() {
+	public JTextField getDirectoryTextField() {
 		return directoryTextField;
 	}
 
@@ -71,7 +70,7 @@ public class DerbyOptionsDialog extends javax.swing.JDialog {
 		jLabel2 = new javax.swing.JLabel();
 		jLabel3 = new javax.swing.JLabel();
 		buttonStart = new javax.swing.JButton();
-		directoryTextField = new ch.openech.mj.swing.component.IndicatingTextField();
+		directoryTextField = new JTextField();
 		buttonDirectory = new javax.swing.JButton();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -157,7 +156,7 @@ public class DerbyOptionsDialog extends javax.swing.JDialog {
 	private javax.swing.JRadioButton buttonMemory;
 	private javax.swing.JButton buttonStart;
 	private javax.swing.ButtonGroup choiceButtonGroup;
-	private ch.openech.mj.swing.component.IndicatingTextField directoryTextField;
+	private JTextField directoryTextField;
 	private javax.swing.JLabel jLabel1;
 	private javax.swing.JLabel jLabel2;
 	private javax.swing.JLabel jLabel3;

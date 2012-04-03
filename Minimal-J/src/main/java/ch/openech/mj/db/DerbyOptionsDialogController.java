@@ -162,7 +162,8 @@ public class DerbyOptionsDialogController {
 			}
 			
 			dialog.getButtonStart().setEnabled(resultList.isEmpty());
-			dialog.getDirectoryTextField().setValidationMessages(resultList);
+			// TODO
+			// dialog.getDirectoryTextField().setValidationMessages(resultList);
 		}
 
 		@Override
