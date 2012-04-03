@@ -62,7 +62,7 @@ public class DateField extends AbstractEditField<String> implements Validatable,
 
 	@Override
 	public Object getComponent() {
-		return decorateWithContextActions(textField);
+		return textField;
 	}
 
 	private void installFocusLostListener() {
