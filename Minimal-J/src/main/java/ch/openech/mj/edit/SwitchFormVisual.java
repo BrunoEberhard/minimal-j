@@ -15,6 +15,7 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	private SwitchLayout switchLayout;
 	private FormVisual<?> formVisual;
+	private T object;
 	
 	public SwitchFormVisual() {
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
@@ -59,12 +60,12 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 	
 	@Override
 	public T getObject() {
-		return null;
+		return object;
 	}
 	
 	@Override
 	public void setObject(T object) {
-		// not used
+		this.object = object;
 	}
 
 }
