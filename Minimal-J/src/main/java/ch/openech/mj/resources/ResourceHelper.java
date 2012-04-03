@@ -92,7 +92,7 @@ public class ResourceHelper {
 	}
 	
 	public static Icon getIcon(String key) {
-		key = "ch/openech/mj/application/resources/icons/" + key;
+		key = "ch/openech/mj/resources/icons/" + key;
 		URL url = ResourceHelper.class.getClassLoader().getResource(key);
 		if (url != null) {
 			return new ImageIcon(url);
