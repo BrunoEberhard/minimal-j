@@ -4,7 +4,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.AbstractListModel;
+import javax.swing.ComboBoxModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -19,13 +20,12 @@ public class SwingComboBox extends IndicatingComboBox implements ComboBox, Focus
 	public SwingComboBox(ChangeListener listener) {
 		this.listener = listener;
 		addItemListener(new ComboBoxChangeListener());
-		
 		setInheritsPopupMenu(true);
 	}
 	
 	@Override
 	public void setObjects(List<?> objects) {
-		setModel(new DefaultComboBoxModel(objects.toArray()));
+		setModel(new NullableComboBoxModel(objects));
 	}
 
 	@Override
@@ -49,6 +49,43 @@ public class SwingComboBox extends IndicatingComboBox implements ComboBox, Focus
 			if (e.getStateChange() == ItemEvent.SELECTED) {
 				fireChangeEvent();
 			}
+		}
+	}
+	
+	private static class NullableComboBoxModel extends AbstractListModel implements ComboBoxModel {
+		private List<?> objects;
+		private Object selectedObject;
+		
+		private NullableComboBoxModel(List<?> objects) {
+			this.objects = objects;
+		}
+
+		@Override
+		public int getSize() {
+			return objects.size() + 1;
+		}
+
+		@Override
+		public Object getElementAt(int index) {
+			if (index == 0) {
+				return "";
+			} else {
+				return objects.get(index-1);
+			}
+		}
+
+		@Override
+		public void setSelectedItem(Object anObject) {
+			if (selectedObject != null && !selectedObject.equals(anObject) || selectedObject == null
+					&& anObject != null) {
+				selectedObject = anObject;
+				fireContentsChanged(this, -1, -1);
+			}
+		}
+
+		@Override
+		public Object getSelectedItem() {
+			return selectedObject;
 		}
 	}
 	
