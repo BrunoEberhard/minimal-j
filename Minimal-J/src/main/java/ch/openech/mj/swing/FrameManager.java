@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.resources.ResourceHelper;
 
@@ -54,8 +53,8 @@ public class FrameManager implements RefreshablePage {
 		return instance;
 	}
 
-	public void openNavigationFrame(WindowConfig windowConfig) {
-		final SwingFrame frame = new SwingFrame(windowConfig);
+	public void openNavigationFrame() {
+		final SwingFrame frame = new SwingFrame();
 		frame.setVisible(true);
 		
 		navigationFrames.add(frame);

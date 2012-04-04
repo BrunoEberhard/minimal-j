@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
@@ -40,7 +39,6 @@ import ch.openech.mj.application.AsyncPage;
 import ch.openech.mj.application.AsyncPage.PageWorkListener;
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.application.HistoryPanel;
-import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
@@ -55,27 +53,23 @@ import ch.openech.mj.swing.lookAndFeel.PrintLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
 
 public class SwingFrame extends JFrame {
-	private final WindowConfig windowConfig;
 	private JTabbedPane tabbedPane;
 	private JToolBar toolBar;
 	private Action previousAction, nextAction, refreshAction, stopAction, searchAction;
 	private JMenuItem menuItemToolBarVisible;
-	private int menusBeforePageSpecific;
-	private int pageSpecificMenus;
 	private JComboBox comboBoxSearchObject;
 	private JTextField textFieldSearch;
 	private HistoryPanelListener historyPanelListener = new HistoryPanelListener();
 
-	public SwingFrame(WindowConfig windowConfig) {
+	public SwingFrame() {
 		super();
-		this.windowConfig = windowConfig;
 
-		setTitle(windowConfig.getTitle());
 		setDefaultSize();
 		setLocationRelativeTo(null);
 		addWindowListener();
 		initActions();
 		createContent();
+		updateMenu();
 		getRootPane().putClientProperty(SwingFrame.class.getSimpleName(), this);
 	}
 	
@@ -262,6 +256,11 @@ public class SwingFrame extends JFrame {
 		return result;
 	}
 	
+	protected void updateWindowTitle() {
+		PageContext pageContext = getVisiblePageContext();
+		setTitle(ApplicationConfig.getApplicationConfig().getWindowTitle(pageContext));
+	}
+	
 	protected void updateActions() {
 		HistoryPanel historyPanel = getVisiblePageContext().getHistoryPanel();
 		if (historyPanel != null  && getVisiblePage() != null && !getVisiblePage().isExclusive()) {
@@ -284,32 +283,52 @@ public class SwingFrame extends JFrame {
 	
 	protected void updateMenu() {
 		JMenuBar menuBar = getRootPane().getJMenuBar();
-		while (pageSpecificMenus > 0) {
-			pageSpecificMenus = pageSpecificMenus - 1;
-			menuBar.remove(menusBeforePageSpecific + pageSpecificMenus);
-		}
+		menuBar.removeAll();
+
 		ActionGroup actionGroup = new ActionGroup(null);
+		fillMenu(actionGroup);
+		
 		PageContext pageContext = getVisiblePageContext();
 		ApplicationConfig.getApplicationConfig().fillActionGroup(pageContext, actionGroup);
-		windowConfig.fillActionGroup(pageContext, actionGroup);
+		
 		Page visiblePage = getVisiblePage();
 		if (visiblePage != null) {
 			visiblePage.fillActionGroup(pageContext, actionGroup);
 		}
-		if (!actionGroup.getActions().isEmpty()) {
-			updateMenu(actionGroup);
-		}
+
+		updateMenu(actionGroup);
 	}
 	
+	private void fillMenu(ActionGroup actionGroup) {
+		ActionGroup file = actionGroup.getOrCreateActionGroup(ActionGroup.FILE);
+		fillFileMenu(file);
+	
+		ActionGroup edit = actionGroup.getOrCreateActionGroup(ActionGroup.EDIT);
+		fillEditMenu(edit);
+		
+		ActionGroup view = actionGroup.getOrCreateActionGroup(ActionGroup.VIEW);
+		fillViewMenu(view);
+		
+		actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT);
+
+		ActionGroup window = actionGroup.getOrCreateActionGroup(ActionGroup.WINDOW);
+		fillWindowMenu(window);
+		
+		ActionGroup help = actionGroup.getOrCreateActionGroup(ActionGroup.HELP);
+		fillHelpMenu(help);
+	}
+
 	private void updateMenu(ActionGroup actions) {
 		JMenuBar menuBar = getRootPane().getJMenuBar();
 		for (Action action : actions.getActions()) {
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
-				JMenu menu = new JMenu((String) actionGroup.getValue(Action.NAME));
-				menuBar.add(menu, menusBeforePageSpecific + (pageSpecificMenus++));
-				// menuBar.add(menu);
-				fillMenu(menu, actionGroup);
+				if (!actionGroup.getActions().isEmpty()) {
+					JMenu menu = new JMenu((String) actionGroup.getValue(Action.NAME));
+					// menu.setMnemonic((String) actionGroup.getValue(Action.MNEMONIC_KEY));
+					menuBar.add(menu);
+					fillMenu(menu, actionGroup);
+				}
 			}
 		}
 	}
@@ -318,12 +337,16 @@ public class SwingFrame extends JFrame {
 		for (Action action : actionGroup.getActions()) {
 			if (action instanceof ActionGroup) {
 				ActionGroup subGroup = (ActionGroup) action;
-				JMenu subMenu = new JMenu((String) subGroup.getValue(Action.NAME));
-				fillMenu(subMenu, subGroup);
-				menu.add(subMenu);
-			} else {
+				if (!actionGroup.getActions().isEmpty()) {
+					JMenu subMenu = new JMenu((String) subGroup.getValue(Action.NAME));
+					fillMenu(subMenu, subGroup);
+					menu.add(subMenu);
+				}
+			} else if (action.getValue(Action.NAME) != null) {
 				JMenuItem menuItem = new JMenuItem(action);
 				menu.add(menuItem);
+			} else {
+				menu.addSeparator();
 			}
 		}
 	}
@@ -428,7 +451,7 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void fillToolBarSearch(JToolBar toolBar) {
-		if (windowConfig.getSearchClasses().length > 0) {
+		if (ApplicationConfig.getApplicationConfig().getSearchClasses().length > 0) {
 			toolBar.add(createSearchField());
 		}
 	}
@@ -437,7 +460,7 @@ public class SwingFrame extends JFrame {
 		FlowLayout flowLayout = new FlowLayout(FlowLayout.TRAILING);
 		flowLayout.setAlignOnBaseline(true);
 		JPanel panel = new JPanel(flowLayout);
-		comboBoxSearchObject = new JComboBox(windowConfig.getSearchClasses());
+		comboBoxSearchObject = new JComboBox(ApplicationConfig.getApplicationConfig().getSearchClasses());
 		comboBoxSearchObject.setRenderer(new SearchCellRenderer());
 		panel.add(comboBoxSearchObject);
 		textFieldSearch = new JTextField();
@@ -467,6 +490,7 @@ public class SwingFrame extends JFrame {
 	private class HistoryPanelListener implements HistoryPanel.HistoryPanelListener {
 		@Override
 		public void onHistoryChanged() {
+			updateWindowTitle();
 			 updateActions();
 			 updateMenu();
 			 updateTitle();
@@ -486,77 +510,19 @@ public class SwingFrame extends JFrame {
 	//
 	
 	public JMenuBar createMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-		fillMenuBar(menuBar);
-		return menuBar;
-	}
-
-	protected void fillMenuBar(JMenuBar menuBar) {
-		fillMenuBarLead(menuBar);
-		menusBeforePageSpecific = menuBar.getMenuCount();
-		fillMenuBarEnd(menuBar);
+		return new JMenuBar();
 	}
 	
-	protected void fillMenuBarLead(JMenuBar menuBar) {
-		menuBar.add(createFileMenu());
-		menuBar.add(createEditMenu());
-		menuBar.add(createViewMenu());
-	}
-
-	protected void fillMenuBarEnd(JMenuBar menuBar) {
-		menuBar.add(createHelpMenu());
-	}
-
-	
-	protected JMenu createFileMenu() {
-		JMenu menu = new JMenu("Datei");
-		menu.setMnemonic('D');
-		fillFileMenu(menu);
-		return menu;
-	}
-	
-	protected void fillFileMenu(JMenu menu) {
-		fillFileMenuNewWindow(menu);
-		
-		menu.add(new CloseWindowAction());
-		menu.add(new NewTabAction());
-		menu.add(new CloseTabAction());
-		menu.addSeparator();
-		menu.add(new ExitAction());
-	}
-
-	protected void fillFileMenuNewWindow(JMenu menu) {
-		WindowConfig[] windowConfigs = ApplicationConfig.getApplicationConfig().getWindowConfigs();
-		if (windowConfigs.length == 1) {
-			menu.add(new NewWindowAction(windowConfigs[0]));
-		} else {
-			JMenu menuNew = new JMenu("Neues Fenster");
-			for (WindowConfig windowConfig : windowConfigs) {
-				menuNew.add(new NewWindowAction(windowConfig));
-			}
-			menu.add(menuNew);
-		}
-	}
-	
-	protected static class NewWindowAction extends AbstractAction {
-		private final WindowConfig windowConfig;
-		
-		public NewWindowAction(WindowConfig windowConfig) {
-			putValue(Action.NAME, windowConfig.getTitle());
-			this.windowConfig = windowConfig;
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			FrameManager.getInstance().openNavigationFrame(windowConfig);
-		}
-	}
-	
-	protected class NewTabAction extends ResourceAction {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			addDefaultTab();
-		}
+	protected void fillFileMenu(ActionGroup actionGroup) {
+		actionGroup.getOrCreateActionGroup(ActionGroup.NEW);
+		actionGroup.addSeparator();
+		actionGroup.add(new CloseWindowAction());
+		actionGroup.add(new CloseTabAction());
+		actionGroup.addSeparator();
+		actionGroup.getOrCreateActionGroup(ActionGroup.IMPORT);
+		actionGroup.getOrCreateActionGroup(ActionGroup.EXPORT);
+		actionGroup.addSeparator();
+		actionGroup.add(new ExitAction());
 	}
 	
 	protected class CloseTabAction extends ResourceAction {
@@ -579,38 +545,38 @@ public class SwingFrame extends JFrame {
 			FrameManager.getInstance().exitActionPerformed(SwingFrame.this);
 		}
 	}
-	
-	protected JMenu createEditMenu() {
-		JMenu menu = new JMenu("Bearbeiten");
-		menu.setMnemonic('B');
-		fillEditMenu(menu);
-		return menu;
-	}
-	
-	private void fillEditMenu(JMenu menu) {
-		menu.add(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "cut"));
-		menu.add(ResourceHelper.initProperties(new DefaultEditorKit.CopyAction(), Resources.getResourceBundle(), "copy"));
-		menu.add(ResourceHelper.initProperties(new DefaultEditorKit.PasteAction(), Resources.getResourceBundle(), "paste"));
+
+	protected static class NewWindowAction extends ResourceAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			FrameManager.getInstance().openNavigationFrame();
+		}
 	}
 
-	protected JMenu createViewMenu() {
-		JMenu menu = new JMenu("Ansicht");
-		fillViewMenu(menu);
-		return menu;
+	protected class NewTabAction extends ResourceAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			addDefaultTab();
+		}
 	}
-	
-	protected void fillViewMenu(JMenu menu) {
-		menu.setMnemonic('A');
-		menu.add(previousAction);
-		menu.add(nextAction);
-		menu.add(refreshAction);
-		menu.addSeparator();
-		menuItemToolBarVisible = new MenuItemToolBarVisible();
-		menu.add(menuItemToolBarVisible);
-		menu.addSeparator();
-		JMenu lookAndFeelMenu = new JMenu("Darstellung");
-		menu.add(lookAndFeelMenu);
-		fillLookAndFeelMenu(lookAndFeelMenu);
+
+	private void fillEditMenu(ActionGroup actionGroup) {
+		actionGroup.add(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "cut"));
+		actionGroup.add(ResourceHelper.initProperties(new DefaultEditorKit.CopyAction(), Resources.getResourceBundle(), "copy"));
+		actionGroup.add(ResourceHelper.initProperties(new DefaultEditorKit.PasteAction(), Resources.getResourceBundle(), "paste"));
+	}
+
+	protected void fillViewMenu(ActionGroup actionGroup) {
+		actionGroup.add(previousAction);
+		actionGroup.add(nextAction);
+		actionGroup.add(refreshAction);
+		actionGroup.addSeparator();
+		// TODO Toolbar toggle in SwingFrame
+//		menuItemToolBarVisible = new MenuItemToolBarVisible();
+//		actionGroup.add(menuItemToolBarVisible);
+//		actionGroup.addSeparator();
+		ActionGroup lookAndFeel = actionGroup.getOrCreateActionGroup("lookAndFeel");
+		fillLookAndFeelMenu(lookAndFeel);
 	}
 
 	private class MenuItemToolBarVisible extends JCheckBoxMenuItem implements ItemListener {
@@ -630,20 +596,20 @@ public class SwingFrame extends JFrame {
 		}
 	}
 	
-	private void fillLookAndFeelMenu(JMenu menu) {
-		menu.add(new LookAndFeelAction("Normal"));
-		menu.add(new LookAndFeelAction("Hoher Kontrast", TerminalLookAndFeel.class.getName()));
-		menu.add(new LookAndFeelAction("Druckbar", PrintLookAndFeel.class.getName()));
-	}
-
-	protected JMenu createHelpMenu() {
-		JMenu menu = new JMenu("Hilfe");
-		menu.setMnemonic('H');
-		fillHelpMenu(menu);
-		return menu;
+	private void fillLookAndFeelMenu(ActionGroup actionGroup) {
+		actionGroup.add(new LookAndFeelAction("Normal"));
+		actionGroup.add(new LookAndFeelAction("Hoher Kontrast", TerminalLookAndFeel.class.getName()));
+		actionGroup.add(new LookAndFeelAction("Druckbar", PrintLookAndFeel.class.getName()));
 	}
 	
-	protected void fillHelpMenu(JMenu menu) {
+	protected void fillWindowMenu(ActionGroup actionGroup) {
+		actionGroup.add(new NewWindowAction());
+		actionGroup.add(new NewTabAction());
+		actionGroup.addSeparator();
+		actionGroup.getOrCreateActionGroup(ActionGroup.PREFERENCES);
+	}
+	
+	protected void fillHelpMenu(ActionGroup actionGroup) {
 		// 
 	}
 	

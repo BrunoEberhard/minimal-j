@@ -3,18 +3,17 @@ package ch.openech.mj.vaadin.toolkit;
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
 import ch.openech.mj.toolkit.ContextLayout;
+import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
-import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -164,21 +163,16 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action[] actions) {
+	public IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions) {
 		return new VaadinEditorLayout(text, searchAction, content, actions);
 	}
 
 	@Override
-	public PageContext openPageContext(PageContext parentPageContext, WindowConfig windowConfig) {
+	public PageContext openPageContext(PageContext parentPageContext, boolean newWindow) {
 		VaadinWindow parentVaadinWindow = (VaadinWindow) parentPageContext;
-		VaadinWindow vaadinWindow = new VaadinWindow(parentVaadinWindow);
+		VaadinWindow vaadinWindow = new VaadinWindow();
 		parentVaadinWindow.open(new ExternalResource(vaadinWindow.getURL()), "_new");
 		return vaadinWindow;
-	}
-
-	@Override
-	public PageContext openPageContext(PageContext parentPageContext) {
-		return null;
 	}
 
 	@Override

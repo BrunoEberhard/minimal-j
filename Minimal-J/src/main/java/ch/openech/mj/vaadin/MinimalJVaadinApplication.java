@@ -2,7 +2,6 @@ package ch.openech.mj.vaadin;
 
 import java.util.ResourceBundle;
 
-import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
@@ -22,7 +21,7 @@ public class MinimalJVaadinApplication extends Application {
 	public void init() {
 		setTheme("openech");
 
-		mainWindow = new VaadinWindow(ApplicationConfig.getApplicationConfig().getInitialWindowConfig());
+		mainWindow = new VaadinWindow();
 		// TODO Preferences in MinimalJVaadinApplication
 		// mainWindow.setPreferences(Preferences.userNodeForPackage(MinimalJVaadinApplication.class));
 		setMainWindow(mainWindow);

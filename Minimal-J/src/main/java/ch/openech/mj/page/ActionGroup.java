@@ -12,19 +12,35 @@ import ch.openech.mj.resources.Resources;
 
 public class ActionGroup extends AbstractAction {
 
+	private static final String TAG = "tag";
+
+	// Values for putValue on Action
+	public static final String FILE = "file";
 	public static final String NEW = "new";
+	public static final String IMPORT = "import";
+	public static final String EXPORT = "export";
+
+	public static final String VIEW = "view";
+	public static final String EDIT = "edit";
+	public static final String OBJECT = "object";
+	public static final String PREFERENCES = "preferences";
+	public static final String WINDOW = "window";
+	public static final String HELP = "help";
 	
 	private final List<Action> actions = new ArrayList<Action>();
 
-	public ActionGroup() {
-	}
-	
-	public ActionGroup(String name) {
-		super(name);
+	public ActionGroup(String tag) {
+		super();
+		putValue(TAG, tag);
+		ResourceHelper.initProperties(this, Resources.getResourceBundle(), "ActionGroup." + tag);
 	}
 	
 	public void add(Action action) {
 		actions.add(action);
+	}
+	
+	public String getTag() {
+		return (String) getValue(TAG);
 	}
 	
 	public List<Action> getActions() {
@@ -50,26 +66,25 @@ public class ActionGroup extends AbstractAction {
 		
 	/**
 	 * 
-	 * @param resourceName Name of resource. A prefix "ActionGroup." is added.
+	 * @param tag tag of the group. Also used for Resources, a prefix "ActionGroup." is added
 	 * @return existing or newly created ActionGroup
 	 */
-	public ActionGroup getOrCreateActionGroup(String resourceName) {
-		ActionGroup actionGroup = getActionGroup(resourceName);
+	public ActionGroup getOrCreateActionGroup(String tag) {
+		ActionGroup actionGroup = getActionGroup(tag);
 		if (actionGroup != null) {
 			return actionGroup;
 		} else {
-			return createActionGroup(resourceName);
+			return createActionGroup(tag);
 		}
 	}
 
 	/**
 	 * 
-	 * @param resourceName Name of resource. A prefix "ActionGroup." is added.
+	 * @param tag tag of the group. Also used for Resources, a prefix "ActionGroup." is added
 	 * @return new ActionGroup added to this one
 	 */
-	public ActionGroup createActionGroup(String resourceName) {
-		ActionGroup actionGroup = new ActionGroup(resourceName);
-		ResourceHelper.initProperties(actionGroup, Resources.getResourceBundle(), "ActionGroup." + resourceName);
+	public ActionGroup createActionGroup(String tag) {
+		ActionGroup actionGroup = new ActionGroup(tag);
 		add(actionGroup);
 		return actionGroup;
 	}
@@ -78,7 +93,7 @@ public class ActionGroup extends AbstractAction {
 		for (Action action : actions) {
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
-				if (name.equals(actionGroup.getValue(NAME))) {
+				if (name.equals(actionGroup.getTag())) {
 					return actionGroup;
 				}
 			}

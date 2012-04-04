@@ -7,7 +7,6 @@ import javax.swing.Action;
 
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.application.EmptyPage;
-import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
@@ -37,7 +36,6 @@ import com.vaadin.ui.Window;
 
 public class VaadinWindow extends Window implements PageContext {
 
-	private final WindowConfig windowConfig;
 	private final VerticalLayout windowContent = new VerticalLayout();
 	private final MenuBar menubar = new MenuBar();
 	private final ComboBox comboBox = new ComboBox();
@@ -48,13 +46,12 @@ public class VaadinWindow extends Window implements PageContext {
 	private Page visiblePage = new EmptyPage(this);
 	private ComponentContainer content;
 	
-	public VaadinWindow(WindowConfig windowConfig) {
-		this.windowConfig = windowConfig;
+	public VaadinWindow() {
 		
 		setContent(windowContent);
 		setSizeFull();
 		windowContent.setSizeFull();
-		setCaption(windowConfig.getTitle());
+		updateWindowTitle();
 		
 		HorizontalLayout nav = new HorizontalLayout();
 		windowContent.addComponent(nav);
@@ -69,7 +66,7 @@ public class VaadinWindow extends Window implements PageContext {
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
 		updateMenu();
 		
-		if (windowConfig.getSearchClasses().length > 0) {
+		if (ApplicationConfig.getApplicationConfig().getSearchClasses().length > 0) {
 			Component searchComponent = createSearchField();
 			nav.addComponent(searchComponent);
 			nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
@@ -80,19 +77,15 @@ public class VaadinWindow extends Window implements PageContext {
 		windowContent.addComponent(ufu);
 	}
 
-    public VaadinWindow(VaadinWindow parentVaadinWindow) {
-		this(parentVaadinWindow.windowConfig);
-	}
-
 	private Component createSearchField() {
 		final HorizontalLayout horizontalLayout = new HorizontalLayout();
 
 		comboBox.setNullSelectionAllowed(false);
-		for (Class<?> searchClass: windowConfig.getSearchClasses()) {
+		for (Class<?> searchClass: ApplicationConfig.getApplicationConfig().getSearchClasses()) {
 			comboBox.addItem(searchClass);
 			comboBox.setItemCaption(searchClass, Resources.getString("Search." + searchClass.getSimpleName()));
 		}
-		comboBox.setValue(windowConfig.getSearchClasses()[0]);
+		comboBox.setValue(ApplicationConfig.getApplicationConfig().getSearchClasses()[0]);
 		horizontalLayout.addComponent(comboBox);
 		
         textFieldSearch.setWidth("160px");
@@ -137,24 +130,30 @@ public class VaadinWindow extends Window implements PageContext {
 		windowContent.setExpandRatio(content, 1);
 		
 		updateMenu();
+		updateWindowTitle();
 	}
 
 	private void updateMenu() {
+		menubar.removeItems();
+		
 		ActionGroup actionGroup = new ActionGroup(null);
+		fillMenu(actionGroup);
+		
 		PageContext pageContext = (PageContext) this;
 		ApplicationConfig.getApplicationConfig().fillActionGroup(pageContext, actionGroup);
-		windowConfig.fillActionGroup(pageContext, actionGroup);
 		visiblePage.fillActionGroup(pageContext, actionGroup);
+		
 		updateMenu(actionGroup);
 	}
 	
 	private void updateMenu(ActionGroup actions) {
-		menubar.removeItems();
 		for (Action action : actions.getActions()) {
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
-				MenuBar.MenuItem item = menubar.addItem((String) actionGroup.getValue(Action.NAME), null);
-				fillMenu(item, actionGroup);
+				if (!actionGroup.getActions().isEmpty()) {
+					MenuBar.MenuItem item = menubar.addItem((String) actionGroup.getValue(Action.NAME), null);
+					fillMenu(item, actionGroup);
+				}
 			}
 		}
 	}
@@ -163,14 +162,38 @@ public class VaadinWindow extends Window implements PageContext {
 		for (Action action : actionGroup.getActions()) {
 			if (action instanceof ActionGroup) {
 				ActionGroup subGroup = (ActionGroup) action;
-				MenuBar.MenuItem subItem = item.addItem((String) subGroup.getValue(Action.NAME), null);
-				fillMenu(subItem, subGroup);
+				if (!actionGroup.getActions().isEmpty()) {
+					MenuBar.MenuItem subItem = item.addItem((String) subGroup.getValue(Action.NAME), null);
+					fillMenu(subItem, subGroup);
+				}
 			} else if (action instanceof SeparatorAction) {
 				item.addSeparator();
 			} else {
 				item.addItem((String) action.getValue(Action.NAME), null, new ActionCommand(action));
 			}
 		}
+	}
+	
+	private void fillMenu(ActionGroup actionGroup) {
+		ActionGroup file = actionGroup.getOrCreateActionGroup(ActionGroup.FILE);
+		fillFileMenu(file);
+	
+		actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT);
+		actionGroup.getOrCreateActionGroup(ActionGroup.WINDOW);
+		
+		ActionGroup help = actionGroup.getOrCreateActionGroup(ActionGroup.HELP);
+		fillHelpMenu(help);
+	}
+	
+	protected void fillFileMenu(ActionGroup actionGroup) {
+		actionGroup.getOrCreateActionGroup(ActionGroup.NEW);
+		actionGroup.addSeparator();
+		actionGroup.getOrCreateActionGroup(ActionGroup.IMPORT);
+		actionGroup.getOrCreateActionGroup(ActionGroup.EXPORT);
+	}
+	
+	protected void fillHelpMenu(ActionGroup actionGroup) {
+		// 
 	}
 	
 	private class ActionCommand implements Command {
@@ -196,6 +219,10 @@ public class VaadinWindow extends Window implements PageContext {
 	public void close() {
 		getWindow().executeJavaScript("history.back()");
 		// ev. "var backlen=history.length; history.go(-backlen); window.location.href= window.location.href;"
+	}
+	
+	protected void updateWindowTitle() {
+		setCaption(ApplicationConfig.getApplicationConfig().getWindowTitle(this));
 	}
 	
 	private class VaadinWindowFragmentChangedListener implements FragmentChangedListener {

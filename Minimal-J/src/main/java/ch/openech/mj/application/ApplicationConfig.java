@@ -33,12 +33,10 @@ public abstract class ApplicationConfig {
 	
 	public abstract ResourceBundle getResourceBundle();
 
-	public abstract WindowConfig getInitialWindowConfig();
-
-	public WindowConfig[] getWindowConfigs() {
-		return new WindowConfig[]{getInitialWindowConfig()};
-	}
-
+	public abstract String getWindowTitle(PageContext pageContext);
+	
+	public abstract Class<?>[] getSearchClasses();
+	
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
 		// should be done in subclass
 	}

@@ -2,7 +2,6 @@ package ch.openech.mj.example;
 
 import java.util.prefs.Preferences;
 
-import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.swing.FrameManager;
 import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.swing.SwingApplication;
@@ -25,7 +24,7 @@ public class MjExampleApplication implements Runnable {
 		
 		ExamplePersistence.getInstance();
 		
-		FrameManager.getInstance().openNavigationFrame(ApplicationConfig.getApplicationConfig().getInitialWindowConfig());
+		FrameManager.getInstance().openNavigationFrame();
 	}
 
 	public static void main(final String[] args) {

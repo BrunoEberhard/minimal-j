@@ -3,7 +3,6 @@ package ch.openech.mj.toolkit;
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 
@@ -89,10 +88,7 @@ public abstract class ClientToolkit {
 	
 	public abstract void focusFirstComponent(IComponent component);
 	
-	// TODO openPageContext ist ev in ClientToolkit am falschen Ort
-	public abstract PageContext openPageContext(PageContext parentPageContext, WindowConfig windowConfig);
-	
-	public abstract PageContext openPageContext(PageContext parentPageContext);
+	public abstract PageContext openPageContext(PageContext parentPageContext, boolean newWindow);
 	
 	public abstract PageContext findPageContext(Object source);
 }

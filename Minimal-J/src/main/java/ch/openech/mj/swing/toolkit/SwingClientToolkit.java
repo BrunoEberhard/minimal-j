@@ -20,7 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.application.EditablePanel;
-import ch.openech.mj.application.WindowConfig;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.swing.SwingFrame;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
@@ -29,11 +28,11 @@ import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
 import ch.openech.mj.toolkit.ContextLayout;
+import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
-import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -232,15 +231,14 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public PageContext openPageContext(PageContext parentPageContext) {
-		SwingFrame swingFrame = (SwingFrame) parentPageContext;
-		return swingFrame.addTab();
-	}
-	
-	@Override
-	public PageContext openPageContext(PageContext parentPageContext, WindowConfig windowConfig) {
-		SwingFrame frame = new SwingFrame(windowConfig);
-		return frame.getVisiblePageContext();
+	public PageContext openPageContext(PageContext parentPageContext, boolean newWindow) {
+		if (newWindow) {
+			SwingFrame frame = new SwingFrame();
+			return frame.getVisiblePageContext();
+		} else {
+			SwingFrame swingFrame = (SwingFrame) parentPageContext;
+			return swingFrame.addTab();
+		}
 	}
 
 	@Override
