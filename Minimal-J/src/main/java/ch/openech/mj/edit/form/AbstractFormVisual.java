@@ -2,7 +2,9 @@ package ch.openech.mj.edit.form;
 
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,9 +58,10 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	
 	private final List<FormField<?>> fields = new ArrayList<FormField<?>>();
 	private final List<EditField<?>> mandatoryFields = new ArrayList<EditField<?>>();
-
+	private final Map<String, Indicator> indicators = new HashMap<String, Indicator>();
+	
 	private KeyListener keyListener;
-	private final ChangeListener formPanelChangeListener = new FormPanelChangeListener();
+	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	
 	private ChangeListener changeListener;
 	private Action saveAction;
@@ -211,7 +214,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	}
 	
 	private void add(FormField<?> c, int span) {
-		layout.add(caption(c), c, span);
+		layout.add(decorateWithCaption(c), span);
 		registerNamedField(c);
 	}
 	
@@ -226,9 +229,23 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	}
 
 	private void area(FormField<?> visual, int span) {
-		layout.addArea(caption(visual), visual, span);
+		layout.addArea(decorateWithCaption(visual), span);
 		registerNamedField(visual);
 		resizable = true;
+	}
+	
+	private IComponent decorateWithCaption(FormField<?> visual) {
+		String captionText = caption(visual);
+		IComponent decorated = ClientToolkit.getToolkit().decorateWithCaption(visual, captionText);
+		if (decorated instanceof Indicator) {
+			indicators.put(visual.getName(), (Indicator) decorated);
+		} else if (decorated instanceof IComponentDelegate) {
+			IComponentDelegate componentDelegate = (IComponentDelegate) decorated;
+			if (componentDelegate.getComponent() instanceof Indicator) {
+				indicators.put(visual.getName(), (Indicator) componentDelegate.getComponent());
+			}
+		}
+		return decorated;
 	}
 	
 	//
@@ -239,12 +256,12 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	
 	public void text(String text, int span) {
 		IComponent label = ClientToolkit.getToolkit().createLabel(text);
-		layout.add(null, label, span);
+		layout.add(label, span);
 	}
 
 	public void addTitle(String text) {
 		IComponent label = ClientToolkit.getToolkit().createTitle(text);
-		layout.add(null, label, columns);
+		layout.add(label, columns);
 	}
 
 	//
@@ -362,6 +379,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void writesValueToFields() {
+		formPanelChangeListener.setAdjusting(true);
 		for (IComponent visual : fields) {
 			if (editable && visual instanceof DependingOnFieldAbove<?>) {
 				DependingOnFieldAbove<?> dependingOnFieldAbove = (DependingOnFieldAbove<?>) visual;
@@ -376,7 +394,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 				formField.setObject(value);
 			}
 		}
-		
+		formPanelChangeListener.setAdjusting(false);
 	}
 	
 	@Override
@@ -397,9 +415,16 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	}
 
 	private class FormPanelChangeListener implements ChangeListener {
+		private boolean adjusting = false;
+		
+		public void setAdjusting(boolean adjusting) {
+			this.adjusting = adjusting;
+		}
 
 		@Override
 		public void stateChanged(ChangeEvent event) {
+			if (adjusting) return;
+			
 			EditField<?> changedField = (EditField<?>) event.getSource();
 			
 			logger.fine("ChangeEvent from " + changedField.getName());
@@ -480,12 +505,9 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	
 	@Override
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		for (FormField<?> field : fields) {
-			if (field instanceof Indicator) {
-				Indicator indicator = (Indicator) field;
-				List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, field.getName());
-				indicator.setValidationMessages(filteredValidationMessages);
-			}
+		for (Map.Entry<String, Indicator> entry : indicators.entrySet()) {
+			List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, entry.getKey());
+			entry.getValue().setValidationMessages(filteredValidationMessages);
 		}
 	}
 

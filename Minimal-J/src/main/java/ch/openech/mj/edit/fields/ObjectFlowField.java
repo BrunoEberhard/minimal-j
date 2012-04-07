@@ -4,7 +4,6 @@ import javax.swing.Action;
 
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
-import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.FlowField;
 
@@ -19,7 +18,7 @@ import ch.openech.mj.toolkit.FlowField;
  *
  * @param <T>
  */
-public abstract class ObjectFlowField<T> extends ObjectField<T> implements Indicator {
+public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
 	private final FlowField visual;

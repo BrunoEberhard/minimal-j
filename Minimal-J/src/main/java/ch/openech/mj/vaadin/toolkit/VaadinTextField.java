@@ -1,11 +1,9 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import java.awt.event.FocusListener;
-import java.util.List;
 
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.vaadin.widgetset.VaadinTextWidget;
 
@@ -47,11 +45,6 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 		}
 		addComponent(textWidget);
 		textWidget.setSizeFull();
-	}
-	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		textWidget.setValidationMessages(validationMessages);
 	}
 
 	@Override

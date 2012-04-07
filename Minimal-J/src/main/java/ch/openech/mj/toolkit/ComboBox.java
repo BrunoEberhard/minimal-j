@@ -3,9 +3,8 @@ package ch.openech.mj.toolkit;
 import java.util.List;
 
 import ch.openech.mj.edit.fields.Focusable;
-import ch.openech.mj.edit.validation.Indicator;
 
-public interface ComboBox extends IComponent, Indicator, Focusable {
+public interface ComboBox extends IComponent, Focusable {
 
 	public void setObjects(List<?> object);
 	

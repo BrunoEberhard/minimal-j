@@ -1,9 +1,7 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import java.awt.event.FocusListener;
-import java.util.List;
 
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
@@ -13,11 +11,6 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 
 	public VaadinReadOnlyTextField() {
 //		addStyleName("v-html-readonly");
-	}
-	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		// not possible
 	}
 
 	@Override

@@ -1,12 +1,11 @@
 package ch.openech.mj.swing.toolkit;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
-
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -14,7 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.util.StringUtils;
 
@@ -33,11 +31,6 @@ public class SwingFlowField extends JPanel implements FlowField {
 		super.setEnabled(enabled);
 	}
 
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		SwingIndication.setValidationMessagesToCaption(validationMessages, this);
-	}
-	
 	@Override
 	public void addAction(Action action) {
 		lastLabel = createLinkButton(action);
@@ -94,4 +87,5 @@ public class SwingFlowField extends JPanel implements FlowField {
 			}
 		}
 	}
+	
 }

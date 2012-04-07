@@ -1,8 +1,7 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.Component;
 import java.awt.event.FocusListener;
-import java.util.List;
-
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -13,7 +12,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import ch.openech.mj.edit.fields.Focusable;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
@@ -124,11 +122,6 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 		if (this.focusListener != null) {
 			addFocusListener(this.focusListener);
 		}
-	}
-
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		SwingIndication.setValidationMessagesToCaption(validationMessages, this);
 	}
 
 //	@Override

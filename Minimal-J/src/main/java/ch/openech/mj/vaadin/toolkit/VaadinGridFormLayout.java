@@ -24,14 +24,13 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	}
 
 	@Override
-	public void add(String caption, IComponent field) {
-		add(caption, field, 1);
+	public void add(IComponent field) {
+		add(field, 1);
 	}
 
 	@Override
-	public void add(String caption, IComponent field, int span) {
+	public void add(IComponent field, int span) {
 		Component component = VaadinClientToolkit.getComponent(field);
-		component.setCaption(caption);
 		component.setWidth("100%");
 		
 		setRows(row+1); // addComponent with these arguments doenst auto grow grid
@@ -46,12 +45,12 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	}
 
 	@Override
-	public void addArea(String caption, IComponent field, int span) {
+	public void addArea(IComponent field, int span) {
 //		Component component = VaadinClientToolkit.getComponent(field);
 //		component.setHeight("100%");
 		
 //		setRowExpandRatio(row, 1.0F);
-		add(caption, field, span);
+		add(field, span);
 	}
 
 }

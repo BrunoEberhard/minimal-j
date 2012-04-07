@@ -1,22 +1,18 @@
 package ch.openech.mj.edit.fields;
 
-import java.util.List;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.autofill.FirstNameGenerator;
 import ch.openech.mj.autofill.NameGenerator;
-import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
 
-public class TextEditField implements IComponentDelegate, Indicator, EditField<String>, DemoEnabled {
+public class TextEditField implements IComponentDelegate, EditField<String>, DemoEnabled {
 
 	private final String name;
 	private final int maxLength;
@@ -93,11 +89,6 @@ public class TextEditField implements IComponentDelegate, Indicator, EditField<S
 				changeListener.stateChanged(new ChangeEvent(TextEditField.this));
 			}
 		}
-	}
-
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		textField.setValidationMessages(validationMessages);
 	}
 	
 }

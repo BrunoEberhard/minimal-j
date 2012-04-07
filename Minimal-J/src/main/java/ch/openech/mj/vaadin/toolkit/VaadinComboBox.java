@@ -5,7 +5,6 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ComboBox;
 
 import com.vaadin.ui.Select;
@@ -55,11 +54,6 @@ public class VaadinComboBox extends Select implements ComboBox {
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-	}
-
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		VaadinIndication.setValidationMessages(validationMessages, this);
 	}
 
 }

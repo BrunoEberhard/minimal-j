@@ -8,7 +8,6 @@ import javax.swing.AbstractAction;
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.FormVisual;
-import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 
 /**
@@ -22,7 +21,7 @@ import ch.openech.mj.edit.validation.ValidationMessage;
  *
  * @param <T>
  */
-public abstract class ObjectField<T> extends AbstractEditField<T> implements Indicator {
+public abstract class ObjectField<T> extends AbstractEditField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
 	private T object;

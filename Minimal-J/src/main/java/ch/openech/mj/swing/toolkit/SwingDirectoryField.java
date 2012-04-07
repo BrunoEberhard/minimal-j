@@ -3,8 +3,6 @@ package ch.openech.mj.swing.toolkit;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -13,12 +11,10 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.fields.EditField;
-import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.StringUtils;
 
-public class SwingDirectoryField implements EditField<String>, IComponentDelegate, Indicator {
+public class SwingDirectoryField implements EditField<String>, IComponentDelegate {
 
 	private final String name;
 	private final JTextField textField;
@@ -64,12 +60,6 @@ public class SwingDirectoryField implements EditField<String>, IComponentDelegat
 		return panel;
 	}
 	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		// TODO
-		// textField.setValidationMessages(validationMessages);
-	}
-
 	@Override
 	public String getName() {
 		return name;

@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
+
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
@@ -84,6 +85,11 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public CheckBox createCheckBox(ChangeListener listener, String text) {
 		return new VaadinCheckBox(listener, text);
+	}
+
+	@Override
+	public IComponent decorateWithCaption(IComponent component, String caption) {
+		return new VaadinCaption(component, caption);
 	}
 
 	@Override

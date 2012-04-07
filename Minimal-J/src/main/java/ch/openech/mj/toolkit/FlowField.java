@@ -3,9 +3,8 @@ package ch.openech.mj.toolkit;
 import javax.swing.Action;
 
 import ch.openech.mj.edit.fields.Focusable;
-import ch.openech.mj.edit.validation.Indicator;
 
-public interface FlowField extends IComponent, Indicator, Focusable {
+public interface FlowField extends IComponent, Focusable {
 
 	public void clear();
 	

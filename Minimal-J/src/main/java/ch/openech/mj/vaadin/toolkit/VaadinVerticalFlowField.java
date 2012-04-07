@@ -1,11 +1,9 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.Action;
 
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.util.StringUtils;
 
@@ -30,11 +28,6 @@ public class VaadinVerticalFlowField extends VerticalLayout implements FlowField
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-	}
-
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		VaadinIndication.setValidationMessages(validationMessages, this);
 	}
 
 	@Override

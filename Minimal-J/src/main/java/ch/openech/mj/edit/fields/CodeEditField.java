@@ -2,14 +2,13 @@ package ch.openech.mj.edit.fields;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.Code;
-import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
-public class CodeEditField extends AbstractEditField<String> implements DemoEnabled, Indicator {
+public class CodeEditField extends AbstractEditField<String> implements DemoEnabled {
 	private final Code code;
 	
 	private final SwitchLayout switchLayout;

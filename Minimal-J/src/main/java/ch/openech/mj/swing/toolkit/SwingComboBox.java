@@ -11,13 +11,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.fields.Focusable;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ComboBox;
 
 public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 
 	private final ChangeListener listener;
-
+	
 	public SwingComboBox(ChangeListener listener) {
 		this.listener = listener;
 		addItemListener(new ComboBoxChangeListener());
@@ -88,11 +87,6 @@ public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 		public Object getSelectedItem() {
 			return selectedObject;
 		}
-	}
-	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		SwingIndication.setValidationMessagesToCaption(validationMessages, this);
 	}
 	
 }

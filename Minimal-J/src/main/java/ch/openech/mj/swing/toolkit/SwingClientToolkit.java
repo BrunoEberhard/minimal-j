@@ -23,6 +23,7 @@ import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.swing.SwingFrame;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
+import ch.openech.mj.swing.component.SwingCaption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
@@ -95,6 +96,11 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public CheckBox createCheckBox(ChangeListener changeListener, String text) {
 		return new SwingCheckBox(changeListener, text);
+	}
+
+	@Override
+	public IComponent decorateWithCaption(IComponent component, String caption) {
+		return new SwingCaption(getComponent(component), caption);
 	}
 
 	@Override

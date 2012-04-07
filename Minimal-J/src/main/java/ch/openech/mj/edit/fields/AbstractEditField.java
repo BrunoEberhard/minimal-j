@@ -11,16 +11,13 @@ import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
-import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
-import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.util.StringUtils;
 
-public abstract class AbstractEditField<T> implements IComponentDelegate, EditField<T>, Indicator {
+public abstract class AbstractEditField<T> implements IComponentDelegate, EditField<T> {
 
 	private final boolean editable;
 	private final String name;
@@ -64,28 +61,7 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 			return component;
 		}
 	}
-	
-	protected Indicator[] getIndicatingComponents() {
-		Object component = getComponent();
-		while (component instanceof SwitchLayout) {
-			SwitchLayout switchLayout = (SwitchLayout) component;
-			component = switchLayout.getShownComponent();
-		}
-		if (component instanceof Indicator) {
-			return new Indicator[]{(Indicator) component};
-		} else {
-			// TODO warn
-			return new Indicator[0];
-		}
-	}
-	
-	@Override
-	public final void setValidationMessages(List<ValidationMessage> validationMessages) {
-		for (Indicator indicator : getIndicatingComponents()) {
-			indicator.setValidationMessages(validationMessages);
-		}
-	}
-	
+
 	//
 	
 	@Override
