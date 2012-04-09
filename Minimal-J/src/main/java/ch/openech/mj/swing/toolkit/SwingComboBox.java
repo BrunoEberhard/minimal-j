@@ -68,7 +68,7 @@ public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 		@Override
 		public Object getElementAt(int index) {
 			if (index == 0) {
-				return "";
+				return null;
 			} else {
 				return objects.get(index-1);
 			}
