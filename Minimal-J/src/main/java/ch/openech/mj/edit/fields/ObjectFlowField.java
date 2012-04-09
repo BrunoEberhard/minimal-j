@@ -1,9 +1,15 @@
 package ch.openech.mj.edit.fields;
 
+import java.awt.event.ActionEvent;
+import java.util.List;
+
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
+import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.FlowField;
 
@@ -35,7 +41,81 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 		super(key, editable);
 		visual = ClientToolkit.getToolkit().createFlowField(vertical);
 	}
+	
 
+	public class ObjectFieldEditor extends Editor<T> {
+
+		@Override
+		public FormVisual<T> createForm() {
+			return ObjectFlowField.this.createFormPanel();
+		}
+
+		@Override
+		public T load() {
+			if (getObject() != null) {
+				return getObject();
+			} else {
+				Class<?> clazz = ch.openech.mj.util.GenericUtils.getGenericClass(ObjectFlowField.this.getClass());
+				if (clazz == null) {
+					throw new RuntimeException("TODO");
+				}
+				try {
+					return (T) clazz.newInstance();
+				} catch (InstantiationException e) {
+					throw new RuntimeException(e);
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		@Override
+		public boolean save(T object) {
+			setObject(object);
+			return true;
+		}
+
+		@Override
+		public void validate(T object, List<ValidationMessage> resultList) {
+			// may be overwritten
+		}
+	}
+
+	public abstract class ObjectFieldPartEditor<P> extends Editor<P> {
+
+		@Override
+		public P load() {
+			return getPart(ObjectFlowField.this.getObject());
+		}
+
+		@Override
+		public boolean save(P part) {
+			setPart(ObjectFlowField.this.getObject(), part);
+			fireObjectChange();
+			return true;
+		}
+
+		@Override
+		public void validate(P object, List<ValidationMessage> resultList) {
+			// may be overwritten
+		}
+
+		protected abstract P getPart(T object);
+
+		protected abstract void setPart(T object, P p);
+		
+	}
+
+	protected abstract FormVisual<T> createFormPanel();
+	
+	// why public
+	public class RemoveObjectAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ObjectFlowField.this.setObject(null);
+		}
+	}
+	
 	protected void addObject(Object object) {
 		visual.addObject(object);
 	}

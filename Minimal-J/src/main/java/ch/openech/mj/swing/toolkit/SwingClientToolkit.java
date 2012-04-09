@@ -28,7 +28,6 @@ import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
-import ch.openech.mj.toolkit.ContextLayout;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
@@ -114,13 +113,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ContextLayout createContextLayout(IComponent content) {
-		return new SwingContextLayout(content);
-	}
-
-	@Override
-	public GridFormLayout createGridLayout(int columns, int defaultSpan) {
-		return new SwingGridFormLayout(columns, defaultSpan);
+	public GridFormLayout createGridLayout(int columns, int columnWidthPercentage) {
+		return new SwingGridFormLayout(columns, columnWidthPercentage);
 	}
 
 	@Override

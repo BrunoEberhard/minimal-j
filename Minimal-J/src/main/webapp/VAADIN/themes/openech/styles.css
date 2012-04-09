@@ -60,10 +60,6 @@ border-style: solid;
 	background-image: url(next.png);
 }
 
-.v-popupview-contextMenu {
-	background: transparent url(quickjump.png) no-repeat 0px 1px;
-}
-
 .v-nativebutton-borderless {
   border: none;
   background: transparent;

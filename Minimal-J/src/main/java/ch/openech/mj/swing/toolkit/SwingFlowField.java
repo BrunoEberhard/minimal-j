@@ -1,11 +1,11 @@
 package ch.openech.mj.swing.toolkit;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -37,7 +37,7 @@ public class SwingFlowField extends JPanel implements FlowField {
 		add(lastLabel);
 	}
 	
-	private static JLabel createLinkButton(final Action action) {
+	static JLabel createLinkButton(final Action action) {
 		final JLabel label = new JLabel();
 		label.setIcon((Icon) action.getValue(Action.SMALL_ICON));
 		label.setText((String) action.getValue(Action.NAME));

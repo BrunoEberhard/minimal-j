@@ -62,8 +62,6 @@ public abstract class ClientToolkit {
 	
 	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
 
-	public abstract ContextLayout createContextLayout(IComponent content);
-	
 	public abstract SwitchLayout createSwitchLayout();
 	
 	public abstract GridFormLayout createGridLayout(int columns, int columnWidth);
