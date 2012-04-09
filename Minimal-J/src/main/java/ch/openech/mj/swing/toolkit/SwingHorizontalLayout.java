@@ -12,7 +12,7 @@ import ch.openech.mj.toolkit.IComponent;
 public class SwingHorizontalLayout extends JPanel implements HorizontalLayout {
 
 	public SwingHorizontalLayout(IComponent... components) {
-		super(new GridLayout(1, components.length));
+		super(new GridLayout(1, components.length, 10, 10));
 		for (IComponent c : components) {
 			Component component = SwingClientToolkit.getComponent(c);
 			add(component);
