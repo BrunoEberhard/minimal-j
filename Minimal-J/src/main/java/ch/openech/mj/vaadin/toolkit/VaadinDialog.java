@@ -2,8 +2,6 @@ package ch.openech.mj.vaadin.toolkit;
 
 import java.util.Iterator;
 
-import sun.security.krb5.internal.PAEncTSEnc;
-
 import ch.openech.mj.toolkit.VisualDialog;
 
 import com.vaadin.ui.Component;
@@ -23,9 +21,8 @@ public class VaadinDialog extends Window implements VisualDialog {
 		setModal(true);
 		addListener(new VaadinDialogListener());
 		parentWindow.addWindow(this);
-		setScrollable(false);
-		content.setSizeFull();
-		setWidth(guessWidth(content) + "px");
+		
+		setWidth(findFormLayout(content).getDialogWidth());
 	}
 
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {
