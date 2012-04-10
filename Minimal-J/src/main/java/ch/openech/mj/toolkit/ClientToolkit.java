@@ -50,7 +50,7 @@ public abstract class ClientToolkit {
 
 	public abstract FlowField createFlowField(boolean vertical);
 
-	public abstract ComboBox createComboBox(ChangeListener changeListener);
+	public abstract <T> ComboBox<T> createComboBox(ChangeListener changeListener);
 	
 	public abstract CheckBox createCheckBox(ChangeListener changeListener, String text);
 

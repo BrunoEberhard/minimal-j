@@ -14,8 +14,7 @@ public class Code implements Format {
 	private final String displayName;
 	private final String unknownText;
 	private final String defolt;
-	protected final List<String> keys = new ArrayList<String>();
-	protected final List<String> texts = new ArrayList<String>();
+	protected final List<CodeItem> items = new ArrayList<CodeItem>();
 
 	public Code(ResourceBundle resourceBundle) {
 		this(resourceBundle, null);
@@ -39,8 +38,7 @@ public class Code implements Format {
 		unknownText = code.unknownText;
 		defolt = code.defolt;
 		for (String key : allowedKeys) {
-			keys.add(key);
-			texts.add(code.getText(key));
+			items.add(new CodeItem(key, code.getText(key)));
 		}
 	}
 
@@ -52,8 +50,7 @@ public class Code implements Format {
 		unknownText = readUnknownText();
 		defolt = readDefault();
 		for (String key : allowedKeys) {
-			keys.add(key);
-			texts.add(code.getText(key));
+			items.add(new CodeItem(key, code.getText(key)));
 		}
 	}
 	
@@ -90,10 +87,9 @@ public class Code implements Format {
 		int index = 0;
 		String key = null;
 		while ((key = getString("key." + index)) != null) {
-			keys.add(key.trim());
 			String text = getString("text." + index);
 			if (StringUtils.isBlank(text)) text = "Wert " + key;
-			texts.add(text.trim());
+			items.add(new CodeItem(key.trim(), text.trim()));
 			index++;
 		}
 		if (index == 0) {
@@ -113,57 +109,45 @@ public class Code implements Format {
 		return defolt;
 	}
 	
-	public String[] getTextArray() {
-		return texts.toArray(new String[texts.size()]);
+	public List<CodeItem> getItems() {
+		return Collections.unmodifiableList(items);
 	}
-	
-	public List<String> getTexts() {
-		return Collections.unmodifiableList(texts);
-	}
-	
-	public String[] getKeyArray() {
-		return keys.toArray(new String[keys.size()]);
+
+	public CodeItem getItem(int index) {
+		return items.get(index);
 	}
 	
 	public String getText(int index) {
-		return texts.get(index);
+		return items.get(index).getText();
 	}
 
 	public String getKey(int index) {
-		return keys.get(index);
-	}
-	
-	public String getKey(String key) {
-		for (int i = 0; i<keys.size(); i++) {
-			if (StringUtils.equals(key, texts.get(i))) {
-				return keys.get(i);
-			}
-		}
-		return null;
+		return items.get(index).getKey();
 	}
 	
 	public String getText(String key) {
-		if (key == null) return null;
-		key = key.trim();
-		int index = keys.indexOf(key);
-		if (index >= 0) return texts.get(index); else return null;
+		int index = indexOf(key);
+		if (index >= 0) return items.get(index).getText(); else return null;
 	}
 	
 	public int indexOf(String key) {
-		if (key == null) return -1;
-		key = key.trim();
-		return keys.indexOf(key);
+		for (int i = 0; i<items.size(); i++) {
+			if (StringUtils.equals(items.get(i).getKey(), key)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public int count() {
-		return keys.size();
+		return items.size();
 	}
 
 	@Override
 	public int getSize() {
 		int maxSize = 0;
-		for (String key : keys) {
-			maxSize = Math.max(maxSize, key.length());
+		for (CodeItem item : items) {
+			maxSize = Math.max(maxSize, item.getKey().length());
 		}
 		return maxSize;
 	}

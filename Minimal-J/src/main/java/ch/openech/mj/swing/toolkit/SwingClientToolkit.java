@@ -88,8 +88,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ComboBox createComboBox(ChangeListener changeListener) {
-		return new SwingComboBox(changeListener);
+	public <T> ComboBox<T> createComboBox(ChangeListener changeListener) {
+		return new SwingComboBox<T>(changeListener);
 	}
 
 	@Override

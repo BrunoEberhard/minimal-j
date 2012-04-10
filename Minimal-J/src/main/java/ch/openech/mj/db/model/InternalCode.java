@@ -27,12 +27,11 @@ public class InternalCode extends Code {
 			CodeValue[] values = (CodeValue[]) valuesMethod.invoke(null);
  			for (CodeValue value : values) {
  				String key = value.getKey();
- 				keys.add(key);
  				String text = getString("text." + key);
  				if (StringUtils.isBlank(text)) {
  					text = "Wert " + key;
  				}
- 				texts.add(text.trim());
+ 				items.add(new CodeItem(key, text.trim()));
  			}
 		} catch (Exception x) {
 			new RuntimeException(x);

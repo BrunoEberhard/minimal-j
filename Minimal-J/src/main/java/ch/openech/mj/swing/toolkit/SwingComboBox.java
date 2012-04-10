@@ -2,6 +2,7 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -11,31 +12,51 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.fields.Focusable;
+import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ComboBox;
 
-public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
+public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusable {
 
 	private final ChangeListener listener;
+	private final NullableComboBoxModel<T> model;
 	
 	public SwingComboBox(ChangeListener listener) {
 		this.listener = listener;
 		addItemListener(new ComboBoxChangeListener());
 		setInheritsPopupMenu(true);
+		model = new NullableComboBoxModel<T>();
+		setModel(model);
 	}
 	
 	@Override
-	public void setObjects(List<?> objects) {
-		setModel(new NullableComboBoxModel(objects));
+	public void setObjects(List<T> objects) {
+		model.setObjects(objects);
 	}
 
 	@Override
-	public void setSelectedObject(Object object) {
-		setSelectedItem(object);
+	public void setSelectedObject(T object) {
+		model.setObject(object);
 	}
 
 	@Override
-	public Object getSelectedObject() {
-		return getSelectedItem();
+	public T getSelectedObject() {
+		return model.getSelectedObject();
+	}
+	
+	//
+
+	/*
+	 * There is a problem with cursor selection if <code>null</code> is a element
+	 * 
+	 * @see http://www.coderanch.com/t/509095/GUI/java/Arrow-navigation-not-working-JComboBox
+	 */
+	@Override
+	public int getSelectedIndex() {
+		if (getSelectedItem() == null && getModel().getElementAt(0) == null) {
+			return 0;
+		} else {
+			return super.getSelectedIndex();
+		}
 	}
 
 	public class ComboBoxChangeListener implements ItemListener {
@@ -50,25 +71,43 @@ public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 		}
 	}
 	
-	private static class NullableComboBoxModel extends AbstractListModel implements ComboBoxModel {
-		private List<?> objects;
-		private Object selectedObject;
+	private static class NullableComboBoxModel<T> extends AbstractListModel implements ComboBoxModel {
+		private List<T> objects = Collections.emptyList();
+		private T setObject;
+		private T selectedObject;
 		
-		private NullableComboBoxModel(List<?> objects) {
-			this.objects = objects;
+		private NullableComboBoxModel() {
 		}
 
+		private boolean setObjectInObjects() {
+			return setObject == null || objects.contains(setObject);
+		}
+		
 		@Override
 		public int getSize() {
-			return objects.size() + 1;
+			if (setObjectInObjects()) {
+				return objects.size() + 1;
+			} else {
+				return objects.size() + 2;			
+			}
 		}
 
 		@Override
 		public Object getElementAt(int index) {
-			if (index == 0) {
-				return null;
+			if (setObjectInObjects()) {
+				if (index == 0) {
+					return null;
+				} else {
+					return objects.get(index-1);
+				}
 			} else {
-				return objects.get(index-1);
+				if (index == 0) {
+					return null;
+				} else if (index == 1) {
+					return setObject;
+				} else {
+					return objects.get(index-2);
+				}
 			}
 		}
 
@@ -76,7 +115,7 @@ public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 		public void setSelectedItem(Object anObject) {
 			if (selectedObject != null && !selectedObject.equals(anObject) || selectedObject == null
 					&& anObject != null) {
-				selectedObject = anObject;
+				selectedObject = (T) anObject;
 				fireContentsChanged(this, -1, -1);
 			}
 		}
@@ -85,6 +124,22 @@ public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 		public Object getSelectedItem() {
 			return selectedObject;
 		}
+
+		protected T getSelectedObject() {
+			return selectedObject;
+		}
+		
+		protected void setObject(T object) {
+			this.setObject = CloneHelper.cloneIfPossible(object);
+			this.selectedObject = object;
+			fireContentsChanged(this, -1, -1);
+		}
+		
+		protected void setObjects(List<T> objects) {
+			this.objects = objects;
+			fireContentsChanged(this, -1, -1);
+		}
+		
 	}
 	
 }

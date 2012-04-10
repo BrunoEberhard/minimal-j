@@ -77,8 +77,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ComboBox createComboBox(ChangeListener listener) {
-		return new VaadinComboBox(listener);
+	public <T> ComboBox<T> createComboBox(ChangeListener listener) {
+		return new VaadinComboBox<T>(listener);
 	}
 
 	@Override

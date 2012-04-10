@@ -4,14 +4,12 @@ import java.util.List;
 
 import ch.openech.mj.edit.fields.Focusable;
 
-public interface ComboBox extends IComponent, Focusable {
+public interface ComboBox<T> extends IComponent, Focusable {
 
-	public void setObjects(List<?> object);
+	public void setObjects(List<T> object);
 	
-	public void setSelectedObject(Object object) throws IllegalArgumentException;
+	public void setSelectedObject(T object) throws IllegalArgumentException;
 
-	public Object getSelectedObject();
-
-	public void setEnabled(boolean enabled);
+	public T getSelectedObject();
 
 }
