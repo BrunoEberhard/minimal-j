@@ -49,7 +49,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	@Override
 	public void addArea(IComponent field, int span) {
 		Component component = SwingClientToolkit.getComponent(field);
-		add(component, "spanx " + span + ", push, growx, aligny top");
+		add(component, "spanx " + span + ", growx, aligny top");
 	}
 
 }
