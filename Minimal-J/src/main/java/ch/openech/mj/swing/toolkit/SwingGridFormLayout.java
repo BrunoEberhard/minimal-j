@@ -12,12 +12,13 @@ import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingGridFormLayout extends JPanel implements GridFormLayout {
-
+	private final int columnWidth;
+	
 	public SwingGridFormLayout(int columns, int columnWidthPercentage) {
 		String columnConstraints = "";
-		int columnWidth = getColumnWidth() * columnWidthPercentage / 100;
+		columnWidth = getColumnWidth() * columnWidthPercentage / 100;
 		for (int i = 0; i<columns; i++) {
-			columnConstraints += "[" + columnWidth + "px:" + columnWidth + "px:" + (columnWidth * 2) + "px, grow 1, sizegroup c]";
+			columnConstraints += "[grow 1, push, sizegroup c]";
 		}
 		setLayout(new MigLayout("ins 5, gapy 0px, wrap " + columns, columnConstraints));
 		
@@ -43,13 +44,13 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
 	@Override
 	public void add(IComponent field, int span) {
-		add(SwingClientToolkit.getComponent(field), "spanx " + span + ", growx, aligny top");
+		add(SwingClientToolkit.getComponent(field), "spanx " + span + ", growx, aligny top, w " + span * columnWidth);
 	}
 
 	@Override
 	public void addArea(IComponent field, int span) {
 		Component component = SwingClientToolkit.getComponent(field);
-		add(component, "spanx " + span + ", growx, aligny top");
+		add(component, "spanx " + span + ", growx, aligny top, w " + span * columnWidth);
 	}
 
 }
