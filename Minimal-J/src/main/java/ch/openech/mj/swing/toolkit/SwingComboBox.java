@@ -46,9 +46,7 @@ public class SwingComboBox extends JComboBox implements ComboBox, Focusable {
 
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				fireChangeEvent();
-			}
+			fireChangeEvent();
 		}
 	}
 	
