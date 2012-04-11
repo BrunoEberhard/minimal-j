@@ -19,6 +19,7 @@ import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.util.ProgressListener;
 import ch.openech.mj.vaadin.VaadinWindow;
 
 import com.vaadin.terminal.ExternalResource;
@@ -155,6 +156,14 @@ public class VaadinClientToolkit extends ClientToolkit {
 		Component parentComponent = (Component) parent;
 		Window window = parentComponent.getWindow();
 		return new VaadinDialog(window, (ComponentContainer) component, title);
+	}
+
+	@Override
+	public ProgressListener showProgress(Object parent, String text) {
+		Component parentComponent = (Component) parent;
+		Window window = parentComponent.getWindow();
+		VaadinProgressDialog progressDialog = new VaadinProgressDialog(window, text);
+		return progressDialog;
 	}
 
 	@Override

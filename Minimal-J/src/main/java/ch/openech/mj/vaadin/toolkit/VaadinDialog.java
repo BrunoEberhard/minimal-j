@@ -22,7 +22,10 @@ public class VaadinDialog extends Window implements VisualDialog {
 		addListener(new VaadinDialogListener());
 		parentWindow.addWindow(this);
 		
-		setWidth(findFormLayout(content).getDialogWidth());
+		VaadinGridFormLayout formLayout = findFormLayout(content);
+		if (formLayout != null) {
+			setWidth(formLayout.getDialogWidth());
+		}
 	}
 
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {

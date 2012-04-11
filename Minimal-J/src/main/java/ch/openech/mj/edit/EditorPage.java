@@ -84,7 +84,7 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	public void finished() {
 		close();
 	}
-	
+
 	public void checkedClose() {
 		editor.checkedClose();
 	}
@@ -92,5 +92,11 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	protected FormVisual getFormVisual() {
 		return form;
 	}
+
+	@Override
+	public void progress(int value, int maximum) {
+		// TODO
+	}
+
 
 }

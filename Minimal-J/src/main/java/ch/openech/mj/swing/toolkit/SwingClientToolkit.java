@@ -38,6 +38,7 @@ import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.util.ProgressListener;
 
 public class SwingClientToolkit extends ClientToolkit {
 
@@ -191,6 +192,21 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public <T> VisualTable<T> createVisualTable(Class<T> clazz, Object[] fields) {
 		return new SwingVisualTable<T>(clazz, fields);
+	}
+	
+	@Override
+	public ProgressListener showProgress(Object parent, String text) {
+		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
+		if (editablePanel != null) {
+			SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
+			editablePanel.openModalDialog(frame);
+			return frame;
+		} else {
+			Window window = findWindow((Component) parent);
+			SwingProgressDialog dialog = new SwingProgressDialog(window, text);
+			dialog.setVisible(true);
+			return dialog;
+		}		
 	}
 
 	@Override

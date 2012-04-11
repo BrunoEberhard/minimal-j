@@ -73,7 +73,7 @@ public abstract class Editor<T> {
 	public String getInformation() {
 		return null;
 	}
-	
+
 	// /////
 
 	protected Editor() {
@@ -140,16 +140,30 @@ public abstract class Editor<T> {
 		return form.getObject();
 	}
 	
+	
+	
 	protected void save() {
 		if (saveable) {
-			if (save(getObject())) {
-				finish();
-			}
+			progress(0, 100);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					if (save(getObject())) {
+						finish();
+					}
+				}
+			}).start();
 		} else {
 			ClientToolkit.getToolkit().showNotification(form, "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
 		}
 	}
-
+	
+	public void progress(int value, int maximum) {
+		if (editorFinishedListener != null) {
+			editorFinishedListener.progress(value, maximum);
+		}
+	}
+	
 	private class EditorChangeListener implements ChangeListener {
 
 		public EditorChangeListener() {
@@ -252,6 +266,8 @@ public abstract class Editor<T> {
 	//
 	
 	public interface EditorFinishedListener {
+		
+		public void progress(int value, int maximum);
 		
 		public void finished();
 		

@@ -5,6 +5,7 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
+import ch.openech.mj.util.ProgressListener;
 
 
 
@@ -81,6 +82,8 @@ public abstract class ClientToolkit {
 	public abstract void showError(IComponent component, String text);
 	
 	public abstract void showConfirmDialog(IComponent component, String message, String title, int type, ConfirmDialogListener listener);
+	
+	public abstract ProgressListener showProgress(Object parent, String text);
 	
 	public abstract VisualDialog openDialog(Object parent, IComponent content, String title);
 	        

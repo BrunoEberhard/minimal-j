@@ -13,6 +13,7 @@ import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualDialog.CloseListener;
+import ch.openech.mj.util.ProgressListener;
 
 public class EditorDialogAction extends AbstractAction {
 	private final Editor<?> editor;
@@ -36,8 +37,8 @@ public class EditorDialogAction extends AbstractAction {
 			x.printStackTrace();
 		}
 	}
-	
-	private void showPageOn(PageContext context) {
+
+	private void showPageOn(final PageContext context) {
 		FormVisual<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
 		
@@ -53,9 +54,22 @@ public class EditorDialogAction extends AbstractAction {
 		});
 		
 		editor.setEditorFinishedListener(new EditorFinishedListener() {
+			private ProgressListener progressListener;
+			
 			@Override
 			public void finished() {
+				if (progressListener != null) {
+					progressListener.showProgress(100, 100);
+				}
 				dialog.closeDialog();
+			}
+
+			@Override
+			public void progress(int value, int maximum) {
+				if (progressListener == null) {
+					progressListener = ClientToolkit.getToolkit().showProgress(dialog, "Save");
+				}
+				progressListener.showProgress(value, maximum);
 			}
 		});
 		dialog.openDialog();
