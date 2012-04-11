@@ -6,6 +6,7 @@ import javax.swing.event.ChangeListener;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.autofill.FirstNameGenerator;
 import ch.openech.mj.autofill.NameGenerator;
+import ch.openech.mj.db.model.Formats;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.TextField;
@@ -18,9 +19,9 @@ public class TextEditField implements IComponentDelegate, EditField<String>, Dem
 	private final int maxLength;
 	private final TextField textField;
 	private ChangeListener changeListener;
-	
-	public TextEditField(String name) {
-		this(name, -1);
+
+	public TextEditField(String name, Class<?> ofClass) {
+		this(name, Formats.getInstance().getFormat(ofClass, name).getSize());
 	}
 	
 	public TextEditField(String name, int maxLength) {
