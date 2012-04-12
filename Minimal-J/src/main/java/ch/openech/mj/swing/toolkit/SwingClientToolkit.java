@@ -64,6 +64,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public IComponent createTitle(String string) {
 		JLabel label = new JLabel(string);
+		label.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 		label.setFont(label.getFont().deriveFont(Font.BOLD));
 		return new SwingComponentDelegate(label);
 	}

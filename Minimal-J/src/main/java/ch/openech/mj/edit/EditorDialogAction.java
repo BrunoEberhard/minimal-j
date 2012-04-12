@@ -67,7 +67,7 @@ public class EditorDialogAction extends AbstractAction {
 			@Override
 			public void progress(int value, int maximum) {
 				if (progressListener == null) {
-					progressListener = ClientToolkit.getToolkit().showProgress(dialog, "Save");
+					progressListener = ClientToolkit.getToolkit().showProgress(context.getComponent(), "Save");
 				}
 				progressListener.showProgress(value, maximum);
 			}

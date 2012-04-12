@@ -4,8 +4,6 @@ import java.awt.Component;
 import java.awt.FontMetrics;
 
 import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.plaf.PanelUI;
 
 import net.miginfocom.swing.MigLayout;
 import ch.openech.mj.toolkit.GridFormLayout;
@@ -27,14 +25,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	
 	private int getColumnWidth() {
 		FontMetrics fm = getFontMetrics(getFont());
-		return (int)fm.getStringBounds("The quick brown fox jumps over the lazy dog", getGraphics()).getWidth() / 2;
-	}
-	
-	@Override
-	public void setUI(PanelUI ui) {
-		// Hauptsächlich für Windows nötig
-		UIManager.put("TextField.inactiveBackground", UIManager.get("TextField.background"));
-		super.setUI(ui);
+		return (int)fm.getStringBounds("The quick brown fox jumps over the lazy dog", getGraphics()).getWidth();
 	}
 	
 	@Override
@@ -44,13 +35,15 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
 	@Override
 	public void add(IComponent field, int span) {
-		add(SwingClientToolkit.getComponent(field), "spanx " + span + ", growx, aligny top, w " + span * columnWidth);
+		int w = span * columnWidth; // minimum und prefered size
+		add(SwingClientToolkit.getComponent(field), "spanx " + span + ", growx, aligny top, width " + w + "px:" + w + "px");
 	}
 
 	@Override
 	public void addArea(IComponent field, int span) {
 		Component component = SwingClientToolkit.getComponent(field);
-		add(component, "spanx " + span + ", growx, aligny top, w " + span * columnWidth);
+		int w = span * columnWidth;
+		add(component, "spanx " + span + ", growx, aligny top, width " + w + "px:" + w + "px");
 	}
 
 }
