@@ -11,13 +11,11 @@ import ch.openech.mj.vaadin.PropertyVaadinContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
 
-public class VaadinVisualTable<T> extends VerticalLayout implements VisualTable<T> {
+public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 
 	private final Class<T> clazz;
 	private final String[] fieldNames;
-	private final Table table;
 	private List<T> objects;
 	private ClickListener clickListener;
 	private VaadinVisualTableItemClickListener tableClickListener;
@@ -25,17 +23,14 @@ public class VaadinVisualTable<T> extends VerticalLayout implements VisualTable<
 	public VaadinVisualTable(Class<T> clazz, Object[] fields) {
 		this.clazz = clazz;
 		this.fieldNames = Constants.getConstants(fields);
-		this.table = new Table();
-		table.setSelectable(true);
-		table.setMultiSelect(false);
-		table.setSizeFull();
+		setSelectable(true);
+		setMultiSelect(false);
+		setSizeFull();
 		
 		for (String fieldName : fieldNames) {
 			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), clazz, fieldName);
-			table.setColumnHeader(fieldName, header);
+			setColumnHeader(fieldName, header);
 		}
-		
-		addComponent(table);
 	}
 	
 	@Override
@@ -46,18 +41,18 @@ public class VaadinVisualTable<T> extends VerticalLayout implements VisualTable<
 	@Override
 	public void setObjects(List<T> list) {
 		this.objects = list;
-		table.setContainerDataSource(new PropertyVaadinContainer(clazz, list, (List<String>)Arrays.asList(fieldNames)));
+		setContainerDataSource(new PropertyVaadinContainer(clazz, list, (List<String>)Arrays.asList(fieldNames)));
 	}
 
 	@Override
 	public void setSelectedObject(T object) {
-		table.setValue(object);
+		setValue(object);
 	}
 
 	@Override
 	public T getSelectedObject() {
-		if (table.getValue() != null) {
-			return objects.get((Integer)table.getValue());
+		if (getValue() != null) {
+			return objects.get((Integer)getValue());
 		} else {
 			return null;
 		}
@@ -65,14 +60,14 @@ public class VaadinVisualTable<T> extends VerticalLayout implements VisualTable<
 
 	@Override
 	public int getSelectedIndex() {
-		return (Integer) table.getValue();
+		return (Integer) getValue();
 	}
 
 	@Override
 	public void setClickListener(ClickListener clickListener) {
 		if (clickListener == null) {
 			if (tableClickListener != null) {
-				table.removeListener(tableClickListener);
+				removeListener(tableClickListener);
 				tableClickListener = null;
 			}
 		}
@@ -80,7 +75,7 @@ public class VaadinVisualTable<T> extends VerticalLayout implements VisualTable<
 		if (clickListener != null) {
 			if (tableClickListener == null) {
 				tableClickListener = new VaadinVisualTableItemClickListener();
-				table.addListener(tableClickListener);
+				addListener(tableClickListener);
 			}
 		}
 	}

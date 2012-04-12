@@ -22,11 +22,12 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UriFragmentUtility;
 import com.vaadin.ui.UriFragmentUtility.FragmentChangedEvent;
@@ -44,10 +45,10 @@ public class VaadinWindow extends Window implements PageContext {
 	private final UriFragmentUtility ufu;
 	
 	private Page visiblePage = new EmptyPage(this);
-	private ComponentContainer content;
+	private Component content;
+	private Panel scrollablePanel;
 	
 	public VaadinWindow() {
-		
 		setContent(windowContent);
 		setSizeFull();
 		windowContent.setSizeFull();
@@ -75,6 +76,10 @@ public class VaadinWindow extends Window implements PageContext {
 		ufu = new UriFragmentUtility();
 		ufu.addListener(new VaadinWindowFragmentChangedListener());
 		windowContent.addComponent(ufu);
+		
+		scrollablePanel = new Panel();
+		scrollablePanel.setScrollable(true);
+		scrollablePanel.setSizeFull();
 	}
 
 	private Component createSearchField() {
@@ -120,14 +125,24 @@ public class VaadinWindow extends Window implements PageContext {
 		ufu.setFragment(pageLink, true);
 	}
 
-	private void updateContent(ComponentContainer content) {
+	private void updateContent(Component content) {
 		if (this.content != null) {
-			windowContent.removeComponent(this.content);
+			// warum funktioniert windowContent.remove(content) nicht ??
+			windowContent.removeComponent(windowContent.getComponent(windowContent.getComponentCount()-1));
 		}
-		content.setSizeFull();
-		this.content = content;
-		windowContent.addComponent(content);
-		windowContent.setExpandRatio(content, 1);
+
+		if (content instanceof Table) {
+			this.content = content;
+			windowContent.addComponent(content);
+			windowContent.setExpandRatio(content, 1);
+		} else {
+			scrollablePanel.removeAllComponents();
+			scrollablePanel.addComponent(content);
+			this.content = scrollablePanel;
+			windowContent.addComponent(scrollablePanel);
+			windowContent.setExpandRatio(scrollablePanel, 1);
+		}
+		this.content.setSizeFull();
 		
 		updateMenu();
 		updateWindowTitle();
@@ -169,10 +184,29 @@ public class VaadinWindow extends Window implements PageContext {
 			} else if (action instanceof SeparatorAction) {
 				item.addSeparator();
 			} else {
-				item.addItem((String) action.getValue(Action.NAME), null, new ActionCommand(action));
+				if (!Boolean.FALSE.equals(action.getValue("visible"))) {
+					MenuBar.MenuItem menuItem = item.addItem((String) action.getValue(Action.NAME), null, new ActionCommand(action));
+					menuItem.setEnabled(!Boolean.FALSE.equals(action.getValue("enabled")));
+				}
 			}
 		}
 	}
+	
+//	
+//	private static void installAdditionalActionListener(Action action, final MenuBar.MenuItem menuItem) {
+//		menuItem.setVisible(!Boolean.FALSE.equals(action.getValue("visible")));
+//		menuItem.setEnabled(!Boolean.FALSE.equals(action.getValue("enabled")));
+//		action.addPropertyChangeListener(new PropertyChangeListener() {
+//			@Override
+//			public void propertyChange(PropertyChangeEvent evt) {
+//				if ("visible".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
+//					menuItem.setVisible((Boolean) evt.getNewValue());
+//				} else if ("enabled".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
+//					menuItem.setEnabled((Boolean) evt.getNewValue());
+//				}
+//			}
+//		});
+//	}
 	
 	private void fillMenu(ActionGroup actionGroup) {
 		ActionGroup file = actionGroup.getOrCreateActionGroup(ActionGroup.FILE);
@@ -232,7 +266,7 @@ public class VaadinWindow extends Window implements PageContext {
 			String pageLink = source.getUriFragmentUtility().getFragment();
 			visiblePage = Page.createPage(VaadinWindow.this, pageLink);
 			Component component = VaadinClientToolkit.getComponent(visiblePage.getPanel());
-			updateContent((ComponentContainer) component);
+			updateContent(component);
 		}
 	}
 
