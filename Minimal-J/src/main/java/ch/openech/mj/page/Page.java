@@ -4,7 +4,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 
-import ch.openech.mj.application.AsyncPage.PageWorkListener;
 import ch.openech.mj.application.EmptyPage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
@@ -123,18 +122,6 @@ public abstract class Page {
 		}
 	}
 
-	protected void firePageWorkStart(String workName) {
-		if (context instanceof PageWorkListener) {
-			((PageWorkListener) context).onPageWorkStart(workName);
-		}
-	}
-
-	protected void firePageWorkEnd() {
-		if (context instanceof PageWorkListener) {
-			((PageWorkListener) context).onPageWorkEnd();
-		}
-	}
-	
 	public interface PageListener {
 		public void onPageTitleChanged(Page page);
 	}

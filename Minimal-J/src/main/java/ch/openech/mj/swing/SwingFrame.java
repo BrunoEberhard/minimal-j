@@ -35,8 +35,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultEditorKit;
 
 import ch.openech.mj.application.ApplicationConfig;
-import ch.openech.mj.application.AsyncPage;
-import ch.openech.mj.application.AsyncPage.PageWorkListener;
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.application.HistoryPanel;
 import ch.openech.mj.edit.EditorPage;
@@ -55,7 +53,7 @@ import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
 public class SwingFrame extends JFrame {
 	private JTabbedPane tabbedPane;
 	private JToolBar toolBar;
-	private Action previousAction, nextAction, refreshAction, stopAction, searchAction;
+	private Action previousAction, nextAction, refreshAction, searchAction;
 	private JMenuItem menuItemToolBarVisible;
 	private JComboBox comboBoxSearchObject;
 	private JTextField textFieldSearch;
@@ -100,7 +98,6 @@ public class SwingFrame extends JFrame {
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
 		refreshAction = new RefreshAction();
-		stopAction = new StopAction();
 		searchAction = new SearchAction();
 	}
 
@@ -272,13 +269,6 @@ public class SwingFrame extends JFrame {
 			nextAction.setEnabled(false);
 			refreshAction.setEnabled(false);
 		}
-		
-		if (historyPanel != null && historyPanel.getPresent() instanceof AsyncPage) {
-			AsyncPage asyncPage = (AsyncPage)historyPanel.getPresent();
-			stopAction.setEnabled(asyncPage.isWorking());
-		} else {
-			stopAction.setEnabled(false);
-		}
 	}
 	
 	protected void updateMenu() {
@@ -374,20 +364,6 @@ public class SwingFrame extends JFrame {
 		}
 	}
 
-	protected class StopAction extends ResourceAction {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			stop();
-		}
-	}
-	
-	protected void stop() {
-		Page visiblePage = getVisiblePage();
-		if (visiblePage instanceof AsyncPage) {
-			((AsyncPage) visiblePage).stop();
-		}
-	}
-
 	protected class PreviousPageAction extends ResourceAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -433,7 +409,6 @@ public class SwingFrame extends JFrame {
 	protected void fillToolBar(JToolBar toolBar) {
 		fillToolBarNavigation(toolBar);
 		fillToolBarRefresh(toolBar);
-		fillToolBarStop(toolBar);
 		fillToolBarSearch(toolBar);
 	}
 	
@@ -446,10 +421,6 @@ public class SwingFrame extends JFrame {
 		toolBar.add(refreshAction);
 	}
 	
-	protected void fillToolBarStop(JToolBar toolBar) {
-		toolBar.add(stopAction);
-	}
-
 	protected void fillToolBarSearch(JToolBar toolBar) {
 		if (ApplicationConfig.getApplicationConfig().getSearchClasses().length > 0) {
 			toolBar.add(createSearchField());
@@ -613,7 +584,7 @@ public class SwingFrame extends JFrame {
 		// 
 	}
 	
-	private class PageContextImpl extends EditablePanel implements PageContext, PageListener, PageWorkListener {
+	private class PageContextImpl extends EditablePanel implements PageContext, PageListener {
 		private final HistoryPanel historyPanel;
 		
 		public PageContextImpl() {
@@ -655,16 +626,6 @@ public class SwingFrame extends JFrame {
 				Page page = Page.createPage(this, pageLink);
 				historyPanel.add(page);
 			}
-		}
-
-		@Override
-		public void onPageWorkStart(String workName) {
-			updateActions();
-		}
-
-		@Override
-		public void onPageWorkEnd() {
-			updateActions();
 		}
 
 		@Override
