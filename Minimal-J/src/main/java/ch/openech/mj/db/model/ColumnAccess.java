@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import ch.openech.mj.edit.value.Reference;
+import ch.openech.mj.edit.value.Required;
 import ch.openech.mj.util.FieldUtils;
 
 public class ColumnAccess {
@@ -116,6 +117,16 @@ public class ColumnAccess {
 		}
 		Map<String, AccessorInterface> accessorsForClass = accessors.get(clazz);
 		return accessorsForClass;
+	}
+	
+	public static boolean isReference(AccessorInterface accessor) {
+		if (accessor.getClazz().getName().startsWith("java.lang")) return false;
+		if (accessor.getAnnotation(Reference.class) != null) return true;
+		return !accessor.isFinal();
+	}
+	
+	public static boolean isRequired(AccessorInterface accessor) {
+		return accessor.getAnnotation(Required.class) != null;
 	}
 	
 	private static Map<String, AccessorInterface> accessors(Class<?> clazz) {

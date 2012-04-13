@@ -16,8 +16,6 @@ import org.apache.derby.client.am.Types;
 import ch.openech.mj.db.model.AccessorInterface;
 import ch.openech.mj.db.model.ColumnAccess;
 import ch.openech.mj.db.model.ListColumnAccess;
-import ch.openech.mj.edit.value.Reference;
-import ch.openech.mj.edit.value.Required;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
@@ -130,7 +128,7 @@ public abstract class AbstractTable<T> {
 		Map<String, AccessorInterface> accessors = ColumnAccess.getAccessors(clazz);
 		for (AccessorInterface accessor : accessors.values()) {
 			if ("id".equals(accessor.getName())) continue;
-			if (isReference(accessor)) {
+			if (ColumnAccess.isReference(accessor)) {
 				AbstractTable<?> refTable = dbPersistence.getTable(accessor.getClazz());
 				if (refTable == null) {
 					if (accessor.getClazz().equals(List.class)) {
@@ -244,7 +242,7 @@ public abstract class AbstractTable<T> {
 			}
 			
 			Class<?> fieldClass = accessor.getClazz();
-			if (isReference(accessor)) {
+			if (ColumnAccess.isReference(accessor)) {
 				int id = value != null ? ((Integer) value).intValue() : 0;
 				value = dereference(fieldClass, id, time);
 			} else {
@@ -253,16 +251,6 @@ public abstract class AbstractTable<T> {
 			accessor.setValue(result, value);
 		}
 		return result;
-	}
-	
-	public boolean isReference(AccessorInterface accessor) {
-		if (accessor.getClazz().getName().startsWith("java.lang")) return false;
-		if (accessor.getAnnotation(Reference.class) != null) return true;
-		return !accessor.isFinal();
-	}
-	
-	public boolean isRequired(AccessorInterface accessor) {
-		return accessor.getAnnotation(Required.class) != null;
 	}
 	
 	protected <D> Object dereference(Class<D> clazz, int id, Integer time) throws SQLException{
@@ -340,7 +328,7 @@ public abstract class AbstractTable<T> {
 			
 			Object value = accessor.getValue(object);
 			if (value != null) {
-				if (isReference(accessor)) {
+				if (ColumnAccess.isReference(accessor)) {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {

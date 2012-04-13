@@ -67,13 +67,13 @@ public class DbCreator {
 				String dbType = convertClassToActualDB(format.getClazz());
 				s.append(" ");  s.append(dbType);
 				appendSize(s, dbType, format.getSize());
-			} else if (table.isReference(accessor)) {
+			} else if (ColumnAccess.isReference(accessor)) {
 				s.append(" INTEGER");
 			} else {
 				throw new IllegalArgumentException(column + " in Table: " + table.getTableName());
 			}
 			
-			s.append(table.isRequired(accessor) ? " NOT NULL" : " DEFAULT NULL");
+			s.append(ColumnAccess.isRequired(accessor) ? " NOT NULL" : " DEFAULT NULL");
 			
 //Eine Referenz auf eine einzelne Spalte, die nicht primary key ist
 //scheint in Derby nicht möglich
