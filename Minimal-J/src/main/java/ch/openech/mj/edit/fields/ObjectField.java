@@ -1,14 +1,6 @@
 package ch.openech.mj.edit.fields;
 
-import java.awt.event.ActionEvent;
-import java.util.List;
-
-import javax.swing.AbstractAction;
-
 import ch.openech.mj.db.EmptyObjects;
-import ch.openech.mj.edit.Editor;
-import ch.openech.mj.edit.form.FormVisual;
-import ch.openech.mj.edit.validation.ValidationMessage;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
