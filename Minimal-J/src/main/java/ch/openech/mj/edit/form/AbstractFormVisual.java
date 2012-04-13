@@ -145,8 +145,9 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 			}
 			return component;
 		} else {
-			// keyString ist beispielsweise : "nationality" oder "address.zip"
+			// keyString may be : "nationality" oder "address.zip"
 			String keyString = Constants.getConstant(keyObject);
+			if (keyString == null) throw new IllegalArgumentException(keyObject + " not possible as key as there is no such field");
 			AccessorInterface accessor = PropertyAccessor.getAccessor(objectClass, keyString);
 			FormField<?> field;
 			if (accessor.getClazz() == String.class) {
