@@ -20,14 +20,12 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	protected final Action prevAction;
 	protected final Action nextAction;
-	protected final Action demoAction;
 	private SwitchFormVisual<?> switchFormVisual;
 	private final Indicator indicator;
 	
 	protected Wizard() {
 		nextAction = createNextAction();
 		prevAction = createPrevAction();
-		demoAction = new FillWithDemoDataAction();
 		indicator = new WizardIndicator();
 	}
 
@@ -35,7 +33,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	@Override
 	public Action[] getActions() {
-		return new Action[]{demoAction, cancelAction, prevAction, nextAction, saveAction};
+		return new Action[]{demoDataAction, cancelAction, prevAction, nextAction, saveAction};
 	}
 
 	protected int getCurrentPageIndex() {
@@ -114,16 +112,6 @@ public abstract class Wizard<T> extends Editor<T> {
 			Wizard.this.indicate(validationResult);
 			nextAction.setEnabled(isSaveable());
 			saveAction.setEnabled(isSaveable() && currentPage.canFinish());
-		}
-	}
-	
-	 private class FillWithDemoDataAction extends ResourceAction {
-	 @Override
-		public void actionPerformed(ActionEvent arg0) {
-			// boolean generateData = PreferencesHelper.preferences().getBoolean("generateData", false);
-			if (true) {
-				fillWithDemoData();
-			}
 		}
 	}
 

@@ -16,6 +16,7 @@ import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
+import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -42,6 +43,7 @@ public abstract class Editor<T> {
 	private T original;
 	protected final Action saveAction;
 	protected final Action cancelAction;
+	protected final Action demoDataAction;
 	private FormVisual<T> form;
 	private EditorFinishedListener editorFinishedListener;
 	private Indicator indicator;
@@ -75,7 +77,7 @@ public abstract class Editor<T> {
 	}
 	
 	public Action[] getActions() {
-		return new Action[]{cancelAction, saveAction};
+		return new Action[]{demoDataAction, cancelAction, saveAction};
 	}
 
 	/**
@@ -92,6 +94,7 @@ public abstract class Editor<T> {
 	protected Editor() {
 		saveAction = createSaveAction();
 		cancelAction = createCancelAction();
+		demoDataAction = createDemoDataAction();
 	}
 	
 	public FormVisual<T> startEditor() {
@@ -273,7 +276,18 @@ public abstract class Editor<T> {
 		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "CancelAction");
 		return action;
 	}
-
+	
+	protected Action createDemoDataAction() {
+		Action action = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fillWithDemoData();
+			}
+		};
+		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "FillWithDemoDataAction");
+		return action;
+	}
+	
 	//
 	
 	public interface EditorFinishedListener {
