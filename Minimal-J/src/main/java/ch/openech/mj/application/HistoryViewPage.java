@@ -2,27 +2,26 @@ package ch.openech.mj.application;
 
 import java.awt.Component;
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.page.ObjectPage;
+import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
 
-public abstract class HistoryViewPage<T> extends AsyncPage implements RefreshablePage, ObjectPage<T> {
+@Deprecated
+public abstract class HistoryViewPage<T> extends Page implements RefreshablePage, ObjectPage<T> {
 
 	private JSplitPane splitPane;
 	private FormVisual<T> objectPanel;
@@ -44,7 +43,7 @@ public abstract class HistoryViewPage<T> extends AsyncPage implements Refreshabl
 	protected abstract FormVisual<T> createForm();
 	
 	@Override
-	public JComponent createPanel() {
+	public IComponent getPanel() {
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splitPane.setDividerLocation(200);
 		splitPane.setBorder(null);
@@ -55,7 +54,8 @@ public abstract class HistoryViewPage<T> extends AsyncPage implements Refreshabl
 		initializeTable();
 		splitPane.setLeftComponent(tableScrollPane);
 		
-		return splitPane;
+		// TODO !!
+		return null;
 	}
 
 	private void initializeTable() {
@@ -94,29 +94,9 @@ public abstract class HistoryViewPage<T> extends AsyncPage implements Refreshabl
 	
 	@Override
 	public void refresh() {
-		if (isWorking()) return;
-		
-			execute(new SwingWorker<List<T>, Object>() {
-				@Override
-				protected List<T> doInBackground() throws Exception {
-					return loadObjects();
-				}
-				
-				@Override
-				protected void done() {
-					try {
-						List<T> objects = get();
-						tableModel.setHistoryObjects(objects);
-						table.getSelectionModel().setSelectionInterval(0, 0);
-					} catch (CancellationException x) {
-						// nothing special, user cancelled operation
-					} catch (InterruptedException ex) {
-						ex.printStackTrace();
-					} catch (ExecutionException ex) {
-						ex.printStackTrace();
-					}
-				}
-			}, "loadHistory");
+		tableModel.setHistoryObjects(loadObjects());
+		table.getSelectionModel().setSelectionInterval(0, 0);
+
 	}
 
 	public void selectActual() {
