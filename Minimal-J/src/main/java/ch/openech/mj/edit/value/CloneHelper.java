@@ -1,32 +1,64 @@
 package ch.openech.mj.edit.value;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.logging.Logger;
+import java.util.Map;
+
+import ch.openech.mj.db.model.AccessorInterface;
+import ch.openech.mj.db.model.ColumnAccess;
 
 public class CloneHelper {
-	private static Logger logger = Logger.getLogger(CloneHelper.class.getName());
 
-	@SuppressWarnings("unchecked")
-	public static <T> T cloneIfPossible(T object) {
-		if (object instanceof Cloneable) {
-			try {
-				Method cloneMethod = object.getClass().getMethod("clone");
-				try {
-					return (T) cloneMethod.invoke(object);
-				} catch (IllegalArgumentException e) {
-					logger.severe("Clone() of Object " + object + " seems to have arguments");
-				} catch (IllegalAccessException e) {
-					logger.severe("Access to clone() of Object " + object + " not possible");
-				} catch (InvocationTargetException e) {
-					logger.severe("Invocation clone() of Object " + object + " failed");
-				}
-			} catch (SecurityException e) {
-				logger.severe("Access to clone() of Object " + object + " not possible");
-			} catch (NoSuchMethodException e) {
-				logger.severe("Object " + object + " implements Cloneable but no method clone()");
+	public static <T> T clone(T object) {
+		if (object == null) return null;
+
+		@SuppressWarnings("unchecked")
+		Class<T> clazz = (Class<T>) object.getClass();
+		try {
+			T copy = newInstance(clazz);
+			deepCopy(object, copy);
+			return copy;
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void deepCopy(Object from, Object to) {
+		Map<String, AccessorInterface> accessors = ColumnAccess.getAccessors(from.getClass());
+		for (AccessorInterface accessor : accessors.values()) {
+			Object fromValue = accessor.getValue(from);
+			if (accessor.isFinal()) {
+				Object toValue = accessor.getValue(to);
+				deepCopy(fromValue, toValue);
+			} else if (fromValue != null && ColumnAccess.isReference(accessor)) {
+				Object copyValue = CloneHelper.clone(fromValue);
+				accessor.setValue(to, copyValue);
+			} else {
+				accessor.setValue(to, fromValue);
 			}
 		}
-		return object;
 	}
+	
+	public static <T> T newInstance(Class<T> clazz) {
+		try {
+			Constructor<T> constructor = clazz.getConstructor();
+			T newInstance = (T) constructor.newInstance();
+			return newInstance;
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 }

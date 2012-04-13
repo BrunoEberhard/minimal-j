@@ -11,7 +11,7 @@ import ch.openech.mj.example.model.Book;
 public class AddBookEditor extends Editor<Book> {
 
 	@Override
-	public Book load() {
+	public Book newInstance() {
 		return new Book();
 	}
 

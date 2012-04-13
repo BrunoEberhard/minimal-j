@@ -10,6 +10,7 @@ import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.FlowField;
 
@@ -52,26 +53,23 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 
 		@Override
 		public T load() {
-			if (getObject() != null) {
-				return getObject();
-			} else {
-				Class<?> clazz = ch.openech.mj.util.GenericUtils.getGenericClass(ObjectFlowField.this.getClass());
-				if (clazz == null) {
-					throw new RuntimeException("TODO");
-				}
-				try {
-					return (T) clazz.newInstance();
-				} catch (InstantiationException e) {
-					throw new RuntimeException(e);
-				} catch (IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
+			return ObjectFlowField.this.getObject();
+		}
+		
+		@Override
+		public T newInstance() {
+			@SuppressWarnings("unchecked")
+			Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(ObjectFlowField.this.getClass());
+			if (clazz == null) {
+				throw new RuntimeException("TODO");
 			}
+			T newInstance = CloneHelper.newInstance(clazz);
+			return newInstance;
 		}
 
 		@Override
-		public boolean save(T object) {
-			setObject(object);
+		public boolean save(T edited) {
+			ObjectFlowField.this.setObject(edited);
 			return true;
 		}
 
@@ -87,7 +85,7 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 		public P load() {
 			return getPart(ObjectFlowField.this.getObject());
 		}
-
+		
 		@Override
 		public boolean save(P part) {
 			setPart(ObjectFlowField.this.getObject(), part);

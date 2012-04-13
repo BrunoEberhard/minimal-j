@@ -130,7 +130,13 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusabl
 		}
 		
 		protected void setObject(T object) {
-			this.setObject = CloneHelper.cloneIfPossible(object);
+			try {
+				this.setObject = CloneHelper.clone(object);
+			} catch (Exception x) {
+				// pretty ugly but needed
+				// CodeItem cannot be cloned, but changeable (domain) objects have to because they could be changed after the set
+				this.setObject = object;
+			}
 			this.selectedObject = object;
 			fireContentsChanged(this, -1, -1);
 		}

@@ -15,11 +15,11 @@ import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
-import ch.openech.mj.util.GenericUtils;
 
 /**
  * An <code>Editor</code> knows
@@ -39,6 +39,7 @@ import ch.openech.mj.util.GenericUtils;
  */
 public abstract class Editor<T> {
 
+	private T original;
 	protected final Action saveAction;
 	protected final Action cancelAction;
 	private FormVisual<T> form;
@@ -50,8 +51,20 @@ public abstract class Editor<T> {
 
 	protected abstract FormVisual<T> createForm();
 
-	protected abstract T load();
+	protected T load() {
+		return null;
+	}
 
+	protected T newInstance() {
+		@SuppressWarnings("unchecked")
+		Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(Editor.this.getClass());
+		if (clazz == null) {
+			throw new RuntimeException("TODO");
+		}
+		T newInstance = CloneHelper.newInstance(clazz);
+		return newInstance;
+	}
+	
 	protected abstract void validate(T object, List<ValidationMessage> resultList);
 
 	protected abstract boolean save(T object);
@@ -86,27 +99,20 @@ public abstract class Editor<T> {
 			throw new IllegalStateException();
 		}
 		form = createForm();
-		T object = load();
-		if (object == null) {
-			object = newObject();
+		
+		original = load();
+		if (original != null) {
+			T copy = CloneHelper.clone(original);
+			form.setObject(copy);
+		} else {
+			T newInstance = newInstance();
+			form.setObject(newInstance);
 		}
-		form.setObject(object);
 		
 		form.setSaveAction(saveAction);
 		form.setChangeListener(new EditorChangeListener());
 		
 		return form;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private T newObject() {
-		try {
-			return (T) GenericUtils.getGenericClass(this.getClass()).newInstance();
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	public void setEditorFinishedListener(EditorFinishedListener editorFinishedListener) {
@@ -140,15 +146,20 @@ public abstract class Editor<T> {
 		return form.getObject();
 	}
 	
-	
-	
 	protected void save() {
 		if (saveable) {
 			progress(0, 100);
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					if (save(getObject())) {
+					T objectToSave;
+					if (original != null) {
+						objectToSave = original;
+						CloneHelper.deepCopy(getObject(), original);
+					} else {
+						objectToSave = getObject();
+					}
+					if (save(objectToSave)) {
 						finish();
 					}
 				}
