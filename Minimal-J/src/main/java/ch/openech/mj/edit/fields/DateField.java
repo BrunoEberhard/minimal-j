@@ -26,8 +26,6 @@ so gut wie möglich ergänzt. Die Übersetzung geschieht wie folgt:
  */
 
 public class DateField extends AbstractEditField<String> implements Validatable, DemoEnabled {
-	public static final boolean REQUIRED = true;
-	public static final boolean NOT_REQUIRED = !REQUIRED;
 	public static final boolean PARTIAL_ALLOWED = true;
 	
 	private final TextField textField;
