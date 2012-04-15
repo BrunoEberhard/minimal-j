@@ -272,9 +272,6 @@ public class SwingFrame extends JFrame {
 	}
 	
 	protected void updateMenu() {
-		JMenuBar menuBar = getRootPane().getJMenuBar();
-		menuBar.removeAll();
-
 		ActionGroup actionGroup = new ActionGroup(null);
 		fillMenu(actionGroup);
 		
@@ -309,7 +306,7 @@ public class SwingFrame extends JFrame {
 	}
 
 	private void updateMenu(ActionGroup actions) {
-		JMenuBar menuBar = getRootPane().getJMenuBar();
+		JMenuBar menuBar = new JMenuBar();
 		for (Action action : actions.getActions()) {
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
@@ -321,6 +318,8 @@ public class SwingFrame extends JFrame {
 				}
 			}
 		}
+		getRootPane().setJMenuBar(menuBar);
+		getRootPane().validate();
 	}
 	
 	private void fillMenu(JMenu menu, ActionGroup actionGroup) {
