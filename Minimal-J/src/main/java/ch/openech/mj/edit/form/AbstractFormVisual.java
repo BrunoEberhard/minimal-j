@@ -136,20 +136,23 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	}
 
 	public FormField<?> createField(Object keyObject) {
+		AccessorInterface accessor;
+		FormField<?> field;
 		if (keyObject == null) {
 			throw new NullPointerException("Key must not be null");
 		} else if (keyObject instanceof FormField) {
-			FormField<?> component = (FormField<?>) keyObject;
-			if (StringUtils.isBlank(component.getName())) {
+			field = (FormField<?>) keyObject;
+			String name = field.getName();
+			if (StringUtils.isBlank(name)) {
 				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no name");
 			}
-			return component;
+			accessor = PropertyAccessor.getAccessor(objectClass, name);
 		} else {
 			// keyString may be : "nationality" oder "address.zip"
 			String keyString = Constants.getConstant(keyObject);
 			if (keyString == null) throw new IllegalArgumentException(keyObject + " not possible as key as there is no such field");
-			AccessorInterface accessor = PropertyAccessor.getAccessor(objectClass, keyString);
-			FormField<?> field;
+			accessor = PropertyAccessor.getAccessor(objectClass, keyString);
+			
 			if (accessor.getClazz() == String.class) {
 				Format format = Formats.getInstance().getFormat(accessor);
 				if (format != null) {
@@ -160,11 +163,11 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 			} else {
 				field = createField(keyString, accessor);
 			}
-			if (accessor.getAnnotation(Required.class) != null && field instanceof EditField<?>) {
-				mandatoryFields.add((EditField<?>) field);
-			}
-			return field;
 		}
+		if (accessor.getAnnotation(Required.class) != null && field instanceof EditField<?>) {
+			mandatoryFields.add((EditField<?>) field);
+		}
+		return field;
 	}
 	
 	protected FormField<?> createField(String name, AccessorInterface accessor) {
