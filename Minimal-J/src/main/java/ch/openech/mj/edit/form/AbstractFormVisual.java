@@ -226,9 +226,12 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 
 	public void area(Object... keys) {
 		int span = columns / keys.length;
-		for (Object key : keys) {
-			FormField<?> field = createField(key);
-			area(field, span);
+		int rest = columns;
+		for (int i = 0; i<keys.length; i++) {
+			Object key = keys[i];
+			FormField<?> visual = createField(key);
+			area(visual, i < keys.length - 1 ? span : rest);
+			rest = rest - span;
 		}
 	}
 
