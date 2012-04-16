@@ -57,11 +57,14 @@ public class EditorDialogAction extends AbstractAction {
 			private ProgressListener progressListener;
 			
 			@Override
-			public void finished() {
+			public void finished(String followLink) {
 				if (progressListener != null) {
 					progressListener.showProgress(100, 100);
 				}
 				dialog.closeDialog();
+				if (followLink != null) {
+					context.show(followLink);
+				}
 			}
 
 			@Override

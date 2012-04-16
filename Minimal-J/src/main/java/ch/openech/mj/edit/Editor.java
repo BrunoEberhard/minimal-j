@@ -16,7 +16,6 @@ import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
-import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -48,6 +47,7 @@ public abstract class Editor<T> {
 	private EditorFinishedListener editorFinishedListener;
 	private Indicator indicator;
 	private boolean saveable = true;
+	private String followLink;
 	
 	// what to implement
 
@@ -141,8 +141,12 @@ public abstract class Editor<T> {
 	
 	private void fireEditorFinished() {
 		if (editorFinishedListener != null) {
-			editorFinishedListener.finished();
+			editorFinishedListener.finished(followLink);
 		}
+	}
+	
+	protected void setFollowLink(String followLink) {
+		this.followLink = followLink;
 	}
 	
 	protected T getObject() {
@@ -294,7 +298,7 @@ public abstract class Editor<T> {
 		
 		public void progress(int value, int maximum);
 		
-		public void finished();
+		public void finished(String followLink);
 		
 	}
 	

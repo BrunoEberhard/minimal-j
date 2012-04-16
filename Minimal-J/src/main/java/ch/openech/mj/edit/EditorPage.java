@@ -81,8 +81,11 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	}
 
 	@Override
-	public void finished() {
+	public void finished(String followLink) {
 		close();
+		if (followLink != null) {
+			getPageContext().show(followLink);
+		}
 	}
 
 	public void checkedClose() {
