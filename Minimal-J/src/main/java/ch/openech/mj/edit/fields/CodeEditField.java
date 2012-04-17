@@ -39,6 +39,7 @@ public class CodeEditField extends AbstractEditField<String> implements DemoEnab
 
 	public void setEnabled(boolean enabled) {
 		if (enabled) {
+			switchLayout.show(comboBox);
 			setDefault();
 		} else {
 			switchLayout.show(textFieldDisabled);
