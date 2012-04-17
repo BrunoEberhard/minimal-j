@@ -46,7 +46,12 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 
 	@Override
 	public void setSelectedObject(T object) {
-		setValue(object);
+		int id = objects.indexOf(object);
+		if (id >= 0) {
+			select(id);
+		} else {
+			select(null);
+		}
 	}
 
 	@Override
@@ -60,7 +65,12 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 
 	@Override
 	public int getSelectedIndex() {
-		return (Integer) getValue();
+		Object value = getValue();
+		if (value != null) {
+			return (Integer) objects.indexOf(getSelectedObject());
+		} else {
+			return -1;
+		}
 	}
 
 	@Override

@@ -149,7 +149,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(int id) throws SQLException {
-		if (id == 0) return null;
+		if (id <= 0) return null;
 		selectByIdStatement.setInt(1, id);
 		T object = executeSelect(selectByIdStatement);
 		if (object != null) {
@@ -160,7 +160,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(int id, Integer time) throws SQLException {
-		if (id == 0) return null;
+		if (id <= 0) return null;
 		if (time != null) {
 			selectByIdAndTimeStatement.setInt(1, id);
 			selectByIdAndTimeStatement.setInt(2, time);
@@ -173,7 +173,12 @@ public class Table<T> extends AbstractTable<T> {
 			return read(id);
 		}
 	}
-
+	
+	public T read(T object, Integer time) throws SQLException {
+		int id = getId(object);
+		return read(id, time);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void loadRelations(T object, int id, Integer time) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {

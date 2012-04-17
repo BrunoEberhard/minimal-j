@@ -53,7 +53,7 @@ import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
 public class SwingFrame extends JFrame {
 	private JTabbedPane tabbedPane;
 	private JToolBar toolBar;
-	private Action previousAction, nextAction, refreshAction, searchAction;
+	private Action previousAction, nextAction, refreshAction, searchAction, upAction, downAction;
 	private JMenuItem menuItemToolBarVisible;
 	private JComboBox comboBoxSearchObject;
 	private JTextField textFieldSearch;
@@ -99,6 +99,8 @@ public class SwingFrame extends JFrame {
 		nextAction = new NextPageAction();
 		refreshAction = new RefreshAction();
 		searchAction = new SearchAction();
+		upAction = new UpAction();
+		downAction = new DownAction();
 	}
 
 	protected void createContent() {
@@ -264,10 +266,14 @@ public class SwingFrame extends JFrame {
 			previousAction.setEnabled(historyPanel.hasPast());
 			nextAction.setEnabled(historyPanel.hasFuture());
 			refreshAction.setEnabled(getVisiblePage() instanceof RefreshablePage);
+			upAction.setEnabled(!getVisiblePageContext().top());
+			downAction.setEnabled(!getVisiblePageContext().bottom());
 		} else {
 			previousAction.setEnabled(false);
 			nextAction.setEnabled(false);
 			refreshAction.setEnabled(false);
+			upAction.setEnabled(false);
+			downAction.setEnabled(false);
 		}
 	}
 	
@@ -398,6 +404,20 @@ public class SwingFrame extends JFrame {
 		getVisiblePageContext().getHistoryPanel().next();
 	}
 	
+	protected class UpAction extends ResourceAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			getVisiblePageContext().up();
+		}
+	}
+
+	protected class DownAction extends ResourceAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			getVisiblePageContext().down();
+		}
+	}
+
 	private JToolBar createToolBar() {
 		toolBar = new JToolBar();
 		toolBar.setFloatable(false);
@@ -408,6 +428,7 @@ public class SwingFrame extends JFrame {
 	protected void fillToolBar(JToolBar toolBar) {
 		fillToolBarNavigation(toolBar);
 		fillToolBarRefresh(toolBar);
+		fillToolBarUpDown(toolBar);
 		fillToolBarSearch(toolBar);
 	}
 	
@@ -418,6 +439,11 @@ public class SwingFrame extends JFrame {
 	
 	protected void fillToolBarRefresh(JToolBar toolBar) {
 		toolBar.add(refreshAction);
+	}
+	
+	protected void fillToolBarUpDown(JToolBar toolBar) {
+		toolBar.add(upAction);
+		toolBar.add(downAction);
 	}
 	
 	protected void fillToolBarSearch(JToolBar toolBar) {
@@ -585,6 +611,8 @@ public class SwingFrame extends JFrame {
 	
 	private class PageContextImpl extends EditablePanel implements PageContext, PageListener {
 		private final HistoryPanel historyPanel;
+		private List<String> pageLinks;
+		private int indexInPageLinks;
 		
 		public PageContextImpl() {
 			historyPanel = new HistoryPanel(historyPanelListener);
@@ -618,6 +646,9 @@ public class SwingFrame extends JFrame {
 
 		@Override
 		public void show(String pageLink) {
+			if (pageLinks != null && !pageLinks.contains(pageLink)) {
+				pageLinks = null;
+			}
 			if (getVisiblePage() != null && getVisiblePage().isExclusive()) {
 				PageContext newPageContext = addTab();
 				newPageContext.show(pageLink);
@@ -625,6 +656,31 @@ public class SwingFrame extends JFrame {
 				Page page = Page.createPage(this, pageLink);
 				historyPanel.add(page);
 			}
+		}
+
+		@Override
+		public void show(List<String> pageLinks, int index) {
+			this.pageLinks = pageLinks;
+			this.indexInPageLinks = index;
+			show(pageLinks.get(indexInPageLinks));
+		}
+		
+		public boolean top() {
+			return pageLinks == null ||indexInPageLinks == 0;
+		}
+
+		public boolean bottom() {
+			return pageLinks == null || indexInPageLinks == pageLinks.size() - 1;
+		}
+
+		public void up() {
+			Page page = Page.createPage(this, pageLinks.get(--indexInPageLinks));
+			historyPanel.replace(page);
+		}
+
+		public void down() {
+			Page page = Page.createPage(this, pageLinks.get(++indexInPageLinks));
+			historyPanel.replace(page);
 		}
 
 		@Override

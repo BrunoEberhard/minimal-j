@@ -1,5 +1,7 @@
 package ch.openech.mj.page;
 
+import java.util.List;
+
 /**
  * These are the possibilities of a page or an action opening a page
  * 
@@ -19,6 +21,12 @@ public interface PageContext {
 	 */
 	void show(String pageLink);
 
+	/**
+	 * Show a page and provide some more Links for a up/down navigating
+	 * 
+	 */
+	void show(List<String> pageLinks, int index);
+	
 	/**
 	 * Add a new tab/context
 	 * 

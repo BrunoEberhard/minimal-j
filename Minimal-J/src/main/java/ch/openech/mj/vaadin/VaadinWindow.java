@@ -1,6 +1,7 @@
 package ch.openech.mj.vaadin;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -11,6 +12,7 @@ import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.SeparatorAction;
+import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
 
@@ -47,6 +49,8 @@ public class VaadinWindow extends Window implements PageContext {
 	private Page visiblePage = new EmptyPage(this);
 	private Component content;
 	private Panel scrollablePanel;
+	private List<String> pageLinks;
+	private int indexInPageLinks;
 	
 	public VaadinWindow() {
 		setContent(windowContent);
@@ -213,7 +217,8 @@ public class VaadinWindow extends Window implements PageContext {
 		fillFileMenu(file);
 	
 		actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT);
-		actionGroup.getOrCreateActionGroup(ActionGroup.WINDOW);
+		ActionGroup window = actionGroup.getOrCreateActionGroup(ActionGroup.WINDOW);
+		fillWindowMenu(window);
 		
 		ActionGroup help = actionGroup.getOrCreateActionGroup(ActionGroup.HELP);
 		fillHelpMenu(help);
@@ -224,6 +229,29 @@ public class VaadinWindow extends Window implements PageContext {
 		actionGroup.addSeparator();
 		actionGroup.getOrCreateActionGroup(ActionGroup.IMPORT);
 		actionGroup.getOrCreateActionGroup(ActionGroup.EXPORT);
+	}
+	
+	protected void fillWindowMenu(ActionGroup actionGroup) {
+		if (!top()) {
+			actionGroup.add(new UpAction());
+		}
+		if (!bottom()) {
+			actionGroup.add(new DownAction());
+		}
+	}
+	
+	protected class UpAction extends ResourceAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			up();
+		}
+	}
+
+	protected class DownAction extends ResourceAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			down();
+		}
 	}
 	
 	protected void fillHelpMenu(ActionGroup actionGroup) {
@@ -253,6 +281,31 @@ public class VaadinWindow extends Window implements PageContext {
 	public void close() {
 		getWindow().executeJavaScript("history.back()");
 		// ev. "var backlen=history.length; history.go(-backlen); window.location.href= window.location.href;"
+	}
+	
+	@Override
+	public void show(List<String> pageLinks, int index) {
+		this.pageLinks = pageLinks;
+		this.indexInPageLinks = index;
+		show(pageLinks.get(indexInPageLinks));
+	}
+	
+	public boolean top() {
+		return pageLinks == null ||indexInPageLinks == 0;
+	}
+
+	public boolean bottom() {
+		return pageLinks == null || indexInPageLinks == pageLinks.size() - 1;
+	}
+
+	public void up() {
+		// getWindow().executeJavaScript("history.back()");
+		show(pageLinks.get(--indexInPageLinks));
+	}
+
+	public void down() {
+		// getWindow().executeJavaScript("history.back()");
+		show(pageLinks.get(++indexInPageLinks));
 	}
 	
 	protected void updateWindowTitle() {

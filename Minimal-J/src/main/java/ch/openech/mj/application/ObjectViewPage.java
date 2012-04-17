@@ -44,29 +44,7 @@ public abstract class ObjectViewPage<T> extends Page implements RefreshablePage,
 	@Override
 	public void refresh() {
 		showObject(loadObject());
-		
-//		if (isWorking()) return;
-//		
-//			execute(new SwingWorker<T, Object>() {
-//				@Override
-//				protected T doInBackground() throws Exception {
-//					return loadObject();
-//				}
-//				
-//				@Override
-//				protected void done() {
-//					try {
-//						actualObject = get();
-//						showObject(actualObject);
-//					} catch (CancellationException x) {
-//						// nothing special, user cancelled operation
-//					} catch (InterruptedException ex) {
-//						ex.printStackTrace();
-//					} catch (ExecutionException ex) {
-//						ex.printStackTrace();
-//					}
-//				}
-//			}, "loadObject");
+
 	}
 	
 }
