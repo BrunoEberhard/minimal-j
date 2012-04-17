@@ -206,6 +206,31 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 		add(visual, columns);
 	}
 	
+//  with this it would be possible to split cells	
+//	public void line(Object... keys) {
+//		int span = columns / keys.length;
+//		int rest = columns;
+//		for (int i = 0; i<keys.length; i++) {
+//			Object key = keys[i];
+//			if (key instanceof Object[]) {
+//				Object[] split = (Object[]) key;
+//				IComponent[] components = new IComponent[split.length];
+//				int index = 0;
+//				for (Object o : split) {
+//					FormField<?> visual = createField(o);
+//					registerNamedField(visual);
+//					components[index++] = decorateWithCaption(visual);
+//				}
+//				HorizontalLayout horizontalLayout = ClientToolkit.getToolkit().createHorizontalLayout(components);
+//				layout.add(horizontalLayout, i < keys.length - 1 ? span : rest);
+//			} else {
+//				FormField<?> visual = createField(key);
+//				add(visual, i < keys.length - 1 ? span : rest);
+//			}
+//			rest = rest - span;
+//		}
+//	}
+	
 	public void line(Object... keys) {
 		int span = columns / keys.length;
 		int rest = columns;
