@@ -22,7 +22,7 @@ public class SwingFlowField extends JPanel implements FlowField {
 	private JLabel lastLabel;
 	
 	public SwingFlowField(boolean vertical) {
-		super(new MigLayout(vertical ? "ins 4 4 0 0, gap 0 0, wrap 1" : "ins 0, gap 0 0"));
+		super(new MigLayout(vertical ? "ins 4 1 0 0, gap 0 0, wrap 1" : "ins 0, gap 0 0"));
 		this.vertical = vertical;
 	}
 	
