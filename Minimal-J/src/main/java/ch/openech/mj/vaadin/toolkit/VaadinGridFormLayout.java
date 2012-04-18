@@ -23,10 +23,8 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 		addStyleName("gridForm");
 	}
 	
-	public String getDialogWidth() {
-		// ex is the height of the letter x
-		// its just a best guess to make it a little bit depending on Font size
-		return columnWidthPercentage * columns / 3 + "ex";
+	public int getDialogWidth() {
+		return columnWidthPercentage * columns / 3;
 	}
 
 	@Override
