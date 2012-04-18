@@ -58,15 +58,6 @@ public class VaadinDialog extends Window implements VisualDialog {
 		setVisible(false);
 	}
 	
-	public static int guessWidth(ComponentContainer content) {
-		VaadinGridFormLayout formLayout = findFormLayout(content);
-		if (formLayout != null) {
-			return 200 * formLayout.getColumns();
-			
-		}
-		return 300;
-	}
-	
 	private static VaadinGridFormLayout findFormLayout(Component c) {
 		if (c instanceof VaadinGridFormLayout) {
 			return (VaadinGridFormLayout) c;
