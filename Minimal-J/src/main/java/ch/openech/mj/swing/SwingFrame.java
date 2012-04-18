@@ -11,6 +11,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -30,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultEditorKit;
@@ -609,6 +611,7 @@ public class SwingFrame extends JFrame {
 		// 
 	}
 	
+	// TODO Swing PageContext should ensure use of EventDispatchThread in every need case
 	private class PageContextImpl extends EditablePanel implements PageContext, PageListener {
 		private final HistoryPanel historyPanel;
 		private List<String> pageLinks;
@@ -645,16 +648,31 @@ public class SwingFrame extends JFrame {
 		}
 
 		@Override
-		public void show(String pageLink) {
-			if (pageLinks != null && !pageLinks.contains(pageLink)) {
-				pageLinks = null;
-			}
-			if (getVisiblePage() != null && getVisiblePage().isExclusive()) {
-				PageContext newPageContext = addTab();
-				newPageContext.show(pageLink);
+		public void show(final String pageLink) {
+			if (!SwingUtilities.isEventDispatchThread()) {
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							show(pageLink);
+						};
+					});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
 			} else {
-				Page page = Page.createPage(this, pageLink);
-				historyPanel.add(page);
+				if (pageLinks != null && !pageLinks.contains(pageLink)) {
+					pageLinks = null;
+				}
+				if (getVisiblePage() != null && getVisiblePage().isExclusive()) {
+					PageContext newPageContext = addTab();
+					newPageContext.show(pageLink);
+				} else {
+					Page page = Page.createPage(PageContextImpl.this, pageLink);
+					historyPanel.add(page);
+				}
 			}
 		}
 
