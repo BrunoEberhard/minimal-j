@@ -2,6 +2,7 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.beans.PropertyVetoException;
 
 import javax.swing.JInternalFrame;
@@ -9,7 +10,6 @@ import javax.swing.JInternalFrame;
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.toolkit.VisualDialog;
 
-// TODO make async (implement executeAsync wie in AsyncPage)
 public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 	// private static final Logger logger = Logger.getLogger(EditorInternalFrameDecorator.class.getName());
 	
@@ -56,6 +56,17 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 		super.setResizable(resizable);
 	}
 
+	@Override
+	public Dimension getPreferredSize() {
+		Dimension preferredSize = super.getPreferredSize();
+		if (isResizable()) {
+			// if ScrollBar appears, the right side of the fields should not be cut
+			return  new Dimension(super.getPreferredSize().width + 30, super.getPreferredSize().height + 70);
+		} else {
+			return preferredSize;
+		}
+	}
+	
 	@Override
 	public void closeDialog() {
 		try {
