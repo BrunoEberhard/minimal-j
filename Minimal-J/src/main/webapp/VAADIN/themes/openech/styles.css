@@ -5,6 +5,10 @@ font-weight: bolder;
 font-size: smaller;
 }
 
+.v-caption .v-errorindicator {
+height: 10px;
+}
+
 input.v-textfield-readonly,
 textarea.v-textarea-readonly {
 border-color: activeborder;
