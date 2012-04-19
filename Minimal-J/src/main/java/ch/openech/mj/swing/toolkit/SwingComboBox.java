@@ -75,17 +75,14 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusabl
 		private List<T> objects = Collections.emptyList();
 		private T setObject;
 		private T selectedObject;
+		private boolean setObjectInObjects;
 		
 		private NullableComboBoxModel() {
 		}
 
-		private boolean setObjectInObjects() {
-			return setObject == null || objects.contains(setObject);
-		}
-		
 		@Override
 		public int getSize() {
-			if (setObjectInObjects()) {
+			if (setObjectInObjects) {
 				return objects.size() + 1;
 			} else {
 				return objects.size() + 2;			
@@ -94,7 +91,7 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusabl
 
 		@Override
 		public Object getElementAt(int index) {
-			if (setObjectInObjects()) {
+			if (setObjectInObjects) {
 				if (index == 0) {
 					return null;
 				} else {
@@ -138,14 +135,19 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusabl
 				this.setObject = object;
 			}
 			this.selectedObject = object;
+			updateSetObjectInObjects();
 			fireContentsChanged(this, -1, -1);
 		}
 		
 		protected void setObjects(List<T> objects) {
 			this.objects = objects;
+			updateSetObjectInObjects();
 			fireContentsChanged(this, -1, -1);
 		}
 		
+		private void updateSetObjectInObjects() {
+			setObjectInObjects = (setObject == null || objects.contains(setObject));
+		}
 	}
 	
 }
