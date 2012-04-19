@@ -56,7 +56,7 @@ public class StringUtils {
 	public static void appendLine(StringBuilder stringBuilder, String string) {
 		if (!isEmpty(string)) {
 			stringBuilder.append(string);
-			stringBuilder.append("\n");
+			stringBuilder.append("<br>");
 		}
 	}
 	
@@ -67,7 +67,7 @@ public class StringUtils {
 			if (!first) stringBuilder.append(" "); else first = false;
 			stringBuilder.append(string);
 		}
-		if (!first) stringBuilder.append("\n");
+		if (!first) stringBuilder.append("<br>");
 	}
 	
 	public static void appendSeparated(StringBuilder stringBuilder, String... strings) {
