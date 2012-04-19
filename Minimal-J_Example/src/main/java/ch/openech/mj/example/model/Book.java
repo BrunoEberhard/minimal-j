@@ -12,8 +12,6 @@ import ch.openech.mj.edit.value.Required;
 public class Book {
 	public static final Book BOOK = Constants.of(Book.class);
 
-	public int id;
-
 	@Required @Varchar(30)
 	public String title = "ab";
 	public String media = "1";

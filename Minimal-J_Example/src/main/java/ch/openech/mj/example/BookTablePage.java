@@ -47,7 +47,8 @@ public class BookTablePage extends Page implements RefreshablePage {
 		public void clicked() {
 			Book book = table.getSelectedObject();
 			if (book != null) {
-				show(BookViewPage.class, String.valueOf(book.id));
+				int id = ExamplePersistence.getInstance().book().getId(book);
+				show(BookViewPage.class, String.valueOf(id));
 			}
 		}
 	}
