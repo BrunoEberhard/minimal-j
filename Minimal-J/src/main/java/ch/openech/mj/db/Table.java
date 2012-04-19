@@ -109,14 +109,14 @@ public class Table<T> extends AbstractTable<T> {
 		
 		int version = findMaxVersion(id) + 1;
 		
-		logger.info("EndStatement: version=" + version + " / id=" + id);
+		logger.fine("EndStatement: version=" + version + " / id=" + id);
 		endStatement.setInt(1, version);
 		endStatement.setInt(2, id);
 		endStatement.execute();	
 		
 		int parameterPos = setParameters(updateStatement, object, false, true);
 		setParameterInt(updateStatement, parameterPos++, id);
-		logger.info("UpdateStatement: id=" + id);
+		logger.fine("UpdateStatement: id=" + id);
 		updateStatement.execute();
 		
 		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
