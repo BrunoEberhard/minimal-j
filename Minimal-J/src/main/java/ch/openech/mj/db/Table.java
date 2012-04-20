@@ -222,7 +222,7 @@ public class Table<T> extends AbstractTable<T> {
 	protected PreparedStatement prepareSelectById() throws SQLException {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
-		query.append(" WHERE id = ? AND version IS NULL");
+		query.append(" WHERE id = ? AND version = 0");
 		return getConnection().prepareStatement(query.toString());
 	}
 	
@@ -246,7 +246,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (int i = 0; i<columnNames.size(); i++) {
 			s.append("?, ");
 		}
-		s.append("null)");
+		s.append("0)");
 
 		return getConnection().prepareStatement(s.toString(), Statement.RETURN_GENERATED_KEYS);
 	}
@@ -263,7 +263,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (int i = 0; i<columnNames.size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?, null)");
+		s.append("?, 0)");
 
 		return getConnection().prepareStatement(s.toString());
 	}
@@ -279,7 +279,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	protected PreparedStatement prepareEnd() throws SQLException {
 		StringBuilder s = new StringBuilder();
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET version = ? WHERE id = ? AND version IS NULL");
+		s.append("UPDATE "); s.append(getTableName()); s.append(" SET version = ? WHERE id = ? AND version = 0");
 		return getConnection().prepareStatement(s.toString());
 	}
 	
@@ -287,7 +287,7 @@ public class Table<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("SELECT version FROM "); s.append(getTableName()); 
-		s.append(" WHERE version IS NOT NULL AND id = ?");
+		s.append(" WHERE version > 0 AND id = ?");
 
 		return getConnection().prepareStatement(s.toString());
 	}

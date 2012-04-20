@@ -117,7 +117,7 @@ public class SubTable extends AbstractTable {
 	protected PreparedStatement prepareSelectByIdAndTime() throws SQLException {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
-		query.append(" WHERE id = ? AND version < ? AND (endVersion is null OR endVersion >= ?) ORDER BY position");
+		query.append(" WHERE id = ? AND version < ? AND (endVersion = 0 OR endVersion >= ?) ORDER BY position");
 		return getConnection().prepareStatement(query.toString());
 	}
 	
@@ -125,7 +125,7 @@ public class SubTable extends AbstractTable {
 	protected PreparedStatement prepareSelectById() throws SQLException {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); query.append(" WHERE id = ?");
-		query.append(" AND endVersion IS NULL ORDER BY position");
+		query.append(" AND endVersion = 0 ORDER BY position");
 		return getConnection().prepareStatement(query.toString());
 	}
 	
@@ -140,18 +140,18 @@ public class SubTable extends AbstractTable {
 			s.append(columnName);
 			s.append(", ");
 		}
-		s.append("id, position, version) VALUES (");
+		s.append("id, position, version, endVersion) VALUES (");
 		for (int i = 0; i<columnNames.size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?, ?, ?)");
+		s.append("?, ?, ?, 0)");
 
 		return getConnection().prepareStatement(s.toString(), Statement.RETURN_GENERATED_KEYS);
 	}
 	
 	protected PreparedStatement prepareEnd() throws SQLException {
 		StringBuilder s = new StringBuilder();
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion IS NULL");
+		s.append("UPDATE "); s.append(getTableName()); s.append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion = 0");
 		return getConnection().prepareStatement(s.toString());
 	}
 	

@@ -1,9 +1,13 @@
 package ch.openech.mj.db;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -18,7 +22,6 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
@@ -29,49 +32,68 @@ public abstract class SearchableTable<T> extends Table<T> {
 	private static final Logger logger = Logger.getLogger(SearchableTable.class.getName());
 	
 	private static final Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_34);
-	private Directory directory = new RAMDirectory();
+	private RAMDirectory directory;
     //Directory directory = FSDirectory.open("/tmp/testindex");
 	private IndexWriter iwriter;
+	private PreparedStatement selectAll;
 
 	private final String[] indexFields;
 	
 	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, String[] indexFields) {
 		super(dbPersistence, clazz);
 		this.indexFields = indexFields;
-
-		try {
-			iwriter = new IndexWriter(directory, analyzer, true,
-			        new IndexWriter.MaxFieldLength(25000));
-		} catch (CorruptIndexException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (LockObtainFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	@Override
 	public void initialize() throws SQLException {
 		super.initialize();
-		refillIndex();
+		selectAll = prepareSelectAll();
+	}
+	
+	public void initializeIndex() throws SQLException {
+		if (directory == null) {
+			directory = new RAMDirectory();
+			try {
+				iwriter = new IndexWriter(directory, analyzer, true,
+				        new IndexWriter.MaxFieldLength(25000));
+			} catch (CorruptIndexException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (LockObtainFailedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			refillIndex();
+		}
 	}
 
-	// TODO das geht noch effizienter und ohne den cache zu füllen
-	public void refillIndex() throws SQLException {
-		int id = 1;
-		while (true) {
-			T object = read(id);
-			if (object != null) {
-				writeInIndex(id, object);
-				id++;
-			} else {
+	protected void refillIndex() throws SQLException {
+		ResultSet resultSet = selectAll.executeQuery();
+		
+		int idColumn = -1;
+		ResultSetMetaData metaData = resultSet.getMetaData();
+		for (int i = 1; i<=metaData.getColumnCount(); i++) {
+			if ("id".equals(metaData.getColumnName(i))) {
+				idColumn = i;
 				break;
 			}
 		}
+		if (idColumn < 0) throw new RuntimeException("Searchable Table must have an id column");
+		
+		int count = 0;
+		while (resultSet.next()) {
+			int id = resultSet.getInt(idColumn);
+			T object = readResultSetRow(resultSet, null);
+			writeInIndex(id, object);
+			if (logger.isLoggable(Level.FINER)) logger.finer("RefillIndex: " + getClazz() + " / " + id);
+			count++;
+		}
+		resultSet.close();
+		logger.info("Refilled the index " + getClazz() +" with " + count);
+		logger.info("Size of index is " + directory.sizeInBytes());
 	}
 	
 	@Override
@@ -121,7 +143,9 @@ public abstract class SearchableTable<T> extends Table<T> {
 	public void clear() throws SQLException {
 		super.clear();
 		try {
-			iwriter.deleteAll();
+			if (iwriter != null) {
+				iwriter.deleteAll();
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}	
@@ -141,6 +165,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	private void writeInIndex(int id, T object) {
 		try {
+			initializeIndex();
 			Document doc = new Document();
 			doc.add(createIdField(id));
 			for (String fieldName : indexFields) {
@@ -164,6 +189,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 		List<T> result = new ArrayList<T>();
 		IndexSearcher isearcher = null;
 		try {
+			initializeIndex();
 			if (directory.listAll().length == 0 || StringUtils.isBlank(text)) return result;
 
 			isearcher = new IndexSearcher(directory, true); // read-only=true
@@ -210,5 +236,13 @@ public abstract class SearchableTable<T> extends Table<T> {
 			setField(result, fieldName, document.get(fieldName));
 		}
 		return result;
+	}
+	
+	// Statements
+
+	protected PreparedStatement prepareSelectAll() throws SQLException {
+		StringBuilder s = new StringBuilder();
+		s.append("SELECT * FROM "); s.append(getTableName()); s.append(" WHERE version = 0");
+		return getConnection().prepareStatement(s.toString());
 	}
 }

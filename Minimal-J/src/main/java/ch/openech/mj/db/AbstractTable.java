@@ -223,7 +223,7 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	private T readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
+	protected T readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
 		T result;
 		try {
 			result = clazz.newInstance();

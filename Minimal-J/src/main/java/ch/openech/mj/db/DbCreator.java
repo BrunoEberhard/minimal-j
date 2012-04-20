@@ -96,19 +96,31 @@ public class DbCreator {
 		}
 		
 		if (table instanceof Table<?>) {
-			s.append(" version INTEGER DEFAULT NULL,\n");
-		}
-		if (table instanceof SubTable) {
-			s.append(" version INTEGER NOT NULL,\n");
-			s.append(" endVersion INTEGER DEFAULT NULL,\n");
-			s.append(" position INTEGER NOT NULL,\n");
+			if (dbPersistence.isMySqlDb()) {
+				s.append(" version INTEGER NOT NULL,\n");
+				s.append(" PRIMARY KEY (id, version)\n");
+			} else {
+				s.append(" version INTEGER NOT NULL");
+			}
+		} else if (table instanceof SubTable) {
+			if (dbPersistence.isMySqlDb()) {
+				s.append(" version INTEGER NOT NULL,\n");
+				s.append(" endVersion INTEGER NOT NULL,\n");
+				s.append(" position INTEGER NOT NULL,\n");
+				s.append(" PRIMARY KEY (id, version, position)\n");
+			} else {
+				s.append(" version INTEGER NOT NULL,\n");
+				s.append(" endVersion INTEGER NOT NULL,\n");
+				s.append(" position INTEGER NOT NULL");
+			}
+		} else {
+			if (dbPersistence.isMySqlDb()) {
+				s.append(" PRIMARY KEY (id)\n");
+			} else {
+				s.delete(s.length()-2, s.length()-1);
+			}
 		}
 		
-		if (dbPersistence.isMySqlDb()) {
-			s.append(" PRIMARY KEY (id)\n");
-		} else {
-			s.delete(s.length()-2, s.length()-1);
-		}
 		
 		s.append(")");
 		appendTableEnd(s);
@@ -205,11 +217,11 @@ public class DbCreator {
 //		appendStringList(foreignColumns, s);
 //		s.append(")");
 //	}
-	
-	private static void appendStringList(List<String> strings, StringBuilder s) {
-		for (int i = 0; i<strings.size(); i++) {
-			s.append(strings.get(i));
-			if (i < strings.size() -1) s.append(", ");
-		}
-	}
+//	
+//	private static void appendStringList(List<String> strings, StringBuilder s) {
+//		for (int i = 0; i<strings.size(); i++) {
+//			s.append(strings.get(i));
+//			if (i < strings.size() -1) s.append(", ");
+//		}
+//	}
 }
