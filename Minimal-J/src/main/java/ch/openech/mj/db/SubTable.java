@@ -10,7 +10,12 @@ import ch.openech.mj.db.model.ColumnAccess;
 
 /**
  * Im Gegensatz zu HistorizedTable hat HistorizedSubTable zwei Versionierungsfelder
- * ein beginVersion und ein EndVersion 
+ * ein startVersion und ein endVersion.<p>
+ * 
+ * Bei einem neu erstellten Eintrag ist startVersion und endVersion = 0.<p>
+ * 
+ * Nach einem update ist die endVersion die nr der Version, ab der der Eintrag
+ * <i>nicht</i> mehr gilt und version die Version, aber die der Eintag gilt.
  * 
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -117,7 +122,7 @@ public class SubTable extends AbstractTable {
 	protected PreparedStatement prepareSelectByIdAndTime() throws SQLException {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
-		query.append(" WHERE id = ? AND version < ? AND (endVersion = 0 OR endVersion >= ?) ORDER BY position");
+		query.append(" WHERE id = ? AND (startVersion = 0 OR startVersion < ?) AND (endVersion = 0 OR endVersion >= ?) ORDER BY position");
 		return getConnection().prepareStatement(query.toString());
 	}
 	
@@ -140,7 +145,7 @@ public class SubTable extends AbstractTable {
 			s.append(columnName);
 			s.append(", ");
 		}
-		s.append("id, position, version, endVersion) VALUES (");
+		s.append("id, position, startVersion, endVersion) VALUES (");
 		for (int i = 0; i<columnNames.size(); i++) {
 			s.append("?, ");
 		}
@@ -158,7 +163,7 @@ public class SubTable extends AbstractTable {
 	protected PreparedStatement prepareReadVersions() throws SQLException {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("SELECT version, endVersion FROM "); s.append(getTableName()); 
+		s.append("SELECT startVersion, endVersion FROM "); s.append(getTableName()); 
 		s.append(" WHERE id = ?");
 
 		return getConnection().prepareStatement(s.toString());

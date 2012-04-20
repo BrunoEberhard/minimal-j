@@ -104,12 +104,12 @@ public class DbCreator {
 			}
 		} else if (table instanceof SubTable) {
 			if (dbPersistence.isMySqlDb()) {
-				s.append(" version INTEGER NOT NULL,\n");
+				s.append(" startVersion INTEGER NOT NULL,\n");
 				s.append(" endVersion INTEGER NOT NULL,\n");
 				s.append(" position INTEGER NOT NULL,\n");
-				s.append(" PRIMARY KEY (id, version, position)\n");
+				s.append(" PRIMARY KEY (id, startVersion, position)\n");
 			} else {
-				s.append(" version INTEGER NOT NULL,\n");
+				s.append(" startVersion INTEGER NOT NULL,\n");
 				s.append(" endVersion INTEGER NOT NULL,\n");
 				s.append(" position INTEGER NOT NULL");
 			}

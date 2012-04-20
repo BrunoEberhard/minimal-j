@@ -13,13 +13,11 @@ import java.util.WeakHashMap;
 import ch.openech.mj.db.model.ColumnAccess;
 
 /**
- * Idee: Eine historisierte Tabelle besitzt ein Feld namens "endVersion". Beim aktuellen
- * Objekt ist dieses Feld null. Bei historisierten Objekte wird dieses Feld hochgezählt,
+ * Idee: Eine historisierte Tabelle besitzt ein Feld namens "version". Beim aktuellen
+ * Objekt ist dieses Feld 0. Bei historisierten Objekte wird dieses Feld hochgezählt,
  * d.h. "1" deutet auf die älteste Version, "2" auf die zweitälteste usw.<p>
  * 
- * Unhistorisierte Tabellen gibt es eigentlich nicht. Alle Tabelle könnten historisiert
- * sein, bei unhistorisierten wird einfach immer nur "correct" aufgerufen und damit
- * bleibt die Versionsspalte immer auf null.<p>
+ * Unhistorisierte Tabellen gibt es nicht.<p>
  * 
  */
 @SuppressWarnings("rawtypes")
@@ -287,7 +285,7 @@ public class Table<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("SELECT version FROM "); s.append(getTableName()); 
-		s.append(" WHERE version > 0 AND id = ?");
+		s.append(" WHERE id = ?");
 
 		return getConnection().prepareStatement(s.toString());
 	}
