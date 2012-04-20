@@ -2,7 +2,6 @@ package ch.openech.mj.vaadin;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 
@@ -43,7 +42,6 @@ public class VaadinWindow extends Window implements PageContext {
 	private final MenuBar menubar = new MenuBar();
 	private final ComboBox comboBox = new ComboBox();
 	private final TextField textFieldSearch = new TextField();
-	private Preferences preferences;
 	private final UriFragmentUtility ufu;
 	
 	private Page visiblePage = new EmptyPage(this);
@@ -273,7 +271,12 @@ public class VaadinWindow extends Window implements PageContext {
 
 	@Override
 	public PageContext addTab() {
-		// TODO Auto-generated method stub
+		// How ?
+		// didnt work that good:
+//			VaadinWindow parentVaadinWindow = (VaadinWindow) parentPageContext;
+//			VaadinWindow vaadinWindow = new VaadinWindow();
+//			parentVaadinWindow.open(new ExternalResource(vaadinWindow.getURL()), "_new");
+//			return vaadinWindow;
 		return null;
 	}
 	

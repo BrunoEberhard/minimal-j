@@ -91,7 +91,5 @@ public abstract class ClientToolkit {
 	
 	public abstract void focusFirstComponent(IComponent component);
 	
-	public abstract PageContext openPageContext(PageContext parentPageContext, boolean newWindow);
-	
 	public abstract PageContext findPageContext(Object source);
 }

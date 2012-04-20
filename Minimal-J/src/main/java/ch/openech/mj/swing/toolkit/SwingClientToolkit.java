@@ -248,17 +248,6 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public PageContext openPageContext(PageContext parentPageContext, boolean newWindow) {
-		if (newWindow) {
-			SwingFrame frame = new SwingFrame();
-			return frame.getVisiblePageContext();
-		} else {
-			SwingFrame swingFrame = (SwingFrame) parentPageContext;
-			return swingFrame.addTab();
-		}
-	}
-
-	@Override
 	public PageContext findPageContext(Object source) {
 		if (source instanceof IComponent) {
 			source = getComponent((IComponent)source);

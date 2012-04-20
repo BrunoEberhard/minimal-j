@@ -20,9 +20,7 @@ import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualTable;
 import ch.openech.mj.util.ProgressListener;
-import ch.openech.mj.vaadin.VaadinWindow;
 
-import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
@@ -174,14 +172,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions) {
 		return new VaadinEditorLayout(text, searchAction, content, actions);
-	}
-
-	@Override
-	public PageContext openPageContext(PageContext parentPageContext, boolean newWindow) {
-		VaadinWindow parentVaadinWindow = (VaadinWindow) parentPageContext;
-		VaadinWindow vaadinWindow = new VaadinWindow();
-		parentVaadinWindow.open(new ExternalResource(vaadinWindow.getURL()), "_new");
-		return vaadinWindow;
 	}
 
 	@Override
