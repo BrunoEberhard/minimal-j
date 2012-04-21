@@ -1,5 +1,8 @@
 package ch.openech.mj.toolkit;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
@@ -75,11 +78,11 @@ public abstract class ClientToolkit {
 
 	// Notification
 	
-	public abstract void showMessage(IComponent component, String text);
+	public abstract void showMessage(Object parent, String text);
 	
 	public abstract void showNotification(IComponent component, String text);
 
-	public abstract void showError(IComponent component, String text);
+	public abstract void showError(Object parent, String text);
 	
 	public abstract void showConfirmDialog(IComponent component, String message, String title, int type, ConfirmDialogListener listener);
 	
@@ -92,4 +95,11 @@ public abstract class ClientToolkit {
 	public abstract void focusFirstComponent(IComponent component);
 	
 	public abstract PageContext findPageContext(Object source);
+	
+	// Up / Dowload
+	
+	public abstract OutputStream export(Object parent, String buttonText);
+
+	public abstract InputStream imprt(Object parent, String buttonText);
+
 }

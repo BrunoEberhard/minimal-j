@@ -1,7 +1,7 @@
 package ch.openech.mj.swing.toolkit;
 
-import java.awt.Component;
 import java.awt.event.FocusListener;
+
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -12,8 +12,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import ch.openech.mj.edit.fields.Focusable;
-import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingTextField extends JTextField implements TextField, Focusable {
@@ -78,7 +76,7 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 			int length = getLength();
 			String actualText = getText(0, length);
 			String requestedString = actualText.substring(0, offset) + str + actualText.substring(offset, length);
-			String filteredString = filter.filter(textField, requestedString);
+			String filteredString = filter(requestedString);
 			if (requestedString.equals(filteredString)) {
 				super.insertString(offset, str, attr);
 			} else if (!actualText.equals(filteredString)) {
@@ -88,6 +86,20 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 
 		public void setTextField(SwingTextField textField) {
 			this.textField = textField;
+		}
+		
+		private String filter(String s) {
+			String result = "";
+			for (int i = 0; i<s.length(); i++) {
+				char c = s.charAt(i);
+				if (filter.getAllowedCharacters() != null) {
+					if (filter.getAllowedCharacters().indexOf(c) < 0) {
+						continue;
+					}
+				}
+				result += c;
+			}
+			return result;
 		}
 
 	}
@@ -100,16 +112,13 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 		}
 
 		@Override
-		public String filter(IComponent textField, String str) {
-			if (str == null)
-				return null;
-			
-			if (str.length() <= maxLength) {
-				return str;
-			} else {
-				ClientToolkit.getToolkit().showNotification(textField, "Eingabe auf " + maxLength + " Zeichen beschränkt");
-				return str.substring(0, maxLength);
-			}
+		public int getLimit() {
+			return maxLength;
+		}
+
+		@Override
+		public String getAllowedCharacters() {
+			return null;
 		}
 	}
 	

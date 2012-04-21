@@ -1,6 +1,10 @@
 package ch.openech.mj.vaadin.toolkit;
 
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
@@ -118,18 +122,18 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showMessage(IComponent c, String text) {
+	public void showMessage(Object parent, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component component = getComponent(c);
-		Window window = component.getWindow();
+		Component parentComponent = (Component) parent;
+		Window window = parentComponent.getWindow();
 		window.showNotification("Information", text, Notification.TYPE_HUMANIZED_MESSAGE);
 	}
 	
 	@Override
-	public void showError(IComponent c, String text) {
+	public void showError(Object parent, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component component = getComponent(c);
-		Window window = component.getWindow();
+		Component parentComponent = (Component) parent;
+		Window window = parentComponent.getWindow();
 		window.showNotification("Fehler", text, Notification.TYPE_ERROR_MESSAGE);
 	}
 
@@ -197,6 +201,25 @@ public class VaadinClientToolkit extends ClientToolkit {
 			c = c.getParent();
 		}
 		return (PageContext) c;
+	}
+
+	@Override
+	public OutputStream export(Object parent, String buttonText) {
+		Component parentComponent = (Component) parent;
+		Window window = parentComponent.getWindow();
+
+		VaadinExportDialog exportDialog = new VaadinExportDialog(window, "Export");
+		return exportDialog.getOutputStream();
+	}
+
+	@Override
+	public InputStream imprt(Object parent, String buttonText) {
+		Component parentComponent = (Component) parent;
+		Window window = parentComponent.getWindow();
+
+		VaadinImportDialog importDialog = new VaadinImportDialog(window, "Import");
+		PipedInputStream inputStream = importDialog.getInputStream();
+		return inputStream;
 	}
 	
 }

@@ -7,11 +7,18 @@ import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -174,13 +181,15 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showMessage(IComponent component, String text) {
-		JOptionPane.showMessageDialog(getComponent(component), text, "Information", JOptionPane.INFORMATION_MESSAGE); 
+	public void showMessage(Object parent, String text) {
+		Window window = findWindow((Component) parent);
+		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE); 
 	}
 	
 	@Override
-	public void showError(IComponent component, String text) {
-		JOptionPane.showMessageDialog(getComponent(component), text, "Fehler", JOptionPane.ERROR_MESSAGE); 
+	public void showError(Object parent, String text) {
+		Window window = findWindow((Component) parent);
+		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE); 
 	}
 
 	@Override
@@ -266,5 +275,43 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 		return (PageContext) c;
 	}
-	
+
+	@Override
+	public OutputStream export(Object parent, String buttonText) {
+		Window window = findWindow((Component) parent);
+		JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(false);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(null, buttonText)) {
+			File outputFile = chooser.getSelectedFile();
+			try {
+				return new FileOutputStream(outputFile);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return null;
+		}
+		
+	}
+
+	@Override
+	public InputStream imprt(Object parent, String buttonText) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(false);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(null, buttonText)) {
+			File inputFile = chooser.getSelectedFile();
+			try {
+				return new FileInputStream(inputFile);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+
 }

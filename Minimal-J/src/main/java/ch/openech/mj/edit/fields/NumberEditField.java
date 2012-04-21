@@ -7,7 +7,6 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -100,29 +99,14 @@ public class NumberEditField implements IComponentDelegate, EditField<Object>, D
 		}
 
 		@Override
-		public String filter(IComponent textField, String str) {
-			if (str == null)
-				return null;
-			
-			StringBuilder s = new StringBuilder(str.length());
-			for (int i = 0; i<str.length(); i++) {
-				char c = str.charAt(i);
-				if (nonNegative && c == '-') {
-					ClientToolkit.getToolkit().showNotification(textField, "Keine negativen Werte möglich");
-					return s.toString();
-				}
-				if (s.length() >= limit) {
-					ClientToolkit.getToolkit().showNotification(textField, "Eingabe auf " + limit + " Zeichen beschränkt");
-					return s.toString();
-				}
-				if (!Character.isDigit(c)) {
-					ClientToolkit.getToolkit().showNotification(textField, "Eingabe von " + c + " nicht möglich");
-					return s.toString();
-				}
-				s.append(c);
-			}
-			
-			return s.toString();
+		public int getLimit() {
+			return limit;
 		}
+
+		@Override
+		public String getAllowedCharacters() {
+			return nonNegative ? "0123456789" : "-0123456789";
+		}
+
 	}
 }

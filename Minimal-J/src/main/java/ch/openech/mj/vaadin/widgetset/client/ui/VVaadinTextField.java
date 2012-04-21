@@ -10,11 +10,11 @@ import com.vaadin.terminal.gwt.client.ui.VTextField;
 
 public class VVaadinTextField  extends VTextField {
 
-	public static final String TEXT_RESPONSE = "textResponse";
-	public static final String TEXT_REQUEST = "textRequest";
+	public static final String ALLOWED_CHARACTERS = "allowedCharacters";
+	public static final String LIMIT = "limit";
 
-	private String uidlId;
-	private ApplicationConnection client;
+	private String allowedCharacters;
+	private int limit;
 	
 	public VVaadinTextField() {
 		addKeyPressHandler(new KeyPressHandler() {
@@ -23,8 +23,14 @@ public class VVaadinTextField  extends VTextField {
 				Scheduler.get().scheduleDeferred(new Command() {
 					@Override
 					public void execute() {
-						String enteredText = getText();
-						client.updateVariable(uidlId, TEXT_REQUEST, enteredText, true);
+						String text = getText();
+						if (text != null) {
+							text = filter(text);
+							if (text.length() > limit) {
+								text = text.substring(0, limit);
+							}
+							setText(text);
+						}
 					}
 				});
 			}
@@ -35,11 +41,27 @@ public class VVaadinTextField  extends VTextField {
 	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
 		super.updateFromUIDL(uidl, client);
 		this.client = client;
-		this.uidlId = uidl.getId();
 		
-		if (uidl.hasAttribute(TEXT_RESPONSE)) {
-			setText(uidl.getStringAttribute(TEXT_RESPONSE));
+		if (uidl.hasAttribute(ALLOWED_CHARACTERS)) {
+			allowedCharacters = uidl.getStringAttribute(ALLOWED_CHARACTERS);
 		}
+		if (uidl.hasAttribute(LIMIT)) {
+			limit = uidl.getIntAttribute(LIMIT);
+		}
+	}
+	
+	private String filter(String s) {
+		String result = "";
+		for (int i = 0; i<s.length(); i++) {
+			char c = s.charAt(i);
+			if (allowedCharacters != null) {
+				if (allowedCharacters.indexOf(c) < 0) {
+					continue;
+				}
+			}
+			result += c;
+		}
+		return result;
 	}
 	
 }

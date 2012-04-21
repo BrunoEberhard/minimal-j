@@ -14,7 +14,9 @@ public interface TextField extends IComponent, Focusable {
 	
 	public static interface TextFieldFilter {
 		
-		public String filter(IComponent textField, String requestedString);
+		public int getLimit();
+		
+		public String getAllowedCharacters();
 		
 	}
 	

@@ -8,7 +8,6 @@ import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.util.DateUtils;
@@ -154,34 +153,16 @@ public class DateField extends AbstractEditField<String> implements Validatable,
 	}
 	
 	private class DateFilter implements TextFieldFilter {
-		private static final int limit = 10;
-		
-		@Override
-		public String filter(IComponent textField, String str) {
-			if (str == null)
-				return str;
+		private static final String ALLOWED_CHARACTERS = "01234567890.";
 
-			int pos = 0;
-			while (pos < str.length()) {
-				char c = str.charAt(pos);
-				if (!Character.isDigit(c)) {
-					if (format == Format.CH && c != '.') break;
-					if (format == Format.US && c != '-') break;
-				}
-				pos++;
-			}
-			if (pos < str.length()) {
-				String message = "In ein Datumsfeld kann kein \"" + str.charAt(pos) + "\" eingegeben werden";
-				showBubble(textField, message);
-				str = str.substring(0, pos);
-			}
-			
-			if (str.length() <= limit) {
-				return str;
-			} else {
-				showBubble(textField, "Eingabe auf " + limit + " Zeichen beschränkt");
-				return str.substring(0, limit);
-			}
+		@Override
+		public int getLimit() {
+			return 10;
+		}
+
+		@Override
+		public String getAllowedCharacters() {
+			return ALLOWED_CHARACTERS;
 		}
 	}
 	
