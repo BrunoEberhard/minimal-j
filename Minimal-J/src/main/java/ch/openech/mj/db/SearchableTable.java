@@ -72,19 +72,20 @@ public abstract class SearchableTable<T> extends Table<T> {
 
 	protected void refillIndex() throws SQLException {
 		ResultSet resultSet = selectAll.executeQuery();
-		
 		int idColumn = -1;
-		ResultSetMetaData metaData = resultSet.getMetaData();
-		for (int i = 1; i<=metaData.getColumnCount(); i++) {
-			if ("id".equals(metaData.getColumnName(i))) {
-				idColumn = i;
-				break;
-			}
-		}
-		if (idColumn < 0) throw new RuntimeException("Searchable Table must have an id column");
-		
 		int count = 0;
 		while (resultSet.next()) {
+			if (idColumn == -1) {
+				ResultSetMetaData metaData = resultSet.getMetaData();
+				for (int i = 1; i<=metaData.getColumnCount(); i++) {
+					if ("id".equals(metaData.getColumnName(i))) {
+						idColumn = i;
+						break;
+					}
+				}
+				if (idColumn < 0) break; // ???
+				if (idColumn < 0) throw new RuntimeException("Searchable Table must have an id column: " + getClazz());
+			}
 			int id = resultSet.getInt(idColumn);
 			T object = readResultSetRow(resultSet, null);
 			writeInIndex(id, object);
