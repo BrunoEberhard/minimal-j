@@ -68,15 +68,8 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage, Ob
 	public void refresh() {
 		versions = loadVersions();
 		table.setObjects(versions);
-		selectActual();
 	}
 
-	public void selectActual() {
-		if (versions.size() > 0) {
-			table.setSelectedObject(versions.get(0));
-		}
-	}
-	
 	public class HistoryVersion {
 		
 		public int version;
