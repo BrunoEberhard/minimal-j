@@ -61,10 +61,10 @@ public class EditorDialogAction extends AbstractAction {
 				if (progressListener != null) {
 					progressListener.showProgress(100, 100);
 				}
-				dialog.closeDialog();
 				if (followLink != null) {
 					context.show(followLink);
 				}
+				dialog.closeDialog();
 			}
 
 			@Override

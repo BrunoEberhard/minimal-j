@@ -13,6 +13,7 @@ import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.SeparatorAction;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.util.StringUtils;
 import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
 
 import com.vaadin.event.ShortcutAction;
@@ -124,9 +125,20 @@ public class VaadinWindow extends Window implements PageContext {
 	
 	@Override
 	public void show(String pageLink) {
-		ufu.setFragment(pageLink, true);
+		boolean sameAsExisting = StringUtils.equals(ufu.getFragment(), pageLink);
+		if (!sameAsExisting) {
+			ufu.setFragment(pageLink, true);
+		} else {
+			updateContent(pageLink);
+		}
 	}
 
+	private void updateContent(String pageLink) {
+		visiblePage = Page.createPage(VaadinWindow.this, pageLink);
+		Component component = VaadinClientToolkit.getComponent(visiblePage.getPanel());
+		updateContent(component);
+	}
+	
 	private void updateContent(Component content) {
 		if (this.content != null) {
 			// warum funktioniert windowContent.remove(content) nicht ??
@@ -320,9 +332,7 @@ public class VaadinWindow extends Window implements PageContext {
 		@Override
 		public void fragmentChanged(FragmentChangedEvent source) {
 			String pageLink = source.getUriFragmentUtility().getFragment();
-			visiblePage = Page.createPage(VaadinWindow.this, pageLink);
-			Component component = VaadinClientToolkit.getComponent(visiblePage.getPanel());
-			updateContent(component);
+			updateContent(pageLink);
 		}
 	}
 
