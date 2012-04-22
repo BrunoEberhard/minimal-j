@@ -111,7 +111,6 @@ public class VaadinTextWidget extends com.vaadin.ui.TextField {
 			if (filter.getAllowedCharacters() != null) {
 				target.addAttribute(VVaadinTextField.ALLOWED_CHARACTERS, filter.getAllowedCharacters());
 			}
-			target.addAttribute(VVaadinTextField.LIMIT, filter.getLimit());
 		}
 	}
 	

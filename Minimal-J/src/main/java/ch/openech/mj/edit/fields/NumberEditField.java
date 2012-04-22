@@ -24,7 +24,7 @@ public class NumberEditField implements IComponentDelegate, EditField<Object>, D
 	public NumberEditField(String name, Class<?> clazz, int size, boolean nonNegative) {
 		this.name = name;
 		this.clazz = clazz;
-		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), new LimitTextFieldFilter(size, nonNegative));
+		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), new NumberTextFieldFilter(size, nonNegative));
 	}
 
 
@@ -89,11 +89,11 @@ public class NumberEditField implements IComponentDelegate, EditField<Object>, D
 		}
 	}
 
-	private static class LimitTextFieldFilter implements TextFieldFilter {
+	private static class NumberTextFieldFilter implements TextFieldFilter {
 		private final int limit;
 		private final boolean nonNegative;
 
-		public LimitTextFieldFilter(int limit, boolean nonNegative) {
+		public NumberTextFieldFilter(int limit, boolean nonNegative) {
 			this.limit = limit;
 			this.nonNegative = nonNegative;
 		}

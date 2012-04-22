@@ -186,14 +186,6 @@ function ch_openech_mj_vaadin_widgetset_ToolkitWidgetset(){
     return value == null?null:value;
   }
 
-  function unflattenKeylistIntoAnswers(propValArray, value){
-    var answer = answers;
-    for (var i = 0, n = propValArray.length - 1; i < n; ++i) {
-      answer = answer[propValArray[i]] || (answer[propValArray[i]] = []);
-    }
-    answer[propValArray[n]] = value;
-  }
-
   function computePropValue(propName){
     var value = providers[propName](), allowedValuesMap = values[propName];
     if (value in allowedValuesMap) {
@@ -224,48 +216,6 @@ function ch_openech_mj_vaadin_widgetset_ToolkitWidgetset(){
     }
   }
 
-  providers['user.agent'] = function(){
-    var ua = navigator.userAgent.toLowerCase();
-    var makeVersion = function(result){
-      return parseInt(result[1]) * 1000 + parseInt(result[2]);
-    }
-    ;
-    if (function(){
-      return ua.indexOf('opera') != -1;
-    }
-    ())
-      return 'opera';
-    if (function(){
-      return ua.indexOf('webkit') != -1;
-    }
-    ())
-      return 'safari';
-    if (function(){
-      return ua.indexOf('msie') != -1 && $doc_0.documentMode >= 9;
-    }
-    ())
-      return 'ie9';
-    if (function(){
-      return ua.indexOf('msie') != -1 && $doc_0.documentMode >= 8;
-    }
-    ())
-      return 'ie8';
-    if (function(){
-      var result = /msie ([0-9]+)\.([0-9]+)/.exec(ua);
-      if (result && result.length == 3)
-        return makeVersion(result) >= 6000;
-    }
-    ())
-      return 'ie6';
-    if (function(){
-      return ua.indexOf('gecko') != -1;
-    }
-    ())
-      return 'gecko1_8';
-    return 'unknown';
-  }
-  ;
-  values['user.agent'] = {gecko1_8:0, ie6:1, ie8:2, ie9:3, opera:4, safari:5};
   ch_openech_mj_vaadin_widgetset_ToolkitWidgetset.onScriptLoad = function(){
     if (frameInjected) {
       loadDone = true;
@@ -294,13 +244,7 @@ function ch_openech_mj_vaadin_widgetset_ToolkitWidgetset(){
   $stats && $stats({moduleName:'ch.openech.mj.vaadin.widgetset.ToolkitWidgetset', sessionId:$sessionId_0, subSystem:'startup', evtGroup:'bootstrap', millis:(new Date).getTime(), type:'selectingPermutation'});
   if (!isHostedMode()) {
     try {
-      unflattenKeylistIntoAnswers(['gecko1_8'], '034D3FB7DA1DC488547181AF0CE6AF74');
-      unflattenKeylistIntoAnswers(['ie9'], '6B996E8302D72F660613F01D091EC891');
-      unflattenKeylistIntoAnswers(['ie8'], 'AC3FDF0C97FFA973874850340E9D1B33');
-      unflattenKeylistIntoAnswers(['ie6'], 'CF2174980F672B369DD0C5177870120C');
-      unflattenKeylistIntoAnswers(['safari'], 'DED596F7D76E0D6A690B38C93B17DC37');
-      unflattenKeylistIntoAnswers(['opera'], 'F998C500FA843B4FDB5F18177503B3C9');
-      strongName = answers[computePropValue('user.agent')];
+      strongName = '25516ADE079943F5A7FC73A8628385C9';
       var idx = strongName.indexOf(':');
       if (idx != -1) {
         softPermutationId = Number(strongName.substring(idx + 1));

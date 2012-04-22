@@ -11,10 +11,7 @@ import com.vaadin.terminal.gwt.client.ui.VTextField;
 public class VVaadinTextField  extends VTextField {
 
 	public static final String ALLOWED_CHARACTERS = "allowedCharacters";
-	public static final String LIMIT = "limit";
-
 	private String allowedCharacters;
-	private int limit;
 	
 	public VVaadinTextField() {
 		addKeyPressHandler(new KeyPressHandler() {
@@ -26,9 +23,6 @@ public class VVaadinTextField  extends VTextField {
 						String text = getText();
 						if (text != null) {
 							text = filter(text);
-							if (text.length() > limit) {
-								text = text.substring(0, limit);
-							}
 							setText(text);
 						}
 					}
@@ -45,18 +39,20 @@ public class VVaadinTextField  extends VTextField {
 		if (uidl.hasAttribute(ALLOWED_CHARACTERS)) {
 			allowedCharacters = uidl.getStringAttribute(ALLOWED_CHARACTERS);
 		}
-		if (uidl.hasAttribute(LIMIT)) {
-			limit = uidl.getIntAttribute(LIMIT);
-		}
 	}
 	
 	private String filter(String s) {
 		String result = "";
 		for (int i = 0; i<s.length(); i++) {
 			char c = s.charAt(i);
-			if (allowedCharacters != null) {
+			if (allowedCharacters != null && allowedCharacters.length() > 0) {
 				if (allowedCharacters.indexOf(c) < 0) {
-					continue;
+					if (allowedCharacters.indexOf(Character.toUpperCase(c)) < 0) {
+						continue;
+					} else {
+						c = Character.toUpperCase(c);
+					}
+				} else  {
 				}
 			}
 			result += c;

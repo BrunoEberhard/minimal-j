@@ -12,6 +12,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import ch.openech.mj.edit.fields.Focusable;
+import ch.openech.mj.toolkit.MaxLengthTextFieldFilter;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingTextField extends JTextField implements TextField, Focusable {
@@ -28,12 +29,11 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 	
 	public SwingTextField(ChangeListener changeListener, int maxLength) {
 		// TODO Eigenes Document verwenden, das effizienter ist, als das generelle FilteredDocument
-		this(changeListener, new LimitTextFieldFilter(maxLength));
+		this(changeListener, new MaxLengthTextFieldFilter(maxLength));
 	}
 	
 	public SwingTextField(ChangeListener changeListener, TextFieldFilter filter) {
 		super(new FilteredDocument(filter), null, 0);
-		((FilteredDocument) getDocument()).setTextField(this);
 		
 		this.changeListener = changeListener;
 		getDocument().addDocumentListener(new TextFieldChangeListener());
@@ -65,7 +65,6 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 
 	private static class FilteredDocument extends PlainDocument {
 		private final TextFieldFilter filter;
-		private SwingTextField textField;
 		
 		public FilteredDocument(TextFieldFilter filter) {
 			this.filter = filter;
@@ -84,10 +83,6 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 			}
 		}
 
-		public void setTextField(SwingTextField textField) {
-			this.textField = textField;
-		}
-		
 		private String filter(String s) {
 			String result = "";
 			for (int i = 0; i<s.length(); i++) {
@@ -104,24 +99,6 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 
 	}
 
-	private static class LimitTextFieldFilter implements TextFieldFilter {
-		private int maxLength;
-
-		public LimitTextFieldFilter(int maxLength) {
-			this.maxLength = maxLength;
-		}
-
-		@Override
-		public int getLimit() {
-			return maxLength;
-		}
-
-		@Override
-		public String getAllowedCharacters() {
-			return null;
-		}
-	}
-	
 	@Override
 	public void setFocusListener(FocusListener focusListener) {
 		if (this.focusListener != null) {
