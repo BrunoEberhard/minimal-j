@@ -5,7 +5,6 @@ import java.util.List;
 
 import ch.openech.mj.db.model.annotation.Date;
 import ch.openech.mj.db.model.annotation.Varchar;
-import ch.openech.mj.page.ObjectPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
@@ -14,7 +13,7 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualTable;
 import ch.openech.mj.toolkit.VisualTable.ClickListener;
 
-public abstract class HistoryPage<T> extends Page implements RefreshablePage, ObjectPage<T> {
+public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 
 	private List<HistoryVersion> versions;
 	private VisualTable<HistoryVersion> table;
@@ -45,7 +44,7 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage, Ob
 
 	protected abstract String getDescription(T object);
 	
-	protected abstract String link(T object, int version);
+	protected abstract String link(T object, String version);
 
 	@Override
 	public IComponent getPanel() {
@@ -56,15 +55,6 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage, Ob
 	}
 
 	@Override
-	public T getObject() {
-		if (versions.size() > 0) {
-			return (T) versions.get(0).object;
-		} else {
-			return null;
-		}
-	}
-
-	@Override
 	public void refresh() {
 		versions = loadVersions();
 		table.setObjects(versions);
@@ -72,7 +62,7 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage, Ob
 
 	public class HistoryVersion {
 		
-		public int version;
+		public String version;
 		@Date
 		public String time;
 		@Varchar(200)
