@@ -5,12 +5,19 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.SwingUtilities;
 
 import ch.openech.mj.application.ApplicationConfig;
+import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.swing.toolkit.SwingClientToolkit;
 import ch.openech.mj.toolkit.ClientToolkit;
 
 public abstract class SwingApplication implements Runnable {
 
+	private static final ApplicationContext applicationContext = new ApplicationContext();
+	
 	protected SwingApplication() {
+	}
+	
+	public static ApplicationContext getApplicationContext() {
+		return applicationContext;
 	}
 	
 	/**

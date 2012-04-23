@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -20,7 +21,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.util.StringUtils;
 
 
@@ -29,9 +29,11 @@ public class DerbyOptionsDialogController {
 	public static void showOptions() {
 		final DerbyOptionsDialog dialog = new DerbyOptionsDialog(null, true);
 		dialog.setLocationRelativeTo(null);
-		String directory = PreferencesHelper.preferences().get("dbDirectory", System.getProperty("user.home") + File.separator + "OpenEchDB");
+		// note: these are just normal preferences, not as they are used in the application
+		final Preferences preferences = Preferences.userNodeForPackage(DerbyOptionsDialogController.class).node(DerbyOptionsDialogController.class.getSimpleName());
+		String directory = preferences.get("dbDirectory", System.getProperty("user.home") + File.separator + "OpenEchDB");
 		dialog.getDirectoryTextField().setText(directory);
-		if (PreferencesHelper.preferences().getBoolean("dbMemory", true)) {
+		if (preferences.getBoolean("dbMemory", true)) {
 			dialog.getChoiceButtonGroup().setSelected(dialog.getButtonMemory().getModel(), true);
 		} else {
 			dialog.getChoiceButtonGroup().setSelected(dialog.getButtonDisc().getModel(), true);
@@ -87,13 +89,13 @@ public class DerbyOptionsDialogController {
 				
 				boolean memory = dialog.getChoiceButtonGroup().isSelected(dialog.getButtonMemory().getModel());
 				if (memory) {
-					PreferencesHelper.preferences().putBoolean("dbMemory", true);
+					preferences.putBoolean("dbMemory", true);
 					// nothing to do, everything is preset
 					dialog.setVisible(false);
 				} else {
 					if (checkDirectory(dialog, dialog.getDirectoryTextField().getText())) {
-						PreferencesHelper.preferences().putBoolean("dbMemory", false);
-						PreferencesHelper.preferences().put("dbDirectory", dialog.getDirectoryTextField().getText());
+						preferences.putBoolean("dbMemory", false);
+						preferences.put("dbDirectory", dialog.getDirectoryTextField().getText());
 						dialog.setVisible(false);
 					} else {
 						dialog.getDirectoryTextField().requestFocus();

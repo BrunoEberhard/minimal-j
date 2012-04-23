@@ -417,7 +417,10 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 				DependingOnFieldAbove<?> dependingOnFieldAbove = (DependingOnFieldAbove<?>) visual;
 				String nameOfDependedField = dependingOnFieldAbove.getNameOfDependedField();
 				EditField dependedField = (EditField) getField(nameOfDependedField);
-				dependingOnFieldAbove.setDependedField(dependedField);
+				if (dependedField != null) {
+					// TODO Das problem ist, dass hier schreibfehler untergehen
+					dependingOnFieldAbove.setDependedField(dependedField);
+				}
 			}
 			if (visual instanceof FormField) {
 				FormField formField = (FormField) visual;

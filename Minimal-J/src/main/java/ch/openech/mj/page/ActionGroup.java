@@ -23,7 +23,6 @@ public class ActionGroup extends AbstractAction {
 	public static final String VIEW = "view";
 	public static final String EDIT = "edit";
 	public static final String OBJECT = "object";
-	public static final String PREFERENCES = "preferences";
 	public static final String WINDOW = "window";
 	public static final String HELP = "help";
 	

@@ -16,6 +16,7 @@ import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
+import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -48,6 +49,7 @@ public abstract class Editor<T> {
 	private Indicator indicator;
 	private boolean saveable = true;
 	private String followLink;
+	protected PageContext context;
 	
 	// what to implement
 
@@ -97,10 +99,11 @@ public abstract class Editor<T> {
 		demoDataAction = createDemoDataAction();
 	}
 	
-	public FormVisual<T> startEditor() {
+	public FormVisual<T> startEditor(PageContext context) {
 		if (form != null) {
 			throw new IllegalStateException();
 		}
+		this.context = context;
 		form = createForm();
 		
 		original = load();

@@ -64,7 +64,7 @@ public class EditorPage extends Page {
 	protected EditorPage(PageContext context, Editor<?> editor) {
 		super(context);
 		this.editor = editor;
-		form = editor.startEditor();
+		form = editor.startEditor(context);
 		layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
 
 		setTitle(editor.getTitle());

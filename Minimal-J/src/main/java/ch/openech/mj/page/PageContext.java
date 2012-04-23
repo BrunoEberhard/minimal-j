@@ -2,6 +2,8 @@ package ch.openech.mj.page;
 
 import java.util.List;
 
+import ch.openech.mj.application.ApplicationContext;
+
 /**
  * These are the possibilities of a page or an action opening a page
  * 
@@ -40,4 +42,10 @@ public interface PageContext {
 	 */
 	Object getComponent();
 
+	/**
+	 * 
+	 * @return ApplicationContext
+	 */
+	ApplicationContext getApplicationContext();
+	
 }

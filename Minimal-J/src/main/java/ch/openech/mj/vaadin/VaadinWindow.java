@@ -6,7 +6,7 @@ import java.util.List;
 import javax.swing.Action;
 
 import ch.openech.mj.application.ApplicationConfig;
-import ch.openech.mj.application.EmptyPage;
+import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
@@ -45,7 +45,7 @@ public class VaadinWindow extends Window implements PageContext {
 	private final TextField textFieldSearch = new TextField();
 	private final UriFragmentUtility ufu;
 	
-	private Page visiblePage = new EmptyPage(this);
+	private Page visiblePage;
 	private Component content;
 	private Panel scrollablePanel;
 	private List<String> pageLinks;
@@ -68,7 +68,6 @@ public class VaadinWindow extends Window implements PageContext {
 		nav.addComponent(menubar);
 		nav.setExpandRatio(menubar, 1.0F);
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
-		updateMenu();
 		
 		if (ApplicationConfig.getApplicationConfig().getSearchClasses().length > 0) {
 			Component searchComponent = createSearchField();
@@ -339,6 +338,11 @@ public class VaadinWindow extends Window implements PageContext {
 	@Override
 	public Object getComponent() {
 		return this;
+	}
+
+	@Override
+	public ApplicationContext getApplicationContext() {
+		return ((MinimalJVaadinApplication) getApplication()).getApplicationContext();
 	}
 	
 }

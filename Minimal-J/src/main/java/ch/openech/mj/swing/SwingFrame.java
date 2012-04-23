@@ -37,6 +37,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultEditorKit;
 
 import ch.openech.mj.application.ApplicationConfig;
+import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.application.HistoryPanel;
 import ch.openech.mj.edit.EditorPage;
@@ -578,7 +579,7 @@ public class SwingFrame extends JFrame {
 	}
 
 	private class MenuItemToolBarVisible extends JCheckBoxMenuItem implements ItemListener {
-		private final Preferences preferences = PreferencesHelper.preferences().node(MenuItemToolBarVisible.class.getSimpleName());
+		private final Preferences preferences =  Preferences.userNodeForPackage(MenuItemToolBarVisible.class).node(MenuItemToolBarVisible.class.getSimpleName());
 		
 		public MenuItemToolBarVisible() {
 			super("Navigation sichtbar");
@@ -603,8 +604,6 @@ public class SwingFrame extends JFrame {
 	protected void fillWindowMenu(ActionGroup actionGroup) {
 		actionGroup.add(new NewWindowAction());
 		actionGroup.add(new NewTabAction());
-		actionGroup.addSeparator();
-		actionGroup.getOrCreateActionGroup(ActionGroup.PREFERENCES);
 	}
 	
 	protected void fillHelpMenu(ActionGroup actionGroup) {
@@ -716,7 +715,12 @@ public class SwingFrame extends JFrame {
 		public Object getComponent() {
 			return this;
 		}
-		
+
+		@Override
+		public ApplicationContext getApplicationContext() {
+			return SwingApplication.getApplicationContext();
+		}
+
 	}
 	
 }

@@ -1,9 +1,6 @@
 package ch.openech.mj.example;
 
-import java.util.prefs.Preferences;
-
 import ch.openech.mj.swing.FrameManager;
-import ch.openech.mj.swing.PreferencesHelper;
 import ch.openech.mj.swing.SwingApplication;
 
 
@@ -19,11 +16,8 @@ public class MjExampleApplication implements Runnable {
 	
 	@Override
 	public void run() {
-		PreferencesHelper.setPreferences(Preferences.userNodeForPackage(MjExampleApplication.class));
 		FrameManager.setSystemLookAndFeel();
-		
 		ExamplePersistence.getInstance();
-		
 		FrameManager.getInstance().openNavigationFrame();
 	}
 

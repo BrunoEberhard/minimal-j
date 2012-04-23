@@ -9,7 +9,7 @@ import javax.swing.Action;
 import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.resources.ResourceAction;
+import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 
@@ -75,8 +75,8 @@ public abstract class Wizard<T> extends Editor<T> {
 	}
 	
 	@Override
-	public FormVisual<T> startEditor() {
-		FormVisual<T> formVisual = super.startEditor();
+	public FormVisual<T> startEditor(PageContext context) {
+		FormVisual<T> formVisual = super.startEditor(context);
 		setCurrentPage(getFirstPage());
 		return formVisual;
 	}
@@ -90,7 +90,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	private void setCurrentPage(WizardPage<?> page) {
 		currentPage = page;
 		currentPage.setIndicator(indicator);
-		switchFormVisual.setFormVisual(currentPage.startEditor());
+		switchFormVisual.setFormVisual(currentPage.startEditor(context));
 		prevAction.setEnabled(currentPageIndex > 0);
 	}
 
