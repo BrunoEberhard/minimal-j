@@ -6,8 +6,9 @@ import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.util.ProgressListener;
 
-public class EditorPage extends Page implements EditorFinishedListener {
+public class EditorPage extends Page {
 
 	private final Editor<?> editor;
 	private final FormVisual<?> form;
@@ -67,7 +68,29 @@ public class EditorPage extends Page implements EditorFinishedListener {
 		layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
 
 		setTitle(editor.getTitle());
-		editor.setEditorFinishedListener(this);
+		
+		editor.setEditorFinishedListener(new EditorFinishedListener() {
+			private ProgressListener progressListener;
+			
+			@Override
+			public void finished(String followLink) {
+				if (followLink != null) {
+					getPageContext().show(followLink);
+				}
+				if (progressListener != null) {
+					progressListener.showProgress(100, 100);
+				}
+			}
+
+			@Override
+			public void progress(int value, int maximum) {
+				if (progressListener == null) {
+					progressListener = ClientToolkit.getToolkit().showProgress(getPageContext().getComponent(), "Save");
+				}
+				progressListener.showProgress(value, maximum);
+			}
+		});
+
 	}
 	
 	@Override
@@ -80,14 +103,7 @@ public class EditorPage extends Page implements EditorFinishedListener {
 		return layout;
 	}
 
-	@Override
-	public void finished(String followLink) {
-		close();
-		if (followLink != null) {
-			getPageContext().show(followLink);
-		}
-	}
-
+	
 	public void checkedClose() {
 		editor.checkedClose();
 	}
@@ -95,11 +111,5 @@ public class EditorPage extends Page implements EditorFinishedListener {
 	protected FormVisual getFormVisual() {
 		return form;
 	}
-
-	@Override
-	public void progress(int value, int maximum) {
-		// TODO
-	}
-
 
 }

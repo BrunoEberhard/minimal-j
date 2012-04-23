@@ -9,10 +9,11 @@ import com.vaadin.ui.Window;
 public class VaadinProgressDialog extends Window implements ProgressListener {
 
 	private final ProgressIndicator progressIndicator;
+	private final Window parentWindow;
 	
 	public VaadinProgressDialog(Window parentWindow, String title) {
 		super(title);
-		
+		this.parentWindow = parentWindow;
 		progressIndicator = new ProgressIndicator();
 		
 		VerticalLayout layout = new VerticalLayout();
@@ -28,6 +29,7 @@ public class VaadinProgressDialog extends Window implements ProgressListener {
 	public void showProgress(int value, int maximum) {
 		if (value == maximum) {
 			setVisible(false);
+			parentWindow.requestRepaint();
 		} else {
 			progressIndicator.setIndeterminate(false);
 			progressIndicator.setValue(((float) value) / ((float) maximum));
