@@ -76,6 +76,7 @@ public class EditorDialogAction extends AbstractAction {
 			}
 		});
 		dialog.openDialog();
+		ClientToolkit.getToolkit().focusFirstComponent(form);
 	}
 	
 }

@@ -4,6 +4,7 @@ package ch.openech.mj.vaadin.toolkit;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
+import java.util.Iterator;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
@@ -25,6 +26,7 @@ import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualTable;
 import ch.openech.mj.util.ProgressListener;
 
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
@@ -118,9 +120,29 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 	@Override
 	public void focusFirstComponent(IComponent component) {
-		// TODO Auto-generated method stub
+		Component c = getComponent(component);
+		AbstractField field = findAbstractField(c);
+		if (field != null) {
+			field.focus();
+		}
 	}
-
+	
+	private static AbstractField findAbstractField(Component c) {
+		if (c instanceof AbstractField) {
+			return ((AbstractField) c);
+		} else if (c instanceof ComponentContainer) {
+			ComponentContainer container = (ComponentContainer) c;
+			Iterator<Component> components = container.getComponentIterator();
+			while (components.hasNext()) {
+				AbstractField field = findAbstractField(components.next());
+				if (field != null) {
+					return field;
+				}
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public void showMessage(Object parent, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog

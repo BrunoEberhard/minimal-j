@@ -13,8 +13,10 @@ import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.SeparatorAction;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.util.StringUtils;
 import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
+import ch.openech.mj.vaadin.toolkit.VaadinComponentDelegate;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -159,6 +161,7 @@ public class VaadinWindow extends Window implements PageContext {
 		
 		updateMenu();
 		updateWindowTitle();
+		ClientToolkit.getToolkit().focusFirstComponent(new VaadinComponentDelegate(content));
 	}
 
 	private void updateMenu() {
