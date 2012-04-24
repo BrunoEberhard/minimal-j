@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
 
 import javax.swing.Action;
 
@@ -11,11 +12,15 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeButton;
@@ -60,6 +65,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		Component textFieldComponent = VaadinClientToolkit.getComponent(text);
 		textFieldComponent.setWidth("100%");
         horizontalLayout.addComponent(textFieldComponent);
+        horizontalLayout.setExpandRatio(textFieldComponent, 1.0F);
         
         final Button button = new Button("Suche");
         button.addListener(new ClickListener() {
@@ -69,10 +75,37 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 			}
 		});
         
+        AbstractField field = findAbstractField(textFieldComponent);
+        if (field != null) {
+        	field.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
+    			@Override
+    			public void handleAction(Object sender, Object target) {
+    				searchAction.actionPerformed(new ActionEvent(button, 0, null));
+    			}
+    		});
+        }
+        
         horizontalLayout.addComponent(button);
+        horizontalLayout.setExpandRatio(button, 0.0F);
 		return horizontalLayout;
 	}
 
+	private static AbstractField findAbstractField(Component c) {
+		if (c instanceof AbstractField) {
+			return ((AbstractField) c);
+		} else if (c instanceof ComponentContainer) {
+			ComponentContainer container = (ComponentContainer) c;
+			Iterator<Component> components = container.getComponentIterator();
+			while (components.hasNext()) {
+				AbstractField field = findAbstractField(components.next());
+				if (field != null) {
+					return field;
+				}
+			}
+		}
+		return null;
+	}
+	
 	private Component createButtonBar(Action... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
