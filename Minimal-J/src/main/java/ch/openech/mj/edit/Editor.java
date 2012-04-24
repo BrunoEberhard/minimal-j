@@ -156,26 +156,34 @@ public abstract class Editor<T> {
 		return form.getObject();
 	}
 	
-	protected void save() {
+	protected final void save() {
 		if (saveable) {
-			progress(0, 100);
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					T objectToSave;
-					if (original != null) {
-						objectToSave = original;
-						CloneHelper.deepCopy(getObject(), original);
-					} else {
-						objectToSave = getObject();
+			if (isSaveSynchron()) {
+				doSave();
+			} else {
+				progress(0, 100);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						doSave();
 					}
-					if (save(objectToSave)) {
-						finish();
-					}
-				}
-			}).start();
+				}).start();
+			}
 		} else {
 			ClientToolkit.getToolkit().showNotification(form, "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
+		}
+	}
+
+	private void doSave() {
+		T objectToSave;
+		if (original != null) {
+			objectToSave = original;
+			CloneHelper.deepCopy(getObject(), original);
+		} else {
+			objectToSave = getObject();
+		}
+		if (save(objectToSave)) {
+			finish();
 		}
 	}
 	
@@ -264,6 +272,10 @@ public abstract class Editor<T> {
 		}
 	}
 
+	protected boolean isSaveSynchron() {
+		return true;
+	}
+	
 	protected Action createSaveAction() {
 		return new SaveAction("OkAction") {
 			@Override
