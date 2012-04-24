@@ -77,8 +77,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public FlowField createFlowField(boolean vertical) {
-		return vertical ? new VaadinVerticalFlowField() : new VaadinHorizontalFlowField();
+	public FlowField createFlowField() {
+		return new VaadinVerticalFlowField();
 	}
 
 	@Override

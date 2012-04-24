@@ -92,8 +92,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public FlowField createFlowField(boolean vertical) {
-		return new SwingFlowField(vertical);
+	public FlowField createFlowField() {
+		return new SwingFlowField();
 	}
 
 	@Override

@@ -52,7 +52,7 @@ public abstract class ClientToolkit {
 	
 	public abstract TextField createTextField(ChangeListener changeListener, TextFieldFilter filter);
 
-	public abstract FlowField createFlowField(boolean vertical);
+	public abstract FlowField createFlowField();
 
 	public abstract <T> ComboBox<T> createComboBox(ChangeListener changeListener);
 	

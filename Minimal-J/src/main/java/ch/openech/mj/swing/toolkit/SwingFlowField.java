@@ -18,12 +18,10 @@ import ch.openech.mj.util.StringUtils;
 
 
 public class SwingFlowField extends JPanel implements FlowField {
-	private final boolean vertical;
 	private JLabel lastLabel;
 	
-	public SwingFlowField(boolean vertical) {
-		super(new MigLayout(vertical ? "ins 4 1 0 0, gap 0 0, wrap 1" : "ins 0, gap 0 0"));
-		this.vertical = vertical;
+	public SwingFlowField() {
+		super(new MigLayout("ins 4 1 0 0, gap 0 0, wrap 1"));
 	}
 	
 	@Override
@@ -80,11 +78,7 @@ public class SwingFlowField extends JPanel implements FlowField {
 	@Override
 	public void addGap() {
 		if (lastLabel != null) {
-			if (vertical) {
-				lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-			} else {
-				lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8));
-			}
+			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 		}
 	}
 	

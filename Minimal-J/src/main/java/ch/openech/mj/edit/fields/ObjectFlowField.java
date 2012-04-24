@@ -8,11 +8,7 @@ import javax.swing.Action;
 
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
-import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.edit.value.CloneHelper;
-import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.FlowField;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -28,55 +24,13 @@ import ch.openech.mj.toolkit.FlowField;
 public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
-	private final FlowField visual;
-	
 	public ObjectFlowField(Object key) {
 		this(key, true);
 	}
 
 	public ObjectFlowField(Object key, boolean editable) {
-		this(key, editable, true);
-	}
-	
-	public ObjectFlowField(Object key, boolean editable, boolean vertical) {
 		super(key, editable);
-		visual = ClientToolkit.getToolkit().createFlowField(vertical);
-	}
-	
-
-	public class ObjectFieldEditor extends Editor<T> {
-
-		@Override
-		public FormVisual<T> createForm() {
-			return ObjectFlowField.this.createFormPanel();
-		}
-
-		@Override
-		public T load() {
-			return ObjectFlowField.this.getObject();
-		}
 		
-		@Override
-		public T newInstance() {
-			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(ObjectFlowField.this.getClass());
-			if (clazz == null) {
-				throw new RuntimeException("TODO");
-			}
-			T newInstance = CloneHelper.newInstance(clazz);
-			return newInstance;
-		}
-
-		@Override
-		public boolean save(T edited) {
-			ObjectFlowField.this.setObject(edited);
-			return true;
-		}
-
-		@Override
-		public void validate(T object, List<ValidationMessage> resultList) {
-			// may be overwritten
-		}
 	}
 
 	public abstract class ObjectFieldPartEditor<P> extends Editor<P> {
@@ -103,8 +57,6 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 		protected abstract void setPart(T object, P p);
 		
 	}
-
-	protected abstract FormVisual<T> createFormPanel();
 	
 	// why public
 	public class RemoveObjectAction extends AbstractAction {
@@ -136,21 +88,6 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	
 	protected void addAction(Editor<?> editor, String actionName) {
 		visual.addAction(new EditorDialogAction(editor, actionName));
-	}
-	
-	@Override
-	protected void fireObjectChange() {
-		visual.clear();
-		super.fireObjectChange();
-	}
-	
-	protected FlowField getVisual() {
-		return visual;
-	}
-
-	@Override
-	public Object getComponent() {
-		return visual;
 	}
 	
 }
