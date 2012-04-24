@@ -100,7 +100,9 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 		
 		@Override
 		public void clicked() {
-			saveAndClose();
+			if (table.getSelectedObject() != null) {
+				saveAndClose();
+			}
 		}
 	}
 	
