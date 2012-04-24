@@ -24,7 +24,6 @@ import ch.openech.mj.db.model.Formats;
 import ch.openech.mj.db.model.IntegerFormat;
 import ch.openech.mj.db.model.PlainFormat;
 import ch.openech.mj.edit.ChangeableValue;
-import ch.openech.mj.edit.fields.CheckBoxField;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
 import ch.openech.mj.edit.fields.CodeEditField;
 import ch.openech.mj.edit.fields.DateField;
@@ -385,20 +384,6 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 
 	protected String caption(FormField<?> visual) {
 		return Resources.getObjectFieldName(resourceBundle, objectClass, visual.getName());
-	}
-	
-	public CheckBoxField createCheckBoxField(Object key) {
-		String name = Constants.getConstant(key);
-		String text = Resources.getObjectFieldName(resourceBundle, objectClass, name);
-		CheckBoxField checkBoxField = new CheckBoxField(name, text);
-		return checkBoxField;
-	}
-
-	public CheckBoxStringField createCheckBoxStringField(Object key) {
-		String name = Constants.getConstant(key);
-		String text = Resources.getObjectFieldName(resourceBundle, objectClass, name);
-		CheckBoxStringField checkBoxField = new CheckBoxStringField(name, text, true);
-		return checkBoxField;
 	}
 
 	//
