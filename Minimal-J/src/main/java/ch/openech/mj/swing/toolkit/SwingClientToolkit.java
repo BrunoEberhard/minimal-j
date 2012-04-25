@@ -59,11 +59,6 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IComponent createEmptyComponent() {
-		return new SwingComponentDelegate(new JPanel());
-	}
-	
-	@Override
 	public IComponent createLabel(String string) {
 		return new SwingComponentDelegate(new JLabel(string));
 	}

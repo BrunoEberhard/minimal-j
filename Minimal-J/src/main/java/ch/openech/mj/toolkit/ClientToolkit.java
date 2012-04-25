@@ -23,24 +23,22 @@ public abstract class ClientToolkit {
 	
 	public static ClientToolkit getToolkit() {
 		if (toolkit == null) {
-			throw new IllegalStateException("CientToolkit has to be initialized");
+			throw new IllegalStateException("ClientToolkit has to be initialized");
 		}
 		return toolkit;
 	}
 
 	public static synchronized void setToolkit(ClientToolkit toolkit) {
 		if (ClientToolkit.toolkit != null) {
-			throw new IllegalStateException("CientToolkit cannot be changed");
+			throw new IllegalStateException("ClientToolkit cannot be changed");
 		}		
 		if (toolkit == null) {
-			throw new IllegalArgumentException("CientToolkit cannot be null");
+			throw new IllegalArgumentException("ClientToolkit cannot be null");
 		}
 		ClientToolkit.toolkit = toolkit;
 	}
 
 	// Widgets
-	
-	public abstract IComponent createEmptyComponent();
 	
 	public abstract IComponent createLabel(String string);
 	

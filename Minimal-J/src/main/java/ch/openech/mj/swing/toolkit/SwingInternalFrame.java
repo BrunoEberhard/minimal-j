@@ -61,9 +61,9 @@ public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
 		Dimension preferredSize = super.getPreferredSize();
 		if (isResizable()) {
 			// if ScrollBar appears, the right side of the fields should not be cut
-			return  new Dimension(super.getPreferredSize().width + 30, super.getPreferredSize().height + 70);
+			return  new Dimension(Math.min(preferredSize.width + 30, editablePanel.getWidth()), Math.min(preferredSize.height + 70, editablePanel.getHeight()));
 		} else {
-			return preferredSize;
+			return  new Dimension(Math.min(preferredSize.width, editablePanel.getWidth()), Math.min(preferredSize.height, editablePanel.getHeight()));
 		}
 	}
 	

@@ -31,7 +31,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 
@@ -44,11 +43,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 		} else {
 			return (Component) component;
 		}
-	}
-	
-	@Override
-	public IComponent createEmptyComponent() {
-		return new VaadinComponentDelegate(new Panel());
 	}
 	
 	@Override

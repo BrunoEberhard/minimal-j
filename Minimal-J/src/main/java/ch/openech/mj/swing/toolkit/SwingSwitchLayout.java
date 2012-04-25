@@ -22,7 +22,9 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 		if (shownComponent != c) {
 			Component component = SwingClientToolkit.getComponent(c);
 			removeAll();
-			add(component, BorderLayout.CENTER);
+			if (component != null) {
+				add(component, BorderLayout.CENTER);
+			}
 			revalidate();
 			repaint();
 		}
