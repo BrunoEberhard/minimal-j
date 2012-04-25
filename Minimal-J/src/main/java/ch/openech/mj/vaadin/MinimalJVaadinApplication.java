@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import ch.openech.mj.application.ApplicationContext;
@@ -35,6 +36,7 @@ public class MinimalJVaadinApplication extends Application {
 	}
 
 	static {
+		Locale.setDefault(Locale.GERMAN); // TODO correct setting of Locale
 		ClientToolkit.setToolkit(new VaadinClientToolkit());
 		Resources.addResourceBundle(ResourceBundle.getBundle("ch.openech.mj.resources.MinimalJ"));
 	}

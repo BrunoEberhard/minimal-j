@@ -2,6 +2,7 @@ package ch.openech.mj.vaadin;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.Action;
 
@@ -54,6 +55,8 @@ public class VaadinWindow extends Window implements PageContext {
 	private int indexInPageLinks;
 	
 	public VaadinWindow() {
+		setLocale(Locale.GERMAN);
+
 		setContent(windowContent);
 		setSizeFull();
 		windowContent.setSizeFull();
