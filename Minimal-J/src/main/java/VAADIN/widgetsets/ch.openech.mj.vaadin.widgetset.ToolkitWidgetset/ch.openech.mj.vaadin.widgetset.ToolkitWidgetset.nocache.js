@@ -244,7 +244,7 @@ function ch_openech_mj_vaadin_widgetset_ToolkitWidgetset(){
   $stats && $stats({moduleName:'ch.openech.mj.vaadin.widgetset.ToolkitWidgetset', sessionId:$sessionId_0, subSystem:'startup', evtGroup:'bootstrap', millis:(new Date).getTime(), type:'selectingPermutation'});
   if (!isHostedMode()) {
     try {
-      strongName = '25516ADE079943F5A7FC73A8628385C9';
+      strongName = '043ACA271DB8E580100B9743AC4D9206';
       var idx = strongName.indexOf(':');
       if (idx != -1) {
         softPermutationId = Number(strongName.substring(idx + 1));

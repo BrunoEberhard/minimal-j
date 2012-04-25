@@ -150,14 +150,17 @@ public class VaadinWindow extends Window implements PageContext {
 			this.content = content;
 			windowContent.addComponent(content);
 			windowContent.setExpandRatio(content, 1);
-		} else {
+			this.content.setSizeFull();
+		} else if (content != null) {
 			scrollablePanel.removeAllComponents();
 			scrollablePanel.addComponent(content);
 			this.content = scrollablePanel;
 			windowContent.addComponent(scrollablePanel);
 			windowContent.setExpandRatio(scrollablePanel, 1);
+			this.content.setSizeFull();
+		} else {
+			this.content = null;
 		}
-		this.content.setSizeFull();
 		
 		updateMenu();
 		updateWindowTitle();
