@@ -35,8 +35,8 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	@Override
 	public void add(IComponent field, int span) {
 		Component component = VaadinClientToolkit.getComponent(field);
-		if (component instanceof Label) {
-			component.setWidth(columnWidthPercentage * span / 3 + "ex");
+		if (component instanceof Label && (span == 1 || columns == 1)) {
+			component.setWidth(columnWidthPercentage / 3 + "ex");
 		} else {
 			component.setWidth("100%");
 		}
