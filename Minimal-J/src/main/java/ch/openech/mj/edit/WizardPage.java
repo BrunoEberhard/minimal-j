@@ -19,6 +19,7 @@ public abstract class WizardPage<T> extends Editor<T> {
 	 * @return the title of this dialog page, 
 	 *  or <code>null</code> if none
 	 */
+	@Override
 	public abstract String getTitle();
 
 	/**
