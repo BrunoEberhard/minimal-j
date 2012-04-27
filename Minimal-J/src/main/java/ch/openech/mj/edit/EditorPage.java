@@ -11,8 +11,8 @@ import ch.openech.mj.util.ProgressListener;
 public class EditorPage extends Page {
 
 	private final Editor<?> editor;
-	private final FormVisual<?> form;
 	private final IComponent layout;
+	private boolean finished = false;
 	
 	public EditorPage(PageContext context, String[] editorClassAndArguments) {
 		this(context, createEditor(editorClassAndArguments));
@@ -64,7 +64,7 @@ public class EditorPage extends Page {
 	protected EditorPage(PageContext context, Editor<?> editor) {
 		super(context);
 		this.editor = editor;
-		form = editor.startEditor(context);
+		FormVisual<?> form = editor.startEditor(context);
 		layout = ClientToolkit.getToolkit().createEditorLayout(form, editor.getActions());
 
 		setTitle(editor.getTitle());
@@ -74,8 +74,11 @@ public class EditorPage extends Page {
 			
 			@Override
 			public void finished(String followLink) {
+				finished = true;
 				if (followLink != null) {
 					getPageContext().show(followLink);
+				} else {
+					getPageContext().closeTab();
 				}
 				if (progressListener != null) {
 					progressListener.showProgress(100, 100);
@@ -95,7 +98,7 @@ public class EditorPage extends Page {
 	
 	@Override
 	public boolean isExclusive() {
-		return true;
+		return !finished;
 	}
 
 	@Override
@@ -108,8 +111,4 @@ public class EditorPage extends Page {
 		editor.checkedClose();
 	}
 	
-	protected FormVisual getFormVisual() {
-		return form;
-	}
-
 }
