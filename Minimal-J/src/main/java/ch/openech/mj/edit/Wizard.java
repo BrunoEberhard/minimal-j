@@ -20,7 +20,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	protected final Action prevAction;
 	protected final Action nextAction;
-	private SwitchFormVisual<?> switchFormVisual;
+	private SwitchFormVisual<T> switchFormVisual;
 	private final Indicator indicator;
 	
 	protected Wizard() {
@@ -69,8 +69,8 @@ public abstract class Wizard<T> extends Editor<T> {
 	}
 
 	@Override
-	protected final FormVisual createForm() {
-		switchFormVisual = new SwitchFormVisual<Object>();
+	protected final FormVisual<T> createForm() {
+		switchFormVisual = new SwitchFormVisual<T>();
 		return switchFormVisual;
 	}
 	
@@ -98,7 +98,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	protected abstract T load();
 
 	@Override
-	protected void validate(T object, List resultList) {
+	protected void validate(T object, List<ValidationMessage> resultList) {
 		// not used
 	}
 
