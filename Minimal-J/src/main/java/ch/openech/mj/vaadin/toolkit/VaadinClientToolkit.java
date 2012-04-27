@@ -193,7 +193,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 	@Override
 	public IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions) {
-		return new VaadinEditorLayout(text, searchAction, content, actions);
+		VaadinEditorLayout layout = new VaadinEditorLayout(text, searchAction, content, actions);
+		layout.setWidth("80em");
+		return layout;
 	}
 
 	@Override
