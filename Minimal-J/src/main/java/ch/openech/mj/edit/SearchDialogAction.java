@@ -64,6 +64,7 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 		
 		table.setClickListener(new SearchClickListener());
 		dialog.openDialog();
+		ClientToolkit.getToolkit().focusFirstComponent(textFieldSearch);
 	}
 	
 	protected abstract List<T> search(String text);

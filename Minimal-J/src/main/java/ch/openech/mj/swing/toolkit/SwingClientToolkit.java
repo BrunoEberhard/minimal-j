@@ -17,6 +17,8 @@ import java.io.OutputStream;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -25,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.JTextComponent;
 
 import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.page.PageContext;
@@ -159,7 +162,9 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	private void focusFirstComponentNow(JComponent component) {
 		FocusTraversalPolicy focusPolicy = component.getFocusTraversalPolicy();
-		if (focusPolicy != null && focusPolicy.getFirstComponent(component) != null) {
+		if (component instanceof JTextComponent || component instanceof JComboBox || component instanceof JCheckBox) {
+			component.requestFocus();
+		} else if (focusPolicy != null && focusPolicy.getFirstComponent(component) != null) {
 			focusPolicy.getFirstComponent(component).requestFocus();
 		} else {
 			FocusManager.getCurrentManager().focusNextComponent(component);
