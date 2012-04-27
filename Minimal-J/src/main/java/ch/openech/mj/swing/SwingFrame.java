@@ -633,12 +633,12 @@ public class SwingFrame extends JFrame {
 		}
 
 		@Override
-		public void close() {
+		public void closeTab() {
 			if (historyPanel.hasPast()) {
 				historyPanel.previous();
 				historyPanel.dropFuture();
 			} else {
-				closeTab(this);
+				SwingFrame.this.closeTab(this);
 			}
 		}
 

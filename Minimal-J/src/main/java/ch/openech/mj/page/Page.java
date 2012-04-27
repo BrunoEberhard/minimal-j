@@ -99,7 +99,7 @@ public abstract class Page {
 
 	public void close() {
 		if (context != null) {
-			context.close();
+			context.closeTab();
 		} else {
 			throw new IllegalStateException("A Page without PageContext should not be visible and no close action should be performed");
 		}

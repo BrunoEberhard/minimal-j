@@ -301,7 +301,7 @@ public class VaadinWindow extends Window implements PageContext {
 	}
 	
 	@Override
-	public void close() {
+	public void closeTab() {
 		getWindow().executeJavaScript("history.back()");
 		// ev. "var backlen=history.length; history.go(-backlen); window.location.href= window.location.href;"
 	}
