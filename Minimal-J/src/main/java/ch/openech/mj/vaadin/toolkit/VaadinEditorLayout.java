@@ -10,7 +10,6 @@ import javax.swing.Action;
 
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.util.StringUtils;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -22,14 +21,13 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.VerticalLayout;
 
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 
-	public VaadinEditorLayout(String information, IComponent content, Action[] actions) {
-		this(createHeaderComponent(information), content, actions);
+	public VaadinEditorLayout(IComponent content, Action[] actions) {
+		this(null, content, actions);
 	}
 
 	public VaadinEditorLayout(TextField text, Action searchAction, IComponent content, Action[] actions) {
@@ -50,14 +48,6 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		addComponent(buttonBar);
 	}
 
-	private static Component createHeaderComponent(String information) {
-		if (!StringUtils.isBlank(information)) {
-			return new Label(information);
-		} else {
-			return null;
-		}
-	}
-	
 	private static Component createHeaderComponent(TextField text, final Action searchAction) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setWidth("100%");

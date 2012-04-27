@@ -70,7 +70,7 @@ public abstract class ClientToolkit {
 
 	public abstract IComponent createFormAlignLayout(IComponent content);
 
-	public abstract IComponent createEditorLayout(String information, IComponent content, Action[] actions);
+	public abstract IComponent createEditorLayout(IComponent content, Action[] actions);
 
 	public abstract IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions);
 

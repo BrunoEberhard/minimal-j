@@ -40,7 +40,7 @@ public class EditorDialogAction extends AbstractAction {
 
 	private void showPageOn(final PageContext context) {
 		FormVisual<?> form = editor.startEditor(context);
-		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(editor.getInformation(), form, editor.getActions());
+		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(form, editor.getActions());
 		
 		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context.getComponent(), layout, editor.getTitle());
 		dialog.setResizable(form.isResizable());

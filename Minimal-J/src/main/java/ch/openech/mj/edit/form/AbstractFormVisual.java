@@ -282,7 +282,7 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	//
 
 	public void text(String text) {
-		text(text, 1);
+		text(text, columns);
 	}
 	
 	public void text(String text, int span) {

@@ -82,15 +82,6 @@ public abstract class Editor<T> {
 		return new Action[]{demoDataAction, cancelAction, saveAction};
 	}
 
-	/**
-	 * An additional information that is displayed above the form
-	 * 
-	 * @return null (nothing) if not overwritten
-	 */
-	public String getInformation() {
-		return null;
-	}
-
 	// /////
 
 	protected Editor() {

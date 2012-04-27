@@ -60,6 +60,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	
 	@Override
 	public IComponent createLabel(String string) {
+		string = "<html>" + string + "</html>";
 		return new SwingComponentDelegate(new JLabel(string));
 	}
 
@@ -242,8 +243,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createEditorLayout(String information, IComponent content, Action[] actions) {
-		return new SwingEditorLayout(information, content, actions);
+	public IComponent createEditorLayout(IComponent content, Action[] actions) {
+		return new SwingEditorLayout(content, actions);
 	}
 
 	@Override

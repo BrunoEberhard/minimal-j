@@ -47,7 +47,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 	
 	@Override
 	public IComponent createLabel(String string) {
-		return new VaadinComponentDelegate(new Label(string));
+		Label label = new Label(string);
+		label.setContentMode(Label.CONTENT_XHTML);
+		return new VaadinComponentDelegate(label);
 	}
 
 	@Override
@@ -185,8 +187,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createEditorLayout(String information, IComponent content, Action[] actions) {
-		return new VaadinEditorLayout(information, content, actions);
+	public IComponent createEditorLayout(IComponent content, Action[] actions) {
+		return new VaadinEditorLayout(content, actions);
 	}
 
 	@Override
