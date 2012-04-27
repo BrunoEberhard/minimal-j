@@ -29,5 +29,10 @@ public class ApplicationConfigExample extends ApplicationConfig {
 	public Class<?>[] getSearchClasses() {
 		return new Class<?>[]{BookTablePage.class};
 	}
+
+	@Override
+	public Class<?> getPreferencesClass() {
+		return null;
+	}
 	
 }

@@ -20,7 +20,7 @@ import com.vaadin.Application;
  */
 public class MinimalJVaadinApplication extends Application {
 	private VaadinWindow mainWindow;
-	private final ApplicationContext applicationContext = new ApplicationContext();
+	private final ApplicationContext applicationContext = new VaadinAppicationContext();
 	
 	@Override
 	public void init() {
@@ -41,4 +41,27 @@ public class MinimalJVaadinApplication extends Application {
 		Resources.addResourceBundle(ResourceBundle.getBundle("ch.openech.mj.resources.MinimalJ"));
 	}
 
+	public class VaadinAppicationContext extends ApplicationContext {
+		private Object preferences;
+		
+		@Override
+		public void setUser(String user) {
+			MinimalJVaadinApplication.this.setUser(user);
+		}
+
+		@Override
+		public String getUser() {
+			return (String) MinimalJVaadinApplication.this.getUser();
+		}
+
+		@Override
+		public void loadPreferences(Object preferences) {
+			// nothing done (yet)
+		}
+
+		@Override
+		public void savePreferences(Object preferences) {
+			this.preferences = preferences;
+		}
+	}
 }

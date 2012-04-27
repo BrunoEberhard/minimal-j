@@ -35,6 +35,8 @@ public abstract class ApplicationConfig {
 
 	public abstract String getWindowTitle(PageContext pageContext);
 	
+	public abstract Class<?> getPreferencesClass();
+	
 	public abstract Class<?>[] getSearchClasses();
 	
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
