@@ -48,6 +48,7 @@ public abstract class Editor<T> {
 	private EditorFinishedListener editorFinishedListener;
 	private Indicator indicator;
 	private boolean saveable = true;
+	private boolean userEdited;
 	private String followLink;
 	protected PageContext context;
 	
@@ -107,6 +108,7 @@ public abstract class Editor<T> {
 		}
 		
 		form.setSaveAction(saveAction);
+		userEdited = false;
 		form.setChangeListener(new EditorChangeListener());
 		
 		return form;
@@ -192,6 +194,7 @@ public abstract class Editor<T> {
 		
 		@Override
 		public void stateChanged(ChangeEvent e) {
+			userEdited = true;
 			update(getObject());
 		}
 	}
@@ -228,14 +231,15 @@ public abstract class Editor<T> {
 	}
 	
 	public void checkedClose() {
-		if (isSaveable()) {
+		if (!userEdited) {
+			finish();
+		} else if (isSaveable()) {
 			ConfirmDialogListener listener = new ConfirmDialogListener() {
 				@Override
 				public void onClose(int answer) {
 					if (answer == JOptionPane.YES_OPTION) {
-						if (save(getObject())) {
-							finish();
-						}
+						// finish will be called at the end of save
+						save();
 					} else if (answer == JOptionPane.NO_OPTION) {
 						finish();
 					} else { // Cancel or Close
