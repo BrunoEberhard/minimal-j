@@ -106,21 +106,6 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 		return 100;
 	}
 	
-	// Variante des Demo-Fillers mit dem Accelerator - Mechanismus
-	// Nachteil: Funktioniert bei Textfeldern nicht, da die Felder das Zeichen
-	// selber abfangen.
-	// 
-	// private void installFillWithDemoDataAction() {
-	// installFillWithDemoDataAction(this);
-	// }
-	//	
-	// private void installFillWithDemoDataAction(JComponent component) {
-	// Object object = "§";
-	// getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke('§'),
-	// object);
-	// getActionMap().put(object, new FillWithDemoDataAction());
-	// }
-	
 	// Methods to create the form
 
 	@Override
@@ -341,34 +326,6 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 		}
 //		addListeners(field);
 	}
-
-//	TODO: Mit diesem Mechanismus wird das fillWithDemoData ausgelöst. Das muss irgendwie unabhängig vom Toolkit implementiert werden
-//	private void addListeners(Object component) {
-//		component.addKeyListener(getKeyListener());
-//		
-//		if (component instanceof AbstractComponentContainer) {
-//			AbstractComponentContainer container = (AbstractComponentContainer) component;
-//			for (Object child : container.getComponents()) {
-//				addListeners(child);
-//			}
-//		}
-//	}
-//
-//	private KeyListener getKeyListener() {
-//		if (keyListener == null) {
-//			keyListener = new KeyAdapter() {
-//				@Override
-//				public void keyTyped(KeyEvent e) {
-//					boolean generateData = Application.preferences().getBoolean("generateData", false);
-//					if (generateData && '§' == e.getKeyChar()) {
-//						fillWithDemoData();
-//						e.consume();
-//					}
-//				}
-//			};
-//		}
-//		return keyListener;
-//	}
 
 	@Override
 	public void fillWithDemoData() {
