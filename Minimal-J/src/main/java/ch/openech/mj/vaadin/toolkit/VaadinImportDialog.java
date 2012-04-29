@@ -5,17 +5,13 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import ch.openech.mj.vaadin.CloseablePipedInputStream;
-
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Window;
 
 public class VaadinImportDialog extends Window implements Upload.Receiver {
-
 	private Upload upload;
 	private CloseablePipedInputStream inputStream;
-	private Thread thread;
 	
 	public VaadinImportDialog(Window parentWindow, String title) {
 		super(title);
@@ -34,7 +30,11 @@ public class VaadinImportDialog extends Window implements Upload.Receiver {
 		addListener(new CloseListener() {
 			@Override
 			public void windowClose(CloseEvent e) {
-				inputStream.setClosed(true);
+				try {
+					inputStream.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
@@ -59,6 +59,30 @@ public class VaadinImportDialog extends Window implements Upload.Receiver {
     
 	public PipedInputStream getInputStream() {
 		return inputStream;
+	}
+	
+	private class CloseablePipedInputStream extends PipedInputStream {
+
+		private boolean closed = false;
+
+		@Override
+		public synchronized int available() throws IOException {
+			if (!closed) {
+				return super.available();
+			} else {
+				throw new IllegalStateException();
+			}
+		}
+
+		@Override
+		public void close() throws IOException {
+			if (!closed) {
+				closed = true;
+				VaadinImportDialog.this.close();
+			}
+			super.close();
+		}
+		
 	}
 	
 }

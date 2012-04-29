@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -38,11 +37,13 @@ import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
+import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
+import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -60,7 +61,15 @@ public class SwingClientToolkit extends ClientToolkit {
 			return (Component) component;
 		}
 	}
-	
+
+	private static Component getComponent(Object component) {
+		if (component instanceof IComponent) {
+			return getComponent((IComponent) component);
+		} else {
+			return (Component) component;
+		}
+	}
+
 	@Override
 	public IComponent createLabel(String string) {
 		string = "<html>" + string + "</html>";
@@ -74,17 +83,17 @@ public class SwingClientToolkit extends ClientToolkit {
 		label.setFont(label.getFont().deriveFont(Font.BOLD));
 		return new SwingComponentDelegate(label);
 	}
-	
+
 	@Override
 	public TextField createReadOnlyTextField() {
 		return new SwingReadOnlyTextField();
 	}
-	
+
 	@Override
 	public TextField createTextField(ChangeListener changeListener, int maxLength) {
 		return new SwingTextField(changeListener, maxLength);
 	}
-	
+
 	@Override
 	public TextField createTextField(ChangeListener changeListener, TextFieldFilter filter) {
 		return new SwingTextField(changeListener, filter);
@@ -130,7 +139,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		JPanel panel = new JPanel(new SwingFormAlignLayoutManager());
 		Component component = getComponent(content);
 		panel.add(component);
-		
+
 		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(panel));
 		scrollPane.setBorder(null);
 		return new SwingComponentDelegate(scrollPane);
@@ -183,19 +192,20 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void showMessage(Object parent, String text) {
-		Window window = findWindow((Component) parent);
-		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE); 
-	}
-	
-	@Override
-	public void showError(Object parent, String text) {
-		Window window = findWindow((Component) parent);
-		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE); 
+		Window window = findWindow(getComponent(parent));
+		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
-	public void showConfirmDialog(IComponent c, String message, String title, int optionType, ConfirmDialogListener listener) {
-		JComponent parentComponent = (JComponent) getComponent(c);
+	public void showError(Object parent, String text) {
+		Window window = findWindow(getComponent(parent));
+		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
+	}
+
+	@Override
+	public void showConfirmDialog(IComponent c, String message, String title, int optionType,
+			ConfirmDialogListener listener) {
+		Component parentComponent = getComponent(c);
 		int result = JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
 		listener.onClose(result);
 	}
@@ -204,10 +214,10 @@ public class SwingClientToolkit extends ClientToolkit {
 	public <T> VisualTable<T> createVisualTable(Class<T> clazz, Object[] fields) {
 		return new SwingVisualTable<T>(clazz, fields);
 	}
-	
+
 	@Override
 	public ProgressListener showProgress(Object parent, String text) {
-		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
+		EditablePanel editablePanel = EditablePanel.getEditablePanel(getComponent(parent));
 		if (editablePanel != null) {
 			SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
 			editablePanel.openModalDialog(frame);
@@ -217,27 +227,27 @@ public class SwingClientToolkit extends ClientToolkit {
 			SwingProgressDialog dialog = new SwingProgressDialog(window, text);
 			dialog.setVisible(true);
 			return dialog;
-		}		
+		}
 	}
 
 	@Override
 	public VisualDialog openDialog(Object parent, IComponent content, String title) {
-		Window window = findWindow((Component) parent);
+		Window window = findWindow(getComponent(parent));
 		Component contentComponent = getComponent(content);
 		// TODO check for OS or move this to UI
 		((JComponent) contentComponent).setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		
+
 		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
-		
+
 		if (editablePanel != null) {
 			return new SwingInternalFrame(editablePanel, contentComponent, title);
 		} else {
 			return new SwingEditorDialog(window, contentComponent, title);
-		}		
+		}
 	}
 
 	private Window findWindow(Component parentComponent) {
-		while (parentComponent !=null && !(parentComponent instanceof Window)) {
+		while (parentComponent != null && !(parentComponent instanceof Window)) {
 			if (parentComponent instanceof JPopupMenu) {
 				parentComponent = ((JPopupMenu) parentComponent).getInvoker();
 			} else {
@@ -256,11 +266,11 @@ public class SwingClientToolkit extends ClientToolkit {
 	public IComponent createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions) {
 		return new SwingSearchLayout(text, searchAction, content, actions);
 	}
-	
+
 	@Override
 	public PageContext findPageContext(Object source) {
 		if (source instanceof IComponent) {
-			source = getComponent((IComponent)source);
+			source = getComponent((IComponent) source);
 		}
 		Component c = (Component) source;
 		while (!(c instanceof PageContext) && c != null) {
@@ -277,8 +287,17 @@ public class SwingClientToolkit extends ClientToolkit {
 		return (PageContext) c;
 	}
 
+	public IComponent importField(ImportHandler importHandler, String buttonText) {
+		return null;
+	}
+
 	@Override
-	public OutputStream export(Object parent, String buttonText) {
+	public IComponent exportLabel(ExportHandler exportHandler, String label) {
+		return new SwingExportLabel(exportHandler, label);
+	}
+	
+	@Override
+	public void export(Object parent, String buttonText, ExportHandler exportHandler) {
 		Window window = findWindow((Component) parent);
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
@@ -286,15 +305,11 @@ public class SwingClientToolkit extends ClientToolkit {
 		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(null, buttonText)) {
 			File outputFile = chooser.getSelectedFile();
 			try {
-				return new FileOutputStream(outputFile);
+				exportHandler.export(new FileOutputStream(outputFile));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
-				return null;
 			}
-		} else {
-			return null;
 		}
-		
 	}
 
 	@Override
@@ -314,5 +329,24 @@ public class SwingClientToolkit extends ClientToolkit {
 			return null;
 		}
 	}
+
+	// @Override
+	// public InputStream importField(Object parent, String buttonText) {
+	// JFileChooser chooser = new JFileChooser();
+	// chooser.setMultiSelectionEnabled(false);
+	// chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	// if (JFileChooser.APPROVE_OPTION == chooser.showDialog(null, buttonText))
+	// {
+	// File inputFile = chooser.getSelectedFile();
+	// try {
+	// return new FileInputStream(inputFile);
+	// } catch (FileNotFoundException e) {
+	// e.printStackTrace();
+	// return null;
+	// }
+	// } else {
+	// return null;
+	// }
+	// }
 
 }

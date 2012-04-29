@@ -2,7 +2,6 @@ package ch.openech.mj.vaadin.toolkit;
 
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.util.Iterator;
 
@@ -14,11 +13,13 @@ import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
+import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
+import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
@@ -40,6 +41,14 @@ public class VaadinClientToolkit extends ClientToolkit {
 		if (component instanceof IComponentDelegate) {
 			IComponentDelegate delegate = (IComponentDelegate) component;
 			return (Component) delegate.getComponent();
+		} else {
+			return (Component) component;
+		}
+	}
+	
+	private static Component getComponent(Object component) {
+		if (component instanceof IComponent) {
+			return getComponent((IComponent) component);
 		} else {
 			return (Component) component;
 		}
@@ -142,7 +151,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public void showMessage(Object parent, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component parentComponent = (Component) parent;
+		Component parentComponent = getComponent(parent);
 		Window window = parentComponent.getWindow();
 		window.showNotification("Information", text, Notification.TYPE_HUMANIZED_MESSAGE);
 	}
@@ -150,7 +159,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public void showError(Object parent, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component parentComponent = (Component) parent;
+		Component parentComponent = getComponent(parent);
 		Window window = parentComponent.getWindow();
 		window.showNotification("Fehler", text, Notification.TYPE_ERROR_MESSAGE);
 	}
@@ -173,14 +182,14 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public VisualDialog openDialog(Object parent, IComponent content, String title) {
 		Component component = getComponent(content);
-		Component parentComponent = (Component) parent;
+		Component parentComponent = getComponent(parent);
 		Window window = parentComponent.getWindow();
 		return new VaadinDialog(window, (ComponentContainer) component, title);
 	}
 
 	@Override
 	public ProgressListener showProgress(Object parent, String text) {
-		Component parentComponent = (Component) parent;
+		Component parentComponent = getComponent(parent);
 		Window window = parentComponent.getWindow();
 		VaadinProgressDialog progressDialog = new VaadinProgressDialog(window, text);
 		return progressDialog;
@@ -224,12 +233,32 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public OutputStream export(Object parent, String buttonText) {
+	public IComponent exportLabel(ExportHandler exportHandler, String label) {
+		return new VaadinExportLabel(exportHandler, label);
+//		Component parentComponent = (Component) parent;
+//		Window window = parentComponent.getWindow();
+//
+//		VaadinExportDialog exportDialog = new VaadinExportDialog(window, "Export");
+//		return exportDialog.getOutputStream();
+	}
+
+	@Override
+	public IComponent importField(ImportHandler importHandler, String buttonText) {
+		return new VaadinImportField(importHandler, buttonText);
+//		Component parentComponent = (Component) parent;
+//		Window window = parentComponent.getWindow();
+//
+//		VaadinImportDialog importDialog = new VaadinImportDialog(window, "Import");
+//		PipedInputStream inputStream = importDialog.getInputStream();
+//		return inputStream;
+	}
+
+	@Override
+	public void export(Object parent, String buttonText, ExportHandler exportHandler) {
 		Component parentComponent = (Component) parent;
 		Window window = parentComponent.getWindow();
 
-		VaadinExportDialog exportDialog = new VaadinExportDialog(window, "Export");
-		return exportDialog.getOutputStream();
+		new VaadinExportDialog(window, "Export", exportHandler);
 	}
 
 	@Override

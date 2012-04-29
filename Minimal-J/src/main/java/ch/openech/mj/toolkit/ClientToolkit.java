@@ -1,7 +1,6 @@
 package ch.openech.mj.toolkit;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
@@ -96,8 +95,14 @@ public abstract class ClientToolkit {
 	
 	// Up / Dowload
 	
-	public abstract OutputStream export(Object parent, String buttonText);
+	public abstract void export(Object parent, String buttonText, ExportHandler exportHandler);
 
 	public abstract InputStream imprt(Object parent, String buttonText);
+	
+	@Deprecated
+	public abstract IComponent exportLabel(ExportHandler exportHandler, String label);
+
+	@Deprecated
+	public abstract IComponent importField(ImportHandler importHandler, String buttonText);
 
 }
