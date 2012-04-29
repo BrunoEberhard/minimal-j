@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import ch.openech.mj.edit.Editor.EditorFinishedListener;
-import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
@@ -39,7 +39,7 @@ public class EditorDialogAction extends AbstractAction {
 	}
 
 	private void showPageOn(final PageContext context) {
-		FormVisual<?> form = editor.startEditor(context);
+		IForm<?> form = editor.startEditor(context);
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(form, editor.getActions());
 		
 		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context.getComponent(), layout, editor.getTitle());

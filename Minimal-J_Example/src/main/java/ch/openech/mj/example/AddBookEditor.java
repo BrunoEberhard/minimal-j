@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import ch.openech.mj.edit.Editor;
-import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.example.model.Book;
 
@@ -21,7 +21,7 @@ public class AddBookEditor extends Editor<Book> {
 	}
 
 	@Override
-	public FormVisual<Book> createForm() {
+	public IForm<Book> createForm() {
 		return new BookForm(true);
 	}
 	

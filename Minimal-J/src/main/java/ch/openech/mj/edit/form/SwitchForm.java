@@ -1,23 +1,22 @@
-package ch.openech.mj.edit;
+package ch.openech.mj.edit.form;
 
 import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.form.FormVisual;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 
-public class SwitchFormVisual<T> implements FormVisual<T> {
+public class SwitchForm<T> implements IForm<T> {
 
 	private SwitchLayout switchLayout;
-	private FormVisual<?> formVisual;
+	private IForm<?> form;
 	private T object;
 	
-	public SwitchFormVisual() {
+	public SwitchForm() {
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
 	}
 
@@ -28,7 +27,7 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 
 	@Override
 	public void setChangeListener(ChangeListener changeListener) {
-		// a SwitchFormVisual doesnt change (only the contained forms)
+		// a SwitchForm doesnt change (only the contained forms)
 	}
 
 	@Override
@@ -49,13 +48,13 @@ public class SwitchFormVisual<T> implements FormVisual<T> {
 		// no save
 	}
 	
-	public FormVisual<?> getFormVisual() {
-		return formVisual;
+	public IForm<?> getFormVisual() {
+		return form;
 	}
 	
-	public void setFormVisual(FormVisual<?> formVisual) {
-		this.formVisual = formVisual;
-		switchLayout.show(formVisual);
+	public void setForm(IForm<?> form) {
+		this.form = form;
+		switchLayout.show(form);
 	}
 	
 	@Override

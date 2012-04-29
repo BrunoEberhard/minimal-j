@@ -11,7 +11,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
@@ -44,7 +44,7 @@ public abstract class Editor<T> {
 	protected final Action saveAction;
 	protected final Action cancelAction;
 	protected final Action demoDataAction;
-	private FormVisual<T> form;
+	private IForm<T> form;
 	private EditorFinishedListener editorFinishedListener;
 	private Indicator indicator;
 	private boolean saveable = true;
@@ -53,7 +53,7 @@ public abstract class Editor<T> {
 	
 	// what to implement
 
-	protected abstract FormVisual<T> createForm();
+	protected abstract IForm<T> createForm();
 
 	protected T load() {
 		return null;
@@ -90,7 +90,7 @@ public abstract class Editor<T> {
 		demoDataAction = createDemoDataAction();
 	}
 	
-	public FormVisual<T> startEditor(PageContext context) {
+	public IForm<T> startEditor(PageContext context) {
 		if (form != null) {
 			throw new IllegalStateException();
 		}

@@ -1,7 +1,7 @@
 package ch.openech.mj.edit;
 
 import ch.openech.mj.edit.Editor.EditorFinishedListener;
-import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -64,7 +64,7 @@ public class EditorPage extends Page {
 	protected EditorPage(PageContext context, Editor<?> editor) {
 		super(context);
 		this.editor = editor;
-		FormVisual<?> form = editor.startEditor(context);
+		IForm<?> form = editor.startEditor(context);
 		layout = ClientToolkit.getToolkit().createEditorLayout(form, editor.getActions());
 
 		setTitle(editor.getTitle());

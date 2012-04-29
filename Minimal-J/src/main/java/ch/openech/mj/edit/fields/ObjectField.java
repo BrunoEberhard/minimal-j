@@ -4,7 +4,7 @@ import java.util.List;
 
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.edit.Editor;
-import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -52,12 +52,12 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 		return visual;
 	}
 	
-	protected abstract FormVisual<T> createFormPanel();
+	protected abstract IForm<T> createFormPanel();
 
 	public class ObjectFieldEditor extends Editor<T> {
 
 		@Override
-		public FormVisual<T> createForm() {
+		public IForm<T> createForm() {
 			return ObjectField.this.createFormPanel();
 		}
 

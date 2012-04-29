@@ -6,7 +6,8 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import ch.openech.mj.edit.form.FormVisual;
+import ch.openech.mj.edit.form.IForm;
+import ch.openech.mj.edit.form.SwitchForm;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.page.PageContext;
@@ -20,7 +21,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	protected final Action prevAction;
 	protected final Action nextAction;
-	private SwitchFormVisual<T> switchFormVisual;
+	private SwitchForm<T> switchForm;
 	private final Indicator indicator;
 	
 	protected Wizard() {
@@ -69,14 +70,14 @@ public abstract class Wizard<T> extends Editor<T> {
 	}
 
 	@Override
-	protected final FormVisual<T> createForm() {
-		switchFormVisual = new SwitchFormVisual<T>();
-		return switchFormVisual;
+	protected final IForm<T> createForm() {
+		switchForm = new SwitchForm<T>();
+		return switchForm;
 	}
 	
 	@Override
-	public FormVisual<T> startEditor(PageContext context) {
-		FormVisual<T> formVisual = super.startEditor(context);
+	public IForm<T> startEditor(PageContext context) {
+		IForm<T> formVisual = super.startEditor(context);
 		setCurrentPage(getFirstPage());
 		return formVisual;
 	}
@@ -90,7 +91,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	private void setCurrentPage(WizardPage<?> page) {
 		currentPage = page;
 		currentPage.setIndicator(indicator);
-		switchFormVisual.setFormVisual(currentPage.startEditor(context));
+		switchForm.setForm(currentPage.startEditor(context));
 		prevAction.setEnabled(currentPageIndex > 0);
 	}
 

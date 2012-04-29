@@ -46,8 +46,8 @@ import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
 
-public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>, DemoEnabled {
-	private static Logger logger = Logger.getLogger(AbstractFormVisual.class.getName());
+public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
+	private static Logger logger = Logger.getLogger(Form.class.getName());
 
 	protected final boolean editable;
 	private final ResourceBundle resourceBundle;
@@ -69,23 +69,23 @@ public class AbstractFormVisual<T> implements IComponentDelegate, FormVisual<T>,
 	private final Class<T> objectClass;
 	private boolean resizable = false;
 
-	protected AbstractFormVisual() {
+	protected Form() {
 		this(true);
 	}
 
-	protected AbstractFormVisual(boolean editable) {
+	protected Form(boolean editable) {
 		this(editable, 1);
 	}
 	
-	protected AbstractFormVisual(boolean editable, int columns) {
+	protected Form(boolean editable, int columns) {
 		this(null, null, editable, columns);
 	}
 	
-	public AbstractFormVisual(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable) {
+	public Form(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable) {
 		this(objectClass, resourceBundle, editable, 1);
 	}
 
-	public AbstractFormVisual(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable, int columns) {
+	public Form(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable, int columns) {
 		this.objectClass = objectClass != null ? objectClass : getObjectOfFormClass();
 		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;

@@ -7,11 +7,11 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.validation.ValidationMessage;
 
-public class SplitPaneForm<T> implements FormVisual<T> {
+public class SplitPaneForm<T> implements IForm<T> {
 
-	private final FormVisual<T> formComponent;
+	private final IForm<T> formComponent;
 	
-	public SplitPaneForm(FormVisual<T> formComponent) {
+	public SplitPaneForm(IForm<T> formComponent) {
 		this.formComponent = formComponent;
 	}
 

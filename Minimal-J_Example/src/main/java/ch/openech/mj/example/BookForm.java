@@ -1,10 +1,10 @@
 package ch.openech.mj.example;
 
 import static ch.openech.mj.example.model.Book.BOOK;
-import ch.openech.mj.edit.form.AbstractFormVisual;
+import ch.openech.mj.edit.form.Form;
 import ch.openech.mj.example.model.Book;
 
-public class BookForm extends AbstractFormVisual<Book> {
+public class BookForm extends Form<Book> {
 
 	public BookForm(boolean editable) {
 		super(editable, 2);

@@ -7,7 +7,7 @@ import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.toolkit.IComponentDelegate;
 
-public interface FormVisual<T> extends IComponentDelegate, ChangeableValue<T>, Validatable, Indicator {
+public interface IForm<T> extends IComponentDelegate, ChangeableValue<T>, Validatable, Indicator {
 
 	public abstract boolean isResizable();
 	
