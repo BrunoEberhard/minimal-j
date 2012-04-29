@@ -5,7 +5,7 @@ package ch.openech.mj.toolkit;
  *
  * @param <C>
  */
-public interface HorizontalLayout extends AbstractComponentContainer {
+public interface HorizontalLayout extends ILayout {
 
 	// must have a constructor wiht Object... components to set the content
 	

@@ -1,7 +1,7 @@
 package ch.openech.mj.toolkit;
 
 
-public interface GridFormLayout extends AbstractComponentContainer {
+public interface GridFormLayout extends ILayout {
 	
 	public void add(IComponent field);
 	
