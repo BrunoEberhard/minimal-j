@@ -4,7 +4,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.StringUtils;
 
@@ -40,10 +39,6 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 	
 	// Listener
 	
-	protected void listenTo(ChangeableValue<?> changeable) {
-		changeable.setChangeListener(listener());
-	}
-
 	protected ChangeListener listener() {
 		if (forwardingChangeListener == null) {
 			forwardingChangeListener = new ForwardingChangeListener();
