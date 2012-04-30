@@ -74,13 +74,17 @@ public abstract class Editor<T> {
 
 	protected abstract boolean save(T object);
 
+	protected boolean isSaveSynchron() {
+		return true;
+	}
+	
 	public String getTitle() {
 		String resourceName = getClass().getSimpleName() + ".text";
 		return Resources.getString(resourceName);
 	}
-	
+
 	public Action[] getActions() {
-		return new Action[]{demoDataAction, cancelAction, saveAction};
+		return new Action[] { demoDataAction, cancelAction, saveAction };
 	}
 
 	// /////
@@ -114,11 +118,11 @@ public abstract class Editor<T> {
 		return form;
 	}
 	
-	public void setEditorFinishedListener(EditorFinishedListener editorFinishedListener) {
+	public final void setEditorFinishedListener(EditorFinishedListener editorFinishedListener) {
 		this.editorFinishedListener = editorFinishedListener;
 	}
 	
-	public void setIndicator(Indicator indicator) {
+	public final void setIndicator(Indicator indicator) {
 		this.indicator = indicator;
 	}
 
@@ -126,12 +130,12 @@ public abstract class Editor<T> {
 	 * 
 	 * Disposes the editor and calls the editorFinished Listener
 	 */
-	void finish() {
+	protected void finish() {
 		form = null;
 		fireEditorFinished();
 	}
 	
-	public boolean isFinished() {
+	public final boolean isFinished() {
 		return form == null;
 	}
 	
@@ -141,11 +145,11 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	protected void setFollowLink(String followLink) {
+	protected final void setFollowLink(String followLink) {
 		this.followLink = followLink;
 	}
 	
-	protected T getObject() {
+	protected final T getObject() {
 		return form.getObject();
 	}
 	
@@ -180,7 +184,7 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	public void progress(int value, int maximum) {
+	public final void progress(int value, int maximum) {
 		if (editorFinishedListener != null) {
 			editorFinishedListener.progress(value, maximum);
 		}
@@ -226,11 +230,11 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	protected boolean isSaveable() {
+	protected final boolean isSaveable() {
 		return saveable;
 	}
 	
-	public void checkedClose() {
+	public final void checkedClose() {
 		if (!userEdited) {
 			finish();
 		} else if (isSaveable()) {
@@ -266,12 +270,8 @@ public abstract class Editor<T> {
 					"Schliessen", JOptionPane.YES_NO_OPTION, listener);
 		}
 	}
-
-	protected boolean isSaveSynchron() {
-		return true;
-	}
 	
-	protected Action createSaveAction() {
+	private Action createSaveAction() {
 		return new SaveAction("OkAction") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -280,7 +280,7 @@ public abstract class Editor<T> {
 		};
 	}
 	
-	protected Action createCancelAction() {
+	private Action createCancelAction() {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -291,7 +291,7 @@ public abstract class Editor<T> {
 		return action;
 	}
 	
-	protected Action createDemoDataAction() {
+	private Action createDemoDataAction() {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -11,7 +11,7 @@ import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 
 
-public abstract class SaveAction extends ResourceAction implements Indicator {
+abstract class SaveAction extends ResourceAction implements Indicator {
 	private String resourceBase;
 	
 	public SaveAction(String resourceBase) {
