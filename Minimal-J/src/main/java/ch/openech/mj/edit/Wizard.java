@@ -116,9 +116,6 @@ public abstract class Wizard<T> extends Editor<T> {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see ch.openech.mj.edit.Editor#fillWithDemoData()
-	 */
 	@Override
 	public void fillWithDemoData() {
 		currentPage.fillWithDemoData();
