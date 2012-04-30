@@ -204,7 +204,7 @@ public abstract class Editor<T> {
 		indicate(validationResult);
 	}
 	
-	protected List<ValidationMessage> validate(T object) {
+	private List<ValidationMessage> validate(T object) {
 		List<ValidationMessage> validationResult = new ArrayList<ValidationMessage>();
 		if (object instanceof Validatable) {
 			Validatable validatable = (Validatable) object;
@@ -215,7 +215,7 @@ public abstract class Editor<T> {
 		return validationResult;
 	}
 	
-	protected void indicate(List<ValidationMessage> validationResult) {
+	final void indicate(List<ValidationMessage> validationResult) {
 		saveable = validationResult.isEmpty();
 		form.setValidationMessages(validationResult);
 		if (saveAction instanceof Indicator) {
