@@ -5,8 +5,6 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.ChangeableValue;
-import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.StringUtils;
 
@@ -70,11 +68,5 @@ public abstract class AbstractEditField<T> implements IComponentDelegate, EditFi
 			fireChange();
 		}
 	}
-	
-	//
-	
-	protected static void showBubble(IComponent component, String text) {
-		ClientToolkit.getToolkit().showNotification(component, text);
-	}
-	
+
 }
