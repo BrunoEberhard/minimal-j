@@ -70,6 +70,10 @@ public abstract class SearchableTable<T> extends Table<T> {
 		}
 	}
 
+	protected List<T> getAll() throws SQLException {
+		return executeSelectAll(selectAll);
+	}
+	
 	protected void refillIndex() throws SQLException {
 		ResultSet resultSet = selectAll.executeQuery();
 		int idColumn = -1;
