@@ -2,6 +2,8 @@ package ch.openech.mj.vaadin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ch.openech.mj.db.model.AccessorInterface;
@@ -13,16 +15,22 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 
-public class PropertyVaadinContainer implements Container {
+public class PropertyVaadinContainer implements Container.Sortable {
 
 	private final Class<?> clazz;
 	private final List<String> propertyIds;
 	private final List<?> list;
+	private final List<Integer> ids;
 
 	public PropertyVaadinContainer(Class<?> clazz, List<?> list, List<String> propertyIds) {
 		this.propertyIds = propertyIds;
 		this.list = list;
 		this.clazz = clazz;
+		
+		ids = new ArrayList<Integer>();
+		for (int i = 0; i<list.size(); i++) {
+			ids.add(i);
+		}
 	}
 	
 	@Override
@@ -37,10 +45,6 @@ public class PropertyVaadinContainer implements Container {
 
 	@Override
 	public Collection<?> getItemIds() {
-		List<Integer> ids = new ArrayList<Integer>();
-		for (int i = 0; i<list.size(); i++) {
-			ids.add(i);
-		}
 		return ids;
 	}
 
@@ -178,5 +182,94 @@ public class PropertyVaadinContainer implements Container {
 		}
 		
 		
+	}
+	
+	// Sortable
+
+	@Override
+	public Object nextItemId(Object itemId) {
+		if (!isLastId(itemId)) {
+			int index = ids.indexOf(itemId);
+			return ids.get(index+1);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public Object prevItemId(Object itemId) {
+		if (!isFirstId(itemId)) {
+			int index = ids.indexOf(itemId);
+			return ids.get(index-1);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public Object firstItemId() {
+		return ids.get(0);
+	}
+
+	@Override
+	public Object lastItemId() {
+		return ids.get(list.size() - 1);
+	}
+
+	@Override
+	public boolean isFirstId(Object itemId) {
+		return firstItemId().equals(itemId);
+	}
+
+	@Override
+	public boolean isLastId(Object itemId) {
+		return lastItemId().equals(itemId);
+	}
+
+	@Override
+	public Object addItemAfter(Object previousItemId) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Item addItemAfter(Object previousItemId, Object newItemId) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void sort(Object[] propertyId, boolean[] ascending) {
+		if (propertyId.length > 0) {
+			Collections.sort(ids, new PropertyVaadinContainerComparator((String) propertyId[0], ascending[0]));
+		}
+	}
+
+	@Override
+	public Collection<?> getSortableContainerPropertyIds() {
+		return propertyIds;
+	}
+	
+	private class PropertyVaadinContainerComparator implements Comparator<Integer> {
+		private final String propertyId;
+		private final boolean asc;
+		
+		public PropertyVaadinContainerComparator(String property, boolean asc) {
+			this.propertyId = property;
+			this.asc = asc;
+		}
+		
+		@Override
+		public int compare(Integer o1, Integer o2) {
+			Object item1 = list.get(o1);
+			Object item2 = list.get(o2);
+			
+			Object value1 = PropertyAccessor.get(item1, propertyId);
+			Object value2 = PropertyAccessor.get(item2, propertyId);
+			
+			if (value1 instanceof Comparable && value2 instanceof Comparable) {
+				int result = ((Comparable) value1).compareTo(value2);
+				return asc ? result : -result;
+			}
+			return 0;
+		}
 	}
 }
