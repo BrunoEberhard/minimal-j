@@ -68,13 +68,9 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 		
 		@Override
 		public T newInstance() {
-			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(ObjectField.this.getClass());
-			if (clazz == null) {
-				throw new RuntimeException("TODO");
-			}
-			T newInstance = CloneHelper.newInstance(clazz);
-			return newInstance;
+			// Delegate ObjectField class. Its not possible to override here
+			// (because of some strange erasure thing)
+			return ObjectField.this.newInstance();
 		}
 
 		@Override
@@ -87,6 +83,19 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 		public void validate(T object, List<ValidationMessage> resultList) {
 			// may be overwritten
 		}
+	}
+	
+	/*
+	 * Only to be used in ObjectFieldEditor
+	 */
+	protected T newInstance() {
+		@SuppressWarnings("unchecked")
+		Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(ObjectField.this.getClass());
+		if (clazz == null) {
+			throw new RuntimeException("TODO");
+		}
+		T newInstance = CloneHelper.newInstance(clazz);
+		return newInstance;
 	}
 	
 	protected void fireObjectChange() {
