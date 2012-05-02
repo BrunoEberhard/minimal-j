@@ -5,6 +5,7 @@ import java.util.Map;
 
 import ch.openech.mj.db.model.ColumnAccess;
 
+@SuppressWarnings("unchecked")
 public class EmptyObjects {
 	private static Map<Class<?>, Object> emptyObjects = new HashMap<Class<?>, Object>();
 
