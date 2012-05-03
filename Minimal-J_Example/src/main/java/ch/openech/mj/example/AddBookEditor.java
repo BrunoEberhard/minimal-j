@@ -1,11 +1,9 @@
 package ch.openech.mj.example;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.example.model.Book;
 
 public class AddBookEditor extends Editor<Book> {
@@ -15,11 +13,6 @@ public class AddBookEditor extends Editor<Book> {
 		return new BookForm(true);
 	}
 	
-	@Override
-	public void validate(Book object, List<ValidationMessage> resultList) {
-		// nothing to validate
-	}
-
 	@Override
 	public boolean save(Book book) {
 		try {
