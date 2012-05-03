@@ -41,7 +41,7 @@ public abstract class Editor<T> {
 
 	private T original;
 	private IForm<T> form;
-	private Action saveAction;
+	private SaveAction saveAction;
 	private EditorFinishedListener editorFinishedListener;
 	private Indicator indicator;
 	private boolean saveable = true;
@@ -216,9 +216,7 @@ public abstract class Editor<T> {
 	final void indicate(List<ValidationMessage> validationResult) {
 		saveable = validationResult.isEmpty();
 		form.setValidationMessages(validationResult);
-		if (saveAction instanceof Indicator) {
-			((Indicator) saveAction).setValidationMessages(validationResult);
-		}
+		saveAction.setValidationMessages(validationResult);
 		if (indicator != null) {
 			indicator.setValidationMessages(validationResult);
 		}
