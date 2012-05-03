@@ -53,18 +53,27 @@ public abstract class Editor<T> {
 
 	protected abstract IForm<T> createForm();
 
+	/**
+	 * Should load the object to be edited. Note: The object will be copied before
+	 * changed by the editor
+	 * 
+	 * @return null if newInstance() should be used
+	 */
 	protected T load() {
 		return null;
 	}
-
-	protected T newInstance() {
-		@SuppressWarnings("unchecked")
-		Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(Editor.this.getClass());
-		T newInstance = CloneHelper.newInstance(clazz);
-		return newInstance;
-	}
 	
-	protected abstract void validate(T object, List<ValidationMessage> resultList);
+	/**
+	 * Override this method for a validation specific for this editor.
+	 * (Implement Validatable on the object itself for a general validation
+	 * on the object)
+	 * 
+	 * @param object
+	 * @param resultList
+	 */
+	protected void validate(T object, List<ValidationMessage> resultList){
+		// to be overwritten
+	}
 
 	protected abstract boolean save(T object);
 
@@ -107,6 +116,18 @@ public abstract class Editor<T> {
 		form.setChangeListener(new EditorChangeListener());
 		
 		return form;
+	}
+	
+	/**
+	 * Override this method to preset values for the editor
+	 * 
+	 * @return The object this editor should edit.
+	 */
+	protected T newInstance() {
+		@SuppressWarnings("unchecked")
+		Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(Editor.this.getClass());
+		T newInstance = CloneHelper.newInstance(clazz);
+		return newInstance;
 	}
 	
 	public final void setEditorFinishedListener(EditorFinishedListener editorFinishedListener) {
