@@ -1,10 +1,17 @@
 package ch.openech.mj.edit.value;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-// TODO Mandatory?
+/**
+ * Fields marked as Reference will not be inlined in the
+ * containing Object.
+ *
+ */
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
 public @interface Reference {
 
 }
