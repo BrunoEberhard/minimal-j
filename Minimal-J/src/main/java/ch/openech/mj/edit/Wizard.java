@@ -99,11 +99,6 @@ public abstract class Wizard<T> extends Editor<T> {
 	protected abstract T load();
 
 	@Override
-	protected void validate(T object, List<ValidationMessage> resultList) {
-		// not used
-	}
-
-	@Override
 	protected abstract boolean save(T object);
 	
 	private class WizardIndicator implements Indicator {
