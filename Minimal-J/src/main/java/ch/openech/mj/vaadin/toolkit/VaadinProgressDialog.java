@@ -1,6 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import ch.openech.mj.util.ProgressListener;
+import ch.openech.mj.toolkit.ProgressListener;
 
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;

@@ -11,9 +11,9 @@ import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualDialog.CloseListener;
-import ch.openech.mj.util.ProgressListener;
 
 public class EditorDialogAction extends AbstractAction {
 	private final Editor<?> editor;

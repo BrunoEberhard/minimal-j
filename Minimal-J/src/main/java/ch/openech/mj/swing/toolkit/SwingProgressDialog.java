@@ -6,7 +6,7 @@ import java.awt.Window;
 import javax.swing.JDialog;
 import javax.swing.JProgressBar;
 
-import ch.openech.mj.util.ProgressListener;
+import ch.openech.mj.toolkit.ProgressListener;
 
 public class SwingProgressDialog extends JDialog implements ProgressListener {
 	private final JProgressBar progressBar;

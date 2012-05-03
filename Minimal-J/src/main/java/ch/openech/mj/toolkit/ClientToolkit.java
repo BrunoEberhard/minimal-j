@@ -7,7 +7,6 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
-import ch.openech.mj.util.ProgressListener;
 
 
 

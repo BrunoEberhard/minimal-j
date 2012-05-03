@@ -244,9 +244,9 @@ public class VaadinWindow extends Window implements PageContext {
 	
 	protected void fillFileMenu(ActionGroup actionGroup) {
 		actionGroup.getOrCreateActionGroup(ActionGroup.NEW);
-		actionGroup.addSeparator();
-		actionGroup.getOrCreateActionGroup(ActionGroup.IMPORT);
-		actionGroup.getOrCreateActionGroup(ActionGroup.EXPORT);
+//		actionGroup.addSeparator();
+//		actionGroup.getOrCreateActionGroup(ActionGroup.IMPORT);
+//		actionGroup.getOrCreateActionGroup(ActionGroup.EXPORT);
 	}
 	
 	protected void fillWindowMenu(ActionGroup actionGroup) {

@@ -6,7 +6,7 @@ import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.util.ProgressListener;
+import ch.openech.mj.toolkit.ProgressListener;
 
 public class EditorPage extends Page {
 

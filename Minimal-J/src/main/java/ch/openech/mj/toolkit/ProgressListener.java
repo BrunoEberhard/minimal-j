@@ -1,4 +1,4 @@
-package ch.openech.mj.util;
+package ch.openech.mj.toolkit;
 
 public interface ProgressListener {
 

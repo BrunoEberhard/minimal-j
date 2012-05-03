@@ -9,8 +9,8 @@ import java.util.List;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import ch.openech.mj.swing.component.PropertyTable;
 import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.util.PropertyTable;
 
 public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 

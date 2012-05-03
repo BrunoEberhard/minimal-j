@@ -1,4 +1,4 @@
-package ch.openech.mj.util;
+package ch.openech.mj.swing.component;
 
 import java.awt.Component;
 import java.text.Collator;

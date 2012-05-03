@@ -20,12 +20,12 @@ import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.ImportHandler;
+import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.util.ProgressListener;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Component;

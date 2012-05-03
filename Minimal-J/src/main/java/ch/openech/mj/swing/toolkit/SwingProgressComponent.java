@@ -5,7 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import ch.openech.mj.util.ProgressListener;
+import ch.openech.mj.toolkit.ProgressListener;
 
 public class SwingProgressComponent extends JPanel implements ProgressListener {
 	private final JProgressBar progressBar;
