@@ -92,9 +92,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 	protected T newInstance() {
 		@SuppressWarnings("unchecked")
 		Class<T> clazz = (Class<T>) ch.openech.mj.util.GenericUtils.getGenericClass(ObjectField.this.getClass());
-		if (clazz == null) {
-			throw new RuntimeException("TODO");
-		}
 		T newInstance = CloneHelper.newInstance(clazz);
 		return newInstance;
 	}
