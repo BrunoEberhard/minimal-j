@@ -8,5 +8,8 @@ public abstract class ResourceAction extends AbstractAction {
 		String actionName = this.getClass().getSimpleName();
 		ResourceHelper.initProperties(this, Resources.getResourceBundle(), actionName);
 	}
-	
+
+	protected ResourceAction(String actionName) {
+		ResourceHelper.initProperties(this, Resources.getResourceBundle(), actionName);
+	}
 }

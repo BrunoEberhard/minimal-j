@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
@@ -17,7 +16,7 @@ import ch.openech.mj.edit.validation.Validatable;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.page.PageContext;
-import ch.openech.mj.resources.ResourceHelper;
+import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
@@ -41,10 +40,8 @@ import ch.openech.mj.toolkit.ConfirmDialogListener;
 public abstract class Editor<T> {
 
 	private T original;
-	protected final Action saveAction;
-	protected final Action cancelAction;
-	protected final Action demoDataAction;
 	private IForm<T> form;
+	private Action saveAction;
 	private EditorFinishedListener editorFinishedListener;
 	private Indicator indicator;
 	private boolean saveable = true;
@@ -84,15 +81,12 @@ public abstract class Editor<T> {
 	}
 
 	public Action[] getActions() {
-		return new Action[] { demoDataAction, cancelAction, saveAction };
+		return new Action[] { cancelAction(), saveAction() };
 	}
 
 	// /////
 
 	protected Editor() {
-		saveAction = createSaveAction();
-		cancelAction = createCancelAction();
-		demoDataAction = createDemoDataAction();
 	}
 	
 	public IForm<T> startEditor(PageContext context) {
@@ -111,7 +105,7 @@ public abstract class Editor<T> {
 			form.setObject(newInstance);
 		}
 		
-		form.setSaveAction(saveAction);
+		form.setSaveAction(saveAction());
 		userEdited = false;
 		form.setChangeListener(new EditorChangeListener());
 		
@@ -271,35 +265,34 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	private Action createSaveAction() {
-		return new SaveAction("OkAction") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				save();
-			}
-		};
+	protected final Action saveAction() {
+		if (saveAction == null) {
+			saveAction = new SaveAction("OkAction") {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					save();
+				}
+			};
+		}
+		return saveAction;
 	}
 	
-	private Action createCancelAction() {
-		Action action = new AbstractAction() {
+	protected final Action cancelAction() {
+		return new ResourceAction("CancelAction") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				finish();
 			}
 		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "CancelAction");
-		return action;
 	}
 	
-	private Action createDemoDataAction() {
-		Action action = new AbstractAction() {
+	protected final Action demoAction() {
+		return new ResourceAction("FillWithDemoDataAction") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				fillWithDemoData();
 			}
 		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "FillWithDemoDataAction");
-		return action;
 	}
 	
 	//

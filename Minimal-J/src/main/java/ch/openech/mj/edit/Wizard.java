@@ -34,7 +34,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	@Override
 	public Action[] getActions() {
-		return new Action[]{demoDataAction, cancelAction, prevAction, nextAction, saveAction};
+		return new Action[]{demoAction(), cancelAction(), prevAction, nextAction, saveAction()};
 	}
 
 	protected int getCurrentPageIndex() {
@@ -112,7 +112,7 @@ public abstract class Wizard<T> extends Editor<T> {
 		public void setValidationMessages(List<ValidationMessage> validationResult) {
 			Wizard.this.indicate(validationResult);
 			nextAction.setEnabled(isSaveable());
-			saveAction.setEnabled(isSaveable() && currentPage.canFinish());
+			saveAction().setEnabled(isSaveable() && currentPage.canFinish());
 		}
 	}
 
