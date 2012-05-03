@@ -2,9 +2,9 @@ package ch.openech.mj.example;
 
 import java.sql.SQLException;
 
-import ch.openech.mj.application.ObjectViewPage;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Book;
+import ch.openech.mj.page.ObjectViewPage;
 import ch.openech.mj.page.PageContext;
 
 public class BookViewPage extends ObjectViewPage<Book> {

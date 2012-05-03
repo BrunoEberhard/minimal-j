@@ -11,20 +11,15 @@ import ch.openech.mj.example.model.Book;
 public class AddBookEditor extends Editor<Book> {
 
 	@Override
-	public Book newInstance() {
-		return new Book();
+	public IForm<Book> createForm() {
+		return new BookForm(true);
 	}
-
+	
 	@Override
 	public void validate(Book object, List<ValidationMessage> resultList) {
 		// nothing to validate
 	}
 
-	@Override
-	public IForm<Book> createForm() {
-		return new BookForm(true);
-	}
-	
 	@Override
 	public boolean save(Book book) {
 		try {
