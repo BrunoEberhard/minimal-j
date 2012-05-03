@@ -1,8 +1,7 @@
-package ch.openech.mj.application;
+package ch.openech.mj.swing.component;
 
-import ch.openech.mj.page.History;
-import ch.openech.mj.page.History.HistoryListener;
 import ch.openech.mj.page.Page;
+import ch.openech.mj.swing.component.History.HistoryListener;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;

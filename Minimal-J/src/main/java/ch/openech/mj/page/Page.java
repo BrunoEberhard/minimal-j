@@ -4,7 +4,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 
-import ch.openech.mj.application.EmptyPage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.IComponent;

@@ -38,8 +38,6 @@ import javax.swing.text.DefaultEditorKit;
 
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.application.ApplicationContext;
-import ch.openech.mj.application.EditablePanel;
-import ch.openech.mj.application.HistoryPanel;
 import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
@@ -49,6 +47,8 @@ import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.swing.component.EditablePanel;
+import ch.openech.mj.swing.component.HistoryPanel;
 import ch.openech.mj.swing.lookAndFeel.LookAndFeelAction;
 import ch.openech.mj.swing.lookAndFeel.PrintLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;

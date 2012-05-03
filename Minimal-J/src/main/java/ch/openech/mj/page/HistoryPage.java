@@ -1,13 +1,10 @@
-package ch.openech.mj.application;
+package ch.openech.mj.page;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.openech.mj.db.model.annotation.Date;
 import ch.openech.mj.db.model.annotation.Varchar;
-import ch.openech.mj.page.Page;
-import ch.openech.mj.page.PageContext;
-import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualTable;

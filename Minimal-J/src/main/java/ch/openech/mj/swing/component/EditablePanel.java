@@ -1,4 +1,4 @@
-package ch.openech.mj.application;
+package ch.openech.mj.swing.component;
 
 import java.awt.Component;
 import java.awt.Container;

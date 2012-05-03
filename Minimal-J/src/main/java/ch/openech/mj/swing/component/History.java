@@ -1,4 +1,4 @@
-package ch.openech.mj.page;
+package ch.openech.mj.swing.component;
 
 import java.util.ArrayList;
 import java.util.List;

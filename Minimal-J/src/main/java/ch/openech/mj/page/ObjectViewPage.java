@@ -1,9 +1,6 @@
-package ch.openech.mj.application;
+package ch.openech.mj.page;
 
 import ch.openech.mj.edit.form.IForm;
-import ch.openech.mj.page.Page;
-import ch.openech.mj.page.PageContext;
-import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 

@@ -1,7 +1,5 @@
-package ch.openech.mj.application;
+package ch.openech.mj.page;
 
-import ch.openech.mj.page.Page;
-import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.IComponent;
 
 public class EmptyPage extends Page {

@@ -25,11 +25,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import ch.openech.mj.application.EditablePanel;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.swing.SwingFrame;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
+import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;

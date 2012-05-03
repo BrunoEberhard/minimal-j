@@ -7,7 +7,7 @@ import java.beans.PropertyVetoException;
 
 import javax.swing.JInternalFrame;
 
-import ch.openech.mj.application.EditablePanel;
+import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.toolkit.VisualDialog;
 
 public class SwingInternalFrame extends JInternalFrame implements VisualDialog {

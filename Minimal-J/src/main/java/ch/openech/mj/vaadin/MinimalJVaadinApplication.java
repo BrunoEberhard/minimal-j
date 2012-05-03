@@ -4,7 +4,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import ch.openech.mj.application.ApplicationContext;
-import ch.openech.mj.application.EmptyPage;
+import ch.openech.mj.page.EmptyPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
