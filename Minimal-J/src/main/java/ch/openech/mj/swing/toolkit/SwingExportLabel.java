@@ -12,19 +12,18 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 
 import ch.openech.mj.toolkit.ExportHandler;
-import ch.openech.mj.toolkit.IComponentDelegate;
+import ch.openech.mj.toolkit.IComponent;
 
-public class SwingExportLabel implements IComponentDelegate {
+public class SwingExportLabel extends JLabel implements IComponent {
 
 	private final ExportHandler exportHandler;
-	private final JLabel label;
 	
 	public SwingExportLabel(ExportHandler exportHandler, String text) {
+		super("Export");
 		this.exportHandler = exportHandler;
-		label = new JLabel("Export");
-		label.setForeground(Color.BLUE);
-		label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		label.addMouseListener(new SwingExportMouseListener());
+		setForeground(Color.BLUE);
+		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		addMouseListener(new SwingExportMouseListener());
 	}
 
 	private class SwingExportMouseListener extends MouseAdapter {
@@ -42,11 +41,6 @@ public class SwingExportLabel implements IComponentDelegate {
 				}
 			}
 		}
-	}
-	
-	@Override
-	public Object getComponent() {
-		return label;
 	}
 
 }

@@ -3,6 +3,7 @@ package ch.openech.mj.swing.toolkit;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -11,26 +12,24 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.fields.EditField;
-import ch.openech.mj.toolkit.IComponentDelegate;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
 
-public class SwingDirectoryField implements EditField<String>, IComponentDelegate {
+public class SwingDirectoryField extends JPanel implements EditField<String>, IComponent {
 
 	private final String name;
 	private final JTextField textField;
 	private final JButton button;
-	private final JPanel panel;
 	
 	public SwingDirectoryField(Object key) {
+		super(new BorderLayout());
 		name = Constants.getConstant(key);
 		
-		panel = new JPanel(new BorderLayout());
-
 		textField = new JTextField();
 		button = new JButton("...");
 		
-		panel.add(textField, BorderLayout.CENTER);
-		panel.add(button, BorderLayout.LINE_END);
+		add(textField, BorderLayout.CENTER);
+		add(button, BorderLayout.LINE_END);
 
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -56,11 +55,6 @@ public class SwingDirectoryField implements EditField<String>, IComponentDelegat
 	}
 
 	@Override
-	public Object getComponent() {
-		return panel;
-	}
-	
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -73,6 +67,11 @@ public class SwingDirectoryField implements EditField<String>, IComponentDelegat
 	@Override
 	public boolean isEmpty() {
 		return StringUtils.isEmpty(textField.getText());
+	}
+
+	@Override
+	public IComponent getComponent() {
+		return this;
 	}
 
 }

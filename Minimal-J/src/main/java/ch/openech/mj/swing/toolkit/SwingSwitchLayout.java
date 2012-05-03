@@ -20,7 +20,7 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 	@Override
 	public void show(IComponent c) {
 		if (shownComponent != c) {
-			Component component = SwingClientToolkit.getComponent(c);
+			Component component = (Component) c;
 			removeAll();
 			if (component != null) {
 				add(component, BorderLayout.CENTER);
@@ -39,7 +39,7 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 	@Override
 	public void requestFocus() {
 		if (shownComponent != null) {
-			Component component = SwingClientToolkit.getComponent(shownComponent);
+			Component component = (Component) shownComponent;
 			component.requestFocus();
 		}
 	}

@@ -54,7 +54,7 @@ public class SwitchForm<T> implements IForm<T> {
 	
 	public void setForm(IForm<?> form) {
 		this.form = form;
-		switchLayout.show(form);
+		switchLayout.show(form.getComponent());
 	}
 	
 	@Override

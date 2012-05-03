@@ -5,6 +5,7 @@ import ch.openech.mj.db.model.Code;
 import ch.openech.mj.db.model.CodeItem;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
@@ -33,7 +34,7 @@ public class CodeEditField extends AbstractEditField<String> implements DemoEnab
 	}
 	
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return switchLayout;
 	}
 

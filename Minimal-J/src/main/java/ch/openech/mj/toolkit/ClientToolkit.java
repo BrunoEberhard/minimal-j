@@ -5,6 +5,7 @@ import java.io.InputStream;
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
+import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 
@@ -59,6 +60,8 @@ public abstract class ClientToolkit {
 	// Layouts
 	
 	public abstract IComponent decorateWithCaption(IComponent component, String caption);
+	
+	public abstract Indicator decorateWithIndicator(IComponent decorated);
 	
 	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
 

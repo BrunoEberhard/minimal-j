@@ -52,8 +52,9 @@ import ch.openech.mj.resources.Resources;
 import ch.openech.mj.swing.lookAndFeel.LookAndFeelAction;
 import ch.openech.mj.swing.lookAndFeel.PrintLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
+import ch.openech.mj.toolkit.IComponent;
 
-public class SwingFrame extends JFrame {
+public class SwingFrame extends JFrame implements IComponent {
 	private JTabbedPane tabbedPane;
 	private JToolBar toolBar;
 	private Action previousAction, nextAction, refreshAction, searchAction, upAction, downAction;
@@ -712,8 +713,8 @@ public class SwingFrame extends JFrame {
 		}
 
 		@Override
-		public Object getComponent() {
-			return this;
+		public IComponent getComponent() {
+			return historyPanel.getComponent();
 		}
 
 		@Override

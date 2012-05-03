@@ -161,7 +161,7 @@ public abstract class Editor<T> {
 				}).start();
 			}
 		} else {
-			ClientToolkit.getToolkit().showNotification(form, "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
+			ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
 		}
 	}
 
@@ -243,7 +243,7 @@ public abstract class Editor<T> {
 					}
 				}
 			};
-			ClientToolkit.getToolkit().showConfirmDialog(form, "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+			ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
 					JOptionPane.YES_NO_CANCEL_OPTION, listener);
 
 		} else {
@@ -258,7 +258,7 @@ public abstract class Editor<T> {
 				}
 			};
 			
-			ClientToolkit.getToolkit().showConfirmDialog(form, "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+			ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
 					"Schliessen", JOptionPane.YES_NO_OPTION, listener);
 		}
 	}

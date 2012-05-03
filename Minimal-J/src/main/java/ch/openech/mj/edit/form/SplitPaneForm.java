@@ -6,6 +6,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.toolkit.IComponent;
 
 public class SplitPaneForm<T> implements IForm<T> {
 
@@ -46,7 +47,7 @@ public class SplitPaneForm<T> implements IForm<T> {
 	}
 
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return formComponent.getComponent();
 	}
 

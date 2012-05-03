@@ -39,7 +39,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 			addComponent(header);
 		}
 		
-		Component contentComponent = VaadinClientToolkit.getComponent(content);
+		Component contentComponent = (Component) content;
 		contentComponent.setWidth("100%");
 	
 		addComponent(contentComponent);
@@ -52,7 +52,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setWidth("100%");
 		
-		Component textFieldComponent = VaadinClientToolkit.getComponent(text);
+		Component textFieldComponent = (Component) text;
 		textFieldComponent.setWidth("100%");
         horizontalLayout.addComponent(textFieldComponent);
         horizontalLayout.setExpandRatio(textFieldComponent, 1.0F);

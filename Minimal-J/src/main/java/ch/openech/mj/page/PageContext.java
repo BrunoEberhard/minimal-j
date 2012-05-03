@@ -3,6 +3,7 @@ package ch.openech.mj.page;
 import java.util.List;
 
 import ch.openech.mj.application.ApplicationContext;
+import ch.openech.mj.toolkit.IComponent;
 
 /**
  * These are the possibilities of a page or an action opening a page
@@ -40,7 +41,7 @@ public interface PageContext {
 	 * 
 	 * @return The component used as parent for Dialogs
 	 */
-	Object getComponent();
+	IComponent getComponent();
 
 	/**
 	 * 

@@ -36,12 +36,12 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 	@Override
 	public void add(IComponent field, int span) {
 		int w = span * columnWidth; // minimum und prefered size
-		add(SwingClientToolkit.getComponent(field), "spanx " + span + ", growx, aligny top, sizegroupy h, width " + w + "px:" + w + "px");
+		add((Component) field, "spanx " + span + ", growx, aligny top, sizegroupy h, width " + w + "px:" + w + "px");
 	}
 
 	@Override
 	public void addArea(IComponent field, int span) {
-		Component component = SwingClientToolkit.getComponent(field);
+		Component component = (Component) field;
 		int w = span * columnWidth;
 		add(component, "spanx " + span + ", growx, aligny top, width " + w + "px:" + w + "px");
 	}

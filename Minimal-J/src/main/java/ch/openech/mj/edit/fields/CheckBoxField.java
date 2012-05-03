@@ -2,6 +2,7 @@ package ch.openech.mj.edit.fields;
 
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 
 public class CheckBoxField extends AbstractEditField<Boolean> {
 	
@@ -13,7 +14,7 @@ public class CheckBoxField extends AbstractEditField<Boolean> {
 	}
 	
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return checkBox;
 	}
 	

@@ -14,7 +14,7 @@ public class SwingHorizontalLayout extends JPanel implements HorizontalLayout {
 	public SwingHorizontalLayout(IComponent... components) {
 		super(new GridLayout(1, components.length, 10, 10));
 		for (IComponent c : components) {
-			Component component = SwingClientToolkit.getComponent(c);
+			Component component = (Component) c;
 			add(component);
 		}
 		setInheritsPopupMenu(true);

@@ -15,9 +15,8 @@ import ch.openech.mj.page.SeparatorAction;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
-import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
-import ch.openech.mj.vaadin.toolkit.VaadinComponentDelegate;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -40,7 +39,7 @@ import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class VaadinWindow extends Window implements PageContext {
+public class VaadinWindow extends Window implements PageContext, IComponent {
 
 	private final VerticalLayout windowContent = new VerticalLayout();
 	private final MenuBar menubar = new MenuBar();
@@ -139,7 +138,7 @@ public class VaadinWindow extends Window implements PageContext {
 
 	private void updateContent(String pageLink) {
 		visiblePage = Page.createPage(VaadinWindow.this, pageLink);
-		Component component = VaadinClientToolkit.getComponent(visiblePage.getPanel());
+		Component component = (Component) visiblePage.getPanel();
 		updateContent(component);
 	}
 	
@@ -167,7 +166,7 @@ public class VaadinWindow extends Window implements PageContext {
 		
 		updateMenu();
 		updateWindowTitle();
-		ClientToolkit.getToolkit().focusFirstComponent(new VaadinComponentDelegate(content));
+		ClientToolkit.getToolkit().focusFirstComponent((IComponent) content);
 	}
 
 	private void updateMenu() {
@@ -345,7 +344,7 @@ public class VaadinWindow extends Window implements PageContext {
 	}
 
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return this;
 	}
 

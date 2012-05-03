@@ -42,11 +42,10 @@ import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
 
-public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
+public class Form<T> implements IForm<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getName());
 
 	protected final boolean editable;
@@ -109,7 +108,7 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 	// Methods to create the form
 
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return layout;
 	}
 
@@ -252,15 +251,9 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 	
 	private IComponent decorateWithCaption(FormField<?> visual) {
 		String captionText = caption(visual);
-		IComponent decorated = ClientToolkit.getToolkit().decorateWithCaption(visual, captionText);
-		if (decorated instanceof Indicator) {
-			indicators.put(visual.getName(), (Indicator) decorated);
-		} else if (decorated instanceof IComponentDelegate) {
-			IComponentDelegate componentDelegate = (IComponentDelegate) decorated;
-			if (componentDelegate.getComponent() instanceof Indicator) {
-				indicators.put(visual.getName(), (Indicator) componentDelegate.getComponent());
-			}
-		}
+		IComponent decorated = ClientToolkit.getToolkit().decorateWithCaption(visual.getComponent(), captionText);
+		Indicator indicator = ClientToolkit.getToolkit().decorateWithIndicator(decorated);
+		indicators.put(visual.getName(), indicator);
 		return decorated;
 	}
 	
@@ -287,19 +280,19 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 	}
 		
 	public void setRequired(Object keyObject, boolean required) {
-		IComponent component = getField(Constants.getConstant(keyObject));
-		if (component == null) {
+		FormField<?> field = getField(Constants.getConstant(keyObject));
+		if (field == null) {
 			throw new IllegalArgumentException("Field not found: " + keyObject);
-		} else if (!(component instanceof EditField<?>)) {
-			throw new IllegalArgumentException("Only EditFields can set to required. " + keyObject + " is not an EditField but a " + component.getClass());
+		} else if (!(field instanceof EditField<?>)) {
+			throw new IllegalArgumentException("Only EditFields can set to required. " + keyObject + " is not an EditField but a " + field.getClass());
 		}
 		if (required) {
-			if (!mandatoryFields.contains(component)) {
-				mandatoryFields.add((EditField<?>) component);
+			if (!mandatoryFields.contains(field)) {
+				mandatoryFields.add((EditField<?>) field);
 			}
 		} else {
-			if (mandatoryFields.contains(component)) {
-				mandatoryFields.remove(component);
+			if (mandatoryFields.contains(field)) {
+				mandatoryFields.remove(field);
 			}
 		}
 	}
@@ -329,7 +322,7 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 
 	@Override
 	public void fillWithDemoData() {
-		for (IComponent field : fields) {
+		for (FormField<?> field : fields) {
 			if (field instanceof DemoEnabled) {
 				DemoEnabled demoEnabledField = (DemoEnabled) field;
 				demoEnabledField.fillWithDemoData();
@@ -354,9 +347,9 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void writesValueToFields() {
 		formPanelChangeListener.setAdjusting(true);
-		for (IComponent visual : fields) {
-			if (editable && visual instanceof DependingOnFieldAbove<?>) {
-				DependingOnFieldAbove<?> dependingOnFieldAbove = (DependingOnFieldAbove<?>) visual;
+		for (FormField field : fields) {
+			if (editable && field instanceof DependingOnFieldAbove<?>) {
+				DependingOnFieldAbove<?> dependingOnFieldAbove = (DependingOnFieldAbove<?>) field;
 				String nameOfDependedField = dependingOnFieldAbove.getNameOfDependedField();
 				EditField dependedField = (EditField) getField(nameOfDependedField);
 				if (dependedField != null) {
@@ -364,12 +357,9 @@ public class Form<T> implements IComponentDelegate, IForm<T>, DemoEnabled {
 					dependingOnFieldAbove.setDependedField(dependedField);
 				}
 			}
-			if (visual instanceof FormField) {
-				FormField formField = (FormField) visual;
-				String name =  formField.getName();
-				Object value = PropertyAccessor.get(object, name);
-				formField.setObject(value);
-			}
+			String name = field.getName();
+			Object value = PropertyAccessor.get(object, name);
+			field.setObject(value);
 		}
 		formPanelChangeListener.setAdjusting(false);
 	}

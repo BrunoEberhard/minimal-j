@@ -1,6 +1,7 @@
 package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -13,7 +14,7 @@ public class SwingEditorLayout extends JPanel implements IComponent {
 
 	public SwingEditorLayout(IComponent content, Action[] actions) {
 		super(new BorderLayout());
-		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(SwingClientToolkit.getComponent(content)));
+		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel((Component) content));
 		scrollPane.setBorder(null);
 		add(scrollPane, BorderLayout.CENTER);
 		ButtonBar buttonBar = new ButtonBar(actions);

@@ -22,12 +22,12 @@ public class VaadinSwitchLayout extends GridLayout implements SwitchLayout {
 	@Override
 	public void show(IComponent c) {
 		if (showComponent != null) {
-			Component component = VaadinClientToolkit.getComponent(showComponent);
+			Component component = (Component) showComponent;
 			removeComponent(component);
 		}
 
 		if (c != null) {
-			Component component = VaadinClientToolkit.getComponent(c);
+			Component component = (Component) c;
 			component.setWidth("100%");
 			addComponent(component);
 		}

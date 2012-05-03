@@ -3,7 +3,6 @@ package ch.openech.mj.swing.toolkit;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FocusTraversalPolicy;
-import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
@@ -20,15 +19,14 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import ch.openech.mj.application.EditablePanel;
+import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.swing.SwingFrame;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
@@ -42,7 +40,6 @@ import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.IComponentDelegate;
 import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
@@ -53,35 +50,15 @@ import ch.openech.mj.toolkit.VisualTable;
 
 public class SwingClientToolkit extends ClientToolkit {
 
-	public static Component getComponent(IComponent component) {
-		if (component instanceof IComponentDelegate) {
-			IComponentDelegate delegate = (IComponentDelegate) component;
-			return (Component) delegate.getComponent();
-		} else {
-			return (Component) component;
-		}
-	}
-
-	private static Component getComponent(Object component) {
-		if (component instanceof IComponent) {
-			return getComponent((IComponent) component);
-		} else {
-			return (Component) component;
-		}
-	}
-
 	@Override
 	public IComponent createLabel(String string) {
-		string = "<html>" + string + "</html>";
-		return new SwingComponentDelegate(new JLabel(string));
+		return new SwingLabel(string);
 	}
 
 	@Override
 	public IComponent createTitle(String string) {
-		JLabel label = new JLabel(string);
-		label.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-		label.setFont(label.getFont().deriveFont(Font.BOLD));
-		return new SwingComponentDelegate(label);
+		return new SwingTitle(string);
+
 	}
 
 	@Override
@@ -116,7 +93,12 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public IComponent decorateWithCaption(IComponent component, String caption) {
-		return new SwingCaption(getComponent(component), caption);
+		return new SwingCaption((Component)component, caption);
+	}
+
+	@Override
+	public Indicator decorateWithIndicator(IComponent component) {
+		return (SwingCaption) component;
 	}
 
 	@Override
@@ -137,18 +119,16 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public IComponent createFormAlignLayout(IComponent content) {
 		JPanel panel = new JPanel(new SwingFormAlignLayoutManager());
-		Component component = getComponent(content);
+		Component component = (Component)content;
 		panel.add(component);
 
-		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(panel));
-		scrollPane.setBorder(null);
-		return new SwingComponentDelegate(scrollPane);
+		return new SwingScrollPane(new ScrollablePanel(panel));
 	}
 
 	@Override
 	public void showNotification(IComponent c, String text) {
 		try {
-			JComponent component = (JComponent) getComponent(c);
+			JComponent component = (JComponent) c;
 			BubbleMessageSupport.showBubble(component, text);
 		} catch (Exception x) {
 			// TODO
@@ -158,10 +138,9 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void focusFirstComponent(IComponent object) {
-		Component component = SwingClientToolkit.getComponent(object);
-		if (component instanceof JComponent) {
-			JComponent jComponent = (JComponent) component;
-			if (component.isShowing()) {
+		if (object instanceof JComponent) {
+			JComponent jComponent = (JComponent) object;
+			if (jComponent.isShowing()) {
 				focusFirstComponentNow(jComponent);
 			} else {
 				focusFirstComponentLater(jComponent, object);
@@ -192,20 +171,20 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void showMessage(Object parent, String text) {
-		Window window = findWindow(getComponent(parent));
+		Window window = findWindow((Component)parent);
 		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
 	public void showError(Object parent, String text) {
-		Window window = findWindow(getComponent(parent));
+		Window window = findWindow((Component)parent);
 		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
 	}
 
 	@Override
 	public void showConfirmDialog(IComponent c, String message, String title, int optionType,
 			ConfirmDialogListener listener) {
-		Component parentComponent = getComponent(c);
+		Component parentComponent = (Component)c;
 		int result = JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
 		listener.onClose(result);
 	}
@@ -217,7 +196,7 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public ProgressListener showProgress(Object parent, String text) {
-		EditablePanel editablePanel = EditablePanel.getEditablePanel(getComponent(parent));
+		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component)parent);
 		if (editablePanel != null) {
 			SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
 			editablePanel.openModalDialog(frame);
@@ -232,8 +211,8 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public VisualDialog openDialog(Object parent, IComponent content, String title) {
-		Window window = findWindow(getComponent(parent));
-		Component contentComponent = getComponent(content);
+		Window window = findWindow((Component)parent);
+		Component contentComponent = (Component)content;
 		// TODO check for OS or move this to UI
 		((JComponent) contentComponent).setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -269,9 +248,6 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public PageContext findPageContext(Object source) {
-		if (source instanceof IComponent) {
-			source = getComponent((IComponent) source);
-		}
 		Component c = (Component) source;
 		while (!(c instanceof PageContext) && c != null) {
 			if (c instanceof JPopupMenu) {
@@ -287,6 +263,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		return (PageContext) c;
 	}
 
+	@Override
 	public IComponent importField(ImportHandler importHandler, String buttonText) {
 		return null;
 	}
@@ -302,7 +279,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(null, buttonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(window, buttonText)) {
 			File outputFile = chooser.getSelectedFile();
 			try {
 				exportHandler.export(new FileOutputStream(outputFile));

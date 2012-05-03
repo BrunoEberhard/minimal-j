@@ -9,6 +9,7 @@ import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.FlowField;
+import ch.openech.mj.toolkit.IComponent;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -48,7 +49,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 	}
 	
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return visual;
 	}
 	

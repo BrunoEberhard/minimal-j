@@ -24,7 +24,7 @@ public abstract class ObjectViewPage<T> extends Page implements RefreshablePage 
 	public IComponent getPanel() {
 		if (alignLayout == null) {
 			objectPanel = createForm();
-			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel);
+			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel.getComponent());
 			refresh();
 		}
 		return alignLayout;

@@ -7,13 +7,13 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponentDelegate;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.util.StringUtils;
 
 
-public class NumberEditField implements IComponentDelegate, EditField<Object>, DemoEnabled {
+public class NumberEditField implements EditField<Object>, DemoEnabled {
 
 	private final String name;
 	private final Class<?> clazz;
@@ -34,7 +34,7 @@ public class NumberEditField implements IComponentDelegate, EditField<Object>, D
 	}
 
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return textField;
 	}
 

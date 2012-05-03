@@ -2,6 +2,7 @@ package ch.openech.mj.edit.fields;
 
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IComponent;
 
 public class CheckBoxStringField extends AbstractEditField<String> {
 	private final CheckBox checkBox;
@@ -13,7 +14,7 @@ public class CheckBoxStringField extends AbstractEditField<String> {
 	}
 	
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return checkBox;
 	}
 	

@@ -8,12 +8,12 @@ import ch.openech.mj.autofill.FirstNameGenerator;
 import ch.openech.mj.autofill.NameGenerator;
 import ch.openech.mj.db.model.Formats;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponentDelegate;
+import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
 
-public class TextEditField implements IComponentDelegate, EditField<String>, DemoEnabled {
+public class TextEditField implements EditField<String>, DemoEnabled {
 
 	private final String name;
 	private final int maxLength;
@@ -36,7 +36,7 @@ public class TextEditField implements IComponentDelegate, EditField<String>, Dem
 	}
 
 	@Override
-	public Object getComponent() {
+	public IComponent getComponent() {
 		return textField;
 	}
 

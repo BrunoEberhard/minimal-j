@@ -24,13 +24,13 @@ public class SwingSearchLayout extends JPanel implements IComponent {
 	private SwingSearchLayout(Component header, IComponent content, Action[] actions) {
 		super(new BorderLayout());
 		add(border(header, 5, 5, 5, 5), BorderLayout.NORTH);
-		add(SwingClientToolkit.getComponent(content), BorderLayout.CENTER);
+		add((Component) content, BorderLayout.CENTER);
 		add(border(new ButtonBar(actions), 5, 0, 5, 2), BorderLayout.SOUTH);
 	}
 
 	private static Component createHeaderComponent(TextField text, Action searchAction) {
 		JPanel panel = new JPanel(new BorderLayout());
-		JTextField jTextField = (JTextField) SwingClientToolkit.getComponent(text);
+		JTextField jTextField = (JTextField) text;
 		final JButton searchButton = ButtonBar.createButton(searchAction);
 		
 		panel.add(jTextField, BorderLayout.CENTER);
