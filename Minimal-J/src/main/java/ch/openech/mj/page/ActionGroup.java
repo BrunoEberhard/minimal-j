@@ -10,6 +10,11 @@ import javax.swing.Action;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 
+/**
+ * Not really an action, but an aggregation of other actions. Used to build
+ * menu item groups.
+ * 
+ */
 public class ActionGroup extends AbstractAction {
 
 	private static final String TAG = "tag";
