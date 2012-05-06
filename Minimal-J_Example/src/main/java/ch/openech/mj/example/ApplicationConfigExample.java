@@ -16,8 +16,9 @@ public class ApplicationConfigExample extends ApplicationConfig {
 
 	@Override
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
-		ActionGroup create = actionGroup.getOrCreateActionGroup(ActionGroup.NEW);
-		create.add(new EditorDialogAction(new AddBookEditor()));
+		ActionGroup file = actionGroup.getOrCreateActionGroup(ActionGroup.FILE);
+		ActionGroup niu = file.getOrCreateActionGroup(ActionGroup.NEW);
+		niu.add(new EditorDialogAction(new AddBookEditor()));
 	}
 
 	@Override

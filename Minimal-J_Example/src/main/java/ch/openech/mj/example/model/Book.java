@@ -18,7 +18,7 @@ public class Book {
 	@FormatName("baseName")
 	public String author = "cd";
 	@Boolean
-	public String available;
+	public String available = "1";
 	@Required @Date
 	public String date = "2009-01-01";
 	@Int(4)
