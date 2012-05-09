@@ -115,11 +115,14 @@ public class NumberEditField implements EditField<Object>, Validatable, DemoEnab
 	}
 	
 	private static class NumberTextFieldFilter implements TextFieldFilter {
-		private final int limit;
+		private final int size, decimalPlaces;
 		private final String allowedCharacters;
+		private final boolean negative;
 		
-		public NumberTextFieldFilter(int limit, int decimalPlaces, boolean negative) {
-			this.limit = limit;
+		public NumberTextFieldFilter(int size, int decimalPlaces, boolean negative) {
+			this.size = size;
+			this.decimalPlaces = decimalPlaces;
+			this.negative = negative;
 			if (decimalPlaces > 0) {
 				allowedCharacters = negative ? "-0123456789." : "0123456789.";
 			} else {
@@ -129,7 +132,7 @@ public class NumberEditField implements EditField<Object>, Validatable, DemoEnab
 
 		@Override
 		public int getLimit() {
-			return limit;
+			return size + (negative ? 1 : 0) + (decimalPlaces > 0 ? 1 : 0);
 		}
 
 		@Override
