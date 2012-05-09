@@ -21,7 +21,7 @@ import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.DateFormat;
 import ch.openech.mj.db.model.Format;
 import ch.openech.mj.db.model.Formats;
-import ch.openech.mj.db.model.IntegerFormat;
+import ch.openech.mj.db.model.NumberFormat;
 import ch.openech.mj.db.model.PlainFormat;
 import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
@@ -169,9 +169,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			} else if (format instanceof DateFormat) {
 				DateFormat dateFormat = (DateFormat) format;
 				return new DateField(name, dateFormat.isPartialAllowed());
-			} else if (format instanceof IntegerFormat) {
-				IntegerFormat integerformat = (IntegerFormat) format;
-				return new NumberEditField(name, String.class, integerformat.getSize(), integerformat.isNonNegative());
+			} else if (format instanceof NumberFormat) {
+				NumberFormat numberFormat = (NumberFormat) format;
+				return new NumberEditField(name, numberFormat.getClazz(), numberFormat.getSize(), numberFormat.getDecimalPlaces(), numberFormat.isNegative());
 			} else if (format instanceof BooleanFormat) {
 				BooleanFormat booleanTypeDescription = (BooleanFormat) format;
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, objectClass, name + ".checkBoxText");

@@ -12,7 +12,7 @@ public class BookForm extends Form<Book> {
 		line(BOOK.title);
 		line(BOOK.author, BOOK.date);
 		line(BOOK.media, BOOK.pages);
-		line(BOOK.available);
+		line(BOOK.available, BOOK.price);
 	}
 	
 }

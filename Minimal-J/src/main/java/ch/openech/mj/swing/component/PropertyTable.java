@@ -1,9 +1,7 @@
 package ch.openech.mj.swing.component;
 
 import java.awt.Component;
-import java.text.Collator;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JTable;
@@ -16,7 +14,7 @@ import ch.openech.mj.db.model.BooleanFormat;
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.Format;
 import ch.openech.mj.db.model.Formats;
-import ch.openech.mj.db.model.IntegerFormat;
+import ch.openech.mj.db.model.NumberFormat;
 import ch.openech.mj.edit.value.PropertyAccessor;
 import ch.openech.mj.resources.Resources;
 
@@ -41,8 +39,9 @@ public class PropertyTable<T> extends JTable {
 			Format format = Formats.getInstance().getFormat(accessor);
 			if (format != null) {
 				setDefaultRenderer(format.getClass(), new FormatTableCellRenderer(format));
-				if (format instanceof IntegerFormat) {
-					((TableRowSorter<?>) getRowSorter()).setComparator(i, new IntegerComparator());
+				if (format instanceof NumberFormat) {
+					NumberFormat numberFormat = (NumberFormat) format;
+					((TableRowSorter<?>) getRowSorter()).setComparator(i, numberFormat.getComparator());
 				}
 			}
 		}
@@ -139,23 +138,6 @@ public class PropertyTable<T> extends JTable {
 		}
 	}
 	
-	private static class IntegerComparator implements Comparator<String> {
-
-		@Override
-		public int compare(String o1, String o2) {
-			if (o1 != null && o2 != null) {
-				while (o1.length() > o2.length()) {
-					o1 = "0" + o1;
-				}
-				while (o2.length() > o1.length()) {
-					o2 = "0" + o2;
-				}
-			}	
-
-			return Collator.getInstance().compare(o1, o2);
-		}
-	}
-
 	public T getObject(int row) {
 		row = convertRowIndexToModel(row);
 		return tableModel.getRow(row);

@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import ch.openech.mj.db.model.AccessorInterface;
 import ch.openech.mj.db.model.ColumnAccess;
 import ch.openech.mj.db.model.Format;
 import ch.openech.mj.db.model.Formats;
+import ch.openech.mj.db.model.NumberFormat;
 import ch.openech.mj.util.FieldUtils;
 
 public class DbCreator {
@@ -66,7 +68,7 @@ public class DbCreator {
 			if (format != null) {
 				String dbType = convertClassToActualDB(format.getClazz());
 				s.append(" ");  s.append(dbType);
-				appendSize(s, dbType, format.getSize());
+				appendSize(s, dbType, format);
 			} else if (ColumnAccess.isReference(accessor)) {
 				s.append(" INTEGER");
 			} else {
@@ -151,6 +153,7 @@ public class DbCreator {
 	private String convertClassToActualDB(Class<?> clazz) {
 		if (clazz.equals(String.class) || clazz.equals(Date.class)) return "VARCHAR";
 		if (clazz.equals(Integer.class)) return "INTEGER";
+		if (clazz.equals(BigDecimal.class)) return "DECIMAL";
 		if (clazz.equals(Boolean.class)) {
 			if (dbPersistence.isDerbyDb()) {
 				if (clazz.equals(Boolean.class)) return "SMALLINT";
@@ -167,14 +170,19 @@ public class DbCreator {
 //		return accessorInterface;
 	}
 	
-	private void appendSize(StringBuilder s, String type, int size) {
+	private void appendSize(StringBuilder s, String type, Format format) {
+		int size = format.getSize();
 		if (dbPersistence.isDerbyDb()) {
 			// Integer and Timestamp have no size in Derby DB
-			if (size != 0 && !type.contains("INT") && !type.equals("TIMESTAMP")) { 
+			if (type.equals("DECIMAL")) {
+				s.append("("); s.append(size); s.append(", "); s.append(((NumberFormat) format).getDecimalPlaces()) ; s.append(")"); 
+			} else if (size != 0 && !type.contains("INT") && !type.equals("TIMESTAMP")) { 
 				s.append("("); s.append(size); s.append(")"); 
 			}
 		} else if (dbPersistence.isMySqlDb()) {
-			if (size != 0 && !type.equals("TIMESTAMP")) { 
+			if (type.equals("DECIMAL")) {
+				s.append("("); s.append(size); s.append(((NumberFormat) format).getDecimalPlaces()) ; s.append(","); s.append(")"); 
+			} else if (size != 0 && !type.equals("TIMESTAMP")) { 
 				s.append("("); s.append(size); s.append(")");
 			}
 		}

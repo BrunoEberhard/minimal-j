@@ -1,11 +1,14 @@
 package ch.openech.mj.edit.fields;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
+import ch.openech.mj.edit.validation.Validatable;
+import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
@@ -13,18 +16,21 @@ import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.util.StringUtils;
 
 
-public class NumberEditField implements EditField<Object>, DemoEnabled {
+public class NumberEditField implements EditField<Object>, Validatable, DemoEnabled {
 
 	private final String name;
+	private final int size, decimalPlaces;
 	private final Class<?> clazz;
 	
 	private final TextField textField;
 	private ChangeListener changeListener;
 	
-	public NumberEditField(String name, Class<?> clazz, int size, boolean nonNegative) {
+	public NumberEditField(String name, Class<?> clazz, int size, int decimalPlaces, boolean negative) {
 		this.name = name;
 		this.clazz = clazz;
-		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), new NumberTextFieldFilter(size, nonNegative));
+		this.size = size;
+		this.decimalPlaces = decimalPlaces;
+		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), new NumberTextFieldFilter(size, decimalPlaces, negative));
 	}
 
 
@@ -45,16 +51,7 @@ public class NumberEditField implements EditField<Object>, DemoEnabled {
 
 	@Override
 	public Object getObject() {
-		String text = textField.getText();
-		if (clazz == String.class) {
-			return text;
-		} else if (clazz == Integer.class) {
-			return StringUtils.isEmpty(text) ? Integer.valueOf(0) : Integer.parseInt(text);
-		} else if (clazz == BigDecimal.class) {
-			return StringUtils.isEmpty(text) ? BigDecimal.ZERO : new BigDecimal(text);
-		} else {
-			throw new IllegalStateException("Clazz of NumberEditField unknown");
-		}
+		return textField.getText();
 	}
 
 	@Override
@@ -89,13 +86,45 @@ public class NumberEditField implements EditField<Object>, DemoEnabled {
 		}
 	}
 
+	@Override
+	public void validate(List<ValidationMessage> list) {
+		if (clazz == BigDecimal.class) {
+			String text = textField.getText();
+			if (!StringUtils.isEmpty(text)) {
+				try {
+					new BigDecimal(text);
+				} catch (NumberFormatException x) {
+					list.add(new ValidationMessage(getName(), "Ungültig"));
+				}
+
+				int index = text.indexOf('.');
+				if (index >= 0) {
+					if (index > size - decimalPlaces) {
+						list.add(new ValidationMessage(getName(), "Zu gross"));
+					}
+					if (text.length() - index - 1 > decimalPlaces) {
+						list.add(new ValidationMessage(getName(), "Zu präzis"));
+					}
+				} else {
+					if (text.length() > size - decimalPlaces) {
+						list.add(new ValidationMessage(getName(), "Zu gross"));
+					}
+				}
+			}
+		}
+	}
+	
 	private static class NumberTextFieldFilter implements TextFieldFilter {
 		private final int limit;
-		private final boolean nonNegative;
-
-		public NumberTextFieldFilter(int limit, boolean nonNegative) {
+		private final String allowedCharacters;
+		
+		public NumberTextFieldFilter(int limit, int decimalPlaces, boolean negative) {
 			this.limit = limit;
-			this.nonNegative = nonNegative;
+			if (decimalPlaces > 0) {
+				allowedCharacters = negative ? "-0123456789." : "0123456789.";
+			} else {
+				allowedCharacters = negative ? "-0123456789" : "0123456789";
+			}
 		}
 
 		@Override
@@ -105,7 +134,7 @@ public class NumberEditField implements EditField<Object>, DemoEnabled {
 
 		@Override
 		public String getAllowedCharacters() {
-			return nonNegative ? "0123456789" : "-0123456789";
+			return allowedCharacters;
 		}
 
 	}
