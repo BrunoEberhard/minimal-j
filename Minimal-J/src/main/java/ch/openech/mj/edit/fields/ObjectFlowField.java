@@ -1,14 +1,12 @@
 package ch.openech.mj.edit.fields;
 
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
-import ch.openech.mj.edit.validation.ValidationMessage;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -45,11 +43,6 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 			setPart(ObjectFlowField.this.getObject(), part);
 			fireObjectChange();
 			return true;
-		}
-
-		@Override
-		public void validate(P object, List<ValidationMessage> resultList) {
-			// may be overwritten
 		}
 
 		protected abstract P getPart(T object);

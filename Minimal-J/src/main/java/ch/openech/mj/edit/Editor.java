@@ -31,7 +31,40 @@ import ch.openech.mj.toolkit.ConfirmDialogListener;
  * <LI>What additional Actions the Editor provides
  * <LI>Its name (for Window Title oder Tab Title)
  * </UL>
+
+ * @startuml 
+ * [*] --> Started: start
+ * Started: Form is created
+ * CheckClose: User is asked if he\nbreally wants to cancel
+ * Finished: Form is null again
+ * Started --> CheckClose : cancel or\nclose Window
+ * CheckClose --> Started : cancel\naborted
+ * CheckClose --> Finished : cancel confirmed
+ * Finished --> Started : restart
+ * Started --> Save : save
+ * Save --> Finished : save
  * 
+ * @enduml
+ * 
+ * @startuml sequence_editor.png
+ * == Starting ==
+ * EditorPage -> Editor: start
+ * Editor -> SpecificEditor: create Form
+ * Editor -> SpecificEditor: load or create Object
+ * Editor -> Form: set Object to Form
+ * == Editing ==
+ * Form -> Editor: fire change
+ * Editor -> Object: set value of Field
+ * Editor -> SpecificEditor: validate
+ * Editor -> Form: validate
+ * Editor -> Object: validate
+ * Editor -> Form: indicate
+ * Editor -> EditorPage: indicate
+ * == Finishing ==
+ * Editor -> SpecificEditor: save
+ * Editor -> EditorPage: fire finished
+ * @enduml
+
  * @author Bruno
  * 
  * @param <T>
@@ -75,7 +108,7 @@ public abstract class Editor<T> {
 		// to be overwritten
 	}
 
-	protected abstract boolean save(T object);
+	protected abstract boolean save(T object) throws Exception;
 
 	protected boolean isSaveSynchron() {
 		return true;
@@ -184,15 +217,19 @@ public abstract class Editor<T> {
 	}
 
 	private void doSave() {
-		T objectToSave;
-		if (original != null) {
-			objectToSave = original;
-			CloneHelper.deepCopy(getObject(), original);
-		} else {
-			objectToSave = getObject();
-		}
-		if (save(objectToSave)) {
-			finish();
+		try {
+			T objectToSave;
+			if (original != null) {
+				objectToSave = original;
+				CloneHelper.deepCopy(getObject(), original);
+			} else {
+				objectToSave = getObject();
+			}
+			if (save(objectToSave)) {
+				finish();
+			}
+		} catch (Exception x) {
+			ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss fehlgeschlagen\n\n" + x.getLocalizedMessage());
 		}
 	}
 	

@@ -1,11 +1,8 @@
 package ch.openech.mj.edit.fields;
 
-import java.util.List;
-
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
-import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.FlowField;
@@ -78,11 +75,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 		public boolean save(T edited) {
 			ObjectField.this.setObject(edited);
 			return true;
-		}
-
-		@Override
-		public void validate(T object, List<ValidationMessage> resultList) {
-			// may be overwritten
 		}
 	}
 	

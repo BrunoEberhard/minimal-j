@@ -99,7 +99,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	protected abstract T load();
 
 	@Override
-	protected abstract boolean save(T object);
+	protected abstract boolean save(T object) throws Exception;
 	
 	private class WizardIndicator implements Indicator {
 
