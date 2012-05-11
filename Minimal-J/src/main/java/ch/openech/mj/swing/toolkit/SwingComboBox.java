@@ -11,9 +11,9 @@ import javax.swing.JComboBox;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.fields.Focusable;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ComboBox;
+import ch.openech.mj.toolkit.Focusable;
 
 public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusable {
 

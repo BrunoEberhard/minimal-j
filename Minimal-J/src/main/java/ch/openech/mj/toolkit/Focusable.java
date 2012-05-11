@@ -1,4 +1,4 @@
-package ch.openech.mj.edit.fields;
+package ch.openech.mj.toolkit;
 
 public interface Focusable {
 	

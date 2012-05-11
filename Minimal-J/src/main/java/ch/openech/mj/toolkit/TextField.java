@@ -2,7 +2,6 @@ package ch.openech.mj.toolkit;
 
 import java.awt.event.FocusListener;
 
-import ch.openech.mj.edit.fields.Focusable;
 
 public interface TextField extends IComponent, Focusable {
 	

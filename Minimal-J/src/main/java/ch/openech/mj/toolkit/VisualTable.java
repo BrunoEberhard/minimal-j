@@ -2,7 +2,6 @@ package ch.openech.mj.toolkit;
 
 import java.util.List;
 
-import ch.openech.mj.edit.fields.Focusable;
 
 public interface VisualTable<T> extends IComponent, Focusable {
 

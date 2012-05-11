@@ -11,7 +11,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import ch.openech.mj.edit.fields.Focusable;
+import ch.openech.mj.toolkit.Focusable;
 import ch.openech.mj.toolkit.MaxLengthTextFieldFilter;
 import ch.openech.mj.toolkit.TextField;
 

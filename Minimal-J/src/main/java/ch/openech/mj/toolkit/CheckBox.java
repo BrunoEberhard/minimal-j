@@ -1,6 +1,5 @@
 package ch.openech.mj.toolkit;
 
-import ch.openech.mj.edit.fields.Focusable;
 
 public interface CheckBox extends IComponent, Focusable {
 	

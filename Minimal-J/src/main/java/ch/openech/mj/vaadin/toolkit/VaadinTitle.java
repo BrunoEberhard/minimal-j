@@ -7,7 +7,9 @@ import com.vaadin.ui.Label;
 public class VaadinTitle extends Label implements IComponent {
 
 	public VaadinTitle(String content) {
-		super(content);
+//		content = Util.escapeHTML(content);
+		setContentMode(CONTENT_XHTML);
+		setValue("<h1>" + content + "</h1><hr />");
 	}
 
 }

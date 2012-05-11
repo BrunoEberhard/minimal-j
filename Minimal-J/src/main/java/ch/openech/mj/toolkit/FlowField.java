@@ -2,7 +2,6 @@ package ch.openech.mj.toolkit;
 
 import javax.swing.Action;
 
-import ch.openech.mj.edit.fields.Focusable;
 
 public interface FlowField extends IComponent, Focusable {
 
