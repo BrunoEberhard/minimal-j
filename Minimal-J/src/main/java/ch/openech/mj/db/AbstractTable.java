@@ -303,7 +303,7 @@ public abstract class AbstractTable<T> {
 	
 	// TODO configuration of conversation to DB
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
-		if (value instanceof Integer) {
+		if (value instanceof Number) {
 			if (fieldClass.equals(String.class)) {
 				return value.toString();
 			}
