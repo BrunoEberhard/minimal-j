@@ -11,7 +11,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -31,24 +30,19 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultEditorKit;
 
 import ch.openech.mj.application.ApplicationConfig;
-import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
-import ch.openech.mj.page.Page.PageListener;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.swing.component.EditablePanel;
-import ch.openech.mj.swing.component.HistoryPanel;
 import ch.openech.mj.swing.lookAndFeel.LookAndFeelAction;
 import ch.openech.mj.swing.lookAndFeel.PrintLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
@@ -61,7 +55,6 @@ public class SwingFrame extends JFrame implements IComponent {
 	private JMenuItem menuItemToolBarVisible;
 	private JComboBox comboBoxSearchObject;
 	private JTextField textFieldSearch;
-	private HistoryPanelListener historyPanelListener = new HistoryPanelListener();
 
 	public SwingFrame() {
 		super();
@@ -110,7 +103,6 @@ public class SwingFrame extends JFrame implements IComponent {
 	protected void createContent() {
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(createToolBar(), BorderLayout.NORTH);
-//		getContentPane().add(createStatusBar(), BorderLayout.SOUTH);
 		getRootPane().setJMenuBar(createMenuBar());
 		getContentPane().add(createTabbedPane(), BorderLayout.CENTER);
 	}
@@ -122,60 +114,19 @@ public class SwingFrame extends JFrame implements IComponent {
 		return tabbedPane;
 	}
 
-	/**
-	 * Should be overwritten in specialized frames
-	 * 
-	 * @return a new instanceof of this Frame class
-	 */
-	public SwingFrame newFrame() {
-		try {
-			SwingFrame frame = this.getClass().newInstance();
-			return frame;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} 
-	}
-
 	public void addDefaultTab() {
 		PageContext pageContext = addTab();
 		pageContext.show(Page.link());
 	}
 	
 	public PageContext addTab() {
-		PageContextImpl pageContext = new PageContextImpl();
+		SwingPageContext pageContext = new SwingPageContext(this);
 		
 		tabbedPane.addTab("", pageContext);
 		tabbedPane.setSelectedComponent(pageContext);
 		
 		return pageContext;
 	}
-	
-//	public PageContext addTab(Page page) {
-//		HistoryPanel tabPanel = new HistoryPanel(historyPanelListener);
-//		tabbedPane.addTab(page.getTitle(), page.getTitleIcon(), tabPanel, page.getTitleToolTip());
-////		int newIndex = tabbedPane.getTabCount() - 1;
-////		TabTitle tabTitle = new TabTitle(page.getTitle(), page.getTitleIcon(), page.getTitleToolTip());
-////		tabTitle.setCloseListener(new TabCloseListener(tabPanel));
-////		tabbedPane.setTabComponentAt(newIndex, tabTitle);
-//		tabbedPane.setSelectedComponent(tabPanel);
-//		
-//		PageContext pageContext = new PageContextImpl(tabPanel);
-//		pageContext.show(page);
-//		return pageContext;
-//	}
-	
-//	private class TabCloseListener implements ActionListener {
-//		private HistoryPanel tabPanel;
-//
-//		public TabCloseListener(HistoryPanel tabPanel) {
-//			this.tabPanel = tabPanel;
-//		}
-//
-//		@Override
-//		public void actionPerformed(ActionEvent e) {
-//			closeTabActionPerformed(tabPanel);
-//		}
-//	}
 	
 	public void closeTabActionPerformed() {
 		if (checkClosable()) {
@@ -200,9 +151,8 @@ public class SwingFrame extends JFrame implements IComponent {
 		return checkClosable(getVisiblePageContext());
 	}
 	
-	private boolean checkClosable(PageContextImpl pageContextImpl) {
-		HistoryPanel historyPanel = pageContextImpl.getHistoryPanel();
-		Page visiblePage = historyPanel.getPresent();
+	private boolean checkClosable(SwingPageContext pageContextImpl) {
+		Page visiblePage = pageContextImpl.getPresent();
 		if (visiblePage instanceof EditorPage) {
 			EditorPage editorPage = (EditorPage) visiblePage;
 			tabbedPane.setSelectedComponent(pageContextImpl);
@@ -214,7 +164,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	public boolean tryToCloseWindow() {
 		boolean closable = true;
 		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
-			PageContextImpl pageContextImpl = (PageContextImpl) tabbedPane.getComponentAt(i);
+			SwingPageContext pageContextImpl = (SwingPageContext) tabbedPane.getComponentAt(i);
 			closable = checkClosable(pageContextImpl);
 			if (!closable) return false;
 		}
@@ -222,21 +172,21 @@ public class SwingFrame extends JFrame implements IComponent {
 		return true;
 	}
 	
-	public void closeTab(PageContextImpl pageContextImpl) {
+	public void closeTab(SwingPageContext pageContextImpl) {
 		tabbedPane.remove(pageContextImpl);
 	}
 	
 	public void closeWindow() {
 		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
-			PageContextImpl pageContextImpl = (PageContextImpl)tabbedPane.getComponentAt(i);
+			SwingPageContext pageContextImpl = (SwingPageContext)tabbedPane.getComponentAt(i);
 			closeTab(pageContextImpl);
 		}
 		
 		setVisible(false);
 	}
 
-	public PageContextImpl getVisiblePageContext() {
-		return (PageContextImpl) tabbedPane.getSelectedComponent();
+	public SwingPageContext getVisiblePageContext() {
+		return (SwingPageContext) tabbedPane.getSelectedComponent();
 	}
 	
 	public void closeTab() {
@@ -244,16 +194,16 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 
 	public Page getVisiblePage() {
-		PageContextImpl pageContextImpl = getVisiblePageContext();
+		SwingPageContext pageContextImpl = getVisiblePageContext();
 		if (pageContextImpl == null) return null;
-		return pageContextImpl.getVisiblePage();
+		return pageContextImpl.getPresent();
 	}
 	
 	public List<Page> getPages() {
 		List<Page> result = new ArrayList<Page>();
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
-			PageContextImpl pageContextImpl = (PageContextImpl) tabbedPane.getComponent(i); // myst: getTabComponent returns allways null
-			Page page = pageContextImpl.getVisiblePage();
+			SwingPageContext pageContextImpl = (SwingPageContext) tabbedPane.getComponent(i); // myst: getTabComponent returns allways null
+			Page page = pageContextImpl.getPresent();
 			if (page != null) result.add(page);
 		}
 		return result;
@@ -265,10 +215,10 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	protected void updateActions() {
-		HistoryPanel historyPanel = getVisiblePageContext().getHistoryPanel();
-		if (historyPanel != null  && getVisiblePage() != null && !getVisiblePage().isExclusive()) {
-			previousAction.setEnabled(historyPanel.hasPast());
-			nextAction.setEnabled(historyPanel.hasFuture());
+		SwingPageContext pageContext = getVisiblePageContext();
+		if (pageContext != null  && getVisiblePage() != null && !getVisiblePage().isExclusive()) {
+			previousAction.setEnabled(pageContext.hasPast());
+			nextAction.setEnabled(pageContext.hasFuture());
 			refreshAction.setEnabled(getVisiblePage() instanceof RefreshablePage);
 			upAction.setEnabled(!getVisiblePageContext().top());
 			downAction.setEnabled(!getVisiblePageContext().bottom());
@@ -352,8 +302,8 @@ public class SwingFrame extends JFrame implements IComponent {
 	
 	protected void updateTitle() {
 		for (int index = 0; index<tabbedPane.getTabCount(); index++) {
-			PageContextImpl pageContextImpl = (PageContextImpl) tabbedPane.getComponent(index);
-			Page page = pageContextImpl.getVisiblePage();
+			SwingPageContext pageContextImpl = (SwingPageContext) tabbedPane.getComponent(index);
+			Page page = pageContextImpl.getPresent();
 			tabbedPane.setTitleAt(index, page.getTitle());
 			tabbedPane.setIconAt(index, page.getTitleIcon());
 			tabbedPane.setToolTipTextAt(index, page.getTitleToolTip());
@@ -381,7 +331,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	protected void previousPage() {
-		getVisiblePageContext().getHistoryPanel().previous();
+		getVisiblePageContext().previous();
 	}
 
 	protected class NextPageAction extends ResourceAction {
@@ -405,7 +355,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	protected void nextPage() {
-		getVisiblePageContext().getHistoryPanel().next();
+		getVisiblePageContext().next();
 	}
 	
 	protected class UpAction extends ResourceAction {
@@ -487,13 +437,20 @@ public class SwingFrame extends JFrame implements IComponent {
 		}
 	}
 	
-	private class HistoryPanelListener implements HistoryPanel.HistoryPanelListener {
-		@Override
-		public void onHistoryChanged() {
-			updateWindowTitle();
-			 updateActions();
-			 updateMenu();
-			 updateTitle();
+	void onHistoryChanged() {
+		updateWindowTitle();
+		updateActions();
+		updateMenu();
+		updateTitle();
+	}
+
+	void onPageTitleChanged(SwingPageContext swingPageContext, Page page) {
+		for (int index = 0; index < tabbedPane.getTabCount(); index++) {
+			if (swingPageContext.equals(tabbedPane.getComponentAt(index))) {
+				tabbedPane.setTitleAt(index, page.getTitle());
+				tabbedPane.setIconAt(index, page.getTitleIcon());
+				tabbedPane.setToolTipTextAt(index, page.getTitleToolTip());
+			}
 		}
 	}
 
@@ -609,119 +566,6 @@ public class SwingFrame extends JFrame implements IComponent {
 	
 	protected void fillHelpMenu(ActionGroup actionGroup) {
 		// 
-	}
-	
-	// TODO Swing PageContext should ensure use of EventDispatchThread in every need case
-	private class PageContextImpl extends EditablePanel implements PageContext, PageListener {
-		private final HistoryPanel historyPanel;
-		private List<String> pageLinks;
-		private int indexInPageLinks;
-		
-		public PageContextImpl() {
-			historyPanel = new HistoryPanel(historyPanelListener);
-			JComponent component = (JComponent) historyPanel.getComponent();
-			
-			setContent(component);
-		}
-
-		public HistoryPanel getHistoryPanel() {
-			return historyPanel;
-		}
-
-		@Override
-		public PageContext addTab() {
-			return SwingFrame.this.addTab();
-		}
-
-		@Override
-		public void closeTab() {
-			if (historyPanel.hasPast()) {
-				historyPanel.previous();
-				historyPanel.dropFuture();
-			} else {
-				SwingFrame.this.closeTab(this);
-			}
-		}
-
-		public Page getVisiblePage() {
-			return historyPanel.getPresent();
-		}
-
-		@Override
-		public void show(final String pageLink) {
-			if (!SwingUtilities.isEventDispatchThread()) {
-				try {
-					SwingUtilities.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							show(pageLink);
-						};
-					});
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
-			} else {
-				if (pageLinks != null && !pageLinks.contains(pageLink)) {
-					pageLinks = null;
-				}
-				if (getVisiblePage() != null && getVisiblePage().isExclusive()) {
-					PageContext newPageContext = addTab();
-					newPageContext.show(pageLink);
-				} else {
-					Page page = Page.createPage(PageContextImpl.this, pageLink);
-					historyPanel.add(page);
-				}
-			}
-		}
-
-		@Override
-		public void show(List<String> pageLinks, int index) {
-			this.pageLinks = pageLinks;
-			this.indexInPageLinks = index;
-			show(pageLinks.get(indexInPageLinks));
-		}
-		
-		public boolean top() {
-			return pageLinks == null ||indexInPageLinks == 0;
-		}
-
-		public boolean bottom() {
-			return pageLinks == null || indexInPageLinks == pageLinks.size() - 1;
-		}
-
-		public void up() {
-			Page page = Page.createPage(this, pageLinks.get(--indexInPageLinks));
-			historyPanel.replace(page);
-		}
-
-		public void down() {
-			Page page = Page.createPage(this, pageLinks.get(++indexInPageLinks));
-			historyPanel.replace(page);
-		}
-
-		@Override
-		public void onPageTitleChanged(Page page) {
-			for (int index = 0; index < tabbedPane.getTabCount(); index++) {
-				if (historyPanel.equals(tabbedPane.getComponentAt(index))) {
-					tabbedPane.setTitleAt(index, page.getTitle());
-					tabbedPane.setIconAt(index, page.getTitleIcon());
-					tabbedPane.setToolTipTextAt(index, page.getTitleToolTip());
-				}
-			}
-		}
-
-		@Override
-		public IComponent getComponent() {
-			return historyPanel.getComponent();
-		}
-
-		@Override
-		public ApplicationContext getApplicationContext() {
-			return SwingApplication.getApplicationContext();
-		}
-
 	}
 	
 }
