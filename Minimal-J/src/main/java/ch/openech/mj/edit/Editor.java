@@ -176,8 +176,8 @@ public abstract class Editor<T> {
 	 * Disposes the editor and calls the editorFinished Listener
 	 */
 	protected void finish() {
-		form = null;
 		fireEditorFinished();
+		form = null;
 	}
 	
 	public final boolean isFinished() {
