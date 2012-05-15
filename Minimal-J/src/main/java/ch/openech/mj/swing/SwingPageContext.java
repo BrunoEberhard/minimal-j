@@ -3,26 +3,23 @@ package ch.openech.mj.swing;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.Page.PageListener;
 import ch.openech.mj.page.PageContext;
-import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.History;
 import ch.openech.mj.swing.component.History.HistoryListener;
+import ch.openech.mj.swing.toolkit.SwingSwitchLayout;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.SwitchLayout;
 
 // TODO Swing PageContext should ensure use of EventDispatchThread in every need case
-public class SwingPageContext extends EditablePanel implements PageContext, PageListener, IComponent {
-	private final SwingFrame frame;
+public class SwingPageContext extends SwingSwitchLayout implements PageContext, PageListener, IComponent {
+	private final SwingTab tab;
 	private final History<Page> history;
 	private final SwingPageContextHistoryListener historyListener;
-	private final SwitchLayout switchLayout;
 
 	private List<String> pageLinks;
 	private int indexInPageLinks;
@@ -31,23 +28,20 @@ public class SwingPageContext extends EditablePanel implements PageContext, Page
 		@Override
 		public void onHistoryChanged() {
 			show(history.getPresent());
-			frame.onHistoryChanged();
+			tab.onHistoryChanged();
 		}
 
 		private void show(Page page) {
-			switchLayout.show(page.getPanel());
+			SwingPageContext.this.show((IComponent) page.getPanel());
 			ClientToolkit.getToolkit().focusFirstComponent(page.getPanel());
 		}
 	}
 
-	public SwingPageContext(SwingFrame frame) {
-		this.frame = frame;
+	public SwingPageContext(SwingTab tab) {
+		this.tab = tab;
 
 		historyListener = new SwingPageContextHistoryListener();
 		history = new History<Page>(historyListener);
-
-		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
-		setContent((JComponent) switchLayout);
 	}
 
 	public void add(Page page) {
@@ -84,7 +78,7 @@ public class SwingPageContext extends EditablePanel implements PageContext, Page
 
 	@Override
 	public PageContext addTab() {
-		return frame.addTab();
+		return tab.frame.addTab().getPageContext();
 	}
 
 	@Override
@@ -93,7 +87,7 @@ public class SwingPageContext extends EditablePanel implements PageContext, Page
 			previous();
 			dropFuture();
 		} else {
-			frame.closeTab(this);
+			tab.frame.closeTab(tab);
 		}
 	}
 
@@ -153,7 +147,7 @@ public class SwingPageContext extends EditablePanel implements PageContext, Page
 
 	@Override
 	public void onPageTitleChanged(Page page) {
-		frame.onPageTitleChanged(this, page);
+		tab.frame.updateTitle();
 	}
 
 	@Override
