@@ -12,17 +12,17 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
 
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.ResourceAction;
+import ch.openech.mj.swing.component.HideableTabbedPane;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingFrame extends JFrame implements IComponent {
-	private JTabbedPane tabbedPane;
+	private HideableTabbedPane tabbedPane;
 	final Action closeWindowAction, exitAction, newWindowAction, newTabAction;
 	
 	public SwingFrame() {
@@ -69,7 +69,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 
 	private JComponent createTabbedPane() {
-		tabbedPane = new JTabbedPane();
+		tabbedPane = new HideableTabbedPane();
 		addDefaultTab();
 		return tabbedPane;
 	}
@@ -90,7 +90,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	
 	public void refresh() {
 		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
-			SwingTab tab = (SwingTab) tabbedPane.getComponentAt(i);
+			SwingTab tab = (SwingTab) tabbedPane.getTab(i);
 			tab.refresh();
 		}
 	}
@@ -131,7 +131,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	public boolean tryToCloseWindow() {
 		boolean closable = true;
 		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
-			SwingTab tab = (SwingTab) tabbedPane.getComponentAt(i);
+			SwingTab tab = (SwingTab) tabbedPane.getTab(i);
 			closable = checkClosable(tab.getPageContext());
 			if (!closable) return false;
 		}
@@ -140,12 +140,12 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	public void closeTab(SwingTab tab) {
-		tabbedPane.remove(tab);
+		tabbedPane.removeTab(tab);
 	}
 	
 	public void closeWindow() {
 		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
-			SwingTab tab = (SwingTab)tabbedPane.getComponentAt(i);
+			SwingTab tab = (SwingTab)tabbedPane.getTab(i);
 			closeTab(tab);
 		}
 		
@@ -188,8 +188,12 @@ public class SwingFrame extends JFrame implements IComponent {
 	
 	protected void updateTitle() {
 		for (int index = 0; index<tabbedPane.getTabCount(); index++) {
-			SwingTab tab = (SwingTab) tabbedPane.getComponent(index);
+			SwingTab tab = (SwingTab) tabbedPane.getTab(index);
+			if (tab == null) throw new RuntimeException("Tab null");
 			Page page = tab.getVisiblePage();
+			if (page == null) {
+				throw new RuntimeException("Page null");
+			}
 			tabbedPane.setTitleAt(index, page.getTitle());
 			tabbedPane.setIconAt(index, page.getTitleIcon());
 			tabbedPane.setToolTipTextAt(index, page.getTitleToolTip());
