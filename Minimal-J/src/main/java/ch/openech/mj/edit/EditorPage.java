@@ -67,8 +67,6 @@ public class EditorPage extends Page {
 		IForm<?> form = editor.startEditor(context);
 		layout = ClientToolkit.getToolkit().createEditorLayout(form.getComponent(), editor.getActions());
 
-		setTitle(editor.getTitle());
-		
 		editor.setEditorFinishedListener(new EditorFinishedListener() {
 			private ProgressListener progressListener;
 			
@@ -96,6 +94,16 @@ public class EditorPage extends Page {
 
 	}
 	
+	@Override
+	public String getTitle() {
+		return editor.getTitle();
+	}
+
+	@Override
+	protected void setTitle(String title) {
+		throw new IllegalStateException("setTitle on EditorPage not allowed");
+	}
+
 	@Override
 	public boolean isExclusive() {
 		return !finished;
