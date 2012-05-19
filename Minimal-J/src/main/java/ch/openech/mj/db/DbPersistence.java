@@ -17,11 +17,13 @@ import org.json.JSONObject;
 public class DbPersistence {
 	public static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	
-	public static final String DERBY_DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
-	// public static final String DERBY_DEFAULT_URL = "jdbc:derby:C:\\Dokumente und Einstellungen\\bruno\\OpenEchDB13;create=true";
+	public static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
+	// public static final String DEFAULT_URL = "jdbc:derby:C:\\Dokumente und Einstellungen\\bruno\\OpenEchDB13;create=true";
+	// public static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/openech?user=APP&password=APP"; 
 
-	public static final String DERBY_USER = "APP";
-	public static final String DERBY_PASSWORD = "APP";
+	
+	public static final String USER = "APP";
+	public static final String PASSWORD = "APP";
 
 	private boolean initialized = false;
 	
@@ -36,13 +38,14 @@ public class DbPersistence {
 	}
 	
 	public void connect() throws SQLException {
-		connect(DERBY_DEFAULT_URL, DERBY_USER, DERBY_PASSWORD);
+		connect(DEFAULT_URL, USER, PASSWORD);
 	}
 	
 	public void connect(String connectionUrl, String user, String password) throws SQLException {
 		try {
 			connectToCloudFoundry();
 		} catch (Exception x) {
+			// There is normally no exception if not on cloudfoundry, only the connection stays null
 			x.printStackTrace();
 		}
 		
@@ -53,6 +56,8 @@ public class DbPersistence {
 			
 			if (isDerbyMemoryDb) {
 				DriverManager.registerDriver(new EmbeddedDriver());
+			} else if (isMySqlDb) {
+				DriverManager.registerDriver(new com.mysql.jdbc.Driver());
 			}
 			
 			connection = DriverManager.getConnection(connectionUrl, user, password);
