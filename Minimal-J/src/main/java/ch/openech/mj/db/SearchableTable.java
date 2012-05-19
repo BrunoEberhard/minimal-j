@@ -103,8 +103,8 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	@Override
 	public int insert(T object) throws SQLException {
+		initializeIndex();
 		int id = super.insert(object);
-		
 		writeInIndex(id, object);
 		
 		// TODO clean
@@ -114,10 +114,14 @@ public abstract class SearchableTable<T> extends Table<T> {
 			
 			IndexSearcher isearcher = new IndexSearcher(directory, true); // read-only=true
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
-			if (hits.length != 1) throw new IllegalStateException("Twice in index : " + id);
-		} catch (Exception e) {
+			if (hits.length > 1) throw new IllegalStateException("Twice in index : " + id);
+		} catch (ParseException e) {
 			throw new RuntimeException(e);
-		}		
+		} catch (CorruptIndexException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		
 		return id;
 	}
@@ -170,7 +174,6 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	private void writeInIndex(int id, T object) {
 		try {
-			initializeIndex();
 			Document doc = new Document();
 			doc.add(createIdField(id));
 			for (String fieldName : indexFields) {
