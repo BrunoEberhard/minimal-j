@@ -1,8 +1,10 @@
-package ch.openech.mj.example;
+package page;
 
 import java.sql.SQLException;
 
 import ch.openech.mj.edit.form.IForm;
+import ch.openech.mj.example.BookForm;
+import ch.openech.mj.example.ExamplePersistence;
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.page.ObjectViewPage;
 import ch.openech.mj.page.PageContext;

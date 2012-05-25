@@ -1,5 +1,6 @@
 package ch.openech.mj.example;
 
+import page.BookViewPage;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Book;

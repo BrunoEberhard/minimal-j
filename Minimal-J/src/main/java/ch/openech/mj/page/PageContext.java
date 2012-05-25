@@ -6,8 +6,10 @@ import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.toolkit.IComponent;
 
 /**
- * These are the possibilities of a page or an action opening a page
+ * These are the possibilities of a page or an action opening a page<p>
  * 
+ * Note: Every implementation must be a component of its toolkit!
+ * (The PageContext is found through the getParent-chain in the actions)
  */
 public interface PageContext {
 

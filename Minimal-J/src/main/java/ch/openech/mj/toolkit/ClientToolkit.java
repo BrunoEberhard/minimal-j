@@ -6,10 +6,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
-
-
 
 /**
  * 
@@ -93,7 +90,9 @@ public abstract class ClientToolkit {
 	
 	public abstract void focusFirstComponent(IComponent component);
 	
-	public abstract PageContext findPageContext(Object source);
+	//
+
+	public abstract Object getParent(Object component);
 	
 	// Up / Dowload
 	

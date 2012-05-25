@@ -4,11 +4,12 @@ import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 
+import page.EmptyPage;
+import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
-
 
 public abstract class Page {
 
@@ -59,10 +60,10 @@ public abstract class Page {
 		if (name.endsWith("Page")) name = name.substring(0, name.length() - 4);
 		return name;
 	}
-	
-	public abstract IComponent getPanel();
 
-	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
+	public abstract IComponent getComponent();
+
+	public void fillActionGroup(ActionGroup actionGroup) {
 		// should be done in subclass
 	}
 	
@@ -130,7 +131,15 @@ public abstract class Page {
 			if (!StringUtils.isEmpty(pageLink)) {
 				int pos = pageLink.indexOf('/');
 				String className = pos > 0 ? pageLink.substring(0, pos) : pageLink;
-				Class<?> clazz = Class.forName(className);
+				String fullClassName;
+				if (EditorPage.class.getSimpleName().equals(className)) {
+					fullClassName = EditorPage.class.getName();
+				} else if (EmptyPage.class.getSimpleName().equals(className)) {
+					fullClassName = EmptyPage.class.getName();
+				} else {
+					fullClassName = "page." + className;
+				}
+				Class<?> clazz = Class.forName(fullClassName);
 				if (pos > 0) {
 					String[] fragmentParts = pageLink.substring(pos+1).split("/");
 					if (fragmentParts.length > 1) {
@@ -157,9 +166,10 @@ public abstract class Page {
 	}
 
 
+
 	public static String link(Class<? extends Page> pageClass, String... args) {
 		StringBuilder s = new StringBuilder();
-		s.append(pageClass.getName());
+		s.append(pageClass.getSimpleName());
 		for (int i = 0; i<args.length; i++) {
 			s.append("/"); s.append(args[i]);
 		}

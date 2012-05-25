@@ -76,7 +76,7 @@ public class SwingFrame extends JFrame implements IComponent {
 
 	public void addDefaultTab() {
 		SwingTab tab = addTab();
-		tab.getPageContext().show(Page.link());
+		tab.show(Page.link());
 	}
 	
 	public SwingTab addTab() {
@@ -115,14 +115,14 @@ public class SwingFrame extends JFrame implements IComponent {
 	 * a EditorPage or if the user agrees to save or cancel the editing
 	 */
 	public boolean checkClosable() {
-		return checkClosable(getVisiblePageContext());
+		return checkClosable(getVisibleTab());
 	}
 	
-	private boolean checkClosable(SwingPageContext pageContextImpl) {
-		Page visiblePage = pageContextImpl.getPresent();
+	private boolean checkClosable(SwingTab tab) {
+		Page visiblePage = tab.getPresent();
 		if (visiblePage instanceof EditorPage) {
 			EditorPage editorPage = (EditorPage) visiblePage;
-			tabbedPane.setSelectedComponent(pageContextImpl);
+			tabbedPane.setSelectedComponent(tab);
 			editorPage.checkedClose();
 		}
 		return true;
@@ -132,7 +132,7 @@ public class SwingFrame extends JFrame implements IComponent {
 		boolean closable = true;
 		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
 			SwingTab tab = (SwingTab) tabbedPane.getTab(i);
-			closable = checkClosable(tab.getPageContext());
+			closable = checkClosable(tab);
 			if (!closable) return false;
 		}
 		closeWindow();
@@ -152,8 +152,8 @@ public class SwingFrame extends JFrame implements IComponent {
 		setVisible(false);
 	}
 
-	public SwingPageContext getVisiblePageContext() {
-		return (SwingPageContext) ((SwingTab) tabbedPane.getSelectedComponent()).getPageContext();
+	public SwingTab getVisibleTab() {
+		return (SwingTab) tabbedPane.getSelectedComponent();
 	}
 	
 	public void closeTab() {
@@ -161,16 +161,16 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 
 	public Page getVisiblePage() {
-		SwingPageContext pageContextImpl = getVisiblePageContext();
-		if (pageContextImpl == null) return null;
-		return pageContextImpl.getPresent();
+		SwingTab tab = getVisibleTab();
+		if (tab == null) return null;
+		return tab.getPresent();
 	}
 	
 	public List<Page> getPages() {
 		List<Page> result = new ArrayList<Page>();
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
-			SwingPageContext pageContextImpl = (SwingPageContext) tabbedPane.getComponent(i); // myst: getTabComponent returns allways null
-			Page page = pageContextImpl.getPresent();
+			SwingTab tab = (SwingTab) tabbedPane.getComponent(i); // myst: getTabComponent returns allways null
+			Page page = tab.getPresent();
 			if (page != null) result.add(page);
 		}
 		return result;
@@ -182,7 +182,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	protected void updateWindowTitle() {
-		PageContext pageContext = getVisiblePageContext();
+		PageContext pageContext = getVisibleTab();
 		setTitle(ApplicationConfig.getApplicationConfig().getWindowTitle(pageContext));
 	}
 	

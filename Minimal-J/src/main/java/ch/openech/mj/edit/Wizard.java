@@ -10,7 +10,6 @@ import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.form.SwitchForm;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 
@@ -76,8 +75,8 @@ public abstract class Wizard<T> extends Editor<T> {
 	}
 	
 	@Override
-	public IForm<T> startEditor(PageContext context) {
-		IForm<T> formVisual = super.startEditor(context);
+	public IForm<T> startEditor() {
+		IForm<T> formVisual = super.startEditor();
 		setCurrentPage(getFirstPage());
 		return formVisual;
 	}
@@ -91,7 +90,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	private void setCurrentPage(WizardPage<?> page) {
 		currentPage = page;
 		currentPage.setIndicator(indicator);
-		switchForm.setForm(currentPage.startEditor(context));
+		switchForm.setForm(currentPage.startEditor());
 		prevAction.setEnabled(currentPageIndex > 0);
 	}
 

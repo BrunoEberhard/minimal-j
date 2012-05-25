@@ -3,8 +3,9 @@ package ch.openech.mj.vaadin;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import page.EmptyPage;
+
 import ch.openech.mj.application.ApplicationContext;
-import ch.openech.mj.page.EmptyPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;

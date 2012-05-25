@@ -29,11 +29,11 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		ActionGroup actionGroup = new ActionGroup(null);
 		fillMenu(actionGroup);
 		
-		ApplicationConfig.getApplicationConfig().fillActionGroup(tab.getPageContext(), actionGroup);
+		ApplicationConfig.getApplicationConfig().fillActionGroup(tab, actionGroup);
 		
 		Page visiblePage = tab.getVisiblePage();
 		if (visiblePage != null) {
-			visiblePage.fillActionGroup(tab.getPageContext(), actionGroup);
+			visiblePage.fillActionGroup(actionGroup);
 		}
 
 		updateMenu(actionGroup);
@@ -141,5 +141,4 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	protected void fillHelpMenu(ActionGroup actionGroup) {
 		// 
 	}
-	
-}
+}	

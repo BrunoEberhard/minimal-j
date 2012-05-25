@@ -103,7 +103,7 @@ public class SwingToolBar extends JToolBar implements IComponent {
 	}
 	
 	public void search(Class<? extends Page> searchClass, String text) {
-		tab.getPageContext().show(Page.link(searchClass, text));
+		tab.show(Page.link(searchClass, text));
 	}
 	
 	void onHistoryChanged() {

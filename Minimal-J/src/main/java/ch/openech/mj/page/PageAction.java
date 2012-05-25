@@ -6,7 +6,6 @@ import javax.swing.AbstractAction;
 
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.toolkit.ClientToolkit;
 
 
 public class PageAction extends AbstractAction {
@@ -34,7 +33,7 @@ public class PageAction extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		PageContext pageContext = ClientToolkit.getToolkit().findPageContext(e.getSource());
+		PageContext pageContext = PageContextHelper.findContext(e.getSource());
 		showPageOn(pageContext);
 	}
 

@@ -1,5 +1,10 @@
 package ch.openech.mj.edit;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import ch.openech.mj.edit.Editor.EditorFinishedListener;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.page.Page;
@@ -13,28 +18,26 @@ public class EditorPage extends Page {
 	private final Editor<?> editor;
 	private final IComponent layout;
 	private boolean finished = false;
+
+	public EditorPage(PageContext context, String editorClass) {
+		this(context, createEditor(context, editorClass));
+	}
 	
 	public EditorPage(PageContext context, String[] editorClassAndArguments) {
-		this(context, createEditor(editorClassAndArguments));
+		this(context, createEditor(context, editorClassAndArguments));
 	}
 	
-	public EditorPage(PageContext context, Class<?> editorClass, String[] arguments) {
-		this(context, createEditor(editorClass, arguments));
-	}
-	
-	public EditorPage(PageContext context, String editorClass) {
-		this(context, createEditor(editorClass));
-	}
-	
-	static Editor<?> createEditor(String... editorClassAndArguments) {
+	static Editor<?> createEditor(PageContext context, String... editorClassAndArguments) {
 		try {
-			Class<?> clazz = Class.forName(editorClassAndArguments[0]);
+			Class<?> clazz = Class.forName("editor." + editorClassAndArguments[0]);
 			if (editorClassAndArguments.length > 1) {
-				Class<?>[] argumentClasses = new Class[editorClassAndArguments.length - 1];
-				Object[] arguments = new Object[editorClassAndArguments.length - 1];
-				for (int i = 0; i<argumentClasses.length; i++) {
+				Class<?>[] argumentClasses = new Class[editorClassAndArguments.length];
+				Object[] arguments = new Object[editorClassAndArguments.length];
+				argumentClasses[0] = PageContext.class;
+				arguments[0] = context;
+				for (int i = 1; i<argumentClasses.length; i++) {
 					argumentClasses[i] = String.class;
-					arguments[i] = editorClassAndArguments[i + 1];
+					arguments[i] = editorClassAndArguments[i];
 				}
 				return (Editor<?>) clazz.getConstructor(argumentClasses).newInstance(arguments);
 			} else {
@@ -44,27 +47,11 @@ public class EditorPage extends Page {
 			throw new RuntimeException("EditorPage Erstellung fehlgeschlagen", x);
 		}
 	}
-	
-	static Editor<?> createEditor(Class<?> editorClass, String... arguments) {
-		try {
-			if (arguments.length > 0) {
-				Class<?>[] argumentClasses = new Class[arguments.length];
-				for (int i = 0; i<argumentClasses.length; i++) {
-					argumentClasses[i] = String.class;
-				}
-				return (Editor<?>) editorClass.getConstructor(argumentClasses).newInstance(arguments);
-			} else {
-				return (Editor<?>) editorClass.newInstance();
-			}
-		} catch (Exception x) {
-			throw new RuntimeException("EditorPage Erstellung fehlgeschlagen", x);
-		}
-	}
-	
-	protected EditorPage(PageContext context, Editor<?> editor) {
+
+	public EditorPage(PageContext context, Editor<?> editor) {
 		super(context);
 		this.editor = editor;
-		IForm<?> form = editor.startEditor(context);
+		IForm<?> form = editor.startEditor();
 		layout = ClientToolkit.getToolkit().createEditorLayout(form.getComponent(), editor.getActions());
 
 		editor.setEditorFinishedListener(new EditorFinishedListener() {
@@ -110,10 +97,9 @@ public class EditorPage extends Page {
 	}
 
 	@Override
-	public IComponent getPanel() {
+	public IComponent getComponent() {
 		return layout;
 	}
-
 	
 	public void checkedClose() {
 		editor.checkedClose();

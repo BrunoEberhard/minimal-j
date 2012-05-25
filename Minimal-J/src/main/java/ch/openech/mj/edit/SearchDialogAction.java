@@ -8,6 +8,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.page.PageContext;
+import ch.openech.mj.page.PageContextHelper;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
@@ -35,8 +36,8 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			PageContext pageContext = ClientToolkit.getToolkit().findPageContext(e.getSource());
-			showPageOn(pageContext);
+			PageContext context = PageContextHelper.findContext(e.getSource());
+			showPageOn(context);
 		} catch (Exception x) {
 			// TODO show dialog
 			x.printStackTrace();

@@ -11,7 +11,6 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
@@ -222,12 +221,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public PageContext findPageContext(Object source) {
-		Component c = (Component) source;
-		while (!(c instanceof PageContext) && c != null) {
-			c = c.getParent();
+	public Object getParent(Object component) {
+		if (component instanceof Component) {
+			return ((Component) component).getParent();
+		} else {
+			return null;
 		}
-		return (PageContext) c;
 	}
 
 	@Override

@@ -1,9 +1,10 @@
-package ch.openech.mj.example;
+package page;
 
 import static ch.openech.mj.example.model.Book.BOOK;
 
 import java.util.List;
 
+import ch.openech.mj.example.ExamplePersistence;
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
@@ -37,7 +38,7 @@ public class BookTablePage extends Page implements RefreshablePage {
 	}
 	
 	@Override
-	public IComponent getPanel() {
+	public IComponent getComponent() {
 		return table;
 	}
 

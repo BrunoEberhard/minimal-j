@@ -138,7 +138,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 
 	private void updateContent(String pageLink) {
 		visiblePage = Page.createPage(VaadinWindow.this, pageLink);
-		Component component = (Component) visiblePage.getPanel();
+		Component component = (Component) visiblePage.getComponent();
 		updateContent(component);
 	}
 	
@@ -177,7 +177,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 		
 		PageContext pageContext = (PageContext) this;
 		ApplicationConfig.getApplicationConfig().fillActionGroup(pageContext, actionGroup);
-		visiblePage.fillActionGroup(pageContext, actionGroup);
+		visiblePage.fillActionGroup(actionGroup);
 		
 		updateMenu(actionGroup);
 	}
@@ -284,7 +284,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 
 		@Override
 		public void menuSelected(MenuItem selectedItem) {
-			action.actionPerformed(new ActionEvent(menubar, 0, null));
+			action.actionPerformed(new ActionEvent(VaadinWindow.this, 0, null));
 		}
 	}
 

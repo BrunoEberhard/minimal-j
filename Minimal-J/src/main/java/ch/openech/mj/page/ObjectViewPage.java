@@ -18,7 +18,7 @@ public abstract class ObjectViewPage<T> extends Page implements RefreshablePage 
 	protected abstract IForm<T> createForm();
 	
 	@Override
-	public IComponent getPanel() {
+	public IComponent getComponent() {
 		if (alignLayout == null) {
 			objectPanel = createForm();
 			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel.getComponent());

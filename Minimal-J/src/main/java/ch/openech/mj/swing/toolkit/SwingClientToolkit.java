@@ -26,8 +26,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.page.PageContext;
-import ch.openech.mj.swing.SwingFrame;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
@@ -247,20 +245,15 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public PageContext findPageContext(Object source) {
-		Component c = (Component) source;
-		while (!(c instanceof PageContext) && c != null) {
-			if (c instanceof JPopupMenu) {
-				JPopupMenu popupMenu = (JPopupMenu) c;
-				c = popupMenu.getInvoker();
-			} else if (c instanceof SwingFrame) {
-				SwingFrame frame = (SwingFrame) c;
-				c = frame.getVisiblePageContext();
-			} else {
-				c = c.getParent();
-			}
+	public Object getParent(Object c) {
+		if (c instanceof JPopupMenu) {
+			JPopupMenu popupMenu = (JPopupMenu) c;
+			return popupMenu.getInvoker();
+		} else if (c instanceof Component) {
+			return ((Component) c).getParent();
+		} else {
+			throw new IllegalArgumentException();
 		}
-		return (PageContext) c;
 	}
 
 	@Override

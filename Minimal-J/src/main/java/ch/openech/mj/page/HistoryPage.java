@@ -44,7 +44,7 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 	protected abstract String link(T object, String version);
 
 	@Override
-	public IComponent getPanel() {
+	public IComponent getComponent() {
 		if (versions == null) {
 			refresh();
 		}

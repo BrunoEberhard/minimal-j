@@ -7,6 +7,7 @@ import javax.swing.AbstractAction;
 import ch.openech.mj.edit.Editor.EditorFinishedListener;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.page.PageContext;
+import ch.openech.mj.page.PageContextHelper;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -30,7 +31,7 @@ public class EditorDialogAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			PageContext pageContext = ClientToolkit.getToolkit().findPageContext(e.getSource());
+			PageContext pageContext = PageContextHelper.findContext(e.getSource());
 			showPageOn(pageContext);
 		} catch (Exception x) {
 			// TODO show dialog
@@ -39,9 +40,8 @@ public class EditorDialogAction extends AbstractAction {
 	}
 
 	private void showPageOn(final PageContext context) {
-		IForm<?> form = editor.startEditor(context);
+		IForm<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(form.getComponent(), editor.getActions());
-		
 		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context.getComponent(), layout, editor.getTitle());
 		dialog.setResizable(form.isResizable());
 		

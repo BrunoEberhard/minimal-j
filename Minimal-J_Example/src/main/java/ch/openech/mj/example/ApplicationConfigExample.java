@@ -2,6 +2,7 @@ package ch.openech.mj.example;
 
 import java.util.ResourceBundle;
 
+import page.BookTablePage;
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.edit.EditorDialogAction;
 import ch.openech.mj.page.ActionGroup;
