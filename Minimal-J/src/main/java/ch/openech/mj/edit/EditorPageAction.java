@@ -2,6 +2,10 @@ package ch.openech.mj.edit;
 
 import ch.openech.mj.page.PageAction;
 
+/**
+ * An Action that shows a given Editor as a page if executed.
+ *
+ */
 public class EditorPageAction extends PageAction {
 	
 	public EditorPageAction(Class<? extends Editor<?>> editorClass, String... args) {

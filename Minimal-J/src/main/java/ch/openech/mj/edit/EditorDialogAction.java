@@ -16,6 +16,12 @@ import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualDialog.CloseListener;
 
+/**
+ * An Action that shows a given Editor in a dialog if executed.
+ * Dialog means the editor covers only the needed part of the screen.
+ * If the Editor should cover all of the screen use EditorPageAction.
+ *
+ */
 public class EditorDialogAction extends AbstractAction {
 	private final Editor<?> editor;
 
