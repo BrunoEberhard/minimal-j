@@ -178,10 +178,8 @@ public class PropertyVaadinContainer implements Container.Sortable {
 
 		@Override
 		public String toString() {
-			return "" + object;
+			return object != null ? object.toString() : "";
 		}
-		
-		
 	}
 	
 	// Sortable
