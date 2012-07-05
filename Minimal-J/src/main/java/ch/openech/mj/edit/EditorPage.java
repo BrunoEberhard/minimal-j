@@ -1,10 +1,5 @@
 package ch.openech.mj.edit;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import ch.openech.mj.edit.Editor.EditorFinishedListener;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.page.Page;
@@ -13,6 +8,11 @@ import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ProgressListener;
 
+
+/**
+ * Do not use the class directly. Use EditorPageAction.
+ * 
+ */
 public class EditorPage extends Page {
 
 	private final Editor<?> editor;
