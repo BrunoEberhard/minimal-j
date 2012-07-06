@@ -15,8 +15,8 @@ import ch.openech.mj.resources.Resources;
 
 public abstract class Wizard<T> extends Editor<T> {
 
-	private WizardPage<?> currentPage;
-	private int currentPageIndex = 0;
+	private WizardStep<?> currentStep;
+	private int currentStepIndex = 0;
 	
 	protected final Action prevAction;
 	protected final Action nextAction;
@@ -29,29 +29,29 @@ public abstract class Wizard<T> extends Editor<T> {
 		indicator = new WizardIndicator();
 	}
 
-	protected abstract WizardPage<?> getFirstPage();
+	protected abstract WizardStep<?> getFirstStep();
 	
 	@Override
 	public Action[] getActions() {
 		return new Action[]{demoAction(), cancelAction(), prevAction, nextAction, saveAction()};
 	}
 
-	protected int getCurrentPageIndex() {
-		return currentPageIndex;
+	protected int getCurrentStepIndex() {
+		return currentStepIndex;
 	}
 	
 	protected Action createNextAction() {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (currentPage.isSaveable()) {
-					currentPage.save();
-					currentPageIndex++;
-					setCurrentPage(currentPage.getNextPage());
+				if (currentStep.isSaveable()) {
+					currentStep.save();
+					currentStepIndex++;
+					setCurrentStep(currentStep.getNextStep());
 				}
 			}
 		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "NextWizardPageAction");
+		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "NextWizardStepAction");
 		return action;
 	}
 
@@ -59,12 +59,12 @@ public abstract class Wizard<T> extends Editor<T> {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				currentPage.finish();
-				currentPageIndex--;
-				setCurrentPage(currentPage.getPreviousPage());
+				currentStep.finish();
+				currentStepIndex--;
+				setCurrentStep(currentStep.getPreviousStep());
 			}
 		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "PreviousWizardPageAction");
+		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "PreviousWizardStepAction");
 		return action;
 	}
 
@@ -77,21 +77,21 @@ public abstract class Wizard<T> extends Editor<T> {
 	@Override
 	public IForm<T> startEditor() {
 		IForm<T> formVisual = super.startEditor();
-		setCurrentPage(getFirstPage());
+		setCurrentStep(getFirstStep());
 		return formVisual;
 	}
 
 	@Override
 	public void finish() {
-		currentPage.finish();
+		currentStep.finish();
 		super.finish();
 	}
 
-	private void setCurrentPage(WizardPage<?> page) {
-		currentPage = page;
-		currentPage.setIndicator(indicator);
-		switchForm.setForm(currentPage.startEditor());
-		prevAction.setEnabled(currentPageIndex > 0);
+	private void setCurrentStep(WizardStep<?> step) {
+		currentStep = step;
+		currentStep.setIndicator(indicator);
+		switchForm.setForm(currentStep.startEditor());
+		prevAction.setEnabled(currentStepIndex > 0);
 	}
 
 	@Override
@@ -106,13 +106,13 @@ public abstract class Wizard<T> extends Editor<T> {
 		public void setValidationMessages(List<ValidationMessage> validationResult) {
 			Wizard.this.indicate(validationResult);
 			nextAction.setEnabled(isSaveable());
-			saveAction().setEnabled(isSaveable() && currentPage.canFinish());
+			saveAction().setEnabled(isSaveable() && currentStep.canFinish());
 		}
 	}
 
 	@Override
 	public void fillWithDemoData() {
-		currentPage.fillWithDemoData();
+		currentStep.fillWithDemoData();
 	}
 	 
 }
