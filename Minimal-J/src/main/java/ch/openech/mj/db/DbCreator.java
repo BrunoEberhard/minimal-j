@@ -98,22 +98,16 @@ public class DbCreator {
 		}
 		
 		if (table instanceof Table<?>) {
+			s.append(" version INTEGER NOT NULL");
 			if (dbPersistence.isMySqlDb()) {
-				s.append(" version INTEGER NOT NULL,\n");
-				s.append(" PRIMARY KEY (id, version)\n");
-			} else {
-				s.append(" version INTEGER NOT NULL");
+				s.append(",\n PRIMARY KEY (id, version)\n");
 			}
 		} else if (table instanceof SubTable) {
+			s.append(" startVersion INTEGER NOT NULL,\n");
+			s.append(" endVersion INTEGER NOT NULL,\n");
+			s.append(" position INTEGER NOT NULL");
 			if (dbPersistence.isMySqlDb()) {
-				s.append(" startVersion INTEGER NOT NULL,\n");
-				s.append(" endVersion INTEGER NOT NULL,\n");
-				s.append(" position INTEGER NOT NULL,\n");
-				s.append(" PRIMARY KEY (id, startVersion, position)\n");
-			} else {
-				s.append(" startVersion INTEGER NOT NULL,\n");
-				s.append(" endVersion INTEGER NOT NULL,\n");
-				s.append(" position INTEGER NOT NULL");
+				s.append(",\n PRIMARY KEY (id, startVersion, position)\n");
 			}
 		} else {
 			if (dbPersistence.isMySqlDb()) {
@@ -122,7 +116,6 @@ public class DbCreator {
 				s.delete(s.length()-2, s.length()-1);
 			}
 		}
-		
 		
 		s.append(")");
 		appendTableEnd(s);
