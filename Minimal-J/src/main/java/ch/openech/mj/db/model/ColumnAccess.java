@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import ch.openech.mj.edit.value.Reference;
 import ch.openech.mj.edit.value.Required;
 import ch.openech.mj.util.FieldUtils;
+import ch.openech.mj.util.StringUtils;
 
 public class ColumnAccess {
 	private static final Logger logger = Logger.getLogger(ColumnAccess.class.getName());
@@ -143,11 +144,7 @@ public class ColumnAccess {
 					for (String inlineKey : inlineAccessors.keySet()) {
 						String key = inlineKey;
 						if (!hasClassName) {
-							key = field.getName();
-							key += Character.toUpperCase(inlineKey.charAt(0));
-							if (inlineKey.length() > 1) {
-								key += inlineKey.substring(1);
-							}
+							key = field.getName() + StringUtils.upperFirstChar(inlineKey);
 						}
 						accessors.put(key, new ChainedAccessor(field, inlineAccessors.get(inlineKey)));
 					}
