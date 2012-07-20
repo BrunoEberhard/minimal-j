@@ -4,8 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ch.openech.mj.util.StringUtils;
-
 
 public class StringUtilsTest {
 
@@ -42,5 +40,42 @@ public class StringUtilsTest {
 		Assert.assertFalse(StringUtils.isEmpty("\t"));
 		Assert.assertFalse(StringUtils.isEmpty("\n"));
 	}
+	
+	@Test
+	public void upperFirstChar() {
+		Assert.assertEquals("Der", StringUtils.upperFirstChar("der"));
+		Assert.assertEquals("Der", StringUtils.upperFirstChar("Der"));
+		Assert.assertEquals("D", StringUtils.upperFirstChar("d"));
+		Assert.assertEquals("D", StringUtils.upperFirstChar("D"));
+	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void upperFirstCharEmpty() {
+		Assert.assertEquals("", StringUtils.upperFirstChar(""));
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void upperFirstCharNull() {
+		Assert.assertEquals(null, StringUtils.upperFirstChar(null));
+	}
+	
+	@Test
+	public void toConstant() {
+		Assert.assertEquals("DER", StringUtils.toConstant("der"));
+		Assert.assertEquals("_DER", StringUtils.toConstant("Der"));
+		Assert.assertEquals("_D_ER", StringUtils.toConstant("DEr"));
+		Assert.assertEquals("D_ER", StringUtils.toConstant("dEr"));
+		Assert.assertEquals("D_E_ER", StringUtils.toConstant("dEEr"));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void toConstantEmpty() {
+		Assert.assertEquals("", StringUtils.toConstant(""));
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void toConstantNull() {
+		Assert.assertEquals(null, StringUtils.toConstant(null));
+	}
+	
 }

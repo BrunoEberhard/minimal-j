@@ -94,14 +94,18 @@ public class StringUtils {
 	}
 
 	public static String upperFirstChar(String string) {
+		if (string == null) throw new NullPointerException();
+		if (string.length() == 0) throw new IllegalArgumentException("String must have a least one character");
 		if (string.length() > 1) {
 			return string.substring(0, 1).toUpperCase() + string.substring(1);
 		} else {
-			return string.substring(0, 1);
+			return string.substring(0, 1).toUpperCase();
 		}
 	}
 	
 	public static String toConstant(String string) {
+		if (string == null) throw new NullPointerException();
+		if (string.length() == 0) throw new IllegalArgumentException("String must have a least one character");
 		StringBuffer s = new StringBuffer();
 		for (int i = 0; i<string.length(); i++) {
 			if (Character.isUpperCase(string.charAt(i))) {
