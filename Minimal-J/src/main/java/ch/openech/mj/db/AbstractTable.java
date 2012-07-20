@@ -94,7 +94,7 @@ public abstract class AbstractTable<T> {
 	
 	private void create() throws SQLException {
 		DbCreator creator = new DbCreator(dbPersistence);
-		creator.createDb(this);
+		creator.create(this);
 	}
 	
 	public void clear() throws SQLException {

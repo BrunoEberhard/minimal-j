@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import ch.openech.mj.db.model.AccessorInterface;
 import ch.openech.mj.db.model.ColumnAccess;
@@ -17,26 +18,27 @@ import ch.openech.mj.util.FieldUtils;
 
 public class DbCreator {
 	
+	private static final Logger logger = Logger.getLogger(DbCreator.class.getName());
+	
 	private final DbPersistence dbPersistence;
 	
 	public DbCreator(DbPersistence dbPersistence) {
 		this.dbPersistence = dbPersistence;
 	}
 	
-	public void createDb(AbstractTable<?> table) throws SQLException {
+	public void create(AbstractTable<?> table) throws SQLException {
 		if (existTable(table)) return;
 		
 		Statement statement = dbPersistence.getConnection().createStatement();
-		List<String> createStatements = getCreateStatements(table);
-		for (String createStatement : createStatements) {
-			try {
-				System.out.println(createStatement);
+		try {
+			List<String> createStatements = getCreateStatements(table);
+			for (String createStatement : createStatements) {
+				logger.fine(createStatement);
 				statement.execute(createStatement);
-			} catch (SQLException x) {
-				System.out.println(x.getMessage());
 			}
+		} finally {
+			statement.close();
 		}
-		statement.close();
 	}
 	
 	public boolean existTable(AbstractTable<?> table) throws SQLException {
