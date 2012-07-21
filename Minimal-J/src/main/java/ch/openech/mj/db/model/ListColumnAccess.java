@@ -7,6 +7,7 @@ import java.util.Map;
 
 import ch.openech.mj.edit.value.Reference;
 import ch.openech.mj.util.FieldUtils;
+import ch.openech.mj.util.StringUtils;
 
 // TODO zusammenhang mit ColumnAccess???
 public class ListColumnAccess {
@@ -36,11 +37,7 @@ public class ListColumnAccess {
 				for (String inlineKey : inlineAccessors.keySet()) {
 					String key = inlineKey;
 					if (!hasClassName) {
-						key = field.getName();
-						key += Character.toUpperCase(inlineKey.charAt(0));
-						if (inlineKey.length() > 1) {
-							key += inlineKey.substring(1);
-						}
+						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
 					}
 					accessors.put(key, new ColumnAccess.ChainedAccessor(field, inlineAccessors.get(inlineKey)));
 				}
