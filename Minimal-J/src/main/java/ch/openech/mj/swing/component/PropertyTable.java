@@ -92,7 +92,7 @@ public class PropertyTable<T> extends JTable {
 			AccessorInterface accessor = PropertyAccessor.getAccessor(clazz, fieldNames[columnIndex]);
 			Format format = Formats.getInstance().getFormat(accessor);
 			if (format != null) {
-				return format.getClass();
+				return format.getClazz();
 			}
 			return super.getColumnClass(columnIndex);
 		}
