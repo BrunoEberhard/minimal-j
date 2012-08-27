@@ -4,8 +4,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Varchar {
+public @interface Is {
 
-	int value() default 255;
+	String value();
 	
 }

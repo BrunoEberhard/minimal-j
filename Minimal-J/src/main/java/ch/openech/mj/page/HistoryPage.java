@@ -1,10 +1,12 @@
 package ch.openech.mj.page;
 
+import static ch.openech.mj.db.model.annotation.PredefinedFormat.Date;
+import static ch.openech.mj.db.model.annotation.PredefinedFormat.String255;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.openech.mj.db.model.annotation.Date;
-import ch.openech.mj.db.model.annotation.Varchar;
+import ch.openech.mj.db.model.annotation.Is;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualTable;
@@ -60,9 +62,9 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 	public class HistoryVersion {
 		
 		public String version;
-		@Date
+		@Is(Date)
 		public String time;
-		@Varchar(200)
+		@Is(String255)
 		public String description;
 		public T object;
 	}

@@ -1,6 +1,7 @@
 package ch.openech.test.db;
 
-import ch.openech.mj.db.model.annotation.Varchar;
+import static ch.openech.mj.db.model.annotation.PredefinedFormat.String30;
+import ch.openech.mj.db.model.annotation.Is;
 
 
 public class B {
@@ -13,6 +14,6 @@ public class B {
 		this.bName = bName;
 	}
 	
-	@Varchar
+	@Is(String30)
 	public String bName;
 }

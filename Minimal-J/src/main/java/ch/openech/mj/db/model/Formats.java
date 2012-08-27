@@ -1,16 +1,10 @@
 package ch.openech.mj.db.model;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import ch.openech.mj.db.model.annotation.Boolean;
-import ch.openech.mj.db.model.annotation.Date;
-import ch.openech.mj.db.model.annotation.Decimal;
-import ch.openech.mj.db.model.annotation.FormatName;
-import ch.openech.mj.db.model.annotation.Int;
-import ch.openech.mj.db.model.annotation.Varchar;
+import ch.openech.mj.db.model.annotation.Is;
 import ch.openech.mj.edit.value.PropertyAccessor;
 import ch.openech.mj.util.StringUtils;
 
@@ -57,19 +51,14 @@ public class Formats {
 		formats.put(name, new InternalCode(clazz));
 	}
 
-	public Format getFormat(AccessorInterface accessor) {
-		Format format = getAnnotatedFormat(accessor);
-		if (format != null) {
-			return format;
-		} else {
-			String formatName = getFormatName(accessor);
-			return getFormat(formatName);
-		}
-	}
-	
 	public Format getFormat(Class<?> clazz, Object key) {
 		AccessorInterface accessor = PropertyAccessor.getAccessor(clazz, Constants.getConstant(key));
 		return getFormat(accessor);
+	}
+
+	public Format getFormat(AccessorInterface accessor) {
+		String formatName = getFormatName(accessor);
+		return getFormat(formatName);
 	}
 
 	private Format getFormat(String name) {
@@ -77,36 +66,11 @@ public class Formats {
 	}
 
 	private String getFormatName(AccessorInterface accessor) {
-		FormatName type = accessor.getAnnotation(FormatName.class);
+		Is type = accessor.getAnnotation(Is.class);
 		if (type != null) {
 			return type.value();
 		} else {
 			return accessor.getName();
 		}
 	}
-	
-	private Format getAnnotatedFormat(AccessorInterface accessor) {
-		Varchar varchar = accessor.getAnnotation(Varchar.class);
-		if (varchar != null) {
-			return new PlainFormat(varchar.value());
-		}
-		Int jnt = accessor.getAnnotation(Int.class);
-		if (jnt != null) {
-			return new NumberFormat(Integer.class, jnt.value(), jnt.negative());
-		}
-		Date date = accessor.getAnnotation(Date.class);
-		if (date != null) {
-			return new DateFormat(date.partialAllowed());
-		}
-		Decimal decimal = accessor.getAnnotation(Decimal.class);
-		if (decimal != null) {
-			return new NumberFormat(BigDecimal.class, decimal.size(), decimal.decimalPlaces(), decimal.negative());
-		}
-		Boolean bulean = accessor.getAnnotation(Boolean.class);
-		if (bulean != null) {
-			return new BooleanFormat(bulean.nullable());
-		}
-		return null;
-	}
-
 }

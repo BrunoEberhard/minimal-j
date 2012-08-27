@@ -3,6 +3,7 @@ package ch.openech.mj.example;
 import java.sql.SQLException;
 
 import ch.openech.mj.db.DbPersistence;
+import ch.openech.mj.db.model.annotation.PredefinedFormat;
 import ch.openech.mj.example.persistence.BookTable;
 
 public class ExamplePersistence extends DbPersistence {
@@ -11,6 +12,7 @@ public class ExamplePersistence extends DbPersistence {
 	private static ExamplePersistence instance;
 	
 	public ExamplePersistence() throws SQLException {
+		PredefinedFormat.initialize();
 		ExampleFormats.initialize();
 		bookTable = new BookTable(this);
 		add(bookTable);
