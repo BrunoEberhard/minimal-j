@@ -22,13 +22,13 @@ import ch.openech.mj.toolkit.VisualTable.ClickListener;
 import ch.openech.mj.util.GenericUtils;
 
 public abstract class SearchDialogAction<T> extends AbstractAction {
-	private final Object[] columns;
+	private final Object[] keys;
 	private VisualDialog dialog;
 	private VisualTable<T> table;
 	private TextField textFieldSearch;
 	
-	public SearchDialogAction(Object[] columns) {
-		this.columns = columns;
+	public SearchDialogAction(Object... keys) {
+		this.keys = keys;
 		String actionName = getClass().getSimpleName();
 		ResourceHelper.initProperties(this, Resources.getResourceBundle(), actionName);
 	}
@@ -49,7 +49,7 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 		
 		@SuppressWarnings("unchecked")
 		Class<T> clazz = (Class<T>) GenericUtils.getGenericClass(getClass());		
-		table = ClientToolkit.getToolkit().createVisualTable(clazz, columns);
+		table = ClientToolkit.getToolkit().createVisualTable(clazz, keys);
 				
 		IComponent layout = ClientToolkit.getToolkit().createSearchLayout(textFieldSearch, new SearchAction(), table, new OkAction());
 		
