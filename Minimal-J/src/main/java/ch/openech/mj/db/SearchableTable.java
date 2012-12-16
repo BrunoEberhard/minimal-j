@@ -1,4 +1,4 @@
-package ch.openech.mj.db;
+package ch.openech.mj.db;//
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -39,19 +39,19 @@ public abstract class SearchableTable<T> extends Table<T> {
 	private IndexWriter iwriter;
 	private PreparedStatement selectAll;
 
+	private final Object[] keys;
 	private final PropertyInterface[] properties;
-	private final String[] propertyNames;
 	
-	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, Object[] indexFields) {
+	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, Object[] keys) {
 		super(dbPersistence, clazz);
-		this.properties = Constants.getProperties(indexFields);
-		this.propertyNames = getPropertyNames(properties);
+		this.keys = keys;
+		this.properties = Constants.getProperties(keys);
 	}
 	
-	public static String[] getPropertyNames(PropertyInterface[] properties) {
-		String[] names = new String[properties.length];
-		for (int i = 0; i<properties.length; i++) {
-			names[i] = properties[i].getFieldName();
+	public static String[] getPropertyNames(Object[] keys) {
+		String[] names = new String[keys.length];
+		for (int i = 0; i<keys.length; i++) {
+			names[i] = Constants.getProperty(keys[i]).getFieldName();
 		}
 		return names;
 	}
@@ -62,6 +62,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 		selectAll = prepareSelectAll();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void initializeIndex() throws SQLException {
 		if (directory == null) {
 			directory = new RAMDirectory();
@@ -121,10 +122,11 @@ public abstract class SearchableTable<T> extends Table<T> {
 		
 		// TODO clean
 		QueryParser	parser = new QueryParser(Version.LUCENE_34, "id", analyzer);
+		IndexSearcher isearcher = null;
 		try {
 			Query query = parser.parse(Integer.toString(id));
 			
-			IndexSearcher isearcher = new IndexSearcher(directory, true); // read-only=true
+			isearcher = new IndexSearcher(directory, true); // read-only=true
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
 			if (hits.length > 1) throw new IllegalStateException("Twice in index : " + id);
 		} catch (ParseException e) {
@@ -133,6 +135,15 @@ public abstract class SearchableTable<T> extends Table<T> {
 			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} finally {
+			// TODO use Java 7 for this
+			if (isearcher != null) {
+				try {
+					isearcher.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
 		
 		return id;
@@ -145,10 +156,11 @@ public abstract class SearchableTable<T> extends Table<T> {
 		// TODO clean
 		Integer id = getId(object);
 		QueryParser	parser = new QueryParser(Version.LUCENE_34, "id", analyzer);
+		IndexSearcher isearcher = null;
 		try {
 			Query query = parser.parse(Integer.toString(id));
 			
-			IndexSearcher isearcher = new IndexSearcher(directory, true); // read-only=true
+			isearcher = new IndexSearcher(directory, true); // read-only=true
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
 			if (hits.length != 1) throw new IllegalStateException("Id : " + id);
 			
@@ -156,7 +168,16 @@ public abstract class SearchableTable<T> extends Table<T> {
 			writeInIndex(id, object);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		}		
+		} finally {
+			// TODO use Java 7 for this
+			if (isearcher != null) {
+				try {
+					isearcher.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 	}
 	
 	
@@ -202,10 +223,10 @@ public abstract class SearchableTable<T> extends Table<T> {
 	}
 	
 	public List<T> find(String text) {
-		return find(text, propertyNames);
+		return find(text, keys);
 	}
 	
-	public List<T> find(String text, String[] queryFields) {
+	public List<T> find(String text, Object... keys) {
 		List<T> result = new ArrayList<T>();
 		IndexSearcher isearcher = null;
 		try {
@@ -215,10 +236,10 @@ public abstract class SearchableTable<T> extends Table<T> {
 			isearcher = new IndexSearcher(directory, true); // read-only=true
 			
 			QueryParser parser;
-			if (queryFields.length > 1) {
-				parser = new MultiFieldQueryParser(Version.LUCENE_34, queryFields, analyzer);
+			if (keys.length > 1) {
+				parser = new MultiFieldQueryParser(Version.LUCENE_34, getPropertyNames(keys), analyzer);
 			} else {
-				parser = new QueryParser(Version.LUCENE_34, queryFields[0], analyzer);
+				parser = new QueryParser(Version.LUCENE_34, getPropertyNames(keys)[0], analyzer);
 			}
 			Query query = parser.parse(text);
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
