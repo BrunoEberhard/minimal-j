@@ -71,13 +71,21 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 		}
 
 		@Override
-		public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
+		public void insertString(int offset, String additionalString, AttributeSet attr) throws BadLocationException {
 			int length = getLength();
 			String actualText = getText(0, length);
-			String requestedString = actualText.substring(0, offset) + str + actualText.substring(offset, length);
-			String filteredString = filter(requestedString);
+
+			String requestedString = actualText.substring(0, offset) + additionalString + actualText.substring(offset, length);
+
+			String filteredAdditionalString = filter(additionalString);
+			int overLength = actualText.length() + filteredAdditionalString.length() - filter.getLimit();
+			if (overLength > 0) {
+				filteredAdditionalString = filteredAdditionalString.substring(0, filteredAdditionalString.length() - overLength);
+			}
+			String filteredString = actualText.substring(0, offset) + filteredAdditionalString + actualText.substring(offset, length);
+
 			if (requestedString.equals(filteredString)) {
-				super.insertString(offset, str, attr);
+				super.insertString(offset, additionalString, attr);
 			} else if (!actualText.equals(filteredString)) {
 				replace(0, length, filteredString, attr);
 			}
