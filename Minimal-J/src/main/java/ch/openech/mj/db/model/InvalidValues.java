@@ -1,13 +1,12 @@
 package ch.openech.mj.db.model;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-
-import com.ibm.icu.math.BigDecimal;
 
 public class InvalidValues {
 
