@@ -28,6 +28,7 @@ import ch.openech.mj.edit.fields.DateField;
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.edit.fields.FormField;
 import ch.openech.mj.edit.fields.IntegerEditField;
+import ch.openech.mj.edit.fields.NumberFormField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.model.annotation.AnnotationUtil;
@@ -120,31 +121,44 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	protected FormField<?> createField(PropertyInterface property) {
 		Class<?> fieldClass = property.getFieldClazz();
-		if (fieldClass == String.class) {
-			if (editable) {
+		if (editable) {
+			if (fieldClass == String.class) {
 				int size = AnnotationUtil.getSize(property);
 				return new TextEditField(property, size);
-			} else {
-				return new TextFormField(property);
+			} else if (fieldClass == LocalDate.class) {
+				boolean partialAllowed = property.getAnnotation(PartialDate.class) != null;
+				return new DateField(property, partialAllowed, editable);
+			} else if (Enum.class.isAssignableFrom(fieldClass)) {
+				return new CodeEditField(property);
+			} else if (fieldClass == Boolean.class) {
+				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
+				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
+				return field;
+			} else if (fieldClass == Integer.class) {
+				int size = AnnotationUtil.getSize(property);
+				boolean negative = AnnotationUtil.isNegative(property);
+				return new IntegerEditField(property, size, negative);
+			} else if (fieldClass == BigDecimal.class) {
+				int size = AnnotationUtil.getSize(property);
+				int decimal = AnnotationUtil.getDecimal(property);
+				boolean negative = AnnotationUtil.isNegative(property);
+				return new BigDecimalEditField(property, size, negative);
 			}
-		} else if (fieldClass == LocalDate.class) {
-			boolean partialAllowed = property.getAnnotation(PartialDate.class) != null;
-			return new DateField(property, partialAllowed, editable);
-		} else if (Enum.class.isAssignableFrom(fieldClass)) {
-			return editable ? new CodeEditField(property) : new CodeFormField(property);
-		} else if (fieldClass == Boolean.class) {
-			String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
-			CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
-			return field;
-		} else if (fieldClass == Integer.class) {
-			int size = AnnotationUtil.getSize(property);
-			boolean negative = AnnotationUtil.isNegative(property);
-			return new IntegerEditField(property, size, negative);
-		} else if (fieldClass == BigDecimal.class) {
-			int size = AnnotationUtil.getSize(property);
-			int decimal = AnnotationUtil.getDecimal(property);
-			boolean negative = AnnotationUtil.isNegative(property);
-			return new BigDecimalEditField(property, size, negative);
+			// TODO dates
+			
+		} else {
+			if (fieldClass == String.class) return new TextFormField(property);
+			else if (fieldClass == LocalDate.class) return new DateField(property, true, editable);
+			else if (Enum.class.isAssignableFrom(fieldClass)) return new CodeFormField(property);
+			else if (fieldClass == Boolean.class) {
+				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
+				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
+				return field;
+			} 
+			else if (fieldClass == Integer.class) return new NumberFormField.IntegerFormField(property);
+			else if (fieldClass == BigDecimal.class) return new NumberFormField.BigDecimalFormField(property);
+			// TODO dates
+			
 		}
 		throw new IllegalArgumentException("Unknown Field: " + property.getFieldName());
 	}
