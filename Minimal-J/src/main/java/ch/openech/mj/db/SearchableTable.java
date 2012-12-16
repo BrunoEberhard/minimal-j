@@ -26,6 +26,8 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
+import ch.openech.mj.db.model.Constants;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.util.StringUtils;
 
 public abstract class SearchableTable<T> extends Table<T> {
@@ -37,11 +39,21 @@ public abstract class SearchableTable<T> extends Table<T> {
 	private IndexWriter iwriter;
 	private PreparedStatement selectAll;
 
-	private final String[] indexFields;
+	private final PropertyInterface[] properties;
+	private final String[] propertyNames;
 	
-	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, String[] indexFields) {
+	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, Object[] indexFields) {
 		super(dbPersistence, clazz);
-		this.indexFields = indexFields;
+		this.properties = Constants.getProperties(indexFields);
+		this.propertyNames = getPropertyNames(properties);
+	}
+	
+	public static String[] getPropertyNames(PropertyInterface[] properties) {
+		String[] names = new String[properties.length];
+		for (int i = 0; i<properties.length; i++) {
+			names[i] = properties[i].getFieldName();
+		}
+		return names;
 	}
 	
 	@Override
@@ -164,7 +176,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 		return find(text).size();
 	}
 	
-	protected abstract Field getField(String fieldName, T object);
+	protected abstract Field getField(PropertyInterface property, T object);
 
 	protected Field createIdField(int id) {
 		Field.Index index = Field.Index.NOT_ANALYZED;
@@ -176,8 +188,8 @@ public abstract class SearchableTable<T> extends Table<T> {
 		try {
 			Document doc = new Document();
 			doc.add(createIdField(id));
-			for (String fieldName : indexFields) {
-				Field field = getField(fieldName, object);
+			for (PropertyInterface property : properties) {
+				Field field = getField(property, object);
 				if (field != null) {
 					doc.add(field);
 				}
@@ -190,7 +202,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 	}
 	
 	public List<T> find(String text) {
-		return find (text, indexFields);
+		return find(text, propertyNames);
 	}
 	
 	public List<T> find(String text, String[] queryFields) {
@@ -235,13 +247,13 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	protected abstract T createResultObject();
 
-	protected abstract void setField(T result, String fieldName, String value);
+//	protected abstract void setField(T result, Object fieldName, String value);
 
 	protected T documentToObject(Document document) {
 		T result = createResultObject();
 		
-		for (String fieldName : indexFields) {
-			setField(result, fieldName, document.get(fieldName));
+		for (PropertyInterface property : properties) {
+			property.setValue(result, document.get(property.getFieldName()));
 		}
 		return result;
 	}

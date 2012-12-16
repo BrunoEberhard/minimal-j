@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,9 +13,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.derby.client.am.Types;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
-import ch.openech.mj.db.model.AccessorInterface;
-import ch.openech.mj.db.model.ColumnAccess;
+import ch.openech.mj.db.model.InvalidValues;
+import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.db.model.ColumnProperties;
+import ch.openech.mj.db.model.EnumUtils;
 import ch.openech.mj.db.model.ListColumnAccess;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
@@ -47,6 +52,8 @@ public abstract class AbstractTable<T> {
 	protected PreparedStatement clearStatement;
 
 	public AbstractTable(DbPersistence dbPersistence, String prefix, Class<T> clazz) {
+		logger.setLevel(Level.FINEST);
+		
 		this.dbPersistence = dbPersistence;
 		this.name = prefix;
 		this.clazz = clazz;
@@ -54,11 +61,11 @@ public abstract class AbstractTable<T> {
 	}
 
 	private static List<String> findColumnNames(Class<?> clazz) {
-		Map<String, AccessorInterface> accessorsForClass = ColumnAccess.getAccessors(clazz);
+		Map<String, PropertyInterface> propertiesForClass = ColumnProperties.getProperties(clazz);
 		List<String> columnNames = new ArrayList<String>();
-		for (Map.Entry<String, AccessorInterface> entry : accessorsForClass.entrySet()) {
+		for (Map.Entry<String, PropertyInterface> entry : propertiesForClass.entrySet()) {
 			if (entry.getKey().equals("id")) continue;
-			if (!FieldUtils.isList(entry.getValue().getClazz())) {
+			if (!FieldUtils.isList(entry.getValue().getFieldClazz())) {
 				columnNames.add(entry.getKey());
 			}
 		}
@@ -117,34 +124,34 @@ public abstract class AbstractTable<T> {
 	}
 			
 	public void findSubTables() throws SQLException {
-		Map<String, AccessorInterface> accessors = ListColumnAccess.getAccessors(clazz);
-		for (AccessorInterface accessor : accessors.values()) {
-			Class<?> clazz = GenericUtils.getGenericClass(accessor.getType());
-			subTables.put(accessor.getName(), new SubTable(dbPersistence, buildSubTableName(accessor), clazz));
+		Map<String, PropertyInterface> properties = ListColumnAccess.getProperties(clazz);
+		for (PropertyInterface property : properties.values()) {
+			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
+			subTables.put(property.getFieldName(), new SubTable(dbPersistence, buildSubTableName(property), clazz));
 		}
 	}
 	
 	public void collectImmutables() throws SQLException {
-		Map<String, AccessorInterface> accessors = ColumnAccess.getAccessors(clazz);
-		for (AccessorInterface accessor : accessors.values()) {
-			if ("id".equals(accessor.getName())) continue;
-			if (ColumnAccess.isReference(accessor)) {
-				AbstractTable<?> refTable = dbPersistence.getTable(accessor.getClazz());
+		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(clazz);
+		for (PropertyInterface property : properties.values()) {
+			if ("id".equals(property.getFieldName())) continue;
+			if (ColumnProperties.isReference(property)) {
+				AbstractTable<?> refTable = dbPersistence.getTable(property.getFieldClazz());
 				if (refTable == null) {
-					if (accessor.getClazz().equals(List.class)) {
+					if (property.getFieldClazz().equals(List.class)) {
 						throw new IllegalArgumentException("Table: " + getTableName());
 					}
-					refTable = dbPersistence.addImmutableTable(accessor.getClazz());
+					refTable = dbPersistence.addImmutableTable(property.getFieldClazz());
 					refTable.collectImmutables();
 				}
 			}
 		}
 	}
 
-	private String buildSubTableName(AccessorInterface accessor) {
+	private String buildSubTableName(PropertyInterface property) {
 		StringBuilder b = new StringBuilder();
 		b.append(getTableName());
-		String fieldName = StringUtils.upperFirstChar(accessor.getName());
+		String fieldName = StringUtils.upperFirstChar(property.getFieldName());
 		b.append('_'); b.append(fieldName); 
 		return b.toString();
 	}
@@ -234,21 +241,21 @@ public abstract class AbstractTable<T> {
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			Object value = resultSet.getObject(columnIndex);
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			AccessorInterface accessor = ColumnAccess.getAccessorIgnoreCase(clazz, columnName);
-			if (accessor == null) continue;
+			PropertyInterface property = ColumnProperties.getPropertyIgnoreCase(clazz, columnName);
+			if (property == null) continue;
 			if (columnName.equalsIgnoreCase("id")) {
-				accessor.setValue(result, value);
+				property.setValue(result, value);
 				continue;
 			}
 			
-			Class<?> fieldClass = accessor.getClazz();
-			if (ColumnAccess.isReference(accessor)) {
+			Class<?> fieldClass = property.getFieldClazz();
+			if (ColumnProperties.isReference(property)) {
 				int id = value != null ? ((Integer) value).intValue() : 0;
 				value = dereference(fieldClass, id, time);
 			} else {
 				value = convertToFieldClass(fieldClass, value);
 			}
-			accessor.setValue(result, value);
+			property.setValue(result, value);
 		}
 		return result;
 	}
@@ -303,10 +310,36 @@ public abstract class AbstractTable<T> {
 	
 	// TODO configuration of conversation to DB
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
-		if (value instanceof Number) {
-			if (fieldClass.equals(String.class)) {
-				return value.toString();
+		if (value == null) return null;
+		
+		if (fieldClass == BigDecimal.class) {
+//			if (value instanceof Double) {
+//				value = new BigDecimal((Double) value);
+//			} else if (value instanceof Long) {
+//				value = new BigDecimal((Long) value);
+//			} else {
+//				throw new IllegalArgumentException(value.getClass().getSimpleName());
+//			}
+		} else if (fieldClass == LocalDate.class) {
+			if (value instanceof java.sql.Date) {
+				value = new LocalDate((java.sql.Date) value);
+			} else if (value != null) {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
+		} else if (fieldClass == LocalDateTime.class) {
+			if (value instanceof java.sql.Time) {
+				value = new LocalDateTime((java.sql.Time) value);
+			} else if (value != null) {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
+		} else if (fieldClass == Boolean.class) {
+			if (value instanceof Integer) {
+				value = Boolean.valueOf(((int) value) == 1);
+			} else if (value != null) {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
+		} else if (Enum.class.isAssignableFrom(fieldClass)) {
+			value = EnumUtils.valueList((Class<Enum>)fieldClass).get((Integer) value);
 		}
 		return value;
 	}
@@ -318,35 +351,33 @@ public abstract class AbstractTable<T> {
 
 	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert) throws SQLException {
 		logger.fine("Set Parameters: " + object + " DoubleValues: " + doubleValues);
-		StringBuilder loggerStringBuilder = null;
-		if (logger.isLoggable(Level.FINER)) {
-			loggerStringBuilder = new StringBuilder();
-		}
+		final StringBuilder loggerStringBuilder = logger.isLoggable(Level.FINER) ? new StringBuilder() : null;
+
 		int parameterPos = 1;
 		for (String key : columnNames) {
-			AccessorInterface accessor = ColumnAccess.getAccessors(clazz).get(key);
+			PropertyInterface property = ColumnProperties.getProperties(clazz).get(key);
 			
-			Object value = accessor.getValue(object);
+			Object value = property.getValue(object);
 			if (value != null) {
-				if (ColumnAccess.isReference(accessor)) {
+				if (ColumnProperties.isReference(property)) {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
 						System.out.println(object.getClass());
-						System.out.println(accessor.getName());
+						System.out.println(property.getFieldName());
 						throw e;
 					}
 				} 
 				
 				if (loggerStringBuilder != null) {
-					loggerStringBuilder.append(accessor.getName());
+					loggerStringBuilder.append(property.getFieldName());
 					loggerStringBuilder.append('=');
 					loggerStringBuilder.append(value);
 					loggerStringBuilder.append(' ');
 				}
 			}
-			setParameter(statement, parameterPos++, value, accessor.getClazz());
-			if (doubleValues) setParameter(statement, parameterPos++, value, accessor.getClazz());
+			setParameter(statement, parameterPos++, value, property.getFieldClazz());
+			if (doubleValues) setParameter(statement, parameterPos++, value, property.getFieldClazz());
 		}
 
 		if (loggerStringBuilder != null) {
@@ -355,18 +386,44 @@ public abstract class AbstractTable<T> {
 		return parameterPos;
 	}
 			
-	protected static void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
-		if (value != null) {
-			if (clazz.equals(Integer.class) && value instanceof String) {
-				value = Integer.parseInt((String) value); 
+	protected void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
+		if (value == null) {
+			setParameterNull(preparedStatement, param, clazz);
+		} else {
+			if (value instanceof Enum<?>) {
+				Enum<?> e = (Enum<?>) value;
+				if (!InvalidValues.isInvalid(e)) {
+					value = e.ordinal();
+				} else {
+					setParameterNull(preparedStatement, param, clazz);
+					return;
+				}
+			} else if (value instanceof LocalDate) {
+				value = new java.sql.Date(((LocalDate) value).toDate().getTime());
+			} else if (value instanceof LocalDateTime) {
+				value = new java.sql.Time(((LocalDateTime) value).toDate().getTime());
 			}
 			preparedStatement.setObject(param, value);
+		} 
+	}
+
+	protected void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
+		if (clazz == String.class) {
+			preparedStatement.setNull(param, Types.VARCHAR);
+		} else if (clazz == Integer.class) {
+			preparedStatement.setNull(param, Types.INTEGER);
+		} else if (clazz == Boolean.class) {
+			preparedStatement.setNull(param, Types.INTEGER);
+		} else if (clazz == BigDecimal.class) {
+			preparedStatement.setNull(param, Types.DECIMAL);
+		} else if (Enum.class.isAssignableFrom(clazz)) {
+			preparedStatement.setNull(param, Types.INTEGER);
+		} else if (clazz == LocalDate.class) {
+			preparedStatement.setNull(param, Types.DATE);
+		} else if (dbPersistence.getTable(clazz) != null) {
+			preparedStatement.setNull(param, Types.INTEGER);
 		} else {
-			if (clazz.equals(Integer.class)) {
-				preparedStatement.setNull(param, Types.INTEGER);
-			} else {
-				preparedStatement.setNull(param, Types.VARCHAR);
-			}
+			throw new IllegalArgumentException(clazz.getSimpleName());
 		}
 	}
 	
@@ -395,7 +452,7 @@ public abstract class AbstractTable<T> {
 	
 		boolean first = true;	
 		
-		for (String key : ColumnAccess.getNonListKeys(getClazz())) {
+		for (String key : ColumnProperties.getNonListKeys(getClazz())) {
 
 			if (!first) where.append(" AND "); else first = false;
 			

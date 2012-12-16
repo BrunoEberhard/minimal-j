@@ -9,29 +9,31 @@ import org.apache.lucene.document.Field;
 
 import ch.openech.mj.db.DbPersistence;
 import ch.openech.mj.db.SearchableTable;
-import ch.openech.mj.db.model.ColumnAccess;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.example.model.Book;
 
 public class BookTable extends SearchableTable<Book> {
 
-	private static final String[] INDEX_FIELDS = {
+	private static final Object[] INDEX_FIELDS = {
 		BOOK.title, //
 		BOOK.author, //
-		BOOK.date, //
+//		BOOK.date, //
 	};
-	
+
 	public BookTable(DbPersistence dbPersistence) throws SQLException {
 		super(dbPersistence, Book.class, INDEX_FIELDS);
 	}
 
 	@Override
-	protected Field getField(String fieldName, Book object) {
+	protected Field getField(PropertyInterface property, Book object) {
+		String fieldName = property.getFieldName();
+		
 		Field.Index index = Field.Index.ANALYZED;
 		if (fieldName.toLowerCase().contains("date")) {
 			index = Field.Index.NOT_ANALYZED;
 		}
 		
-		String value = (String) ColumnAccess.getValue(object, fieldName);
+		String value = (String) property.getValue(object);
 		if (value != null) {
 			return new Field(fieldName, value, Field.Store.YES, index);
 		} else {
@@ -56,9 +58,9 @@ public class BookTable extends SearchableTable<Book> {
 		return new Book();
 	}
 
-	@Override
-	protected void setField(Book result, String fieldName, String value) {
-		ColumnAccess.setValue(result, fieldName, value);
-	}
+//	@Override
+//	protected void setField(Book result, String fieldName, String value) {
+//		Properties.set(result, fieldName, value);
+//	}
 
 }

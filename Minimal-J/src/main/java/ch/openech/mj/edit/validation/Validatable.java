@@ -1,9 +1,15 @@
 package ch.openech.mj.edit.validation;
 
-import java.util.List;
+
+
 
 public interface Validatable {
 
-	void validate(List<ValidationMessage> resultList);
+	/**
+	 * 
+	 * @param key Key of the field to validate or <code>null</code> to validate entier object
+	 * @return ValidationMessage or <code>null</code> if valid
+	 */
+	String validate();
 	
 }

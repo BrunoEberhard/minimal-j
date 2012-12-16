@@ -20,7 +20,7 @@ public class BookTablePage extends Page implements RefreshablePage {
 	private String text;
 	private VisualTable<Book> table;
 
-	private static final String[] FIELD_NAMES = {
+	private static final Object[] FIELDS = {
 		BOOK.title, //
 		BOOK.author, //
 		BOOK.date, //
@@ -32,7 +32,7 @@ public class BookTablePage extends Page implements RefreshablePage {
 	public BookTablePage(PageContext context, String text) {
 		super(context);
 		this.text = text;
-		table = ClientToolkit.getToolkit().createVisualTable(Book.class, FIELD_NAMES);
+		table = ClientToolkit.getToolkit().createVisualTable(Book.class, FIELDS);
 		table.setClickListener(new BookTableClickListener());
 		refresh();
 	}

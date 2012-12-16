@@ -10,20 +10,19 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.db.model.Constants;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.util.StringUtils;
 
 public class SwingDirectoryField extends JPanel implements EditField<String>, IComponent {
 
-	private final String name;
+	private final PropertyInterface property;
 	private final JTextField textField;
 	private final JButton button;
 	
-	public SwingDirectoryField(Object key) {
+	public SwingDirectoryField(PropertyInterface property) {
 		super(new BorderLayout());
-		name = Constants.getConstant(key);
+		this.property = property;
 		
 		textField = new JTextField();
 		button = new JButton("...");
@@ -55,18 +54,13 @@ public class SwingDirectoryField extends JPanel implements EditField<String>, IC
 	}
 
 	@Override
-	public String getName() {
-		return name;
+	public PropertyInterface getProperty() {
+		return property;
 	}
 
 	@Override
 	public void setChangeListener(ChangeListener changeListener) {
 		// TODO
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return StringUtils.isEmpty(textField.getText());
 	}
 
 	@Override

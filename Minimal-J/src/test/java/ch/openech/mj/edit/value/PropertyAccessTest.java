@@ -4,6 +4,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import ch.openech.mj.db.model.Constants;
+import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.annotation.DerivedProperty;
+
 public class PropertyAccessTest {
 
 	@Test
@@ -11,7 +15,8 @@ public class PropertyAccessTest {
 		TestClass1 object1 = new TestClass1();
 		
 		object1.s1 = "Test";
-		Assert.assertEquals("Get should return the value of the public field", object1.s1, PropertyAccessor.get(object1, "s1"));
+		PropertyInterface property = Constants.getProperty(TestClass1.TEST_CLASS1.s1);
+		Assert.assertEquals("Get should return the value of the public field", object1.s1, property.getValue(object1));
 	}
 
 	@Test
@@ -19,7 +24,8 @@ public class PropertyAccessTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.testClass1.s1 = "TestS1";
-		Assert.assertEquals("Get should return the value of referenced Objects", testObject2.testClass1.s1, PropertyAccessor.get(testObject2, "testClass1.s1"));
+		PropertyInterface property = Constants.getProperty(TestClass2.TEST_CLASS2.testClass1.s1);
+		Assert.assertEquals("Get should return the value of referenced Objects", testObject2.testClass1.s1, property.getValue(testObject2));
 	}
 
 	@Test
@@ -27,10 +33,11 @@ public class PropertyAccessTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setS3("access5");
-		Assert.assertEquals("If private, get should use the getter method", testObject2.getS3(), PropertyAccessor.get(testObject2, "s3"));
+		PropertyInterface property = Constants.getProperty(TestClass2.TEST_CLASS2.getS3());
+		Assert.assertEquals("If private, get should use the getter method", testObject2.getS3(), property.getValue(testObject2));
 		
-		PropertyAccessor.set(testObject2, "s3", "access5a");
-		Assert.assertEquals("If private, get should use the setter method to change value", testObject2.getS3(), PropertyAccessor.get(testObject2, "s3"));
+		property.setValue(testObject2, "access5a");
+		Assert.assertEquals("If private, get should use the setter method to change value", testObject2.getS3(), property.getValue(testObject2));
 	}
 	
 	@Test
@@ -38,10 +45,11 @@ public class PropertyAccessTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setB1(true);
-		Assert.assertEquals("For private boolean, get should use the isXy method", testObject2.isB1(), PropertyAccessor.get(testObject2, "b1"));
+		PropertyInterface property = Constants.getProperty(TestClass2.TEST_CLASS2.getB1());
+		Assert.assertEquals("For private boolean, get should use the isXy method", testObject2.getB1(), property.getValue(testObject2));
 		
-		PropertyAccessor.set(testObject2, "b1", Boolean.FALSE);
-		Assert.assertEquals("For private boolean, set should use the setXy method", testObject2.isB1(), PropertyAccessor.get(testObject2, "b1"));
+		property.setValue(testObject2, Boolean.FALSE);
+		Assert.assertEquals("For private boolean, set should use the setXy method", testObject2.getB1(), property.getValue(testObject2));
 	}
 	
 	@Test
@@ -49,28 +57,39 @@ public class PropertyAccessTest {
 		TestClass2 testObject2 = new TestClass2();
 		
 		testObject2.testClass1.b2 = true;
-		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.isB2(), PropertyAccessor.get(testObject2, "testClass1.b2"));
+		PropertyInterface property = Constants.getProperty(TestClass2.TEST_CLASS2.testClass1.getB2());
+		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.getB2(), property.getValue(testObject2));
 
 		testObject2.testClass1.b2 = false; 
-		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.isB2(), PropertyAccessor.get(testObject2, "testClass1.b2"));
+		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.getB2(), property.getValue(testObject2));
 	}
 	
 	public static class TestClass1 {
+		public static final TestClass1 TEST_CLASS1 = Constants.of(TestClass1.class);
+
 		public String s1;
-		private boolean b2;
+		private Boolean b2;
 		
-		public boolean isB2() {
+		@DerivedProperty
+		public Boolean getB2() {
 			return b2;
+		}
+		
+		public void setB2(Boolean b2) {
+			this.b2 = b2;
 		}
 	}
 
 	public static class TestClass2 {
+		public static final TestClass2 TEST_CLASS2 = Constants.of(TestClass2.class);
+		
 		public String s2;
 		private String s3;
-		private boolean b1;
+		private Boolean b1;
 		public final TestClass1 testClass1 = new TestClass1();
 		public final TestClass1 tc1 = new TestClass1();
 		
+		@DerivedProperty
 		public String getS3() {
 			return s3;
 		}
@@ -79,11 +98,12 @@ public class PropertyAccessTest {
 			this.s3 = s3;
 		}
 		
-		public boolean isB1() {
+		@DerivedProperty
+		public Boolean getB1() {
 			return b1;
 		}
 		
-		public void setB1(boolean b1) {
+		public void setB1(Boolean b1) {
 			this.b1 = b1;
 		}
 	}

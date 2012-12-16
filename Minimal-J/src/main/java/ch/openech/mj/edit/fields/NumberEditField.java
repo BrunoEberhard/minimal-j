@@ -1,62 +1,40 @@
 package ch.openech.mj.edit.fields;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.edit.validation.Validatable;
-import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.TextField.TextFieldFilter;
-import ch.openech.mj.util.StringUtils;
 
 
-public class NumberEditField implements EditField<Object>, Validatable, DemoEnabled {
+public abstract class NumberEditField<T> implements EditField<T> {
 
-	private final String name;
-	private final int size, decimalPlaces;
-	private final Class<?> clazz;
+	private final PropertyInterface property;
+	protected final boolean negative;
+	protected final int size, decimalPlaces;
 	
-	private final TextField textField;
+	protected final TextField textField;
 	private ChangeListener changeListener;
 	
-	public NumberEditField(String name, Class<?> clazz, int size, int decimalPlaces, boolean negative) {
-		this.name = name;
-		this.clazz = clazz;
+	protected NumberEditField(PropertyInterface property, int size, int decimalPlaces, boolean negative) {
+		this.property = property;
 		this.size = size;
 		this.decimalPlaces = decimalPlaces;
+		this.negative = negative;
 		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), new NumberTextFieldFilter(size, decimalPlaces, negative));
 	}
 
-
 	@Override
-	public String getName() {
-		return name;
+	public PropertyInterface getProperty() {
+		return property;
 	}
 
 	@Override
 	public IComponent getComponent() {
 		return textField;
-	}
-
-	@Override
-	public void setObject(Object number) {
-		textField.setText(number != null ? number.toString() : null);
-	}
-
-	@Override
-	public Object getObject() {
-		return textField.getText();
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return StringUtils.isEmpty(textField.getText());
 	}
 
 	@Override
@@ -79,40 +57,33 @@ public class NumberEditField implements EditField<Object>, Validatable, DemoEnab
 		}
 	}
 
-	@Override
-	public void fillWithDemoData() {
-		if (clazz == Integer.class) {
-			// TODO
-		}
-	}
-
-	@Override
-	public void validate(List<ValidationMessage> list) {
-		if (clazz == BigDecimal.class) {
-			String text = textField.getText();
-			if (!StringUtils.isEmpty(text)) {
-				try {
-					new BigDecimal(text);
-				} catch (NumberFormatException x) {
-					list.add(new ValidationMessage(getName(), "Ungültig"));
-				}
-
-				int index = text.indexOf('.');
-				if (index >= 0) {
-					if (index > size - decimalPlaces) {
-						list.add(new ValidationMessage(getName(), "Zu gross"));
-					}
-					if (text.length() - index - 1 > decimalPlaces) {
-						list.add(new ValidationMessage(getName(), "Zu präzis"));
-					}
-				} else {
-					if (text.length() > size - decimalPlaces) {
-						list.add(new ValidationMessage(getName(), "Zu gross"));
-					}
-				}
-			}
-		}
-	}
+//	@Override
+//	public void validate(List<ValidationMessage> list) {
+//		if (clazz == BigDecimal.class) {
+//			String text = textField.getText();
+//			if (!StringUtils.isEmpty(text)) {
+//				try {
+//					new BigDecimal(text);
+//				} catch (NumberFormatException x) {
+//					list.add(new ValidationMessage(getName(), "Ungültig"));
+//				}
+//
+//				int index = text.indexOf('.');
+//				if (index >= 0) {
+//					if (index > size - decimalPlaces) {
+//						list.add(new ValidationMessage(getName(), "Zu gross"));
+//					}
+//					if (text.length() - index - 1 > decimalPlaces) {
+//						list.add(new ValidationMessage(getName(), "Zu präzis"));
+//					}
+//				} else {
+//					if (text.length() > size - decimalPlaces) {
+//						list.add(new ValidationMessage(getName(), "Zu gross"));
+//					}
+//				}
+//			}
+//		}
+//	}
 	
 	private static class NumberTextFieldFilter implements TextFieldFilter {
 		private final int size, decimalPlaces;

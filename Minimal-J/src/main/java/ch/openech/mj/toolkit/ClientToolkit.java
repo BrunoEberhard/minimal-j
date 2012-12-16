@@ -56,9 +56,7 @@ public abstract class ClientToolkit {
 
 	// Layouts
 	
-	public abstract IComponent decorateWithCaption(IComponent component, String caption);
-	
-	public abstract Indicator decorateWithIndicator(IComponent decorated);
+	public abstract Caption decorateWithCaption(IComponent component, String caption);
 	
 	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
 

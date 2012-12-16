@@ -112,12 +112,12 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 
 //	@Override
 //	public void setKeyListener(KeyListener keyListener) {
-//		if (this.keyListener != null) {
-//			removeKeyListener(this.keyListener);
+//		if (this.propertyListener != null) {
+//			removeKeyListener(this.propertyListener);
 //		}
-//		this.keyListener = keyListener;
-//		if (this.keyListener != null) {
-//			addKeyListener(this.keyListener);
+//		this.propertyListener = keyListener;
+//		if (this.propertyListener != null) {
+//			addKeyListener(this.propertyListener);
 //		}
 //	}
 	

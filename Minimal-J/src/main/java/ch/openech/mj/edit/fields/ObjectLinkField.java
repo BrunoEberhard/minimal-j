@@ -2,17 +2,18 @@ package ch.openech.mj.edit.fields;
 
 import javax.swing.Action;
 
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.EditorDialogAction;
 
 public abstract class ObjectLinkField<T> extends ObjectField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
-	public ObjectLinkField(Object key) {
-		this(key, true);
+	public ObjectLinkField(PropertyInterface property) {
+		this(property, true);
 	}
 
-	public ObjectLinkField(Object key, boolean editable) {
-		super(key, editable);
+	public ObjectLinkField(PropertyInterface property, boolean editable) {
+		super(property, editable);
 	}
 
 	@Override

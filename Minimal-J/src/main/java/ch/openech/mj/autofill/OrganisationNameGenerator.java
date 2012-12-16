@@ -35,6 +35,7 @@ public class OrganisationNameGenerator {
 			names.add(name);
 		}
 		Collections.shuffle(names);
+		scanner.close();
 	}
 	
 }

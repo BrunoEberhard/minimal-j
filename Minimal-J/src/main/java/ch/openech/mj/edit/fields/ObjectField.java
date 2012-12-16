@@ -1,8 +1,12 @@
 package ch.openech.mj.edit.fields;
 
+import java.util.List;
+
 import ch.openech.mj.db.EmptyObjects;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
+import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.FlowField;
@@ -25,12 +29,12 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 	private T object;
 	protected final FlowField visual;
 	
-	public ObjectField(Object key) {
-		this(key, true);
+	public ObjectField(PropertyInterface property) {
+		this(property, true);
 	}
 	
-	public ObjectField(Object key, boolean editable) {
-		super(key, editable);
+	public ObjectField(PropertyInterface property, boolean editable) {
+		super(property, editable);
 		visual = ClientToolkit.getToolkit().createFlowField();
 	}
 
@@ -44,7 +48,12 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 		this.object = object;
 		fireObjectChange();
 	}
-	
+
+	protected void validate(T changedObject, List<ValidationMessage> resultList) {
+		// to be overwritten.
+		
+	}
+
 	@Override
 	public IComponent getComponent() {
 		return visual;
@@ -70,6 +79,12 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 			// (because of some strange erasure thing)
 			return ObjectField.this.newInstance();
 		}
+
+//		@Override
+//		protected void validate(T object, List<ValidationMessage> resultList) {
+//			super.validate(object, resultList);
+//			ObjectField.this.validate(object, resultList);
+//		}
 
 		@Override
 		public boolean save(T edited) {
@@ -99,7 +114,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 		super.fireChange();
 	}
 
-	@Override
 	public boolean isEmpty() {
 		Object object = getObject();
 		return object == null || EmptyObjects.isEmpty(object);

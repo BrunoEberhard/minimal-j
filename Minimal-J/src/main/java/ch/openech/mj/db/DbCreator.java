@@ -4,16 +4,16 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import ch.openech.mj.db.model.AccessorInterface;
-import ch.openech.mj.db.model.ColumnAccess;
-import ch.openech.mj.db.model.Format;
-import ch.openech.mj.db.model.Formats;
-import ch.openech.mj.db.model.NumberFormat;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+
+import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.db.model.ColumnProperties;
+import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.util.FieldUtils;
 
 public class DbCreator {
@@ -34,6 +34,7 @@ public class DbCreator {
 			List<String> createStatements = getCreateStatements(table);
 			for (String createStatement : createStatements) {
 				logger.fine(createStatement);
+				System.out.println(createStatement);
 				statement.execute(createStatement);
 			}
 		} finally {
@@ -60,24 +61,20 @@ public class DbCreator {
 		s.append("CREATE TABLE "); s.append(table.getTableName()); s.append(" (\n");
 		appendIdColumn(s);
 		
-		Map<String, AccessorInterface> accessors = ColumnAccess.getAccessors(table.getClazz());
+		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(table.getClazz());
 		for (String column : table.getColumnNames()) {
-			AccessorInterface accessor = accessors.get(column);
-			if (FieldUtils.isList(accessor.getClazz())) continue;
+			PropertyInterface property = properties.get(column);
+			if (FieldUtils.isList(property.getFieldClazz())) continue;
 			
-			s.append(" "); s.append(column);
-			Format format = Formats.getInstance().getFormat(accessor);
-			if (format != null) {
-				String dbType = convertClassToActualDB(format.getClazz());
-				s.append(" ");  s.append(dbType);
-				appendSize(s, dbType, format);
-			} else if (ColumnAccess.isReference(accessor)) {
-				s.append(" INTEGER");
+			s.append(" "); s.append(column); s.append(" "); 
+
+			if (ColumnProperties.isReference(property)) {
+				s.append("INTEGER");
 			} else {
-				throw new IllegalArgumentException(column + " in Table: " + table.getTableName());
+				addColumnDefinition(s, property);
 			}
 			
-			s.append(ColumnAccess.isRequired(accessor) ? " NOT NULL" : " DEFAULT NULL");
+			s.append(ColumnProperties.isRequired(property) ? " NOT NULL" : " DEFAULT NULL");
 			
 //Eine Referenz auf eine einzelne Spalte, die nicht primary key ist
 //scheint in Derby nicht möglich
@@ -145,44 +142,50 @@ public class DbCreator {
 //		return s.toString();
 //	}
 	
-	private String convertClassToActualDB(Class<?> clazz) {
-		if (clazz.equals(String.class) || clazz.equals(Date.class)) return "VARCHAR";
-		if (clazz.equals(Integer.class)) return "INTEGER";
-		if (clazz.equals(BigDecimal.class)) return "DECIMAL";
-		if (clazz.equals(Boolean.class)) {
-			if (dbPersistence.isDerbyDb()) {
-				if (clazz.equals(Boolean.class)) return "SMALLINT";
+	/**
+	 * Only public for tests. If this method doesnt throw an IllegalArgumentException
+	 * then a property is valid
+	 * 
+	 * @param s
+	 * @param property
+	 */
+	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		Class<?> clazz = property.getFieldClazz();
+		
+		if (clazz.equals(Integer.class)) {
+			s.append("INTEGER");
+		} else if (clazz.equals(String.class)) {
+			s.append("VARCHAR");
+			int size = AnnotationUtil.getSize(property);
+			s.append(" ("); s.append(size); s.append(")");
+		} else if (clazz.equals(LocalDate.class)) {
+			// TODO check partial
+			s.append("DATE");
+		} else if (clazz.equals(LocalDateTime.class)) {
+			// TODO check partial
+			s.append("TIME");			
+		} else if (clazz.equals(BigDecimal.class)) {
+			s.append("DECIMAL");
+			int size = AnnotationUtil.getSize(property);
+			int decimal = AnnotationUtil.getDecimal(property);
+			if (decimal == 0) {
+				s.append(" (" + size + ")");
 			} else {
-				if (clazz.equals(Boolean.class)) return "BIT";
+				s.append(" (" + size + ", " + decimal + ")");
 			}
-		}
-		throw new IllegalArgumentException(clazz.toString());
-//			if ("BIT".equals(accessorInterface) || "TINYINT".equals(accessorInterface)) accessorInterface = "SMALLINT";
-//			if ("LONGVARCHAR".equals(accessorInterface)) accessorInterface = "CLOB";
-//		} else if (dbPersistence.isMySqlDb()) {
-//			if ("LONGVARCHAR".equals(accessorInterface)) accessorInterface = "TEXT";
-//		}
-//		return accessorInterface;
-	}
-	
-	private void appendSize(StringBuilder s, String type, Format format) {
-		int size = format.getSize();
-		if (dbPersistence.isDerbyDb()) {
-			// Integer and Timestamp have no size in Derby DB
-			if (type.equals("DECIMAL")) {
-				s.append("("); s.append(size); s.append(", "); s.append(((NumberFormat) format).getDecimalPlaces()) ; s.append(")"); 
-			} else if (size != 0 && !type.contains("INT") && !type.equals("TIMESTAMP")) { 
-				s.append("("); s.append(size); s.append(")"); 
+		} else if (clazz.equals(Boolean.class)) {
+			if (dbPersistence.isDerbyDb()) {
+				s.append("SMALLINT");
+			} else {
+				s.append("BIT");
 			}
-		} else if (dbPersistence.isMySqlDb()) {
-			if (type.equals("DECIMAL")) {
-				s.append("("); s.append(size); s.append(((NumberFormat) format).getDecimalPlaces()) ; s.append(","); s.append(")"); 
-			} else if (size != 0 && !type.equals("TIMESTAMP")) { 
-				s.append("("); s.append(size); s.append(")");
-			}
+		} else if (Enum.class.isAssignableFrom(clazz)) {
+			// TODO MySql enum?S
+			s.append("INTEGER");
+		} else {
+			throw new IllegalArgumentException(property.getFieldName() +": " + clazz.toString());
 		}
 	}
-
 	
 	private void appendIdColumn(StringBuilder s) {
 		if (dbPersistence.isDerbyDb()) {

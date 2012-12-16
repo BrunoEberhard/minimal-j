@@ -6,33 +6,28 @@ import javax.swing.event.ChangeListener;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.autofill.FirstNameGenerator;
 import ch.openech.mj.autofill.NameGenerator;
-import ch.openech.mj.db.model.Formats;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.util.StringUtils;
 
 
 public class TextEditField implements EditField<String>, DemoEnabled {
 
-	private final String name;
+	private final PropertyInterface property;
 	private final int maxLength;
 	private final TextField textField;
 	private ChangeListener changeListener;
 
-	public TextEditField(String name, Class<?> ofClass) {
-		this(name, Formats.getInstance().getFormat(ofClass, name).getSize());
-	}
-	
-	public TextEditField(String name, int maxLength) {
-		this.name = name;
+	public TextEditField(PropertyInterface property, int maxLength) {
+		this.property =  property;
 		this.maxLength = maxLength;
 		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), maxLength);
 	}
 
 	@Override
-	public String getName() {
-		return name;
+	public PropertyInterface getProperty() {
+		return property;
 	}
 
 	@Override
@@ -56,11 +51,6 @@ public class TextEditField implements EditField<String>, DemoEnabled {
 	}
 
 	@Override
-	public boolean isEmpty() {
-		return StringUtils.isEmpty(getObject());
-	}
-
-	@Override
 	public void setChangeListener(ChangeListener changeListener) {
 		if (changeListener == null) {
 			throw new IllegalArgumentException("ChangeListener must not be null");
@@ -73,7 +63,7 @@ public class TextEditField implements EditField<String>, DemoEnabled {
 
 	@Override
 	public void fillWithDemoData() {
-		String name = getName();
+		String name = property.getFieldName();
 		
 		// if (numeric) setObject(NumberGenerator.generate(minLength, maxLength));
 		/* else */ if (name.startsWith("street")) setObject(NameGenerator.street());

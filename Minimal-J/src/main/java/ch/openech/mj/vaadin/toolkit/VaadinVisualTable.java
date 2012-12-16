@@ -1,9 +1,10 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.openech.mj.db.model.Constants;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.VisualTable;
 import ch.openech.mj.vaadin.PropertyVaadinContainer;
@@ -15,21 +16,22 @@ import com.vaadin.ui.Table;
 public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 
 	private final Class<T> clazz;
-	private final String[] fieldNames;
+	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private List<T> objects;
 	private ClickListener clickListener;
 	private VaadinVisualTableItemClickListener tableClickListener;
 
-	public VaadinVisualTable(Class<T> clazz, Object[] fields) {
+	public VaadinVisualTable(Class<T> clazz, Object[] keys) {
 		this.clazz = clazz;
-		this.fieldNames = Constants.getConstants(fields);
 		setSelectable(true);
 		setMultiSelect(false);
 		setSizeFull();
 		
-		for (String fieldName : fieldNames) {
-			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), clazz, fieldName);
-			setColumnHeader(fieldName, header);
+		for (Object key : keys) {
+			PropertyInterface property = Constants.getProperty(key);
+			properties.add(property);
+			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+			setColumnHeader(property, header);
 		}
 	}
 	
@@ -41,7 +43,7 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 	@Override
 	public void setObjects(List<T> list) {
 		this.objects = list;
-		setContainerDataSource(new PropertyVaadinContainer(clazz, list, (List<String>)Arrays.asList(fieldNames)));
+		setContainerDataSource(new PropertyVaadinContainer(clazz, list, properties));
 	}
 
 	@Override

@@ -1,14 +1,15 @@
 package ch.openech.mj.edit.fields;
 
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 
-public class CheckBoxStringField extends AbstractEditField<String> {
+public class CheckBoxStringField extends AbstractEditField<Boolean> {
 	private final CheckBox checkBox;
 	
-	public CheckBoxStringField(Object key, String text, boolean editable) {
-		super(key, editable);
+	public CheckBoxStringField(PropertyInterface property, String text, boolean editable) {
+		super(property, editable);
 		checkBox = ClientToolkit.getToolkit().createCheckBox(listener(), text);
 		checkBox.setEnabled(editable);
 	}
@@ -19,16 +20,13 @@ public class CheckBoxStringField extends AbstractEditField<String> {
 	}
 	
 	@Override
-	public String getObject() {
-		return checkBox.isSelected() ? "1" : "0";
+	public Boolean getObject() {
+		return checkBox.isSelected();
 	}		
 	
 	@Override
-	public void setObject(String value) {
-		checkBox.setSelected("1".equals(value));
+	public void setObject(Boolean value) {
+		checkBox.setSelected(Boolean.TRUE.equals(value));
 	}
 
-	public static boolean isTrue(Object value) {
-		return "1".equals(value);
-	}
 }

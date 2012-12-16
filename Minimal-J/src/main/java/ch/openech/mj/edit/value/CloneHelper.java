@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ch.openech.mj.db.model.AccessorInterface;
-import ch.openech.mj.db.model.ColumnAccess;
+import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.db.model.ListColumnAccess;
 
 public class CloneHelper {
@@ -34,32 +34,32 @@ public class CloneHelper {
 	}
 
 	private static void deepCopyNonListFields(Object from, Object to) {
-		List<String> keys = ColumnAccess.getNonListKeys(from.getClass());
+		List<String> keys = ColumnProperties.getNonListKeys(from.getClass());
 		for (String key: keys) {
-			AccessorInterface accessor = ColumnAccess.getAccessors(from.getClass()).get(key);
-			Object fromValue = accessor.getValue(from);
-			if (accessor.isFinal()) {
-				Object toValue = accessor.getValue(to);
+			PropertyInterface property = ColumnProperties.getProperties(from.getClass()).get(key);
+			Object fromValue = property.getValue(from);
+			if (property.isFinal()) {
+				Object toValue = property.getValue(to);
 				deepCopy(fromValue, toValue);
-			} else if (fromValue != null && ColumnAccess.isReference(accessor)) {
+			} else if (fromValue != null && ColumnProperties.isReference(property)) {
 				Object copyValue = CloneHelper.clone(fromValue);
-				accessor.setValue(to, copyValue);
+				property.setValue(to, copyValue);
 			} else {
-				accessor.setValue(to, fromValue);
+				property.setValue(to, fromValue);
 			}
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void deepCopyListFields(Object from, Object to) {
-		Map<String, AccessorInterface> listAccessors = ListColumnAccess.getAccessors(from.getClass());
-		for (AccessorInterface accessor : listAccessors.values()) {
-			List fromValue = (List)accessor.getValue(from);
+		Map<String, PropertyInterface> listProperties = ListColumnAccess.getProperties(from.getClass());
+		for (PropertyInterface property : listProperties.values()) {
+			List fromValue = (List)property.getValue(from);
 			if (fromValue == null) continue;
-			List toValue = (List)accessor.getValue(to);
-			if (!accessor.isFinal()) {
+			List toValue = (List)property.getValue(to);
+			if (!property.isFinal()) {
 				toValue = new ArrayList();
-				accessor.setValue(to, toValue);
+				property.setValue(to, toValue);
 			}
 			for (Object element : fromValue) {
 				toValue.add(clone(element));

@@ -5,18 +5,14 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.util.StringUtils;
+import ch.openech.mj.db.model.PropertyInterface;
 
 public class ValidationMessage {
 
 	private String formattedText;
-	private String key;
+	private Object key;
 
 	public ValidationMessage(Object key, String formattedText) {
-		this(Constants.getConstant(key), formattedText);
-	}
-	
-	public ValidationMessage(String key, String formattedText) {
 		this.key = key;
 		this.formattedText = formattedText;
 	}
@@ -25,30 +21,51 @@ public class ValidationMessage {
 		return formattedText;
 	}
 
-	public String getKey() {
+	public Object getKey() {
 		return key;
 	}
 
+	public PropertyInterface getProperty() {
+		if (key instanceof PropertyInterface) {
+			return (PropertyInterface) key;
+		} else {
+			return Constants.getProperty(key);
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return "ValidationMessage [key=" + key + ", formattedText=" + formattedText + "]";
 	}
 	
-	public static List<ValidationMessage> filterValidationMessage(List<ValidationMessage> validationMessages, String fieldName) {
-		List<ValidationMessage> filteredMessages = Collections.emptyList();
+//	public static List<ValidationMessage> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
+//		List<ValidationMessage> filteredMessages = Collections.emptyList();
+//		if (validationMessages != null) {
+//			for (ValidationMessage validationMessage : validationMessages) {
+//				if (validationMessage.getProperty().equals(property)) {
+//					if (filteredMessages.isEmpty()) {
+//						filteredMessages = new ArrayList<ValidationMessage>();
+//					}
+//					filteredMessages.add(validationMessage);
+//				}
+//			}
+//		}
+//		return filteredMessages;
+//	}
+
+	public static List<String> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
+		List<String> filteredMessages = new ArrayList<String>();
 		if (validationMessages != null) {
 			for (ValidationMessage validationMessage : validationMessages) {
-				if (StringUtils.equals(validationMessage.getKey(), fieldName)) {
-					if (filteredMessages.isEmpty()) {
-						filteredMessages = new ArrayList<ValidationMessage>();
-					}
-					filteredMessages.add(validationMessage);
+				if (validationMessage.getProperty().equals(property)) {
+					filteredMessages.add(validationMessage.getFormattedText());
 				}
 			}
 		}
 		return filteredMessages;
 	}
 
+	
 	public static String formatHtml(List<ValidationMessage> validationMessages) {
 		if (validationMessages.size() > 0) {
 			StringBuilder s = new StringBuilder();
@@ -65,5 +82,30 @@ public class ValidationMessage {
 			return null;
 		}
 	}
-	
+
+	public static String formatHtmlString(List<String> validationMessages) {
+		if (validationMessages.size() > 0) {
+			StringBuilder s = new StringBuilder();
+			s.append("<html>");
+			for (int i = 0; i<validationMessages.size(); i++) {
+				s.append(validationMessages.get(i));
+				if (i < validationMessages.size() - 1) {
+					s.append("<br>");
+				}
+			}
+			s.append("</html>");
+			return s.toString();
+		} else {
+			return null;
+		}
+	}
+
+	public static String formatHtml(String validationMessage) {
+		StringBuilder s = new StringBuilder();
+		s.append("<html>");
+		s.append(validationMessage);
+		s.append("</html>");
+		return s.toString();
+	}
+
 }

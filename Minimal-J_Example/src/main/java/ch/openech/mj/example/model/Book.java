@@ -1,29 +1,28 @@
 package ch.openech.mj.example.model;
 
-import static ch.openech.mj.db.model.annotation.PredefinedFormat.Boolean;
-import static ch.openech.mj.db.model.annotation.PredefinedFormat.Date;
-import static ch.openech.mj.db.model.annotation.PredefinedFormat.Decimal6_2;
-import static ch.openech.mj.db.model.annotation.PredefinedFormat.Int4;
-import static ch.openech.mj.db.model.annotation.PredefinedFormat.String30;
+import java.math.BigDecimal;
+
+import org.joda.time.LocalDate;
+
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.annotation.Is;
 import ch.openech.mj.edit.value.Required;
+import ch.openech.mj.example.ExampleFormats;
+import ch.openech.mj.model.annotation.Decimal;
+import ch.openech.mj.model.annotation.Size;
 
 
 public class Book {
 	public static final Book BOOK = Constants.of(Book.class);
 
-	@Is(String30) @Required 
+	@Required @Size(ExampleFormats.NAME) 
 	public String title = "ab";
-	public String media = "1";
-	@Is("baseName")
+	public Media media = Media.hardcover;
+	@Size(ExampleFormats.NAME)
 	public String author = "cd";
-	@Is(Boolean)
-	public String available = "1";
-	@Is(Date)
-	public String date = "2009-01-01";
-	@Is(Int4)
-	public String pages = "3";
-	@Is(Decimal6_2)
-	public String price = "3";
+	public Boolean available = Boolean.TRUE;
+	public LocalDate date = new LocalDate(2009, 1, 1);
+	@Size(4)
+	public Integer pages = 3;
+	@Size(6) @Decimal(2)
+	public BigDecimal price;
 }

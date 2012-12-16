@@ -5,11 +5,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+
 
 public class DateUtils {
 
 	public static final DateFormat dateFormatUS = new SimpleDateFormat("yyyy-MM-dd");
-	public static final DateFormat dateFormatCH = new SimpleDateFormat("dd.MM.yyyy");
 	
 	private static class TrippleString {
 		public String s1, s2, s3;
@@ -128,17 +130,9 @@ public class DateUtils {
 		return pad(completeYear(trippleString.s1), 4) + "-" + pad(trippleString.s2, 2) + "-" + pad(trippleString.s3, 2);
 	}
 
-	public static String formatCH(String text) {
-		if (StringUtils.isBlank(text)) return null;
-		
-		if (text.length() == 4) {
-			return text;
-		} else if (text.length() == 7) {
-			return text.substring(5,7) + "." + text.substring(0, 4);
-		}
-		
-		TrippleString trippleString = new TrippleString(text);
-		return trippleString.s3 + "." + trippleString.s2 + "." + trippleString.s1;
+	public static String formatCH(LocalDate date) {
+		if (date == null) return null;
+		return DateTimeFormat.shortDate().print(date);
 	}
 	
 	private static SimpleDateFormat xsdDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -200,11 +194,6 @@ public class DateUtils {
 			return false;
 		}
 		return true;
-	}
-	
-	public static String getToday() {
-		Date date = new Date();
-		return DateUtils.dateFormatUS.format(date);
 	}
 	
 }

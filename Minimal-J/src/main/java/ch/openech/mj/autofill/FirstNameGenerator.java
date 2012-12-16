@@ -65,6 +65,7 @@ public class FirstNameGenerator {
 			if (!type.contains("M")) femals.add(nameWithFrequency);
 			if (!type.contains("F")) males.add(nameWithFrequency);
 		}
+		scanner.close();
 	}
 	
 }

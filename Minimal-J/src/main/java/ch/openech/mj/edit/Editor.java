@@ -3,6 +3,7 @@ package ch.openech.mj.edit;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JOptionPane;
@@ -10,15 +11,22 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
+import ch.openech.mj.db.model.EmptyValidator;
+import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.edit.form.Form.FormChangeEvent;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
+import ch.openech.mj.edit.validation.Validation;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
+import ch.openech.mj.edit.value.Required;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
+
+import com.google.gwt.dev.util.collect.HashMap;
 
 /**
  * An <code>Editor</code> knows
@@ -71,10 +79,12 @@ import ch.openech.mj.toolkit.ConfirmDialogListener;
  */
 public abstract class Editor<T> {
 
-	private T original;
+	private T original, editedObject;
 	private IForm<T> form;
 	private SaveAction saveAction;
 	private EditorFinishedListener editorFinishedListener;
+	private final Map<PropertyInterface, String> propertyValidations = new HashMap<>();
+	private final Map<PropertyInterface, String> emptyValidations = new HashMap<>();
 	private Indicator indicator;
 	private boolean saveable = true;
 	private boolean userEdited;
@@ -94,17 +104,21 @@ public abstract class Editor<T> {
 		return null;
 	}
 	
-	/**
-	 * Override this method for a validation specific for this editor.
-	 * (Implement Validatable on the object itself for a general validation
-	 * on the object)
-	 * 
-	 * @param object
-	 * @param resultList
-	 */
-	protected void validate(T object, List<ValidationMessage> resultList){
-		// to be overwritten
-	}
+//	/**
+//	 * Override this method for a validation specific for this editor.
+//	 * (Implement Validatable on the object itself for a general validation
+//	 * on the object). You can call super on your own validate method but you
+//	 * dont have to. If only a part of the fields of the object should be
+//	 * validated normally you wont call super.
+//	 * 
+//	 * @param object
+//	 * @param resultList
+//	 */
+//	protected void validate(T object) {
+//		if (object instanceof Validation) {
+//			List<String> resultList = ((Validation) object).validate();
+//		}
+//	}
 
 	protected abstract boolean save(T object) throws Exception;
 
@@ -134,12 +148,11 @@ public abstract class Editor<T> {
 		
 		original = load();
 		if (original != null) {
-			T copy = CloneHelper.clone(original);
-			form.setObject(copy);
+			editedObject = CloneHelper.clone(original);
 		} else {
-			T newInstance = newInstance();
-			form.setObject(newInstance);
+			editedObject = newInstance();
 		}
+		form.setObject(editedObject);
 		
 		form.setSaveAction(saveAction());
 		userEdited = false;
@@ -192,7 +205,7 @@ public abstract class Editor<T> {
 	}
 	
 	protected final T getObject() {
-		return form.getObject();
+		return editedObject;
 	}
 	
 	protected final void save() {
@@ -240,39 +253,62 @@ public abstract class Editor<T> {
 	private class EditorChangeListener implements ChangeListener {
 
 		public EditorChangeListener() {
-			update(getObject());
+			updateValidation();
 		}
 		
 		@Override
 		public void stateChanged(ChangeEvent e) {
+			FormChangeEvent event = (FormChangeEvent) e;
+			
+			Object newPropertyValue = event.getValue();
+			PropertyInterface property = event.getProperty();
+			
+			property.setValue(editedObject, newPropertyValue);
+			
+			propertyValidations.remove(property);
+			if (newPropertyValue instanceof Validatable) {
+				String validationMessage = ((Validatable) newPropertyValue).validate();
+				if (validationMessage != null) {
+					propertyValidations.put(property, validationMessage);
+				}
+			}
+			updateValidation();
+			
 			userEdited = true;
-			update(getObject());
 		}
 	}
 
-	private void update(T object) {
-		List<ValidationMessage> validationResult = validate(object);
-		indicate(validationResult);
+	private void updateValidation() {
+		List<ValidationMessage> validationMessages = new ArrayList<>();
+		if (editedObject instanceof Validation) {
+			((Validation) editedObject).validate(validationMessages);
+		}
+		validateForEmpty(validationMessages);
+		indicate(validationMessages);
 	}
 	
-	private List<ValidationMessage> validate(T object) {
-		List<ValidationMessage> validationResult = new ArrayList<ValidationMessage>();
-		if (object instanceof Validatable) {
-			Validatable validatable = (Validatable) object;
-			validatable.validate(validationResult);
+	private void validateForEmpty(List<ValidationMessage> validationMessages) {
+		for (PropertyInterface property : form.getProperties()) {
+			if (property.getAnnotation(Required.class) != null) {
+				EmptyValidator.validate(validationMessages, editedObject, property);
+			}
 		}
-		form.validate(validationResult);
-		validate(object, validationResult);
-		return validationResult;
 	}
 	
-	final void indicate(List<ValidationMessage> validationResult) {
-		saveable = validationResult.isEmpty();
-		form.setValidationMessages(validationResult);
-		saveAction.setValidationMessages(validationResult);
-		if (indicator != null) {
-			indicator.setValidationMessages(validationResult);
+	protected void validate(T object, List<ValidationMessage> resultList) {
+		// overwrite this method to add Editor specific validation
+	}
+	
+	final void indicate(List<ValidationMessage> validationMessages) {
+		for (PropertyInterface property : form.getProperties()) {
+			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
+			if (filteredValidationMessages.contains(property)) {
+				filteredValidationMessages.add(propertyValidations.get(property));
+			}
+			form.setValidationMessage(property, filteredValidationMessages);
 		}
+		
+		saveable = validationMessages.isEmpty() && propertyValidations.isEmpty();
 	}
 	
 	protected final boolean isSaveable() {

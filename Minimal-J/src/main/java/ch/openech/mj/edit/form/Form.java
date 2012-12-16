@@ -1,49 +1,43 @@
 package ch.openech.mj.edit.form;
 
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.joda.time.LocalDate;
+
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.AccessorInterface;
-import ch.openech.mj.db.model.BooleanFormat;
-import ch.openech.mj.db.model.Code;
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.DateFormat;
-import ch.openech.mj.db.model.Format;
-import ch.openech.mj.db.model.Formats;
-import ch.openech.mj.db.model.NumberFormat;
-import ch.openech.mj.db.model.PlainFormat;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.ChangeableValue;
+import ch.openech.mj.edit.fields.BigDecimalEditField;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
 import ch.openech.mj.edit.fields.CodeEditField;
+import ch.openech.mj.edit.fields.CodeFormField;
 import ch.openech.mj.edit.fields.DateField;
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.edit.fields.FormField;
-import ch.openech.mj.edit.fields.NumberEditField;
+import ch.openech.mj.edit.fields.IntegerEditField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
-import ch.openech.mj.edit.fields.TypeUnknownField;
-import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.Validatable;
-import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.edit.value.PropertyAccessor;
-import ch.openech.mj.edit.value.Required;
+import ch.openech.mj.model.annotation.AnnotationUtil;
+import ch.openech.mj.model.annotation.PartialDate;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.GenericUtils;
-import ch.openech.mj.util.StringUtils;
 
 public class Form<T> implements IForm<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getName());
@@ -54,9 +48,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private final int columns;
 	private final GridFormLayout layout;
 	
-	private final List<FormField<?>> fields = new ArrayList<FormField<?>>();
-	private final List<EditField<?>> mandatoryFields = new ArrayList<EditField<?>>();
-	private final Map<String, Indicator> indicators = new HashMap<String, Indicator>();
+	private final LinkedHashMap<PropertyInterface, FormField<?>> fields = new LinkedHashMap<PropertyInterface, FormField<?>>();
+	private final Map<PropertyInterface, Caption> indicators = new HashMap<PropertyInterface, Caption>();
 	
 	private KeyListener keyListener;
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
@@ -64,7 +57,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private ChangeListener changeListener;
 	private Action saveAction;
 	
-	private T object;
+//	private T object;
 	private final Class<T> objectClass;
 	private boolean resizable = false;
 
@@ -118,75 +111,58 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		this.saveAction = saveAction;
 	}
 
-	public FormField<?> createField(Object keyObject) {
-		AccessorInterface accessor;
+	public FormField<?> createField(Object key) {
 		FormField<?> field;
-		if (keyObject == null) {
+		if (key == null) {
 			throw new NullPointerException("Key must not be null");
-		} else if (keyObject instanceof FormField) {
-			field = (FormField<?>) keyObject;
-			String name = field.getName();
-			if (StringUtils.isBlank(name)) {
-				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no name");
+		} else if (key instanceof FormField) {
+			field = (FormField<?>) key;
+			if (field.getProperty() == null) {
+				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
 			}
-			accessor = PropertyAccessor.getAccessor(objectClass, name);
 		} else {
-			// keyString may be : "nationality" oder "address.zip"
-			String keyString = Constants.getConstant(keyObject);
-			if (keyString == null) throw new IllegalArgumentException(keyObject + " not possible as key as there is no such field");
-			accessor = PropertyAccessor.getAccessor(objectClass, keyString);
-			
-			if (accessor.getClazz() == String.class) {
-				Format format = Formats.getInstance().getFormat(accessor);
-				if (format != null) {
-					field = createStringField(keyString, format);
-				} else {
-					field = new TypeUnknownField(keyString, accessor);
-				}
-			} else {
-				field = createField(keyString, accessor);
-			}
-		}
-		if (accessor.getAnnotation(Required.class) != null && field instanceof EditField<?>) {
-			mandatoryFields.add((EditField<?>) field);
+			PropertyInterface property = Constants.getProperty(key);
+			field = createField(property);
 		}
 		return field;
 	}
 	
-	protected FormField<?> createField(String name, AccessorInterface accessor) {
-		throw new IllegalArgumentException("Unknown Field:" + accessor.getName());
+	protected FormField<?> createField(PropertyInterface property) {
+		Class<?> fieldClass = property.getFieldClazz();
+		if (fieldClass == String.class) {
+			if (editable) {
+				int size = AnnotationUtil.getSize(property);
+				return new TextEditField(property, size);
+			} else {
+				return new TextFormField(property);
+			}
+		} else if (fieldClass == LocalDate.class) {
+			boolean partialAllowed = property.getAnnotation(PartialDate.class) != null;
+			return new DateField(property, partialAllowed, editable);
+		} else if (Enum.class.isAssignableFrom(fieldClass)) {
+			return editable ? new CodeEditField(property) : new CodeFormField(property);
+		} else if (fieldClass == Boolean.class) {
+			String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
+			CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
+			return field;
+		} else if (fieldClass == Integer.class) {
+			int size = AnnotationUtil.getSize(property);
+			boolean negative = AnnotationUtil.isNegative(property);
+			return new IntegerEditField(property, size, negative);
+		} else if (fieldClass == BigDecimal.class) {
+			int size = AnnotationUtil.getSize(property);
+			int decimal = AnnotationUtil.getDecimal(property);
+			boolean negative = AnnotationUtil.isNegative(property);
+			return new BigDecimalEditField(property, size, negative);
+		}
+		throw new IllegalArgumentException("Unknown Field: " + property.getFieldName());
 	}
 	
-	protected FormField<?> createStringField(String name, Format format) {
-		if (!editable) {
-			return new TextFormField(name, format);
-		} else {
-			if (format instanceof PlainFormat) {
-				return new TextEditField(name, format.getSize());
-			} else if (format instanceof Code) {
-				Code code = (Code) format;
-				return new CodeEditField(name, code);
-			} else if (format instanceof DateFormat) {
-				DateFormat dateFormat = (DateFormat) format;
-				return new DateField(name, dateFormat.isPartialAllowed());
-			} else if (format instanceof NumberFormat) {
-				NumberFormat numberFormat = (NumberFormat) format;
-				return new NumberEditField(name, numberFormat.getClazz(), numberFormat.getSize(), numberFormat.getDecimalPlaces(), numberFormat.isNegative());
-			} else if (format instanceof BooleanFormat) {
-				BooleanFormat booleanTypeDescription = (BooleanFormat) format;
-				String checkBoxText = Resources.getObjectFieldName(resourceBundle, objectClass, name + ".checkBoxText");
-				return new CheckBoxStringField(name, checkBoxText, editable);
-			}
-		}
-		
-		throw new IllegalArgumentException("Unknown TypeDescription: " + format);
-	}
-
 	// 
 
 	public void line(Object key) {
 		FormField<?> visual = createField(key);
-		add(visual, columns);
+		add(key, visual, columns);
 	}
 	
 //  with this it would be possible to split cells	
@@ -220,12 +196,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		for (int i = 0; i<keys.length; i++) {
 			Object key = keys[i];
 			FormField<?> visual = createField(key);
-			add(visual, i < keys.length - 1 ? span : rest);
+			add(key, visual, i < keys.length - 1 ? span : rest);
 			rest = rest - span;
 		}
 	}
 	
-	private void add(FormField<?> c, int span) {
+	private void add(Object key, FormField<?> c, int span) {
 		layout.add(decorateWithCaption(c), span);
 		registerNamedField(c);
 	}
@@ -238,12 +214,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		for (int i = 0; i<keys.length; i++) {
 			Object key = keys[i];
 			FormField<?> visual = createField(key);
-			area(visual, i < keys.length - 1 ? span : rest);
+			area(key, visual, i < keys.length - 1 ? span : rest);
 			rest = rest - span;
 		}
 	}
 
-	private void area(FormField<?> visual, int span) {
+	private void area(Object key, FormField<?> visual, int span) {
 		layout.addArea(decorateWithCaption(visual), span);
 		registerNamedField(visual);
 		resizable = true;
@@ -251,10 +227,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	private IComponent decorateWithCaption(FormField<?> visual) {
 		String captionText = caption(visual);
-		IComponent decorated = ClientToolkit.getToolkit().decorateWithCaption(visual.getComponent(), captionText);
-		Indicator indicator = ClientToolkit.getToolkit().decorateWithIndicator(decorated);
-		indicators.put(visual.getName(), indicator);
-		return decorated;
+		Caption captioned = ClientToolkit.getToolkit().decorateWithCaption(visual.getComponent(), captionText);
+		indicators.put(visual.getProperty(), captioned);
+		return captioned;
 	}
 	
 	//
@@ -272,57 +247,28 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		IComponent label = ClientToolkit.getToolkit().createTitle(text);
 		layout.add(label, columns);
 	}
-
-	//
-
-	public void setRequired(Object keyObject) {
-		setRequired(keyObject, true);
-	}
-		
-	public void setRequired(Object keyObject, boolean required) {
-		FormField<?> field = getField(Constants.getConstant(keyObject));
-		if (field == null) {
-			throw new IllegalArgumentException("Field not found: " + keyObject);
-		} else if (!(field instanceof EditField<?>)) {
-			throw new IllegalArgumentException("Only EditFields can set to required. " + keyObject + " is not an EditField but a " + field.getClass());
-		}
-		if (required) {
-			if (!mandatoryFields.contains(field)) {
-				mandatoryFields.add((EditField<?>) field);
-			}
-		} else {
-			if (mandatoryFields.contains(field)) {
-				mandatoryFields.remove(field);
-			}
-		}
-	}
 	
 	//
 	
-	protected FormField<?> getField(Object keyObject) {
-		String name = Constants.getConstant(keyObject);
-		for (FormField<?> field : fields) {
-			if (StringUtils.equals(name, field.getName())) {
-				return field;
-			}
-		}
-		return null;
+	protected FormField<?> getField(Object key) {
+		return fields.get(Constants.getProperty(key));
 	}
 	
 	//
 
 	protected void registerNamedField(FormField<?> field) {
-		fields.add(field);
+		fields.put(field.getProperty(), field);
 		if (field instanceof ChangeableValue<?>) {
 			ChangeableValue<?> changeable = (ChangeableValue<?>) field;
 			changeable.setChangeListener(formPanelChangeListener);
 		}
 //		addListeners(field);
+		
 	}
 
 	@Override
 	public void fillWithDemoData() {
-		for (FormField<?> field : fields) {
+		for (FormField<?> field : fields.values()) {
 			if (field instanceof DemoEnabled) {
 				DemoEnabled demoEnabledField = (DemoEnabled) field;
 				demoEnabledField.fillWithDemoData();
@@ -332,12 +278,40 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 	//
 
-	protected String caption(FormField<?> visual) {
-		return Resources.getObjectFieldName(resourceBundle, objectClass, visual.getName());
+	protected String caption(FormField<?> field) {
+		return Resources.getObjectFieldName(resourceBundle, field.getProperty());
 	}
 
 	//
+	
+	/**
+	 * 
+	 * @return Collection provided by a LinkedHashMap so it will be a ordered set
+	 */
+	public Collection<PropertyInterface> getProperties() {
+		return fields.keySet();
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void set(PropertyInterface property, Object value) {
+		FormField formField = fields.get(property);
+		formField.setObject(value);
+	}
 
+	public void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
+		indicators.get(property).setValidationMessages(validationMessages);
+	}
+
+	@Override
+	public void setObject(Object object) {
+		for (PropertyInterface property : getProperties()) {
+			Object propertyValue = property.getValue(object);
+			set(property, propertyValue);
+		}
+	}
+
+
+	/*
 	@Override
 	public void setObject(T object) {
 		this.object = object;
@@ -347,18 +321,18 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void writesValueToFields() {
 		formPanelChangeListener.setAdjusting(true);
-		for (FormField field : fields) {
-			if (editable && field instanceof DependingOnFieldAbove<?>) {
-				DependingOnFieldAbove<?> dependingOnFieldAbove = (DependingOnFieldAbove<?>) field;
-				String nameOfDependedField = dependingOnFieldAbove.getNameOfDependedField();
-				EditField dependedField = (EditField) getField(nameOfDependedField);
+		for (FormField field : fields.values()) {
+			if (editable && field instanceof DependingOnFieldAbove) {
+				DependingOnFieldAbove dependingOnFieldAbove = (DependingOnFieldAbove) field;
+				Object keyOfDependedField = dependingOnFieldAbove.getKeyOfDependedField();
+				EditField dependedField = (EditField) getField(keyOfDependedField);
 				if (dependedField != null) {
-					// TODO Das problem ist, dass hier schreibfehler untergehen
-					dependingOnFieldAbove.setDependedField(dependedField);
+					Object value = dependedField.getObject();
+					dependingOnFieldAbove.valueChanged(value);
 				}
 			}
-			String name = field.getName();
-			Object value = PropertyAccessor.get(object, name);
+			PropertyInterface property = field.getProperty();
+			Object value = property.getValue(object);
 			field.setObject(value);
 		}
 		formPanelChangeListener.setAdjusting(false);
@@ -368,12 +342,18 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	public T getObject() {
 		return object;
 	}
-
+	*/
+	
 	@Override
 	public boolean isResizable() {
 		return resizable;
 	}
 
+	private String getName(FormField<?> field) {
+		PropertyInterface property = field.getProperty();
+		return property.getFieldName();
+	}
+	
 	// Changeable
 	
 	@Override
@@ -393,89 +373,94 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			if (adjusting) return;
 			
 			EditField<?> changedField = (EditField<?>) event.getSource();
+			logger.fine("ChangeEvent from " + getName(changedField));
+
+			PropertyInterface property = changedField.getProperty();
+			Object value = changedField.getObject();
+
+			/*
+			property.setValue(object, formFieldValue);
 			
-			logger.fine("ChangeEvent from " + changedField.getName());
-			
-			Object formFieldValue = changedField.getObject();			
-			PropertyAccessor.set(object, changedField.getName(), formFieldValue);
+			List<String> validationMessages = new ArrayList<>();
+
+			if (formFieldValue instanceof Validatable) {
+				Validatable validatable = (Validatable) formFieldValue;
+				String validationMessage = validatable.validate();
+				if (validationMessage != null) {
+					validationMessages.add(validationMessage);
+				}
+			}
+
+			if (object instanceof Validation) {
+				Validation validation = (Validation) object;
+				validationMessages.addAll(validation.validate(key));
+			}
+			*/
 			
 			forwardToDependingFields(changedField);
 
 			if (changeListener != null) {
-				changeListener.stateChanged(event);
+				FormChangeEvent formChangeEvent = new FormChangeEvent(this, property, value);
+				changeListener.stateChanged(formChangeEvent);
 			}
 		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void forwardToDependingFields(EditField<?> changedField) {
-		boolean possibleDepending = false;
-		for (FormField<?> field : fields) {
+		PropertyInterface propertyChangedField = null;
+		for (Map.Entry<PropertyInterface, FormField<?>> entry : fields.entrySet()) {
+			FormField field = entry.getValue();
 			if (field == changedField) {
-				possibleDepending = true;
+				propertyChangedField = entry.getKey();
 				continue;
 			}
-			if (!possibleDepending) {
+			if (propertyChangedField == null) {
 				// only fields below the changed field can be depending.
 				// know what you do before remove this line!
 				continue;
 			}
 			if (field instanceof DependingOnFieldAbove) {
 				DependingOnFieldAbove dependingOnFieldAbove = (DependingOnFieldAbove) field;
-				if (StringUtils.equals(changedField.getName(), dependingOnFieldAbove.getNameOfDependedField())) {
+				if (propertyChangedField.equals(Constants.getProperty(dependingOnFieldAbove.getKeyOfDependedField()))) {
 					try {
-						dependingOnFieldAbove.setDependedField(changedField);
+						dependingOnFieldAbove.valueChanged(changedField.getObject());
 					} catch (Exception x) {
-						logger.severe("Could not forward value from " + changedField.getName() + " to " + field.getName() + " (" + x.getLocalizedMessage() + ")");
+						logger.severe("Could not forward value from " + getName(changedField) + " to " + getName(field) + " (" + x.getLocalizedMessage() + ")");
 					}
 				}
 			}
 		}
 	}
-
-	// Validation
 	
-	@Override
-	public void validate(List<ValidationMessage> resultList) {
-		for (FormField<?> field : fields) {
-			if (field instanceof EditField) {
-				EditField<?> editField = (EditField<?>) field;
-				if (mandatoryFields.contains(editField) && editField.isEmpty()) {
-					String caption = caption(field);
-					if (StringUtils.isEmpty(caption)) {
-						caption = "Eingabe";
-					}
-					resultList.add(new ValidationMessage(field.getName(), caption + " erforderlich"));
-				}
-			}
-			if (field instanceof Validatable) {
-				Validatable validatable = (Validatable) field;
-				validateProtected(resultList, validatable);
-			} 
+	public static class FormChangeEvent extends ChangeEvent {
+		
+		private final PropertyInterface property;
+		private final Object value;
+		
+		public FormChangeEvent(Object source, PropertyInterface property, Object value) {
+			super(source);
+			this.property = property;
+			this.value = value;
 		}
-	}
 
-	private static void validateProtected(List<ValidationMessage> resultList, Validatable validatable) {
-		try {
-			validatable.validate(resultList);
-		} catch (Exception x) {
-			if (validatable instanceof FormField && !StringUtils.isBlank(((FormField<?>) validatable).getName())) {
-				FormField<?> field = (FormField<?>) validatable;
-				logger.log(Level.SEVERE, "Exception in validation of " + field.getName(), x);
-			} else {
-				logger.log(Level.SEVERE, "Exception in validation", x);
-			}
+		public PropertyInterface getProperty() {
+			return property;
+		}
+
+		public Object getValue() {
+			return value;
 		}
 	}
 	
 	// Indicate
 	
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		for (Map.Entry<String, Indicator> entry : indicators.entrySet()) {
-			List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, entry.getKey());
-			entry.getValue().setValidationMessages(filteredValidationMessages);
-		}
-	}
+//	@Override
+//	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+//		for (Map.Entry<PropertyInterface, Indicator> entry : indicators.entrySet()) {
+//			List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, entry.getKey());
+//			entry.getValue().setValidationMessages(filteredValidationMessages);
+//		}
+//	}
 
 }

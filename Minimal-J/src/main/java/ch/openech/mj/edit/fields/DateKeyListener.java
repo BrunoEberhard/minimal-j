@@ -4,10 +4,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Calendar;
 
-import ch.openech.mj.util.DateUtils;
-import ch.openech.mj.util.StringUtils;
+import org.joda.time.LocalDate;
+
+import ch.openech.mj.db.model.InvalidValues;
 
 
+// Not used at the moment. Swing specific
 public class DateKeyListener extends KeyAdapter {
 
 	private DateField dateField;
@@ -23,39 +25,40 @@ public class DateKeyListener extends KeyAdapter {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (StringUtils.isBlank(dateField.getObject())) {
-			if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_SPACE) {
-				setToday();
-			}
-		} else {
-			int field = Calendar.DATE;
-			if (e.isShiftDown()) field = Calendar.YEAR;
-			else if (e.isAltDown() || e.isControlDown()) field = Calendar.MONTH;
-			
-			int amount = 0;
-			if (e.getKeyCode() == KeyEvent.VK_DOWN) amount = 1;
-			else if (e.getKeyCode() == KeyEvent.VK_UP) amount = -1;
-
-			if (amount != 0) calcDay(field, amount);
+		LocalDate value = dateField.getObject();
+		boolean valid = value != null && !InvalidValues.isInvalid(value);
+		int amount = 0;
+		
+		if (!valid && e.getKeyCode() == KeyEvent.VK_SPACE) {
+			setToday();
+		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) amount = 1;
+		else if (e.getKeyCode() == KeyEvent.VK_UP) amount = -1;
+	
+		if (amount != 0 && valid) {
+			if (e.isShiftDown()) changeYear(amount);
+			else if (e.isAltDown() || e.isControlDown()) changeMonth(amount);
+			else changeDay(amount);
 		}
 		
 	}
 
 	private void setToday() {
-		dateField.setObject(DateUtils.getToday());
-	}
-
-	private void calcDay(int field, int amount) {
-		try {
-			Calendar c1 = Calendar.getInstance(); 
-			c1.setTime(DateUtils.dateFormatUS.parse(dateField.getObject()));
-			c1.add(field, amount);
-			if (c1.after(END)) return;
-			String dateString = DateUtils.dateFormatUS.format(c1.getTime());
-			dateField.setObject(dateString);
-		} catch (Exception x) {
-			// silent
-		}
+		dateField.setObject(new LocalDate());
 	}
 	
+	private void changeYear(int amount) {
+		LocalDate value = dateField.getObject();
+		dateField.setObject(value.plusYears(amount));
+	}
+
+	private void changeMonth(int amount) {
+		LocalDate value = dateField.getObject();
+		dateField.setObject(value.plusMonths(amount));
+	}
+
+	private void changeDay(int amount) {
+		LocalDate value = dateField.getObject();
+		dateField.setObject(value.plusDays(amount));
+	}
+
 }

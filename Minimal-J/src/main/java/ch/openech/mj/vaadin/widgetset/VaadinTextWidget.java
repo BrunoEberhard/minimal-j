@@ -98,10 +98,10 @@ public class VaadinTextWidget extends com.vaadin.ui.TextField {
 		// addListener(listener)
 	}
 
-//	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-		VaadinIndication.setValidationMessages(validationMessages, this);
-	}
+////	@Override
+//	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+//		VaadinIndication.setValidationMessages(validationMessages, this);
+//	}
 
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {

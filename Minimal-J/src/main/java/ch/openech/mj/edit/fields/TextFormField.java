@@ -1,7 +1,6 @@
 package ch.openech.mj.edit.fields;
 
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.Format;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
@@ -9,19 +8,17 @@ import ch.openech.mj.toolkit.TextField;
 
 public class TextFormField implements FormField<String> {
 
-	private final String name;
-	private final Format format;
+	private final PropertyInterface property;
 	private final TextField textField;
 	
-	public TextFormField(Object key, Format format) {
-		this.name = Constants.getConstant(key);
-		this.format = format;
+	public TextFormField(PropertyInterface property) {
+		this.property = property;
 		this.textField = ClientToolkit.getToolkit().createReadOnlyTextField();
 	}
 	
 	@Override
-	public String getName() {
-		return name;
+	public PropertyInterface getProperty() {
+		return property;
 	}
 
 	@Override
@@ -31,9 +28,6 @@ public class TextFormField implements FormField<String> {
 
 	@Override
 	public void setObject(String string) {
-		if (format != null) {
-			string = format.display(string);
-		}
 		textField.setText(string);
 	}
 

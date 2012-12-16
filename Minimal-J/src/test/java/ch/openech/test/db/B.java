@@ -1,7 +1,6 @@
 package ch.openech.test.db;
 
-import static ch.openech.mj.db.model.annotation.PredefinedFormat.String30;
-import ch.openech.mj.db.model.annotation.Is;
+import ch.openech.mj.model.annotation.Size;
 
 
 public class B {
@@ -14,6 +13,6 @@ public class B {
 		this.bName = bName;
 	}
 	
-	@Is(String30)
+	@Size(30)
 	public String bName;
 }

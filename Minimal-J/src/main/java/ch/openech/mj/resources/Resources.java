@@ -3,6 +3,7 @@ package ch.openech.mj.resources;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.util.MultiResourceBundle;
 import ch.openech.mj.util.StringUtils;
 
@@ -40,16 +41,25 @@ public class Resources {
 		}
 		return text;
 	}
+
+	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property) {
+		return getObjectFieldName(resourceBundle, property, null);
+	}
 	
-	public static String getObjectFieldName(ResourceBundle resourceBundle, Class<?> objectClass, String fieldName) {
+	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property, String postfix) {
 		// completeQualifiedKey example: "ch.openech.dm.Person.nationality"
-		String completeQualifiedKey = objectClass.getName() + "." + fieldName;
+		String fieldName = property.getFieldName();
+		if (!StringUtils.isEmpty(postfix)) {
+			fieldName += postfix;
+		}
+		
+		String completeQualifiedKey = property.getDeclaringClass().getName() + "." + fieldName;
 		if (resourceBundle.containsKey(completeQualifiedKey)) {
 			return resourceBundle.getString(completeQualifiedKey);
 		}
 		
 		// qualifiedKey example: "Person.nationality"
-		String qualifiedKey = objectClass.getSimpleName() + "." + fieldName;
+		String qualifiedKey = property.getDeclaringClass().getSimpleName() + "." + fieldName;
 		if (resourceBundle.containsKey(qualifiedKey)) {
 			return resourceBundle.getString(qualifiedKey);
 		}

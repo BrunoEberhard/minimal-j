@@ -1,11 +1,13 @@
 package ch.openech.mj.edit.form;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
@@ -13,8 +15,7 @@ import ch.openech.mj.toolkit.SwitchLayout;
 public class SwitchForm<T> implements IForm<T> {
 
 	private SwitchLayout switchLayout;
-	private IForm<?> form;
-	private T object;
+	private IForm form;
 	
 	public SwitchForm() {
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
@@ -30,13 +31,6 @@ public class SwitchForm<T> implements IForm<T> {
 		// a SwitchForm doesnt change (only the contained forms)
 	}
 
-	@Override
-	public void validate(List<ValidationMessage> resultList) {
-	}
-
-	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-	}
 
 	@Override
 	public boolean isResizable() {
@@ -56,15 +50,20 @@ public class SwitchForm<T> implements IForm<T> {
 		this.form = form;
 		switchLayout.show(form.getComponent());
 	}
-	
+
 	@Override
-	public T getObject() {
-		return object;
+	public Collection<PropertyInterface> getProperties() {
+		return Collections.emptyList();
 	}
-	
+
 	@Override
 	public void setObject(T object) {
-		this.object = object;
+		//
+	}
+
+	@Override
+	public void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
+//		form.setValidationMessage(property, validationMessages);
 	}
 
 }

@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
 
@@ -22,12 +23,12 @@ import ch.openech.mj.edit.EditorDialogAction;
 public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
-	public ObjectFlowField(Object key) {
-		this(key, true);
+	public ObjectFlowField(PropertyInterface property) {
+		this(property, true);
 	}
 
-	public ObjectFlowField(Object key, boolean editable) {
-		super(key, editable);
+	public ObjectFlowField(PropertyInterface property, boolean editable) {
+		super(property, editable);
 		
 	}
 

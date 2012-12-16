@@ -1,19 +1,18 @@
 package ch.openech.mj.db.model;
 
-import ch.openech.mj.util.StringUtils;
 
-public class CodeItem {
+public class CodeItem<E> {
 
-	private final String key;
+	private final E key;
 	private final String text;
 	
-	public CodeItem(String key, String text) {
+	public CodeItem(E key, String text) {
 		super();
 		this.key = key;
 		this.text = text;
 	}
 
-	public String getKey() {
+	public E getKey() {
 		return key;
 	}
 
@@ -30,13 +29,14 @@ public class CodeItem {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null || !(obj instanceof CodeItem)) {
 			return false;
 		}
 		CodeItem other = (CodeItem) obj;
-		return StringUtils.equals(key, other.key);
+		return key.equals(other.key);
 	}
 
 	@Override

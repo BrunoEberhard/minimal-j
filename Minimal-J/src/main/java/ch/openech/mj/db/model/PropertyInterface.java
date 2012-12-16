@@ -9,21 +9,14 @@ import java.lang.reflect.Type;
  * 
  * @author bruno
  */
+public interface PropertyInterface {
 
-// DataField, ModelField, ValueField, Property, PropertyField ??
-public interface AccessorInterface {
-
-	public String getName();
-
-	public Class<?> getClazz();
-
-	// TODO ..
-//	Nur noch getType anbieten (getClazz, getA streichen), welches dann aber auch z.B.
-//	SizedType zurückgeben kann, womit die Länge des Feldes definiert wird
+	public Class<?> getDeclaringClass();
 	
-	// Jedoch was nützt das, Type ist ein leeres Interface und es wird kaum je direkt
-	// eine Klasse zurückgegeben
-	
+	public String getFieldName();
+
+	public Class<?> getFieldClazz();
+
 	public Type getType();
 
 	public <T extends Annotation> T getAnnotation(Class<T> annotationClass);

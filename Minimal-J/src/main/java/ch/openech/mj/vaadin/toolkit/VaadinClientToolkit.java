@@ -9,8 +9,7 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
@@ -79,22 +78,18 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent decorateWithCaption(IComponent component, String caption) {
-		((Component) component).setCaption(caption);
-		return component;
-	}
-
-	@Override
-	public Indicator decorateWithIndicator(final IComponent component) {
-		Indicator indicator = new Indicator() {
+	public Caption decorateWithCaption(IComponent component, String caption) {
+		final AbstractComponent vaadinComponent = (AbstractComponent) component;
+		vaadinComponent.setCaption(caption);
+		Caption indicator = new Caption() {
 			@Override
-			public void setValidationMessages(List<ValidationMessage> validationMessages) {
-				VaadinIndication.setValidationMessages(validationMessages, (AbstractComponent) component);
+			public void setValidationMessages(List<String> validationMessages) {
+				VaadinIndication.setValidationMessages(validationMessages, vaadinComponent);
 			}
 		};
 		return indicator;
 	}
-	
+
 	@Override
 	public HorizontalLayout createHorizontalLayout(IComponent... components) {
 		return new VaadinHorizontalLayout(components);

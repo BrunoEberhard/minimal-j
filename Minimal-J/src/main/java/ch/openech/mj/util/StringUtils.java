@@ -59,7 +59,14 @@ public class StringUtils {
 			stringBuilder.append("<br>");
 		}
 	}
-	
+
+	public static void appendLine(StringBuilder stringBuilder, Integer integer) {
+		if (integer != null) {
+			stringBuilder.append(integer);
+			stringBuilder.append("<br>");
+		}
+	}
+
 	public static void appendLine(StringBuilder stringBuilder, String... strings) {
 		boolean first = true;
 		for (String string : strings) {

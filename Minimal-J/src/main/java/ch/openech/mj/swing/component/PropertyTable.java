@@ -1,50 +1,51 @@
 package ch.openech.mj.swing.component;
 
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableRowSorter;
 
-import ch.openech.mj.db.model.AccessorInterface;
-import ch.openech.mj.db.model.BooleanFormat;
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.Format;
-import ch.openech.mj.db.model.Formats;
-import ch.openech.mj.db.model.NumberFormat;
-import ch.openech.mj.edit.value.PropertyAccessor;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
 
 public class PropertyTable<T> extends JTable {
+	private static final Logger logger = Logger.getLogger(PropertyTable.class.getName());
 
-	private final Class<T> clazz;
-	private final String[] fieldNames;
+	private final List<PropertyInterface> properties;
 	private final PropertyTableModel tableModel;
 
-	public PropertyTable(Class<T> clazz, Object[] fields) {
-		this.clazz = clazz;
-		this.fieldNames = Constants.getConstants(fields);
+	public PropertyTable(Class<T> clazz, Object[] keys) {
+		this.properties = convert(keys);
 		
 		tableModel = new PropertyTableModel();
 		setModel(tableModel);
 		
-		setDefaultRenderer(BooleanFormat.class, new BooleanTableCellRenderer());
+//		setDefaultRenderer(BooleanFormat.class, new BooleanTableCellRenderer());
 
 		setAutoCreateRowSorter(true);
-		for (int i = 0; i<tableModel.getColumnCount(); i++) {
-			AccessorInterface accessor = PropertyAccessor.getAccessor(clazz, fieldNames[i]);
-			Format format = Formats.getInstance().getFormat(accessor);
-			if (format != null) {
-				setDefaultRenderer(format.getClass(), new FormatTableCellRenderer(format));
-				if (format instanceof NumberFormat) {
-					NumberFormat numberFormat = (NumberFormat) format;
-					((TableRowSorter<?>) getRowSorter()).setComparator(i, numberFormat.getComparator());
-				}
+	}
+
+	private List<PropertyInterface> convert(Object[] keys) {
+		List<PropertyInterface> properties = new ArrayList<PropertyInterface>(keys.length);
+		for (Object key : keys) {
+			PropertyInterface property = Constants.getProperty(key);
+			if (property != null) {
+				properties.add(property);
+			} else {
+				logger.log(Level.WARNING, "Key not a property: " + key);
 			}
 		}
+		if (properties.size() == 0) {
+			logger.log(Level.SEVERE, "PropertyTable without valid keys");
+		}
+		return properties;
 	}
 
 	public void setObjects(List<T> list) {
@@ -67,14 +68,15 @@ public class PropertyTable<T> extends JTable {
 
 		@Override
 		public String getColumnName(int column) {
-			return Resources.getObjectFieldName(Resources.getResourceBundle(), clazz, fieldNames[column]);
+			PropertyInterface property = properties.get(column)
+;			return Resources.getObjectFieldName(Resources.getResourceBundle(), property);
 		}
 
 		@Override
 		public Object getValueAt(int row, int column) {
 			T object = list.get(row);
-			Object value = PropertyAccessor.get(object, fieldNames[column]);
-			return value;
+			PropertyInterface property = properties.get(column);
+			return property.getValue(object);
 		}
 
 		@Override
@@ -84,39 +86,16 @@ public class PropertyTable<T> extends JTable {
 
 		@Override
 		public int getColumnCount() {
-			return fieldNames.length;
+			return properties.size();
 		}
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
-			AccessorInterface accessor = PropertyAccessor.getAccessor(clazz, fieldNames[columnIndex]);
-			Format format = Formats.getInstance().getFormat(accessor);
-			if (format != null) {
-				return format.getClazz();
-			}
-			return super.getColumnClass(columnIndex);
+			return properties.get(columnIndex).getFieldClazz();
 		}
 
 		public T getRow(int row) {
 			return list.get(row);
-		}
-	}
-	
-	private class FormatTableCellRenderer extends DefaultTableCellRenderer {
-		private final Format format;
-		
-		public FormatTableCellRenderer(Format format) {
-			this.format = format;
-		}
-		
-		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			
-			value = format.display((String) value);
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
-					row, column);
 		}
 	}
 	

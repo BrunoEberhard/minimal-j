@@ -6,11 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import ch.openech.mj.db.model.AccessorInterface;
-import ch.openech.mj.db.model.Format;
-import ch.openech.mj.db.model.Formats;
-import ch.openech.mj.edit.value.PropertyAccessor;
-
+import ch.openech.mj.db.model.PropertyInterface;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -18,11 +14,11 @@ import com.vaadin.data.Property;
 public class PropertyVaadinContainer implements Container.Sortable {
 
 	private final Class<?> clazz;
-	private final List<String> propertyIds;
+	private final List<PropertyInterface> propertyIds;
 	private final List<?> list;
 	private final List<Integer> ids;
 
-	public PropertyVaadinContainer(Class<?> clazz, List<?> list, List<String> propertyIds) {
+	public PropertyVaadinContainer(Class<?> clazz, List<?> list, List<PropertyInterface> propertyIds) {
 		this.propertyIds = propertyIds;
 		this.list = list;
 		this.clazz = clazz;
@@ -56,13 +52,8 @@ public class PropertyVaadinContainer implements Container.Sortable {
 
 	@Override
 	public Class<?> getType(Object propertyId) {
-		AccessorInterface accessor = PropertyAccessor.getAccessor(clazz, (String)propertyId);
-		Format format = Formats.getInstance().getFormat(accessor);
-		if (format != null) {
-			return format.getClazz();
-		} else {
-			return String.class;
-		}
+		PropertyInterface property = (PropertyInterface) propertyId;
+		return property.getFieldClazz();
 	}
 
 	@Override
@@ -116,13 +107,9 @@ public class PropertyVaadinContainer implements Container.Sortable {
 		
 		@Override
 		public Property getItemProperty(Object id) {
-			AccessorInterface accessor = PropertyAccessor.getAccessor(object.getClass(), (String) id);
-			Object value = PropertyAccessor.get(object, (String) id);
-			Format format = Formats.getInstance().getFormat(accessor);
-			if (format != null) {
-				value = format.display((String) value);
-			}
-			return new PropertyVaadinContainerProperty(accessor.getClazz(), value);
+			PropertyInterface property = (PropertyInterface) id;
+			Object value = property.getValue(object);
+			return new PropertyVaadinContainerProperty(property.getFieldClazz(), value);
 		}
 
 		@Override
@@ -237,7 +224,7 @@ public class PropertyVaadinContainer implements Container.Sortable {
 	@Override
 	public void sort(Object[] propertyId, boolean[] ascending) {
 		if (propertyId.length > 0) {
-			Collections.sort(ids, new PropertyVaadinContainerComparator((String) propertyId[0], ascending[0]));
+			Collections.sort(ids, new PropertyVaadinContainerComparator((PropertyInterface) propertyId[0], ascending[0]));
 		}
 	}
 
@@ -247,11 +234,11 @@ public class PropertyVaadinContainer implements Container.Sortable {
 	}
 	
 	private class PropertyVaadinContainerComparator implements Comparator<Integer> {
-		private final String propertyId;
+		private final PropertyInterface property;
 		private final boolean asc;
 		
-		public PropertyVaadinContainerComparator(String property, boolean asc) {
-			this.propertyId = property;
+		public PropertyVaadinContainerComparator(PropertyInterface property, boolean asc) {
+			this.property = property;
 			this.asc = asc;
 		}
 		
@@ -260,8 +247,8 @@ public class PropertyVaadinContainer implements Container.Sortable {
 			Object item1 = list.get(o1);
 			Object item2 = list.get(o2);
 			
-			Object value1 = PropertyAccessor.get(item1, propertyId);
-			Object value2 = PropertyAccessor.get(item2, propertyId);
+			Object value1 = property.getValue(item1);
+			Object value2 = property.getValue(item2);
 			
 			if (value1 instanceof Comparable && value2 instanceof Comparable) {
 				int result = ((Comparable) value1).compareTo(value2);

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
-import ch.openech.mj.db.model.ColumnAccess;
+import ch.openech.mj.db.model.ColumnProperties;
 
 /**
  * Idee: Eine historisierte Tabelle besitzt ein Feld namens "version". Beim aktuellen
@@ -79,7 +79,7 @@ public class Table<T> extends AbstractTable<T> {
 			SubTable historizedSubTable = (SubTable) subTable.getValue();
 			List list;
 			try {
-				list = (List)ColumnAccess.getValue(object, subTable.getKey());
+				list = (List)ColumnProperties.getValue(object, subTable.getKey());
 				if (list != null && !list.isEmpty()) {
 					historizedSubTable.insert(id, list, Integer.valueOf(0));
 				}
@@ -121,7 +121,7 @@ public class Table<T> extends AbstractTable<T> {
 			SubTable historizedSubTable = (SubTable) subTable.getValue();
 			List list;
 			try {
-				list = (List) ColumnAccess.getValue(object, subTable.getKey());
+				list = (List) ColumnProperties.getValue(object, subTable.getKey());
 			} catch (IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			}
@@ -183,7 +183,7 @@ public class Table<T> extends AbstractTable<T> {
 			SubTable historizedSubTable = (SubTable) subTable.getValue();
 			// DbList list = new DbList(historizedSubTable, id, time);
 			try {
-				List list = (List)ColumnAccess.getValue(object, subTable.getKey());
+				List list = (List)ColumnProperties.getValue(object, subTable.getKey());
 				list.addAll(historizedSubTable.read(id, time));
 //				subTable.getKey().set(object, list);
 			} catch (IllegalArgumentException e) {

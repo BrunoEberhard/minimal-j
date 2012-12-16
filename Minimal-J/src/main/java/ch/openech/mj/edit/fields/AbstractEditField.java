@@ -4,18 +4,24 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.util.StringUtils;
+import ch.openech.mj.db.model.PropertyInterface;
 
 public abstract class AbstractEditField<T> implements EditField<T> {
 
 	private final boolean editable;
-	private final String name;
+	private final PropertyInterface property;
 	
 	private ChangeListener forwardingChangeListener;
 	private ChangeListener changeListener;
-	
+
 	protected AbstractEditField(Object key, boolean editable) {
-		this.name = Constants.getConstant(key);
+		this(Constants.getProperty(key), editable);
+	}
+	
+	protected AbstractEditField(PropertyInterface property, boolean editable) {
+		if (property == null) throw new IllegalArgumentException();
+		
+		this.property = property;
 		this.editable = editable;
 	}
 
@@ -24,16 +30,8 @@ public abstract class AbstractEditField<T> implements EditField<T> {
 	}
 	
 	@Override
-	public String getName() {
-		return name;
-	}
-	
-	//
-	
-	@Override
-	public boolean isEmpty() {
-		Object object = getObject();
-		return object == null || (object instanceof String) && StringUtils.isEmpty((String) object);
+	public PropertyInterface getProperty() {
+		return property;
 	}
 	
 	// Listener

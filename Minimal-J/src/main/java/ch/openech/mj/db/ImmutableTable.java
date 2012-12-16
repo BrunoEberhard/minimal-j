@@ -7,8 +7,8 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
-import ch.openech.mj.db.model.AccessorInterface;
-import ch.openech.mj.db.model.ColumnAccess;
+import ch.openech.mj.db.model.ColumnProperties;
+import ch.openech.mj.db.model.PropertyInterface;
 
 /*
  * Idee: Immutables können zwar keine SubTables haben, aber immerhin
@@ -86,7 +86,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		StringBuilder where = new StringBuilder();
 	
 		boolean first = true;	
-		for (String key : ColumnAccess.getKeys(getClazz())) {
+		for (String key : ColumnProperties.getKeys(getClazz())) {
 			if (!first) where.append(" AND "); else first = false;
 			
 			// where.append(column.getName()); where.append(" = ?");
@@ -108,10 +108,10 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		Map<String, AccessorInterface> accessors = ColumnAccess.getAccessors(clazz);
-		int size = accessors.entrySet().size();
+		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(clazz);
+		int size = properties.entrySet().size();
 		int i = 0;
-		for (String name : accessors.keySet()) {
+		for (String name : properties.keySet()) {
 			s.append(name);
 			if (i++ < size - 1) s.append(", ");
 		}

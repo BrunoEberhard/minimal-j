@@ -1,28 +1,41 @@
 package ch.openech.mj.edit.fields;
 
+import java.util.List;
+
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.Code;
 import ch.openech.mj.db.model.CodeItem;
+import ch.openech.mj.db.model.Constants;
+import ch.openech.mj.db.model.EnumUtils;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.util.StringUtils;
 
-public class CodeEditField extends AbstractEditField<String> implements DemoEnabled {
-	private final Code code;
+// TODO: Typisierung bringt hier so was von nichts
+public class CodeEditField<E extends Enum<E>> extends AbstractEditField<E> implements DemoEnabled {
+	private final Class<E> enumClass;
 	
 	private final SwitchLayout switchLayout;
-	private final ComboBox<CodeItem> comboBox;
+	private final ComboBox<CodeItem<E>> comboBox;
 	private final TextField textFieldDisabled;
 
-	public CodeEditField(Object key, Code code) {
-		super(key, true);
-		this.code = code;
+	public CodeEditField(PropertyInterface property) {
+		this(property, null);
+	}
 
+	public CodeEditField(E key, List<E> allowedValues) {
+		this(Constants.getProperty(key), allowedValues);
+	}
+		
+	@SuppressWarnings("unchecked")
+	public CodeEditField(PropertyInterface property, List<E> allowedValues) {
+		super(property, true);
+		this.enumClass = (Class<E>) property.getFieldClazz();
+		
 		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
-		comboBox.setObjects(code.getItems());
+		comboBox.setObjects(allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass));
 		
 		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
 		textFieldDisabled.setText("-");
@@ -48,16 +61,12 @@ public class CodeEditField extends AbstractEditField<String> implements DemoEnab
 	}
 
 	private void setDefault() {
-        if (!StringUtils.isBlank(code.getDefault())) {
-        	setObject(code.getDefault());
-			fireChange();
-        } else {
-        	setObject(null);
-        }
+    	setObject(EnumUtils.getDefault(enumClass));
+		fireChange();
 	}
 	
 	@Override
-	public String getObject() {
+	public E getObject() {
 		if (switchLayout.getShownComponent() == comboBox) {
 			if (comboBox.getSelectedObject() != null) {
 				return comboBox.getSelectedObject().getKey();
@@ -67,31 +76,34 @@ public class CodeEditField extends AbstractEditField<String> implements DemoEnab
 	}
 
 	@Override
-	public void setObject(String value) {
+	public void setObject(E value) {
 		if (switchLayout.getShownComponent() == textFieldDisabled) {
 			return;
 		}
-		
-		if (value == null) {
-			comboBox.setSelectedObject(null);
-		} else {
-			int index = code.indexOf(value);
-			if (index >= 0) {
-				comboBox.setSelectedObject(code.getItem(index));
-			} else {
-				comboBox.setSelectedObject(new CodeItem(value, "Wert " + value));
+
+		CodeItem<E> item = null;
+		if (value != null) {
+			List<CodeItem<E>> itemList = EnumUtils.itemList(enumClass);
+			for (CodeItem<E> i : itemList) {
+				if (i.getKey().equals(value)) {
+					item = i;
+					break;
+				}
 			}
 		}
+		
+		comboBox.setSelectedObject(item);
 		switchLayout.show(comboBox);
 	}
 
 	@Override
 	public void fillWithDemoData() {
 		if (Math.random() < 0.2) {
-			setObject(code.getDefault());
+			setDefault();
 		} else {
-			int index = (int)(Math.random() * (double)code.count());
-			setObject(code.getKey(index));
+			List<E> valueList = EnumUtils.valueList(enumClass);
+			int index = (int)(Math.random() * (double)valueList.size());
+			setObject(valueList.get(index));
 		}
 	}
 	

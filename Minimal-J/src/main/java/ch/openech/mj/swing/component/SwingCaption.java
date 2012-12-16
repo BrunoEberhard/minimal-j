@@ -15,9 +15,10 @@ import javax.swing.plaf.LabelUI;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.resources.ResourceHelper;
+import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.IComponent;
 
-public class SwingCaption extends JPanel implements IComponent, Indicator {
+public class SwingCaption extends JPanel implements Caption {
 
 	private final JLabel captionLabel;
 	
@@ -34,10 +35,10 @@ public class SwingCaption extends JPanel implements IComponent, Indicator {
 	}
 
 	@Override
-	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+	public void setValidationMessages(List<String> validationMessages) {
 		if (!validationMessages.isEmpty()) {
 			captionLabel.setIcon(ResourceHelper.getIcon("field_error.png"));
-			String validationMessage = ValidationMessage.formatHtml(validationMessages);
+			String validationMessage = ValidationMessage.formatHtmlString(validationMessages);
 			captionLabel.setToolTipText(validationMessage);
 		} else {
 			captionLabel.setIcon(null);

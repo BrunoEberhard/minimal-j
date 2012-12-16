@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import ch.openech.mj.db.model.ColumnAccess;
+import ch.openech.mj.db.model.ColumnProperties;
 
 /**
  * Im Gegensatz zu HistorizedTable hat HistorizedSubTable zwei Versionierungsfelder
@@ -65,7 +65,7 @@ public class SubTable extends AbstractTable {
 			if (position < objectsInDb.size() && position < objects.size()) {
 				Object object = objects.get(position);
 				Object objectInDb = objectsInDb.get(position);
-				end = insert = !ColumnAccess.equals(object, objectInDb);
+				end = insert = !ColumnProperties.equals(object, objectInDb);
 			} else if (position < objectsInDb.size()) {
 				end = true;
 			} else /* if (position < objects.size()) */ {

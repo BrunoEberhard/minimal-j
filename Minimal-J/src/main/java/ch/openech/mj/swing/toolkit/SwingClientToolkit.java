@@ -29,6 +29,7 @@ import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
+import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
@@ -90,13 +91,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent decorateWithCaption(IComponent component, String caption) {
+	public Caption decorateWithCaption(IComponent component, String caption) {
 		return new SwingCaption((Component)component, caption);
-	}
-
-	@Override
-	public Indicator decorateWithIndicator(IComponent component) {
-		return (SwingCaption) component;
 	}
 
 	@Override

@@ -2,11 +2,15 @@ package ch.openech.mj.edit.fields;
 
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.util.List;
+import java.util.Locale;
+
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.edit.validation.Validatable;
-import ch.openech.mj.edit.validation.ValidationMessage;
+import ch.openech.mj.db.model.InvalidValues;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
@@ -25,28 +29,25 @@ so gut wie möglich ergänzt. Die Übersetzung geschieht wie folgt:
 
  */
 
-public class DateField extends AbstractEditField<String> implements Validatable, DemoEnabled {
-	public static final boolean PARTIAL_ALLOWED = true;
+public class DateField extends AbstractEditField<LocalDate> implements DemoEnabled {
+	public static final boolean PARTIAL_ALLOWED = true;                                                    
+	
+	private static final DateTimeFormatter US_MEDIUM_FORMAT = DateTimeFormat.forPattern(DateTimeFormat.patternForStyle("M-", Locale.US));
 	
 	private final TextField textField;
 	
 	private final boolean partialAllowed;
-	private Format format = Format.CH;
 	
-	private enum Format {
-		CH, US, Free
-	}
-
-	public DateField(Object key) {
-		this(key, false);
+	public DateField(PropertyInterface property) {
+		this(property, false);
 	}
 	
-	public DateField(Object key, boolean partialAllowed) {
-		this(key, partialAllowed, true);
+	public DateField(PropertyInterface property, boolean partialAllowed) {
+		this(property, partialAllowed, true);
 	}
 	
-	public DateField(Object key, boolean partialAllowed, boolean editable) {
-		super(key, editable);
+	public DateField(PropertyInterface property, boolean partialAllowed, boolean editable) {
+		super(property, editable);
 		this.partialAllowed = partialAllowed;
 		
 		if (editable) {
@@ -68,8 +69,8 @@ public class DateField extends AbstractEditField<String> implements Validatable,
 			@Override
 			public void focusLost(FocusEvent e) {
 				// Formattierung auslösen
-				String value = getObject();
-				if (!StringUtils.isBlank(value)) {
+				LocalDate value = getObject();
+				if (value != null) {
 					setObject(value);
 				}
 			}
@@ -77,25 +78,28 @@ public class DateField extends AbstractEditField<String> implements Validatable,
 	}
 	
 	@Override
-	public String getObject() {
+	public LocalDate getObject() {
 		String text = textField.getText();
 		if (text == null) return null;
 		text = text.trim();
 		if (text.length() == 0) return null;
-		
-		switch (format) {
-		case CH: return DateUtils.parseCH(text, partialAllowed);
-		case US: return DateUtils.parseUS(text);
-		default: return text;
+		String textUS = DateUtils.parseCH(text, partialAllowed);
+		try {
+			return US_MEDIUM_FORMAT.parseLocalDate(textUS);
+		} catch (IllegalArgumentException iae) {
+			return InvalidValues.createInvalidLocalDate(text);
 		}
 	}
 	
 	@Override
-	public void setObject(String value) {
-		if (!StringUtils.isBlank(value)) {
-			if (format == Format.CH) value = DateUtils.formatCH(value);
-			if (!StringUtils.equals(textField.getText(), value)) {
-				textField.setText(value);
+	public void setObject(LocalDate value) {
+		if (InvalidValues.isInvalid(value)) {
+			String text = InvalidValues.getInvalidValue(value);
+			textField.setText(text);
+		} else if (value != null) {
+			String text = DateTimeFormat.mediumDate().print(value);
+			if (!StringUtils.equals(textField.getText(), text)) {
+				textField.setText(text);
 			}
 		} else {
 			textField.setText(null);
@@ -111,7 +115,7 @@ public class DateField extends AbstractEditField<String> implements Validatable,
 	
 	@Override
 	public void fillWithDemoData() {
-		if ("dateOfDeath".equals(getName())) {
+		if ("dateOfDeath".equals(getProperty().getFieldName())) {
 			if (Math.random() < 0.9) {
 				setObject(null);
 				return;
@@ -120,7 +124,7 @@ public class DateField extends AbstractEditField<String> implements Validatable,
 		setObject(generateRandom());
 	}
 
-	public static String generateRandom() {
+	public static LocalDate generateRandom() {
 		int year =(int)(Math.random() * 80) + 1930;
 		int month =(int)(Math.random() * 12) + 1;
 		int day;
@@ -131,27 +135,28 @@ public class DateField extends AbstractEditField<String> implements Validatable,
 		} else {
 			day =(int)(Math.random() * 31) + 1;
 		}
-		return DateUtils.parseCH(day + "."  + month + "." + year);
+		LocalDate localDate = new LocalDate(year, month, day);
+		return localDate;
 	}
 	
-	@Override
-	public void validate(List<ValidationMessage> list) {
-		String value = getObject();
-		if (StringUtils.isBlank(textField.getText())) {
-			return;
-		}
-
-		if (!DateUtils.isValueValidUS(value, partialAllowed)) {
-			list.add(new ValidationMessage(getName(), "Fehlerhaftes Format des Datums"));
-			return;
-		}
-
-		boolean complete = value != null && value.length() == 10;
-		if (!partialAllowed && !complete) {
-			list.add(new ValidationMessage(getName(), "Komplettes Datum erforderlich"));
-			return;
-		}
-	}
+//	@Override
+//	public void validate(List<ValidationMessage> list) {
+//		String value = getObject();
+//		if (StringUtils.isBlank(textField.getText())) {
+//			return;
+//		}
+//
+//		if (!DateUtils.isValueValidUS(value, partialAllowed)) {
+//			list.add(new ValidationMessage(getName(), "Fehlerhaftes Format des Datums"));
+//			return;
+//		}
+//
+//		boolean complete = value != null && value.length() == 10;
+//		if (!partialAllowed && !complete) {
+//			list.add(new ValidationMessage(getName(), "Komplettes Datum erforderlich"));
+//			return;
+//		}
+//	}
 	
 	private class DateFilter implements TextFieldFilter {
 		private static final String ALLOWED_CHARACTERS = "01234567890.";

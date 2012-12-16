@@ -3,10 +3,10 @@ package ch.openech.mj.example;
 import java.net.URL;
 import java.util.Properties;
 
-import com.vaadin.service.ApplicationContext;
-
 import ch.openech.mj.application.ApplicationConfig;
 import ch.openech.mj.vaadin.MinimalJVaadinApplication;
+
+import com.vaadin.service.ApplicationContext;
 
 public class MjExampleVaadinApplication extends MinimalJVaadinApplication {
 
@@ -15,7 +15,6 @@ public class MjExampleVaadinApplication extends MinimalJVaadinApplication {
 	
 	static {
 		ApplicationConfig.setApplicationConfig(new ApplicationConfigExample());
-		ExampleFormats.initialize();
 	}
 
 	@Override

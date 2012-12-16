@@ -18,6 +18,10 @@ public class FieldUtils {
 		return Modifier.isStatic(field.getModifiers());
 	}
 
+	public static boolean isTransient(Field field) {
+		return Modifier.isTransient(field.getModifiers());
+	}
+
 	public static boolean isAbstract(Field field) {
 		return Modifier.isAbstract(field.getModifiers());
 	}
