@@ -4,6 +4,10 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+
+import com.ibm.icu.math.BigDecimal;
 
 public class InvalidValues {
 
@@ -45,4 +49,22 @@ public class InvalidValues {
 		return localDate;
 	}
 
+	public static LocalDateTime createInvalidLocalDateTime(String string) {
+		LocalDateTime localDateTime = new LocalDateTime();
+		values.put(localDateTime, string);
+		return localDateTime;
+	}
+	
+	public static LocalTime createInvalidLocalTime(String string) {
+		LocalTime localTime = new LocalTime();
+		values.put(localTime, string);
+		return localTime;
+	}
+	
+	public static BigDecimal createInvalidBigDecimal(String string) {
+		BigDecimal bigDecimal = new BigDecimal(0);
+		values.put(bigDecimal, string);
+		return bigDecimal;
+	}
+	
 }
