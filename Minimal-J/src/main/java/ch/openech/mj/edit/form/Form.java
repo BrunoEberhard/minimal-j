@@ -37,7 +37,6 @@ import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.util.GenericUtils;
 
 public class Form<T> implements IForm<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getName());
@@ -57,8 +56,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private ChangeListener changeListener;
 	private Action saveAction;
 	
-//	private T object;
-	private final Class<T> objectClass;
 	private boolean resizable = false;
 
 	protected Form() {
@@ -78,16 +75,10 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 
 	public Form(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable, int columns) {
-		this.objectClass = objectClass != null ? objectClass : getObjectOfFormClass();
 		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;
 		this.columns = columns;
 		this.layout = ClientToolkit.getToolkit().createGridLayout(columns, getColumnWidthPercentage());
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected Class<T> getObjectOfFormClass() {
-		return (Class<T>) GenericUtils.getGenericClass(this.getClass());
 	}
 	
 	protected int getColumnWidthPercentage() {
@@ -309,40 +300,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			set(property, propertyValue);
 		}
 	}
-
-
-	/*
-	@Override
-	public void setObject(T object) {
-		this.object = object;
-		writesValueToFields();
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void writesValueToFields() {
-		formPanelChangeListener.setAdjusting(true);
-		for (FormField field : fields.values()) {
-			if (editable && field instanceof DependingOnFieldAbove) {
-				DependingOnFieldAbove dependingOnFieldAbove = (DependingOnFieldAbove) field;
-				Object keyOfDependedField = dependingOnFieldAbove.getKeyOfDependedField();
-				EditField dependedField = (EditField) getField(keyOfDependedField);
-				if (dependedField != null) {
-					Object value = dependedField.getObject();
-					dependingOnFieldAbove.valueChanged(value);
-				}
-			}
-			PropertyInterface property = field.getProperty();
-			Object value = property.getValue(object);
-			field.setObject(value);
-		}
-		formPanelChangeListener.setAdjusting(false);
-	}
-	
-	@Override
-	public T getObject() {
-		return object;
-	}
-	*/
 	
 	@Override
 	public boolean isResizable() {
@@ -377,25 +334,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 			PropertyInterface property = changedField.getProperty();
 			Object value = changedField.getObject();
-
-			/*
-			property.setValue(object, formFieldValue);
-			
-			List<String> validationMessages = new ArrayList<>();
-
-			if (formFieldValue instanceof Validatable) {
-				Validatable validatable = (Validatable) formFieldValue;
-				String validationMessage = validatable.validate();
-				if (validationMessage != null) {
-					validationMessages.add(validationMessage);
-				}
-			}
-
-			if (object instanceof Validation) {
-				Validation validation = (Validation) object;
-				validationMessages.addAll(validation.validate(key));
-			}
-			*/
 			
 			forwardToDependingFields(changedField);
 
@@ -453,14 +391,5 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		}
 	}
 	
-	// Indicate
-	
-//	@Override
-//	public void setValidationMessages(List<ValidationMessage> validationMessages) {
-//		for (Map.Entry<PropertyInterface, Indicator> entry : indicators.entrySet()) {
-//			List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, entry.getKey());
-//			entry.getValue().setValidationMessages(filteredValidationMessages);
-//		}
-//	}
 
 }
