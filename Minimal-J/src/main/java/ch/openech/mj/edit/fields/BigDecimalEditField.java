@@ -32,7 +32,7 @@ public class BigDecimalEditField extends NumberEditField<BigDecimal> /* implemen
 			try {
 				return new BigDecimal(text);
 			} catch (NumberFormatException nfe) {
-				return new BigDecimal(0);
+				return InvalidValues.createInvalidBigDecimal(text);
 			}
 		} else {
 			return null;
