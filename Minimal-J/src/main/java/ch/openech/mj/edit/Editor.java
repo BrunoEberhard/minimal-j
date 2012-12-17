@@ -302,7 +302,7 @@ public abstract class Editor<T> {
 	final void indicate(List<ValidationMessage> validationMessages) {
 		for (PropertyInterface property : form.getProperties()) {
 			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
-			if (filteredValidationMessages.contains(property)) {
+			if (propertyValidations.keySet().contains(property)) {
 				filteredValidationMessages.add(propertyValidations.get(property));
 			}
 			form.setValidationMessage(property, filteredValidationMessages);
