@@ -2,6 +2,7 @@ package ch.openech.mj.edit;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +26,6 @@ import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
-
-import com.google.gwt.dev.util.collect.HashMap;
 
 /**
  * An <code>Editor</code> knows
@@ -84,7 +83,6 @@ public abstract class Editor<T> {
 	private SaveAction saveAction;
 	private EditorFinishedListener editorFinishedListener;
 	private final Map<PropertyInterface, String> propertyValidations = new HashMap<>();
-	private final Map<PropertyInterface, String> emptyValidations = new HashMap<>();
 	private Indicator indicator;
 	private boolean saveable = true;
 	private boolean userEdited;
