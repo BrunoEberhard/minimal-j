@@ -34,7 +34,7 @@ import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TextFormatField;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.PartialDate;
-import ch.openech.mj.model.annotation.LimitedString;
+import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -114,9 +114,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			if (field.getProperty() == null) {
 				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
 			}
-		} else if (key instanceof LimitedString) {
+		} else if (key instanceof StringLimitation) {
 			PropertyInterface property = Constants.getProperty(key);
-			field = createTextFormatField((LimitedString) key, property);
+			field = createTextFormatField((StringLimitation) key, property);
 		} else {
 			PropertyInterface property = Constants.getProperty(key);
 			field = createField(property);
@@ -124,7 +124,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		return field;
 	}
 
-	protected FormField<?> createTextFormatField(LimitedString textFormat, PropertyInterface property) {
+	protected FormField<?> createTextFormatField(StringLimitation textFormat, PropertyInterface property) {
 		return new TextFormatField(property, textFormat, editable);
 	}
 	

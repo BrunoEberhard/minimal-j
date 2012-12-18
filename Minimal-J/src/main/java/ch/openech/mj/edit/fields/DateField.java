@@ -11,7 +11,7 @@ import org.joda.time.format.DateTimeFormatter;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.InvalidValues;
 import ch.openech.mj.db.model.PropertyInterface;
-import ch.openech.mj.model.annotation.LimitedString;
+import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;

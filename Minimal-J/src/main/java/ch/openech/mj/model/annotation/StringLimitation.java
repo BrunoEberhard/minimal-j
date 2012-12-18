@@ -1,6 +1,6 @@
 package ch.openech.mj.model.annotation;
 
-public interface LimitedString {
+public interface StringLimitation {
 	
 	public int getMaxLength();
 	

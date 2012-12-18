@@ -25,7 +25,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import ch.openech.mj.model.annotation.LimitedString;
+import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;

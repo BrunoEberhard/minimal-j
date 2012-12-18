@@ -2,18 +2,18 @@ package ch.openech.mj.edit.fields;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.PropertyInterface;
-import ch.openech.mj.model.annotation.LimitedString;
+import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.FieldUtils;
 
-public class TextFormatField extends AbstractEditField<LimitedString> implements DemoEnabled {
+public class TextFormatField extends AbstractEditField<StringLimitation> implements DemoEnabled {
 	private final TextField textField;
-	private final LimitedString textFormat;
-	private LimitedString value;
+	private final StringLimitation textFormat;
+	private StringLimitation value;
 
-	public TextFormatField(PropertyInterface property, LimitedString textFormat, boolean editable) {
+	public TextFormatField(PropertyInterface property, StringLimitation textFormat, boolean editable) {
 		super(property, editable);
 		this.textFormat = textFormat;
 		if (editable) {
@@ -29,13 +29,13 @@ public class TextFormatField extends AbstractEditField<LimitedString> implements
 	}
 
 	@Override
-	public LimitedString getObject() {
+	public StringLimitation getObject() {
 		FieldUtils.setValue(value, textField.getText());
 		return value;
 	}		
 	
 	@Override
-	public void setObject(LimitedString value) {
+	public void setObject(StringLimitation value) {
 		this.value = value;
 		textField.setText((String) FieldUtils.getValue(value));
 	}
