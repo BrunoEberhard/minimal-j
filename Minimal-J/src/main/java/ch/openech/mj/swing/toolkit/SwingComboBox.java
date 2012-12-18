@@ -1,5 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collections;
@@ -7,21 +8,27 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import ch.openech.mj.db.model.CodeItem;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.Focusable;
 
 public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusable {
 
+	private static final CodeItemRenderer RENDERER = new CodeItemRenderer();
 	private final ChangeListener listener;
 	private final NullableComboBoxModel<T> model;
 	
 	public SwingComboBox(ChangeListener listener) {
 		this.listener = listener;
+		setRenderer(RENDERER);
 		addItemListener(new ComboBoxChangeListener());
 		setInheritsPopupMenu(true);
 		model = new NullableComboBoxModel<T>();
@@ -148,6 +155,19 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusabl
 		private void updateSetObjectInObjects() {
 			setObjectInObjects = (setObject == null || objects.contains(setObject));
 		}
+	}
+	
+	private static class CodeItemRenderer extends DefaultListCellRenderer {
+
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (component instanceof JComponent && value instanceof CodeItem) {
+				((JComponent) component).setToolTipText(((CodeItem)value).getDescription());
+			}
+			return component;
+		}
+		
 	}
 	
 }

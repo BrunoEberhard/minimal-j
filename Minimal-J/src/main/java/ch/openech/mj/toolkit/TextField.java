@@ -11,14 +11,6 @@ public interface TextField extends IComponent, Focusable {
 
 	public void setEnabled(boolean editable);
 	
-	public static interface TextFieldFilter {
-		
-		public int getLimit();
-		
-		public String getAllowedCharacters();
-		
-	}
-	
 	public void setFocusListener(FocusListener focusListener);
 
 }

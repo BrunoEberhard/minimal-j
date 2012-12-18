@@ -23,7 +23,6 @@ import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualTable;
 
@@ -58,8 +57,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public TextField createTextField(ChangeListener changeListener, TextFieldFilter filter) {
-		return new VaadinTextField(changeListener, filter);
+	public TextField createTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+		return new VaadinTextField(changeListener, maxLength, allowedCharacters);
 	}
 
 	@Override
@@ -78,16 +77,21 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public Caption decorateWithCaption(IComponent component, String caption) {
+	public Caption decorateWithCaption(final IComponent component, String text) {
 		final AbstractComponent vaadinComponent = (AbstractComponent) component;
-		vaadinComponent.setCaption(caption);
-		Caption indicator = new Caption() {
+		vaadinComponent.setCaption(text);
+		Caption caption = new Caption() {
 			@Override
 			public void setValidationMessages(List<String> validationMessages) {
 				VaadinIndication.setValidationMessages(validationMessages, vaadinComponent);
 			}
+
+			@Override
+			public IComponent getComponent() {
+				return component;
+			}
 		};
-		return indicator;
+		return caption;
 	}
 
 	@Override

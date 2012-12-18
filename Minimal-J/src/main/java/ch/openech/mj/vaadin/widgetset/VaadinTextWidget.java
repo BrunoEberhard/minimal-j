@@ -1,14 +1,10 @@
 package ch.openech.mj.vaadin.widgetset;
 
 import java.awt.event.FocusListener;
-import java.util.List;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
-import ch.openech.mj.vaadin.toolkit.VaadinIndication;
 import ch.openech.mj.vaadin.widgetset.client.ui.VVaadinTextField;
 
 import com.vaadin.terminal.PaintException;
@@ -18,16 +14,16 @@ import com.vaadin.terminal.PaintTarget;
 @com.vaadin.ui.ClientWidget(ch.openech.mj.vaadin.widgetset.client.ui.VVaadinTextField.class)
 public class VaadinTextWidget extends com.vaadin.ui.TextField {
 
-	private final TextFieldFilter filter;
+	private final String allowedCharacters;
 	private TextFieldChangeListener changeListener;
 	
 	public VaadinTextWidget() {
 		this(null);
 	}
 	
-	public VaadinTextWidget(TextFieldFilter filter) {
+	public VaadinTextWidget(String allowedCharacters) {
 		setReadOnly(false);
-		this.filter = filter;
+		this.allowedCharacters = allowedCharacters;
 	}
 	
 //	@Override
@@ -107,10 +103,8 @@ public class VaadinTextWidget extends com.vaadin.ui.TextField {
 	public void paintContent(PaintTarget target) throws PaintException {
 		super.paintContent(target);
 
-		if (filter != null) {
-			if (filter.getAllowedCharacters() != null) {
-				target.addAttribute(VVaadinTextField.ALLOWED_CHARACTERS, filter.getAllowedCharacters());
-			}
+		if (allowedCharacters != null) {
+			target.addAttribute(VVaadinTextField.ALLOWED_CHARACTERS, allowedCharacters);
 		}
 	}
 	

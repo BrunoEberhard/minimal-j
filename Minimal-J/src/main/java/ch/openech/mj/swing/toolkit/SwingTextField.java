@@ -12,7 +12,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import ch.openech.mj.toolkit.Focusable;
-import ch.openech.mj.toolkit.MaxLengthTextFieldFilter;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingTextField extends JTextField implements TextField, Focusable {
@@ -28,12 +27,11 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 	}
 	
 	public SwingTextField(ChangeListener changeListener, int maxLength) {
-		// TODO Eigenes Document verwenden, das effizienter ist, als das generelle FilteredDocument
-		this(changeListener, new MaxLengthTextFieldFilter(maxLength));
+		this(changeListener, maxLength, null);
 	}
 	
-	public SwingTextField(ChangeListener changeListener, TextFieldFilter filter) {
-		super(new FilteredDocument(filter), null, 0);
+	public SwingTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+		super(new FilteredDocument(maxLength, allowedCharacters), null, 0);
 		
 		this.changeListener = changeListener;
 		getDocument().addDocumentListener(new TextFieldChangeListener());
@@ -64,10 +62,12 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 	}
 
 	private static class FilteredDocument extends PlainDocument {
-		private final TextFieldFilter filter;
+		private final int maxLength;
+		private final String allowedCharacters;
 		
-		public FilteredDocument(TextFieldFilter filter) {
-			this.filter = filter;
+		public FilteredDocument(int maxLength, String allowedCharacters) {
+			this.maxLength = maxLength;
+			this.allowedCharacters = allowedCharacters;
 		}
 
 		@Override
@@ -78,7 +78,7 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 			String requestedString = actualText.substring(0, offset) + additionalString + actualText.substring(offset, length);
 
 			String filteredAdditionalString = filter(additionalString);
-			int overLength = actualText.length() + filteredAdditionalString.length() - filter.getLimit();
+			int overLength = actualText.length() + filteredAdditionalString.length() - maxLength;
 			if (overLength > 0) {
 				filteredAdditionalString = filteredAdditionalString.substring(0, filteredAdditionalString.length() - overLength);
 			}
@@ -92,13 +92,13 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 		}
 
 		private String filter(String s) {
+			if (allowedCharacters == null) return s;
+			
 			String result = "";
 			for (int i = 0; i<s.length(); i++) {
 				char c = s.charAt(i);
-				if (filter.getAllowedCharacters() != null) {
-					if (filter.getAllowedCharacters().indexOf(c) < 0) {
-						continue;
-					}
+				if (allowedCharacters.indexOf(c) < 0) {
+					continue;
 				}
 				result += c;
 			}

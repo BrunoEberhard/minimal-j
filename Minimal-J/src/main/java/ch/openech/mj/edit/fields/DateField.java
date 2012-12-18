@@ -11,10 +11,10 @@ import org.joda.time.format.DateTimeFormatter;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.InvalidValues;
 import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.annotation.LimitedString;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.StringUtils;
 
@@ -51,8 +51,7 @@ public class DateField extends AbstractEditField<LocalDate> implements DemoEnabl
 		this.partialAllowed = partialAllowed;
 		
 		if (editable) {
-			textField = ClientToolkit.getToolkit().createTextField(listener(), new DateFilter());
-			
+			textField = ClientToolkit.getToolkit().createTextField(listener(), 10, "01234567890.");
 			installFocusLostListener();
 		} else {
 			textField = ClientToolkit.getToolkit().createReadOnlyTextField();
@@ -158,18 +157,5 @@ public class DateField extends AbstractEditField<LocalDate> implements DemoEnabl
 //		}
 //	}
 	
-	private class DateFilter implements TextFieldFilter {
-		private static final String ALLOWED_CHARACTERS = "01234567890.";
-
-		@Override
-		public int getLimit() {
-			return 10;
-		}
-
-		@Override
-		public String getAllowedCharacters() {
-			return ALLOWED_CHARACTERS;
-		}
-	}
 	
 }

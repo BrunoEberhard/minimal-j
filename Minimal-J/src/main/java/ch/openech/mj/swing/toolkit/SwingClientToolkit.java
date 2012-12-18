@@ -25,7 +25,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import ch.openech.mj.edit.validation.Indicator;
+import ch.openech.mj.model.annotation.LimitedString;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
@@ -43,7 +43,6 @@ import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualTable;
 
@@ -71,8 +70,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(ChangeListener changeListener, TextFieldFilter filter) {
-		return new SwingTextField(changeListener, filter);
+	public TextField createTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+		return new SwingTextField(changeListener, maxLength, allowedCharacters);
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
 
 
 public abstract class NumberEditField<T> implements EditField<T> {
@@ -24,7 +23,7 @@ public abstract class NumberEditField<T> implements EditField<T> {
 		this.size = size;
 		this.decimalPlaces = decimalPlaces;
 		this.negative = negative;
-		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), new NumberTextFieldFilter(size, decimalPlaces, negative));
+		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), getMaxLength(), getAllowedCharacters());
 	}
 
 	@Override
@@ -85,31 +84,16 @@ public abstract class NumberEditField<T> implements EditField<T> {
 //		}
 //	}
 	
-	private static class NumberTextFieldFilter implements TextFieldFilter {
-		private final int size, decimalPlaces;
-		private final String allowedCharacters;
-		private final boolean negative;
-		
-		public NumberTextFieldFilter(int size, int decimalPlaces, boolean negative) {
-			this.size = size;
-			this.decimalPlaces = decimalPlaces;
-			this.negative = negative;
-			if (decimalPlaces > 0) {
-				allowedCharacters = negative ? "-0123456789." : "0123456789.";
-			} else {
-				allowedCharacters = negative ? "-0123456789" : "0123456789";
-			}
+	private String getAllowedCharacters() {
+		if (decimalPlaces > 0) {
+			return negative ? "-0123456789." : "0123456789.";
+		} else {
+			return negative ? "-0123456789" : "0123456789";
 		}
-
-		@Override
-		public int getLimit() {
-			return size + (negative ? 1 : 0) + (decimalPlaces > 0 ? 1 : 0);
-		}
-
-		@Override
-		public String getAllowedCharacters() {
-			return allowedCharacters;
-		}
-
 	}
+	
+	public int getMaxLength() {
+		return size + (negative ? 1 : 0) + (decimalPlaces > 0 ? 1 : 0);
+	}
+
 }

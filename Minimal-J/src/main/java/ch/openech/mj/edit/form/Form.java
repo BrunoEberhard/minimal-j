@@ -31,8 +31,10 @@ import ch.openech.mj.edit.fields.IntegerEditField;
 import ch.openech.mj.edit.fields.NumberFormField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
+import ch.openech.mj.edit.fields.TextFormatField;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.PartialDate;
+import ch.openech.mj.model.annotation.LimitedString;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -112,11 +114,18 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			if (field.getProperty() == null) {
 				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
 			}
+		} else if (key instanceof LimitedString) {
+			PropertyInterface property = Constants.getProperty(key);
+			field = createTextFormatField((LimitedString) key, property);
 		} else {
 			PropertyInterface property = Constants.getProperty(key);
 			field = createField(property);
 		}
 		return field;
+	}
+
+	protected FormField<?> createTextFormatField(LimitedString textFormat, PropertyInterface property) {
+		return new TextFormatField(property, textFormat, editable);
 	}
 	
 	protected FormField<?> createField(PropertyInterface property) {
@@ -143,8 +152,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 				int decimal = AnnotationUtil.getDecimal(property);
 				boolean negative = AnnotationUtil.isNegative(property);
 				return new BigDecimalEditField(property, size, negative);
-			}
-			// TODO dates
+			} 	// TODO dates
 			
 		} else {
 			if (fieldClass == String.class) return new TextFormField(property);
@@ -207,7 +215,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 	
 	private void add(Object key, FormField<?> c, int span) {
-		layout.add(decorateWithCaption(c), span);
+		layout.add(decorateWithCaption(c).getComponent(), span);
 		registerNamedField(c);
 	}
 	
@@ -225,12 +233,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 
 	private void area(Object key, FormField<?> visual, int span) {
-		layout.addArea(decorateWithCaption(visual), span);
+		layout.addArea(decorateWithCaption(visual).getComponent(), span);
 		registerNamedField(visual);
 		resizable = true;
 	}
 	
-	private IComponent decorateWithCaption(FormField<?> visual) {
+	private Caption decorateWithCaption(FormField<?> visual) {
 		String captionText = caption(visual);
 		Caption captioned = ClientToolkit.getToolkit().decorateWithCaption(visual.getComponent(), captionText);
 		indicators.put(visual.getProperty(), captioned);

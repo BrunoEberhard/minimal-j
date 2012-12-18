@@ -5,8 +5,7 @@ import java.io.InputStream;
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.toolkit.TextField.TextFieldFilter;
+import ch.openech.mj.model.annotation.LimitedString;
 
 /**
  * 
@@ -44,7 +43,7 @@ public abstract class ClientToolkit {
 
 	public abstract TextField createTextField(ChangeListener changeListener, int maxLength);
 	
-	public abstract TextField createTextField(ChangeListener changeListener, TextFieldFilter filter);
+	public abstract TextField createTextField(ChangeListener changeListener, int maxLength, String allowedCharacters);
 
 	public abstract FlowField createFlowField();
 

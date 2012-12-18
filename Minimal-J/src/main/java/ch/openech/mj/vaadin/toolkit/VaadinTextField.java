@@ -30,9 +30,9 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 		textWidget.setMaxLength(maxLength);
 	}
 	
-	public VaadinTextField(ChangeListener changeListener, TextFieldFilter filter) {
-		this(changeListener, new VaadinTextWidget(filter));
-		textWidget.setMaxLength(filter.getLimit());
+	public VaadinTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+		this(changeListener, new VaadinTextWidget(allowedCharacters));
+		textWidget.setMaxLength(maxLength);
 	}
 	
 	private VaadinTextField(ChangeListener changeListener, VaadinTextWidget vaadinTextWidget) {

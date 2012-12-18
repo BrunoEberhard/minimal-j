@@ -5,11 +5,17 @@ public class CodeItem<E> {
 
 	private final E key;
 	private final String text;
+	private final String description;
 	
 	public CodeItem(E key, String text) {
+		this(key, text, null);
+	}
+	
+	public CodeItem(E key, String text, String description) {
 		super();
 		this.key = key;
 		this.text = text;
+		this.description = description;
 	}
 
 	public E getKey() {
@@ -20,6 +26,10 @@ public class CodeItem<E> {
 		return text;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+	
 	@Override
 	public int hashCode() {
 		if (key == null) {

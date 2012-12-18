@@ -92,6 +92,21 @@ public class EnumUtils {
 			return enumElement.name();
 		}
 	}
+
+	public static <T extends Enum<T>> String getDescription(T enumElement) {
+		if (enumElement == null) {
+			return null;
+		}
+		
+		String bundleName = enumElement.getClass().getName();
+		try {
+			ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName);
+			return resourceBundle.getString(enumElement.name() + ".tooltip");
+		} catch (MissingResourceException mre) {
+			return null;
+		}
+	}
+
 	
 //	private static <T> Map<Class<T>, List<CodeItem<T>>> itemLists = new HashMap<Class<T>, List<CodeItem<T>>>();
 	private static Map itemLists = new HashMap();
@@ -108,7 +123,7 @@ public class EnumUtils {
 	public static <T extends Enum<T>> List<CodeItem<T>> itemList(List<T> values) {
 		List<CodeItem<T>> itemList = new ArrayList<>(values.size());
 		for (T value : values) {
-			CodeItem<T> item = new CodeItem<T>(value, getText(value));
+			CodeItem<T> item = new CodeItem<T>(value, getText(value), getDescription(value));
 			itemList.add(item);
 		}
 		return itemList;

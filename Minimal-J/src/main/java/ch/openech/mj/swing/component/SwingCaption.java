@@ -12,13 +12,12 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.LabelUI;
 
-import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.IComponent;
 
-public class SwingCaption extends JPanel implements Caption {
+public class SwingCaption extends JPanel implements Caption, IComponent {
 
 	private final JLabel captionLabel;
 	
@@ -67,6 +66,12 @@ public class SwingCaption extends JPanel implements Caption {
 			setFont(font.deriveFont(fontSize).deriveFont(Font.BOLD));
 		}
 		
+	}
+
+
+	@Override
+	public IComponent getComponent() {
+		return this;
 	}
 
 }
