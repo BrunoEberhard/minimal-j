@@ -119,7 +119,11 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			field = createTextFormatField((StringLimitation) key, property);
 		} else {
 			PropertyInterface property = Constants.getProperty(key);
-			field = createField(property);
+			if (property != null) {
+				field = createField(property);
+			} else {
+				throw new IllegalArgumentException("" + key);
+			}
 		}
 		return field;
 	}
