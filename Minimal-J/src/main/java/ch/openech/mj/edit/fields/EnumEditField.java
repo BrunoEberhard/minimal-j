@@ -14,23 +14,23 @@ import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 
 // TODO: Typisierung bringt hier so was von nichts
-public class CodeEditField<E extends Enum<E>> extends AbstractEditField<E> implements DemoEnabled {
+public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> implements DemoEnabled {
 	private final Class<E> enumClass;
 	
 	private final SwitchLayout switchLayout;
 	private final ComboBox<CodeItem<E>> comboBox;
 	private final TextField textFieldDisabled;
 
-	public CodeEditField(PropertyInterface property) {
+	public EnumEditField(PropertyInterface property) {
 		this(property, null);
 	}
 
-	public CodeEditField(E key, List<E> allowedValues) {
+	public EnumEditField(E key, List<E> allowedValues) {
 		this(Constants.getProperty(key), allowedValues);
 	}
 		
 	@SuppressWarnings("unchecked")
-	public CodeEditField(PropertyInterface property, List<E> allowedValues) {
+	public EnumEditField(PropertyInterface property, List<E> allowedValues) {
 		super(property, true);
 		this.enumClass = (Class<E>) property.getFieldClazz();
 		

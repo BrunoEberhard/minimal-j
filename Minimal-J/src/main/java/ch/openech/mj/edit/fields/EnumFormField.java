@@ -9,16 +9,16 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
 // TODO: Typisierung bringt hier so was von nichts
-public class CodeFormField<E extends Enum<E>> extends AbstractEditField<E> {
+public class EnumFormField<E extends Enum<E>> extends AbstractEditField<E> {
 	
 	private final TextField textFieldDisabled;
 
-	public CodeFormField(PropertyInterface property) {
+	public EnumFormField(PropertyInterface property) {
 		this(property, null);
 	}
 
 	@SuppressWarnings("unchecked")
-	public CodeFormField(PropertyInterface property, List<E> allowedValues) {
+	public EnumFormField(PropertyInterface property, List<E> allowedValues) {
 		super(property, true);
 		
 		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();

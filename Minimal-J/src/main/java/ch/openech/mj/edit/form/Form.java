@@ -22,8 +22,8 @@ import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.edit.fields.BigDecimalEditField;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
-import ch.openech.mj.edit.fields.CodeEditField;
-import ch.openech.mj.edit.fields.CodeFormField;
+import ch.openech.mj.edit.fields.EnumEditField;
+import ch.openech.mj.edit.fields.EnumFormField;
 import ch.openech.mj.edit.fields.DateField;
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.edit.fields.FormField;
@@ -142,7 +142,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 				boolean partialAllowed = property.getAnnotation(PartialDate.class) != null;
 				return new DateField(property, partialAllowed, editable);
 			} else if (Enum.class.isAssignableFrom(fieldClass)) {
-				return new CodeEditField(property);
+				return new EnumEditField(property);
 			} else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
 				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
@@ -161,7 +161,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		} else {
 			if (fieldClass == String.class) return new TextFormField(property);
 			else if (fieldClass == LocalDate.class) return new DateField(property, true, editable);
-			else if (Enum.class.isAssignableFrom(fieldClass)) return new CodeFormField(property);
+			else if (Enum.class.isAssignableFrom(fieldClass)) return new EnumFormField(property);
 			else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
 				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
