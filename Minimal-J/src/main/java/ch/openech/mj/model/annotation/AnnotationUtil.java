@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.Codes;
 import ch.openech.mj.util.FieldUtils;
 
 public class AnnotationUtil {
@@ -14,6 +15,12 @@ public class AnnotationUtil {
 		Size size = property.getAnnotation(Size.class);
 		if (size != null) {
 			return size.value();
+		}
+		
+		String codeName = getCode(property);
+		if (codeName != null) {
+			ch.openech.mj.db.model.Code code = Codes.getCode(codeName);
+			return code.getSize();
 		}
 		
 		Sizes sizes = property.getDeclaringClass().getAnnotation(Sizes.class);
@@ -33,6 +40,18 @@ public class AnnotationUtil {
 		throw new IllegalArgumentException("Size not specified for " + property.getFieldName() + " on " + property.getDeclaringClass());
 	}
 
+	public static String getCode(PropertyInterface property) {
+		Code code = property.getAnnotation(Code.class);
+		if (code != null) {
+			if (code.value().isEmpty()) {
+				return property.getFieldName();
+			} else {
+				return code.value();
+			}
+		}
+		return null;
+	}
+		
 	public static int getDecimal(PropertyInterface property) {
 		Decimal decimal = property.getAnnotation(Decimal.class);
 		if (decimal != null) {

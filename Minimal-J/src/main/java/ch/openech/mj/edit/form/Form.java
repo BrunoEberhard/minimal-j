@@ -22,10 +22,12 @@ import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.edit.fields.BigDecimalEditField;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
-import ch.openech.mj.edit.fields.EnumEditField;
-import ch.openech.mj.edit.fields.EnumFormField;
+import ch.openech.mj.edit.fields.CodeEditField;
+import ch.openech.mj.edit.fields.CodeFormField;
 import ch.openech.mj.edit.fields.DateField;
 import ch.openech.mj.edit.fields.EditField;
+import ch.openech.mj.edit.fields.EnumEditField;
+import ch.openech.mj.edit.fields.EnumFormField;
 import ch.openech.mj.edit.fields.FormField;
 import ch.openech.mj.edit.fields.IntegerEditField;
 import ch.openech.mj.edit.fields.NumberFormField;
@@ -137,7 +139,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		if (editable) {
 			if (fieldClass == String.class) {
 				int size = AnnotationUtil.getSize(property);
-				return new TextEditField(property, size);
+				String codeName = AnnotationUtil.getCode(property);
+				if (codeName == null) {
+					return new TextEditField(property, size);
+				} else {
+					return new CodeEditField(property, codeName);
+				}
 			} else if (fieldClass == LocalDate.class) {
 				boolean partialAllowed = property.getAnnotation(PartialDate.class) != null;
 				return new DateField(property, partialAllowed, editable);
@@ -155,11 +162,18 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 				int size = AnnotationUtil.getSize(property);
 				int decimal = AnnotationUtil.getDecimal(property);
 				boolean negative = AnnotationUtil.isNegative(property);
-				return new BigDecimalEditField(property, size, negative);
+				return new BigDecimalEditField(property, size, decimal, negative);
 			} 	// TODO dates
 			
 		} else {
-			if (fieldClass == String.class) return new TextFormField(property);
+			if (fieldClass == String.class) {
+				String codeName = AnnotationUtil.getCode(property);
+				if (codeName == null) {
+					return new TextFormField(property);
+				} else {
+					return new CodeFormField(property, codeName);
+				}
+			}
 			else if (fieldClass == LocalDate.class) return new DateField(property, true, editable);
 			else if (Enum.class.isAssignableFrom(fieldClass)) return new EnumFormField(property);
 			else if (fieldClass == Boolean.class) {
