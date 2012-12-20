@@ -19,7 +19,6 @@ import org.joda.time.LocalDate;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.PropertyInterface;
-import ch.openech.mj.edit.ChangeableValue;
 import ch.openech.mj.edit.fields.BigDecimalEditField;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
 import ch.openech.mj.edit.fields.CodeEditField;
@@ -289,9 +288,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 	protected void registerNamedField(FormField<?> field) {
 		fields.put(field.getProperty(), field);
-		if (field instanceof ChangeableValue<?>) {
-			ChangeableValue<?> changeable = (ChangeableValue<?>) field;
-			changeable.setChangeListener(formPanelChangeListener);
+		if (field instanceof EditField<?>) {
+			EditField<?> editField = (EditField<?>) field;
+			editField.setChangeListener(formPanelChangeListener);
 		}
 //		addListeners(field);
 		
