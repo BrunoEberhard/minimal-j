@@ -44,7 +44,9 @@ public class Constants {
 			if (property.isFinal()) {
 				value = property.getValue(object);
 			} else {
-				if (type == Integer.class) {
+				if (type == String.class) {
+					value = new String(property.getFieldName());
+				} else if (type == Integer.class) {
 					value = new Integer(0);
 				} else if (Enum.class.isAssignableFrom(type)) {
 					Class<Enum> enumClass = (Class<Enum>) type;
