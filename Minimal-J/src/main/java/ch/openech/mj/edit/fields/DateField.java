@@ -2,16 +2,15 @@ package ch.openech.mj.edit.fields;
 
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.util.Locale;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.InvalidValues;
 import ch.openech.mj.db.model.PropertyInterface;
-import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
@@ -32,7 +31,7 @@ so gut wie möglich ergänzt. Die Übersetzung geschieht wie folgt:
 public class DateField extends AbstractEditField<LocalDate> implements DemoEnabled {
 	public static final boolean PARTIAL_ALLOWED = true;                                                    
 	
-	private static final DateTimeFormatter US_MEDIUM_FORMAT = DateTimeFormat.forPattern(DateTimeFormat.patternForStyle("M-", Locale.US));
+	private static final DateTimeFormatter DATE_FORMATTER = ISODateTimeFormat.date();
 	
 	private final TextField textField;
 	
@@ -84,7 +83,7 @@ public class DateField extends AbstractEditField<LocalDate> implements DemoEnabl
 		if (text.length() == 0) return null;
 		String textUS = DateUtils.parseCH(text, partialAllowed);
 		try {
-			return US_MEDIUM_FORMAT.parseLocalDate(textUS);
+			return DATE_FORMATTER.parseLocalDate(textUS);
 		} catch (IllegalArgumentException iae) {
 			return InvalidValues.createInvalidLocalDate(text);
 		}
