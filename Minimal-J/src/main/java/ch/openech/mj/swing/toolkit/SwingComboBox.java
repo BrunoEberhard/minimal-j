@@ -8,10 +8,10 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -22,13 +22,12 @@ import ch.openech.mj.toolkit.Focusable;
 
 public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusable {
 
-	private static final CodeItemRenderer RENDERER = new CodeItemRenderer();
 	private final ChangeListener listener;
 	private final NullableComboBoxModel<T> model;
 	
 	public SwingComboBox(ChangeListener listener) {
 		this.listener = listener;
-		setRenderer(RENDERER);
+		setRenderer(new CodeItemRenderer(getRenderer()));
 		addItemListener(new ComboBoxChangeListener());
 		setInheritsPopupMenu(true);
 		model = new NullableComboBoxModel<T>();
@@ -157,11 +156,19 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T>, Focusabl
 		}
 	}
 	
-	private static class CodeItemRenderer extends DefaultListCellRenderer {
+	
+	
+	private static class CodeItemRenderer implements ListCellRenderer {
 
+		private final ListCellRenderer delegate;
+		
+		public CodeItemRenderer(ListCellRenderer delegate) {
+			this.delegate = delegate;
+		}
+		
 		@Override
-		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			Component component = delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (component instanceof JComponent && value instanceof CodeItem) {
 				((JComponent) component).setToolTipText(((CodeItem)value).getDescription());
 			}
