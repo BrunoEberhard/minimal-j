@@ -15,6 +15,8 @@ public interface PropertyInterface {
 	
 	public String getFieldName();
 
+	public String getFieldPath();
+
 	public Class<?> getFieldClazz();
 
 	public Type getType();

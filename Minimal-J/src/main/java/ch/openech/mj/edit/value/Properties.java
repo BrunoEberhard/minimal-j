@@ -177,6 +177,11 @@ public class Properties {
 		}
 
 		@Override
+		public String getFieldPath() {
+			return getFieldName();
+		}
+
+		@Override
 		public Type getType() {
 			return field.getGenericType();
 		}
@@ -244,6 +249,11 @@ public class Properties {
 		@Override
 		public String getFieldName() {
 			return name;
+		}
+
+		@Override
+		public String getFieldPath() {
+			return getFieldName();
 		}
 
 		@Override

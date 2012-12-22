@@ -116,7 +116,12 @@ public class Constants {
 		public String getFieldName() {
 			return property2.getFieldName();
 		}
-
+		
+		@Override
+		public String getFieldPath() {
+			return property1.getFieldName() + "." + property2.getFieldName();
+		}
+		
 		@Override
 		public Type getType() {
 			return property2.getType();

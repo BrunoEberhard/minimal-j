@@ -113,6 +113,13 @@ public class ColumnProperties {
 				property.setValue(to, fromValue);
 			}
 		}
+		properties = ListColumnAccess.getProperties(from.getClass());
+		for (PropertyInterface property : properties.values()) {
+			List fromList = (List) property.getValue(from);
+			List toList = (List)property.getValue(to);
+			toList.clear();
+			toList.addAll(fromList);
+		}
 	}
 	
 	//
@@ -203,6 +210,11 @@ public class ColumnProperties {
 		}
 
 		@Override
+		public String getFieldPath() {
+			return getFieldName();
+		}
+		
+		@Override
 		public Type getType() {
 			return field.getGenericType();
 		}
@@ -276,6 +288,11 @@ public class ColumnProperties {
 		@Override
 		public String getFieldName() {
 			return next.getFieldName();
+		}
+
+		@Override
+		public String getFieldPath() {
+			return field.getName() + "." + next.getFieldName();
 		}
 
 		@Override
