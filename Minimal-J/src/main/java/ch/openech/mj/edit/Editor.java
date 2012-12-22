@@ -261,6 +261,8 @@ public abstract class Editor<T> {
 			Object newPropertyValue = event.getValue();
 			PropertyInterface property = event.getProperty();
 			
+			System.out.println(event.getProperty().getFieldPath() + " changed to " + newPropertyValue);
+			
 			property.setValue(editedObject, newPropertyValue);
 			
 			propertyValidations.remove(property);
@@ -274,6 +276,21 @@ public abstract class Editor<T> {
 			
 			userEdited = true;
 		}
+		
+//		@SuppressWarnings({ "unchecked", "rawtypes" })
+//		private void forwardToDependingFields(PropertyInterface changedProperty) {
+//			for (PropertyInterface property : Properties.getProperties(changedProperty.getDeclaringClass()).values()) {
+//				PropertyInterface dependedProperty = AnnotationUtil.getDependedProperties(property);
+//				if (changedProperty == dependedProperty) {
+//					try {
+//						form.set(property, changedProperty.getValue(editedObject));
+//					} catch (Exception x) {
+////						logger.severe("Could not forward value from " + getName(changedField) + " to " + getName(field) + " (" + x.getLocalizedMessage() + ")");
+//					}
+//				}
+//			}
+//		}
+
 	}
 
 	private void updateValidation() {

@@ -2,6 +2,7 @@ package ch.openech.mj.edit.form;
 
 import java.awt.event.KeyListener;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -34,6 +35,7 @@ import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TextFormatField;
 import ch.openech.mj.model.annotation.AnnotationUtil;
+import ch.openech.mj.model.annotation.Depends;
 import ch.openech.mj.model.annotation.PartialDate;
 import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.resources.Resources;
@@ -53,6 +55,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	private final LinkedHashMap<PropertyInterface, FormField<?>> fields = new LinkedHashMap<PropertyInterface, FormField<?>>();
 	private final Map<PropertyInterface, Caption> indicators = new HashMap<PropertyInterface, Caption>();
+	private final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 	
 	private KeyListener keyListener;
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
@@ -108,27 +111,50 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 	public FormField<?> createField(Object key) {
 		FormField<?> field;
+		PropertyInterface property;
 		if (key == null) {
 			throw new NullPointerException("Key must not be null");
 		} else if (key instanceof FormField) {
 			field = (FormField<?>) key;
-			if (field.getProperty() == null) {
-				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
-			}
+			property = field.getProperty();
+			if (property == null) throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
 		} else if (key instanceof StringLimitation) {
-			PropertyInterface property = Constants.getProperty(key);
+			property = Constants.getProperty(key);
 			field = createTextFormatField((StringLimitation) key, property);
 		} else {
-			PropertyInterface property = Constants.getProperty(key);
-			if (property != null) {
-				field = createField(property);
-			} else {
-				throw new IllegalArgumentException("" + key);
-			}
+			property = Constants.getProperty(key);
+			if (property == null) throw new IllegalArgumentException("" + key);
+			field = createField(property);
 		}
+
+		evaluateDependency(property);
+		
 		return field;
 	}
 
+	private void evaluateDependency(PropertyInterface property) {
+		Depends depends = property.getAnnotation(Depends.class);
+		if (depends != null) {
+			String fieldPath = depends.value();
+			// if the property is already a contained one then the fieldPath of the depended property has to be prefixed
+			int pos = property.getFieldPath().lastIndexOf(".");
+			if (pos > 0) {
+				fieldPath = property.getFieldPath().substring(0, pos) + "." + fieldPath;
+			}
+			PropertyInterface dependedProperty = null;
+			for (PropertyInterface p : fields.keySet()) {
+				if (p.getFieldPath().equals(fieldPath)) {
+					dependedProperty = p; break;
+				}
+			}
+			if (dependedProperty == null) throw new IllegalArgumentException("Depends of " + property.getFieldName() + " unknown fieldName: " + fieldPath);
+			if (!dependencies.containsKey(dependedProperty)) {
+				dependencies.put(dependedProperty, new ArrayList<PropertyInterface>());
+			}
+			dependencies.get(dependedProperty).add(property);
+		}
+	}
+	
 	protected FormField<?> createTextFormatField(StringLimitation textFormat, PropertyInterface property) {
 		return new TextFormatField(property, textFormat, editable);
 	}
@@ -323,7 +349,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void set(PropertyInterface property, Object value) {
+	private void set(PropertyInterface property, Object value) {
 		FormField formField = fields.get(property);
 		formField.setObject(value);
 	}
@@ -358,23 +384,25 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 
 	private class FormPanelChangeListener implements ChangeListener {
-		private boolean adjusting = false;
-		
-		public void setAdjusting(boolean adjusting) {
-			this.adjusting = adjusting;
-		}
 
 		@Override
 		public void stateChanged(ChangeEvent event) {
-			if (adjusting) return;
-			
 			EditField<?> changedField = (EditField<?>) event.getSource();
 			logger.fine("ChangeEvent from " + getName(changedField));
 
 			PropertyInterface property = changedField.getProperty();
 			Object value = changedField.getObject();
 			
-			forwardToDependingFields(changedField);
+			if (dependencies.containsKey(property)) {
+				for (PropertyInterface dependedProperty : dependencies.get(property)) {
+					FormField<?> formField = fields.get(dependedProperty);
+					if (formField instanceof DependingOnFieldAbove) {
+						((DependingOnFieldAbove)formField).valueChanged(value);
+					} else {
+						logger.warning("Dependency without depending field: " + dependedProperty.getDeclaringClass() + "." + dependedProperty.getFieldName());
+					}
+				}
+			}
 
 			if (changeListener != null) {
 				FormChangeEvent formChangeEvent = new FormChangeEvent(this, property, value);
@@ -383,33 +411,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void forwardToDependingFields(EditField<?> changedField) {
-		PropertyInterface propertyChangedField = null;
-		for (Map.Entry<PropertyInterface, FormField<?>> entry : fields.entrySet()) {
-			FormField field = entry.getValue();
-			if (field == changedField) {
-				propertyChangedField = entry.getKey();
-				continue;
-			}
-			if (propertyChangedField == null) {
-				// only fields below the changed field can be depending.
-				// know what you do before remove this line!
-				continue;
-			}
-			if (field instanceof DependingOnFieldAbove) {
-				DependingOnFieldAbove dependingOnFieldAbove = (DependingOnFieldAbove) field;
-				if (propertyChangedField.equals(Constants.getProperty(dependingOnFieldAbove.getKeyOfDependedField()))) {
-					try {
-						dependingOnFieldAbove.valueChanged(changedField.getObject());
-					} catch (Exception x) {
-						logger.severe("Could not forward value from " + getName(changedField) + " to " + getName(field) + " (" + x.getLocalizedMessage() + ")");
-					}
-				}
-			}
-		}
-	}
-	
 	public static class FormChangeEvent extends ChangeEvent {
 		
 		private final PropertyInterface property;
@@ -429,6 +430,5 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			return value;
 		}
 	}
-	
 
 }
