@@ -15,7 +15,6 @@ import ch.openech.mj.toolkit.SwitchLayout;
 public class SwitchForm<T> implements IForm<T> {
 
 	private SwitchLayout switchLayout;
-	private IForm form;
 	
 	public SwitchForm() {
 		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
@@ -42,12 +41,7 @@ public class SwitchForm<T> implements IForm<T> {
 		// no save
 	}
 	
-	public IForm<?> getFormVisual() {
-		return form;
-	}
-	
 	public void setForm(IForm<?> form) {
-		this.form = form;
 		switchLayout.show(form.getComponent());
 	}
 
@@ -63,7 +57,7 @@ public class SwitchForm<T> implements IForm<T> {
 
 	@Override
 	public void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
-//		form.setValidationMessage(property, validationMessages);
+		//
 	}
 
 }
