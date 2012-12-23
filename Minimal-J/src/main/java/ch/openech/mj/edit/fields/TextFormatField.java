@@ -42,9 +42,17 @@ public class TextFormatField extends AbstractEditField<StringLimitation> impleme
 
 	@Override
 	public void fillWithDemoData() {
-		if (textFormat instanceof DemoEnabled) {
-			((DemoEnabled) textFormat).fillWithDemoData();
+		if (value == null) {
+			try {
+				value = textFormat.getClass().newInstance();
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
 		}
+		if (value instanceof DemoEnabled) {
+			((DemoEnabled) value).fillWithDemoData();
+		}
+		setObject(value);
 	}
 
 }
