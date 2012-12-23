@@ -98,7 +98,11 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 			for (int i = 0; i<s.length(); i++) {
 				char c = s.charAt(i);
 				if (allowedCharacters.indexOf(c) < 0) {
-					continue;
+					if (Character.isLowerCase(c)) c = Character.toUpperCase(c);
+					else if (Character.isUpperCase(c)) c = Character.toLowerCase(c);
+					if (allowedCharacters.indexOf(c) < 0) {
+						continue;
+					}
 				}
 				result += c;
 			}
