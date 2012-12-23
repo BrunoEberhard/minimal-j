@@ -1,14 +1,12 @@
 package ch.openech.mj.edit.value;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import ch.openech.mj.db.model.PropertyInterface;
-import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.ListColumnAccess;
+import ch.openech.mj.util.FieldUtils;
 
 public class CloneHelper {
 
@@ -29,42 +27,47 @@ public class CloneHelper {
 	}
 
 	public static void deepCopy(Object from, Object to) {
-		deepCopyListFields(from, to);
-		deepCopyNonListFields(from, to);
+		try {
+			_deepCopy(from, to);
+		} catch (IllegalAccessException | IllegalArgumentException x) {
+			throw new RuntimeException(x);
+		}
 	}
-
-	private static void deepCopyNonListFields(Object from, Object to) {
-		List<String> keys = ColumnProperties.getNonListKeys(from.getClass());
-		for (String key: keys) {
-			PropertyInterface property = ColumnProperties.getProperties(from.getClass()).get(key);
-			Object fromValue = property.getValue(from);
-			if (property.isFinal()) {
-				Object toValue = property.getValue(to);
+	
+	private static void _deepCopy(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
+		for (Field field : from.getClass().getDeclaredFields()) {
+			if (FieldUtils.isStatic(field)) continue;
+			field.setAccessible(true);
+			Object fromValue = field.get(from);
+			Object toValue = field.get(to);
+			if (FieldUtils.isList(field.getType())) {
+				List fromList = (List)field.get(from);
+				if (fromList == null) continue;
+				List toList = (List)toValue;
+				if (!FieldUtils.isFinal(field)) {
+					toList = new ArrayList();
+					field.set(to, toList);
+				}
+				for (Object element : fromList) {
+					toList.add(clone(element));
+				}
+			} else if (isPrimitive(field) || FieldUtils.isTransient(field) || fromValue == null) {
+				// note: transient fields are not cloned
+				field.set(to, fromValue);
+			} else if (FieldUtils.isFinal(field) && toValue != null) {
 				deepCopy(fromValue, toValue);
-			} else if (fromValue != null && ColumnProperties.isReference(property)) {
-				Object copyValue = CloneHelper.clone(fromValue);
-				property.setValue(to, copyValue);
 			} else {
-				property.setValue(to, fromValue);
+				Object copyValue = CloneHelper.clone(fromValue);
+				field.set(to, copyValue);
 			}
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void deepCopyListFields(Object from, Object to) {
-		Map<String, PropertyInterface> listProperties = ListColumnAccess.getProperties(from.getClass());
-		for (PropertyInterface property : listProperties.values()) {
-			List fromValue = (List)property.getValue(from);
-			if (fromValue == null) continue;
-			List toValue = (List)property.getValue(to);
-			if (!property.isFinal()) {
-				toValue = new ArrayList();
-				property.setValue(to, toValue);
-			}
-			for (Object element : fromValue) {
-				toValue.add(clone(element));
-			}
-		}
+	public static boolean isPrimitive(Field field) {
+		if (field.getType().getName().startsWith("java")) return true;
+		if (field.getType().getName().startsWith("org.joda")) return true;
+		if (Enum.class.isAssignableFrom(field.getType())) return true;
+		return false;
 	}
 	
 	public static <T> T newInstance(Class<T> clazz) {
