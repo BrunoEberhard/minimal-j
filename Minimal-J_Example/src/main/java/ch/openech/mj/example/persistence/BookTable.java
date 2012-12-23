@@ -58,9 +58,4 @@ public class BookTable extends SearchableTable<Book> {
 		return new Book();
 	}
 
-//	@Override
-//	protected void setField(Book result, String fieldName, String value) {
-//		Properties.set(result, fieldName, value);
-//	}
-
 }

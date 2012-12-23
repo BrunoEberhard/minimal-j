@@ -289,7 +289,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 
 	@Override
 	public ApplicationContext getApplicationContext() {
-		return SwingApplication.getApplicationContext();
+		return SwingLauncher.getApplicationContext();
 	}
 
 	

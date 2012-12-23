@@ -6,9 +6,11 @@ import java.util.ResourceBundle;
 import page.EmptyPage;
 
 import ch.openech.mj.application.ApplicationContext;
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.util.StringUtils;
 import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
 
 import com.vaadin.Application;
@@ -19,15 +21,24 @@ import com.vaadin.Application;
  * @author Bruno
  *
  */
-public class MinimalJVaadinApplication extends Application {
-	private VaadinWindow mainWindow;
-	private final ApplicationContext applicationContext = new VaadinAppicationContext();
+public class VaadinLauncher extends Application {
+	private final ApplicationContext applicationContext = new VaadinApplicationContext();
 	
 	@Override
 	public void init() {
-		setTheme("openech");
+		String applicationClass = getProperty("MjApplication");
+		if (StringUtils.isBlank(applicationClass)) {
+			throw new IllegalArgumentException("Missing MjApplication parameter");
+		}
+		try {
+			Class<? extends MjApplication> application = (Class<? extends MjApplication>) Class.forName(applicationClass);
+			application.newInstance();
+		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException x) {
+			throw new RuntimeException(x);
+		}
 		
-		mainWindow = new VaadinWindow();
+		setTheme("openech");
+		VaadinWindow mainWindow = new VaadinWindow();
 		setMainWindow(mainWindow);
 		mainWindow.show(Page.link(EmptyPage.class));
 	}
@@ -42,17 +53,17 @@ public class MinimalJVaadinApplication extends Application {
 		Resources.addResourceBundle(ResourceBundle.getBundle("ch.openech.mj.resources.MinimalJ"));
 	}
 
-	public class VaadinAppicationContext extends ApplicationContext {
+	public class VaadinApplicationContext extends ApplicationContext {
 		private Object preferences;
 		
 		@Override
 		public void setUser(String user) {
-			MinimalJVaadinApplication.this.setUser(user);
+			VaadinLauncher.this.setUser(user);
 		}
 
 		@Override
 		public String getUser() {
-			return (String) MinimalJVaadinApplication.this.getUser();
+			return (String) VaadinLauncher.this.getUser();
 		}
 
 		@Override

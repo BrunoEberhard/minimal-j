@@ -6,28 +6,29 @@ import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
 
-public abstract class ApplicationConfig {
+public abstract class MjApplication {
 
-	private static ApplicationConfig applicationConfig;
+	private static MjApplication application;
 	
-	public static ApplicationConfig getApplicationConfig() {
-		if (applicationConfig == null) {
+	public static MjApplication getApplication() {
+		if (application == null) {
 			throw new IllegalStateException("CientApplicationConfig has to be initialized");
 		}
-		return applicationConfig;
-	}
-
-	public static synchronized void setApplicationConfig(ApplicationConfig applicationConfig) {
-		if (ApplicationConfig.applicationConfig != null) {
-			throw new IllegalStateException("CientApplicationConfig cannot be changed");
-		}		
-		if (applicationConfig == null) {
-			throw new IllegalArgumentException("CientApplicationConfig cannot be null");
-		}
-		ApplicationConfig.applicationConfig = applicationConfig;
+		return application;
 	}
 	
-	public ApplicationConfig() {
+	private static synchronized void setApplication(MjApplication application) {
+		if (MjApplication.application != null) {
+			throw new IllegalStateException("Application cannot be changed");
+		}		
+		if (application == null) {
+			throw new IllegalArgumentException("Application cannot be null");
+		}
+		MjApplication.application = application;
+	}
+	
+	protected MjApplication() {
+		setApplication(this);
 		Resources.addResourceBundle(getResourceBundle());
 	}
 	
@@ -42,5 +43,9 @@ public abstract class ApplicationConfig {
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
 		// should be done in subclass
 	}
-
+	
+	public void init() {
+		// should be done in subclass
+	}
+	
 }

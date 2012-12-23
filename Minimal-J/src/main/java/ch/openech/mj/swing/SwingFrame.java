@@ -13,7 +13,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import ch.openech.mj.application.ApplicationConfig;
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
@@ -183,7 +183,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	
 	protected void updateWindowTitle() {
 		PageContext pageContext = getVisibleTab();
-		setTitle(ApplicationConfig.getApplicationConfig().getWindowTitle(pageContext));
+		setTitle(MjApplication.getApplication().getWindowTitle(pageContext));
 	}
 	
 	protected void updateTitle() {

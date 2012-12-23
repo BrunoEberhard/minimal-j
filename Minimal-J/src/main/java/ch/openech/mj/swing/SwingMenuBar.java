@@ -6,7 +6,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
-import ch.openech.mj.application.ApplicationConfig;
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.resources.ResourceHelper;
@@ -29,7 +29,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		ActionGroup actionGroup = new ActionGroup(null);
 		fillMenu(actionGroup);
 		
-		ApplicationConfig.getApplicationConfig().fillActionGroup(tab, actionGroup);
+		MjApplication.getApplication().fillActionGroup(tab, actionGroup);
 		
 		Page visiblePage = tab.getVisiblePage();
 		if (visiblePage != null) {

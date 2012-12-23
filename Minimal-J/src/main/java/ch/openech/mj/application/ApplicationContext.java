@@ -22,7 +22,7 @@ public abstract class ApplicationContext {
 	}
 
 	private Object newPreferencesInstance() {
-		Class<?> preferencesClass = ApplicationConfig.getApplicationConfig().getPreferencesClass();
+		Class<?> preferencesClass = MjApplication.getApplication().getPreferencesClass();
 		if (preferencesClass == null)
 			return new Object();
 		try {

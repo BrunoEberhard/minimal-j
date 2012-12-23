@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import ch.openech.mj.application.ApplicationConfig;
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
@@ -57,7 +57,7 @@ public class SwingToolBar extends JToolBar implements IComponent {
 	}
 	
 	protected void fillToolBarSearch() {
-		if (ApplicationConfig.getApplicationConfig().getSearchClasses().length > 0) {
+		if (MjApplication.getApplication().getSearchClasses().length > 0) {
 			add(createSearchField());
 		}
 	}
@@ -66,7 +66,7 @@ public class SwingToolBar extends JToolBar implements IComponent {
 		FlowLayout flowLayout = new FlowLayout(FlowLayout.TRAILING);
 		flowLayout.setAlignOnBaseline(true);
 		JPanel panel = new JPanel(flowLayout);
-		comboBoxSearchObject = new JComboBox(ApplicationConfig.getApplicationConfig().getSearchClasses());
+		comboBoxSearchObject = new JComboBox(MjApplication.getApplication().getSearchClasses());
 		comboBoxSearchObject.setRenderer(new SearchCellRenderer());
 		panel.add(comboBoxSearchObject);
 		textFieldSearch = new JTextField();

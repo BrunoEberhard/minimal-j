@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import javax.swing.Action;
 
-import ch.openech.mj.application.ApplicationConfig;
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
@@ -73,7 +73,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 		nav.setExpandRatio(menubar, 1.0F);
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
 		
-		if (ApplicationConfig.getApplicationConfig().getSearchClasses().length > 0) {
+		if (MjApplication.getApplication().getSearchClasses().length > 0) {
 			Component searchComponent = createSearchField();
 			nav.addComponent(searchComponent);
 			nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
@@ -92,11 +92,11 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 		final HorizontalLayout horizontalLayout = new HorizontalLayout();
 
 		comboBox.setNullSelectionAllowed(false);
-		for (Class<?> searchClass: ApplicationConfig.getApplicationConfig().getSearchClasses()) {
+		for (Class<?> searchClass: MjApplication.getApplication().getSearchClasses()) {
 			comboBox.addItem(searchClass);
 			comboBox.setItemCaption(searchClass, Resources.getString("Search." + searchClass.getSimpleName()));
 		}
-		comboBox.setValue(ApplicationConfig.getApplicationConfig().getSearchClasses()[0]);
+		comboBox.setValue(MjApplication.getApplication().getSearchClasses()[0]);
 		horizontalLayout.addComponent(comboBox);
 		
         textFieldSearch.setWidth("160px");
@@ -176,7 +176,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 		fillMenu(actionGroup);
 		
 		PageContext pageContext = (PageContext) this;
-		ApplicationConfig.getApplicationConfig().fillActionGroup(pageContext, actionGroup);
+		MjApplication.getApplication().fillActionGroup(pageContext, actionGroup);
 		visiblePage.fillActionGroup(actionGroup);
 		
 		updateMenu(actionGroup);
@@ -331,7 +331,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 	}
 	
 	protected void updateWindowTitle() {
-		setCaption(ApplicationConfig.getApplicationConfig().getWindowTitle(this));
+		setCaption(MjApplication.getApplication().getWindowTitle(this));
 	}
 	
 	private class VaadinWindowFragmentChangedListener implements FragmentChangedListener {
@@ -350,7 +350,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 
 	@Override
 	public ApplicationContext getApplicationContext() {
-		return ((MinimalJVaadinApplication) getApplication()).getApplicationContext();
+		return ((VaadinLauncher) getApplication()).getApplicationContext();
 	}
 	
 }
