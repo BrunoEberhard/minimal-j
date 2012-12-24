@@ -17,7 +17,6 @@ public class EnumFormField<E extends Enum<E>> extends AbstractEditField<E> {
 		this(property, null);
 	}
 
-	@SuppressWarnings("unchecked")
 	public EnumFormField(PropertyInterface property, List<E> allowedValues) {
 		super(property, true);
 		
