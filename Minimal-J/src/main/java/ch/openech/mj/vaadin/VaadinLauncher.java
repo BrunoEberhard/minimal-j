@@ -23,24 +23,32 @@ import com.vaadin.Application;
  */
 public class VaadinLauncher extends Application {
 	private final ApplicationContext applicationContext = new VaadinApplicationContext();
+	private static boolean applicationInitialized;
 	
 	@Override
 	public void init() {
-		String applicationClass = getProperty("MjApplication");
-		if (StringUtils.isBlank(applicationClass)) {
-			throw new IllegalArgumentException("Missing MjApplication parameter");
-		}
-		try {
-			Class<? extends MjApplication> application = (Class<? extends MjApplication>) Class.forName(applicationClass);
-			application.newInstance();
-		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException x) {
-			throw new RuntimeException(x);
-		}
+		initializeApplication();
 		
 		setTheme("openech");
 		VaadinWindow mainWindow = new VaadinWindow();
 		setMainWindow(mainWindow);
 		mainWindow.show(Page.link(EmptyPage.class));
+	}
+
+	private synchronized void initializeApplication() {
+		if (!applicationInitialized) {
+			String applicationClass = getProperty("MjApplication");
+			if (StringUtils.isBlank(applicationClass)) {
+				throw new IllegalArgumentException("Missing MjApplication parameter");
+			}
+			try {
+				Class<? extends MjApplication> application = (Class<? extends MjApplication>) Class.forName(applicationClass);
+				application.newInstance();
+			} catch (IllegalAccessException | InstantiationException | ClassNotFoundException x) {
+				throw new RuntimeException(x);
+			}
+			applicationInitialized = true;
+		}
 	}
 
 	protected ApplicationContext getApplicationContext() {
