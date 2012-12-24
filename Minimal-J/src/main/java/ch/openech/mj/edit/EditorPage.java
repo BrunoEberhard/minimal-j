@@ -1,5 +1,6 @@
 package ch.openech.mj.edit;
 
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.edit.Editor.EditorFinishedListener;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.page.Page;
@@ -29,7 +30,7 @@ public class EditorPage extends Page {
 	
 	static Editor<?> createEditor(PageContext context, String... editorClassAndArguments) {
 		try {
-			Class<?> clazz = Class.forName("editor." + editorClassAndArguments[0]);
+			Class<?> clazz = Class.forName(MjApplication.getCompletePackageName("editor") + "." + editorClassAndArguments[0]);
 			if (editorClassAndArguments.length > 1) {
 				Class<?>[] argumentClasses = new Class[editorClassAndArguments.length];
 				Object[] arguments = new Object[editorClassAndArguments.length];

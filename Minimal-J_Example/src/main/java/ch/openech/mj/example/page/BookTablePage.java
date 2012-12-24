@@ -1,4 +1,4 @@
-package page;
+package ch.openech.mj.example.page;
 
 import static ch.openech.mj.example.model.Book.BOOK;
 

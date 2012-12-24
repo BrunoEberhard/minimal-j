@@ -4,7 +4,7 @@ import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 
-import page.EmptyPage;
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.edit.EditorPage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
@@ -137,7 +137,7 @@ public abstract class Page {
 				} else if (EmptyPage.class.getSimpleName().equals(className)) {
 					fullClassName = EmptyPage.class.getName();
 				} else {
-					fullClassName = "page." + className;
+					fullClassName = MjApplication.getCompletePackageName("page") + "." + className;
 				}
 				Class<?> clazz = Class.forName(fullClassName);
 				if (pos > 0) {

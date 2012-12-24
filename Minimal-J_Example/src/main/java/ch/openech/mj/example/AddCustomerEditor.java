@@ -1,9 +1,9 @@
 package ch.openech.mj.example;
 
-import page.CustomerViewPage;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Customer;
+import ch.openech.mj.example.page.CustomerViewPage;
 import ch.openech.mj.page.Page;
 
 public class AddCustomerEditor extends Editor<Customer> {

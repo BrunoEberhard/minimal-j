@@ -27,6 +27,22 @@ public abstract class MjApplication {
 		MjApplication.application = application;
 	}
 	
+	/**
+	 * 
+	 * @param simplePackageName for example "editor".
+	 * @return the package name of this type of package for this application. For example "ch.openech.mj.example.editor"
+	 */
+	public static String getCompletePackageName(String simplePackageName) {
+		MjApplication application = MjApplication.getApplication();
+		String applicationClassName = application.getClass().getName();
+		int pos = applicationClassName.lastIndexOf(".");
+		if (pos  >= 0) {
+			return applicationClassName.substring(0, pos + 1) + simplePackageName;
+		} else {
+			return applicationClassName + "." + simplePackageName;
+		}
+	}
+	
 	protected MjApplication() {
 		setApplication(this);
 		Resources.addResourceBundle(getResourceBundle());
