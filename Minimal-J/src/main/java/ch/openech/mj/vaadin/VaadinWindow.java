@@ -344,11 +344,6 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 	}
 
 	@Override
-	public IComponent getComponent() {
-		return this;
-	}
-
-	@Override
 	public ApplicationContext getApplicationContext() {
 		return ((VaadinLauncher) getApplication()).getApplicationContext();
 	}

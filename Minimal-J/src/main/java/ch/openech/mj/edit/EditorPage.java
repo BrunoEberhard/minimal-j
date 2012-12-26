@@ -74,7 +74,7 @@ public class EditorPage extends Page {
 			@Override
 			public void progress(int value, int maximum) {
 				if (progressListener == null) {
-					progressListener = ClientToolkit.getToolkit().showProgress(getPageContext().getComponent(), "Save");
+					progressListener = ClientToolkit.getToolkit().showProgress(getPageContext(), "Save");
 				}
 				progressListener.showProgress(value, maximum);
 			}

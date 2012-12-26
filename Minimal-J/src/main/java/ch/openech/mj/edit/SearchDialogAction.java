@@ -53,7 +53,7 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 				
 		IComponent layout = ClientToolkit.getToolkit().createSearchLayout(textFieldSearch, new SearchAction(), table, new OkAction());
 		
-		dialog = ClientToolkit.getToolkit().openDialog(context.getComponent(), layout, "Suche");
+		dialog = ClientToolkit.getToolkit().openDialog(context, layout, "Suche");
 		dialog.setResizable(true);
 		
 		dialog.setCloseListener(new CloseListener() {

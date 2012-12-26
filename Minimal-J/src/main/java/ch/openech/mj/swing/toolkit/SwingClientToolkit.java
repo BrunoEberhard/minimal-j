@@ -25,7 +25,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.swing.component.BubbleMessageSupport;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
@@ -203,7 +202,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public VisualDialog openDialog(Object parent, IComponent content, String title) {
+	public VisualDialog openDialog(IComponent parent, IComponent content, String title) {
 		Window window = findWindow((Component)parent);
 		Component contentComponent = (Component)content;
 		// TODO check for OS or move this to UI

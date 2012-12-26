@@ -81,7 +81,7 @@ public abstract class ClientToolkit {
 	
 	public abstract ProgressListener showProgress(Object parent, String text);
 	
-	public abstract VisualDialog openDialog(Object parent, IComponent content, String title);
+	public abstract VisualDialog openDialog(IComponent parent, IComponent content, String title);
 	        
 	// Focus
 	

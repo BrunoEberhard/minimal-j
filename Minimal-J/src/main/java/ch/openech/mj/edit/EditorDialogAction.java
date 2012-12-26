@@ -48,7 +48,7 @@ public class EditorDialogAction extends AbstractAction {
 	private void showPageOn(final PageContext context) {
 		IForm<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(form.getComponent(), editor.getActions());
-		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context.getComponent(), layout, editor.getTitle());
+		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context, layout, editor.getTitle());
 		dialog.setResizable(form.isResizable());
 		
 		dialog.setCloseListener(new CloseListener() {
@@ -76,7 +76,7 @@ public class EditorDialogAction extends AbstractAction {
 			@Override
 			public void progress(int value, int maximum) {
 				if (progressListener == null) {
-					progressListener = ClientToolkit.getToolkit().showProgress(context.getComponent(), "Save");
+					progressListener = ClientToolkit.getToolkit().showProgress(context, "Save");
 				}
 				progressListener.showProgress(value, maximum);
 			}

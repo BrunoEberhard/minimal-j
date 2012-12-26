@@ -8,10 +8,10 @@ import ch.openech.mj.toolkit.IComponent;
 /**
  * These are the possibilities of a page or an action opening a page<p>
  * 
- * Note: Every implementation must be a component of its toolkit!
- * (The PageContext is found through the getParent-chain in the actions)
+ * The implementation must be a component of its toolkit because the
+ * PageContext is found through the getParent-chain in the actions
  */
-public interface PageContext {
+public interface PageContext extends IComponent {
 
 	/**
 	 * The page wants to closte itself. Meaning: go backward without possibility to go forward
@@ -38,12 +38,6 @@ public interface PageContext {
 	 * @return the new PageContext
 	 */
 	PageContext addTab();
-
-	/**
-	 * 
-	 * @return The component used as parent for Dialogs
-	 */
-	IComponent getComponent();
 
 	/**
 	 * 

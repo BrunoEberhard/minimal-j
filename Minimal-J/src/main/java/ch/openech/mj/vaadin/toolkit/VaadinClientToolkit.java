@@ -173,7 +173,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public VisualDialog openDialog(Object parent, IComponent content, String title) {
+	public VisualDialog openDialog(IComponent parent, IComponent content, String title) {
 		Component parentComponent = (Component) parent;
 		Component component = (Component) content;
 		Window window = parentComponent.getWindow();
