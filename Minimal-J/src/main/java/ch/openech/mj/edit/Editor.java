@@ -152,7 +152,6 @@ public abstract class Editor<T> {
 		}
 		form.setObject(editedObject);
 		
-		form.setSaveAction(saveAction());
 		userEdited = false;
 		form.setChangeListener(new EditorChangeListener());
 		

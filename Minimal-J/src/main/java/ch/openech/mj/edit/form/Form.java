@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -61,7 +60,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	
 	private ChangeListener changeListener;
-	private Action saveAction;
 	
 	private boolean resizable = false;
 
@@ -101,12 +99,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	@Override
 	public IComponent getComponent() {
 		return layout;
-	}
-
-	@Override
-	public void setSaveAction(Action saveAction) {
-		// TODO sollte noch für ctrl - S verwendet werden.
-		this.saveAction = saveAction;
 	}
 
 	public FormField<?> createField(Object key) {

@@ -2,11 +2,15 @@ package ch.openech.mj.vaadin.toolkit;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
@@ -119,6 +123,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
 		final Button button = new NativeButton((String) action.getValue(Action.NAME));
 		button.setEnabled(Boolean.TRUE.equals(action.getValue("enabled")));
+		installShortcut(button, action);
 		button.addListener(new ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -128,6 +133,34 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		installAdditionalActionListener(action, button);
 		buttonBar.addComponent(button);
 		buttonBar.setComponentAlignment(button, Alignment.MIDDLE_RIGHT);
+	}
+	
+	private static void installShortcut(Button button, Action action) {
+		KeyStroke key = (KeyStroke)action.getValue(Action.ACCELERATOR_KEY);
+		if (key != null) {
+			button.setClickShortcut(key.getKeyCode(), convertSwingModifierToVaadin(key.getModifiers()));
+		}
+ 	}
+	
+	private static int[] convertSwingModifierToVaadin(int modifier) {
+		List<Integer> modifiers = new ArrayList<>(4);
+		if ((modifier & InputEvent.SHIFT_DOWN_MASK) > 0) {
+			modifiers.add(ShortcutAction.ModifierKey.SHIFT);
+		}
+		if ((modifier & InputEvent.CTRL_DOWN_MASK) > 0) {
+			modifiers.add(ShortcutAction.ModifierKey.CTRL);
+		}
+		if ((modifier & InputEvent.ALT_DOWN_MASK) > 0) {
+			modifiers.add(ShortcutAction.ModifierKey.ALT);
+		}
+		if ((modifier & InputEvent.META_DOWN_MASK) > 0) {
+			modifiers.add(ShortcutAction.ModifierKey.META);
+		}
+		int[] result = new int[modifiers.size()];
+		for (int i = 0; i<result.length; i++) {
+			result[i] = modifiers.get(i);
+		}
+		return result;
 	}
 	
 	private static void installAdditionalActionListener(Action action, final Button button) {

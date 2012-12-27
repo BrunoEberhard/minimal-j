@@ -15,8 +15,6 @@ public interface IForm<T> {
 	
 	public abstract boolean isResizable();
 	
-	public void setSaveAction(Action saveAction);
-
 	public Collection<PropertyInterface> getProperties();
 	
 	public void setObject(T value);

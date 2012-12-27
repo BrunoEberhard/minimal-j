@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.PropertyInterface;
@@ -34,11 +33,6 @@ public class SwitchForm<T> implements IForm<T> {
 	@Override
 	public boolean isResizable() {
 		return true;
-	}
-
-	@Override
-	public void setSaveAction(Action saveAction) {
-		// no save
 	}
 	
 	public void setForm(IForm<?> form) {
