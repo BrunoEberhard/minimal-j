@@ -101,22 +101,6 @@ public abstract class Editor<T> {
 	protected T load() {
 		return null;
 	}
-	
-//	/**
-//	 * Override this method for a validation specific for this editor.
-//	 * (Implement Validatable on the object itself for a general validation
-//	 * on the object). You can call super on your own validate method but you
-//	 * dont have to. If only a part of the fields of the object should be
-//	 * validated normally you wont call super.
-//	 * 
-//	 * @param object
-//	 * @param resultList
-//	 */
-//	protected void validate(T object) {
-//		if (object instanceof Validation) {
-//			List<String> resultList = ((Validation) object).validate();
-//		}
-//	}
 
 	protected abstract boolean save(T object) throws Exception;
 
