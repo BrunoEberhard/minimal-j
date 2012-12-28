@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.db.model.PropertyInterface;
-import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.DerivedProperty;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.StringUtils;
@@ -147,7 +146,7 @@ public class Properties {
 				return field.get(object);
 			} catch (Exception e) {
 				System.out.println("E: " + e.getLocalizedMessage());
-				System.out.println("O: " + object + (object != null ? "  (" + object.getClass() +")" : null));
+				System.out.println("O: " + object + (object != null ? "  (" + object.getClass() +")" : ""));
 				System.out.println("F: " + field.getName() + " (" + field.getType() + ")");
 				throw new RuntimeException(e);
 			}
