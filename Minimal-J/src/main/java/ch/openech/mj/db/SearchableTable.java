@@ -268,8 +268,6 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	protected abstract T createResultObject();
 
-//	protected abstract void setField(T result, Object fieldName, String value);
-
 	protected T documentToObject(Document document) {
 		T result = createResultObject();
 		
