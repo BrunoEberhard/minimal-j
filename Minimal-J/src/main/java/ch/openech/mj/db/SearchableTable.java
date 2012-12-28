@@ -110,8 +110,8 @@ public abstract class SearchableTable<T> extends Table<T> {
 			count++;
 		}
 		resultSet.close();
-		logger.info("Refilled the index " + getClazz() +" with " + count);
-		logger.info("Size of index is " + directory.sizeInBytes());
+		logger.fine("Refilled the index " + getClazz() +" with " + count);
+		logger.fine("Size of index is " + directory.sizeInBytes());
 	}
 	
 	@Override
