@@ -37,13 +37,15 @@ public class VaadinLauncher extends Application {
 
 	private synchronized void initializeApplication() {
 		if (!applicationInitialized) {
-			String applicationClass = getProperty("MjApplication");
-			if (StringUtils.isBlank(applicationClass)) {
+			String applicationClassName = getProperty("MjApplication");
+			if (StringUtils.isBlank(applicationClassName)) {
 				throw new IllegalArgumentException("Missing MjApplication parameter");
 			}
 			try {
-				Class<? extends MjApplication> application = (Class<? extends MjApplication>) Class.forName(applicationClass);
-				application.newInstance();
+				@SuppressWarnings("unchecked")
+				Class<? extends MjApplication> applicationClass = (Class<? extends MjApplication>) Class.forName(applicationClassName);
+				MjApplication application = applicationClass.newInstance();
+				application.init();
 			} catch (IllegalAccessException | InstantiationException | ClassNotFoundException x) {
 				throw new RuntimeException(x);
 			}
