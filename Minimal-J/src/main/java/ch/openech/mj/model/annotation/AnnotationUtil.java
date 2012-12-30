@@ -2,6 +2,7 @@ package ch.openech.mj.model.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.logging.Logger;
 
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.PropertyInterface;
@@ -9,6 +10,7 @@ import ch.openech.mj.model.Codes;
 import ch.openech.mj.util.FieldUtils;
 
 public class AnnotationUtil {
+	private static final Logger logger = Logger.getLogger(AnnotationUtil.class.getName());
 	
 	public static int getSize(PropertyInterface property) {
 
@@ -20,6 +22,12 @@ public class AnnotationUtil {
 		String codeName = getCode(property);
 		if (codeName != null) {
 			ch.openech.mj.db.model.Code code = Codes.getCode(codeName);
+			if (code == null) {
+				logger.severe("Code " + codeName + " doesn't exist.");
+				logger.fine("The code is needed to evaluate the size of the field");
+				logger.fine("You can add codes by Codes.addCode(). This sould be done in the Application.init() method.");
+				return 255;
+			}
 			return code.getSize();
 		}
 		
@@ -37,6 +45,7 @@ public class AnnotationUtil {
 				}
 			}
 		}
+		logger.fine("You must annotate the fields with a @size or the entire class with @sizes");
 		throw new IllegalArgumentException("Size not specified for " + property.getFieldName() + " on " + property.getDeclaringClass());
 	}
 
