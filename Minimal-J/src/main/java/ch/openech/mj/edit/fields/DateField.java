@@ -68,7 +68,7 @@ public class DateField extends AbstractEditField<LocalDate> implements DemoEnabl
 			public void focusLost(FocusEvent e) {
 				// Formattierung auslösen
 				LocalDate value = getObject();
-				if (value != null) {
+				if (value != null && !InvalidValues.isInvalid(value)) {
 					setObject(value);
 				}
 			}
