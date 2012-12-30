@@ -127,7 +127,7 @@ public class PropertyTable<T> extends JTable {
 	
 	private class DateTableCellRenderer extends DefaultTableCellRenderer {
 
-		private JodaFormatter formatter;
+		private final JodaFormatter formatter = new JodaFormatter();
 		
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
