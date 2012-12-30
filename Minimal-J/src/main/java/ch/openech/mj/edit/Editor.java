@@ -13,6 +13,7 @@ import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.EmptyValidator;
+import ch.openech.mj.db.model.InvalidValues;
 import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.form.Form.FormChangeEvent;
 import ch.openech.mj.edit.form.IForm;
@@ -282,6 +283,7 @@ public abstract class Editor<T> {
 			((Validation) editedObject).validate(validationMessages);
 		}
 		validateForEmpty(validationMessages);
+		validateForInvalid(validationMessages);
 		indicate(validationMessages);
 	}
 	
@@ -292,6 +294,17 @@ public abstract class Editor<T> {
 			}
 		}
 	}
+
+	private void validateForInvalid(List<ValidationMessage> validationMessages) {
+		for (PropertyInterface property : form.getProperties()) {
+			Object value = property.getValue(editedObject);
+			if (InvalidValues.isInvalid(value)) {
+				String caption = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+				validationMessages.add(new ValidationMessage(property, caption + " ungültig"));
+			}
+		}
+	}
+
 	
 	protected void validate(T object, List<ValidationMessage> resultList) {
 		// overwrite this method to add Editor specific validation
