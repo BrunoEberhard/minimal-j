@@ -11,9 +11,14 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.util.JodaFormatter;
 
 public class PropertyTable<T> extends JTable {
 	private static final Logger logger = Logger.getLogger(PropertyTable.class.getName());
@@ -28,7 +33,10 @@ public class PropertyTable<T> extends JTable {
 		setModel(tableModel);
 		
 //		setDefaultRenderer(BooleanFormat.class, new BooleanTableCellRenderer());
-
+		setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
+		setDefaultRenderer(LocalTime.class, new DateTableCellRenderer());
+		setDefaultRenderer(LocalDateTime.class, new DateTableCellRenderer());
+		
 		setAutoCreateRowSorter(true);
 	}
 
@@ -112,6 +120,21 @@ public class PropertyTable<T> extends JTable {
 				value = "nein";
 			}
 			
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+					row, column);
+		}
+	}
+	
+	private class DateTableCellRenderer extends DefaultTableCellRenderer {
+
+		private JodaFormatter formatter;
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			
+			value = formatter.format(value);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
 					row, column);
 		}

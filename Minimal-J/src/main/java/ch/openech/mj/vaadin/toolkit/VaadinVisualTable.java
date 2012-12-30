@@ -3,12 +3,16 @@ package ch.openech.mj.vaadin.toolkit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.base.BaseLocal;
+
 import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.util.JodaFormatter;
 import ch.openech.mj.vaadin.PropertyVaadinContainer;
 
+import com.vaadin.data.Property;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Table;
@@ -17,6 +21,7 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 
 	private final Class<T> clazz;
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
+	private final JodaFormatter jodaFormatter = new JodaFormatter();
 	private List<T> objects;
 	private ClickListener clickListener;
 	private VaadinVisualTableItemClickListener tableClickListener;
@@ -92,6 +97,16 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 		}
 	}
 	
+	@Override
+	protected String formatPropertyValue(Object rowId, Object colId,
+			Property property) {
+		Object v = property.getValue();
+		if (v instanceof BaseLocal) {
+			return jodaFormatter.format(v);
+		}
+		return super.formatPropertyValue(rowId, colId, property);
+	}
+     
 	private class VaadinVisualTableItemClickListener implements ItemClickListener {
 		@Override
 		public void itemClick(ItemClickEvent arg0) {
