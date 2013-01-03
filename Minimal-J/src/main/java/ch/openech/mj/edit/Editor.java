@@ -88,7 +88,6 @@ public abstract class Editor<T> {
 	private EditorFinishedListener editorFinishedListener;
 	private final Map<PropertyInterface, String> propertyValidations = new HashMap<>();
 	private Indicator indicator;
-	private boolean saveable = true;
 	private boolean userEdited;
 	private String followLink;
 	
@@ -194,7 +193,7 @@ public abstract class Editor<T> {
 	}
 	
 	protected final void save() {
-		if (saveable) {
+		if (isSaveable()) {
 			if (isSaveSynchron()) {
 				doSave();
 			} else {
@@ -285,6 +284,9 @@ public abstract class Editor<T> {
 		if (editedObject instanceof Validation) {
 			((Validation) editedObject).validate(validationMessages);
 		}
+		for (Map.Entry<PropertyInterface, String> entry : propertyValidations.entrySet()) {
+			validationMessages.add(new ValidationMessage(entry.getKey(), entry.getValue()));
+		}
 		validateForEmpty(validationMessages);
 		validateForInvalid(validationMessages);
 		validate(editedObject, validationMessages);
@@ -317,13 +319,15 @@ public abstract class Editor<T> {
 	final void indicate(List<ValidationMessage> validationMessages) {
 		for (PropertyInterface property : form.getProperties()) {
 			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
-			if (propertyValidations.keySet().contains(property)) {
-				filteredValidationMessages.add(propertyValidations.get(property));
-			}
 			form.setValidationMessage(property, filteredValidationMessages);
 		}
 		
-		saveable = allUsedFieldsValid(validationMessages) && propertyValidations.isEmpty();
+		saveAction().setEnabled(allUsedFieldsValid(validationMessages));
+		saveAction.setValidationMessages(validationMessages);
+		
+		if (indicator != null) {
+			indicator.setValidationMessages(validationMessages);
+		}
 	}
 	
 	private boolean allUsedFieldsValid(List<ValidationMessage> validationMessages) {
@@ -348,7 +352,7 @@ public abstract class Editor<T> {
 	}
 	
 	protected final boolean isSaveable() {
-		return saveable;
+		return saveAction().isEnabled();
 	}
 	
 	public final void checkedClose() {

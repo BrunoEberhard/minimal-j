@@ -104,9 +104,8 @@ public abstract class Wizard<T> extends Editor<T> {
 
 		@Override
 		public void setValidationMessages(List<ValidationMessage> validationResult) {
-			Wizard.this.indicate(validationResult);
-			nextAction.setEnabled(isSaveable());
-			saveAction().setEnabled(isSaveable() && currentStep.canFinish());
+			nextAction.setEnabled(validationResult.isEmpty());
+			saveAction().setEnabled(validationResult.isEmpty() && currentStep.canFinish());
 		}
 	}
 
