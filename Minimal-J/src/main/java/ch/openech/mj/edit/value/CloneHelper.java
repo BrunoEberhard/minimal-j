@@ -47,6 +47,8 @@ public class CloneHelper {
 				if (!FieldUtils.isFinal(field)) {
 					toList = new ArrayList();
 					field.set(to, toList);
+				} else {
+					toList.clear();
 				}
 				for (Object element : fromList) {
 					toList.add(clone(element));

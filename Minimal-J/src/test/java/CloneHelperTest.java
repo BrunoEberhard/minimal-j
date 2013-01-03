@@ -36,6 +36,10 @@ public class CloneHelperTest {
 		Assert.assertEquals(a.c.get(0).c, a2.c.get(0).c);
 
 		Assert.assertEquals(null, a2.empty);
+		
+		// clone again, there was once a problem with final list that were not cleared before refilled
+		CloneHelper.deepCopy(a, a2);
+		Assert.assertEquals(a.b.size(), a2.b.size());
 	}
 	
 	public static class CloneHelperTestA {
