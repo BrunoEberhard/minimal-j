@@ -287,6 +287,7 @@ public abstract class Editor<T> {
 		}
 		validateForEmpty(validationMessages);
 		validateForInvalid(validationMessages);
+		validate(editedObject, validationMessages);
 		indicate(validationMessages);
 	}
 	
@@ -309,7 +310,7 @@ public abstract class Editor<T> {
 	}
 
 	
-	protected void validate(T object, List<ValidationMessage> resultList) {
+	protected void validate(T object, List<ValidationMessage> validationMessages) {
 		// overwrite this method to add Editor specific validation
 	}
 	
