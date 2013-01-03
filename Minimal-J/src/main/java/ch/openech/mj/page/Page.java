@@ -96,25 +96,11 @@ public abstract class Page {
 		this.titleToolTip = titleToolTip;
 		firePageChanged();
 	}
-
-	public void close() {
-		if (context != null) {
-			context.closeTab();
-		} else {
-			throw new IllegalStateException("A Page without PageContext should not be visible and no close action should be performed");
-		}
-	}
 	
 	protected void show(Class<? extends Page> pageClass, String... args) {
 		String pageLink = link(pageClass, args);
 		context.show(pageLink);
 	}
-	
-//	protected void showInNewTab(Page page) {
-//		PageContext newPageContext = context.addTab();
-//		page.setPageContext(newPageContext);
-//		newPageContext.show(page);
-//	}
 	
 	private void firePageChanged() {
 		if (context instanceof PageListener) {
