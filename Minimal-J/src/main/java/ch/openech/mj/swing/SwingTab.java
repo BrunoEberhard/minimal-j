@@ -36,9 +36,10 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	private final SwingMenuBar menuBar;
 	private final SwingSwitchLayout switchLayout;
 	
-	private final History<Page> history;
+	private final History<String> history;
 	private final SwingPageContextHistoryListener historyListener;
 
+	private Page page;
 	private List<String> pageLinks;
 	private int indexInPageLinks;
 
@@ -47,7 +48,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		this.frame = frame;
 
 		historyListener = new SwingPageContextHistoryListener();
-		history = new History<Page>(historyListener);
+		history = new History<String>(historyListener);
 
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
@@ -73,7 +74,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 	
 	public Page getVisiblePage() {
-		return getPresent();
+		return page;
 	}
 	
 	void onHistoryChanged() {
@@ -171,7 +172,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	private class SwingPageContextHistoryListener implements HistoryListener {
 		@Override
 		public void onHistoryChanged() {
-			show(history.getPresent());
+			page = Page.createPage(SwingTab.this, history.getPresent());
+			show(page);
 			SwingTab.this.onHistoryChanged();
 		}
 
@@ -181,15 +183,15 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		}
 	}
 
-	public void add(Page page) {
-		history.add(page);
+	public void add(String pageLink) {
+		history.add(pageLink);
 	}
 
-	public void replace(Page page) {
-		history.replace(page);
+	public void replace(String pageLink) {
+		history.replace(pageLink);
 	}
 
-	public Page getPresent() {
+	public String getPresent() {
 		return history.getPresent();
 	}
 
@@ -247,12 +249,11 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 			if (pageLinks != null && !pageLinks.contains(pageLink)) {
 				pageLinks = null;
 			}
-			if (getPresent() != null && getPresent().isExclusive()) {
+			if (page != null && page.isExclusive()) {
 				PageContext newPageContext = addTab();
 				newPageContext.show(pageLink);
 			} else {
-				Page page = Page.createPage(this, pageLink);
-				add(page);
+				add(pageLink);
 			}
 		}
 	}
@@ -273,13 +274,11 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 
 	public void up() {
-		Page page = Page.createPage(this, pageLinks.get(--indexInPageLinks));
-		replace(page);
+		replace(pageLinks.get(--indexInPageLinks));
 	}
 
 	public void down() {
-		Page page = Page.createPage(this, pageLinks.get(++indexInPageLinks));
-		replace(page);
+		replace(pageLinks.get(++indexInPageLinks));
 	}
 
 	@Override

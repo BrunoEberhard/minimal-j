@@ -119,7 +119,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	private boolean checkClosable(SwingTab tab) {
-		Page visiblePage = tab.getPresent();
+		Page visiblePage = tab.getVisiblePage();
 		if (visiblePage instanceof EditorPage) {
 			EditorPage editorPage = (EditorPage) visiblePage;
 			tabbedPane.setSelectedComponent(tab);
@@ -163,14 +163,14 @@ public class SwingFrame extends JFrame implements IComponent {
 	public Page getVisiblePage() {
 		SwingTab tab = getVisibleTab();
 		if (tab == null) return null;
-		return tab.getPresent();
+		return tab.getVisiblePage();
 	}
 	
 	public List<Page> getPages() {
 		List<Page> result = new ArrayList<Page>();
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
 			SwingTab tab = (SwingTab) tabbedPane.getComponent(i); // myst: getTabComponent returns allways null
-			Page page = tab.getPresent();
+			Page page = tab.getVisiblePage();
 			if (page != null) result.add(page);
 		}
 		return result;
