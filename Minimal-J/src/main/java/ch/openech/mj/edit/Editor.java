@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.JOptionPane;
@@ -78,6 +79,8 @@ import ch.openech.mj.toolkit.ConfirmDialogListener;
  *            Class of the edited Object
  */
 public abstract class Editor<T> {
+
+	private static final Logger logger = Logger.getLogger(Editor.class.getName());
 
 	private T original, editedObject;
 	private IForm<T> form;
@@ -319,7 +322,28 @@ public abstract class Editor<T> {
 			form.setValidationMessage(property, filteredValidationMessages);
 		}
 		
-		saveable = validationMessages.isEmpty() && propertyValidations.isEmpty();
+		saveable = allUsedFieldsValid(validationMessages) && propertyValidations.isEmpty();
+	}
+	
+	private boolean allUsedFieldsValid(List<ValidationMessage> validationMessages) {
+		for (ValidationMessage validationMessage : validationMessages) {
+			if (form.getProperties().contains(validationMessage.getProperty())) {
+				return false;
+			} else {
+				if (showWarningIfValidationForUnsuedField()) {
+					logger.warning("There is a validation message for " + validationMessage.getProperty().getFieldName() + " but the field is not used in the form");
+					logger.warning("The message is: " + validationMessage.getFormattedText());
+					logger.fine("This can be ok if at some point not all validations in a object have to be ok");
+					logger.fine("But you have to make sure to get valid data in database");
+					logger.fine("You can avoid these warnings if you override showWarningIfValidationForUnsuedField()");
+				}
+			}
+		}
+		return true;
+	}
+
+	protected boolean showWarningIfValidationForUnsuedField() {
+		return true;
 	}
 	
 	protected final boolean isSaveable() {

@@ -139,7 +139,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 					dependedProperty = p; break;
 				}
 			}
-			if (dependedProperty == null) throw new IllegalArgumentException("Depends of " + property.getFieldName() + " unknown fieldName: " + fieldPath);
+			if (dependedProperty == null) return; // throw new IllegalArgumentException("Depends of " + property.getFieldName() + " unknown fieldName: " + fieldPath);
 			if (!dependencies.containsKey(dependedProperty)) {
 				dependencies.put(dependedProperty, new ArrayList<PropertyInterface>());
 			}
