@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.db.model.PropertyInterface;
-import ch.openech.mj.model.annotation.DerivedProperty;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.StringUtils;
 
@@ -36,13 +35,6 @@ public class Properties {
 			return null;
 		}
 	}
-
-//	public static Object get(Object object, String fieldName) {
-//		if (fieldName == null) throw new NullPointerException();
-//		if (object == null) return null;
-//		
-//		return getProperty(object.getClass(), fieldName).getValue(object);
-//	}
 	
 	public static void set(Object object, String fieldName, Object value) {
 		if (fieldName == null) throw new NullPointerException();
@@ -68,40 +60,19 @@ public class Properties {
 			if (!FieldUtils.isStatic(field)) {
 				properties.put(field.getName(), new FieldProperty(clazz, field));
 			} 
-//			else if (FieldUtils.isFinal(field) && field.getType() == String.class) {
-//				try {
-//					String value = (String) field.get(null);
-//					Method getterMethod = clazz.getMethod("get" + StringUtils.upperFirstChar(value));
-//					String setterName = "set" + StringUtils.upperFirstChar(value);
-//					Method setterMethod = null;
-//					for (Method m: clazz.getMethods()) {
-//						if (m.getName().equals(setterName)) {
-//							setterMethod = m;
-//							break;
-//						}
-//					}
-//					properties.put(value, new MethodProperty(clazz, value, getterMethod, setterMethod));
-//				} catch (Exception x) {
-//					logger.info(field.getName() + " / " + x.getLocalizedMessage());
-//				}
-//			}
 		}
-
+		return properties; 
+	}
+	
+	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
 		Method[] methods = clazz.getMethods();
 		for (Method method: methods) {
-			if (isStatic(method) || !isPublic(method)) continue;
-			if (method.getAnnotation(DerivedProperty.class) == null) continue;
-			String propertyName = null;
+			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;
 			String name = method.getName();
-			if (name.startsWith("get") && name.length() > 3 && method.getParameterTypes().length == 0) {
-				propertyName = method.getName().substring(3);
-			} else if (name.startsWith("is") && name.length() > 2 && method.getParameterTypes().length == 0) {
-				// TODO return should be boolean
-				propertyName = method.getName().substring(2);
-			}
-			if (propertyName == null) continue;
+			if (!name.startsWith("get") && name.length() > 3) continue;
+			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;
 			
-			String setterName = "set" + propertyName;
+			String setterName = "set" + name.substring(3);
 			Method setterMethod = null;
 			for (Method m: methods) {
 				if (m.getName().equals(setterName)) {
@@ -109,11 +80,9 @@ public class Properties {
 					break;
 				}
 			}
-
-			propertyName = StringUtils.lowerFirstChar(propertyName);
-			properties.put(propertyName, new MethodProperty(clazz, propertyName, method, setterMethod));
+			return new MethodProperty(clazz, methodName, method, setterMethod);
 		}
-		return properties; 
+		return null;
 	}
 	
 	private static boolean isPublic(Method method) {
@@ -209,12 +178,10 @@ public class Properties {
 
 		public MethodProperty(Class<?> clazz, String key, Method getterMethod, Method setterMethod) {
 			if (getterMethod == null) throw new IllegalArgumentException();
-			// if (setterMethod == null) throw new IllegalArgumentException();
 
 			this.clazz = clazz;
 			this.getterMethod = getterMethod;
 			this.setterMethod = setterMethod;
-			// TODO "is" Methods
 			this.name = key;
 		}
 

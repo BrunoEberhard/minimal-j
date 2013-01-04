@@ -8,6 +8,7 @@ public class History<T> {
 	private final List<T> history = new ArrayList<T>();
 	private final HistoryListener historyListener;
 	private T present;
+	private int presentIndex = -1;
 	
 	public History() {
 		this(null);
@@ -18,15 +19,16 @@ public class History<T> {
 	}
 	
 	public void add(T page) {
-		if (page.equals(present)) return;
-		int indexToRemove = history.size() - 1;
-		while (indexToRemove > getVisibleIndex()) {
-			history.remove(indexToRemove--);
+		if (!page.equals(present)) {
+			int indexToRemove = history.size() - 1;
+			while (indexToRemove > presentIndex) {
+				history.remove(indexToRemove--);
+			}
+			
+			present = page;
+			history.add(page);
+			presentIndex = history.size() - 1;
 		}
-		
-		present = page;
-		history.add(page);
-		
 		fireHistoryChanged();
 	}
 
@@ -39,7 +41,7 @@ public class History<T> {
 	public void replace(T page) {
 		if (page.equals(present)) return;
 		
-		history.set(getVisibleIndex(), page);
+		history.set(presentIndex, page);
 		present = page;
 		
 		fireHistoryChanged();
@@ -52,18 +54,15 @@ public class History<T> {
 	}
 	
 	public void next() {
-		int visibleIndex = getVisibleIndex();
-		moveTo(history.get(visibleIndex + 1));
+		moveTo(history.get(++presentIndex));
 	}
 
 	public void previous() {
-		int visibleIndex = getVisibleIndex();
-		moveTo(history.get(visibleIndex - 1));
+		moveTo(history.get(--presentIndex));
 	}
 	
 	public void dropFuture() {
-		int visibleIndex = getVisibleIndex();
-		for (int i = history.size() - 1; i > visibleIndex; i--) {
+		for (int i = history.size() - 1; i > presentIndex; i--) {
 			history.remove(i);
 		}
 		fireHistoryChanged();
@@ -73,16 +72,12 @@ public class History<T> {
 		return present;
 	}
 	
-	private int getVisibleIndex() {
-		return history.indexOf(present);
-	}
-
 	public boolean hasFuture() {
-		return present != null && history.indexOf(present) < history.size() - 1; 
+		return present != null && presentIndex < history.size() - 1; 
 	}
 
 	public boolean hasPast() {
-		return present != null && history.indexOf(present) > 0; 
+		return present != null && presentIndex > 0; 
 	}
 	
 	public interface HistoryListener {

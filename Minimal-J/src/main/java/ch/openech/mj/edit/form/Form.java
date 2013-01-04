@@ -62,6 +62,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private ChangeListener changeListener;
 	
 	private boolean resizable = false;
+	
+	private T object;
 
 	protected Form() {
 		this(true);
@@ -351,7 +353,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 
 	@Override
-	public void setObject(Object object) {
+	public void setObject(T object) {
+		this.object = object;
 		for (PropertyInterface property : getProperties()) {
 			Object propertyValue = property.getValue(object);
 			set(property, propertyValue);
@@ -399,6 +402,13 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			if (changeListener != null) {
 				FormChangeEvent formChangeEvent = new FormChangeEvent(this, property, value);
 				changeListener.stateChanged(formChangeEvent);
+			}
+			
+			for (Map.Entry<PropertyInterface, FormField<?>> entry : fields.entrySet()) {
+				PropertyInterface p = entry.getKey();
+				if (Constants.isFieldProperty(p)) continue;
+				FormField field = entry.getValue();
+				field.setObject(p.getValue(object));
 			}
 		}
 	}

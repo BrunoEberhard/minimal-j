@@ -1,6 +1,8 @@
 package ch.openech.mj.page;
 
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
@@ -12,7 +14,8 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.util.StringUtils;
 
 public abstract class Page {
-
+	private static final Logger logger = Logger.getLogger(Page.class.getName());
+	
 	private final PageContext context;
 
 	private String title;
@@ -146,7 +149,7 @@ public abstract class Page {
 				}
 			}
 		} catch (Exception x) {
-			throw new RuntimeException("UriFragment Auflösung fehlgeschlagen: " + pageLink, x);
+			logger.log(Level.SEVERE, "UriFragment Auflösung fehlgeschlagen: " + pageLink, x);
 		}
 		return new EmptyPage(context);
 	}
