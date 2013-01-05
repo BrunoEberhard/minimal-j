@@ -1,8 +1,8 @@
 package ch.openech.mj.edit.form;
 
 import java.awt.event.KeyListener;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -25,6 +25,7 @@ import ch.openech.mj.edit.fields.CodeEditField;
 import ch.openech.mj.edit.fields.CodeFormField;
 import ch.openech.mj.edit.fields.DateField;
 import ch.openech.mj.edit.fields.EditField;
+import ch.openech.mj.edit.fields.Enable;
 import ch.openech.mj.edit.fields.EnumEditField;
 import ch.openech.mj.edit.fields.EnumFormField;
 import ch.openech.mj.edit.fields.FormField;
@@ -33,8 +34,11 @@ import ch.openech.mj.edit.fields.NumberFormField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TextFormatField;
+import ch.openech.mj.edit.value.Properties;
 import ch.openech.mj.model.annotation.AnnotationUtil;
-import ch.openech.mj.model.annotation.Depends;
+import ch.openech.mj.model.annotation.Changes;
+import ch.openech.mj.model.annotation.Enabled;
+import ch.openech.mj.model.annotation.OnChange;
 import ch.openech.mj.model.annotation.PartialDate;
 import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.resources.Resources;
@@ -54,7 +58,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	private final LinkedHashMap<PropertyInterface, FormField<?>> fields = new LinkedHashMap<PropertyInterface, FormField<?>>();
 	private final Map<PropertyInterface, Caption> indicators = new HashMap<PropertyInterface, Caption>();
-	private final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 	
 	private KeyListener keyListener;
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
@@ -121,32 +124,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			field = createField(property);
 		}
 
-		evaluateDependency(property);
-		
 		return field;
-	}
-
-	private void evaluateDependency(PropertyInterface property) {
-		Depends depends = property.getAnnotation(Depends.class);
-		if (depends != null) {
-			String fieldPath = depends.value();
-			// if the property is already a contained one then the fieldPath of the depended property has to be prefixed
-			int pos = property.getFieldPath().lastIndexOf(".");
-			if (pos > 0) {
-				fieldPath = property.getFieldPath().substring(0, pos) + "." + fieldPath;
-			}
-			PropertyInterface dependedProperty = null;
-			for (PropertyInterface p : fields.keySet()) {
-				if (p.getFieldPath().equals(fieldPath)) {
-					dependedProperty = p; break;
-				}
-			}
-			if (dependedProperty == null) return; // throw new IllegalArgumentException("Depends of " + property.getFieldName() + " unknown fieldName: " + fieldPath);
-			if (!dependencies.containsKey(dependedProperty)) {
-				dependencies.put(dependedProperty, new ArrayList<PropertyInterface>());
-			}
-			dependencies.get(dependedProperty).add(property);
-		}
 	}
 	
 	protected FormField<?> createTextFormatField(StringLimitation textFormat, PropertyInterface property) {
@@ -297,7 +275,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		IComponent label = ClientToolkit.getToolkit().createTitle(text);
 		layout.add(label, columns);
 	}
-	
+
 	//
 	
 	protected FormField<?> getField(Object key) {
@@ -388,29 +366,78 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			PropertyInterface property = changedField.getProperty();
 			Object value = changedField.getObject();
 			
-			if (dependencies.containsKey(property)) {
-				for (PropertyInterface dependedProperty : dependencies.get(property)) {
-					FormField<?> formField = fields.get(dependedProperty);
-					if (formField instanceof DependingOnFieldAbove) {
-						((DependingOnFieldAbove)formField).valueChanged(value);
-					} else {
-						logger.warning("Dependency without depending field: " + dependedProperty.getDeclaringClass() + "." + dependedProperty.getFieldName());
-					}
-				}
-			}
-
 			if (changeListener != null) {
 				FormChangeEvent formChangeEvent = new FormChangeEvent(this, property, value);
 				changeListener.stateChanged(formChangeEvent);
 			}
 			
-			for (Map.Entry<PropertyInterface, FormField<?>> entry : fields.entrySet()) {
-				PropertyInterface p = entry.getKey();
-				if (Constants.isFieldProperty(p)) continue;
-				FormField field = entry.getValue();
-				field.setObject(p.getValue(object));
+			OnChange onChange = property.getAnnotation(OnChange.class);
+			if (onChange != null) {
+				try {
+					Object o = findParentObject(property);
+					Class clazz = o.getClass();
+					Method method = clazz.getMethod(onChange.value());
+					method.invoke(o);
+					Changes changes = method.getAnnotation(Changes.class);
+					String propertyParent = property.getFieldPath();
+					if (propertyParent.contains(".")) {
+						propertyParent = propertyParent.substring(0, propertyParent.lastIndexOf(".") + 1);
+					} else {
+						propertyParent = "";
+					}
+					for (String change : changes.value()) {
+						for (Map.Entry field : fields.entrySet()) {
+							PropertyInterface p = (PropertyInterface) field.getKey();
+							if (p.getFieldPath().equals(propertyParent + change)) {
+								Object v = p.getValue(object);
+								((FormField) field.getValue()).setObject(v);
+							}
+						}
+					}
+				} catch (Exception x) {
+					x.printStackTrace();
+					System.out.println(property.getFieldName());
+					System.out.println(property.getFieldPath());
+				}
+			}
+			
+			updateEnable();
+		}
+	}
+	
+	private void updateEnable() {
+		for (Map.Entry<PropertyInterface, FormField<?>> field : fields.entrySet()) {
+			PropertyInterface property = field.getKey();
+			Enabled enabled = property.getAnnotation(Enabled.class);
+			if (enabled != null) {
+				String methodName = enabled.value();
+				boolean invert = methodName.startsWith("!");
+				if (invert) methodName = methodName.substring(1);
+				try {
+					Object o = findParentObject(property);
+					Class clazz = o.getClass();
+					Method method = clazz.getMethod(methodName);
+					boolean e = (Boolean) method.invoke(o);
+					((Enable) field.getValue()).setEnabled(e ^ invert);
+				} catch (Exception x) {
+					x.printStackTrace();
+					System.out.println(property.getFieldName());
+					System.out.println(property.getFieldPath());
+				}
 			}
 		}
+	}
+	
+	private Object findParentObject(PropertyInterface property) {
+		Object result = object;
+		String fieldPath = property.getFieldPath();
+		while (fieldPath.indexOf(".") > -1) {
+			int pos = property.getFieldPath().indexOf(".");
+			PropertyInterface p2 = Properties.getProperty(result.getClass(), fieldPath.substring(0, pos));
+			result = p2.getValue(result);
+			fieldPath = fieldPath.substring(pos + 1);
+		}
+		return result;
 	}
 
 	public static class FormChangeEvent extends ChangeEvent {

@@ -14,7 +14,7 @@ import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 
 // TODO: Typisierung bringt hier so was von nichts
-public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> implements DemoEnabled {
+public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> implements Enable, DemoEnabled {
 	private final Class<E> enumClass;
 	
 	private final SwitchLayout switchLayout;
@@ -61,8 +61,11 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 	}
 
 	private void setDefault() {
-    	setObject(EnumUtils.getDefault(enumClass));
-		fireChange();
+    	E defolt = EnumUtils.getDefault(enumClass);
+    	if (!defolt.equals(getObject())) {
+    		setObject(defolt);
+    		fireChange();
+    	}
 	}
 	
 	@Override

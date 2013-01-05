@@ -28,7 +28,7 @@ so gut wie möglich ergänzt. Die Übersetzung geschieht wie folgt:
 
  */
 
-public class DateField extends AbstractEditField<LocalDate> implements DemoEnabled {
+public class DateField extends AbstractEditField<LocalDate> implements Enable, DemoEnabled {
 	public static final boolean PARTIAL_ALLOWED = true;                                                    
 	
 	private static final DateTimeFormatter DATE_FORMATTER = ISODateTimeFormat.date();

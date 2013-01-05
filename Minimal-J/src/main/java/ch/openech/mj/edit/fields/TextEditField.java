@@ -12,7 +12,7 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
 
-public class TextEditField implements EditField<String>, DemoEnabled {
+public class TextEditField implements EditField<String>, Enable, DemoEnabled {
 
 	private final PropertyInterface property;
 	private final int maxLength;
@@ -80,6 +80,11 @@ public class TextEditField implements EditField<String>, DemoEnabled {
 				changeListener.stateChanged(new ChangeEvent(TextEditField.this));
 			}
 		}
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		textField.setEnabled(enabled);
 	}
 	
 }

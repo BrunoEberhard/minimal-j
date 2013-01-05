@@ -14,7 +14,7 @@ import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 
 // TODO: Typisierung bringt hier so was von nichts
-public class CodeEditField extends AbstractEditField<String> implements DemoEnabled {
+public class CodeEditField extends AbstractEditField<String> implements Enable, DemoEnabled {
 	private final Code code;
 	
 	private final SwitchLayout switchLayout;

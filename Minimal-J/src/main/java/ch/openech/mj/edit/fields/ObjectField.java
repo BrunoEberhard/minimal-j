@@ -20,10 +20,11 @@ import ch.openech.mj.toolkit.IComponent;
  *
  * @param <T>
  */
-public abstract class ObjectField<T> extends AbstractEditField<T> {
+public abstract class ObjectField<T> extends AbstractEditField<T> implements Enable {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
 	private T object;
+	private boolean enabled = true;
 	protected final FlowField visual;
 	
 	public ObjectField(PropertyInterface property) {
@@ -96,14 +97,20 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 	}
 	
 	protected void fireObjectChange() {
-		visual.clear();
-		if (object != null) {
-			show(object);
-		}
-		if (isEditable()) {
-			showActions();
-		}
+		display();
 		super.fireChange();
+	}
+
+	protected void display() {
+		visual.clear();
+		if (enabled) {
+			if (object != null) {
+				show(object);
+			}
+			if (isEditable()) {
+		showActions();
+			}
+		}
 	}
 
 	public boolean isEmpty() {
@@ -117,8 +124,12 @@ public abstract class ObjectField<T> extends AbstractEditField<T> {
 		// to be overwritten
 	}
 	
-	protected void setEnabled(boolean enabled) {
-		visual.setEnabled(enabled);
+	public void setEnabled(boolean enabled) {
+		if (enabled != this.enabled) {
+			this.enabled = enabled;
+			visual.setEnabled(enabled);
+			display();
+		}
 	}
 
 }
