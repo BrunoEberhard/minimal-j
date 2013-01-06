@@ -10,9 +10,10 @@ import java.util.logging.Logger;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.db.model.ColumnProperties;
+import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.util.FieldUtils;
 
@@ -161,9 +162,16 @@ public class DbCreator {
 		} else if (clazz.equals(LocalDate.class)) {
 			// TODO check partial
 			s.append("DATE");
-		} else if (clazz.equals(LocalDateTime.class)) {
+		} else if (clazz.equals(LocalTime.class)) {
 			// TODO check partial
-			s.append("TIME");			
+			s.append("TIME");		
+		} else if (clazz.equals(LocalDateTime.class)) {
+			if (dbPersistence.isDerbyDb()) {
+				s.append("TIMESTAMP");
+			} else {
+				// MySQL
+				s.append("DATETIME");
+			}
 		} else if (clazz.equals(BigDecimal.class)) {
 			s.append("DECIMAL");
 			int size = AnnotationUtil.getSize(property);

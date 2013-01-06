@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.apache.derby.client.am.Types;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 
 import ch.openech.mj.db.model.InvalidValues;
 import ch.openech.mj.db.model.PropertyInterface;
@@ -326,9 +327,17 @@ public abstract class AbstractTable<T> {
 			} else if (value != null) {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
-		} else if (fieldClass == LocalDateTime.class) {
+		} else if (fieldClass == LocalTime.class) {
 			if (value instanceof java.sql.Time) {
-				value = new LocalDateTime((java.sql.Time) value);
+				value = new LocalTime((java.sql.Time) value);
+			} else if (value != null) {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
+		} else if (fieldClass == LocalDateTime.class) {
+			if (value instanceof java.sql.Timestamp) {
+				value = new LocalDateTime((java.sql.Timestamp) value);
+			} else if (value instanceof java.sql.Date) {
+				value = new LocalDateTime((java.sql.Date) value);
 			} else if (value != null) {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
@@ -400,8 +409,14 @@ public abstract class AbstractTable<T> {
 				}
 			} else if (value instanceof LocalDate) {
 				value = new java.sql.Date(((LocalDate) value).toDate().getTime());
+			} else if (value instanceof LocalTime) {
+				value = new java.sql.Time(((LocalTime) value).toDateTimeToday().getMillis());
 			} else if (value instanceof LocalDateTime) {
-				value = new java.sql.Time(((LocalDateTime) value).toDate().getTime());
+				if (dbPersistence.isDerbyDb()) {
+					value = new java.sql.Timestamp(((LocalDateTime) value).toDate().getTime());
+				} else {
+					value = new java.sql.Date(((LocalDateTime) value).toDate().getTime());
+				}
 			}
 			preparedStatement.setObject(param, value);
 		} 
