@@ -68,23 +68,27 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	private T object;
 
-	protected Form() {
+	public Form() {
 		this(true);
 	}
 
-	protected Form(boolean editable) {
+	public Form(boolean editable) {
 		this(editable, 1);
 	}
-	
-	protected Form(boolean editable, int columns) {
-		this(null, null, editable, columns);
-	}
-	
-	public Form(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable) {
-		this(objectClass, resourceBundle, editable, 1);
+
+	public Form(int columns) {
+		this(true, columns);
 	}
 
-	public Form(Class<T> objectClass, ResourceBundle resourceBundle, boolean editable, int columns) {
+	public Form(boolean editable, int columns) {
+		this(null, editable, columns);
+	}
+	
+	public Form(ResourceBundle resourceBundle, boolean editable) {
+		this(resourceBundle, editable, 1);
+	}
+
+	public Form(ResourceBundle resourceBundle, boolean editable, int columns) {
 		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;
 		this.columns = columns;

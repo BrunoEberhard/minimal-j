@@ -6,19 +6,12 @@ import java.util.List;
 
 import ch.openech.mj.example.ExamplePersistence;
 import ch.openech.mj.example.model.Book;
-import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
-import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.toolkit.VisualTable.ClickListener;
+import ch.openech.mj.page.TablePage;
 
 
-public class BookTablePage extends Page implements RefreshablePage {
-
-	private String text;
-	private VisualTable<Book> table;
+public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 
 	private static final Object[] FIELDS = {
 		BOOK.title, //
@@ -30,37 +23,18 @@ public class BookTablePage extends Page implements RefreshablePage {
 	};
 
 	public BookTablePage(PageContext context, String text) {
-		super(context);
-		this.text = text;
-		table = ClientToolkit.getToolkit().createVisualTable(Book.class, FIELDS);
-		table.setClickListener(new BookTableClickListener());
-		refresh();
+		super(context, FIELDS, text);
 	}
 	
 	@Override
-	public IComponent getComponent() {
-		return table;
+	protected void clicked(Book book) {
+		int id = ExamplePersistence.getInstance().book().getId(book);
+		show(BookViewPage.class, String.valueOf(id));
 	}
 
-	private class BookTableClickListener implements ClickListener {
-
-		@Override
-		public void clicked() {
-			Book book = table.getSelectedObject();
-			if (book != null) {
-				int id = ExamplePersistence.getInstance().book().getId(book);
-				show(BookViewPage.class, String.valueOf(id));
-			}
-		}
+	@Override
+	protected List<Book> find(String text) {
+		return ExamplePersistence.getInstance().book().find(text);
 	}
 	
-	@Override
-	public void refresh() {
-		try {
-			List<Book> result = ExamplePersistence.getInstance().book().find(text);
-			table.setObjects(result);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }
