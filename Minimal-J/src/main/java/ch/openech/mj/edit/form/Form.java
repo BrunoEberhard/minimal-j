@@ -418,7 +418,15 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 					Class clazz = o.getClass();
 					Method method = clazz.getMethod(methodName);
 					boolean e = (Boolean) method.invoke(o);
-					((Enable) field.getValue()).setEnabled(e ^ invert);
+					if (field.getValue() instanceof Enable) {
+						((Enable) field.getValue()).setEnabled(e ^ invert);
+					} else {
+						if (editable) {
+							logger.severe("field " + property.getFieldPath() + " should implement Enable");
+						} else {
+							logger.fine("field " + property.getFieldPath() + " should maybe implement Enable");
+						}
+					}
 				} catch (Exception x) {
 					x.printStackTrace();
 					System.out.println(property.getFieldName());
