@@ -117,7 +117,11 @@ public abstract class Editor<T> {
 	}
 
 	public Action[] getActions() {
-		return new Action[] { cancelAction(), saveAction() };
+		if (System.getProperty("MjDevMode", "false").equals("true")) {
+			return new Action[] { demoAction(), cancelAction(), saveAction() };
+		} else {
+			return new Action[] { cancelAction(), saveAction() };
+		}
 	}
 
 	// /////
