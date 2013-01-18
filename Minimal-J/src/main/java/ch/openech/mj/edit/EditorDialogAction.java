@@ -38,14 +38,14 @@ public class EditorDialogAction extends AbstractAction {
 	public void actionPerformed(ActionEvent e) {
 		try {
 			PageContext pageContext = PageContextHelper.findContext(e.getSource());
-			showPageOn(pageContext);
+			showDialogOn(pageContext);
 		} catch (Exception x) {
 			// TODO show dialog
 			x.printStackTrace();
 		}
 	}
 
-	private void showPageOn(final PageContext context) {
+	private void showDialogOn(final PageContext context) {
 		IForm<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(form.getComponent(), editor.getActions());
 		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context, layout, editor.getTitle());
