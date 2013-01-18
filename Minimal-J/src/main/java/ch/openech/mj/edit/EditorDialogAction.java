@@ -45,7 +45,7 @@ public class EditorDialogAction extends AbstractAction {
 		}
 	}
 
-	private void showDialogOn(final PageContext context) {
+	public void showDialogOn(final PageContext context) {
 		IForm<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(form.getComponent(), editor.getActions());
 		final VisualDialog dialog = ClientToolkit.getToolkit().openDialog(context, layout, editor.getTitle());
