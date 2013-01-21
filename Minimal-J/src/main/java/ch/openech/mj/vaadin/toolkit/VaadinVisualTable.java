@@ -102,7 +102,7 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 			Property property) {
 		Object v = property.getValue();
 		if (v instanceof BaseLocal) {
-			return jodaFormatter.format(v);
+			return jodaFormatter.format(v, (PropertyInterface) colId);
 		}
 		return super.formatPropertyValue(rowId, colId, property);
 	}

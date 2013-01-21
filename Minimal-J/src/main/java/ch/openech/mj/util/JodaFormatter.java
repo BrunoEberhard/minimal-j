@@ -6,13 +6,14 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import ch.openech.mj.db.model.PropertyInterface;
+
 public class JodaFormatter {
 
 	private DateTimeFormatter localDateFormatter;
-	private DateTimeFormatter localTimeFormatter;
 	private DateTimeFormatter localDateTimeFormatter;
 	
-	public String format(Object value) {
+	public String format(Object value, PropertyInterface property) {
 		if (value == null) return null;
 		if (value instanceof LocalDate) {
 			if (localDateFormatter == null) {
@@ -21,10 +22,7 @@ public class JodaFormatter {
 			return localDateFormatter.print((LocalDate) value);
 		}
 		if (value instanceof LocalTime) {
-			if (localTimeFormatter == null) {
-				localTimeFormatter = DateTimeFormat.mediumTime();
-			}
-			return localTimeFormatter.print((LocalDate) value);
+			return DateUtils.getTimeFormatter(property).print((LocalTime) value);
 		}
 		if (value instanceof LocalDateTime) {
 			if (localDateTimeFormatter == null) {

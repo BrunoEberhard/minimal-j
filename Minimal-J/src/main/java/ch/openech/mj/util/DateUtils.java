@@ -4,12 +4,22 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.annotation.Size;
 
 
 public class DateUtils {
+	private static final Logger logger = Logger.getLogger(DateUtils.class.getName());
+
+	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HH:mm");
+	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormat.forPattern("HH:mm:ss");
+	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormat.forPattern("HH:mm:ss.SSS");
 
 	public static final DateFormat dateFormatUS = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -195,5 +205,21 @@ public class DateUtils {
 		}
 		return true;
 	}
+	
+	public static DateTimeFormatter getTimeFormatter(PropertyInterface property) {
+		Size size = property.getAnnotation(Size.class);
+		if (size == null) {
+			logger.warning(property.getFieldPath() + " has no size for LocalTime. Use default.");
+			return TIME_FORMAT;
+		}
+		if (size.value() == Size.TIME_HH_MM) return TIME_FORMAT;
+		else if (size.value() == Size.TIME_WITH_SECONDS) return TIME_FORMAT_WITH_SECONDS;
+		else if (size.value() == Size.TIME_WITH_MILLIS) return TIME_FORMAT_WITH_MILIS;
+		else {
+			logger.severe(property.getFieldPath() + " has wrong size for LocalTime. Use default.");
+			return TIME_FORMAT;
+		}
+	}
+
 	
 }

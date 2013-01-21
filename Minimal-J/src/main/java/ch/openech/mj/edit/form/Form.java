@@ -15,6 +15,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.db.model.Constants;
@@ -34,6 +35,8 @@ import ch.openech.mj.edit.fields.NumberFormField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TextFormatField;
+import ch.openech.mj.edit.fields.TimeField;
+import ch.openech.mj.edit.fields.TypeUnknownField;
 import ch.openech.mj.edit.value.Properties;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.Changes;
@@ -124,6 +127,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			field = createTextFormatField((StringLimitation) key, property);
 		} else {
 			property = Constants.getProperty(key);
+			// if ths happens for a getter-method there is the special line missing
 			if (property == null) throw new IllegalArgumentException("" + key);
 			field = createField(property);
 		}
@@ -137,7 +141,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	protected FormField<?> createField(PropertyInterface property) {
 		Class<?> fieldClass = property.getFieldClazz();
-		if (editable) {
+		if (editable && !property.isFinal()) {
 			if (fieldClass == String.class) {
 				int size = AnnotationUtil.getSize(property);
 				String codeName = AnnotationUtil.getCode(property);
@@ -149,6 +153,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			} else if (fieldClass == LocalDate.class) {
 				boolean partialAllowed = property.getAnnotation(PartialDate.class) != null;
 				return new DateField(property, partialAllowed, editable);
+			} else if (fieldClass == LocalTime.class) {
+				return new TimeField(property, editable);
 			} else if (Enum.class.isAssignableFrom(fieldClass)) {
 				return new EnumEditField(property);
 			} else if (fieldClass == Boolean.class) {
@@ -175,11 +181,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 					return new CodeFormField(property, codeName);
 				}
 			}
-			else if (fieldClass == LocalDate.class) return new DateField(property, true, editable);
+			else if (fieldClass == LocalDate.class) return new DateField(property, true, false);
+			else if (fieldClass == LocalTime.class) return new TimeField(property, false);
 			else if (Enum.class.isAssignableFrom(fieldClass)) return new EnumFormField(property);
 			else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
-				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
+				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, false);
 				return field;
 			} 
 			else if (fieldClass == Integer.class) return new NumberFormField.IntegerFormField(property);
@@ -187,7 +194,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			// TODO dates
 			
 		}
-		throw new IllegalArgumentException("Unknown Field: " + property.getFieldName());
+		logger.severe("No FormField could be created for: " + property.getFieldName() + " of class " + fieldClass.getName());
+		return new TypeUnknownField(property);
 	}
 	
 	// 

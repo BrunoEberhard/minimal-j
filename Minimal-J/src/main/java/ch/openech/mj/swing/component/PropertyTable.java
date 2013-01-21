@@ -134,7 +134,8 @@ public class PropertyTable<T> extends JTable {
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 			
-			value = formatter.format(value);
+			PropertyInterface property = properties.get(column);
+			value = formatter.format(value, property);
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
 					row, column);
 		}
