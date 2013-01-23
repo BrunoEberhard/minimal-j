@@ -3,7 +3,6 @@ package ch.openech.mj.edit.form;
 import java.util.Collection;
 import java.util.List;
 
-import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.db.model.PropertyInterface;
