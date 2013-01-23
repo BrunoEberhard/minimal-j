@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Action;
@@ -251,7 +252,9 @@ public abstract class Editor<T> {
 			Object newPropertyValue = event.getValue();
 			PropertyInterface property = event.getProperty();
 			
-			System.out.println(event.getProperty().getFieldPath() + " changed to " + newPropertyValue);
+			if (logger.isLoggable(Level.FINE)) {
+				logger.fine(event.getProperty().getFieldPath() + " changed to " + newPropertyValue);
+			}
 			
 			property.setValue(editedObject, newPropertyValue);
 			
@@ -437,7 +440,11 @@ public abstract class Editor<T> {
 	}
 	
 	public void fillWithDemoData() {
-		if (form instanceof DemoEnabled) {
+		if (editedObject instanceof DemoEnabled) {
+			((DemoEnabled) editedObject).fillWithDemoData();
+			// re-set the object to update the FormFields
+			form.setObject(editedObject);
+		} else if (form instanceof DemoEnabled) {
 			((DemoEnabled) form).fillWithDemoData();
 		}
 	}
