@@ -226,7 +226,11 @@ public class TerminalLookAndFeel extends MetalLookAndFeel implements MetalThemeP
 		public ColorUIResource getInactiveSystemTextColor() {
 			return getSecondary1();
 		}
-		
+
+		@Override
+		public ColorUIResource getWindowTitleForeground() {
+			return getSelectionForeground();
+		}
 	}
 
 	@Override
