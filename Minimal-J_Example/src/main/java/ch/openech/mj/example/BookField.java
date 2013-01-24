@@ -2,12 +2,12 @@ package ch.openech.mj.example;
 
 import java.util.List;
 
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.SearchDialogAction;
 import ch.openech.mj.edit.fields.ObjectFlowField;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Book;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.PropertyInterface;
 
 public class BookField extends ObjectFlowField<Book> {
 

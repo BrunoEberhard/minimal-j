@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ch.openech.mj.edit.value.Reference;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.StringUtils;
 

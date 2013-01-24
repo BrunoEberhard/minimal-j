@@ -3,10 +3,10 @@ package ch.openech.mj.edit.fields;
 import java.util.List;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.CodeItem;
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.EnumUtils;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.CodeItem;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.EnumUtils;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.IComponent;

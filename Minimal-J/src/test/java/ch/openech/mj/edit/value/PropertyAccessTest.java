@@ -4,8 +4,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.PropertyInterface;
 
 public class PropertyAccessTest {
 

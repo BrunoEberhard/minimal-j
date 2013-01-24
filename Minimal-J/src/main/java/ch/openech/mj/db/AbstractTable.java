@@ -17,11 +17,11 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
-import ch.openech.mj.db.model.InvalidValues;
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.EnumUtils;
 import ch.openech.mj.db.model.ListColumnAccess;
+import ch.openech.mj.model.EnumUtils;
+import ch.openech.mj.model.InvalidValues;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;

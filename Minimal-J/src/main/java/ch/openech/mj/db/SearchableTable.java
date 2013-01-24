@@ -26,8 +26,8 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.StringUtils;
 
 public abstract class SearchableTable<T> extends Table<T> {

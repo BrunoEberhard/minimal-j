@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.fields.EditField;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingDirectoryField extends JPanel implements EditField<String>, IComponent {

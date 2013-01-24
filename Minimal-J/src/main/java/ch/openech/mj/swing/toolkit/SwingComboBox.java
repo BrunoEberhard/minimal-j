@@ -15,8 +15,8 @@ import javax.swing.ListCellRenderer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.db.model.CodeItem;
 import ch.openech.mj.edit.value.CloneHelper;
+import ch.openech.mj.model.CodeItem;
 import ch.openech.mj.toolkit.ComboBox;
 import ch.openech.mj.toolkit.Focusable;
 

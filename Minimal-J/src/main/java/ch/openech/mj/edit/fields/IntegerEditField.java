@@ -3,8 +3,8 @@ package ch.openech.mj.edit.fields;
 import java.util.Random;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.InvalidValues;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.InvalidValues;
+import ch.openech.mj.model.PropertyInterface;
 
 
 public class IntegerEditField extends NumberEditField<Integer> implements DemoEnabled {

@@ -4,9 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.logging.Logger;
 
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.model.Codes;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.FieldUtils;
 
 public class AnnotationUtil {
@@ -21,7 +21,7 @@ public class AnnotationUtil {
 		
 		String codeName = getCode(property);
 		if (codeName != null) {
-			ch.openech.mj.db.model.Code code = Codes.getCode(codeName);
+			ch.openech.mj.model.Code code = Codes.getCode(codeName);
 			if (code == null) {
 				logger.severe("Code " + codeName + " doesn't exist.");
 				logger.fine("The code is needed to evaluate the size of the field");

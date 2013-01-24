@@ -7,7 +7,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 
-import ch.openech.mj.db.model.Code;
 
 public class Codes {
 

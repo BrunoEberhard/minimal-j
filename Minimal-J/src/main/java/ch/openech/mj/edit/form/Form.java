@@ -18,8 +18,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.fields.BigDecimalEditField;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
 import ch.openech.mj.edit.fields.CodeEditField;
@@ -38,6 +36,8 @@ import ch.openech.mj.edit.fields.TextFormatField;
 import ch.openech.mj.edit.fields.TimeField;
 import ch.openech.mj.edit.fields.TypeUnknownField;
 import ch.openech.mj.edit.value.Properties;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.Changes;
 import ch.openech.mj.model.annotation.Enabled;

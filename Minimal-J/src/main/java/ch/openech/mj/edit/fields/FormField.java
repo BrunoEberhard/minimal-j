@@ -1,6 +1,6 @@
 package ch.openech.mj.edit.fields;
 
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.IComponent;
 
 /**

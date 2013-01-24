@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 import org.joda.time.LocalDate;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.Constants;
 import ch.openech.mj.edit.value.Required;
 import ch.openech.mj.example.ExampleFormats;
+import ch.openech.mj.model.Constants;
 import ch.openech.mj.model.annotation.Decimal;
 import ch.openech.mj.model.annotation.Size;
 

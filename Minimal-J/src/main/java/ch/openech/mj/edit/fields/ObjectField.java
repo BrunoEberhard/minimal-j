@@ -1,10 +1,10 @@
 package ch.openech.mj.edit.fields;
 
 import ch.openech.mj.db.EmptyObjects;
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.value.CloneHelper;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.IComponent;

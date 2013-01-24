@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.StringUtils;
 

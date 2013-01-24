@@ -2,8 +2,8 @@ package ch.openech.mj.edit.fields;
 
 import java.util.List;
 
-import ch.openech.mj.db.model.EnumUtils;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.EnumUtils;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;

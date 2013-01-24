@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Random;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.db.model.InvalidValues;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.InvalidValues;
+import ch.openech.mj.model.PropertyInterface;
 
 
 public class BigDecimalEditField extends NumberEditField<BigDecimal> implements DemoEnabled {

@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;

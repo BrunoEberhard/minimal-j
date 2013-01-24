@@ -4,6 +4,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import ch.openech.mj.model.EnumUtils;
+
 public class EnumHackTest {
 
 	@Test

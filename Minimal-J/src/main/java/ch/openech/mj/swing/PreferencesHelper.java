@@ -6,7 +6,7 @@ import java.util.prefs.Preferences;
 import org.joda.time.LocalDate;
 
 import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.EnumUtils;
+import ch.openech.mj.model.EnumUtils;
 
 public abstract class PreferencesHelper {
 	private static final Logger logger = Logger.getLogger(PreferencesHelper.class.getName());

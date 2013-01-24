@@ -1,4 +1,4 @@
-package ch.openech.mj.db.model;
+package ch.openech.mj.model;
 
 
 public class CodeItem<E> {

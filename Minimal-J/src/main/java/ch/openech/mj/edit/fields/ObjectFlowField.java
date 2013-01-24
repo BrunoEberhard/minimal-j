@@ -5,9 +5,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.EditorDialogAction;
+import ch.openech.mj.model.PropertyInterface;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>

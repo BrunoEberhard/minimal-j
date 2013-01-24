@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.PropertyInterface;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;

@@ -15,8 +15,8 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.util.JodaFormatter;
 

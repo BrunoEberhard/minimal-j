@@ -1,4 +1,4 @@
-package ch.openech.mj.db.model;
+package ch.openech.mj.model;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

@@ -2,8 +2,8 @@ package ch.openech.mj.edit.fields;
 
 import javax.swing.Action;
 
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.edit.EditorDialogAction;
+import ch.openech.mj.model.PropertyInterface;
 
 public abstract class ObjectLinkField<T> extends ObjectField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());

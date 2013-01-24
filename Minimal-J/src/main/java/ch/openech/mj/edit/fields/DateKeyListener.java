@@ -6,7 +6,7 @@ import java.util.Calendar;
 
 import org.joda.time.LocalDate;
 
-import ch.openech.mj.db.model.InvalidValues;
+import ch.openech.mj.model.InvalidValues;
 
 
 // Not used at the moment. Swing specific

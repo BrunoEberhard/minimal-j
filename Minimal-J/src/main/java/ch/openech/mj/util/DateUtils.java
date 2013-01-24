@@ -10,7 +10,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.Size;
 
 

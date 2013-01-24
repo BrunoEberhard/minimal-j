@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.PropertyInterface;
 
 /*
  * Idee: Immutables können zwar keine SubTables haben, aber immerhin

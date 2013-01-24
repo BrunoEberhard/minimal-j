@@ -3,8 +3,8 @@ package ch.openech.mj.edit.fields;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.db.model.Constants;
-import ch.openech.mj.db.model.PropertyInterface;
+import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.PropertyInterface;
 
 public abstract class AbstractEditField<T> implements EditField<T> {
 

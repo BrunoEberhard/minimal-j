@@ -9,8 +9,8 @@ import org.apache.lucene.document.Field;
 
 import ch.openech.mj.db.DbPersistence;
 import ch.openech.mj.db.SearchableTable;
-import ch.openech.mj.db.model.PropertyInterface;
 import ch.openech.mj.example.model.Customer;
+import ch.openech.mj.model.PropertyInterface;
 
 public class CustomerTable extends SearchableTable<Customer> {
 
