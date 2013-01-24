@@ -18,8 +18,8 @@ import javax.swing.JTextField;
 
 
 /**
+ * Was the the selection dialog of a derby database file. Not used at the moment
  * 
- * @author bruno
  */
 public class DerbyOptionsDialog extends javax.swing.JDialog {
 

@@ -23,7 +23,10 @@ import javax.swing.event.DocumentListener;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.util.StringUtils;
 
-
+/**
+ * Was the the selection dialog of a derby database file. Not used at the moment
+ * 
+ */
 public class DerbyOptionsDialogController {
 
 	public static void showOptions() {

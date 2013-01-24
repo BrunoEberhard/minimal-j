@@ -11,6 +11,10 @@ import java.util.logging.Logger;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 
+/**
+ * Was the version management of the database.
+ */
+@Deprecated
 public class DbVersion {
 	private static Logger logger = Logger.getLogger(DbVersion.class.getName());
 	
