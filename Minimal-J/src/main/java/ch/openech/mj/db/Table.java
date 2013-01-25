@@ -55,7 +55,17 @@ public class Table<T> extends AbstractTable<T> {
 		readVersionsStatement.close();
 	}
 	
-	public void registerObjectId(Object object, int id) {
+	
+	
+	@Override
+	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time)
+			throws SQLException {
+		ObjectWithId<T> resultObject = super.readResultSetRow(resultSet, time);
+		registerObjectId(resultObject.object, resultObject.id);
+		return resultObject;
+	}
+
+	private void registerObjectId(Object object, Integer id) {
 		objectIds.put(object, Integer.valueOf(id));
 	}
 
@@ -152,7 +162,6 @@ public class Table<T> extends AbstractTable<T> {
 		T object = executeSelect(selectByIdStatement);
 		if (object != null) {
 			loadRelations(object, id, null);
-			registerObjectId(object, id);
 		}
 		return object;
 	}

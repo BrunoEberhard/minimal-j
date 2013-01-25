@@ -19,6 +19,7 @@ import org.joda.time.LocalTime;
 
 import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.db.model.ListColumnAccess;
+import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
@@ -210,7 +211,7 @@ public abstract class AbstractTable<T> {
 		
 		ResultSet resultSet = preparedStatement.executeQuery();
 		if (resultSet.next()) {
-			result = readResultSetRow(resultSet, time);
+			result = readResultSetRow(resultSet, time).object;
 		} else {
 			result = null;
 		}
@@ -224,28 +225,36 @@ public abstract class AbstractTable<T> {
 		
 		ResultSet resultSet = preparedStatement.executeQuery();
 		while (resultSet.next()) {
-			result.add(readResultSetRow(resultSet, null));
+			T object = readResultSetRow(resultSet, null).object;
+			result.add(object);
 		}
 		
 		resultSet.close();
 		return result;
 	}
 	
-	protected T readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
-		T result;
-		try {
-			result = clazz.newInstance();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	/**
+	 * Internal helper class. Needed by readResultSetRow. Allows the returning of
+	 * both the object and the id.
+	 */
+	protected static class ObjectWithId<S> {
+		public Integer id;
+		public S object;
+	}
+	
+	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
+		ObjectWithId<T> result = new ObjectWithId<>();
+		result.object = CloneHelper.newInstance(clazz);
 		
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			Object value = resultSet.getObject(columnIndex);
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
+			boolean isId = columnName.equalsIgnoreCase("id");
+			if (isId) result.id = (Integer) value;
 			PropertyInterface property = ColumnProperties.getPropertyIgnoreCase(clazz, columnName);
 			if (property == null) continue;
-			if (columnName.equalsIgnoreCase("id")) {
-				property.setValue(result, value);
+			if (isId) {
+				property.setValue(result.object, value);
 				continue;
 			}
 			
@@ -256,7 +265,7 @@ public abstract class AbstractTable<T> {
 			} else {
 				value = convertToFieldClass(fieldClass, value);
 			}
-			property.setValue(result, value);
+			property.setValue(result.object, value);
 		}
 		return result;
 	}
