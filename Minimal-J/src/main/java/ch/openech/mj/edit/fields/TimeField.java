@@ -2,7 +2,6 @@ package ch.openech.mj.edit.fields;
 
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.util.logging.Logger;
 
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormatter;

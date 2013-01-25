@@ -4,8 +4,8 @@ import java.util.List;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.model.CodeItem;
-import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.EnumUtils;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;

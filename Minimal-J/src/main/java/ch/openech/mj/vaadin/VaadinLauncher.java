@@ -3,7 +3,6 @@ package ch.openech.mj.vaadin;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-
 import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.EmptyPage;

@@ -1,6 +1,7 @@
 package ch.openech.mj.swing.toolkit;
 
 import java.awt.event.FocusListener;
+
 import javax.swing.JLabel;
 
 import ch.openech.mj.toolkit.TextField;

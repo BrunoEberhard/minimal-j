@@ -6,8 +6,8 @@ import java.util.Locale;
 
 import javax.swing.Action;
 
-import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.application.ApplicationContext;
+import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;

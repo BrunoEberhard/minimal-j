@@ -5,8 +5,6 @@ import java.io.InputStream;
 import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.model.annotation.StringLimitation;
-
 /**
  * 
  * @author Bruno

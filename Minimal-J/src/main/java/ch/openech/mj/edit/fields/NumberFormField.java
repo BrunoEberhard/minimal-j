@@ -2,7 +2,6 @@ package ch.openech.mj.edit.fields;
 
 import java.math.BigDecimal;
 
-import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;

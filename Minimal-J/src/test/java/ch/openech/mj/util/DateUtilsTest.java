@@ -4,8 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ch.openech.mj.util.DateUtils;
-
 
 public class DateUtilsTest {
 

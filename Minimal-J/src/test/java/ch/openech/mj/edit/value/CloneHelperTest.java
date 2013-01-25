@@ -7,8 +7,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ch.openech.mj.edit.value.CloneHelper;
-
 public class CloneHelperTest {
 
 	@Test

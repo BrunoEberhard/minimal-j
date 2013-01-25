@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
-import ch.openech.mj.util.DateUtils;
 
 public class DateUtilsXsdTest  extends TestCase {
     private Calendar c;
