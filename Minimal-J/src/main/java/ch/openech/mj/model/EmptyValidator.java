@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.Properties;
-import ch.openech.mj.edit.value.Required;
+import ch.openech.mj.model.annotation.Required;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.util.StringUtils;
 
