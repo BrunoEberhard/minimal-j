@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import java.util.logging.Logger;
 
 import ch.openech.mj.model.Codes;
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.FieldUtils;
 
@@ -71,7 +71,7 @@ public class AnnotationUtil {
 	}
 
 	public static <T extends Annotation> T get(Class<T> annotationClass, Class<?> clazz, Object key) {
-		PropertyInterface property = Constants.getProperty(key);
+		PropertyInterface property = Keys.getProperty(key);
 		return property.getAnnotation(annotationClass);
 	}
 		

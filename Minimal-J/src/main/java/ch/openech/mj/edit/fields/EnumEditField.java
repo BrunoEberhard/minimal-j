@@ -4,7 +4,7 @@ import java.util.List;
 
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.model.CodeItem;
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -26,7 +26,7 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 	}
 
 	public EnumEditField(E key, List<E> allowedValues) {
-		this(Constants.getProperty(key), allowedValues);
+		this(Keys.getProperty(key), allowedValues);
 	}
 		
 	@SuppressWarnings("unchecked")

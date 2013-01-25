@@ -27,7 +27,7 @@ public class EmptyValidator {
 	}
 
 	public static void validate(List<ValidationMessage> resultList, Object object, Object key) {
-		validate(resultList, object, Constants.getProperty(key));
+		validate(resultList, object, Keys.getProperty(key));
 	}
 	
 	public static void validate(List<ValidationMessage> resultList, Object object, PropertyInterface property) {

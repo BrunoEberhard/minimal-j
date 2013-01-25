@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 public class PropertyAccessTest {
@@ -14,7 +14,7 @@ public class PropertyAccessTest {
 		TestClass1 object1 = new TestClass1();
 		
 		object1.s1 = "Test";
-		PropertyInterface property = Constants.getProperty(TestClass1.KEYS.s1);
+		PropertyInterface property = Keys.getProperty(TestClass1.KEYS.s1);
 		Assert.assertEquals("Get should return the value of the public field", object1.s1, property.getValue(object1));
 	}
 
@@ -23,7 +23,7 @@ public class PropertyAccessTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.testClass1.s1 = "TestS1";
-		PropertyInterface property = Constants.getProperty(TestClass2.KEYS.testClass1.s1);
+		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.testClass1.s1);
 		Assert.assertEquals("Get should return the value of referenced Objects", testObject2.testClass1.s1, property.getValue(testObject2));
 	}
 
@@ -32,7 +32,7 @@ public class PropertyAccessTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setS3("access5");
-		PropertyInterface property = Constants.getProperty(TestClass2.KEYS.getS3());
+		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.getS3());
 		Assert.assertEquals("If private, get should use the getter method", testObject2.getS3(), property.getValue(testObject2));
 		
 		property.setValue(testObject2, "access5a");
@@ -44,7 +44,7 @@ public class PropertyAccessTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setB1(true);
-		PropertyInterface property = Constants.getProperty(TestClass2.KEYS.getB1());
+		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.getB1());
 		Assert.assertEquals("For private boolean, get should use the isXy method", testObject2.getB1(), property.getValue(testObject2));
 		
 		property.setValue(testObject2, Boolean.FALSE);
@@ -58,10 +58,10 @@ public class PropertyAccessTest {
 		testObject2.testClass1.b2 = true;
 		testObject2.testClass1b.b2 = false;
 		
-		PropertyInterface property = Constants.getProperty(TestClass2.KEYS.testClass1.getB2());
+		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.testClass1.getB2());
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.getB2(), property.getValue(testObject2));
 
-		PropertyInterface propertyB = Constants.getProperty(TestClass2.KEYS.getTestClass1b().getB2());
+		PropertyInterface propertyB = Keys.getProperty(TestClass2.KEYS.getTestClass1b().getB2());
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.getTestClass1b().getB2(), propertyB.getValue(testObject2));
 		testObject2.testClass1b.b2 = true;
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.getTestClass1b().getB2(), propertyB.getValue(testObject2));
@@ -71,13 +71,13 @@ public class PropertyAccessTest {
 	}
 	
 	public static class TestClass1 {
-		public static final TestClass1 KEYS = Constants.of(TestClass1.class);
+		public static final TestClass1 KEYS = Keys.of(TestClass1.class);
 		
 		public String s1;
 		private Boolean b2;
 		
 		public Boolean getB2() {
-			if (Constants.isKeyObject(this)) return Constants.methodOf(this, "b2", Boolean.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b2", Boolean.class);
 			
 			return b2;
 		}
@@ -88,7 +88,7 @@ public class PropertyAccessTest {
 	}
 
 	public static class TestClass2 {
-		public static final TestClass2 KEYS = Constants.of(TestClass2.class);
+		public static final TestClass2 KEYS = Keys.of(TestClass2.class);
 		
 		public String s2;
 		private String s3;
@@ -98,7 +98,7 @@ public class PropertyAccessTest {
 		public final TestClass1 tc1 = new TestClass1();
 		
 		public String getS3() {
-			if (Constants.isKeyObject(this)) return Constants.methodOf(this, "s3", String.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "s3", String.class);
 
 			return s3;
 		}
@@ -108,7 +108,7 @@ public class PropertyAccessTest {
 		}
 		
 		public Boolean getB1() {
-			if (Constants.isKeyObject(this)) return Constants.methodOf(this, "b1", Boolean.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b1", Boolean.class);
 			
 			return b1;
 		}
@@ -118,7 +118,7 @@ public class PropertyAccessTest {
 		}
 
 		public TestClass1 getTestClass1b() {
-			if (Constants.isKeyObject(this)) return Constants.methodOf(this, "testClass1b", TestClass1.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass1b", TestClass1.class);
 			return testClass1b;
 		}
 		

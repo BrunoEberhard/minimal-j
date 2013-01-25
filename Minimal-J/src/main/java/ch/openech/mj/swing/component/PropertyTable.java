@@ -15,7 +15,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.util.JodaFormatter;
@@ -43,7 +43,7 @@ public class PropertyTable<T> extends JTable {
 	private List<PropertyInterface> convert(Object[] keys) {
 		List<PropertyInterface> properties = new ArrayList<PropertyInterface>(keys.length);
 		for (Object key : keys) {
-			PropertyInterface property = Constants.getProperty(key);
+			PropertyInterface property = Keys.getProperty(key);
 			if (property != null) {
 				properties.add(property);
 			} else {

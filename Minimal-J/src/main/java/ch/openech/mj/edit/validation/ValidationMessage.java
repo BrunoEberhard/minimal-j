@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 public class ValidationMessage {
@@ -29,7 +29,7 @@ public class ValidationMessage {
 		if (key instanceof PropertyInterface) {
 			return (PropertyInterface) key;
 		} else {
-			return Constants.getProperty(key);
+			return Keys.getProperty(key);
 		}
 	}
 	

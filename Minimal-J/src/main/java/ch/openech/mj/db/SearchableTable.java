@@ -26,7 +26,7 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.StringUtils;
 
@@ -45,13 +45,13 @@ public abstract class SearchableTable<T> extends Table<T> {
 	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, Object[] keys) {
 		super(dbPersistence, clazz);
 		this.keys = keys;
-		this.properties = Constants.getProperties(keys);
+		this.properties = Keys.getProperties(keys);
 	}
 	
 	public static String[] getPropertyNames(Object[] keys) {
 		String[] names = new String[keys.length];
 		for (int i = 0; i<keys.length; i++) {
-			names[i] = Constants.getProperty(keys[i]).getFieldName();
+			names[i] = Keys.getProperty(keys[i]).getFieldName();
 		}
 		return names;
 	}

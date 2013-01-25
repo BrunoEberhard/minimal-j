@@ -36,7 +36,7 @@ import ch.openech.mj.edit.fields.TextFormatField;
 import ch.openech.mj.edit.fields.TimeField;
 import ch.openech.mj.edit.fields.TypeUnknownField;
 import ch.openech.mj.edit.value.Properties;
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.Changes;
@@ -123,10 +123,10 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			property = field.getProperty();
 			if (property == null) throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
 		} else if (key instanceof StringLimitation) {
-			property = Constants.getProperty(key);
+			property = Keys.getProperty(key);
 			field = createTextFormatField((StringLimitation) key, property);
 		} else {
-			property = Constants.getProperty(key);
+			property = Keys.getProperty(key);
 			// if ths happens for a getter-method there is the special line missing
 			if (property == null) throw new IllegalArgumentException("" + key);
 			field = createField(property);
@@ -291,7 +291,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	//
 	
 	protected FormField<?> getField(Object key) {
-		return fields.get(Constants.getProperty(key));
+		return fields.get(Keys.getProperty(key));
 	}
 	
 	//

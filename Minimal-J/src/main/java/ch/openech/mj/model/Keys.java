@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 
 import ch.openech.mj.edit.value.Properties;
 
-public class Constants {
+public class Keys {
 
-	private static final Logger logger = Logger.getLogger(Constants.class.getName());
+	private static final Logger logger = Logger.getLogger(Keys.class.getName());
 	private static final Map<Object, PropertyInterface> properties = new IdentityHashMap<Object, PropertyInterface>();
 
 	private static final List<Object> keyObjects = new ArrayList<>();

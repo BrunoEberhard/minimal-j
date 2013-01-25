@@ -6,7 +6,7 @@ import ch.openech.mj.edit.SearchDialogAction;
 import ch.openech.mj.edit.fields.ObjectFlowField;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Book;
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 public class BookField extends ObjectFlowField<Book> {
@@ -16,7 +16,7 @@ public class BookField extends ObjectFlowField<Book> {
 	}
 	
 	public BookField(Book key) {
-		this(Constants.getProperty(key));
+		this(Keys.getProperty(key));
 	}
 	
 	@Override

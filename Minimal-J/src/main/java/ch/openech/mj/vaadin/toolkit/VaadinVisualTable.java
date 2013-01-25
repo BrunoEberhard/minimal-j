@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.joda.time.base.BaseLocal;
 
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.VisualTable;
@@ -33,7 +33,7 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 		setSizeFull();
 		
 		for (Object key : keys) {
-			PropertyInterface property = Constants.getProperty(key);
+			PropertyInterface property = Keys.getProperty(key);
 			properties.add(property);
 			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
 			setColumnHeader(property, header);

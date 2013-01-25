@@ -7,13 +7,13 @@ import org.joda.time.LocalDate;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.edit.value.Required;
 import ch.openech.mj.example.ExampleFormats;
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Decimal;
 import ch.openech.mj.model.annotation.Size;
 
 
 public class Book implements DemoEnabled {
-	public static final Book BOOK = Constants.of(Book.class);
+	public static final Book BOOK = Keys.of(Book.class);
 
 	@Required @Size(ExampleFormats.NAME) 
 	public String title;

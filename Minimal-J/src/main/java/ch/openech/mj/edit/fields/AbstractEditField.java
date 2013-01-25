@@ -3,7 +3,7 @@ package ch.openech.mj.edit.fields;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 public abstract class AbstractEditField<T> implements EditField<T> {
@@ -15,7 +15,7 @@ public abstract class AbstractEditField<T> implements EditField<T> {
 	private ChangeListener changeListener;
 
 	protected AbstractEditField(Object key, boolean editable) {
-		this(Constants.getProperty(key), editable);
+		this(Keys.getProperty(key), editable);
 	}
 	
 	protected AbstractEditField(PropertyInterface property, boolean editable) {

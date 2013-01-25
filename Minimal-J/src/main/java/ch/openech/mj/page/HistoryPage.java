@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.joda.time.LocalDateTime;
 
-import ch.openech.mj.model.Constants;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Size;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
@@ -60,7 +60,7 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 
 	public static class HistoryVersion<T> {
 
-		public static final HistoryVersion<?> HISTORY_VERSION = Constants.of(HistoryVersion.class);
+		public static final HistoryVersion<?> HISTORY_VERSION = Keys.of(HistoryVersion.class);
 		
 		public String version;
 		public LocalDateTime time;
