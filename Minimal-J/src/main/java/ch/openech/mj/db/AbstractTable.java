@@ -18,7 +18,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.ListColumnAccess;
+import ch.openech.mj.db.model.ListColumnProperties;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.InvalidValues;
@@ -126,7 +126,7 @@ public abstract class AbstractTable<T> {
 	}
 			
 	public void findSubTables() throws SQLException {
-		Map<String, PropertyInterface> properties = ListColumnAccess.getProperties(clazz);
+		Map<String, PropertyInterface> properties = ListColumnProperties.getProperties(clazz);
 		for (PropertyInterface property : properties.values()) {
 			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
 			subTables.put(property.getFieldName(), new SubTable(dbPersistence, buildSubTableName(property), clazz));

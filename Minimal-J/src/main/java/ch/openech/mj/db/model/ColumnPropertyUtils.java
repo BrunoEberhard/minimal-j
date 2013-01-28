@@ -2,7 +2,12 @@ package ch.openech.mj.db.model;
 
 import java.lang.reflect.Field;
 
-class ColumnAccessUtils {
+/**
+ * Framework internal<p>
+ * 
+ * Some static helper methods.
+ */
+class ColumnPropertyUtils {
 
 	static boolean hasClassName(Field field) {
 		String fieldName = field.getName();

@@ -17,6 +17,14 @@ import ch.openech.mj.model.annotation.Required;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.StringUtils;
 
+/**
+ * Framework internal<p>
+ * 
+ * Provides for each class a map of Properties. But only the
+ * properties that are <b>not</b> of the class List. These Properties
+ * are the columns of the database tables.
+ *
+ */
 public class ColumnProperties {
 	private static final Logger logger = Logger.getLogger(ColumnProperties.class.getName());
 	
@@ -114,7 +122,7 @@ public class ColumnProperties {
 				property.setValue(to, fromValue);
 			}
 		}
-		properties = ListColumnAccess.getProperties(from.getClass());
+		properties = ListColumnProperties.getProperties(from.getClass());
 		for (PropertyInterface property : properties.values()) {
 			List fromList = (List) property.getValue(from);
 			List toList = (List)property.getValue(to);
@@ -155,7 +163,7 @@ public class ColumnProperties {
 				boolean isReference = field.getAnnotation(Reference.class) != null;
 				if (!isReference) {
 					Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
-					boolean hasClassName = ColumnAccessUtils.hasClassName(field);
+					boolean hasClassName = ColumnPropertyUtils.hasClassName(field);
 					for (String inlineKey : inlinePropertys.keySet()) {
 						String key = inlineKey;
 						if (!hasClassName) {

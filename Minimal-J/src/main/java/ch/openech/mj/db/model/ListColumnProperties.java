@@ -10,8 +10,14 @@ import ch.openech.mj.model.annotation.Reference;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.StringUtils;
 
-// TODO zusammenhang mit ColumnAccess???
-public class ListColumnAccess {
+/**
+ * Framework internal.<p>
+ * 
+ * Provides for each class a map of Properties. But only the
+ * properties that are of the class List.
+ *
+ */
+public class ListColumnProperties {
 	private static final Map<Class<?>, Map<String, PropertyInterface>> properties = 
 		new HashMap<Class<?>, Map<String, PropertyInterface>>();
 
@@ -33,8 +39,9 @@ public class ListColumnAccess {
 			
 			boolean isReference = field.getAnnotation(Reference.class) != null;
 			if (!isReference && FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
+				// This is needed to check if an inline Property contains a List
 				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
-				boolean hasClassName = ColumnAccessUtils.hasClassName(field);
+				boolean hasClassName = ColumnPropertyUtils.hasClassName(field);
 				for (String inlineKey : inlinePropertys.keySet()) {
 					String key = inlineKey;
 					if (!hasClassName) {
