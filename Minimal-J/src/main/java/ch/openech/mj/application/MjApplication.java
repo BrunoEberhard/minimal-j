@@ -6,6 +6,14 @@ import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
 
+/**
+ * Extend this class as main entry for your Application.<p>
+ * 
+ * Set the argument <code>MjApplication</code> as VM argument if the application
+ * is started with SwingLauncher or set the <code>init-param</code> in the servlet
+ * element in the <code>web.xml</code> if the VaadinLauncher is used.
+ *
+ */
 public abstract class MjApplication {
 
 	private static MjApplication application;
