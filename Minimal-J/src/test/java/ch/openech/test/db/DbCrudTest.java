@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ch.openech.mj.db.DbPersistence;
+import ch.openech.mj.db.EmptyObjects;
 import ch.openech.mj.db.Table;
 
 public class DbCrudTest {
@@ -56,16 +57,18 @@ public class DbCrudTest {
 	@Test
 	public void testSubtableVersion() throws SQLException {
 		int id = writeSimpleA();
-		readTheAandAddB(id);
+		readTheAandAddBandE(id);
 		
 		List<Integer> versions = table.readVersions(id);
 		Assert.assertEquals("A should now have 1 historized version", 1, versions.size());
 		
 		A a3 = table.read(id, versions.get(0));
 		Assert.assertEquals("The historized (first) version of A should not have any B attached", 0, a3.b.size());
+		Assert.assertTrue("The historized (first) version of A should not have a E attached", EmptyObjects.isEmpty(a3.e));
 		
 		A a4 = table.read(id);
 		Assert.assertEquals("The actual version of A should have a B attached", 1, a4.b.size());
+		Assert.assertNotNull("The actual version of A should have a E attached", a4.e);
 
 		addAnotherB(a4);
 		removeFirstB(id);
@@ -91,9 +94,11 @@ public class DbCrudTest {
 		return id;
 	}
 
-	private void readTheAandAddB(int id) throws SQLException {
+	private void readTheAandAddBandE(int id) throws SQLException {
 		A a2 = table.read(id);
 		a2.b.add(new B("testNameB1"));
+		a2.e = new E();
+		a2.e.e = "AddedE";
 		
 		table.update(a2);
 		persistence.commit();
