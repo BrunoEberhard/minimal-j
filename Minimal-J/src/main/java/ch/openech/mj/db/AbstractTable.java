@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,8 +55,6 @@ public abstract class AbstractTable<T> {
 	protected PreparedStatement clearStatement;
 
 	public AbstractTable(DbPersistence dbPersistence, String prefix, Class<T> clazz) {
-		logger.setLevel(Level.FINEST);
-		
 		this.dbPersistence = dbPersistence;
 		this.name = prefix;
 		this.clazz = clazz;
@@ -159,12 +158,28 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void prepareStatements() throws SQLException {
-		insertStatement = prepareInsert();
-		selectByIdStatement = prepareSelectById();
-		selectMaxIdStatement = prepareSelectMaxId();
-		clearStatement = prepareClear();
+		insertStatement = prepareReturnGeneratedKeys(insertQuery());
+		selectByIdStatement = prepare(selectByIdQuery());
+		selectMaxIdStatement = prepare(selectMaxIdQuery());
+		clearStatement = prepare(clearQuery());
 	}
 	
+	protected PreparedStatement prepare(String statement) throws SQLException {
+		if (logger.isLoggable(Level.FINE)) {
+			return new LoggingPreparedStatement(getConnection(), statement, logger);
+		} else {
+			return getConnection().prepareStatement(statement);
+		}
+	}
+	
+	protected PreparedStatement prepareReturnGeneratedKeys(String statement) throws SQLException {
+		if (logger.isLoggable(Level.FINE)) {
+			return new LoggingPreparedStatement(getConnection(), statement, Statement.RETURN_GENERATED_KEYS, logger);
+		} else {
+			return getConnection().prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
+		}
+	}
+
 	public void closeStatements() throws SQLException {
 		selectByIdStatement.close();
 		insertStatement.close();
@@ -293,7 +308,6 @@ public abstract class AbstractTable<T> {
 	protected <D> Integer lookupReference(D value, boolean insertIfNotExisting) throws SQLException{
 		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
-		logger.fine("Clazz: " + clazz.getSimpleName() + " Value: " + value);
 		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
 		if (abstractTable == null) {
 			throw new IllegalArgumentException(clazz.getName());
@@ -368,9 +382,6 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert) throws SQLException {
-		logger.fine("Set Parameters: " + object + " DoubleValues: " + doubleValues);
-		final StringBuilder loggerStringBuilder = logger.isLoggable(Level.FINER) ? new StringBuilder() : null;
-
 		int parameterPos = 1;
 		for (String key : columnNames) {
 			PropertyInterface property = ColumnProperties.getProperties(clazz).get(key);
@@ -381,25 +392,13 @@ public abstract class AbstractTable<T> {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
-						System.out.println(object.getClass());
-						System.out.println(property.getFieldName());
+						logger.severe(object.getClass().getName() + " / " + property.getFieldName());
 						throw e;
 					}
 				} 
-				
-				if (loggerStringBuilder != null) {
-					loggerStringBuilder.append(property.getFieldName());
-					loggerStringBuilder.append('=');
-					loggerStringBuilder.append(value);
-					loggerStringBuilder.append(' ');
-				}
 			}
 			setParameter(statement, parameterPos++, value, property.getFieldClazz());
 			if (doubleValues) setParameter(statement, parameterPos++, value, property.getFieldClazz());
-		}
-
-		if (loggerStringBuilder != null) {
-			logger.finer(loggerStringBuilder.toString());
 		}
 		return parameterPos;
 	}
@@ -455,23 +454,23 @@ public abstract class AbstractTable<T> {
 		preparedStatement.setInt(param, value);
 	}
 	
-	protected abstract PreparedStatement prepareInsert() throws SQLException;
+	protected abstract String insertQuery();
 
-	protected abstract PreparedStatement prepareSelectById() throws SQLException;
+	protected abstract String selectByIdQuery();
 
-	protected PreparedStatement prepareSelectMaxId() throws SQLException {
+	protected String selectMaxIdQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT MAX(id) FROM "); query.append(getTableName()); 
-		return getConnection().prepareStatement(query.toString());
+		return query.toString();
 	}
 	
-	protected PreparedStatement prepareClear() throws SQLException {
+	protected String clearQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("DELETE FROM "); query.append(getTableName()); 
-		return getConnection().prepareStatement(query.toString());
+		return query.toString();
 	}
 	
-	protected PreparedStatement prepareSelectId() throws SQLException {
+	protected String selectIdQuery() {
 		StringBuilder where = new StringBuilder();
 	
 		boolean first = true;	
@@ -496,8 +495,7 @@ public abstract class AbstractTable<T> {
 		query.append("SELECT id FROM "); query.append(getTableName()); query.append(" WHERE ");
 		query.append(where);
 		
-		String queryString = query.toString();
-		return getConnection().prepareStatement(queryString);
+		return query.toString();
 	}
 
 }

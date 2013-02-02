@@ -3,7 +3,6 @@ package ch.openech.mj.db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,11 +37,11 @@ public class Table<T> extends AbstractTable<T> {
 	@Override
 	public void initialize() throws SQLException {
 		super.initialize();
-		selectByIdAndTimeStatement = prepareSelectByIdAndTime();
-		endStatement = prepareEnd();
-		updateStatement = prepareUpdate();
-		selectMaxVersionStatement = prepareSelectMaxVersion();
-		readVersionsStatement = prepareReadVersions();
+		selectByIdAndTimeStatement = prepare(selectByIdAndTimeQuery());
+		endStatement = prepare(endQuery());
+		updateStatement = prepare(updateQuery());
+		selectMaxVersionStatement = prepare(selectMaxVersionQuery());
+		readVersionsStatement = prepare(readVersionsQuery());
 	}
 
 	@Override
@@ -54,8 +53,6 @@ public class Table<T> extends AbstractTable<T> {
 		selectMaxVersionStatement.close();
 		readVersionsStatement.close();
 	}
-	
-	
 	
 	@Override
 	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time)
@@ -117,14 +114,12 @@ public class Table<T> extends AbstractTable<T> {
 		
 		int version = findMaxVersion(id) + 1;
 		
-		logger.fine("EndStatement: version=" + version + " / id=" + id);
 		endStatement.setInt(1, version);
 		endStatement.setInt(2, id);
 		endStatement.execute();	
 		
 		int parameterPos = setParameters(updateStatement, object, false, true);
 		setParameterInt(updateStatement, parameterPos++, id);
-		logger.fine("UpdateStatement: id=" + id);
 		updateStatement.execute();
 		
 		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
@@ -226,22 +221,22 @@ public class Table<T> extends AbstractTable<T> {
 	// Statements
 
 	@Override
-	protected PreparedStatement prepareSelectById() throws SQLException {
+	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
 		query.append(" WHERE id = ? AND version = 0");
-		return getConnection().prepareStatement(query.toString());
+		return query.toString();
 	}
 	
-	protected PreparedStatement prepareSelectByIdAndTime() throws SQLException {
+	protected String selectByIdAndTimeQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
 		query.append(" WHERE id = ? AND version = ?");
-		return getConnection().prepareStatement(query.toString());
+		return query.toString();
 	}
 	
 	@Override
-	protected PreparedStatement prepareInsert() throws SQLException {
+	protected String insertQuery() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
@@ -255,10 +250,10 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		s.append("0)");
 
-		return getConnection().prepareStatement(s.toString(), Statement.RETURN_GENERATED_KEYS);
+		return s.toString();
 	}
 	
-	protected PreparedStatement prepareUpdate() throws SQLException {
+	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
@@ -272,31 +267,31 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		s.append("?, 0)");
 
-		return getConnection().prepareStatement(s.toString());
+		return s.toString();
 	}
 
-	protected PreparedStatement prepareSelectMaxVersion() throws SQLException {
+	protected String selectMaxVersionQuery() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("SELECT MAX(version) FROM "); s.append(getTableName()); 
 		s.append(" WHERE id = ?");
 
-		return getConnection().prepareStatement(s.toString());
+		return s.toString();
 	}
 	
-	protected PreparedStatement prepareEnd() throws SQLException {
+	protected String endQuery() {
 		StringBuilder s = new StringBuilder();
 		s.append("UPDATE "); s.append(getTableName()); s.append(" SET version = ? WHERE id = ? AND version = 0");
-		return getConnection().prepareStatement(s.toString());
+		return s.toString();
 	}
 	
-	protected PreparedStatement prepareReadVersions() throws SQLException {
+	protected String readVersionsQuery() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("SELECT version FROM "); s.append(getTableName()); 
 		s.append(" WHERE id = ?");
 
-		return getConnection().prepareStatement(s.toString());
+		return s.toString();
 	}
 
 }

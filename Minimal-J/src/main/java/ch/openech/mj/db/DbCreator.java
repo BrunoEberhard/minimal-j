@@ -35,7 +35,6 @@ public class DbCreator {
 			List<String> createStatements = getCreateStatements(table);
 			for (String createStatement : createStatements) {
 				logger.fine(createStatement);
-				System.out.println(createStatement);
 				statement.execute(createStatement);
 			}
 		} finally {

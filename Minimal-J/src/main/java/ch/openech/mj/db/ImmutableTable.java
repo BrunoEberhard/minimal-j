@@ -3,7 +3,6 @@ package ch.openech.mj.db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 	@Override
 	protected void prepareStatements() throws SQLException {
 		super.prepareStatements();
-		selectIdStatement = prepareSelectId();
+		selectIdStatement = prepare(selectIdQuery());
 	}
 	
 	@Override
@@ -75,11 +74,11 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 	// Statements
 
 	@Override
-	protected PreparedStatement prepareSelectById() throws SQLException {
+	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
 		query.append(" WHERE id = ?");
-		return getConnection().prepareStatement(query.toString());
+		return query.toString();
 	}
 	
 	protected String selectId() throws SQLException {
@@ -104,7 +103,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	protected PreparedStatement prepareInsert() throws SQLException {
+	protected String insertQuery() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
@@ -121,9 +120,8 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 			if (j < size - 1) s.append(", ");
 		}
 		s.append(")");
-		System.out.println(s.toString());
 		
-		return getConnection().prepareStatement(s.toString(), Statement.RETURN_GENERATED_KEYS);
+		return s.toString();
 	}
 
 }

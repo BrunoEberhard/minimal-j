@@ -3,7 +3,6 @@ package ch.openech.mj.db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 import ch.openech.mj.db.model.ColumnProperties;
@@ -32,9 +31,9 @@ public class SubTable extends AbstractTable {
 	@Override
 	public void initialize() throws SQLException {
 		super.initialize();
-		selectByIdAndTimeStatement = prepareSelectByIdAndTime();
-		readVersionsStatement = prepareReadVersions();
-		endStatement = prepareEnd();
+		selectByIdAndTimeStatement = prepare(selectByIdAndTimeQuery());
+		readVersionsStatement = prepare(readVersionsQuery());
+		endStatement = prepare(endQuery());
 	}
 	
 	@Override
@@ -117,25 +116,25 @@ public class SubTable extends AbstractTable {
 		resultSet.close();
 	}
 	
-	// Statements
+	// Queries
 	
-	protected PreparedStatement prepareSelectByIdAndTime() throws SQLException {
+	protected String selectByIdAndTimeQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
 		query.append(" WHERE id = ? AND (startVersion = 0 OR startVersion < ?) AND (endVersion = 0 OR endVersion >= ?) ORDER BY position");
-		return getConnection().prepareStatement(query.toString());
+		return query.toString();
 	}
 	
 	@Override
-	protected PreparedStatement prepareSelectById() throws SQLException {
+	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); query.append(" WHERE id = ?");
 		query.append(" AND endVersion = 0 ORDER BY position");
-		return getConnection().prepareStatement(query.toString());
+		return query.toString();
 	}
 	
 	@Override
-	protected PreparedStatement prepareInsert() throws SQLException {
+	protected String insertQuery() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
@@ -151,22 +150,22 @@ public class SubTable extends AbstractTable {
 		}
 		s.append("?, ?, ?, 0)");
 
-		return getConnection().prepareStatement(s.toString(), Statement.RETURN_GENERATED_KEYS);
+		return s.toString();
 	}
 	
-	protected PreparedStatement prepareEnd() throws SQLException {
+	protected String endQuery() {
 		StringBuilder s = new StringBuilder();
 		s.append("UPDATE "); s.append(getTableName()); s.append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion = 0");
-		return getConnection().prepareStatement(s.toString());
+		return s.toString();
 	}
 	
-	protected PreparedStatement prepareReadVersions() throws SQLException {
+	protected String readVersionsQuery() {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("SELECT startVersion, endVersion FROM "); s.append(getTableName()); 
 		s.append(" WHERE id = ?");
 
-		return getConnection().prepareStatement(s.toString());
+		return s.toString();
 	}
 	
 
