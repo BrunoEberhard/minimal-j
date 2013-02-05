@@ -152,7 +152,8 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(int id) throws SQLException {
-		if (id <= 0) return null;
+		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
+
 		selectByIdStatement.setInt(1, id);
 		T object = executeSelect(selectByIdStatement);
 		if (object != null) {
@@ -161,8 +162,10 @@ public class Table<T> extends AbstractTable<T> {
 		return object;
 	}
 
-	public T read(int id, Integer time) throws SQLException {
-		if (id <= 0) return null;
+	public T read(Integer id, Integer time) throws SQLException {
+		if (id == null) return null;
+		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
+		
 		if (time != null) {
 			selectByIdAndTimeStatement.setInt(1, id);
 			selectByIdAndTimeStatement.setInt(2, time);

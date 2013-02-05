@@ -45,9 +45,9 @@ public abstract class AbstractTable<T> {
 	protected final DbPersistence dbPersistence;
 	protected final Class<T> clazz;
 	protected final List<String> columnNames;
+	protected final Map<String, AbstractTable<?>> subTables;
 	
 	protected final String name;
-	protected Map<String, AbstractTable<?>> subTables = new HashMap<String, AbstractTable<?>>();
 	
 	protected PreparedStatement selectByIdStatement;
 	protected PreparedStatement insertStatement;
@@ -59,6 +59,7 @@ public abstract class AbstractTable<T> {
 		this.name = prefix;
 		this.clazz = clazz;
 		this.columnNames = findColumnNames(clazz);
+		this.subTables = findSubTables();
 	}
 
 	private static List<String> findColumnNames(Class<?> clazz) {
@@ -78,15 +79,13 @@ public abstract class AbstractTable<T> {
 	}
 	
 	public void initialize() throws SQLException {
-		findSubTables();
+		initializeImmutables();
+		initializeSubTables();
+		
 		create();
 		prepareStatements();
-		
-		for (AbstractTable<?> table : subTables.values()) {
-			table.initialize();
-		}
 	}
-	
+
 	public int getMaxId() throws SQLException {
 		ResultSet resultSet = selectMaxIdStatement.executeQuery();
 		try {
@@ -106,10 +105,10 @@ public abstract class AbstractTable<T> {
 	}
 	
 	public void clear() throws SQLException {
-		clearStatement.execute();
 		for (AbstractTable<?> table : subTables.values()) {
 			table.clear();
 		}
+		clearStatement.execute();
 	}
 	
 	protected String getTableName() {
@@ -124,15 +123,17 @@ public abstract class AbstractTable<T> {
 		return clazz;
 	}
 			
-	public void findSubTables() throws SQLException {
+	private Map<String, AbstractTable<?>> findSubTables() {
+		Map<String, AbstractTable<?>> subTables = new HashMap<String, AbstractTable<?>>();
 		Map<String, PropertyInterface> properties = ListColumnProperties.getProperties(clazz);
 		for (PropertyInterface property : properties.values()) {
 			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
 			subTables.put(property.getFieldName(), new SubTable(dbPersistence, buildSubTableName(property), clazz));
 		}
+		return subTables;
 	}
 	
-	public void collectImmutables() throws SQLException {
+	private void initializeImmutables() throws SQLException {
 		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(clazz);
 		for (PropertyInterface property : properties.values()) {
 			if ("id".equals(property.getFieldName())) continue;
@@ -142,10 +143,17 @@ public abstract class AbstractTable<T> {
 					if (property.getFieldClazz().equals(List.class)) {
 						throw new IllegalArgumentException("Table: " + getTableName());
 					}
-					refTable = dbPersistence.addImmutableTable(property.getFieldClazz());
-					refTable.collectImmutables();
+					refTable = dbPersistence.addImmutableClass(property.getFieldClazz());
+					refTable.initialize();
 				}
 			}
+		}
+	}
+
+	private void initializeSubTables() throws SQLException {
+		findSubTables();
+		for (AbstractTable<?> table : subTables.values()) {
+			table.initialize();
 		}
 	}
 
@@ -199,8 +207,6 @@ public abstract class AbstractTable<T> {
 	
 	protected int executeInsertWithAutoIncrement(PreparedStatement statement, T object) throws SQLException {
 		setParameters(statement, object, false, true);
-
-		logger.fine("Insert (autoIncrement) into " + clazz.getSimpleName());
 		statement.execute();
 		ResultSet autoIncrementResultSet = statement.getGeneratedKeys();
 		autoIncrementResultSet.next();
@@ -212,8 +218,6 @@ public abstract class AbstractTable<T> {
 	
 	protected void executeInsert(PreparedStatement statement, T object) throws SQLException {
 		setParameters(statement, object);
-
-		logger.fine("Insert into " + clazz.getSimpleName());
 		statement.execute();
 	}
 
@@ -275,8 +279,7 @@ public abstract class AbstractTable<T> {
 			
 			Class<?> fieldClass = property.getFieldClazz();
 			if (ColumnProperties.isReference(property)) {
-				int id = value != null ? ((Integer) value).intValue() : 0;
-				value = dereference(fieldClass, id, time);
+				value = dereference(fieldClass, (Integer) value, time);
 			} else {
 				value = convertToFieldClass(fieldClass, value);
 			}
@@ -285,7 +288,7 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected <D> Object dereference(Class<D> clazz, int id, Integer time) throws SQLException{
+	protected <D> Object dereference(Class<D> clazz, Integer id, Integer time) throws SQLException{
 		AbstractTable<D> table = dbPersistence.getTable(clazz);
 		if (table instanceof ImmutableTable) {
 			return ((ImmutableTable<?>) table).selectById(id);

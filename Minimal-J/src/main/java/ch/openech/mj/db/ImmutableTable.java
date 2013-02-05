@@ -13,9 +13,6 @@ import ch.openech.mj.model.PropertyInterface;
  * Idee: Immutables können zwar keine SubTables haben, aber immerhin
  * Referenzen, egal ob wieder Immutables oder auf normale Tabellen
  * 
- * Idee2: Die leeren (frisch instanzierten) Objekte einer Klasse haben immer
- * die Id 0! Diese Objekte werden in der Klasse EmptyObjects verwaltet.
- * 
  */
 public class ImmutableTable<T> extends AbstractTable<T> {
 	
@@ -39,9 +36,9 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		super.closeStatements();
 		selectIdStatement.close();
 	}
-	
-	public int getOrCreateId(T object) throws SQLException {
-		if (EmptyObjects.isEmpty(object)) return 0;
+
+	public Integer getOrCreateId(T object) throws SQLException {
+		if (EmptyObjects.isEmpty(object)) return null;
 		
 		Integer id = getId(object);
 		if (id == null) {
@@ -50,18 +47,17 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		return id;
 	}
 	
-	public Integer getId(T object) throws SQLException {
+	private Integer getId(T object) throws SQLException {
 		setParameters(selectIdStatement, object, true, false);
 	
-		ResultSet resultSet = selectIdStatement.executeQuery();
-		Integer result = resultSet.next() ? resultSet.getInt(1) : null;
-		resultSet.close();
-		
-		return result;
+		try (ResultSet resultSet = selectIdStatement.executeQuery()) {
+			Integer result = resultSet.next() ? resultSet.getInt(1) : null;
+			return result;
+		}
 	}
 
-	public T selectById(int id) throws SQLException {
-		if (id == 0) return EmptyObjects.getEmptyObject(getClazz());
+	public T selectById(Integer id) throws SQLException {
+		if (id == null) return EmptyObjects.getEmptyObject(getClazz());
 		
 		selectByIdStatement.setInt(1, id);
 		return executeSelect(selectByIdStatement);

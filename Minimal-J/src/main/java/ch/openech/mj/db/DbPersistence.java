@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -32,7 +32,7 @@ public class DbPersistence {
 	private boolean isDerbyMemoryDb;
 	private boolean isMySqlDb;
 	
-	private final Map<Class<?>, AbstractTable<?>> tables = new HashMap<Class<?>, AbstractTable<?>>();
+	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	
 	public DbPersistence() throws SQLException {
 	}
@@ -67,7 +67,6 @@ public class DbPersistence {
 		connection.setAutoCommit(false);
 		
 		if (!initialized) {
-			collectImmutableTables();
 			initializeTables();
 			initialized = true;
 		}
@@ -112,7 +111,9 @@ public class DbPersistence {
 	public void clear() throws SQLException {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
-			table.clear();
+			if (!(table instanceof ImmutableTable)) {
+				table.clear();
+			}
 		}
 	}
 	
@@ -155,26 +156,20 @@ public class DbPersistence {
 		return table;
 	}
 
-	protected void collectImmutableTables() throws SQLException {
-		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
-		for (AbstractTable<?> table : tableList) {
-			table.collectImmutables();
-		}
+	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) throws SQLException {
+		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
+		tables.put(table.getClazz(), table);
+		return table;
 	}
 	
 	protected void initializeTables() throws SQLException {
-		for (AbstractTable<?> table : tables.values()) {
+		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		for (AbstractTable<?> table : tableList) {
 			table.initialize();
 		}
 		getConnection().commit();
 	}
 
-	<U> ImmutableTable<U> addImmutableTable(Class<U> clazz) throws SQLException {
-		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
-		tables.put(clazz, table);
-		return table;
-	}
-	
 	@SuppressWarnings("unchecked")
 	public <U> ImmutableTable<U> getImmutableTable(Class<U> clazz) throws SQLException {
 		return (ImmutableTable<U>) tables.get(clazz);

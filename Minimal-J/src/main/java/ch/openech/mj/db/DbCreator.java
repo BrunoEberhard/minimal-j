@@ -30,27 +30,21 @@ public class DbCreator {
 	public void create(AbstractTable<?> table) throws SQLException {
 		if (existTable(table)) return;
 		
-		Statement statement = dbPersistence.getConnection().createStatement();
-		try {
+		try (Statement statement = dbPersistence.getConnection().createStatement()) {
 			List<String> createStatements = getCreateStatements(table);
 			for (String createStatement : createStatements) {
 				logger.fine(createStatement);
 				statement.execute(createStatement);
 			}
-		} finally {
-			statement.close();
 		}
 	}
 	
 	public boolean existTable(AbstractTable<?> table) throws SQLException {
-		Statement statement = dbPersistence.getConnection().createStatement();
-		try {
+		try (Statement statement = dbPersistence.getConnection().createStatement()) {
 			statement.execute("select * from " + table.getTableName());
 		} catch (SQLException x) {
 			return false;
-		} finally {
-			statement.close();
-		}
+		} 
 		return true;
 	}
 
@@ -70,30 +64,18 @@ public class DbCreator {
 
 			if (ColumnProperties.isReference(property)) {
 				s.append("INTEGER");
+				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
+				if (referencedTable instanceof ImmutableTable) {
+					s.append(" REFERENCES "); s.append(referencedTable.getTableName());
+				}
+				// note: it's not possible to add a constraint to a versioned table
+				// because of the start/endversion combinations
 			} else {
 				addColumnDefinition(s, property);
 			}
 			
 			s.append(ColumnProperties.isRequired(property) ? " NOT NULL" : " DEFAULT NULL");
-			
-//Eine Referenz auf eine einzelne Spalte, die nicht primary key ist
-//scheint in Derby nicht möglich
-//				
-//				if (attributes.getNamedItem("referencedTable") != null) {
-//					s.append(" CONSTRAINT con_"); s.append(tableName); s.append("_"); s.append(columnName);
-//					String referencedTable = attributes.getNamedItem("referencedTable").getTextContent();
-//					String referencedColumn = attributes.getNamedItem("referencedColumn").getTextContent();
-//					// REFERENCES Cities ON DELETE CASCADE ON UPDATE RESTRICT
-//					s.append(" REFERENCES "); s.append(referencedTable);
-//					s.append(" ("); s.append(referencedColumn);
-//					s.append(") ON DELETE CASCADE");
-//				}
 			s.append(",\n");
-//			} else if ("foreign-key".equals(node.getNodeName())) {
-//				appendConstraint(node, s);
-//				s.append(",\n");
-//			} else if ("index".equals(node.getNodeName())) {
-//				createIndexStatements.add(createIndex(tableName, node));
 		}
 		
 		if (table instanceof Table<?>) {
@@ -109,11 +91,7 @@ public class DbCreator {
 				s.append(",\n PRIMARY KEY (id, startVersion, position)\n");
 			}
 		} else {
-			if (dbPersistence.isMySqlDb()) {
-				s.append(" PRIMARY KEY (id)\n");
-			} else {
-				s.delete(s.length()-2, s.length()-1);
-			}
+			s.append(" PRIMARY KEY (id)\n");
 		}
 		
 		s.append(")");
@@ -123,24 +101,6 @@ public class DbCreator {
 		
 		return createStatements;
 	}
-	
-//	private static String createIndex(String tableName, Node index) {
-//		StringBuilder s = new StringBuilder();
-//		String indexName = index.getAttributes().getNamedItem("name").getTextContent();
-//		s.append("CREATE INDEX "); s.append(indexName); s.append(" ON "); s.append(tableName); s.append(" (");
-//		
-//		List<String> columnNames = new ArrayList<String>();
-//		NodeList nodeList = index.getChildNodes();
-//		for (int j = 0; j<nodeList.getLength(); j++) {
-//			Node node = nodeList.item(j);
-//			if ("index-column".equals(node.getNodeName())) {
-//				columnNames.add(node.getAttributes().getNamedItem("name").getTextContent());
-//			}
-//		}
-//		appendStringList(columnNames, s);
-//		s.append(")");
-//		return s.toString();
-//	}
 	
 	/**
 	 * Only public for tests. If this method doesnt throw an IllegalArgumentException
@@ -210,31 +170,4 @@ public class DbCreator {
 		}
 	}
 	
-	
-//	private static void appendConstraint(Node constraintNode, StringBuilder s) {
-//		List<String> localColumns = new ArrayList<String>();
-//		List<String> foreignColumns = new ArrayList<String>();
-//		NodeList nodeList = constraintNode.getChildNodes();
-//		for (int j = 0; j<nodeList.getLength(); j++) {
-//			Node node = nodeList.item(j);
-//			if ("reference".equals(node.getNodeName())) {
-//				localColumns.add(node.getAttributes().getNamedItem("local").getTextContent());
-//				foreignColumns.add(node.getAttributes().getNamedItem("foreign").getTextContent());
-//			}
-//		}
-//		s.append("CONSTRAINT "); s.append(constraintNode.getAttributes().getNamedItem("name").getTextContent());
-//		s.append(" FOREIGN KEY (");
-//		appendStringList(localColumns, s);
-//		s.append(") REFERENCES "); s.append(constraintNode.getAttributes().getNamedItem("foreignTable").getTextContent());
-//		s.append(" (");
-//		appendStringList(foreignColumns, s);
-//		s.append(")");
-//	}
-//	
-//	private static void appendStringList(List<String> strings, StringBuilder s) {
-//		for (int i = 0; i<strings.size(); i++) {
-//			s.append(strings.get(i));
-//			if (i < strings.size() -1) s.append(", ");
-//		}
-//	}
 }
