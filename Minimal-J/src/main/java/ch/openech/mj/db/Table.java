@@ -143,12 +143,12 @@ public class Table<T> extends AbstractTable<T> {
 	private int findMaxVersion(int id) throws SQLException {
 		int result = 0;
 		selectMaxVersionStatement.setInt(1, id);
-		ResultSet resultSet = selectMaxVersionStatement.executeQuery();
-		if (resultSet.next()) {
-			result = resultSet.getInt(1);
-		} 
-		resultSet.close();
-		return result;
+		try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
+			if (resultSet.next()) {
+				result = resultSet.getInt(1);
+			} 
+			return result;
+		}
 	}
 
 	public T read(int id) throws SQLException {

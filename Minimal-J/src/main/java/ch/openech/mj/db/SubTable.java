@@ -106,14 +106,14 @@ public class SubTable extends AbstractTable {
 	
 	public void readVersions(int parentId, List<Integer> result) throws SQLException {
 		readVersionsStatement.setInt(1, parentId);
-		ResultSet resultSet = readVersionsStatement.executeQuery();
-		while (resultSet.next()) {
-			int version = resultSet.getInt(1);
-			if (!result.contains(version)) result.add(version);
-			int endVersion = resultSet.getInt(2);
-			if (!result.contains(version)) result.add(endVersion);
+		try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
+			while (resultSet.next()) {
+				int version = resultSet.getInt(1);
+				if (!result.contains(version)) result.add(version);
+				int endVersion = resultSet.getInt(2);
+				if (!result.contains(version)) result.add(endVersion);
+			}
 		}
-		resultSet.close();
 	}
 	
 	// Queries

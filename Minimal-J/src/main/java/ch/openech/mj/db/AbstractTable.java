@@ -87,15 +87,12 @@ public abstract class AbstractTable<T> {
 	}
 
 	public int getMaxId() throws SQLException {
-		ResultSet resultSet = selectMaxIdStatement.executeQuery();
-		try {
+		try (ResultSet resultSet = selectMaxIdStatement.executeQuery()) {
 			if (resultSet.next()) {
 				return resultSet.getInt(1);
 			} else {
 				return 0;
 			}
-		} finally {
-			resultSet.close();
 		}
 	}
 	
@@ -208,12 +205,12 @@ public abstract class AbstractTable<T> {
 	protected int executeInsertWithAutoIncrement(PreparedStatement statement, T object) throws SQLException {
 		setParameters(statement, object, false, true);
 		statement.execute();
-		ResultSet autoIncrementResultSet = statement.getGeneratedKeys();
-		autoIncrementResultSet.next();
-		Integer id = autoIncrementResultSet.getInt(1);
-		logger.finer("AutoIncrement is " + id);
-		autoIncrementResultSet.close();
-		return id;
+		try (ResultSet autoIncrementResultSet = statement.getGeneratedKeys()) {
+			autoIncrementResultSet.next();
+			Integer id = autoIncrementResultSet.getInt(1);
+			logger.finer("AutoIncrement is " + id);
+			return id;
+		}
 	}
 	
 	protected void executeInsert(PreparedStatement statement, T object) throws SQLException {
@@ -226,29 +223,23 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected T executeSelect(PreparedStatement preparedStatement, Integer time) throws SQLException {
-		T result;
-		
-		ResultSet resultSet = preparedStatement.executeQuery();
-		if (resultSet.next()) {
-			result = readResultSetRow(resultSet, time).object;
-		} else {
-			result = null;
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			if (resultSet.next()) {
+				return readResultSetRow(resultSet, time).object;
+			} else {
+				return null;
+			}
 		}
-		
-		resultSet.close();
-		return result;
 	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) throws SQLException {
 		List<T> result = new ArrayList<T>();
-		
-		ResultSet resultSet = preparedStatement.executeQuery();
-		while (resultSet.next()) {
-			T object = readResultSetRow(resultSet, null).object;
-			result.add(object);
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			while (resultSet.next()) {
+				T object = readResultSetRow(resultSet, null).object;
+				result.add(object);
+			}
 		}
-		
-		resultSet.close();
 		return result;
 	}
 	
