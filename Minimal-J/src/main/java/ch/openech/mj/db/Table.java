@@ -130,13 +130,7 @@ public class Table<T> extends AbstractTable<T> {
 			} catch (IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			}
-			boolean loaded = true;
-			if (list instanceof DbList) {
-				loaded = ((DbList) list).isLoaded();
-			}
-			if (loaded) {
-				historizedSubTable.update(id, list, version);
-			}
+			historizedSubTable.update(id, list, version);
 		}
 	}
 	
