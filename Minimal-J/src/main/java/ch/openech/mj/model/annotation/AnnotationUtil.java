@@ -79,8 +79,4 @@ public class AnnotationUtil {
 		return property.getAnnotation(Negative.class) != null;
 	}
 	
-	public static boolean isPartialDate(PropertyInterface property) {
-		return property.getAnnotation(PartialDate.class) != null;
-	}
-
 }

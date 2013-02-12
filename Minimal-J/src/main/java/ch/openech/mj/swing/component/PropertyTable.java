@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
@@ -36,6 +37,7 @@ public class PropertyTable<T> extends JTable {
 		setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
 		setDefaultRenderer(LocalTime.class, new DateTableCellRenderer());
 		setDefaultRenderer(LocalDateTime.class, new DateTableCellRenderer());
+		setDefaultRenderer(ReadablePartial.class, new DateTableCellRenderer());
 		
 		setAutoCreateRowSorter(true);
 	}

@@ -6,7 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.LocalDate;
+import org.joda.time.Partial;
+import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -16,6 +19,9 @@ import ch.openech.mj.model.annotation.Size;
 
 public class DateUtils {
 	private static final Logger logger = Logger.getLogger(DateUtils.class.getName());
+	
+	private static final DateTimeFieldType[] DATE_TIME_FIELD_TYPES_WITH_DAYS = new DateTimeFieldType[]{DateTimeFieldType.year(), DateTimeFieldType.monthOfYear(), DateTimeFieldType.dayOfMonth()};
+	private static final DateTimeFieldType[] DATE_TIME_FIELD_TYPES_WITHOUT_DAYS = new DateTimeFieldType[]{DateTimeFieldType.year(), DateTimeFieldType.monthOfYear()};
 
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HH:mm");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormat.forPattern("HH:mm:ss");
@@ -52,20 +58,22 @@ public class DateUtils {
 		}
 	}
 	
-	public static String parseCH(String text) {
-		return parseCH(text, true);
-	}
-	
-	public static String parseCH(String text, boolean partialAllowed) {
-		if (!StringUtils.isEmpty(text)) {
-			while (text.length() > 0 && !Character.isDigit(text.charAt(0))) {
-				text = text.substring(1);
-			}
-		}
+	/**
+	 * Converts a CH - Date String in a yyyy-mm-dd String. The conversion
+	 * is very lenient and tries to convert as long as its somehow clear
+	 * what the user may have wanted.
+	 * 
+	 * @param inputText The input text. Maybe empty or <code>null</code>.
+	 * @param partialAllowed false if the inputText has to be a complete date with month and day
+	 * @return null if the input text is empty (<code>null</code> or length 0). An empty String
+	 * if the input text doesn't fit a date or a String in format yyyy-mm-dd (or yyyy-mm or even
+	 * yyyy if partial allowed)
+	 */
+	public static String parseCH(String inputText, boolean partialAllowed) {
+		if (StringUtils.isEmpty(inputText)) return null;
+		String text = cutNonDigitsAtBegin(inputText);
 		if (StringUtils.isEmpty(text)) return "";
-		while (text.length() > 0 && !Character.isDigit(text.charAt(text.length()-1))) {
-			text = text.substring(0, text.length()-1);
-		}
+		text = cutNonDigitsAtEnd(text);
 		if (StringUtils.isEmpty(text)) return "";
 		
 		// Nun hat der String sicher keinen Punkt mehr am Anfang oder Ende
@@ -101,7 +109,7 @@ public class DateUtils {
 			return "";
 		}
 		
-		for (int i = 0; i<text.length(); i++) {
+		for (int i = 0; i<length; i++) {
 			if (!Character.isDigit(text.charAt(i))) return "";
 		}
 		
@@ -114,9 +122,57 @@ public class DateUtils {
 		} else if (length == 8) {
 			// DDMMYYYY
 			return completeYear(text.substring(4, 8)) + "-" + text.substring(2, 4) + "-" + text.substring(0, 2);
+		} else {
+			return "";
 		}
+	}
+	
+	/**
+	 * 
+	 * @param text Date in format yyyy-mm-dd or yyyy-mm or yyyy
+	 * @return <code>null</code> if input text is null or a partial if the input text is valid
+	 * @throws IllegalArgumentException if the input doesn't fit one of the patterns. Also if input is an empty String.
+	 */
+	public static Partial parsePartial(final String text) {
+		if (text == null) return null;
 		
-		return "";
+		int length = text.length();
+		if (length == 4) {
+			return newPartial(text);
+		} else if (length == 7) {
+			return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7));
+		} else if (length == 10) {
+			return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7), text.substring(8, 10));
+		} else {
+			throw new IllegalArgumentException(text);
+		}
+	}
+
+	private static String cutNonDigitsAtBegin(String text) {
+		while (text.length() > 0 && !Character.isDigit(text.charAt(0))) {
+			text = text.substring(1);
+		}
+		return text;
+	}
+
+	private static String cutNonDigitsAtEnd(String text) {
+		while (text.length() > 0 && !Character.isDigit(text.charAt(text.length()-1))) {
+			text = text.substring(0, text.length()-1);
+		}
+		return text;
+	}
+
+	public static Partial newPartial(String year) {
+		return new Partial(DateTimeFieldType.year(), Integer.parseInt(year));
+	}
+
+	public static Partial newPartial(String year, String month) {
+		return new Partial(DATE_TIME_FIELD_TYPES_WITHOUT_DAYS, new int[]{Integer.parseInt(year), Integer.parseInt(month)});
+	}
+
+	public static Partial newPartial(String year, String month, String day) {
+		return new Partial(DATE_TIME_FIELD_TYPES_WITH_DAYS, //
+				new int[]{Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day)});
 	}
 
 	public static String parseUS(String text) {
@@ -221,5 +277,59 @@ public class DateUtils {
 		}
 	}
 
+	public static String formatPartial(ReadablePartial value) {
+		if (value == null) return null;
+		StringBuilder s = new StringBuilder();
+		s.append(value.get(DateTimeFieldType.year()));
+		if (s.length() > 4) throw new IllegalArgumentException(value.toString());
+		while (s.length() < 4) {
+			s.insert(0, "0");
+		}
+		if (value.isSupported(DateTimeFieldType.monthOfYear())) {
+			s.append("-");
+			int month = value.get(DateTimeFieldType.monthOfYear());
+			if (month < 10) s.append("0");
+			s.append(month);
+			if (value.isSupported(DateTimeFieldType.dayOfMonth())) {
+				s.append("-");
+				int day = value.get(DateTimeFieldType.dayOfMonth());
+				if (day < 10) s.append("0");
+				s.append(day);
+			}
+		}
+		return s.toString();
+	}
 	
+	public static String formatPartialCH(ReadablePartial value) {
+		if (value == null) return null;
+
+		StringBuilder s = new StringBuilder();
+		if (value.isSupported(DateTimeFieldType.dayOfMonth())) {
+			int day = value.get(DateTimeFieldType.dayOfMonth());
+			if (day < 10) s.append("0");
+			s.append(day);
+			s.append(".");
+		}
+		if (value.isSupported(DateTimeFieldType.monthOfYear())) {
+			int month = value.get(DateTimeFieldType.monthOfYear());
+			if (month < 10) s.append("0");
+			s.append(month);
+			s.append(".");
+		}
+		// TODO year < 1000 in DateUtils.formatPartialCH
+		s.append(value.get(DateTimeFieldType.year()));
+		return s.toString();
+	}
+
+	public static LocalDate convertToLocalDate(ReadablePartial value) {
+		if (value == null) return null;
+		if (value.isSupported(DateTimeFieldType.dayOfMonth())) {
+			return new LocalDate(value.get(DateTimeFieldType.year()), //
+					value.get(DateTimeFieldType.monthOfYear()), //
+					value.get(DateTimeFieldType.dayOfMonth()));
+		} else {
+			return null;
+		}
+	}
+
 }

@@ -3,6 +3,7 @@ package ch.openech.mj.util;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -29,6 +30,9 @@ public class JodaFormatter {
 				localDateTimeFormatter = DateTimeFormat.mediumDateTime();
 			}
 			return localDateTimeFormatter.print((LocalDateTime) value);
+		}
+		if (value instanceof ReadablePartial) {
+			return DateUtils.formatPartialCH((ReadablePartial) value);
 		}
 		return value.toString();
 	}

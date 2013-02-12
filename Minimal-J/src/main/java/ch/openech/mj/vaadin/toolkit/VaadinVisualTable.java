@@ -3,7 +3,7 @@ package ch.openech.mj.vaadin.toolkit;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.base.BaseLocal;
+import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
@@ -101,7 +101,7 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 	protected String formatPropertyValue(Object rowId, Object colId,
 			Property property) {
 		Object v = property.getValue();
-		if (v instanceof BaseLocal) {
+		if (v instanceof ReadablePartial) {
 			return jodaFormatter.format(v, (PropertyInterface) colId);
 		}
 		return super.formatPropertyValue(rowId, colId, property);

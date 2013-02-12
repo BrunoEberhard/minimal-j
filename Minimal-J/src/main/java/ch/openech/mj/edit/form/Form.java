@@ -16,13 +16,14 @@ import javax.swing.event.ChangeListener;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.autofill.DemoEnabled;
+import ch.openech.mj.edit.fields.AbstractJodaField;
 import ch.openech.mj.edit.fields.BigDecimalEditField;
 import ch.openech.mj.edit.fields.CheckBoxStringField;
 import ch.openech.mj.edit.fields.CodeEditField;
 import ch.openech.mj.edit.fields.CodeFormField;
-import ch.openech.mj.edit.fields.DateField;
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.edit.fields.Enable;
 import ch.openech.mj.edit.fields.EnumEditField;
@@ -33,7 +34,6 @@ import ch.openech.mj.edit.fields.NumberFormField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TextFormatField;
-import ch.openech.mj.edit.fields.TimeField;
 import ch.openech.mj.edit.fields.TypeUnknownField;
 import ch.openech.mj.edit.value.Properties;
 import ch.openech.mj.model.Keys;
@@ -42,7 +42,6 @@ import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.Changes;
 import ch.openech.mj.model.annotation.Enabled;
 import ch.openech.mj.model.annotation.OnChange;
-import ch.openech.mj.model.annotation.PartialDate;
 import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.Caption;
@@ -151,10 +150,11 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 					return new CodeEditField(property, codeName);
 				}
 			} else if (fieldClass == LocalDate.class) {
-				boolean partialAllowed = property.getAnnotation(PartialDate.class) != null;
-				return new DateField(property, partialAllowed, editable);
+				return new AbstractJodaField.JodaDateField(property, editable);
 			} else if (fieldClass == LocalTime.class) {
-				return new TimeField(property, editable);
+				return new AbstractJodaField.JodaTimeField(property, editable);
+			} else if (fieldClass == ReadablePartial.class) {
+				return new AbstractJodaField.JodaPartialField(property, editable);
 			} else if (Enum.class.isAssignableFrom(fieldClass)) {
 				return new EnumEditField(property);
 			} else if (fieldClass == Boolean.class) {
@@ -181,8 +181,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 					return new CodeFormField(property, codeName);
 				}
 			}
-			else if (fieldClass == LocalDate.class) return new DateField(property, true, false);
-			else if (fieldClass == LocalTime.class) return new TimeField(property, false);
+			else if (fieldClass == ReadablePartial.class) return new AbstractJodaField.JodaPartialField(property, false);
+			else if (fieldClass == LocalDate.class) return new AbstractJodaField.JodaDateField(property, false);
+			else if (fieldClass == LocalTime.class) return new AbstractJodaField.JodaTimeField(property, false);
 			else if (Enum.class.isAssignableFrom(fieldClass)) return new EnumFormField(property);
 			else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");

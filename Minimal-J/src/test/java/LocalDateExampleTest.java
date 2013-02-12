@@ -38,7 +38,7 @@ public class LocalDateExampleTest {
 	}
 	
 	@Test
-	public void testParseAndFormatPartial() {
+	public void testParse() {
 		Locale.setDefault(Locale.GERMAN);
 		ReadablePartial p = new Partial(DateTimeFieldType.year(), 2012);
 		Assert.assertEquals(2012, p.get(DateTimeFieldType.year()));

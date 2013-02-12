@@ -17,6 +17,7 @@ import org.apache.derby.client.am.Types;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.db.model.ListColumnProperties;
@@ -24,6 +25,7 @@ import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
@@ -341,13 +343,13 @@ public abstract class AbstractTable<T> {
 		} else if (fieldClass == LocalDate.class) {
 			if (value instanceof java.sql.Date) {
 				value = new LocalDate((java.sql.Date) value);
-			} else if (value != null) {
+			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == LocalTime.class) {
 			if (value instanceof java.sql.Time) {
 				value = new LocalTime((java.sql.Time) value);
-			} else if (value != null) {
+			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == LocalDateTime.class) {
@@ -355,6 +357,16 @@ public abstract class AbstractTable<T> {
 				value = new LocalDateTime((java.sql.Timestamp) value);
 			} else if (value instanceof java.sql.Date) {
 				value = new LocalDateTime((java.sql.Date) value);
+			} else {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
+		} else if (fieldClass == ReadablePartial.class) {
+			if (value instanceof String) {
+				String text = ((String) value).trim(); // cut the spaces from CHAR - Column
+				value = DateUtils.parsePartial(text);
+			} else if (value instanceof java.sql.Date) {
+				// this should not happen, but is maybe usefull for migrating a DB
+				value = new LocalDate(((java.sql.Date) value).getTime());
 			} else if (value != null) {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
@@ -419,6 +431,8 @@ public abstract class AbstractTable<T> {
 				} else {
 					value = new java.sql.Date(((LocalDateTime) value).toDate().getTime());
 				}
+			} else if (value instanceof ReadablePartial) {
+				value = DateUtils.formatPartial((ReadablePartial) value);
 			}
 			preparedStatement.setObject(param, value);
 		} 
@@ -437,8 +451,14 @@ public abstract class AbstractTable<T> {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (clazz == LocalDate.class) {
 			preparedStatement.setNull(param, Types.DATE);
+		} else if (clazz == LocalTime.class) {
+			preparedStatement.setNull(param, Types.TIME);
+		} else if (clazz == LocalDateTime.class) {
+			preparedStatement.setNull(param, Types.DATE);
 		} else if (dbPersistence.getTable(clazz) != null) {
 			preparedStatement.setNull(param, Types.INTEGER);
+		} else if (clazz == ReadablePartial.class) {
+			preparedStatement.setNull(param, Types.CHAR);
 		} else {
 			throw new IllegalArgumentException(clazz.getSimpleName());
 		}

@@ -12,10 +12,10 @@ import ch.openech.mj.model.InvalidValues;
 // Not used at the moment. Swing specific
 public class DateKeyListener extends KeyAdapter {
 
-	private DateField dateField;
+	private AbstractJodaField.JodaDateField dateField;
 	private static Calendar END;
 	
-	public DateKeyListener(DateField dateField) {
+	public DateKeyListener(AbstractJodaField.JodaDateField dateField) {
 		this.dateField = dateField;
 		if (END == null) {
 			END = Calendar.getInstance();

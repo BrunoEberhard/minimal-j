@@ -7,6 +7,7 @@ import java.util.WeakHashMap;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.Partial;
 
 public class InvalidValues {
 
@@ -40,6 +41,12 @@ public class InvalidValues {
 		Enum<T> e = EnumUtils.createEnum(enumClass, "INVALID");
 		values.put(e, value);
 		return e;
+	}
+
+	public static Partial createInvalidPartial(String string) {
+		Partial partial = new Partial();
+		values.put(partial, string);
+		return partial;
 	}
 
 	public static LocalDate createInvalidLocalDate(String string) {

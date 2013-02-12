@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.model.PropertyInterface;
@@ -149,6 +150,8 @@ public class DbCreator {
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			// TODO MySql enum?S
 			s.append("INTEGER");
+		} else if (clazz.equals(ReadablePartial.class)) {
+			s.append("CHAR (10)");
 		} else {
 			throw new IllegalArgumentException(property.getFieldName() +": " + clazz.toString());
 		}

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.joda.time.Partial;
+import org.joda.time.ReadablePartial;
+
 import ch.openech.mj.edit.value.Properties;
 
 public class Keys {
@@ -110,6 +113,8 @@ public class Keys {
 			return new Boolean(false);
 		} else if (type == BigDecimal.class) {
 			return new BigDecimal(0);
+		} else if (type == ReadablePartial.class) {
+			return new Partial();
 		} else {
 			// note: LocalDate, LocaleDateTime etc have an empty constructor
 			// so they are constructed in the else branch
