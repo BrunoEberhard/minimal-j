@@ -69,14 +69,13 @@ public abstract class AbstractJodaField<T> extends AbstractEditField<T> implemen
 
 	public void setEnabled(boolean enabled) {
 		textField.setEnabled(enabled);
-		if (!enabled) {
-			setObject(null);
-		}
+//		if (!enabled) {
+//			setObject(null);
+//		}
 	}
 	
 	
 	public static class JodaPartialField extends AbstractJodaField<ReadablePartial> {
-		private static final DateTimeFormatter DATE_FORMATTER = ISODateTimeFormat.date();
 
 		public JodaPartialField(PropertyInterface property, boolean editable) {
 			super(property, editable);
@@ -121,7 +120,7 @@ public abstract class AbstractJodaField<T> extends AbstractEditField<T> implemen
 
 		@Override
 		public void fillWithDemoData() {
-			// TODO fillWithDemoData for Partial Date Field
+			setObject(DateGenerator.generateRandomDate());
 		}
 
 	}
