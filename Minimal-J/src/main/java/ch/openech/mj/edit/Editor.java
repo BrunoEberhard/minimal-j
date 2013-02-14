@@ -143,7 +143,8 @@ public abstract class Editor<T> {
 			editedObject = newInstance();
 		}
 		form.setObject(editedObject);
-		
+		updateValidation();
+
 		userEdited = false;
 		form.setChangeListener(new EditorChangeListener());
 		
@@ -241,10 +242,6 @@ public abstract class Editor<T> {
 	
 	private class EditorChangeListener implements ChangeListener {
 
-		public EditorChangeListener() {
-			updateValidation();
-		}
-		
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			FormChangeEvent event = (FormChangeEvent) e;
