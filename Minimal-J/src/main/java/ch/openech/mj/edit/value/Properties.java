@@ -35,6 +35,10 @@ public class Properties {
 			return null;
 		}
 	}
+
+	public static PropertyInterface getProperty(Field field) {
+		return getProperty(field.getDeclaringClass(), field.getName());
+	}
 	
 	public static void set(Object object, String fieldName, Object value) {
 		if (fieldName == null) throw new NullPointerException();
