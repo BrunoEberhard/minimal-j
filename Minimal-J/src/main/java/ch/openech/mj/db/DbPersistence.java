@@ -14,6 +14,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ch.openech.mj.model.test.ModelTest;
+
 public class DbPersistence {
 	public static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	
@@ -38,7 +40,21 @@ public class DbPersistence {
 	}
 	
 	public void connect() throws SQLException {
+		testModel();
 		connect(DEFAULT_URL, USER, PASSWORD);
+	}
+
+	private void testModel() {
+		ModelTest test = new ModelTest();
+		for (Class<?> c : tables.keySet()) {
+			test.test(c);
+		}
+		if (!test.getProblems().isEmpty()) {
+			for (String s : test.getProblems()) {
+				logger.severe(s);
+			}
+			throw new IllegalArgumentException();
+		}
 	}
 	
 	public void connect(String connectionUrl, String user, String password) throws SQLException {
