@@ -126,8 +126,10 @@ public class ColumnProperties {
 		for (PropertyInterface property : properties.values()) {
 			List fromList = (List) property.getValue(from);
 			List toList = (List)property.getValue(to);
-			toList.clear();
-			toList.addAll(fromList);
+			if (fromList != toList) {
+				toList.clear();
+				toList.addAll(fromList);
+			}
 		}
 	}
 	
