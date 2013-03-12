@@ -20,6 +20,12 @@ import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
 
+/**
+ * Test some restricitions on model classes.<p>
+ * 
+ * These tests are called by JUnit tests but also by DbPersistence.
+ * They are fast and its better to see problems at startup of an application.
+ */
 public class ModelTest {
 
 	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
@@ -43,12 +49,13 @@ public class ModelTest {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void testConstructor(Class<?> clazz)  {
 		if (Enum.class.isAssignableFrom(clazz)) {
 			try {
 				EnumUtils.createEnum((Class<Enum>) clazz, "Test");
 			} catch (Exception e) {
-				problems.add("Not possible to create runtime instance of enum " + clazz.getName() + ". Possibly ther is no empty constructor");
+				problems.add("Not possible to create runtime instance of enum " + clazz.getName() + ". Possibly there is no empty constructor");
 			}
 		} else {
 			try {
