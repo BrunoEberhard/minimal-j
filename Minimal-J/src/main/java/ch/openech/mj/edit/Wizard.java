@@ -20,12 +20,14 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	protected final Action prevAction;
 	protected final Action nextAction;
+	protected final Action finishAction;
 	private SwitchForm<T> switchForm;
 	private final Indicator indicator;
 	
 	protected Wizard() {
 		nextAction = createNextAction();
 		prevAction = createPrevAction();
+		finishAction = createFinishAction();
 		indicator = new WizardIndicator();
 	}
 
@@ -33,7 +35,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	@Override
 	public Action[] getActions() {
-		return new Action[]{demoAction(), cancelAction(), prevAction, nextAction, saveAction()};
+		return new Action[]{demoAction(), cancelAction(), prevAction, nextAction, finishAction};
 	}
 
 	protected int getCurrentStepIndex() {
@@ -68,6 +70,17 @@ public abstract class Wizard<T> extends Editor<T> {
 		return action;
 	}
 
+	protected final Action createFinishAction() {
+		Action action = new SaveAction("OkAction") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				currentStep.save();
+				save();
+			}
+		};
+		return action;
+	}
+	
 	@Override
 	protected final IForm<T> createForm() {
 		switchForm = new SwitchForm<T>();
@@ -95,9 +108,6 @@ public abstract class Wizard<T> extends Editor<T> {
 	}
 
 	@Override
-	protected abstract T load();
-
-	@Override
 	protected abstract boolean save(T object) throws Exception;
 	
 	private class WizardIndicator implements Indicator {
@@ -105,7 +115,7 @@ public abstract class Wizard<T> extends Editor<T> {
 		@Override
 		public void setValidationMessages(List<ValidationMessage> validationResult) {
 			nextAction.setEnabled(validationResult.isEmpty());
-			saveAction().setEnabled(validationResult.isEmpty() && currentStep.canFinish());
+			finishAction.setEnabled(validationResult.isEmpty() && currentStep.canFinish());
 		}
 	}
 
