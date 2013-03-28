@@ -30,21 +30,25 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 				// TODO the updateComponentTreeUI uses 4-5ms. This should only be done if necessary (if l&f has changed)
 				SwingUtilities.updateComponentTreeUI(component);
 				add(component, BorderLayout.CENTER);
-			}
-			SwingInternalFrame swingInternalFrame = getInternalFrameAncestor(component);
-			if (swingInternalFrame != null) {
-				swingInternalFrame.pack();
-			} else {
-				Window window = SwingUtilities.getWindowAncestor(component);
-				if (window instanceof Dialog) {
-					window.pack();
-				} else {
-					revalidate();
-					repaint();
-				}
+				refresh(component);
 			}
 		}
 		shownComponent = c;
+	}
+
+	private void refresh(Component component) {
+		SwingInternalFrame swingInternalFrame = getInternalFrameAncestor(component);
+		if (swingInternalFrame != null) {
+			swingInternalFrame.pack();
+		} else {
+			Window window = SwingUtilities.getWindowAncestor(component);
+			if (window instanceof Dialog) {
+				window.pack();
+			} else {
+				revalidate();
+				repaint();
+			}
+		}
 	}
 
 	private SwingInternalFrame getInternalFrameAncestor(Component component) {
