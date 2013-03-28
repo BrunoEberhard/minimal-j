@@ -66,7 +66,7 @@ public class Table<T> extends AbstractTable<T> {
 		objectIds.put(object, Integer.valueOf(id));
 	}
 
-	public Integer getId(Object object) {
+	public Integer getId(T object) {
 		return objectIds.get(object);
 	}
 
