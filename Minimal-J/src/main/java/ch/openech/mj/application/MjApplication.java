@@ -3,6 +3,8 @@ package ch.openech.mj.application;
 import java.util.ResourceBundle;
 
 import ch.openech.mj.page.ActionGroup;
+import ch.openech.mj.page.EmptyPage;
+import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
 
@@ -63,6 +65,10 @@ public abstract class MjApplication {
 	public abstract Class<?> getPreferencesClass();
 	
 	public abstract Class<?>[] getSearchClasses();
+	
+	public Page createDefaultPage(PageContext context) {
+		return new EmptyPage(context);
+	}
 	
 	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
 		// should be done in subclass

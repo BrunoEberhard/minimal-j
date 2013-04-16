@@ -116,42 +116,44 @@ public abstract class Page {
 	}
 	
 	public static Page createPage(PageContext context, String pageLink) {
+		if (StringUtils.isEmpty(pageLink)) {
+			return MjApplication.getApplication().createDefaultPage(context);
+		}
 		try {
-			if (!StringUtils.isEmpty(pageLink)) {
-				int pos = pageLink.indexOf('/');
-				String className = pos > 0 ? pageLink.substring(0, pos) : pageLink;
-				String fullClassName;
-				if (EditorPage.class.getSimpleName().equals(className)) {
-					fullClassName = EditorPage.class.getName();
-				} else if (EmptyPage.class.getSimpleName().equals(className)) {
-					fullClassName = EmptyPage.class.getName();
-				} else {
-					fullClassName = MjApplication.getCompletePackageName("page") + "." + className;
-				}
-				Class<?> clazz = Class.forName(fullClassName);
-				if (pos > 0) {
-					String[] fragmentParts = pageLink.substring(pos+1).split("/");
-					if (fragmentParts.length > 1) {
-						Class<?>[] argumentClasses = new Class[2];
-						argumentClasses[0] = PageContext.class;
-						argumentClasses[1] = new String[0].getClass();
-						return (Page) clazz.getConstructor(argumentClasses).newInstance(new Object[]{context, fragmentParts});
-					} else {
-						Class<?>[] argumentClasses = new Class[2];
-						argumentClasses[0] = PageContext.class;
-						argumentClasses[1] = String.class;
-						return (Page) clazz.getConstructor(argumentClasses).newInstance(context, fragmentParts[0]);
-					}
-				} else {
-					Class<?>[] argumentClasses = new Class[1];
+			int pos = pageLink.indexOf('/');
+			String className = pos > 0 ? pageLink.substring(0, pos) : pageLink;
+			String fullClassName;
+			if (EditorPage.class.getSimpleName().equals(className)) {
+				fullClassName = EditorPage.class.getName();
+			} else if (EmptyPage.class.getSimpleName().equals(className)) {
+				fullClassName = EmptyPage.class.getName();
+			} else {
+				fullClassName = MjApplication.getCompletePackageName("page") + "." + className;
+			}
+			Class<?> clazz = Class.forName(fullClassName);
+			if (pos > 0) {
+				String[] fragmentParts = pageLink.substring(pos+1).split("/");
+				if (fragmentParts.length > 1) {
+					Class<?>[] argumentClasses = new Class[2];
 					argumentClasses[0] = PageContext.class;
-					return (Page) clazz.getConstructor(argumentClasses).newInstance(context);
+					argumentClasses[1] = new String[0].getClass();
+					return (Page) clazz.getConstructor(argumentClasses).newInstance(new Object[]{context, fragmentParts});
+				} else {
+					Class<?>[] argumentClasses = new Class[2];
+					argumentClasses[0] = PageContext.class;
+					argumentClasses[1] = String.class;
+					return (Page) clazz.getConstructor(argumentClasses).newInstance(context, fragmentParts[0]);
 				}
+			} else {
+				Class<?>[] argumentClasses = new Class[1];
+				argumentClasses[0] = PageContext.class;
+				return (Page) clazz.getConstructor(argumentClasses).newInstance(context);
 			}
 		} catch (Exception x) {
 			logger.log(Level.SEVERE, "UriFragment Auflösung fehlgeschlagen: " + pageLink, x);
+			// TODO It would be nice to have here an error page instead of an empty page
+			return new EmptyPage(context);
 		}
-		return new EmptyPage(context);
 	}
 
 
