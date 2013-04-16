@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
 
 import ch.openech.mj.db.model.ColumnProperties;
 
@@ -80,30 +81,40 @@ public class Table<T> extends AbstractTable<T> {
 //		return result;
 //	}
 	
-	public int insert(T object) throws SQLException {
-		int id = executeInsertWithAutoIncrement(insertStatement, object);
-		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-			SubTable historizedSubTable = (SubTable) subTable.getValue();
-			List list;
-			try {
-				list = (List)ColumnProperties.getValue(object, subTable.getKey());
-				if (list != null && !list.isEmpty()) {
-					historizedSubTable.insert(id, list, Integer.valueOf(0));
+	public int insert(T object) {
+		try {
+			int id = executeInsertWithAutoIncrement(insertStatement, object);
+			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
+				SubTable historizedSubTable = (SubTable) subTable.getValue();
+				List list;
+				try {
+					list = (List)ColumnProperties.getValue(object, subTable.getKey());
+					if (list != null && !list.isEmpty()) {
+						historizedSubTable.insert(id, list, Integer.valueOf(0));
+					}
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
 				}
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-//			} catch (IllegalAccessException e) {
-//				throw new RuntimeException(e);
 			}
+			registerObjectId(object, id);
+			return id;
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
+			logger.log(Level.FINE, "Object: " + object);
+			throw new RuntimeException("Couldn't insert object into " + getTableName() + " / Object: " + object);
 		}
-		registerObjectId(object, id);
-		return id;
 	}
 
-	public void update(T object) throws SQLException {
+	public void update(T object) {
 		Integer id = getId(object);
 		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
-		update(id.intValue(), object);
+		try {
+			update(id.intValue(), object);
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
+			logger.log(Level.FINE, "Object: " + object);
+			throw new RuntimeException("Couldn't update object on " + getTableName() + " / Object: " + object);
+		}
 	}
 	
 	private void update(int id, T object) throws SQLException {

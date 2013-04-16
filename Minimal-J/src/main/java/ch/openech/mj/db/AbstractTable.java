@@ -88,13 +88,16 @@ public abstract class AbstractTable<T> {
 		prepareStatements();
 	}
 
-	public int getMaxId() throws SQLException {
+	public int getMaxId() {
 		try (ResultSet resultSet = selectMaxIdStatement.executeQuery()) {
 			if (resultSet.next()) {
 				return resultSet.getInt(1);
 			} else {
 				return 0;
 			}
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Couldn't get max Id of " + getTableName(), x);
+			throw new RuntimeException("Couldn't get max Id of " + getTableName());
 		}
 	}
 	
@@ -103,11 +106,16 @@ public abstract class AbstractTable<T> {
 		creator.create(this);
 	}
 	
-	public void clear() throws SQLException {
+	public void clear() {
 		for (AbstractTable<?> table : subTables.values()) {
 			table.clear();
 		}
-		clearStatement.execute();
+		try {
+			clearStatement.execute();
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Clear of Table " + getTableName() + " failed", x);
+			throw new RuntimeException("Clear of Table " + getTableName() + " failed");
+		}
 	}
 	
 	protected String getTableName() {

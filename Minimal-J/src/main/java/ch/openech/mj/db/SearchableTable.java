@@ -62,7 +62,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public void initializeIndex() throws SQLException {
+	private void initializeIndex() {
 		if (directory == null) {
 			directory = new RAMDirectory();
 			try {
@@ -86,22 +86,27 @@ public abstract class SearchableTable<T> extends Table<T> {
 		return executeSelectAll(selectAll);
 	}
 	
-	protected void refillIndex() throws SQLException {
-		ResultSet resultSet = selectAll.executeQuery();
-		int count = 0;
-		while (resultSet.next()) {
-			ObjectWithId<T> objectWithId = readResultSetRow(resultSet, null);
-			writeInIndex(objectWithId.id, objectWithId.object);
-			if (logger.isLoggable(Level.FINER)) logger.finer("RefillIndex: " + getClazz() + " / " + objectWithId.id);
-			count++;
+	protected void refillIndex() {
+		try {
+			ResultSet resultSet = selectAll.executeQuery();
+			int count = 0;
+			while (resultSet.next()) {
+				ObjectWithId<T> objectWithId = readResultSetRow(resultSet, null);
+				writeInIndex(objectWithId.id, objectWithId.object);
+				if (logger.isLoggable(Level.FINER)) logger.finer("RefillIndex: " + getClazz() + " / " + objectWithId.id);
+				count++;
+			}
+			resultSet.close();
+			logger.fine("Refilled the index " + getClazz() +" with " + count);
+			logger.fine("Size of index is " + directory.sizeInBytes());
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Couldn't refill index on " + getTableName(), x);
+			throw new RuntimeException("Couldn't refill index on " + getTableName());
 		}
-		resultSet.close();
-		logger.fine("Refilled the index " + getClazz() +" with " + count);
-		logger.fine("Size of index is " + directory.sizeInBytes());
 	}
 	
 	@Override
-	public int insert(T object) throws SQLException {
+	public int insert(T object) {
 		initializeIndex();
 		int id = super.insert(object);
 		writeInIndex(id, object);
@@ -136,7 +141,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 	}
 
 	@Override
-	public void update(T object) throws SQLException {
+	public void update(T object) {
 		super.update(object);
 
 		// TODO clean
@@ -168,7 +173,7 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	
 	@Override
-	public void clear() throws SQLException {
+	public void clear() {
 		super.clear();
 		try {
 			if (iwriter != null) {
