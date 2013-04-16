@@ -1,4 +1,4 @@
-package ch.openech.mj.db;
+package ch.openech.mj.swing;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import ch.openech.mj.db.DbVersion;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.util.StringUtils;
 

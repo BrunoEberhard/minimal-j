@@ -9,7 +9,7 @@
  * Created on 17.07.2010, 16:23:00
  */
 
-package ch.openech.mj.db;
+package ch.openech.mj.swing;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
