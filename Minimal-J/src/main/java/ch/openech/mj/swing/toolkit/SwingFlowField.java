@@ -33,6 +33,8 @@ public class SwingFlowField extends JPanel implements FlowField {
 	public void addAction(Action action) {
 		lastLabel = createLinkButton(action);
 		add(lastLabel);
+		repaint();
+		revalidate();
 	}
 	
 	static JLabel createLinkButton(final Action action) {
@@ -54,6 +56,7 @@ public class SwingFlowField extends JPanel implements FlowField {
 	@Override
 	public void clear() {
 		removeAll();
+		repaint();
 		revalidate();
 	}
 
@@ -63,6 +66,7 @@ public class SwingFlowField extends JPanel implements FlowField {
 			lastLabel = new JLabel(object.toString());
 			add(lastLabel);
 		}
+		repaint();
 		revalidate();
 	}
 
@@ -72,6 +76,7 @@ public class SwingFlowField extends JPanel implements FlowField {
 			lastLabel = new JLabel(html);
 			add(lastLabel);
 		}
+		repaint();
 		revalidate();
 	}
 
