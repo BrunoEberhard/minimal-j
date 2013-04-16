@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.derby.jdbc.EmbeddedDriver;
@@ -36,10 +37,10 @@ public class DbPersistence {
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	
-	public DbPersistence() throws SQLException {
+	public DbPersistence() {
 	}
 	
-	public void connect() throws SQLException {
+	public void connect() {
 		testModel();
 		connect(DEFAULT_URL, USER, PASSWORD);
 	}
@@ -57,30 +58,35 @@ public class DbPersistence {
 		}
 	}
 	
-	public void connect(String connectionUrl, String user, String password) throws SQLException {
+	public void connect(String connectionUrl, String user, String password) {
 		try {
 			connectToCloudFoundry();
 		} catch (Exception x) {
 			// There is normally no exception if not on cloudfoundry, only the connection stays null
-			x.printStackTrace();
+			logger.log(Level.SEVERE, "Exception whe try to connect to CloudFoundry", x);
 		}
-		
+			
 		if (connection == null) {
-			this.isDerbyDb = connectionUrl.startsWith("jdbc:derby");
-			this.isMySqlDb = connectionUrl.startsWith("jdbc:mysql");
-			this.isDerbyMemoryDb = connectionUrl.startsWith("jdbc:derby:memory");
-			
-			if (isDerbyMemoryDb) {
-				DriverManager.registerDriver(new EmbeddedDriver());
-			} else if (isMySqlDb) {
-				DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+			try {
+				this.isDerbyDb = connectionUrl.startsWith("jdbc:derby");
+				this.isMySqlDb = connectionUrl.startsWith("jdbc:mysql");
+				this.isDerbyMemoryDb = connectionUrl.startsWith("jdbc:derby:memory");
+				
+				if (isDerbyMemoryDb) {
+					DriverManager.registerDriver(new EmbeddedDriver());
+				} else if (isMySqlDb) {
+					DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+				}
+				
+				connection = DriverManager.getConnection(connectionUrl, user, password);
+	
+				connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+				connection.setAutoCommit(false);
+			} catch (SQLException x) {
+				logger.log(Level.SEVERE, "Could not establish connection to " + connectionUrl);
+				throw new RuntimeException("Could not establish connection to " + connectionUrl);
 			}
-			
-			connection = DriverManager.getConnection(connectionUrl, user, password);
 		}
-		
-		connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-		connection.setAutoCommit(false);
 		
 		if (!initialized) {
 			initializeTables();
@@ -115,16 +121,31 @@ public class DbPersistence {
 		}
 	}
 
-	public void disconnect() throws SQLException {
+	public void disconnect() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		boolean firstFail = true;
 		for (AbstractTable<?> table : tableList) {
-			table.closeStatements();
+			try {
+				table.closeStatements();
+			} catch (SQLException x) {
+				if (firstFail) {
+					logger.log(Level.SEVERE, "Could not close statements of table " + table.name, x);
+					firstFail = false;
+				} else {
+					logger.log(Level.SEVERE, "Could not close statements of table " + table.name);
+				}
+			}
 		}
 		
-		connection.close();
+		try {
+			connection.close();
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Could not close connection", x);
+			throw new RuntimeException("Could not close connection");
+		}
 	}
 	
-	public void clear() throws SQLException {
+	public void clear() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			if (!(table instanceof ImmutableTable)) {
@@ -133,12 +154,22 @@ public class DbPersistence {
 		}
 	}
 	
-	public void commit() throws SQLException {
-		connection.commit();
+	public void commit() {
+		try {
+			connection.commit();
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Could not commit", x);
+			throw new RuntimeException("Could not commit");
+		}
 	}
 
-	public void rollback() throws SQLException {
-		connection.rollback();
+	public void rollback() {
+		try {
+			connection.rollback();
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Could not rollback", x);
+			throw new RuntimeException("Could not rollback");
+		}
 	}
 
 	public boolean isDerbyDb() {
@@ -154,40 +185,55 @@ public class DbPersistence {
 	}
 	
 	protected Connection getConnection() {
+		boolean connected = connection != null;
+		try {
+			connected &= !connection.isClosed();
+		} catch (SQLException x) {
+			logger.log(Level.WARNING, "Couldn't check connection", x);
+		}
+		
+		if (!connected) {
+			connect();
+		}
 		return connection;
 	}
 	
 	//
 
-	public void add(Table<?> table) throws SQLException {
+	public void add(Table<?> table) {
 		if (initialized) {
 			throw new IllegalStateException("Not allowed to add Table after connecting");
 		}
 		tables.put(table.getClazz(), table);
 	}
 	
-	public <U> Table<U> addClass(Class<U> clazz) throws SQLException {
+	public <U> Table<U> addClass(Class<U> clazz) {
 		Table<U> table = new Table<U>(this, clazz);
 		add(table);
 		return table;
 	}
 
-	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) throws SQLException {
+	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
 		tables.put(table.getClazz(), table);
 		return table;
 	}
 	
-	protected void initializeTables() throws SQLException {
+	protected void initializeTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
-			table.initialize();
+			try {
+				table.initialize();
+			} catch (SQLException x) {
+				logger.log(Level.SEVERE, "Couldn't initialize table: " + table.getTableName(), x);
+				throw new RuntimeException("Couldn't initialize table: " + table.getTableName());
+			}
 		}
-		getConnection().commit();
+		commit();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <U> ImmutableTable<U> getImmutableTable(Class<U> clazz) throws SQLException {
+	public <U> ImmutableTable<U> getImmutableTable(Class<U> clazz) {
 		return (ImmutableTable<U>) tables.get(clazz);
 	}
 	

@@ -40,7 +40,7 @@ public class DbCreator {
 		}
 	}
 	
-	public boolean existTable(AbstractTable<?> table) throws SQLException {
+	private boolean existTable(AbstractTable<?> table) throws SQLException {
 		try (Statement statement = dbPersistence.getConnection().createStatement()) {
 			statement.execute("select * from " + table.getTableName());
 		} catch (SQLException x) {
