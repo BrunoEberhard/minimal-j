@@ -230,7 +230,7 @@ public abstract class Editor<T> {
 			}
 		} catch (Exception x) {
 			x.printStackTrace();
-			ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss fehlgeschlagen\n\n" + x.getLocalizedMessage());
+			ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
 		}
 	}
 	
