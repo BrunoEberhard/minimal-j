@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
@@ -25,7 +23,7 @@ public class SwitchForm<T> implements IForm<T> {
 	}
 
 	@Override
-	public void setChangeListener(ChangeListener changeListener) {
+	public void setChangeListener(IForm.FormChangeListener changeListener) {
 		// a SwitchForm doesnt change (only the contained forms)
 	}
 

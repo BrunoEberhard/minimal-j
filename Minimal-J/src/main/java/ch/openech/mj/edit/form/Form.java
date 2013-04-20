@@ -1,5 +1,7 @@
 package ch.openech.mj.edit.form;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -48,6 +50,7 @@ import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.TextField;
 
 public class Form<T> implements IForm<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getName());
@@ -63,8 +66,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	private KeyListener keyListener;
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
+	private final FormPanelActionListener formPanelActionListener = new FormPanelActionListener();
 	
-	private ChangeListener changeListener;
+	private IForm.FormChangeListener changeListener;
 	
 	private boolean resizable = false;
 	
@@ -303,8 +307,10 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			EditField<?> editField = (EditField<?>) field;
 			editField.setChangeListener(formPanelChangeListener);
 		}
-//		addListeners(field);
-		
+		if (field.getComponent() instanceof TextField) {
+			TextField textField = (TextField) field.getComponent();
+			textField.setCommitListener(formPanelActionListener);
+		}
 	}
 
 	@Override
@@ -365,7 +371,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	// Changeable
 	
 	@Override
-	public void setChangeListener(ChangeListener changeListener) {
+	public void setChangeListener(IForm.FormChangeListener changeListener) {
 		this.changeListener = changeListener;
 	}
 
@@ -380,8 +386,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			Object value = changedField.getObject();
 			
 			if (changeListener != null) {
-				FormChangeEvent formChangeEvent = new FormChangeEvent(this, property, value);
-				changeListener.stateChanged(formChangeEvent);
+				changeListener.stateChanged(property, value);
 			}
 			
 			OnChange onChange = property.getAnnotation(OnChange.class);
@@ -461,24 +466,15 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		return result;
 	}
 
-	public static class FormChangeEvent extends ChangeEvent {
+	public class FormPanelActionListener implements ActionListener {
 		
-		private final PropertyInterface property;
-		private final Object value;
-		
-		public FormChangeEvent(Object source, PropertyInterface property, Object value) {
-			super(source);
-			this.property = property;
-			this.value = value;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (changeListener != null) {
+				changeListener.commit();
+			}
 		}
 
-		public PropertyInterface getProperty() {
-			return property;
-		}
-
-		public Object getValue() {
-			return value;
-		}
 	}
 
 }

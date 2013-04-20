@@ -10,11 +10,8 @@ import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.JOptionPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.edit.form.Form.FormChangeEvent;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.Validatable;
@@ -240,24 +237,19 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	private class EditorChangeListener implements ChangeListener {
+	private class EditorChangeListener implements IForm.FormChangeListener {
 
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			FormChangeEvent event = (FormChangeEvent) e;
-			
-			Object newPropertyValue = event.getValue();
-			PropertyInterface property = event.getProperty();
-			
+		public void stateChanged(PropertyInterface property, Object newValue) {
+
 			if (logger.isLoggable(Level.FINE)) {
-				logger.fine(event.getProperty().getFieldPath() + " changed to " + newPropertyValue);
+				logger.fine(property.getFieldPath() + " changed to " + newValue);
 			}
 			
-			property.setValue(editedObject, newPropertyValue);
+			property.setValue(editedObject, newValue);
 			
 			propertyValidations.remove(property);
-			if (newPropertyValue instanceof Validatable) {
-				String validationMessage = ((Validatable) newPropertyValue).validate();
+			if (newValue instanceof Validatable) {
+				String validationMessage = ((Validatable) newValue).validate();
 				if (validationMessage != null) {
 					propertyValidations.put(property, validationMessage);
 				}
@@ -266,8 +258,15 @@ public abstract class Editor<T> {
 			
 			userEdited = true;
 		}
-	}
 
+		@Override
+		public void commit() {
+			if (isSaveable()) {
+				save();
+			}
+		}
+	}
+	
 	private void updateValidation() {
 		List<ValidationMessage> validationMessages = new ArrayList<>();
 		if (editedObject instanceof Validation) {

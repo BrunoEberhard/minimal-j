@@ -3,8 +3,6 @@ package ch.openech.mj.edit.form;
 import java.util.Collection;
 import java.util.List;
 
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.IComponent;
 
@@ -26,6 +24,12 @@ public interface IForm<T> {
 	 * 
 	 * @param changeListener
 	 */
-	public void setChangeListener(ChangeListener changeListener);
+	public void setChangeListener(FormChangeListener listener);
 
+	public interface FormChangeListener {
+
+		public void stateChanged(PropertyInterface property, Object newValue);
+		
+		public void commit();
+	}
 }

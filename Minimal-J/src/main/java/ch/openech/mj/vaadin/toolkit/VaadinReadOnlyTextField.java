@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 import ch.openech.mj.toolkit.TextField;
@@ -11,11 +12,6 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 
 	public VaadinReadOnlyTextField() {
 //		addStyleName("v-html-readonly");
-	}
-
-	@Override
-	public void requestFocus() {
-		// not possible
 	}
 
 	@Override
@@ -34,8 +30,23 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 	}
 
 	@Override
+	public void setEnabled(boolean editable) {
+		// read only field cannot be enabled
+	}
+
+	@Override
+	public void requestFocus() {
+		// read only field cannot be focused
+	}
+
+	@Override
 	public void setFocusListener(FocusListener focusListener) {
-		// not possible
+		// read only field cannot be focused
+	}
+
+	@Override
+	public void setCommitListener(ActionListener listener) {
+		// read only field cannot get commit command
 	}
 	
 }

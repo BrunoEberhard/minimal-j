@@ -1,5 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 import javax.swing.JTextField;
@@ -17,8 +18,8 @@ import ch.openech.mj.toolkit.TextField;
 public class SwingTextField extends JTextField implements TextField, Focusable {
 	private final ChangeListener changeListener;
 	private FocusListener focusListener;
-//	private KeyListener keyListener;
-
+	private ActionListener commitListener;
+	
 	public SwingTextField() {
 		super();
 		this.changeListener = null;
@@ -122,6 +123,17 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 		}
 	}
 
+	@Override
+	public void setCommitListener(ActionListener listener) {
+		if (this.commitListener != null) {
+			removeActionListener(commitListener);
+		}
+		this.commitListener = listener;
+		if (this.commitListener != null) {
+			addActionListener(commitListener);
+		}
+	}
+
 //	@Override
 //	public void setKeyListener(KeyListener keyListener) {
 //		if (this.propertyListener != null) {
@@ -132,6 +144,8 @@ public class SwingTextField extends JTextField implements TextField, Focusable {
 //			addKeyListener(this.propertyListener);
 //		}
 //	}
+	
+	
 	
 }
 

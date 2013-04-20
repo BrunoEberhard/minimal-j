@@ -1,5 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 import javax.swing.JLabel;
@@ -9,12 +10,6 @@ import ch.openech.mj.toolkit.TextField;
 public class SwingReadOnlyTextField extends JLabel implements TextField {
 
 	public SwingReadOnlyTextField() {
-	}
-
-	@Override
-	public void requestFocus() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -29,13 +24,22 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 
 	@Override
 	public void setEnabled(boolean editable) {
-		
+		// read only field cannot be enabled
+	}
+
+	@Override
+	public void requestFocus() {
+		// read only field cannot be focused
 	}
 
 	@Override
 	public void setFocusListener(FocusListener focusListener) {
-		// TODO Auto-generated method stub
-		
+		// read only field cannot be focused
+	}
+
+	@Override
+	public void setCommitListener(ActionListener listener) {
+		// read only field cannot get commit command
 	}
 	
 }

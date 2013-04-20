@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 import javax.swing.event.ChangeListener;
@@ -66,6 +67,11 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 	@Override
 	public void setFocusListener(FocusListener focusListener) {
 		textWidget.setFocusListener(focusListener);
+	}
+
+	@Override
+	public void setCommitListener(ActionListener listener) {
+		// TODO listening to Enter Key at Vaadin TextField
 	}
 	
 }
