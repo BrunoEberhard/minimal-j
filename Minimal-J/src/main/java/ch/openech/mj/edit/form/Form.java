@@ -409,6 +409,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 							if (p.getFieldPath().equals(propertyParent + change)) {
 								Object v = p.getValue(object);
 								((FormField) field.getValue()).setObject(v);
+								if (changeListener != null) {
+									changeListener.stateChanged(p, v);
+								}								
 							}
 						}
 					}
