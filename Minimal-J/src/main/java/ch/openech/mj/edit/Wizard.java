@@ -77,7 +77,6 @@ public abstract class Wizard<T> extends Editor<T> {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				currentStep.save();
-				save();
 			}
 		};
 		return action;
@@ -96,12 +95,6 @@ public abstract class Wizard<T> extends Editor<T> {
 		return formVisual;
 	}
 
-	@Override
-	public void finish() {
-		currentStep.finish();
-		super.finish();
-	}
-
 	private void setCurrentStep(WizardStep<?> step) {
 		currentStep = step;
 		currentStep.setIndicator(indicator);
@@ -113,10 +106,8 @@ public abstract class Wizard<T> extends Editor<T> {
 	}
 	
 	protected void commit() {
-		if (isSaveable()) {
-			save();
-		} else if (nextAction.isEnabled()) {
-			nextAction.actionPerformed(null);
+		if (currentStep.isSaveable()) {
+			currentStep.save();
 		}
 	}
 
@@ -142,12 +133,17 @@ public abstract class Wizard<T> extends Editor<T> {
 		public void finished(String followLink) {
 			// nobug: compare to this instanceof of "+" / "-"
 			if (followLink == NEXT) {
-				currentStepIndex++;
-				setCurrentStep(currentStep.getNextStep());
+				WizardStep<?> nextStep = currentStep.getNextStep();
+				if (nextStep != null) {
+					currentStepIndex++;
+					setCurrentStep(nextStep);
+				} else {
+					save();
+				}
 			} else if (followLink == PREV) {
 				currentStepIndex--;
 				setCurrentStep(currentStep.getPreviousStep());
-			}
+			} // else cancel
 		}
 	}
 
