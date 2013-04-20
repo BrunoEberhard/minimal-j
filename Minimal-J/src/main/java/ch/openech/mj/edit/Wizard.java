@@ -13,6 +13,7 @@ import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.ClientToolkit;
 
 public abstract class Wizard<T> extends Editor<T> {
 
@@ -105,8 +106,11 @@ public abstract class Wizard<T> extends Editor<T> {
 		currentStep.setIndicator(indicator);
 		currentStep.setEditorFinishedListener(stepFinishedListener);
 		currentStep.setFollowLink(NEXT);
-
-		switchForm.setForm(currentStep.startEditor());
+ 
+		IForm<?> form = currentStep.startEditor();
+		switchForm.setForm(form);
+		ClientToolkit.getToolkit().focusFirstComponent(form.getComponent());
+		
 		prevAction.setEnabled(currentStepIndex > 0);
 	}
 	
