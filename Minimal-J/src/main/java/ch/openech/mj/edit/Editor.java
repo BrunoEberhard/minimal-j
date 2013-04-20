@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
+import ch.openech.mj.application.DevMode;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.Indicator;
@@ -115,7 +116,7 @@ public abstract class Editor<T> {
 	}
 
 	public Action[] getActions() {
-		if (System.getProperty("MjDevMode", "false").equals("true")) {
+		if (DevMode.isActive()) {
 			return new Action[] { demoAction(), cancelAction(), saveAction() };
 		} else {
 			return new Action[] { cancelAction(), saveAction() };

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import ch.openech.mj.application.DevMode;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.form.SwitchForm;
 import ch.openech.mj.edit.validation.Indicator;
@@ -40,7 +41,11 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	@Override
 	public Action[] getActions() {
-		return new Action[]{demoAction(), cancelAction(), prevAction, nextAction, finishAction};
+		if (DevMode.isActive()) {
+			return new Action[]{demoAction(), cancelAction(), prevAction, nextAction, finishAction};
+		} else {
+			return new Action[]{cancelAction(), prevAction, nextAction, finishAction};
+		}
 	}
 
 	protected int getCurrentStepIndex() {
