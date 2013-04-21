@@ -13,6 +13,7 @@ import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.swing.lookAndFeel.LookAndFeelAction;
 import ch.openech.mj.swing.lookAndFeel.PrintLookAndFeel;
+import ch.openech.mj.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
 import ch.openech.mj.toolkit.IComponent;
 
@@ -130,6 +131,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	private void fillLookAndFeelMenu(ActionGroup actionGroup) {
 		actionGroup.add(new LookAndFeelAction("Normal"));
 		actionGroup.add(new LookAndFeelAction("Hoher Kontrast", TerminalLookAndFeel.class.getName()));
+		actionGroup.add(new LookAndFeelAction("Hoher Kontrast (Gross)", TerminalLargeFontLookAndFeel.class.getName()));
 		actionGroup.add(new LookAndFeelAction("Druckbar", PrintLookAndFeel.class.getName()));
 	}
 	

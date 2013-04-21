@@ -84,14 +84,14 @@ public class TerminalLookAndFeel extends MetalLookAndFeel implements MetalThemeP
 			return new ColorUIResource(Integer.parseInt(properties.getProperty(key), 16));
 		}
 
-		public MetalTheme() {
+		public MetalTheme(boolean largeFont) {
 			String fontName = properties.getProperty("fontName", "Dialog");
 			int fontSize = 12;
 			try {
 				fontSize = Integer.parseInt(properties.getProperty("fontSize"));
 			} catch (Exception exc) {
 			}
-			font = new FontUIResource(fontName, Font.PLAIN, fontSize);
+			font = new FontUIResource(fontName, Font.PLAIN, largeFont ? fontSize * 2: fontSize);
 		}
 
 		@Override
@@ -235,6 +235,6 @@ public class TerminalLookAndFeel extends MetalLookAndFeel implements MetalThemeP
 
 	@Override
 	public MetalTheme getMetalTheme() {
-		return new MetalTheme();
+		return new MetalTheme(false);
 	}
 }

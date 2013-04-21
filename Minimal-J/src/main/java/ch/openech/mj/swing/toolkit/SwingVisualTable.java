@@ -4,6 +4,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.JScrollPane;
@@ -28,6 +30,17 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 		propertyTable.setFillsViewportHeight(true);
 		
 		setViewportView(propertyTable);
+		
+		bindRowHeightToFont();
+	}
+
+	private void bindRowHeightToFont() {
+		propertyTable.addPropertyChangeListener("UI", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				propertyTable.setRowHeight(propertyTable.getFont().getSize() * 5 / 3 + 2);
+			}
+		});
 	}
 
 	@Override
