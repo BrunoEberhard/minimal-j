@@ -155,6 +155,12 @@ public abstract class Wizard<T> extends Editor<T> {
 			} // else cancel
 		}
 	}
+	
+	@Override
+	protected void finishFailed(Exception x) {
+		super.finishFailed(x);
+		setCurrentStep(currentStep);
+	}
 
 	@Override
 	public void fillWithDemoData() {

@@ -174,8 +174,8 @@ public abstract class Editor<T> {
 	 * Disposes the editor and calls the editorFinished Listener
 	 */
 	protected void finish() {
-		fireEditorFinished();
 		form = null;
+		fireEditorFinished();
 	}
 	
 	public final boolean isFinished() {
@@ -215,21 +215,25 @@ public abstract class Editor<T> {
 	}
 
 	private void doSave() {
+		T objectToSave;
+		if (original != null) {
+			objectToSave = original;
+			CloneHelper.deepCopy(getObject(), original);
+		} else {
+			objectToSave = getObject();
+		}
 		try {
-			T objectToSave;
-			if (original != null) {
-				objectToSave = original;
-				CloneHelper.deepCopy(getObject(), original);
-			} else {
-				objectToSave = getObject();
-			}
 			if (save(objectToSave)) {
 				finish();
 			}
 		} catch (Exception x) {
-			x.printStackTrace();
-			ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
+			finishFailed(x);
 		}
+	}
+
+	protected void finishFailed(Exception x) {
+		logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+		ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
 	}
 	
 	public final void progress(int value, int maximum) {
