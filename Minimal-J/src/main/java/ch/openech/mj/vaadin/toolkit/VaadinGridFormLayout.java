@@ -5,7 +5,6 @@ import ch.openech.mj.toolkit.IComponent;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
 
 public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 
@@ -20,6 +19,9 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 		
 		setSpacing(true);
 		setMargin(true);
+		for (int i = 0; i<columns; i++) {
+			setColumnExpandRatio(i, (float) (1.0 / columns));
+		}
 		addStyleName("gridForm");
 	}
 	
@@ -35,11 +37,7 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	@Override
 	public void add(IComponent field, int span) {
 		Component component = (Component) field;
-		if (component instanceof Label && (span == 1 || columns == 1)) {
-			component.setWidth(columnWidthPercentage / 3 + "ex");
-		} else {
-			component.setWidth("100%");
-		}
+		component.setWidth("100%");
 		
 		setRows(row+1); // addComponent with these arguments doenst auto grow grid
 		addComponent(component, column, row, column + span -1, row);
