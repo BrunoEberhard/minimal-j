@@ -160,6 +160,12 @@ public abstract class SearchableTable<T> extends Table<T> {
 		return find(text).size();
 	}
 	
+	/**
+	 * 
+	 * @param property a (minimal-j) property
+	 * @param object
+	 * @return a field (in terms of lucene) with the value of the property
+	 */
 	protected abstract Field getField(PropertyInterface property, T object);
 
 	protected Field createIdField(int id) {
@@ -218,6 +224,10 @@ public abstract class SearchableTable<T> extends Table<T> {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @return an instance of the type of the class. Normally just a <code>new T()</code>
+	 */
 	protected abstract T createResultObject();
 
 	protected T documentToObject(Document document) {
