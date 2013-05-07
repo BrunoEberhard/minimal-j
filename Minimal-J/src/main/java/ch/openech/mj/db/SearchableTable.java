@@ -13,7 +13,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -21,7 +20,6 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
@@ -34,7 +32,6 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	private static final Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_34);
 	private RAMDirectory directory;
-    //Directory directory = FSDirectory.open("/tmp/testindex");
 	private IndexWriter iwriter;
 	private PreparedStatement selectAll;
 
@@ -66,19 +63,12 @@ public abstract class SearchableTable<T> extends Table<T> {
 		if (directory == null) {
 			directory = new RAMDirectory();
 			try {
-				iwriter = new IndexWriter(directory, analyzer, true,
-				        new IndexWriter.MaxFieldLength(25000));
-			} catch (CorruptIndexException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (LockObtainFailedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				iwriter = new IndexWriter(directory, analyzer, true, new IndexWriter.MaxFieldLength(25000));
+				refillIndex();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.log(Level.SEVERE, "Initialize index failed", e);
+				throw new RuntimeException("Initialize index failed");
 			}
-			refillIndex();
 		}
 	}
 
@@ -110,33 +100,15 @@ public abstract class SearchableTable<T> extends Table<T> {
 		initializeIndex();
 		int id = super.insert(object);
 		writeInIndex(id, object);
-		
-		// TODO clean
-		QueryParser	parser = new QueryParser(Version.LUCENE_34, "id", analyzer);
-		IndexSearcher isearcher = null;
-		try {
-			Query query = parser.parse(Integer.toString(id));
-			
-			isearcher = new IndexSearcher(directory, true); // read-only=true
+
+		Query query = queryById(id);
+		try (IndexSearcher isearcher = new IndexSearcher(directory, true)) {
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
 			if (hits.length > 1) throw new IllegalStateException("Twice in index : " + id);
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		} catch (CorruptIndexException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			// TODO use Java 7 for this
-			if (isearcher != null) {
-				try {
-					isearcher.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		
+			logger.log(Level.SEVERE, "Couldn't search after insert");
+			throw new RuntimeException("Couldn't search after insert");
+		} 	
 		return id;
 	}
 
@@ -144,33 +116,32 @@ public abstract class SearchableTable<T> extends Table<T> {
 	public void update(T object) {
 		super.update(object);
 
-		// TODO clean
 		Integer id = getId(object);
-		QueryParser	parser = new QueryParser(Version.LUCENE_34, "id", analyzer);
-		IndexSearcher isearcher = null;
-		try {
-			Query query = parser.parse(Integer.toString(id));
-			
-			isearcher = new IndexSearcher(directory, true); // read-only=true
+		Query query = queryById(id);
+		
+		try (IndexSearcher isearcher = new IndexSearcher(directory, true)) {
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
 			if (hits.length != 1) throw new IllegalStateException("Id : " + id);
-			
+
 			iwriter.deleteDocuments(query);
 			writeInIndex(id, object);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			// TODO use Java 7 for this
-			if (isearcher != null) {
-				try {
-					isearcher.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Couldn't search after update");
+			throw new RuntimeException("Couldn't search after update");
+		} 	
 	}
-	
+
+	private Query queryById(Integer id) {
+		QueryParser	parser = new QueryParser(Version.LUCENE_34, "id", analyzer);
+		Query query;
+		try {
+			query = parser.parse(Integer.toString(id));
+		} catch (ParseException e) {
+			logger.log(Level.SEVERE, "Couldn't parse id " + id, e);
+			throw new RuntimeException("Couldn't parse id " + id);
+		}
+		return query;
+	}
 	
 	@Override
 	public void clear() {
@@ -180,7 +151,8 @@ public abstract class SearchableTable<T> extends Table<T> {
 				iwriter.deleteAll();
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			logger.log(Level.SEVERE, "Couldn't clear " + getTableName(), e);
+			throw new RuntimeException("Couldn't clear " + getTableName());
 		}	
 	}
 
@@ -219,13 +191,10 @@ public abstract class SearchableTable<T> extends Table<T> {
 	
 	public List<T> find(String text, Object... keys) {
 		List<T> result = new ArrayList<T>();
-		IndexSearcher isearcher = null;
-		try {
-			initializeIndex();
-			if (directory.listAll().length == 0 || StringUtils.isBlank(text)) return result;
+		initializeIndex();
+		if (directory.listAll().length == 0 || StringUtils.isBlank(text)) return result;
 
-			isearcher = new IndexSearcher(directory, true); // read-only=true
-			
+		try (IndexSearcher isearcher = new IndexSearcher(directory, true)) {
 			QueryParser parser;
 			if (keys.length > 1) {
 				parser = new MultiFieldQueryParser(Version.LUCENE_34, getPropertyNames(keys), analyzer);
@@ -245,14 +214,6 @@ public abstract class SearchableTable<T> extends Table<T> {
 			logger.info(x.getLocalizedMessage());
 		} catch (Exception x) {
 			logger.severe(x.getLocalizedMessage());
-		} finally {
-			if (isearcher != null) {
-				try {
-					isearcher.close();
-				} catch (IOException e) {
-					logger.severe(e.getLocalizedMessage());
-				}
-			}
 		}
 		return result;
 	}
