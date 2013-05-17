@@ -50,16 +50,6 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 	}
 
 	@Override
-	public void setSelectedObject(T object) {
-		int index = objects.indexOf(object);
-		if (index >= 0) {
-			propertyTable.getSelectionModel().setLeadSelectionIndex(index);
-		} else {
-			propertyTable.getSelectionModel().clearSelection();
-		}
-	}
-	
-	@Override
 	public T getSelectedObject() {
 		if (propertyTable.getSelectionModel().getLeadSelectionIndex() >= 0) {
 			return propertyTable.getObject(propertyTable.getSelectionModel().getLeadSelectionIndex());

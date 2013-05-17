@@ -7,8 +7,6 @@ public interface VisualTable<T> extends IComponent, Focusable {
 
 	public void setObjects(List<T> object);
 
-	public void setSelectedObject(T object);
-
 	public T getSelectedObject();
 
 	public int getSelectedIndex();
