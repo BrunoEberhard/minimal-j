@@ -178,7 +178,7 @@ public class Keys {
 		
 		@Override
 		public String getFieldPath() {
-			return property1.getFieldName() + "." + property2.getFieldName();
+			return property1.getFieldPath() + "." + property2.getFieldPath();
 		}
 		
 		@Override
