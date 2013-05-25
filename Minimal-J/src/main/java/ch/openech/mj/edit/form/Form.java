@@ -207,7 +207,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 	public void line(Object key) {
 		FormField<?> visual = createField(key);
-		add(key, visual, columns);
+		add(visual, columns);
 	}
 	
 //  with this it would be possible to split cells	
@@ -241,12 +241,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		for (int i = 0; i<keys.length; i++) {
 			Object key = keys[i];
 			FormField<?> visual = createField(key);
-			add(key, visual, i < keys.length - 1 ? span : rest);
+			add(visual, i < keys.length - 1 ? span : rest);
 			rest = rest - span;
 		}
 	}
 	
-	private void add(Object key, FormField<?> c, int span) {
+	private void add(FormField<?> c, int span) {
 		layout.add(decorateWithCaption(c).getComponent(), span);
 		registerNamedField(c);
 	}
@@ -259,12 +259,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		for (int i = 0; i<keys.length; i++) {
 			Object key = keys[i];
 			FormField<?> visual = createField(key);
-			area(key, visual, i < keys.length - 1 ? span : rest);
+			area(visual, i < keys.length - 1 ? span : rest);
 			rest = rest - span;
 		}
 	}
 
-	private void area(Object key, FormField<?> visual, int span) {
+	private void area(FormField<?> visual, int span) {
 		layout.addArea(decorateWithCaption(visual).getComponent(), span);
 		registerNamedField(visual);
 		resizable = true;
