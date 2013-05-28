@@ -1,6 +1,9 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.ReadablePartial;
@@ -23,7 +26,7 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private final JodaFormatter jodaFormatter = new JodaFormatter();
 	private List<T> objects;
-	private ClickListener clickListener;
+	private ActionListener listener;
 	private VaadinVisualTableItemClickListener tableClickListener;
 
 	public VaadinVisualTable(Class<T> clazz, Object[] keys) {
@@ -61,24 +64,14 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 	}
 
 	@Override
-	public int getSelectedIndex() {
-		Object value = getValue();
-		if (value != null) {
-			return (Integer) objects.indexOf(getSelectedObject());
-		} else {
-			return -1;
-		}
-	}
-
-	@Override
-	public void setClickListener(ClickListener clickListener) {
+	public void setClickListener(ActionListener clickListener) {
 		if (clickListener == null) {
 			if (tableClickListener != null) {
 				removeListener(tableClickListener);
 				tableClickListener = null;
 			}
 		}
-		this.clickListener = clickListener;
+		this.listener = clickListener;
 		if (clickListener != null) {
 			if (tableClickListener == null) {
 				tableClickListener = new VaadinVisualTableItemClickListener();
@@ -100,7 +93,31 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 	private class VaadinVisualTableItemClickListener implements ItemClickListener {
 		@Override
 		public void itemClick(ItemClickEvent arg0) {
-			clickListener.clicked();
+			ActionEvent actionEvent = new ActionEvent(VaadinVisualTable.this, 0, "Insert");
+			listener.actionPerformed(actionEvent);
 		}
+	}
+
+	// TODO !
+	
+	@Override
+	public List<T> getSelectedObjects() {
+		// TODO Auto-generated method stub
+		return Collections.emptyList();
+	}
+
+	@Override
+	public void setDeleteListener(ActionListener listener) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setInsertListener(ActionListener listener) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setFunctionListener(int function, ActionListener listener) {
+		// TODO Auto-generated method stub
 	}
 }

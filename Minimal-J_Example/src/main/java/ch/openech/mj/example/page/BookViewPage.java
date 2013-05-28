@@ -1,7 +1,5 @@
 package ch.openech.mj.example.page;
 
-import java.sql.SQLException;
-
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.BookForm;
 import ch.openech.mj.example.ExamplePersistence;
@@ -19,11 +17,7 @@ public class BookViewPage extends ObjectViewPage<Book> {
 	}
 	
 	private static Book lookup(String bookId) {
-		try {
-			return ExamplePersistence.getInstance().book().read(Integer.valueOf(bookId));
-		} catch (SQLException x) {
-			throw new RuntimeException("Konnte Buch nicht laden", x);
-		}
+		return ExamplePersistence.getInstance().book().read(Integer.valueOf(bookId));
 	}
 
 	@Override

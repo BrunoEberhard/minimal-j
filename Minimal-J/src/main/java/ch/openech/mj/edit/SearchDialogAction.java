@@ -1,6 +1,7 @@
 package ch.openech.mj.edit;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -18,7 +19,6 @@ import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.VisualDialog;
 import ch.openech.mj.toolkit.VisualDialog.CloseListener;
 import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.toolkit.VisualTable.ClickListener;
 import ch.openech.mj.util.GenericUtils;
 
 public abstract class SearchDialogAction<T> extends AbstractAction {
@@ -98,13 +98,11 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 		}
 	}
 	
-	private class SearchClickListener implements ClickListener {
+	private class SearchClickListener implements ActionListener {
 		
 		@Override
-		public void clicked() {
-			if (table.getSelectedObject() != null) {
-				saveAndClose();
-			}
+		public void actionPerformed(ActionEvent e) {
+			saveAndClose();
 		}
 	}
 	

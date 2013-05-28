@@ -1,6 +1,6 @@
 package ch.openech.mj.example.persistence;
 
-import static ch.openech.mj.example.model.Book.BOOK;
+import static ch.openech.mj.example.model.Book.*;
 
 import java.sql.SQLException;
 
@@ -44,13 +44,7 @@ public class BookTable extends SearchableTable<Book> {
 	@Override
 	protected Book documentToObject(Document document) {
 		int id = Integer.parseInt(document.get("id"));
-		try {
-			return read(id);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		return read(id);
 	}
 	
 	@Override

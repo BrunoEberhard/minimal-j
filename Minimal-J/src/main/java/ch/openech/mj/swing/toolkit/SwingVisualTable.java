@@ -1,14 +1,19 @@
 package ch.openech.mj.swing.toolkit;
 
-import java.awt.event.KeyAdapter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
 import ch.openech.mj.swing.component.PropertyTable;
@@ -16,11 +21,10 @@ import ch.openech.mj.toolkit.VisualTable;
 
 public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final PropertyTable<T> propertyTable;
-	private List<T> objects;
-	private ClickListener clickListener;
-	private SwingVisualTableMouseListener mouseListener;
-	private SwingVisualTableKeyListener keyListener;
+	private ActionListener listener;
 	
 	public SwingVisualTable(Class<T> clazz, Object[] fields) {
 		propertyTable = new PropertyTable<T>(clazz, fields);
@@ -32,6 +36,8 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 		setViewportView(propertyTable);
 		
 		bindRowHeightToFont();
+
+		propertyTable.addMouseListener(new SwingVisualTableMouseListener());
 	}
 
 	private void bindRowHeightToFont() {
@@ -46,7 +52,6 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 	@Override
 	public void setObjects(List<T> objects) {
 		propertyTable.setObjects(objects);
-		this.objects = objects;
 	}
 
 	@Override
@@ -59,62 +64,94 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 	}
 
 	@Override
-	public int getSelectedIndex() {
-		return propertyTable.getSelectionModel().getLeadSelectionIndex();
+	public List<T> getSelectedObjects() {
+		List<T> selectedObjects = new ArrayList<>(propertyTable.getSelectedRowCount());
+		for (int row : propertyTable.getSelectedRows()) {
+			selectedObjects.add(propertyTable.getObject(row));
+		}
+		return selectedObjects;
 	}
 
 	@Override
-	public void setClickListener(ClickListener clickListener) {
-		if (clickListener == null) {
-			if (mouseListener != null) {
-				propertyTable.removeMouseListener(mouseListener);
-				mouseListener = null;
-			}
-			if (keyListener != null) {
-				propertyTable.removeKeyListener(keyListener);
-				keyListener = null;
-			}
-		}
-		this.clickListener = clickListener;
-		if (clickListener != null) {
-			if (mouseListener == null) {
-				mouseListener = new SwingVisualTableMouseListener();
-				propertyTable.addMouseListener(mouseListener);
-			}
-			if (keyListener != null) {
-				keyListener = new SwingVisualTableKeyListener();
-				propertyTable.addKeyListener(keyListener);
-			}
-		}
+	public void setClickListener(ActionListener listener) {
+		this.listener = listener;
 	}
-	
+
 	private class SwingVisualTableMouseListener extends MouseAdapter {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			try {
-				if (e.getClickCount() >= 2) {
-					clickListener.clicked();
-				}
-			} catch (Exception x) {
-				x.printStackTrace();
-			}
-		}
-		
-	}
-	
-	private class SwingVisualTableKeyListener extends KeyAdapter {
-
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if (e.getKeyChar() == '\n' && propertyTable.getSelectedRow() >= 0) {
+			if (e.getClickCount() >= 2 && listener != null) {
 				try {
-					clickListener.clicked();
+					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Clicked");
+					listener.actionPerformed(actionEvent);
 				} catch (Exception x) {
 					x.printStackTrace();
 				}
 			}
 		}
+	}
+
+	public void setInsertListener(final ActionListener listener) {
+		if (listener != null) {
+			Action action = new AbstractAction() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Insert");
+					listener.actionPerformed(actionEvent);
+				}
+			};
+			bindKey(KeyEvent.VK_INSERT, action);
+		} else {
+			unbindKey(KeyEvent.VK_INSERT);
+		}
+	}
+
+	public void setDeleteListener(final ActionListener listener) {
+		if (listener != null) {
+			Action action = new AbstractAction() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Delete");
+					listener.actionPerformed(actionEvent);
+				}
+			};
+			bindKey(KeyEvent.VK_DELETE, action);
+		} else {
+			unbindKey(KeyEvent.VK_DELETE);
+		}
+	}
+
+	@Override
+	public void setFunctionListener(final int function, final ActionListener listener) {
+		if (listener != null) {
+			Action action = new AbstractAction() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Function" + function);
+					listener.actionPerformed(actionEvent);
+				}
+			};
+			bindKey(KeyEvent.VK_F1+function, action);
+		} else {
+			unbindKey(KeyEvent.VK_F1+function);
+		}
+	}
+	
+	private void bindKey(int keyEvent, Action action) {
+		getActionMap().put(keyEvent, action);
+		getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keyEvent, 0), keyEvent);
+	}
+
+	private void unbindKey(int keyEvent) {
+		getActionMap().remove(keyEvent);
+		getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).remove(KeyStroke.getKeyStroke(keyEvent, 0));
 	}
 
 }

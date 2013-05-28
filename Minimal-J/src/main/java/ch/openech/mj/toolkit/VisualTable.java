@@ -1,5 +1,6 @@
 package ch.openech.mj.toolkit;
 
+import java.awt.event.ActionListener;
 import java.util.List;
 
 
@@ -7,16 +8,13 @@ public interface VisualTable<T> extends IComponent, Focusable {
 
 	public void setObjects(List<T> object);
 
+	public List<T> getSelectedObjects();
+
 	public T getSelectedObject();
 
-	public int getSelectedIndex();
-	
-	public void setClickListener(ClickListener clickListener);
-	
-	public interface ClickListener {
-		
-		public void clicked();
-		
-	}
+	public void setClickListener(ActionListener listener);
+	public void setDeleteListener(ActionListener listener);
+	public void setInsertListener(ActionListener listener);
+	public void setFunctionListener(int function, ActionListener listener);
 	
 }

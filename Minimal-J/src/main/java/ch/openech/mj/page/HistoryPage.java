@@ -1,5 +1,7 @@
 package ch.openech.mj.page;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,6 @@ import ch.openech.mj.model.annotation.Size;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.toolkit.VisualTable.ClickListener;
 
 public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 
@@ -21,18 +22,16 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 		super(context);
 		VisualTable<?> table2 = ClientToolkit.getToolkit().createVisualTable(HistoryVersion.class, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
 		table = (VisualTable<HistoryVersion<T>>) table2;
-		table.setClickListener(new ClickListener() {
+		table.setClickListener(new ActionListener() {
 			@Override
-			public void clicked() {
-				int index = table.getSelectedIndex();
-				if (index >= 0) {
-					List<String> pageLinks = new ArrayList<String>(versions.size());
-					for (HistoryVersion<T> version : versions) {
-						String link = link( version.object, version.version);
-						pageLinks.add(link);
-					}
-					getPageContext().show(pageLinks, index);
+			public void actionPerformed(ActionEvent e) {
+				List<String> pageLinks = new ArrayList<String>(versions.size());
+				for (HistoryVersion<T> version : versions) {
+					String link = link( version.object, version.version);
+					pageLinks.add(link);
 				}
+				int index = versions.indexOf(table.getSelectedObject());
+				getPageContext().show(pageLinks, index);
 			}
 		});
 	}

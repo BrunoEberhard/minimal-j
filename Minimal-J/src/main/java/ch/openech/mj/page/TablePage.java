@@ -1,11 +1,12 @@
 package ch.openech.mj.page;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.VisualTable;
-import ch.openech.mj.toolkit.VisualTable.ClickListener;
 
 
 public abstract class TablePage<T> extends Page implements RefreshablePage {
@@ -21,6 +22,10 @@ public abstract class TablePage<T> extends Page implements RefreshablePage {
 		refresh();
 	}
 
+	protected VisualTable<T> getTable() {
+		return table;
+	}
+
 	protected abstract void clicked(T object);
 
 	protected abstract List<T> find(String text);
@@ -31,14 +36,10 @@ public abstract class TablePage<T> extends Page implements RefreshablePage {
 	}
 	
 
-	private class TableClickListener implements ClickListener {
-
+	private class TableClickListener implements ActionListener {
 		@Override
-		public void clicked() {
-			T selectedObject = table.getSelectedObject();
-			if (selectedObject != null) {
-				TablePage.this.clicked(selectedObject);
-			}
+		public void actionPerformed(ActionEvent e) {
+			TablePage.this.clicked(table.getSelectedObject());
 		}
 	}
 	
