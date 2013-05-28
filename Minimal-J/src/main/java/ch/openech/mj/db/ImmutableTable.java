@@ -5,13 +5,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.model.PropertyInterface;
 
-/*
- * Idee: Immutables können zwar keine SubTables haben, aber immerhin
- * Referenzen, egal ob wieder Immutables oder auf normale Tabellen
+/**
+ * Minimal-J internal<p>
+ * 
+ * Rows in a immutable table are created and reused. But
+ * they are never changed nor deleted.
  * 
  */
 public class ImmutableTable<T> extends AbstractTable<T> {
@@ -56,11 +59,16 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		}
 	}
 
-	public T selectById(Integer id) throws SQLException {
+	public T read(Integer id) {
 		if (id == null) return EmptyObjects.getEmptyObject(getClazz());
 		
-		selectByIdStatement.setInt(1, id);
-		return executeSelect(selectByIdStatement);
+		try {
+			selectByIdStatement.setInt(1, id);
+			return executeSelect(selectByIdStatement);
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
+			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
+		}
 	}
 
 	public void insert(T object) throws SQLException {

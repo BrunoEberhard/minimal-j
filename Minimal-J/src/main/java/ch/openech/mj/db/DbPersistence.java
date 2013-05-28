@@ -17,48 +17,46 @@ import org.json.JSONObject;
 
 import ch.openech.mj.model.test.ModelTest;
 
+/**
+ * Most important class of the persistence layer.
+ * <OL>
+ * <LI>Add your classes with addClass and andHistorizedClass
+ * <LI>Call connect
+ * </OL>
+ * 
+ * @author bruno
+ *
+ */
 public class DbPersistence {
-	public static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
+	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	
-	public static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
-	// public static final String DEFAULT_URL = "jdbc:derby:C:\\Dokumente und Einstellungen\\bruno\\OpenEchDB13;create=true";
+	private static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
 	// public static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/openech?user=APP&password=APP"; 
 
-	
-	public static final String USER = "APP";
-	public static final String PASSWORD = "APP";
+	private static final String USER = "APP";
+	private static final String PASSWORD = "APP";
 
 	private boolean initialized = false;
 	
 	private Connection connection;
 	private boolean isDerbyDb;
 	private boolean isDerbyMemoryDb;
-	private boolean isMySqlDb;
+	private boolean isMySqlDb; 
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
-	
+
+	/**
+	 * Only creates the persistence. Does not yet connect to the DB.
+	 */
 	public DbPersistence() {
 	}
 	
 	public void connect() {
-		testModel();
 		connect(DEFAULT_URL, USER, PASSWORD);
 	}
 
-	private void testModel() {
-		ModelTest test = new ModelTest();
-		for (Class<?> c : tables.keySet()) {
-			test.test(c);
-		}
-		if (!test.getProblems().isEmpty()) {
-			for (String s : test.getProblems()) {
-				logger.severe(s);
-			}
-			throw new IllegalArgumentException();
-		}
-	}
-	
 	public void connect(String connectionUrl, String user, String password) {
+		testModel();
 		try {
 			connectToCloudFoundry();
 		} catch (Exception x) {
@@ -145,6 +143,10 @@ public class DbPersistence {
 		}
 	}
 	
+	/**
+	 * Use with care. Removes all content of all tables. Should only
+	 * be used for JUnit tests.
+	 */
 	public void clear() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
@@ -200,7 +202,7 @@ public class DbPersistence {
 	
 	//
 
-	public void add(Table<?> table) {
+	public void add(AbstractTable<?> table) {
 		if (initialized) {
 			throw new IllegalStateException("Not allowed to add Table after connecting");
 		}
@@ -212,7 +214,13 @@ public class DbPersistence {
 		add(table);
 		return table;
 	}
-
+	
+	public <U> HistorizedTable<U> addHistorizedClass(Class<U> clazz) {
+		HistorizedTable<U> table = new HistorizedTable<U>(this, clazz);
+		add(table);
+		return table;
+	}
+	
 	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
 		tables.put(table.getClazz(), table);
@@ -242,10 +250,17 @@ public class DbPersistence {
 		return (AbstractTable<U>) tables.get(clazz);
 	}
 	
-	public boolean isValidDbVersion() {
-		// TODO 
-		// int actualVersion = DbVersion.getVersionOf(getConnection());
-		return true;
+	private void testModel() {
+		ModelTest test = new ModelTest();
+		for (Class<?> c : tables.keySet()) {
+			test.test(c);
+		}
+		if (!test.getProblems().isEmpty()) {
+			for (String s : test.getProblems()) {
+				logger.severe(s);
+			}
+			throw new IllegalArgumentException("The persistent classes don't apply to the given rules");
+		}
 	}
 	
 }

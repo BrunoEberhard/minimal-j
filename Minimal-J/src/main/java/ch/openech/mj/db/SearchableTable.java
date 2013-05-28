@@ -27,7 +27,7 @@ import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.StringUtils;
 
-public abstract class SearchableTable<T> extends Table<T> {
+public abstract class SearchableTable<T> extends HistorizedTable<T> {
 	private static final Logger logger = Logger.getLogger(SearchableTable.class.getName());
 	
 	private static final Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_34);
@@ -37,19 +37,21 @@ public abstract class SearchableTable<T> extends Table<T> {
 
 	private final Object[] keys;
 	private final PropertyInterface[] properties;
+	private final String[] propertyPaths;
 	
 	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, Object[] keys) {
 		super(dbPersistence, clazz);
 		this.keys = keys;
 		this.properties = Keys.getProperties(keys);
+		this.propertyPaths = getPropertyPaths(properties);
 	}
 	
-	public static String[] getPropertyNames(Object[] keys) {
-		String[] names = new String[keys.length];
-		for (int i = 0; i<keys.length; i++) {
-			names[i] = Keys.getProperty(keys[i]).getFieldName();
+	private static String[] getPropertyPaths(PropertyInterface[] properties) {
+		String[] paths = new String[properties.length];
+		for (int i = 0; i<properties.length; i++) {
+			paths[i] = properties[i].getFieldPath();
 		}
-		return names;
+		return paths;
 	}
 	
 	@Override
@@ -195,17 +197,20 @@ public abstract class SearchableTable<T> extends Table<T> {
 		return find(text, keys);
 	}
 	
-	public List<T> find(String text, Object... keys) {
+	public List<T> find(String text, Object... searchKeys) {
+		PropertyInterface[] searchProperties = Keys.getProperties(searchKeys);
+		String[] searchPaths = getPropertyPaths(searchProperties);
+		
 		List<T> result = new ArrayList<T>();
 		initializeIndex();
 		if (directory.listAll().length == 0 || StringUtils.isBlank(text)) return result;
 
 		try (IndexSearcher isearcher = new IndexSearcher(directory, true)) {
 			QueryParser parser;
-			if (keys.length > 1) {
-				parser = new MultiFieldQueryParser(Version.LUCENE_34, getPropertyNames(keys), analyzer);
+			if (searchPaths.length > 1) {
+				parser = new MultiFieldQueryParser(Version.LUCENE_34, searchPaths, analyzer);
 			} else {
-				parser = new QueryParser(Version.LUCENE_34, getPropertyNames(keys)[0], analyzer);
+				parser = new QueryParser(Version.LUCENE_34, searchPaths[0], analyzer);
 			}
 			Query query = parser.parse(text);
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
@@ -219,7 +224,8 @@ public abstract class SearchableTable<T> extends Table<T> {
 			// user entered something like "*" which is not allowed
 			logger.info(x.getLocalizedMessage());
 		} catch (Exception x) {
-			logger.severe(x.getLocalizedMessage());
+			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+			x.printStackTrace();
 		}
 		return result;
 	}

@@ -1,28 +1,19 @@
 package ch.openech.mj.db;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import ch.openech.mj.db.model.ColumnProperties;
-
 /**
- * Im Gegensatz zu HistorizedTable hat HistorizedSubTable zwei Versionierungsfelder
- * ein startVersion und ein endVersion.<p>
- * 
- * Bei einem neu erstellten Eintrag ist startVersion und endVersion = 0.<p>
- * 
- * Nach einem update ist die endVersion die nr der Version, ab der der Eintrag
- * <i>nicht</i> mehr gilt und version die Version, aber die der Eintag gilt.
+ * Minimal-J internal<p>
  * 
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SubTable extends AbstractTable {
 
-	private PreparedStatement selectByIdAndTimeStatement;
-	private PreparedStatement endStatement;
-	private PreparedStatement readVersionsStatement;
+	private PreparedStatement selectByIdStatement;
+	private PreparedStatement updateStatement;
+	private PreparedStatement deleteStatement;
 	
 	public SubTable(DbPersistence dbPersistence, String prefix, Class clazz) {
 		super(dbPersistence, prefix, clazz);
@@ -31,105 +22,85 @@ public class SubTable extends AbstractTable {
 	@Override
 	public void initialize() throws SQLException {
 		super.initialize();
-		selectByIdAndTimeStatement = prepare(selectByIdAndTimeQuery());
-		readVersionsStatement = prepare(readVersionsQuery());
-		endStatement = prepare(endQuery());
+		selectByIdStatement = prepare(selectByIdQuery());
+		updateStatement = prepare(updateQuery());
+		deleteStatement = prepare(deleteQuery());
 	}
 	
 	@Override
 	public void closeStatements() throws SQLException {
 		super.closeStatements();
-		selectByIdAndTimeStatement.close();
-		endStatement.close();
-		readVersionsStatement.close();
+		selectByIdStatement.close();
+		updateStatement.close();
+		deleteStatement.close();
 	}
 	
-	public void insert(int parentId, List objects, Integer version) throws SQLException {
+	public void insert(int parentId, List objects) throws SQLException {
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
 			setParameterInt(insertStatement, parameterPos++, parentId);
 			setParameterInt(insertStatement, parameterPos++, position);
-			setParameterInt(insertStatement, parameterPos++, version);
 			insertStatement.execute();
 		}
 	}
 
-	public void update(int parentId, List objects, int version) throws SQLException {
-		List objectsInDb = read(parentId, version);
+	public void update(int parentId, List objects) throws SQLException {
+		List objectsInDb = read(parentId);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
-			boolean end = false;
 			boolean insert = false;
 			if (position < objectsInDb.size() && position < objects.size()) {
-				Object object = objects.get(position);
-				Object objectInDb = objectsInDb.get(position);
-				end = insert = !ColumnProperties.equals(object, objectInDb);
+				update(parentId, position, objects.get(position));
 			} else if (position < objectsInDb.size()) {
-				end = true;
+				// delete all beginning from this position with one delete statement
+				delete(parentId, position);
+				break; 
 			} else /* if (position < objects.size()) */ {
-				insert = true;
-			}
-			
-			if (end) {
-				endStatement.setInt(1, version);
-				endStatement.setInt(2, parentId);
-				endStatement.setInt(3, position);
-				endStatement.execute();	
+				insert(parentId, position, objects.get(position));
 			}
 			
 			if (insert) {
 				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
 				setParameterInt(insertStatement, parameterPos++, parentId);
 				setParameterInt(insertStatement, parameterPos++, position);
-				setParameterInt(insertStatement, parameterPos++, version);
 				insertStatement.execute();
 			}
 			position++;
 		}
 	}
 
-	public List read(int parentId, Integer time) throws SQLException {
-		if (time == null) {
-			return read(parentId);
-		}
-		selectByIdAndTimeStatement.setInt(1, parentId);
-		selectByIdAndTimeStatement.setInt(2, time);
-		selectByIdAndTimeStatement.setInt(3, time);
-		return executeSelectAll(selectByIdAndTimeStatement);
+	private void update(int parentId, int position, Object object) throws SQLException {
+		int parameterPos = setParameters(updateStatement, object, false, true);
+		setParameterInt(updateStatement, parameterPos++, parentId);
+		setParameterInt(updateStatement, parameterPos++, position);
+		updateStatement.execute();
 	}
 
-	private List read(int id) throws SQLException {
-		selectByIdStatement.setInt(1, id);
+	private void insert(int parentId, int position, Object object) throws SQLException {
+		int parameterPos = setParameters(insertStatement, object, false, true);
+		setParameterInt(insertStatement, parameterPos++, parentId);
+		setParameterInt(insertStatement, parameterPos++, position);
+		insertStatement.execute();
+	}
+	
+	private void delete(int parentId, int position) throws SQLException {
+		setParameterInt(deleteStatement, 0, parentId);
+		setParameterInt(deleteStatement, 1, position);
+		deleteStatement.execute();
+	}
+
+	public List read(int parentId) throws SQLException {
+		selectByIdStatement.setInt(1, parentId);
 		return executeSelectAll(selectByIdStatement);
 	}
-	
-	public void readVersions(int parentId, List<Integer> result) throws SQLException {
-		readVersionsStatement.setInt(1, parentId);
-		try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
-			while (resultSet.next()) {
-				int version = resultSet.getInt(1);
-				if (!result.contains(version)) result.add(version);
-				int endVersion = resultSet.getInt(2);
-				if (!result.contains(version)) result.add(endVersion);
-			}
-		}
-	}
-	
+
 	// Queries
-	
-	protected String selectByIdAndTimeQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); 
-		query.append(" WHERE id = ? AND (startVersion = 0 OR startVersion < ?) AND (endVersion = 0 OR endVersion >= ?) ORDER BY position");
-		return query.toString();
-	}
 	
 	@Override
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); query.append(" WHERE id = ?");
-		query.append(" AND endVersion = 0 ORDER BY position");
+		query.append("SELECT * FROM "); query.append(getTableName()); query.append(" WHERE id = ? ORDER BY position");
 		return query.toString();
 	}
 	
@@ -144,29 +115,30 @@ public class SubTable extends AbstractTable {
 			s.append(columnName);
 			s.append(", ");
 		}
-		s.append("id, position, startVersion, endVersion) VALUES (");
+		s.append("id, position) VALUES (");
 		for (int i = 0; i<columnNames.size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?, ?, ?, 0)");
+		s.append("?, ?)");
 
 		return s.toString();
 	}
-	
-	protected String endQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion = 0");
-		return s.toString();
-	}
-	
-	protected String readVersionsQuery() {
+
+	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("SELECT startVersion, endVersion FROM "); s.append(getTableName()); 
-		s.append(" WHERE id = ?");
+		s.append("UPDATE "); s.append(getTableName()); s.append(" SET ");
+		for (Object columnNameObject : columnNames) {
+			s.append((String) columnNameObject);
+			s.append("= ?, ");
+		}
+		s.delete(s.length()-2, s.length());
+		s.append(" WHERE id = ? AND position = ?");
 
 		return s.toString();
 	}
 	
-
+	protected String deleteQuery() {
+		return "DELETE FROM " + getTableName() + " WHERE id = ? AND position >= ?";
+	}
 }

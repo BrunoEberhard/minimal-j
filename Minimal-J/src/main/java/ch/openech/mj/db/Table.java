@@ -3,56 +3,60 @@ package ch.openech.mj.db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
 import ch.openech.mj.db.model.ColumnProperties;
+import ch.openech.mj.db.model.ListColumnProperties;
+import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.util.GenericUtils;
+import ch.openech.mj.util.StringUtils;
 
-/**
- * Idee: Eine historisierte Tabelle besitzt ein Feld namens "version". Beim aktuellen
- * Objekt ist dieses Feld 0. Bei historisierten Objekte wird dieses Feld hochgezählt,
- * d.h. "1" deutet auf die älteste Version, "2" auf die zweitälteste usw.<p>
- * 
- * Unhistorisierte Tabellen gibt es nicht.<p>
- * 
- */
 @SuppressWarnings("rawtypes")
 public class Table<T> extends AbstractTable<T> {
 
-	private PreparedStatement selectByIdAndTimeStatement;
+	private PreparedStatement selectById;
+	private PreparedStatement selectAllStatement;
 	private PreparedStatement updateStatement;
-	private PreparedStatement endStatement;
-	private PreparedStatement selectMaxVersionStatement;
-	private PreparedStatement readVersionsStatement;
+	protected final Map<String, AbstractTable<?>> subTables;
 	
 	private final WeakHashMap<Object, Integer> objectIds = new WeakHashMap<Object, Integer>(2048);
 
 	public Table(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, null, clazz);
+		this.subTables = findSubTables();
 	}
 	
 	@Override
 	public void initialize() throws SQLException {
 		super.initialize();
-		selectByIdAndTimeStatement = prepare(selectByIdAndTimeQuery());
-		endStatement = prepare(endQuery());
+		selectById = prepare(selectByIdQuery());
 		updateStatement = prepare(updateQuery());
-		selectMaxVersionStatement = prepare(selectMaxVersionQuery());
-		readVersionsStatement = prepare(readVersionsQuery());
+		selectAllStatement = prepare(selectAllQuery());
+		initializeSubTables();
 	}
 
+	private void initializeSubTables() throws SQLException {
+		findSubTables();
+		for (AbstractTable<?> table : subTables.values()) {
+			table.initialize();
+		}
+	}
+	
 	@Override
 	public void closeStatements() throws SQLException {
 		super.closeStatements();
-		selectByIdAndTimeStatement.close();
+		selectById.close();
+		selectAllStatement.close();
 		updateStatement.close();
-		endStatement.close();
-		selectMaxVersionStatement.close();
-		readVersionsStatement.close();
+		
+		for (AbstractTable<?> table : subTables.values()) {
+			table.closeStatements();
+		}
 	}
 	
 	@Override
@@ -71,26 +75,16 @@ public class Table<T> extends AbstractTable<T> {
 		return objectIds.get(object);
 	}
 
-//	public Integer getId(T object, int version) throws SQLException {
-//		setParameters(selectIdStatement, object, version, true, version, version);
-//
-//		ResultSet resultSet = selectIdStatement.executeQuery();
-//		Integer result = resultSet.next() ? resultSet.getInt(1) : null;
-//		resultSet.close();
-//		
-//		return result;
-//	}
-	
 	public int insert(T object) {
 		try {
 			int id = executeInsertWithAutoIncrement(insertStatement, object);
-			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-				SubTable historizedSubTable = (SubTable) subTable.getValue();
+			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+				SubTable subTable = (SubTable) subTableEntry.getValue();
 				List list;
 				try {
-					list = (List)ColumnProperties.getValue(object, subTable.getKey());
+					list = (List)ColumnProperties.getValue(object, subTableEntry.getKey());
 					if (list != null && !list.isEmpty()) {
-						historizedSubTable.insert(id, list, Integer.valueOf(0));
+						subTable.insert(id, list);
 					}
 				} catch (IllegalArgumentException e) {
 					throw new RuntimeException(e);
@@ -117,114 +111,81 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	public void clear() {
+		for (AbstractTable<?> table : subTables.values()) {
+			table.clear();
+		}
+		super.clear();
+	}
+	
+	private Map<String, AbstractTable<?>> findSubTables() {
+		Map<String, AbstractTable<?>> subTables = new HashMap<String, AbstractTable<?>>();
+		Map<String, PropertyInterface> properties = ListColumnProperties.getProperties(clazz);
+		for (PropertyInterface property : properties.values()) {
+			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
+			subTables.put(property.getFieldName(), createSubTable(property, clazz));
+		}
+		return subTables;
+	}
+
+	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
+		return new SubTable(dbPersistence, buildSubTableName(property), clazz);
+	}
+
+	protected String buildSubTableName(PropertyInterface property) {
+		StringBuilder b = new StringBuilder();
+		b.append(getTableName());
+		String fieldName = StringUtils.upperFirstChar(property.getFieldName());
+		b.append('_'); b.append(fieldName); 
+		return b.toString();
+	}
+	
 	private void update(int id, T object) throws SQLException {
-		// TODO Update sollte erst mal prüfen, ob update nötig ist.
-		// T oldObject = read(id);
-		// na, ob dann das mit allen subTables noch stimmt??
-		// if (ColumnAccess.equals(oldObject, object)) return;
-		
-		int version = findMaxVersion(id) + 1;
-		
-		endStatement.setInt(1, version);
-		endStatement.setInt(2, id);
-		endStatement.execute();	
-		
 		int parameterPos = setParameters(updateStatement, object, false, true);
 		setParameterInt(updateStatement, parameterPos++, id);
 		updateStatement.execute();
 		
-		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-			SubTable historizedSubTable = (SubTable) subTable.getValue();
+		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+			SubTable subTable = (SubTable) subTableEntry.getValue();
 			List list;
 			try {
-				list = (List) ColumnProperties.getValue(object, subTable.getKey());
+				list = (List) ColumnProperties.getValue(object, subTableEntry.getKey());
 			} catch (IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			}
-			historizedSubTable.update(id, list, version);
+			subTable.update(id, list);
 		}
 	}
 	
-	private int findMaxVersion(int id) throws SQLException {
-		int result = 0;
-		selectMaxVersionStatement.setInt(1, id);
-		try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
-			if (resultSet.next()) {
-				result = resultSet.getInt(1);
-			} 
-			return result;
-		}
-	}
-
-	public T read(int id) throws SQLException {
+	public T read(int id) {
 		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
 
-		selectByIdStatement.setInt(1, id);
-		T object = executeSelect(selectByIdStatement);
-		if (object != null) {
-			loadRelations(object, id, null);
-		}
-		return object;
-	}
-
-	public T read(Integer id, Integer time) throws SQLException {
-		if (id == null) return null;
-		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
-		
-		if (time != null) {
-			selectByIdAndTimeStatement.setInt(1, id);
-			selectByIdAndTimeStatement.setInt(2, time);
-			T object = executeSelect(selectByIdAndTimeStatement);
-			loadRelations(object, id, time);
-			// note: object is not registered, because its an old version
-			// and cannot be updated
+		try {
+			selectByIdStatement.setInt(1, id);
+			T object = executeSelect(selectByIdStatement);
+			if (object != null) {
+				loadRelations(object, id);
+			}
 			return object;
-		} else {
-			return read(id);
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
+			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
 		}
 	}
-	
-	public T read(T object, Integer time) throws SQLException {
+
+	public T read(T object) {
 		int id = getId(object);
-		return read(id, time);
+		return read(id);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void loadRelations(T object, int id, Integer time) throws SQLException {
-		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-			SubTable historizedSubTable = (SubTable) subTable.getValue();
-			// DbList list = new DbList(historizedSubTable, id, time);
-			try {
-				List list = (List)ColumnProperties.getValue(object, subTable.getKey());
-				list.addAll(historizedSubTable.read(id, time));
-//				subTable.getKey().set(object, list);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			}
+	private void loadRelations(T object, int id) throws SQLException {
+		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+			SubTable subTable = (SubTable) subTableEntry.getValue();
+			List list = (List)ColumnProperties.getValue(object, subTableEntry.getKey());
+			list.addAll(subTable.read(id));
 		}
 	}
-	
-	public List<Integer> readVersions(int id) throws SQLException {
-		List<Integer> result = new ArrayList<Integer>();
-
-		readVersionsStatement.setInt(1, id);
-		ResultSet resultSet = readVersionsStatement.executeQuery();
-		while (resultSet.next()) {
-			int version = resultSet.getInt(1);
-			if (!result.contains(version)) result.add(version);
-		}
-		resultSet.close();
-		
-		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-			SubTable historizedSubTable = (SubTable) subTable.getValue();
-			historizedSubTable.readVersions(id, result);
-		}
-		
-		result.remove(Integer.valueOf(0));
-		Collections.sort(result);
-		return result;
-	}
-	
 	
 	// Statements
 
@@ -232,14 +193,13 @@ public class Table<T> extends AbstractTable<T> {
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
-		query.append(" WHERE id = ? AND version = 0");
+		query.append(" WHERE id = ?");
 		return query.toString();
 	}
 	
-	protected String selectByIdAndTimeQuery() {
+	protected String selectAllQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM "); query.append(getTableName()); 
-		query.append(" WHERE id = ? AND version = ?");
 		return query.toString();
 	}
 	
@@ -252,11 +212,13 @@ public class Table<T> extends AbstractTable<T> {
 			s.append(columnName);
 			s.append(", ");
 		}
-		s.append("version) VALUES (");
+		s.delete(s.length()-2, s.length());
+		s.append(") VALUES (");
 		for (int i = 0; i<columnNames.size(); i++) {
 			s.append("?, ");
 		}
-		s.append("0)");
+		s.delete(s.length()-2, s.length());
+		s.append(")");
 
 		return s.toString();
 	}
@@ -264,39 +226,12 @@ public class Table<T> extends AbstractTable<T> {
 	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		for (String name : columnNames) {
-			s.append(name);
-			s.append(", ");
+		s.append("UPDATE "); s.append(getTableName()); s.append(" SET ");
+		for (Object columnNameObject : columnNames) {
+			s.append((String) columnNameObject);
+			s.append("= ?, ");
 		}
-		s.append("id, version) VALUES (");
-		for (int i = 0; i<columnNames.size(); i++) {
-			s.append("?, ");
-		}
-		s.append("?, 0)");
-
-		return s.toString();
-	}
-
-	protected String selectMaxVersionQuery() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("SELECT MAX(version) FROM "); s.append(getTableName()); 
-		s.append(" WHERE id = ?");
-
-		return s.toString();
-	}
-	
-	protected String endQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET version = ? WHERE id = ? AND version = 0");
-		return s.toString();
-	}
-	
-	protected String readVersionsQuery() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("SELECT version FROM "); s.append(getTableName()); 
+		s.delete(s.length()-2, s.length());
 		s.append(" WHERE id = ?");
 
 		return s.toString();

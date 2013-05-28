@@ -11,17 +11,17 @@ import org.junit.Test;
 
 import ch.openech.mj.db.DbPersistence;
 import ch.openech.mj.db.EmptyObjects;
-import ch.openech.mj.db.Table;
+import ch.openech.mj.db.HistorizedTable;
 
 public class DbCrudTest {
 	
 	private static DbPersistence persistence;
-	private static Table<A> table;
+	private static HistorizedTable<A> table;
 	
 	@BeforeClass
 	public static void setupDb() throws SQLException {
 		persistence = new DbPersistence();
-		table = persistence.addClass(A.class);
+		table = persistence.addHistorizedClass(A.class);
 		persistence.connect();
 	}
 	

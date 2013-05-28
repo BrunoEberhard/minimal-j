@@ -12,7 +12,8 @@ import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 
 /**
- * Was the version management of the database.
+ * Was the version management of the database. Not used at moment
+ * 
  */
 @Deprecated
 public class DbVersion {

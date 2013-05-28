@@ -18,6 +18,16 @@ import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.util.FieldUtils;
 
+/**
+ * Minimal-J internal<p>
+ * 
+ * Sends the create statements to the DB.<p>
+ * 
+ * Normally you don't need this class directly. Add your classes
+ * to the DbPersistence. By calling connect on the persisntence
+ * this creator is used.
+ * 
+ */
 public class DbCreator {
 	
 	private static final Logger logger = Logger.getLogger(DbCreator.class.getName());
@@ -79,17 +89,27 @@ public class DbCreator {
 			s.append(",\n");
 		}
 		
-		if (table instanceof Table<?>) {
+		if (table instanceof HistorizedTable<?>) {
 			s.append(" version INTEGER NOT NULL");
 			if (dbPersistence.isMySqlDb()) {
 				s.append(",\n PRIMARY KEY (id, version)\n");
 			}
-		} else if (table instanceof SubTable) {
+		} else if (table instanceof Table<?>) {
+			s.delete(s.length()-2, s.length());
+			if (dbPersistence.isMySqlDb()) {
+				s.append(",\n PRIMARY KEY (id)\n");
+			}
+		} else if (table instanceof HistorizedSubTable) {
 			s.append(" startVersion INTEGER NOT NULL,\n");
 			s.append(" endVersion INTEGER NOT NULL,\n");
 			s.append(" position INTEGER NOT NULL");
 			if (dbPersistence.isMySqlDb()) {
 				s.append(",\n PRIMARY KEY (id, startVersion, position)\n");
+			}
+		} else if (table instanceof SubTable) {
+			s.append(" position INTEGER NOT NULL");
+			if (dbPersistence.isMySqlDb()) {
+				s.append(",\n PRIMARY KEY (id, position)\n");
 			}
 		} else {
 			s.append(" PRIMARY KEY (id)\n");

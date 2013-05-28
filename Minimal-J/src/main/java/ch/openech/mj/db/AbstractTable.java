@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -20,25 +19,19 @@ import org.joda.time.LocalTime;
 import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.ListColumnProperties;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.FieldUtils;
-import ch.openech.mj.util.GenericUtils;
-import ch.openech.mj.util.StringUtils;
 
 /**
- * Typen von Tabellen:
- * 
- * <OL>
- * <LI>(Historisierte) In der Persistence vermerkte und damit bearbeitbare Tabellen
- * <LI>Von diesen Tabellen abhängige Tabellen. Können nicht direkt verändert werden.
- * <LI>Unveränderbare Tabellen, die von verschiedenen Top-Level Tabellen gleichzeitig
- * genutzt werden. Konstanten-Werte
- * </OL>
+ * Minimal-J internal<p>
+ *
+ * Base class of all table representing classes in this persistence layer.
+ * Normally you should not need to extend from this class directly. Use
+ * the existing subclasses or only the methods in DbPersistence.
  * 
  */
 public abstract class AbstractTable<T> {
@@ -47,7 +40,6 @@ public abstract class AbstractTable<T> {
 	protected final DbPersistence dbPersistence;
 	protected final Class<T> clazz;
 	protected final List<String> columnNames;
-	protected final Map<String, AbstractTable<?>> subTables;
 	
 	protected final String name;
 	
@@ -61,7 +53,6 @@ public abstract class AbstractTable<T> {
 		this.name = prefix;
 		this.clazz = clazz;
 		this.columnNames = findColumnNames(clazz);
-		this.subTables = findSubTables();
 	}
 
 	private static List<String> findColumnNames(Class<?> clazz) {
@@ -82,7 +73,6 @@ public abstract class AbstractTable<T> {
 	
 	public void initialize() throws SQLException {
 		initializeImmutables();
-		initializeSubTables();
 		
 		create();
 		prepareStatements();
@@ -107,9 +97,6 @@ public abstract class AbstractTable<T> {
 	}
 	
 	public void clear() {
-		for (AbstractTable<?> table : subTables.values()) {
-			table.clear();
-		}
 		try {
 			clearStatement.execute();
 		} catch (SQLException x) {
@@ -129,16 +116,6 @@ public abstract class AbstractTable<T> {
 	public Class<T> getClazz() {
 		return clazz;
 	}
-			
-	private Map<String, AbstractTable<?>> findSubTables() {
-		Map<String, AbstractTable<?>> subTables = new HashMap<String, AbstractTable<?>>();
-		Map<String, PropertyInterface> properties = ListColumnProperties.getProperties(clazz);
-		for (PropertyInterface property : properties.values()) {
-			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
-			subTables.put(property.getFieldName(), new SubTable(dbPersistence, buildSubTableName(property), clazz));
-		}
-		return subTables;
-	}
 	
 	private void initializeImmutables() throws SQLException {
 		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(clazz);
@@ -155,21 +132,6 @@ public abstract class AbstractTable<T> {
 				}
 			}
 		}
-	}
-
-	private void initializeSubTables() throws SQLException {
-		findSubTables();
-		for (AbstractTable<?> table : subTables.values()) {
-			table.initialize();
-		}
-	}
-
-	private String buildSubTableName(PropertyInterface property) {
-		StringBuilder b = new StringBuilder();
-		b.append(getTableName());
-		String fieldName = StringUtils.upperFirstChar(property.getFieldName());
-		b.append('_'); b.append(fieldName); 
-		return b.toString();
 	}
 	
 	protected void prepareStatements() throws SQLException {
@@ -200,10 +162,6 @@ public abstract class AbstractTable<T> {
 		insertStatement.close();
 		selectMaxIdStatement.close();
 		clearStatement.close();
-		
-		for (AbstractTable<?> table : subTables.values()) {
-			table.closeStatements();
-		}
 	}
 	
 	protected Connection getConnection() {
@@ -278,23 +236,27 @@ public abstract class AbstractTable<T> {
 				continue;
 			}
 			
-			Class<?> fieldClass = property.getFieldClazz();
-			if (ColumnProperties.isReference(property)) {
-				value = dereference(fieldClass, (Integer) value, time);
-			} else {
-				value = convertToFieldClass(fieldClass, value);
+			if (value != null) {
+				Class<?> fieldClass = property.getFieldClazz();
+				if (ColumnProperties.isReference(property)) {
+					value = dereference(fieldClass, (Integer) value, time);
+				} else {
+					value = convertToFieldClass(fieldClass, value);
+				}
+				property.setValue(result.object, value);
 			}
-			property.setValue(result.object, value);
 		}
 		return result;
 	}
 	
-	protected <D> Object dereference(Class<D> clazz, Integer id, Integer time) throws SQLException{
+	protected <D> Object dereference(Class<D> clazz, int id, Integer time) {
 		AbstractTable<D> table = dbPersistence.getTable(clazz);
 		if (table instanceof ImmutableTable) {
-			return ((ImmutableTable<?>) table).selectById(id);
+			return ((ImmutableTable<?>) table).read(id);
+		} else if (table instanceof HistorizedTable<?>) {
+			return ((HistorizedTable<?>) table).read(id, time);			
 		} else if (table instanceof Table) {
-			return ((Table<?>) table).read(id, time);
+			return ((Table<?>) table).read(id);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
