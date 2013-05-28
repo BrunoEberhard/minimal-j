@@ -251,7 +251,8 @@ public abstract class Editor<T> {
 			}
 			
 			property.setValue(editedObject, newValue);
-			
+			userEdited = true;
+
 			propertyValidations.remove(property);
 			if (newValue instanceof Validatable) {
 				String validationMessage = ((Validatable) newValue).validate();
@@ -259,9 +260,10 @@ public abstract class Editor<T> {
 					propertyValidations.put(property, validationMessage);
 				}
 			}
-			updateValidation();
 			
-			userEdited = true;
+			Editor.this.propertyChanged(property);
+			
+			updateValidation();
 		}
 
 		@Override
@@ -285,7 +287,11 @@ public abstract class Editor<T> {
 		validate(editedObject, validationMessages);
 		indicate(validationMessages);
 	}
-	
+
+	protected void propertyChanged(PropertyInterface property) {
+		// to be implemented in specific class
+	}
+
 	private void validateForEmpty(List<ValidationMessage> validationMessages) {
 		for (PropertyInterface property : form.getProperties()) {
 			if (property.getAnnotation(Required.class) != null) {

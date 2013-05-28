@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,13 +38,12 @@ import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TextFormatField;
 import ch.openech.mj.edit.fields.TypeUnknownField;
+import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.edit.value.Properties;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
-import ch.openech.mj.model.annotation.Changes;
 import ch.openech.mj.model.annotation.Enabled;
-import ch.openech.mj.model.annotation.OnChange;
 import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.Caption;
@@ -69,6 +69,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private final FormPanelActionListener formPanelActionListener = new FormPanelActionListener();
 	
 	private IForm.FormChangeListener changeListener;
+	private final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
+	@SuppressWarnings("rawtypes")
+	private final Map<PropertyInterface, Map<PropertyInterface, PropertyUpdater>> propertyUpdater = new HashMap<>();
 	
 	private boolean resizable = false;
 	
@@ -294,6 +297,33 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 
 	//
+
+	public void addDependecy(Object fromKey, Object... toKey) {
+		PropertyInterface fromProperty = Keys.getProperty(fromKey);
+		if (!dependencies.containsKey(fromProperty)) {
+			dependencies.put(fromProperty, new ArrayList<PropertyInterface>());
+		}
+		List<PropertyInterface> list = dependencies.get(fromProperty);
+		for (Object key : toKey) {
+			list.add(Keys.getProperty(key));
+		}
+	}
+
+	public <FROM, TO> void addDependecy(FROM fromKey, PropertyUpdater<FROM, TO, T> updater, TO toKey) {
+		PropertyInterface fromProperty = Keys.getProperty(fromKey);
+		if (!propertyUpdater.containsKey(fromProperty)) {
+			propertyUpdater.put(fromProperty, new HashMap<PropertyInterface, PropertyUpdater>());
+		}
+		PropertyInterface toProperty = Keys.getProperty(toKey);
+		propertyUpdater.get(fromProperty).put(toProperty, updater);
+		addDependecy(fromKey, toKey);
+	}
+
+	public interface PropertyUpdater<FROM, TO, EDIT_OBJECT> {
+		public TO update(FROM input, EDIT_OBJECT copyOfEditObject);
+	}
+	
+	//
 	
 	protected FormField<?> getField(Object key) {
 		return fields.get(Keys.getProperty(key));
@@ -384,45 +414,32 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 			PropertyInterface property = changedField.getProperty();
 			Object value = changedField.getObject();
-			
-			if (changeListener != null) {
-				changeListener.stateChanged(property, value);
-			}
-			
-			OnChange onChange = property.getAnnotation(OnChange.class);
-			if (onChange != null) {
-				try {
-					Object o = findParentObject(property);
-					Class clazz = o.getClass();
-					Method method = clazz.getMethod(onChange.value());
-					method.invoke(o);
-					Changes changes = method.getAnnotation(Changes.class);
-					String propertyParent = property.getFieldPath();
-					if (propertyParent.contains(".")) {
-						propertyParent = propertyParent.substring(0, propertyParent.lastIndexOf(".") + 1);
-					} else {
-						propertyParent = "";
-					}
-					for (String change : changes.value()) {
-						for (Map.Entry field : fields.entrySet()) {
-							PropertyInterface p = (PropertyInterface) field.getKey();
-							if (p.getFieldPath().equals(propertyParent + change)) {
-								Object v = p.getValue(object);
-								((FormField) field.getValue()).setObject(v);
-								if (changeListener != null) {
-									changeListener.stateChanged(p, v);
-								}								
-							}
-						}
-					}
-				} catch (Exception x) {
-					x.printStackTrace();
-					System.out.println(property.getFieldName());
-					System.out.println(property.getFieldPath());
+
+			executeUpdater(property, value);
+			refreshDependendFields(property);
+			updateEnable();
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		private void refreshDependendFields(PropertyInterface property) {
+			if (dependencies.containsKey(property)) {
+				List<PropertyInterface> dependendProperties = dependencies.get(property);
+				for (PropertyInterface dependendProperty : dependendProperties) {
+					Object newDependedValue = dependendProperty.getValue(object);
+					((FormField) fields.get(dependendProperty)).setObject(newDependedValue);
 				}
 			}
-			
-			updateEnable();
+		}
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		private void executeUpdater(PropertyInterface property, Object value) {
+			if (propertyUpdater.containsKey(property)) {
+				Map<PropertyInterface, PropertyUpdater> updaters = propertyUpdater.get(property);
+				for (Map.Entry<PropertyInterface, PropertyUpdater> entry : updaters.entrySet()) {
+					Object ret = entry.getValue().update(value, CloneHelper.clone(object));
+					entry.getKey().setValue(object, ret);
+				}
+			}
 		}
 	}
 	
