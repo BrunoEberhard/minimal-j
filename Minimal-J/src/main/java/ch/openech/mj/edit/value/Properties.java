@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -132,10 +133,18 @@ public class Properties {
 					field.set(object, value);
 				} else {
 					Object finalObject = field.get(object);
-					if (value == null) {
-						value = EmptyObjects.getEmptyObject(field.getType());
+					if (finalObject instanceof List) {
+						List finalList = (List) finalObject;
+						finalList.clear();
+						if (value != null) {
+							finalList.addAll((List) value);
+						}
+					} else {
+						if (value == null) {
+							value = EmptyObjects.getEmptyObject(field.getType());
+						}
+						ColumnProperties.copy(value, finalObject);
 					}
-					ColumnProperties.copy(value, finalObject);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
