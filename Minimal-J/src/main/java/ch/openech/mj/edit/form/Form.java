@@ -2,7 +2,6 @@ package ch.openech.mj.edit.form;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,7 +63,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private final LinkedHashMap<PropertyInterface, FormField<?>> fields = new LinkedHashMap<PropertyInterface, FormField<?>>();
 	private final Map<PropertyInterface, Caption> indicators = new HashMap<PropertyInterface, Caption>();
 	
-	private KeyListener keyListener;
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	private final FormPanelActionListener formPanelActionListener = new FormPanelActionListener();
 	
@@ -298,6 +296,15 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 	//
 
+	/**
+	 * Declares that if the property with fromKey changes all
+	 * the properties with toKey could change. This is normally used
+	 * if the to property is a getter that calculates something that
+	 * depends on the fromKey in a simple way.
+	 * 
+	 * @param fromKey
+	 * @param toKey
+	 */
 	public void addDependecy(Object fromKey, Object... toKey) {
 		PropertyInterface fromProperty = Keys.getProperty(fromKey);
 		if (!dependencies.containsKey(fromProperty)) {
@@ -309,6 +316,18 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		}
 	}
 
+	/**
+	 * Declares that if the property with fromKey changes the specified
+	 * updater should be called and after its return the toKey property
+	 * could have changed.<p>
+	 * 
+	 * This is used if there is a more complex relation between two properities.
+	 * 
+	 * @param fromKey
+	 * @param updater
+	 * @param toKey
+	 */
+	@SuppressWarnings("rawtypes")
 	public <FROM, TO> void addDependecy(FROM fromKey, PropertyUpdater<FROM, TO, T> updater, TO toKey) {
 		PropertyInterface fromProperty = Keys.getProperty(fromKey);
 		if (!propertyUpdater.containsKey(fromProperty)) {
@@ -319,6 +338,14 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		addDependecy(fromKey, toKey);
 	}
 
+	/**
+	 * 
+	 * @param <FROM> The new value of the property that has changed
+	 * @param <EDIT_OBJECT> The current object of the form. This reference should <b>not</b> be changed.
+	 * It should be treated as a read only version or a copy of the object.
+	 * It's probably not a real copy as it is to expensive to copy the object for every call. 
+	 * @return <TO> The new value the updater wants to set to the toKey property
+	 */
 	public interface PropertyUpdater<FROM, TO, EDIT_OBJECT> {
 		public TO update(FROM input, EDIT_OBJECT copyOfEditObject);
 	}
@@ -331,7 +358,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	//
 
-	protected void registerNamedField(FormField<?> field) {
+	private void registerNamedField(FormField<?> field) {
 		fields.put(field.getProperty(), field);
 		if (field instanceof EditField<?>) {
 			EditField<?> editField = (EditField<?>) field;
@@ -355,7 +382,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 	//
 
-	protected String caption(FormField<?> field) {
+	private String caption(FormField<?> field) {
 		return Resources.getObjectFieldName(resourceBundle, field.getProperty());
 	}
 
