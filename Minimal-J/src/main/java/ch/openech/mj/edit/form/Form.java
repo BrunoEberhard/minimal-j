@@ -418,6 +418,10 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			executeUpdater(property, value);
 			refreshDependendFields(property);
 			updateEnable();
+			
+			if (changeListener != null) {
+				changeListener.stateChanged(property, value);
+			}
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
