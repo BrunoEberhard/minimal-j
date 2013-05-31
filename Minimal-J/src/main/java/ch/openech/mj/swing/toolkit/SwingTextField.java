@@ -12,10 +12,9 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import ch.openech.mj.toolkit.Focusable;
 import ch.openech.mj.toolkit.TextField;
 
-public class SwingTextField extends JTextField implements TextField, Focusable {
+public class SwingTextField extends JTextField implements TextField {
 	private final ChangeListener changeListener;
 	private FocusListener focusListener;
 	private ActionListener commitListener;

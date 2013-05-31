@@ -21,11 +21,6 @@ public class VaadinVerticalFlowField extends VerticalLayout implements FlowField
 	}
 	
 	@Override
-	public void requestFocus() {
-		super.focus();
-	}
-
-	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 	}

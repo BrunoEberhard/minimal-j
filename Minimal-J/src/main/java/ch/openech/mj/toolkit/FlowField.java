@@ -3,7 +3,7 @@ package ch.openech.mj.toolkit;
 import javax.swing.Action;
 
 
-public interface FlowField extends IComponent, Focusable {
+public interface FlowField extends IComponent {
 
 	public void clear();
 	

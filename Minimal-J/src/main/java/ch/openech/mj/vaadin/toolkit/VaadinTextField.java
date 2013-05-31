@@ -50,11 +50,6 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 	}
 
 	@Override
-	public void requestFocus() {
-		textWidget.requestFocus();
-	}
-
-	@Override
 	public void setText(String text) {
 		textWidget.setText(text);
 	}

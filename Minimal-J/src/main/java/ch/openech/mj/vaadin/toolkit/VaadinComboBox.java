@@ -24,11 +24,6 @@ public class VaadinComboBox<T> extends Select implements ComboBox<T> {
 	}
 	
 	@Override
-	public void requestFocus() {
-		super.focus();
-	}
-
-	@Override
 	public void setObjects(List<T> objects) {
 		this.objects = objects;
 		updateChoice();

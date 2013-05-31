@@ -17,11 +17,6 @@ public class VaadinCheckBox extends CheckBox implements ch.openech.mj.toolkit.Ch
 	}
 
 	@Override
-	public void requestFocus() {
-		focus();
-	}
-
-	@Override
 	public void setSelected(boolean selected) {
 		super.setValue(selected);
 	}

@@ -4,7 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 
-public interface TextField extends IComponent, Focusable {
+public interface TextField extends IComponent {
 	
 	public void setText(String text);
 

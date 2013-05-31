@@ -8,9 +8,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.toolkit.CheckBox;
-import ch.openech.mj.toolkit.Focusable;
 
-public class SwingCheckBox extends JCheckBox implements CheckBox, Focusable {
+public class SwingCheckBox extends JCheckBox implements CheckBox {
 
 	private final ChangeListener listener;
 

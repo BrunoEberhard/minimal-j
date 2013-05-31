@@ -35,11 +35,6 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 	}
 
 	@Override
-	public void requestFocus() {
-		// read only field cannot be focused
-	}
-
-	@Override
 	public void setFocusListener(FocusListener focusListener) {
 		// read only field cannot be focused
 	}

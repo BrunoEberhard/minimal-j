@@ -51,11 +51,6 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 	
 	@Override
-	public void requestFocus() {
-		focus();
-	}
-
-	@Override
 	public void setObjects(List<T> list) {
 		this.objects = list;
 		setContainerDataSource(new PropertyVaadinContainer(clazz, list, properties));

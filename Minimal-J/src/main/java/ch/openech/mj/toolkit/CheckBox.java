@@ -1,7 +1,7 @@
 package ch.openech.mj.toolkit;
 
 
-public interface CheckBox extends IComponent, Focusable {
+public interface CheckBox extends IComponent {
 	
 	public void setSelected(boolean selected);
 
