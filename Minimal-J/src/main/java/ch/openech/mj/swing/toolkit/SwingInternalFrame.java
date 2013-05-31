@@ -8,9 +8,9 @@ import java.beans.PropertyVetoException;
 import javax.swing.JInternalFrame;
 
 import ch.openech.mj.swing.component.EditablePanel;
-import ch.openech.mj.toolkit.VisualDialog;
+import ch.openech.mj.toolkit.IDialog;
 
-public class SwingInternalFrame extends JInternalFrame implements VisualDialog {
+public class SwingInternalFrame extends JInternalFrame implements IDialog {
 	// private static final Logger logger = Logger.getLogger(EditorInternalFrameDecorator.class.getName());
 	
 	private final EditablePanel editablePanel;

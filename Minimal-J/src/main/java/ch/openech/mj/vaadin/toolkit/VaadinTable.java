@@ -3,7 +3,6 @@ package ch.openech.mj.vaadin.toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.ReadablePartial;
@@ -11,25 +10,31 @@ import org.joda.time.ReadablePartial;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.util.JodaFormatter;
 import ch.openech.mj.vaadin.PropertyVaadinContainer;
 
 import com.vaadin.data.Property;
+import com.vaadin.event.Action;
+import com.vaadin.event.Action.Handler;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.Table;
 
-public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
+public class VaadinTable<T> extends Table implements ITable<T> {
 
 	private final Class<T> clazz;
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private final JodaFormatter jodaFormatter = new JodaFormatter();
 	private List<T> objects;
 	private ActionListener listener;
-	private VaadinVisualTableItemClickListener tableClickListener;
+	private VaadinTableItemClickListener tableClickListener;
+	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
+	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
-	public VaadinVisualTable(Class<T> clazz, Object[] keys) {
+
+	public VaadinTable(Class<T> clazz, Object[] keys) {
 		this.clazz = clazz;
 		setSelectable(true);
 		setMultiSelect(false);
@@ -41,6 +46,8 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
 			setColumnHeader(property, header);
 		}
+		
+		addActionHandler(new VaadinTableActionHandler());
 	}
 	
 	@Override
@@ -74,7 +81,7 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 		this.listener = clickListener;
 		if (clickListener != null) {
 			if (tableClickListener == null) {
-				tableClickListener = new VaadinVisualTableItemClickListener();
+				tableClickListener = new VaadinTableItemClickListener();
 				addListener(tableClickListener);
 			}
 		}
@@ -90,25 +97,50 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 		return super.formatPropertyValue(rowId, colId, property);
 	}
      
-	private class VaadinVisualTableItemClickListener implements ItemClickListener {
+	private class VaadinTableItemClickListener implements ItemClickListener {
 		@Override
-		public void itemClick(ItemClickEvent arg0) {
-			ActionEvent actionEvent = new ActionEvent(VaadinVisualTable.this, 0, "Insert");
-			listener.actionPerformed(actionEvent);
+		public void itemClick(ItemClickEvent event) {
+			if (event.isDoubleClick()) {
+				ActionEvent actionEvent = new ActionEvent(VaadinTable.this, 0, "Clicked");
+				listener.actionPerformed(actionEvent);
+			}
 		}
+	}
+	
+	private class VaadinTableActionHandler implements Handler {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Action[] getActions(Object target, Object sender) {
+			if (sender == VaadinTable.this) {
+				return new Action[]{action_delete, action_enter};
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public void handleAction(Action action, Object sender, Object target) {
+			System.out.println(action);
+		}
+		
 	}
 
 	// TODO !
 	
 	@Override
 	public List<T> getSelectedObjects() {
-		// TODO Auto-generated method stub
-		return Collections.emptyList();
+		List<T> selectedObjects = new ArrayList<>();
+		for (Object itemId : getItemIds()) {
+			if (isSelected(itemId)) {
+				selectedObjects.add((T) getItem(itemId));
+			}
+		}
+		return selectedObjects;
 	}
 
 	@Override
 	public void setDeleteListener(ActionListener listener) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -120,4 +152,5 @@ public class VaadinVisualTable<T> extends Table implements VisualTable<T> {
 	public void setFunctionListener(int function, ActionListener listener) {
 		// TODO Auto-generated method stub
 	}
+	
 }

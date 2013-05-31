@@ -11,17 +11,17 @@ import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Size;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.toolkit.ITable;
 
 public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 
 	private List<HistoryVersion<T>> versions;
-	private VisualTable<HistoryVersion<T>> table;
+	private ITable<HistoryVersion<T>> table;
 	
 	public HistoryPage(PageContext context) {
 		super(context);
-		VisualTable<?> table2 = ClientToolkit.getToolkit().createVisualTable(HistoryVersion.class, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
-		table = (VisualTable<HistoryVersion<T>>) table2;
+		ITable<?> table2 = ClientToolkit.getToolkit().createTable(HistoryVersion.class, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
+		table = (ITable<HistoryVersion<T>>) table2;
 		table.setClickListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

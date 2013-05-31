@@ -6,23 +6,28 @@ import java.util.List;
 
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.toolkit.ITable;
 
 
+/**
+ * Shows a table of objects of one class. 
+ *
+ * @param <T> Class of objects in this overview
+ */
 public abstract class TablePage<T> extends Page implements RefreshablePage {
 
 	private String text;
-	private VisualTable<T> table;
+	private ITable<T> table;
 
 	public TablePage(PageContext context, Object[] FIELDS, String text) {
 		super(context);
 		this.text = text;
-		table = ClientToolkit.getToolkit().createVisualTable((Class<T>)Object.class, FIELDS);
+		table = ClientToolkit.getToolkit().createTable((Class<T>)Object.class, FIELDS);
 		table.setClickListener(new TableClickListener());
 		refresh();
 	}
 
-	protected VisualTable<T> getTable() {
+	protected ITable<T> getTable() {
 		return table;
 	}
 

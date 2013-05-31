@@ -16,15 +16,15 @@ import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.VisualDialog;
-import ch.openech.mj.toolkit.VisualDialog.CloseListener;
-import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.toolkit.IDialog;
+import ch.openech.mj.toolkit.IDialog.CloseListener;
+import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.util.GenericUtils;
 
 public abstract class SearchDialogAction<T> extends AbstractAction {
 	private final Object[] keys;
-	private VisualDialog dialog;
-	private VisualTable<T> table;
+	private IDialog dialog;
+	private ITable<T> table;
 	private TextField textFieldSearch;
 	
 	public SearchDialogAction(Object... keys) {
@@ -49,7 +49,7 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 		
 		@SuppressWarnings("unchecked")
 		Class<T> clazz = (Class<T>) GenericUtils.getGenericClass(getClass());		
-		table = ClientToolkit.getToolkit().createVisualTable(clazz, keys);
+		table = ClientToolkit.getToolkit().createTable(clazz, keys);
 				
 		IComponent layout = ClientToolkit.getToolkit().createSearchLayout(textFieldSearch, new SearchAction(), table, new OkAction());
 		

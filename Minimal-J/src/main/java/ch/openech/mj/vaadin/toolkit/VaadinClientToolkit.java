@@ -23,8 +23,8 @@ import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.VisualDialog;
-import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.toolkit.IDialog;
+import ch.openech.mj.toolkit.ITable;
 
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
@@ -168,12 +168,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> VisualTable<T> createVisualTable(Class<T> clazz, Object[] fields) {
-		return new VaadinVisualTable<T>(clazz, fields);
+	public <T> ITable<T> createTable(Class<T> clazz, Object[] fields) {
+		return new VaadinTable<T>(clazz, fields);
 	}
 
 	@Override
-	public VisualDialog openDialog(IComponent parent, IComponent content, String title) {
+	public IDialog openDialog(IComponent parent, IComponent content, String title) {
 		Component parentComponent = (Component) parent;
 		Component component = (Component) content;
 		Window window = parentComponent.getWindow();

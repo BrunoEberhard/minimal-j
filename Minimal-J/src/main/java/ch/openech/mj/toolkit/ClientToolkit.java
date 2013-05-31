@@ -49,7 +49,7 @@ public abstract class ClientToolkit {
 	
 	public abstract CheckBox createCheckBox(ChangeListener changeListener, String text);
 
-	public abstract <T> VisualTable<T> createVisualTable(Class<T> clazz, Object[] fields);
+	public abstract <T> ITable<T> createTable(Class<T> clazz, Object[] fields);
 
 	// Layouts
 	
@@ -79,7 +79,7 @@ public abstract class ClientToolkit {
 	
 	public abstract ProgressListener showProgress(Object parent, String text);
 	
-	public abstract VisualDialog openDialog(IComponent parent, IComponent content, String title);
+	public abstract IDialog openDialog(IComponent parent, IComponent content, String title);
 	        
 	// Focus
 	

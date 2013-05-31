@@ -17,16 +17,16 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
 import ch.openech.mj.swing.component.PropertyTable;
-import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.toolkit.ITable;
 
-public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
+public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 	private static final long serialVersionUID = 1L;
 	
 	private final PropertyTable<T> propertyTable;
 	private ActionListener listener;
 	
-	public SwingVisualTable(Class<T> clazz, Object[] fields) {
+	public SwingTable(Class<T> clazz, Object[] fields) {
 		propertyTable = new PropertyTable<T>(clazz, fields);
 
 		propertyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -37,7 +37,7 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 		
 		bindRowHeightToFont();
 
-		propertyTable.addMouseListener(new SwingVisualTableMouseListener());
+		propertyTable.addMouseListener(new SwingTableMouseListener());
 	}
 
 	private void bindRowHeightToFont() {
@@ -77,13 +77,13 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 		this.listener = listener;
 	}
 
-	private class SwingVisualTableMouseListener extends MouseAdapter {
+	private class SwingTableMouseListener extends MouseAdapter {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() >= 2 && listener != null) {
 				try {
-					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Clicked");
+					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Clicked");
 					listener.actionPerformed(actionEvent);
 				} catch (Exception x) {
 					x.printStackTrace();
@@ -99,7 +99,7 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Insert");
+					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Insert");
 					listener.actionPerformed(actionEvent);
 				}
 			};
@@ -116,7 +116,7 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Delete");
+					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Delete");
 					listener.actionPerformed(actionEvent);
 				}
 			};
@@ -134,7 +134,7 @@ public class SwingVisualTable<T> extends JScrollPane implements VisualTable<T> {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ActionEvent actionEvent = new ActionEvent(SwingVisualTable.this, 0, "Function" + function);
+					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Function" + function);
 					listener.actionPerformed(actionEvent);
 				}
 			};

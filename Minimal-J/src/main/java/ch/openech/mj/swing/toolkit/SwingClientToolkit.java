@@ -42,8 +42,8 @@ import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.VisualDialog;
-import ch.openech.mj.toolkit.VisualTable;
+import ch.openech.mj.toolkit.IDialog;
+import ch.openech.mj.toolkit.ITable;
 
 public class SwingClientToolkit extends ClientToolkit {
 
@@ -182,8 +182,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> VisualTable<T> createVisualTable(Class<T> clazz, Object[] fields) {
-		return new SwingVisualTable<T>(clazz, fields);
+	public <T> ITable<T> createTable(Class<T> clazz, Object[] fields) {
+		return new SwingTable<T>(clazz, fields);
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public VisualDialog openDialog(IComponent parent, IComponent content, String title) {
+	public IDialog openDialog(IComponent parent, IComponent content, String title) {
 		Window window = findWindow((Component)parent);
 		Component contentComponent = (Component)content;
 		// TODO check for OS or move this to UI

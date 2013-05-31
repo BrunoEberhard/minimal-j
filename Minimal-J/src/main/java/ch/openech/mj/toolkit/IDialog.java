@@ -1,6 +1,6 @@
 package ch.openech.mj.toolkit;
 
-public interface VisualDialog {
+public interface IDialog {
 
 	public void setResizable(boolean resizable);
 

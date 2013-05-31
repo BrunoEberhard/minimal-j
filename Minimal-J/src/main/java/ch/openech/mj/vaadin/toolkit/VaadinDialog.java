@@ -2,17 +2,17 @@ package ch.openech.mj.vaadin.toolkit;
 
 import java.util.Iterator;
 
-import ch.openech.mj.toolkit.VisualDialog;
+import ch.openech.mj.toolkit.IDialog;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Window;
 
-public class VaadinDialog extends Window implements VisualDialog {
+public class VaadinDialog extends Window implements IDialog {
 
 	private final Window parentWindow;
-	private ch.openech.mj.toolkit.VisualDialog.CloseListener closeListener;
+	private ch.openech.mj.toolkit.IDialog.CloseListener closeListener;
 	
 	public VaadinDialog(Window parentWindow, ComponentContainer content, String title) {
 		super(title, content);
@@ -39,7 +39,7 @@ public class VaadinDialog extends Window implements VisualDialog {
 	}
 	
 	@Override
-	public void setCloseListener(ch.openech.mj.toolkit.VisualDialog.CloseListener closeListener) {
+	public void setCloseListener(ch.openech.mj.toolkit.IDialog.CloseListener closeListener) {
 		this.closeListener = closeListener;
 	}
 

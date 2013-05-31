@@ -4,7 +4,7 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 
-public interface VisualTable<T> extends IComponent, Focusable {
+public interface ITable<T> extends IComponent, Focusable {
 
 	public void setObjects(List<T> object);
 

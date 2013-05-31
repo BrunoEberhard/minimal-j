@@ -9,10 +9,10 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 
-import ch.openech.mj.toolkit.VisualDialog;
+import ch.openech.mj.toolkit.IDialog;
 
 // TODO make async (implement executeAsync wie in AsyncPage)
-public class SwingEditorDialog extends JDialog implements VisualDialog {
+public class SwingEditorDialog extends JDialog implements IDialog {
 	// private static final Logger logger = Logger.getLogger(EditorInternalFrameDecorator.class.getName());
 	
 	private final Component focusAfterClose;
