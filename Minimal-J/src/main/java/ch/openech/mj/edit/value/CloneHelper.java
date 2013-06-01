@@ -34,6 +34,7 @@ public class CloneHelper {
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void _deepClone(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
 		for (Field field : from.getClass().getDeclaredFields()) {
 			if (FieldUtils.isStatic(field)) continue;
@@ -73,6 +74,7 @@ public class CloneHelper {
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void _deepCopy(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
 		for (Field field : from.getClass().getDeclaredFields()) {
 			if (FieldUtils.isStatic(field)) continue;
