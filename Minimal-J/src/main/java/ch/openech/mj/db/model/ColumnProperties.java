@@ -111,6 +111,7 @@ public class ColumnProperties {
 		return keys;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void copy(Object from, Object to) {
 		Map<String, PropertyInterface> properties = getProperties(from.getClass());
 		for (PropertyInterface property : properties.values()) {
@@ -184,11 +185,9 @@ public class ColumnProperties {
 	}
 
 	static class ColumnProperty implements PropertyInterface {
-		private final Class<?> clazz;
 		private Field field;
 
 		public ColumnProperty(Class<?> clazz, Field field) {
-			this.clazz = clazz;
 			this.field = field;
 		}
 		
@@ -261,12 +260,10 @@ public class ColumnProperties {
 
 	
 	static class ChainedProperty implements PropertyInterface {
-		private final Class<?> clazz;
 		private PropertyInterface next;
 		private Field field;
 
 		public ChainedProperty(Class<?> clazz, Field field, PropertyInterface next) {
-			this.clazz = clazz;
 			this.field = field;
 			this.next = next;
 		}
