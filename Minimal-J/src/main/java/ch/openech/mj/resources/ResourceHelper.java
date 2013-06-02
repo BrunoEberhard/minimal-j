@@ -1,8 +1,10 @@
 package ch.openech.mj.resources;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +17,7 @@ import ch.openech.mj.util.StringUtils;
 
 public class ResourceHelper {
 	private static Logger logger = Logger.getLogger(ResourceHelper.class.getName());
+	private static Set<String> loggedMissings = new HashSet<>();
 	
 	/*
 	 * Init all of the Action properties for the @Action named
@@ -81,7 +84,7 @@ public class ResourceHelper {
 	}
 
 	public static Icon getIcon(ResourceBundle resourceBundle, String key) {
-		String filename = getString(resourceBundle, key);
+		String filename = getStringOptional(resourceBundle, key);
 		if (!StringUtils.isBlank(filename)) {
 			URL url = ResourceHelper.class.getClassLoader().getResource(filename);
 			if (url != null) {
@@ -114,7 +117,7 @@ public class ResourceHelper {
 	}
 	
 	public static KeyStroke getKeyStroke(ResourceBundle resourceBundle, String key) {
-		String keyStrokeString = getString(resourceBundle, key);
+		String keyStrokeString = getStringOptional(resourceBundle, key);
 		if (!StringUtils.isBlank(keyStrokeString)) {
 			return KeyStroke.getKeyStroke(keyStrokeString);
 		}
@@ -122,7 +125,7 @@ public class ResourceHelper {
 	}
 	
 	public static Integer getKeyCode(ResourceBundle resourceBundle, String key) {
-		String keyStrokeString = getString(resourceBundle, key);
+		String keyStrokeString = getStringOptional(resourceBundle, key);
 		if (!StringUtils.isBlank(keyStrokeString)) {
 			KeyStroke keyStroke = KeyStroke.getKeyStroke(keyStrokeString);
 			if (keyStroke != null) {
@@ -136,11 +139,21 @@ public class ResourceHelper {
 		try {
 			return resourceBundle.getString(key);
 		} catch (MissingResourceException e) {
-			logger.log(Level.CONFIG, key + "missing", e);
+			if (!loggedMissings.contains(key)) {
+				logger.log(Level.CONFIG, key + " missing", e);
+				loggedMissings.add(key);
+			}
 			return "!" + key + "!";
 		}
 	}
 
+	public static String getStringOptional(ResourceBundle resourceBundle, String key) {
+		if (resourceBundle.containsKey(key)) {
+			return resourceBundle.getString(key);
+		} else {
+			return null;
+		}
+	}
 
 	public static String getApplicationTitle() {
 		return ResourceHelper.getString(Resources.getResourceBundle(), "Application.title");

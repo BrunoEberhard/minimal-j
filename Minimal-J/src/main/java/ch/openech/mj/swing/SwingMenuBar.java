@@ -27,7 +27,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	}
 	
 	protected void updateMenu() {
-		ActionGroup actionGroup = new ActionGroup(null);
+		ActionGroup actionGroup = new ActionGroup();
 		fillMenu(actionGroup);
 		
 		MjApplication.getApplication().fillActionGroup(tab, actionGroup);

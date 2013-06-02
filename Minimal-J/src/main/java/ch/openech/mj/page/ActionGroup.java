@@ -33,6 +33,10 @@ public class ActionGroup extends AbstractAction {
 	
 	private final List<Action> actions = new ArrayList<Action>();
 
+	public ActionGroup() {
+		super();
+	}
+
 	public ActionGroup(String tag) {
 		super();
 		putValue(TAG, tag);

@@ -172,7 +172,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 	private void updateMenu() {
 		menubar.removeItems();
 		
-		ActionGroup actionGroup = new ActionGroup(null);
+		ActionGroup actionGroup = new ActionGroup();
 		fillMenu(actionGroup);
 		
 		PageContext pageContext = (PageContext) this;
