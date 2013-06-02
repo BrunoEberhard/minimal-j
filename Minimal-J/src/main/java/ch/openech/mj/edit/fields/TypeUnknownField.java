@@ -5,6 +5,11 @@ import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
+/**
+ * If no field class is found for a property then a TypeUnknownField
+ * is created to show the developer what is missing. 
+ *
+ */
 public class TypeUnknownField implements ch.openech.mj.edit.fields.FormField<Object> {
 
 	private final PropertyInterface property;
