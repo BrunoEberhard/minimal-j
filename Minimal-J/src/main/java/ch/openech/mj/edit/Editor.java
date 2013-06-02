@@ -261,8 +261,6 @@ public abstract class Editor<T> {
 				}
 			}
 			
-			Editor.this.propertyChanged(property);
-			
 			updateValidation();
 		}
 
@@ -286,10 +284,6 @@ public abstract class Editor<T> {
 		validateForInvalid(validationMessages);
 		validate(editedObject, validationMessages);
 		indicate(validationMessages);
-	}
-
-	protected void propertyChanged(PropertyInterface property) {
-		// to be implemented in specific class
 	}
 
 	private void validateForEmpty(List<ValidationMessage> validationMessages) {
