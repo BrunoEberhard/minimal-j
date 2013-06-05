@@ -44,7 +44,7 @@ public class CustomerField extends ObjectFlowField<Customer> {
 
 		@Override
 		protected List<Customer> search(String text) {		
-			List<Customer> resultList = ExamplePersistence.getInstance().customer().find(text);
+			List<Customer> resultList = ExamplePersistence.getInstance().customerIndex().find(text);
 			return resultList;
 		}
 

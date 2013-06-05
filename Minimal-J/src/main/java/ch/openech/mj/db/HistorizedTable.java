@@ -88,6 +88,7 @@ public class HistorizedTable<T> extends Table<T> {
 				}
 			}
 			registerObjectId(object, id);
+			insertInIndexes(object, id);
 			return id;
 		} catch (SQLException x) {
 			logger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
@@ -138,6 +139,8 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			historizedSubTable.update(id, list, version);
 		}
+		
+		updateIndexes(id, object);
 	}
 	
 	private int findMaxVersion(int id) throws SQLException {

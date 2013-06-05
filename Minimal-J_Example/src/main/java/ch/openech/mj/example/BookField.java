@@ -44,7 +44,7 @@ public class BookField extends ObjectFlowField<Book> {
 
 		@Override
 		protected List<Book> search(String text) {		
-			List<Book> resultList = ExamplePersistence.getInstance().book().find(text);
+			List<Book> resultList = ExamplePersistence.getInstance().bookIndex().find(text);
 			return resultList;
 		}
 

@@ -1,10 +1,8 @@
 package ch.openech.mj.db;//
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,28 +20,28 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
+import org.joda.time.LocalDate;
 
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.StringUtils;
 
-public abstract class SearchableTable<T> extends HistorizedTable<T> {
-	private static final Logger logger = Logger.getLogger(SearchableTable.class.getName());
+public class FulltextIndex<T> implements Index<T> {
+	private static final Logger logger = Logger.getLogger(FulltextIndex.class.getName());
 	
 	private static final Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_34);
 	private RAMDirectory directory;
-	private IndexWriter iwriter;
-	private PreparedStatement selectAll;
-
+	private IndexWriter iwriter;                                                                 
+	private final Table<T> table;
+	
 	private final Object[] keys;
 	private final PropertyInterface[] properties;
-	private final String[] propertyPaths;
 	
-	public SearchableTable(DbPersistence dbPersistence, Class<T> clazz, Object[] keys) {
-		super(dbPersistence, clazz);
+	public FulltextIndex(Table<T> table, Object[] keys) {
+		this.table = table;
 		this.keys = keys;
 		this.properties = Keys.getProperties(keys);
-		this.propertyPaths = getPropertyPaths(properties);
 	}
 	
 	private static String[] getPropertyPaths(PropertyInterface[] properties) {
@@ -54,53 +52,21 @@ public abstract class SearchableTable<T> extends HistorizedTable<T> {
 		return paths;
 	}
 	
-	@Override
-	public void initialize() throws SQLException {
-		super.initialize();
-		selectAll = prepareSelectAll();
-	}
-	
 	@SuppressWarnings("deprecation")
 	private void initializeIndex() {
 		if (directory == null) {
 			directory = new RAMDirectory();
 			try {
 				iwriter = new IndexWriter(directory, analyzer, true, new IndexWriter.MaxFieldLength(25000));
-				refillIndex();
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Initialize index failed", e);
 				throw new RuntimeException("Initialize index failed");
 			}
 		}
 	}
-
-	protected List<T> getAll() throws SQLException {
-		return executeSelectAll(selectAll);
-	}
 	
-	protected void refillIndex() {
-		try {
-			ResultSet resultSet = selectAll.executeQuery();
-			int count = 0;
-			while (resultSet.next()) {
-				ObjectWithId<T> objectWithId = readResultSetRow(resultSet, null);
-				writeInIndex(objectWithId.id, objectWithId.object);
-				if (logger.isLoggable(Level.FINER)) logger.finer("RefillIndex: " + getClazz() + " / " + objectWithId.id);
-				count++;
-			}
-			resultSet.close();
-			logger.fine("Refilled the index " + getClazz() +" with " + count);
-			logger.fine("Size of index is " + directory.sizeInBytes());
-		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't refill index on " + getTableName(), x);
-			throw new RuntimeException("Couldn't refill index on " + getTableName());
-		}
-	}
-	
-	@Override
-	public int insert(T object) {
+	public void insert(int id, T object) {
 		initializeIndex();
-		int id = super.insert(object);
 		writeInIndex(id, object);
 
 		Query query = queryById(id);
@@ -111,14 +77,9 @@ public abstract class SearchableTable<T> extends HistorizedTable<T> {
 			logger.log(Level.SEVERE, "Couldn't search after insert");
 			throw new RuntimeException("Couldn't search after insert");
 		} 	
-		return id;
 	}
 
-	@Override
-	public void update(T object) {
-		super.update(object);
-
-		Integer id = getId(object);
+	public void update(int id, T object) {
 		Query query = queryById(id);
 		
 		try (IndexSearcher isearcher = new IndexSearcher(directory, true)) {
@@ -145,16 +106,14 @@ public abstract class SearchableTable<T> extends HistorizedTable<T> {
 		return query;
 	}
 	
-	@Override
 	public void clear() {
-		super.clear();
 		try {
 			if (iwriter != null) {
 				iwriter.deleteAll();
 			}
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Couldn't clear " + getTableName(), e);
-			throw new RuntimeException("Couldn't clear " + getTableName());
+			logger.log(Level.SEVERE, "Couldn't clear index of table " + table.getTableName(), e);
+			throw new RuntimeException("Couldn't clear index of table " + table.getTableName());
 		}	
 	}
 
@@ -162,17 +121,28 @@ public abstract class SearchableTable<T> extends HistorizedTable<T> {
 		return find(text).size();
 	}
 	
-	/**
-	 * 
-	 * @param property a (minimal-j) property
-	 * @param object
-	 * @return a field (in terms of lucene) with the value of the property
-	 */
-	protected abstract Field getField(PropertyInterface property, T object);
+	protected Field getField(PropertyInterface property, T object) {
+		String fieldName = property.getFieldPath();
+		
+		if (property.getFieldClazz() == String.class) {
+			String string = (String) property.getValue(object);
+			if (string != null) {
+				Field.Index index =  Field.Index.ANALYZED;
+				return new Field(fieldName, string,	Field.Store.YES, index);
+			}
+		} else if (property.getFieldClazz() == LocalDate.class) {
+			LocalDate date = (LocalDate) property.getValue(object);
+			if (date != null) {
+				Field.Index index = Field.Index.NOT_ANALYZED;
+				String string = DateUtils.formatCH(date);
+				return new Field(fieldName, string,	Field.Store.YES, index);
+			}
+		}
+		return null;
+	}
 
 	protected Field createIdField(int id) {
 		Field.Index index = Field.Index.NOT_ANALYZED;
-		
 		return new Field("id", Integer.toString(id), Field.Store.YES, index);
 	}
 	
@@ -201,9 +171,9 @@ public abstract class SearchableTable<T> extends HistorizedTable<T> {
 		PropertyInterface[] searchProperties = Keys.getProperties(searchKeys);
 		String[] searchPaths = getPropertyPaths(searchProperties);
 		
-		List<T> result = new ArrayList<T>();
+		List<T> result = new ArrayList<>();
 		initializeIndex();
-		if (directory.listAll().length == 0 || StringUtils.isBlank(text)) return result;
+		if (directory.listAll().length == 0 || StringUtils.isBlank(text)) return Collections.emptyList();
 
 		try (IndexSearcher isearcher = new IndexSearcher(directory, true)) {
 			QueryParser parser;
@@ -215,9 +185,10 @@ public abstract class SearchableTable<T> extends HistorizedTable<T> {
 			Query query = parser.parse(text);
 			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
 			
-			for (int i = 0; i < hits.length; i++) {
-				Document hitDoc = isearcher.doc(hits[i].doc);
-				T object = documentToObject(hitDoc);
+			for (ScoreDoc hit : hits) {
+				Document hitDoc = isearcher.doc(hit.doc);
+				Integer id = Integer.parseInt(hitDoc.get("id"));
+				T object = table.read(id);
 				result.add(object);
 			}
 		} catch (ParseException x) {
@@ -230,26 +201,4 @@ public abstract class SearchableTable<T> extends HistorizedTable<T> {
 		return result;
 	}
 	
-	/**
-	 * 
-	 * @return an instance of the type of the class. Normally just a <code>new T()</code>
-	 */
-	protected abstract T createResultObject();
-
-	protected T documentToObject(Document document) {
-		T result = createResultObject();
-		
-		for (PropertyInterface property : properties) {
-			property.setValue(result, document.get(property.getFieldName()));
-		}
-		return result;
-	}
-	
-	// Statements
-
-	protected PreparedStatement prepareSelectAll() throws SQLException {
-		StringBuilder s = new StringBuilder();
-		s.append("SELECT * FROM "); s.append(getTableName()); s.append(" WHERE version = 0");
-		return getConnection().prepareStatement(s.toString());
-	}
 }
