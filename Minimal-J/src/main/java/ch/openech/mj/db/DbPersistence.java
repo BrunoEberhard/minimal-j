@@ -202,7 +202,7 @@ public class DbPersistence {
 	
 	//
 
-	public void add(AbstractTable<?> table) {
+	private void add(AbstractTable<?> table) {
 		if (initialized) {
 			throw new IllegalStateException("Not allowed to add Table after connecting");
 		}
