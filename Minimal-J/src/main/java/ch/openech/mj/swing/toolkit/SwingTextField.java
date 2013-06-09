@@ -19,13 +19,6 @@ public class SwingTextField extends JTextField implements TextField {
 	private FocusListener focusListener;
 	private ActionListener commitListener;
 	
-	public SwingTextField() {
-		super();
-		this.changeListener = null;
-		setEditable(false);
-		setInheritsPopupMenu(true);
-	}
-	
 	public SwingTextField(ChangeListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
 	}
@@ -132,19 +125,6 @@ public class SwingTextField extends JTextField implements TextField {
 			addActionListener(commitListener);
 		}
 	}
-
-//	@Override
-//	public void setKeyListener(KeyListener keyListener) {
-//		if (this.propertyListener != null) {
-//			removeKeyListener(this.propertyListener);
-//		}
-//		this.propertyListener = keyListener;
-//		if (this.propertyListener != null) {
-//			addKeyListener(this.propertyListener);
-//		}
-//	}
-	
-	
 	
 }
 
