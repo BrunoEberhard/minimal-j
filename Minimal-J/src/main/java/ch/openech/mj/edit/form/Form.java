@@ -37,12 +37,18 @@ import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
 import ch.openech.mj.edit.fields.TextFormatField;
 import ch.openech.mj.edit.fields.TypeUnknownField;
+import ch.openech.mj.edit.validation.Validatable;
+import ch.openech.mj.edit.validation.Validation;
+import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.edit.value.Properties;
+import ch.openech.mj.model.EmptyValidator;
+import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.annotation.Enabled;
+import ch.openech.mj.model.annotation.Required;
 import ch.openech.mj.model.annotation.StringLimitation;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.Caption;
@@ -66,7 +72,12 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	private final FormPanelActionListener formPanelActionListener = new FormPanelActionListener();
 	
-	private IForm.FormChangeListener changeListener;
+	private IForm.FormChangeListener<T> changeListener;
+	private boolean changeFromOutsite;
+	private boolean showWarningIfValidationForUnsuedField = true;
+	
+	private final Map<PropertyInterface, String> propertyValidations = new HashMap<>();
+
 	private final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 	@SuppressWarnings("rawtypes")
 	private final Map<PropertyInterface, Map<PropertyInterface, PropertyUpdater>> propertyUpdater = new HashMap<>();
@@ -341,7 +352,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	/**
 	 * 
 	 * @param <FROM> The new value of the property that has changed
-	 * @param <EDIT_OBJECT> The current object of the form. This reference should <b>not</b> be changed.
+	 * @param <EDIT_OBJECT> The current object of the  This reference should <b>not</b> be changed.
 	 * It should be treated as a read only version or a copy of the object.
 	 * It's probably not a real copy as it is to expensive to copy the object for every call. 
 	 * @return <TO> The new value the updater wants to set to the toKey property
@@ -392,7 +403,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	 * 
 	 * @return Collection provided by a LinkedHashMap so it will be a ordered set
 	 */
-	public Collection<PropertyInterface> getProperties() {
+	private Collection<PropertyInterface> getProperties() {
 		return fields.keySet();
 	}
 	
@@ -402,17 +413,21 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		formField.setObject(value);
 	}
 
-	public void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
+	private void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
 		indicators.get(property).setValidationMessages(validationMessages);
 	}
 
 	@Override
 	public void setObject(T object) {
+		if (editable && changeListener == null) throw new IllegalStateException("Listener has to be set on a editable Form");
+		changeFromOutsite = true;
 		this.object = object;
 		for (PropertyInterface property : getProperties()) {
 			Object propertyValue = property.getValue(object);
 			set(property, propertyValue);
 		}
+		updateValidation();
+		changeFromOutsite = false;
 	}
 	
 	@Override
@@ -425,10 +440,10 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		return property.getFieldName();
 	}
 	
-	// Changeable
-	
 	@Override
-	public void setChangeListener(IForm.FormChangeListener changeListener) {
+	public void setChangeListener(IForm.FormChangeListener<T> changeListener) {
+		if (changeListener == null) throw new IllegalArgumentException("Listener on Form must not be null");
+		if (this.changeListener != null) throw new IllegalStateException("Listener on Form cannot be changed");
 		this.changeListener = changeListener;
 	}
 
@@ -436,20 +451,39 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 
 		@Override
 		public void stateChanged(ChangeEvent event) {
+			if (changeFromOutsite) return;
+			if (changeListener == null) {
+				logger.severe("Editable Form must have a listener");
+				return;
+			}
+			
 			EditField<?> changedField = (EditField<?>) event.getSource();
 			logger.fine("ChangeEvent from " + getName(changedField));
-
+			
+			// get the new value
 			PropertyInterface property = changedField.getProperty();
 			Object value = changedField.getObject();
 
+//			Von hier aus den ChangeListener abschalten, alle Meldungen rekursiv sammeln,
+//			Listener wieder einschalten... 
+			// ??
+			
+			// Call updaters before set the new value
+			// (so they also can read the old value)
 			executeUpdater(property, value);
 			refreshDependendFields(property);
+			
+			property.setValue(object, value);
+			
+			// update enable/disable fields
 			updateEnable();
 			
-			if (changeListener != null) {
-				changeListener.stateChanged(property, value);
-			}
+			updatePropertyValidation(property, value);
+			updateValidation();
+
+			changeListener.changed();
 		}
+
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		private void refreshDependendFields(PropertyInterface property) {
@@ -526,6 +560,85 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			}
 		}
 
+	}
+
+	// Validation
+	
+	private void updateValidation() {
+		List<ValidationMessage> validationMessages = new ArrayList<>();
+		if (object instanceof Validation) {
+			((Validation) object).validate(validationMessages);
+		}
+		for (Map.Entry<PropertyInterface, String> entry : propertyValidations.entrySet()) {
+			validationMessages.add(new ValidationMessage(entry.getKey(), entry.getValue()));
+		}
+		validateForEmpty(validationMessages);
+		validateForInvalid(validationMessages);
+		if (changeListener != null) {
+			changeListener.validate(object, validationMessages);
+		}
+		indicate(validationMessages);
+	}
+
+	private void validateForEmpty(List<ValidationMessage> validationMessages) {
+		for (PropertyInterface property : getProperties()) {
+			if (property.getAnnotation(Required.class) != null) {
+				EmptyValidator.validate(validationMessages, object, property);
+			}
+		}
+	}
+
+	private void validateForInvalid(List<ValidationMessage> validationMessages) {
+		for (PropertyInterface property : getProperties()) {
+			Object value = property.getValue(object);
+			if (InvalidValues.isInvalid(value)) {
+				String caption = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+				validationMessages.add(new ValidationMessage(property, caption + " ungültig"));
+			}
+		}
+	}
+
+	private void updatePropertyValidation(PropertyInterface property, Object value) {
+		propertyValidations.remove(property);
+		if (value instanceof Validatable) {
+			String validationMessage = ((Validatable) value).validate();
+			if (validationMessage != null) {
+				propertyValidations.put(property, validationMessage);
+			}
+		}
+	}
+
+	private void indicate(List<ValidationMessage> validationMessages) {
+		for (PropertyInterface property : getProperties()) {
+			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
+			setValidationMessage(property, filteredValidationMessages);
+		}
+		
+		if (changeListener != null) {
+			changeListener.indicate(validationMessages, allUsedFieldsValid(validationMessages));
+		}
+		
+	}
+	
+	private boolean allUsedFieldsValid(List<ValidationMessage> validationMessages) {
+		for (ValidationMessage validationMessage : validationMessages) {
+			if (getProperties().contains(validationMessage.getProperty())) {
+				return false;
+			} else {
+				if (showWarningIfValidationForUnsuedField) {
+					logger.warning("There is a validation message for " + validationMessage.getProperty().getFieldName() + " but the field is not used in the form");
+					logger.warning("The message is: " + validationMessage.getFormattedText());
+					logger.fine("This can be ok if at some point not all validations in a object have to be ok");
+					logger.fine("But you have to make sure to get valid data in database");
+					logger.fine("You can avoid these warnings if you set showWarningIfValidationForUnsuedField to false");
+				}
+			}
+		}
+		return true;
+	}
+
+	public void setShowWarningIfValidationForUnsuedField(boolean b) {
+		this.showWarningIfValidationForUnsuedField = b;
 	}
 
 }

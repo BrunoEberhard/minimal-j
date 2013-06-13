@@ -1,10 +1,7 @@
 package ch.openech.mj.edit;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,14 +12,8 @@ import ch.openech.mj.application.DevMode;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.Indicator;
-import ch.openech.mj.edit.validation.Validatable;
-import ch.openech.mj.edit.validation.Validation;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
-import ch.openech.mj.model.EmptyValidator;
-import ch.openech.mj.model.InvalidValues;
-import ch.openech.mj.model.PropertyInterface;
-import ch.openech.mj.model.annotation.Required;
 import ch.openech.mj.resources.ResourceAction;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -85,7 +76,6 @@ public abstract class Editor<T> {
 	private IForm<T> form;
 	private SaveAction saveAction;
 	private EditorFinishedListener editorFinishedListener;
-	private final Map<PropertyInterface, String> propertyValidations = new HashMap<>();
 	private Indicator indicator;
 	private boolean userEdited;
 	private String followLink;
@@ -133,6 +123,7 @@ public abstract class Editor<T> {
 			throw new IllegalStateException();
 		}
 		form = createForm();
+		form.setChangeListener(new EditorChangeListener());
 		
 		original = load();
 		if (original != null) {
@@ -141,10 +132,8 @@ public abstract class Editor<T> {
 			editedObject = newInstance();
 		}
 		form.setObject(editedObject);
-		updateValidation();
 
 		userEdited = false;
-		form.setChangeListener(new EditorChangeListener());
 		
 		return form;
 	}
@@ -242,26 +231,10 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	private class EditorChangeListener implements IForm.FormChangeListener {
+	private class EditorChangeListener implements IForm.FormChangeListener<T> {
 
-		public void stateChanged(PropertyInterface property, Object newValue) {
-
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine(property.getFieldPath() + " changed to " + newValue);
-			}
-			
-			property.setValue(editedObject, newValue);
+		public void changed() {
 			userEdited = true;
-
-			propertyValidations.remove(property);
-			if (newValue instanceof Validatable) {
-				String validationMessage = ((Validatable) newValue).validate();
-				if (validationMessage != null) {
-					propertyValidations.put(property, validationMessage);
-				}
-			}
-			
-			updateValidation();
 		}
 
 		@Override
@@ -270,78 +243,25 @@ public abstract class Editor<T> {
 				save();
 			}
 		}
-	}
-	
-	private void updateValidation() {
-		List<ValidationMessage> validationMessages = new ArrayList<>();
-		if (editedObject instanceof Validation) {
-			((Validation) editedObject).validate(validationMessages);
-		}
-		for (Map.Entry<PropertyInterface, String> entry : propertyValidations.entrySet()) {
-			validationMessages.add(new ValidationMessage(entry.getKey(), entry.getValue()));
-		}
-		validateForEmpty(validationMessages);
-		validateForInvalid(validationMessages);
-		validate(editedObject, validationMessages);
-		indicate(validationMessages);
-	}
 
-	private void validateForEmpty(List<ValidationMessage> validationMessages) {
-		for (PropertyInterface property : form.getProperties()) {
-			if (property.getAnnotation(Required.class) != null) {
-				EmptyValidator.validate(validationMessages, editedObject, property);
+		@Override
+		public void validate(T object, List<ValidationMessage> validationResult) {
+			Editor.this.validate(object, validationResult);
+		}
+
+		@Override
+		public void indicate(List<ValidationMessage> validationMessages, boolean allUsedFieldsValid) {
+			saveAction().setEnabled(allUsedFieldsValid);
+			saveAction.setValidationMessages(validationMessages);
+			
+			if (indicator != null) {
+				indicator.setValidationMessages(validationMessages);
 			}
 		}
-	}
+	}		
 
-	private void validateForInvalid(List<ValidationMessage> validationMessages) {
-		for (PropertyInterface property : form.getProperties()) {
-			Object value = property.getValue(editedObject);
-			if (InvalidValues.isInvalid(value)) {
-				String caption = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
-				validationMessages.add(new ValidationMessage(property, caption + " ungültig"));
-			}
-		}
-	}
-
-	
 	protected void validate(T object, List<ValidationMessage> validationMessages) {
 		// overwrite this method to add Editor specific validation
-	}
-	
-	final void indicate(List<ValidationMessage> validationMessages) {
-		for (PropertyInterface property : form.getProperties()) {
-			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
-			form.setValidationMessage(property, filteredValidationMessages);
-		}
-		
-		saveAction().setEnabled(allUsedFieldsValid(validationMessages));
-		saveAction.setValidationMessages(validationMessages);
-		
-		if (indicator != null) {
-			indicator.setValidationMessages(validationMessages);
-		}
-	}
-	
-	private boolean allUsedFieldsValid(List<ValidationMessage> validationMessages) {
-		for (ValidationMessage validationMessage : validationMessages) {
-			if (form.getProperties().contains(validationMessage.getProperty())) {
-				return false;
-			} else {
-				if (showWarningIfValidationForUnsuedField()) {
-					logger.warning("There is a validation message for " + validationMessage.getProperty().getFieldName() + " but the field is not used in the form");
-					logger.warning("The message is: " + validationMessage.getFormattedText());
-					logger.fine("This can be ok if at some point not all validations in a object have to be ok");
-					logger.fine("But you have to make sure to get valid data in database");
-					logger.fine("You can avoid these warnings if you override showWarningIfValidationForUnsuedField()");
-				}
-			}
-		}
-		return true;
-	}
-
-	protected boolean showWarningIfValidationForUnsuedField() {
-		return true;
 	}
 	
 	protected final boolean isSaveable() {
