@@ -73,12 +73,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 			return ObjectField.this.newInstance();
 		}
 
-//		@Override
-//		protected void validate(T object, List<ValidationMessage> resultList) {
-//			super.validate(object, resultList);
-//			ObjectField.this.validate(object, resultList);
-//		}
-
 		@Override
 		public boolean save(T edited) {
 			ObjectField.this.setObject(edited);
