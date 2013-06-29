@@ -199,7 +199,7 @@ public abstract class Editor<T> {
 				}).start();
 			}
 		} else {
-			ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
+			ClientToolkit.getToolkit().showError(form.getComponent(), "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
 		}
 	}
 
@@ -222,7 +222,7 @@ public abstract class Editor<T> {
 
 	protected void finishFailed(Exception x) {
 		logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
-		ClientToolkit.getToolkit().showNotification(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
+		ClientToolkit.getToolkit().showError(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
 	}
 	
 	public final void progress(int value, int maximum) {
