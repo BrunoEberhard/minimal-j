@@ -19,12 +19,12 @@ import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IDialog;
+import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.IDialog;
-import ch.openech.mj.toolkit.ITable;
 
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
@@ -107,13 +107,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public SwitchLayout createSwitchLayout() {
 		return new VaadinSwitchLayout();
-	}
-
-	@Override
-	public void showNotification(IComponent c, String text) {
-		Component component = (Component) c;
-		Window window = component.getWindow();
-		window.showNotification("Hinweis", text, Notification.TYPE_HUMANIZED_MESSAGE);
 	}
 
 	@Override

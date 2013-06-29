@@ -71,8 +71,6 @@ public abstract class ClientToolkit {
 	
 	public abstract void showMessage(Object parent, String text);
 	
-	public abstract void showNotification(IComponent component, String text);
-
 	public abstract void showError(Object parent, String text);
 	
 	public abstract void showConfirmDialog(IComponent component, String message, String title, int type, ConfirmDialogListener listener);

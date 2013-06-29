@@ -25,7 +25,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import ch.openech.mj.swing.component.BubbleMessageSupport;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
 import ch.openech.mj.toolkit.Caption;
@@ -38,12 +37,12 @@ import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IDialog;
+import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.toolkit.ImportHandler;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.toolkit.IDialog;
-import ch.openech.mj.toolkit.ITable;
 
 public class SwingClientToolkit extends ClientToolkit {
 
@@ -115,17 +114,6 @@ public class SwingClientToolkit extends ClientToolkit {
 		panel.add(component);
 
 		return new SwingScrollPane(new ScrollablePanel(panel));
-	}
-
-	@Override
-	public void showNotification(IComponent c, String text) {
-		try {
-			JComponent component = (JComponent) c;
-			BubbleMessageSupport.showBubble(component, text);
-		} catch (Exception x) {
-			// TODO
-			x.printStackTrace();
-		}
 	}
 
 	@Override
