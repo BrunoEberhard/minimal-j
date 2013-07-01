@@ -27,23 +27,16 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 		FontMetrics fm = getFontMetrics(getFont());
 		return (int)fm.getStringBounds("The quick brown fox jumps over the lazy dog", getGraphics()).getWidth();
 	}
-	
-	@Override
-	public void add(IComponent field) {
-		add(field, 1);
-	}
 
 	@Override
-	public void add(IComponent field, int span) {
+	public void add(IComponent c, int span) {
+		Component component = (Component) c;
 		int w = span * columnWidth; // minimum und prefered size
-		add((Component) field, "spanx " + span + ", growx, aligny top, sizegroupy h, width " + w + "px:" + w + "px");
-	}
-
-	@Override
-	public void addArea(IComponent field, int span) {
-		Component component = (Component) field;
-		int w = span * columnWidth;
-		add(component, "spanx " + span + ", growx, aligny top, width " + w + "px:" + w + "px");
+		if (SwingClientToolkit.verticallyGrowing(component)) {
+			add(component, "spanx " + span + ", growx, aligny top, width " + w + "px:" + w + "px");
+		} else {
+			add(component, "spanx " + span + ", growx, aligny top, sizegroupy h, width " + w + "px:" + w + "px");
+		}
 	}
 
 }

@@ -28,6 +28,7 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 		this.focusAfterClose = focusAfterClose;
 		
 		setTitle(title);
+		setResizable(true);
 		
 		// TODO: tuts ein simples setContent(internalFrameEditorPanel) auch?
 		setLayout(new BorderLayout());

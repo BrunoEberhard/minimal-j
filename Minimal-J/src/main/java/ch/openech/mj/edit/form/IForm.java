@@ -9,8 +9,6 @@ public interface IForm<T> {
 
 	public IComponent getComponent();
 	
-	public abstract boolean isResizable();
-	
 	public void setObject(T value);
 
 	/**

@@ -12,9 +12,9 @@ import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.IDialog.CloseListener;
+import ch.openech.mj.toolkit.ProgressListener;
 
 /**
  * An Action that shows a given Editor in a dialog if executed.
@@ -49,7 +49,6 @@ public class EditorDialogAction extends AbstractAction {
 		IForm<?> form = editor.startEditor();
 		IComponent layout = ClientToolkit.getToolkit().createEditorLayout(form.getComponent(), editor.getActions());
 		final IDialog dialog = ClientToolkit.getToolkit().openDialog(context, layout, editor.getTitle());
-		dialog.setResizable(form.isResizable());
 		
 		dialog.setCloseListener(new CloseListener() {
 			@Override

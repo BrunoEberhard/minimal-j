@@ -22,11 +22,6 @@ public class SwitchForm<T> implements IForm<T> {
 		// a SwitchForm doesnt change (only the contained forms)
 	}
 
-	@Override
-	public boolean isResizable() {
-		return true;
-	}
-	
 	public void setForm(IForm<?> form) {
 		switchLayout.show(form.getComponent());
 	}

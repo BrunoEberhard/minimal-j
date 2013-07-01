@@ -30,6 +30,7 @@ public class SwingEditorDialog extends JDialog implements IDialog {
 		this.focusAfterClose = focusAfterClose;
 
 		setTitle(title);
+		setResizable(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
 		setLayout(new BorderLayout());

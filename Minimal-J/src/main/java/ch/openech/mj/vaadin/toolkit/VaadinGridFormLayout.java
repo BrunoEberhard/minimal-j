@@ -30,11 +30,6 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	}
 
 	@Override
-	public void add(IComponent field) {
-		add(field, 1);
-	}
-
-	@Override
 	public void add(IComponent field, int span) {
 		Component component = (Component) field;
 		component.setWidth("100%");
@@ -48,11 +43,6 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 			row++;
 		}
 		
-	}
-
-	@Override
-	public void addArea(IComponent field, int span) {
-		add(field, span);
 	}
 
 }

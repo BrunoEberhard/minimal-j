@@ -15,10 +15,10 @@ import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
-import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.IDialog.CloseListener;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.GenericUtils;
 
 public abstract class SearchDialogAction<T> extends AbstractAction {
@@ -54,7 +54,6 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 		IComponent layout = ClientToolkit.getToolkit().createSearchLayout(textFieldSearch, new SearchAction(), table, new OkAction());
 		
 		dialog = ClientToolkit.getToolkit().openDialog(context, layout, "Suche");
-		dialog.setResizable(true);
 		
 		dialog.setCloseListener(new CloseListener() {
 			@Override

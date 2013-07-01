@@ -82,8 +82,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	@SuppressWarnings("rawtypes")
 	private final Map<PropertyInterface, Map<PropertyInterface, PropertyUpdater>> propertyUpdater = new HashMap<>();
 	
-	private boolean resizable = false;
-	
 	private T object;
 
 	public Form() {
@@ -265,23 +263,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	// 
 
-	public void area(Object... keys) {
-		int span = columns / keys.length;
-		int rest = columns;
-		for (int i = 0; i<keys.length; i++) {
-			Object key = keys[i];
-			FormField<?> visual = createField(key);
-			area(visual, i < keys.length - 1 ? span : rest);
-			rest = rest - span;
-		}
-	}
-
-	private void area(FormField<?> visual, int span) {
-		layout.addArea(decorateWithCaption(visual).getComponent(), span);
-		registerNamedField(visual);
-		resizable = true;
-	}
-	
 	private Caption decorateWithCaption(FormField<?> visual) {
 		String captionText = caption(visual);
 		Caption captioned = ClientToolkit.getToolkit().decorateWithCaption(visual.getComponent(), captionText);
@@ -430,11 +411,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		changeFromOutsite = false;
 	}
 	
-	@Override
-	public boolean isResizable() {
-		return resizable;
-	}
-
 	private String getName(FormField<?> field) {
 		PropertyInterface property = field.getProperty();
 		return property.getFieldName();

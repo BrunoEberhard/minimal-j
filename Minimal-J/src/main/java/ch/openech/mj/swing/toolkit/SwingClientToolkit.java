@@ -2,6 +2,7 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Window;
 import java.awt.event.HierarchyEvent;
@@ -280,6 +281,21 @@ public class SwingClientToolkit extends ClientToolkit {
 		} else {
 			return null;
 		}
+	}
+
+	public static boolean verticallyGrowing(Component component) {
+		if (component instanceof SwingFlowField) {
+			return true;
+		}
+		if (component instanceof Container) {
+			Container container = (Container) component;
+			for (Component c : container.getComponents()) {
+				if (verticallyGrowing(c)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	// @Override
