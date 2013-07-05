@@ -133,8 +133,9 @@ public class Properties {
 					field.set(object, value);
 				} else {
 					Object finalObject = field.get(object);
+					if (finalObject == value) return;
 					if (finalObject instanceof List) {
-						List finalList = (List) finalObject;
+						List<?> finalList = (List<?>) finalObject;
 						finalList.clear();
 						if (value != null) {
 							finalList.addAll((List) value);

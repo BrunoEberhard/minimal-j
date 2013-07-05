@@ -1,5 +1,8 @@
 package ch.openech.mj.edit.value;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -69,6 +72,25 @@ public class PropertyAccessTest {
 		testObject2.testClass1.b2 = false; 
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.getB2(), property.getValue(testObject2));
 	}
+
+	@Test
+	public void updateList() {
+		TestClass3 testClass3 = new TestClass3();
+		List<TestClass1> list = testClass3.list;
+		list.add(new TestClass1());
+		Assert.assertEquals(1, testClass3.list.size());
+		
+		PropertyInterface property = Keys.getProperty(TestClass3.KEYS.list);
+		property.setValue(testClass3, list);
+		
+		Assert.assertEquals("After set a final list field with its existing values the content must be the same", 1, testClass3.list.size());
+		
+		List<TestClass1> list2 = new ArrayList<>();
+		list2.add(new TestClass1());
+		list2.add(new TestClass1());
+		property.setValue(testClass3, list2);
+		Assert.assertEquals("Update of final list field with new values failed", list2.size(), testClass3.list.size());
+	}
 	
 	public static class TestClass1 {
 		public static final TestClass1 KEYS = Keys.of(TestClass1.class);
@@ -122,6 +144,12 @@ public class PropertyAccessTest {
 			return testClass1b;
 		}
 		
+	}
+
+	public static class TestClass3 {
+		public static final TestClass3 KEYS = Keys.of(TestClass3.class);
+		
+		public final List<TestClass1> list = new ArrayList<>();
 	}
 	
 }
