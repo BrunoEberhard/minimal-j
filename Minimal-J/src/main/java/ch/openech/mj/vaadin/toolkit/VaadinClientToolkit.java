@@ -196,6 +196,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public IComponent createFormAlignLayout(IComponent content) {
 		VaadinGridLayout gridLayout = new VaadinGridLayout(3, 3);
+		((Component) content).setSizeFull();
+		gridLayout.setSizeFull();
 		gridLayout.addComponent((Component) content, 1, 1);
 		gridLayout.setRowExpandRatio(0, 0.1f);
 		gridLayout.setRowExpandRatio(1, 0.7f);
