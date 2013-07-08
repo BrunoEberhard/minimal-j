@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +26,7 @@ import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.FieldUtils;
+import ch.openech.mj.util.GenericUtils;
 
 /**
  * Minimal-J internal<p>
@@ -240,6 +242,11 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (ColumnProperties.isReference(property)) {
 					value = dereference(fieldClass, (Integer) value, time);
+				} else if (Set.class == fieldClass) {
+					Set set = (Set) property.getValue(result.object);
+					Class enumClass = GenericUtils.getGenericClass(property.getType());
+					EnumUtils.fillSet((int) value, enumClass, set);
+					continue; // skip setValue, it's final
 				} else {
 					value = convertToFieldClass(fieldClass, value);
 				}
@@ -373,22 +380,22 @@ public abstract class AbstractTable<T> {
 					}
 				} 
 			}
-			setParameter(statement, parameterPos++, value, property.getFieldClazz());
-			if (doubleValues) setParameter(statement, parameterPos++, value, property.getFieldClazz());
+			setParameter(statement, parameterPos++, value, property);
+			if (doubleValues) setParameter(statement, parameterPos++, value, property);
 		}
 		return parameterPos;
 	}
 			
-	protected void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
+	protected void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
 		if (value == null) {
-			setParameterNull(preparedStatement, param, clazz);
+			setParameterNull(preparedStatement, param, property.getFieldClazz());
 		} else {
 			if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
 				if (!InvalidValues.isInvalid(e)) {
 					value = e.ordinal();
 				} else {
-					setParameterNull(preparedStatement, param, clazz);
+					setParameterNull(preparedStatement, param, property.getFieldClazz());
 					return;
 				}
 			} else if (value instanceof LocalDate) {
@@ -403,6 +410,10 @@ public abstract class AbstractTable<T> {
 				}
 			} else if (value instanceof ReadablePartial) {
 				value = DateUtils.formatPartial((ReadablePartial) value);
+			} else if (value instanceof Set<?>) {
+				Set<?> set = (Set<?>) value;
+				Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
+				value = EnumUtils.getInt(set, enumClass);
 			}
 			preparedStatement.setObject(param, value);
 		} 

@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.LocalDate;
@@ -168,7 +169,8 @@ public class DbCreator {
 				s.append("BIT");
 			}
 		} else if (Enum.class.isAssignableFrom(clazz)) {
-			// TODO MySql enum?S
+			s.append("INTEGER");
+		} else if (clazz.equals(Set.class)) {
 			s.append("INTEGER");
 		} else if (clazz.equals(ReadablePartial.class)) {
 			s.append("CHAR (10)");

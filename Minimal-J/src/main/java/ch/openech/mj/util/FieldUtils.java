@@ -3,6 +3,7 @@ package ch.openech.mj.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Set;
 
 public class FieldUtils {
 
@@ -38,7 +39,15 @@ public class FieldUtils {
 	public static boolean isList(Class<?> clazz) {
 		return List.class.isAssignableFrom(clazz);
 	}
+
+	public static boolean isSet(Field field) {
+		return isSet(field.getType());
+	}
 	
+	public static boolean isSet(Class<?> clazz) {
+		return Set.class.isAssignableFrom(clazz);
+	}
+
 	public static boolean hasClassName(Field field) {
 		String fieldName = field.getName();
 		String className = field.getType().getSimpleName();

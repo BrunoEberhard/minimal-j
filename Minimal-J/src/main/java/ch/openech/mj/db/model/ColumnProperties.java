@@ -162,7 +162,7 @@ public class ColumnProperties {
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			
-			if (FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
+			if (FieldUtils.isFinal(field) && !FieldUtils.isList(field) && !FieldUtils.isSet(field)) {
 				boolean isReference = field.getAnnotation(Reference.class) != null;
 				if (!isReference) {
 					Map<String, PropertyInterface> inlinePropertys = properties(field.getType());

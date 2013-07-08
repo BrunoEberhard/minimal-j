@@ -94,6 +94,11 @@ public class ModelTest {
 				problems.add(messagePrefix + " must be final (List Fields must be final)");
 			}
 			testListFieldType(field, messagePrefix);
+		} else if (fieldType == Set.class) {
+			if (!FieldUtils.isFinal(field)) {
+				problems.add(messagePrefix + " must be final (Set Fields must be final)");
+			}
+			testSetFieldType(field, messagePrefix);
 		} else {
 			testFieldType(fieldType, messagePrefix);
 			// auf leeren Konstruktor prüfen?
@@ -110,6 +115,26 @@ public class ModelTest {
 		if (listType != null) {
 			messagePrefix = "Generic of " + messagePrefix;
 			testFieldType(listType, messagePrefix);
+		} else {
+			problems.add("Could not evaluate generic of " + messagePrefix);
+		}
+	}
+
+	private void testSetFieldType(Field field, String messagePrefix) {
+		Class setType = null;
+		try {
+			setType = GenericUtils.getGenericClass(field);
+		} catch (Exception x) {
+			// silent
+		}
+		if (setType != null) {
+			if (!Enum.class.isAssignableFrom(setType)) {
+				problems.add("Set type must be an enum class: " + messagePrefix);
+			}
+			List values = EnumUtils.itemList(setType);
+			if (values.size() > 31) {
+				problems.add("Set enum must not have more than 31 elements: " + messagePrefix);
+			}
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}

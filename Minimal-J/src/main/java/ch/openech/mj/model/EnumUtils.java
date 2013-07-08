@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 
 public class EnumUtils {
@@ -128,6 +129,31 @@ public class EnumUtils {
 		}
 		return itemList;
 	}
-
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static int getInt(Set set, Class enumClass) {
+		List values = EnumUtils.valueList(enumClass);
+		int bitValue = 1;
+		int result = 0;
+		for (Object v : values) {
+			if (set.contains(v)) {
+				result += bitValue;
+			}
+			bitValue = bitValue * 2;
+		}
+		return result;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void fillSet(int integer, Class enumClass, Set set) {
+		List values = EnumUtils.valueList(enumClass);
+		int bitValue = 1;
+		for (Object v : values) {
+			if ((integer & bitValue) > 0) {
+				set.add(v);
+			}
+			bitValue = bitValue * 2;
+		}
+	}
 	
 }
