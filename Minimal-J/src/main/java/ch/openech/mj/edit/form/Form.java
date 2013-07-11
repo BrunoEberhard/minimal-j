@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.swing.event.ChangeEvent;
@@ -30,6 +31,7 @@ import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.edit.fields.Enable;
 import ch.openech.mj.edit.fields.EnumEditField;
 import ch.openech.mj.edit.fields.EnumFormField;
+import ch.openech.mj.edit.fields.EnumSetEditField;
 import ch.openech.mj.edit.fields.FormField;
 import ch.openech.mj.edit.fields.IntegerEditField;
 import ch.openech.mj.edit.fields.NumberFormField;
@@ -206,7 +208,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			} 
 			else if (fieldClass == Integer.class) return new NumberFormField.IntegerFormField(property);
 			else if (fieldClass == BigDecimal.class) return new NumberFormField.BigDecimalFormField(property);
-			// TODO dates
+			else if (fieldClass == Set.class) return new EnumSetEditField(property, editable);
 			
 		}
 		logger.severe("No FormField could be created for: " + property.getFieldName() + " of class " + fieldClass.getName());

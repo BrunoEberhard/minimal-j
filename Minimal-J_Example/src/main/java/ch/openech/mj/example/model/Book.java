@@ -1,6 +1,8 @@
 package ch.openech.mj.example.model;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.joda.time.LocalDate;
 
@@ -17,7 +19,7 @@ public class Book implements DemoEnabled {
 
 	@Required @Size(ExampleFormats.NAME) 
 	public String title;
-	public Media media;
+	public final Set<Media> media = new HashSet<>();
 	@Size(ExampleFormats.NAME)
 	public String author;
 	public Boolean available;
@@ -30,7 +32,7 @@ public class Book implements DemoEnabled {
 	@Override
 	public void fillWithDemoData() {
 		title = "The dark tower";
-		media = Media.hardcover;
+//		media = Media.hardcover;
 		author = "Stephan King";
 		available = true;
 		date = new LocalDate(2009, 1, 1);
