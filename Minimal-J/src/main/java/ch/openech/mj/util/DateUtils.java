@@ -7,12 +7,14 @@ import java.util.Date;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTimeFieldType;
+import org.joda.time.IllegalFieldValueException;
 import org.joda.time.LocalDate;
 import org.joda.time.Partial;
 import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.Size;
 
@@ -130,22 +132,26 @@ public class DateUtils {
 	/**
 	 * 
 	 * @param text Date in format yyyy-mm-dd or yyyy-mm or yyyy
-	 * @return <code>null</code> if input text is null or a partial if the input text is valid
-	 * @throws IllegalArgumentException if the input doesn't fit one of the patterns. Also if input is an empty String.
+	 * @return <ul><li><code>null</code> if input text is null</li>
+	 * <li>a partial if the input text is valid</li>
+	 * <li>an InvalidValue if the input text is not valid</li></ul>
 	 */
 	public static Partial parsePartial(final String text) {
 		if (text == null) return null;
 		
-		int length = text.length();
-		if (length == 4) {
-			return newPartial(text);
-		} else if (length == 7) {
-			return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7));
-		} else if (length == 10) {
-			return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7), text.substring(8, 10));
-		} else {
-			throw new IllegalArgumentException(text);
+		try {
+			int length = text.length();
+			if (length == 4) {
+				return newPartial(text);
+			} else if (length == 7) {
+				return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7));
+			} else if (length == 10) {
+				return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7), text.substring(8, 10));
+			} 
+		} catch (IllegalFieldValueException x) {
+			logger.fine("Return invalid value as could not parse " + text);
 		}
+		return InvalidValues.createInvalidPartial(text);
 	}
 
 	private static String cutNonDigitsAtBegin(String text) {
