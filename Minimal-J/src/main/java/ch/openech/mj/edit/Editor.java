@@ -163,8 +163,8 @@ public abstract class Editor<T> {
 	 * Disposes the editor and calls the editorFinished Listener
 	 */
 	protected void finish() {
-		form = null;
 		fireEditorFinished();
+		form = null;
 	}
 	
 	public final boolean isFinished() {
@@ -176,7 +176,18 @@ public abstract class Editor<T> {
 			editorFinishedListener.finished(followLink);
 		}
 	}
+
+	protected void cancel() {
+		fireEditorCanceled();
+		form = null;
+	}
 	
+	private void fireEditorCanceled() {
+		if (editorFinishedListener != null) {
+			editorFinishedListener.canceled();
+		}
+	}
+
 	protected final void setFollowLink(String followLink) {
 		this.followLink = followLink;
 	}
@@ -204,27 +215,16 @@ public abstract class Editor<T> {
 	}
 
 	private void doSave() {
-		T objectToSave;
-		if (original != null) {
-			objectToSave = original;
-			CloneHelper.deepCopy(getObject(), original);
-		} else {
-			objectToSave = getObject();
-		}
 		try {
-			if (save(objectToSave)) {
+			if (save(editedObject)) {
 				finish();
 			}
 		} catch (Exception x) {
-			finishFailed(x);
+			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+			ClientToolkit.getToolkit().showError(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
 		}
 	}
 
-	protected void finishFailed(Exception x) {
-		logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
-		ClientToolkit.getToolkit().showError(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
-	}
-	
 	public final void progress(int value, int maximum) {
 		if (editorFinishedListener != null) {
 			editorFinishedListener.progress(value, maximum);
@@ -339,10 +339,11 @@ public abstract class Editor<T> {
 	
 	public interface EditorFinishedListener {
 		
-		public void progress(int value, int maximum);
-		
 		public void finished(String followLink);
 		
+		public void progress(int value, int maximum);
+		
+		public void canceled();
 	}
 	
 	public void fillWithDemoData() {

@@ -78,6 +78,11 @@ public class EditorPage extends Page {
 				}
 				progressListener.showProgress(value, maximum);
 			}
+
+			@Override
+			public void canceled() {
+				getPageContext().closeTab();
+			}
 		});
 
 	}

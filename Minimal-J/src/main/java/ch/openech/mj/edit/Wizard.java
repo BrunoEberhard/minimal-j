@@ -17,9 +17,6 @@ import ch.openech.mj.toolkit.ClientToolkit;
 
 public abstract class Wizard<T> extends Editor<T> {
 
-	private static final String NEXT = "+";
-	private static final String PREV = "-";
-	
 	private WizardStep<?> currentStep;
 	private int currentStepIndex = 0;
 	
@@ -70,8 +67,7 @@ public abstract class Wizard<T> extends Editor<T> {
 		Action action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				currentStep.setFollowLink(PREV);
-				currentStep.finish();
+				currentStep.cancel();
 			}
 		};
 		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "PreviousWizardStepAction");
@@ -105,7 +101,6 @@ public abstract class Wizard<T> extends Editor<T> {
 		currentStep = step;
 		currentStep.setIndicator(indicator);
 		currentStep.setEditorFinishedListener(stepFinishedListener);
-		currentStep.setFollowLink(NEXT);
  
 		IForm<?> form = currentStep.startEditor();
 		switchForm.setForm(form);
@@ -140,28 +135,22 @@ public abstract class Wizard<T> extends Editor<T> {
 
 		@Override
 		public void finished(String followLink) {
-			// nobug: compare to this instanceof of "+" / "-"
-			if (followLink == NEXT) {
-				WizardStep<?> nextStep = currentStep.getNextStep();
-				if (nextStep != null) {
-					currentStepIndex++;
-					setCurrentStep(nextStep);
-				} else {
-					save();
-				}
-			} else if (followLink == PREV) {
-				currentStepIndex--;
-				setCurrentStep(currentStep.getPreviousStep());
-			} // else cancel
+			WizardStep<?> nextStep = currentStep.getNextStep();
+			if (nextStep != null) {
+				currentStepIndex++;
+				setCurrentStep(nextStep);
+			} else {
+				save();
+			}
+		}
+
+		@Override
+		public void canceled() {
+			currentStepIndex--;
+			setCurrentStep(currentStep.getPreviousStep());
 		}
 	}
 	
-	@Override
-	protected void finishFailed(Exception x) {
-		super.finishFailed(x);
-		setCurrentStep(currentStep);
-	}
-
 	@Override
 	public void fillWithDemoData() {
 		currentStep.fillWithDemoData();

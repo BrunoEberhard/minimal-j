@@ -66,10 +66,10 @@ public class EditorDialogAction extends AbstractAction {
 				if (progressListener != null) {
 					progressListener.showProgress(100, 100);
 				}
+				dialog.closeDialog();
 				if (followLink != null) {
 					context.show(followLink);
 				}
-				dialog.closeDialog();
 			}
 
 			@Override
@@ -78,6 +78,11 @@ public class EditorDialogAction extends AbstractAction {
 					progressListener = ClientToolkit.getToolkit().showProgress(context, "Save");
 				}
 				progressListener.showProgress(value, maximum);
+			}
+
+			@Override
+			public void canceled() {
+				dialog.closeDialog();
 			}
 		});
 		dialog.openDialog();
