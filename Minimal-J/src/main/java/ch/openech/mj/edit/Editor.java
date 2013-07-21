@@ -173,7 +173,11 @@ public abstract class Editor<T> {
 	
 	private void fireEditorFinished() {
 		if (editorFinishedListener != null) {
-			editorFinishedListener.finished(followLink);
+			try {
+				editorFinishedListener.finished(followLink);
+			} catch (Exception x) {
+				logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+			}
 		}
 	}
 
