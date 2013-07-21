@@ -34,7 +34,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		
 		Page visiblePage = tab.getVisiblePage();
 		if (visiblePage != null) {
-			visiblePage.fillActionGroup(actionGroup);
+			visiblePage.fillActionGroup(actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT));
 		}
 
 		updateMenu(actionGroup);

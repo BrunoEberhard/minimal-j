@@ -177,7 +177,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 		
 		PageContext pageContext = (PageContext) this;
 		MjApplication.getApplication().fillActionGroup(pageContext, actionGroup);
-		visiblePage.fillActionGroup(actionGroup);
+		visiblePage.fillActionGroup(actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT));
 		
 		updateMenu(actionGroup);
 	}
