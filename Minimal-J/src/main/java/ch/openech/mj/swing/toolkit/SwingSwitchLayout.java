@@ -31,6 +31,8 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 				SwingUtilities.updateComponentTreeUI(component);
 				add(component, BorderLayout.CENTER);
 				refresh(component);
+			} else {
+				refresh(this);
 			}
 		}
 		shownComponent = c;
