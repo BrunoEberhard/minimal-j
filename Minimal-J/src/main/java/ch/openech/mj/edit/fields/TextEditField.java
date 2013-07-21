@@ -3,16 +3,13 @@ package ch.openech.mj.edit.fields;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.autofill.FirstNameGenerator;
-import ch.openech.mj.autofill.NameGenerator;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
 
-public class TextEditField implements EditField<String>, Enable, DemoEnabled {
+public class TextEditField implements EditField<String>, Enable {
 
 	private final PropertyInterface property;
 	private final int maxLength;
@@ -59,18 +56,6 @@ public class TextEditField implements EditField<String>, Enable, DemoEnabled {
 			throw new IllegalStateException("ChangeListener can only be set once");
 		}
 		this.changeListener = changeListener;
-	}
-
-	@Override
-	public void fillWithDemoData() {
-		String name = property.getFieldName();
-		
-		// if (numeric) setObject(NumberGenerator.generate(minLength, maxLength));
-		/* else */ if (name.startsWith("street")) setObject(NameGenerator.street());
-		else if (name.endsWith("fatherFirstName")) setObject(FirstNameGenerator.getFirstName(true));
-		else if (name.endsWith("motherFirstName")) setObject(FirstNameGenerator.getFirstName(false));
-		else if (name.equals("callName")) setObject("Lorem Ipsum");
-		else if (name.endsWith("Name")) setObject(NameGenerator.officialName());
 	}
 	
 	private class ForwardingChangeListener implements ChangeListener {
