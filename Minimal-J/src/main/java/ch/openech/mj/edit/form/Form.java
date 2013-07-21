@@ -365,15 +365,25 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	}
 
 	@Override
-	public void fillWithDemoData() {
-		for (FormField<?> field : fields.values()) {
+	public final void fillWithDemoData() {
+		changeFromOutsite = true;
+		fillWithDemoData(object);
+		readValueFromObject();
+		changeListener.changed();
+		changeFromOutsite = false;
+	}
+
+	protected void fillWithDemoData(T object) {
+		for (FormField field : fields.values()) {
+			PropertyInterface property = field.getProperty();
 			if (field instanceof DemoEnabled) {
 				DemoEnabled demoEnabledField = (DemoEnabled) field;
 				demoEnabledField.fillWithDemoData();
+				property.setValue(object, ((EditField<?>) field).getObject());
 			}
-		}
+		}		
 	}
-
+	
 	//
 
 	private String caption(FormField<?> field) {
@@ -405,12 +415,18 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		if (editable && changeListener == null) throw new IllegalStateException("Listener has to be set on a editable Form");
 		changeFromOutsite = true;
 		this.object = object;
+		readValueFromObject();
+		changeFromOutsite = false;
+	}
+
+	private void readValueFromObject() {
 		for (PropertyInterface property : getProperties()) {
 			Object propertyValue = property.getValue(object);
 			set(property, propertyValue);
+			updatePropertyValidation(property, propertyValue);
 		}
+		updateEnable();
 		updateValidation();
-		changeFromOutsite = false;
 	}
 	
 	private String getName(FormField<?> field) {
@@ -438,25 +454,19 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			EditField<?> changedField = (EditField<?>) event.getSource();
 			logger.fine("ChangeEvent from " + getName(changedField));
 			
-			// get the new value
 			PropertyInterface property = changedField.getProperty();
-			Object value = changedField.getObject();
+			Object newValue = changedField.getObject();
 
-//			Von hier aus den ChangeListener abschalten, alle Meldungen rekursiv sammeln,
-//			Listener wieder einschalten... 
-			// ??
-			
-			// Call updaters before set the new value
-			// (so they also can read the old value)
-			executeUpdater(property, value);
+			// Call updaters before set the new value  (so they also can read the old value)
+			executeUpdater(property, newValue);
 			refreshDependendFields(property);
 			
-			property.setValue(object, value);
+			property.setValue(object, newValue);
 			
 			// update enable/disable fields
 			updateEnable();
 			
-			updatePropertyValidation(property, value);
+			updatePropertyValidation(property, newValue);
 			updateValidation();
 
 			changeListener.changed();
