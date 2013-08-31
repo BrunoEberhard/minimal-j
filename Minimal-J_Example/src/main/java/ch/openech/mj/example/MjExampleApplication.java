@@ -1,12 +1,14 @@
 package ch.openech.mj.example;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import ch.openech.mj.application.MjApplication;
-import ch.openech.mj.edit.EditorDialogAction;
 import ch.openech.mj.example.page.BookTablePage;
-import ch.openech.mj.page.ActionGroup;
+import ch.openech.mj.page.EditorPageAction;
 import ch.openech.mj.page.PageContext;
+import ch.openech.mj.toolkit.IAction;
 
 public class MjExampleApplication extends MjApplication {
 
@@ -16,12 +18,12 @@ public class MjExampleApplication extends MjApplication {
 	}
 
 	@Override
-	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
-		ActionGroup file = actionGroup.getOrCreateActionGroup(ActionGroup.FILE);
-		ActionGroup niu = file.getOrCreateActionGroup(ActionGroup.NEW);
-		niu.add(new EditorDialogAction(new AddBookEditor()));
-		niu.add(new EditorDialogAction(new AddCustomerEditor()));
-		niu.add(new EditorDialogAction(new AddLendEditor()));
+	public List<IAction> getActionsNew(PageContext context) {
+		List<IAction> items = new ArrayList<>();
+		items.add(new EditorPageAction(new AddBookEditor()));
+		items.add(new EditorPageAction(new AddCustomerEditor()));
+		items.add(new EditorPageAction(new AddLendEditor()));
+		return items;
 	}
 
 	@Override

@@ -5,22 +5,22 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 
+import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingEditorLayout extends JPanel implements IComponent {
 
-	public SwingEditorLayout(IComponent content, Action[] actions) {
+	public SwingEditorLayout(IComponent content, IAction[] actions) {
 		super(new BorderLayout());
 		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel((Component) content));
 		scrollPane.setBorder(new TopBottomBorder(scrollPane.getBorder()));
 		add(scrollPane, BorderLayout.CENTER);
-		ButtonBar buttonBar = new ButtonBar(actions);
+		ButtonBar buttonBar = new ButtonBar(SwingClientToolkit.adaptActions(actions, this));
 		buttonBar.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 2)); // unknown: why the need for additional 2 pixel?
 		add(buttonBar, BorderLayout.SOUTH);
 	}
@@ -50,5 +50,5 @@ public class SwingEditorLayout extends JPanel implements IComponent {
 		}
 		
 	}
-
+	
 }

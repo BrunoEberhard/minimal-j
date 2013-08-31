@@ -4,56 +4,66 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ch.openech.mj.page.PageContext;
-import ch.openech.mj.page.PageContextHelper;
-import ch.openech.mj.resources.ResourceAction;
-import ch.openech.mj.resources.ResourceHelper;
-import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.IDialog.CloseListener;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.ResourceAction;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.GenericUtils;
 
-public abstract class SearchDialogAction<T> extends AbstractAction {
+public abstract class SearchDialogAction<T> extends ResourceAction {
+	private final IComponent source;
 	private final Object[] keys;
 	private IDialog dialog;
 	private ITable<T> table;
 	private TextField textFieldSearch;
 	
-	public SearchDialogAction(Object... keys) {
+	protected SearchDialogAction(IComponent source, Object... keys) {
+		this.source = source;
 		this.keys = keys;
-		String actionName = getClass().getSimpleName();
-		ResourceHelper.initProperties(this, Resources.getResourceBundle(), actionName);
 	}
-
+	
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void action(IComponent context) {
 		try {
-			PageContext context = PageContextHelper.findContext(e.getSource());
-			showPageOn(context);
+			showPageOn(source);
 		} catch (Exception x) {
 			// TODO show dialog
 			x.printStackTrace();
 		}
 	}
+
+
+	protected void run(IComponent source) {
+		
+	}
 	
-	private void showPageOn(PageContext context) {
+	private void showPageOn(IComponent source) {
 		textFieldSearch = ClientToolkit.getToolkit().createTextField(new SearchChangeListener(), 100);
+		textFieldSearch.setCommitListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				search(textFieldSearch.getText());
+			}
+		});
 		
 		@SuppressWarnings("unchecked")
 		Class<T> clazz = (Class<T>) GenericUtils.getGenericClass(getClass());		
 		table = ClientToolkit.getToolkit().createTable(clazz, keys);
-				
-		IComponent layout = ClientToolkit.getToolkit().createSearchLayout(textFieldSearch, new SearchAction(), table, new OkAction());
+		table.setClickListener(new SearchClickListener());
 		
-		dialog = ClientToolkit.getToolkit().openDialog(context, layout, "Suche");
+		GridFormLayout layout = ClientToolkit.getToolkit().createGridLayout(1, 100);
+		
+		layout.add(textFieldSearch, 1);
+		layout.add(table, 1);
+		
+		dialog = ClientToolkit.getToolkit().createDialog(source, "Suche", layout);
 		
 		dialog.setCloseListener(new CloseListener() {
 			@Override
@@ -62,9 +72,8 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 			}
 		});
 		
-		table.setClickListener(new SearchClickListener());
 		dialog.openDialog();
-		ClientToolkit.getToolkit().focusFirstComponent(textFieldSearch);
+//		ClientToolkit.getToolkit().focusFirstComponent(textFieldSearch);
 	}
 	
 	protected abstract List<T> search(String text);
@@ -80,22 +89,22 @@ public abstract class SearchDialogAction<T> extends AbstractAction {
 		
 	}
 	
-	private class SearchAction extends ResourceAction {
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			List<T> objects = search(textFieldSearch.getText());
-			table.setObjects(objects);
-		}
-	}
+//	private class SearchAction extends ResourceAction {
+//		
+//		@Override
+//		public void action(IComponent context) {
+//			List<T> objects = search(textFieldSearch.getText());
+//			table.setObjects(objects);
+//		}
+//	}
 
-	private class OkAction extends ResourceAction {
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			saveAndClose();
-		}
-	}
+//	private class OkAction extends ResourceAction {
+//		
+//		@Override
+//		public void action(IComponent context) {
+//			saveAndClose();
+//		}
+//	}
 	
 	private class SearchClickListener implements ActionListener {
 		

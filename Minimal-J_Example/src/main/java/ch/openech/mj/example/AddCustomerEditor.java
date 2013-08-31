@@ -4,7 +4,7 @@ import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.example.page.CustomerViewPage;
-import ch.openech.mj.page.Page;
+import ch.openech.mj.page.PageLink;
 
 public class AddCustomerEditor extends Editor<Customer> {
 
@@ -14,10 +14,9 @@ public class AddCustomerEditor extends Editor<Customer> {
 	}
 	
 	@Override
-	public boolean save(Customer customer) throws Exception {
+	public String save(Customer customer) throws Exception {
 		int id = ExamplePersistence.getInstance().customer().insert(customer);
-		setFollowLink(Page.link(CustomerViewPage.class, Integer.toString(id)));
-		return true;
+		return PageLink.link(CustomerViewPage.class, Integer.toString(id));
 	}
 
 	@Override

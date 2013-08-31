@@ -1,22 +1,24 @@
 package ch.openech.mj.vaadin;
 
-import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.Action;
-
 import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.application.MjApplication;
+import ch.openech.mj.edit.Editor;
+import ch.openech.mj.edit.Editor.EditorListener;
+import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
-import ch.openech.mj.page.SeparatorAction;
-import ch.openech.mj.resources.ResourceAction;
+import ch.openech.mj.page.PageLink;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.ResourceAction;
 import ch.openech.mj.util.StringUtils;
+import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
+import ch.openech.mj.vaadin.toolkit.VaadinDialog;
+import ch.openech.mj.vaadin.toolkit.VaadinEditorLayout;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -27,9 +29,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
@@ -39,19 +38,21 @@ import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class VaadinWindow extends Window implements PageContext, IComponent {
+public class VaadinWindow extends Window implements PageContext {
 
 	private final VerticalLayout windowContent = new VerticalLayout();
-	private final MenuBar menubar = new MenuBar();
+	private final VaadinMenuBar menubar = new VaadinMenuBar(this);
 	private final ComboBox comboBox = new ComboBox();
 	private final TextField textFieldSearch = new TextField();
 	private final UriFragmentUtility ufu;
-	
+
 	private Page visiblePage;
 	private Component content;
 	private Panel scrollablePanel;
 	private List<String> pageLinks;
 	private int indexInPageLinks;
+	
+	private Editor<?> editor;
 	
 	public VaadinWindow() {
 		setLocale(Locale.GERMAN);
@@ -123,7 +124,7 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 
 	@SuppressWarnings("unchecked")
 	private void showSearchPage() {
-		show(Page.link((Class<? extends Page>) comboBox.getValue(), (String) textFieldSearch.getValue()));
+		show(PageLink.link((Class<? extends Page>) comboBox.getValue(), (String) textFieldSearch.getValue()));
 	}
 	
 	@Override
@@ -136,8 +137,12 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 		}
 	}
 
+	Page getVisiblePage() {
+		return visiblePage;
+	}
+	
 	private void updateContent(String pageLink) {
-		visiblePage = Page.createPage(VaadinWindow.this, pageLink);
+		visiblePage = PageLink.createPage(VaadinWindow.this, pageLink);
 		Component component = (Component) visiblePage.getComponent();
 		updateContent(component);
 	}
@@ -164,109 +169,22 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 			this.content = null;
 		}
 		
-		updateMenu();
+		menubar.updateMenu();
 		updateWindowTitle();
-		ClientToolkit.getToolkit().focusFirstComponent((IComponent) content);
+		VaadinClientToolkit.focusFirstComponent((IComponent) content);
 	}
 
-	private void updateMenu() {
-		menubar.removeItems();
-		
-		ActionGroup actionGroup = new ActionGroup();
-		fillMenu(actionGroup);
-		
-		PageContext pageContext = (PageContext) this;
-		MjApplication.getApplication().fillActionGroup(pageContext, actionGroup);
-		visiblePage.fillActionGroup(actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT));
-		
-		updateMenu(actionGroup);
-	}
-	
-	private void updateMenu(ActionGroup actions) {
-		for (Action action : actions.getActions()) {
-			if (action instanceof ActionGroup) {
-				ActionGroup actionGroup = (ActionGroup) action;
-				if (!actionGroup.getActions().isEmpty()) {
-					MenuBar.MenuItem item = menubar.addItem((String) actionGroup.getValue(Action.NAME), null);
-					fillMenu(item, actionGroup);
-				}
-			}
-		}
-	}
-	
-	private void fillMenu(MenuBar.MenuItem item, ActionGroup actionGroup) {
-		for (Action action : actionGroup.getActions()) {
-			if (action instanceof ActionGroup) {
-				ActionGroup subGroup = (ActionGroup) action;
-				if (!actionGroup.getActions().isEmpty()) {
-					MenuBar.MenuItem subItem = item.addItem((String) subGroup.getValue(Action.NAME), null);
-					fillMenu(subItem, subGroup);
-				}
-			} else if (action instanceof SeparatorAction) {
-				item.addSeparator();
-			} else {
-				if (!Boolean.FALSE.equals(action.getValue("visible"))) {
-					MenuBar.MenuItem menuItem = item.addItem((String) action.getValue(Action.NAME), null, new ActionCommand(action));
-					menuItem.setEnabled(!Boolean.FALSE.equals(action.getValue("enabled")));
-				}
-			}
-		}
-	}
-	
-//	
-//	private static void installAdditionalActionListener(Action action, final MenuBar.MenuItem menuItem) {
-//		menuItem.setVisible(!Boolean.FALSE.equals(action.getValue("visible")));
-//		menuItem.setEnabled(!Boolean.FALSE.equals(action.getValue("enabled")));
-//		action.addPropertyChangeListener(new PropertyChangeListener() {
-//			@Override
-//			public void propertyChange(PropertyChangeEvent evt) {
-//				if ("visible".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
-//					menuItem.setVisible((Boolean) evt.getNewValue());
-//				} else if ("enabled".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
-//					menuItem.setEnabled((Boolean) evt.getNewValue());
-//				}
-//			}
-//		});
-//	}
-	
-	private void fillMenu(ActionGroup actionGroup) {
-		ActionGroup file = actionGroup.getOrCreateActionGroup(ActionGroup.FILE);
-		fillFileMenu(file);
-	
-		actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT);
-		ActionGroup window = actionGroup.getOrCreateActionGroup(ActionGroup.WINDOW);
-		fillWindowMenu(window);
-		
-		ActionGroup help = actionGroup.getOrCreateActionGroup(ActionGroup.HELP);
-		fillHelpMenu(help);
-	}
-	
-	protected void fillFileMenu(ActionGroup actionGroup) {
-		actionGroup.getOrCreateActionGroup(ActionGroup.NEW);
-//		actionGroup.addSeparator();
-//		actionGroup.getOrCreateActionGroup(ActionGroup.IMPORT);
-//		actionGroup.getOrCreateActionGroup(ActionGroup.EXPORT);
-	}
-	
-	protected void fillWindowMenu(ActionGroup actionGroup) {
-		if (!top()) {
-			actionGroup.add(new UpAction());
-		}
-		if (!bottom()) {
-			actionGroup.add(new DownAction());
-		}
-	}
 	
 	protected class UpAction extends ResourceAction {
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void action(IComponent context) {
 			up();
 		}
 	}
 
 	protected class DownAction extends ResourceAction {
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void action(IComponent context) {
 			down();
 		}
 	}
@@ -275,35 +193,40 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 		// 
 	}
 	
-	private class ActionCommand implements Command {
-		private final Action action;
-		
-		public ActionCommand(Action action) {
-			this.action = action;
-		}
-
-		@Override
-		public void menuSelected(MenuItem selectedItem) {
-			action.actionPerformed(new ActionEvent(VaadinWindow.this, 0, null));
-		}
-	}
-
 	@Override
-	public PageContext addTab() {
-		// How ?
-		// didnt work that good:
-//			VaadinWindow parentVaadinWindow = (VaadinWindow) parentPageContext;
-//			VaadinWindow vaadinWindow = new VaadinWindow();
-//			parentVaadinWindow.open(new ExternalResource(vaadinWindow.getURL()), "_new");
-//			return vaadinWindow;
-		return null;
+	public void show(Editor<?> editor) {
+		this.editor = editor;
+		
+		IForm<?> form = editor.startEditor();
+		VaadinEditorLayout layout = new VaadinEditorLayout(form.getComponent(), editor.getActions());
+		final VaadinDialog dialog = new VaadinDialog(this, layout, editor.getTitle());
+
+		dialog.setCloseListener(new ch.openech.mj.toolkit.IDialog.CloseListener() {
+			@Override
+			public boolean close() {
+				VaadinWindow.this.editor.checkedClose();
+				return VaadinWindow.this.editor.isFinished();
+			}
+		});
+		
+		editor.setEditorListener(new EditorListener() {
+			@Override
+			public void saved(Object saveResult) {
+				dialog.closeDialog();
+				if (saveResult instanceof String) {
+					show((String) saveResult);
+				}
+			}
+
+			@Override
+			public void canceled() {
+				dialog.closeDialog();
+			}
+		});
+		dialog.setVisible(true);
+		VaadinClientToolkit.focusFirstComponent(form.getComponent());
 	}
 	
-	@Override
-	public void closeTab() {
-		getWindow().executeJavaScript("history.back()");
-		// ev. "var backlen=history.length; history.go(-backlen); window.location.href= window.location.href;"
-	}
 	
 	@Override
 	public void show(List<String> pageLinks, int index) {
@@ -321,12 +244,10 @@ public class VaadinWindow extends Window implements PageContext, IComponent {
 	}
 
 	public void up() {
-		// getWindow().executeJavaScript("history.back()");
 		show(pageLinks.get(--indexInPageLinks));
 	}
 
 	public void down() {
-		// getWindow().executeJavaScript("history.back()");
 		show(pageLinks.get(++indexInPageLinks));
 	}
 	

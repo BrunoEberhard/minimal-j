@@ -1,36 +1,30 @@
 package ch.openech.mj.edit;
 
-import java.awt.event.ActionEvent;
 import java.util.List;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 
 import ch.openech.mj.application.DevMode;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.form.SwitchForm;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
-import ch.openech.mj.resources.ResourceHelper;
-import ch.openech.mj.resources.Resources;
-import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.IAction;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.ResourceActionEnabled;
 
 public abstract class Wizard<T> extends Editor<T> {
 
 	private WizardStep<?> currentStep;
 	private int currentStepIndex = 0;
 	
-	protected final Action prevAction;
-	protected final Action nextAction;
-	protected final Action finishAction;
+	protected final PreviousWizardStepAction prevAction;
+	protected final NextWizardStepAction nextAction;
 	private SwitchForm<T> switchForm;
 	private final Indicator indicator;
-	private final EditorFinishedListener stepFinishedListener;
+	private final EditorListener stepFinishedListener;
 	
 	protected Wizard() {
-		nextAction = createNextAction();
-		prevAction = createPrevAction();
-		finishAction = createFinishAction();
+		nextAction = new NextWizardStepAction();
+		prevAction = new PreviousWizardStepAction();
 		indicator = new WizardIndicator();
 		stepFinishedListener = new WizardStepFinishedListener();
 	}
@@ -38,52 +32,38 @@ public abstract class Wizard<T> extends Editor<T> {
 	protected abstract WizardStep<?> getFirstStep();
 	
 	@Override
-	public Action[] getActions() {
+	public IAction[] getActions() {
 		if (DevMode.isActive()) {
-			return new Action[]{demoAction(), cancelAction(), prevAction, nextAction, finishAction};
+			return new IAction[]{demoAction, cancelAction, prevAction, nextAction, saveAction};
 		} else {
-			return new Action[]{cancelAction(), prevAction, nextAction, finishAction};
+			return new IAction[]{cancelAction, prevAction, nextAction, saveAction};
 		}
+	}
+
+	@Override
+	public void save() {
+		currentStep.save();
+		super.save();
 	}
 
 	protected int getCurrentStepIndex() {
 		return currentStepIndex;
 	}
 	
-	protected Action createNextAction() {
-		Action action = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (currentStep.isSaveable()) {
-					currentStep.save();
-				}
-			}
-		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "NextWizardStepAction");
-		return action;
+	private class NextWizardStepAction extends ResourceActionEnabled {
+		@Override
+		public void action(IComponent context) {
+			currentStep.save();
+		}
 	}
 
-	protected Action createPrevAction() {
-		Action action = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				currentStep.cancel();
-			}
-		};
-		ResourceHelper.initProperties(action, Resources.getResourceBundle(), "PreviousWizardStepAction");
-		return action;
+	private class PreviousWizardStepAction extends ResourceActionEnabled {
+		@Override
+		public void action(IComponent context) {
+			currentStep.cancel();
+		}
 	}
 
-	protected final Action createFinishAction() {
-		Action action = new SaveAction("OkAction") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				currentStep.save();
-			}
-		};
-		return action;
-	}
-	
 	@Override
 	protected final IForm<T> createForm() {
 		switchForm = new SwitchForm<T>();
@@ -100,11 +80,11 @@ public abstract class Wizard<T> extends Editor<T> {
 	private void setCurrentStep(WizardStep<?> step) {
 		currentStep = step;
 		currentStep.setIndicator(indicator);
-		currentStep.setEditorFinishedListener(stepFinishedListener);
+		currentStep.setEditorListener(stepFinishedListener);
  
 		IForm<?> form = currentStep.startEditor();
 		switchForm.setForm(form);
-		ClientToolkit.getToolkit().focusFirstComponent(form.getComponent());
+		// ClientToolkit.getToolkit().focusFirstComponent(form.getComponent());
 		
 		prevAction.setEnabled(currentStepIndex > 0);
 	}
@@ -114,27 +94,29 @@ public abstract class Wizard<T> extends Editor<T> {
 			currentStep.save();
 		}
 	}
+	
+	@Override
+	protected void finish() {
+		currentStep.finish();
+		super.finish();
+	}
 
 	@Override
-	protected abstract boolean save(T object) throws Exception;
+	protected abstract Object save(T object) throws Exception;
 	
 	private class WizardIndicator implements Indicator {
 
 		@Override
 		public void setValidationMessages(List<ValidationMessage> validationResult) {
 			nextAction.setEnabled(validationResult.isEmpty() && currentStep.getNextStep() != null);
-			finishAction.setEnabled(validationResult.isEmpty() && currentStep.canFinish());
+			saveAction.setEnabled(validationResult.isEmpty() && currentStep.canFinish());
 		}
 	}
 	
-	private class WizardStepFinishedListener implements EditorFinishedListener {
-		@Override
-		public void progress(int value, int maximum) {
-			// ignored
-		}
+	private class WizardStepFinishedListener implements EditorListener {
 
 		@Override
-		public void finished(String followLink) {
+		public void saved(Object saveResult) {
 			WizardStep<?> nextStep = currentStep.getNextStep();
 			if (nextStep != null) {
 				currentStepIndex++;

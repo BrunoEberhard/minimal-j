@@ -13,13 +13,13 @@ import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable;
 
-public abstract class HistoryPage<T> extends Page implements RefreshablePage {
+public abstract class HistoryPage<T> extends AbstractPage implements RefreshablePage {
 
 	private List<HistoryVersion<T>> versions;
 	private ITable<HistoryVersion<T>> table;
 	
-	public HistoryPage(PageContext context) {
-		super(context);
+	public HistoryPage(PageContext pageContext) {
+		super(pageContext);
 		ITable<?> table2 = ClientToolkit.getToolkit().createTable(HistoryVersion.class, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
 		table = (ITable<HistoryVersion<T>>) table2;
 		table.setClickListener(new ActionListener() {
@@ -36,6 +36,11 @@ public abstract class HistoryPage<T> extends Page implements RefreshablePage {
 		});
 	}
 	
+	@Override
+	public ActionGroup getMenu() {
+		return null;
+	}
+
 	protected abstract List<HistoryVersion<T>> loadVersions();
 
 	protected abstract LocalDateTime getTime(T object);

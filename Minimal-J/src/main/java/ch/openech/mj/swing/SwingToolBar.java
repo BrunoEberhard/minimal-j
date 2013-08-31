@@ -16,7 +16,7 @@ import javax.swing.JToolBar;
 
 import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.Page;
-import ch.openech.mj.resources.ResourceAction;
+import ch.openech.mj.page.PageLink;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.IComponent;
 
@@ -93,7 +93,7 @@ public class SwingToolBar extends JToolBar implements IComponent {
 		}
 	}
 	
-	protected class SearchAction extends ResourceAction {
+	protected class SearchAction extends SwingResourceAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Class<? extends Page> searchObject = (Class<? extends Page>) comboBoxSearchObject.getSelectedItem();
@@ -103,7 +103,7 @@ public class SwingToolBar extends JToolBar implements IComponent {
 	}
 	
 	public void search(Class<? extends Page> searchClass, String text) {
-		tab.show(Page.link(searchClass, text));
+		tab.show(PageLink.link(searchClass, text));
 	}
 	
 	void onHistoryChanged() {

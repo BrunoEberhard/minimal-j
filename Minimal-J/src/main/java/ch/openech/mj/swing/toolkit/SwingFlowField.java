@@ -1,20 +1,14 @@
 package ch.openech.mj.swing.toolkit;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.Component;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import ch.openech.mj.toolkit.FlowField;
-import ch.openech.mj.util.StringUtils;
+import ch.openech.mj.toolkit.IComponent;
 
 
 public class SwingFlowField extends JPanel implements FlowField {
@@ -30,52 +24,8 @@ public class SwingFlowField extends JPanel implements FlowField {
 	}
 
 	@Override
-	public void addAction(Action action) {
-		lastLabel = createLinkButton(action);
-		add(lastLabel);
-		repaint();
-		revalidate();
-	}
-	
-	static JLabel createLinkButton(final Action action) {
-		final JLabel label = new JLabel();
-		label.setIcon((Icon) action.getValue(Action.SMALL_ICON));
-		label.setText((String) action.getValue(Action.NAME));
-		label.setToolTipText((String) action.getValue(Action.SHORT_DESCRIPTION));
-		label.setForeground(Color.BLUE);
-		label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		label.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				action.actionPerformed(new ActionEvent(label, 0, null));
-			}
-		});
-        return label;
-	}
-
-	@Override
 	public void clear() {
 		removeAll();
-		repaint();
-		revalidate();
-	}
-
-	@Override
-	public void addObject(Object object) {
-		if (object != null) {
-			lastLabel = new JLabel(object.toString());
-			add(lastLabel);
-		}
-		repaint();
-		revalidate();
-	}
-
-	@Override
-	public void addHtml(String html) {
-		if (!StringUtils.isBlank(html)) {
-			lastLabel = new JLabel(html);
-			add(lastLabel);
-		}
 		repaint();
 		revalidate();
 	}
@@ -85,6 +35,13 @@ public class SwingFlowField extends JPanel implements FlowField {
 		if (lastLabel != null) {
 			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 		}
+	}
+
+	@Override
+	public void add(IComponent component) {
+		super.add((Component) component);
+		repaint();
+		revalidate();
 	}
 	
 }

@@ -39,7 +39,7 @@ public class CustomerField extends ObjectFlowField<Customer> {
 	public class CustomerSearchAction extends SearchDialogAction<Customer> {
 		
 		public CustomerSearchAction() {
-			super(Customer.CUSTOMER.firstName, Customer.CUSTOMER.name);
+			super(getComponent(), Customer.CUSTOMER.firstName, Customer.CUSTOMER.name);
 		}
 
 		@Override

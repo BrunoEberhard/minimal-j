@@ -1,6 +1,6 @@
 package ch.openech.mj.page;
 
-public interface RefreshablePage {
+public interface RefreshablePage extends Page {
 
 	public void refresh();
 	

@@ -55,6 +55,24 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 	protected abstract IForm<T> createFormPanel();
 
 	public class ObjectFieldEditor extends Editor<T> {
+		private final String title;
+		
+		public ObjectFieldEditor() {
+			this(null);
+		}
+
+		public ObjectFieldEditor(String title) {
+			this.title = title;
+		}
+		
+		@Override
+		public String getTitle() {
+			if (title != null) {
+				return title;
+			} else {
+				return super.getTitle();
+			}
+		}
 
 		@Override
 		public IForm<T> createForm() {
@@ -74,9 +92,9 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 		}
 
 		@Override
-		public boolean save(T edited) {
+		public Object save(T edited) {
 			ObjectField.this.setObject(edited);
-			return true;
+			return SAVE_SUCCESSFUL;
 		}
 	}
 	
@@ -102,7 +120,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 				show(object);
 			}
 			if (isEditable()) {
-		showActions();
+				showActions();
 			}
 		}
 	}
@@ -121,7 +139,6 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 	public void setEnabled(boolean enabled) {
 		if (enabled != this.enabled) {
 			this.enabled = enabled;
-			visual.setEnabled(enabled);
 			display();
 		}
 	}

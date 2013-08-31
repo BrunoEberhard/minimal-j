@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import ch.openech.mj.page.RefreshablePage;
+import ch.openech.mj.application.DevMode;
 import ch.openech.mj.resources.ResourceHelper;
 
 /**
@@ -21,7 +21,7 @@ import ch.openech.mj.resources.ResourceHelper;
  * @author bruno
  * 
  */
-public class FrameManager implements RefreshablePage {
+public class FrameManager {
 	private static Logger logger = Logger.getLogger(FrameManager.class.getName());
 	private static FrameManager instance = new FrameManager();
 	
@@ -72,13 +72,6 @@ public class FrameManager implements RefreshablePage {
 	
 	public List<SwingFrame> getNavigationFrames() {
 		return navigationFrames;
-	}
-	
-	@Override
-	public void refresh() {
-		for (SwingFrame view : navigationFrames) {
-			view.refresh();
-		}
 	}
 	
 	// closing
@@ -144,8 +137,12 @@ public class FrameManager implements RefreshablePage {
 	 * @return true if user wants to leave
 	 */
 	private boolean askBeforeExit(SwingFrame navigationFrameView) {
-		int answer = JOptionPane.showConfirmDialog(navigationFrameView, "Soll die Applikation beendet werden?", "Applikation beenden", JOptionPane.YES_NO_OPTION);
-		return answer == JOptionPane.YES_OPTION;
+		if (DevMode.isActive()) {
+			return true;
+		} else {
+			int answer = JOptionPane.showConfirmDialog(navigationFrameView, "Soll die Applikation beendet werden?", "Applikation beenden", JOptionPane.YES_NO_OPTION);
+			return answer == JOptionPane.YES_OPTION;
+		}
 	}
 	
 	/**

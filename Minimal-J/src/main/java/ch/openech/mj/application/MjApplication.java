@@ -1,12 +1,14 @@
 package ch.openech.mj.application;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
-import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.EmptyPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.IAction;
 
 /**
  * Extend this class as main entry for your Application.<p>
@@ -70,10 +72,23 @@ public abstract class MjApplication {
 		return new EmptyPage(context);
 	}
 	
-	public void fillActionGroup(PageContext pageContext, ActionGroup actionGroup) {
+	public List<IAction> getActionsNew(PageContext context) {
 		// should be done in subclass
+		return Collections.emptyList();
 	}
-	
+
+	public List<IAction> getActionsImport(PageContext context) {
+		return Collections.emptyList();
+	}
+
+	public List<IAction> getActionsExport(PageContext context) {
+		return Collections.emptyList();
+	}
+
+	public List<IAction> getActionsWindow(PageContext context) {
+		return Collections.emptyList();
+	}
+
 	public void init() {
 		// should be done in subclass
 	}

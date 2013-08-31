@@ -12,9 +12,10 @@ import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Decimal;
 import ch.openech.mj.model.annotation.Required;
 import ch.openech.mj.model.annotation.Size;
+import ch.openech.mj.page.Linkable;
 
 
-public class Book implements DemoEnabled {
+public class Book implements DemoEnabled, Linkable {
 	public static final Book BOOK = Keys.of(Book.class);
 
 	@Required @Size(ExampleFormats.NAME) 
@@ -38,5 +39,11 @@ public class Book implements DemoEnabled {
 		date = new LocalDate(2009, 1, 1);
 		pages = 800;
 		price = new BigDecimal(3990).divide(new BigDecimal(100));
+	}
+
+	@Override
+	public String getLink() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

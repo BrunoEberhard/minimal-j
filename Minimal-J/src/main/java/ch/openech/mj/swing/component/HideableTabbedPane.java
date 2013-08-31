@@ -124,6 +124,7 @@ public class HideableTabbedPane extends JPanel {
 		}
 	}
 
+	@Deprecated // at the moment Page doesn't support Icon anymore
 	public void setIconAt(int index, Icon titleIcon) {
 		icons.put(getTab(index), titleIcon);
 		if (tabbedPane != null) {
@@ -131,6 +132,7 @@ public class HideableTabbedPane extends JPanel {
 		}
 	}
 
+	@Deprecated // at the moment Page doesn't support Tooltip anymore
 	public void setToolTipTextAt(int index, String titleToolTip) {
 		tooltips.put(getTab(index), titleToolTip);
 		if (tabbedPane != null) {

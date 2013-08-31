@@ -60,7 +60,7 @@ public abstract class WizardStep<T> extends Editor<T> {
      * Returns the wizard step that would to be shown if the user was to
      * press the Back button.
      *
-     * @return the previous wizard step, or <code>null</code> if none
+     * @return the previous wizard step, or <code>null</code> if this is the first step
      */
     public abstract WizardStep<?> getPreviousStep();
     

@@ -14,10 +14,10 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import ch.openech.mj.application.MjApplication;
-import ch.openech.mj.edit.EditorPage;
+import ch.openech.mj.page.EmptyPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
-import ch.openech.mj.resources.ResourceAction;
+import ch.openech.mj.page.PageLink;
 import ch.openech.mj.swing.component.HideableTabbedPane;
 import ch.openech.mj.toolkit.IComponent;
 
@@ -76,7 +76,7 @@ public class SwingFrame extends JFrame implements IComponent {
 
 	public void addDefaultTab() {
 		SwingTab tab = addTab();
-		tab.show(Page.link());
+		tab.show(PageLink.link(EmptyPage.class));
 	}
 	
 	public SwingTab addTab() {
@@ -119,11 +119,10 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	private boolean checkClosable(SwingTab tab) {
-		Page visiblePage = tab.getVisiblePage();
-		if (visiblePage instanceof EditorPage) {
-			EditorPage editorPage = (EditorPage) visiblePage;
+		if (tab.getEditor() != null) {
 			tabbedPane.setSelectedComponent(tab);
-			editorPage.checkedClose();
+			tab.getEditor().checkedClose();
+			return tab.getEditor().isFinished();
 		}
 		return true;
 	}
@@ -195,33 +194,31 @@ public class SwingFrame extends JFrame implements IComponent {
 				throw new RuntimeException("Page null");
 			}
 			tabbedPane.setTitleAt(index, page.getTitle());
-			tabbedPane.setIconAt(index, page.getTitleIcon());
-			tabbedPane.setToolTipTextAt(index, page.getTitleToolTip());
 		}
 	}
 	
-	private class CloseWindowAction extends ResourceAction {
+	private class CloseWindowAction extends SwingResourceAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			tryToCloseWindow();
 		}
 	}
 	
-	private class ExitAction extends ResourceAction {
+	private class ExitAction extends SwingResourceAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			FrameManager.getInstance().exitActionPerformed(SwingFrame.this);
 		}
 	}
 
-	private static class NewWindowAction extends ResourceAction {
+	private static class NewWindowAction extends SwingResourceAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			FrameManager.getInstance().openNavigationFrame();
 		}
 	}
 
-	private class NewTabAction extends ResourceAction {
+	private class NewTabAction extends SwingResourceAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			addDefaultTab();

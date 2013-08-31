@@ -1,9 +1,8 @@
 package ch.openech.mj.edit.fields;
 
-import javax.swing.Action;
-
 import ch.openech.mj.edit.EditorDialogAction;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.toolkit.ClientToolkit;
 
 public abstract class ObjectLinkField<T> extends ObjectField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
@@ -19,11 +18,9 @@ public abstract class ObjectLinkField<T> extends ObjectField<T> {
 	@Override
 	protected void show(T object) {
 		if (isEditable()) {
-			Action action = new EditorDialogAction(new ObjectFieldEditor());
-			action.putValue(Action.NAME, display(object));
-			visual.addAction(action);
+			visual.add(ClientToolkit.getToolkit().createLabel(new EditorDialogAction(new ObjectFieldEditor(display(object)))));
 		} else {
-			visual.addObject(display(object));
+			visual.add(ClientToolkit.getToolkit().createLabel(display(object)));
 		}
 	}
 	

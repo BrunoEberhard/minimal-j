@@ -22,18 +22,24 @@ public class CustomerViewPage extends ObjectViewPage<Customer> {
 	}
 
 	@Override
-	protected Customer loadObject() {
-		return customer;
-	}
-
-	@Override
 	protected IForm<Customer> createForm() {
 		return new CustomerForm(false);
 	}
-	
+
 	@Override
-	public void fillActionGroup(ActionGroup actionGroup) {
-		// actionGroup.add(action)
+	public String getTitle() {
+		return "Kunde " + customer.name;
 	}
+
+	@Override
+	public ActionGroup getMenu() {
+		return null;
+	}
+
+	@Override
+	protected Customer getObject() {
+		return customer;
+	}
+	
 	
 }

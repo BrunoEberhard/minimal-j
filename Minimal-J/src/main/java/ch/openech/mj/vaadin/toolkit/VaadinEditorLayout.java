@@ -1,10 +1,7 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +9,7 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
@@ -30,15 +28,15 @@ import com.vaadin.ui.VerticalLayout;
 
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 
-	public VaadinEditorLayout(IComponent content, Action[] actions) {
+	public VaadinEditorLayout(IComponent content, IAction[] actions) {
 		this(null, content, actions);
 	}
 
-	public VaadinEditorLayout(TextField text, Action searchAction, IComponent content, Action[] actions) {
+	public VaadinEditorLayout(TextField text, Action searchAction, IComponent content, IAction[] actions) {
 		this(createHeaderComponent(text, searchAction), content, actions);
 	}
 
-	private VaadinEditorLayout(Component header, IComponent content, Action[] actions) {
+	private VaadinEditorLayout(Component header, IComponent content, IAction[] actions) {
 		if (header != null) {
 			addComponent(header);
 		}
@@ -100,7 +98,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		return null;
 	}
 	
-	private Component createButtonBar(Action... actions) {
+	private Component createButtonBar(IAction... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
 		horizontalLayout.setWidth("100%");
@@ -111,8 +109,8 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		return horizontalLayout;
 	}
 	
-	private void addButtons(HorizontalLayout buttonBar, Action... actions) {
-		for (Action action: actions) {
+	private void addButtons(HorizontalLayout buttonBar, IAction... actions) {
+		for (IAction action: actions) {
 			addActionButton(buttonBar, action);
 		}
 		if (buttonBar.getComponentCount() > 0) {
@@ -120,17 +118,18 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		}
 	}
 
-	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
-		final Button button = new NativeButton((String) action.getValue(Action.NAME));
-		button.setEnabled(Boolean.TRUE.equals(action.getValue("enabled")));
-		installShortcut(button, action);
+	private void addActionButton(HorizontalLayout buttonBar, final IAction action) {
+		final Button button = new NativeButton(action.getName());
+		button.setEnabled(action.isEnabled());
+		button.setDescription(action.getDescription());
+		// installShortcut(button, action);
 		button.addListener(new ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
-				action.actionPerformed(new ActionEvent(button, 0, null));
+				action.action(VaadinEditorLayout.this);
 			}
 		});
-		installAdditionalActionListener(action, button);
+		installActionListener(action, button);
 		buttonBar.addComponent(button);
 		buttonBar.setComponentAlignment(button, Alignment.MIDDLE_RIGHT);
 	}
@@ -163,19 +162,28 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		return result;
 	}
 	
-	private static void installAdditionalActionListener(Action action, final Button button) {
-		action.addPropertyChangeListener(new PropertyChangeListener() {
+	private static void installActionListener(final IAction action, final Button button) {
+		action.setChangeListener(new IAction.ActionChangeListener() {
+			
 			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if ("visible".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
-					button.setVisible((Boolean) evt.getNewValue());
-				} else if ("foreground".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Color)) {
-					// TODO Color of Vaadion ButtonBar Buttons
-					// button.set((Color) evt.getNewValue());
-				} else if ("enabled".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
-					button.setEnabled((Boolean) evt.getNewValue());
-				}
+			public void change() {
+				final Button button = new NativeButton(action.getName());
+				button.setEnabled(action.isEnabled());
+				button.setDescription(action.getDescription());
 			}
 		});
+//		action.addPropertyChangeListener(new PropertyChangeListener() {
+//			@Override
+//			public void propertyChange(PropertyChangeEvent evt) {
+//				if ("visible".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
+//					button.setVisible((Boolean) evt.getNewValue());
+//				} else if ("foreground".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Color)) {
+//					// TODO Color of Vaadion ButtonBar Buttons
+//					// button.set((Color) evt.getNewValue());
+//				} else if ("enabled".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
+//					button.setEnabled((Boolean) evt.getNewValue());
+//				}
+//			}
+//		});
 	}
 }

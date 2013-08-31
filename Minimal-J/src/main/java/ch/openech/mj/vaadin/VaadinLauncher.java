@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 import ch.openech.mj.application.ApplicationContext;
 import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.EmptyPage;
-import ch.openech.mj.page.Page;
+import ch.openech.mj.page.PageLink;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.util.StringUtils;
@@ -31,7 +31,7 @@ public class VaadinLauncher extends Application {
 		setTheme("openech");
 		VaadinWindow mainWindow = new VaadinWindow();
 		setMainWindow(mainWindow);
-		mainWindow.show(Page.link(EmptyPage.class));
+		mainWindow.show(PageLink.link(EmptyPage.class));
 	}
 
 	private synchronized void initializeApplication() {

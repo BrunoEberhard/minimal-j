@@ -42,12 +42,7 @@ public class VaadinDialog extends Window implements IDialog {
 	public void setCloseListener(ch.openech.mj.toolkit.IDialog.CloseListener closeListener) {
 		this.closeListener = closeListener;
 	}
-
-	@Override
-	public void setTitle(String title) {
-		super.setCaption(title);
-	}
-
+	
 	@Override
 	public void openDialog() {
 		setVisible(true);

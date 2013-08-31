@@ -39,8 +39,9 @@ public class BookField extends ObjectFlowField<Book> {
 	public class BookSearchAction extends SearchDialogAction<Book> {
 		
 		public BookSearchAction() {
-			super(Book.BOOK.title, Book.BOOK.author);
+			super(getComponent(), Book.BOOK.title, Book.BOOK.author);
 		}
+
 
 		@Override
 		protected List<Book> search(String text) {		

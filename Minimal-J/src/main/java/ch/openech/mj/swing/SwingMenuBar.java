@@ -1,6 +1,7 @@
 package ch.openech.mj.swing;
 
-import javax.swing.Action;
+import java.util.List;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -9,12 +10,15 @@ import javax.swing.text.DefaultEditorKit;
 import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.Page;
+import ch.openech.mj.page.Separator;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.swing.lookAndFeel.LookAndFeelAction;
 import ch.openech.mj.swing.lookAndFeel.PrintLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import ch.openech.mj.swing.lookAndFeel.TerminalLookAndFeel;
+import ch.openech.mj.swing.toolkit.SwingClientToolkit;
+import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingMenuBar extends JMenuBar implements IComponent {
@@ -27,120 +31,113 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	}
 	
 	protected void updateMenu() {
-		ActionGroup actionGroup = new ActionGroup();
-		fillMenu(actionGroup);
+		removeAll();
+		add(createFileMenu());
+		add(createEditMenu());
+		add(createViewMenu());
+		JMenu objectMenu = createObjectMenu();
+		if (objectMenu != null) {
+			add(objectMenu);
+		}
+		add(createWindowMenu());
+	}
+	
+	private JMenu createFileMenu() {
+		JMenu menu = menu("file");
 		
-		MjApplication.getApplication().fillActionGroup(tab, actionGroup);
-		
+		addActions(menu, "new", MjApplication.getApplication().getActionsNew(tab));
+		menu.addSeparator();
+		menu.add(new JMenuItem(tab.frame.closeWindowAction));
+		menu.add(new JMenuItem(tab.closeTabAction));
+		menu.addSeparator();
+		addActions(menu, "import", MjApplication.getApplication().getActionsImport(tab));
+		addActions(menu, "export", MjApplication.getApplication().getActionsExport(tab));
+		menu.addSeparator();
+		menu.add(new JMenuItem(tab.frame.exitAction));
+		return menu;
+	}
+	
+	private JMenu createEditMenu() {
+		JMenu menu = menu("edit");
+		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "cut")));
+		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "copy")));
+		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "paste")));
+		return menu;
+	}
+	
+	private JMenu createViewMenu() {
+		JMenu menu = menu("view");
+		menu.add(new JMenuItem(tab.previousAction));
+		menu.add(new JMenuItem(tab.nextAction));
+		menu.add(new JMenuItem(tab.refreshAction));
+//		menu.addSeparator();
+//		menu.add(new JMenuItem(tab.menuItemToolBarVisible));
+		menu.addSeparator();
+		menu.add(createLookAndFeeldMenu());
+		return menu;
+	}
+
+	private JMenu createLookAndFeeldMenu() {
+		JMenu menu = menu("lookAndFeeld");
+		menu.add(new JMenuItem(new LookAndFeelAction("Normal")));
+		menu.add(new JMenuItem(new LookAndFeelAction("Hoher Kontrast", TerminalLookAndFeel.class.getName())));
+		menu.add(new JMenuItem(new LookAndFeelAction("Hoher Kontrast (Gross)", TerminalLargeFontLookAndFeel.class.getName())));
+		menu.add(new JMenuItem(new LookAndFeelAction("Druckbar", PrintLookAndFeel.class.getName())));
+		return menu;
+	}
+
+	private JMenu createObjectMenu() {
 		Page visiblePage = tab.getVisiblePage();
 		if (visiblePage != null) {
-			visiblePage.fillActionGroup(actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT));
-		}
-
-		updateMenu(actionGroup);
-	}
-	
-	private void fillMenu(ActionGroup actionGroup) {
-		ActionGroup file = actionGroup.getOrCreateActionGroup(ActionGroup.FILE);
-		fillFileMenu(file);
-	
-		ActionGroup edit = actionGroup.getOrCreateActionGroup(ActionGroup.EDIT);
-		fillEditMenu(edit);
-		
-		ActionGroup view = actionGroup.getOrCreateActionGroup(ActionGroup.VIEW);
-		fillViewMenu(view);
-		
-		actionGroup.getOrCreateActionGroup(ActionGroup.OBJECT);
-
-		ActionGroup window = actionGroup.getOrCreateActionGroup(ActionGroup.WINDOW);
-		fillWindowMenu(window);
-		
-		ActionGroup help = actionGroup.getOrCreateActionGroup(ActionGroup.HELP);
-		fillHelpMenu(help);
-	}
-
-	private void updateMenu(ActionGroup actions) {
-		removeAll();
-		for (Action action : actions.getActions()) {
-			if (action instanceof ActionGroup) {
-				ActionGroup actionGroup = (ActionGroup) action;
-				if (!actionGroup.getActions().isEmpty()) {
-					JMenu menu = new JMenu((String) actionGroup.getValue(Action.NAME));
-					// menu.setMnemonic((String) actionGroup.getValue(Action.MNEMONIC_KEY));
-					add(menu);
-					fillMenu(menu, actionGroup);
-				}
+			ActionGroup actionGroup = visiblePage.getMenu();
+			if (actionGroup != null && actionGroup.getItems() != null) {
+				JMenu menu = new JMenu(actionGroup.getName());
+				addActions(menu, actionGroup.getItems());
+				return menu;
 			}
 		}
-		validate();
+		return null;
 	}
 	
-	private void fillMenu(JMenu menu, ActionGroup actionGroup) {
-		for (Action action : actionGroup.getActions()) {
-			if (action instanceof ActionGroup) {
-				ActionGroup subGroup = (ActionGroup) action;
-				if (!actionGroup.getActions().isEmpty()) {
-					JMenu subMenu = new JMenu((String) subGroup.getValue(Action.NAME));
-					fillMenu(subMenu, subGroup);
-					menu.add(subMenu);
-				}
-			} else if (action.getValue(Action.NAME) != null) {
-				JMenuItem menuItem = new JMenuItem(action);
-				menu.add(menuItem);
-			} else {
+	private JMenu createWindowMenu() {
+		JMenu menu = menu("window");
+		menu.add(new JMenuItem(tab.frame.newWindowAction));
+		menu.add(new JMenuItem(tab.frame.newTabAction));
+		return menu;
+	}
+
+	//
+	
+	private JMenu menu(String resourceName) {
+		JMenu menu = new JMenu();
+		menu.setText(Resources.getString("Menu." + resourceName + ".text"));
+		return menu;
+	}
+	
+	private void addActions(JMenu menu, String type, List<IAction> actions) {
+		JMenu subMenu = menu(type);
+		addActions(subMenu, actions);
+		menu.add(subMenu);
+	}
+	
+	private void addActions(JMenu menu, List<IAction> actions) {
+		for (IAction action : actions) {
+			if (action instanceof ch.openech.mj.page.ActionGroup) {
+				ch.openech.mj.page.ActionGroup actionGroup = (ch.openech.mj.page.ActionGroup) action;
+				JMenu subMenu = new JMenu(SwingClientToolkit.adaptAction(action, tab));
+				addActions(subMenu, actionGroup.getItems());
+				menu.add(subMenu);
+			} else if (action instanceof Separator) {
 				menu.addSeparator();
+			} else {
+				menu.add(new JMenuItem(SwingClientToolkit.adaptAction(action, tab)));
 			}
 		}
 	}
+	
 	
 	void onHistoryChanged() {
 		updateMenu();
 	}
 
-	//
-	
-	protected void fillFileMenu(ActionGroup actionGroup) {
-		actionGroup.getOrCreateActionGroup(ActionGroup.NEW);
-		actionGroup.addSeparator();
-		actionGroup.add(tab.frame.closeWindowAction);
-		actionGroup.add(tab.closeTabAction);
-		actionGroup.addSeparator();
-		actionGroup.getOrCreateActionGroup(ActionGroup.IMPORT);
-		actionGroup.getOrCreateActionGroup(ActionGroup.EXPORT);
-		actionGroup.addSeparator();
-		actionGroup.add(tab.frame.exitAction);
-	}
-	
-	private void fillEditMenu(ActionGroup actionGroup) {
-		actionGroup.add(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "cut"));
-		actionGroup.add(ResourceHelper.initProperties(new DefaultEditorKit.CopyAction(), Resources.getResourceBundle(), "copy"));
-		actionGroup.add(ResourceHelper.initProperties(new DefaultEditorKit.PasteAction(), Resources.getResourceBundle(), "paste"));
-	}
-
-	protected void fillViewMenu(ActionGroup actionGroup) {
-		actionGroup.add(tab.previousAction);
-		actionGroup.add(tab.nextAction);
-		actionGroup.add(tab.refreshAction);
-//		actionGroup.addSeparator();
-//		actionGroup.add(tab.menuItemToolBarVisible);
-		actionGroup.addSeparator();
-		ActionGroup lookAndFeel = actionGroup.getOrCreateActionGroup("lookAndFeel");
-		fillLookAndFeelMenu(lookAndFeel);
-	}
-
-	private void fillLookAndFeelMenu(ActionGroup actionGroup) {
-		actionGroup.add(new LookAndFeelAction("Normal"));
-		actionGroup.add(new LookAndFeelAction("Hoher Kontrast", TerminalLookAndFeel.class.getName()));
-		actionGroup.add(new LookAndFeelAction("Hoher Kontrast (Gross)", TerminalLargeFontLookAndFeel.class.getName()));
-		actionGroup.add(new LookAndFeelAction("Druckbar", PrintLookAndFeel.class.getName()));
-	}
-	
-	protected void fillWindowMenu(ActionGroup actionGroup) {
-		actionGroup.add(tab.frame.newWindowAction);
-		actionGroup.add(tab.frame.newTabAction);
-	}
-	
-	protected void fillHelpMenu(ActionGroup actionGroup) {
-		// 
-	}
 }	

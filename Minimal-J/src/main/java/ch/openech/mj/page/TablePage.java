@@ -14,7 +14,7 @@ import ch.openech.mj.toolkit.ITable;
  *
  * @param <T> Class of objects in this overview
  */
-public abstract class TablePage<T> extends Page implements RefreshablePage {
+public abstract class TablePage<T> extends AbstractPage implements RefreshablePage {
 
 	private String text;
 	private ITable<T> table;
@@ -40,7 +40,6 @@ public abstract class TablePage<T> extends Page implements RefreshablePage {
 		return table;
 	}
 	
-
 	private class TableClickListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {

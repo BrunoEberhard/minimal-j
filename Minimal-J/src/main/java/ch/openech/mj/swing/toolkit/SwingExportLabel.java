@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.IComponent;
 
+@Deprecated // to be moved
 public class SwingExportLabel extends JLabel implements IComponent {
 
 	private final ExportHandler exportHandler;

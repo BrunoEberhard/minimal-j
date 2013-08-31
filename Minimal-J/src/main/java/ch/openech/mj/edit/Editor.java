@@ -1,11 +1,10 @@
 package ch.openech.mj.edit;
 
-import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
 import ch.openech.mj.application.DevMode;
@@ -14,10 +13,14 @@ import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.edit.validation.Indicator;
 import ch.openech.mj.edit.validation.ValidationMessage;
 import ch.openech.mj.edit.value.CloneHelper;
-import ch.openech.mj.resources.ResourceAction;
+import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ConfirmDialogListener;
+import ch.openech.mj.toolkit.IAction;
+import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.ResourceAction;
+import ch.openech.mj.toolkit.ResourceActionEnabled;
 
 /**
  * An <code>Editor</code> knows
@@ -71,14 +74,17 @@ import ch.openech.mj.toolkit.ConfirmDialogListener;
 public abstract class Editor<T> {
 
 	private static final Logger logger = Logger.getLogger(Editor.class.getName());
-
+	protected static final Object SAVE_SUCCESSFUL = new Object();
+	protected static final Object SAVE_FAILED = null;
+	
 	private T original, editedObject;
 	private IForm<T> form;
-	private SaveAction saveAction;
-	private EditorFinishedListener editorFinishedListener;
+	protected final SaveAction saveAction = new SaveAction();
+	protected final CancelAction cancelAction = new CancelAction();
+	protected final FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
+	private EditorListener editorListener;
 	private Indicator indicator;
 	private boolean userEdited;
-	private String followLink;
 	
 	// what to implement
 
@@ -94,22 +100,18 @@ public abstract class Editor<T> {
 		return null;
 	}
 
-	protected abstract boolean save(T object) throws Exception;
+	protected abstract Object save(T object) throws Exception;
 
-	protected boolean isSaveSynchron() {
-		return true;
-	}
-	
 	public String getTitle() {
 		String resourceName = getClass().getSimpleName() + ".text";
 		return Resources.getString(resourceName);
 	}
 
-	public Action[] getActions() {
+	public IAction[] getActions() {
 		if (DevMode.isActive()) {
-			return new Action[] { demoAction(), cancelAction(), saveAction() };
+			return new IAction[] { demoAction, cancelAction, saveAction };
 		} else {
-			return new Action[] { cancelAction(), saveAction() };
+			return new IAction[] { cancelAction, saveAction };
 		}
 	}
 
@@ -122,20 +124,25 @@ public abstract class Editor<T> {
 		if (form != null) {
 			throw new IllegalStateException();
 		}
-		form = createForm();
-		form.setChangeListener(new EditorChangeListener());
 		
 		original = load();
-		if (original != null) {
-			editedObject = CloneHelper.clone(original);
-		} else {
-			editedObject = newInstance();
-		}
+		editedObject = createEditedObject(original);
+
+		form = createForm();
+		form.setChangeListener(new EditorChangeListener());
 		form.setObject(editedObject);
 
 		userEdited = false;
 		
 		return form;
+	}
+	
+	private T createEditedObject(T original) {
+		if (original != null) {
+			return CloneHelper.clone(original);
+		} else {
+			return newInstance();
+		}
 	}
 	
 	/**
@@ -150,69 +157,50 @@ public abstract class Editor<T> {
 		return newInstance;
 	}
 	
-	public final void setEditorFinishedListener(EditorFinishedListener editorFinishedListener) {
-		this.editorFinishedListener = editorFinishedListener;
+	public final void setEditorListener(EditorListener savedListener) {
+		this.editorListener = savedListener;
 	}
 	
 	public final void setIndicator(Indicator indicator) {
 		this.indicator = indicator;
 	}
 
-	/**
-	 * 
-	 * Disposes the editor and calls the editorFinished Listener
-	 */
 	protected void finish() {
-		fireEditorFinished();
 		form = null;
 	}
 	
+	protected void cancel() {
+		fireCanceled();
+		finish();
+	}
+
+	private void fireCanceled() {
+		try {
+			editorListener.canceled();
+		} catch (Exception x) {
+			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+		}
+	}
+
 	public final boolean isFinished() {
 		return form == null;
 	}
 	
-	private void fireEditorFinished() {
-		if (editorFinishedListener != null) {
-			try {
-				editorFinishedListener.finished(followLink);
-			} catch (Exception x) {
-				logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
-			}
+	private void fireSaved(Object saveResult) {
+		try {
+			editorListener.saved(saveResult);
+		} catch (Exception x) {
+			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
 		}
 	}
 
-	protected void cancel() {
-		fireEditorCanceled();
-		form = null;
-	}
-	
-	private void fireEditorCanceled() {
-		if (editorFinishedListener != null) {
-			editorFinishedListener.canceled();
-		}
-	}
-
-	protected final void setFollowLink(String followLink) {
-		this.followLink = followLink;
-	}
-	
 	protected final T getObject() {
 		return editedObject;
 	}
 	
-	protected final void save() {
+	protected void save() {
 		if (isSaveable()) {
-			if (isSaveSynchron()) {
-				doSave();
-			} else {
-				progress(0, 100);
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						doSave();
-					}
-				}).start();
-			}
+			doSave();
 		} else {
 			ClientToolkit.getToolkit().showError(form.getComponent(), "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
 		}
@@ -220,7 +208,9 @@ public abstract class Editor<T> {
 
 	private void doSave() {
 		try {
-			if (save(editedObject)) {
+			Object saveResult = save(editedObject);
+			if (saveResult != null) {
+				fireSaved(saveResult);
 				finish();
 			}
 		} catch (Exception x) {
@@ -229,12 +219,6 @@ public abstract class Editor<T> {
 		}
 	}
 
-	public final void progress(int value, int maximum) {
-		if (editorFinishedListener != null) {
-			editorFinishedListener.progress(value, maximum);
-		}
-	}
-	
 	private class EditorChangeListener implements IForm.FormChangeListener<T> {
 
 		public void changed() {
@@ -255,7 +239,7 @@ public abstract class Editor<T> {
 
 		@Override
 		public void indicate(List<ValidationMessage> validationMessages, boolean allUsedFieldsValid) {
-			saveAction().setEnabled(allUsedFieldsValid);
+			saveAction.setEnabled(allUsedFieldsValid);
 			saveAction.setValidationMessages(validationMessages);
 			
 			if (indicator != null) {
@@ -269,12 +253,12 @@ public abstract class Editor<T> {
 	}
 	
 	protected final boolean isSaveable() {
-		return saveAction().isEnabled();
+		return saveAction.isEnabled();
 	}
 	
-	public final void checkedClose() {
+	public void checkedClose() {
 		if (!userEdited) {
-			finish();
+			cancel();
 		} else if (isSaveable()) {
 			ConfirmDialogListener listener = new ConfirmDialogListener() {
 				@Override
@@ -282,10 +266,8 @@ public abstract class Editor<T> {
 					if (answer == JOptionPane.YES_OPTION) {
 						// finish will be called at the end of save
 						save();
-					} else if (answer == JOptionPane.NO_OPTION) {
-						finish();
 					} else { // Cancel or Close
-						// do nothing
+						cancel();
 					}
 				}
 			};
@@ -297,7 +279,7 @@ public abstract class Editor<T> {
 				@Override
 				public void onClose(int answer) {
 					if (answer == JOptionPane.YES_OPTION) {
-						finish();
+						cancel();
 					} else { // No or Close
 						// do nothing
 					}
@@ -309,43 +291,57 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	protected final Action saveAction() {
-		if (saveAction == null) {
-			saveAction = new SaveAction("OkAction") {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					save();
-				}
-			};
+	protected final class SaveAction extends ResourceActionEnabled implements Indicator {
+		private String description;
+		
+		@Override
+		public void action(IComponent context) {
+			save();
 		}
-		return saveAction;
+		
+		@Override
+		public void setValidationMessages(List<ValidationMessage> validationMessages) {
+			String iconKey;
+			String description;
+			boolean valid = validationMessages == null || validationMessages.isEmpty();
+			if (valid) {
+				iconKey = getClass().getSimpleName() + ".icon.Ok";
+				description = "Eingaben speichern";
+			} else {
+				iconKey = getClass().getSimpleName() + ".icon.Error";
+				description = ValidationMessage.formatHtml(validationMessages);
+			}
+			
+			Icon icon = ResourceHelper.getIcon(Resources.getResourceBundle(), iconKey);
+//			putValue(LARGE_ICON_KEY, icon);
+			this.description = description;
+			fireChange();
+		}
+
+		@Override
+		public String getDescription() {
+			return description;
+		}
 	}
 	
-	protected final Action cancelAction() {
-		return new ResourceAction("CancelAction") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				finish();
-			}
-		};
+	private class CancelAction extends ResourceAction {
+		@Override
+		public void action(IComponent context) {
+			cancel();
+		}
 	}
 	
-	protected final Action demoAction() {
-		return new ResourceAction("FillWithDemoDataAction") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				fillWithDemoData();
-			}
-		};
+	private class FillWithDemoDataAction extends ResourceAction {
+		public void action(IComponent context) {
+			fillWithDemoData();
+		}
 	}
 	
 	//
 	
-	public interface EditorFinishedListener {
+	public interface EditorListener {
 		
-		public void finished(String followLink);
-		
-		public void progress(int value, int maximum);
+		public void saved(Object savedResult);
 		
 		public void canceled();
 	}
