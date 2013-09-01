@@ -2,13 +2,16 @@ package ch.openech.mj.resources;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
+import ch.openech.mj.application.DevMode;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.MultiResourceBundle;
 import ch.openech.mj.util.StringUtils;
 
 public class Resources {
 
+	private static final Logger logger = Logger.getLogger(Resources.class.getName());
 	private static final ResourceBundle defaultResourcebundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ");
 	private static ResourceBundle resourceBundle = defaultResourcebundle;
 	
@@ -33,10 +36,12 @@ public class Resources {
 		try {
 			text = getResourceBundle().getString(resourceName);
 		} catch (MissingResourceException x) {
-			System.out.println(resourceName + "=");
+			if (DevMode.isActive() && !resourceName.endsWith(".description")) {
+				System.out.println(resourceName + "=");
+			}
 			text = "!" + resourceName + "!";
 		} catch (NullPointerException x) {
-			System.out.println("AbstractApplication.resourceBundle() not set");
+			logger.severe("AbstractApplication.resourceBundle() not set");
 			text = resourceName;
 		}
 		return text;
