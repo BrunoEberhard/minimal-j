@@ -78,7 +78,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	}
 
 	private JMenu createLookAndFeeldMenu() {
-		JMenu menu = menu("lookAndFeeld");
+		JMenu menu = menu("lookAndFeel");
 		menu.add(new JMenuItem(new LookAndFeelAction("Normal")));
 		menu.add(new JMenuItem(new LookAndFeelAction("Hoher Kontrast", TerminalLookAndFeel.class.getName())));
 		menu.add(new JMenuItem(new LookAndFeelAction("Hoher Kontrast (Gross)", TerminalLargeFontLookAndFeel.class.getName())));
