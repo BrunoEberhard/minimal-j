@@ -1,6 +1,5 @@
 package ch.openech.mj.toolkit;
 
-import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 import java.io.InputStream;
 import java.util.List;
@@ -70,7 +69,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 			}
 			
 			@Override
-			public void setCommitListener(ActionListener listener) {
+			public void setCommitListener(Runnable runnable) {
 				// TODO Auto-generated method stub
 				
 			}

@@ -47,7 +47,7 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 			textWidget.setReadOnly(true);
 		}
 		addComponent(textWidget);
-		textWidget.setSizeFull();
+		setWidth(100, UNITS_PERCENTAGE);
 	}
 
 	@Override

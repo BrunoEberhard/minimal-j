@@ -46,10 +46,11 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 	
 	private void showPageOn(IComponent source) {
 		textFieldSearch = ClientToolkit.getToolkit().createTextField(new SearchChangeListener(), 100);
-		textFieldSearch.setCommitListener(new ActionListener() {
+		textFieldSearch.setCommitListener(new Runnable() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				search(textFieldSearch.getText());
+			public void run() {
+				List<T> searchResult = search(textFieldSearch.getText());
+				table.setObjects(searchResult);
 			}
 		});
 		

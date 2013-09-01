@@ -1,6 +1,5 @@
 package ch.openech.mj.swing.toolkit;
 
-import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 import javax.swing.JLabel;
@@ -38,7 +37,7 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 	}
 
 	@Override
-	public void setCommitListener(ActionListener listener) {
+	public void setCommitListener(Runnable runnable) {
 		// read only field cannot get commit command
 	}
 	

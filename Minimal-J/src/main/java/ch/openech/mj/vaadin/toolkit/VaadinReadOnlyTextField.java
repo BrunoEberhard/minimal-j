@@ -1,6 +1,5 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 import ch.openech.mj.toolkit.TextField;
@@ -40,7 +39,7 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 	}
 
 	@Override
-	public void setCommitListener(ActionListener listener) {
+	public void setCommitListener(Runnable listener) {
 		// read only field cannot get commit command
 	}
 	

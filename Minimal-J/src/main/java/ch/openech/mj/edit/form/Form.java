@@ -1,7 +1,5 @@
 package ch.openech.mj.edit.form;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -539,10 +537,10 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		return result;
 	}
 
-	public class FormPanelActionListener implements ActionListener {
+	public class FormPanelActionListener implements Runnable {
 		
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void run() {
 			if (changeListener != null) {
 				changeListener.commit();
 			}

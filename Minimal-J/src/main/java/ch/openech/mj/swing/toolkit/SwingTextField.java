@@ -1,5 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
@@ -17,7 +18,7 @@ import ch.openech.mj.toolkit.TextField;
 public class SwingTextField extends JTextField implements TextField {
 	private final ChangeListener changeListener;
 	private FocusListener focusListener;
-	private ActionListener commitListener;
+	private Runnable commitListener;
 	
 	public SwingTextField(ChangeListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
@@ -30,6 +31,15 @@ public class SwingTextField extends JTextField implements TextField {
 		getDocument().addDocumentListener(new TextFieldChangeListener());
 		
 		setInheritsPopupMenu(true);
+		
+		addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (commitListener != null) {
+					commitListener.run();
+				}
+			}
+		});
 	}
 
 	public class TextFieldChangeListener implements DocumentListener {
@@ -116,14 +126,8 @@ public class SwingTextField extends JTextField implements TextField {
 	}
 
 	@Override
-	public void setCommitListener(ActionListener listener) {
-		if (this.commitListener != null) {
-			removeActionListener(commitListener);
-		}
-		this.commitListener = listener;
-		if (this.commitListener != null) {
-			addActionListener(commitListener);
-		}
+	public void setCommitListener(Runnable commitListener) {
+		this.commitListener = commitListener;
 	}
 	
 }

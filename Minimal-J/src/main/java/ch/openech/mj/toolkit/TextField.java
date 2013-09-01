@@ -1,6 +1,5 @@
 package ch.openech.mj.toolkit;
 
-import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 
@@ -14,6 +13,6 @@ public interface TextField extends IComponent {
 	
 	public void setFocusListener(FocusListener focusListener);
 	
-	public void setCommitListener(ActionListener listener);
+	public void setCommitListener(Runnable runnable);
 
 }
