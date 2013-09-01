@@ -291,7 +291,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 			@Override
 			public boolean close() {
 				SwingTab.this.editor.checkedClose();
-				return SwingTab.this.editor.isFinished();
+				return SwingTab.this.editor == null;
 			}
 		});
 		
