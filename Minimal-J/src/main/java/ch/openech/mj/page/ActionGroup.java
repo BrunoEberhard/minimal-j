@@ -7,25 +7,16 @@ import ch.openech.mj.edit.Editor;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.ResourceAction;
 
-public class ActionGroup implements IAction {
+public class ActionGroup extends ResourceAction {
 
-	private final String name;
 	private final List<IAction> items = new ArrayList<>();
 
-	public ActionGroup(String name) {
-		this.name = name;
+	public ActionGroup(String resourceName) {
+		super(resourceName);
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	public boolean isEnabled() {
-		return true;
-	}
-	
 	@Override
 	public void action(IComponent pageContext) {
 		// n/a
@@ -64,14 +55,4 @@ public class ActionGroup implements IAction {
 		add(new Separator());
 	}
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void setChangeListener(ActionChangeListener changeListener) {
-		// n/a
-	}
-	
 }
