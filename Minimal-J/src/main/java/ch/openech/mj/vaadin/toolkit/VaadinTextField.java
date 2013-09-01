@@ -1,13 +1,14 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.toolkit.TextField;
-import ch.openech.mj.vaadin.widgetset.VaadinTextWidget;
 
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.HorizontalLayout;
 
 /**
@@ -20,30 +21,30 @@ import com.vaadin.ui.HorizontalLayout;
  */
 public class VaadinTextField extends HorizontalLayout implements TextField {
 
-	private VaadinTextWidget textWidget;
+	private com.vaadin.ui.TextField textWidget;
 
 	public VaadinTextField() {
-		this(null, new VaadinTextWidget());
+		this(null, new com.vaadin.ui.TextField());
 	}
 	
 	public VaadinTextField(ChangeListener changeListener, int maxLength) {
-		this(changeListener, new VaadinTextWidget());
+		this(changeListener, new com.vaadin.ui.TextField());
 		textWidget.setMaxLength(maxLength);
 	}
 	
 	public VaadinTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
-		this(changeListener, new VaadinTextWidget(allowedCharacters));
+		this(changeListener, new com.vaadin.ui.TextField());
 		textWidget.setMaxLength(maxLength);
 	}
 	
-	private VaadinTextField(ChangeListener changeListener, VaadinTextWidget vaadinTextWidget) {
+	private VaadinTextField(ChangeListener changeListener, com.vaadin.ui.TextField vaadinTextWidget) {
 		textWidget = vaadinTextWidget;
 		textWidget.setNullRepresentation("");
 		textWidget.setImmediate(true);
 		if (changeListener != null) {
-			textWidget.setChangeListener(changeListener);
+			textWidget.addListener(new VaadinTextFieldTextChangeListener(changeListener));
 		} else {
-			textWidget.setEditable(false);
+			textWidget.setReadOnly(true);
 		}
 		addComponent(textWidget);
 		textWidget.setSizeFull();
@@ -51,22 +52,35 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 
 	@Override
 	public void setText(String text) {
-		textWidget.setText(text);
+		textWidget.setValue(text);
 	}
 
 	@Override
 	public String getText() {
-		return textWidget.getText();
+		return (String) textWidget.getValue();
 	}
 
 	@Override
 	public void setFocusListener(FocusListener focusListener) {
-		textWidget.setFocusListener(focusListener);
+		// TODO
 	}
 
 	@Override
-	public void setCommitListener(ActionListener listener) {
+	public void setCommitListener(Runnable runnable) {
 		// TODO listening to Enter Key at Vaadin TextField
+	}
+	
+	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
+		private final ChangeListener changeListener;
+		
+		public VaadinTextFieldTextChangeListener(ChangeListener changeListener) {
+			this.changeListener = changeListener;
+		}
+
+		@Override
+		public void textChange(TextChangeEvent event) {
+			changeListener.stateChanged(new ChangeEvent(VaadinTextField.this));
+		}
 	}
 	
 }
