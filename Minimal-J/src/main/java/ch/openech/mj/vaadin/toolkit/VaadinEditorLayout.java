@@ -167,8 +167,8 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 			
 			@Override
 			public void change() {
-				final Button button = new NativeButton(action.getName());
 				button.setEnabled(action.isEnabled());
+				button.setCaption(action.getName());
 				button.setDescription(action.getDescription());
 			}
 		});
