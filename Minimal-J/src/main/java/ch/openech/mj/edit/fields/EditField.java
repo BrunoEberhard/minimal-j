@@ -1,6 +1,5 @@
 package ch.openech.mj.edit.fields;
 
-import javax.swing.event.ChangeListener;
 
 public interface EditField<T> extends FormField<T> {
 
@@ -17,6 +16,12 @@ public interface EditField<T> extends FormField<T> {
 	 * 
 	 * @param changeListener
 	 */
-	public void setChangeListener(ChangeListener changeListener);
-	
+	public void setChangeListener(EditFieldListener changeListener);
+
+	public interface EditFieldListener {
+		
+	    void changed(EditField source);
+
+	}
+
 }

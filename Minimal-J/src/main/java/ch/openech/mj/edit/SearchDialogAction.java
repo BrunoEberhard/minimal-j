@@ -4,10 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
@@ -81,10 +79,10 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 	
 	protected abstract void save(T object);
 	
-	private class SearchChangeListener implements ChangeListener {
+	private class SearchChangeListener implements InputComponentListener {
 
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void changed(IComponent source) {
 			// At the moment no continous - search
 		}
 		

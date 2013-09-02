@@ -74,12 +74,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(ChangeListener changeListener, int maxLength) {
+	public TextField createTextField(InputComponentListener changeListener, int maxLength) {
 		return new VaadinTextField(changeListener, maxLength);
 	}
 	
 	@Override
-	public TextField createTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+	public TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
 		return new VaadinTextField(changeListener, maxLength, allowedCharacters);
 	}
 
@@ -89,12 +89,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(ChangeListener listener) {
+	public <T> ComboBox<T> createComboBox(InputComponentListener listener) {
 		return new VaadinComboBox<T>(listener);
 	}
 
 	@Override
-	public CheckBox createCheckBox(ChangeListener listener, String text) {
+	public CheckBox createCheckBox(InputComponentListener listener, String text) {
 		return new VaadinCheckBox(listener, text);
 	}
 

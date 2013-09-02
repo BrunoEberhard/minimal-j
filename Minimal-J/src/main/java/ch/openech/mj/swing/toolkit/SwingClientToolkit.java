@@ -98,12 +98,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(ChangeListener changeListener, int maxLength) {
+	public TextField createTextField(InputComponentListener changeListener, int maxLength) {
 		return new SwingTextField(changeListener, maxLength);
 	}
 
 	@Override
-	public TextField createTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+	public TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
 		return new SwingTextField(changeListener, maxLength, allowedCharacters);
 	}
 
@@ -113,12 +113,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(ChangeListener changeListener) {
+	public <T> ComboBox<T> createComboBox(InputComponentListener changeListener) {
 		return new SwingComboBox<T>(changeListener);
 	}
 
 	@Override
-	public CheckBox createCheckBox(ChangeListener changeListener, String text) {
+	public CheckBox createCheckBox(InputComponentListener changeListener, String text) {
 		return new SwingCheckBox(changeListener, text);
 	}
 

@@ -1,18 +1,17 @@
 package ch.openech.mj.edit.fields;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
+import ch.openech.mj.toolkit.IComponent;
 
 public abstract class AbstractEditField<T> implements EditField<T> {
 
 	private final boolean editable;
 	private final PropertyInterface property;
 	
-	private ChangeListener forwardingChangeListener;
-	private ChangeListener changeListener;
+	private InputComponentListener forwardingChangeListener;
+	private EditFieldListener changeListener;
 
 	protected AbstractEditField(Object key, boolean editable) {
 		this(Keys.getProperty(key), editable);
@@ -36,7 +35,7 @@ public abstract class AbstractEditField<T> implements EditField<T> {
 	
 	// Listener
 	
-	protected ChangeListener listener() {
+	protected InputComponentListener listener() {
 		if (forwardingChangeListener == null) {
 			forwardingChangeListener = new ForwardingChangeListener();
 		}
@@ -44,19 +43,19 @@ public abstract class AbstractEditField<T> implements EditField<T> {
 	}
 	
 	@Override
-	public void setChangeListener(ChangeListener changeListener) {
+	public void setChangeListener(EditFieldListener changeListener) {
 		this.changeListener = changeListener;
 	}
 
 	protected void fireChange() {
 		if (changeListener != null) {
-			changeListener.stateChanged(new ChangeEvent(AbstractEditField.this));
+			changeListener.changed(AbstractEditField.this);
 		}
 	}
 	
-	private class ForwardingChangeListener implements ChangeListener {
+	private class ForwardingChangeListener implements InputComponentListener {
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void changed(IComponent source) {
 			fireChange();
 		}
 	}

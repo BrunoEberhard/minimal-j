@@ -3,20 +3,18 @@ package ch.openech.mj.vaadin.toolkit;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.ComboBox;
 
 import com.vaadin.ui.Select;
 
 public class VaadinComboBox<T> extends Select implements ComboBox<T> {
 
-	private final ChangeListener listener;
+	private final InputComponentListener listener;
 	private List<T> objects = Collections.emptyList();
 	private T setObject;
 	
-	public VaadinComboBox(ChangeListener listener) {
+	public VaadinComboBox(InputComponentListener listener) {
 		setNullSelectionAllowed(true);
 		setImmediate(true);
 		this.listener = listener;
@@ -57,7 +55,7 @@ public class VaadinComboBox<T> extends Select implements ComboBox<T> {
 
 		@Override
 		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
-			listener.stateChanged(new ChangeEvent(VaadinComboBox.this));
+			listener.changed(VaadinComboBox.this);
 		}
 	}
 

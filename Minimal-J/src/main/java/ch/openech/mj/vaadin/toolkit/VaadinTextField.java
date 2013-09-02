@@ -2,9 +2,7 @@ package ch.openech.mj.vaadin.toolkit;
 
 import java.awt.event.FocusListener;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.TextField;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -21,23 +19,24 @@ import com.vaadin.ui.HorizontalLayout;
  */
 public class VaadinTextField extends HorizontalLayout implements TextField {
 
-	private com.vaadin.ui.TextField textWidget;
-
+	private final com.vaadin.ui.TextField textWidget;
+	private TextChangeEvent event;
+	
 	public VaadinTextField() {
 		this(null, new com.vaadin.ui.TextField());
 	}
 	
-	public VaadinTextField(ChangeListener changeListener, int maxLength) {
+	public VaadinTextField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, new com.vaadin.ui.TextField());
 		textWidget.setMaxLength(maxLength);
 	}
 	
-	public VaadinTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+	public VaadinTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
 		this(changeListener, new com.vaadin.ui.TextField());
 		textWidget.setMaxLength(maxLength);
 	}
 	
-	private VaadinTextField(ChangeListener changeListener, com.vaadin.ui.TextField vaadinTextWidget) {
+	private VaadinTextField(InputComponentListener changeListener, com.vaadin.ui.TextField vaadinTextWidget) {
 		textWidget = vaadinTextWidget;
 		textWidget.setNullRepresentation("");
 		textWidget.setImmediate(true);
@@ -57,7 +56,11 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 
 	@Override
 	public String getText() {
-		return (String) textWidget.getValue();
+		if (event != null) {
+			return event.getText();
+		} else {
+			return (String) textWidget.getValue();
+		}
 	}
 
 	@Override
@@ -71,15 +74,17 @@ public class VaadinTextField extends HorizontalLayout implements TextField {
 	}
 	
 	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
-		private final ChangeListener changeListener;
+		private final InputComponentListener changeListener;
 		
-		public VaadinTextFieldTextChangeListener(ChangeListener changeListener) {
+		public VaadinTextFieldTextChangeListener(InputComponentListener changeListener) {
 			this.changeListener = changeListener;
 		}
 
 		@Override
 		public void textChange(TextChangeEvent event) {
-			changeListener.stateChanged(new ChangeEvent(VaadinTextField.this));
+			VaadinTextField.this.event = event;
+			changeListener.changed(VaadinTextField.this);
+			VaadinTextField.this.event = null;
 		}
 	}
 	

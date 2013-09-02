@@ -1,10 +1,8 @@
 package ch.openech.mj.edit.fields;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
@@ -16,7 +14,7 @@ public abstract class NumberEditField<T> implements EditField<T> {
 	protected final int size, decimalPlaces;
 	
 	protected final TextField textField;
-	private ChangeListener changeListener;
+	private EditFieldListener changeListener;
 	
 	protected NumberEditField(PropertyInterface property, int size, int decimalPlaces, boolean negative) {
 		this.property = property;
@@ -37,7 +35,7 @@ public abstract class NumberEditField<T> implements EditField<T> {
 	}
 
 	@Override
-	public void setChangeListener(ChangeListener changeListener) {
+	public void setChangeListener(EditFieldListener changeListener) {
 		if (changeListener == null) {
 			throw new IllegalArgumentException("ChangeListener must not be null");
 		}
@@ -47,11 +45,11 @@ public abstract class NumberEditField<T> implements EditField<T> {
 		this.changeListener = changeListener;
 	}
 	
-	private class ForwardingChangeListener implements ChangeListener {
+	private class ForwardingChangeListener implements InputComponentListener {
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void changed(IComponent source) {
 			if (changeListener != null) {
-				changeListener.stateChanged(new ChangeEvent(NumberEditField.this));
+				changeListener.changed(NumberEditField.this);
 			}
 		}
 	}

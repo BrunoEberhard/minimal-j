@@ -1,10 +1,8 @@
 package ch.openech.mj.edit.fields;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
@@ -14,7 +12,7 @@ public class TextEditField implements EditField<String>, Enable {
 	private final PropertyInterface property;
 	private final int maxLength;
 	private final TextField textField;
-	private ChangeListener changeListener;
+	private EditFieldListener changeListener;
 
 	public TextEditField(PropertyInterface property, int maxLength) {
 		this.property =  property;
@@ -48,7 +46,7 @@ public class TextEditField implements EditField<String>, Enable {
 	}
 
 	@Override
-	public void setChangeListener(ChangeListener changeListener) {
+	public void setChangeListener(EditFieldListener changeListener) {
 		if (changeListener == null) {
 			throw new IllegalArgumentException("ChangeListener must not be null");
 		}
@@ -58,11 +56,11 @@ public class TextEditField implements EditField<String>, Enable {
 		this.changeListener = changeListener;
 	}
 	
-	private class ForwardingChangeListener implements ChangeListener {
+	private class ForwardingChangeListener implements InputComponentListener {
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void changed(IComponent source) {
 			if (changeListener != null) {
-				changeListener.stateChanged(new ChangeEvent(TextEditField.this));
+				changeListener.changed(TextEditField.this);
 			}
 		}
 	}

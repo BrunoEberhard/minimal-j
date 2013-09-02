@@ -1,15 +1,14 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 
 import com.vaadin.ui.CheckBox;
 
 public class VaadinCheckBox extends CheckBox implements ch.openech.mj.toolkit.CheckBox {
 
-	private final ChangeListener listener;
+	private final InputComponentListener listener;
 	
-	public VaadinCheckBox(ChangeListener listener, String text) {
+	public VaadinCheckBox(InputComponentListener listener, String text) {
 		super(text);
 		this.listener = listener;
 		setImmediate(true);
@@ -30,7 +29,7 @@ public class VaadinCheckBox extends CheckBox implements ch.openech.mj.toolkit.Ch
 
 		@Override
 		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
-			listener.stateChanged(new ChangeEvent(VaadinCheckBox.this));
+			listener.changed(VaadinCheckBox.this);
 		}
 	}
 	

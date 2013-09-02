@@ -12,9 +12,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePartial;
@@ -26,6 +23,7 @@ import ch.openech.mj.edit.fields.CheckBoxStringField;
 import ch.openech.mj.edit.fields.CodeEditField;
 import ch.openech.mj.edit.fields.CodeFormField;
 import ch.openech.mj.edit.fields.EditField;
+import ch.openech.mj.edit.fields.EditField.EditFieldListener;
 import ch.openech.mj.edit.fields.Enable;
 import ch.openech.mj.edit.fields.EnumEditField;
 import ch.openech.mj.edit.fields.EnumFormField;
@@ -439,17 +437,16 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		this.changeListener = changeListener;
 	}
 
-	private class FormPanelChangeListener implements ChangeListener {
+	private class FormPanelChangeListener implements EditFieldListener {
 
 		@Override
-		public void stateChanged(ChangeEvent event) {
+		public void changed(EditField changedField) {
 			if (changeFromOutsite) return;
 			if (changeListener == null) {
 				logger.severe("Editable Form must have a listener");
 				return;
 			}
 			
-			EditField<?> changedField = (EditField<?>) event.getSource();
 			logger.fine("ChangeEvent from " + getName(changedField));
 			
 			PropertyInterface property = changedField.getProperty();

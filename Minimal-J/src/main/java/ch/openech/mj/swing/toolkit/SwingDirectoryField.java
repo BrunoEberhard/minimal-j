@@ -8,7 +8,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.fields.EditField;
 import ch.openech.mj.model.PropertyInterface;
@@ -59,7 +58,7 @@ public class SwingDirectoryField extends JPanel implements EditField<String>, IC
 	}
 
 	@Override
-	public void setChangeListener(ChangeListener changeListener) {
+	public void setChangeListener(EditFieldListener changeListener) {
 		// TODO
 	}
 

@@ -2,8 +2,6 @@ package ch.openech.mj.toolkit;
 
 import java.io.InputStream;
 
-import javax.swing.event.ChangeListener;
-
 /**
  * 
  * @author Bruno
@@ -40,19 +38,25 @@ public abstract class ClientToolkit {
 
 	public abstract TextField createReadOnlyTextField();
 
-	public abstract TextField createTextField(ChangeListener changeListener, int maxLength);
+	public abstract TextField createTextField(InputComponentListener changeListener, int maxLength);
 	
-	public abstract TextField createTextField(ChangeListener changeListener, int maxLength, String allowedCharacters);
+	public abstract TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters);
 
 	public abstract FlowField createFlowField();
 
-	public abstract <T> ComboBox<T> createComboBox(ChangeListener changeListener);
+	public abstract <T> ComboBox<T> createComboBox(InputComponentListener changeListener);
 	
-	public abstract CheckBox createCheckBox(ChangeListener changeListener, String text);
+	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);
 
 	public abstract <T> ITable<T> createTable(Class<T> clazz, Object[] fields);
 
 	public abstract IComponent createLink(String text, String address);
+	
+	public interface InputComponentListener {
+		
+	    void changed(IComponent source);
+
+	}
 	
 	// Layouts
 	

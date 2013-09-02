@@ -46,7 +46,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(ChangeListener changeListener,
+	public TextField createTextField(InputComponentListener changeListener,
 			int maxLength) {
 		return new TextField() {
 			
@@ -83,7 +83,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(ChangeListener changeListener,
+	public TextField createTextField(InputComponentListener changeListener,
 			int maxLength, String allowedCharacters) {
 		return createTextField(changeListener, maxLength);
 	}
@@ -95,13 +95,13 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(ChangeListener changeListener) {
+	public <T> ComboBox<T> createComboBox(InputComponentListener changeListener) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public CheckBox createCheckBox(ChangeListener changeListener, String text) {
+	public CheckBox createCheckBox(InputComponentListener changeListener, String text) {
 		// TODO Auto-generated method stub
 		return null;
 	}

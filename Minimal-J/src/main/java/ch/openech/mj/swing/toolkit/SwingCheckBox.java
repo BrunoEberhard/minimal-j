@@ -4,16 +4,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.toolkit.CheckBox;
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 
 public class SwingCheckBox extends JCheckBox implements CheckBox {
 
-	private final ChangeListener listener;
+	private final InputComponentListener listener;
 
-	public SwingCheckBox(ChangeListener listener, String text) {
+	public SwingCheckBox(InputComponentListener listener, String text) {
 		super(text, false);
 		this.listener = listener;
 		addActionListener(new CheckBoxChangeListener());
@@ -22,7 +21,7 @@ public class SwingCheckBox extends JCheckBox implements CheckBox {
 	public class CheckBoxChangeListener implements ActionListener {
 		
 		private void fireChangeEvent() {
-			listener.stateChanged(new ChangeEvent(SwingCheckBox.this));
+			listener.changed(SwingCheckBox.this);
 		}
 
 		@Override

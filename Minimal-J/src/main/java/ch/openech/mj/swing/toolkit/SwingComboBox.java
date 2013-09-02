@@ -12,19 +12,18 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.CodeItem;
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.ComboBox;
 
 public class SwingComboBox<T> extends JComboBox implements ComboBox<T> {
 
-	private final ChangeListener listener;
+	private final InputComponentListener listener;
 	private final NullableComboBoxModel<T> model;
 	
-	public SwingComboBox(ChangeListener listener) {
+	public SwingComboBox(InputComponentListener listener) {
 		this.listener = listener;
 		setRenderer(new CodeItemRenderer(getRenderer()));
 		addItemListener(new ComboBoxChangeListener());
@@ -67,7 +66,7 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T> {
 	public class ComboBoxChangeListener implements ItemListener {
 		
 		private void fireChangeEvent() {
-			listener.stateChanged(new ChangeEvent(SwingComboBox.this));
+			listener.changed(SwingComboBox.this);
 		}
 
 		@Override

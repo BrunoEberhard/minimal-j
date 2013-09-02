@@ -5,26 +5,25 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 
 import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingTextField extends JTextField implements TextField {
-	private final ChangeListener changeListener;
+	private final InputComponentListener changeListener;
 	private FocusListener focusListener;
 	private Runnable commitListener;
 	
-	public SwingTextField(ChangeListener changeListener, int maxLength) {
+	public SwingTextField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
 	}
 	
-	public SwingTextField(ChangeListener changeListener, int maxLength, String allowedCharacters) {
+	public SwingTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
 		super(new FilteredDocument(maxLength, allowedCharacters), null, 0);
 		
 		this.changeListener = changeListener;
@@ -60,7 +59,7 @@ public class SwingTextField extends JTextField implements TextField {
 		}
 		
 		private void fireChangeEvent() {
-			changeListener.stateChanged(new ChangeEvent(SwingTextField.this));
+			changeListener.changed(SwingTextField.this);
 		}
 	}
 
