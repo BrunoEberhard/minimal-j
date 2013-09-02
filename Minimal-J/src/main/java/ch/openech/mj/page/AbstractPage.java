@@ -1,5 +1,7 @@
 package ch.openech.mj.page;
 
+import ch.openech.mj.resources.Resources;
+
 
 public abstract class AbstractPage implements Page {
 
@@ -13,6 +15,11 @@ public abstract class AbstractPage implements Page {
 		return pageContext;
 	}	
 	
+	@Override
+	public String getTitle() {
+		return Resources.getString(getClass().getSimpleName() + ".text");
+	}
+
 	protected void show(Class<? extends Page> pageClass, String... args) {
 		String pageLink = link(pageClass, args);
 		pageContext.show(pageLink);

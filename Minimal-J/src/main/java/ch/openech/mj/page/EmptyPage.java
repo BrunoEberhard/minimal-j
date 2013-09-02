@@ -2,14 +2,10 @@ package ch.openech.mj.page;
 
 import ch.openech.mj.toolkit.IComponent;
 
-public class EmptyPage implements Page {
+public class EmptyPage extends AbstractPage {
 
 	public EmptyPage(PageContext context) {
-	}
-	
-	@Override
-	public String getTitle() {
-		return "";
+		super(context);
 	}
 	
 	@Override
