@@ -6,6 +6,9 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -47,6 +50,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	
 	private final History<String> history;
 	private final SwingPageContextHistoryListener historyListener;
+	private final MouseListener mouseListener;
 
 	private Page page;
 	private List<String> pageLinks;
@@ -61,6 +65,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		historyListener = new SwingPageContextHistoryListener();
 		history = new History<String>(historyListener);
 
+		mouseListener = new SwingTabMouseListener();
+		
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
 		refreshAction = new RefreshAction();
@@ -199,10 +205,22 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		}
 	}
 	
+	private class SwingTabMouseListener extends MouseAdapter {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			Object source = e.getSource();
+			if (source instanceof SwingLink) {
+				SwingLink link = (SwingLink) source;
+				show(link.getAddress());
+			}
+		}
+		
+	}
+	
 	private void registerMouseListener(Component component) {
 		if (component instanceof SwingLink) {
-			// TODO 
-			// ((SwingLink) component).setMouseListener(mouseListener);
+			 ((SwingLink) component).setMouseListener(mouseListener);
 		}
 		if (component instanceof Container) {
 			for (Component c : ((Container) component).getComponents()) {
