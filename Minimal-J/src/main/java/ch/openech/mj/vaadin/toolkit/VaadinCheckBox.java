@@ -3,29 +3,32 @@ package ch.openech.mj.vaadin.toolkit;
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.VerticalLayout;
 
-public class VaadinCheckBox extends CheckBox implements ch.openech.mj.toolkit.CheckBox {
+public class VaadinCheckBox extends VerticalLayout implements ch.openech.mj.toolkit.CheckBox {
 
 	private final InputComponentListener listener;
+	private final CheckBox checkBox;
 	
 	public VaadinCheckBox(InputComponentListener listener, String text) {
-		super(text);
+		checkBox = new CheckBox(text);
+		addComponent(checkBox);
 		this.listener = listener;
 		setImmediate(true);
-		addListener(new CheckBoxChangeListener());
+		checkBox.addListener(new CheckBoxChangeListener());
 	}
 
 	@Override
 	public void setSelected(boolean selected) {
-		super.setValue(selected);
+		checkBox.setValue(selected);
 	}
 
 	@Override
 	public boolean isSelected() {
-		return Boolean.TRUE.equals(getValue());
+		return Boolean.TRUE.equals(checkBox.getValue());
 	}
 
-	public class CheckBoxChangeListener implements ValueChangeListener {
+	public class CheckBoxChangeListener implements CheckBox.ValueChangeListener {
 
 		@Override
 		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
