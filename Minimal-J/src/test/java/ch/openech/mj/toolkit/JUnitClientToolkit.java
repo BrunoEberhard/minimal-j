@@ -63,7 +63,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 			}
 			
 			@Override
-			public void setEnabled(boolean editable) {
+			public void setEditable(boolean editable) {
 				// TODO Auto-generated method stub
 				
 			}

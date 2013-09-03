@@ -68,7 +68,7 @@ public abstract class AbstractJodaField<T> extends AbstractEditField<T> implemen
 	
 
 	public void setEnabled(boolean enabled) {
-		textField.setEnabled(enabled);
+		textField.setEditable(enabled);
 //		if (!enabled) {
 //			setObject(null);
 //		}

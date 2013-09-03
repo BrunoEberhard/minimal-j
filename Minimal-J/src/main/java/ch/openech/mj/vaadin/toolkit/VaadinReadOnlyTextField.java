@@ -29,7 +29,7 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 	}
 
 	@Override
-	public void setEnabled(boolean editable) {
+	public void setEditable(boolean editable) {
 		// read only field cannot be enabled
 	}
 

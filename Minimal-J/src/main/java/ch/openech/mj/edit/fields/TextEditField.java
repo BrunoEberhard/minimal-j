@@ -67,7 +67,7 @@ public class TextEditField implements EditField<String>, Enable {
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		textField.setEnabled(enabled);
+		textField.setEditable(enabled);
 	}
 	
 }

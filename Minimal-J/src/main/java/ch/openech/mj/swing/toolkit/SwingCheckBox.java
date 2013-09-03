@@ -18,6 +18,11 @@ public class SwingCheckBox extends JCheckBox implements CheckBox {
 		addActionListener(new CheckBoxChangeListener());
 	}
 	
+	@Override
+	public void setEditable(boolean editable) {
+		setEnabled(editable);
+	}
+	
 	public class CheckBoxChangeListener implements ActionListener {
 		
 		private void fireChangeEvent() {

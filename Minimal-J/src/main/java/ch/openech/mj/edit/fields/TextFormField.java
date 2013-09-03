@@ -32,7 +32,7 @@ public class TextFormField implements FormField<String> {
 	}
 
 	public void setEnabled(boolean enabled) {
-		textField.setEnabled(enabled);
+		textField.setEditable(enabled);
 	}
 
 }

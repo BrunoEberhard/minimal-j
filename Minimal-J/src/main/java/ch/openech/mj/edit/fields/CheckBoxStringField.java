@@ -11,7 +11,7 @@ public class CheckBoxStringField extends AbstractEditField<Boolean> {
 	public CheckBoxStringField(PropertyInterface property, String text, boolean editable) {
 		super(property, editable);
 		checkBox = ClientToolkit.getToolkit().createCheckBox(listener(), text);
-		checkBox.setEnabled(editable);
+		checkBox.setEditable(editable);
 	}
 	
 	@Override

@@ -7,6 +7,6 @@ public interface CheckBox extends IComponent {
 
 	public boolean isSelected();
 
-	public void setEnabled(boolean enabled);
+	public void setEditable(boolean editable);
 
 }

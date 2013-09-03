@@ -70,5 +70,10 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 			VaadinTextField.this.event = null;
 		}
 	}
+
+	@Override
+	public void setEditable(boolean editable) {
+		setReadOnly(!editable);
+	}
 	
 }

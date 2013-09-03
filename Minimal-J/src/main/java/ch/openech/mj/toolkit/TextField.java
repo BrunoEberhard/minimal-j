@@ -9,7 +9,7 @@ public interface TextField extends IComponent {
 
 	public String getText();
 
-	public void setEnabled(boolean editable);
+	public void setEditable(boolean editable);
 	
 	public void setFocusListener(FocusListener focusListener);
 	

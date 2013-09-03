@@ -20,12 +20,20 @@ public class VaadinCheckBox extends VerticalLayout implements ch.openech.mj.tool
 
 	@Override
 	public void setSelected(boolean selected) {
+		boolean readOnly = checkBox.isReadOnly();
+		checkBox.setReadOnly(false);
 		checkBox.setValue(selected);
+		checkBox.setReadOnly(readOnly);
 	}
 
 	@Override
 	public boolean isSelected() {
 		return Boolean.TRUE.equals(checkBox.getValue());
+	}
+	
+	@Override
+	public void setEditable(boolean editable) {
+		checkBox.setReadOnly(!editable);
 	}
 
 	public class CheckBoxChangeListener implements CheckBox.ValueChangeListener {
