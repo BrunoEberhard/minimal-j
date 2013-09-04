@@ -66,7 +66,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 			selectByIdStatement.setInt(1, id);
 			return executeSelect(selectByIdStatement);
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
+			sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
 			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
 		}
 	}

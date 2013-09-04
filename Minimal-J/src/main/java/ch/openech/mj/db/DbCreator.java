@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -30,9 +29,6 @@ import ch.openech.mj.util.FieldUtils;
  * 
  */
 public class DbCreator {
-	
-	private static final Logger logger = Logger.getLogger(DbCreator.class.getName());
-	
 	private final DbPersistence dbPersistence;
 	
 	public DbCreator(DbPersistence dbPersistence) {
@@ -45,7 +41,7 @@ public class DbCreator {
 		try (Statement statement = dbPersistence.getConnection().createStatement()) {
 			List<String> createStatements = getCreateStatements(table);
 			for (String createStatement : createStatements) {
-				logger.fine(createStatement);
+				AbstractTable.sqlLogger.fine(createStatement);
 				statement.execute(createStatement);
 			}
 		}
@@ -53,7 +49,9 @@ public class DbCreator {
 	
 	private boolean existTable(AbstractTable<?> table) throws SQLException {
 		try (Statement statement = dbPersistence.getConnection().createStatement()) {
-			statement.execute("select * from " + table.getTableName());
+			String query = "select * from " + table.getTableName();
+			AbstractTable.sqlLogger.fine(query);
+			statement.execute(query);
 		} catch (SQLException x) {
 			return false;
 		} 

@@ -127,8 +127,8 @@ public class Table<T> extends AbstractTable<T> {
 			insertInIndexes(object, id);
 			return id;
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
-			logger.log(Level.FINE, "Object: " + object);
+			sqlLogger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
+			sqlLogger.log(Level.FINE, "Object: " + object);
 			throw new RuntimeException("Couldn't insert object into " + getTableName() + " / Object: " + object);
 		}
 	}
@@ -145,8 +145,8 @@ public class Table<T> extends AbstractTable<T> {
 		try {
 			update(id.intValue(), object);
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
-			logger.log(Level.FINE, "Object: " + object);
+			sqlLogger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
+			sqlLogger.log(Level.FINE, "Object: " + object);
 			throw new RuntimeException("Couldn't update object on " + getTableName() + " / Object: " + object);
 		}
 	}
@@ -223,7 +223,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			return object;
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
+			sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
 			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
 		}
 	}

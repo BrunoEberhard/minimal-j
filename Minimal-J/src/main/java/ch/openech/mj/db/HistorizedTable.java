@@ -91,8 +91,8 @@ public class HistorizedTable<T> extends Table<T> {
 			insertInIndexes(object, id);
 			return id;
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
-			logger.log(Level.FINE, "Object: " + object);
+			sqlLogger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
+			sqlLogger.log(Level.FINE, "Object: " + object);
 			throw new RuntimeException("Couldn't insert object into " + getTableName() + " / Object: " + object);
 		}
 	}
@@ -107,8 +107,8 @@ public class HistorizedTable<T> extends Table<T> {
 		try {
 			update(id.intValue(), object);
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
-			logger.log(Level.FINE, "Object: " + object);
+			sqlLogger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
+			sqlLogger.log(Level.FINE, "Object: " + object);
 			throw new RuntimeException("Couldn't update object on " + getTableName() + " / Object: " + object);
 		}
 	}
@@ -165,7 +165,7 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			return object;
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
+			sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
 			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
 		}
 	}
@@ -183,7 +183,7 @@ public class HistorizedTable<T> extends Table<T> {
 				// and cannot be updated
 				return object;
 			} catch (SQLException x) {
-				logger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id + " on time " +  time, x);
+				sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id + " on time " +  time, x);
 				throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id + " on time " +  time);
 			}
 		} else {
@@ -221,7 +221,7 @@ public class HistorizedTable<T> extends Table<T> {
 			Collections.sort(result);
 			return result;
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't read version of " + getTableName() + " with ID " + id, x);
+			sqlLogger.log(Level.SEVERE, "Couldn't read version of " + getTableName() + " with ID " + id, x);
 			throw new RuntimeException("Couldn't read version of " + getTableName() + " with ID " + id);
 		}
 	}

@@ -4,21 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 public class ColumnIndex<T> implements Index<T> {
-	private static final Logger logger = Logger.getLogger(ColumnIndex.class.getName());
-	
-	private final Table<T> table;
 	private final PropertyInterface property;
 	private final Map<Object, List<T>> index = new HashMap<>();
 	private final Map<T, Object> revertIndex = new HashMap<>();
 	
 	public ColumnIndex(Table<T> table, Object key) {
-		this.table = table;
 		this.property = Keys.getProperty(key);
 	}
 	

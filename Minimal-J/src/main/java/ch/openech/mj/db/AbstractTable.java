@@ -37,7 +37,7 @@ import ch.openech.mj.util.GenericUtils;
  * 
  */
 public abstract class AbstractTable<T> {
-	public static final Logger logger = Logger.getLogger(AbstractTable.class.getName());
+	public static final Logger sqlLogger = Logger.getLogger("SQL");
 	
 	protected final DbPersistence dbPersistence;
 	protected final Class<T> clazz;
@@ -88,7 +88,7 @@ public abstract class AbstractTable<T> {
 				return 0;
 			}
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Couldn't get max Id of " + getTableName(), x);
+			sqlLogger.log(Level.SEVERE, "Couldn't get max Id of " + getTableName(), x);
 			throw new RuntimeException("Couldn't get max Id of " + getTableName());
 		}
 	}
@@ -102,7 +102,7 @@ public abstract class AbstractTable<T> {
 		try {
 			clearStatement.execute();
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Clear of Table " + getTableName() + " failed", x);
+			sqlLogger.log(Level.SEVERE, "Clear of Table " + getTableName() + " failed", x);
 			throw new RuntimeException("Clear of Table " + getTableName() + " failed");
 		}
 	}
@@ -144,16 +144,16 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected PreparedStatement prepare(String statement) throws SQLException {
-		if (logger.isLoggable(Level.FINE)) {
-			return new LoggingPreparedStatement(getConnection(), statement, logger);
+		if (sqlLogger.isLoggable(Level.FINE)) {
+			return new LoggingPreparedStatement(getConnection(), statement, sqlLogger);
 		} else {
 			return getConnection().prepareStatement(statement);
 		}
 	}
 	
 	protected PreparedStatement prepareReturnGeneratedKeys(String statement) throws SQLException {
-		if (logger.isLoggable(Level.FINE)) {
-			return new LoggingPreparedStatement(getConnection(), statement, Statement.RETURN_GENERATED_KEYS, logger);
+		if (sqlLogger.isLoggable(Level.FINE)) {
+			return new LoggingPreparedStatement(getConnection(), statement, Statement.RETURN_GENERATED_KEYS, sqlLogger);
 		} else {
 			return getConnection().prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
 		}
@@ -178,7 +178,7 @@ public abstract class AbstractTable<T> {
 		try (ResultSet autoIncrementResultSet = statement.getGeneratedKeys()) {
 			autoIncrementResultSet.next();
 			Integer id = autoIncrementResultSet.getInt(1);
-			logger.finer("AutoIncrement is " + id);
+			sqlLogger.fine("AutoIncrement is " + id);
 			return id;
 		}
 	}
@@ -375,7 +375,7 @@ public abstract class AbstractTable<T> {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
-						logger.severe(object.getClass().getName() + " / " + property.getFieldName());
+						sqlLogger.severe(object.getClass().getName() + " / " + property.getFieldName());
 						throw e;
 					}
 				} 
