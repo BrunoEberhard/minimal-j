@@ -1,3 +1,5 @@
 /target
 /bin
 derby.log
+/backup
+/patch
