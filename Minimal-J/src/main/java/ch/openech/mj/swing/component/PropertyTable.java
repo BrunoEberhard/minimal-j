@@ -25,12 +25,12 @@ public class PropertyTable<T> extends JTable {
 	private static final Logger logger = Logger.getLogger(PropertyTable.class.getName());
 
 	private final List<PropertyInterface> properties;
-	private final PropertyTableModel tableModel;
+	private final PropertyTableModel<T> tableModel;
 
 	public PropertyTable(Class<T> clazz, Object[] keys) {
 		this.properties = convert(keys);
 		
-		tableModel = new PropertyTableModel();
+		tableModel = new PropertyTableModel<T>(properties);
 		setModel(tableModel);
 		
 //		setDefaultRenderer(BooleanFormat.class, new BooleanTableCellRenderer());
@@ -62,13 +62,22 @@ public class PropertyTable<T> extends JTable {
 		tableModel.setObjects(list);
 	}
 
-	public class PropertyTableModel extends AbstractTableModel {
+	public static class PropertyTableModel<T> extends AbstractTableModel {
 
+		private final List<PropertyInterface> properties;
 		private List<T> list = Collections.emptyList();
+
+		public PropertyTableModel(List<PropertyInterface> properties) {
+			this.properties = properties;
+		}
 
 		public void setObjects(List<T> bookList) {
 			this.list = bookList;
 			fireTableDataChanged();
+		}
+		
+		public T getObject(int index) {
+			return list.get(index);
 		}
 
 		@Override
