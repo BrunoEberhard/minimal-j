@@ -42,8 +42,9 @@ public abstract class Wizard<T> extends Editor<T> {
 
 	@Override
 	public void save() {
+		// WizardFinishedListener will trigger save of wizard object
+		currentStep.setEditorListener(new WizardFinishedListener());
 		currentStep.save();
-		super.save();
 	}
 
 	protected int getCurrentStepIndex() {
@@ -118,18 +119,27 @@ public abstract class Wizard<T> extends Editor<T> {
 		@Override
 		public void saved(Object saveResult) {
 			WizardStep<?> nextStep = currentStep.getNextStep();
-			if (nextStep != null) {
-				currentStepIndex++;
-				setCurrentStep(nextStep);
-			} else {
-				save();
-			}
+			currentStepIndex++;
+			setCurrentStep(nextStep);
 		}
 
 		@Override
 		public void canceled() {
 			currentStepIndex--;
 			setCurrentStep(currentStep.getPreviousStep());
+		}
+	}
+	
+	private class WizardFinishedListener implements EditorListener {
+
+		@Override
+		public void saved(Object saveResult) {
+			Wizard.super.save();
+		}
+
+		@Override
+		public void canceled() {
+			// not used
 		}
 	}
 	
