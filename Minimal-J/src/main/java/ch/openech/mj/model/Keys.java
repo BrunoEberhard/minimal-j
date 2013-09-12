@@ -1,6 +1,8 @@
 package ch.openech.mj.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,7 +15,8 @@ import java.util.logging.Logger;
 import org.joda.time.Partial;
 import org.joda.time.ReadablePartial;
 
-import ch.openech.mj.edit.value.Properties;
+import ch.openech.mj.model.properties.Properties;
+import ch.openech.mj.util.StringUtils;
 
 public class Keys {
 
@@ -65,7 +68,7 @@ public class Keys {
 		T t = (T)createKey(returnType, methodName, null);
 		methodKeyByName.put(qualifiedMethodName, t);
 		
-		PropertyInterface property = Properties.getMethodProperty(keyObject.getClass(), methodName);
+		PropertyInterface property = getMethodProperty(keyObject.getClass(), methodName);
 		if (!keyObjects.contains(keyObject)) {
 			property = new ChainedProperty(properties.get(keyObject), property);
 		}
@@ -136,7 +139,7 @@ public class Keys {
 	}
 	
 	public static boolean isFieldProperty(PropertyInterface property) {
-		if (property instanceof Properties.MethodProperty) return false;
+		if (property instanceof MethodProperty) return false;
 		if (property instanceof ChainedProperty) {
 			ChainedProperty chainedProperty = (ChainedProperty) property;
 			return isFieldProperty(chainedProperty.property1) && isFieldProperty(chainedProperty.property2);
@@ -208,6 +211,108 @@ public class Keys {
 			properties[i] = getProperty(keys[i]);
 		}
 		return properties;
+	}
+
+	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
+		Method[] methods = clazz.getMethods();
+		for (Method method: methods) {
+			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;
+			String name = method.getName();
+			if (!name.startsWith("get") && name.length() > 3) continue;
+			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;
+			
+			String setterName = "set" + name.substring(3);
+			Method setterMethod = null;
+			for (Method m: methods) {
+				if (m.getName().equals(setterName)) {
+					setterMethod = m;
+					break;
+				}
+			}
+			return new MethodProperty(clazz, methodName, method, setterMethod);
+		}
+		return null;
+	}
+	
+	public static class MethodProperty implements PropertyInterface {
+		private final Class<?> clazz;
+		private final Method getterMethod;
+		private final Method setterMethod;
+		private final String name;
+
+		public MethodProperty(Class<?> clazz, String key, Method getterMethod, Method setterMethod) {
+			if (getterMethod == null) throw new IllegalArgumentException();
+
+			this.clazz = clazz;
+			this.getterMethod = getterMethod;
+			this.setterMethod = setterMethod;
+			this.name = key;
+		}
+
+		@Override
+		public Class<?> getDeclaringClass() {
+			return clazz;
+		}
+
+		@Override
+		public Object getValue(Object object) {
+			try {
+				return getterMethod.invoke(object);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void setValue(Object object, Object value) {
+			if (setterMethod == null) {
+				logger.severe("No setter method for " + getterMethod.getName() + " on " + getterMethod.getDeclaringClass().getName());
+				return;
+			}
+			try {
+				setterMethod.invoke(object, value);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public String getFieldName() {
+			return name;
+		}
+
+		@Override
+		public String getFieldPath() {
+			return getFieldName();
+		}
+
+		@Override
+		public Type getType() {
+			return getterMethod.getGenericReturnType();
+		}
+
+		@Override
+		public Class<?> getFieldClazz() {
+			return getterMethod.getReturnType();
+		}
+		
+		@Override
+		public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+			return getterMethod.getAnnotation(annotationClass);
+		}
+
+		@Override
+		public boolean isFinal() {
+			return setterMethod == null;
+		}
+	}
+	
+	private static boolean isPublic(Method method) {
+		return Modifier.isPublic(method.getModifiers());
+	}
+	
+	private static boolean isStatic(Method method) {
+		return Modifier.isStatic(method.getModifiers());
 	}
 
 }

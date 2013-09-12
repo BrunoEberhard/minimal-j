@@ -4,9 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +46,8 @@ public class DbPersistence {
 	private boolean isMySqlDb; 
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
-
+	private final Set<Class<?>> immutables = new HashSet<>();
+	
 	/**
 	 * Only creates the persistence. Does not yet connect to the DB.
 	 */
@@ -222,6 +225,7 @@ public class DbPersistence {
 	}
 	
 	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
+		immutables.add(clazz);
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
 		tables.put(table.getClazz(), table);
 		return table;
@@ -239,7 +243,7 @@ public class DbPersistence {
 		}
 		commit();
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public <U> ImmutableTable<U> getImmutableTable(Class<U> clazz) {
 		return (ImmutableTable<U>) tables.get(clazz);

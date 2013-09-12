@@ -109,14 +109,14 @@ public class SubTable extends AbstractTable {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		for (Object columnNameObject : columnNames) {
+		for (Object columnNameObject : getColumns().keySet()) {
 			// myst, direkt auf columnNames zugreiffen funktionert hier nicht
 			String columnName = (String) columnNameObject;
 			s.append(columnName);
 			s.append(", ");
 		}
 		s.append("id, position) VALUES (");
-		for (int i = 0; i<columnNames.size(); i++) {
+		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
 		s.append("?, ?)");
@@ -128,7 +128,7 @@ public class SubTable extends AbstractTable {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("UPDATE "); s.append(getTableName()); s.append(" SET ");
-		for (Object columnNameObject : columnNames) {
+		for (Object columnNameObject : getColumns().keySet()) {
 			s.append((String) columnNameObject);
 			s.append("= ?, ");
 		}

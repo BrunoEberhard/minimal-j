@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,14 +21,18 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePartial;
 
-import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.model.annotation.Inline;
+import ch.openech.mj.model.properties.ChainedProperty;
+import ch.openech.mj.model.properties.FinalReferenceProperty;
+import ch.openech.mj.model.properties.SimpleProperty;
 import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
+import ch.openech.mj.util.StringUtils;
 
 /**
  * Minimal-J internal<p>
@@ -41,7 +47,8 @@ public abstract class AbstractTable<T> {
 	
 	protected final DbPersistence dbPersistence;
 	protected final Class<T> clazz;
-	protected final List<String> columnNames;
+	protected final LinkedHashMap<String, PropertyInterface> columns;
+	protected final LinkedHashMap<String, PropertyInterface> lists;
 	
 	protected final String name;
 	
@@ -50,29 +57,84 @@ public abstract class AbstractTable<T> {
 	protected PreparedStatement selectMaxIdStatement;
 	protected PreparedStatement clearStatement;
 
-	public AbstractTable(DbPersistence dbPersistence, String prefix, Class<T> clazz) {
+	public AbstractTable(DbPersistence dbPersistence, String name, Class<T> clazz) {
 		this.dbPersistence = dbPersistence;
-		this.name = prefix;
+		this.name = name != null ? name : StringUtils.toDbName(clazz.getSimpleName());
 		this.clazz = clazz;
-		this.columnNames = findColumnNames(clazz);
+		this.columns = findColumns(clazz);
+		this.lists = findLists(clazz);
 	}
 
-	private static List<String> findColumnNames(Class<?> clazz) {
-		Map<String, PropertyInterface> propertiesForClass = ColumnProperties.getProperties(clazz);
-		List<String> columnNames = new ArrayList<String>();
-		for (Map.Entry<String, PropertyInterface> entry : propertiesForClass.entrySet()) {
-			if (entry.getKey().equals("id")) continue;
-			if (!FieldUtils.isList(entry.getValue().getFieldClazz())) {
-				columnNames.add(entry.getKey());
+	private LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
+		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<String, PropertyInterface>();
+
+		for (Field field : clazz.getFields()) {
+			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
+			String fieldName = StringUtils.toDbName(field.getName());
+			if (fieldName.equals("ID")) continue;
+			if (FieldUtils.isList(field)) continue;
+			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
+				boolean inline = field.getType().getAnnotation(Inline.class) != null;
+				if (inline) {
+					Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
+					boolean hasClassName = FieldUtils.hasClassName(field);
+					for (String inlineKey : inlinePropertys.keySet()) {
+						String key = inlineKey;
+						if (!hasClassName) {
+							key = fieldName + "_" + inlineKey;
+						}
+						columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
+					}
+				} else {
+					columns.put(fieldName, new FinalReferenceProperty(clazz, field));
+				}
+			} else {
+				columns.put(fieldName, new SimpleProperty(clazz, field));
 			}
 		}
-		return columnNames;
+		return columns;
 	}	
 	
-	public List<String> getColumnNames() {
-		return columnNames;
+	public static boolean isReference(PropertyInterface property) {
+		if (property.getFieldClazz().getName().startsWith("java")) return false;
+		if (property.getFieldClazz().getName().startsWith("org.joda")) return false;
+		if (Enum.class.isAssignableFrom(property.getFieldClazz())) return false;
+		return true;
 	}
 	
+	private LinkedHashMap<String, PropertyInterface> findLists(Class<?> clazz) {
+		LinkedHashMap<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
+		
+		for (Field field : clazz.getFields()) {
+			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
+			
+			boolean inline = field.getType().getAnnotation(Inline.class) != null;
+			if (inline && FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
+				// This is needed to check if an inline Property contains a List
+				Map<String, PropertyInterface> inlinePropertys = findLists(field.getType());
+				boolean hasClassName = FieldUtils.hasClassName(field);
+				for (String inlineKey : inlinePropertys.keySet()) {
+					String key = inlineKey;
+					if (!hasClassName) {
+						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
+					}
+					properties.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
+				}
+			} else if (FieldUtils.isList(field)) {
+				properties.put(field.getName(), new SimpleProperty(clazz, field));
+			}
+		}
+		return properties; 
+	}
+	
+	protected LinkedHashMap<String, PropertyInterface> getColumns() {
+		return columns;
+	}
+
+	protected LinkedHashMap<String, PropertyInterface> getLists() {
+		return lists;
+	}
+
 	public void initialize() throws SQLException {
 		initializeImmutables();
 		
@@ -108,11 +170,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected String getTableName() {
-		if (name != null) {
-			return name;
-		} else {
-			return clazz.getSimpleName();
-		}
+		return name;
 	}
 	
 	public Class<T> getClazz() {
@@ -120,10 +178,10 @@ public abstract class AbstractTable<T> {
 	}
 	
 	private void initializeImmutables() throws SQLException {
-		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(clazz);
-		for (PropertyInterface property : properties.values()) {
-			if ("id".equals(property.getFieldName())) continue;
-			if (ColumnProperties.isReference(property)) {
+		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
+			if ("ID".equals(column.getKey())) continue;
+			PropertyInterface property = column.getValue();
+			if (isReference(property)) {
 				AbstractTable<?> refTable = dbPersistence.getTable(property.getFieldClazz());
 				if (refTable == null) {
 					if (property.getFieldClazz().equals(List.class)) {
@@ -231,7 +289,7 @@ public abstract class AbstractTable<T> {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
 			boolean isId = columnName.equalsIgnoreCase("id");
 			if (isId) result.id = (Integer) value;
-			PropertyInterface property = ColumnProperties.getPropertyIgnoreCase(clazz, columnName);
+			PropertyInterface property = columns.get(columnName);
 			if (property == null) continue;
 			if (isId) {
 				property.setValue(result.object, value);
@@ -240,7 +298,7 @@ public abstract class AbstractTable<T> {
 			
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
-				if (ColumnProperties.isReference(property)) {
+				if (isReference(property)) {
 					value = dereference(fieldClass, (Integer) value, time);
 				} else if (Set.class == fieldClass) {
 					Set set = (Set) property.getValue(result.object);
@@ -366,12 +424,11 @@ public abstract class AbstractTable<T> {
 
 	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert) throws SQLException {
 		int parameterPos = 1;
-		for (String key : columnNames) {
-			PropertyInterface property = ColumnProperties.getProperties(clazz).get(key);
-			
+		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
+			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
 			if (value != null) {
-				if (ColumnProperties.isReference(property)) {
+				if (isReference(property)) {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
@@ -470,7 +527,7 @@ public abstract class AbstractTable<T> {
 	
 		boolean first = true;	
 		
-		for (String key : ColumnProperties.getNonListKeys(getClazz())) {
+		for (String key : columns.keySet()) {
 
 			if (!first) where.append(" AND "); else first = false;
 			

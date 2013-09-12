@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.model.PropertyInterface;
 
 /**
@@ -89,7 +88,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		StringBuilder where = new StringBuilder();
 	
 		boolean first = true;	
-		for (String key : ColumnProperties.getKeys(getClazz())) {
+		for (String key : getColumns().keySet()) {
 			if (!first) where.append(" AND "); else first = false;
 			
 			// where.append(column.getName()); where.append(" = ?");
@@ -111,7 +110,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(clazz);
+		Map<String, PropertyInterface> properties = getColumns();
 		int size = properties.entrySet().size();
 		int i = 0;
 		for (String name : properties.keySet()) {

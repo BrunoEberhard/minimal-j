@@ -122,4 +122,18 @@ public class StringUtils {
 		}
 		return s.toString();
 	}
+	
+	public static String toDbName(String string) {
+		if (string == null) throw new NullPointerException();
+		if (string.length() == 0) throw new IllegalArgumentException("String must have a least one character");
+		StringBuffer s = new StringBuffer();
+		s.append(Character.toUpperCase(string.charAt(0)));
+		for (int i = 1; i<string.length(); i++) {
+			if (Character.isUpperCase(string.charAt(i))) {
+				s.append('_');
+			}
+			s.append(Character.toUpperCase(string.charAt(i)));
+		}
+		return s.toString();
+	}
 }

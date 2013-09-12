@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import ch.openech.mj.db.model.ColumnProperties;
+import ch.openech.mj.edit.value.EqualsHelper;
 
 /**
  * Minimal-J internal<p>
@@ -67,7 +67,7 @@ public class HistorizedSubTable extends AbstractTable {
 			if (position < objectsInDb.size() && position < objects.size()) {
 				Object object = objects.get(position);
 				Object objectInDb = objectsInDb.get(position);
-				end = insert = !ColumnProperties.equals(object, objectInDb);
+				end = insert = !EqualsHelper.equals(object, objectInDb);
 			} else if (position < objectsInDb.size()) {
 				end = true;
 			} else /* if (position < objects.size()) */ {
@@ -141,14 +141,14 @@ public class HistorizedSubTable extends AbstractTable {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		for (Object columnNameObject : columnNames) {
+		for (Object columnNameObject : getColumns().keySet()) {
 			// myst, direkt auf columnNames zugreiffen funktionert hier nicht
 			String columnName = (String) columnNameObject;
 			s.append(columnName);
 			s.append(", ");
 		}
 		s.append("id, position, startVersion, endVersion) VALUES (");
-		for (int i = 0; i<columnNames.size(); i++) {
+		for (int i = 0; i<getColumns().keySet().size(); i++) {
 			s.append("?, ");
 		}
 		s.append("?, ?, ?, 0)");

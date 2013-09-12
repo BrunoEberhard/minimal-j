@@ -11,8 +11,6 @@ import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
-import ch.openech.mj.db.model.ColumnProperties;
-import ch.openech.mj.db.model.ListColumnProperties;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
@@ -115,7 +113,7 @@ public class Table<T> extends AbstractTable<T> {
 				SubTable subTable = (SubTable) subTableEntry.getValue();
 				List list;
 				try {
-					list = (List)ColumnProperties.getValue(object, subTableEntry.getKey());
+					list = (List)getLists().get(subTableEntry.getKey()).getValue(object);
 					if (list != null && !list.isEmpty()) {
 						subTable.insert(id, list);
 					}
@@ -167,7 +165,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	private Map<String, AbstractTable<?>> findSubTables() {
 		Map<String, AbstractTable<?>> subTables = new HashMap<String, AbstractTable<?>>();
-		Map<String, PropertyInterface> properties = ListColumnProperties.getProperties(clazz);
+		Map<String, PropertyInterface> properties = getLists();
 		for (PropertyInterface property : properties.values()) {
 			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
 			subTables.put(property.getFieldName(), createSubTable(property, clazz));
@@ -196,7 +194,7 @@ public class Table<T> extends AbstractTable<T> {
 			SubTable subTable = (SubTable) subTableEntry.getValue();
 			List list;
 			try {
-				list = (List) ColumnProperties.getValue(object, subTableEntry.getKey());
+				list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
 			} catch (IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			}
@@ -237,7 +235,7 @@ public class Table<T> extends AbstractTable<T> {
 	private void loadRelations(T object, int id) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			SubTable subTable = (SubTable) subTableEntry.getValue();
-			List list = (List)ColumnProperties.getValue(object, subTableEntry.getKey());
+			List list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
 			list.addAll(subTable.read(id));
 		}
 	}
@@ -263,13 +261,13 @@ public class Table<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		for (String columnName : columnNames) {
+		for (String columnName : getColumns().keySet()) {
 			s.append(columnName);
 			s.append(", ");
 		}
 		s.delete(s.length()-2, s.length());
 		s.append(") VALUES (");
-		for (int i = 0; i<columnNames.size(); i++) {
+		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
 		s.delete(s.length()-2, s.length());
@@ -282,7 +280,7 @@ public class Table<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("UPDATE "); s.append(getTableName()); s.append(" SET ");
-		for (Object columnNameObject : columnNames) {
+		for (Object columnNameObject : getColumns().keySet()) {
 			s.append((String) columnNameObject);
 			s.append("= ?, ");
 		}

@@ -13,10 +13,9 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePartial;
 
-import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
-import ch.openech.mj.util.FieldUtils;
+import ch.openech.mj.model.annotation.Required;
 
 /**
  * Minimal-J internal<p>
@@ -65,14 +64,12 @@ public class DbCreator {
 		s.append("CREATE TABLE "); s.append(table.getTableName()); s.append(" (\n");
 		appendIdColumn(s);
 		
-		Map<String, PropertyInterface> properties = ColumnProperties.getProperties(table.getClazz());
-		for (String column : table.getColumnNames()) {
-			PropertyInterface property = properties.get(column);
-			if (FieldUtils.isList(property.getFieldClazz())) continue;
+		for (Map.Entry<String, PropertyInterface> column : table.getColumns().entrySet()) {
+			PropertyInterface property = column.getValue();
 			
-			s.append(" "); s.append(column); s.append(" "); 
+			s.append(" "); s.append(column.getKey()); s.append(" "); 
 
-			if (ColumnProperties.isReference(property)) {
+			if (AbstractTable.isReference(property)) {
 				s.append("INTEGER");
 				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
 				if (referencedTable instanceof ImmutableTable) {
@@ -84,7 +81,8 @@ public class DbCreator {
 				addColumnDefinition(s, property);
 			}
 			
-			s.append(ColumnProperties.isRequired(property) ? " NOT NULL" : " DEFAULT NULL");
+			boolean isRequired = property.getAnnotation(Required.class) != null;
+			s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 			s.append(",\n");
 		}
 		
@@ -173,7 +171,7 @@ public class DbCreator {
 		} else if (clazz.equals(ReadablePartial.class)) {
 			s.append("CHAR (10)");
 		} else {
-			throw new IllegalArgumentException(property.getFieldName() +": " + clazz.toString());
+			throw new IllegalArgumentException(property.getDeclaringClass() + "." + property.getFieldName() +": " + clazz.toString());
 		}
 	}
 	

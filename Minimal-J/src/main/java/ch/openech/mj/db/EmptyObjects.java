@@ -3,7 +3,7 @@ package ch.openech.mj.db;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.openech.mj.db.model.ColumnProperties;
+import ch.openech.mj.edit.value.EqualsHelper;
 
 @SuppressWarnings("unchecked")
 public class EmptyObjects {
@@ -16,7 +16,7 @@ public class EmptyObjects {
 					Enum.class.isAssignableFrom(clazz)) return false;
 			
 			T emptyObject = getEmptyObject(clazz);
-			return ColumnProperties.equals(emptyObject, object);
+			return EqualsHelper.equals(emptyObject, object);
 		} else {
 			return true;
 		}

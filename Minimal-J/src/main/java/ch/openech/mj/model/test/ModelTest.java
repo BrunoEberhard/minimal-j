@@ -13,10 +13,10 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePartial;
 
-import ch.openech.mj.edit.value.Properties;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
+import ch.openech.mj.model.properties.Properties;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
 

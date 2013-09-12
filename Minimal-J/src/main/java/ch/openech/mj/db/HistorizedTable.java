@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
-import ch.openech.mj.db.model.ColumnProperties;
 import ch.openech.mj.model.PropertyInterface;
 
 /**
@@ -79,7 +78,7 @@ public class HistorizedTable<T> extends Table<T> {
 				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTableEntry.getValue();
 				List list;
 				try {
-					list = (List)ColumnProperties.getValue(object, subTableEntry.getKey());
+					list = (List)getLists().get(subTableEntry.getKey()).getValue(object);
 					if (list != null && !list.isEmpty()) {
 						historizedSubTable.insert(id, list, Integer.valueOf(0));
 					}
@@ -133,7 +132,7 @@ public class HistorizedTable<T> extends Table<T> {
 			HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTable.getValue();
 			List list;
 			try {
-				list = (List) ColumnProperties.getValue(object, subTable.getKey());
+				list = (List) getLists().get(subTable.getKey()).getValue(object);
 			} catch (IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			}
@@ -195,7 +194,7 @@ public class HistorizedTable<T> extends Table<T> {
 	private void loadRelations(T object, int id, Integer time) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTableEntry.getValue();
-			List list = (List)ColumnProperties.getValue(object, subTableEntry.getKey());
+			List list = (List)getLists().get(subTableEntry.getKey()).getValue(object);
 			list.addAll(historizedSubTable.read(id, time));
 		}
 	}
@@ -257,12 +256,12 @@ public class HistorizedTable<T> extends Table<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		for (String columnName : columnNames) {
+		for (String columnName : getColumns().keySet()) {
 			s.append(columnName);
 			s.append(", ");
 		}
 		s.append("version) VALUES (");
-		for (int i = 0; i<columnNames.size(); i++) {
+		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
 		s.append("0)");
@@ -274,12 +273,12 @@ public class HistorizedTable<T> extends Table<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		for (String name : columnNames) {
+		for (String name : getColumns().keySet()) {
 			s.append(name);
 			s.append(", ");
 		}
 		s.append("id, version) VALUES (");
-		for (int i = 0; i<columnNames.size(); i++) {
+		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
 		s.append("?, 0)");
