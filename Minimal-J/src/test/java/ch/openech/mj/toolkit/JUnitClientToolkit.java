@@ -4,8 +4,6 @@ import java.awt.event.FocusListener;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.swing.event.ChangeListener;
-
 public class JUnitClientToolkit extends ClientToolkit {
 
 	private String lastError = null;
