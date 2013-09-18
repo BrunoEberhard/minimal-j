@@ -31,7 +31,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import ch.openech.mj.swing.component.EditablePanel;

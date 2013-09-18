@@ -6,8 +6,6 @@ import java.io.PipedInputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.event.ChangeListener;
-
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
