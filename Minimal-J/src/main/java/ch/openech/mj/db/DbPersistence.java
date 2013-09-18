@@ -224,11 +224,15 @@ public class DbPersistence {
 		return table;
 	}
 	
-	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
+	public <U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
 		immutables.add(clazz);
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
 		tables.put(table.getClazz(), table);
 		return table;
+	}
+	
+	public boolean isImmutable(Class<?> clazz) {
+		return immutables.contains(clazz);
 	}
 	
 	protected void initializeTables() {
