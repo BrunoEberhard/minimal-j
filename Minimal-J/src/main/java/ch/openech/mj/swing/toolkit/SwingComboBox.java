@@ -18,7 +18,7 @@ import ch.openech.mj.model.CodeItem;
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.ComboBox;
 
-public class SwingComboBox<T> extends JComboBox implements ComboBox<T> {
+public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 
 	private final InputComponentListener listener;
 	private final NullableComboBoxModel<T> model;
@@ -75,7 +75,7 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T> {
 		}
 	}
 	
-	private static class NullableComboBoxModel<T> extends AbstractListModel implements ComboBoxModel {
+	private static class NullableComboBoxModel<T> extends AbstractListModel<T> implements ComboBoxModel<T> {
 		private List<T> objects = Collections.emptyList();
 		private T setObject;
 		private T selectedObject;
@@ -94,7 +94,7 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T> {
 		}
 
 		@Override
-		public Object getElementAt(int index) {
+		public T getElementAt(int index) {
 			if (setObjectInObjects) {
 				if (index == 0) {
 					return null;
@@ -156,19 +156,19 @@ public class SwingComboBox<T> extends JComboBox implements ComboBox<T> {
 	
 	
 	
-	private static class CodeItemRenderer implements ListCellRenderer {
+	private class CodeItemRenderer implements ListCellRenderer<T> {
 
-		private final ListCellRenderer delegate;
+		private final ListCellRenderer<? super T> delegate;
 		
-		public CodeItemRenderer(ListCellRenderer delegate) {
-			this.delegate = delegate;
+		public CodeItemRenderer(ListCellRenderer<? super T> listCellRenderer) {
+			this.delegate = listCellRenderer;
 		}
 		
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList<? extends T> list, T value, int index, boolean isSelected, boolean cellHasFocus) {
 			Component component = delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (component instanceof JComponent && value instanceof CodeItem) {
-				((JComponent) component).setToolTipText(((CodeItem)value).getDescription());
+				((JComponent) component).setToolTipText(((CodeItem<?>)value).getDescription());
 			}
 			return component;
 		}
