@@ -297,8 +297,8 @@ public abstract class AbstractTable<T> {
 				if (isReference(property)) {
 					value = dereference(fieldClass, (Integer) value, time);
 				} else if (Set.class == fieldClass) {
-					Set set = (Set) property.getValue(result.object);
-					Class enumClass = GenericUtils.getGenericClass(property.getType());
+					Set<?> set = (Set<?>) property.getValue(result.object);
+					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
 					EnumUtils.fillSet((int) value, enumClass, set);
 					continue; // skip setValue, it's final
 				} else {
@@ -360,6 +360,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	// TODO configuration of conversation to DB
+	@SuppressWarnings("unchecked")
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
 		if (value == null) return null;
 		
