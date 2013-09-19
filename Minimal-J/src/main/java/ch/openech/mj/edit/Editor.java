@@ -202,10 +202,14 @@ public abstract class Editor<T> {
 		if (isSaveable()) {
 			doSave();
 		} else {
-			ClientToolkit.getToolkit().showError(form.getComponent(), "Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
+			showError("Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
 		}
 	}
 
+	protected void showError(String error) {
+		ClientToolkit.getToolkit().showError(form.getComponent(), error);
+	}
+	
 	private void doSave() {
 		try {
 			Object saveResult = save(editedObject);
@@ -215,7 +219,7 @@ public abstract class Editor<T> {
 			}
 		} catch (Exception x) {
 			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
-			ClientToolkit.getToolkit().showError(form.getComponent(), "Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
+			showError("Abschluss fehlgeschlagen: " + x.getLocalizedMessage());
 		}
 	}
 
