@@ -1,7 +1,5 @@
 package ch.openech.mj.edit;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -11,6 +9,7 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.IDialog.CloseListener;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
 import ch.openech.mj.toolkit.ResourceAction;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.GenericUtils;
@@ -105,18 +104,12 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 //		}
 //	}
 	
-	private class SearchClickListener implements ActionListener {
-		
+	private class SearchClickListener implements TableActionListener<T> {
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			saveAndClose();
+		public void action(T selectedObject, List<T> selectedObjects) {
+			save(selectedObject);
+			dialog.closeDialog();
 		}
-	}
-	
-	private void saveAndClose() {
-		T selected = table.getSelectedObject();
-		save(selected);
-		dialog.closeDialog();
 	}
 	
 }

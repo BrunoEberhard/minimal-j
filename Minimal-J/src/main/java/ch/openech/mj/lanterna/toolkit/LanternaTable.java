@@ -1,7 +1,5 @@
 package ch.openech.mj.lanterna.toolkit;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,7 +33,8 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	private final List<T> selectedObjects;
 	private T selectedObject;
 	private int selectedLine;
-	private ActionListener clickListener, insertListener, deleteListener, functionListener;
+	private InsertListener insertListener;
+	private TableActionListener<T> clickListener, deleteListener;
 	
 	public LanternaTable(Class<T> clazz, Object[] keys) {
 		this.properties = convert(keys);
@@ -158,8 +157,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	public Result keyboardInteraction(Key key) {
 		switch (key.getKind()) {
 		case Enter:
-			ActionEvent actionEvent = new ActionEvent(LanternaTable.this, 0, "Clicked");
-			clickListener.actionPerformed(actionEvent);
+			clickListener.action(getSelectedObject(), getSelectedObjects());
 			return Result.EVENT_HANDLED;
 
 		case NormalKey:
@@ -240,34 +238,32 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		updateColumnWidths();
 	}
 
-	@Override
 	public List<T> getSelectedObjects() {
 		return selectedObjects;
 	}
 
-	@Override
 	public T getSelectedObject() {
 		return tableModel.getObject(scrollIndex + selectedLine);
 	}
 
 	@Override
-	public void setClickListener(ActionListener listener) {
+	public void setClickListener(TableActionListener<T> listener) {
 		this.clickListener = listener;
 	}
 
 	@Override
-	public void setDeleteListener(ActionListener listener) {
+	public void setDeleteListener(TableActionListener<T> listener) {
 		this.deleteListener = listener;
 	}
 
 	@Override
-	public void setInsertListener(ActionListener listener) {
+	public void setInsertListener(InsertListener listener) {
 		this.insertListener = listener;
 	}
 
 	@Override
-	public void setFunctionListener(int function, ActionListener listener) {
-		this.functionListener = listener;
+	public void setFunctionListener(int function, TableActionListener<T> listener) {
+		// TODO Function Action in Lanterna Table
 	}
 
 	@Override

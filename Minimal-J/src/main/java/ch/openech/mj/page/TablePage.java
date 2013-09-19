@@ -1,12 +1,11 @@
 package ch.openech.mj.page;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
 
 
 /**
@@ -40,10 +39,10 @@ public abstract class TablePage<T> extends AbstractPage implements RefreshablePa
 		return table;
 	}
 	
-	private class TableClickListener implements ActionListener {
+	private class TableClickListener implements TableActionListener<T> {
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			TablePage.this.clicked(table.getSelectedObject());
+		public void action(T selectedObject, List<T> selectedObjects) {
+			TablePage.this.clicked(selectedObject);
 		}
 	}
 	

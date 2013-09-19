@@ -1,7 +1,5 @@
 package ch.openech.mj.page;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +10,7 @@ import ch.openech.mj.model.annotation.Size;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
 
 public abstract class HistoryPage<T> extends AbstractPage implements RefreshablePage {
 
@@ -22,15 +21,15 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 		super(pageContext);
 		ITable<?> table2 = ClientToolkit.getToolkit().createTable(HistoryVersion.class, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
 		table = (ITable<HistoryVersion<T>>) table2;
-		table.setClickListener(new ActionListener() {
+		table.setClickListener(new TableActionListener<HistoryPage.HistoryVersion<T>>() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selected) {
 				List<String> pageLinks = new ArrayList<String>(versions.size());
 				for (HistoryVersion<T> version : versions) {
 					String link = link( version.object, version.version);
 					pageLinks.add(link);
 				}
-				int index = versions.indexOf(table.getSelectedObject());
+				int index = versions.indexOf(selectedObject);
 				getPageContext().show(pageLinks, index);
 			}
 		});

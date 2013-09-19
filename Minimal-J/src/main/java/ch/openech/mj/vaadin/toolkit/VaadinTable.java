@@ -1,7 +1,5 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +26,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private final JodaFormatter jodaFormatter = new JodaFormatter();
 	private List<T> objects;
-	private ActionListener listener;
+	private TableActionListener<T> listener;
 	private VaadinTableItemClickListener tableClickListener;
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
@@ -57,16 +55,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 
 	@Override
-	public T getSelectedObject() {
-		if (getValue() != null) {
-			return objects.get((Integer)getValue());
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public void setClickListener(ActionListener clickListener) {
+	public void setClickListener(TableActionListener<T> clickListener) {
 		if (clickListener == null) {
 			if (tableClickListener != null) {
 				removeListener(tableClickListener);
@@ -96,8 +85,8 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		@Override
 		public void itemClick(ItemClickEvent event) {
 			if (event.isDoubleClick()) {
-				ActionEvent actionEvent = new ActionEvent(VaadinTable.this, 0, "Clicked");
-				listener.actionPerformed(actionEvent);
+				Integer id = (Integer) event.getItemId();
+				listener.action(objects.get(id), getSelectedObjects());
 			}
 		}
 	}
@@ -120,10 +109,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		}
 		
 	}
-
-	// TODO !
 	
-	@Override
 	public List<T> getSelectedObjects() {
 		List<T> selectedObjects = new ArrayList<>();
 		for (Object itemId : getItemIds()) {
@@ -135,17 +121,18 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 
 	@Override
-	public void setDeleteListener(ActionListener listener) {
+	public void setDeleteListener(TableActionListener<T> listener) {
+		// TODO Delete Action on Vaadin Table
 	}
 
 	@Override
-	public void setInsertListener(ActionListener listener) {
-		// TODO Auto-generated method stub
+	public void setInsertListener(InsertListener listener) {
+		// TODO Insert Action on Vaadin Table
 	}
 
 	@Override
-	public void setFunctionListener(int function, ActionListener listener) {
-		// TODO Auto-generated method stub
+	public void setFunctionListener(int function, TableActionListener<T> listener) {
+		// TODO Function Action on Vaadin Table
 	}
 	
 }

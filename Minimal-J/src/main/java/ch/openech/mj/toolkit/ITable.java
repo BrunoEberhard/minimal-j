@@ -1,6 +1,5 @@
 package ch.openech.mj.toolkit;
 
-import java.awt.event.ActionListener;
 import java.util.List;
 
 
@@ -8,13 +7,17 @@ public interface ITable<T> extends IComponent {
 
 	public void setObjects(List<T> object);
 
-	public List<T> getSelectedObjects();
-
-	public T getSelectedObject();
-
-	public void setClickListener(ActionListener listener);
-	public void setDeleteListener(ActionListener listener);
-	public void setInsertListener(ActionListener listener);
-	public void setFunctionListener(int function, ActionListener listener);
+	public void setClickListener(TableActionListener<T> listener);
+	public void setDeleteListener(TableActionListener<T> listener);
+	public void setInsertListener(InsertListener listener);
+	public void setFunctionListener(int function, TableActionListener<T> listener);
 	
+	public static interface TableActionListener<S> {
+		public void action(S selectedObject, List<S> selectedObjects);
+	}
+	
+	public static interface InsertListener {
+		public void action();
+	}
+
 }

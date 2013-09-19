@@ -1,7 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,7 +23,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 	
 	private final PropertyTable<T> propertyTable;
-	private ActionListener listener;
+	private TableActionListener<T> listener;
 	
 	public SwingTable(Class<T> clazz, Object[] fields) {
 		propertyTable = new PropertyTable<T>(clazz, fields);
@@ -54,7 +53,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		propertyTable.setObjects(objects);
 	}
 
-	@Override
 	public T getSelectedObject() {
 		if (propertyTable.getSelectionModel().getLeadSelectionIndex() >= 0) {
 			return propertyTable.getObject(propertyTable.getSelectionModel().getLeadSelectionIndex());
@@ -63,7 +61,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 
-	@Override
 	public List<T> getSelectedObjects() {
 		List<T> selectedObjects = new ArrayList<>(propertyTable.getSelectedRowCount());
 		for (int row : propertyTable.getSelectedRows()) {
@@ -73,7 +70,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	@Override
-	public void setClickListener(ActionListener listener) {
+	public void setClickListener(TableActionListener<T> listener) {
 		this.listener = listener;
 	}
 
@@ -83,8 +80,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() >= 2 && listener != null) {
 				try {
-					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Clicked");
-					listener.actionPerformed(actionEvent);
+					listener.action(getSelectedObject(), getSelectedObjects());
 				} catch (Exception x) {
 					x.printStackTrace();
 				}
@@ -92,15 +88,15 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 
-	public void setInsertListener(final ActionListener listener) {
+	@Override
+	public void setInsertListener(final InsertListener listener) {
 		if (listener != null) {
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Insert");
-					listener.actionPerformed(actionEvent);
+					listener.action();
 				}
 			};
 			bindKey(KeyEvent.VK_INSERT, action);
@@ -109,15 +105,15 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 
-	public void setDeleteListener(final ActionListener listener) {
+	@Override
+	public void setDeleteListener(final TableActionListener<T> listener) {
 		if (listener != null) {
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Delete");
-					listener.actionPerformed(actionEvent);
+					listener.action(getSelectedObject(), getSelectedObjects());
 				}
 			};
 			bindKey(KeyEvent.VK_DELETE, action);
@@ -127,15 +123,14 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	@Override
-	public void setFunctionListener(final int function, final ActionListener listener) {
+	public void setFunctionListener(final int function, final TableActionListener<T> listener) {
 		if (listener != null) {
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ActionEvent actionEvent = new ActionEvent(SwingTable.this, 0, "Function" + function);
-					listener.actionPerformed(actionEvent);
+					listener.action(getSelectedObject(), getSelectedObjects());
 				}
 			};
 			bindKey(KeyEvent.VK_F1+function, action);
