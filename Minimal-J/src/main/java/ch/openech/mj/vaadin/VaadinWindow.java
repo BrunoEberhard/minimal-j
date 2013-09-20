@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -17,6 +18,7 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ResourceAction;
 import ch.openech.mj.util.StringUtils;
 import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit;
+import ch.openech.mj.vaadin.toolkit.VaadinClientToolkit.VaadinActionLink;
 import ch.openech.mj.vaadin.toolkit.VaadinDialog;
 import ch.openech.mj.vaadin.toolkit.VaadinEditorLayout;
 
@@ -28,6 +30,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
@@ -45,7 +48,8 @@ public class VaadinWindow extends Window implements PageContext {
 	private final ComboBox comboBox = new ComboBox();
 	private final TextField textFieldSearch = new TextField();
 	private final UriFragmentUtility ufu;
-
+	private final VaadinWindowClickListener clickListener;
+	
 	private Page visiblePage;
 	private Component content;
 	private Panel scrollablePanel;
@@ -87,6 +91,8 @@ public class VaadinWindow extends Window implements PageContext {
 		scrollablePanel = new Panel();
 		scrollablePanel.setScrollable(true);
 		scrollablePanel.setSizeFull();
+		
+		clickListener = new VaadinWindowClickListener();
 	}
 
 	private Component createSearchField() {
@@ -169,11 +175,36 @@ public class VaadinWindow extends Window implements PageContext {
 			this.content = null;
 		}
 		
+		registerMouseListener(content);
 		menubar.updateMenu();
 		updateWindowTitle();
 		VaadinClientToolkit.focusFirstComponent((IComponent) content);
 	}
+	
+	private void registerMouseListener(Component component) {
+		if (component instanceof VaadinActionLink) {
+			 ((VaadinActionLink) component).setClickListener(clickListener);
+		}
+		if (component instanceof ComponentContainer) {
+			Iterator<Component> iterator = ((ComponentContainer) component).getComponentIterator();
+			while (iterator.hasNext()) {
+				registerMouseListener(iterator.next());
+			}
+		}
+	}
 
+	private class VaadinWindowClickListener implements ClickListener {
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			Object source = event.getSource();
+			if (source instanceof VaadinActionLink) {
+				VaadinActionLink link = (VaadinActionLink) source;
+				show(link.getAddress());
+			}
+		}
+		
+	}
 	
 	protected class UpAction extends ResourceAction {
 		@Override
