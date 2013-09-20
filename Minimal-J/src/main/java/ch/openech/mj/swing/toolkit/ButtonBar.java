@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentInputMapUIResource;
 
 public class ButtonBar extends JPanel {
+	private static final long serialVersionUID = 1L;
 
 	public ButtonBar(Action... actions) {
 		super(new FlowLayout(FlowLayout.RIGHT, 5, 0)); // align, hgap, vgap

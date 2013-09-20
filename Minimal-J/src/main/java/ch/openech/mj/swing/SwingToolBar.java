@@ -21,6 +21,8 @@ import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingToolBar extends JToolBar implements IComponent {
+	private static final long serialVersionUID = 1L;
+	
 	private final SwingTab tab;
 	private JComboBox<Class<?>> comboBoxSearchObject;
 	private JTextField textFieldSearch;
@@ -85,6 +87,8 @@ public class SwingToolBar extends JToolBar implements IComponent {
 	}
 	
 	private static class SearchCellRenderer extends DefaultListCellRenderer {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			Class<?> searchClass = (Class<?>) value;
@@ -94,6 +98,8 @@ public class SwingToolBar extends JToolBar implements IComponent {
 	}
 	
 	protected class SearchAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Class<? extends Page> searchObject = (Class<? extends Page>) comboBoxSearchObject.getSelectedItem();

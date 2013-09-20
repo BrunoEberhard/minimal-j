@@ -26,7 +26,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 public class HideableTabbedPane extends JPanel {
-
+	private static final long serialVersionUID = 1L;
+	
 	private JTabbedPane tabbedPane;
 	private final Map<Component, String> titles = new HashMap<Component, String>();
 	private final Map<Component, String> tooltips = new HashMap<Component, String>();

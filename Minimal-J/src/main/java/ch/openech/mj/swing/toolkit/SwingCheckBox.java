@@ -9,7 +9,8 @@ import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 
 public class SwingCheckBox extends JCheckBox implements CheckBox {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final InputComponentListener listener;
 
 	public SwingCheckBox(InputComponentListener listener, String text) {

@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingReadOnlyTextField extends JLabel implements TextField {
+	private static final long serialVersionUID = 1L;
 
 	public SwingReadOnlyTextField() {
 	}

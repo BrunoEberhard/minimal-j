@@ -18,6 +18,8 @@ import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingGridFormLayout extends JPanel implements GridFormLayout {
+	private static final long serialVersionUID = 1L;
+	
 	private final int columnWidth;
 	
 	public SwingGridFormLayout(int columns, int columnWidthPercentage) {

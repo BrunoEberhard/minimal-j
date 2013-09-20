@@ -10,6 +10,7 @@ import ch.openech.mj.toolkit.IComponent;
 
 
 public class SwingHorizontalLayout extends JPanel implements HorizontalLayout {
+	private static final long serialVersionUID = 1L;
 
 	public SwingHorizontalLayout(IComponent... components) {
 		super(new GridLayout(1, components.length, 10, 10));

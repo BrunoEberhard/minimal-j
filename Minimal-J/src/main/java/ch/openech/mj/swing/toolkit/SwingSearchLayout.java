@@ -16,7 +16,8 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingSearchLayout extends JPanel implements IComponent {
-	
+	private static final long serialVersionUID = 1L;
+
 	public SwingSearchLayout(TextField text, Action searchAction, IComponent content, Action[] actions) {
 		this(createHeaderComponent(text, searchAction), content, actions);
 	}

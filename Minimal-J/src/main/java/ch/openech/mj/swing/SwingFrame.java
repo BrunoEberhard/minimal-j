@@ -22,6 +22,8 @@ import ch.openech.mj.swing.component.HideableTabbedPane;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingFrame extends JFrame implements IComponent {
+	private static final long serialVersionUID = 1L;
+	
 	private HideableTabbedPane tabbedPane;
 	final Action closeWindowAction, exitAction, newWindowAction, newTabAction;
 	
@@ -198,6 +200,8 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	private class CloseWindowAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			tryToCloseWindow();
@@ -205,6 +209,8 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	private class ExitAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			FrameManager.getInstance().exitActionPerformed(SwingFrame.this);
@@ -212,6 +218,8 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 
 	private static class NewWindowAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			FrameManager.getInstance().openNavigationFrame();
@@ -219,6 +227,8 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 
 	private class NewTabAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			addDefaultTab();

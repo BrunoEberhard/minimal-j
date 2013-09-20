@@ -14,7 +14,8 @@ import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingDirectoryField extends JPanel implements EditField<String>, IComponent {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final PropertyInterface property;
 	private final JTextField textField;
 	private final JButton button;

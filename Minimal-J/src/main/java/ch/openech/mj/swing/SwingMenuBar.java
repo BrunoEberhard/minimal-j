@@ -22,6 +22,8 @@ import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingMenuBar extends JMenuBar implements IComponent {
+	private static final long serialVersionUID = 1L;
+	
 	private final SwingTab tab;
 
 	public SwingMenuBar(SwingTab tab) {

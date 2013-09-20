@@ -67,6 +67,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	private static class SwingActionLabel extends JLabel implements IComponent {
+		private static final long serialVersionUID = 1L;
 
 		public SwingActionLabel(final IAction action) {
 //			setIcon((Icon) action.getValue(Action.SMALL_ICON));
@@ -306,6 +307,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 	
 	public static class SwingLink extends JLabel implements ILink {
+		private static final long serialVersionUID = 1L;
 		private final String address;
 		private MouseListener mouseListener;
 		
@@ -342,6 +344,8 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	public static Action adaptAction(final IAction action, final IComponent context) {
 		final Action swingAction = new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				action.action(context);

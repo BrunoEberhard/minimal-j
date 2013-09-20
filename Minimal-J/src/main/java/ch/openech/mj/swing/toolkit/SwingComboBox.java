@@ -19,7 +19,8 @@ import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.ComboBox;
 
 public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final InputComponentListener listener;
 	private final NullableComboBoxModel<T> model;
 	
@@ -76,6 +77,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 	}
 	
 	private static class NullableComboBoxModel<T> extends AbstractListModel<T> implements ComboBoxModel<T> {
+		private static final long serialVersionUID = 1L;
 		private List<T> objects = Collections.emptyList();
 		private T setObject;
 		private T selectedObject;

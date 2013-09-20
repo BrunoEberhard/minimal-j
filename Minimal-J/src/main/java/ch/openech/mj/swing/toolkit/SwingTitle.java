@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingTitle extends JLabel implements IComponent {
+	private static final long serialVersionUID = 1L;
 
 	public SwingTitle(String string) {
 		super(string);

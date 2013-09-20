@@ -13,7 +13,8 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.SwitchLayout;
 
 public class SwingSwitchLayout extends JPanel implements SwitchLayout {
-
+	private static final long serialVersionUID = 1L;
+	
 	private IComponent shownComponent;
 	
 	public SwingSwitchLayout() {

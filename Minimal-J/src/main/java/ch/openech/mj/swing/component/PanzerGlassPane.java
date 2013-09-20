@@ -12,6 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class PanzerGlassPane extends JPanel {
+	private static final long serialVersionUID = 1L;
+	
 	private Component content;
 	private boolean blocked;
 	private JLabel imageLabel = new JLabel();

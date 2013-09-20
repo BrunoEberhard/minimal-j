@@ -8,6 +8,8 @@ import javax.swing.JProgressBar;
 import ch.openech.mj.toolkit.ProgressListener;
 
 public class SwingProgressComponent extends JPanel implements ProgressListener {
+	private static final long serialVersionUID = 1L;
+	
 	private final JProgressBar progressBar;
 	
 	public SwingProgressComponent() {

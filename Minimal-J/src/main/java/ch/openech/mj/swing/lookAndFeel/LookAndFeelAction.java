@@ -13,6 +13,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
 public class LookAndFeelAction extends AbstractAction {
+	private static final long serialVersionUID = 1L;
 
 	public LookAndFeelAction(String name) {
 		this(name, UIManager.getSystemLookAndFeelClassName());

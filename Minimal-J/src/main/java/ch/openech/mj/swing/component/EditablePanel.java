@@ -22,6 +22,7 @@ import javax.swing.event.InternalFrameListener;
 // Must be a JDesktopPane (not only a JPanel) in order to
 // work as a parent of a JInternalFrame or JOptionPane.showInternal
 public class EditablePanel extends JDesktopPane {
+	private static final long serialVersionUID = 1L;
 	private JComponent content;
 	private List<JInternalFrame> openFrames = new ArrayList<JInternalFrame>();
 
@@ -180,6 +181,8 @@ public class EditablePanel extends JDesktopPane {
 
 	// see http://stackoverflow.com/questions/8136944/preventing-jinternalframe-from-being-moved-out-of-a-jdesktoppane
 	public class BoundedDesktopManager extends DefaultDesktopManager {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void beginDraggingFrame(JComponent f) {

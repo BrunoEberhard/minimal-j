@@ -10,6 +10,7 @@ import javax.swing.JViewport;
 import javax.swing.Scrollable;
 
 public class ScrollablePanel extends JPanel implements Scrollable {
+	private static final long serialVersionUID = 1L;
 
 	public ScrollablePanel(Component content) {
 		super(new BorderLayout());

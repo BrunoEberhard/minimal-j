@@ -12,6 +12,7 @@ import javax.swing.JDialog;
 import ch.openech.mj.toolkit.IDialog;
 
 public class SwingEditorDialog extends JDialog implements IDialog {
+	private static final long serialVersionUID = 1L;
 	
 	private final Component focusAfterClose;
 	private CloseListener closeListener;

@@ -17,6 +17,8 @@ import ch.openech.mj.toolkit.IComponent;
 
 
 public class SwingFlowField extends JPanel implements FlowField {
+	private static final long serialVersionUID = 1L;
+	
 	private JLabel lastLabel;
 	
 	public SwingFlowField() {

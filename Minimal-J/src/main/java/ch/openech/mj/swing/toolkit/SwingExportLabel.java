@@ -16,7 +16,8 @@ import ch.openech.mj.toolkit.IComponent;
 
 @Deprecated // to be moved
 public class SwingExportLabel extends JLabel implements IComponent {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final ExportHandler exportHandler;
 	
 	public SwingExportLabel(ExportHandler exportHandler, String text) {

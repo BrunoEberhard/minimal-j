@@ -15,6 +15,8 @@ import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingTextField extends JTextField implements TextField {
+	private static final long serialVersionUID = 1L;
+	
 	private final InputComponentListener changeListener;
 	private FocusListener focusListener;
 	private Runnable commitListener;
@@ -64,6 +66,7 @@ public class SwingTextField extends JTextField implements TextField {
 	}
 
 	private static class FilteredDocument extends PlainDocument {
+		private static final long serialVersionUID = 1L;
 		private final int maxLength;
 		private final String allowedCharacters;
 		

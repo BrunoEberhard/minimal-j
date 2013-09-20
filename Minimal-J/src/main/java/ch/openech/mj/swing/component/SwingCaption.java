@@ -18,7 +18,8 @@ import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingCaption extends JPanel implements Caption, IComponent {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final JLabel captionLabel;
 	
 	public SwingCaption(Component component, String caption) {
@@ -47,6 +48,8 @@ public class SwingCaption extends JPanel implements Caption, IComponent {
 	
 	
 	private static class CaptionLabel extends JLabel {
+
+		private static final long serialVersionUID = 1L;
 
 		public CaptionLabel(String caption) {
 			super(caption);

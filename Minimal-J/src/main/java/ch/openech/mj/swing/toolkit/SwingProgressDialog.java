@@ -9,6 +9,8 @@ import javax.swing.JProgressBar;
 import ch.openech.mj.toolkit.ProgressListener;
 
 public class SwingProgressDialog extends JDialog implements ProgressListener {
+	private static final long serialVersionUID = 1L;
+	
 	private final JProgressBar progressBar;
 	
 	public SwingProgressDialog(Window owner, String text) {

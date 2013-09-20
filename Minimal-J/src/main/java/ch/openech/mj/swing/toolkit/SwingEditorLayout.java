@@ -14,6 +14,7 @@ import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingEditorLayout extends JPanel implements IComponent {
+	private static final long serialVersionUID = 1L;
 
 	public SwingEditorLayout(IComponent content, IAction[] actions) {
 		super(new BorderLayout());

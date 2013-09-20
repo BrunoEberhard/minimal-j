@@ -18,6 +18,8 @@ import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
 public class PrintLookAndFeel extends MetalLookAndFeel implements MetalThemeProvider {
+	private static final long serialVersionUID = 1L;
+	
 	private static Logger logger = Logger.getLogger(PrintLookAndFeel.class.getName());
 	static Properties properties = new Properties();
 

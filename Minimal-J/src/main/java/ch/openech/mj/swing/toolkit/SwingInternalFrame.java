@@ -12,6 +12,7 @@ import ch.openech.mj.toolkit.IDialog;
 
 public class SwingInternalFrame extends JInternalFrame implements IDialog {
 	// private static final Logger logger = Logger.getLogger(EditorInternalFrameDecorator.class.getName());
+	private static final long serialVersionUID = 1L;
 	
 	private final EditablePanel editablePanel;
 	private final Component focusAfterClose;

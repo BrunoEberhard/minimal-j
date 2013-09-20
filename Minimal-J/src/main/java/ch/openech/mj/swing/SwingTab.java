@@ -39,6 +39,8 @@ import ch.openech.mj.swing.toolkit.SwingSwitchLayout;
 import ch.openech.mj.toolkit.IComponent;
 
 public class SwingTab extends EditablePanel implements IComponent, PageContext {
+	private static final long serialVersionUID = 1L;
+	
 	final SwingFrame frame;
 	final Action previousAction, nextAction, refreshAction, upAction, downAction;
 	final Action closeTabAction;
@@ -124,6 +126,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	//
 	
 	protected class PreviousPageAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			previous();
@@ -131,6 +135,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 	
 	protected class NextPageAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			next();
@@ -138,6 +144,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 
 	protected class RefreshAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			refresh();
@@ -151,6 +159,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 
 	private class UpAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			up();
@@ -158,6 +168,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 
 	private class DownAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			down();
@@ -165,6 +177,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 
 	private class CloseTabAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			frame.closeTab();
@@ -172,6 +186,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	}
 	
 	private class MenuItemToolBarVisible extends JCheckBoxMenuItem implements ItemListener {
+		private static final long serialVersionUID = 1L;
 		private final Preferences preferences =  Preferences.userNodeForPackage(MenuItemToolBarVisible.class).node(MenuItemToolBarVisible.class.getSimpleName());
 		
 		public MenuItemToolBarVisible() {

@@ -22,6 +22,8 @@ import ch.openech.mj.resources.Resources;
 import ch.openech.mj.util.JodaFormatter;
 
 public class PropertyTable<T> extends JTable {
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = Logger.getLogger(PropertyTable.class.getName());
 
 	private final List<PropertyInterface> properties;
@@ -64,6 +66,7 @@ public class PropertyTable<T> extends JTable {
 
 	public static class PropertyTableModel<T> extends AbstractTableModel {
 
+		private static final long serialVersionUID = 1L;
 		private final List<PropertyInterface> properties;
 		private List<T> list = Collections.emptyList();
 
@@ -120,6 +123,8 @@ public class PropertyTable<T> extends JTable {
 	
 	private class BooleanTableCellRenderer extends DefaultTableCellRenderer {
 
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
@@ -138,6 +143,7 @@ public class PropertyTable<T> extends JTable {
 	
 	private class DateTableCellRenderer extends DefaultTableCellRenderer {
 
+		private static final long serialVersionUID = 1L;
 		private final JodaFormatter formatter = new JodaFormatter();
 		
 		@Override
