@@ -24,12 +24,14 @@ import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
@@ -248,31 +250,18 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return button;
 	}
 	
-	public static class VaadinActionLink extends Button implements ILink {
+	public static class VaadinActionLink extends Link implements ILink {
 		private final String address;
-		private ClickListener listener;
 		
 		public VaadinActionLink(String text, String address) {
-			super(text);
+			super(text, new ExternalResource("#" + address));
 			this.address = address;
-			setStyleName(BaseTheme.BUTTON_LINK);
-
-			addListener(new ClickListener() {
-				@Override
-				public void buttonClick(ClickEvent event) {
-					listener.buttonClick(event);
-				}
-			});
 		}
 
-		@Override
 		public String getAddress() {
 			return address;
 		}
 		
-		public void setClickListener(ClickListener listener) {
-			this.listener = listener;
-		}
 	}
 	
 }
