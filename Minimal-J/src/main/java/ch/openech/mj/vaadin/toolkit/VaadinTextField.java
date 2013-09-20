@@ -7,6 +7,8 @@ import ch.openech.mj.toolkit.TextField;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
 
 /**
  * 
@@ -16,6 +18,7 @@ import com.vaadin.event.FieldEvents.TextChangeListener;
 public class VaadinTextField extends com.vaadin.ui.TextField implements TextField {
 
 	private TextChangeEvent event;
+	private Runnable commitListener;
 	
 	public VaadinTextField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
@@ -27,6 +30,16 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 		setImmediate(true);
 		if (changeListener != null) {
 			addListener(new VaadinTextFieldTextChangeListener(changeListener));
+			addShortcutListener(new ShortcutListener("Commit", ShortcutAction.KeyCode.ENTER, null) {
+				@Override
+				public void handleAction(Object sender, Object target) {
+					if (target == VaadinTextField.this) {
+						if (commitListener != null) {
+							commitListener.run();
+						}
+					}
+				}
+			});
 		} else {
 			setReadOnly(true);
 		}
@@ -52,8 +65,8 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 	}
 
 	@Override
-	public void setCommitListener(Runnable runnable) {
-		// TODO listening to Enter Key at Vaadin TextField
+	public void setCommitListener(Runnable commitListener) {
+		this.commitListener = commitListener;
 	}
 	
 	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
