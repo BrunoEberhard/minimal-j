@@ -7,7 +7,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 
 public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final int columns;
 	private final int columnWidthPercentage;
 	private int column, row;

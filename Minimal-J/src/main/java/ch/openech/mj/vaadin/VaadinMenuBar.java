@@ -13,6 +13,7 @@ import ch.openech.mj.toolkit.IAction.ActionChangeListener;
 import com.vaadin.ui.MenuBar;
 
 public class VaadinMenuBar extends MenuBar {
+	private static final long serialVersionUID = 1L;
 
 	private final VaadinWindow vaadinWindow;
 	
@@ -83,6 +84,7 @@ public class VaadinMenuBar extends MenuBar {
 	}
 	
 	private class ActionCommand implements Command {
+		private static final long serialVersionUID = 1L;
 		private final IAction action;
 		
 		public ActionCommand(IAction action) {

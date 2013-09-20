@@ -7,6 +7,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 
 public class VaadinSwitchLayout extends GridLayout implements SwitchLayout {
+	private static final long serialVersionUID = 1L;
 
 	private IComponent showComponent;
 	

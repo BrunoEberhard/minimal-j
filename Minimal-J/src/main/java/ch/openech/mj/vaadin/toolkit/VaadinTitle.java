@@ -5,6 +5,7 @@ import ch.openech.mj.toolkit.IComponent;
 import com.vaadin.ui.Label;
 
 public class VaadinTitle extends Label implements IComponent {
+	private static final long serialVersionUID = 1L;
 
 	public VaadinTitle(String content) {
 //		content = Util.escapeHTML(content);

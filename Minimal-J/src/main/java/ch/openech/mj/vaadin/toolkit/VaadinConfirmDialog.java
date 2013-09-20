@@ -29,8 +29,9 @@ import com.vaadin.ui.themes.Reindeer;
  *
  */
 public class VaadinConfirmDialog extends Window {
+    private static final long serialVersionUID = 1L;
 
-    private static final double MIN_WIDTH = 20d;
+	private static final double MIN_WIDTH = 20d;
     private static final double MAX_WIDTH = 40d;
     private static final double MIN_HEIGHT = 1d;
     private static final double MAX_HEIGHT = 30d;
@@ -57,7 +58,9 @@ public class VaadinConfirmDialog extends Window {
 		setCaption(title);
 		
         addListener(new Window.CloseListener() {
-            @Override
+            private static final long serialVersionUID = 1L;
+
+			@Override
 			public void windowClose(CloseEvent ce) {
                 if (isEnabled()) {
                     setEnabled(false); // avoid double processing
@@ -133,6 +136,7 @@ public class VaadinConfirmDialog extends Window {
         // Keyboard support
         final int buttonCount = buttons.getComponentCount() - 1;
         Action.Handler ah = new Action.Handler() {
+			private static final long serialVersionUID = 1L;
 			private final ShortcutAction LEFT = new ShortcutAction("left", ShortcutAction.KeyCode.ARROW_LEFT, null);
 			private final ShortcutAction RIGHT = new ShortcutAction("right", ShortcutAction.KeyCode.ARROW_RIGHT, null);
 			private final ShortcutAction NEXT = new ShortcutAction("next", ShortcutAction.KeyCode.TAB, null);
@@ -178,6 +182,7 @@ public class VaadinConfirmDialog extends Window {
 	}
 
 	private class ConfirmDialogButtonListener implements ClickListener {
+		private static final long serialVersionUID = 1L;
 		private final int result;
 
 		public ConfirmDialogButtonListener(int result) {

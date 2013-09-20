@@ -16,6 +16,7 @@ import com.vaadin.event.ShortcutListener;
  *
  */
 public class VaadinTextField extends com.vaadin.ui.TextField implements TextField {
+	private static final long serialVersionUID = 1L;
 
 	private TextChangeEvent event;
 	private Runnable commitListener;
@@ -31,6 +32,8 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 		if (changeListener != null) {
 			addListener(new VaadinTextFieldTextChangeListener(changeListener));
 			addShortcutListener(new ShortcutListener("Commit", ShortcutAction.KeyCode.ENTER, null) {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void handleAction(Object sender, Object target) {
 					if (target == VaadinTextField.this) {
@@ -70,6 +73,7 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 	}
 	
 	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
+		private static final long serialVersionUID = 1L;
 		private final InputComponentListener changeListener;
 		
 		public VaadinTextFieldTextChangeListener(InputComponentListener changeListener) {

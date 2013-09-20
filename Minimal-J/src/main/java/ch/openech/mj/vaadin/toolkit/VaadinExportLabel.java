@@ -15,6 +15,7 @@ import com.vaadin.terminal.StreamResource.StreamSource;
 import com.vaadin.ui.Link;
 
 public class VaadinExportLabel extends Link implements IComponent {
+	private static final long serialVersionUID = 1L;
 	
 	private final ExportHandler exportHandler;
 	
@@ -36,7 +37,9 @@ public class VaadinExportLabel extends Link implements IComponent {
 	}
 	
 	private class VaadinExportStreamsource implements StreamSource {
-        @Override
+        private static final long serialVersionUID = 1L;
+
+		@Override
         public InputStream getStream() {
         	try {
             	PipedOutputStream pipedOutputStream = new PipedOutputStream();

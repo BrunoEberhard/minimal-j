@@ -13,6 +13,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 
 public class PropertyVaadinContainer implements Container.Sortable {
+	private static final long serialVersionUID = 1L;
 
 	private final Class<?> clazz;
 	private final List<PropertyInterface> propertyIds;
@@ -100,6 +101,7 @@ public class PropertyVaadinContainer implements Container.Sortable {
 	}
 
 	private class PropertyVaadinContainerItem implements Item {
+		private static final long serialVersionUID = 1L;
 		private final Object object;
 		
 		public PropertyVaadinContainerItem(Object object) {
@@ -131,6 +133,7 @@ public class PropertyVaadinContainer implements Container.Sortable {
 	
 	private class PropertyVaadinContainerProperty implements Property {
 
+		private static final long serialVersionUID = 1L;
 		private final Class<?> clazz;
 		private final Object object;
 		

@@ -8,6 +8,7 @@ import ch.openech.mj.util.StringUtils;
 import com.vaadin.ui.Label;
 
 public class VaadinReadOnlyTextField extends Label implements TextField {
+	private static final long serialVersionUID = 1L;
 
 	public VaadinReadOnlyTextField() {
 //		addStyleName("v-html-readonly");

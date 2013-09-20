@@ -10,7 +10,8 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.Window;
 
 public class VaadinDialog extends Window implements IDialog {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final Window parentWindow;
 	private ch.openech.mj.toolkit.IDialog.CloseListener closeListener;
 	
@@ -29,6 +30,8 @@ public class VaadinDialog extends Window implements IDialog {
 	}
 
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void windowClose(CloseEvent e) {

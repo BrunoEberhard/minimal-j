@@ -21,6 +21,8 @@ import com.vaadin.Application;
  *
  */
 public class VaadinLauncher extends Application {
+	private static final long serialVersionUID = 1L;
+	
 	private final ApplicationContext applicationContext = new VaadinApplicationContext();
 	private static boolean applicationInitialized;
 	

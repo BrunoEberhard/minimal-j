@@ -21,6 +21,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.Table;
 
 public class VaadinTable<T> extends Table implements ITable<T> {
+	private static final long serialVersionUID = 1L;
 
 	private final Class<T> clazz;
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
@@ -82,6 +83,8 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
      
 	private class VaadinTableItemClickListener implements ItemClickListener {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void itemClick(ItemClickEvent event) {
 			if (event.isDoubleClick()) {

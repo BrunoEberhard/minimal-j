@@ -27,6 +27,7 @@ import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.VerticalLayout;
 
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
+	private static final long serialVersionUID = 1L;
 
 	public VaadinEditorLayout(IComponent content, IAction[] actions) {
 		this(null, content, actions);
@@ -61,6 +62,8 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
         
         final Button button = new Button("Suche");
         button.addListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				searchAction.actionPerformed(new ActionEvent(button, 0, null));
@@ -70,7 +73,9 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
         AbstractField field = findAbstractField(textFieldComponent);
         if (field != null) {
         	field.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
-    			@Override
+    			private static final long serialVersionUID = 1L;
+
+				@Override
     			public void handleAction(Object sender, Object target) {
     				searchAction.actionPerformed(new ActionEvent(button, 0, null));
     			}
@@ -124,6 +129,8 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		button.setDescription(action.getDescription());
 		// installShortcut(button, action);
 		button.addListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				action.action(VaadinEditorLayout.this);

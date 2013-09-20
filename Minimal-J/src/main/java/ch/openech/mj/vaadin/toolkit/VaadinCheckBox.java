@@ -7,6 +7,7 @@ import com.vaadin.ui.VerticalLayout;
 
 public class VaadinCheckBox extends VerticalLayout implements ch.openech.mj.toolkit.CheckBox {
 
+	private static final long serialVersionUID = 1L;
 	private final InputComponentListener listener;
 	private final CheckBox checkBox;
 	
@@ -37,6 +38,8 @@ public class VaadinCheckBox extends VerticalLayout implements ch.openech.mj.tool
 	}
 
 	public class CheckBoxChangeListener implements CheckBox.ValueChangeListener {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {

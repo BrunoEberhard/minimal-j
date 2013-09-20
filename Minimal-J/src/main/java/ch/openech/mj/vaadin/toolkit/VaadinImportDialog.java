@@ -10,6 +10,8 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Window;
 
 public class VaadinImportDialog extends Window implements Upload.Receiver {
+	private static final long serialVersionUID = 1L;
+
 	private Upload upload;
 	private CloseablePipedInputStream inputStream;
 	
@@ -28,6 +30,8 @@ public class VaadinImportDialog extends Window implements Upload.Receiver {
 		parentWindow.addWindow(this);
 		
 		addListener(new CloseListener() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void windowClose(CloseEvent e) {
 				try {

@@ -12,6 +12,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Upload;
 
 public class VaadinImportField extends HorizontalLayout implements IComponent, Upload.Receiver {
+	private static final long serialVersionUID = 1L;
 
 	private final ImportHandler importHandler;
 	

@@ -14,7 +14,8 @@ import com.vaadin.ui.Link;
 import com.vaadin.ui.Window;
 
 public class VaadinExportDialog extends Window {
-	
+	private static final long serialVersionUID = 1L;
+
 	private Link link;
 	private PipedOutputStream pipedOutputStream = new PipedOutputStream();
 	
@@ -26,7 +27,9 @@ public class VaadinExportDialog extends Window {
 			final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
             
     		StreamSource ss = new StreamSource() {
-                @Override
+                private static final long serialVersionUID = 1L;
+
+				@Override
                 public InputStream getStream() {
                 	VaadinExportDialog.this.close();
                 	exportHandler.export(pipedOutputStream);

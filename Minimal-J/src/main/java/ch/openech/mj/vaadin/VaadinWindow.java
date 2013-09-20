@@ -39,6 +39,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public class VaadinWindow extends Window implements PageContext {
+	private static final long serialVersionUID = 1L;
 
 	private final VerticalLayout windowContent = new VerticalLayout();
 	private final VaadinMenuBar menubar = new VaadinMenuBar(this);
@@ -104,6 +105,8 @@ public class VaadinWindow extends Window implements PageContext {
         horizontalLayout.addComponent(textFieldSearch);
         
         textFieldSearch.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void handleAction(Object sender, Object target) {
 				showSearchPage();
@@ -112,6 +115,8 @@ public class VaadinWindow extends Window implements PageContext {
         
         Button button = new Button("Suche");
         button.addListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				showSearchPage();
@@ -255,6 +260,8 @@ public class VaadinWindow extends Window implements PageContext {
 	}
 	
 	private class VaadinWindowFragmentChangedListener implements FragmentChangedListener {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void fragmentChanged(FragmentChangedEvent source) {

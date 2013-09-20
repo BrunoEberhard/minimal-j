@@ -9,7 +9,8 @@ import ch.openech.mj.toolkit.ComboBox;
 import com.vaadin.ui.Select;
 
 public class VaadinComboBox<T> extends Select implements ComboBox<T> {
-
+	private static final long serialVersionUID = 1L;
+	
 	private final InputComponentListener listener;
 	private List<T> objects = Collections.emptyList();
 	private T setObject;
@@ -52,6 +53,8 @@ public class VaadinComboBox<T> extends Select implements ComboBox<T> {
 	}
 
 	public class ComboBoxChangeListener implements ValueChangeListener {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {

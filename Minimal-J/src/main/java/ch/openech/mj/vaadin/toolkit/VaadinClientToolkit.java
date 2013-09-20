@@ -50,11 +50,15 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 	private static class VaadinActionLabel extends Button implements IComponent {
 
+		private static final long serialVersionUID = 1L;
+
 		public VaadinActionLabel(final IAction action) {
 			super(action.getName());
 //			button.setDescription((String) action.getValue(Action.LONG_DESCRIPTION));
 			setStyleName(BaseTheme.BUTTON_LINK);
 			addListener(new ClickListener() {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void buttonClick(ClickEvent event) {
 					action.action(VaadinActionLabel.this);
@@ -221,6 +225,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	private class VaadinGridLayout extends GridLayout implements IComponent {
+		private static final long serialVersionUID = 1L;
+
 		public VaadinGridLayout(int columns, int rows) {
 			super(columns, rows);
 		}
@@ -251,6 +257,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	public static class VaadinActionLink extends Link implements ILink {
+		private static final long serialVersionUID = 1L;
 		private final String address;
 		
 		public VaadinActionLink(String text, String address) {
