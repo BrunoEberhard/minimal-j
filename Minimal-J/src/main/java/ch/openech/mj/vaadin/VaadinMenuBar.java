@@ -8,6 +8,7 @@ import ch.openech.mj.page.Page;
 import ch.openech.mj.page.Separator;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.IAction;
+import ch.openech.mj.toolkit.IAction.ActionChangeListener;
 
 import com.vaadin.ui.MenuBar;
 
@@ -74,11 +75,13 @@ public class VaadinMenuBar extends MenuBar {
 			} else if (action instanceof Separator) {
 				menu.addSeparator();
 			} else {
-				menu.addItem(action.getName(), new ActionCommand(action));
+				MenuItem menuItem = menu.addItem(action.getName(), new ActionCommand(action));
+				updateMenuItem(menuItem, action);
+				installAdditionalActionListener(action, menuItem);
 			}
 		}
 	}
-
+	
 	private class ActionCommand implements Command {
 		private final IAction action;
 		
@@ -92,20 +95,19 @@ public class VaadinMenuBar extends MenuBar {
 		}
 	}
 	
-//	
-//	private static void installAdditionalActionListener(Action action, final MenuBar.MenuItem menuItem) {
-//		menuItem.setVisible(!Boolean.FALSE.equals(action.getValue("visible")));
-//		menuItem.setEnabled(!Boolean.FALSE.equals(action.getValue("enabled")));
-//		action.addPropertyChangeListener(new PropertyChangeListener() {
-//			@Override
-//			public void propertyChange(PropertyChangeEvent evt) {
-//				if ("visible".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
-//					menuItem.setVisible((Boolean) evt.getNewValue());
-//				} else if ("enabled".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
-//					menuItem.setEnabled((Boolean) evt.getNewValue());
-//				}
-//			}
-//		});
-//	}
+	private static void installAdditionalActionListener(final IAction action, final MenuBar.MenuItem menuItem) {
+		action.setChangeListener(new ActionChangeListener() {
+			@Override
+			public void change() {
+				updateMenuItem(menuItem, action);
+			}
+		});
+	}
+
+	private static void updateMenuItem(final MenuBar.MenuItem menuItem, final IAction action) {
+		menuItem.setEnabled(action.isEnabled());
+		menuItem.setText(action.getName());
+		menuItem.setDescription(action.getDescription());
+	}
 
 }
