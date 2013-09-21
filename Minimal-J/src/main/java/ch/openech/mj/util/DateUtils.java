@@ -80,6 +80,15 @@ public class DateUtils {
 		
 		// Nun hat der String sicher keinen Punkt mehr am Anfang oder Ende
 		
+		if (inputText.indexOf(".") > -1) {
+			return parseCHWithDot(inputText, partialAllowed);
+		} else {
+			return parseCHWithoutDot(inputText, partialAllowed);
+		}
+	}
+	
+	
+	private static String parseCHWithDot(String text, boolean partialAllowed) {
 		TrippleString trippleString = new TrippleString(text);
 		if (trippleString.s1 != null && trippleString.s1.length() > 2) {
 			if (!partialAllowed || !StringUtils.isBlank(trippleString.s2)) return "";
@@ -100,11 +109,12 @@ public class DateUtils {
 		} else if (!StringUtils.isBlank(trippleString.s1) && trippleString.s1.length() <= 4) {
 			if (partialAllowed) {
 				return pad(completeYear(trippleString.s1), 4);		
-			} else {
-				return "";
 			}
 		}
-		
+		return "";
+	}
+
+	private static String parseCHWithoutDot(String text, boolean partialAllowed) {
 		int length = text.length();
 		
 		if (!partialAllowed && length != 6 && length !=8) {
@@ -128,6 +138,7 @@ public class DateUtils {
 			return "";
 		}
 	}
+
 	
 	/**
 	 * 
