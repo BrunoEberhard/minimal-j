@@ -19,8 +19,10 @@ import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 
+import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.GUIScreen;
+import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
 
 public class LanternaClientToolkit extends ClientToolkit {
@@ -66,12 +68,42 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createLabel(IAction action) {
-		TextField textField = createReadOnlyTextField();
-		textField.setText("TODO: Action " + action.getName());
-		return textField;
+	public IComponent createLabel(final IAction action) {
+		LanternaActionAdapter lanternaAction = new LanternaActionAdapter(action);
+		LanternaActionLabel button = new LanternaActionLabel(action.getName(), lanternaAction);
+		lanternaAction.setComponent(button);
+		return button;
 	}
 
+	private static class LanternaActionLabel extends Button implements IComponent {
+		public LanternaActionLabel(String name, Action action) {
+			super(name, action);
+		}
+	}
+
+	/*
+	 * Cannot be done as inner class because lanterna action has to be provided
+	 * to the button constructor. And the minimal-j action needs the component for
+	 * the action method.
+	 */
+	private static class LanternaActionAdapter implements Action {
+		private final IAction action;
+		private IComponent component;
+		
+		public LanternaActionAdapter(IAction action) {
+			this.action = action;
+		}
+		
+		public void setComponent(IComponent component) {
+			this.component = component;
+		}
+		
+		public void doAction() {
+			action.action(component);
+		}
+	}
+
+	
 	@Override
 	public IComponent createLabel(String text) {
 		return new LanternaLabel(text);
