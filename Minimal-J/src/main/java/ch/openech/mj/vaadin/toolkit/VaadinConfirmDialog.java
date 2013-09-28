@@ -3,10 +3,11 @@ package ch.openech.mj.vaadin.toolkit;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import ch.openech.mj.toolkit.ConfirmDialogListener;
+import ch.openech.mj.toolkit.ClientToolkit.ConfirmDialogType;
+import ch.openech.mj.toolkit.ClientToolkit.DialogListener;
+import ch.openech.mj.toolkit.ClientToolkit.DialogListener.DialogResult;
 
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
@@ -37,19 +38,11 @@ public class VaadinConfirmDialog extends Window {
     private static final double MAX_HEIGHT = 30d;
     private static final double BUTTON_HEIGHT = 2.5;
 
-	private final ConfirmDialogListener listener;
+	private final DialogListener listener;
 	private Button buttonYes, buttonNo, buttonOk, buttonCancel;
 	private int focusIndex;
 	
-	/**
-	 * 
-	 * @param window
-	 * @param message 
-	 * @param title
-	 * @param optionType see JOptionPane
-	 * @param listener
-	 */
-	public VaadinConfirmDialog(Window window, String message, String title, int optionType, ConfirmDialogListener listener) {
+	public VaadinConfirmDialog(Window window, String message, String title, ConfirmDialogType type, DialogListener listener) {
 		this.listener = listener;
 		
    	    WebApplicationContext context = (WebApplicationContext) window.getApplication().getContext();
@@ -64,7 +57,7 @@ public class VaadinConfirmDialog extends Window {
 			public void windowClose(CloseEvent ce) {
                 if (isEnabled()) {
                     setEnabled(false); // avoid double processing
-                    VaadinConfirmDialog.this.listener.onClose(JOptionPane.CLOSED_OPTION);
+                    VaadinConfirmDialog.this.listener.close(DialogResult.CANCEL);
                 }
             }
         });
@@ -99,38 +92,40 @@ public class VaadinConfirmDialog extends Window {
         spacer.setWidth("100%");
         buttons.setExpandRatio(spacer, 1f);
 
-        if (optionType == JOptionPane.YES_NO_CANCEL_OPTION || optionType == JOptionPane.YES_NO_OPTION) {
+        if (type == ConfirmDialogType.YES_NO_CANCEL || type == ConfirmDialogType.YES_NO) {
         	buttonYes = new NativeButton(UIManager.getString("OptionPane.yesButtonText", locale));
         	buttonYes.setData(true);
         	buttonYes.setClickShortcut(KeyCode.ENTER, null);
             buttons.addComponent(buttonYes);
             buttons.setComponentAlignment(buttonYes, Alignment.MIDDLE_RIGHT);
-            buttonYes.addListener(new ConfirmDialogButtonListener(JOptionPane.YES_OPTION));
+            buttonYes.addListener(new ConfirmDialogButtonListener(DialogResult.YES));
             
             buttonNo = new NativeButton(UIManager.getString("OptionPane.noButtonText", locale));
         	buttonNo.setData(true);
         	buttonNo.setClickShortcut(KeyCode.ESCAPE, null);
             buttons.addComponent(buttonNo);
             buttons.setComponentAlignment(buttonNo, Alignment.MIDDLE_RIGHT);
-            buttonNo.addListener(new ConfirmDialogButtonListener(JOptionPane.NO_OPTION));
+            buttonNo.addListener(new ConfirmDialogButtonListener(DialogResult.NO));
         }
         
-        if (optionType == JOptionPane.OK_CANCEL_OPTION) {
+        /* not used at the moment 
+        if (type == ConfirmDialogType.OK_CANCEL) {
             buttonOk = new NativeButton(UIManager.getString("OptionPane.okButtonText", locale));
             buttonOk.setData(true);
             buttonOk.setClickShortcut(KeyCode.ENTER, null);
             buttons.addComponent(buttonOk);
             buttons.setComponentAlignment(buttonOk, Alignment.MIDDLE_RIGHT);
-            buttonOk.addListener(new ConfirmDialogButtonListener(JOptionPane.OK_OPTION));
+            buttonOk.addListener(new ConfirmDialogButtonListener(JOptionPane.OK));
         }
-
-        if (optionType == JOptionPane.YES_NO_CANCEL_OPTION || optionType == JOptionPane.OK_CANCEL_OPTION) {
+        */
+        
+        if (type == ConfirmDialogType.YES_NO_CANCEL /* || type == ConfirmDialogType.OK_CANCEL */) {
             buttonCancel = new NativeButton(UIManager.getString("OptionPane.cancelButtonText", locale));
             buttonCancel.setData(false);
             buttonCancel.setClickShortcut(KeyCode.ESCAPE, null);
             buttons.addComponent(buttonCancel);
             buttons.setComponentAlignment(buttonCancel, Alignment.MIDDLE_RIGHT);
-            buttonCancel.addListener(new ConfirmDialogButtonListener(JOptionPane.CANCEL_OPTION));
+            buttonCancel.addListener(new ConfirmDialogButtonListener(DialogResult.CANCEL));
         }
         
         // Keyboard support
@@ -183,9 +178,9 @@ public class VaadinConfirmDialog extends Window {
 
 	private class ConfirmDialogButtonListener implements ClickListener {
 		private static final long serialVersionUID = 1L;
-		private final int result;
+		private DialogResult result;
 
-		public ConfirmDialogButtonListener(int result) {
+		public ConfirmDialogButtonListener(DialogResult result) {
 			this.result = result;
 		}
 		
@@ -193,7 +188,7 @@ public class VaadinConfirmDialog extends Window {
 		public void buttonClick(ClickEvent event) {
 			setVisible(false);
 			VaadinConfirmDialog.this.detach(); // mysterious
-			listener.onClose(result);
+			listener.close(result);
 		}
 	}
 	

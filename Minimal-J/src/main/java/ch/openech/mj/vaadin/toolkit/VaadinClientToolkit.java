@@ -10,7 +10,6 @@ import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
-import ch.openech.mj.toolkit.ConfirmDialogListener;
 import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
@@ -176,13 +175,13 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showConfirmDialog(IComponent c, String message, String title, int optionType, ConfirmDialogListener listener) {
+	public void showConfirmDialog(IComponent c, String message, String title, ConfirmDialogType type, DialogListener listener) {
 		Component component = (Component) c;
 		Window window = component.getWindow();
 		while (window.getParent() != null) {
 			window = window.getParent();
 		}
-		new VaadinConfirmDialog(window, message, title, optionType, listener);
+		new VaadinConfirmDialog(window, message, title, type, listener);
 	}
 
 	@Override

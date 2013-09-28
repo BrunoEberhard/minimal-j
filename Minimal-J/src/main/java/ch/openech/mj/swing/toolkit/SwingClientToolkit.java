@@ -38,8 +38,8 @@ import ch.openech.mj.swing.component.SwingCaption;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.ClientToolkit.DialogListener.DialogResult;
 import ch.openech.mj.toolkit.ComboBox;
-import ch.openech.mj.toolkit.ConfirmDialogListener;
 import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
@@ -196,11 +196,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showConfirmDialog(IComponent c, String message, String title, int optionType,
-			ConfirmDialogListener listener) {
+	public void showConfirmDialog(IComponent c, String message, String title, ConfirmDialogType type,
+			DialogListener listener) {
 		Component parentComponent = (Component)c;
+		int optionType = type.ordinal();
 		int result = JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
-		listener.onClose(result);
+		listener.close(DialogResult.values()[result]);
 	}
 
 	@Override

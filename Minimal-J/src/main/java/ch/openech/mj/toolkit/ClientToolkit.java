@@ -70,17 +70,26 @@ public abstract class ClientToolkit {
 
 	public abstract IComponent createFormAlignLayout(IComponent content);
 
-	// Dialogs
+	// Dialogs / Notification
 
 	public abstract IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions);
-	
-	// Notification
 	
 	public abstract void showMessage(Object parent, String text);
 	
 	public abstract void showError(Object parent, String text);
 	
-	public abstract void showConfirmDialog(IComponent component, String message, String title, int type, ConfirmDialogListener listener);
+	// Don't change order, is used in SwingClientToolkit
+	public static enum ConfirmDialogType { YES_NO, YES_NO_CANCEL }
+	
+	public abstract void showConfirmDialog(IComponent component, String message, String title, ConfirmDialogType type, DialogListener listener);
+	
+	public static interface DialogListener {
+		
+		// Don't change order, is used in SwingClientToolkit
+		public enum DialogResult { YES, NO, CANCEL }
+		
+		void close(Object result);
+	}
 	
 	// Focus
 	

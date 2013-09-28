@@ -7,7 +7,7 @@ import java.util.List;
 public class JUnitClientToolkit extends ClientToolkit {
 
 	private String lastError = null;
-	private int nextConfirmAnswer = Integer.MIN_VALUE;
+	private DialogListener nextConfirmAnswer = null;
 	
 	public String pullError() {
 		String error = lastError;
@@ -15,7 +15,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 		return error;
 	}
 
-	public void setNextConfirAnswer(int answer) {
+	public void setNextConfirAnswer(DialogListener answer) {
 		this.nextConfirmAnswer = answer;
 	}
 
@@ -183,12 +183,12 @@ public class JUnitClientToolkit extends ClientToolkit {
 
 	@Override
 	public void showConfirmDialog(IComponent component, String message,
-			String title, int type, ConfirmDialogListener listener) {
-		if (nextConfirmAnswer == Integer.MIN_VALUE) {
+			String title, ConfirmDialogType type, DialogListener listener) {
+		if (nextConfirmAnswer == null) {
 			throw new IllegalStateException();
 		}
-		listener.onClose(nextConfirmAnswer);
-		nextConfirmAnswer = Integer.MIN_VALUE;
+		listener.close(nextConfirmAnswer);
+		nextConfirmAnswer = null;
 	}
 
 	@Override

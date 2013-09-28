@@ -5,7 +5,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
-import javax.swing.JOptionPane;
 
 import ch.openech.mj.application.DevMode;
 import ch.openech.mj.autofill.DemoEnabled;
@@ -16,7 +15,8 @@ import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.resources.ResourceHelper;
 import ch.openech.mj.resources.Resources;
 import ch.openech.mj.toolkit.ClientToolkit;
-import ch.openech.mj.toolkit.ConfirmDialogListener;
+import ch.openech.mj.toolkit.ClientToolkit.ConfirmDialogType;
+import ch.openech.mj.toolkit.ClientToolkit.DialogListener;
 import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ResourceAction;
@@ -264,10 +264,10 @@ public abstract class Editor<T> {
 		if (!userEdited) {
 			cancel();
 		} else if (isSaveable()) {
-			ConfirmDialogListener listener = new ConfirmDialogListener() {
+			DialogListener listener = new DialogListener() {
 				@Override
-				public void onClose(int answer) {
-					if (answer == JOptionPane.YES_OPTION) {
+				public void close(Object answer) {
+					if (answer == DialogResult.YES) {
 						// finish will be called at the end of save
 						save();
 					} else { // Cancel or Close
@@ -276,13 +276,13 @@ public abstract class Editor<T> {
 				}
 			};
 			ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
-					JOptionPane.YES_NO_CANCEL_OPTION, listener);
+					ConfirmDialogType.YES_NO_CANCEL, listener);
 
 		} else {
-			ConfirmDialogListener listener = new ConfirmDialogListener() {
+			DialogListener listener = new DialogListener() {
 				@Override
-				public void onClose(int answer) {
-					if (answer == JOptionPane.YES_OPTION) {
+				public void close(Object answer) {
+					if (answer == DialogResult.YES) {
 						cancel();
 					} else { // No or Close
 						// do nothing
@@ -291,7 +291,7 @@ public abstract class Editor<T> {
 			};
 			
 			ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
-					"Schliessen", JOptionPane.YES_NO_OPTION, listener);
+					"Schliessen", ConfirmDialogType.YES_NO, listener);
 		}
 	}
 	

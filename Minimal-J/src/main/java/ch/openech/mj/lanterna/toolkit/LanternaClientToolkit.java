@@ -7,7 +7,6 @@ import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
-import ch.openech.mj.toolkit.ConfirmDialogListener;
 import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
@@ -15,6 +14,7 @@ import ch.openech.mj.toolkit.HorizontalLayout;
 import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
+import ch.openech.mj.toolkit.ILink;
 import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
@@ -111,11 +111,54 @@ public class LanternaClientToolkit extends ClientToolkit {
 
 	@Override
 	public IComponent createLink(String text, String address) {
-		TextField textField = createReadOnlyTextField();
-		textField.setText("TODO: Link " + text);
-		return textField;
+		LanternaLinkAction action = new LanternaLinkAction(address);
+		LanternaLink link = new LanternaLink(text, address, action);
+		return link;
+	}
+	
+	public static class LanternaLink extends Button implements ILink {
+		private final String address;
+		private LanternaLinkAction action;
+		
+		public LanternaLink(String text, String address, LanternaLinkAction action) {
+			super(text, action);
+			this.address = address;
+			this.action = action;
+		}
+
+		@Override
+		public String getAddress() {
+			return address;
+		}
+		
+		public void setListener(LanternaLinkListener listener) {
+			action.setListener(listener);
+		}
 	}
 
+	public class LanternaLinkAction implements Action {
+		private final String address;
+		private LanternaLinkListener listener;
+		
+		public LanternaLinkAction(String address) {
+			this.address = address;
+		}
+
+		public void setListener(LanternaLinkListener listener) {
+			this.listener = listener;
+		}
+		
+		@Override
+		public void doAction() {
+			listener.action(address);
+		}
+	}
+
+	public static interface LanternaLinkListener {
+		public void action(String address);
+	}
+
+	
 	@Override
 	public TextField createReadOnlyTextField() {
 		return new LanternaReadOnlyTextField();
@@ -166,7 +209,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 
 	@Override
 	public void showConfirmDialog(IComponent component, String message,
-			String title, int type, ConfirmDialogListener listener) {
+			String title, ConfirmDialogType type, DialogListener listener) {
 		// TODO Auto-generated method stub
 
 	}
