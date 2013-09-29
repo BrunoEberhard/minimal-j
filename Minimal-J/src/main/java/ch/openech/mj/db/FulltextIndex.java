@@ -164,11 +164,7 @@ public class FulltextIndex<T> implements Index<T> {
 	}
 	
 	public List<T> find(String text) {
-		return find(text, keys);
-	}
-	
-	public List<T> find(String text, Object... searchKeys) {
-		PropertyInterface[] searchProperties = Keys.getProperties(searchKeys);
+		PropertyInterface[] searchProperties = Keys.getProperties(keys);
 		String[] searchPaths = getPropertyPaths(searchProperties);
 		
 		List<T> result = new ArrayList<>();
