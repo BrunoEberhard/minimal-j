@@ -15,6 +15,8 @@ import ch.openech.mj.lanterna.component.HighContrastLanternaTheme;
 import ch.openech.mj.lanterna.component.Select;
 import ch.openech.mj.lanterna.toolkit.LanternaActionAdapater;
 import ch.openech.mj.lanterna.toolkit.LanternaClientToolkit;
+import ch.openech.mj.lanterna.toolkit.LanternaClientToolkit.LanternaLink;
+import ch.openech.mj.lanterna.toolkit.LanternaClientToolkit.LanternaLinkListener;
 import ch.openech.mj.lanterna.toolkit.LanternaDialog;
 import ch.openech.mj.lanterna.toolkit.LanternaSwitchLayout;
 import ch.openech.mj.page.ActionGroup;
@@ -33,6 +35,7 @@ import ch.openech.mj.util.StringUtils;
 
 import com.googlecode.lanterna.gui.Border;
 import com.googlecode.lanterna.gui.Component;
+import com.googlecode.lanterna.gui.Container;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Button;
@@ -265,6 +268,14 @@ public class LanternaLauncher {
 		private final Window window;
 		private final History<String> history;
 		private final LanternaPageContextHistoryListener historyListener;
+		private final LanternaLinkListener linkListener = new LinkListener() {
+			
+			@Override
+			public void action(String address) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
 		
 		public LanternaGUIScreen(Screen screen) {
 			super(screen);
@@ -313,7 +324,29 @@ public class LanternaLauncher {
 
 			private void show(Page page) {
 				switchLayout.show((IComponent) page.getComponent());
+				registerLinkListener((Component) page.getComponent());
 				// ClientToolkit.getToolkit().focusFirstComponent(page.getComponent());
+			}
+		}
+		
+		private class LinkListener implements LanternaClientToolkit.LanternaLinkListener {
+
+			@Override
+			public void action(String address) {
+				show(address);
+			}
+			
+		}
+		
+		private void registerLinkListener(Component component) {
+			if (component instanceof LanternaLink) {
+				 ((LanternaLink) component).setListener(linkListener);
+			}
+			if (component instanceof Container) {
+				Container container = (Container) component;
+				for (int i = 0; i<container.getComponentCount(); i++) {
+					registerLinkListener(container.getComponentAt(i));
+				}
 			}
 		}
 
