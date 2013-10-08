@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.IComponent;
@@ -25,6 +26,13 @@ public class SwingFlowField extends JPanel implements FlowField {
 		super(new FlowLayoutManager());
 	}
 	
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		setBackground(UIManager.getColor("TextField.background"));
+		setOpaque(true);
+	}
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);

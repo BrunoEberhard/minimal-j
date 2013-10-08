@@ -102,25 +102,22 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 			int width = parent.getWidth();
 			int widthWithoutIns = width - 2 * ins;
 			for (List<Component> row : rows) {
-				layoutRow(widthWithoutIns, row, y);
-				if (isRowVerticallyGrowing(row)) {
-					y += getHeight(row);
-				} else {
-					y += fixHeight;
-				}
+				int height = isRowVerticallyGrowing(row) ? Math.max(getHeight(row), fixHeight) : fixHeight;
+				layoutRow(widthWithoutIns, row, y, height);
+				y += height;
 			}
 			y+= ins;
 			size = new Dimension(Math.max(minColumnWidth * columns, width), y);
 		}
 
-		private void layoutRow(int width, List<Component> row, int y) {
+		private void layoutRow(int width, List<Component> row, int y, int height) {
 			int x = ins;
 			for (Component component : row) {
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
 				int componentWidth = constraint.getSpan() * width / columns;
 				x += componentWidth; 
-				component.setSize(componentWidth, component.getPreferredSize().height);
+				component.setSize(componentWidth, height);
 			}
 		}
 		

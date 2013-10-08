@@ -3,6 +3,7 @@ package ch.openech.mj.swing.toolkit;
 import java.awt.event.FocusListener;
 
 import javax.swing.JLabel;
+import javax.swing.UIManager;
 
 import ch.openech.mj.toolkit.TextField;
 
@@ -10,6 +11,13 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 	private static final long serialVersionUID = 1L;
 
 	public SwingReadOnlyTextField() {
+	}
+
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		setBackground(UIManager.getColor("TextField.background"));
+		setOpaque(true);
 	}
 
 	@Override
