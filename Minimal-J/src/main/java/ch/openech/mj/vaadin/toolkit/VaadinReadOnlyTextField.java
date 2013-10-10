@@ -11,15 +11,18 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 	private static final long serialVersionUID = 1L;
 
 	public VaadinReadOnlyTextField() {
-//		addStyleName("v-html-readonly");
+		addStyleName("v-html-readonly");
+		setWidth("100%");
 	}
 
 	@Override
 	public void setText(String text) {
 		if (!StringUtils.isEmpty(text)) {
 			super.setValue(text);
+			setContentMode(CONTENT_TEXT);
 		} else {
-			super.setValue(" ");
+			super.setValue("&nbsp;");
+			setContentMode(CONTENT_XHTML);
 		}
 	}
 

@@ -4,13 +4,13 @@ import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.IComponent;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 public class VaadinVerticalFlowField extends VerticalLayout implements FlowField {
 	private static final long serialVersionUID = 1L;
 
 	public VaadinVerticalFlowField() {
+		addStyleName("whiteBackground");
 	}
 	
 	@Override
@@ -30,7 +30,9 @@ public class VaadinVerticalFlowField extends VerticalLayout implements FlowField
 	
 	@Override
 	public void addGap() {
-		addComponent(new Label("."));
+		VaadinReadOnlyTextField field = new VaadinReadOnlyTextField();
+		field.setText(null);
+		addComponent(field);
 	}
 
 	

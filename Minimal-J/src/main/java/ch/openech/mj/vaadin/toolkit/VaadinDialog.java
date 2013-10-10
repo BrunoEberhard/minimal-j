@@ -25,7 +25,7 @@ public class VaadinDialog extends Window implements IDialog {
 		
 		VaadinGridFormLayout formLayout = findFormLayout(content);
 		if (formLayout != null) {
-			setWidth(Math.max(formLayout.getDialogWidth(), 60) + "ex");
+			setWidth(formLayout.getDialogWidth() + "ex");
 		}
 	}
 

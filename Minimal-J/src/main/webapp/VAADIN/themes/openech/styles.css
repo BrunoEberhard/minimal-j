@@ -18,9 +18,6 @@ border-style: solid;
 
 .v-html-readonly {
 background-color: white;
-border-color: activeborder;
-border-width: thin;
-border-style: solid;
 }
 
 .topbar {
@@ -69,10 +66,19 @@ border-style: solid;
   background: transparent;
 }
 
-.gridForm {
-	margin: 5px;
-	margin-left: 3px;
+.gridFormTable {
+	background: red;
 }
+
+.gridForm {
+	margin: 0px;
+	border: 0px;
+	background-color: #F0F0F0;
+}
+
+.whiteBackground {
+	background-color: white;
+}	
 
 .v-app-OpenEchVaadinApplication .v-horizontallayout-topbar .v-nativebutton-link span {
 	text-decoration: none;
