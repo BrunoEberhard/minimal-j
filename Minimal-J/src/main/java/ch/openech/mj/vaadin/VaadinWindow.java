@@ -85,7 +85,9 @@ public class VaadinWindow extends Window implements PageContext {
 		ufu.addListener(new VaadinWindowFragmentChangedListener());
 		windowContent.addComponent(ufu);
 		
-		scrollablePanel = new Panel();
+		VerticalLayout layout = new VerticalLayout();
+		layout.setMargin(false);
+		scrollablePanel = new Panel(layout);
 		scrollablePanel.setScrollable(true);
 		scrollablePanel.setSizeFull();
 	}
