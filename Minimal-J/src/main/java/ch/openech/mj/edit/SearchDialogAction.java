@@ -58,8 +58,8 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 		
 		GridFormLayout layout = ClientToolkit.getToolkit().createGridLayout(1, 100);
 		
-		layout.add(textFieldSearch, 1);
-		layout.add(table, 1);
+		layout.add(ClientToolkit.getToolkit().decorateWithCaption(textFieldSearch, "Suche").getComponent(), 1);
+		layout.add(ClientToolkit.getToolkit().decorateWithCaption(table, "Suchresultate").getComponent(), 1);
 		
 		dialog = ClientToolkit.getToolkit().createDialog(source, "Suche", layout);
 		
