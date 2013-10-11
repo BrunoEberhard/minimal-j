@@ -134,8 +134,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return new VaadinSwitchLayout();
 	}
 
-	public static void focusFirstComponent(IComponent c) {
-		Component component = (Component) c;
+	public static void focusFirstComponent(Component component) {
 		AbstractField field = findAbstractField(component);
 		if (field != null) {
 			field.focus();

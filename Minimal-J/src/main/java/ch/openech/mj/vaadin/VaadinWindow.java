@@ -178,7 +178,7 @@ public class VaadinWindow extends Window implements PageContext {
 		
 		menubar.updateMenu();
 		updateWindowTitle();
-		VaadinClientToolkit.focusFirstComponent((IComponent) content);
+		VaadinClientToolkit.focusFirstComponent(content);
 	}
 
 	protected class UpAction extends ResourceAction {
@@ -230,7 +230,7 @@ public class VaadinWindow extends Window implements PageContext {
 			}
 		});
 		dialog.setVisible(true);
-		VaadinClientToolkit.focusFirstComponent(form.getComponent());
+		VaadinClientToolkit.focusFirstComponent((Component) form.getComponent());
 	}
 	
 	

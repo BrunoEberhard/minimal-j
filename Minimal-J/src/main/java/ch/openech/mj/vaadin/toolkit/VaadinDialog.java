@@ -49,6 +49,7 @@ public class VaadinDialog extends Window implements IDialog {
 	@Override
 	public void openDialog() {
 		setVisible(true);
+		VaadinClientToolkit.focusFirstComponent(getContent());
 	}
 
 	@Override
