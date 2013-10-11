@@ -31,6 +31,7 @@ public class VaadinSwitchLayout extends GridLayout implements SwitchLayout {
 			Component component = (Component) c;
 			component.setWidth("100%");
 			addComponent(component);
+			VaadinClientToolkit.focusFirstComponent(component);
 		}
 		this.showComponent = c;
 	}

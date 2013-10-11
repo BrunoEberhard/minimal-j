@@ -85,7 +85,6 @@ public abstract class Wizard<T> extends Editor<T> {
  
 		IForm<?> form = currentStep.startEditor();
 		switchForm.setForm(form);
-		// ClientToolkit.getToolkit().focusFirstComponent(form.getComponent());
 		
 		prevAction.setEnabled(currentStepIndex > 0);
 	}

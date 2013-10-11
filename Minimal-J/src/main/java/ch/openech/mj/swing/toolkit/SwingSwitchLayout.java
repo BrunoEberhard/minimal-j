@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.Dialog;
 import java.awt.Window;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -25,13 +26,14 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 	@Override
 	public void show(IComponent c) {
 		if (shownComponent != c) {
-			Component component = (Component) c;
+			JComponent component = (JComponent) c;
 			removeAll();
 			if (component != null) {
 				// TODO the updateComponentTreeUI uses 4-5ms. This should only be done if necessary (if l&f has changed)
 				SwingUtilities.updateComponentTreeUI(component);
 				add(component, BorderLayout.CENTER);
 				refresh(component);
+				SwingClientToolkit.focusFirstComponent(component);
 			} else {
 				refresh(this);
 			}
