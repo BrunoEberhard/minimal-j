@@ -50,7 +50,14 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 
 	@Override
 	public void setText(String text) {
-		setValue(text);
+		boolean readOnly = isReadOnly();
+		if (readOnly) {
+			setReadOnly(false);
+			setValue(text);
+			setReadOnly(true);
+		} else {
+			setValue(text);
+		}
 	}
 
 	@Override

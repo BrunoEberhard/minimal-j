@@ -17,6 +17,9 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 
 	@Override
 	public void setText(String text) {
+		if (!StringUtils.isEmpty(getText())) {
+			setReadOnly(false);
+		}
 		if (!StringUtils.isEmpty(text)) {
 			super.setValue(text);
 			setContentMode(CONTENT_TEXT);
@@ -24,6 +27,7 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 			super.setValue("&nbsp;");
 			setContentMode(CONTENT_XHTML);
 		}
+		setReadOnly(true);
 	}
 
 	@Override
