@@ -7,6 +7,7 @@ import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 
 import ch.openech.mj.toolkit.IDialog;
@@ -72,6 +73,7 @@ public class SwingEditorDialog extends JDialog implements IDialog {
 	@Override
 	public void openDialog() {
 		setVisible(true);
+		SwingClientToolkit.focusFirstComponent((JComponent) getContentPane());
 	}
 
 }

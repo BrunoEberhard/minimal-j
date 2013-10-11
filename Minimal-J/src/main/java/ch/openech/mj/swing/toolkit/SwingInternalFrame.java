@@ -91,6 +91,7 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 		if (getHeight() >= editablePanel.getHeight()) {
 			setLocation(getLocation().x, 0);
 		}
+		SwingClientToolkit.focusFirstComponent(this);
 	}
 	
 }

@@ -151,14 +151,11 @@ public class SwingClientToolkit extends ClientToolkit {
 		return new SwingScrollPane(new ScrollablePanel(panel));
 	}
 
-	public static void focusFirstComponent(IComponent object) {
-		if (object instanceof JComponent) {
-			JComponent jComponent = (JComponent) object;
-			if (jComponent.isShowing()) {
-				focusFirstComponentNow(jComponent);
-			} else {
-				focusFirstComponentLater(jComponent, object);
-			}
+	public static void focusFirstComponent(JComponent jComponent) {
+		if (jComponent.isShowing()) {
+			focusFirstComponentNow(jComponent);
+		} else {
+			focusFirstComponentLater(jComponent);
 		}
 	}
 
@@ -173,12 +170,12 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 	}
 
-	private static void focusFirstComponentLater(final JComponent component, final IComponent object) {
+	private static void focusFirstComponentLater(final JComponent component) {
 		component.addHierarchyListener(new HierarchyListener() {
 			@Override
 			public void hierarchyChanged(HierarchyEvent e) {
 				component.removeHierarchyListener(this);
-				focusFirstComponent(object);
+				focusFirstComponent(component);
 			}
 		});
 	}

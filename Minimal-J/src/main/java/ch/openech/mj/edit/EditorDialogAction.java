@@ -54,7 +54,6 @@ public class EditorDialogAction extends ResourceAction {
 			}
 		});
 		dialog.openDialog();
-//		ClientToolkit.getToolkit().focusFirstComponent(form.getComponent());
 	}
 	
 }

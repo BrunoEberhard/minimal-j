@@ -15,6 +15,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -216,7 +217,10 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		private void show(Page page) {
 			switchLayout.show((IComponent) page.getComponent());
 			registerMouseListener((Component) page.getComponent());
-			SwingClientToolkit.focusFirstComponent(page.getComponent());
+			if (page.getComponent() instanceof JComponent) {
+				// this is more about if component is not null (empty page)
+				SwingClientToolkit.focusFirstComponent((JComponent) page.getComponent());
+			}
 		}
 	}
 	
@@ -347,7 +351,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 			}
 		});
 		dialog.openDialog();
-		SwingClientToolkit.focusFirstComponent(form.getComponent());
+		SwingClientToolkit.focusFirstComponent((JComponent) form.getComponent());
 	}
 
 	@Override
