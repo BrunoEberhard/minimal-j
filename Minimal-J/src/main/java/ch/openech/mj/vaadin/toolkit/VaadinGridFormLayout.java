@@ -1,5 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
+import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 
@@ -13,6 +14,7 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 	private final int columnWidth;
 	private final int width;
 	private int column, row;
+	private boolean isVerticallyGrowing;
 	
 	public VaadinGridFormLayout(int columns, int columnWidthPercentage) {
 		super(columns, 1);
@@ -31,6 +33,10 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 		return width;
 	}
 
+	public boolean isVerticallyGrowing() {
+		return isVerticallyGrowing;
+	}
+	
 	@Override
 	public void add(IComponent field, int span) {
 		GridLayout gridLayout = new GridLayout(1, 1);
@@ -50,6 +56,10 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 		if (column >= columns) {
 			column = 0;
 			row++;
+		}
+		
+		if (field instanceof FlowField) {
+			isVerticallyGrowing = true;
 		}
 		
 	}
