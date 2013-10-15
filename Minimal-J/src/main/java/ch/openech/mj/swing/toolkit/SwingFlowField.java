@@ -100,11 +100,13 @@ public class SwingFlowField extends JPanel implements FlowField {
 		@Override
 		public void addLayoutComponent(String name, Component comp) {
 			components.add(comp);
+			lastParentBounds = null;
 		}
 
 		@Override
 		public void removeLayoutComponent(Component comp) {
 			components.remove(comp);
+			lastParentBounds = null;
 		}
 	}
 }

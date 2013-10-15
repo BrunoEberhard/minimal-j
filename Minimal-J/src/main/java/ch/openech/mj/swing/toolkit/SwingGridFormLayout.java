@@ -165,6 +165,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 			}
 			row.add(comp);
 			column += formConstraint.getSpan();
+			lastParentBounds = null;
 		}
 
 		@Override
@@ -176,7 +177,7 @@ public class SwingGridFormLayout extends JPanel implements GridFormLayout {
 
 		@Override
 		public void invalidateLayout(Container target) {
-			// TODO Auto-generated method stub
+			lastParentBounds = null;
 		}
 
 		
