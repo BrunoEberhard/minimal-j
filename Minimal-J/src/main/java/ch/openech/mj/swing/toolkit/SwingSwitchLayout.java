@@ -2,9 +2,6 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.Window;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -32,37 +29,15 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 				// TODO the updateComponentTreeUI uses 4-5ms. This should only be done if necessary (if l&f has changed)
 				SwingUtilities.updateComponentTreeUI(component);
 				add(component, BorderLayout.CENTER);
-				refresh(component);
-				SwingClientToolkit.focusFirstComponent(component);
-			} else {
-				refresh(this);
 			}
+			refresh(this);
 		}
 		shownComponent = c;
 	}
 
 	private void refresh(Component component) {
-		SwingInternalFrame swingInternalFrame = getInternalFrameAncestor(component);
-		if (swingInternalFrame != null) {
-			swingInternalFrame.pack();
-		} else {
-			Window window = SwingUtilities.getWindowAncestor(component);
-			if (window instanceof Dialog) {
-				window.pack();
-			} else {
-				revalidate();
-				repaint();
-			}
-		}
-	}
-
-	private SwingInternalFrame getInternalFrameAncestor(Component component) {
-		for (Container p = component.getParent(); p != null; p = p.getParent()) {
-			if (p instanceof SwingInternalFrame) {
-				return (SwingInternalFrame) p;
-			}
-		}
-		return null;
+		repaint();
+		revalidate();
 	}
 
 	@Override
