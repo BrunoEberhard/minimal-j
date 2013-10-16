@@ -27,7 +27,7 @@ public class CustomerField extends ObjectFlowField<Customer> {
 
 	@Override
 	protected void show(Customer customer) {
-		addHtml(customer.firstName + " " + customer.name);
+		addText(customer.firstName + " " + customer.name);
 	}
 
 	@Override

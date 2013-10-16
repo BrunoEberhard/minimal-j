@@ -27,7 +27,7 @@ public class BookField extends ObjectFlowField<Book> {
 
 	@Override
 	protected void show(Book book) {
-		addHtml(book.title);
+		addText(book.title);
 	}
 
 	@Override
