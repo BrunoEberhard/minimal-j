@@ -16,7 +16,7 @@ public class VaadinDialog extends Window implements IDialog {
 	private ch.openech.mj.toolkit.IDialog.CloseListener closeListener;
 	
 	public VaadinDialog(Window parentWindow, ComponentContainer content, String title) {
-		super(title, decorateWithScrollPanel(content));
+		super(title, content);
 		this.parentWindow = parentWindow;
 		
 		setModal(true);
@@ -25,18 +25,8 @@ public class VaadinDialog extends Window implements IDialog {
 		
 		VaadinGridFormLayout formLayout = findFormLayout(content);
 		if (formLayout != null) {
-			setWidth(formLayout.getDialogWidth() + "ex");
-//			if (formLayout.isVerticallyGrowing()) {
-//				setHeight((parentWindow.getBrowserWindowHeight() - 50) + "px");
-//			}
+			setWidth((formLayout.getDialogWidth() + 1) + "ex");
 		}
-	}
-
-	private static Panel decorateWithScrollPanel(ComponentContainer content) {
-		Panel scrollablePanel = new Panel(content);
-		scrollablePanel.setScrollable(true);
-		scrollablePanel.setSizeFull();
-		return scrollablePanel;
 	}
 	
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {

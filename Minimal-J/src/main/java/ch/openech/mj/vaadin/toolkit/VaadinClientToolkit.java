@@ -192,6 +192,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	public IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions) {
 		Component parentComponent = (Component) parent;
 		Component component = new VaadinEditorLayout(content, actions);
+		component.setSizeFull();
 		Window window = parentComponent.getWindow();
 		// need to find application-level window
 		while (window.getParent() != null) {

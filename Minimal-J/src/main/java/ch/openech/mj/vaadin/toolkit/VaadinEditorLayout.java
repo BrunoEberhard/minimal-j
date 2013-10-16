@@ -12,6 +12,7 @@ import javax.swing.KeyStroke;
 import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
+import ch.openech.mj.vaadin.VaadinBorderLayout;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -24,9 +25,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Panel;
 
-public class VaadinEditorLayout extends VerticalLayout implements IComponent {
+public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	public VaadinEditorLayout(IComponent content, IAction[] actions) {
@@ -38,15 +39,19 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	}
 
 	private VaadinEditorLayout(Component header, IComponent content, IAction[] actions) {
+		setSizeFull();
+		
 		if (header != null) {
-			addComponent(header);
+			addComponent(header, Constraint.NORTH);
 		}
 		
 		Component contentComponent = (Component) content;
-		addComponent(contentComponent);
+		Panel scrollPanel = decorateWithScrollPanel((ComponentContainer) contentComponent);
+		addComponent(scrollPanel, Constraint.CENTER);
 		
 		Component buttonBar = createButtonBar(actions);
-		addComponent(buttonBar);
+		setMinimumSouthHeight("5ex");
+		addComponent(buttonBar, Constraint.SOUTH);
 	}
 
 	private static Component createHeaderComponent(TextField text, final Action searchAction) {
@@ -99,6 +104,13 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 			}
 		}
 		return null;
+	}
+	
+	private static Panel decorateWithScrollPanel(ComponentContainer content) {
+		Panel scrollablePanel = new Panel(content);
+		scrollablePanel.setScrollable(true);
+		scrollablePanel.setHeight("100%");
+		return scrollablePanel;
 	}
 	
 	private Component createButtonBar(IAction... actions) {
