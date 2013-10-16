@@ -8,7 +8,7 @@ public class SwingLabel extends JLabel implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	public SwingLabel(String string) {
-		super("<html>" + string + "</html>");
+		super("<html><body>" + string + "</body></html>");
 	}
 
 }

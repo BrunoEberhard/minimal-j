@@ -80,13 +80,13 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	
 	protected void addObject(Object object) {
 		if (object != null) {
-			visual.add(ClientToolkit.getToolkit().createLabel(object.toString()));
+			addText(object.toString());
 		}
 	}
 
-	protected void addHtml(String html) {
-		if (html != null) {
-			visual.add(ClientToolkit.getToolkit().createLabel(html));
+	protected void addText(String htmlText) {
+		if (htmlText != null) {
+			visual.add(ClientToolkit.getToolkit().createLabel(htmlText));
 		}
 	}
 	
