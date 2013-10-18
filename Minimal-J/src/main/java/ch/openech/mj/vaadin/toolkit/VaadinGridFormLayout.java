@@ -7,7 +7,7 @@ import ch.openech.mj.toolkit.IComponent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 
-public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
+public class VaadinGridFormLayout extends GridLayout implements GridFormLayout, VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
 	
 	private final int columns;
@@ -29,6 +29,7 @@ public class VaadinGridFormLayout extends GridLayout implements GridFormLayout {
 		addStyleName("gridForm");
 	}
 	
+	@Override
 	public int getDialogWidth() {
 		return width;
 	}

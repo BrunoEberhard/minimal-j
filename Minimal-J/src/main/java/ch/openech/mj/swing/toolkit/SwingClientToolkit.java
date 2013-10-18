@@ -33,6 +33,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
+import ch.openech.mj.search.Search;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
 import ch.openech.mj.toolkit.Caption;
@@ -50,6 +51,7 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.ILink;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
@@ -222,17 +224,20 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions) {
-		Window window = findWindow((Component) parent);
-		// TODO check for OS or move this to UI
 		JComponent contentComponent = new SwingEditorLayout(content, actions);
+		// TODO check for OS or move this to UI
 		contentComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
+		return createDialog(parent, title, contentComponent);
+	}
 
+	private IDialog createDialog(Object parent, String title, JComponent content) {
+		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) parent);
 		if (editablePanel != null) {
-			return new SwingInternalFrame(editablePanel, contentComponent, title);
+			return new SwingInternalFrame(editablePanel, content, title);
 		} else {
-			return new SwingEditorDialog(window, contentComponent, title);
+			Window window = findWindow((Component) parent);
+			return new SwingEditorDialog(window, content, title);
 		}
 	}
 
@@ -247,8 +252,10 @@ public class SwingClientToolkit extends ClientToolkit {
 		return (Window) parentComponent;
 	}
 
-	public static Component createSearchLayout(TextField text, Action searchAction, IComponent content, Action... actions) {
-		return new SwingSearchLayout(text, searchAction, content, actions);
+	@Override
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
+		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(search, listener);
+		return createDialog(parent, null, panel);
 	}
 
 	@Override

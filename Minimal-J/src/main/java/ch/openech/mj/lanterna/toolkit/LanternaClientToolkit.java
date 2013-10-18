@@ -3,6 +3,7 @@ package ch.openech.mj.lanterna.toolkit;
 import java.io.InputStream;
 
 import ch.openech.mj.lanterna.component.LanternaForm;
+import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -16,6 +17,7 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.ILink;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
 
@@ -224,5 +226,12 @@ public class LanternaClientToolkit extends ClientToolkit {
 		MessageBox.showMessageBox(gui, "Message", text);
 
 	}
+
+	@Override
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

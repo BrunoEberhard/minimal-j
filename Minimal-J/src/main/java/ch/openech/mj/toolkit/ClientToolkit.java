@@ -2,6 +2,9 @@ package ch.openech.mj.toolkit;
 
 import java.io.InputStream;
 
+import ch.openech.mj.search.Search;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
+
 /**
  * 
  * @author Bruno
@@ -69,6 +72,8 @@ public abstract class ClientToolkit {
 	public abstract GridFormLayout createGridLayout(int columns, int columnWidth);
 
 	public abstract IComponent createFormAlignLayout(IComponent content);
+
+	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener);
 
 	// Dialogs / Notification
 

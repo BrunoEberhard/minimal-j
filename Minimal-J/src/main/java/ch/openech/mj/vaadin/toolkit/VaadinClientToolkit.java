@@ -6,6 +6,7 @@ import java.io.PipedInputStream;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
@@ -19,6 +20,7 @@ import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.ILink;
 import ch.openech.mj.toolkit.ITable;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
@@ -190,9 +192,14 @@ public class VaadinClientToolkit extends ClientToolkit {
 	
 	@Override
 	public IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions) {
-		Component parentComponent = (Component) parent;
 		Component component = new VaadinEditorLayout(content, actions);
 		component.setSizeFull();
+
+		return createDialog(parent, title, component);
+	}
+
+	private IDialog createDialog(IComponent parent, String title, Component component) {
+		Component parentComponent = (Component) parent;
 		Window window = parentComponent.getWindow();
 		// need to find application-level window
 		while (window.getParent() != null) {
@@ -206,6 +213,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 		Window window = parentComponent.getWindow();
 		VaadinProgressDialog progressDialog = new VaadinProgressDialog(window, text);
 		return progressDialog;
+	}
+	
+	@Override
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
+		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(search, listener);
+		return createDialog(parent, null, panel);
 	}
 
 	@Override

@@ -23,9 +23,9 @@ public class VaadinDialog extends Window implements IDialog {
 		addListener(new VaadinDialogListener());
 		parentWindow.addWindow(this);
 		
-		VaadinGridFormLayout formLayout = findFormLayout(content);
-		if (formLayout != null) {
-			setWidth((formLayout.getDialogWidth() + 1) + "ex");
+		VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
+		if (componentWithWidth != null) {
+			setWidth((componentWithWidth.getDialogWidth() + 1) + "ex");
 		}
 	}
 	
@@ -57,19 +57,19 @@ public class VaadinDialog extends Window implements IDialog {
 		setVisible(false);
 	}
 	
-	private static VaadinGridFormLayout findFormLayout(Component c) {
-		if (c instanceof VaadinGridFormLayout) {
-			return (VaadinGridFormLayout) c;
+	private static VaadinComponentWithWidth findComponentWithWidth(Component c) {
+		if (c instanceof VaadinComponentWithWidth) {
+			return (VaadinComponentWithWidth) c;
 		} else if (c instanceof Panel) {
 			Panel panel = (Panel) c;
-			return findFormLayout(panel.getContent());
+			return findComponentWithWidth(panel.getContent());
 		} else if (c instanceof ComponentContainer) {
 			ComponentContainer container = (ComponentContainer) c;
 			Iterator<Component> componentIterator = container.getComponentIterator();
 			while (componentIterator.hasNext()) {
-				VaadinGridFormLayout formLayout = findFormLayout(componentIterator.next());
-				if (formLayout != null) {
-					return formLayout;
+				VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(componentIterator.next());
+				if (componentWithWidth != null) {
+					return componentWithWidth;
 				}
 			}
 		}

@@ -4,6 +4,9 @@ import java.awt.event.FocusListener;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.openech.mj.search.Search;
+import ch.openech.mj.toolkit.ITable.TableActionListener;
+
 public class JUnitClientToolkit extends ClientToolkit {
 
 	private String lastError = null;
@@ -200,6 +203,12 @@ public class JUnitClientToolkit extends ClientToolkit {
 
 	@Override
 	public InputStream imprt(IComponent parent, String buttonText) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}
