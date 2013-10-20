@@ -224,6 +224,14 @@ public class DbPersistence {
 		return table;
 	}
 	
+	/**
+	 * This method should not be public.
+	 * I'll try to remove the use of this method in OpenEch.
+	 * For new projects don't use this method anymore!
+	 * 
+	 * @param clazz objects of this class will not be inlined
+	 * @return
+	 */
 	public <U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
 		immutables.add(clazz);
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
