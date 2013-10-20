@@ -32,8 +32,8 @@ import ch.openech.mj.model.test.ModelTest;
 public class DbPersistence {
 	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	
-	private static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
-	// public static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/openech?user=APP&password=APP"; 
+	 private static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
+//	public static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/openech?user=APP&password=APP"; 
 
 	private static final String USER = "APP";
 	private static final String PASSWORD = "APP";
@@ -76,7 +76,7 @@ public class DbPersistence {
 				if (isDerbyMemoryDb) {
 					DriverManager.registerDriver(new EmbeddedDriver());
 				} else if (isMySqlDb) {
-					DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+					DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
 				}
 				
 				connection = DriverManager.getConnection(connectionUrl, user, password);

@@ -66,23 +66,27 @@ public class DbCreator {
 		
 		for (Map.Entry<String, PropertyInterface> column : table.getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
+			boolean isRequired = property.getAnnotation(Required.class) != null;
 			
 			s.append(" "); s.append(column.getKey()); s.append(" "); 
 
 			if (AbstractTable.isReference(property)) {
 				s.append("INTEGER");
+				s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
 				if (referencedTable instanceof ImmutableTable) {
 					s.append(" REFERENCES "); s.append(referencedTable.getTableName());
+					if (dbPersistence.isMySqlDb()) {
+						s.append(" (id)");
+					}
 				}
 				// note: it's not possible to add a constraint to a versioned table
 				// because of the start/endversion combinations
 			} else {
 				addColumnDefinition(s, property);
+				s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 			}
 			
-			boolean isRequired = property.getAnnotation(Required.class) != null;
-			s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 			s.append(",\n");
 		}
 		
