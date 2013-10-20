@@ -267,10 +267,13 @@ public class DbPersistence {
 	}
 	
 	private void testModel() {
-		ModelTest test = new ModelTest();
-		for (Class<?> c : tables.keySet()) {
-			test.test(c);
+		List<Class<?>> mainModelClasses = new ArrayList<>();
+		for (Map.Entry<Class<?>, AbstractTable<?>> entry : tables.entrySet()) {
+			if (!(entry.getValue() instanceof ImmutableTable)) {
+				mainModelClasses.add(entry.getKey());
+			}
 		}
+		ModelTest test = new ModelTest(mainModelClasses);
 		if (!test.getProblems().isEmpty()) {
 			for (String s : test.getProblems()) {
 				logger.severe(s);

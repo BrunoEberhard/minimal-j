@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,13 +30,25 @@ import ch.openech.mj.util.GenericUtils;
  */
 public class ModelTest {
 
+	private final Collection<Class<?>> mainModelClasses;
 	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
 	
 	private final List<String> problems = new ArrayList<String>();
 	
-	public void test(Class<?> clazz) {
+	public ModelTest(Class<?>... mainModelClasses) {
+		this(Arrays.asList(mainModelClasses));
+	}
+	
+	public ModelTest(Collection<Class<?>> mainModelClasses) {
+		this.mainModelClasses = mainModelClasses;
+		test();
+	}
+	
+	private void test() {
 		testedClasses.clear();
-		testDomainClassCheckRecursion(clazz);
+		for (Class<?> clazz : mainModelClasses) {
+			testDomainClassCheckRecursion(clazz);
+		}
 	}
 	
 	public List<String> getProblems() {
@@ -147,6 +161,9 @@ public class ModelTest {
 			}
 			if (Modifier.isAbstract(fieldType.getModifiers())) {
 				problems.add(messagePrefix + " must not be of an abstract Type");
+			}
+			if (mainModelClasses.contains(fieldType)) {
+				problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
 			}
 			testDomainClassCheckRecursion(fieldType);
 		}
