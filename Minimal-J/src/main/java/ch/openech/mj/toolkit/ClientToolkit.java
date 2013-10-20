@@ -95,11 +95,7 @@ public abstract class ClientToolkit {
 		
 		void close(Object result);
 	}
-	
-	// Focus
-	
-//	public abstract void focusFirstComponent(IComponent component);
-	
+
 	// Up / Dowload
 	
 	public abstract void export(IComponent parent, String buttonText, ExportHandler exportHandler);
