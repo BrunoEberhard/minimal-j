@@ -6,8 +6,13 @@ import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
 /**
- * 
- * @author Bruno
+ * To provide a new kind of client you have to implement two things:
+ * <OL>
+ * <LI>This class</LI>
+ * <LI>Some kind of launcher. The launcher should take an instance of MjApplication and 
+ * start the client. Take a look at the existing SwingLauncher, VaadinLauncher oder LanternaLauncher. The trickiest part will be to implement
+ * the PageContext.</LI>
+ * </OL>
  *
  */
 public abstract class ClientToolkit {
