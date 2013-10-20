@@ -225,10 +225,6 @@ public class DbPersistence {
 	}
 	
 	/**
-	 * This method should not be public.
-	 * I'll try to remove the use of this method in OpenEch.
-	 * For new projects don't use this method anymore!
-	 * 
 	 * @param clazz objects of this class will not be inlined
 	 * @return
 	 */
