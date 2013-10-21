@@ -117,10 +117,6 @@ public class FulltextIndex<T> implements Index<T> {
 		}	
 	}
 
-	public int count(String text) {
-		return find(text).size();
-	}
-	
 	protected Field getField(PropertyInterface property, T object) {
 		String fieldName = property.getFieldPath();
 		
@@ -179,7 +175,7 @@ public class FulltextIndex<T> implements Index<T> {
 				parser = new QueryParser(Version.LUCENE_34, searchPaths[0], analyzer);
 			}
 			Query query = parser.parse(text);
-			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
+			ScoreDoc[] hits = isearcher.search(query, null, 50).scoreDocs;
 			
 			for (ScoreDoc hit : hits) {
 				Document hitDoc = isearcher.doc(hit.doc);
