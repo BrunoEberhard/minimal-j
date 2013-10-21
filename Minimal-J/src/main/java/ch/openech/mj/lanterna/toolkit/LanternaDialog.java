@@ -36,7 +36,7 @@ public class LanternaDialog implements IDialog {
 		window.addWindowListener(new WindowAdapter() {
 			@Override
 			public void onWindowClosed(Window window) {
-				if (closeListener != null) {
+				if (closeListener == null || closeListener.close()) {
 					closeListener.close();
 				}
 			}
