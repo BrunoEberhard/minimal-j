@@ -56,7 +56,7 @@ public abstract class ClientToolkit {
 	
 	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);
 
-	public abstract <T> ITable<T> createTable(Class<T> clazz, Object[] fields);
+	public abstract ITable createTable(Object[] fields);
 
 	public abstract IComponent createLink(String text, String address);
 	
@@ -78,7 +78,7 @@ public abstract class ClientToolkit {
 
 	public abstract IComponent createFormAlignLayout(IComponent content);
 
-	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener);
+	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener);
 
 	// Dialogs / Notification
 

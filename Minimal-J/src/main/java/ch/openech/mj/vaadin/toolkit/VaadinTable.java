@@ -1,6 +1,7 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.joda.time.ReadablePartial;
@@ -8,6 +9,7 @@ import org.joda.time.ReadablePartial;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.search.Item;
 import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.util.JodaFormatter;
 import ch.openech.mj.vaadin.PropertyVaadinContainer;
@@ -20,21 +22,22 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.Table;
 
-public class VaadinTable<T> extends Table implements ITable<T> {
+public class VaadinTable extends Table implements ITable {
 	private static final long serialVersionUID = 1L;
 
-	private final Class<T> clazz;
+	private final Object[] keys;
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private final JodaFormatter jodaFormatter = new JodaFormatter();
-	private List<T> objects;
-	private TableActionListener<T> listener;
+	private List<? extends Item> objects;
+	private TableActionListener listener;
 	private VaadinTableItemClickListener tableClickListener;
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
 
-	public VaadinTable(Class<T> clazz, Object[] keys) {
-		this.clazz = clazz;
+	public VaadinTable(Object[] keys) {
+		this.keys = keys;
+		
 		setSelectable(true);
 		setMultiSelect(false);
 		setSizeFull();
@@ -43,20 +46,20 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 			PropertyInterface property = Keys.getProperty(key);
 			properties.add(property);
 			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
-			setColumnHeader(property, header);
+			setColumnHeader(key, header);
 		}
 		
 		addActionHandler(new VaadinTableActionHandler());
 	}
 	
 	@Override
-	public void setObjects(List<T> list) {
+	public void setObjects(List<? extends Item> list) {
 		this.objects = list;
-		setContainerDataSource(new PropertyVaadinContainer(clazz, list, properties));
+		setContainerDataSource(new PropertyVaadinContainer(list, Arrays.asList(keys)));
 	}
 
 	@Override
-	public void setClickListener(TableActionListener<T> clickListener) {
+	public void setClickListener(TableActionListener clickListener) {
 		if (clickListener == null) {
 			if (tableClickListener != null) {
 				removeListener(tableClickListener);
@@ -77,7 +80,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 			Property property) {
 		Object v = property.getValue();
 		if (v instanceof ReadablePartial) {
-			return jodaFormatter.format(v, (PropertyInterface) colId);
+			return jodaFormatter.format(v, Keys.getProperty(colId));
 		}
 		return super.formatPropertyValue(rowId, colId, property);
 	}
@@ -113,18 +116,18 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		
 	}
 	
-	public List<T> getSelectedObjects() {
-		List<T> selectedObjects = new ArrayList<>();
+	public List<Item> getSelectedObjects() {
+		List<Item> selectedObjects = new ArrayList<>();
 		for (Object itemId : getItemIds()) {
 			if (isSelected(itemId)) {
-				selectedObjects.add((T) getItem(itemId));
+				selectedObjects.add(objects.get((Integer) itemId));
 			}
 		}
 		return selectedObjects;
 	}
 
 	@Override
-	public void setDeleteListener(TableActionListener<T> listener) {
+	public void setDeleteListener(TableActionListener listener) {
 		// TODO Delete Action on Vaadin Table
 	}
 
@@ -134,7 +137,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 
 	@Override
-	public void setFunctionListener(int function, TableActionListener<T> listener) {
+	public void setFunctionListener(int function, TableActionListener listener) {
 		// TODO Function Action on Vaadin Table
 	}
 	

@@ -186,8 +186,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Class<T> clazz, Object[] fields) {
-		return new VaadinTable<T>(clazz, fields);
+	public ITable createTable(Object[] fields) {
+		return new VaadinTable(fields);
 	}
 	
 	@Override
@@ -216,7 +216,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
 		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(search, listener);
 		return createDialog(parent, null, panel);
 	}

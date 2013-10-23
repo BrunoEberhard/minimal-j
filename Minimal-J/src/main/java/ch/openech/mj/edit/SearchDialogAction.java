@@ -2,6 +2,7 @@ package ch.openech.mj.edit;
 
 import java.util.List;
 
+import ch.openech.mj.search.Item;
 import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
@@ -44,9 +45,10 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 	
 	protected abstract void save(T object);
 	
-	private class SearchClickListener implements TableActionListener<T> {
+	private class SearchClickListener implements TableActionListener {
 		@Override
-		public void action(T selectedObject, List<T> selectedObjects) {
+		public void action(Item selectedItem, List<Item> selectedItems) {
+			T selectedObject = search.lookup(selectedItem);
 			save(selectedObject);
 			dialog.closeDialog();
 		}

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 import com.vaadin.data.Container;
@@ -15,15 +16,13 @@ import com.vaadin.data.Property;
 public class PropertyVaadinContainer implements Container.Sortable {
 	private static final long serialVersionUID = 1L;
 
-	private final Class<?> clazz;
-	private final List<PropertyInterface> propertyIds;
+	private final List<Object> keys;
 	private final List<?> list;
 	private final List<Integer> ids;
 
-	public PropertyVaadinContainer(Class<?> clazz, List<?> list, List<PropertyInterface> propertyIds) {
-		this.propertyIds = propertyIds;
+	public PropertyVaadinContainer(List<? extends ch.openech.mj.search.Item> list, List<Object> keys) {
+		this.keys = keys;
 		this.list = list;
-		this.clazz = clazz;
 		
 		ids = new ArrayList<Integer>();
 		for (int i = 0; i<list.size(); i++) {
@@ -38,7 +37,7 @@ public class PropertyVaadinContainer implements Container.Sortable {
 
 	@Override
 	public Collection<?> getContainerPropertyIds() {
-		return propertyIds;
+		return keys;
 	}
 
 	@Override
@@ -53,8 +52,8 @@ public class PropertyVaadinContainer implements Container.Sortable {
 	}
 
 	@Override
-	public Class<?> getType(Object propertyId) {
-		PropertyInterface property = (PropertyInterface) propertyId;
+	public Class<?> getType(Object key) {
+		PropertyInterface property = Keys.getProperty(key);
 		return property.getFieldClazz();
 	}
 
@@ -110,14 +109,14 @@ public class PropertyVaadinContainer implements Container.Sortable {
 		
 		@Override
 		public Property getItemProperty(Object id) {
-			PropertyInterface property = (PropertyInterface) id;
-			Object value = property.getValue(object);
+			PropertyInterface property = Keys.getProperty(id);
+			Object value = ((ch.openech.mj.search.Item) object).getValue(id);
 			return new PropertyVaadinContainerProperty(property.getFieldClazz(), value);
 		}
 
 		@Override
 		public Collection<?> getItemPropertyIds() {
-			return propertyIds;
+			return keys;
 		}
 
 		@Override
@@ -234,7 +233,7 @@ public class PropertyVaadinContainer implements Container.Sortable {
 
 	@Override
 	public Collection<?> getSortableContainerPropertyIds() {
-		return propertyIds;
+		return keys;
 	}
 	
 	private class PropertyVaadinContainerComparator implements Comparator<Integer> {

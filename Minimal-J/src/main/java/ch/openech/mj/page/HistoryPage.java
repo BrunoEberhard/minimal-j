@@ -7,6 +7,7 @@ import org.joda.time.LocalDateTime;
 
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Size;
+import ch.openech.mj.search.Item;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable;
@@ -15,15 +16,14 @@ import ch.openech.mj.toolkit.ITable.TableActionListener;
 public abstract class HistoryPage<T> extends AbstractPage implements RefreshablePage {
 
 	private List<HistoryVersion<T>> versions;
-	private ITable<HistoryVersion<T>> table;
+	private ITable table;
 	
 	public HistoryPage(PageContext pageContext) {
 		super(pageContext);
-		ITable<?> table2 = ClientToolkit.getToolkit().createTable(HistoryVersion.class, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
-		table = (ITable<HistoryVersion<T>>) table2;
-		table.setClickListener(new TableActionListener<HistoryPage.HistoryVersion<T>>() {
+		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
+		table.setClickListener(new TableActionListener() {
 			@Override
-			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selected) {
+			public void action(Item selectedObject, List<Item> selected) {
 				List<String> pageLinks = new ArrayList<String>(versions.size());
 				for (HistoryVersion<T> version : versions) {
 					String link = link( version.object, version.version);
@@ -62,7 +62,7 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 		table.setObjects(versions);
 	}
 
-	public static class HistoryVersion<T> {
+	public static class HistoryVersion<T> implements Item {
 
 		public static final HistoryVersion<?> HISTORY_VERSION = Keys.of(HistoryVersion.class);
 		
@@ -71,6 +71,16 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 		@Size(255)
 		public String description;
 		public T object;
+		
+		@Override
+		public Object getId() {
+			return null;
+		}
+		
+		@Override
+		public Object getValue(Object key) {
+			return Keys.getProperty(key).getValue(this);
+		}
 	}
 
 }

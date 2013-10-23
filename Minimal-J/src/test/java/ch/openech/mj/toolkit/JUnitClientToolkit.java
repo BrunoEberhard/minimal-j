@@ -108,7 +108,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Class<T> clazz, Object[] fields) {
+	public ITable createTable(Object[] fields) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -208,7 +208,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

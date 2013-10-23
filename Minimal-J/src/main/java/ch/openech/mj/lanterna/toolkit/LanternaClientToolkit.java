@@ -172,8 +172,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Class<T> clazz, Object[] fields) {
-		return new LanternaTable<T>(clazz, fields);
+	public ITable createTable(Object[] fields) {
+		return new LanternaTable(fields);
 	}
 
 	@Override
@@ -228,7 +228,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

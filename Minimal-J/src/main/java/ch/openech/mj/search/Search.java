@@ -6,7 +6,9 @@ public interface Search<T> {
 
 	public Class<T> getClazz();
 	
-	public List<T> search(String text);
+	public List<Item> search(String text);
+	
+	public T lookup(Item item);
 	
 	public Object[] getKeys();
 	

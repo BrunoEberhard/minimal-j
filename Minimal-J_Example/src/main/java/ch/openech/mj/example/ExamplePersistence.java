@@ -21,10 +21,10 @@ public class ExamplePersistence extends DbPersistence {
 	
 	public ExamplePersistence() throws SQLException {
 		bookTable = addClass(Book.class);
-		bookIndex = bookTable.createFulltextIndex(BOOK.title, BOOK.author);
+		bookIndex = bookTable.createFulltextIndex(new Object[]{BOOK.title, BOOK.author}, new Object[]{BOOK.date, BOOK.media, BOOK.pages, BOOK.available});
 		
 		customerTable = addClass(Customer.class);
-		customerIndex = customerTable.createFulltextIndex(Customer.CUSTOMER.firstName, Customer.CUSTOMER.name);
+		customerIndex = customerTable.createFulltextIndex(new Object[]{Customer.CUSTOMER.firstName, Customer.CUSTOMER.name}, new Object[0]);
 		
 		addClass(Lend.class);
 		

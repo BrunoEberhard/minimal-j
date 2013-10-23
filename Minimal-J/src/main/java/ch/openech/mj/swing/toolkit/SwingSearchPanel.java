@@ -19,14 +19,14 @@ public class SwingSearchPanel<T> extends JPanel implements IComponent {
 	private static final long serialVersionUID = 1L;
 	private final JTextField text;
 	private final JButton searchButton;
-	private final SwingTable<T> table;
+	private final SwingTable table;
 	
-	public SwingSearchPanel(final Search<T> search, TableActionListener<T> listener) {
+	public SwingSearchPanel(final Search<T> search, TableActionListener listener) {
 		super(new BorderLayout());
 		
 		text = new JTextField();
 		searchButton = new JButton("Search");
-		table = new SwingTable<T>(search.getClazz(), search.getKeys());
+		table = new SwingTable(search.getKeys());
 
 		JPanel northPanel = new JPanel(new BorderLayout());
 		northPanel.add(text, BorderLayout.CENTER);

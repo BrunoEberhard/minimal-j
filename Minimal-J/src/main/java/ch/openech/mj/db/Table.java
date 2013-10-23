@@ -44,8 +44,8 @@ public class Table<T> extends AbstractTable<T> {
 		return index;
 	}
 
-	public FulltextIndex<T> createFulltextIndex(Object... keys) {
-		FulltextIndex<T> index = new FulltextIndex<T>(this, keys);
+	public FulltextIndex<T> createFulltextIndex(Object[] keys, Object[] nonIndexKeys) {
+		FulltextIndex<T> index = new FulltextIndex<T>(this, keys, nonIndexKeys);
 		indexes.add(index);
 		return index;
 	}

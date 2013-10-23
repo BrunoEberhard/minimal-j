@@ -10,6 +10,9 @@ import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.page.TablePage;
+import ch.openech.mj.search.FulltextIndexSearch;
+import ch.openech.mj.search.Item;
+import ch.openech.mj.search.Search;
 
 
 public class BookTablePage extends TablePage<Book> implements RefreshablePage {
@@ -24,23 +27,18 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 		BOOK.pages, //
 		BOOK.available, //
 	};
+	
+	private static Search<Book> search = new FulltextIndexSearch<>(Book.class, ExamplePersistence.getInstance().bookIndex(), FIELDS);
 
 	public BookTablePage(PageContext context, String text) {
-		super(context, FIELDS, text);
+		super(context, search, text);
 		this.text = text;
 	}
 	
 	@Override
-	protected void clicked(Book book) {
-		int id = ExamplePersistence.getInstance().book().getId(book);
-		show(BookPage.class, String.valueOf(id));
+	protected void clicked(Item item, List<Item> items) {
+		show(BookPage.class, (String) item.getId());
 	}
-
-	@Override
-	protected List<Book> find(String text) {
-		return ExamplePersistence.getInstance().bookIndex().find(text);
-	}
-
 	@Override
 	public String getTitle() {
 		return "Treffer für " + text;

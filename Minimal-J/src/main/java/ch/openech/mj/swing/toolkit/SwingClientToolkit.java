@@ -204,8 +204,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Class<T> clazz, Object[] fields) {
-		return new SwingTable<T>(clazz, fields);
+	public ITable createTable(Object[] fields) {
+		return new SwingTable(fields);
 	}
 
 	public static ProgressListener showProgress(Object parent, String text) {
@@ -253,7 +253,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(search, listener);
 		return createDialog(parent, null, panel);
 	}
