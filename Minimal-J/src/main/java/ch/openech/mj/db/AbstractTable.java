@@ -403,7 +403,9 @@ public abstract class AbstractTable<T> {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == Boolean.class) {
-			if (value instanceof Integer) {
+			if (value instanceof Boolean) {
+				return (Boolean) value;
+			} else if (value instanceof Integer) {
 				value = Boolean.valueOf(((int) value) == 1);
 			} else if (value != null) {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
