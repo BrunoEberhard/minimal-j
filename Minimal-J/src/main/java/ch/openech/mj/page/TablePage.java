@@ -2,7 +2,6 @@ package ch.openech.mj.page;
 
 import java.util.List;
 
-import ch.openech.mj.search.Item;
 import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
@@ -19,45 +18,40 @@ public abstract class TablePage<T> extends AbstractPage implements RefreshablePa
 
 	private final Search<T> search;
 	private String text;
-	private ITable table;
-	private List<Item> items;
+	private ITable<T> table;
 
-	public TablePage(PageContext context, Search<T> search, String text) {
+	public TablePage(PageContext context, Search<T> search, Object[] keys, String text) {
 		super(context);
 		this.search = search;
 		this.text = text;
-		table = ClientToolkit.getToolkit().createTable(search.getKeys());
+		table = ClientToolkit.getToolkit().createTable(search, keys);
 		table.setClickListener(new TableClickListener());
 		refresh();
 	}
 
-	protected ITable getTable() {
+	protected ITable<T> getTable() {
 		return table;
 	}
 
-	protected abstract void clicked(Item item, List<Item> items);
+	protected abstract void clicked(T object, List<T> objects);
 
 	@Override
 	public IComponent getComponent() {
 		return table;
 	}
 	
-	private class TableClickListener implements TableActionListener {
+	private class TableClickListener implements TableActionListener<T> {
 		@Override
-		public void action(Item selectedItem, List<Item> selectedItems) {
-			clicked(selectedItem, selectedItems);
+		public void action(T selectedObject, List<T> selectedObjects) {
+			clicked(selectedObject, selectedObjects);
 		}
-	}
-	
-	protected List<Item> getItems() {
-		return items;
 	}
 	
 	@Override
 	public void refresh() {
 		try {
-			items = search.search(text);
-			table.setObjects(items);
+			List<Integer> ids = search.search(text);
+			table.setIds(ids);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

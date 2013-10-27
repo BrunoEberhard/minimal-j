@@ -4,6 +4,7 @@ import java.awt.event.FocusListener;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.openech.mj.search.Lookup;
 import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
@@ -108,7 +109,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ITable createTable(Object[] fields) {
+	public <T> ITable<T> createTable(Lookup<T> lookup, Object[] fields) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -208,7 +209,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

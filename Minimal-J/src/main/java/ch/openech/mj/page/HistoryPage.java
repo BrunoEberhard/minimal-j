@@ -7,7 +7,7 @@ import org.joda.time.LocalDateTime;
 
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Size;
-import ch.openech.mj.search.Item;
+import ch.openech.mj.search.ListLookup;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable;
@@ -16,14 +16,16 @@ import ch.openech.mj.toolkit.ITable.TableActionListener;
 public abstract class HistoryPage<T> extends AbstractPage implements RefreshablePage {
 
 	private List<HistoryVersion<T>> versions;
-	private ITable table;
+	private ITable<HistoryVersion<T>> table;
+	private final ListLookup<HistoryVersion<T>> lookup;
 	
 	public HistoryPage(PageContext pageContext) {
 		super(pageContext);
-		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
-		table.setClickListener(new TableActionListener() {
+		lookup = new ListLookup<>();
+		table = ClientToolkit.getToolkit().createTable(lookup, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
+		table.setClickListener(new TableActionListener<HistoryVersion<T>>() {
 			@Override
-			public void action(Item selectedObject, List<Item> selected) {
+			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selected) {
 				List<String> pageLinks = new ArrayList<String>(versions.size());
 				for (HistoryVersion<T> version : versions) {
 					String link = link( version.object, version.version);
@@ -59,10 +61,11 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 	@Override
 	public void refresh() {
 		versions = loadVersions();
-		table.setObjects(versions);
+		lookup.setList(versions);
+		table.setIds(lookup.getIds());
 	}
 
-	public static class HistoryVersion<T> implements Item {
+	public static class HistoryVersion<T> {
 
 		public static final HistoryVersion<?> HISTORY_VERSION = Keys.of(HistoryVersion.class);
 		
@@ -71,16 +74,7 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 		@Size(255)
 		public String description;
 		public T object;
-		
-		@Override
-		public Object getId() {
-			return null;
-		}
-		
-		@Override
-		public Object getValue(Object key) {
-			return Keys.getProperty(key).getValue(this);
-		}
+
 	}
 
 }

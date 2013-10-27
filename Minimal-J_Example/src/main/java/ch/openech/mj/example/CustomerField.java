@@ -38,7 +38,7 @@ public class CustomerField extends ObjectFlowField<Customer> {
 	public class CustomerSearchAction extends SearchDialogAction<Customer> {
 		
 		public CustomerSearchAction() {
-			super(getComponent(), new FulltextIndexSearch<>(Customer.class, ExamplePersistence.getInstance().customerIndex(), Customer.CUSTOMER.firstName, Customer.CUSTOMER.name));
+			super(getComponent(), new FulltextIndexSearch<>(ExamplePersistence.getInstance().customerIndex()), Customer.CUSTOMER.firstName, Customer.CUSTOMER.name);
 		}
 
 		@Override

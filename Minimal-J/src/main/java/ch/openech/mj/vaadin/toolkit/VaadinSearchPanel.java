@@ -15,15 +15,15 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 	private static final long serialVersionUID = 1L;
 	private final TextField text;
 	private final Button searchButton;
-	private final VaadinTable table;
+	private final VaadinTable<T> table;
 	private final int width;
 	
-	public VaadinSearchPanel(final Search<T> search, TableActionListener listener) {
+	public VaadinSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
 		setSizeFull();
 		
 		text = new TextField();
 		searchButton = new Button("Search");
-		table = new VaadinTable(search.getKeys());
+		table = new VaadinTable<T>(search, keys);
 
 		HorizontalLayout northPanel = new HorizontalLayout();
 		northPanel.setWidth("100%");
@@ -40,13 +40,13 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				table.setObjects(search.search((String) text.getValue()));
+				table.setIds(search.search((String) text.getValue()));
 			}
 		});
 		
 		table.setClickListener(listener);
 		
-		width = search.getKeys().length * 20;
+		width = keys.length * 20;
 	}
 	
 	@Override

@@ -38,11 +38,7 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.20/mysql-connector-java-5.1.20.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.20/mysql-connector-java-5.1.20.jar"/>
 	<classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.0/joda-time-2.0.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>

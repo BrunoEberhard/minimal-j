@@ -6,6 +6,7 @@ import java.io.PipedInputStream;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.openech.mj.search.Lookup;
 import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
@@ -186,8 +187,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ITable createTable(Object[] fields) {
-		return new VaadinTable(fields);
+	public <T> ITable<T> createTable(Lookup<T> lookup, Object[] fields) {
+		return new VaadinTable<T>(lookup, fields);
 	}
 	
 	@Override
@@ -216,8 +217,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
-		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(search, listener);
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener) {
+		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(search, keys, listener);
 		return createDialog(parent, null, panel);
 	}
 

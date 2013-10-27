@@ -11,7 +11,6 @@ import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.page.TablePage;
 import ch.openech.mj.search.FulltextIndexSearch;
-import ch.openech.mj.search.Item;
 import ch.openech.mj.search.Search;
 
 
@@ -19,7 +18,7 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 
 	private final String text;
 	
-	private static final Object[] FIELDS = {
+	public static final Object[] FIELDS = {
 		BOOK.title, //
 		BOOK.author, //
 		BOOK.date, //
@@ -28,16 +27,17 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 		BOOK.available, //
 	};
 	
-	private static Search<Book> search = new FulltextIndexSearch<>(Book.class, ExamplePersistence.getInstance().bookIndex(), FIELDS);
+	private static Search<Book> search = new FulltextIndexSearch<>(ExamplePersistence.getInstance().bookIndex());
 
 	public BookTablePage(PageContext context, String text) {
-		super(context, search, text);
+		super(context, search, FIELDS, text);
 		this.text = text;
 	}
 	
 	@Override
-	protected void clicked(Item item, List<Item> items) {
-		show(BookPage.class, (String) item.getId());
+	protected void clicked(Book book, List<Book> books) {
+		Integer id = ExamplePersistence.getInstance().book().getId(book);
+		show(BookPage.class, Integer.toString(id));
 	}
 	@Override
 	public String getTitle() {

@@ -91,6 +91,7 @@ public class PageLink implements IAction {
 				return (Page) clazz.getConstructor(argumentClasses).newInstance(context);
 			}
 		} catch (Exception x) {
+			x.printStackTrace();
 			logger.log(Level.SEVERE, "UriFragment Auflösung fehlgeschlagen: " + pageLink, x);
 			// TODO It would be nice to have here an error page instead of an empty page
 			return new EmptyPage(context);

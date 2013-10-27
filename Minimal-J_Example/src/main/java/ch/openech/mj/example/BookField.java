@@ -38,7 +38,7 @@ public class BookField extends ObjectFlowField<Book> {
 	public class BookSearchAction extends SearchDialogAction<Book> {
 		
 		public BookSearchAction() {
-			super(getComponent(), new FulltextIndexSearch<>(Book.class, ExamplePersistence.getInstance().bookIndex(), Book.BOOK.title, Book.BOOK.author));
+			super(getComponent(), new FulltextIndexSearch<>(ExamplePersistence.getInstance().bookIndex()), new Object[]{Book.BOOK.title, Book.BOOK.author});
 		}
 
 		protected void save(Book object) {

@@ -33,6 +33,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
+import ch.openech.mj.search.Lookup;
 import ch.openech.mj.search.Search;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
@@ -204,8 +205,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ITable createTable(Object[] fields) {
-		return new SwingTable(fields);
+	public <T> ITable<T> createTable(Lookup<T> lookup, Object[] fields) {
+		return new SwingTable<T>(lookup, fields);
 	}
 
 	public static ProgressListener showProgress(Object parent, String text) {
@@ -253,8 +254,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
-		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(search, listener);
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener) {
+		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(search, keys, listener);
 		return createDialog(parent, null, panel);
 	}
 

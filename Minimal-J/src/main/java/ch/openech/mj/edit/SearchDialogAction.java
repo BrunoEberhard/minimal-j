@@ -2,7 +2,6 @@ package ch.openech.mj.edit;
 
 import java.util.List;
 
-import ch.openech.mj.search.Item;
 import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
@@ -13,11 +12,13 @@ import ch.openech.mj.toolkit.ResourceAction;
 public abstract class SearchDialogAction<T> extends ResourceAction {
 	private final IComponent source;
 	private final Search<T> search;
+	private final Object[] keys;
 	private IDialog dialog;
 	
-	protected SearchDialogAction(IComponent source, Search<T> search) {
+	protected SearchDialogAction(IComponent source, Search<T> search, Object... keys) {
 		this.source = source;
 		this.search = search;
+		this.keys = keys;
 	}
 	
 	@Override
@@ -39,16 +40,15 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 	}
 	
 	private void showPageOn(IComponent source) {
-		dialog = ClientToolkit.getToolkit().createSearchDialog(source, search, new SearchClickListener());
+		dialog = ClientToolkit.getToolkit().createSearchDialog(source, search, keys, new SearchClickListener());
 		dialog.openDialog();
 	}
 	
 	protected abstract void save(T object);
 	
-	private class SearchClickListener implements TableActionListener {
+	private class SearchClickListener implements TableActionListener<T> {
 		@Override
-		public void action(Item selectedItem, List<Item> selectedItems) {
-			T selectedObject = search.lookup(selectedItem);
+		public void action(T selectedObject, List<T> selectedObjects) {
 			save(selectedObject);
 			dialog.closeDialog();
 		}

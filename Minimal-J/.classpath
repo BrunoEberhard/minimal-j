@@ -1,16 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
-  <classpathentry kind="src" path="src/main/java"/>
-  <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/derby/derbyclient/10.8.2.2/derbyclient-10.8.2.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-core/3.4.0/lucene-core-3.4.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/json/json/20090211/json-20090211.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/jumpmind/symmetric/jdbc/mariadb-java-client/1.1.1/mariadb-java-client-1.1.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.0/joda-time-2.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6.jar"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derbyclient/10.8.2.2/derbyclient-10.8.2.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13.jar" sourcepath="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-core/4.5.0/lucene-core-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-core/4.5.0/lucene-core-4.5.0-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-queryparser/4.5.0/lucene-queryparser-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-queryparser/4.5.0/lucene-queryparser-4.5.0-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-queries/4.5.0/lucene-queries-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-queries/4.5.0/lucene-queries-4.5.0-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-sandbox/4.5.0/lucene-sandbox-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-sandbox/4.5.0/lucene-sandbox-4.5.0-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/jakarta-regexp/jakarta-regexp/1.4/jakarta-regexp-1.4.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-analyzers-common/4.5.0/lucene-analyzers-common-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-analyzers-common/4.5.0/lucene-analyzers-common-4.5.0-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/json/json/20090211/json-20090211.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/jumpmind/symmetric/jdbc/mariadb-java-client/1.1.1/mariadb-java-client-1.1.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.0/joda-time-2.0.jar" sourcepath="M2_REPO/joda-time/joda-time/2.0/joda-time-2.0-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6.jar" sourcepath="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

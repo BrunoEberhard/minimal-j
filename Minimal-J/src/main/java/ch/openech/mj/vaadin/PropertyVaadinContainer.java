@@ -1,43 +1,38 @@
 package ch.openech.mj.vaadin;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.search.Lookup;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 
-public class PropertyVaadinContainer implements Container.Sortable {
+public class PropertyVaadinContainer<T> implements Container.Sortable {
 	private static final long serialVersionUID = 1L;
 
-	private final List<Object> keys;
-	private final List<?> list;
+	private final List<PropertyInterface> properties;
 	private final List<Integer> ids;
+	private final Lookup<T> lookup;
 
-	public PropertyVaadinContainer(List<? extends ch.openech.mj.search.Item> list, List<Object> keys) {
-		this.keys = keys;
-		this.list = list;
-		
-		ids = new ArrayList<Integer>();
-		for (int i = 0; i<list.size(); i++) {
-			ids.add(i);
-		}
+	public PropertyVaadinContainer(List<Integer> ids, Lookup<T> lookup, List<PropertyInterface> properties) {
+		this.ids = ids;
+		this.lookup = lookup;
+		this.properties = properties;
 	}
 	
 	@Override
 	public Item getItem(Object itemId) {
-		return new PropertyVaadinContainerItem(list.get((Integer)itemId));
+		return new PropertyVaadinContainerItem(lookup.lookup((Integer)itemId));
 	}
 
 	@Override
 	public Collection<?> getContainerPropertyIds() {
-		return keys;
+		return properties;
 	}
 
 	@Override
@@ -52,20 +47,19 @@ public class PropertyVaadinContainer implements Container.Sortable {
 	}
 
 	@Override
-	public Class<?> getType(Object key) {
-		PropertyInterface property = Keys.getProperty(key);
+	public Class<?> getType(Object propertyId) {
+		PropertyInterface property = (PropertyInterface) propertyId;
 		return property.getFieldClazz();
 	}
 
 	@Override
 	public int size() {
-		return list.size();
+		return ids.size();
 	}
 
 	@Override
 	public boolean containsId(Object itemId) {
-		Integer id = (Integer) itemId;
-		return id >= 0 && id < list.size();
+		return ids.contains(itemId);
 	}
 
 	@Override
@@ -109,14 +103,14 @@ public class PropertyVaadinContainer implements Container.Sortable {
 		
 		@Override
 		public Property getItemProperty(Object id) {
-			PropertyInterface property = Keys.getProperty(id);
-			Object value = ((ch.openech.mj.search.Item) object).getValue(id);
+			PropertyInterface property = (PropertyInterface) id;
+			Object value = property.getValue(object);
 			return new PropertyVaadinContainerProperty(property.getFieldClazz(), value);
 		}
 
 		@Override
 		public Collection<?> getItemPropertyIds() {
-			return keys;
+			return properties;
 		}
 
 		@Override
@@ -201,7 +195,7 @@ public class PropertyVaadinContainer implements Container.Sortable {
 
 	@Override
 	public Object lastItemId() {
-		return ids.get(list.size() - 1);
+		return ids.get(ids.size() - 1);
 	}
 
 	@Override
@@ -233,7 +227,7 @@ public class PropertyVaadinContainer implements Container.Sortable {
 
 	@Override
 	public Collection<?> getSortableContainerPropertyIds() {
-		return keys;
+		return properties;
 	}
 	
 	private class PropertyVaadinContainerComparator implements Comparator<Integer> {
@@ -247,8 +241,8 @@ public class PropertyVaadinContainer implements Container.Sortable {
 		
 		@Override
 		public int compare(Integer o1, Integer o2) {
-			Object item1 = list.get(o1);
-			Object item2 = list.get(o2);
+			Object item1 = lookup.lookup(o1);
+			Object item2 = lookup.lookup(o2);
 			
 			Object value1 = property.getValue(item1);
 			Object value2 = property.getValue(item2);

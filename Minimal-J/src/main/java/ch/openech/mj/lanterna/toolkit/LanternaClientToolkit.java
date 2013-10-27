@@ -3,6 +3,7 @@ package ch.openech.mj.lanterna.toolkit;
 import java.io.InputStream;
 
 import ch.openech.mj.lanterna.component.LanternaForm;
+import ch.openech.mj.search.Lookup;
 import ch.openech.mj.search.Search;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
@@ -172,8 +173,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public ITable createTable(Object[] fields) {
-		return new LanternaTable(fields);
+	public <T> ITable<T> createTable(Lookup<T> lookup, Object[] fields) {
+		return new LanternaTable<T>(lookup, fields);
 	}
 
 	@Override
@@ -228,10 +229,9 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, TableActionListener listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 }

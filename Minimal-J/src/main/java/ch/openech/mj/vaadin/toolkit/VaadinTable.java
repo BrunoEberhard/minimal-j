@@ -1,7 +1,6 @@
 package ch.openech.mj.vaadin.toolkit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.joda.time.ReadablePartial;
@@ -9,7 +8,7 @@ import org.joda.time.ReadablePartial;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.search.Item;
+import ch.openech.mj.search.Lookup;
 import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.util.JodaFormatter;
 import ch.openech.mj.vaadin.PropertyVaadinContainer;
@@ -22,22 +21,21 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.Table;
 
-public class VaadinTable extends Table implements ITable {
+public class VaadinTable<T> extends Table implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
-	private final Object[] keys;
+	private final Lookup<T> lookup;
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private final JodaFormatter jodaFormatter = new JodaFormatter();
-	private List<? extends Item> objects;
-	private TableActionListener listener;
+	private List<Integer> ids;
+	private TableActionListener<T> listener;
 	private VaadinTableItemClickListener tableClickListener;
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
 
-	public VaadinTable(Object[] keys) {
-		this.keys = keys;
-		
+	public VaadinTable(Lookup<T> lookup, Object[] keys) {
+		this.lookup = lookup;
 		setSelectable(true);
 		setMultiSelect(false);
 		setSizeFull();
@@ -46,20 +44,20 @@ public class VaadinTable extends Table implements ITable {
 			PropertyInterface property = Keys.getProperty(key);
 			properties.add(property);
 			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
-			setColumnHeader(key, header);
+			setColumnHeader(property, header);
 		}
 		
 		addActionHandler(new VaadinTableActionHandler());
 	}
 	
 	@Override
-	public void setObjects(List<? extends Item> list) {
-		this.objects = list;
-		setContainerDataSource(new PropertyVaadinContainer(list, Arrays.asList(keys)));
+	public void setIds(List<Integer> ids) {
+		this.ids = ids;
+		setContainerDataSource(new PropertyVaadinContainer<T>(ids, lookup, properties));
 	}
 
 	@Override
-	public void setClickListener(TableActionListener clickListener) {
+	public void setClickListener(TableActionListener<T> clickListener) {
 		if (clickListener == null) {
 			if (tableClickListener != null) {
 				removeListener(tableClickListener);
@@ -80,7 +78,7 @@ public class VaadinTable extends Table implements ITable {
 			Property property) {
 		Object v = property.getValue();
 		if (v instanceof ReadablePartial) {
-			return jodaFormatter.format(v, Keys.getProperty(colId));
+			return jodaFormatter.format(v, (PropertyInterface) colId);
 		}
 		return super.formatPropertyValue(rowId, colId, property);
 	}
@@ -92,7 +90,7 @@ public class VaadinTable extends Table implements ITable {
 		public void itemClick(ItemClickEvent event) {
 			if (event.isDoubleClick()) {
 				Integer id = (Integer) event.getItemId();
-				listener.action(objects.get(id), getSelectedObjects());
+				listener.action(lookup.lookup(id), getSelectedObjects());
 			}
 		}
 	}
@@ -116,18 +114,18 @@ public class VaadinTable extends Table implements ITable {
 		
 	}
 	
-	public List<Item> getSelectedObjects() {
-		List<Item> selectedObjects = new ArrayList<>();
+	public List<T> getSelectedObjects() {
+		List<T> selectedObjects = new ArrayList<>();
 		for (Object itemId : getItemIds()) {
 			if (isSelected(itemId)) {
-				selectedObjects.add(objects.get((Integer) itemId));
+				selectedObjects.add(lookup.lookup((Integer) itemId));
 			}
 		}
 		return selectedObjects;
 	}
 
 	@Override
-	public void setDeleteListener(TableActionListener listener) {
+	public void setDeleteListener(TableActionListener<T> listener) {
 		// TODO Delete Action on Vaadin Table
 	}
 
@@ -137,7 +135,7 @@ public class VaadinTable extends Table implements ITable {
 	}
 
 	@Override
-	public void setFunctionListener(int function, TableActionListener listener) {
+	public void setFunctionListener(int function, TableActionListener<T> listener) {
 		// TODO Function Action on Vaadin Table
 	}
 	
