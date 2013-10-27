@@ -15,7 +15,7 @@ import ch.openech.mj.model.PropertyInterface;
 /**
  * Minimal-J internal<p>
  *
- * A HistorizedTable contains a row named version. In the actual valid row this
+ * A HistorizedTable contains a column named version. In the actual valid row this
  * column is set to 0. After updates the row with the version 1 is the oldest row
  * the row with version 2 the second oldest and so on.<p>
  * 
