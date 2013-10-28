@@ -21,7 +21,7 @@ public class SwingSearchPanel<T> extends JPanel implements IComponent {
 	private final JButton searchButton;
 	private final SwingTable<T> table;
 	
-	public SwingSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public SwingSearchPanel(final Search<T> search, Object[] keys, TableActionListener listener) {
 		super(new BorderLayout());
 		
 		text = new JTextField();

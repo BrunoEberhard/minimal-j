@@ -46,9 +46,10 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 	
 	protected abstract void save(T object);
 	
-	private class SearchClickListener implements TableActionListener<T> {
+	private class SearchClickListener implements TableActionListener {
 		@Override
-		public void action(T selectedObject, List<T> selectedObjects) {
+		public void action(int selectedId, List<Integer> selectedObjects) {
+			T selectedObject = search.lookup(selectedId);
 			save(selectedObject);
 			dialog.closeDialog();
 		}

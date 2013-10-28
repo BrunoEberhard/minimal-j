@@ -18,7 +18,7 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 	private final VaadinTable<T> table;
 	private final int width;
 	
-	public VaadinSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public VaadinSearchPanel(final Search<T> search, Object[] keys, TableActionListener listener) {
 		setSizeFull();
 		
 		text = new TextField();

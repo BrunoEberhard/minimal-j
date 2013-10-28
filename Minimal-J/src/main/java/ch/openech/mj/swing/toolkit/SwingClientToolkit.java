@@ -254,7 +254,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener listener) {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(search, keys, listener);
 		return createDialog(parent, null, panel);
 	}

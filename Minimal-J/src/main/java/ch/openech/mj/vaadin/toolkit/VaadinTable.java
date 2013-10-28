@@ -27,8 +27,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	private final Lookup<T> lookup;
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private final JodaFormatter jodaFormatter = new JodaFormatter();
-	private List<Integer> ids;
-	private TableActionListener<T> listener;
+	private TableActionListener listener;
 	private VaadinTableItemClickListener tableClickListener;
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
@@ -52,12 +51,11 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	
 	@Override
 	public void setIds(List<Integer> ids) {
-		this.ids = ids;
 		setContainerDataSource(new PropertyVaadinContainer<T>(ids, lookup, properties));
 	}
 
 	@Override
-	public void setClickListener(TableActionListener<T> clickListener) {
+	public void setClickListener(TableActionListener clickListener) {
 		if (clickListener == null) {
 			if (tableClickListener != null) {
 				removeListener(tableClickListener);
@@ -90,7 +88,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		public void itemClick(ItemClickEvent event) {
 			if (event.isDoubleClick()) {
 				Integer id = (Integer) event.getItemId();
-				listener.action(lookup.lookup(id), getSelectedObjects());
+				listener.action(id, getSelectedIds());
 			}
 		}
 	}
@@ -113,19 +111,19 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		}
 		
 	}
-	
-	public List<T> getSelectedObjects() {
-		List<T> selectedObjects = new ArrayList<>();
+
+	public List<Integer> getSelectedIds() {
+		List<Integer> selectedIds = new ArrayList<>();
 		for (Object itemId : getItemIds()) {
 			if (isSelected(itemId)) {
-				selectedObjects.add(lookup.lookup((Integer) itemId));
+				selectedIds.add((Integer) itemId);
 			}
 		}
-		return selectedObjects;
+		return selectedIds;
 	}
 
 	@Override
-	public void setDeleteListener(TableActionListener<T> listener) {
+	public void setDeleteListener(TableActionListener listener) {
 		// TODO Delete Action on Vaadin Table
 	}
 
@@ -135,7 +133,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 
 	@Override
-	public void setFunctionListener(int function, TableActionListener<T> listener) {
+	public void setFunctionListener(int function, TableActionListener listener) {
 		// TODO Function Action on Vaadin Table
 	}
 	

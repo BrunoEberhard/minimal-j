@@ -79,7 +79,7 @@ public abstract class ClientToolkit {
 
 	public abstract IComponent createFormAlignLayout(IComponent content);
 
-	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener);
+	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener listener);
 
 	// Dialogs / Notification
 

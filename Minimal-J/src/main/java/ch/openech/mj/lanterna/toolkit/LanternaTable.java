@@ -33,16 +33,16 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	private final int[] columnWidthArray;
 	private final String[] columnTitleArray;
 	private int scrollIndex, lines;
-	private final List<T> selectedObjects;
+	private final List<Integer> selectedIds;
 	private int selectedLine;
 	private InsertListener insertListener;
-	private TableActionListener<T> clickListener, deleteListener;
+	private TableActionListener clickListener, deleteListener;
 	
 	public LanternaTable(Lookup<T> lookup, Object[] keys) {
 		this.lookup = lookup;
 		this.keys = keys;
 		this.properties = convert(keys);
-		selectedObjects = new ArrayList<T>();
+		selectedIds = new ArrayList<Integer>();
 		
 		columnTitleArray = new String[keys.length];
 		for (int i = 0; i<properties.size(); i++) {
@@ -116,10 +116,10 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		
 		int line = 0;
 		while (line < graphics.getHeight()-1 && line + scrollIndex < ids.size()) {
-			Object object = getObject(line + scrollIndex);
+			Integer id = getId(line + scrollIndex);
 			s = new StringBuilder(graphics.getWidth());
 			s.append('[');
-			s.append(selectedObjects.contains(object) ? 'x' : ' ');
+			s.append(selectedIds.contains(id) ? 'x' : ' ');
 			s.append(']');
 			
 			for (int i = 0; i<properties.size(); i++) {
@@ -145,6 +145,10 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		lines = graphics.getHeight() - 1;
 	}
 
+	private Integer getId(int index) {
+		return ids.get(index);
+	}
+
 	private T getObject(int index) {
 		int id = ids.get(index);
 		return lookup.lookup(id);
@@ -165,7 +169,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	public Result keyboardInteraction(Key key) {
 		switch (key.getKind()) {
 		case Enter:
-			clickListener.action(getSelectedObject(), getSelectedObjects());
+			clickListener.action(getSelectedId(), getSelectedIds());
 			return Result.EVENT_HANDLED;
 
 		case NormalKey:
@@ -201,11 +205,11 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		if (selectedRow >= ids.size()) {
 			return Result.EVENT_NOT_HANDLED;
 		}
-		T object = getObject(selectedRow);
-		if (selectedObjects.contains(object)) {
-			selectedObjects.remove(object);
+		Integer id = getId(selectedRow);
+		if (selectedIds.contains(id)) {
+			selectedIds.remove(id);
 		} else {
-			selectedObjects.add(object);
+			selectedIds.add(id);
 		}
 		return Result.EVENT_HANDLED;
 	}
@@ -250,21 +254,21 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		updateColumnWidths();
 	}
 
-	public List<T> getSelectedObjects() {
-		return selectedObjects;
+	public List<Integer> getSelectedIds() {
+		return selectedIds;
 	}
 
-	public T getSelectedObject() {
-		return getObject(scrollIndex + selectedLine);
+	public Integer getSelectedId() {
+		return getId(scrollIndex + selectedLine);
 	}
 
 	@Override
-	public void setClickListener(TableActionListener<T> listener) {
+	public void setClickListener(TableActionListener listener) {
 		this.clickListener = listener;
 	}
 
 	@Override
-	public void setDeleteListener(TableActionListener<T> listener) {
+	public void setDeleteListener(TableActionListener listener) {
 		this.deleteListener = listener;
 	}
 
@@ -274,7 +278,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	}
 
 	@Override
-	public void setFunctionListener(int function, TableActionListener<T> listener) {
+	public void setFunctionListener(int function, TableActionListener listener) {
 		// TODO Function Action in Lanterna Table
 	}
 

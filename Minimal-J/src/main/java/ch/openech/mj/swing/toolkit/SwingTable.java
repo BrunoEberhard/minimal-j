@@ -44,7 +44,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private final List<PropertyInterface> properties;
 	private final JTable table;
 	private final ItemTableModel tableModel;
-	private TableActionListener<T> listener;
+	private TableActionListener listener;
 	
 	public SwingTable(Lookup<T> lookup, Object[] keys) {
 		this.lookup = lookup;
@@ -102,27 +102,27 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	public void setIds(List<Integer> ids) {
 		tableModel.setIds(ids);
 	}
-
-	public T getSelectedObject() {
+	
+	public int getSelectedId() {
 		if (table.getSelectionModel().getLeadSelectionIndex() >= 0) {
 			// TODO check sorting (convert index?)
-			return tableModel.getObject(table.getSelectionModel().getLeadSelectionIndex());
+			return tableModel.getId(table.getSelectionModel().getLeadSelectionIndex());
 		} else {
-			return null;
+			return -1;
 		}
 	}
 
-	public List<T> getSelectedObjects() {
-		List<T> selectedObjects = new ArrayList<>(table.getSelectedRowCount());
+	public List<Integer> getSelectedIds() {
+		List<Integer> selectedIds = new ArrayList<>(table.getSelectedRowCount());
 		for (int row : table.getSelectedRows()) {
 			// TODO check sorting (convert index?)
-			selectedObjects.add(tableModel.getObject(row));
+			selectedIds.add(tableModel.getId(row));
 		}
-		return selectedObjects;
+		return selectedIds;
 	}
-
+	
 	@Override
-	public void setClickListener(TableActionListener<T> listener) {
+	public void setClickListener(TableActionListener listener) {
 		this.listener = listener;
 	}
 
@@ -132,7 +132,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() >= 2 && listener != null) {
 				try {
-					listener.action(getSelectedObject(), getSelectedObjects());
+					listener.action(getSelectedId(), getSelectedIds());
 				} catch (Exception x) {
 					x.printStackTrace();
 				}
@@ -158,14 +158,14 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	@Override
-	public void setDeleteListener(final TableActionListener<T> listener) {
+	public void setDeleteListener(final TableActionListener listener) {
 		if (listener != null) {
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					listener.action(getSelectedObject(), getSelectedObjects());
+					listener.action(getSelectedId(), getSelectedIds());
 				}
 			};
 			bindKey(KeyEvent.VK_DELETE, action);
@@ -175,14 +175,14 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	@Override
-	public void setFunctionListener(final int function, final TableActionListener<T> listener) {
+	public void setFunctionListener(final int function, final TableActionListener listener) {
 		if (listener != null) {
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					listener.action(getSelectedObject(), getSelectedObjects());
+					listener.action(getSelectedId(), getSelectedIds());
 				}
 			};
 			bindKey(KeyEvent.VK_F1+function, action);
@@ -218,6 +218,10 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			return lookup.lookup(ids.get(index));
 		}
 
+		public Integer getId(int index) {
+			return ids.get(index);
+		}
+		
 		@Override
 		public boolean isCellEditable(int row, int column) {
 			return false;

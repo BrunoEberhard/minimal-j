@@ -229,7 +229,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

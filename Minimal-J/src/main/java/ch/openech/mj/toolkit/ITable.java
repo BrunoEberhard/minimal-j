@@ -7,13 +7,13 @@ public interface ITable<T> extends IComponent {
 
 	public void setIds(List<Integer> object);
 
-	public void setClickListener(TableActionListener<T> listener);
-	public void setDeleteListener(TableActionListener<T> listener);
+	public void setClickListener(TableActionListener listener);
+	public void setDeleteListener(TableActionListener listener);
 	public void setInsertListener(InsertListener listener);
-	public void setFunctionListener(int function, TableActionListener<T> listener);
+	public void setFunctionListener(int function, TableActionListener listener);
 	
-	public static interface TableActionListener<S> {
-		public void action(S selectedObject, List<S> selectedObjects);
+	public static interface TableActionListener {
+		public void action(int selectedId, List<Integer> selectedIds);
 	}
 	
 	public static interface InsertListener {

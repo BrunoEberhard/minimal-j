@@ -23,16 +23,15 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 		super(pageContext);
 		lookup = new ListLookup<>();
 		table = ClientToolkit.getToolkit().createTable(lookup, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
-		table.setClickListener(new TableActionListener<HistoryVersion<T>>() {
+		table.setClickListener(new TableActionListener() {
 			@Override
-			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selected) {
+			public void action(int selectedId, List<Integer> selectedIds) {
 				List<String> pageLinks = new ArrayList<String>(versions.size());
 				for (HistoryVersion<T> version : versions) {
 					String link = link( version.object, version.version);
 					pageLinks.add(link);
 				}
-				int index = versions.indexOf(selectedObject);
-				getPageContext().show(pageLinks, index);
+				getPageContext().show(pageLinks, selectedId);
 			}
 		});
 	}

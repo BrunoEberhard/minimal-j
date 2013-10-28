@@ -217,7 +217,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener listener) {
 		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(search, keys, listener);
 		return createDialog(parent, null, panel);
 	}

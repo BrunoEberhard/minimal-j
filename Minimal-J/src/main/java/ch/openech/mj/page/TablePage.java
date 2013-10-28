@@ -33,17 +33,17 @@ public abstract class TablePage<T> extends AbstractPage implements RefreshablePa
 		return table;
 	}
 
-	protected abstract void clicked(T object, List<T> objects);
+	protected abstract void clicked(int selectedId, List<Integer> selectedIds);
 
 	@Override
 	public IComponent getComponent() {
 		return table;
 	}
 	
-	private class TableClickListener implements TableActionListener<T> {
+	private class TableClickListener implements TableActionListener {
 		@Override
-		public void action(T selectedObject, List<T> selectedObjects) {
-			clicked(selectedObject, selectedObjects);
+		public void action(int selectedId, List<Integer> selectedIds) {
+			clicked(selectedId, selectedIds);
 		}
 	}
 	
