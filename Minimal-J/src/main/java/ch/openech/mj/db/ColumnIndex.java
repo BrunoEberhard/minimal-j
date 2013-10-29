@@ -9,11 +9,13 @@ import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 public class ColumnIndex<T> implements Index<T> {
+	private final Table<T> table;
 	private final PropertyInterface property;
-	private final Map<Object, List<T>> index = new HashMap<>();
-	private final Map<T, Object> revertIndex = new HashMap<>();
+	private final Map<Object, List<Integer>> index = new HashMap<>();
+	private final Map<Integer, Object> revertIndex = new HashMap<>();
 	
 	public ColumnIndex(Table<T> table, Object key) {
+		this.table = table;
 		this.property = Keys.getProperty(key);
 	}
 	
@@ -21,19 +23,19 @@ public class ColumnIndex<T> implements Index<T> {
 	public void insert(int id, T object) {
 		Object key = property.getValue(object);
 		if (!index.containsKey(key)) {
-			List<T> list = new ArrayList<>();
+			List<Integer> list = new ArrayList<>();
 			index.put(key, list);
 		}
-		List<T> list = index.get(key);
-		list.add(object);
+		List<Integer> list = index.get(key);
+		list.add(id);
 		
-		revertIndex.put(object, key);
+		revertIndex.put(id, key);
 	}
 
 	@Override
 	public void update(int id, T object) {
-		Object oldKey = revertIndex.get(object);
-		index.get(oldKey).remove(object);
+		Object oldKey = revertIndex.get(id);
+		index.get(oldKey).remove(id);
 		insert(id, object);
 	}
 
@@ -51,7 +53,17 @@ public class ColumnIndex<T> implements Index<T> {
 		}
 	}
 	
-	public List<T> find(Object key) {
+	public List<Integer> findId(Object key) {
 		return index.get(key);
 	}
+	
+	public List<T> find(Object key) {
+		List<Integer> ids = findId(key);
+		List<T> result = new ArrayList<>(ids.size());
+		for (Integer id : ids) {
+			result.add(table.read(id));
+		}
+		return result;
+	}
+
 }

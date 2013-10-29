@@ -7,17 +7,19 @@ import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
 public class ColumnIndexUnqiue<T> implements Index<T> {
+	private final Table<T> table;
 	private final PropertyInterface property;
-	private final Map<Object, T> index = new HashMap<>();
+	private final Map<Object, Integer> index = new HashMap<>();
 	
 	public ColumnIndexUnqiue(Table<T> table, Object key) {
+		this.table = table;
 		this.property = Keys.getProperty(key);
 	}
 	
 	@Override
 	public void insert(int id, T object) {
 		Object key = property.getValue(object);
-		index.put(key, object);
+		index.put(key, id);
 	}
 
 	@Override
@@ -30,7 +32,16 @@ public class ColumnIndexUnqiue<T> implements Index<T> {
 		index.clear();
 	}
 
-	public T find(Object key) {
+	public Integer findId(Object key) {
 		return index.get(key);
+	}
+	
+	public T find(Object key) {
+		Integer id = findId(key);
+		if (id != null) {
+			return table.read(id);
+		} else {
+			return null;
+		}
 	}
 }
