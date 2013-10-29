@@ -5,6 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * Used to display a simple list of T in a UI table
+ *
+ * @param <T>
+ */
 public class ListLookup<T> implements Lookup<T> {
 
 	private List<T> list;
@@ -63,7 +68,7 @@ public class ListLookup<T> implements Lookup<T> {
 		}
 
 		@Override
-		public Integer[] toArray(Object[] a) {
+		public <T> T[] toArray(T[] a) {
 			throw new RuntimeException();
 		}
 
@@ -109,8 +114,7 @@ public class ListLookup<T> implements Lookup<T> {
 
 		@Override
 		public void add(int index, Integer element) {
-			// TODO Auto-generated method stub
-			
+			throw new RuntimeException();
 		}
 
 		@Override
