@@ -342,20 +342,7 @@ public abstract class AbstractTable<T> {
 		if (abstractTable instanceof ImmutableTable) {
 			return ((ImmutableTable<D>) abstractTable).getOrCreateId(value);
 		} else {
-			Table<D> table = (Table<D>) abstractTable;
-			Integer id = table.getId(value);
-			if (id != null) {
-				// eben das sollte nur gemacht werden, wenn ein update nötig ist
-				table.update(value);
-				return id;
-			} else {
-				if (insertIfNotExisting) {
-					id = table.insert(value);
-					return id;
-				} else {
-					return null;
-				}
-			}
+			throw new IllegalArgumentException(clazz.getName());
 		}
 	}
 	
@@ -459,11 +446,7 @@ public abstract class AbstractTable<T> {
 			} else if (value instanceof LocalTime) {
 				value = new java.sql.Time(((LocalTime) value).toDateTimeToday().getMillis());
 			} else if (value instanceof LocalDateTime) {
-				if (dbPersistence.isDerbyDb()) {
-					value = new java.sql.Timestamp(((LocalDateTime) value).toDate().getTime());
-				} else {
-					value = new java.sql.Date(((LocalDateTime) value).toDate().getTime());
-				}
+				value = new java.sql.Timestamp(((LocalDateTime) value).toDate().getTime());
 			} else if (value instanceof ReadablePartial) {
 				value = DateUtils.formatPartial((ReadablePartial) value);
 			} else if (value instanceof Set<?>) {
