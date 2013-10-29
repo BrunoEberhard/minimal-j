@@ -226,11 +226,6 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public T read(T object) {
-		int id = getId(object);
-		return read(id);
-	}
-	
 	@SuppressWarnings("unchecked")
 	private void loadRelations(T object, int id) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
