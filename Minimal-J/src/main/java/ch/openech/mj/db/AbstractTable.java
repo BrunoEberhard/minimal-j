@@ -324,15 +324,15 @@ public abstract class AbstractTable<T> {
 	}
 
 	/**
-	 * Sucht (oder kreiert) eine Reference auf den Wert value.
-	 * Achtung: Diese Methode soll nicht verwendet werden, um Sub-Werte aufzulösen
+	 * Search or create an immutable.<br>
+	 * At the moment no references of other values than immutables are allowed.
 	 * 
-	 * @param value Der Wert zu dem die Referenz ermittelt werden soll.
-	 * @param insertIfNotExisting true => Falls der Wert noch nicht existiert wird er erstellt
+	 * @param value the object from which to get the reference.
+	 * @param insertIfNotExisting true => create if not existing
 	 * @return <code>if value not found and parameter insert is false
 	 * @throws SQLException
 	 */
-	protected <D> Integer lookupReference(D value, boolean insertIfNotExisting) throws SQLException{
+	private <D> Integer lookupReference(D value, boolean insertIfNotExisting) throws SQLException {
 		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
 		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
