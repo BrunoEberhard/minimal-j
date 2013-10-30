@@ -47,7 +47,7 @@ public class ChainedProperty implements PropertyInterface {
 
 	@Override
 	public String getFieldPath() {
-		return field.getName() + "." + next.getFieldName();
+		return field.getName() + "." + next.getFieldPath();
 	}
 
 	@Override
