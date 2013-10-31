@@ -125,6 +125,10 @@ public class DbCreator {
 		s.append("\n");
 		createStatements.add(s.toString());
 		
+		if (dbPersistence.isDerbyDb()) {
+			createIndexStatements(createStatements, table);
+		}
+		
 		return createStatements;
 	}
 	
@@ -149,6 +153,34 @@ public class DbCreator {
 			}
 		}
 	}
+	
+	private void createIndexStatements(List<String> createStatements, AbstractTable<?> table) {
+		// CREATE INDEX OrigIndex ON Flights(orig_airport);
+		Set<String> indexed = new TreeSet<>();
+		for (Index<?> index : table.getIndexes()) {
+			String column = index.getColumn();
+			if (column != null) {
+				if (indexed.contains(column)) continue;
+				indexed.add(column);
+				
+				StringBuilder s = new StringBuilder();
+				s.append("CREATE INDEX IDX_");
+				s.append(table.getTableName());
+				s.append('_');
+				s.append(column);
+				s.append(" ON ");
+				s.append(table.getTableName());
+				s.append("(");
+				s.append(column);
+				if (table instanceof HistorizedTable) {
+					s.append(", version");
+				}
+				s.append(")");
+				createStatements.add(s.toString());
+			}
+		}
+	}
+
 
 	/**
 	 * Only public for tests. If this method doesnt throw an IllegalArgumentException
