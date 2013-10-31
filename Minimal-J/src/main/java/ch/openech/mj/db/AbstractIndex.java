@@ -43,6 +43,11 @@ public abstract class AbstractIndex<T> implements Index<T> {
 	}
 
 	@Override
+	public String getColumn() {
+		return column;
+	}
+	
+	@Override
 	public void initialize() throws SQLException {
 		selectByColumnStatement = prepare(selectQuery());
 	}

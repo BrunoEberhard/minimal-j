@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -93,30 +94,33 @@ public class DbCreator {
 		if (table instanceof HistorizedTable<?>) {
 			s.append(" version INTEGER NOT NULL");
 			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id, version)\n");
+				s.append(",\n PRIMARY KEY (id, version)");
 			}
 		} else if (table instanceof Table<?>) {
 			s.delete(s.length()-2, s.length());
 			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id)\n");
+				s.append(",\n PRIMARY KEY (id)");
 			}
 		} else if (table instanceof HistorizedSubTable) {
 			s.append(" startVersion INTEGER NOT NULL,\n");
 			s.append(" endVersion INTEGER NOT NULL,\n");
 			s.append(" position INTEGER NOT NULL");
 			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id, startVersion, position)\n");
+				s.append(",\n PRIMARY KEY (id, startVersion, position)");
 			}
 		} else if (table instanceof SubTable) {
 			s.append(" position INTEGER NOT NULL");
 			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id, position)\n");
+				s.append(",\n PRIMARY KEY (id, position)");
 			}
 		} else {
-			s.append(" PRIMARY KEY (id)\n");
+			s.append(" PRIMARY KEY (id)");
 		}
 		
-		s.append(")");
+		if (dbPersistence.isMySqlDb()) {
+			appendIndexes(s, table);
+		}
+		s.append("\n)");
 		appendTableEnd(s);
 		s.append("\n");
 		createStatements.add(s.toString());
@@ -124,6 +128,28 @@ public class DbCreator {
 		return createStatements;
 	}
 	
+	private void appendIndexes(StringBuilder s, AbstractTable<?> table) {
+		Set<String> indexed = new TreeSet<>();
+		for (Index<?> index : table.getIndexes()) {
+			String column = index.getColumn();
+			if (column != null) {
+				if (indexed.contains(column)) continue;
+				indexed.add(column);
+				
+				s.append(",\n INDEX IDX_");
+				s.append(table.getTableName());
+				s.append('_');
+				s.append(column);
+				s.append(" (");
+				s.append(column);
+				if (table instanceof HistorizedTable) {
+					s.append(", version");
+				}
+				s.append(")");
+			}
+		}
+	}
+
 	/**
 	 * Only public for tests. If this method doesnt throw an IllegalArgumentException
 	 * then a property is valid

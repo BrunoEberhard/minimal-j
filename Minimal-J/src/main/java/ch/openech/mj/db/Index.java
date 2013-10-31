@@ -5,6 +5,8 @@ import java.util.List;
 
 public interface Index<T> {
 
+	public String getColumn();
+
 	public List<Integer> findIds(Object query);
 
 	public T lookup(Integer id);
@@ -12,6 +14,5 @@ public interface Index<T> {
 	public void initialize() throws SQLException;
 
 	public void closeStatements() throws SQLException;
-
 
 }

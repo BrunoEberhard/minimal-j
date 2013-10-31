@@ -126,6 +126,10 @@ public abstract class AbstractTable<T> {
 		return lists;
 	}
 
+	protected List<Index<T>> getIndexes() {
+		return indexes;
+	}
+	
 	public void initialize() throws SQLException {
 		initializeImmutables();
 		

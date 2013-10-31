@@ -57,4 +57,9 @@ public class MultiIndex<T> implements Index<T> {
 		}
 	}
 
+	@Override
+	public String getColumn() {
+		return null;
+	}
+
 }
