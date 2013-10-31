@@ -188,7 +188,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	private void initializeIndexes() throws SQLException {
-		for (Index index : indexes) {
+		for (Index<T> index : indexes) {
 			index.initialize();
 		}
 	}
@@ -221,7 +221,7 @@ public abstract class AbstractTable<T> {
 		insertStatement.close();
 		selectMaxIdStatement.close();
 		clearStatement.close();
-		for (Index index : indexes) {
+		for (Index<T> index : indexes) {
 			index.closeStatements();
 		}
 	}
@@ -509,9 +509,7 @@ public abstract class AbstractTable<T> {
 		while (true) {
 			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 				String columnFieldPath = entry.getValue().getFieldPath();
-				System.out.println("Try: " + columnFieldPath);
 				if (columnFieldPath.equals(fieldPath)) {
-					System.out.println("Found!");
 					return entry;
 				}
 			}
