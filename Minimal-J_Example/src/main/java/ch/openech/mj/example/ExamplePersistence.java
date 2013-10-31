@@ -5,7 +5,7 @@ import static ch.openech.mj.example.model.Book.*;
 import java.sql.SQLException;
 
 import ch.openech.mj.db.DbPersistence;
-import ch.openech.mj.db.FulltextIndex;
+import ch.openech.mj.db.MultiIndex;
 import ch.openech.mj.db.Table;
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.example.model.Customer;
@@ -14,17 +14,17 @@ import ch.openech.mj.example.model.Lend;
 public class ExamplePersistence extends DbPersistence {
 
 	private final Table<Book> bookTable;
-	private final FulltextIndex<Book> bookIndex;
+	private final MultiIndex<Book> bookIndex;
 	private final Table<Customer> customerTable;
-	private final FulltextIndex<Customer> customerIndex;
+	private final MultiIndex<Customer> customerIndex;
 	private static ExamplePersistence instance;
 	
 	public ExamplePersistence() throws SQLException {
 		bookTable = addClass(Book.class);
-		bookIndex = bookTable.createFulltextIndex(new Object[]{BOOK.title, BOOK.author});
+		bookIndex = bookTable.createFulltextIndex(BOOK.title, BOOK.author);
 		
 		customerTable = addClass(Customer.class);
-		customerIndex = customerTable.createFulltextIndex(new Object[]{Customer.CUSTOMER.firstName, Customer.CUSTOMER.name});
+		customerIndex = customerTable.createFulltextIndex(Customer.CUSTOMER.firstName, Customer.CUSTOMER.name);
 		
 		addClass(Lend.class);
 		
@@ -46,7 +46,7 @@ public class ExamplePersistence extends DbPersistence {
 		return bookTable;
 	}
 
-	public FulltextIndex<Book> bookIndex() {
+	public MultiIndex<Book> bookIndex() {
 		return bookIndex;
 	}
 
@@ -54,7 +54,7 @@ public class ExamplePersistence extends DbPersistence {
 		return customerTable;
 	}
 
-	public FulltextIndex<Customer> customerIndex() {
+	public MultiIndex<Customer> customerIndex() {
 		return customerIndex;
 	}
 

@@ -51,9 +51,9 @@ public class HistorizedSubTable extends AbstractTable {
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
-			setParameterInt(insertStatement, parameterPos++, parentId);
-			setParameterInt(insertStatement, parameterPos++, position);
-			setParameterInt(insertStatement, parameterPos++, version);
+			helper.setParameterInt(insertStatement, parameterPos++, parentId);
+			helper.setParameterInt(insertStatement, parameterPos++, position);
+			helper.setParameterInt(insertStatement, parameterPos++, version);
 			insertStatement.execute();
 		}
 	}
@@ -83,9 +83,9 @@ public class HistorizedSubTable extends AbstractTable {
 			
 			if (insert) {
 				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
-				setParameterInt(insertStatement, parameterPos++, parentId);
-				setParameterInt(insertStatement, parameterPos++, position);
-				setParameterInt(insertStatement, parameterPos++, version);
+				helper.setParameterInt(insertStatement, parameterPos++, parentId);
+				helper.setParameterInt(insertStatement, parameterPos++, position);
+				helper.setParameterInt(insertStatement, parameterPos++, version);
 				insertStatement.execute();
 			}
 			position++;

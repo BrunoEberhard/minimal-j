@@ -16,7 +16,7 @@ import ch.openech.mj.model.PropertyInterface;
  * they are never changed nor deleted.
  * 
  */
-public class ImmutableTable<T> extends AbstractTable<T> {
+class ImmutableTable<T> extends AbstractTable<T> {
 	
 	protected PreparedStatement selectIdStatement;
 

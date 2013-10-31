@@ -3,14 +3,14 @@ package ch.openech.mj.search;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import ch.openech.mj.db.FulltextIndex;
+import ch.openech.mj.db.Index;
 
 public class FulltextIndexSearch<T> implements Search<T> {
 
-	private final FulltextIndex<T> index;
+	private final Index<T> index;
 	private final WeakHashMap<Integer, T> cache = new WeakHashMap<>();
 	
-	public FulltextIndexSearch(FulltextIndex<T> index) {
+	public FulltextIndexSearch(Index<T> index) {
 		this.index = index;
 	}
 	

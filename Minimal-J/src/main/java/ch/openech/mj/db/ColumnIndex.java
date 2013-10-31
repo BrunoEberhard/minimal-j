@@ -1,67 +1,64 @@
 package ch.openech.mj.db;//
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
 
-import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 
-public class ColumnIndex<T> implements Index<T> {
-	private final Table<T> table;
-	private final PropertyInterface property;
-	private final Map<Object, List<Integer>> index = new HashMap<>();
-	private final Map<Integer, Object> revertIndex = new HashMap<>();
+
+public class ColumnIndex<T> extends AbstractIndex<T> {
+
+	private final ColumnIndex<?> innerIndex;
 	
-	public ColumnIndex(Table<T> table, Object key) {
-		this.table = table;
-		this.property = Keys.getProperty(key);
+	ColumnIndex(DbPersistence dbPersistence, AbstractTable<T> table, PropertyInterface property, String column, ColumnIndex<?> innerIndex) {
+		super(dbPersistence, table, property, column);
+		this.innerIndex = innerIndex;
 	}
-	
-	@Override
-	public void insert(int id, T object) {
-		Object key = property.getValue(object);
-		if (!index.containsKey(key)) {
-			List<Integer> list = new ArrayList<>();
-			index.put(key, list);
+
+	private List<Integer> findIds(List<Integer> ids) throws SQLException {
+		List<Integer> result = new ArrayList<>(ids.size());
+		for (Integer i : ids) {
+			helper.setParameter(selectByColumnStatement, 1, i, property);
+			result.addAll(executeSelectIds(selectByColumnStatement));
 		}
-		List<Integer> list = index.get(key);
-		list.add(id);
-		
-		revertIndex.put(id, key);
+		return result;
 	}
-
-	@Override
-	public void update(int id, T object) {
-		Object oldKey = revertIndex.get(id);
-		index.get(oldKey).remove(id);
-		insert(id, object);
-	}
-
-	@Override
-	public void clear() {
-		index.clear();
-		revertIndex.clear();
-	}
-
-	public int count(Object key) {
-		if (index.containsKey(key)) {
-			return index.get(key).size();
-		} else {
-			return 0;
+	
+	public List<Integer> findIds(Object query) {
+		try {
+			if (innerIndex != null) {
+				List<Integer> queryIds = innerIndex.findIds(query);
+				return findIds(queryIds);
+			}
+			helper.setParameter(selectByColumnStatement, 1, query, property);
+			List<Integer> result = executeSelectIds(selectByColumnStatement);
+			return result;
+		} catch (SQLException x) {
+			String message = "Couldn't use index of column " + column + " of table " + table.getTableName() + " with query " + query;
+			sqlLogger.log(Level.SEVERE, message, x);
+			throw new RuntimeException(message);
 		}
 	}
-	
-	public List<Integer> findId(Object key) {
-		return index.get(key);
-	}
-	
-	public List<T> find(Object key) {
-		List<Integer> ids = findId(key);
+
+	public List<T> findObjects(Object query) {
+		List<Integer> ids = findIds(query);
 		List<T> result = new ArrayList<>(ids.size());
 		for (Integer id : ids) {
-			result.add(table.read(id));
+			result.add(lookup(id));
+		}
+		return result;
+	}
+	
+	private List<Integer> executeSelectIds(PreparedStatement preparedStatement) throws SQLException {
+		List<Integer> result = new ArrayList<>();
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			while (resultSet.next()) {
+				result.add(resultSet.getInt(1));
+			}
 		}
 		return result;
 	}

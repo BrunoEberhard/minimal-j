@@ -39,8 +39,8 @@ public class SubTable extends AbstractTable {
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
-			setParameterInt(insertStatement, parameterPos++, parentId);
-			setParameterInt(insertStatement, parameterPos++, position);
+			helper.setParameterInt(insertStatement, parameterPos++, parentId);
+			helper.setParameterInt(insertStatement, parameterPos++, position);
 			insertStatement.execute();
 		}
 	}
@@ -62,8 +62,8 @@ public class SubTable extends AbstractTable {
 			
 			if (insert) {
 				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
-				setParameterInt(insertStatement, parameterPos++, parentId);
-				setParameterInt(insertStatement, parameterPos++, position);
+				helper.setParameterInt(insertStatement, parameterPos++, parentId);
+				helper.setParameterInt(insertStatement, parameterPos++, position);
 				insertStatement.execute();
 			}
 			position++;
@@ -72,21 +72,21 @@ public class SubTable extends AbstractTable {
 
 	private void update(int parentId, int position, Object object) throws SQLException {
 		int parameterPos = setParameters(updateStatement, object, false, true);
-		setParameterInt(updateStatement, parameterPos++, parentId);
-		setParameterInt(updateStatement, parameterPos++, position);
+		helper.setParameterInt(updateStatement, parameterPos++, parentId);
+		helper.setParameterInt(updateStatement, parameterPos++, position);
 		updateStatement.execute();
 	}
 
 	private void insert(int parentId, int position, Object object) throws SQLException {
 		int parameterPos = setParameters(insertStatement, object, false, true);
-		setParameterInt(insertStatement, parameterPos++, parentId);
-		setParameterInt(insertStatement, parameterPos++, position);
+		helper.setParameterInt(insertStatement, parameterPos++, parentId);
+		helper.setParameterInt(insertStatement, parameterPos++, position);
 		insertStatement.execute();
 	}
 	
 	private void delete(int parentId, int position) throws SQLException {
-		setParameterInt(deleteStatement, 0, parentId);
-		setParameterInt(deleteStatement, 1, position);
+		helper.setParameterInt(deleteStatement, 0, parentId);
+		helper.setParameterInt(deleteStatement, 1, position);
 		deleteStatement.execute();
 	}
 

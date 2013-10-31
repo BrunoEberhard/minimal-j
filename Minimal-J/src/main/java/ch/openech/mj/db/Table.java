@@ -3,11 +3,12 @@ package ch.openech.mj.db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
@@ -25,29 +26,11 @@ public class Table<T> extends AbstractTable<T> {
 	
 	private final WeakHashMap<Object, Integer> objectIds = new WeakHashMap<Object, Integer>(2048);
 
-	private List<Index<T>> indexes = new ArrayList<>();
+	private Set<String> indexedColumns = new HashSet<>();
 	
 	public Table(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, null, clazz);
 		this.subTables = findSubTables();
-	}
-
-	public ColumnIndexUnqiue<T> createIndexUnique(Object key) {
-		ColumnIndexUnqiue<T> index = new ColumnIndexUnqiue<T>(this, key);
-		indexes.add(index);
-		return index;
-	}
-
-	public ColumnIndex<T> createIndex(Object... keys) {
-		ColumnIndex<T> index = new ColumnIndex<T>(this, keys);
-		indexes.add(index);
-		return index;
-	}
-
-	public FulltextIndex<T> createFulltextIndex(Object[] keys) {
-		FulltextIndex<T> index = new FulltextIndex<T>(this, keys);
-		indexes.add(index);
-		return index;
 	}
 	
 	@Override
@@ -68,14 +51,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	private void initializeIndexes() throws SQLException {
-		try (ResultSet resultSet = selectAllStatement.executeQuery()) {
-			while (resultSet.next()) {
-				ObjectWithId<T> objectWithId = readResultSetRow(resultSet, null);
-				for (Index<T> index : indexes) {
-					index.insert(objectWithId.id, objectWithId.object);
-				}
-			}
-		}
+		// something to do?
 	}
 
 	@Override
@@ -122,18 +98,11 @@ public class Table<T> extends AbstractTable<T> {
 				}
 			}
 			registerObjectId(object, id);
-			insertInIndexes(object, id);
 			return id;
 		} catch (SQLException x) {
 			sqlLogger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
 			sqlLogger.log(Level.FINE, "Object: " + object);
 			throw new RuntimeException("Couldn't insert object into " + getTableName() + " / Object: " + object);
-		}
-	}
-
-	protected void insertInIndexes(T object, int id) {
-		for (Index<T> index : indexes) {
-			index.insert(id, object);
 		}
 	}
 
@@ -154,13 +123,6 @@ public class Table<T> extends AbstractTable<T> {
 			table.clear();
 		}
 		super.clear();
-		clearIndexes();
-	}
-	
-	protected void clearIndexes() {
-		for (Index<T> index : indexes) {
-			index.clear();
-		}
 	}
 	
 	private Map<String, AbstractTable<?>> findSubTables() {
@@ -187,7 +149,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	private void update(int id, T object) throws SQLException {
 		int parameterPos = setParameters(updateStatement, object, false, true);
-		setParameterInt(updateStatement, parameterPos++, id);
+		helper.setParameterInt(updateStatement, parameterPos++, id);
 		updateStatement.execute();
 		
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
@@ -200,16 +162,8 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			subTable.update(id, list);
 		}
-		
-		updateIndexes(id, object);
 	}
 
-	protected void updateIndexes(int id, T object) {
-		for (Index<T> index : indexes) {
-			index.update(id, object);
-		}
-	}
-	
 	public T read(int id) {
 		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
 

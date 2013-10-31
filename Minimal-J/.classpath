@@ -18,36 +18,6 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-core/4.5.0/lucene-core-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-core/4.5.0/lucene-core-4.5.0-sources.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-queryparser/4.5.0/lucene-queryparser-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-queryparser/4.5.0/lucene-queryparser-4.5.0-sources.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-queries/4.5.0/lucene-queries-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-queries/4.5.0/lucene-queries-4.5.0-sources.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-sandbox/4.5.0/lucene-sandbox-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-sandbox/4.5.0/lucene-sandbox-4.5.0-sources.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/jakarta-regexp/jakarta-regexp/1.4/jakarta-regexp-1.4.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-analyzers-common/4.5.0/lucene-analyzers-common-4.5.0.jar" sourcepath="M2_REPO/org/apache/lucene/lucene-analyzers-common/4.5.0/lucene-analyzers-common-4.5.0-sources.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry exported="true" kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>

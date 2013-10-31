@@ -1,7 +1,6 @@
 package ch.openech.mj.db;
 
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,24 +10,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.derby.client.am.Types;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
-
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
-import ch.openech.mj.model.InvalidValues;
+import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.properties.ChainedProperty;
 import ch.openech.mj.model.properties.FinalReferenceProperty;
 import ch.openech.mj.model.properties.SimpleProperty;
-import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.StringUtils;
@@ -45,22 +38,31 @@ public abstract class AbstractTable<T> {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
 	
 	protected final DbPersistence dbPersistence;
+	protected final DbPersistenceHelper helper;
 	protected final Class<T> clazz;
 	protected final LinkedHashMap<String, PropertyInterface> columns;
 	protected final LinkedHashMap<String, PropertyInterface> lists;
 	
 	protected final String name;
+
+	protected final List<Index<T>> indexes = new ArrayList<>();
 	
 	protected PreparedStatement selectByIdStatement;
 	protected PreparedStatement insertStatement;
 	protected PreparedStatement selectMaxIdStatement;
 	protected PreparedStatement clearStatement;
+	
 
 	public AbstractTable(DbPersistence dbPersistence, String name, Class<T> clazz) {
 		this.dbPersistence = dbPersistence;
+		this.helper = new DbPersistenceHelper(dbPersistence);
 		this.name = name != null ? name : StringUtils.toDbName(clazz.getSimpleName());
 		this.clazz = clazz;
 		this.columns = findColumns(clazz);
+//		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+//			System.out.println(entry.getKey() + " = " + entry.getValue().getFieldPath());
+//		}
+//		System.out.println("\n\n");
 		this.lists = findLists(clazz);
 	}
 
@@ -92,13 +94,6 @@ public abstract class AbstractTable<T> {
 		}
 		return columns;
 	}	
-	
-	public static boolean isReference(PropertyInterface property) {
-		if (property.getFieldClazz().getName().startsWith("java")) return false;
-		if (property.getFieldClazz().getName().startsWith("org.joda")) return false;
-		if (Enum.class.isAssignableFrom(property.getFieldClazz())) return false;
-		return true;
-	}
 	
 	private LinkedHashMap<String, PropertyInterface> findLists(Class<?> clazz) {
 		LinkedHashMap<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
@@ -136,6 +131,8 @@ public abstract class AbstractTable<T> {
 		
 		create();
 		prepareStatements();
+		
+		initializeIndexes();
 	}
 
 	public int getMaxId() {
@@ -177,7 +174,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			if ("ID".equals(column.getKey())) continue;
 			PropertyInterface property = column.getValue();
-			if (isReference(property)) {
+			if (DbPersistenceHelper.isReference(property)) {
 				AbstractTable<?> refTable = dbPersistence.getTable(property.getFieldClazz());
 				if (refTable == null) {
 					if (property.getFieldClazz().equals(List.class)) {
@@ -187,6 +184,12 @@ public abstract class AbstractTable<T> {
 					refTable.initialize();
 				}
 			}
+		}
+	}
+	
+	private void initializeIndexes() throws SQLException {
+		for (Index index : indexes) {
+			index.initialize();
 		}
 	}
 	
@@ -218,6 +221,9 @@ public abstract class AbstractTable<T> {
 		insertStatement.close();
 		selectMaxIdStatement.close();
 		clearStatement.close();
+		for (Index index : indexes) {
+			index.closeStatements();
+		}
 	}
 	
 	protected Connection getConnection() {
@@ -294,7 +300,7 @@ public abstract class AbstractTable<T> {
 			
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
-				if (isReference(property)) {
+				if (DbPersistenceHelper.isReference(property)) {
 					value = dereference(fieldClass, (Integer) value, time);
 				} else if (Set.class == fieldClass) {
 					Set<?> set = (Set<?>) property.getValue(result.object);
@@ -302,7 +308,7 @@ public abstract class AbstractTable<T> {
 					EnumUtils.fillSet((int) value, enumClass, set);
 					continue; // skip setValue, it's final
 				} else {
-					value = convertToFieldClass(fieldClass, value);
+					value = helper.convertToFieldClass(fieldClass, value);
 				}
 				property.setValue(result.object, value);
 			}
@@ -346,64 +352,6 @@ public abstract class AbstractTable<T> {
 		}
 	}
 	
-	// TODO configuration of conversation to DB
-	@SuppressWarnings("unchecked")
-	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
-		if (value == null) return null;
-		
-		if (fieldClass == BigDecimal.class) {
-//			if (value instanceof Double) {
-//				value = new BigDecimal((Double) value);
-//			} else if (value instanceof Long) {
-//				value = new BigDecimal((Long) value);
-//			} else {
-//				throw new IllegalArgumentException(value.getClass().getSimpleName());
-//			}
-		} else if (fieldClass == LocalDate.class) {
-			if (value instanceof java.sql.Date) {
-				value = new LocalDate((java.sql.Date) value);
-			} else {
-				throw new IllegalArgumentException(value.getClass().getSimpleName());
-			}
-		} else if (fieldClass == LocalTime.class) {
-			if (value instanceof java.sql.Time) {
-				value = new LocalTime((java.sql.Time) value);
-			} else {
-				throw new IllegalArgumentException(value.getClass().getSimpleName());
-			}
-		} else if (fieldClass == LocalDateTime.class) {
-			if (value instanceof java.sql.Timestamp) {
-				value = new LocalDateTime((java.sql.Timestamp) value);
-			} else if (value instanceof java.sql.Date) {
-				value = new LocalDateTime((java.sql.Date) value);
-			} else {
-				throw new IllegalArgumentException(value.getClass().getSimpleName());
-			}
-		} else if (fieldClass == ReadablePartial.class) {
-			if (value instanceof String) {
-				String text = ((String) value).trim(); // cut the spaces from CHAR - Column
-				value = DateUtils.parsePartial(text);
-			} else if (value instanceof java.sql.Date) {
-				// this should not happen, but is maybe usefull for migrating a DB
-				value = new LocalDate(((java.sql.Date) value).getTime());
-			} else if (value != null) {
-				throw new IllegalArgumentException(value.getClass().getSimpleName());
-			}
-		} else if (fieldClass == Boolean.class) {
-			if (value instanceof Boolean) {
-				return (Boolean) value;
-			} else if (value instanceof Integer) {
-				value = Boolean.valueOf(((int) value) == 1);
-			} else if (value != null) {
-				throw new IllegalArgumentException(value.getClass().getSimpleName());
-			}
-		} else if (Enum.class.isAssignableFrom(fieldClass)) {
-			value = EnumUtils.valueList((Class<Enum>)fieldClass).get((Integer) value);
-		}
-		return value;
-	}
-
-	
 	protected int setParameters(PreparedStatement statement, T object) throws SQLException {
 		return setParameters(statement, object, false, false);
 	}
@@ -414,7 +362,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
 			if (value != null) {
-				if (isReference(property)) {
+				if (DbPersistenceHelper.isReference(property)) {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
@@ -423,71 +371,12 @@ public abstract class AbstractTable<T> {
 					}
 				} 
 			}
-			setParameter(statement, parameterPos++, value, property);
-			if (doubleValues) setParameter(statement, parameterPos++, value, property);
+			helper.setParameter(statement, parameterPos++, value, property);
+			if (doubleValues) helper.setParameter(statement, parameterPos++, value, property);
 		}
 		return parameterPos;
 	}
 			
-	protected void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
-		if (value == null) {
-			setParameterNull(preparedStatement, param, property.getFieldClazz());
-		} else {
-			if (value instanceof Enum<?>) {
-				Enum<?> e = (Enum<?>) value;
-				if (!InvalidValues.isInvalid(e)) {
-					value = e.ordinal();
-				} else {
-					setParameterNull(preparedStatement, param, property.getFieldClazz());
-					return;
-				}
-			} else if (value instanceof LocalDate) {
-				value = new java.sql.Date(((LocalDate) value).toDate().getTime());
-			} else if (value instanceof LocalTime) {
-				value = new java.sql.Time(((LocalTime) value).toDateTimeToday().getMillis());
-			} else if (value instanceof LocalDateTime) {
-				value = new java.sql.Timestamp(((LocalDateTime) value).toDate().getTime());
-			} else if (value instanceof ReadablePartial) {
-				value = DateUtils.formatPartial((ReadablePartial) value);
-			} else if (value instanceof Set<?>) {
-				Set<?> set = (Set<?>) value;
-				Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
-				value = EnumUtils.getInt(set, enumClass);
-			}
-			preparedStatement.setObject(param, value);
-		} 
-	}
-
-	protected void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
-		if (clazz == String.class) {
-			preparedStatement.setNull(param, Types.VARCHAR);
-		} else if (clazz == Integer.class) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == Boolean.class) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == BigDecimal.class) {
-			preparedStatement.setNull(param, Types.DECIMAL);
-		} else if (Enum.class.isAssignableFrom(clazz)) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == LocalDate.class) {
-			preparedStatement.setNull(param, Types.DATE);
-		} else if (clazz == LocalTime.class) {
-			preparedStatement.setNull(param, Types.TIME);
-		} else if (clazz == LocalDateTime.class) {
-			preparedStatement.setNull(param, Types.DATE);
-		} else if (dbPersistence.getTable(clazz) != null) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == ReadablePartial.class) {
-			preparedStatement.setNull(param, Types.CHAR);
-		} else {
-			throw new IllegalArgumentException(clazz.getSimpleName());
-		}
-	}
-	
-	protected static void setParameterInt(PreparedStatement preparedStatement, int param, int value) throws SQLException {
-		preparedStatement.setInt(param, value);
-	}
-	
 	protected abstract String insertQuery();
 
 	protected abstract String selectByIdQuery();
@@ -530,6 +419,106 @@ public abstract class AbstractTable<T> {
 		query.append(where);
 		
 		return query.toString();
+	}
+
+	public MultiIndex<T> createFulltextIndex(Object... keys) {
+		ColumnIndex<T>[] indexes = new ColumnIndex[keys.length];
+		for (int i = 0; i<keys.length; i++) {
+			PropertyInterface property = Keys.getProperty(keys[i]);
+			if (property.getFieldClazz() == String.class) {
+				indexes[i] = createFulltextIndex(keys[i]);
+			} else {
+				indexes[i] = createIndex(keys[i]);
+			}
+		}
+		return new MultiIndex<T>(indexes);
+	}
+	
+	public ColumnIndex<T> createFulltextIndex(Object key) {
+		PropertyInterface property = Keys.getProperty(key);
+		String fieldPath = property.getFieldPath();
+		return createFulltextIndex(property, fieldPath);
+	}
+	
+	public ColumnIndex<T> createFulltextIndex(PropertyInterface property, String fieldPath) {
+		ColumnIndex<T> result;
+		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
+
+		String myFieldPath = entry.getValue().getFieldPath();
+		if (fieldPath.length() > myFieldPath.length()) {
+			String rest = fieldPath.substring(myFieldPath.length() + 1);
+			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
+			ColumnIndex<?> innerIndex = innerTable.createFulltextIndex(property, rest);
+
+			result = new ColumnIndex<T>(dbPersistence, this, property, entry.getKey(), innerIndex);
+		} else {
+			result = new FulltextIndex<T>(dbPersistence, this, property, entry.getKey());
+		}
+		indexes.add(result);
+		return result;
+	}
+	
+	//
+
+	public ColumnIndex<T> createIndex(Object key) {
+		PropertyInterface property = Keys.getProperty(key);
+		String fieldPath = property.getFieldPath();
+		return createIndex(property, fieldPath);
+	}
+	
+	public ColumnIndex<T> createIndex(PropertyInterface property, String fieldPath) {
+		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
+
+		ColumnIndex<?> innerIndex = null;
+		String myFieldPath = entry.getValue().getFieldPath();
+		if (fieldPath.length() > myFieldPath.length()) {
+			String rest = fieldPath.substring(myFieldPath.length() + 1);
+			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
+			innerIndex = innerTable.createIndex(property, rest);
+		}
+		ColumnIndex<T> result = new ColumnIndex<T>(dbPersistence, this, property, entry.getKey(), innerIndex);
+		indexes.add(result);
+		return result;
+	}
+	
+	//
+	
+	public ColumnIndexUnqiue<T> createIndexUnique(Object key) {
+		PropertyInterface property = Keys.getProperty(key);
+		String fieldPath = property.getFieldPath();
+		return createIndexUnique(property, fieldPath);
+	}
+	
+	public ColumnIndexUnqiue<T> createIndexUnique(PropertyInterface property, String fieldPath) {
+		System.out.println("Create index on " + getTableName() + " with: " + fieldPath);
+		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
+
+		ColumnIndexUnqiue<?> innerIndex = null;
+		String myFieldPath = entry.getValue().getFieldPath();
+		if (fieldPath.length() > myFieldPath.length()) {
+			String rest = fieldPath.substring(myFieldPath.length() + 1);
+			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
+			innerIndex = innerTable.createIndexUnique(property, rest);
+		}
+		ColumnIndexUnqiue<T> result = new ColumnIndexUnqiue<T>(dbPersistence, this, property, entry.getKey(), innerIndex);
+		indexes.add(result);
+		return result;
+	}
+	
+	protected Entry<String, PropertyInterface> findX(String fieldPath) {
+		while (true) {
+			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+				String columnFieldPath = entry.getValue().getFieldPath();
+				System.out.println("Try: " + columnFieldPath);
+				if (columnFieldPath.equals(fieldPath)) {
+					System.out.println("Found!");
+					return entry;
+				}
+			}
+			int index = fieldPath.lastIndexOf('.');
+			if (index < 0) throw new IllegalArgumentException();
+			fieldPath = fieldPath.substring(0, index);
+		}
 	}
 
 }

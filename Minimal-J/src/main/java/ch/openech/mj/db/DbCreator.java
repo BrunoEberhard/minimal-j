@@ -70,7 +70,7 @@ public class DbCreator {
 			
 			s.append(" "); s.append(column.getKey()); s.append(" "); 
 
-			if (AbstractTable.isReference(property)) {
+			if (DbPersistenceHelper.isReference(property)) {
 				s.append("INTEGER");
 				s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
