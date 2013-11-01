@@ -241,8 +241,8 @@ public abstract class AbstractTable<T> {
 		statement.execute();
 		try (ResultSet autoIncrementResultSet = statement.getGeneratedKeys()) {
 			autoIncrementResultSet.next();
-			Integer id = autoIncrementResultSet.getInt(1);
-			sqlLogger.fine("AutoIncrement is " + id);
+			int id = autoIncrementResultSet.getInt(1);
+			if (sqlLogger.isLoggable(Level.FINE)) sqlLogger.fine("AutoIncrement is " + id);
 			return id;
 		}
 	}
