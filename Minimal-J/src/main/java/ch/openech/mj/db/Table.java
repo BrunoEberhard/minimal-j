@@ -36,7 +36,6 @@ public class Table<T> extends AbstractTable<T> {
 		updateStatement = prepare(updateQuery());
 		selectAllStatement = prepare(selectAllQuery());
 		initializeSubTables();
-		initializeIndexes();
 	}
 
 	private void initializeSubTables() throws SQLException {
@@ -44,10 +43,6 @@ public class Table<T> extends AbstractTable<T> {
 		for (AbstractTable<?> table : subTables.values()) {
 			table.initialize();
 		}
-	}
-
-	private void initializeIndexes() throws SQLException {
-		// something to do?
 	}
 
 	@Override
