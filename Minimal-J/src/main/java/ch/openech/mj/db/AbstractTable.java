@@ -59,10 +59,6 @@ public abstract class AbstractTable<T> {
 		this.name = name != null ? name : StringUtils.toDbName(clazz.getSimpleName());
 		this.clazz = clazz;
 		this.columns = findColumns(clazz);
-//		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-//			System.out.println(entry.getKey() + " = " + entry.getValue().getFieldPath());
-//		}
-//		System.out.println("\n\n");
 		this.lists = findLists(clazz);
 	}
 
