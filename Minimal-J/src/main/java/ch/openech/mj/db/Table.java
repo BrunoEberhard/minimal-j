@@ -4,11 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
@@ -26,8 +24,6 @@ public class Table<T> extends AbstractTable<T> {
 	
 	private final WeakHashMap<Object, Integer> objectIds = new WeakHashMap<Object, Integer>(2048);
 
-	private Set<String> indexedColumns = new HashSet<>();
-	
 	public Table(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, null, clazz);
 		this.subTables = findSubTables();
