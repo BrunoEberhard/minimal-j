@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.util.HashUtils;
 
 /**
  * Minimal-J internal<p>
@@ -19,6 +20,7 @@ import ch.openech.mj.model.PropertyInterface;
 class ImmutableTable<T> extends AbstractTable<T> {
 	
 	protected PreparedStatement selectIdStatement;
+	protected PreparedStatement selectIdByHashStatement;
 
 	public ImmutableTable(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, null, clazz);
@@ -31,6 +33,7 @@ class ImmutableTable<T> extends AbstractTable<T> {
 	protected void prepareStatements() throws SQLException {
 		super.prepareStatements();
 		selectIdStatement = prepare(selectIdQuery());
+		selectIdByHashStatement = prepare(selectIdByHashQuery());
 	}
 	
 	@Override
@@ -42,18 +45,33 @@ class ImmutableTable<T> extends AbstractTable<T> {
 	public Integer getOrCreateId(T object) throws SQLException {
 		if (EmptyObjects.isEmpty(object)) return null;
 		
-		Integer id = getId(object);
+		int hash = HashUtils.getHash(object);
+		Integer id = getId(object, hash);
 		if (id == null) {
-			id = executeInsertWithAutoIncrement(insertStatement, object);
+			id = executeInsertWithAutoIncrement(insertStatement, object, hash);
 		}
 		return id;
 	}
 	
-	private Integer getId(T object) throws SQLException {
-		setParameters(selectIdStatement, object, true, false);
-	
+	private Integer getId(T object, int hash) throws SQLException {
+		Integer result;
+		
+		selectIdByHashStatement.setInt(1, hash);
+		try (ResultSet resultSet = selectIdByHashStatement.executeQuery()) {
+			if (!resultSet.next()) {
+				return null;
+			}
+			result = resultSet.getInt(1);
+			boolean resultByHashUnique = !resultSet.next();
+			if (resultByHashUnique) {
+				return result;
+			}
+		}
+		
+		int parameterPos = setParameters(selectIdStatement, object, true, false);
+		selectIdStatement.setInt(parameterPos, hash);
 		try (ResultSet resultSet = selectIdStatement.executeQuery()) {
-			Integer result = resultSet.next() ? resultSet.getInt(1) : null;
+			result = resultSet.next() ? resultSet.getInt(1) : null;
 			return result;
 		}
 	}
@@ -84,7 +102,8 @@ class ImmutableTable<T> extends AbstractTable<T> {
 		return query.toString();
 	}
 	
-	protected String selectId() throws SQLException {
+	@Override
+	protected String selectIdQuery() {
 		StringBuilder where = new StringBuilder();
 	
 		boolean first = true;	
@@ -101,6 +120,14 @@ class ImmutableTable<T> extends AbstractTable<T> {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT id FROM "); query.append(getTableName()); query.append(" WHERE ");
 		query.append(where);
+		query.append(" AND hash = ?");
+		
+		return query.toString();
+	}
+	
+	protected String selectIdByHashQuery() {
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT id FROM "); query.append(getTableName()); query.append(" WHERE hash = ?");
 		
 		return query.toString();
 	}
@@ -112,17 +139,16 @@ class ImmutableTable<T> extends AbstractTable<T> {
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
 		Map<String, PropertyInterface> properties = getColumns();
 		int size = properties.entrySet().size();
-		int i = 0;
 		for (String name : properties.keySet()) {
 			s.append(name);
-			if (i++ < size - 1) s.append(", ");
+			s.append(", ");
 		}
-		s.append(") VALUES (");
+		s.append("hash) VALUES (");
 		for (int j = 0; j<size; j++) {
 			s.append("?");
-			if (j < size - 1) s.append(", ");
+			s.append(", ");
 		}
-		s.append(")");
+		s.append(" ?)");
 		
 		return s.toString();
 	}

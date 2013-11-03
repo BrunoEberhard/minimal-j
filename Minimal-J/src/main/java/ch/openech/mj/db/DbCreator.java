@@ -113,6 +113,9 @@ public class DbCreator {
 			if (dbPersistence.isMySqlDb()) {
 				s.append(",\n PRIMARY KEY (id, position)");
 			}
+		} else if (table instanceof ImmutableTable) {
+			s.append(" hash INTEGER NOT NULL,\n");
+			s.append(" PRIMARY KEY (id)");
 		} else {
 			s.append(" PRIMARY KEY (id)");
 		}
@@ -152,6 +155,11 @@ public class DbCreator {
 				s.append(")");
 			}
 		}
+		if (table instanceof ImmutableTable) {
+			s.append(",\n INDEX IDX_");
+			s.append(table.getTableName());
+			s.append("_hash (hash)");
+		}
 	}
 	
 	private void createIndexStatements(List<String> createStatements, AbstractTable<?> table) {
@@ -178,6 +186,15 @@ public class DbCreator {
 				s.append(")");
 				createStatements.add(s.toString());
 			}
+		}
+		if (table instanceof ImmutableTable) {
+			StringBuilder s = new StringBuilder();
+			s.append("CREATE INDEX IDX_");
+			s.append(table.getTableName());
+			s.append("_hash ON ");
+			s.append(table.getTableName());
+			s.append("(hash)");
+			createStatements.add(s.toString());
 		}
 	}
 

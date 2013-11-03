@@ -233,7 +233,11 @@ public abstract class AbstractTable<T> {
 	// execution helpers
 	
 	protected int executeInsertWithAutoIncrement(PreparedStatement statement, T object) throws SQLException {
-		setParameters(statement, object, false, true);
+		return executeInsertWithAutoIncrement(statement, object, null);
+	}
+	
+	protected int executeInsertWithAutoIncrement(PreparedStatement statement, T object, Integer hash) throws SQLException {
+		setParameters(statement, object, false, true, hash);
 		statement.execute();
 		try (ResultSet autoIncrementResultSet = statement.getGeneratedKeys()) {
 			autoIncrementResultSet.next();
@@ -353,10 +357,18 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected int setParameters(PreparedStatement statement, T object) throws SQLException {
-		return setParameters(statement, object, false, false);
+		return setParameters(statement, object, null);
+	}
+
+	protected int setParameters(PreparedStatement statement, T object, Integer hash) throws SQLException {
+		return setParameters(statement, object, false, false, hash);
 	}
 
 	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert) throws SQLException {
+		return setParameters(statement, object, doubleValues, insert, null);
+	}
+	
+	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert, Integer hash) throws SQLException {
 		int parameterPos = 1;
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
@@ -373,6 +385,10 @@ public abstract class AbstractTable<T> {
 			}
 			helper.setParameter(statement, parameterPos++, value, property);
 			if (doubleValues) helper.setParameter(statement, parameterPos++, value, property);
+		}
+		if (hash != null) {
+			statement.setInt(parameterPos++, hash);
+			if (doubleValues) statement.setInt(parameterPos++, hash);
 		}
 		return parameterPos;
 	}
@@ -490,15 +506,15 @@ public abstract class AbstractTable<T> {
 	}
 	
 	public ColumnIndexUnqiue<T> createIndexUnique(PropertyInterface property, String fieldPath) {
-		System.out.println("Create index on " + getTableName() + " with: " + fieldPath);
+		sqlLogger.info("Create index on " + getTableName() + " with: " + fieldPath);
 		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
 
-		ColumnIndexUnqiue<?> innerIndex = null;
+		ColumnIndex<?> innerIndex = null;
 		String myFieldPath = entry.getValue().getFieldPath();
 		if (fieldPath.length() > myFieldPath.length()) {
 			String rest = fieldPath.substring(myFieldPath.length() + 1);
 			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
-			innerIndex = innerTable.createIndexUnique(property, rest);
+			innerIndex = innerTable.createIndex(property, rest);
 		}
 		ColumnIndexUnqiue<T> result = new ColumnIndexUnqiue<T>(dbPersistence, this, property, entry.getKey(), innerIndex);
 		indexes.add(result);

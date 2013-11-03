@@ -10,9 +10,9 @@ import ch.openech.mj.model.PropertyInterface;
 
 public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 
-	protected ColumnIndexUnqiue<?> innerIndex;
+	protected ColumnIndex<?> innerIndex;
 	
-	ColumnIndexUnqiue(DbPersistence dbPersistence, AbstractTable<T> table, PropertyInterface property, String column, ColumnIndexUnqiue<?> innerIndex) {
+	ColumnIndexUnqiue(DbPersistence dbPersistence, AbstractTable<T> table, PropertyInterface property, String column, ColumnIndex<?> innerIndex) {
 		super(dbPersistence, table, property, column);
 		this.innerIndex = innerIndex;
 	}
@@ -20,10 +20,19 @@ public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 	public Integer findId(Object query) {		
 		try {
 			if (innerIndex != null) {
-				query = innerIndex.findId(query);
+				List<Integer> ids = innerIndex.findIds(query);
+				for (Integer id : ids) {
+					helper.setParameter(selectByColumnStatement, 1, id, property);
+					Integer result = executeSelectId(selectByColumnStatement);
+					if (result != null) {
+						return result;
+					}
+				}
+				return null;
+			} else {
+				helper.setParameter(selectByColumnStatement, 1, query, property);
+				return executeSelectId(selectByColumnStatement);
 			}
-			helper.setParameter(selectByColumnStatement, 1, query, property);
-			return executeSelectId(selectByColumnStatement);
 		} catch (SQLException x) {
 			String message = "Couldn't use index of column + " + column + " of table " + table.getTableName() + " with query " + query;
 			sqlLogger.log(Level.SEVERE, message, x);
