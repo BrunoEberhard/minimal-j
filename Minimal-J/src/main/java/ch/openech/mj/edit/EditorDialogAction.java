@@ -9,7 +9,9 @@ import ch.openech.mj.toolkit.ResourceAction;
 
 /**
  * An Action that shows a given Editor in a dialog if executed.
- * Dialog means the editor covers only the needed part of the screen.
+ * Dialog means the editor covers only the needed part of the screen
+ * and blocks the rest of it.<p>
+ * 
  * If the Editor should cover all of the screen use EditorPageAction.
  *
  */
