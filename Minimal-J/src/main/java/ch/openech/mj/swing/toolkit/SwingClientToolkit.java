@@ -369,7 +369,7 @@ public class SwingClientToolkit extends ClientToolkit {
 
 			protected void update() {
 				swingAction.putValue(Action.NAME, action.getName());
-				swingAction.putValue(Action.LONG_DESCRIPTION, action.getDescription());
+				swingAction.putValue(Action.SHORT_DESCRIPTION, action.getDescription());
 				swingAction.setEnabled(action.isEnabled());
 			}
 		});
