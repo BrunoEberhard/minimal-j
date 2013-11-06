@@ -104,9 +104,10 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 	
 	public int getSelectedId() {
-		if (table.getSelectionModel().getLeadSelectionIndex() >= 0) {
-			// TODO check sorting (convert index?)
-			return tableModel.getId(table.getSelectionModel().getLeadSelectionIndex());
+		int leadSelectionIndex = table.getSelectionModel().getLeadSelectionIndex();
+		if (leadSelectionIndex >= 0) {
+			int leadSelectionIndexInModel = table.convertRowIndexToModel(leadSelectionIndex);
+			return tableModel.getId(leadSelectionIndexInModel);
 		} else {
 			return -1;
 		}
@@ -115,8 +116,8 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	public List<Integer> getSelectedIds() {
 		List<Integer> selectedIds = new ArrayList<>(table.getSelectedRowCount());
 		for (int row : table.getSelectedRows()) {
-			// TODO check sorting (convert index?)
-			selectedIds.add(tableModel.getId(row));
+			int rowInModel = table.convertRowIndexToModel(row);
+			selectedIds.add(tableModel.getId(rowInModel));
 		}
 		return selectedIds;
 	}
