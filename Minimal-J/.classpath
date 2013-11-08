@@ -3,22 +3,22 @@
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar">
+	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derby/10.10.1.1/derby-10.10.1.1.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derbyclient/10.8.2.2/derbyclient-10.8.2.2.jar">
+	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derbyclient/10.10.1.1/derbyclient-10.10.1.1.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="var" path="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13.jar" sourcepath="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13-sources.jar">
+	<classpathentry kind="var" path="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13.jar" sourcepath="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13-sources.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/json/json/20090211/json-20090211.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
@@ -29,15 +29,11 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="var" path="M2_REPO/joda-time/joda-time/2.0/joda-time-2.0.jar" sourcepath="M2_REPO/joda-time/joda-time/2.0/joda-time-2.0-sources.jar">
+	<classpathentry exported="true" kind="var" path="M2_REPO/joda-time/joda-time/2.3/joda-time-2.3.jar" sourcepath="M2_REPO/joda-time/joda-time/2.3/joda-time-2.3-sources.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6.jar" sourcepath="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6-sources.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6.jar" sourcepath="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
