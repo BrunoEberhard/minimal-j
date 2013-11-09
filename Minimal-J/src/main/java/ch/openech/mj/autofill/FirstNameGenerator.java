@@ -35,7 +35,7 @@ public class FirstNameGenerator {
 	
 	private static void readNames() {
 		try {
-			InputStream inputStream = FirstNameGenerator.class.getClassLoader().getResourceAsStream("ch/openech/resources/vornamen.txt");
+			InputStream inputStream = FirstNameGenerator.class.getResourceAsStream("/ch/openech/resources/vornamen.txt");
 			readNames(inputStream);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -20,7 +20,7 @@ public class OrganisationNameGenerator {
 	
 	private static void readNames() {
 		try {
-			InputStream inputStream = OrganisationNameGenerator.class.getClassLoader().getResourceAsStream("ch/openech/resources/firmen.txt");
+			InputStream inputStream = OrganisationNameGenerator.class.getResourceAsStream("/ch/openech/resources/firmen.txt");
 			readNames(inputStream);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -86,7 +86,7 @@ public class ResourceHelper {
 	public static Icon getIcon(ResourceBundle resourceBundle, String key) {
 		String filename = getStringOptional(resourceBundle, key);
 		if (!StringUtils.isBlank(filename)) {
-			URL url = ResourceHelper.class.getClassLoader().getResource(filename);
+			URL url = ResourceHelper.class.getResource("icons/" + filename);
 			if (url != null) {
 				return new ImageIcon(url);
 			}
@@ -94,9 +94,9 @@ public class ResourceHelper {
 		return null;
 	}
 	
-	public static Icon getIcon(String key) {
-		key = "ch/openech/mj/resources/icons/" + key;
-		URL url = ResourceHelper.class.getClassLoader().getResource(key);
+	public static Icon getIcon(String filename) {
+		filename = "icons/" + filename;
+		URL url = ResourceHelper.class.getResource(filename);
 		if (url != null) {
 			return new ImageIcon(url);
 		} else {
