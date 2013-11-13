@@ -1,11 +1,11 @@
 package ch.openech.mj.example.page;
 
-import static ch.openech.mj.example.model.Book.*;
+import static ch.openech.mj.example.model.Lend.*;
 
 import java.util.List;
 
 import ch.openech.mj.example.ExamplePersistence;
-import ch.openech.mj.example.model.Book;
+import ch.openech.mj.example.model.Lend;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
@@ -13,21 +13,18 @@ import ch.openech.mj.page.TablePage;
 import ch.openech.mj.search.IndexSearch;
 
 
-public class BookTablePage extends TablePage<Book> implements RefreshablePage {
+public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
 
 	private final String text;
 	
 	public static final Object[] FIELDS = {
-		BOOK.bookIdentification.title, //
-		BOOK.bookIdentification.author, //
-		BOOK.date, //
-		BOOK.media, //
-		BOOK.pages, //
-		BOOK.available, //
+		LEND.book.title, //
+		LEND.book.author, //
+		LEND.till
 	};
 	
-	public BookTablePage(PageContext context, String text) {
-		super(context, new IndexSearch<>(ExamplePersistence.getInstance().bookIndex), FIELDS, text);
+	public LendTablePage(PageContext context, String text) {
+		super(context, new IndexSearch<>(ExamplePersistence.getInstance().lendByCustomerIndex), FIELDS, text);
 		this.text = text;
 	}
 	
@@ -37,7 +34,7 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 	}
 	@Override
 	public String getTitle() {
-		return "Treffer für " + text;
+		return "Ausleihen für " + text;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.util.ResourceBundle;
 
 import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.example.page.BookTablePage;
+import ch.openech.mj.example.page.CustomerTablePage;
 import ch.openech.mj.page.EditorPageAction;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.toolkit.IAction;
@@ -33,7 +34,7 @@ public class MjExampleApplication extends MjApplication {
 
 	@Override
 	public Class<?>[] getSearchClasses() {
-		return new Class<?>[]{BookTablePage.class, };
+		return new Class<?>[]{BookTablePage.class, CustomerTablePage.class};
 	}
 
 	@Override

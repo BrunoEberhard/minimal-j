@@ -18,7 +18,7 @@ public class BookPage extends ObjectViewPage<Book> {
 	}
 	
 	private static Book lookup(String bookId) {
-		return ExamplePersistence.getInstance().book().read(Integer.valueOf(bookId));
+		return ExamplePersistence.getInstance().book.read(Integer.valueOf(bookId));
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class BookPage extends ObjectViewPage<Book> {
 
 	@Override
 	public String getTitle() {
-		return "Buch " + book.title;
+		return "Buch " + book.bookIdentification.title;
 	}
 
 	@Override

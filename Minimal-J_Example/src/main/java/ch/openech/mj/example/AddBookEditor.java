@@ -15,7 +15,8 @@ public class AddBookEditor extends Editor<Book> {
 	
 	@Override
 	public String save(Book book) throws Exception {
-		int id = ExamplePersistence.getInstance().book().insert(book);
+		int id = ExamplePersistence.getInstance().book.insert(book);
+		ExamplePersistence.getInstance().commit();
 		return PageLink.link(BookPage.class, Integer.toString(id));
 	}
 

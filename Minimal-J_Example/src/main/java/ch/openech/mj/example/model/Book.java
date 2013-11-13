@@ -7,21 +7,17 @@ import java.util.Set;
 import org.joda.time.LocalDate;
 
 import ch.openech.mj.autofill.DemoEnabled;
-import ch.openech.mj.example.ExampleFormats;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Decimal;
-import ch.openech.mj.model.annotation.Required;
 import ch.openech.mj.model.annotation.Size;
 
 
 public class Book implements DemoEnabled {
 	public static final Book BOOK = Keys.of(Book.class);
 
-	@Required @Size(ExampleFormats.NAME) 
-	public String title;
+	public final BookIdentification bookIdentification = new BookIdentification();
+	
 	public final Set<Media> media = new HashSet<>();
-	@Size(ExampleFormats.NAME)
-	public String author;
 	public Boolean available;
 	public LocalDate date;
 	@Size(4)
@@ -31,9 +27,9 @@ public class Book implements DemoEnabled {
 	
 	@Override
 	public void fillWithDemoData() {
-		title = "The dark tower";
+		bookIdentification.title = "The dark tower";
 //		media = Media.hardcover;
-		author = "Stephan King";
+		bookIdentification.author = "Stephan King";
 		available = true;
 		date = new LocalDate(2009, 1, 1);
 		pages = 800;

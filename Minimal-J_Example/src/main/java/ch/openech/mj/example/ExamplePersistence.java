@@ -4,29 +4,46 @@ import static ch.openech.mj.example.model.Book.*;
 
 import java.sql.SQLException;
 
+import ch.openech.mj.db.ColumnIndex;
 import ch.openech.mj.db.DbPersistence;
+import ch.openech.mj.db.ImmutableTable;
 import ch.openech.mj.db.MultiIndex;
 import ch.openech.mj.db.Table;
 import ch.openech.mj.example.model.Book;
+import ch.openech.mj.example.model.BookIdentification;
 import ch.openech.mj.example.model.Customer;
+import ch.openech.mj.example.model.CustomerIdentification;
 import ch.openech.mj.example.model.Lend;
 
 public class ExamplePersistence extends DbPersistence {
 
-	private final Table<Book> bookTable;
-	private final MultiIndex<Book> bookIndex;
-	private final Table<Customer> customerTable;
-	private final MultiIndex<Customer> customerIndex;
+	public final ImmutableTable<BookIdentification> bookIdentification;
+	public final Table<Book> book;
+	public final MultiIndex<Book> bookIndex;
+	
+	public final ImmutableTable<CustomerIdentification> customerIdentification;
+	public final Table<Customer> customer;
+	public final MultiIndex<Customer> customerIndex;
+	
+	public final Table<Lend> lend;
+	public final ColumnIndex<Lend> lendByCustomerIndex;
+	public final ColumnIndex<Lend> lendByBookIndex;
+	
 	private static ExamplePersistence instance;
 	
 	public ExamplePersistence() throws SQLException {
-		bookTable = addClass(Book.class);
-		bookIndex = bookTable.createFulltextIndex(BOOK.title, BOOK.author);
+		bookIdentification = addImmutableClass(BookIdentification.class);
+		customerIdentification = addImmutableClass(CustomerIdentification.class);
 		
-		customerTable = addClass(Customer.class);
-		customerIndex = customerTable.createFulltextIndex(Customer.CUSTOMER.firstName, Customer.CUSTOMER.name);
+		book = addClass(Book.class);
+		bookIndex = book.createFulltextIndex(BOOK.bookIdentification.title, BOOK.bookIdentification.author);
 		
-		addClass(Lend.class);
+		customer = addClass(Customer.class);
+		customerIndex = customer.createFulltextIndex(Customer.CUSTOMER.customerIdentification.firstName, Customer.CUSTOMER.customerIdentification.name);
+		
+		lend = addClass(Lend.class);
+		lendByBookIndex = lend.createIndex(Lend.LEND.book);
+		lendByCustomerIndex = lend.createIndex(Lend.LEND.customer);
 		
 		connect();
 	}
@@ -42,20 +59,4 @@ public class ExamplePersistence extends DbPersistence {
 		return instance;
 	}
 	
-	public Table<Book> book() {
-		return bookTable;
-	}
-
-	public MultiIndex<Book> bookIndex() {
-		return bookIndex;
-	}
-
-	public Table<Customer> customer() {
-		return customerTable;
-	}
-
-	public MultiIndex<Customer> customerIndex() {
-		return customerIndex;
-	}
-
 }

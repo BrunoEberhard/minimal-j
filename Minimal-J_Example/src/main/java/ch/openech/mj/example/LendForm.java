@@ -9,12 +9,9 @@ public class LendForm extends Form<Lend> {
 	public LendForm(boolean editable) {
 		super(editable);
 		
-//		line(new BookField(LEND.book));
-//		line(new CustomerField(LEND.customer));
-		
-		line(LEND.book);
-		line(LEND.customer);
-		
+		line(new BookField(LEND.book));
+		line(new CustomerField(LEND.customer));
+				
 		line(LEND.till);
 	}
 	
