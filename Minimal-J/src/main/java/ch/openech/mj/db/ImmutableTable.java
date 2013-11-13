@@ -17,7 +17,7 @@ import ch.openech.mj.util.HashUtils;
  * they are never changed nor deleted.
  * 
  */
-class ImmutableTable<T> extends AbstractTable<T> {
+public class ImmutableTable<T> extends AbstractTable<T> {
 	
 	protected PreparedStatement selectIdStatement;
 	protected PreparedStatement selectIdByHashStatement;
@@ -42,15 +42,28 @@ class ImmutableTable<T> extends AbstractTable<T> {
 		selectIdStatement.close();
 	}
 
-	public Integer getOrCreateId(T object) throws SQLException {
+	public Integer getId(T object) {
+		return getId(object, false);
+	}
+	public Integer getOrCreateId(T object) {
+		return getId(object, true);
+	}
+	
+	private Integer getId(T object, boolean createIfNotExists) {
 		if (EmptyObjects.isEmpty(object)) return null;
-		
+
 		int hash = HashUtils.getHash(object);
-		Integer id = getId(object, hash);
-		if (id == null) {
-			id = executeInsertWithAutoIncrement(insertStatement, object, hash);
+		try {
+			Integer id = getId(object, hash);
+			if (id == null && createIfNotExists) {
+				id = executeInsertWithAutoIncrement(insertStatement, object, hash);
+			}
+			return id;
+		} catch (SQLException x) {
+			sqlLogger.log(Level.SEVERE, "Couldn't not getOrCreateId in " + getTableName(), x);
+			sqlLogger.log(Level.FINE, "Object: " + object);
+			throw new RuntimeException("Couldn't not getOrCreateId in " + getTableName() + " / Object: " + object);
 		}
-		return id;
 	}
 	
 	private Integer getId(T object, int hash) throws SQLException {
