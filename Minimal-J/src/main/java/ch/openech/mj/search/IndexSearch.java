@@ -5,12 +5,12 @@ import java.util.WeakHashMap;
 
 import ch.openech.mj.db.Index;
 
-public class FulltextIndexSearch<T> implements Search<T> {
+public class IndexSearch<T> implements Search<T> {
 
 	private final Index<T> index;
 	private final WeakHashMap<Integer, T> cache = new WeakHashMap<>();
 	
-	public FulltextIndexSearch(Index<T> index) {
+	public IndexSearch(Index<T> index) {
 		this.index = index;
 	}
 	
