@@ -49,7 +49,7 @@ public class DbCreator {
 	
 	private boolean existTable(AbstractTable<?> table) throws SQLException {
 		try (Statement statement = dbPersistence.getConnection().createStatement()) {
-			String query = "select * from " + table.getTableName();
+			String query = "select count(*) from " + table.getTableName();
 			AbstractTable.sqlLogger.fine(query);
 			statement.execute(query);
 		} catch (SQLException x) {
