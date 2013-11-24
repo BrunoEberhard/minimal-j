@@ -33,8 +33,9 @@ public class FirstNameGenerator {
 		return null;
  	}
 	
-	private static void readNames() {
+	private static synchronized void readNames() {
 		try {
+			if (!males.isEmpty()) return; // other thread already read the names
 			InputStream inputStream = FirstNameGenerator.class.getResourceAsStream("/ch/openech/resources/vornamen.txt");
 			readNames(inputStream);
 		} catch (Exception e) {
