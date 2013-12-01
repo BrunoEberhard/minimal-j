@@ -1,18 +1,14 @@
 package ch.openech.mj.db;
 
-import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.List;
 
 public interface Index<T> {
 
 	public String getColumn();
 
-	public List<Integer> findIds(Object query);
+	public List<Integer> findIds(Connection connection, Object query);
 
-	public T lookup(Integer id);
-	
-	public void initialize() throws SQLException;
-
-	public void closeStatements() throws SQLException;
+	public T lookup(Connection connection, Integer id);
 
 }

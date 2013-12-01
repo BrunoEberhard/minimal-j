@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,31 +24,20 @@ import ch.openech.mj.edit.value.EqualsHelper;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class HistorizedSubTable extends AbstractTable {
 
-	private PreparedStatement selectByIdAndTimeStatement;
-	private PreparedStatement endStatement;
-	private PreparedStatement readVersionsStatement;
+	private final String selectByIdAndTimeQuery;
+	private final String endQuery;
+	private final String readVersionsQuery;
 	
 	public HistorizedSubTable(DbPersistence dbPersistence, String prefix, Class clazz) {
 		super(dbPersistence, prefix, clazz);
+		
+		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
+		endQuery = endQuery();
+		readVersionsQuery = readVersionsQuery();
 	}
 	
-	@Override
-	public void initialize() throws SQLException {
-		super.initialize();
-		selectByIdAndTimeStatement = prepare(selectByIdAndTimeQuery());
-		readVersionsStatement = prepare(readVersionsQuery());
-		endStatement = prepare(endQuery());
-	}
-	
-	@Override
-	public void closeStatements() throws SQLException {
-		super.closeStatements();
-		selectByIdAndTimeStatement.close();
-		endStatement.close();
-		readVersionsStatement.close();
-	}
-	
-	public void insert(int parentId, List objects, Integer version) throws SQLException {
+	public void insert(Connection connection, int parentId, List objects, Integer version) throws SQLException {
+		PreparedStatement insertStatement = getStatement(connection, insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
@@ -58,9 +48,11 @@ public class HistorizedSubTable extends AbstractTable {
 		}
 	}
 
-	public void update(int parentId, List objects, int version) throws SQLException {
-		List objectsInDb = read(parentId, version);
+	public void update(Connection connection, int parentId, List objects, int version) throws SQLException {
+		List objectsInDb = read(connection, parentId, version);
 		int position = 0;
+		PreparedStatement endStatement = getStatement(connection, endQuery, false);
+		PreparedStatement insertStatement = getStatement(connection, insertQuery, false);
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			boolean end = false;
 			boolean insert = false;
@@ -92,22 +84,25 @@ public class HistorizedSubTable extends AbstractTable {
 		}
 	}
 
-	public List read(int parentId, Integer time) throws SQLException {
+	public List read(Connection connection, int parentId, Integer time) throws SQLException {
 		if (time == null) {
-			return read(parentId);
+			return read(connection, parentId);
 		}
+		PreparedStatement selectByIdAndTimeStatement = getStatement(connection, selectByIdAndTimeQuery, false);
 		selectByIdAndTimeStatement.setInt(1, parentId);
 		selectByIdAndTimeStatement.setInt(2, time);
 		selectByIdAndTimeStatement.setInt(3, time);
 		return executeSelectAll(selectByIdAndTimeStatement);
 	}
 
-	private List read(int id) throws SQLException {
+	private List read(Connection connection, int id) throws SQLException {
+		PreparedStatement selectByIdStatement = getStatement(connection, selectByIdQuery, false);
 		selectByIdStatement.setInt(1, id);
 		return executeSelectAll(selectByIdStatement);
 	}
 	
-	public void readVersions(int parentId, List<Integer> result) throws SQLException {
+	public void readVersions(Connection connection, int parentId, List<Integer> result) throws SQLException {
+		PreparedStatement readVersionsStatement = getStatement(connection, readVersionsQuery, false);
 		readVersionsStatement.setInt(1, parentId);
 		try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
 			while (resultSet.next()) {

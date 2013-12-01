@@ -1,5 +1,6 @@
 package ch.openech.mj.db;//
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,23 +20,25 @@ public class ColumnIndex<T> extends AbstractIndex<T> {
 		this.innerIndex = innerIndex;
 	}
 
-	private List<Integer> findIds(List<Integer> ids) throws SQLException {
+	private List<Integer> findIds(Connection connection, List<Integer> ids) throws SQLException {
+		PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
 		List<Integer> result = new ArrayList<>(ids.size());
 		for (Integer i : ids) {
-			helper.setParameter(selectByColumnStatement, 1, i, property);
-			result.addAll(executeSelectIds(selectByColumnStatement));
+			helper.setParameter(selectStatement, 1, i, property);
+			result.addAll(executeSelectIds(selectStatement));
 		}
 		return result;
 	}
 	
-	public List<Integer> findIds(Object query) {
+	public List<Integer> findIds(Connection connection, Object query) {
 		try {
 			if (innerIndex != null) {
-				List<Integer> queryIds = innerIndex.findIds(query);
-				return findIds(queryIds);
+				List<Integer> queryIds = innerIndex.findIds(connection, query);
+				return findIds(connection, queryIds);
 			}
-			helper.setParameter(selectByColumnStatement, 1, query, property);
-			List<Integer> result = executeSelectIds(selectByColumnStatement);
+			PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
+			helper.setParameter(selectStatement, 1, query, property);
+			List<Integer> result = executeSelectIds(selectStatement);
 			return result;
 		} catch (SQLException x) {
 			String message = "Couldn't use index of column " + column + " of table " + table.getTableName() + " with query " + query;
@@ -44,11 +47,11 @@ public class ColumnIndex<T> extends AbstractIndex<T> {
 		}
 	}
 
-	public List<T> findObjects(Object query) {
-		List<Integer> ids = findIds(query);
+	public List<T> findObjects(Connection connection, Object query) {
+		List<Integer> ids = findIds(connection, query);
 		List<T> result = new ArrayList<>(ids.size());
 		for (Integer id : ids) {
-			result.add(lookup(id));
+			result.add(lookup(connection, id));
 		}
 		return result;
 	}

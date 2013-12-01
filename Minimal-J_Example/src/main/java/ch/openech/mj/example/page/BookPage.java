@@ -2,7 +2,7 @@ package ch.openech.mj.example.page;
 
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.BookForm;
-import ch.openech.mj.example.ExamplePersistence;
+import ch.openech.mj.example.MjExampleApplication;
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.ObjectViewPage;
@@ -18,7 +18,7 @@ public class BookPage extends ObjectViewPage<Book> {
 	}
 	
 	private static Book lookup(String bookId) {
-		return ExamplePersistence.getInstance().book.read(Integer.valueOf(bookId));
+		return MjExampleApplication.persistence().read(Book.class, Integer.valueOf(bookId));
 	}
 
 	@Override

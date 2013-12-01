@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +47,15 @@ public abstract class AbstractTable<T> {
 	
 	protected final String name;
 
+	protected final Map<Object, Index<T>> indexByKey = new HashMap<>();
 	protected final List<Index<T>> indexes = new ArrayList<>();
 	
-	protected PreparedStatement selectByIdStatement;
-	protected PreparedStatement insertStatement;
-	protected PreparedStatement selectMaxIdStatement;
-	protected PreparedStatement clearStatement;
+	protected final Map<Connection, Map<String, PreparedStatement>> statements = new HashMap<>();
+
+	protected final String selectByIdQuery;
+	protected final String insertQuery;
+	protected final String selectMaxIdQuery;
+	protected final String clearQuery;
 	
 
 	public AbstractTable(DbPersistence dbPersistence, String name, Class<T> clazz) {
@@ -60,6 +65,13 @@ public abstract class AbstractTable<T> {
 		this.clazz = clazz;
 		this.columns = findColumns(clazz);
 		this.lists = findLists(clazz);
+		
+		this.selectByIdQuery = selectByIdQuery();
+		this.insertQuery = insertQuery();
+		this.selectMaxIdQuery = selectMaxIdQuery();
+		this.clearQuery = clearQuery();
+		
+		findImmutables();
 	}
 
 	private LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
@@ -121,26 +133,54 @@ public abstract class AbstractTable<T> {
 	protected LinkedHashMap<String, PropertyInterface> getLists() {
 		return lists;
 	}
+	
+	public Index<T> getIndex(Object key) {
+		return indexByKey.get(key);
+	}
 
-	protected List<Index<T>> getIndexes() {
+	protected Collection<Index<T>> getIndexes() {
 		return indexes;
 	}
 	
-	public void initialize() throws SQLException {
-		initializeImmutables();
-		
-		create();
-		prepareStatements();
-		
-		initializeIndexes();
+	protected PreparedStatement getStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
+		if (!statements.containsKey(connection)) {
+			statements.put(connection, new HashMap<String, PreparedStatement>());
+		}
+		Map<String, PreparedStatement> statementsForConnection = statements.get(connection);
+		if (!statementsForConnection.containsKey(query)) {
+			statementsForConnection.put(query, createStatement(connection, query, returnGeneratedKeys));
+		}
+		return statementsForConnection.get(query);
+	}
+	
+	private PreparedStatement createStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
+		if (returnGeneratedKeys) {
+			if (sqlLogger.isLoggable(Level.FINE)) {
+				return new LoggingPreparedStatement(connection, query, Statement.RETURN_GENERATED_KEYS, sqlLogger);
+			} else {
+				return connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			}
+		} else {
+			if (sqlLogger.isLoggable(Level.FINE)) {
+				return new LoggingPreparedStatement(connection, query, sqlLogger);
+			} else {
+				return connection.prepareStatement(query);
+			}
+		}
 	}
 
-	public int getMaxId() {
-		try (ResultSet resultSet = selectMaxIdStatement.executeQuery()) {
-			if (resultSet.next()) {
-				return resultSet.getInt(1);
-			} else {
-				return 0;
+	public int getMaxId(Connection connection) {
+		try {
+			PreparedStatement statement = getStatement(connection, selectMaxIdQuery, false);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getInt(1);
+				} else {
+					return 0;
+				}
+			} catch (SQLException x) {
+				sqlLogger.log(Level.SEVERE, "Couldn't get max Id of " + getTableName(), x);
+				throw new RuntimeException("Couldn't get max Id of " + getTableName());
 			}
 		} catch (SQLException x) {
 			sqlLogger.log(Level.SEVERE, "Couldn't get max Id of " + getTableName(), x);
@@ -148,14 +188,15 @@ public abstract class AbstractTable<T> {
 		}
 	}
 	
-	private void create() throws SQLException {
+	public void create(Connection connection) throws SQLException {
 		DbCreator creator = new DbCreator(dbPersistence);
-		creator.create(this);
+		creator.create(connection, this);
 	}
 	
-	public void clear() {
+	public void clear(Connection connection) {
 		try {
-			clearStatement.execute();
+			PreparedStatement statement = getStatement(connection, clearQuery, false);
+			statement.execute(clearQuery());
 		} catch (SQLException x) {
 			sqlLogger.log(Level.SEVERE, "Clear of Table " + getTableName() + " failed", x);
 			throw new RuntimeException("Clear of Table " + getTableName() + " failed");
@@ -170,7 +211,7 @@ public abstract class AbstractTable<T> {
 		return clazz;
 	}
 	
-	private void initializeImmutables() throws SQLException {
+	private void findImmutables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			if ("ID".equals(column.getKey())) continue;
 			PropertyInterface property = column.getValue();
@@ -181,53 +222,9 @@ public abstract class AbstractTable<T> {
 						throw new IllegalArgumentException("Table: " + getTableName());
 					}
 					refTable = dbPersistence.addImmutableClass(property.getFieldClazz());
-					refTable.initialize();
 				}
 			}
 		}
-	}
-	
-	private void initializeIndexes() throws SQLException {
-		for (Index<T> index : indexes) {
-			index.initialize();
-		}
-	}
-	
-	protected void prepareStatements() throws SQLException {
-		insertStatement = prepareReturnGeneratedKeys(insertQuery());
-		selectByIdStatement = prepare(selectByIdQuery());
-		selectMaxIdStatement = prepare(selectMaxIdQuery());
-		clearStatement = prepare(clearQuery());
-	}
-	
-	protected PreparedStatement prepare(String statement) throws SQLException {
-		if (sqlLogger.isLoggable(Level.FINE)) {
-			return new LoggingPreparedStatement(getConnection(), statement, sqlLogger);
-		} else {
-			return getConnection().prepareStatement(statement);
-		}
-	}
-	
-	protected PreparedStatement prepareReturnGeneratedKeys(String statement) throws SQLException {
-		if (sqlLogger.isLoggable(Level.FINE)) {
-			return new LoggingPreparedStatement(getConnection(), statement, Statement.RETURN_GENERATED_KEYS, sqlLogger);
-		} else {
-			return getConnection().prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
-		}
-	}
-
-	public void closeStatements() throws SQLException {
-		selectByIdStatement.close();
-		insertStatement.close();
-		selectMaxIdStatement.close();
-		clearStatement.close();
-		for (Index<T> index : indexes) {
-			index.closeStatements();
-		}
-	}
-	
-	protected Connection getConnection() {
-		return dbPersistence.getConnection();
 	}
 
 	// execution helpers
@@ -287,6 +284,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
+		Connection connection = resultSet.getStatement().getConnection();
 		ObjectWithId<T> result = new ObjectWithId<>();
 		result.object = CloneHelper.newInstance(clazz);
 		
@@ -305,7 +303,7 @@ public abstract class AbstractTable<T> {
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (DbPersistenceHelper.isReference(property)) {
-					value = dereference(fieldClass, (Integer) value, time);
+					value = dereference(connection, fieldClass, (Integer) value, time);
 				} else if (Set.class == fieldClass) {
 					Set<?> set = (Set<?>) property.getValue(result.object);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
@@ -320,14 +318,14 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected <D> Object dereference(Class<D> clazz, int id, Integer time) {
+	protected <D> Object dereference(Connection connection, Class<D> clazz, int id, Integer time) {
 		AbstractTable<D> table = dbPersistence.getTable(clazz);
 		if (table instanceof ImmutableTable) {
-			return ((ImmutableTable<?>) table).read(id);
+			return ((ImmutableTable<?>) table).read(connection,id);
 		} else if (table instanceof HistorizedTable<?>) {
-			return ((HistorizedTable<?>) table).read(id, time);			
+			return ((HistorizedTable<?>) table).read(connection,id, time);			
 		} else if (table instanceof Table) {
-			return ((Table<?>) table).read(id);
+			return ((Table<?>) table).read(connection,id);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
@@ -342,7 +340,7 @@ public abstract class AbstractTable<T> {
 	 * @return <code>if value not found and parameter insert is false
 	 * @throws SQLException
 	 */
-	private <D> Integer lookupReference(D value, boolean insertIfNotExisting) throws SQLException {
+	private <D> Integer lookupReference(Connection connection, D value, boolean insertIfNotExisting) throws SQLException {
 		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
 		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
@@ -350,7 +348,7 @@ public abstract class AbstractTable<T> {
 			throw new IllegalArgumentException(clazz.getName());
 		}
 		if (abstractTable instanceof ImmutableTable) {
-			return ((ImmutableTable<D>) abstractTable).getOrCreateId(value);
+			return ((ImmutableTable<D>) abstractTable).getOrCreateId(connection, value);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}
@@ -369,6 +367,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert, Integer hash) throws SQLException {
+		Connection connection = statement.getConnection();
 		int parameterPos = 1;
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
@@ -376,7 +375,7 @@ public abstract class AbstractTable<T> {
 			if (value != null) {
 				if (DbPersistenceHelper.isReference(property)) {
 					try {
-						value = lookupReference(value, insert);
+						value = lookupReference(connection, value, insert);
 					} catch (IllegalArgumentException e) {
 						sqlLogger.severe(object.getClass().getName() + " / " + property.getFieldName());
 						throw e;
@@ -447,16 +446,20 @@ public abstract class AbstractTable<T> {
 				indexes[i] = createIndex(keys[i]);
 			}
 		}
-		return new MultiIndex<T>(indexes);
+		MultiIndex<T> index = new MultiIndex<T>(indexes);
+		indexByKey.put(keys, index);
+		return index;
 	}
 	
 	public ColumnIndex<T> createFulltextIndex(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
 		String fieldPath = property.getFieldPath();
-		return createFulltextIndex(property, fieldPath);
+		ColumnIndex<T> index = createFulltextIndex(property, fieldPath);
+		indexByKey.put(key, index);
+		return index;
 	}
 	
-	public ColumnIndex<T> createFulltextIndex(PropertyInterface property, String fieldPath) {
+	private ColumnIndex<T> createFulltextIndex(PropertyInterface property, String fieldPath) {
 		ColumnIndex<T> result;
 		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
 
@@ -479,7 +482,9 @@ public abstract class AbstractTable<T> {
 	public ColumnIndex<T> createIndex(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
 		String fieldPath = property.getFieldPath();
-		return createIndex(property, fieldPath);
+		ColumnIndex<T> index = createIndex(property, fieldPath);
+		indexByKey.put(key, index);
+		return index;
 	}
 	
 	public ColumnIndex<T> createIndex(PropertyInterface property, String fieldPath) {
@@ -502,7 +507,9 @@ public abstract class AbstractTable<T> {
 	public ColumnIndexUnqiue<T> createIndexUnique(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
 		String fieldPath = property.getFieldPath();
-		return createIndexUnique(property, fieldPath);
+		ColumnIndexUnqiue<T> index = createIndexUnique(property, fieldPath);
+		indexByKey.put(key, index);
+		return index;
 	}
 	
 	public ColumnIndexUnqiue<T> createIndexUnique(PropertyInterface property, String fieldPath) {

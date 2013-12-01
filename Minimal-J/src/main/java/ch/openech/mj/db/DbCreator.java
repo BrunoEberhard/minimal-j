@@ -1,6 +1,7 @@
 package ch.openech.mj.db;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -35,10 +36,10 @@ public class DbCreator {
 		this.dbPersistence = dbPersistence;
 	}
 	
-	public void create(AbstractTable<?> table) throws SQLException {
-		if (existTable(table)) return;
+	public void create(Connection connection, AbstractTable<?> table) throws SQLException {
+		if (existTable(connection, table)) return;
 		
-		try (Statement statement = dbPersistence.getConnection().createStatement()) {
+		try (Statement statement = connection.createStatement()) {
 			List<String> createStatements = getCreateStatements(table);
 			for (String createStatement : createStatements) {
 				AbstractTable.sqlLogger.fine(createStatement);
@@ -47,8 +48,8 @@ public class DbCreator {
 		}
 	}
 	
-	private boolean existTable(AbstractTable<?> table) throws SQLException {
-		try (Statement statement = dbPersistence.getConnection().createStatement()) {
+	private boolean existTable(Connection connection, AbstractTable<?> table) throws SQLException {
+		try (Statement statement = connection.createStatement()) {
 			String query = "select count(*) from " + table.getTableName();
 			AbstractTable.sqlLogger.fine(query);
 			statement.execute(query);

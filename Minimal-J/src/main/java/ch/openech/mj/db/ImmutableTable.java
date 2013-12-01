@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,43 +20,34 @@ import ch.openech.mj.util.HashUtils;
  */
 public class ImmutableTable<T> extends AbstractTable<T> {
 	
-	protected PreparedStatement selectIdStatement;
-	protected PreparedStatement selectIdByHashStatement;
+	protected final String selectIdQuery;
+	protected final String selectIdByHashQuery;
 
 	public ImmutableTable(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, null, clazz);
 		if (clazz.equals(List.class)) {
 			throw new IllegalArgumentException();
 		}
+
+		selectIdQuery = selectIdQuery();
+		selectIdByHashQuery = selectIdByHashQuery();
 	}
 
-	@Override
-	protected void prepareStatements() throws SQLException {
-		super.prepareStatements();
-		selectIdStatement = prepare(selectIdQuery());
-		selectIdByHashStatement = prepare(selectIdByHashQuery());
+	public Integer getId(Connection connection, T object) {
+		return getId(connection, object, false);
+	}
+	public Integer getOrCreateId(Connection connection, T object) {
+		return getId(connection, object, true);
 	}
 	
-	@Override
-	public void closeStatements() throws SQLException {
-		super.closeStatements();
-		selectIdStatement.close();
-	}
-
-	public Integer getId(T object) {
-		return getId(object, false);
-	}
-	public Integer getOrCreateId(T object) {
-		return getId(object, true);
-	}
-	
-	private Integer getId(T object, boolean createIfNotExists) {
+	private Integer getId(Connection connection, T object, boolean createIfNotExists) {
 		if (EmptyObjects.isEmpty(object)) return null;
 
 		int hash = HashUtils.getHash(object);
 		try {
-			Integer id = getId(object, hash);
+			Integer id = getId(connection, object, hash);
 			if (id == null && createIfNotExists) {
+				PreparedStatement insertStatement = getStatement(connection, insertQuery, true);
 				id = executeInsertWithAutoIncrement(insertStatement, object, hash);
 			}
 			return id;
@@ -66,9 +58,10 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		}
 	}
 	
-	private Integer getId(T object, int hash) throws SQLException {
+	private Integer getId(Connection connection, T object, int hash) throws SQLException {
 		Integer result;
 		
+		PreparedStatement selectIdByHashStatement = getStatement(connection, selectIdByHashQuery, true);
 		selectIdByHashStatement.setInt(1, hash);
 		try (ResultSet resultSet = selectIdByHashStatement.executeQuery()) {
 			if (!resultSet.next()) {
@@ -81,6 +74,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 			}
 		}
 		
+		PreparedStatement selectIdStatement = getStatement(connection, selectIdQuery, true);
 		int parameterPos = setParameters(selectIdStatement, object, true, false);
 		selectIdStatement.setInt(parameterPos, hash);
 		try (ResultSet resultSet = selectIdStatement.executeQuery()) {
@@ -89,10 +83,11 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		}
 	}
 
-	public T read(Integer id) {
+	public T read(Connection connection, Integer id) {
 		if (id == null) return EmptyObjects.getEmptyObject(getClazz());
 		
 		try {
+			PreparedStatement selectByIdStatement = getStatement(connection, selectByIdQuery, true);
 			selectByIdStatement.setInt(1, id);
 			return executeSelect(selectByIdStatement);
 		} catch (SQLException x) {
@@ -101,7 +96,8 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		}
 	}
 
-	public void insert(T object) throws SQLException {
+	public void insert(Connection connection, T object) throws SQLException {
+		PreparedStatement insertStatement = getStatement(connection, insertQuery, true);
 		executeInsert(insertStatement, object);
 	}
 	

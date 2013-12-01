@@ -1,6 +1,5 @@
 package ch.openech.mj.example;
 
-import ch.openech.mj.db.Table;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Customer;
@@ -34,8 +33,7 @@ public class AddLendEditor extends Editor<Lend> {
 
 	@Override
 	public String save(Lend lend) throws Exception {
-		int id = ((Table<Lend>) ExamplePersistence.getInstance().getTable(Lend.class)).insert(lend);
-		ExamplePersistence.getInstance().commit();
+		int id = MjExampleApplication.persistence().insert(lend);
 		return "";
 	}
 

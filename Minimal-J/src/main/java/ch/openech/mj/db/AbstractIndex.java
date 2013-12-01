@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.openech.mj.model.PropertyInterface;
@@ -18,7 +17,7 @@ public abstract class AbstractIndex<T> implements Index<T> {
 	protected final PropertyInterface property;
 	protected final String column;
 	
-	protected PreparedStatement selectByColumnStatement;
+	protected final String selectQuery;
 
 	protected AbstractIndex(DbPersistence dbPersistence, AbstractTable<T> table, PropertyInterface property, String column) {
 		this.dbPersistence = dbPersistence;
@@ -26,14 +25,15 @@ public abstract class AbstractIndex<T> implements Index<T> {
 		this.table = table;
 		this.property = property;
 		this.column = column;
+		this.selectQuery = selectQuery();
 	}
 
-	public T lookup(Integer id) {
+	public T lookup(Connection connection, Integer id) {
 		if (id != null) {
 			if (table instanceof ImmutableTable) {
-				return ((ImmutableTable<T>) table).read(id);
+				return ((ImmutableTable<T>) table).read(connection, id);
 			} else if (table instanceof Table) {
-				return ((Table<T>) table).read(id);
+				return ((Table<T>) table).read(connection, id);
 			} else {
 				throw new IllegalStateException();
 			}
@@ -45,11 +45,6 @@ public abstract class AbstractIndex<T> implements Index<T> {
 	@Override
 	public String getColumn() {
 		return column;
-	}
-	
-	@Override
-	public void initialize() throws SQLException {
-		selectByColumnStatement = prepare(selectQuery());
 	}
 	
 	protected String selectQuery() {
@@ -70,23 +65,6 @@ public abstract class AbstractIndex<T> implements Index<T> {
 				return null;
 			}
 		}
-	}
-
-	protected Connection getConnection() {
-		return dbPersistence.getConnection();
-	}
-
-	protected PreparedStatement prepare(String statement) throws SQLException {
-		if (sqlLogger.isLoggable(Level.FINE)) {
-			return new LoggingPreparedStatement(getConnection(), statement, sqlLogger);
-		} else {
-			return getConnection().prepareStatement(statement);
-		}
-	}
-
-	@Override
-	public void closeStatements() throws SQLException {
-		selectByColumnStatement.close();
 	}
 
 }

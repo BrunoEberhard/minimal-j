@@ -97,15 +97,7 @@ public class DbPersistenceHelper {
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
 		if (value == null) return null;
 		
-		if (fieldClass == BigDecimal.class) {
-	//			if (value instanceof Double) {
-	//				value = new BigDecimal((Double) value);
-	//			} else if (value instanceof Long) {
-	//				value = new BigDecimal((Long) value);
-	//			} else {
-	//				throw new IllegalArgumentException(value.getClass().getSimpleName());
-	//			}
-		} else if (fieldClass == LocalDate.class) {
+		if (fieldClass == LocalDate.class) {
 			if (value instanceof java.sql.Date) {
 				value = new LocalDate((java.sql.Date) value);
 			} else {

@@ -3,7 +3,7 @@ package ch.openech.mj.example.page;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.AddLendEditor;
 import ch.openech.mj.example.CustomerForm;
-import ch.openech.mj.example.ExamplePersistence;
+import ch.openech.mj.example.MjExampleApplication;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.ObjectViewPage;
@@ -22,7 +22,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 	}
 	
 	private static Customer lookup(String customerId) {
-		return ExamplePersistence.getInstance().customer.read(Integer.valueOf(customerId));
+		return MjExampleApplication.persistence().read(Customer.class, Integer.valueOf(customerId));
 	}
 
 	@Override

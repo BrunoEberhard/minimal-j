@@ -1,5 +1,7 @@
 package ch.openech.mj.db;//
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -17,21 +19,22 @@ public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 		this.innerIndex = innerIndex;
 	}
 	
-	public Integer findId(Object query) {		
+	public Integer findId(Connection connection, Object query) {		
 		try {
+			PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
 			if (innerIndex != null) {
-				List<Integer> ids = innerIndex.findIds(query);
+				List<Integer> ids = innerIndex.findIds(connection, query);
 				for (Integer id : ids) {
-					helper.setParameter(selectByColumnStatement, 1, id, property);
-					Integer result = executeSelectId(selectByColumnStatement);
+					helper.setParameter(selectStatement, 1, id, property);
+					Integer result = executeSelectId(selectStatement);
 					if (result != null) {
 						return result;
 					}
 				}
 				return null;
 			} else {
-				helper.setParameter(selectByColumnStatement, 1, query, property);
-				return executeSelectId(selectByColumnStatement);
+				helper.setParameter(selectStatement, 1, query, property);
+				return executeSelectId(selectStatement);
 			}
 		} catch (SQLException x) {
 			String message = "Couldn't use index of column + " + column + " of table " + table.getTableName() + " with query " + query;
@@ -42,13 +45,13 @@ public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 	
 
 	@Override
-	public List<Integer> findIds(Object query) {
-		return Collections.singletonList(findId(query));
+	public List<Integer> findIds(Connection connection, Object query) {
+		return Collections.singletonList(findId(connection, query));
 	}
 	
-	public T find(Object query) {
-		Integer id = findId(query);
-		return lookup(id);
+	public T find(Connection connection, Object query) {
+		Integer id = findId(connection, query);
+		return lookup(connection, id);
 	}
 
 	

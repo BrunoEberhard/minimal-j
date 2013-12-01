@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,64 +18,58 @@ import ch.openech.mj.util.StringUtils;
 @SuppressWarnings("rawtypes")
 public class Table<T> extends AbstractTable<T> {
 
-	private PreparedStatement selectById;
-	private PreparedStatement selectAllStatement;
-	private PreparedStatement updateStatement;
+	protected final String selectByIdQuery;
+	protected final String selectAllQuery;
+	protected final String updateQuery;
 	protected final Map<String, AbstractTable<?>> subTables;
 	
-	private final WeakHashMap<Object, Integer> objectIds = new WeakHashMap<Object, Integer>(2048);
+	private final Map<Connection, WeakHashMap<Object, Integer>> objectIds = new HashMap<Connection, WeakHashMap<Object, Integer>>();
 
 	public Table(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, null, clazz);
 		this.subTables = findSubTables();
-	}
-	
-	@Override
-	public void initialize() throws SQLException {
-		super.initialize();
-		selectById = prepare(selectByIdQuery());
-		updateStatement = prepare(updateQuery());
-		selectAllStatement = prepare(selectAllQuery());
-		initializeSubTables();
-	}
-
-	private void initializeSubTables() throws SQLException {
-		findSubTables();
-		for (AbstractTable<?> table : subTables.values()) {
-			table.initialize();
-		}
-	}
-
-	@Override
-	public void closeStatements() throws SQLException {
-		super.closeStatements();
-		selectById.close();
-		selectAllStatement.close();
-		updateStatement.close();
 		
-		for (AbstractTable<?> table : subTables.values()) {
-			table.closeStatements();
-		}
+		this.selectByIdQuery = selectByIdQuery();
+		this.selectAllQuery = selectAllQuery();
+		this.updateQuery = updateQuery();
 	}
 	
+	@Override
+	public void create(Connection connection) throws SQLException {
+		super.create(connection);
+		for (AbstractTable<?> subTable : subTables.values()) {
+			subTable.create(connection);
+		}
+	}
+
 	@Override
 	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time)
 			throws SQLException {
 		ObjectWithId<T> resultObject = super.readResultSetRow(resultSet, time);
-		registerObjectId(resultObject.object, resultObject.id);
+		Connection connection = resultSet.getStatement().getConnection();
+		registerObjectId(connection, resultObject.object, resultObject.id);
 		return resultObject;
 	}
 
-	private void registerObjectId(Object object, Integer id) {
-		objectIds.put(object, Integer.valueOf(id));
+	protected void registerObjectId(Connection connection, Object object, Integer id) {
+		if (!objectIds.containsKey(connection)) {
+			objectIds.put(connection, new WeakHashMap<Object, Integer>(2048));
+		}
+		Map<Object, Integer> objectIdsForConnection = objectIds.get(connection);
+		objectIdsForConnection.put(object, Integer.valueOf(id));
 	}
 
-	public Integer getId(T object) {
-		return objectIds.get(object);
+	public Integer getId(Connection connection, T object) {
+		if (!objectIds.containsKey(connection)) {
+			objectIds.put(connection, new WeakHashMap<Object, Integer>(2048));
+		}
+		Map<Object, Integer> objectIdsForConnection = objectIds.get(connection);
+		return objectIdsForConnection.get(object);
 	}
 
-	public int insert(T object) {
+	public int insert(Connection connection, T object) {
 		try {
+			PreparedStatement insertStatement = getStatement(connection, insertQuery, true);
 			int id = executeInsertWithAutoIncrement(insertStatement, object);
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 				SubTable subTable = (SubTable) subTableEntry.getValue();
@@ -82,13 +77,13 @@ public class Table<T> extends AbstractTable<T> {
 				try {
 					list = (List)getLists().get(subTableEntry.getKey()).getValue(object);
 					if (list != null && !list.isEmpty()) {
-						subTable.insert(id, list);
+						subTable.insert(connection, id, list);
 					}
 				} catch (IllegalArgumentException e) {
 					throw new RuntimeException(e);
 				}
 			}
-			registerObjectId(object, id);
+			registerObjectId(connection, object, id);
 			return id;
 		} catch (SQLException x) {
 			sqlLogger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
@@ -97,11 +92,11 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public void update(T object) {
-		Integer id = getId(object);
+	public void update(Connection connection, T object) {
+		Integer id = getId(connection, object);
 		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
 		try {
-			update(id.intValue(), object);
+			update(connection, id.intValue(), object);
 		} catch (SQLException x) {
 			sqlLogger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
 			sqlLogger.log(Level.FINE, "Object: " + object);
@@ -109,11 +104,11 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	public void clear() {
+	public void clear(Connection connection) {
 		for (AbstractTable<?> table : subTables.values()) {
-			table.clear();
+			table.clear(connection);
 		}
-		super.clear();
+		super.clear(connection);
 	}
 	
 	private Map<String, AbstractTable<?>> findSubTables() {
@@ -138,7 +133,8 @@ public class Table<T> extends AbstractTable<T> {
 		return b.toString();
 	}
 	
-	private void update(int id, T object) throws SQLException {
+	private void update(Connection connection, int id, T object) throws SQLException {
+		PreparedStatement updateStatement = getStatement(connection, updateQuery, false);
 		int parameterPos = setParameters(updateStatement, object, false, true);
 		helper.setParameterInt(updateStatement, parameterPos++, id);
 		updateStatement.execute();
@@ -151,18 +147,19 @@ public class Table<T> extends AbstractTable<T> {
 			} catch (IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			}
-			subTable.update(id, list);
+			subTable.update(connection, id, list);
 		}
 	}
 
-	public T read(int id) {
+	public T read(Connection connection, int id) {
 		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
 
 		try {
+			PreparedStatement selectByIdStatement = getStatement(connection, selectByIdQuery, false);
 			selectByIdStatement.setInt(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (object != null) {
-				loadRelations(object, id);
+				loadRelations(connection, object, id);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -172,11 +169,11 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void loadRelations(T object, int id) throws SQLException {
+	private void loadRelations(Connection connection, T object, int id) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			SubTable subTable = (SubTable) subTableEntry.getValue();
 			List list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
-			list.addAll(subTable.read(id));
+			list.addAll(subTable.read(connection, id));
 		}
 	}
 	

@@ -9,13 +9,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
+import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.apache.derby.jdbc.EmbeddedDriver;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.mariadb.jdbc.MySQLDataSource;
 
 import ch.openech.mj.model.test.ModelTest;
 
@@ -35,12 +39,8 @@ public class DbPersistence {
 	// private static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
 	public static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/openech?user=APP&password=APP"; 
 
-	private static final String USER = "APP";
-	private static final String PASSWORD = "APP";
-
 	private boolean initialized = false;
 	
-	private Connection connection;
 	private boolean isDerbyDb;
 	private boolean isDerbyMemoryDb;
 	private boolean isMySqlDb; 
@@ -48,129 +48,216 @@ public class DbPersistence {
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	private final Set<Class<?>> immutables = new HashSet<>();
 	
+	private final DataSource dataSource;
+	
+	private Connection autoCommitConnection;
+	private BlockingDeque<Connection> daoDeque = new LinkedBlockingDeque<>();
+
 	/**
 	 * Only creates the persistence. Does not yet connect to the DB.
 	 */
-	public DbPersistence() {
+	public DbPersistence(DataSource dataSource) {
+		this.dataSource = dataSource;
 	}
 	
-	public void connect() {
-		connect(DEFAULT_URL, USER, PASSWORD);
-	}
-
-	public void connect(String connectionUrl, String user, String password) {
-		testModel();
+	public static DataSource embeddedDataSource() {
 		try {
-			connectToCloudFoundry();
-		} catch (Exception x) {
-			// There is normally no exception if not on cloudfoundry, only the connection stays null
-			logger.log(Level.SEVERE, "Exception whe try to connect to CloudFoundry", x);
+			DriverManager.registerDriver(new EmbeddedDriver());
+			// private static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
+			DriverManager.getConnection("jdbc:derby:data/testdb;create=true", "", "");
+
+			javax.sql.DataSource ds = new EmbeddedDataSource();
+			((EmbeddedDataSource) ds).setUser("");
+			((EmbeddedDataSource) ds).setPassword("");
+//			((EmbeddedDataSource) ds).setDatabaseName("data/testdb");
+			((EmbeddedDataSource) ds).setDatabaseName("memory:TempDB");
+			((EmbeddedDataSource) ds).setCreateDatabase("create");
+			return ds;
+		} catch (SQLException e) {
+			logger.log(Level.SEVERE, "Creation of DataSource failed", e);
+			throw new RuntimeException("Creation of DataSource failed");
 		}
-			
-		if (connection == null) {
-			try {
-				this.isDerbyDb = connectionUrl.startsWith("jdbc:derby");
-				this.isMySqlDb = connectionUrl.startsWith("jdbc:mysql");
-				this.isDerbyMemoryDb = connectionUrl.startsWith("jdbc:derby:memory");
-				
-				if (isDerbyMemoryDb) {
-					DriverManager.registerDriver(new EmbeddedDriver());
-				} else if (isMySqlDb) {
-					DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
-				}
-				
-				connection = DriverManager.getConnection(connectionUrl, user, password);
+	}
 	
-				connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+	public static DataSource mariaDbDataSource() {
+		try {
+			DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
+			MySQLDataSource d = new MySQLDataSource("localhost", 3306, "OpenEch");
+			d.setUser("APP");
+			d.setPassword("APP");
+			d.setServerName("localhost");
+			d.setDatabaseName("OpenEch");
+			return d;
+		} catch (SQLException e) {
+			logger.log(Level.SEVERE, "Creation of DataSource failed", e);
+			throw new RuntimeException("Creation of DataSource failed");
+		}
+	}
+	
+//	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
+//		String vcap_services = System.getenv("VCAP_SERVICES");
+//		
+//		if (vcap_services != null && vcap_services.length() > 0) {
+//			JSONObject root = new JSONObject(vcap_services);
+//
+//			JSONArray mysqlNode = (JSONArray) root.get("mysql-5.1");
+//			JSONObject firstSqlNode = (JSONObject) mysqlNode.get(0);
+//			JSONObject credentials = (JSONObject) firstSqlNode.get("credentials");
+//
+//			String dbname = credentials.getString("name");
+//			String hostname = credentials.getString("hostname");
+//			String user = credentials.getString("user");
+//			String password = credentials.getString("password");
+//			String port = credentials.getString("port");
+//			
+//			String dbUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbname;
+//
+//			Class.forName("com.mysql.jdbc.Driver");
+//			connection = DriverManager.getConnection(dbUrl, user, password);
+//			
+//			isDerbyDb = false;
+//			isDerbyMemoryDb = false;
+//			isMySqlDb = true;
+//		}
+//	}
+
+	public Connection getAutoCommitConnection() {
+		try {
+			if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
+				autoCommitConnection = dataSource.getConnection();
+				autoCommitConnection.setAutoCommit(true);
+			}
+			return autoCommitConnection;
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.log(Level.SEVERE, "Not possible to create autocommit connection", e);
+			throw new RuntimeException("Not possible to create autocommit connection");
+		}
+	}
+	
+	public Connection beginTransaction() {
+		Connection connection = daoDeque.poll();
+		while (true) {
+			boolean valid = false;
+			try {
+				valid = connection != null && connection.isValid(0);
+			} catch (SQLException x) {
+				// ignore
+			}
+			if (valid) {
+				return connection;
+			}
+			try {
+				connection = dataSource.getConnection();
+				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 				connection.setAutoCommit(false);
-			} catch (SQLException x) {
-				logger.log(Level.SEVERE, "Could not establish connection to " + connectionUrl);
-				throw new RuntimeException("Could not establish connection to " + connectionUrl);
+				return connection;
+			} catch (Exception e) {
+				// this could happen if there are already too many connections
+				e.printStackTrace();
+
+				logger.log(Level.FINE, "Not possible to create additional dao", e);
 			}
-		}
-		
-		if (!initialized) {
-			initializeTables();
-			initialized = true;
+			// so no dao available and not possible to create one
+			// block and wait till a dao is in deque
+			try {
+				daoDeque.poll(10, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				logger.log(Level.FINEST, "poll for dao interrupted", e);
+			}
 		}
 	}
 	
-	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
-		String vcap_services = System.getenv("VCAP_SERVICES");
-		
-		if (vcap_services != null && vcap_services.length() > 0) {
-			JSONObject root = new JSONObject(vcap_services);
-
-			JSONArray mysqlNode = (JSONArray) root.get("mysql-5.1");
-			JSONObject firstSqlNode = (JSONObject) mysqlNode.get(0);
-			JSONObject credentials = (JSONObject) firstSqlNode.get("credentials");
-
-			String dbname = credentials.getString("name");
-			String hostname = credentials.getString("hostname");
-			String user = credentials.getString("user");
-			String password = credentials.getString("password");
-			String port = credentials.getString("port");
-			
-			String dbUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbname;
-
-			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection(dbUrl, user, password);
-			
-			isDerbyDb = false;
-			isDerbyMemoryDb = false;
-			isMySqlDb = true;
-		}
-	}
-
-	public void disconnect() {
-		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
-		boolean firstFail = true;
-		for (AbstractTable<?> table : tableList) {
-			try {
-				table.closeStatements();
-			} catch (SQLException x) {
-				if (firstFail) {
-					logger.log(Level.SEVERE, "Could not close statements of table " + table.name, x);
-					firstFail = false;
-				} else {
-					logger.log(Level.SEVERE, "Could not close statements of table " + table.name);
-				}
-			}
-		}
-		
-		try {
-			connection.close();
-		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Could not close connection", x);
-			throw new RuntimeException("Could not close connection");
-		}
+	void transactionEnded(Connection connection) {
+		// last in first out in the hope that recent accessed objects are the fastest
+		daoDeque.push(connection);
 	}
 	
 	/**
 	 * Use with care. Removes all content of all tables. Should only
 	 * be used for JUnit tests.
 	 */
-	public void clear() {
+	public void clear(Connection connection) {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			if (!(table instanceof ImmutableTable)) {
-				table.clear();
+				table.clear(connection);
 			}
 		}
 	}
+
+	public <T> T read(Connection connection, Class<T> clazz, int id) {
+		Table<T> table = (Table<T>) getTable(clazz);
+		return table.read(connection, id);
+	}
 	
-	public void commit() {
+	public <T> T read(Connection connection, Class<T> clazz, int id, Integer time) {
+		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
+		return table.read(connection, id, time);
+	}
+
+	public List<Integer> readVersions(Connection connection, Class<?> clazz, int id) {
+		HistorizedTable<?> table = (HistorizedTable<?>) getTable(clazz);
+		return table.readVersions(connection, id);
+	}
+
+	public <T> List<Integer> findIds(Connection connection, Class<T> clazz, Object field, Object query) {
+		Table<T> table = (Table<T>) getTable(clazz);
+		return table.getIndex(field).findIds(connection, query);
+	}
+	
+	public <T> int insert(Connection connection, T object) {
+		if (object != null) {
+			Table<T> table = (Table<T>) getTable(object.getClass());
+			return table.insert(connection, object);
+		} else {
+			return 0;
+		}
+	}
+	
+	public <T> void update(Connection connection, T object) {
+		Table<T> table = (Table<T>) getTable(object.getClass());
+		table.update(connection, object);
+	}
+	
+	public <T> T read(Class<T> clazz, int id) {
+		return read(getAutoCommitConnection(), clazz, id);
+	}
+	
+	public <T> T read(Class<T> clazz, int id, Integer time) {
+		return read(getAutoCommitConnection(), clazz, id, time);
+	}
+	
+	public List<Integer> readVersions(Class<?> clazz, int id) {
+		return readVersions(getAutoCommitConnection(), clazz, id);
+	}
+
+	public <T> List<Integer> findIds(Class<T> clazz, Object field, Object query) {
+		return findIds(getAutoCommitConnection(), clazz, field, query);
+	}
+	
+	public int insert(Object object) {
+		return insert(getAutoCommitConnection(), object);
+	}
+
+	public <T> void update(T object) {
+		update(getAutoCommitConnection(), object);
+	}
+
+	public void commit(Connection connection) {
 		try {
 			connection.commit();
+			transactionEnded(connection);
 		} catch (SQLException x) {
 			logger.log(Level.SEVERE, "Could not commit", x);
 			throw new RuntimeException("Could not commit");
 		}
 	}
 
-	public void rollback() {
+	public void rollback(Connection connection) {
 		try {
 			connection.rollback();
+			transactionEnded(connection);
 		} catch (SQLException x) {
 			logger.log(Level.SEVERE, "Could not rollback", x);
 			throw new RuntimeException("Could not rollback");
@@ -178,7 +265,7 @@ public class DbPersistence {
 	}
 
 	public boolean isDerbyDb() {
-		return isDerbyDb;
+		return true;
 	}
 
 	public boolean isDerbyMemoryDb() {
@@ -187,20 +274,6 @@ public class DbPersistence {
 
 	public boolean isMySqlDb() {
 		return isMySqlDb;
-	}
-	
-	protected Connection getConnection() {
-		boolean connected = connection != null;
-		try {
-			connected &= !connection.isClosed();
-		} catch (SQLException x) {
-			logger.log(Level.WARNING, "Couldn't check connection", x);
-		}
-		
-		if (!connected) {
-			connect();
-		}
-		return connection;
 	}
 	
 	//
@@ -239,17 +312,17 @@ public class DbPersistence {
 		return immutables.contains(clazz);
 	}
 	
-	protected void initializeTables() {
+	public void createTables() {
+		Connection connection = getAutoCommitConnection();
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			try {
-				table.initialize();
+				table.create(connection);
 			} catch (SQLException x) {
 				logger.log(Level.SEVERE, "Couldn't initialize table: " + table.getTableName(), x);
 				throw new RuntimeException("Couldn't initialize table: " + table.getTableName());
 			}
 		}
-		commit();
 	}
 	
 	@SuppressWarnings("unchecked")

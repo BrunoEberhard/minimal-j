@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -11,31 +12,20 @@ import java.util.List;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SubTable extends AbstractTable {
 
-	private PreparedStatement selectByIdStatement;
-	private PreparedStatement updateStatement;
-	private PreparedStatement deleteStatement;
+	private final String selectByIdQuery;
+	private final String updateQuery;
+	private final String deleteQuery;
 	
 	public SubTable(DbPersistence dbPersistence, String prefix, Class clazz) {
 		super(dbPersistence, prefix, clazz);
+
+		selectByIdQuery = selectByIdQuery();
+		updateQuery = updateQuery();
+		deleteQuery = deleteQuery();
 	}
 	
-	@Override
-	public void initialize() throws SQLException {
-		super.initialize();
-		selectByIdStatement = prepare(selectByIdQuery());
-		updateStatement = prepare(updateQuery());
-		deleteStatement = prepare(deleteQuery());
-	}
-	
-	@Override
-	public void closeStatements() throws SQLException {
-		super.closeStatements();
-		selectByIdStatement.close();
-		updateStatement.close();
-		deleteStatement.close();
-	}
-	
-	public void insert(int parentId, List objects) throws SQLException {
+	public void insert(Connection connection, int parentId, List objects) throws SQLException {
+		PreparedStatement insertStatement = getStatement(connection, insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
@@ -45,22 +35,23 @@ public class SubTable extends AbstractTable {
 		}
 	}
 
-	public void update(int parentId, List objects) throws SQLException {
-		List objectsInDb = read(parentId);
+	public void update(Connection connection, int parentId, List objects) throws SQLException {
+		List objectsInDb = read(connection, parentId);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			boolean insert = false;
 			if (position < objectsInDb.size() && position < objects.size()) {
-				update(parentId, position, objects.get(position));
+				update(connection, parentId, position, objects.get(position));
 			} else if (position < objectsInDb.size()) {
 				// delete all beginning from this position with one delete statement
-				delete(parentId, position);
+				delete(connection, parentId, position);
 				break; 
 			} else /* if (position < objects.size()) */ {
-				insert(parentId, position, objects.get(position));
+				insert(connection, parentId, position, objects.get(position));
 			}
 			
 			if (insert) {
+				PreparedStatement insertStatement = getStatement(connection, insertQuery, false);
 				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
 				helper.setParameterInt(insertStatement, parameterPos++, parentId);
 				helper.setParameterInt(insertStatement, parameterPos++, position);
@@ -70,27 +61,35 @@ public class SubTable extends AbstractTable {
 		}
 	}
 
-	private void update(int parentId, int position, Object object) throws SQLException {
+	private void update(Connection connection, int parentId, int position, Object object) throws SQLException {
+		PreparedStatement updateStatement = getStatement(connection, updateQuery, false);
+
 		int parameterPos = setParameters(updateStatement, object, false, true);
 		helper.setParameterInt(updateStatement, parameterPos++, parentId);
 		helper.setParameterInt(updateStatement, parameterPos++, position);
 		updateStatement.execute();
 	}
 
-	private void insert(int parentId, int position, Object object) throws SQLException {
+	private void insert(Connection connection, int parentId, int position, Object object) throws SQLException {
+		PreparedStatement insertStatement = getStatement(connection, insertQuery, false);
+
 		int parameterPos = setParameters(insertStatement, object, false, true);
 		helper.setParameterInt(insertStatement, parameterPos++, parentId);
 		helper.setParameterInt(insertStatement, parameterPos++, position);
 		insertStatement.execute();
 	}
 	
-	private void delete(int parentId, int position) throws SQLException {
+	private void delete(Connection connection, int parentId, int position) throws SQLException {
+		PreparedStatement deleteStatement = getStatement(connection, deleteQuery, false);
+
 		helper.setParameterInt(deleteStatement, 0, parentId);
 		helper.setParameterInt(deleteStatement, 1, position);
 		deleteStatement.execute();
 	}
 
-	public List read(int parentId) throws SQLException {
+	public List read(Connection connection, int parentId) throws SQLException {
+		PreparedStatement selectByIdStatement = getStatement(connection, selectByIdQuery, false);
+
 		selectByIdStatement.setInt(1, parentId);
 		return executeSelectAll(selectByIdStatement);
 	}

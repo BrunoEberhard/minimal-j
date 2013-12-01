@@ -15,8 +15,7 @@ public class AddCustomerEditor extends Editor<Customer> {
 	
 	@Override
 	public String save(Customer customer) throws Exception {
-		int id = ExamplePersistence.getInstance().customer.insert(customer);
-		ExamplePersistence.getInstance().commit();
+		int id = MjExampleApplication.persistence().insert(customer);
 		return PageLink.link(CustomerPage.class, Integer.toString(id));
 	}
 
