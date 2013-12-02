@@ -36,6 +36,11 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 	public Integer getId(Connection connection, T object) {
 		return getId(connection, object, false);
 	}
+
+	public Integer getOrCreateId(T object) {
+		return getId(dbPersistence.getAutoCommitConnection(), object, true);
+	}
+	
 	public Integer getOrCreateId(Connection connection, T object) {
 		return getId(connection, object, true);
 	}
@@ -83,6 +88,10 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		}
 	}
 
+	public T read(Integer id) {
+		return read(dbPersistence.getAutoCommitConnection(), id);
+	}
+	
 	public T read(Connection connection, Integer id) {
 		if (id == null) return EmptyObjects.getEmptyObject(getClazz());
 		

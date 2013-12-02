@@ -19,11 +19,12 @@ public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 		this.innerIndex = innerIndex;
 	}
 	
-	public Integer findId(Connection connection, Object query) {		
+	public Integer findId(Object query) {		
+		Connection connection = dbPersistence.getAutoCommitConnection();
 		try {
 			PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
 			if (innerIndex != null) {
-				List<Integer> ids = innerIndex.findIds(connection, query);
+				List<Integer> ids = innerIndex.findIds(query);
 				for (Integer id : ids) {
 					helper.setParameter(selectStatement, 1, id, property);
 					Integer result = executeSelectId(selectStatement);
@@ -45,13 +46,13 @@ public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 	
 
 	@Override
-	public List<Integer> findIds(Connection connection, Object query) {
-		return Collections.singletonList(findId(connection, query));
+	public List<Integer> findIds(Object query) {
+		return Collections.singletonList(findId(query));
 	}
 	
-	public T find(Connection connection, Object query) {
-		Integer id = findId(connection, query);
-		return lookup(connection, id);
+	public T find(Object query) {
+		Integer id = findId(query);
+		return lookup(id);
 	}
 
 	

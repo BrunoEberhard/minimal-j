@@ -60,19 +60,21 @@ public class DbPersistence {
 		this.dataSource = dataSource;
 	}
 	
+	private static int memoryDbCount = 1;
+	
 	public static DataSource embeddedDataSource() {
 		try {
 			DriverManager.registerDriver(new EmbeddedDriver());
-			// private static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
-			DriverManager.getConnection("jdbc:derby:data/testdb;create=true", "", "");
+//			DriverManager.getConnection("jdbc:derby:memory:testdb;create=true", "", "");
+//			DriverManager.getConnection("jdbc:derby:data/testdb;create=true", "", "");
 
-			javax.sql.DataSource ds = new EmbeddedDataSource();
-			((EmbeddedDataSource) ds).setUser("");
-			((EmbeddedDataSource) ds).setPassword("");
-//			((EmbeddedDataSource) ds).setDatabaseName("data/testdb");
-			((EmbeddedDataSource) ds).setDatabaseName("memory:TempDB");
-			((EmbeddedDataSource) ds).setCreateDatabase("create");
-			return ds;
+			EmbeddedDataSource dataSource = new EmbeddedDataSource();
+			dataSource.setUser("");
+			dataSource.setPassword("");
+//			ds.setDatabaseName("data/testdb");
+			dataSource.setDatabaseName("memory:TempDB" + (memoryDbCount++));
+			dataSource.setCreateDatabase("create");
+			return dataSource;
 		} catch (SQLException e) {
 			logger.log(Level.SEVERE, "Creation of DataSource failed", e);
 			throw new RuntimeException("Creation of DataSource failed");
@@ -82,12 +84,12 @@ public class DbPersistence {
 	public static DataSource mariaDbDataSource() {
 		try {
 			DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
-			MySQLDataSource d = new MySQLDataSource("localhost", 3306, "OpenEch");
-			d.setUser("APP");
-			d.setPassword("APP");
-			d.setServerName("localhost");
-			d.setDatabaseName("OpenEch");
-			return d;
+			MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, "OpenEch");
+			dataSource.setUser("APP");
+			dataSource.setPassword("APP");
+			dataSource.setServerName("localhost");
+			dataSource.setDatabaseName("OpenEch");
+			return dataSource;
 		} catch (SQLException e) {
 			logger.log(Level.SEVERE, "Creation of DataSource failed", e);
 			throw new RuntimeException("Creation of DataSource failed");
@@ -177,7 +179,8 @@ public class DbPersistence {
 	 * Use with care. Removes all content of all tables. Should only
 	 * be used for JUnit tests.
 	 */
-	public void clear(Connection connection) {
+	public void clear() {
+		Connection connection = getAutoCommitConnection();
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			if (!(table instanceof ImmutableTable)) {
@@ -201,11 +204,6 @@ public class DbPersistence {
 		return table.readVersions(connection, id);
 	}
 
-	public <T> List<Integer> findIds(Connection connection, Class<T> clazz, Object field, Object query) {
-		Table<T> table = (Table<T>) getTable(clazz);
-		return table.getIndex(field).findIds(connection, query);
-	}
-	
 	public <T> int insert(Connection connection, T object) {
 		if (object != null) {
 			Table<T> table = (Table<T>) getTable(object.getClass());
@@ -233,7 +231,7 @@ public class DbPersistence {
 	}
 
 	public <T> List<Integer> findIds(Class<T> clazz, Object field, Object query) {
-		return findIds(getAutoCommitConnection(), clazz, field, query);
+		return findIds(clazz, field, query);
 	}
 	
 	public int insert(Object object) {

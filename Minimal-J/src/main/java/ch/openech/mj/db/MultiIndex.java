@@ -1,6 +1,5 @@
 package ch.openech.mj.db;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +11,10 @@ public class MultiIndex<T> implements Index<T> {
 		this.indexes = indexes;
 	}
 
-	public List<T> findObjects(Connection connection, Object query) {
+	public List<T> findObjects(Object query) {
 		List<T> result = new ArrayList<>(50);
 		for (ColumnIndex<T> index : indexes) {
-			List<T> objects = index.findObjects(connection, query);
+			List<T> objects = index.findObjects(query);
 			for (T object : objects) {
 				if (!result.contains(object)) {
 					result.add(object);
@@ -25,10 +24,10 @@ public class MultiIndex<T> implements Index<T> {
 		return result;
 	}
 	
-	public List<Integer> findIds(Connection connection, Object query) {
+	public List<Integer> findIds(Object query) {
 		List<Integer> result = new ArrayList<>(50);
 		for (ColumnIndex<T> index : indexes) {
-			List<Integer> ids = index.findIds(connection, query);
+			List<Integer> ids = index.findIds(query);
 			for (Integer id : ids) {
 				if (!result.contains(id)) {
 					result.add(id);
@@ -39,8 +38,8 @@ public class MultiIndex<T> implements Index<T> {
 	}
 	
 	@Override
-	public T lookup(Connection connection, Integer id) {
-		return indexes[0].lookup(connection, id);
+	public T lookup(Integer id) {
+		return indexes[0].lookup(id);
 	}
 	
 	@Override

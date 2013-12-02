@@ -67,6 +67,10 @@ public class Table<T> extends AbstractTable<T> {
 		return objectIdsForConnection.get(object);
 	}
 
+	public int insert(T object) {
+		return insert(dbPersistence.getAutoCommitConnection(), object);
+	}
+	
 	public int insert(Connection connection, T object) {
 		try {
 			PreparedStatement insertStatement = getStatement(connection, insertQuery, true);
@@ -92,6 +96,10 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	public void update(T object) {
+		update(dbPersistence.getAutoCommitConnection(), object);
+	}
+	
 	public void update(Connection connection, T object) {
 		Integer id = getId(connection, object);
 		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
@@ -151,6 +159,10 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	public T read(int id) {
+		return read(dbPersistence.getAutoCommitConnection(), id);
+	}
+	
 	public T read(Connection connection, int id) {
 		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
 

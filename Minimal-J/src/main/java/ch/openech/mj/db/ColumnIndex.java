@@ -30,10 +30,11 @@ public class ColumnIndex<T> extends AbstractIndex<T> {
 		return result;
 	}
 	
-	public List<Integer> findIds(Connection connection, Object query) {
+	public List<Integer> findIds(Object query) {
+		Connection connection = dbPersistence.getAutoCommitConnection();
 		try {
 			if (innerIndex != null) {
-				List<Integer> queryIds = innerIndex.findIds(connection, query);
+				List<Integer> queryIds = innerIndex.findIds(query);
 				return findIds(connection, queryIds);
 			}
 			PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
@@ -47,11 +48,11 @@ public class ColumnIndex<T> extends AbstractIndex<T> {
 		}
 	}
 
-	public List<T> findObjects(Connection connection, Object query) {
-		List<Integer> ids = findIds(connection, query);
+	public List<T> findObjects(Object query) {
+		List<Integer> ids = findIds(query);
 		List<T> result = new ArrayList<>(ids.size());
 		for (Integer id : ids) {
-			result.add(lookup(connection, id));
+			result.add(lookup(id));
 		}
 		return result;
 	}

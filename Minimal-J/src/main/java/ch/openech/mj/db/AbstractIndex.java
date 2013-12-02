@@ -1,6 +1,5 @@
 package ch.openech.mj.db;//
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,12 +27,12 @@ public abstract class AbstractIndex<T> implements Index<T> {
 		this.selectQuery = selectQuery();
 	}
 
-	public T lookup(Connection connection, Integer id) {
+	public T lookup(Integer id) {
 		if (id != null) {
 			if (table instanceof ImmutableTable) {
-				return ((ImmutableTable<T>) table).read(connection, id);
+				return ((ImmutableTable<T>) table).read(dbPersistence.getAutoCommitConnection(), id);
 			} else if (table instanceof Table) {
-				return ((Table<T>) table).read(connection, id);
+				return ((Table<T>) table).read(dbPersistence.getAutoCommitConnection(), id);
 			} else {
 				throw new IllegalStateException();
 			}

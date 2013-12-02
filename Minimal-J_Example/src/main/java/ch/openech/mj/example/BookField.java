@@ -39,7 +39,7 @@ public class BookField extends ObjectFlowField<BookIdentification> {
 	public class BookSearchAction extends SearchDialogAction<Book> {
 		
 		public BookSearchAction() {
-			super(getComponent(), new IndexSearch<>(MjExampleApplication.persistence().getTable(Book.class).getIndex(Book.BOOK.)), new Object[]{Book.BOOK.bookIdentification.title, Book.BOOK.bookIdentification.author});
+			super(getComponent(), new IndexSearch<>(MjExampleApplication.persistence().bookIndex), new Object[]{Book.BOOK.bookIdentification.title, Book.BOOK.bookIdentification.author});
 		}
 
 		protected void save(Book object) {
