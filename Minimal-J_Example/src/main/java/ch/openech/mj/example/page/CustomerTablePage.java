@@ -4,7 +4,7 @@ import static ch.openech.mj.example.model.Customer.*;
 
 import java.util.List;
 
-import ch.openech.mj.example.ExamplePersistence;
+import ch.openech.mj.example.MjExampleApplication;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
@@ -24,7 +24,7 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 	};
 	
 	public CustomerTablePage(PageContext context, String text) {
-		super(context, new IndexSearch<>(ExamplePersistence.getInstance().customerIndex), FIELDS, text);
+		super(context, new IndexSearch<>(MjExampleApplication.persistence().customerIndex), FIELDS, text);
 		this.text = text;
 	}
 	

@@ -58,7 +58,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 
 		@Override
 		public void action(IComponent context) {
-			int id = ExamplePersistence.getInstance().customerIdentification.getId(customer.customerIdentification);
+			int id = MjExampleApplication.persistence().customerIdentification.getId(customer.customerIdentification);
 			((PageContext) context).show(PageLink.link(LendTablePage.class, "" + id));
 		}
 		

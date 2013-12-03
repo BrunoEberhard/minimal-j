@@ -4,7 +4,7 @@ import static ch.openech.mj.example.model.Lend.*;
 
 import java.util.List;
 
-import ch.openech.mj.example.ExamplePersistence;
+import ch.openech.mj.example.MjExampleApplication;
 import ch.openech.mj.example.model.Lend;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
@@ -24,7 +24,7 @@ public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
 	};
 	
 	public LendTablePage(PageContext context, String text) {
-		super(context, new IndexSearch<>(ExamplePersistence.getInstance().lendByCustomerIndex), FIELDS, text);
+		super(context, new IndexSearch<>(MjExampleApplication.persistence().lendByCustomerIndex), FIELDS, text);
 		this.text = text;
 	}
 	
