@@ -20,7 +20,7 @@ public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 	}
 	
 	public Integer findId(Object query) {		
-		Connection connection = dbPersistence.getAutoCommitConnection();
+		Connection connection = dbPersistence.getConnection();
 		try {
 			PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
 			if (innerIndex != null) {

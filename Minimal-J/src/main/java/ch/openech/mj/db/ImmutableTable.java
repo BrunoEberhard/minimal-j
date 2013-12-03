@@ -33,40 +33,37 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		selectIdByHashQuery = selectIdByHashQuery();
 	}
 
-	public Integer getId(Connection connection, T object) {
-		return getId(connection, object, false);
+	public Integer getId(T object) {
+		return getId(object, false);
 	}
 
 	public Integer getOrCreateId(T object) {
-		return getId(dbPersistence.getAutoCommitConnection(), object, true);
+		return getId(object, true);
 	}
 	
-	public Integer getOrCreateId(Connection connection, T object) {
-		return getId(connection, object, true);
-	}
-	
-	private Integer getId(Connection connection, T object, boolean createIfNotExists) {
+	private Integer getId(T object, boolean createIfNotExists) {
 		if (EmptyObjects.isEmpty(object)) return null;
 
 		int hash = HashUtils.getHash(object);
 		try {
-			Integer id = getId(connection, object, hash);
+			Integer id = getId(object, hash);
 			if (id == null && createIfNotExists) {
-				PreparedStatement insertStatement = getStatement(connection, insertQuery, true);
+				PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
 				id = executeInsertWithAutoIncrement(insertStatement, object, hash);
 			}
 			return id;
 		} catch (SQLException x) {
+			x.printStackTrace();
 			sqlLogger.log(Level.SEVERE, "Couldn't not getOrCreateId in " + getTableName(), x);
 			sqlLogger.log(Level.FINE, "Object: " + object);
 			throw new RuntimeException("Couldn't not getOrCreateId in " + getTableName() + " / Object: " + object);
 		}
 	}
 	
-	private Integer getId(Connection connection, T object, int hash) throws SQLException {
+	private Integer getId(T object, int hash) throws SQLException {
 		Integer result;
 		
-		PreparedStatement selectIdByHashStatement = getStatement(connection, selectIdByHashQuery, true);
+		PreparedStatement selectIdByHashStatement = getStatement(dbPersistence.getConnection(), selectIdByHashQuery, true);
 		selectIdByHashStatement.setInt(1, hash);
 		try (ResultSet resultSet = selectIdByHashStatement.executeQuery()) {
 			if (!resultSet.next()) {
@@ -79,7 +76,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 			}
 		}
 		
-		PreparedStatement selectIdStatement = getStatement(connection, selectIdQuery, true);
+		PreparedStatement selectIdStatement = getStatement(dbPersistence.getConnection(), selectIdQuery, true);
 		int parameterPos = setParameters(selectIdStatement, object, true, false);
 		selectIdStatement.setInt(parameterPos, hash);
 		try (ResultSet resultSet = selectIdStatement.executeQuery()) {
@@ -89,10 +86,10 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 	}
 
 	public T read(Integer id) {
-		return read(dbPersistence.getAutoCommitConnection(), id);
+		return read(dbPersistence.getConnection(), id);
 	}
 	
-	public T read(Connection connection, Integer id) {
+	private T read(Connection connection, Integer id) {
 		if (id == null) return EmptyObjects.getEmptyObject(getClazz());
 		
 		try {

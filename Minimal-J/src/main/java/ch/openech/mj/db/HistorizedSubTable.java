@@ -1,6 +1,5 @@
 package ch.openech.mj.db;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,8 +35,8 @@ public class HistorizedSubTable extends AbstractTable {
 		readVersionsQuery = readVersionsQuery();
 	}
 	
-	public void insert(Connection connection, int parentId, List objects, Integer version) throws SQLException {
-		PreparedStatement insertStatement = getStatement(connection, insertQuery, false);
+	public void insert(int parentId, List objects, Integer version) throws SQLException {
+		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
@@ -48,11 +47,11 @@ public class HistorizedSubTable extends AbstractTable {
 		}
 	}
 
-	public void update(Connection connection, int parentId, List objects, int version) throws SQLException {
-		List objectsInDb = read(connection, parentId, version);
+	public void update(int parentId, List objects, int version) throws SQLException {
+		List objectsInDb = read(parentId, version);
 		int position = 0;
-		PreparedStatement endStatement = getStatement(connection, endQuery, false);
-		PreparedStatement insertStatement = getStatement(connection, insertQuery, false);
+		PreparedStatement endStatement = getStatement(dbPersistence.getConnection(), endQuery, false);
+		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			boolean end = false;
 			boolean insert = false;
@@ -84,25 +83,25 @@ public class HistorizedSubTable extends AbstractTable {
 		}
 	}
 
-	public List read(Connection connection, int parentId, Integer time) throws SQLException {
+	public List read(int parentId, Integer time) throws SQLException {
 		if (time == null) {
-			return read(connection, parentId);
+			return read(parentId);
 		}
-		PreparedStatement selectByIdAndTimeStatement = getStatement(connection, selectByIdAndTimeQuery, false);
+		PreparedStatement selectByIdAndTimeStatement = getStatement(dbPersistence.getConnection(), selectByIdAndTimeQuery, false);
 		selectByIdAndTimeStatement.setInt(1, parentId);
 		selectByIdAndTimeStatement.setInt(2, time);
 		selectByIdAndTimeStatement.setInt(3, time);
 		return executeSelectAll(selectByIdAndTimeStatement);
 	}
 
-	private List read(Connection connection, int id) throws SQLException {
-		PreparedStatement selectByIdStatement = getStatement(connection, selectByIdQuery, false);
+	private List read(int id) throws SQLException {
+		PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
 		selectByIdStatement.setInt(1, id);
 		return executeSelectAll(selectByIdStatement);
 	}
 	
-	public void readVersions(Connection connection, int parentId, List<Integer> result) throws SQLException {
-		PreparedStatement readVersionsStatement = getStatement(connection, readVersionsQuery, false);
+	public void readVersions(int parentId, List<Integer> result) throws SQLException {
+		PreparedStatement readVersionsStatement = getStatement(dbPersistence.getConnection(), readVersionsQuery, false);
 		readVersionsStatement.setInt(1, parentId);
 		try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
 			while (resultSet.next()) {

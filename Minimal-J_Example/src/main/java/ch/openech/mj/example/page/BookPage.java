@@ -18,7 +18,7 @@ public class BookPage extends ObjectViewPage<Book> {
 	}
 	
 	private static Book lookup(String bookId) {
-		return MjExampleApplication.persistence().read(Book.class, Integer.valueOf(bookId));
+		return MjExampleApplication.persistence().book.read(Integer.valueOf(bookId));
 	}
 
 	@Override

@@ -169,9 +169,9 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	public int getMaxId(Connection connection) {
+	public int getMaxId() {
 		try {
-			PreparedStatement statement = getStatement(connection, selectMaxIdQuery, false);
+			PreparedStatement statement = getStatement(dbPersistence.getConnection(), selectMaxIdQuery, false);
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet.next()) {
 					return resultSet.getInt(1);
@@ -188,14 +188,14 @@ public abstract class AbstractTable<T> {
 		}
 	}
 	
-	public void create(Connection connection) throws SQLException {
+	public void create() throws SQLException {
 		DbCreator creator = new DbCreator(dbPersistence);
-		creator.create(connection, this);
+		creator.create(dbPersistence.getConnection(), this);
 	}
 	
-	public void clear(Connection connection) {
+	public void clear() {
 		try {
-			PreparedStatement statement = getStatement(connection, clearQuery, false);
+			PreparedStatement statement = getStatement(dbPersistence.getConnection(), clearQuery, false);
 			statement.execute(clearQuery());
 		} catch (SQLException x) {
 			sqlLogger.log(Level.SEVERE, "Clear of Table " + getTableName() + " failed", x);
@@ -284,7 +284,6 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
-		Connection connection = resultSet.getStatement().getConnection();
 		ObjectWithId<T> result = new ObjectWithId<>();
 		result.object = CloneHelper.newInstance(clazz);
 		
@@ -303,7 +302,7 @@ public abstract class AbstractTable<T> {
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (DbPersistenceHelper.isReference(property)) {
-					value = dereference(connection, fieldClass, (Integer) value, time);
+					value = dereference(fieldClass, (Integer) value, time);
 				} else if (Set.class == fieldClass) {
 					Set<?> set = (Set<?>) property.getValue(result.object);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
@@ -318,14 +317,14 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected <D> Object dereference(Connection connection, Class<D> clazz, int id, Integer time) {
+	protected <D> Object dereference(Class<D> clazz, int id, Integer time) {
 		AbstractTable<D> table = dbPersistence.getTable(clazz);
 		if (table instanceof ImmutableTable) {
-			return ((ImmutableTable<?>) table).read(connection,id);
+			return ((ImmutableTable<?>) table).read(id);
 		} else if (table instanceof HistorizedTable<?>) {
-			return ((HistorizedTable<?>) table).read(connection,id, time);			
+			return ((HistorizedTable<?>) table).read(id, time);			
 		} else if (table instanceof Table) {
-			return ((Table<?>) table).read(connection,id);
+			return ((Table<?>) table).read(id);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
@@ -340,7 +339,7 @@ public abstract class AbstractTable<T> {
 	 * @return <code>if value not found and parameter insert is false
 	 * @throws SQLException
 	 */
-	private <D> Integer lookupReference(Connection connection, D value, boolean insertIfNotExisting) throws SQLException {
+	private <D> Integer lookupReference(D value, boolean insertIfNotExisting) throws SQLException {
 		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
 		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
@@ -348,7 +347,7 @@ public abstract class AbstractTable<T> {
 			throw new IllegalArgumentException(clazz.getName());
 		}
 		if (abstractTable instanceof ImmutableTable) {
-			return ((ImmutableTable<D>) abstractTable).getOrCreateId(connection, value);
+			return ((ImmutableTable<D>) abstractTable).getOrCreateId(value);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}
@@ -375,7 +374,7 @@ public abstract class AbstractTable<T> {
 			if (value != null) {
 				if (DbPersistenceHelper.isReference(property)) {
 					try {
-						value = lookupReference(connection, value, insert);
+						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
 						sqlLogger.severe(object.getClass().getName() + " / " + property.getFieldName());
 						throw e;

@@ -39,7 +39,7 @@ public class CustomerField extends ObjectFlowField<CustomerIdentification> {
 	public class CustomerSearchAction extends SearchDialogAction<Customer> {
 		
 		public CustomerSearchAction() {
-			super(getComponent(), new IndexSearch<>(ExamplePersistence.getInstance().customerIndex), Customer.CUSTOMER.customerIdentification.firstName, Customer.CUSTOMER.customerIdentification.name);
+			super(getComponent(), new IndexSearch<>(MjExampleApplication.persistence().customerIndex), Customer.CUSTOMER.customerIdentification.firstName, Customer.CUSTOMER.customerIdentification.name);
 		}
 
 		@Override

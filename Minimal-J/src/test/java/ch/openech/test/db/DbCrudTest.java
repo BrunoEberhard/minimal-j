@@ -1,6 +1,5 @@
 package ch.openech.test.db;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -55,23 +54,20 @@ public class DbCrudTest {
 		int id = writeSimpleA();
 		readTheAandAddBandE(id);
 		
-		Connection connection = persistence.beginTransaction();
-		
-		List<Integer> versions = persistence.readVersions(connection, A.class, id);
+		List<Integer> versions = persistence.readVersions(A.class, id);
 		Assert.assertEquals("A should now have 1 historized version", 1, versions.size());
 		
-		A a3 = persistence.read(connection, A.class, id, versions.get(0));
+		A a3 = persistence.read(A.class, id, versions.get(0));
 		Assert.assertEquals("The historized (first) version of A should not have any B attached", 0, a3.b.size());
 		Assert.assertTrue("The historized (first) version of A should not have a E attached", EmptyObjects.isEmpty(a3.e));
 		
-		A a4 = persistence.read(connection, A.class, id);
+		A a4 = persistence.read(A.class, id);
 		Assert.assertEquals("The actual version of A should have a B attached", 1, a4.b.size());
 		Assert.assertNotNull("The actual version of A should have a E attached", a4.e);
 
-		addAnotherB(connection, a4);
-		removeFirstB(connection, id);
-		removeFirstB(connection, id);
-		persistence.commit(connection);
+		addAnotherB(a4);
+		removeFirstB(id);
+		removeFirstB(id);
 		
 		versions = persistence.readVersions(A.class, id);
 		Assert.assertEquals("A should now have 4 historized versions", 4, versions.size());
@@ -93,25 +89,23 @@ public class DbCrudTest {
 	}
 
 	private void readTheAandAddBandE(int id) throws SQLException {
-		Connection connection = persistence.beginTransaction();
-		A a2 = persistence.read(connection, A.class, id);
+		A a2 = persistence.read(A.class, id);
 		a2.b.add(new B("testNameB1"));
 		a2.e = new E();
 		a2.e.e = "AddedE";
 		
-		persistence.update(connection, a2);
-		persistence.commit(connection);
+		persistence.update(a2);
 	}
 
-	private void addAnotherB(Connection connection, A a4) throws SQLException {
+	private void addAnotherB(final A a4) throws SQLException {
 		a4.b.add(new B("testNameB2"));
-		persistence.update(connection, a4);
+		persistence.update(a4);
 	}
 
-	private void removeFirstB(Connection connection, int id) throws SQLException {
-		A a5 = persistence.read(connection, A.class, id);
+	private void removeFirstB(final int id) throws SQLException {
+		A a5 = persistence.read(A.class, id);
 		a5.b.remove(0);
-		persistence.update(connection,a5);
+		persistence.update(a5);
 	}
 
 }

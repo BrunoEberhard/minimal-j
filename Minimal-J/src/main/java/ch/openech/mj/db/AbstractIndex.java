@@ -30,9 +30,9 @@ public abstract class AbstractIndex<T> implements Index<T> {
 	public T lookup(Integer id) {
 		if (id != null) {
 			if (table instanceof ImmutableTable) {
-				return ((ImmutableTable<T>) table).read(dbPersistence.getAutoCommitConnection(), id);
+				return ((ImmutableTable<T>) table).read(id);
 			} else if (table instanceof Table) {
-				return ((Table<T>) table).read(dbPersistence.getAutoCommitConnection(), id);
+				return ((Table<T>) table).read(id);
 			} else {
 				throw new IllegalStateException();
 			}

@@ -20,8 +20,8 @@ public class ColumnIndex<T> extends AbstractIndex<T> {
 		this.innerIndex = innerIndex;
 	}
 
-	private List<Integer> findIds(Connection connection, List<Integer> ids) throws SQLException {
-		PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
+	private List<Integer> findIds(List<Integer> ids) throws SQLException {
+		PreparedStatement selectStatement = table.getStatement(dbPersistence.getConnection(), selectQuery, false);
 		List<Integer> result = new ArrayList<>(ids.size());
 		for (Integer i : ids) {
 			helper.setParameter(selectStatement, 1, i, property);
@@ -31,11 +31,11 @@ public class ColumnIndex<T> extends AbstractIndex<T> {
 	}
 	
 	public List<Integer> findIds(Object query) {
-		Connection connection = dbPersistence.getAutoCommitConnection();
+		Connection connection = dbPersistence.getConnection();
 		try {
 			if (innerIndex != null) {
 				List<Integer> queryIds = innerIndex.findIds(query);
-				return findIds(connection, queryIds);
+				return findIds(queryIds);
 			}
 			PreparedStatement selectStatement = table.getStatement(connection, selectQuery, false);
 			helper.setParameter(selectStatement, 1, query, property);

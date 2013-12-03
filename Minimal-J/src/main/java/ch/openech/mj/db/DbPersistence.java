@@ -52,7 +52,8 @@ public class DbPersistence {
 	
 	private Connection autoCommitConnection;
 	private BlockingDeque<Connection> daoDeque = new LinkedBlockingDeque<>();
-
+	private ThreadLocal<Connection> transaction = new ThreadLocal<>();
+	
 	/**
 	 * Only creates the persistence. Does not yet connect to the DB.
 	 */
@@ -123,7 +124,7 @@ public class DbPersistence {
 //		}
 //	}
 
-	public Connection getAutoCommitConnection() {
+	private Connection getAutoCommitConnection() {
 		try {
 			if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
 				autoCommitConnection = dataSource.getConnection();
@@ -137,7 +138,29 @@ public class DbPersistence {
 		}
 	}
 	
-	public Connection beginTransaction() {
+	public void transaction(Runnable runnable) throws Exception {
+		Connection transactionConnection = beginTransaction();
+		transaction.set(transactionConnection);
+		Exception exception = null;
+		try {
+			runnable.run();
+			transactionConnection.commit();
+		} catch (Exception x) {
+			exception = x;
+			try {
+				transactionConnection.rollback();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		transaction.set(null);
+		endTransaction(transactionConnection);
+		if (exception != null) {
+			throw exception;
+		}
+	}
+	
+	private Connection beginTransaction() {
 		Connection connection = daoDeque.poll();
 		while (true) {
 			boolean valid = false;
@@ -151,7 +174,7 @@ public class DbPersistence {
 			}
 			try {
 				connection = dataSource.getConnection();
-				connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+				connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 				connection.setAutoCommit(false);
 				return connection;
 			} catch (Exception e) {
@@ -170,7 +193,7 @@ public class DbPersistence {
 		}
 	}
 	
-	void transactionEnded(Connection connection) {
+	private void endTransaction(Connection connection) {
 		// last in first out in the hope that recent accessed objects are the fastest
 		daoDeque.push(connection);
 	}
@@ -180,72 +203,60 @@ public class DbPersistence {
 	 * be used for JUnit tests.
 	 */
 	public void clear() {
-		Connection connection = getAutoCommitConnection();
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			if (!(table instanceof ImmutableTable)) {
-				table.clear(connection);
+				table.clear();
 			}
 		}
 	}
 
-	public <T> T read(Connection connection, Class<T> clazz, int id) {
-		Table<T> table = (Table<T>) getTable(clazz);
-		return table.read(connection, id);
+	Connection getConnection() {
+		Connection connection = transaction.get();
+		if (connection != null) {
+			return connection;
+		} else {
+			return getAutoCommitConnection();
+		}
 	}
 	
-	public <T> T read(Connection connection, Class<T> clazz, int id, Integer time) {
+	public <T> T read(Class<T> clazz, int id) {
+		Table<T> table = (Table<T>) getTable(clazz);
+		return table.read(id);
+	}
+	
+	public <T> T read(Class<T> clazz, int id, Integer time) {
 		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
-		return table.read(connection, id, time);
+		return table.read(id, time);
 	}
 
-	public List<Integer> readVersions(Connection connection, Class<?> clazz, int id) {
+	public List<Integer> readVersions(Class<?> clazz, int id) {
 		HistorizedTable<?> table = (HistorizedTable<?>) getTable(clazz);
-		return table.readVersions(connection, id);
+		return table.readVersions(id);
 	}
 
-	public <T> int insert(Connection connection, T object) {
+	public <T> int insert(T object) {
 		if (object != null) {
 			Table<T> table = (Table<T>) getTable(object.getClass());
-			return table.insert(connection, object);
+			return table.insert(object);
 		} else {
 			return 0;
 		}
 	}
 	
-	public <T> void update(Connection connection, T object) {
+	public <T> void update(T object) {
 		Table<T> table = (Table<T>) getTable(object.getClass());
-		table.update(connection, object);
+		table.update(object);
 	}
 	
-	public <T> T read(Class<T> clazz, int id) {
-		return read(getAutoCommitConnection(), clazz, id);
-	}
-	
-	public <T> T read(Class<T> clazz, int id, Integer time) {
-		return read(getAutoCommitConnection(), clazz, id, time);
-	}
-	
-	public List<Integer> readVersions(Class<?> clazz, int id) {
-		return readVersions(getAutoCommitConnection(), clazz, id);
-	}
-
 	public <T> List<Integer> findIds(Class<T> clazz, Object field, Object query) {
 		return findIds(clazz, field, query);
 	}
 	
-	public int insert(Object object) {
-		return insert(getAutoCommitConnection(), object);
-	}
-
-	public <T> void update(T object) {
-		update(getAutoCommitConnection(), object);
-	}
-
 	public void commit(Connection connection) {
 		try {
 			connection.commit();
-			transactionEnded(connection);
+			endTransaction(connection);
 		} catch (SQLException x) {
 			logger.log(Level.SEVERE, "Could not commit", x);
 			throw new RuntimeException("Could not commit");
@@ -255,7 +266,7 @@ public class DbPersistence {
 	public void rollback(Connection connection) {
 		try {
 			connection.rollback();
-			transactionEnded(connection);
+			endTransaction(connection);
 		} catch (SQLException x) {
 			logger.log(Level.SEVERE, "Could not rollback", x);
 			throw new RuntimeException("Could not rollback");
@@ -311,11 +322,10 @@ public class DbPersistence {
 	}
 	
 	public void createTables() {
-		Connection connection = getAutoCommitConnection();
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			try {
-				table.create(connection);
+				table.create();
 			} catch (SQLException x) {
 				logger.log(Level.SEVERE, "Couldn't initialize table: " + table.getTableName(), x);
 				throw new RuntimeException("Couldn't initialize table: " + table.getTableName());
