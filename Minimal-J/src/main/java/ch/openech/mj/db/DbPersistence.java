@@ -42,7 +42,6 @@ public class DbPersistence {
 	private boolean initialized = false;
 	
 	private boolean isDerbyDb;
-	private boolean isDerbyMemoryDb;
 	private boolean isMySqlDb; 
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
@@ -267,10 +266,6 @@ public class DbPersistence {
 		return true;
 	}
 
-	public boolean isDerbyMemoryDb() {
-		return isDerbyMemoryDb;
-	}
-
 	public boolean isMySqlDb() {
 		return isMySqlDb;
 	}
@@ -321,6 +316,11 @@ public class DbPersistence {
 				throw new RuntimeException("Couldn't initialize table: " + table.getTableName());
 			}
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <U> ImmutableTable<U> getImmutableTable(Class<U> clazz) {
+		return (ImmutableTable<U>) tables.get(clazz);
 	}
 	
 	@SuppressWarnings("unchecked")
