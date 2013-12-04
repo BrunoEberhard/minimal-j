@@ -257,26 +257,6 @@ public class DbPersistence {
 	public <T> List<Integer> findIds(Class<T> clazz, Object field, Object query) {
 		return findIds(clazz, field, query);
 	}
-	
-	public void commit(Connection connection) {
-		try {
-			connection.commit();
-			endTransaction(connection);
-		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Could not commit", x);
-			throw new RuntimeException("Could not commit");
-		}
-	}
-
-	public void rollback(Connection connection) {
-		try {
-			connection.rollback();
-			endTransaction(connection);
-		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Could not rollback", x);
-			throw new RuntimeException("Could not rollback");
-		}
-	}
 
 	public boolean isDerbyDb() {
 		return true;
@@ -336,11 +316,6 @@ public class DbPersistence {
 				throw new RuntimeException("Couldn't initialize table: " + table.getTableName());
 			}
 		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <U> ImmutableTable<U> getImmutableTable(Class<U> clazz) {
-		return (ImmutableTable<U>) tables.get(clazz);
 	}
 	
 	@SuppressWarnings("unchecked")
