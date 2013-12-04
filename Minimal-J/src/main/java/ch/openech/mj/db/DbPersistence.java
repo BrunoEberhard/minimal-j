@@ -211,6 +211,11 @@ public class DbPersistence {
 		}
 	}
 
+	public boolean isTransactionActive() {
+		Connection connection = transaction.get();
+		return connection != null;
+	}
+	
 	Connection getConnection() {
 		Connection connection = transaction.get();
 		if (connection != null) {
