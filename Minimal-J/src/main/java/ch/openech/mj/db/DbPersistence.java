@@ -1,7 +1,6 @@
 package ch.openech.mj.db;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,7 +17,6 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.apache.derby.jdbc.EmbeddedDriver;
 import org.mariadb.jdbc.MySQLDataSource;
 
 import ch.openech.mj.model.test.ModelTest;
@@ -74,37 +72,21 @@ public class DbPersistence {
 	private static int memoryDbCount = 1;
 	
 	public static DataSource embeddedDataSource() {
-		try {
-			DriverManager.registerDriver(new EmbeddedDriver());
-//			DriverManager.getConnection("jdbc:derby:memory:testdb;create=true", "", "");
-//			DriverManager.getConnection("jdbc:derby:data/testdb;create=true", "", "");
-
-			EmbeddedDataSource dataSource = new EmbeddedDataSource();
-			dataSource.setUser("");
-			dataSource.setPassword("");
-//			ds.setDatabaseName("data/testdb");
-			dataSource.setDatabaseName("memory:TempDB" + (memoryDbCount++));
-			dataSource.setCreateDatabase("create");
-			return dataSource;
-		} catch (SQLException e) {
-			logger.log(Level.SEVERE, "Creation of DataSource failed", e);
-			throw new RuntimeException("Creation of DataSource failed");
-		}
+		EmbeddedDataSource dataSource = new EmbeddedDataSource();
+		dataSource.setUser("");
+		dataSource.setPassword("");
+		dataSource.setDatabaseName("memory:TempDB" + (memoryDbCount++)); // for FileSystem use "data/testdb"
+		dataSource.setCreateDatabase("create");
+		return dataSource;
 	}
 	
 	public static DataSource mariaDbDataSource() {
-		try {
-			DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
-			MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, "OpenEch");
-			dataSource.setUser("APP");
-			dataSource.setPassword("APP");
-			dataSource.setServerName("localhost");
-			dataSource.setDatabaseName("OpenEch");
-			return dataSource;
-		} catch (SQLException e) {
-			logger.log(Level.SEVERE, "Creation of DataSource failed", e);
-			throw new RuntimeException("Creation of DataSource failed");
-		}
+		MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, "OpenEch");
+		dataSource.setUser("APP");
+		dataSource.setPassword("APP");
+		dataSource.setServerName("localhost");
+		dataSource.setDatabaseName("OpenEch");
+		return dataSource;
 	}
 	
 //	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
