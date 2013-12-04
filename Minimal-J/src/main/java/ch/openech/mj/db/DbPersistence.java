@@ -257,6 +257,7 @@ public class DbPersistence {
 
 	public <T> int insert(T object) {
 		if (object != null) {
+			@SuppressWarnings("unchecked")
 			Table<T> table = (Table<T>) getTable(object.getClass());
 			return table.insert(object);
 		} else {
@@ -265,6 +266,7 @@ public class DbPersistence {
 	}
 	
 	public <T> void update(T object) {
+		@SuppressWarnings("unchecked")
 		Table<T> table = (Table<T>) getTable(object.getClass());
 		table.update(object);
 	}
