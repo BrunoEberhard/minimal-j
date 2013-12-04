@@ -22,6 +22,7 @@ import org.apache.derby.jdbc.EmbeddedDriver;
 import org.mariadb.jdbc.MySQLDataSource;
 
 import ch.openech.mj.model.test.ModelTest;
+import ch.openech.mj.util.StringUtils;
 
 /**
  * Most important class of the persistence layer.
@@ -41,8 +42,8 @@ public class DbPersistence {
 
 	private boolean initialized = false;
 	
-	private boolean isDerbyDb;
-	private boolean isMySqlDb; 
+	private final boolean isDerbyDb;
+	private final boolean isMySqlDb; 
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	private final Set<Class<?>> immutables = new HashSet<>();
@@ -58,6 +59,16 @@ public class DbPersistence {
 	 */
 	public DbPersistence(DataSource dataSource) {
 		this.dataSource = dataSource;
+		Connection connection = getAutoCommitConnection();
+		try {
+			String databaseProductName = connection.getMetaData().getDatabaseProductName();
+			isMySqlDb = StringUtils.equals(databaseProductName, "MySQL");
+			isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
+			if (!isMySqlDb && !isDerbyDb) throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
+		} catch (SQLException x) {
+			logger.log(Level.SEVERE, "Could not determine product name of database", x);
+			throw new RuntimeException("Could not determine product name of database");
+		}
 	}
 	
 	private static int memoryDbCount = 1;
@@ -263,7 +274,7 @@ public class DbPersistence {
 	}
 
 	public boolean isDerbyDb() {
-		return true;
+		return isDerbyDb;
 	}
 
 	public boolean isMySqlDb() {
