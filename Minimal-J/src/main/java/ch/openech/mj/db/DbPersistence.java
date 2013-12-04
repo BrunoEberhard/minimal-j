@@ -209,6 +209,11 @@ public class DbPersistence {
 				table.clear();
 			}
 		}
+		for (AbstractTable<?> table : tableList) {
+			if (table instanceof ImmutableTable) {
+				table.clear();
+			}
+		}
 	}
 
 	public boolean isTransactionActive() {
