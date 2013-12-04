@@ -52,9 +52,6 @@ public class DbPersistence {
 	private BlockingDeque<Connection> daoDeque = new LinkedBlockingDeque<>();
 	private ThreadLocal<Connection> transaction = new ThreadLocal<>();
 	
-	/**
-	 * Only creates the persistence. Does not yet connect to the DB.
-	 */
 	public DbPersistence(DataSource dataSource) {
 		this.dataSource = dataSource;
 		Connection connection = getAutoCommitConnection();
