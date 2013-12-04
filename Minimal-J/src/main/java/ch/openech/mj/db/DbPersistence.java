@@ -70,19 +70,15 @@ public class DbPersistence {
 	
 	public static DataSource embeddedDataSource() {
 		EmbeddedDataSource dataSource = new EmbeddedDataSource();
-		dataSource.setUser("");
-		dataSource.setPassword("");
 		dataSource.setDatabaseName("memory:TempDB" + (memoryDbCount++)); // for FileSystem use "data/testdb"
 		dataSource.setCreateDatabase("create");
 		return dataSource;
 	}
 	
-	public static DataSource mariaDbDataSource() {
-		MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, "OpenEch");
-		dataSource.setUser("APP");
-		dataSource.setPassword("APP");
-		dataSource.setServerName("localhost");
-		dataSource.setDatabaseName("OpenEch");
+	public static DataSource mariaDbDataSource(String database, String user, String password) {
+		MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, database);
+		dataSource.setUser(user);
+		dataSource.setPassword(password);
 		return dataSource;
 	}
 	
