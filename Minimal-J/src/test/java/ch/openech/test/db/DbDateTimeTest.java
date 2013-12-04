@@ -21,7 +21,6 @@ public class DbDateTimeTest {
 	public static void setupDb() throws SQLException {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
 		persistence.addClass(D.class);
-		persistence.createTables();
 	}
 	
 	@AfterClass

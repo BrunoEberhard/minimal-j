@@ -38,7 +38,7 @@ public class DbPersistence {
 	// private static final String DEFAULT_URL = "jdbc:derby:memory:TempDB;create=true";
 	public static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/openech?user=APP&password=APP"; 
 
-	private boolean initialized = false;
+	private Boolean initialized = false;
 	
 	private final boolean isDerbyDb;
 	private final boolean isMySqlDb; 
@@ -207,11 +207,26 @@ public class DbPersistence {
 	}
 	
 	Connection getConnection() {
+		if (!initialized) {
+			initialize();
+		}
 		Connection connection = transaction.get();
 		if (connection != null) {
 			return connection;
 		} else {
 			return getAutoCommitConnection();
+		}
+	}
+	
+	private void initialize() {
+		synchronized (initialized) {
+			if (!initialized) {
+				initialized = true;
+				testModel();
+				if (dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase())) {
+					createTables();
+				}
+			}
 		}
 	}
 	
@@ -286,7 +301,7 @@ public class DbPersistence {
 	public <U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
 		immutables.add(clazz);
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
-		tables.put(table.getClazz(), table);
+		add(table);
 		return table;
 	}
 	
@@ -294,7 +309,7 @@ public class DbPersistence {
 		return immutables.contains(clazz);
 	}
 	
-	public void createTables() {
+	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			try {

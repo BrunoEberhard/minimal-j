@@ -20,7 +20,6 @@ public class DbCrudTest {
 	public static void setupDb() throws SQLException {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
 		persistence.addHistorizedClass(A.class);
-		persistence.createTables();
 	}
 	
 	@AfterClass

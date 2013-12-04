@@ -17,7 +17,6 @@ public class DbEnumTest {
 	public static void setupDb() throws SQLException {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
 		persistence.addClass(F.class);
-		persistence.createTables();
 	}
 	
 	@AfterClass
