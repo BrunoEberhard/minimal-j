@@ -223,11 +223,15 @@ public class DbPersistence {
 			if (!initialized) {
 				initialized = true;
 				testModel();
-				if (dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase())) {
+				if (createTablesOnInitialize()) {
 					createTables();
 				}
 			}
 		}
+	}
+	
+	protected boolean createTablesOnInitialize() {
+		return dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
 	}
 	
 	public <T> T read(Class<T> clazz, int id) {
