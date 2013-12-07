@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
 import ch.openech.mj.model.PropertyInterface;
@@ -60,14 +61,24 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public int insert(T object) {
-		try {
+		return dbPersistence.transaction(new InsertTransaction(object), "Insert object in " + getTableName() + " / Object: " + object); // "Couldn't insert object on " + getTableName() + " / Object: " + object
+	}
+	
+	private class InsertTransaction implements Callable<Integer> {
+		private final T object;
+		
+		public InsertTransaction(T object) {
+			this.object = object;
+		}
+		
+		public Integer call() throws SQLException {
 			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
 			int id = executeInsertWithAutoIncrement(insertStatement, object);
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 				SubTable subTable = (SubTable) subTableEntry.getValue();
 				List list;
 				try {
-					list = (List)getLists().get(subTableEntry.getKey()).getValue(object);
+					list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
 					if (list != null && !list.isEmpty()) {
 						subTable.insert(id, list);
 					}
@@ -77,23 +88,13 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			registerObjectId(object, id);
 			return id;
-		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
-			sqlLogger.log(Level.FINE, "Object: " + object);
-			throw new RuntimeException("Couldn't insert object into " + getTableName() + " / Object: " + object);
 		}
 	}
 
 	public void update(T object) {
 		Integer id = getId(object);
 		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
-		try {
-			update(id.intValue(), object);
-		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
-			sqlLogger.log(Level.FINE, "Object: " + object);
-			throw new RuntimeException("Couldn't update object on " + getTableName() + " / Object: " + object);
-		}
+		dbPersistence.transaction(new UpdateTransaction(id, object), "Update object on " + getTableName() + " / Object: " + object);
 	}
 	
 	public void clear() {
@@ -125,22 +126,35 @@ public class Table<T> extends AbstractTable<T> {
 		return b.toString();
 	}
 	
-	private void update(int id, T object) throws SQLException {
-		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-		int parameterPos = setParameters(updateStatement, object, false, true);
-		helper.setParameterInt(updateStatement, parameterPos++, id);
-		updateStatement.execute();
+	private class UpdateTransaction implements Callable<Void> {
+		private final int id;
+		private final T object;
 		
-		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
-			SubTable subTable = (SubTable) subTableEntry.getValue();
-			List list;
-			try {
-				list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			}
-			subTable.update(id, list);
+		public UpdateTransaction(int id, T object) {
+			super();
+			this.id = id;
+			this.object = object;
 		}
+
+		public Void call() throws SQLException {
+			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
+			int parameterPos = setParameters(updateStatement, object, false, true);
+			helper.setParameterInt(updateStatement, parameterPos++, id);
+			updateStatement.execute();
+			
+			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+				SubTable subTable = (SubTable) subTableEntry.getValue();
+				List list;
+				try {
+					list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				}
+				subTable.update(id, list);
+			}
+			return null;
+		}
+		
 	}
 
 	public T read(int id) {

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -122,27 +123,70 @@ public class DbPersistence {
 			throw new RuntimeException("Not possible to create autocommit connection");
 		}
 	}
+
+//  same as with callable
+//	public void transaction(Runnable runnable, String description) {
+//		Connection transactionConnection = beginTransaction();
+//		transaction.set(transactionConnection);
+//		boolean runThrough = false;
+//		try {
+//			runnable.run();
+//			runThrough = true;
+//		} finally {
+//			try {
+//				if (runThrough) {
+//					transactionConnection.commit();
+//				} else {
+//					transactionConnection.rollback();
+//				}
+//				endTransaction(transactionConnection);
+//			} catch (SQLException e) {
+//				// TODO if commit/rollback throws exception, what should be done?
+//				try {
+//					transactionConnection.close();
+//				} catch (SQLException e1) {
+//					e1.printStackTrace();
+//				}
+//				e.printStackTrace();
+//			} finally {
+//				transaction.set(null);
+//			}
+//		}
+//	}
 	
-	public void transaction(Runnable runnable) throws Exception {
+	public <V> V transaction(Callable<V> callable, String description) {
 		Connection transactionConnection = beginTransaction();
 		transaction.set(transactionConnection);
-		Exception exception = null;
+		boolean runThrough = false;
+		V result;
 		try {
-			runnable.run();
-			transactionConnection.commit();
+			result = callable.call();
+			runThrough = true;
+		} catch (RuntimeException runtimeException) {
+			throw runtimeException;
 		} catch (Exception x) {
-			exception = x;
+			throw new RuntimeException("Exception while " + description, x);
+		} finally {
 			try {
-				transactionConnection.rollback();
+				if (runThrough) {
+					transactionConnection.commit();
+				} else {
+					transactionConnection.rollback();
+				}
+				endTransaction(transactionConnection);
 			} catch (SQLException e) {
+				// TODO if commit/rollback throws exception, what should be done?
+				try {
+					transactionConnection.close();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				e.printStackTrace();
+			} finally {
+				transaction.set(null);
 			}
 		}
-		transaction.set(null);
-		endTransaction(transactionConnection);
-		if (exception != null) {
-			throw exception;
-		}
+		return result;
 	}
 	
 	private Connection beginTransaction() {
