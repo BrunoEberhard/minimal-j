@@ -1,7 +1,5 @@
 package ch.openech.mj.util;
 
-import java.awt.Component;
-import java.awt.Graphics;
 
 public class StringUtils {
 
@@ -86,11 +84,6 @@ public class StringUtils {
 		}
 	}
 	
-	public static int pixelWidth(Graphics g, String s, Component component) {
-		if (StringUtils.isEmpty(s)) return 0;
-		int width = g.getFontMetrics().stringWidth(s);
-		return width;
-	}
 	
 	public static String lowerFirstChar(String string) {
 		if (string.length() > 1) {
