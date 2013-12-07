@@ -16,6 +16,7 @@ import javax.swing.KeyStroke;
 import ch.openech.mj.util.StringUtils;
 
 public class ResourceHelper {
+	private static final String ICONS_DIRECTORY = "icons";
 	private static Logger logger = Logger.getLogger(ResourceHelper.class.getName());
 	private static Set<String> loggedMissings = new HashSet<>();
 	
@@ -86,7 +87,7 @@ public class ResourceHelper {
 	public static Icon getIcon(ResourceBundle resourceBundle, String key) {
 		String filename = getStringOptional(resourceBundle, key);
 		if (!StringUtils.isBlank(filename)) {
-			URL url = ResourceHelper.class.getResource("icons/" + filename);
+			URL url = ResourceHelper.class.getResource(ICONS_DIRECTORY + "/" + filename);
 			if (url != null) {
 				return new ImageIcon(url);
 			}
@@ -95,7 +96,7 @@ public class ResourceHelper {
 	}
 	
 	public static Icon getIcon(String filename) {
-		filename = "icons/" + filename;
+		filename = ICONS_DIRECTORY + "/" + filename;
 		URL url = ResourceHelper.class.getResource(filename);
 		if (url != null) {
 			return new ImageIcon(url);
