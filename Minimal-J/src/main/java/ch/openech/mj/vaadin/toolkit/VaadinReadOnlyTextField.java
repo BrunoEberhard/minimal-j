@@ -1,39 +1,32 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.awt.event.FocusListener;
-
+import ch.openech.mj.toolkit.IFocusListener;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.StringUtils;
 
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
-public class VaadinReadOnlyTextField extends Label implements TextField {
+public class VaadinReadOnlyTextField extends VerticalLayout implements TextField {
 	private static final long serialVersionUID = 1L;
-
+	private Label label;
+	
 	public VaadinReadOnlyTextField() {
-		addStyleName("v-html-readonly");
 		setWidth("100%");
 	}
 
 	@Override
 	public void setText(String text) {
-		if (!StringUtils.isEmpty(getText())) {
-			setReadOnly(false);
-		}
-		if (!StringUtils.isEmpty(text)) {
-			super.setValue(text);
-			setContentMode(CONTENT_TEXT);
-		} else {
-			super.setValue("&nbsp;");
-			setContentMode(CONTENT_XHTML);
-		}
-		setReadOnly(true);
+		removeAllComponents();
+		Label label = !StringUtils.isEmpty(text) ? new Label(text, Label.CONTENT_TEXT) : new Label("&nbsp;", Label.CONTENT_XHTML);
+		label.addStyleName("v-html-readonly");
+		addComponent(label);
 	}
 
 	@Override
 	public String getText() {
 		// not possible
-		return (String) super.getValue();
+		return label != null ? (String) label.getValue() : null;
 	}
 
 	@Override
@@ -42,7 +35,7 @@ public class VaadinReadOnlyTextField extends Label implements TextField {
 	}
 
 	@Override
-	public void setFocusListener(FocusListener focusListener) {
+	public void setFocusListener(IFocusListener focusListener) {
 		// read only field cannot be focused
 	}
 

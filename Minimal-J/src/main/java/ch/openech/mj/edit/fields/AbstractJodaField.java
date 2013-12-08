@@ -1,8 +1,5 @@
 package ch.openech.mj.edit.fields;
 
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePartial;
@@ -17,6 +14,7 @@ import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.Size;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
+import ch.openech.mj.toolkit.IFocusListener;
 import ch.openech.mj.toolkit.TextField;
 import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.StringUtils;
@@ -54,14 +52,16 @@ public abstract class AbstractJodaField<T> extends AbstractEditField<T> implemen
 	public abstract void setObject(T value);
 		
 	private void installFocusLostListener() {
-        textField.setFocusListener(new FocusAdapter() {
+        textField.setFocusListener(new IFocusListener() {
+			
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void onFocusLost() {
 				// Formattierung auslösen
 				T value = getObject();
 				if (value != null && !InvalidValues.isInvalid(value)) {
 					setObject(value);
 				}
+				
 			}
 		});
 	}

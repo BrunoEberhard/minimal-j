@@ -1,8 +1,7 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import java.awt.event.FocusListener;
-
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
+import ch.openech.mj.toolkit.IFocusListener;
 import ch.openech.mj.toolkit.TextField;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -48,31 +47,6 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 		}
 	}
 
-	@Override
-	public void setText(String text) {
-		boolean readOnly = isReadOnly();
-		if (readOnly) {
-			setReadOnly(false);
-			setValue(text);
-			setReadOnly(true);
-		} else {
-			setValue(text);
-		}
-	}
-
-	@Override
-	public String getText() {
-		if (event != null) {
-			return event.getText();
-		} else {
-			return (String) getValue();
-		}
-	}
-
-	@Override
-	public void setFocusListener(FocusListener focusListener) {
-		// TODO
-	}
 
 	@Override
 	public void setCommitListener(Runnable commitListener) {
@@ -98,6 +72,32 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements TextFiel
 	@Override
 	public void setEditable(boolean editable) {
 		setReadOnly(!editable);
+	}
+
+	@Override
+	public void setText(String text) {
+		boolean readOnly = isReadOnly();
+		if (readOnly) {
+			setReadOnly(false);
+			setValue(text);
+			setReadOnly(true);
+		} else {
+			setValue(text);
+		}		
+	}
+
+	@Override
+	public String getText() {
+		if (event != null) {
+			return event.getText();
+		} else {
+			return (String) getValue();
+		}
+	}
+
+	@Override
+	public void setFocusListener(IFocusListener focusListener) {
+		// TODO Auto-generated method stub
 	}
 	
 }

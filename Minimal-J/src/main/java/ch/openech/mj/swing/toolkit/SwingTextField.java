@@ -2,6 +2,7 @@ package ch.openech.mj.swing.toolkit;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 import javax.swing.JTextField;
@@ -12,13 +13,14 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
+import ch.openech.mj.toolkit.IFocusListener;
 import ch.openech.mj.toolkit.TextField;
 
-public class SwingTextField extends JTextField implements TextField {
+public class SwingTextField extends JTextField implements TextField, FocusListener {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener changeListener;
-	private FocusListener focusListener;
+	private IFocusListener focusListener;
 	private Runnable commitListener;
 	
 	public SwingTextField(InputComponentListener changeListener, int maxLength) {
@@ -41,6 +43,7 @@ public class SwingTextField extends JTextField implements TextField {
 				}
 			}
 		});
+		addFocusListener(this);
 	}
 
 	public class TextFieldChangeListener implements DocumentListener {
@@ -117,20 +120,25 @@ public class SwingTextField extends JTextField implements TextField {
 	}
 
 	@Override
-	public void setFocusListener(FocusListener focusListener) {
-		if (this.focusListener != null) {
-			removeFocusListener(this.focusListener);
-		}
+	public void setFocusListener(IFocusListener focusListener) {
 		this.focusListener = focusListener;
-		if (this.focusListener != null) {
-			addFocusListener(this.focusListener);
-		}
 	}
 
 	@Override
 	public void setCommitListener(Runnable commitListener) {
 		this.commitListener = commitListener;
 	}
-	
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		// not used
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		if (focusListener != null) {
+			focusListener.onFocusLost();
+		}
+	}
 }
 

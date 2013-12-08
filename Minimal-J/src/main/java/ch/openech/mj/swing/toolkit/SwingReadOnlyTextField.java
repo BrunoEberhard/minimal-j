@@ -1,10 +1,9 @@
 package ch.openech.mj.swing.toolkit;
 
-import java.awt.event.FocusListener;
-
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
+import ch.openech.mj.toolkit.IFocusListener;
 import ch.openech.mj.toolkit.TextField;
 
 public class SwingReadOnlyTextField extends JLabel implements TextField {
@@ -41,7 +40,7 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 	}
 
 	@Override
-	public void setFocusListener(FocusListener focusListener) {
+	public void setFocusListener(IFocusListener focusListener) {
 		// read only field cannot be focused
 	}
 
@@ -49,6 +48,8 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 	public void setCommitListener(Runnable runnable) {
 		// read only field cannot get commit command
 	}
+
+	
 	
 }
 

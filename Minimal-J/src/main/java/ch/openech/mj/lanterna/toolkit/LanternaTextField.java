@@ -1,8 +1,7 @@
 package ch.openech.mj.lanterna.toolkit;
 
-import java.awt.event.FocusListener;
-
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
+import ch.openech.mj.toolkit.IFocusListener;
 import ch.openech.mj.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.component.InteractableComponent;
@@ -13,7 +12,7 @@ import com.googlecode.lanterna.input.Key;
 public class LanternaTextField extends TextBox implements TextField {
 
 	private final InputComponentListener changeListener;
-	private FocusListener focusListener;
+	private IFocusListener focusListener;
 	
 	public LanternaTextField(InputComponentListener changeListener) {
 		this.changeListener = changeListener;
@@ -26,7 +25,7 @@ public class LanternaTextField extends TextBox implements TextField {
 	}
 
 	@Override
-	public void setFocusListener(FocusListener focusListener) {
+	public void setFocusListener(IFocusListener focusListener) {
 		this.focusListener = focusListener;
 	}
 
@@ -67,18 +66,15 @@ public class LanternaTextField extends TextBox implements TextField {
 
 		@Override
 		public void onComponentReceivedFocus(InteractableComponent interactableComponent) {
-			if (focusListener != null) {
-				focusListener.focusGained(null);
-			}
+			// not used
 		}
 		
 		@Override
 		public void onComponentLostFocus(InteractableComponent interactableComponent) {
 			if (focusListener != null) {
-				focusListener.focusLost(null);
+				focusListener.onFocusLost();
 			}
 		}
-		
 	}
 	
 }

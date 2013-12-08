@@ -1,6 +1,5 @@
 package ch.openech.mj.toolkit;
 
-import java.awt.event.FocusListener;
 import java.io.InputStream;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 			}
 			
 			@Override
-			public void setFocusListener(FocusListener focusListener) {
+			public void setFocusListener(IFocusListener focusListener) {
 				// TODO Auto-generated method stub
 				
 			}

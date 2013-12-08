@@ -1,7 +1,6 @@
 package ch.openech.mj.lanterna.toolkit;
 
-import java.awt.event.FocusListener;
-
+import ch.openech.mj.toolkit.IFocusListener;
 import ch.openech.mj.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.component.Label;
@@ -19,7 +18,7 @@ public class LanternaReadOnlyTextField extends Label implements TextField {
 	}
 
 	@Override
-	public void setFocusListener(FocusListener focusListener) {
+	public void setFocusListener(IFocusListener focusListener) {
 		// ignored
 	}
 
@@ -34,6 +33,13 @@ public class LanternaReadOnlyTextField extends Label implements TextField {
 			text = "";
 		}
 		super.setText(text);
+	}
+
+	
+
+	@Override
+	public String getText() {
+		return getText();
 	}
 
 }
