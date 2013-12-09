@@ -309,6 +309,12 @@ public class DbPersistence {
 		table.update(object);
 	}
 	
+	public <T> void delete(T object) {
+		@SuppressWarnings("unchecked")
+		Table<T> table = (Table<T>) getTable(object.getClass());
+		table.delete(object);
+	}
+	
 	public <T> List<Integer> findIds(Class<T> clazz, Object field, Object query) {
 		return findIds(clazz, field, query);
 	}

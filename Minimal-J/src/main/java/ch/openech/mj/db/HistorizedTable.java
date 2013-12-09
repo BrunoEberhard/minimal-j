@@ -67,19 +67,7 @@ public class HistorizedTable<T> extends Table<T> {
 		return new HistorizedSubTable(dbPersistence, buildSubTableName(property), clazz);
 	}
 	
-	public void update(T object) {
-		Integer id = getId(object);
-		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
-		try {
-			update(id.intValue(), object);
-		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't update object on " + getTableName(), x);
-			sqlLogger.log(Level.FINE, "Object: " + object);
-			throw new RuntimeException("Couldn't update object on " + getTableName() + " / Object: " + object);
-		}
-	}
-	
-	private void update(int id, T object) throws SQLException {
+	Void doUpdate(int id, T object) throws SQLException {
 		// TODO Update sollte erst mal prüfen, ob update nötig ist.
 		// T oldObject = read(id);
 		// na, ob dann das mit allen subTables noch stimmt??
@@ -91,6 +79,9 @@ public class HistorizedTable<T> extends Table<T> {
 		endStatement.setInt(1, version);
 		endStatement.setInt(2, id);
 		endStatement.execute();	
+		
+		boolean doDelete = object == null;
+		if (doDelete) return null;
 		
 		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
 		int parameterPos = setParameters(updateStatement, object, false, true);
@@ -107,6 +98,8 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			historizedSubTable.update(id, list, version);
 		}
+		
+		return null;
 	}
 	
 	private int findMaxVersion(int id) throws SQLException {
@@ -162,6 +155,14 @@ public class HistorizedTable<T> extends Table<T> {
 		}
 	}
 	
+	@Override
+	public void delete(T object) {
+		Integer id = getId(object);
+		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
+		// update to null object is delete
+		dbPersistence.transaction(new UpdateTransaction(id, null), "Delete object on " + getTableName() + " / Object: " + object);
+	}
+
 	@SuppressWarnings("unchecked")
 	private void loadRelations(T object, int id, Integer time) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {

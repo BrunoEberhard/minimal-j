@@ -21,6 +21,7 @@ public class Table<T> extends AbstractTable<T> {
 	protected final String selectByIdQuery;
 	protected final String selectAllQuery;
 	protected final String updateQuery;
+	protected final String deleteQuery;
 	protected final Map<String, AbstractTable<?>> subTables;
 	
 	// static: if one connection reads an object, an other should be able to write it
@@ -34,6 +35,7 @@ public class Table<T> extends AbstractTable<T> {
 		this.selectByIdQuery = selectByIdQuery();
 		this.selectAllQuery = selectAllQuery();
 		this.updateQuery = updateQuery();
+		this.deleteQuery = deleteQuery();
 	}
 	
 	@Override
@@ -96,6 +98,21 @@ public class Table<T> extends AbstractTable<T> {
 		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
 		dbPersistence.transaction(new UpdateTransaction(id, object), "Update object on " + getTableName() + " / Object: " + object);
 	}
+
+	public void delete(T object) {
+		Integer id = getId(object);
+		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
+		PreparedStatement updateStatement;
+		try {
+			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
+			updateStatement.setInt(1, id);
+			updateStatement.execute();
+		} catch (SQLException e) {
+			sqlLogger.log(Level.SEVERE, "Couldn't delete " + getTableName() + " with ID " + id, e);
+			throw new RuntimeException("Couldn't delete " + getTableName() + " with ID " + id);
+		}
+	}
+
 	
 	public void clear() {
 		for (AbstractTable<?> table : subTables.values()) {
@@ -126,7 +143,7 @@ public class Table<T> extends AbstractTable<T> {
 		return b.toString();
 	}
 	
-	private class UpdateTransaction implements Callable<Void> {
+	class UpdateTransaction implements Callable<Void> {
 		private final int id;
 		private final T object;
 		
@@ -137,24 +154,27 @@ public class Table<T> extends AbstractTable<T> {
 		}
 
 		public Void call() throws SQLException {
-			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-			int parameterPos = setParameters(updateStatement, object, false, true);
-			helper.setParameterInt(updateStatement, parameterPos++, id);
-			updateStatement.execute();
-			
-			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
-				SubTable subTable = (SubTable) subTableEntry.getValue();
-				List list;
-				try {
-					list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
-				} catch (IllegalArgumentException e) {
-					throw new RuntimeException(e);
-				}
-				subTable.update(id, list);
-			}
-			return null;
+			return doUpdate(id, object);
 		}
+	}
+
+	Void doUpdate(int id, T object) throws SQLException {
+		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
+		int parameterPos = setParameters(updateStatement, object, false, true);
+		helper.setParameterInt(updateStatement, parameterPos++, id);
+		updateStatement.execute();
 		
+		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+			SubTable subTable = (SubTable) subTableEntry.getValue();
+			List list;
+			try {
+				list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			}
+			subTable.update(id, list);
+		}
+		return null;
 	}
 
 	public T read(int id) {
@@ -230,6 +250,12 @@ public class Table<T> extends AbstractTable<T> {
 		s.delete(s.length()-2, s.length());
 		s.append(" WHERE id = ?");
 
+		return s.toString();
+	}
+	
+	protected String deleteQuery() {
+		StringBuilder s = new StringBuilder();
+		s.append("DELETE "); s.append(getTableName()); s.append(" WHERE id = ?");
 		return s.toString();
 	}
 
