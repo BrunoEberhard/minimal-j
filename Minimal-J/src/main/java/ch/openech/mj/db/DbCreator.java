@@ -74,13 +74,14 @@ public class DbCreator {
 
 			if (DbPersistenceHelper.isReference(property)) {
 				s.append("INTEGER");
-				s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
 				if (referencedTable instanceof ImmutableTable) {
 					s.append(" REFERENCES "); s.append(referencedTable.getTableName());
 					if (dbPersistence.isMySqlDb()) {
 						s.append(" (id)");
 					}
+				} else {
+					throw new IllegalArgumentException("Reference to not Immutable: " + table.getTableName() + "." + column.getKey());
 				}
 				// note: it's not possible to add a constraint to a versioned table
 				// because of the start/endversion combinations
@@ -123,6 +124,7 @@ public class DbCreator {
 		
 		if (dbPersistence.isMySqlDb()) {
 			appendIndexes(s, table);
+			appendConstraints(s, table);
 		}
 		s.append("\n)");
 		appendTableEnd(s);
@@ -162,7 +164,30 @@ public class DbCreator {
 			s.append("_hash (hash)");
 		}
 	}
-	
+
+	private void appendConstraints(StringBuilder s, AbstractTable<?> table) {
+		for (Map.Entry<String, PropertyInterface> column : table.getColumns().entrySet()) {
+			PropertyInterface property = column.getValue();
+			
+			if (DbPersistenceHelper.isReference(property)) {
+				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
+
+				s.append(",\n CONSTRAINT `FK_");
+				s.append(table.getTableName()); s.append("_"); s.append(column.getKey());
+				s.append("` FOREIGN KEY (`");
+				s.append(column.getKey());
+				s.append("`) REFERENCES `");
+				s.append(referencedTable.getTableName());
+				s.append("`");
+				if (dbPersistence.isMySqlDb()) {
+					s.append(" (id)");
+				}				
+			}
+		}
+	}
+
+	// 		CONSTRAINT `FK_person_event` FOREIGN KEY (`EVENT`) REFERENCES `event` (`id`),
+
 	private void createIndexStatements(List<String> createStatements, AbstractTable<?> table) {
 		// CREATE INDEX OrigIndex ON Flights(orig_airport);
 		Set<String> indexed = new TreeSet<>();
