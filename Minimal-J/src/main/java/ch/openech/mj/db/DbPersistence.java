@@ -50,7 +50,7 @@ public class DbPersistence {
 	private final DataSource dataSource;
 	
 	private Connection autoCommitConnection;
-	private BlockingDeque<Connection> daoDeque = new LinkedBlockingDeque<>();
+	private BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private ThreadLocal<Connection> transaction = new ThreadLocal<>();
 	
 	public DbPersistence(DataSource dataSource) {
@@ -190,7 +190,7 @@ public class DbPersistence {
 	}
 	
 	private Connection beginTransaction() {
-		Connection connection = daoDeque.poll();
+		Connection connection = connectionDeque.poll();
 		while (true) {
 			boolean valid = false;
 			try {
@@ -210,21 +210,21 @@ public class DbPersistence {
 				// this could happen if there are already too many connections
 				e.printStackTrace();
 
-				logger.log(Level.FINE, "Not possible to create additional dao", e);
+				logger.log(Level.FINE, "Not possible to create additional connection", e);
 			}
-			// so no dao available and not possible to create one
-			// block and wait till a dao is in deque
+			// so no connection available and not possible to create one
+			// block and wait till a connection is in deque
 			try {
-				daoDeque.poll(10, TimeUnit.SECONDS);
+				connectionDeque.poll(10, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
-				logger.log(Level.FINEST, "poll for dao interrupted", e);
+				logger.log(Level.FINEST, "poll for connection interrupted", e);
 			}
 		}
 	}
 	
 	private void endTransaction(Connection connection) {
 		// last in first out in the hope that recent accessed objects are the fastest
-		daoDeque.push(connection);
+		connectionDeque.push(connection);
 	}
 	
 	/**
