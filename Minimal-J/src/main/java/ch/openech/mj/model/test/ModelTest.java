@@ -152,8 +152,8 @@ public class ModelTest {
 				problems.add("Set type must be an enum class: " + messagePrefix);
 			}
 			List values = EnumUtils.itemList(setType);
-			if (values.size() > 31) {
-				problems.add("Set enum must not have more than 31 elements: " + messagePrefix);
+			if (values.size() > 32) {
+				problems.add("Set enum must not have more than 32 elements: " + messagePrefix);
 			}
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
