@@ -509,7 +509,6 @@ public abstract class AbstractTable<T> {
 	}
 	
 	public ColumnIndexUnqiue<T> createIndexUnique(PropertyInterface property, String fieldPath) {
-		sqlLogger.info("Create index on " + getTableName() + " with: " + fieldPath);
 		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
 
 		ColumnIndex<?> innerIndex = null;
