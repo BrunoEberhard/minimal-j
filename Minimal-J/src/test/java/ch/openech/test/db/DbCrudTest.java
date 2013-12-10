@@ -20,10 +20,42 @@ public class DbCrudTest {
 	public static void setupDb() throws SQLException {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
 		persistence.addHistorizedClass(A.class);
+		persistence.addClass(G.class);
 	}
 	
 	@AfterClass
 	public static void shutdownDb() throws SQLException {
+	}
+	
+	@Test
+	public void testInsertAndDelete() throws SQLException {
+		G g = new G("testName1");
+		int id = persistence.insert(g);
+		
+		G g2 = persistence.read(G.class, id);
+		Assert.assertNotNull(g2);
+		
+		persistence.delete(g2);
+		
+		G g3 = persistence.read(G.class, id);
+		Assert.assertNull(g3);
+	}
+	
+	@Test
+	public void testInsertAndDeleteHistorized() throws SQLException {
+		A a = new A("testName1");
+		int id = persistence.insert(a);
+		
+		A a2 = persistence.read(A.class, id);
+		Assert.assertNotNull(a2);
+		
+		persistence.delete(a2);
+		
+		A a3 = persistence.read(A.class, id);
+		Assert.assertNull(a3);
+		
+		List<Integer> version = persistence.readVersions(A.class, id);
+		Assert.assertEquals("While delete, the old version should be still in the db", 1, version.size());
 	}
 	
 	@Test
