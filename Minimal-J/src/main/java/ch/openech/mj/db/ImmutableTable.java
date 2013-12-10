@@ -6,10 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.HashUtils;
+import ch.openech.mj.util.LoggingRuntimeException;
 
 /**
  * Minimal-J internal<p>
@@ -53,10 +53,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 			}
 			return id;
 		} catch (SQLException x) {
-			x.printStackTrace();
-			sqlLogger.log(Level.SEVERE, "Couldn't not getOrCreateId in " + getTableName(), x);
-			sqlLogger.log(Level.FINE, "Object: " + object);
-			throw new RuntimeException("Couldn't not getOrCreateId in " + getTableName() + " / Object: " + object);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't not getOrCreateId in " + getTableName() + " / Object: " + object);
 		}
 	}
 	
@@ -97,8 +94,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 			selectByIdStatement.setInt(1, id);
 			return executeSelect(selectByIdStatement);
 		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
-			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
 		}
 	}
 

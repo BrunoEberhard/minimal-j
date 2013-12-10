@@ -37,8 +37,8 @@ public class InvalidValues {
 		return key;
 	}
 	
-	public static <T extends Enum<T>> Enum<T> createInvalidEnum(Class<T> enumClass, String value) {
-		Enum<T> e = EnumUtils.createEnum(enumClass, "INVALID");
+	public static <T extends Enum<T>> T createInvalidEnum(Class<T> enumClass, String value) {
+		T e = EnumUtils.createEnum(enumClass, "INVALID");
 		values.put(e, value);
 		return e;
 	}

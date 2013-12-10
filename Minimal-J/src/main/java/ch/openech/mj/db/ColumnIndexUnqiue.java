@@ -5,9 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.util.LoggingRuntimeException;
 
 
 public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
@@ -39,8 +39,7 @@ public class ColumnIndexUnqiue<T> extends AbstractIndex<T> {
 			}
 		} catch (SQLException x) {
 			String message = "Couldn't use index of column + " + column + " of table " + table.getTableName() + " with query " + query;
-			sqlLogger.log(Level.SEVERE, message, x);
-			throw new RuntimeException(message);
+			throw new LoggingRuntimeException(x, sqlLogger, message);
 		}
 	}
 	

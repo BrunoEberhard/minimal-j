@@ -236,8 +236,13 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			Object object = getObject(row);
-			return properties.get(column).getValue(object);
+			try {
+				Object object = getObject(row);
+				return properties.get(column).getValue(object);
+			} catch (Exception x) {
+				x.printStackTrace();
+				return row + "/" + column + ": " + x.getMessage();
+			}
 		}
 
 		@Override

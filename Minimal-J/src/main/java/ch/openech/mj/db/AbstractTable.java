@@ -26,6 +26,7 @@ import ch.openech.mj.model.properties.FinalReferenceProperty;
 import ch.openech.mj.model.properties.SimpleProperty;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
+import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
 
 /**
@@ -179,12 +180,10 @@ public abstract class AbstractTable<T> {
 					return 0;
 				}
 			} catch (SQLException x) {
-				sqlLogger.log(Level.SEVERE, "Couldn't get max Id of " + getTableName(), x);
-				throw new RuntimeException("Couldn't get max Id of " + getTableName());
+				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't get max Id of " + getTableName());
 			}
 		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't get max Id of " + getTableName(), x);
-			throw new RuntimeException("Couldn't get max Id of " + getTableName());
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't get max Id of " + getTableName());
 		}
 	}
 	
@@ -198,8 +197,7 @@ public abstract class AbstractTable<T> {
 			PreparedStatement statement = getStatement(dbPersistence.getConnection(), clearQuery, false);
 			statement.execute(clearQuery());
 		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Clear of Table " + getTableName() + " failed", x);
-			throw new RuntimeException("Clear of Table " + getTableName() + " failed");
+			throw new LoggingRuntimeException(x, sqlLogger, "Clear of Table " + getTableName() + " failed");
 		}
 	}
 	
@@ -376,8 +374,7 @@ public abstract class AbstractTable<T> {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
-						sqlLogger.severe(object.getClass().getName() + " / " + property.getFieldName());
-						throw e;
+						throw new LoggingRuntimeException(e, sqlLogger, object.getClass().getName() + " / " + property.getFieldName());
 					}
 				} 
 			}

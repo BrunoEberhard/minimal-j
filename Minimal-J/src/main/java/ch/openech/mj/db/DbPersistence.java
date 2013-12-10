@@ -20,6 +20,7 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
 
 import ch.openech.mj.model.test.ModelTest;
+import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
 
 /**
@@ -58,8 +59,7 @@ public class DbPersistence {
 			isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
 			if (!isMySqlDb && !isDerbyDb) throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
 		} catch (SQLException x) {
-			logger.log(Level.SEVERE, "Could not determine product name of database", x);
-			throw new RuntimeException("Could not determine product name of database");
+			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
 		}
 	}
 	
@@ -114,9 +114,7 @@ public class DbPersistence {
 			}
 			return autoCommitConnection;
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, "Not possible to create autocommit connection", e);
-			throw new RuntimeException("Not possible to create autocommit connection");
+			throw new LoggingRuntimeException(e, logger, "Not possible to create autocommit connection");
 		}
 	}
 
@@ -331,8 +329,7 @@ public class DbPersistence {
 			try {
 				table.create();
 			} catch (SQLException x) {
-				logger.log(Level.SEVERE, "Couldn't initialize table: " + table.getTableName(), x);
-				throw new RuntimeException("Couldn't initialize table: " + table.getTableName());
+				throw new LoggingRuntimeException(x, logger, "Couldn't initialize table: " + table.getTableName());
 			}
 		}
 	}

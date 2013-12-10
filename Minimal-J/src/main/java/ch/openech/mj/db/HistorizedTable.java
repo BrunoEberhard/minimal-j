@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.util.LoggingRuntimeException;
 
 /**
  * Minimal-J internal<p>
@@ -57,9 +57,7 @@ public class HistorizedTable<T> extends Table<T> {
 			registerObjectId(object, id);
 			return id;
 		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't insert object into " + getTableName(), x);
-			sqlLogger.log(Level.FINE, "Object: " + object);
-			throw new RuntimeException("Couldn't insert object into " + getTableName() + " / Object: " + object);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert object into " + getTableName() + " / Object: " + object);
 		}
 	}
 
@@ -127,8 +125,7 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			return object;
 		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
-			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
 		}
 	}
 
@@ -147,8 +144,7 @@ public class HistorizedTable<T> extends Table<T> {
 				// and cannot be updated
 				return object;
 			} catch (SQLException x) {
-				sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id + " on time " +  time, x);
-				throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id + " on time " +  time);
+				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id + " on time " +  time);
 			}
 		} else {
 			return read(id);
@@ -194,8 +190,7 @@ public class HistorizedTable<T> extends Table<T> {
 			Collections.sort(result);
 			return result;
 		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't read version of " + getTableName() + " with ID " + id, x);
-			throw new RuntimeException("Couldn't read version of " + getTableName() + " with ID " + id);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read version of " + getTableName() + " with ID " + id);
 		}
 	}
 	

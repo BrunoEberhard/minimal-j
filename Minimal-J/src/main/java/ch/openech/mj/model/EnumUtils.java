@@ -70,16 +70,7 @@ public class EnumUtils {
 			throw new RuntimeException(x);
 		}
 	}
-	
-	public static <T extends Enum<T>> T valueOf(Class<T> clazz, String name) {
-		if (name == null) return null;
-		try {
-			return Enum.valueOf(clazz, name);
-		} catch (IllegalArgumentException iae) {
-			return createEnum(clazz, name);
-		}
-	}
-	
+
 	public static <T extends Enum<T>> String getText(T enumElement) {
 		if (enumElement == null) {
 			return null;

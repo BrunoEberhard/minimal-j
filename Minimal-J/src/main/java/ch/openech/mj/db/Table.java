@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.GenericUtils;
+import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
 
 @SuppressWarnings("rawtypes")
@@ -76,9 +76,8 @@ public class Table<T> extends AbstractTable<T> {
 		public Integer execute() {
 			try {
 				return doInsert(object);
-			} catch (SQLException e) {
-				sqlLogger.log(Level.SEVERE, "Couldn't insert in " + getTableName() + " with " + object, e);
-				throw new RuntimeException("Couldn't insert in " + getTableName() + " with " + object);
+			} catch (SQLException x) {
+				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert in " + getTableName() + " with " + object);
 			}
 		}
 	}
@@ -116,9 +115,8 @@ public class Table<T> extends AbstractTable<T> {
 			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
 			updateStatement.setInt(1, id);
 			updateStatement.execute();
-		} catch (SQLException e) {
-			sqlLogger.log(Level.SEVERE, "Couldn't delete " + getTableName() + " with ID " + id, e);
-			throw new RuntimeException("Couldn't delete " + getTableName() + " with ID " + id);
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
 		}
 	}
 
@@ -166,9 +164,8 @@ public class Table<T> extends AbstractTable<T> {
 		public Void execute() {
 			try {
 				return doUpdate(id, object);
-			} catch (SQLException e) {
-				sqlLogger.log(Level.SEVERE, "Couldn't update in " + getTableName() + " with " + object, e);
-				throw new RuntimeException("Couldn't update in " + getTableName() + " with " + object);
+			} catch (SQLException x) {
+				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
 			}
 		}
 	}
@@ -204,8 +201,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			return object;
 		} catch (SQLException x) {
-			sqlLogger.log(Level.SEVERE, "Couldn't read " + getTableName() + " with ID " + id, x);
-			throw new RuntimeException("Couldn't read " + getTableName() + " with ID " + id);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
 		}
 	}
 
