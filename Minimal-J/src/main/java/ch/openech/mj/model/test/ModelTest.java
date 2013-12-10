@@ -15,10 +15,13 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePartial;
 
+import ch.openech.mj.application.DevMode;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.annotation.AnnotationUtil;
+import ch.openech.mj.model.properties.FlatProperties;
 import ch.openech.mj.model.properties.Properties;
+import ch.openech.mj.resources.Resources;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
 
@@ -60,6 +63,9 @@ public class ModelTest {
 			testedClasses.add(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
+			if (DevMode.isActive()) {
+				testResources(clazz);
+			}
 		}
 	}
 
@@ -200,4 +206,14 @@ public class ModelTest {
 			problems.add("No property for " + field.getName());
 		}
 	}
+	
+	private void testResources(Class<?> clazz) {
+		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+			String resourceText = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+			if (resourceText.startsWith("!!")) {
+				System.out.println(clazz.getSimpleName() + "." + resourceText.substring(2) + " = ");
+			}
+		}
+	}
+
 }
