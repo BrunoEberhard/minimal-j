@@ -130,7 +130,7 @@ public class EnumUtils {
 			if (set.contains(v)) {
 				result += bitValue;
 			}
-			bitValue = bitValue * 2;
+			bitValue = bitValue << 1;
 		}
 		return result;
 	}
@@ -140,10 +140,10 @@ public class EnumUtils {
 		List values = EnumUtils.valueList(enumClass);
 		int bitValue = 1;
 		for (Object v : values) {
-			if ((integer & bitValue) > 0) {
+			if ((integer & bitValue) != 0) {
 				set.add(v);
 			}
-			bitValue = bitValue * 2;
+			bitValue = bitValue << 1;
 		}
 	}
 	
