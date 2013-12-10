@@ -255,7 +255,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	protected String deleteQuery() {
 		StringBuilder s = new StringBuilder();
-		s.append("DELETE "); s.append(getTableName()); s.append(" WHERE id = ?");
+		s.append("DELETE FROM "); s.append(getTableName()); s.append(" WHERE id = ?");
 		return s.toString();
 	}
 
