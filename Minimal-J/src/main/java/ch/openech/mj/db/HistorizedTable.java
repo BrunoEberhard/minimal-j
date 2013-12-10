@@ -38,7 +38,7 @@ public class HistorizedTable<T> extends Table<T> {
 		readVersionsQuery = readVersionsQuery();
 	}
 
-	public int insert(T object) {
+	int doInsert(T object) {
 		try {
 			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
 			int id = executeInsertWithAutoIncrement(insertStatement, object);

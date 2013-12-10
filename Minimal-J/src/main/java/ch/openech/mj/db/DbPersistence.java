@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -48,7 +47,7 @@ public class DbPersistence {
 	
 	private Connection autoCommitConnection;
 	private BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
-	private ThreadLocal<Connection> transaction = new ThreadLocal<>();
+	private ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
 	
 	public DbPersistence(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -121,48 +120,14 @@ public class DbPersistence {
 		}
 	}
 
-//  same as with callable
-//	public void transaction(Runnable runnable, String description) {
-//		Connection transactionConnection = beginTransaction();
-//		transaction.set(transactionConnection);
-//		boolean runThrough = false;
-//		try {
-//			runnable.run();
-//			runThrough = true;
-//		} finally {
-//			try {
-//				if (runThrough) {
-//					transactionConnection.commit();
-//				} else {
-//					transactionConnection.rollback();
-//				}
-//				endTransaction(transactionConnection);
-//			} catch (SQLException e) {
-//				// TODO if commit/rollback throws exception, what should be done?
-//				try {
-//					transactionConnection.close();
-//				} catch (SQLException e1) {
-//					e1.printStackTrace();
-//				}
-//				e.printStackTrace();
-//			} finally {
-//				transaction.set(null);
-//			}
-//		}
-//	}
-	
-	public <V> V transaction(Callable<V> callable, String description) {
+	public <V> V transaction(Transaction<V> transaction, String description) {
 		Connection transactionConnection = beginTransaction();
-		transaction.set(transactionConnection);
+		threadLocalTransactionConnection.set(transactionConnection);
 		boolean runThrough = false;
 		V result;
 		try {
-			result = callable.call();
+			result = transaction.execute();
 			runThrough = true;
-		} catch (RuntimeException runtimeException) {
-			throw runtimeException;
-		} catch (Exception x) {
-			throw new RuntimeException("Exception while " + description, x);
 		} finally {
 			try {
 				if (runThrough) {
@@ -180,7 +145,7 @@ public class DbPersistence {
 				}
 				e.printStackTrace();
 			} finally {
-				transaction.set(null);
+				threadLocalTransactionConnection.set(null);
 			}
 		}
 		return result;
@@ -243,7 +208,7 @@ public class DbPersistence {
 	}
 
 	public boolean isTransactionActive() {
-		Connection connection = transaction.get();
+		Connection connection = threadLocalTransactionConnection.get();
 		return connection != null;
 	}
 	
@@ -251,7 +216,7 @@ public class DbPersistence {
 		if (!initialized) {
 			initialize();
 		}
-		Connection connection = transaction.get();
+		Connection connection = threadLocalTransactionConnection.get();
 		if (connection != null) {
 			return connection;
 		} else {

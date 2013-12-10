@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
 import ch.openech.mj.model.PropertyInterface;
@@ -62,35 +61,45 @@ public class Table<T> extends AbstractTable<T> {
 		return objectIds.get(object);
 	}
 	
-	public int insert(T object) {
+	public final int insert(T object) {
 		return dbPersistence.transaction(new InsertTransaction(object), "Insert object in " + getTableName() + " / Object: " + object); // "Couldn't insert object on " + getTableName() + " / Object: " + object
 	}
 	
-	private class InsertTransaction implements Callable<Integer> {
+	private class InsertTransaction implements Transaction<Integer> {
 		private final T object;
 		
 		public InsertTransaction(T object) {
 			this.object = object;
 		}
-		
-		public Integer call() throws SQLException {
-			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
-			int id = executeInsertWithAutoIncrement(insertStatement, object);
-			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
-				SubTable subTable = (SubTable) subTableEntry.getValue();
-				List list;
-				try {
-					list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
-					if (list != null && !list.isEmpty()) {
-						subTable.insert(id, list);
-					}
-				} catch (IllegalArgumentException e) {
-					throw new RuntimeException(e);
-				}
+
+		@Override
+		public Integer execute() {
+			try {
+				return doInsert(object);
+			} catch (SQLException e) {
+				sqlLogger.log(Level.SEVERE, "Couldn't insert in " + getTableName() + " with " + object, e);
+				throw new RuntimeException("Couldn't insert in " + getTableName() + " with " + object);
 			}
-			registerObjectId(object, id);
-			return id;
 		}
+	}
+
+	int doInsert(T object) throws SQLException {
+		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
+		int id = executeInsertWithAutoIncrement(insertStatement, object);
+		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+			SubTable subTable = (SubTable) subTableEntry.getValue();
+			List list;
+			try {
+				list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
+				if (list != null && !list.isEmpty()) {
+					subTable.insert(id, list);
+				}
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		registerObjectId(object, id);
+		return id;
 	}
 
 	public void update(T object) {
@@ -143,7 +152,7 @@ public class Table<T> extends AbstractTable<T> {
 		return b.toString();
 	}
 	
-	class UpdateTransaction implements Callable<Void> {
+	class UpdateTransaction implements Transaction<Void> {
 		private final int id;
 		private final T object;
 		
@@ -153,8 +162,14 @@ public class Table<T> extends AbstractTable<T> {
 			this.object = object;
 		}
 
-		public Void call() throws SQLException {
-			return doUpdate(id, object);
+		@Override
+		public Void execute() {
+			try {
+				return doUpdate(id, object);
+			} catch (SQLException e) {
+				sqlLogger.log(Level.SEVERE, "Couldn't update in " + getTableName() + " with " + object, e);
+				throw new RuntimeException("Couldn't update in " + getTableName() + " with " + object);
+			}
 		}
 	}
 
