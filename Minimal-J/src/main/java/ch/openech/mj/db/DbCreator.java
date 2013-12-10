@@ -74,17 +74,6 @@ public class DbCreator {
 
 			if (DbPersistenceHelper.isReference(property)) {
 				s.append("INTEGER");
-				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
-				if (referencedTable instanceof ImmutableTable) {
-					s.append(" REFERENCES "); s.append(referencedTable.getTableName());
-					if (dbPersistence.isMySqlDb()) {
-						s.append(" (id)");
-					}
-				} else {
-					throw new IllegalArgumentException("Reference to not Immutable: " + table.getTableName() + "." + column.getKey());
-				}
-				// note: it's not possible to add a constraint to a versioned table
-				// because of the start/endversion combinations
 			} else {
 				addColumnDefinition(s, property);
 				s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
@@ -182,6 +171,7 @@ public class DbCreator {
 				if (dbPersistence.isMySqlDb()) {
 					s.append(" (id)");
 				}				
+				s.append(" ON DELETE CASCADE");
 			}
 		}
 	}

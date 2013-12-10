@@ -120,14 +120,6 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	
-	public void clear() {
-		for (AbstractTable<?> table : subTables.values()) {
-			table.clear();
-		}
-		super.clear();
-	}
-	
 	private Map<String, AbstractTable<?>> findSubTables() {
 		Map<String, AbstractTable<?>> subTables = new HashMap<String, AbstractTable<?>>();
 		Map<String, PropertyInterface> properties = getLists();
