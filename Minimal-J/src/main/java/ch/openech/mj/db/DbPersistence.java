@@ -35,11 +35,13 @@ import ch.openech.mj.util.StringUtils;
  */
 public class DbPersistence {
 	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
-
+	public static final boolean CREATE_TABLES = true;
+	
 	private Boolean initialized = false;
 	
 	private final boolean isDerbyDb;
 	private final boolean isMySqlDb; 
+	private final boolean createTablesOnInitialize;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	private final Set<Class<?>> immutables = new HashSet<>();
@@ -49,8 +51,12 @@ public class DbPersistence {
 	private Connection autoCommitConnection;
 	private BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
-	
+
 	public DbPersistence(DataSource dataSource) {
+		this(dataSource, createTablesOnInitialize(dataSource));
+	}
+
+	public DbPersistence(DataSource dataSource, boolean createTablesOnInitialize) {
 		this.dataSource = dataSource;
 		Connection connection = getAutoCommitConnection();
 		try {
@@ -58,6 +64,7 @@ public class DbPersistence {
 			isMySqlDb = StringUtils.equals(databaseProductName, "MySQL");
 			isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
 			if (!isMySqlDb && !isDerbyDb) throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
+			this.createTablesOnInitialize = createTablesOnInitialize;
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
 		}
@@ -227,14 +234,14 @@ public class DbPersistence {
 			if (!initialized) {
 				initialized = true;
 				testModel();
-				if (createTablesOnInitialize()) {
+				if (createTablesOnInitialize) {
 					createTables();
 				}
 			}
 		}
 	}
 	
-	protected boolean createTablesOnInitialize() {
+	private static boolean createTablesOnInitialize(DataSource dataSource) {
 		return dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
 	}
 	
