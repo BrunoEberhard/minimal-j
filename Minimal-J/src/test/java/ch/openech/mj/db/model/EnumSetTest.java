@@ -21,15 +21,7 @@ public class EnumSetTest {
 	@BeforeClass
 	public static void setupDb() throws SQLException {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
-
-//		persistence = new DbPersistence(DbPersistence.mariaDbDataSource("OpenEch", "APP", "APP")) {
-//
-//			@Override
-//			protected boolean createTablesOnInitialize() {
-//				return true;
-//			}
-//			
-//		};
+//		persistence = new DbPersistence(DbPersistence.mariaDbDataSource("OpenEch", "APP", "APP"), true);
 
 		persistence.addClass(ObjectWithE.class);
 	}
