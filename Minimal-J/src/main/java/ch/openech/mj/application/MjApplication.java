@@ -2,7 +2,9 @@ package ch.openech.mj.application;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import ch.openech.mj.page.EmptyPage;
 import ch.openech.mj.page.Page;
@@ -19,7 +21,6 @@ import ch.openech.mj.toolkit.IAction;
  *
  */
 public abstract class MjApplication {
-
 	private static MjApplication application;
 	
 	public static MjApplication getApplication() {
@@ -57,11 +58,25 @@ public abstract class MjApplication {
 	
 	protected MjApplication() {
 		setApplication(this);
-		Resources.addResourceBundle(getResourceBundle());
+		ResourceBundle resourceBundle = getResourceBundle();
+		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
 	}
 	
-	public ResourceBundle getResourceBundle() {
-		return ResourceBundle.getBundle(this.getClass().getName());
+	/**
+	 * note: Use MultiResourceBundle if more than one ResourceBundle
+	 * should be loaded.
+	 * @return The application specific ResourceBundle.
+	 */
+	protected ResourceBundle getResourceBundle() {
+		try {
+			return ResourceBundle.getBundle(this.getClass().getName());
+		} catch (MissingResourceException x) {
+			Logger logger = Logger.getLogger(MjApplication.class.getName());
+			logger.warning("Missing the default ResourceBundle for " + this.getClass().getName());
+			logger.fine("The default ResourceBundle has the same name as the Application that is launched.");
+			logger.fine("See the MjExampleApplication.java and MjExampleApplication.properties");
+			return null;
+		}
 	}
 
 	public abstract String getWindowTitle(PageContext pageContext);
