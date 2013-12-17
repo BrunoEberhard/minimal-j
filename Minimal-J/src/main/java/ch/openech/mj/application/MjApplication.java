@@ -60,7 +60,9 @@ public abstract class MjApplication {
 		Resources.addResourceBundle(getResourceBundle());
 	}
 	
-	public abstract ResourceBundle getResourceBundle();
+	public ResourceBundle getResourceBundle() {
+		return ResourceBundle.getBundle(this.getClass().getName());
+	}
 
 	public abstract String getWindowTitle(PageContext pageContext);
 	
