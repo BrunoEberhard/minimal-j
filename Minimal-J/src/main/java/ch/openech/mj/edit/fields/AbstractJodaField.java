@@ -176,12 +176,6 @@ public abstract class AbstractJodaField<T> extends AbstractEditField<T> implemen
 		
 		@Override
 		public void fillWithDemoData() {
-			if ("dateOfDeath".equals(getProperty().getFieldName())) {
-				if (Math.random() < 0.9) {
-					setObject(null);
-					return;
-				}
-			}
 			setObject(DateGenerator.generateRandomDate());
 		}
 
