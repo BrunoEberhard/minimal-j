@@ -195,7 +195,7 @@ public abstract class AbstractTable<T> {
 	public void clear() {
 		try {
 			PreparedStatement statement = getStatement(dbPersistence.getConnection(), clearQuery, false);
-			statement.execute(clearQuery());
+			statement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Clear of Table " + getTableName() + " failed");
 		}
