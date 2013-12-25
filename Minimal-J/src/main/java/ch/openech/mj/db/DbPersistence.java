@@ -315,8 +315,8 @@ public class DbPersistence {
 		return table;
 	}
 	
-	public void addIdentificationClass(Class<?> clazz) {
-		addImmutableClass(clazz);
+	public <U> ImmutableTable<U> addIdentificationClass(Class<U> clazz) {
+		return addImmutableClass(clazz);
 	}
 	
 	/**
