@@ -22,7 +22,7 @@ public class EditorPageAction implements IAction {
 
 	@Override
 	public String getName() {
-		return Resources.getResourceBundle().getString(editor.getClass().getSimpleName() + ".text");
+		return Resources.getString(editor.getClass().getSimpleName() + ".text");
 	}
 
 	@Override
