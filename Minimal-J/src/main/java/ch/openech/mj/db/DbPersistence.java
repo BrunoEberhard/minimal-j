@@ -315,6 +315,10 @@ public class DbPersistence {
 		return table;
 	}
 	
+	public void addIdentificationClass(Class<?> clazz) {
+		addImmutableClass(clazz);
+	}
+	
 	/**
 	 * @param clazz objects of this class will not be inlined
 	 * @return
