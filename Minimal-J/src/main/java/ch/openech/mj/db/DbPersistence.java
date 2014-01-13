@@ -282,10 +282,6 @@ public class DbPersistence {
 		table.delete(object);
 	}
 	
-	public <T> List<Integer> findIds(Class<T> clazz, Object field, Object query) {
-		return findIds(clazz, field, query);
-	}
-
 	public boolean isDerbyDb() {
 		return isDerbyDb;
 	}
