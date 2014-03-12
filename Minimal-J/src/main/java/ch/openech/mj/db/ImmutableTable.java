@@ -33,20 +33,20 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		selectIdByHashQuery = selectIdByHashQuery();
 	}
 
-	public Integer getId(T object) {
+	public Long getId(T object) {
 		return getId(object, false);
 	}
 
-	public Integer getOrCreateId(T object) {
+	public Long getOrCreateId(T object) {
 		return getId(object, true);
 	}
 	
-	private Integer getId(T object, boolean createIfNotExists) {
+	private Long getId(T object, boolean createIfNotExists) {
 		if (EmptyObjects.isEmpty(object)) return null;
 
 		int hash = HashUtils.getHash(object);
 		try {
-			Integer id = getId(object, hash);
+			Long id = getId(object, hash);
 			if (id == null && createIfNotExists) {
 				PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
 				id = executeInsertWithAutoIncrement(insertStatement, object, hash);
@@ -57,8 +57,8 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		}
 	}
 	
-	private Integer getId(T object, int hash) throws SQLException {
-		Integer result;
+	private Long getId(T object, int hash) throws SQLException {
+		Long result;
 		
 		PreparedStatement selectIdByHashStatement = getStatement(dbPersistence.getConnection(), selectIdByHashQuery, true);
 		selectIdByHashStatement.setInt(1, hash);
@@ -66,7 +66,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 			if (!resultSet.next()) {
 				return null;
 			}
-			result = resultSet.getInt(1);
+			result = resultSet.getLong(1);
 			boolean resultByHashUnique = !resultSet.next();
 			if (resultByHashUnique) {
 				return result;
@@ -77,22 +77,19 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		int parameterPos = setParameters(selectIdStatement, object, true, false);
 		selectIdStatement.setInt(parameterPos, hash);
 		try (ResultSet resultSet = selectIdStatement.executeQuery()) {
-			result = resultSet.next() ? resultSet.getInt(1) : null;
+			result = resultSet.next() ? resultSet.getLong(1) : null;
 			return result;
 		}
 	}
 
-	public T read(Integer id) {
-		return read(dbPersistence.getConnection(), id);
-	}
-	
-	private T read(Connection connection, Integer id) {
+	public T read(Long id) {
 		if (id == null) return EmptyObjects.getEmptyObject(getClazz());
 		
+		Connection connection = dbPersistence.getConnection();
 		try {
 			PreparedStatement selectByIdStatement = getStatement(connection, selectByIdQuery, true);
-			selectByIdStatement.setInt(1, id);
-			return executeSelect(selectByIdStatement);
+			selectByIdStatement.setLong(1, id);
+			return executeSelect(selectByIdStatement, 0);
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
 		}

@@ -7,7 +7,6 @@ import org.joda.time.LocalDateTime;
 
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.annotation.Size;
-import ch.openech.mj.search.ListLookup;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable;
@@ -17,21 +16,25 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 
 	private List<HistoryVersion<T>> versions;
 	private ITable<HistoryVersion<T>> table;
-	private final ListLookup<HistoryVersion<T>> lookup;
 	
 	public HistoryPage(PageContext pageContext) {
 		super(pageContext);
-		lookup = new ListLookup<>();
-		table = ClientToolkit.getToolkit().createTable(lookup, new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
-		table.setClickListener(new TableActionListener() {
+		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
+		table.setClickListener(new TableActionListener<HistoryVersion<T>>() {
 			@Override
-			public void action(int selectedId, List<Integer> selectedIds) {
+			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selectedObjects) {
 				List<String> pageLinks = new ArrayList<String>(versions.size());
+				int selectedIndex = 0;
+				int count = 0;
 				for (HistoryVersion<T> version : versions) {
-					String link = link( version.object, version.version);
+					if (version == selectedObject) {
+						selectedIndex = count;
+					}
+					count++;
+					String link = link(version.object, version.version);
 					pageLinks.add(link);
 				}
-				getPageContext().show(pageLinks, selectedId);
+				getPageContext().show(pageLinks, selectedIndex);
 			}
 		});
 	}
@@ -60,8 +63,7 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 	@Override
 	public void refresh() {
 		versions = loadVersions();
-		lookup.setList(versions);
-		table.setIds(lookup.getIds());
+		table.setObjects(versions);
 	}
 
 	public static class HistoryVersion<T> {

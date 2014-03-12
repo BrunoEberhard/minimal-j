@@ -1,5 +1,6 @@
 package ch.openech.mj.example.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
@@ -7,16 +8,27 @@ import java.util.Set;
 import org.joda.time.LocalDate;
 
 import ch.openech.mj.autofill.DemoEnabled;
+import ch.openech.mj.example.ExampleFormats;
 import ch.openech.mj.model.Keys;
+import ch.openech.mj.model.Search;
 import ch.openech.mj.model.annotation.Decimal;
+import ch.openech.mj.model.annotation.Required;
 import ch.openech.mj.model.annotation.Size;
 
 
-public class Book implements DemoEnabled {
+public class Book implements DemoEnabled, Serializable {
 	public static final Book BOOK = Keys.of(Book.class);
 
-	public final BookIdentification bookIdentification = new BookIdentification();
+	public static final Search<Book> BY_FULLTEXT = new Search<>(BOOK.title, BOOK.author);
+
+	public int id;
 	
+	@Required @Size(ExampleFormats.NAME) 
+	public String title;
+
+	@Size(ExampleFormats.NAME)
+	public String author;
+
 	public final Set<Media> media = new HashSet<>();
 	public Boolean available;
 	public LocalDate date;
@@ -27,9 +39,9 @@ public class Book implements DemoEnabled {
 	
 	@Override
 	public void fillWithDemoData() {
-		bookIdentification.title = "The dark tower";
+		title = "The dark tower";
 //		media = Media.hardcover;
-		bookIdentification.author = "Stephan King";
+		author = "Stephan King";
 		available = true;
 		date = new LocalDate(2009, 1, 1);
 		pages = 800;

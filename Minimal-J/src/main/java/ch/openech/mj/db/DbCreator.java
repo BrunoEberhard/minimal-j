@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -39,12 +40,18 @@ public class DbCreator {
 	public void create(Connection connection, AbstractTable<?> table) throws SQLException {
 		if (existTable(connection, table)) return;
 		
+		String lastStatement = null;
 		try (Statement statement = connection.createStatement()) {
 			List<String> createStatements = getCreateStatements(table);
 			for (String createStatement : createStatements) {
+				lastStatement = createStatement;
 				AbstractTable.sqlLogger.fine(createStatement);
 				statement.execute(createStatement);
 			}
+		} catch (SQLException x) {
+			// in the SQLException the statement is not visible
+			AbstractTable.sqlLogger.log(Level.SEVERE, lastStatement);
+			throw x;
 		}
 	}
 	

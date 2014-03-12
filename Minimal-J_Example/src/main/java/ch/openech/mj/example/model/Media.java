@@ -1,5 +1,7 @@
 package ch.openech.mj.example.model;
 
-public enum Media {
+import java.io.Serializable;
+
+public enum Media implements Serializable {
 	hardcover, paperback, ebook,
 }

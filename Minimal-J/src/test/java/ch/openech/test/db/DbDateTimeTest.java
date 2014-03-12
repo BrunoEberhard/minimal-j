@@ -19,8 +19,7 @@ public class DbDateTimeTest {
 	
 	@BeforeClass
 	public static void setupDb() throws SQLException {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
-		persistence.addClass(D.class);
+		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), D.class);
 	}
 	
 	@AfterClass
@@ -34,7 +33,7 @@ public class DbDateTimeTest {
 		d.localTime = new LocalTime(12, 34, 56);
 		d.localDateTime = new LocalDateTime(2001, 02, 03, 10, 20, 30);
 		
-		int id = persistence.insert(d);
+		long id = persistence.insert(d);
 
 		//
 		
@@ -51,7 +50,7 @@ public class DbDateTimeTest {
 		d.p2 = DateUtils.newPartial("2012", "10");
 		d.p3 = DateUtils.newPartial("2012", "9", "8");
 		
-		int id = persistence.insert(d);
+		long id = persistence.insert(d);
 
 		//
 		

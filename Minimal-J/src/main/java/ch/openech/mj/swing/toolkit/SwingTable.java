@@ -30,7 +30,6 @@ import org.joda.time.ReadablePartial;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.search.Lookup;
 import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.util.JodaFormatter;
 
@@ -39,15 +38,13 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(SwingTable.class.getName());
 	
-	private final Lookup<T> lookup;
 	private final Object[] keys;
 	private final List<PropertyInterface> properties;
 	private final JTable table;
 	private final ItemTableModel tableModel;
-	private TableActionListener listener;
+	private TableActionListener<T> listener;
 	
-	public SwingTable(Lookup<T> lookup, Object[] keys) {
-		this.lookup = lookup;
+	public SwingTable(Object[] keys) {
 		this.keys = keys;
 		this.properties = convert(keys);
 		
@@ -99,31 +96,31 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	@Override
-	public void setIds(List<Integer> ids) {
-		tableModel.setIds(ids);
+	public void setObjects(List<T> objects) {
+		tableModel.setObjects(objects);
 	}
 	
-	public int getSelectedId() {
+	public T getSelectedObject() {
 		int leadSelectionIndex = table.getSelectionModel().getLeadSelectionIndex();
 		if (leadSelectionIndex >= 0) {
 			int leadSelectionIndexInModel = table.convertRowIndexToModel(leadSelectionIndex);
-			return tableModel.getId(leadSelectionIndexInModel);
+			return tableModel.getObject(leadSelectionIndexInModel);
 		} else {
-			return -1;
+			return null;
 		}
 	}
 
-	public List<Integer> getSelectedIds() {
-		List<Integer> selectedIds = new ArrayList<>(table.getSelectedRowCount());
+	public List<T> getSelectedObjects() {
+		List<T> selectedIds = new ArrayList<>(table.getSelectedRowCount());
 		for (int row : table.getSelectedRows()) {
 			int rowInModel = table.convertRowIndexToModel(row);
-			selectedIds.add(tableModel.getId(rowInModel));
+			selectedIds.add(tableModel.getObject(rowInModel));
 		}
 		return selectedIds;
 	}
 	
 	@Override
-	public void setClickListener(TableActionListener listener) {
+	public void setClickListener(TableActionListener<T> listener) {
 		this.listener = listener;
 	}
 
@@ -133,7 +130,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() >= 2 && listener != null) {
 				try {
-					listener.action(getSelectedId(), getSelectedIds());
+					listener.action(getSelectedObject(), getSelectedObjects());
 				} catch (Exception x) {
 					x.printStackTrace();
 				}
@@ -159,14 +156,14 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	@Override
-	public void setDeleteListener(final TableActionListener listener) {
+	public void setDeleteListener(final TableActionListener<T> listener) {
 		if (listener != null) {
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					listener.action(getSelectedId(), getSelectedIds());
+					listener.action(getSelectedObject(), getSelectedObjects());
 				}
 			};
 			bindKey(KeyEvent.VK_DELETE, action);
@@ -176,14 +173,14 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	@Override
-	public void setFunctionListener(final int function, final TableActionListener listener) {
+	public void setFunctionListener(final int function, final TableActionListener<T> listener) {
 		if (listener != null) {
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					listener.action(getSelectedId(), getSelectedIds());
+					listener.action(getSelectedObject(), getSelectedObjects());
 				}
 			};
 			bindKey(KeyEvent.VK_F1+function, action);
@@ -205,24 +202,20 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	public class ItemTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
-		private List<Integer> ids = Collections.emptyList();
+		private List<T> objects = Collections.emptyList();
 		
 		public ItemTableModel() {
 		}
 
-		public void setIds(List<Integer> ids) {
-			this.ids = ids;
+		public void setObjects(List<T> objects) {
+			this.objects = objects;
 			fireTableDataChanged();
 		}
 		
 		public T getObject(int index) {
-			return lookup.lookup(ids.get(index));
+			return objects.get(index);
 		}
 
-		public Integer getId(int index) {
-			return ids.get(index);
-		}
-		
 		@Override
 		public boolean isCellEditable(int row, int column) {
 			return false;
@@ -247,7 +240,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		@Override
 		public int getRowCount() {
-			return ids.size();
+			return objects.size();
 		}
 
 		@Override

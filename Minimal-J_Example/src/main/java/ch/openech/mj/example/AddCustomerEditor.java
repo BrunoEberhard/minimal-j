@@ -5,6 +5,8 @@ import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.example.page.CustomerPage;
 import ch.openech.mj.page.PageLink;
+import ch.openech.mj.server.DbService;
+import ch.openech.mj.server.Services;
 
 public class AddCustomerEditor extends Editor<Customer> {
 
@@ -15,8 +17,8 @@ public class AddCustomerEditor extends Editor<Customer> {
 	
 	@Override
 	public String save(Customer customer) throws Exception {
-		int id = MjExampleApplication.persistence().insert(customer);
-		return PageLink.link(CustomerPage.class, Integer.toString(id));
+		long id = Services.get(DbService.class).insert(customer);
+		return PageLink.link(CustomerPage.class, id);
 	}
 
 	@Override

@@ -89,6 +89,10 @@ public class EditablePanel extends JDesktopPane {
 	}
 
 	public void openModalDialog(JInternalFrame internalFrame, boolean resizeToMax) {
+		if (openFrames.contains(internalFrame)) {
+			throw new IllegalArgumentException("Dialog already open");
+		}
+
 		openFrames.add(internalFrame);
 		
 		removeAll();
@@ -104,8 +108,8 @@ public class EditablePanel extends JDesktopPane {
 	}
 	
 	private void closeModalDialog(JInternalFrame internalFrame) {
-		if (openFrames.get(openFrames.size()-1) != internalFrame) {
-			throw new IllegalArgumentException();
+		if (!openFrames.contains(internalFrame)) {
+			throw new IllegalArgumentException("Dialog to close not open");
 		}
 		
 		openFrames.remove(internalFrame);

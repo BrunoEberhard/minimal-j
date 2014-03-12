@@ -4,13 +4,14 @@ import static ch.openech.mj.example.model.Customer.*;
 
 import java.util.List;
 
-import ch.openech.mj.example.MjExampleApplication;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.page.TablePage;
-import ch.openech.mj.search.IndexSearch;
+import ch.openech.mj.server.DbService;
+import ch.openech.mj.server.Services;
+import ch.openech.mj.util.IdUtils;
 
 
 public class CustomerTablePage extends TablePage<Customer> implements RefreshablePage {
@@ -18,20 +19,26 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 	private final String text;
 	
 	public static final Object[] FIELDS = {
-		CUSTOMER.customerIdentification.firstName, //
-		CUSTOMER.customerIdentification.name, //
-		CUSTOMER.customerIdentification.birthDay, //
+		CUSTOMER.firstName, //
+		CUSTOMER.name, //
+		CUSTOMER.birthDay, //
 	};
 	
 	public CustomerTablePage(PageContext context, String text) {
-		super(context, new IndexSearch<>(MjExampleApplication.persistence().customerIndex), FIELDS, text);
+		super(context, FIELDS, text);
 		this.text = text;
 	}
 	
 	@Override
-	protected void clicked(int selectedId, List<Integer> customers) {
-		show(CustomerPage.class, Integer.toString(selectedId));
+	protected List<Customer> load(String query) {
+		return Services.get(DbService.class).search(Customer.BY_FULLTEXT, query);
 	}
+
+	@Override
+	protected void clicked(Customer selectedObject, List<Customer> selectedObjects) {
+		show(CustomerPage.class, IdUtils.getIdString(selectedObject));
+	}
+	
 	@Override
 	public String getTitle() {
 		return "Treffer für " + text;

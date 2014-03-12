@@ -54,7 +54,20 @@ public class CloneHelper {
 				for (Object element : fromList) {
 					toList.add(clone(element));
 				}
-			} else if (isPrimitive(field) || FieldUtils.isTransient(field) || fromValue == null) {
+//			} else if (FieldUtils.isSet(field.getType())) {
+//				Set fromSet = (Set)field.get(from);
+//				if (fromSet == null) continue;
+//				Set toSet = (Set)toValue;
+//				if (!FieldUtils.isFinal(field)) {
+//					toSet = new ArrayList();
+//					field.set(to, toSet);
+//				} else {
+//					toSet.clear();
+//				}
+//				for (Object element : fromSet) {
+//					toSet.add(clone(element));
+//				}
+			} else if (FieldUtils.isAllowedPrimitive(field.getType()) || Enum.class.isAssignableFrom(field.getType()) || FieldUtils.isTransient(field) || fromValue == null) {
 				// note: transient fields are not cloned
 				field.set(to, fromValue);
 			} else if (FieldUtils.isFinal(field) && toValue != null) {

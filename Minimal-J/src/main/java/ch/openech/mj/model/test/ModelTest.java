@@ -2,7 +2,6 @@ package ch.openech.mj.model.test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,14 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
-
 import ch.openech.mj.application.DevMode;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.model.Reference;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.properties.FlatProperties;
 import ch.openech.mj.model.properties.Properties;
@@ -28,7 +23,7 @@ import ch.openech.mj.util.GenericUtils;
 /**
  * Test some restricitions on model classes.<p>
  * 
- * These tests are called by JUnit tests but also by DbPersistence.
+ * These tests are called by JUnit tests but also by Persistence.
  * They are fast and its better to see problems at startup of an application.
  */
 public class ModelTest {
@@ -51,6 +46,7 @@ public class ModelTest {
 		testedClasses.clear();
 		for (Class<?> clazz : mainModelClasses) {
 			testDomainClassCheckRecursion(clazz);
+			testId(clazz);
 		}
 	}
 	
@@ -63,6 +59,7 @@ public class ModelTest {
 			testedClasses.add(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
+			problems.addAll(FlatProperties.testProperties(clazz));
 			if (DevMode.isActive()) {
 				testResources(clazz);
 			}
@@ -87,7 +84,23 @@ public class ModelTest {
 			}
 		}
 	}
-	
+
+	private void testId(Class<?> clazz) {
+		try {
+			Field field = clazz.getField("id");
+			if (!FieldUtils.isPublic(field)) {
+				problems.add(clazz.getName() + ": field id must be public");
+			}
+			if (!FieldUtils.isAllowedId(field.getType())) {
+				testId(field.getType());
+			}
+		} catch (NoSuchFieldException e) {
+			problems.add(clazz.getName() + " has no id field");
+		} catch (SecurityException e) {
+			problems.add(clazz.getName() + " makes SecurityException with the id field");
+		}
+	}
+
 	private void testFields(Class<?> clazz) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
@@ -96,7 +109,7 @@ public class ModelTest {
 	}
 
 	private void testField(Field field) {
-		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
+		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !field.getName().equals("id") && !field.getName().equals("version")) {
 			testFieldType(field);
 			testNoMethodsForPublicField(field);
 			if (String.class.equals(field.getType())) {
@@ -109,16 +122,15 @@ public class ModelTest {
 		Class<?> fieldType = field.getType();
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
-		if (fieldType == List.class) {
+		if (fieldType == List.class || fieldType == Set.class || fieldType == Reference.class) {
 			if (!FieldUtils.isFinal(field)) {
-				problems.add(messagePrefix + " must be final (List Fields must be final)");
+				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
 			}
-			testListFieldType(field, messagePrefix);
-		} else if (fieldType == Set.class) {
-			if (!FieldUtils.isFinal(field)) {
-				problems.add(messagePrefix + " must be final (Set Fields must be final)");
+			if (fieldType == List.class) {
+				testListFieldType(field, messagePrefix);
+			} else if (fieldType == Set.class) {
+				testSetFieldType(field, messagePrefix);
 			}
-			testSetFieldType(field, messagePrefix);
 		} else {
 			testFieldType(fieldType, messagePrefix);
 			// auf leeren Konstruktor prüfen?
@@ -141,6 +153,7 @@ public class ModelTest {
 	}
 
 	private void testSetFieldType(Field field, String messagePrefix) {
+		@SuppressWarnings("rawtypes")
 		Class setType = null;
 		try {
 			setType = GenericUtils.getGenericClass(field);
@@ -151,7 +164,8 @@ public class ModelTest {
 			if (!Enum.class.isAssignableFrom(setType)) {
 				problems.add("Set type must be an enum class: " + messagePrefix);
 			}
-			List values = EnumUtils.itemList(setType);
+			@SuppressWarnings("unchecked")
+			List<?> values = EnumUtils.itemList(setType);
 			if (values.size() > 32) {
 				problems.add("Set enum must not have more than 32 elements: " + messagePrefix);
 			}
@@ -161,7 +175,7 @@ public class ModelTest {
 	}
 	
 	private void testFieldType(Class<?> fieldType, String messagePrefix) {
-		if (!isAllowedPrimitive(fieldType)) {
+		if (!FieldUtils.isAllowedPrimitive(fieldType)) {
 			if (fieldType.isPrimitive()) {
 				problems.add(messagePrefix + " has invalid Type");
 			}
@@ -175,18 +189,6 @@ public class ModelTest {
 		}
 	}
 
-	private static boolean isAllowedPrimitive(Class<?> fieldType) {
-		if (String.class == fieldType) return true;
-		if (Integer.class == fieldType) return true;
-		if (Boolean.class == fieldType) return true;
-		if (BigDecimal.class == fieldType) return true;
-		if (LocalDate.class == fieldType) return true;
-		if (LocalTime.class == fieldType) return true;
-		if (LocalDateTime.class == fieldType) return true;
-		if (ReadablePartial.class == fieldType) return true;
-		return false;
-	}
-	
 	private void testSize(Field field) {
 		PropertyInterface property = Properties.getProperty(field);
 		try {

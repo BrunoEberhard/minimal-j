@@ -9,9 +9,9 @@ public class CustomerForm extends Form<Customer> {
 	public CustomerForm(boolean editable) {
 		super(editable);
 		
-		line(CUSTOMER.customerIdentification.firstName);
-		line(CUSTOMER.customerIdentification.name);
-		line(CUSTOMER.customerIdentification.birthDay);
+		line(CUSTOMER.firstName);
+		line(CUSTOMER.name);
+		line(CUSTOMER.birthDay);
 		line(CUSTOMER.remarks);
 		
 	}

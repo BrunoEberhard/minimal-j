@@ -8,7 +8,6 @@ import org.joda.time.ReadablePartial;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.search.Lookup;
 import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.util.JodaFormatter;
 import ch.openech.mj.vaadin.PropertyVaadinContainer;
@@ -24,17 +23,15 @@ import com.vaadin.ui.Table;
 public class VaadinTable<T> extends Table implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
-	private final Lookup<T> lookup;
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
 	private final JodaFormatter jodaFormatter = new JodaFormatter();
-	private TableActionListener listener;
+	private TableActionListener<T> listener;
 	private VaadinTableItemClickListener tableClickListener;
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
 
-	public VaadinTable(Lookup<T> lookup, Object[] keys) {
-		this.lookup = lookup;
+	public VaadinTable(Object[] keys) {
 		setSelectable(true);
 		setMultiSelect(false);
 		setSizeFull();
@@ -50,8 +47,8 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 	
 	@Override
-	public void setIds(List<Integer> ids) {
-		setContainerDataSource(new PropertyVaadinContainer<T>(ids, lookup, properties));
+	public void setObjects(List<T> objects) {
+		setContainerDataSource(new PropertyVaadinContainer<T>(objects, properties));
 	}
 
 	@Override
@@ -87,8 +84,8 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		@Override
 		public void itemClick(ItemClickEvent event) {
 			if (event.isDoubleClick()) {
-				Integer id = (Integer) event.getItemId();
-				listener.action(id, getSelectedIds());
+				T id = (T) event.getItemId();
+				listener.action(id, getSelectedObjects());
 			}
 		}
 	}
@@ -112,18 +109,18 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		
 	}
 
-	public List<Integer> getSelectedIds() {
-		List<Integer> selectedIds = new ArrayList<>();
+	public List<T> getSelectedObjects() {
+		List<T> selectedIds = new ArrayList<>();
 		for (Object itemId : getItemIds()) {
 			if (isSelected(itemId)) {
-				selectedIds.add((Integer) itemId);
+				selectedIds.add((T) itemId);
 			}
 		}
 		return selectedIds;
 	}
 
 	@Override
-	public void setDeleteListener(TableActionListener listener) {
+	public void setDeleteListener(TableActionListener<T> listener) {
 		// TODO Delete Action on Vaadin Table
 	}
 
@@ -133,7 +130,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 
 	@Override
-	public void setFunctionListener(int function, TableActionListener listener) {
+	public void setFunctionListener(int function, TableActionListener<T> listener) {
 		// TODO Function Action on Vaadin Table
 	}
 	

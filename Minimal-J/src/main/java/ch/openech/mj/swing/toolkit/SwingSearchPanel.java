@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -11,7 +12,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import ch.openech.mj.search.Search;
+import ch.openech.mj.model.Search;
+import ch.openech.mj.server.DbService;
+import ch.openech.mj.server.Services;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
@@ -21,12 +24,12 @@ public class SwingSearchPanel<T> extends JPanel implements IComponent {
 	private final JButton searchButton;
 	private final SwingTable<T> table;
 	
-	public SwingSearchPanel(final Search<T> search, Object[] keys, TableActionListener listener) {
+	public SwingSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
 		super(new BorderLayout());
 		
 		text = new JTextField();
-		searchButton = new JButton("Search");
-		table = new SwingTable<T>(search, keys);
+		searchButton = new SwingHeavyActionButton("Search");
+		table = new SwingTable<T>(keys);
 
 		JPanel northPanel = new JPanel(new BorderLayout());
 		northPanel.add(text, BorderLayout.CENTER);
@@ -45,7 +48,8 @@ public class SwingSearchPanel<T> extends JPanel implements IComponent {
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				table.setIds(search.search(text.getText()));
+				List<T> objects = Services.get(DbService.class).search(search, text.getText());
+				table.setObjects(objects);
 			}
 		});
 		

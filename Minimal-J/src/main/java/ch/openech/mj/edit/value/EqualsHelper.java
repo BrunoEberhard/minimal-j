@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 
+import ch.openech.mj.model.Reference;
 import ch.openech.mj.util.FieldUtils;
 
 public class EqualsHelper {
@@ -28,16 +29,20 @@ public class EqualsHelper {
 			if (fromValue == null && toValue != null) return false;
 			if (fromValue != null && toValue == null) return false;
 			
-			if (FieldUtils.isList(field.getType()) || FieldUtils.isSet(field.getType())) {
-				Collection fromList = (Collection)fromValue;
-				Collection toList = (Collection)toValue;
+			if (fromValue instanceof Collection) {
+				Collection fromCollection = (Collection) fromValue;
+				Collection toCollection = (Collection) toValue;
 
-				if (fromList.size() != toList.size()) return false;
-				Iterator toIterator = toList.iterator();
-				for (Object fromObject : fromList) {
+				if (fromCollection.size() != toCollection.size()) return false;
+				Iterator toIterator = toCollection.iterator();
+				for (Object fromObject : fromCollection) {
 					boolean itemEqual = _equals(fromObject, toIterator.next());
 					if (!itemEqual) return false;
 				}
+			} else if (fromValue instanceof Reference) {
+				Reference fromReference = (Reference<?>) fromValue;
+				Reference toReference = (Reference<?>) toValue;
+				return fromReference.getReferencedId() == toReference.getReferencedId();
 			} else {
 				if (!fromValue.equals(toValue)) {
 					return false;

@@ -6,8 +6,8 @@ public interface Index<T> {
 
 	public String getColumn();
 
-	public List<Integer> findIds(Object query);
+	public List<Long> findIds(Object query);
 
-	public T lookup(Integer id);
+	public T lookup(Long id);
 
 }

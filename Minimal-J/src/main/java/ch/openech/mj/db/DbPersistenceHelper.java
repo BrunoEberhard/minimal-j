@@ -80,19 +80,15 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.TIME);
 		} else if (clazz == LocalDateTime.class) {
 			preparedStatement.setNull(param, Types.DATE);
-		} else if (dbPersistence.getTable(clazz) != null) {
-			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (clazz == ReadablePartial.class) {
 			preparedStatement.setNull(param, Types.CHAR);
+		} else if (dbPersistence.getTable(clazz) != null) {
+			preparedStatement.setNull(param, Types.INTEGER);
 		} else {
 			throw new IllegalArgumentException(clazz.getSimpleName());
 		}
 	}
 	
-	protected void setParameterInt(PreparedStatement preparedStatement, int param, int value) throws SQLException {
-		preparedStatement.setInt(param, value);
-	}
-
 	@SuppressWarnings("unchecked")
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
 		if (value == null) return null;

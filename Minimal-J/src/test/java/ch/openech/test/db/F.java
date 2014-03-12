@@ -5,6 +5,8 @@ import java.util.Set;
 
 public class F {
 
+	public int id;
+	
 	public final Set<FEnum> fenum = new HashSet<>();
 	
 }

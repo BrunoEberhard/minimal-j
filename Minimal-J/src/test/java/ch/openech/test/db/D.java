@@ -7,6 +7,8 @@ import org.joda.time.ReadablePartial;
 
 public class D {
 
+	public int id;
+	
 	public LocalDate localDate;
 	public LocalTime localTime;
 	public LocalDateTime localDateTime;

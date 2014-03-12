@@ -12,6 +12,8 @@ public class G {
 		this.g = g;
 	}
 
+	public int id;
+
 	@Size(20)
 	public String g;
 }

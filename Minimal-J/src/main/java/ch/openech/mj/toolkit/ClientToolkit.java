@@ -2,8 +2,7 @@ package ch.openech.mj.toolkit;
 
 import java.io.InputStream;
 
-import ch.openech.mj.search.Lookup;
-import ch.openech.mj.search.Search;
+import ch.openech.mj.model.Search;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
 /**
@@ -57,7 +56,7 @@ public abstract class ClientToolkit {
 	
 	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);
 
-	public abstract <T> ITable<T> createTable(Lookup<T> lookup, Object[] fields);
+	public abstract <T> ITable<T> createTable(Object[] fields);
 
 	public abstract IComponent createLink(String text, String address);
 	
@@ -79,7 +78,7 @@ public abstract class ClientToolkit {
 
 	public abstract IComponent createFormAlignLayout(IComponent content);
 
-	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener listener);
+	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> index, Object[] keys, TableActionListener<T> listener);
 
 	// Dialogs / Notification
 

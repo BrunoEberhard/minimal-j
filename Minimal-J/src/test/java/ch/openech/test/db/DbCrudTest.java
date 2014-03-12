@@ -18,9 +18,7 @@ public class DbCrudTest {
 	
 	@BeforeClass
 	public static void setupDb() throws SQLException {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
-		persistence.addHistorizedClass(A.class);
-		persistence.addClass(G.class);
+		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class);
 	}
 	
 	@AfterClass
@@ -30,7 +28,7 @@ public class DbCrudTest {
 	@Test
 	public void testInsertAndDelete() throws SQLException {
 		G g = new G("testName1");
-		int id = persistence.insert(g);
+		long id = persistence.insert(g);
 		
 		G g2 = persistence.read(G.class, id);
 		Assert.assertNotNull(g2);
@@ -44,7 +42,7 @@ public class DbCrudTest {
 	@Test
 	public void testInsertAndDeleteHistorized() throws SQLException {
 		A a = new A("testName1");
-		int id = persistence.insert(a);
+		long id = persistence.insert(a);
 		
 		A a2 = persistence.read(A.class, id);
 		Assert.assertNotNull(a2);
@@ -69,7 +67,7 @@ public class DbCrudTest {
 		a.c.add(new C("testNameC2"));
 		a.c.add(new C("testNameC3"));
 
-		int id = persistence.insert(a);
+		long id = persistence.insert(a);
 
 		//
 		
@@ -82,7 +80,7 @@ public class DbCrudTest {
 	
 	@Test
 	public void testSubtableVersion() throws SQLException {
-		int id = writeSimpleA();
+		long id = writeSimpleA();
 		readTheAandAddBandE(id);
 		
 		List<Integer> versions = persistence.readVersions(A.class, id);
@@ -112,14 +110,14 @@ public class DbCrudTest {
 		Assert.assertEquals(0, persistence.read(A.class, id, versions.get(0)).b.size());
 	}
 
-	private int writeSimpleA() throws SQLException {
+	private long writeSimpleA() throws SQLException {
 		A a = new A("testName1");
 
-		int id = persistence.insert(a);
+		long id = persistence.insert(a);
 		return id;
 	}
 
-	private void readTheAandAddBandE(int id) throws SQLException {
+	private void readTheAandAddBandE(long id) throws SQLException {
 		A a2 = persistence.read(A.class, id);
 		a2.b.add(new B("testNameB1"));
 		a2.e = new E();
@@ -133,7 +131,7 @@ public class DbCrudTest {
 		persistence.update(a4);
 	}
 
-	private void removeFirstB(final int id) throws SQLException {
+	private void removeFirstB(final long id) throws SQLException {
 		A a5 = persistence.read(A.class, id);
 		a5.b.remove(0);
 		persistence.update(a5);

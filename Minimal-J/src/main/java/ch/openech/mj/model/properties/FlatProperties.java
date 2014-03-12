@@ -1,8 +1,12 @@
 package ch.openech.mj.model.properties;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -64,7 +68,12 @@ public class FlatProperties {
 	private static Map<String, PropertyInterface> properties(Class<?> clazz) {
 		Map<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
 		
-		for (Field field : clazz.getFields()) {
+		Field[] fields = clazz.getFields();
+		// there is no contrat in the jvm that fields have to keep the declared
+		// order. As these properties are used for hash they have to be always in
+		// the same order. Thats done with sorting them alphabetically.
+		Arrays.sort(fields, new FieldComparator());
+		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
 			if (!FieldUtils.isFinal(field)) {
@@ -82,6 +91,48 @@ public class FlatProperties {
 			}
 		}
 		return properties; 
+	}
+	
+	public static List<String> testProperties(Class<?> clazz) {
+		List<String> problems = new ArrayList<>();
+		Map<String, String> properties = new LinkedHashMap<String, String>();
+		
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
+
+			if (!FieldUtils.isFinal(field)) {
+				String fieldPath = new FieldProperty(clazz, field).getFieldPath();
+				if (!properties.containsKey(field.getName())) {
+					properties.put(field.getName(), fieldPath);
+				} else {
+					problems.add(field.getName() + " collides with " + properties.get(field.getName()));
+				}
+			} else if (!FieldUtils.isList(field)) {
+				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
+				boolean hasClassName = FieldUtils.hasClassName(field);
+				for (String inlineKey : inlinePropertys.keySet()) {
+					String key = inlineKey;
+					if (!hasClassName) {
+						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
+					}
+					if (!properties.containsKey(key)) {
+						properties.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)).getFieldPath());
+					} else {
+						problems.add(key + " collides with " + properties.get(key));
+					}
+				}
+			}
+		}
+		return problems; 
+	}
+	
+	private static class FieldComparator implements Comparator<Field> {
+
+		@Override
+		public int compare(Field o1, Field o2) {
+			return o1.getName().compareTo(o2.getName());
+		}
 	}
 	
 }

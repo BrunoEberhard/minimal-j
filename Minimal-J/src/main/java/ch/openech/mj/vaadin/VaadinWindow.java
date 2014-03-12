@@ -13,6 +13,8 @@ import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.PageLink;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.toolkit.ActionWrapper;
+import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ResourceAction;
 import ch.openech.mj.util.StringUtils;
@@ -46,6 +48,7 @@ public class VaadinWindow extends Window implements PageContext {
 	private final ComboBox comboBox = new ComboBox();
 	private final TextField textFieldSearch = new TextField();
 	private final UriFragmentUtility ufu;
+	private final ApplicationContext applicatonContext;
 	
 	private Page visiblePage;
 	private Component content;
@@ -55,7 +58,9 @@ public class VaadinWindow extends Window implements PageContext {
 	
 	private Editor<?> editor;
 	
-	public VaadinWindow() {
+	public VaadinWindow(ApplicationContext context) {
+		this.applicatonContext = context;
+		
 		setLocale(Locale.GERMAN);
 
 		setContent(windowContent);
@@ -204,7 +209,9 @@ public class VaadinWindow extends Window implements PageContext {
 		this.editor = editor;
 		
 		IForm<?> form = editor.startEditor();
-		VaadinEditorLayout layout = new VaadinEditorLayout(form.getComponent(), editor.getActions());
+		IAction[] actions = editor.getActions();
+		actions = wrapActions(actions);
+		VaadinEditorLayout layout = new VaadinEditorLayout(form.getComponent(), actions);
 		final VaadinDialog dialog = new VaadinDialog(this, layout, editor.getTitle());
 
 		dialog.setCloseListener(new ch.openech.mj.toolkit.IDialog.CloseListener() {
@@ -274,7 +281,27 @@ public class VaadinWindow extends Window implements PageContext {
 
 	@Override
 	public ApplicationContext getApplicationContext() {
-		return ((VaadinLauncher) getApplication()).getApplicationContext();
+		return applicatonContext;
+	}
+	
+	private IAction[] wrapActions(IAction[] actions) {
+		IAction[] wrappedActions = new IAction[actions.length];
+		for (int i = 0; i<actions.length; i++) {
+			wrappedActions[i] = new VaadinActionWrapper(actions[i]);
+		}
+		return wrappedActions;
+	}
+	
+	public class VaadinActionWrapper extends ActionWrapper {
+
+		public VaadinActionWrapper(IAction action) {
+			super(action);
+		}
+
+		public void action(IComponent context) {
+			ApplicationContext.setApplicationContext(VaadinWindow.this.applicatonContext);
+			getAction().action(context);
+		}
 	}
 	
 }

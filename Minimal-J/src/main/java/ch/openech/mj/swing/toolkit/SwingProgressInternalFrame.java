@@ -1,6 +1,7 @@
 package ch.openech.mj.swing.toolkit;
 
 import java.awt.BorderLayout;
+import java.beans.PropertyVetoException;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JProgressBar;
@@ -25,7 +26,11 @@ public class SwingProgressInternalFrame extends JInternalFrame implements Progre
 	@Override
 	public void showProgress(int value, int maximum) {
 		if (value == maximum) {
-			setVisible(false);
+			try {
+				setClosed(true);
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
+			}
 			dispose();
 		} else {
 			progressBar.setMaximum(maximum);

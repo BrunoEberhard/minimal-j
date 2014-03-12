@@ -2,10 +2,18 @@ package ch.openech.mj.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
+
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.ReadablePartial;
 
 public class FieldUtils {
+	public static final Logger logger = Logger.getLogger(FieldUtils.class.getName());
 
 	public static boolean isPublic(Field field) {
 		return Modifier.isPublic(field.getModifiers());
@@ -86,6 +94,67 @@ public class FieldUtils {
 	public static Object getValue(Object object) {
 		try {
 			return getValueField(object.getClass()).get(object);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static boolean isAllowedPrimitive(Class<?> fieldType) {
+		if (String.class == fieldType) return true;
+		if (Byte.class == fieldType || Byte.TYPE == fieldType) return true;
+		if (Short.class == fieldType || Short.TYPE == fieldType) return true;
+		if (Integer.class == fieldType || Integer.TYPE == fieldType) return true;
+		if (Long.class == fieldType || Long.TYPE == fieldType) return true;
+		if (Boolean.class == fieldType || Boolean.TYPE == fieldType) return true;
+		if (BigDecimal.class == fieldType) return true;
+		if (LocalDate.class == fieldType) return true;
+		if (LocalTime.class == fieldType) return true;
+		if (LocalDateTime.class == fieldType) return true;
+		if (ReadablePartial.class == fieldType) return true;
+		return false;
+	}
+
+	public static boolean isAllowedId(Class<?> classOfId) {
+		return classOfId == Byte.TYPE || classOfId == Short.TYPE || classOfId == Integer.TYPE || classOfId == Long.TYPE;
+	}
+	
+	public static boolean isAllowedVersionType(Class<?> classOfId) {
+		return classOfId == Integer.TYPE || classOfId == Long.TYPE;
+	}
+	
+	public static boolean hasValidIdfield(Class<?> clazz) {
+		try {
+			Field field = clazz.getField("id");
+			if (isAllowedId(field.getType())) {
+				return true;
+			} else {
+				throw new RuntimeException("Type of id field invalid: " + field.getType());
+			}
+		} catch (NoSuchFieldException e) {
+			return false;
+		} catch (SecurityException e) {
+			throw new LoggingRuntimeException(e, logger, "hasValidIdfield failed");
+		}
+	}
+	
+	public static boolean hasValidVersionfield(Class<?> clazz) {
+		try {
+			Field field = clazz.getField("version");
+			if (isAllowedVersionType(field.getType())) {
+				return true;
+			} else {
+				throw new RuntimeException("Type of version field invalid: " + field.getType());
+			}
+		} catch (NoSuchFieldException e) {
+			return false;
+		} catch (SecurityException e) {
+			throw new LoggingRuntimeException(e, logger, "hasValidVersionfield failed");
+		}
+	}
+	
+	public static <T> T getStaticValue(Field field) {
+		try {
+			return (T) field.get(null);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

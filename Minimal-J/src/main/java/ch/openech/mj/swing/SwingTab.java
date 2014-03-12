@@ -276,23 +276,6 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		history.previous();
 	}
 
-	public void dropFuture() {
-		history.dropFuture();
-	}
-
-	public PageContext addTab() {
-		return frame.addTab();
-	}
-
-	public void closeTab() {
-		if (hasPast()) {
-			previous();
-			dropFuture();
-		} else {
-			frame.closeTab(this);
-		}
-	}
-
 	@Override
 	public void show(final String pageLink) {
 		if (!SwingUtilities.isEventDispatchThread()) {
@@ -320,6 +303,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	public void show(Editor<?> editor) {
 		this.editor = editor;
 		
+		// TODO wrap this too. Might need server call
 		IForm<?> form = editor.startEditor();
 		SwingEditorLayout layout = new SwingEditorLayout(form.getComponent(), editor.getActions());
 		final SwingInternalFrame dialog = new SwingInternalFrame(this, layout, editor.getTitle());
@@ -353,7 +337,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		dialog.openDialog();
 		SwingClientToolkit.focusFirstComponent((JComponent) form.getComponent());
 	}
-
+	
 	@Override
 	public void show(List<String> pageLinks, int index) {
 		this.pageLinks = pageLinks;
@@ -381,6 +365,5 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 	public ApplicationContext getApplicationContext() {
 		return SwingLauncher.getApplicationContext();
 	}
-
 	
 }

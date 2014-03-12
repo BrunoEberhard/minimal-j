@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import ch.openech.mj.application.MjApplication;
+import ch.openech.mj.example.model.Book;
+import ch.openech.mj.example.model.Customer;
+import ch.openech.mj.example.model.Lend;
 import ch.openech.mj.example.page.BookTablePage;
 import ch.openech.mj.example.page.CustomerTablePage;
 import ch.openech.mj.page.EditorPageAction;
@@ -13,19 +16,12 @@ import ch.openech.mj.toolkit.IAction;
 
 public class MjExampleApplication extends MjApplication {
 
-	private final ExamplePersistence persistence;
-	
 	public MjExampleApplication() {
-		persistence = new ExamplePersistence();
-	}
-	
-	public static ExamplePersistence persistence() {
-		return ((MjExampleApplication) getApplication()).persistence;
 	}
 	
 	@Override
 	public ResourceBundle getResourceBundle() {
-		return ResourceBundle.getBundle("ch.openech.mj.example.Application");
+		return ResourceBundle.getBundle("ch.openech.mj.example.MjExampleApplication");
 	}
 
 	@Override
@@ -51,5 +47,9 @@ public class MjExampleApplication extends MjApplication {
 	public Class<?> getPreferencesClass() {
 		return null;
 	}
-	
+
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[]{Book.class, Customer.class, Lend.class};
+	}
 }

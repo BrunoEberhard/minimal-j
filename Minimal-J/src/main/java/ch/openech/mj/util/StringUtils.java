@@ -127,6 +127,7 @@ public class StringUtils {
 			}
 			s.append(Character.toUpperCase(string.charAt(i)));
 		}
+		if (s.toString().equalsIgnoreCase("foreign")) return "FORIGN";
 		return s.toString();
 	}
 }

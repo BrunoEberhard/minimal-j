@@ -35,19 +35,19 @@ public class HistorizedSubTable extends AbstractTable {
 		readVersionsQuery = readVersionsQuery();
 	}
 	
-	public void insert(int parentId, List objects, Integer version) throws SQLException {
+	public void insert(long parentId, List objects, Integer version) throws SQLException {
 		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, true);
-			helper.setParameterInt(insertStatement, parameterPos++, parentId);
-			helper.setParameterInt(insertStatement, parameterPos++, position);
-			helper.setParameterInt(insertStatement, parameterPos++, version);
+			insertStatement.setLong(parameterPos++, parentId);
+			insertStatement.setInt(parameterPos++, position);
+			insertStatement.setInt(parameterPos++, version);
 			insertStatement.execute();
 		}
 	}
 
-	public void update(int parentId, List objects, int version) throws SQLException {
+	public void update(long parentId, List objects, int version) throws SQLException {
 		List objectsInDb = read(parentId, version);
 		int position = 0;
 		PreparedStatement endStatement = getStatement(dbPersistence.getConnection(), endQuery, false);
@@ -67,42 +67,42 @@ public class HistorizedSubTable extends AbstractTable {
 			
 			if (end) {
 				endStatement.setInt(1, version);
-				endStatement.setInt(2, parentId);
+				endStatement.setLong(2, parentId);
 				endStatement.setInt(3, position);
 				endStatement.execute();	
 			}
 			
 			if (insert) {
 				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
-				helper.setParameterInt(insertStatement, parameterPos++, parentId);
-				helper.setParameterInt(insertStatement, parameterPos++, position);
-				helper.setParameterInt(insertStatement, parameterPos++, version);
+				insertStatement.setLong(parameterPos++, parentId);
+				insertStatement.setInt(parameterPos++, position);
+				insertStatement.setInt(parameterPos++, version);
 				insertStatement.execute();
 			}
 			position++;
 		}
 	}
 
-	public List read(int parentId, Integer time) throws SQLException {
+	public List read(long parentId, Integer time) throws SQLException {
 		if (time == null) {
 			return read(parentId);
 		}
 		PreparedStatement selectByIdAndTimeStatement = getStatement(dbPersistence.getConnection(), selectByIdAndTimeQuery, false);
-		selectByIdAndTimeStatement.setInt(1, parentId);
+		selectByIdAndTimeStatement.setLong(1, parentId);
 		selectByIdAndTimeStatement.setInt(2, time);
 		selectByIdAndTimeStatement.setInt(3, time);
 		return executeSelectAll(selectByIdAndTimeStatement);
 	}
 
-	private List read(int id) throws SQLException {
+	private List read(long id) throws SQLException {
 		PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
-		selectByIdStatement.setInt(1, id);
+		selectByIdStatement.setLong(1, id);
 		return executeSelectAll(selectByIdStatement);
 	}
 	
-	public void readVersions(int parentId, List<Integer> result) throws SQLException {
+	public void readVersions(long parentId, List<Integer> result) throws SQLException {
 		PreparedStatement readVersionsStatement = getStatement(dbPersistence.getConnection(), readVersionsQuery, false);
-		readVersionsStatement.setInt(1, parentId);
+		readVersionsStatement.setLong(1, parentId);
 		try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
 			while (resultSet.next()) {
 				int version = resultSet.getInt(1);

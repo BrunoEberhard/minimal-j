@@ -20,10 +20,7 @@ public class EnumSetTest {
 	
 	@BeforeClass
 	public static void setupDb() throws SQLException {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
-//		persistence = new DbPersistence(DbPersistence.mariaDbDataSource("OpenEch", "APP", "APP"), true);
-
-		persistence.addClass(ObjectWithE.class);
+		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), ObjectWithE.class);
 	}
 
 	@Test
@@ -75,7 +72,7 @@ public class EnumSetTest {
 	private boolean testWithDb(Set<E> testSet) {
 		ObjectWithE object = new ObjectWithE();
 		object.setOfE.addAll(testSet);
-		int id = persistence.insert(object);
+		long id = persistence.insert(object);
 		
 		ObjectWithE readObject = persistence.read(ObjectWithE.class, id);
 		Set<E> resultSet = readObject.setOfE;
@@ -100,6 +97,7 @@ public class EnumSetTest {
 	}
 	
 	public static class ObjectWithE {
+		public int id;
 		public final Set<E> setOfE = new HashSet<>();
 	}
 }

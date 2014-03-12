@@ -1,6 +1,10 @@
 package ch.openech.mj.vaadin.toolkit;
 
-import ch.openech.mj.search.Search;
+import java.util.List;
+
+import ch.openech.mj.model.Search;
+import ch.openech.mj.server.DbService;
+import ch.openech.mj.server.Services;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
@@ -18,12 +22,12 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 	private final VaadinTable<T> table;
 	private final int width;
 	
-	public VaadinSearchPanel(final Search<T> search, Object[] keys, TableActionListener listener) {
+	public VaadinSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
 		setSizeFull();
 		
 		text = new TextField();
 		searchButton = new Button("Search");
-		table = new VaadinTable<T>(search, keys);
+		table = new VaadinTable<T>(keys);
 
 		HorizontalLayout northPanel = new HorizontalLayout();
 		northPanel.setWidth("100%");
@@ -40,7 +44,8 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				table.setIds(search.search((String) text.getValue()));
+				List<T> objects = Services.get(DbService.class).search(search, (String) text.getValue());
+				table.setObjects(objects);
 			}
 		});
 		

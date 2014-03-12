@@ -4,6 +4,8 @@ import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.example.model.Lend;
+import ch.openech.mj.server.DbService;
+import ch.openech.mj.server.Services;
 
 public class AddLendEditor extends Editor<Lend> {
 
@@ -26,14 +28,14 @@ public class AddLendEditor extends Editor<Lend> {
 	protected Lend newInstance() {
 		Lend lend = new Lend();
 		if (startWithCustomer != null) {
-			lend.customer = startWithCustomer.customerIdentification;
+			lend.customer.set(startWithCustomer);
 		}
 		return lend;
 	}
 
 	@Override
 	public String save(Lend lend) throws Exception {
-		int id = MjExampleApplication.persistence().insert(lend);
+		Services.get(DbService.class).insert(lend);
 		return "";
 	}
 

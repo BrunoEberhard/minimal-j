@@ -4,7 +4,7 @@ import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 
-public abstract class ObjectViewPage<T> extends AbstractPage {
+public abstract class ObjectViewPage<T> extends AbstractPage implements RefreshablePage {
 
 	private IForm<T> objectPanel;
 	private IComponent alignLayout;
@@ -25,6 +25,11 @@ public abstract class ObjectViewPage<T> extends AbstractPage {
 			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel.getComponent());
 		}
 		return alignLayout;
+	}
+	
+	@Override
+	public void refresh() {
+		objectPanel.setObject(getObject());
 	}
 	
 }

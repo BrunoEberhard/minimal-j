@@ -10,6 +10,7 @@ import ch.openech.mj.page.EmptyPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
+import ch.openech.mj.server.Services;
 import ch.openech.mj.toolkit.IAction;
 
 /**
@@ -58,8 +59,19 @@ public abstract class MjApplication {
 	
 	protected MjApplication() {
 		setApplication(this);
+		initServices();
 		ResourceBundle resourceBundle = getResourceBundle();
 		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
+	}
+	
+	private void initServices() {
+		String serviceAddress = System.getProperty("MjServicesAddress");
+		String serivcePort = System.getProperty("MjServicesPort", "8020");
+		if (serviceAddress != null) {
+			Services.configureRemoteSocket(serviceAddress, Integer.valueOf(serivcePort));
+		} else {
+			Services.configureLocal();
+		}
 	}
 	
 	/**
@@ -78,6 +90,8 @@ public abstract class MjApplication {
 			return null;
 		}
 	}
+
+	public abstract Class<?>[] getEntityClasses();
 
 	public abstract String getWindowTitle(PageContext pageContext);
 	
@@ -107,7 +121,7 @@ public abstract class MjApplication {
 	}
 
 	public void init() {
-		// should be done in subclass
+		// can be used in concrete implementation, but use with care
 	}
 	
 }

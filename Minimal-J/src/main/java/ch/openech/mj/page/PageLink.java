@@ -98,6 +98,10 @@ public class PageLink implements IAction {
 		}
 	}
 
+	public static String link(Class<? extends Page> pageClass, long id) {
+		return link(pageClass, String.valueOf(id));
+	}
+	
 	public static String link(Class<? extends Page> pageClass, String... args) {
 		StringBuilder s = new StringBuilder();
 		s.append(pageClass.getSimpleName());

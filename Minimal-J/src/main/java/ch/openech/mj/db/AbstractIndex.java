@@ -27,7 +27,7 @@ public abstract class AbstractIndex<T> implements Index<T> {
 		this.selectQuery = selectQuery();
 	}
 
-	public T lookup(Integer id) {
+	public T lookup(Long id) {
 		if (id != null) {
 			if (table instanceof ImmutableTable) {
 				return ((ImmutableTable<T>) table).read(id);

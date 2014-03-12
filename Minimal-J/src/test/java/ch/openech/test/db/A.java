@@ -15,6 +15,9 @@ public class A {
 		this.aName = aName;
 	}
 	
+	public int id;
+	public int version;
+	
 	@Size(30)
 	public String aName;
 	public final List<B> b = new ArrayList<B>();

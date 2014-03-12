@@ -16,6 +16,7 @@ import org.joda.time.Partial;
 import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.model.properties.Properties;
+import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.StringUtils;
 
 public class Keys {
@@ -78,8 +79,11 @@ public class Keys {
 	}
 	
 	private static <T> void fillFields(T object, PropertyInterface enclosingProperty, int depth) throws IllegalAccessException, InstantiationException {
-		for (Map.Entry<String, PropertyInterface> entry : Properties.getProperties(object.getClass()).entrySet()) {
-			PropertyInterface property = entry.getValue();
+		Map<String, PropertyInterface> propertiesOfObject = object instanceof Reference<?> ? ((Reference<?>) object).getProperties() : Properties.getProperties(object.getClass());
+		for (PropertyInterface property : propertiesOfObject.values()) {
+			// primitiv id fields are not set
+			if (property.getFieldName().equals("id") && FieldUtils.isAllowedId((Class<?>) property.getType())) continue;
+			if (property.getFieldName().equals("version") && FieldUtils.isAllowedVersionType((Class<?>) property.getType())) continue;
 			
 			Object value = null;
 			Class<?> type = property.getFieldClazz();

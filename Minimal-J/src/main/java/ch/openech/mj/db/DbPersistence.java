@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
 
 import ch.openech.mj.model.test.ModelTest;
+import ch.openech.mj.util.FieldUtils;
+import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
 
@@ -37,8 +40,6 @@ public class DbPersistence {
 	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
-	private Boolean initialized = false;
-	
 	private final boolean isDerbyDb;
 	private final boolean isMySqlDb; 
 	private final boolean createTablesOnInitialize;
@@ -52,11 +53,11 @@ public class DbPersistence {
 	private BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
 
-	public DbPersistence(DataSource dataSource) {
-		this(dataSource, createTablesOnInitialize(dataSource));
+	public DbPersistence(DataSource dataSource, Class<?>... classes) {
+		this(dataSource, createTablesOnInitialize(dataSource), classes);
 	}
 
-	public DbPersistence(DataSource dataSource, boolean createTablesOnInitialize) {
+	public DbPersistence(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
 		this.dataSource = dataSource;
 		Connection connection = getAutoCommitConnection();
 		try {
@@ -65,6 +66,10 @@ public class DbPersistence {
 			isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
 			if (!isMySqlDb && !isDerbyDb) throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
 			this.createTablesOnInitialize = createTablesOnInitialize;
+			for (Class<?> clazz : classes) {
+				addClass(clazz);
+			}
+			initialize();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
 		}
@@ -218,9 +223,6 @@ public class DbPersistence {
 	}
 	
 	Connection getConnection() {
-		if (!initialized) {
-			initialize();
-		}
 		Connection connection = threadLocalTransactionConnection.get();
 		if (connection != null) {
 			return connection;
@@ -230,14 +232,9 @@ public class DbPersistence {
 	}
 	
 	private void initialize() {
-		synchronized (initialized) {
-			if (!initialized) {
-				initialized = true;
-				testModel();
-				if (createTablesOnInitialize) {
-					createTables();
-				}
-			}
+		testModel();
+		if (createTablesOnInitialize) {
+			createTables();
 		}
 	}
 	
@@ -245,22 +242,22 @@ public class DbPersistence {
 		return dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
 	}
 	
-	public <T> T read(Class<T> clazz, int id) {
+	public <T> T read(Class<T> clazz, long id) {
 		Table<T> table = (Table<T>) getTable(clazz);
 		return table.read(id);
 	}
 	
-	public <T> T read(Class<T> clazz, int id, Integer time) {
+	public <T> T read(Class<T> clazz, long id, Integer time) {
 		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
 		return table.read(id, time);
 	}
 
-	public List<Integer> readVersions(Class<?> clazz, int id) {
+	public List<Integer> readVersions(Class<?> clazz, long id) {
 		HistorizedTable<?> table = (HistorizedTable<?>) getTable(clazz);
 		return table.readVersions(id);
 	}
 
-	public <T> int insert(T object) {
+	public <T> long insert(T object) {
 		if (object != null) {
 			@SuppressWarnings("unchecked")
 			Table<T> table = (Table<T>) getTable(object.getClass());
@@ -293,33 +290,45 @@ public class DbPersistence {
 	//
 
 	private void add(AbstractTable<?> table) {
-		if (initialized) {
-			throw new IllegalStateException("Not allowed to add Table after connecting");
-		}
 		tables.put(table.getClazz(), table);
+		collectImmutables(table.getClazz());
 	}
 	
-	public <U> Table<U> addClass(Class<U> clazz) {
-		Table<U> table = new Table<U>(this, clazz);
-		add(table);
-		return table;
+	private <U> AbstractTable<U> addClass(Class<U> clazz) {
+		if (FieldUtils.hasValidIdfield(clazz)) {
+			if (FieldUtils.hasValidVersionfield(clazz)) {
+				return addHistorizedClass(clazz);
+			} else {
+				Table<U> table = new Table<U>(this, clazz);
+				add(table);
+				return table;
+			}
+		} else {
+			return addImmutableClass(clazz);
+		}
+	}
+
+	private void collectImmutables(Class<?> clazz) {
+		for (Field field : clazz.getFields()) {
+			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
+			Class<?> fieldType = FieldUtils.isList(field) || FieldUtils.isSet(field) ? GenericUtils.getGenericClass(field) : field.getType();
+			if (FieldUtils.isAllowedPrimitive(fieldType)) continue;
+			if (tables.containsKey(fieldType)) continue;
+			addImmutableClass(fieldType);
+		}
 	}
 	
-	public <U> HistorizedTable<U> addHistorizedClass(Class<U> clazz) {
+	private <U> HistorizedTable<U> addHistorizedClass(Class<U> clazz) {
 		HistorizedTable<U> table = new HistorizedTable<U>(this, clazz);
 		add(table);
 		return table;
-	}
-	
-	public <U> ImmutableTable<U> addIdentificationClass(Class<U> clazz) {
-		return addImmutableClass(clazz);
 	}
 	
 	/**
 	 * @param clazz objects of this class will not be inlined
 	 * @return
 	 */
-	public <U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
+	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
 		immutables.add(clazz);
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
 		add(table);
@@ -348,6 +357,7 @@ public class DbPersistence {
 	
 	@SuppressWarnings("unchecked")
 	public <U> AbstractTable<U> getTable(Class<U> clazz) {
+		if (!tables.containsKey(clazz)) throw new IllegalArgumentException(clazz.getName());
 		return (AbstractTable<U>) tables.get(clazz);
 	}
 	

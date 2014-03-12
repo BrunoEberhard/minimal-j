@@ -3,26 +3,28 @@ package ch.openech.mj.example.page;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.AddLendEditor;
 import ch.openech.mj.example.CustomerForm;
-import ch.openech.mj.example.MjExampleApplication;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.ObjectViewPage;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.PageLink;
+import ch.openech.mj.server.DbService;
+import ch.openech.mj.server.Services;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ResourceAction;
+import ch.openech.mj.util.IdUtils;
 
 public class CustomerPage extends ObjectViewPage<Customer> {
 
 	private final Customer customer;
 
-	public CustomerPage(PageContext context, String customerId) {
+	public CustomerPage(PageContext context, String id) {
 		super(context);
-		customer = lookup(customerId);
+		customer = lookup(id);
 	}
 	
-	private static Customer lookup(String customerId) {
-		return MjExampleApplication.persistence().read(Customer.class, Integer.valueOf(customerId));
+	private static Customer lookup(String id) {
+		return Services.get(DbService.class).read(Customer.class, Long.valueOf(id));
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 
 	@Override
 	public String getTitle() {
-		return customer.customerIdentification.firstName + " " + customer.customerIdentification.name;
+		return customer.display();
 	}
 
 	@Override
@@ -58,8 +60,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 
 		@Override
 		public void action(IComponent context) {
-			int id = MjExampleApplication.persistence().customerIdentification.getId(customer.customerIdentification);
-			((PageContext) context).show(PageLink.link(LendTablePage.class, "" + id));
+			((PageContext) context).show(PageLink.link(LendTablePage.class, IdUtils.getIdString(customer)));
 		}
 		
 	}

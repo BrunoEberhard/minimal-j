@@ -1,16 +1,15 @@
 package ch.openech.mj.db;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.WeakHashMap;
 
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.util.GenericUtils;
+import ch.openech.mj.util.IdUtils;
 import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
 
@@ -23,10 +22,6 @@ public class Table<T> extends AbstractTable<T> {
 	protected final String deleteQuery;
 	protected final Map<String, AbstractTable<?>> subTables;
 	
-	// static: if one connection reads an object, an other should be able to write it
-	// (except in transaction?)
-	private static final WeakHashMap<Object, Integer> objectIds = new WeakHashMap<Object, Integer>();
-
 	public Table(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, null, clazz);
 		this.subTables = findSubTables();
@@ -45,27 +40,13 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	@Override
-	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time)
-			throws SQLException {
-		ObjectWithId<T> resultObject = super.readResultSetRow(resultSet, time);
-		registerObjectId(resultObject.object, resultObject.id);
-		return resultObject;
-	}
-
-	protected void registerObjectId(Object object, Integer id) {
-		objectIds.put(object, id);
-	}
-
-	public Integer getId(T object) {
-		return objectIds.get(object);
+	public final long insert(T object) {
+		Long newId = dbPersistence.transaction(new InsertTransaction(object), "Insert object in " + getTableName() + " / Object: " + object);
+		IdUtils.setId(object, newId);
+		return newId;
 	}
 	
-	public final int insert(T object) {
-		return dbPersistence.transaction(new InsertTransaction(object), "Insert object in " + getTableName() + " / Object: " + object); // "Couldn't insert object on " + getTableName() + " / Object: " + object
-	}
-	
-	private class InsertTransaction implements Transaction<Integer> {
+	private class InsertTransaction implements Transaction<Long> {
 		private final T object;
 		
 		public InsertTransaction(T object) {
@@ -73,7 +54,7 @@ public class Table<T> extends AbstractTable<T> {
 		}
 
 		@Override
-		public Integer execute() {
+		public Long execute() {
 			try {
 				return doInsert(object);
 			} catch (SQLException x) {
@@ -82,9 +63,9 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	int doInsert(T object) throws SQLException {
+	long doInsert(T object) throws SQLException {
 		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
-		int id = executeInsertWithAutoIncrement(insertStatement, object);
+		long id = executeInsertWithAutoIncrement(insertStatement, object);
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			SubTable subTable = (SubTable) subTableEntry.getValue();
 			List list;
@@ -97,23 +78,20 @@ public class Table<T> extends AbstractTable<T> {
 				throw new RuntimeException(e);
 			}
 		}
-		registerObjectId(object, id);
 		return id;
 	}
 
 	public void update(T object) {
-		Integer id = getId(object);
-		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
+		long id = IdUtils.getId(object);
 		dbPersistence.transaction(new UpdateTransaction(id, object), "Update object on " + getTableName() + " / Object: " + object);
 	}
 
 	public void delete(T object) {
-		Integer id = getId(object);
-		if (id == null) throw new IllegalArgumentException("Not a read object: " + object);
+		long id = IdUtils.getId(object);
 		PreparedStatement updateStatement;
 		try {
 			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
-			updateStatement.setInt(1, id);
+			updateStatement.setLong(1, id);
 			updateStatement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
@@ -143,10 +121,10 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	class UpdateTransaction implements Transaction<Void> {
-		private final int id;
+		private final long id;
 		private final T object;
 		
-		public UpdateTransaction(int id, T object) {
+		public UpdateTransaction(long id, T object) {
 			super();
 			this.id = id;
 			this.object = object;
@@ -162,10 +140,10 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	Void doUpdate(int id, T object) throws SQLException {
+	Void doUpdate(long id, T object) throws SQLException {
 		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
 		int parameterPos = setParameters(updateStatement, object, false, true);
-		helper.setParameterInt(updateStatement, parameterPos++, id);
+		updateStatement.setLong(parameterPos++, id);
 		updateStatement.execute();
 		
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
@@ -181,12 +159,10 @@ public class Table<T> extends AbstractTable<T> {
 		return null;
 	}
 
-	public T read(int id) {
-		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
-
+	public T read(long id) {
 		try {
 			PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
-			selectByIdStatement.setInt(1, id);
+			selectByIdStatement.setLong(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (object != null) {
 				loadRelations(object, id);
@@ -198,7 +174,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void loadRelations(T object, int id) throws SQLException {
+	private void loadRelations(T object, long id) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			SubTable subTable = (SubTable) subTableEntry.getValue();
 			List list = (List) getLists().get(subTableEntry.getKey()).getValue(object);

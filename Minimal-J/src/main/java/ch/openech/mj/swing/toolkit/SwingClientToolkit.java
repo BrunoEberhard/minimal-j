@@ -33,8 +33,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
-import ch.openech.mj.search.Lookup;
-import ch.openech.mj.search.Search;
+import ch.openech.mj.model.Search;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
 import ch.openech.mj.toolkit.Caption;
@@ -205,12 +204,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Lookup<T> lookup, Object[] fields) {
-		return new SwingTable<T>(lookup, fields);
+	public <T> ITable<T> createTable(Object[] fields) {
+		return new SwingTable<T>(fields);
 	}
 
-	public static ProgressListener showProgress(Object parent, String text) {
-		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component)parent);
+	public static ProgressListener showProgress(Component parent, String text) {
+		EditablePanel editablePanel = EditablePanel.getEditablePanel(parent);
 		if (editablePanel != null) {
 			SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
 			editablePanel.openModalDialog(frame);
@@ -254,8 +253,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> search, Object[] keys, TableActionListener listener) {
-		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(search, keys, listener);
+	public <T> IDialog createSearchDialog(IComponent parent, Search<T> index, Object[] keys, TableActionListener<T> listener) {
+		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
 		return createDialog(parent, null, panel);
 	}
 

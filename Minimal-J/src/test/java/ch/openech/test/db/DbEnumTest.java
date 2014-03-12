@@ -15,8 +15,7 @@ public class DbEnumTest {
 	
 	@BeforeClass
 	public static void setupDb() throws SQLException {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource());
-		persistence.addClass(F.class);
+		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), F.class);
 	}
 	
 	@AfterClass
@@ -29,7 +28,7 @@ public class DbEnumTest {
 		f.fenum.add(FEnum.element2);
 		f.fenum.add(FEnum.element3);
 		
-		int id = persistence.insert(f);
+		long id = persistence.insert(f);
 
 		//
 		

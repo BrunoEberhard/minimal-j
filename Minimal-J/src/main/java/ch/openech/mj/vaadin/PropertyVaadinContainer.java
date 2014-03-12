@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.openech.mj.model.PropertyInterface;
-import ch.openech.mj.search.Lookup;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -16,18 +15,16 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 	private static final long serialVersionUID = 1L;
 
 	private final List<PropertyInterface> properties;
-	private final List<Integer> ids;
-	private final Lookup<T> lookup;
+	private final List<T> objects;
 
-	public PropertyVaadinContainer(List<Integer> ids, Lookup<T> lookup, List<PropertyInterface> properties) {
-		this.ids = ids;
-		this.lookup = lookup;
+	public PropertyVaadinContainer(List<T> objects, List<PropertyInterface> properties) {
+		this.objects = objects;
 		this.properties = properties;
 	}
 	
 	@Override
 	public Item getItem(Object itemId) {
-		return new PropertyVaadinContainerItem(lookup.lookup((Integer)itemId));
+		return new PropertyVaadinContainerItem(itemId);
 	}
 
 	@Override
@@ -37,7 +34,7 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 
 	@Override
 	public Collection<?> getItemIds() {
-		return ids;
+		return objects;
 	}
 
 	@Override
@@ -54,12 +51,12 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 
 	@Override
 	public int size() {
-		return ids.size();
+		return objects.size();
 	}
 
 	@Override
 	public boolean containsId(Object itemId) {
-		return ids.contains(itemId);
+		return objects.contains(itemId);
 	}
 
 	@Override
@@ -171,8 +168,8 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 	@Override
 	public Object nextItemId(Object itemId) {
 		if (!isLastId(itemId)) {
-			int index = ids.indexOf(itemId);
-			return ids.get(index+1);
+			int index = objects.indexOf(itemId);
+			return objects.get(index+1);
 		} else {
 			return null;
 		}
@@ -181,8 +178,8 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 	@Override
 	public Object prevItemId(Object itemId) {
 		if (!isFirstId(itemId)) {
-			int index = ids.indexOf(itemId);
-			return ids.get(index-1);
+			int index = objects.indexOf(itemId);
+			return objects.get(index-1);
 		} else {
 			return null;
 		}
@@ -190,12 +187,12 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 
 	@Override
 	public Object firstItemId() {
-		return ids.get(0);
+		return objects.get(0);
 	}
 
 	@Override
 	public Object lastItemId() {
-		return ids.get(ids.size() - 1);
+		return objects.get(objects.size() - 1);
 	}
 
 	@Override
@@ -221,7 +218,7 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 	@Override
 	public void sort(Object[] propertyId, boolean[] ascending) {
 		if (propertyId.length > 0) {
-			Collections.sort(ids, new PropertyVaadinContainerComparator((PropertyInterface) propertyId[0], ascending[0]));
+			Collections.sort(objects, new PropertyVaadinContainerComparator((PropertyInterface) propertyId[0], ascending[0]));
 		}
 	}
 
@@ -230,7 +227,7 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 		return properties;
 	}
 	
-	private class PropertyVaadinContainerComparator implements Comparator<Integer> {
+	private class PropertyVaadinContainerComparator implements Comparator<T> {
 		private final PropertyInterface property;
 		private final boolean asc;
 		
@@ -240,10 +237,7 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 		}
 		
 		@Override
-		public int compare(Integer o1, Integer o2) {
-			Object item1 = lookup.lookup(o1);
-			Object item2 = lookup.lookup(o2);
-			
+		public int compare(T item1, T item2) {
 			Object value1 = property.getValue(item1);
 			Object value2 = property.getValue(item2);
 			

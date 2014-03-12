@@ -5,15 +5,22 @@ import java.util.List;
 
 public interface ITable<T> extends IComponent {
 
-	public void setIds(List<Integer> object);
+	public void setObjects(List<T> objects);
 
-	public void setClickListener(TableActionListener listener);
-	public void setDeleteListener(TableActionListener listener);
-	public void setInsertListener(InsertListener listener);
-	public void setFunctionListener(int function, TableActionListener listener);
+	// TODO
+	// public void setObjects(List<?> ids, Lookup<T> lookup);
+	// 
+	// public static interface Lookup<U> {
+	//	public U lookup(long id);
+	// }
 	
-	public static interface TableActionListener {
-		public void action(int selectedId, List<Integer> selectedIds);
+	public void setClickListener(TableActionListener<T> listener);
+	public void setDeleteListener(TableActionListener<T> listener);
+	public void setInsertListener(InsertListener listener);
+	public void setFunctionListener(int function, TableActionListener<T> listener);
+	
+	public static interface TableActionListener<U> {
+		public void action(U selectedObject, List<U> selectedObjects);
 	}
 	
 	public static interface InsertListener {

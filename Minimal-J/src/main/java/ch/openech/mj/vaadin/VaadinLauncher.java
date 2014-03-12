@@ -31,7 +31,7 @@ public class VaadinLauncher extends Application {
 		initializeApplication();
 		
 		setTheme("openech");
-		VaadinWindow mainWindow = new VaadinWindow();
+		VaadinWindow mainWindow = new VaadinWindow(applicationContext);
 		setMainWindow(mainWindow);
 		mainWindow.show(PageLink.link(EmptyPage.class));
 	}

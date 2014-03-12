@@ -2,8 +2,17 @@ package ch.openech.mj.application;
 
 public abstract class ApplicationContext {
 
+	private static ThreadLocal<ApplicationContext> contextByThread = new ThreadLocal<>();
 	private Object preferences;
 
+	public static void setApplicationContext(ApplicationContext context) {
+		contextByThread.set(context);
+	}
+
+	public static ApplicationContext getApplicationContext() {
+		return contextByThread.get();
+	}
+	
 	public abstract void setUser(String user);
 
 	public abstract String getUser();

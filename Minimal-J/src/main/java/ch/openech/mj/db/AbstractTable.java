@@ -21,11 +21,14 @@ import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.model.Reference;
+import ch.openech.mj.model.Search;
 import ch.openech.mj.model.properties.ChainedProperty;
 import ch.openech.mj.model.properties.FinalReferenceProperty;
 import ch.openech.mj.model.properties.SimpleProperty;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
+import ch.openech.mj.util.IdUtils;
 import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
 
@@ -48,8 +51,8 @@ public abstract class AbstractTable<T> {
 	
 	protected final String name;
 
-	protected final Map<Object, Index<T>> indexByKey = new HashMap<>();
 	protected final List<Index<T>> indexes = new ArrayList<>();
+	protected final Map<Search<T>, MultiIndex<T>> searches = new HashMap<>();
 	
 	protected final Map<Connection, Map<String, PreparedStatement>> statements = new HashMap<>();
 
@@ -73,6 +76,8 @@ public abstract class AbstractTable<T> {
 		this.clearQuery = clearQuery();
 		
 		findImmutables();
+		findIndexes();
+		findSearches();
 	}
 
 	private LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
@@ -81,7 +86,8 @@ public abstract class AbstractTable<T> {
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = StringUtils.toDbName(field.getName());
-			if (fieldName.equals("ID")) continue;
+			if (fieldName.equals("ID") && FieldUtils.isAllowedId(field.getType())) continue;
+			if (fieldName.equals("VERSION") && FieldUtils.isAllowedVersionType(field.getType())) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
 				if (!dbPersistence.isImmutable(field.getType())) {
@@ -135,10 +141,6 @@ public abstract class AbstractTable<T> {
 		return lists;
 	}
 	
-	public Index<T> getIndex(Object key) {
-		return indexByKey.get(key);
-	}
-
 	protected Collection<Index<T>> getIndexes() {
 		return indexes;
 	}
@@ -201,6 +203,16 @@ public abstract class AbstractTable<T> {
 		}
 	}
 	
+	public List<T> search(Search<T> search, Object query) {
+		MultiIndex<T> multiIndex = searches.get(search);
+		List<Long> ids = multiIndex.findIds(query);
+		List<T> objects = new ArrayList<>(ids.size());
+		for (long id : ids) {
+			objects.add(multiIndex.lookup(id));
+		}
+		return objects;
+	}
+	
 	protected String getTableName() {
 		return name;
 	}
@@ -211,32 +223,49 @@ public abstract class AbstractTable<T> {
 	
 	private void findImmutables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			if ("ID".equals(column.getKey())) continue;
 			PropertyInterface property = column.getValue();
 			if (DbPersistenceHelper.isReference(property)) {
-				AbstractTable<?> refTable = dbPersistence.getTable(property.getFieldClazz());
+				AbstractTable<?> refTable = dbPersistence.getImmutableTable(property.getFieldClazz());
 				if (refTable == null) {
-					if (property.getFieldClazz().equals(List.class)) {
-						throw new IllegalArgumentException("Table: " + getTableName());
-					}
-					refTable = dbPersistence.addImmutableClass(property.getFieldClazz());
+					dbPersistence.addImmutableClass(property.getFieldClazz());
 				}
 			}
 		}
 	}
 
+	private void findSearches() {
+		for (Field field : clazz.getFields()) {
+			if (!FieldUtils.isFinal(field) || !FieldUtils.isStatic(field)) continue;
+			if (field.getType() == Search.class) {
+				@SuppressWarnings("unchecked")
+				Search<T> search = (Search<T>) FieldUtils.getStaticValue(field);
+				search.setClazz(clazz);
+				createFulltextIndex(search);
+ 			}
+		}
+	}
+
+	private void findIndexes() {
+		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
+			PropertyInterface property = column.getValue();
+			if (property.getType() instanceof Class<?> && !FieldUtils.isAllowedPrimitive((Class<?>) property.getType())) {
+				createIndex(property, property.getFieldPath());
+			}
+		}
+	}
+	
 	// execution helpers
 	
-	protected int executeInsertWithAutoIncrement(PreparedStatement statement, T object) throws SQLException {
+	protected long executeInsertWithAutoIncrement(PreparedStatement statement, T object) throws SQLException {
 		return executeInsertWithAutoIncrement(statement, object, null);
 	}
 	
-	protected int executeInsertWithAutoIncrement(PreparedStatement statement, T object, Integer hash) throws SQLException {
+	protected long executeInsertWithAutoIncrement(PreparedStatement statement, T object, Integer hash) throws SQLException {
 		setParameters(statement, object, false, true, hash);
 		statement.execute();
 		try (ResultSet autoIncrementResultSet = statement.getGeneratedKeys()) {
 			autoIncrementResultSet.next();
-			int id = autoIncrementResultSet.getInt(1);
+			long id = autoIncrementResultSet.getLong(1);
 			if (sqlLogger.isLoggable(Level.FINE)) sqlLogger.fine("AutoIncrement is " + id);
 			return id;
 		}
@@ -254,7 +283,7 @@ public abstract class AbstractTable<T> {
 	protected T executeSelect(PreparedStatement preparedStatement, Integer time) throws SQLException {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
-				return readResultSetRow(resultSet, time).object;
+				return readResultSetRow(resultSet, time);
 			} else {
 				return null;
 			}
@@ -265,57 +294,51 @@ public abstract class AbstractTable<T> {
 		List<T> result = new ArrayList<T>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			while (resultSet.next()) {
-				T object = readResultSetRow(resultSet, null).object;
+				T object = readResultSetRow(resultSet, null);
 				result.add(object);
 			}
 		}
 		return result;
 	}
 	
-	/**
-	 * Internal helper class. Needed by readResultSetRow. Allows the returning of
-	 * both the object and the id.
-	 */
-	protected static class ObjectWithId<S> {
-		public Integer id;
-		public S object;
-	}
 	
-	protected ObjectWithId<T> readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
-		ObjectWithId<T> result = new ObjectWithId<>();
-		result.object = CloneHelper.newInstance(clazz);
+	protected T readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
+		T result = CloneHelper.newInstance(clazz);
 		
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			Object value = resultSet.getObject(columnIndex);
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			boolean isId = columnName.equalsIgnoreCase("id");
-			if (isId) result.id = (Integer) value;
-			PropertyInterface property = columns.get(columnName);
-			if (property == null) continue;
-			if (isId) {
-				property.setValue(result.object, value);
+			if ("ID".equalsIgnoreCase(columnName) && this instanceof Table) {
+				IdUtils.setId(result, resultSet.getLong(columnIndex));
 				continue;
 			}
+			PropertyInterface property = columns.get(columnName);
+			if (property == null) continue;
 			
+			Object value = resultSet.getObject(columnIndex);
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (DbPersistenceHelper.isReference(property)) {
-					value = dereference(fieldClass, (Integer) value, time);
+					if (!dbPersistence.isImmutable(fieldClass)) {
+						value = CloneHelper.newInstance(fieldClass);
+						IdUtils.setId(value, (Long) value);
+					} else {
+						value = dereference(fieldClass, IdUtils.convertToLong(value), time);
+					}
 				} else if (Set.class == fieldClass) {
-					Set<?> set = (Set<?>) property.getValue(result.object);
+					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
 					EnumUtils.fillSet((int) value, enumClass, set);
 					continue; // skip setValue, it's final
 				} else {
 					value = helper.convertToFieldClass(fieldClass, value);
 				}
-				property.setValue(result.object, value);
+				property.setValue(result, value);
 			}
 		}
 		return result;
 	}
 	
-	protected <D> Object dereference(Class<D> clazz, int id, Integer time) {
+	protected <D> Object dereference(Class<D> clazz, long id, Integer time) {
 		AbstractTable<D> table = dbPersistence.getTable(clazz);
 		if (table instanceof ImmutableTable) {
 			return ((ImmutableTable<?>) table).read(id);
@@ -337,7 +360,7 @@ public abstract class AbstractTable<T> {
 	 * @return <code>if value not found and parameter insert is false
 	 * @throws SQLException
 	 */
-	private <D> Integer lookupReference(D value, boolean insertIfNotExisting) throws SQLException {
+	private <D> Long lookupReference(D value, boolean insertIfNotExisting) throws SQLException {
 		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
 		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
@@ -364,13 +387,14 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert, Integer hash) throws SQLException {
-		Connection connection = statement.getConnection();
 		int parameterPos = 1;
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
 			if (value != null) {
-				if (DbPersistenceHelper.isReference(property)) {
+				if (value instanceof Reference<?>) {
+					value = ((Reference<?>) value).getReferencedId();
+				} else if (DbPersistenceHelper.isReference(property)) {
 					try {
 						value = lookupReference(value, insert);
 					} catch (IllegalArgumentException e) {
@@ -432,7 +456,8 @@ public abstract class AbstractTable<T> {
 		return query.toString();
 	}
 
-	public MultiIndex<T> createFulltextIndex(Object... keys) {
+	private void createFulltextIndex(Search<T> search) {
+		Object[] keys = search.getKeys();
 		ColumnIndex<T>[] indexes = new ColumnIndex[keys.length];
 		for (int i = 0; i<keys.length; i++) {
 			PropertyInterface property = Keys.getProperty(keys[i]);
@@ -443,15 +468,13 @@ public abstract class AbstractTable<T> {
 			}
 		}
 		MultiIndex<T> index = new MultiIndex<T>(indexes);
-		indexByKey.put(keys, index);
-		return index;
+		searches.put(search, index);
 	}
 	
-	public ColumnIndex<T> createFulltextIndex(Object key) {
+	private ColumnIndex<T> createFulltextIndex(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
 		String fieldPath = property.getFieldPath();
 		ColumnIndex<T> index = createFulltextIndex(property, fieldPath);
-		indexByKey.put(key, index);
 		return index;
 	}
 	
@@ -479,13 +502,15 @@ public abstract class AbstractTable<T> {
 		PropertyInterface property = Keys.getProperty(key);
 		String fieldPath = property.getFieldPath();
 		ColumnIndex<T> index = createIndex(property, fieldPath);
-		indexByKey.put(key, index);
 		return index;
 	}
 	
 	public ColumnIndex<T> createIndex(PropertyInterface property, String fieldPath) {
 		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
-
+		if (indexes.contains(entry.getKey())) {
+			return (ColumnIndex<T>) indexes.get(indexes.indexOf(entry.getKey()));
+		}
+		
 		ColumnIndex<?> innerIndex = null;
 		String myFieldPath = entry.getValue().getFieldPath();
 		if (fieldPath.length() > myFieldPath.length()) {
@@ -500,28 +525,7 @@ public abstract class AbstractTable<T> {
 	
 	//
 	
-	public ColumnIndexUnqiue<T> createIndexUnique(Object key) {
-		PropertyInterface property = Keys.getProperty(key);
-		String fieldPath = property.getFieldPath();
-		ColumnIndexUnqiue<T> index = createIndexUnique(property, fieldPath);
-		indexByKey.put(key, index);
-		return index;
-	}
-	
-	public ColumnIndexUnqiue<T> createIndexUnique(PropertyInterface property, String fieldPath) {
-		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
 
-		ColumnIndex<?> innerIndex = null;
-		String myFieldPath = entry.getValue().getFieldPath();
-		if (fieldPath.length() > myFieldPath.length()) {
-			String rest = fieldPath.substring(myFieldPath.length() + 1);
-			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
-			innerIndex = innerTable.createIndex(property, rest);
-		}
-		ColumnIndexUnqiue<T> result = new ColumnIndexUnqiue<T>(dbPersistence, this, property, entry.getKey(), innerIndex);
-		indexes.add(result);
-		return result;
-	}
 	
 	protected Entry<String, PropertyInterface> findX(String fieldPath) {
 		while (true) {
