@@ -185,6 +185,9 @@ public class ModelTest {
 			if (mainModelClasses.contains(fieldType)) {
 				problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
 			}
+			if (fieldType.isArray()) {
+				problems.add(messagePrefix + " is an array which is not allowed");
+			}
 			testDomainClassCheckRecursion(fieldType);
 		}
 	}
