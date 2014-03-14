@@ -142,6 +142,14 @@ public class Keys {
 		return properties.get(key);
 	}
 	
+	public static Class<?> getRootDeclaringClass(Object key) {
+		PropertyInterface property = getProperty(key);
+		while (property instanceof ChainedProperty) {
+			property = ((ChainedProperty) property).property1;
+		}
+		return property.getDeclaringClass();
+	}
+	
 	public static boolean isFieldProperty(PropertyInterface property) {
 		if (property instanceof MethodProperty) return false;
 		if (property instanceof ChainedProperty) {

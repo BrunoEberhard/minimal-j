@@ -239,7 +239,6 @@ public abstract class AbstractTable<T> {
 			if (field.getType() == Search.class) {
 				@SuppressWarnings("unchecked")
 				Search<T> search = (Search<T>) FieldUtils.getStaticValue(field);
-				search.setClazz(clazz);
 				createFulltextIndex(search);
  			}
 		}
