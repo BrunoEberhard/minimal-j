@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Window;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,10 +86,6 @@ public class EditablePanel extends JDesktopPane {
 	}
 
 	public void openModalDialog(JInternalFrame internalFrame) {
-		openModalDialog(internalFrame, false);
-	}
-
-	public void openModalDialog(JInternalFrame internalFrame, boolean resizeToMax) {
 		if (openFrames.contains(internalFrame)) {
 			throw new IllegalArgumentException("Dialog already open");
 		}
@@ -101,7 +98,7 @@ public class EditablePanel extends JDesktopPane {
 		internalFrame.addInternalFrameListener(listener);
 
 		internalFrame.pack();
-		arrangeFrames(resizeToMax);
+		arrangeFrames();
 		internalFrame.setVisible(true);
 		
 		repaintLater();
@@ -143,20 +140,26 @@ public class EditablePanel extends JDesktopPane {
 		});
 	}
 
-	private void arrangeFrames(boolean resizeToMax) {
+	private void arrangeFrames() {
+		JInternalFrame newFrame = openFrames.get(openFrames.size() - 1);
 		if (openFrames.size() == 1) {
+			if (shouldCompleteFill(newFrame)) {
+				try {
+					newFrame.setMaximum(true);
+					newFrame.setBorder(null);
+					return;
+				} catch (PropertyVetoException e) {
+				}
+			}
 			openFrames.get(0).setLocation(getWidth() / 2 - openFrames.get(0).getWidth() / 2 - 40, 50);
 		} else {
 			JInternalFrame lastFrame = openFrames.get(openFrames.size() - 2);
-			JInternalFrame newFrame = openFrames.get(openFrames.size() - 1);
 			newFrame.setLocation(lastFrame.getX() + 50, lastFrame.getY() + 40);
 		}
-		if (resizeToMax) {
-			JInternalFrame newFrame = openFrames.get(openFrames.size() - 1);
-			int width = Math.max(getWidth() - newFrame.getLocation().x - 50, newFrame.getWidth());
-			int height = Math.max(getHeight() - newFrame.getLocation().y - 40, newFrame.getHeight());
-			newFrame.setSize(width, height);
-		}
+	}
+	
+	private boolean shouldCompleteFill(JInternalFrame frame) {
+		return frame.getWidth() * 2 > getWidth() && frame.getHeight() * 2 > getHeight();
 	}
 
 	private InternalFrameListener listener = new InternalFrameAdapter() {
