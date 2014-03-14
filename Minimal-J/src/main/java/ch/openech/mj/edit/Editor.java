@@ -215,7 +215,7 @@ public abstract class Editor<T> {
 				finish();
 			}
 		} catch (Exception x) {
-			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+			logger.log(Level.SEVERE, x.getMessage(), x);
 			showError("Abschluss fehlgeschlagen: " + x.getMessage());
 		}
 	}
