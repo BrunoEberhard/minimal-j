@@ -16,21 +16,12 @@ import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.properties.FlatProperties;
 
 
-public class SerializationOutputStream implements AutoCloseable {
+public class SerializationOutputStream {
 
 	private final DataOutputStream dos;
 	
 	public SerializationOutputStream(OutputStream out) {
 		dos = new DataOutputStream(out);
-	}
-	
-	public void write(Object object) throws IOException {
-		if (object == null) {
-			dos.write(0);
-		} else {
-			dos.write(1);
-			writeObject(object);
-		}
 	}
 	
 	private void writeObject(Object object) throws IOException {
@@ -40,25 +31,30 @@ public class SerializationOutputStream implements AutoCloseable {
 		for (String propertyName : propertyNames) {
 			PropertyInterface property = properties.get(propertyName);
 			Object value = property.getValue(object);
-			write(property, value);
+			if (!writePrimitiv(value, property.getFieldClazz())) {
+	    		write(value);	
+			}
 		}
 	}
 
-	private void write(PropertyInterface property, Object value) throws IOException {
-		Class<?> fieldClazz = property.getFieldClazz();
-		
+	public void write(Object value) throws IOException {
+		if (value != null) {
+    		dos.write(1);
+			writeObject(value);
+		} else {
+    		dos.write(0);
+		}
+	}
+
+	private boolean writePrimitiv(Object value, Class<?> fieldClazz) throws IOException {
 		if (value == null) {
     		dos.write(0);
-    		return;
+    		return true;
 		}
+
 		if (fieldClazz == String.class) {
 			writeString((String) value);
-		} else if (value instanceof Set<?>) {
-			Set<?> set = (Set<?>) value;
-			Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
-			int asInt = EnumUtils.getInt(set, enumClass);
-			dos.writeInt(asInt);
-		} else if (fieldClazz == Byte.TYPE) {
+		} else  if (fieldClazz == Byte.TYPE) {
 			dos.write((Byte) value);
 		} else if (fieldClazz == Short.TYPE) {
 			dos.writeShort((Short) value);
@@ -89,16 +85,31 @@ public class SerializationOutputStream implements AutoCloseable {
 			for (int i = 0; i<list.size(); i++) {
 				write(list.get(i));
 			}
+		} else if (fieldClazz.isArray()) {
+			Object[] objects = (Object[]) value;
+			dos.writeInt(objects.length);
+			for (int i = 0; i<objects.length; i++) {
+				write(objects[i]);
+			}
+		} else if (value instanceof Set<?>) {
+			Set<?> set = (Set<?>) value;
+			if (set.isEmpty()) {
+				dos.writeInt(0);
+			} else {
+				Class<?> enumClass = set.iterator().next().getClass();
+				int asInt = EnumUtils.getInt(set, enumClass);
+				dos.writeInt(asInt);
+			}
 		} else if (ReadablePartial.class.isAssignableFrom(fieldClazz)) {
 			writeString(DateUtils.formatPartial((ReadablePartial) value));
 		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
 			write(((Enum<?>) value).ordinal() + 1);
 		} else {
-    		dos.write(1);
-			writeObject(value);
+			return false;
 		}
+		return true;
 	}
-	
+
     public void writeString(String value) throws IOException {
 		int chunkSize = 20000;
 		int chunks = (value.length() - 1) / chunkSize + 1;
@@ -107,11 +118,6 @@ public class SerializationOutputStream implements AutoCloseable {
     		dos.writeUTF(value.substring(chunkSize * i, Math.min(chunkSize * (i + 1), value.length())));
 		}
     }
-
-	@Override
-	public void close() throws Exception {
-		dos.close();
-	}
 
 	public void writeParameterTypes(Class<?>[] parameterTypes) throws IOException {
 		dos.write(parameterTypes.length);
@@ -130,10 +136,16 @@ public class SerializationOutputStream implements AutoCloseable {
 	public void writeArgument(Object object) throws IOException {
 		if (object != null) {
 			writeString(object.getClass().getName());
-			writeObject(object);
+			write(object);
 		} else {
 			dos.write(0);
 		}
+	}
+	
+	public static void main(String... args) {
+		// class [Ljava.lang.Object;
+		// class java.lang.Object
+		System.out.println(new Object().getClass());
 	}
 
 }

@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.server.Services.ServiceNamingConvention;
 import ch.openech.mj.util.LoggingRuntimeException;
+import ch.openech.mj.util.SerializationContainer;
 import ch.openech.mj.util.SerializationInputStream;
 import ch.openech.mj.util.SerializationOutputStream;
 import ch.openech.mj.util.StringUtils;
@@ -46,7 +47,8 @@ public class SocketServer {
 			try {
 				socket = serverSocket.accept();
 //				SocketServerRunnable runnable = new SocketServerRunnable(socket);
-				SocketServerRunnable_withObjectInputStream runnable = new SocketServerRunnable_withObjectInputStream(socket);
+//				SocketServerRunnable_withObjectInputStream runnable = new SocketServerRunnable_withObjectInputStream(socket);
+				SocketServerRunnable3 runnable = new SocketServerRunnable3(socket);
 				executor.execute(runnable);
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Server socket couldn't accept connection", e);
@@ -64,7 +66,8 @@ public class SocketServer {
 
 		@Override
 		public void run() {
-			try (SerializationInputStream is = new SerializationInputStream(socket.getInputStream())) {
+			try {
+				SerializationInputStream is = new SerializationInputStream(socket.getInputStream());
 				String serviceName = is.readString();
 				String methodName = is.readString();
 				// Class<?>[] parameterTypes = (Class<?>[]) ois.readObject();
@@ -78,9 +81,8 @@ public class SocketServer {
 				
 				Object result = method.invoke(implementation, args);
 				
-				try (SerializationOutputStream os = new SerializationOutputStream(socket.getOutputStream())) {
-					os.writeArgument(result);
-				}
+				SerializationOutputStream os = new SerializationOutputStream(socket.getOutputStream());
+				os.writeArgument(result);
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);
 				e.printStackTrace();
@@ -117,6 +119,42 @@ public class SocketServer {
 				
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 					oos.writeObject(result);
+				}
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);
+				e.printStackTrace();
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "SocketRunnable failed", e);
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static class SocketServerRunnable3 implements Runnable {
+		private final Socket socket;
+		private final ServiceNamingConvention serviceNamingConvention = new Services.DefaultServiceNamingConvention();
+
+		public SocketServerRunnable3(Socket socket) {
+			this.socket = socket;
+		}
+
+		@Override
+		public void run() {
+			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+				String serviceName = (String) ois.readObject();
+				String methodName = (String) ois.readObject();
+				Class<?>[] parameterTypes = (Class<?>[]) ois.readObject();
+				Object[] args = SerializationContainer.unwrap((Object[]) ois.readObject());
+
+				String implementationClassName = serviceNamingConvention.getImplementationClassName(serviceName);
+				Class<?> implementationClass = Class.forName(implementationClassName);
+				Method method = implementationClass.getMethod(methodName, parameterTypes);
+				Object implementation = implementationClass.newInstance();
+				
+				Object result = method.invoke(implementation, args);
+				
+				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+					oos.writeObject(SerializationContainer.wrap(result));
 				}
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);

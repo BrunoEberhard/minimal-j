@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import ch.openech.mj.util.LoggingRuntimeException;
+import ch.openech.mj.util.SerializationContainer;
 import ch.openech.mj.util.SerializationInputStream;
 import ch.openech.mj.util.SerializationOutputStream;
 
@@ -26,7 +27,8 @@ public class Services {
 	
 	public static void configureRemoteSocket(String url, int port) {
 //		setInvocationHandler(new SocketInvocationHandler(url, port));
-		setInvocationHandler(new SocketInvocationHandler_UsingObjectOutputStream(url, port));
+//		setInvocationHandler(new SocketInvocationHandler_UsingObjectOutputStream(url, port));
+		setInvocationHandler(new SocketInvocationHandler3(url, port));
 	}
 	
 	public static synchronized void setInvocationHandler(InvocationHandler invocationHandler) {
@@ -97,15 +99,13 @@ public class Services {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			try (Socket socket = new Socket(url, port)) {
-				try (SerializationOutputStream os = new SerializationOutputStream(socket.getOutputStream())) {
-					os.writeString(method.getDeclaringClass().getName());
-					os.writeString(method.getName());
-					os.writeParameterTypes(method.getParameterTypes());
-					os.writeArguments(args);
-					try (SerializationInputStream is = new SerializationInputStream(socket.getInputStream())) {
-						return is.readArgument();
-					}
-				}
+				SerializationOutputStream os = new SerializationOutputStream(socket.getOutputStream());
+				os.writeString(method.getDeclaringClass().getName());
+				os.writeString(method.getName());
+				os.writeParameterTypes(method.getParameterTypes());
+				os.writeArguments(args);
+				SerializationInputStream is = new SerializationInputStream(socket.getInputStream());
+				return is.readArgument();
 			} catch (ConnectException c) {
 				throw new RuntimeException("Couldn't connect to " + url + ":" + port);
 			}
@@ -153,4 +153,34 @@ public class Services {
 		}
 	}
 	
+	@SuppressWarnings("unused")
+	private static class SocketInvocationHandler3 implements InvocationHandler {
+		// private static final Logger logger = Logger.getLogger(SocketInvocationHandler.class.getName());
+		
+		private final String url;
+		private final int port;
+		
+		public SocketInvocationHandler3(String url, int port) {
+			this.url = url;
+			this.port = port;
+		}
+		
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			try (Socket socket = new Socket(url, port)) {
+				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+					oos.writeObject(method.getDeclaringClass().getName());
+					oos.writeObject(method.getName());
+					oos.writeObject(method.getParameterTypes());
+					oos.writeObject(SerializationContainer.wrap(args));
+					try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+						Object result = SerializationContainer.unwrap(ois.readObject());
+						return result;
+					}
+				}
+			} catch (ConnectException c) {
+				throw new RuntimeException("Couldn't connect to " + url + ":" + port);
+			}
+		}
+	}
 }

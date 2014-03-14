@@ -3,6 +3,7 @@ package ch.openech.mj.util;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,7 @@ import ch.openech.mj.model.Reference;
 import ch.openech.mj.model.properties.FlatProperties;
 
 
-public class SerializationInputStream implements AutoCloseable {
+public class SerializationInputStream {
 	private static final Logger logger = Logger.getLogger(SerializationInputStream.class.getName());
 
 	private final DataInputStream dis;
@@ -70,6 +71,13 @@ public class SerializationInputStream implements AutoCloseable {
 			return DateUtils.parsePartial(readString(1));
 		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
 			return EnumUtils.valueList((Class) fieldClazz).get(b - 1);
+		} else if (fieldClazz.isArray()) {
+			int length = dis.readInt();
+			Object[] objects = (Object[]) Array.newInstance(fieldClazz, length);
+			for (int i = 0; i<length; i++) {
+				objects[i] = read(fieldClazz);
+			}
+			return objects;
 		} else {
 			return readObject(fieldClazz);
 		}
@@ -129,11 +137,6 @@ public class SerializationInputStream implements AutoCloseable {
 		}
 		return s.toString();
     }
-
-	@Override
-	public void close() throws Exception {
-		dis.close();
-	}
 
 	public Class<?>[] readParameterTypes() throws IOException {
 		int count = dis.read();
