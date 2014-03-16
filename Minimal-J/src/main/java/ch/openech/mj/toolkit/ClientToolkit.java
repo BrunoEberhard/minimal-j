@@ -66,6 +66,16 @@ public abstract class ClientToolkit {
 
 	}
 	
+	public abstract <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys);
+	
+	public interface ILookup<S> extends IComponent {
+		
+		void setText(String string);
+		
+		S getSelectedObject();
+		
+	}
+	
 	// Layouts
 	
 	public abstract Caption decorateWithCaption(IComponent component, String caption);

@@ -233,6 +233,12 @@ public class LanternaClientToolkit extends ClientToolkit {
 		return null;
 	}
 
+	@Override
+	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 	
 }

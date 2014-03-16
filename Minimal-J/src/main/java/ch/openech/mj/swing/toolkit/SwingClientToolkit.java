@@ -1,5 +1,6 @@
 package ch.openech.mj.swing.toolkit;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -55,6 +57,7 @@ import ch.openech.mj.toolkit.ITable.TableActionListener;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
+import ch.openech.mj.util.StringUtils;
 
 public class SwingClientToolkit extends ClientToolkit {
 
@@ -251,8 +254,92 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 		return (Window) parentComponent;
 	}
-
+	
 	@Override
+	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
+		return new SwingLookup<T>(changeListener, index, keys);
+	}
+	
+	private static class SwingLookup<T> extends JPanel implements ILookup<T> {
+		private static final long serialVersionUID = 1L;
+		
+		private final InputComponentListener changeListener;
+		private final Search<T> search;
+		private final Object[] keys;
+		private final SwingLookupLabel actionLabel;
+		private IDialog dialog;
+		private T selectedObject;
+		
+		public SwingLookup(InputComponentListener changeListener, Search<T> search, Object[] keys) {
+			super(new BorderLayout());
+			
+			this.changeListener = changeListener;
+			this.search = search;
+			this.keys = keys;
+			
+			this.actionLabel = new SwingLookupLabel();
+			add(actionLabel, BorderLayout.CENTER);
+			add(new SwingRemoveLabel(), BorderLayout.LINE_END);
+		}
+
+		@Override
+		public void setText(String text) {
+			if (!StringUtils.isBlank(text)) {
+				actionLabel.setText(text);
+			} else {
+				actionLabel.setText("[+]");
+			}
+		}
+
+		@Override
+		public T getSelectedObject() {
+			return selectedObject;
+		}
+		
+		private class SwingLookupLabel extends JLabel {
+			private static final long serialVersionUID = 1L;
+
+			public SwingLookupLabel() {
+				setForeground(Color.BLUE);
+				setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						dialog = ((SwingClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(SwingLookup.this, search, keys, new LookupClickListener());
+						dialog.openDialog();
+					}
+				});
+			}
+		}
+		
+		private class SwingRemoveLabel extends JLabel {
+			private static final long serialVersionUID = 1L;
+
+			public SwingRemoveLabel() {
+				super("[x]");
+				setForeground(Color.BLUE);
+				setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						SwingLookup.this.selectedObject = null;
+						changeListener.changed(SwingLookup.this);
+					}
+				});
+			}
+		}
+		
+		private class LookupClickListener implements TableActionListener<T> {
+			@Override
+			public void action(T selectedObject, List<T> selectedObjects) {
+				SwingLookup.this.selectedObject = selectedObject;
+				dialog.closeDialog();
+				changeListener.changed(SwingLookup.this);
+			}
+		}
+
+	}
+
 	public <T> IDialog createSearchDialog(IComponent parent, Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
 		return createDialog(parent, null, panel);

@@ -24,6 +24,7 @@ import ch.openech.mj.toolkit.ITable.TableActionListener;
 import ch.openech.mj.toolkit.ProgressListener;
 import ch.openech.mj.toolkit.SwitchLayout;
 import ch.openech.mj.toolkit.TextField;
+import ch.openech.mj.util.StringUtils;
 
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbstractComponent;
@@ -221,6 +222,95 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return createDialog(parent, null, panel);
 	}
 
+	@Override
+	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
+		return new VaadinLookup<T>(changeListener, index, keys);
+	}
+	
+	private static class VaadinLookup<T> extends GridLayout implements ILookup<T> {
+		private static final long serialVersionUID = 1L;
+		
+		private final InputComponentListener changeListener;
+		private final Search<T> search;
+		private final Object[] keys;
+		private final VaadinLookupLabel actionLabel;
+		private IDialog dialog;
+		private T selectedObject;
+		
+		public VaadinLookup(InputComponentListener changeListener, Search<T> search, Object[] keys) {
+			super(2, 1);
+			
+			this.changeListener = changeListener;
+			this.search = search;
+			this.keys = keys;
+			
+			this.actionLabel = new VaadinLookupLabel();
+			addComponent(actionLabel);
+			addComponent(new VaadinRemoveLabel());
+			setColumnExpandRatio(0, 1.0f);
+			setColumnExpandRatio(1, 0.0f);
+		}
+
+		@Override
+		public void setText(String text) {
+			if (!StringUtils.isBlank(text)) {
+				actionLabel.setCaption(text);
+			} else {
+				actionLabel.setCaption("[+]");
+			}
+		}
+
+		@Override
+		public T getSelectedObject() {
+			return selectedObject;
+		}
+		
+		private class VaadinLookupLabel extends Button {
+			private static final long serialVersionUID = 1L;
+
+			public VaadinLookupLabel() {
+				setStyleName(BaseTheme.BUTTON_LINK);
+				addListener(new ClickListener() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						dialog = ((VaadinClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(VaadinLookup.this, search, keys, new LookupClickListener());
+						dialog.openDialog();
+					}
+				});
+			}
+		}
+		
+		private class VaadinRemoveLabel extends Button {
+			private static final long serialVersionUID = 1L;
+
+			public VaadinRemoveLabel() {
+				super("[x]");
+				setStyleName(BaseTheme.BUTTON_LINK);
+				addListener(new ClickListener() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						VaadinLookup.this.selectedObject = null;
+						changeListener.changed(VaadinLookup.this);
+					}
+				});
+			}
+		}
+		
+		private class LookupClickListener implements TableActionListener<T> {
+			@Override
+			public void action(T selectedObject, List<T> selectedObjects) {
+				VaadinLookup.this.selectedObject = selectedObject;
+				dialog.closeDialog();
+				changeListener.changed(VaadinLookup.this);
+			}
+		}
+
+	}
+	
 	@Override
 	public IComponent createFormAlignLayout(IComponent content) {
 		VaadinGridLayout gridLayout = new VaadinGridLayout(3, 3);
