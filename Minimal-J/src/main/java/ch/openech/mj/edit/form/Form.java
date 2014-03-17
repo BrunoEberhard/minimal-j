@@ -54,6 +54,7 @@ import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.TextField;
+import ch.openech.mj.util.LoggingRuntimeException;
 
 public class Form<T> implements IForm<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getName());
@@ -400,7 +401,11 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void set(PropertyInterface property, Object value) {
 		FormField formField = fields.get(property);
-		formField.setObject(value);
+		try {
+			formField.setObject(value);
+		} catch (Exception x) {
+			throw new LoggingRuntimeException(x, logger, "Failed to set " + property.getFieldPath());
+		}
 	}
 
 	private void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
