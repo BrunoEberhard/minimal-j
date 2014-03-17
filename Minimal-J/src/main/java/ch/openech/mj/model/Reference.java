@@ -11,7 +11,6 @@ import ch.openech.mj.util.IdUtils;
 
 public class Reference<T> implements Serializable {
 
-	private Class<T> clazz;
 	private final Map<Object, Object> values;
 	
 	private long referencedId;
@@ -25,14 +24,6 @@ public class Reference<T> implements Serializable {
 		} else {
 			values = Collections.emptyMap();
 		}
-	}
-
-	public void setClazz(Class<T> clazz) {
-		this.clazz = clazz;
-	}
-	
-	public Class<T> getClazz() {
-		return clazz;
 	}
 
 	public long getReferencedId() {
