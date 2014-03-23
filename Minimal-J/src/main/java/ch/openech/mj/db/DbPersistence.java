@@ -1,6 +1,5 @@
 package ch.openech.mj.db;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import org.mariadb.jdbc.MySQLDataSource;
 
 import ch.openech.mj.model.test.ModelTest;
 import ch.openech.mj.util.FieldUtils;
-import ch.openech.mj.util.GenericUtils;
 import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
 
@@ -291,7 +289,6 @@ public class DbPersistence {
 
 	private void add(AbstractTable<?> table) {
 		tables.put(table.getClazz(), table);
-		collectImmutables(table.getClazz());
 	}
 	
 	private <U> AbstractTable<U> addClass(Class<U> clazz) {
@@ -308,16 +305,6 @@ public class DbPersistence {
 		}
 	}
 
-	private void collectImmutables(Class<?> clazz) {
-		for (Field field : clazz.getFields()) {
-			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
-			Class<?> fieldType = FieldUtils.isList(field) || FieldUtils.isSet(field) ? GenericUtils.getGenericClass(field) : field.getType();
-			if (FieldUtils.isAllowedPrimitive(fieldType)) continue;
-			if (tables.containsKey(fieldType)) continue;
-			addImmutableClass(fieldType);
-		}
-	}
-	
 	private <U> HistorizedTable<U> addHistorizedClass(Class<U> clazz) {
 		HistorizedTable<U> table = new HistorizedTable<U>(this, clazz);
 		add(table);
