@@ -39,6 +39,7 @@ public class ReferenceTest {
 	public void testOfProperty() {
 		PropertyInterface property = Keys.getProperty(TestClassWithReference.TESTCLASSWITHREFERENCE_CLASS_WITH_REFERENCE.testClassA.get(TestClassA.TEST_CLASS_A.a));
 		Assert.assertEquals(String.class, property.getFieldClazz());
+		Assert.assertEquals("testClassA.^a", property.getFieldPath());
 		Assert.assertEquals(100, property.getAnnotation(Size.class).value());
 	}
 
