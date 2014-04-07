@@ -222,7 +222,8 @@ public abstract class AbstractTable<T> {
 			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
 			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
 			String query = "select * from " + getTableName() + " where " + whereStatement(propertyInterface.getFieldPath());
-			try (PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false)) {
+			try {
+				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
 				// TODO merge with setParameter
 				if (DbPersistenceHelper.isView(propertyInterface)) {
