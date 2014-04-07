@@ -28,7 +28,7 @@ public class AddLendEditor extends Editor<Lend> {
 	protected Lend newInstance() {
 		Lend lend = new Lend();
 		if (startWithCustomer != null) {
-			lend.customer.set(startWithCustomer);
+			lend.customer = startWithCustomer;
 		}
 		return lend;
 	}

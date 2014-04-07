@@ -4,7 +4,6 @@ import static ch.openech.mj.example.model.Lend.*;
 
 import java.util.List;
 
-import ch.openech.mj.example.model.Book;
 import ch.openech.mj.example.model.Lend;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
@@ -17,8 +16,8 @@ public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
 	private final String text;
 	
 	public static final Object[] FIELDS = {
-		LEND.book.get(Book.BOOK.title), //
-		LEND.book.get(Book.BOOK.author), //
+		LEND.book.title, //
+		LEND.book.author, //
 		LEND.till
 	};
 	
