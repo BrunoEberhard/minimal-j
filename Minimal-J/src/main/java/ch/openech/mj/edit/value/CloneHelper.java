@@ -3,11 +3,18 @@ package ch.openech.mj.edit.value;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ch.openech.mj.util.FieldUtils;
 
+/**
+ * note: this class works only with special classes validatable through
+ * ModelTest .
+ * 
+ * @author bruno
+ *
+ */
 public class CloneHelper {
 
 	public static <T> T clone(T object) {
@@ -17,69 +24,18 @@ public class CloneHelper {
 		Class<T> clazz = (Class<T>) object.getClass();
 		try {
 			T copy = newInstance(clazz);
-			deepClone(object, copy);
+			_deepCopy(object, copy);
 			return copy;
-		} catch (SecurityException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static void deepClone(Object from, Object to) {
-		try {
-			_deepClone(from, to);
-		} catch (IllegalAccessException | IllegalArgumentException x) {
-			throw new RuntimeException(x);
-		}
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void _deepClone(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
-		for (Field field : from.getClass().getDeclaredFields()) {
-			if (FieldUtils.isStatic(field)) continue;
-			field.setAccessible(true);
-			Object fromValue = field.get(from);
-			Object toValue = field.get(to);
-			if (FieldUtils.isList(field.getType())) {
-				List fromList = (List)field.get(from);
-				if (fromList == null) continue;
-				List toList = (List)toValue;
-				if (!FieldUtils.isFinal(field)) {
-					toList = new ArrayList();
-					field.set(to, toList);
-				} else {
-					toList.clear();
-				}
-				for (Object element : fromList) {
-					toList.add(clone(element));
-				}
-//			} else if (FieldUtils.isSet(field.getType())) {
-//				Set fromSet = (Set)field.get(from);
-//				if (fromSet == null) continue;
-//				Set toSet = (Set)toValue;
-//				if (!FieldUtils.isFinal(field)) {
-//					toSet = new ArrayList();
-//					field.set(to, toSet);
-//				} else {
-//					toSet.clear();
-//				}
-//				for (Object element : fromSet) {
-//					toSet.add(clone(element));
-//				}
-			} else if (FieldUtils.isAllowedPrimitive(field.getType()) || Enum.class.isAssignableFrom(field.getType()) || FieldUtils.isTransient(field) || fromValue == null) {
-				// note: transient fields are not cloned
-				field.set(to, fromValue);
-			} else if (FieldUtils.isFinal(field) && toValue != null) {
-				deepClone(fromValue, toValue);
-			} else {
-				Object copyValue = CloneHelper.clone(fromValue);
-				field.set(to, copyValue);
-			}
-		}
-	}
-	
 	public static void deepCopy(Object from, Object to) {
+		if (from == null) throw new IllegalArgumentException("from must not be null");
+		if (to == null) throw new IllegalArgumentException("to must not be null");
+		if (from.getClass() != to.getClass()) throw new IllegalArgumentException("from and to must have exactly same class, from has " + from.getClass() + " to has " + to.getClass());
+
 		try {
 			_deepCopy(from, to);
 		} catch (IllegalAccessException | IllegalArgumentException x) {
@@ -94,19 +50,18 @@ public class CloneHelper {
 			field.setAccessible(true);
 			Object fromValue = field.get(from);
 			Object toValue = field.get(to);
-			if (FieldUtils.isList(field.getType())) {
+			if (fromValue instanceof List) {
 				List fromList = (List)field.get(from);
-				if (fromList == null) continue;
 				List toList = (List)toValue;
-				if (!FieldUtils.isFinal(field)) {
-					toList = new ArrayList();
-					field.set(to, toList);
-				} else {
-					toList.clear();
-				}
+				toList.clear();
 				for (Object element : fromList) {
 					toList.add(clone(element));
 				}
+			} else if (fromValue instanceof Set) {
+				Set fromSet = (Set)field.get(from);
+				Set toSet = (Set)toValue;
+				toSet.clear();
+				toSet.addAll(fromSet);
 			} else if (isPrimitive(field) || FieldUtils.isTransient(field) || fromValue == null) {
 				// note: transient fields are not cloned
 				field.set(to, fromValue);
@@ -120,8 +75,9 @@ public class CloneHelper {
 	}
 
 	public static boolean isPrimitive(Field field) {
-		if (field.getType().getName().startsWith("java")) return true;
-		if (field.getType().getName().startsWith("org.joda")) return true;
+		String fieldTypeName = field.getType().getName();
+		if (field.getType().isPrimitive() || fieldTypeName.startsWith("java")) return true;
+		if (fieldTypeName.startsWith("org.joda")) return true;
 		if (Enum.class.isAssignableFrom(field.getType())) return true;
 		return false;
 	}
@@ -131,17 +87,8 @@ public class CloneHelper {
 			Constructor<T> constructor = clazz.getConstructor();
 			T newInstance = (T) constructor.newInstance();
 			return newInstance;
-		} catch (SecurityException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException(e);
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
+		} catch (SecurityException | NoSuchMethodException| IllegalArgumentException | //
+				InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
 	}

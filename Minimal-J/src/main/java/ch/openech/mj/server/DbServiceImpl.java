@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.openech.mj.application.MjApplication;
+import ch.openech.mj.criteria.Criteria;
 import ch.openech.mj.db.AbstractTable;
 import ch.openech.mj.db.DbPersistence;
 import ch.openech.mj.db.HistorizedTable;
@@ -56,6 +57,21 @@ public class DbServiceImpl implements DbService {
 	@Override
 	public <T> T read(Class<T> clazz, long id) {
 		return ((Table<T>) persistence.getTable(clazz)).read(id);
+	}
+	
+	@Override
+	public <T> List<T> read(Class<T> clazz, Criteria critera) {
+		return null;
+	}
+
+	@Override
+	public <T> List<T> read(Class<T> clazz, String whereClause) {
+		return null;
+	}
+
+	@Override
+	public List<Object[]> read(String query) {
+		return null;
 	}
 
 	@Override

@@ -79,7 +79,7 @@ public class DbCreator {
 			
 			s.append(" "); s.append(column.getKey()); s.append(" "); 
 
-			if (DbPersistenceHelper.isReference(property)) {
+			if (DbPersistenceHelper.isReference(property) || DbPersistenceHelper.isView(property)) {
 				s.append("INTEGER");
 			} else {
 				addColumnDefinition(s, property);

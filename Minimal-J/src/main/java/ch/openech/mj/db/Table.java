@@ -160,11 +160,15 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(long id) {
+		return read(id, true);
+	}
+	
+	protected T read(long id, boolean complete) {
 		try {
 			PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
 			selectByIdStatement.setLong(1, id);
 			T object = executeSelect(selectByIdStatement);
-			if (object != null) {
+			if (complete && object != null) {
 				loadRelations(object, id);
 			}
 			return object;

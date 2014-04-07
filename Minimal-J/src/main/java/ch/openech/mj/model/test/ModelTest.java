@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 import ch.openech.mj.application.DevMode;
+import ch.openech.mj.db.DbPersistenceHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.PropertyInterface;
-import ch.openech.mj.model.Reference;
 import ch.openech.mj.model.annotation.AnnotationUtil;
 import ch.openech.mj.model.properties.FlatProperties;
 import ch.openech.mj.model.properties.Properties;
@@ -122,7 +122,7 @@ public class ModelTest {
 		Class<?> fieldType = field.getType();
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
-		if (fieldType == List.class || fieldType == Set.class || fieldType == Reference.class) {
+		if (fieldType == List.class || fieldType == Set.class) {
 			if (!FieldUtils.isFinal(field)) {
 				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
 			}
@@ -131,7 +131,7 @@ public class ModelTest {
 			} else if (fieldType == Set.class) {
 				testSetFieldType(field, messagePrefix);
 			}
-		} else {
+		} else if (!DbPersistenceHelper.isView(field)) {
 			testFieldType(fieldType, messagePrefix);
 			// auf leeren Konstruktor prüfen?
 		}

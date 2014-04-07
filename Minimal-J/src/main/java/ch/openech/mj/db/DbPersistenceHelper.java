@@ -1,5 +1,6 @@
 package ch.openech.mj.db;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -15,6 +16,8 @@ import org.joda.time.ReadablePartial;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
+import ch.openech.mj.model.annotation.View;
+import ch.openech.mj.model.annotation.ViewOf;
 import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.GenericUtils;
 
@@ -27,6 +30,11 @@ public class DbPersistenceHelper {
 		this.dbPersistence = dbPersistence;
 	}
 	
+	/**
+	 * 
+	 * @param property
+	 * @return true if property isn't a simply object like String, Integer, Date etc but a immutable or reference
+	 */
 	public static boolean isReference(PropertyInterface property) {
 		if (property.getFieldClazz().getName().startsWith("java")) return false;
 		if (property.getFieldClazz().getName().startsWith("org.joda")) return false;
@@ -34,16 +42,50 @@ public class DbPersistenceHelper {
 		return true;
 	}
 	
+	/**
+	 * 
+	 * @param property
+	 * @return true if property or class of property is annotated as View
+	 */
+	public static boolean isView(Field field) {
+		Class<?> clazz = field.getType();
+		if (clazz.getAnnotation(ViewOf.class) != null) return true;
+		if (field.getAnnotation(View.class) != null) return true;
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param property
+	 * @return true if property or class of property is annotated as View
+	 */
+	public static boolean isView(PropertyInterface property) {
+		Class<?> clazz = property.getFieldClazz();
+		if (clazz.getAnnotation(ViewOf.class) != null) return true;
+		if (property.getAnnotation(View.class) != null) return true;
+		return false;
+	}
+	
+	public static Class<?> getViewedClass(PropertyInterface property) {
+		if (!isView(property)) throw new IllegalArgumentException(property.getFieldPath());
+		
+		Class<?> clazz = property.getFieldClazz();
+		View view = property.getAnnotation(View.class);
+		if (view != null) return property.getFieldClazz();
+		ViewOf viewOf = clazz.getAnnotation(ViewOf.class);
+		return viewOf.value();
+	}
+	
 	public void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
 		if (value == null) {
-			setParameterNull(preparedStatement, param, property.getFieldClazz());
+			setParameterNull(preparedStatement, param, property);
 		} else {
 			if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
 				if (!InvalidValues.isInvalid(e)) {
 					value = e.ordinal();
 				} else {
-					setParameterNull(preparedStatement, param, property.getFieldClazz());
+					setParameterNull(preparedStatement, param, property);
 					return;
 				}
 			} else if (value instanceof LocalDate) {
@@ -63,7 +105,8 @@ public class DbPersistenceHelper {
 		} 
 	}
 
-	public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
+	public void setParameterNull(PreparedStatement preparedStatement, int param, PropertyInterface property) throws SQLException {
+		Class<?> clazz = property.getFieldClazz();
 		if (clazz == String.class) {
 			preparedStatement.setNull(param, Types.VARCHAR);
 		} else if (clazz == Integer.class) {
@@ -82,6 +125,8 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.DATE);
 		} else if (clazz == ReadablePartial.class) {
 			preparedStatement.setNull(param, Types.CHAR);
+		} else if (DbPersistenceHelper.isView(property)) {
+			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (dbPersistence.getTable(clazz) != null) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else {

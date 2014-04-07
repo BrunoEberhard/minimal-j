@@ -112,16 +112,24 @@ public class HistorizedTable<T> extends Table<T> {
 		}
 	}
 
-	public T read(long id) {
+	public T read(long id, boolean complete) {
 		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
 
 		try {
-			PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+			PreparedStatement selectByIdStatement;
+			if (complete) {
+				selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+			} else {
+				selectByIdStatement = createStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+			}
 					
 			selectByIdStatement.setLong(1, id);
 			T object = executeSelect(selectByIdStatement);
-			if (object != null) {
+			if (complete && object != null) {
 				loadRelations(object, id, null);
+			}
+			if (!complete) {
+				selectByIdStatement.close();
 			}
 			return object;
 		} catch (SQLException x) {

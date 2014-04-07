@@ -17,14 +17,16 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import ch.openech.mj.criteria.Criteria;
+import ch.openech.mj.criteria.Criteria.SimpleCriteria;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
-import ch.openech.mj.model.Reference;
 import ch.openech.mj.model.Search;
+import ch.openech.mj.model.ViewUtil;
 import ch.openech.mj.model.properties.ChainedProperty;
-import ch.openech.mj.model.properties.FinalReferenceProperty;
+import ch.openech.mj.model.properties.InlineProperty;
 import ch.openech.mj.model.properties.SimpleProperty;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
@@ -89,7 +91,9 @@ public abstract class AbstractTable<T> {
 			if (fieldName.equals("ID") && FieldUtils.isAllowedId(field.getType())) continue;
 			if (fieldName.equals("VERSION") && FieldUtils.isAllowedVersionType(field.getType())) continue;
 			if (FieldUtils.isList(field)) continue;
-			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
+			if (DbPersistenceHelper.isView(field)) {
+				columns.put(fieldName, new SimpleProperty(clazz, field));
+			} else if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
 				if (!dbPersistence.isImmutable(field.getType())) {
 					Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
 					boolean hasClassName = FieldUtils.hasClassName(field);
@@ -101,7 +105,7 @@ public abstract class AbstractTable<T> {
 						columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
 					}
 				} else {
-					columns.put(fieldName, new FinalReferenceProperty(clazz, field));
+					columns.put(fieldName, new InlineProperty(clazz, field));
 				}
 			} else {
 				columns.put(fieldName, new SimpleProperty(clazz, field));
@@ -156,7 +160,7 @@ public abstract class AbstractTable<T> {
 		return statementsForConnection.get(query);
 	}
 	
-	private PreparedStatement createStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
+	PreparedStatement createStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
 		if (returnGeneratedKeys) {
 			if (sqlLogger.isLoggable(Level.FINE)) {
 				return new LoggingPreparedStatement(connection, query, Statement.RETURN_GENERATED_KEYS, sqlLogger);
@@ -212,6 +216,55 @@ public abstract class AbstractTable<T> {
 		}
 		return objects;
 	}
+
+	public List<T> read(Criteria criteria) {
+		if (criteria instanceof SimpleCriteria) {
+			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
+			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
+			String query = "select * from " + getTableName() + " where " + whereStatement(propertyInterface.getFieldPath());
+			try (PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false)) {
+				Object value = simpleCriteria.getValue();
+				// TODO merge with setParameter
+				if (DbPersistenceHelper.isView(propertyInterface)) {
+					value = IdUtils.getId(value);
+				}
+				statement.setObject(1, value);
+				return executeSelectAll(statement);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with ReferenceCriteria failed");
+			}
+		}
+		throw new IllegalArgumentException(criteria + " not yet implemented");
+	}
+
+	private String whereStatement(final String wholeFieldPath) {
+		String fieldPath = wholeFieldPath;
+		String column;
+		while (true) {
+			column = findColumn(fieldPath);
+			if (column != null) break;
+			int pos = fieldPath.lastIndexOf('.');
+			if (pos < 0) throw new IllegalArgumentException("FieldPath " + wholeFieldPath + " not even partially found in " + getTableName());
+			fieldPath = fieldPath.substring(0, pos);
+		}
+		if (fieldPath.length() < wholeFieldPath.length()) {
+			String restOfFieldPath = wholeFieldPath.substring(fieldPath.length() + 1);
+			PropertyInterface subProperty = columns.get(column);
+			AbstractTable<?> subTable = dbPersistence.getTable(subProperty.getFieldClazz());
+			return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath) + ")";
+		} else {
+			return column + " = ?";
+		}
+	}
+	
+	private String findColumn(String fieldPath) {
+		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+			if (entry.getValue().getFieldPath().equals(fieldPath)) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
 	
 	protected String getTableName() {
 		return name;
@@ -224,6 +277,7 @@ public abstract class AbstractTable<T> {
 	private void findImmutables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
+			if (DbPersistenceHelper.isView(property)) continue;
 			if (DbPersistenceHelper.isReference(property)) {
 				AbstractTable<?> refTable = dbPersistence.getImmutableTable(property.getFieldClazz());
 				if (refTable == null) {
@@ -234,6 +288,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	private void findSearches() {
+		System.out.println("Find Searches in " + clazz.getSimpleName());
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isFinal(field) || !FieldUtils.isStatic(field)) continue;
 			if (field.getType() == Search.class) {
@@ -245,12 +300,12 @@ public abstract class AbstractTable<T> {
 	}
 
 	private void findIndexes() {
-		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
-			PropertyInterface property = column.getValue();
-			if (property.getType() instanceof Class<?> && !FieldUtils.isAllowedPrimitive((Class<?>) property.getType())) {
-				createIndex(property, property.getFieldPath());
-			}
-		}
+//		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
+//			PropertyInterface property = column.getValue();
+//			if (property.getType() instanceof Reference<?>) {
+//				createIndex(property, property.getFieldPath());
+//			}
+//		}
 	}
 	
 	// execution helpers
@@ -316,14 +371,21 @@ public abstract class AbstractTable<T> {
 			Object value = resultSet.getObject(columnIndex);
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
-				if (DbPersistenceHelper.isReference(property)) {
+				if (DbPersistenceHelper.isView(property)) {
+					Class<?> viewedClass = DbPersistenceHelper.getViewedClass(property);
+					Table<?> referenceTable = (Table<?>) dbPersistence.getTable(viewedClass);
+					Object referenceObject = referenceTable.read(((Number) value).longValue(), false); // false -> subEntities not loaded
+					
+					value = CloneHelper.newInstance(fieldClass);
+					ViewUtil.view(referenceObject, value);
+				} else if (DbPersistenceHelper.isReference(property)) {
 					if (!dbPersistence.isImmutable(fieldClass)) {
 						value = CloneHelper.newInstance(fieldClass);
 						IdUtils.setId(value, (Long) value);
 					} else {
 						value = dereference(fieldClass, IdUtils.convertToLong(value), time);
 					}
-				} else if (Set.class == fieldClass) {
+				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
 					EnumUtils.fillSet((int) value, enumClass, set);
@@ -359,7 +421,7 @@ public abstract class AbstractTable<T> {
 	 * @return <code>if value not found and parameter insert is false
 	 * @throws SQLException
 	 */
-	private <D> Long lookupReference(D value, boolean insertIfNotExisting) throws SQLException {
+	private <D> Long getIdOfImmutable(D value, boolean insertIfNotExisting) throws SQLException {
 		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
 		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
@@ -391,14 +453,10 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
 			if (value != null) {
-				if (value instanceof Reference<?>) {
-					value = ((Reference<?>) value).getReferencedId();
+				if (DbPersistenceHelper.isView(property)) {
+					value = IdUtils.getId(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
-					try {
-						value = lookupReference(value, insert);
-					} catch (IllegalArgumentException e) {
-						throw new LoggingRuntimeException(e, sqlLogger, object.getClass().getName() + " / " + property.getFieldName());
-					}
+					value = getIdOfImmutable(value, insert);
 				} 
 			}
 			helper.setParameter(statement, parameterPos++, value, property);
@@ -523,8 +581,6 @@ public abstract class AbstractTable<T> {
 	}
 	
 	//
-	
-
 	
 	protected Entry<String, PropertyInterface> findX(String fieldPath) {
 		while (true) {

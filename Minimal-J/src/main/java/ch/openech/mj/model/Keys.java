@@ -79,7 +79,7 @@ public class Keys {
 	}
 	
 	private static <T> void fillFields(T object, PropertyInterface enclosingProperty, int depth) throws IllegalAccessException, InstantiationException {
-		Map<String, PropertyInterface> propertiesOfObject = object instanceof Reference<?> ? ((Reference<?>) object).getProperties() : Properties.getProperties(object.getClass());
+		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (PropertyInterface property : propertiesOfObject.values()) {
 			// primitiv id fields are not set
 			if (property.getFieldName().equals("id") && FieldUtils.isAllowedId((Class<?>) property.getType())) continue;
