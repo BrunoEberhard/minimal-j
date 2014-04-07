@@ -9,6 +9,8 @@ public class Lend {
 
 	public static final Lend LEND = Keys.of(Lend.class);
 	
+	public int id;
+	
 	@View
 	public Book book;
 
