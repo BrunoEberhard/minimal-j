@@ -4,10 +4,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -18,8 +18,6 @@ import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
-import ch.openech.mj.model.PropertyInterface;
-import ch.openech.mj.model.Reference;
 import ch.openech.mj.model.properties.FlatProperties;
 
 
@@ -43,7 +41,11 @@ public class SerializationInputStream {
 			return new Long(dis.readLong());
 		} else if (fieldClazz == Boolean.TYPE) {
 			return Boolean.valueOf(dis.read() != 0);
-		} 
+		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
+			byte b = dis.readByte();
+			if (b == 0) return null;
+			return EnumUtils.valueList((Class) fieldClazz).get(b - 1);
+		}
 		
 		int b = dis.read();
 		if (b == 0) {
@@ -69,8 +71,6 @@ public class SerializationInputStream {
 			return new LocalDateTime(readString(1));
 		} else if (ReadablePartial.class.isAssignableFrom(fieldClazz)) {
 			return DateUtils.parsePartial(readString(1));
-		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
-			return EnumUtils.valueList((Class) fieldClazz).get(b - 1);
 		} else if (fieldClazz.isArray()) {
 			int length = dis.readInt();
 			Object[] objects = (Object[]) Array.newInstance(fieldClazz, length);
@@ -85,41 +85,50 @@ public class SerializationInputStream {
 
 	public Object readObject(Class<?> fieldClazz) throws IOException {
 		Object object = CloneHelper.newInstance(fieldClazz);
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(object.getClass());
-		List<String> propertyNames = new ArrayList<>(properties.keySet());
-		Collections.sort(propertyNames);
-		for (String propertyName : propertyNames) {
-			PropertyInterface property = properties.get(propertyName);
-			if (!property.isFinal()) {
-				Object value = read(property.getFieldClazz());
-				property.setValue(object, value);
+		Field[] fields = fieldClazz.getDeclaredFields();
+		Arrays.sort(fields, new FlatProperties.FieldComparator());
+		for (Field field : fields) {
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
+			if (!FieldUtils.isFinal(field)) {
+				Object value = read(field.getType());
+				try {
+					field.setAccessible(true);
+					field.set(object, value);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
 			} else {
-				read(object, property);
+				read(object, field);
 			}
 		}
 		return object;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void read(Object object, PropertyInterface property) throws IOException {
-		Class<?> fieldClazz = property.getFieldClazz();
+	private void read(Object object, Field field) throws IOException {
+		Class<?> fieldClazz = field.getType();
 		
-		if (fieldClazz == Set.class) {
+		Object value = null;
+		try {
+			value = field.get(object);
+		} catch (Exception x) {
+			x.printStackTrace();
+		}
+		
+		if (value instanceof Set) {
 			int asInt = dis.readInt();
-			EnumUtils.fillSet(asInt, fieldClazz, (Set) property.getValue(object));
-		} else if (fieldClazz == List.class) {
+			EnumUtils.fillSet(asInt, fieldClazz, (Set) value);
+		} else if (value instanceof List) {
 			int size = dis.readInt();
-			List list = (List) property.getValue(object);
-			Class<?> listClass = GenericUtils.getGenericClass(property.getType());
+			List list = (List) value;
+			Class<?> listClass = GenericUtils.getGenericClass(field.getGenericType());
 			if (list instanceof ArrayList) ((ArrayList) list).ensureCapacity(size);
 			for (int i = 0; i<size; i++) {
 				list.add(read(listClass));
 			}
-		} else if (fieldClazz == Reference.class) {
-			
 		} else {
-			System.out.println("Ignored: " + fieldClazz.getName());
-//			throw new IllegalArgumentException(fieldClazz.getName());
+			Object readValue = read(fieldClazz);
+			CloneHelper.deepCopy(readValue, value);
 		}
 	}
 

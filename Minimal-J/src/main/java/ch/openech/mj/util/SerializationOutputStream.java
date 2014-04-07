@@ -3,16 +3,14 @@ package ch.openech.mj.util;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.joda.time.ReadablePartial;
 
 import ch.openech.mj.model.EnumUtils;
-import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.properties.FlatProperties;
 
 
@@ -25,13 +23,19 @@ public class SerializationOutputStream {
 	}
 	
 	private void writeObject(Object object) throws IOException {
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(object.getClass());
-		List<String> propertyNames = new ArrayList<>(properties.keySet());
-		Collections.sort(propertyNames);
-		for (String propertyName : propertyNames) {
-			PropertyInterface property = properties.get(propertyName);
-			Object value = property.getValue(object);
-			if (!writePrimitiv(value, property.getFieldClazz())) {
+		Class<?> clazz = object.getClass();
+		Field[] fields = clazz.getDeclaredFields();
+		Arrays.sort(fields, new FlatProperties.FieldComparator());
+		for (Field field : fields) {
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
+			Object value = null;
+			try {
+				field.setAccessible(true);
+				value = field.get(object);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			if (!writePrimitiv(value, field.getType())) {
 	    		write(value);	
 			}
 		}
@@ -103,7 +107,7 @@ public class SerializationOutputStream {
 		} else if (ReadablePartial.class.isAssignableFrom(fieldClazz)) {
 			writeString(DateUtils.formatPartial((ReadablePartial) value));
 		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
-			write(((Enum<?>) value).ordinal() + 1);
+			dos.writeByte(((Enum<?>) value).ordinal() + 1);
 		} else {
 			return false;
 		}
