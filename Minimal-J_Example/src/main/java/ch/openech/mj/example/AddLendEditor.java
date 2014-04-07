@@ -16,7 +16,7 @@ public class AddLendEditor extends Editor<Lend> {
 	}
 	
 	public AddLendEditor(Customer customer) {
-		this.startWithCustomer = null;
+		this.startWithCustomer = customer;
 	}
 	
 	@Override
@@ -27,9 +27,7 @@ public class AddLendEditor extends Editor<Lend> {
 	@Override
 	protected Lend newInstance() {
 		Lend lend = new Lend();
-		if (startWithCustomer != null) {
-			lend.customer = startWithCustomer;
-		}
+		lend.customer = startWithCustomer;
 		return lend;
 	}
 
