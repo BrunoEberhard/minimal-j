@@ -48,4 +48,9 @@ public class Book implements DemoEnabled, Serializable {
 		price = new BigDecimal(3990).divide(new BigDecimal(100));
 	}
 
+	@Override
+	public String toString() {
+		return author + ": " + title;
+	}
+
 }

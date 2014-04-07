@@ -27,5 +27,12 @@ public class Customer implements Serializable {
 	public String display() {
 		return firstName + " " + name;
 	}
+
+	@Override
+	public String toString() {
+		return firstName + " " + name;
+	}
+	
+	
 	
 }
