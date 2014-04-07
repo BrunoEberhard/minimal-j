@@ -60,8 +60,8 @@ public class DbServiceImpl implements DbService {
 	}
 	
 	@Override
-	public <T> List<T> read(Class<T> clazz, Criteria critera) {
-		return null;
+	public <T> List<T> read(Class<T> clazz, Criteria criteria) {
+		return ((Table<T>) persistence.getTable(clazz)).read(criteria);
 	}
 
 	@Override
