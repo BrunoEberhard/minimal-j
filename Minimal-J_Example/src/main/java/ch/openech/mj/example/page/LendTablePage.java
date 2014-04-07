@@ -4,11 +4,15 @@ import static ch.openech.mj.example.model.Lend.*;
 
 import java.util.List;
 
+import ch.openech.mj.criteria.Criteria;
+import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.example.model.Lend;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.page.TablePage;
+import ch.openech.mj.server.DbService;
+import ch.openech.mj.server.Services;
 
 
 public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
@@ -38,8 +42,8 @@ public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
 
 	@Override
 	protected List<Lend> load(String query) {
-		// TODO Auto-generated method stub
-		return null;
+		Customer customer = Services.get(DbService.class).read(Customer.class, Long.valueOf(query));
+		return Services.get(DbService.class).read(Lend.class, Criteria.equals(Lend.LEND.customer, customer));
 	}
 
 	@Override
