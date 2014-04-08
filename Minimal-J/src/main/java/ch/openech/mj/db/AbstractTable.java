@@ -365,7 +365,11 @@ public abstract class AbstractTable<T> {
 			if ("ID".equalsIgnoreCase(columnName) && this instanceof Table) {
 				IdUtils.setId(result, resultSet.getLong(columnIndex));
 				continue;
+			} else if ("VERSION".equalsIgnoreCase(columnName) && this instanceof HistorizedTable) {
+				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
+				continue;
 			}
+			
 			PropertyInterface property = columns.get(columnName);
 			if (property == null) continue;
 			

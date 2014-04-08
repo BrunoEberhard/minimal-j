@@ -1,7 +1,6 @@
 package ch.openech.mj.server;
 
 import java.util.List;
-import java.util.Map;
 
 import ch.openech.mj.criteria.Criteria;
 import ch.openech.mj.db.Transaction;
@@ -38,7 +37,7 @@ public interface DbService {
 	
 	// Only for historized tables
 	
-	public <T> Map<Integer, T> loadHistory(T object);
+	public <T> List<T> loadHistory(T object);
 	
 	public <T> T loadHistory(T object, int time);
 	

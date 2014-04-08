@@ -1,8 +1,7 @@
 package ch.openech.mj.server;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.criteria.Criteria;
@@ -87,15 +86,15 @@ public class DbServiceImpl implements DbService {
 	}
 
 	@Override
-	public <T> Map<Integer, T> loadHistory(T object) {
+	public <T> List<T> loadHistory(T object) {
 		@SuppressWarnings("unchecked")
 		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.getTable(object.getClass());
 		if (abstractTable instanceof HistorizedTable) {
 			long id = IdUtils.getId(object);
 			List<Integer> times = ((HistorizedTable<T>) abstractTable).readVersions(id);
-			Map<Integer, T> result = new HashMap<>();
+			List<T> result = new ArrayList<>();
 			for (int time : times) {	
-				result.put(time, ((HistorizedTable<T>) abstractTable).read(id, time));
+				result.add(((HistorizedTable<T>) abstractTable).read(id, time));
 			}
 			return result;
 		} else {

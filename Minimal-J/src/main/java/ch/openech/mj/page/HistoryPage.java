@@ -19,7 +19,7 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 	
 	public HistoryPage(PageContext pageContext) {
 		super(pageContext);
-		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
+		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.HISTORY_VERSION.version, HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
 		table.setClickListener(new TableActionListener<HistoryVersion<T>>() {
 			@Override
 			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selectedObjects) {
