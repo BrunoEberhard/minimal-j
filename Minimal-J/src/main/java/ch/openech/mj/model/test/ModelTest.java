@@ -45,7 +45,7 @@ public class ModelTest {
 	private void test() {
 		testedClasses.clear();
 		for (Class<?> clazz : mainModelClasses) {
-			testDomainClassCheckRecursion(clazz);
+			testDomainClassCheckRecursion(clazz, true);
 			testId(clazz);
 		}
 	}
@@ -54,11 +54,13 @@ public class ModelTest {
 		return problems;
 	}
 
-	private void testDomainClassCheckRecursion(Class<?> clazz) {
+	private void testDomainClassCheckRecursion(Class<?> clazz, boolean listsAllowed) {
 		if (!testedClasses.contains(clazz)) {
 			testedClasses.add(clazz);
+			testId(clazz);
+			testVersion(clazz);
 			testConstructor(clazz);
-			testFields(clazz);
+			testFields(clazz, listsAllowed);
 			problems.addAll(FlatProperties.testProperties(clazz));
 			if (DevMode.isActive()) {
 				testResources(clazz);
@@ -87,34 +89,64 @@ public class ModelTest {
 
 	private void testId(Class<?> clazz) {
 		try {
-			Field field = clazz.getField("id");
-			if (!FieldUtils.isPublic(field)) {
-				problems.add(clazz.getName() + ": field id must be public");
-			}
-			if (!FieldUtils.isAllowedId(field.getType())) {
-				testId(field.getType());
+			Field fieldId = clazz.getField("id");
+			if (mainModelClasses.contains(clazz)) {
+				if (fieldId.getType() == Long.class || fieldId.getType() == Integer.class) {
+					problems.add(clazz.getName() + ": Domain classes ids must be of primitiv type (int or long)");
+				}
+				if (!FieldUtils.isPublic(fieldId)) {
+					problems.add(clazz.getName() + ": field id must be public");
+				}
+			} else {
+				problems.add(clazz.getName() + ": Only domain classes are allowed to have an id field");
 			}
 		} catch (NoSuchFieldException e) {
-			problems.add(clazz.getName() + " has no id field");
+			if (mainModelClasses.contains(clazz)) {
+				problems.add(clazz.getName() + ": Domain classes must have an id field of type int oder long");
+			} 
 		} catch (SecurityException e) {
 			problems.add(clazz.getName() + " makes SecurityException with the id field");
 		}
 	}
 
-	private void testFields(Class<?> clazz) {
+	private void testVersion(Class<?> clazz) {
+		try {
+			Field fieldVersion = clazz.getField("version");
+			if (mainModelClasses.contains(clazz)) {
+				if (fieldVersion.getType() == Integer.class) {
+					problems.add(clazz.getName() + ": Domain classes version must be of primitiv type int");
+				}
+				if (!FieldUtils.isPublic(fieldVersion)) {
+					problems.add(clazz.getName() + ": field version must be public");
+				}
+			} else {
+				problems.add(clazz.getName() + ": Only domain classes are allowed to have an version field");
+			}
+		} catch (NoSuchFieldException e) {
+			// thats ok, version is not mandatory
+		} catch (SecurityException e) {
+			problems.add(clazz.getName() + " makes SecurityException with the id field");
+		}
+	}
+	
+	private void testFields(Class<?> clazz, boolean listsAllowed) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			testField(field);
+			testField(field, listsAllowed);
 		}
 	}
 
-	private void testField(Field field) {
+	private void testField(Field field, boolean listsAllowed) {
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !field.getName().equals("id") && !field.getName().equals("version")) {
 			testFieldType(field);
 			testNoMethodsForPublicField(field);
 			if (String.class.equals(field.getType())) {
 				testSize(field);
+			} else if (List.class.equals(field.getType()) && !listsAllowed) {
+				String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
+				problems.add(messagePrefix + ": not allowed. Only main model class or inline fields in these classes may contain lists");
 			}
+			
 		}
 	}
 
@@ -132,7 +164,7 @@ public class ModelTest {
 				testSetFieldType(field, messagePrefix);
 			}
 		} else if (!DbPersistenceHelper.isView(field)) {
-			testFieldType(fieldType, messagePrefix);
+			testFieldType(fieldType, messagePrefix, FieldUtils.isFinal(field));
 			// auf leeren Konstruktor prüfen?
 		}
 	}
@@ -146,7 +178,7 @@ public class ModelTest {
 		}
 		if (listType != null) {
 			messagePrefix = "Generic of " + messagePrefix;
-			testFieldType(listType, messagePrefix);
+			testFieldType(listType, messagePrefix, false);
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}
@@ -174,7 +206,7 @@ public class ModelTest {
 		}
 	}
 	
-	private void testFieldType(Class<?> fieldType, String messagePrefix) {
+	private void testFieldType(Class<?> fieldType, String messagePrefix, boolean listsAllowed) {
 		if (!FieldUtils.isAllowedPrimitive(fieldType)) {
 			if (fieldType.isPrimitive()) {
 				problems.add(messagePrefix + " has invalid Type");
@@ -188,7 +220,7 @@ public class ModelTest {
 			if (fieldType.isArray()) {
 				problems.add(messagePrefix + " is an array which is not allowed");
 			}
-			testDomainClassCheckRecursion(fieldType);
+			testDomainClassCheckRecursion(fieldType, listsAllowed);
 		}
 	}
 
