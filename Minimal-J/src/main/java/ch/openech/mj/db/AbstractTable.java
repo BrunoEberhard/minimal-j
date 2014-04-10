@@ -400,10 +400,6 @@ public abstract class AbstractTable<T> {
 		AbstractTable<D> table = dbPersistence.getTable(clazz);
 		if (table instanceof ImmutableTable) {
 			return ((ImmutableTable<?>) table).read(id);
-		} else if (table instanceof HistorizedTable<?>) {
-			return ((HistorizedTable<?>) table).read(id, time);			
-		} else if (table instanceof Table) {
-			return ((Table<?>) table).read(id);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
