@@ -26,7 +26,6 @@ import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.Search;
 import ch.openech.mj.model.ViewUtil;
 import ch.openech.mj.model.properties.ChainedProperty;
-import ch.openech.mj.model.properties.InlineProperty;
 import ch.openech.mj.model.properties.SimpleProperty;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.GenericUtils;
@@ -91,18 +90,14 @@ public abstract class AbstractTable<T> {
 			if (StringUtils.equals(fieldName, "ID", "VERSION")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
-				if (!dbPersistence.isImmutable(field.getType())) {
-					Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
-					boolean hasClassName = FieldUtils.hasClassName(field);
-					for (String inlineKey : inlinePropertys.keySet()) {
-						String key = inlineKey;
-						if (!hasClassName) {
-							key = fieldName + "_" + inlineKey;
-						}
-						columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
+				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
+				boolean hasClassName = FieldUtils.hasClassName(field);
+				for (String inlineKey : inlinePropertys.keySet()) {
+					String key = inlineKey;
+					if (!hasClassName) {
+						key = fieldName + "_" + inlineKey;
 					}
-				} else {
-					columns.put(fieldName, new InlineProperty(clazz, field));
+					columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
 				}
 			} else {
 				columns.put(fieldName, new SimpleProperty(clazz, field));
@@ -116,7 +111,7 @@ public abstract class AbstractTable<T> {
 		
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
-			if (!dbPersistence.isImmutable(field.getType()) && FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
+			if (FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
 				// This is needed to check if an inline Property contains a List
 				Map<String, PropertyInterface> inlinePropertys = findLists(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field);

@@ -3,11 +3,9 @@ package ch.openech.mj.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +41,6 @@ public class DbPersistence {
 	private final boolean createTablesOnInitialize;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
-	private final Set<Class<?>> immutables = new HashSet<>();
 	
 	private final DataSource dataSource;
 	
@@ -301,7 +298,7 @@ public class DbPersistence {
 				return table;
 			}
 		} else {
-			return addImmutableClass(clazz);
+			throw new IllegalArgumentException(clazz.getName() + " has no valid id field");
 		}
 	}
 
@@ -316,14 +313,9 @@ public class DbPersistence {
 	 * @return
 	 */
 	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
-		immutables.add(clazz);
 		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
 		add(table);
 		return table;
-	}
-	
-	public boolean isImmutable(Class<?> clazz) {
-		return immutables.contains(clazz);
 	}
 	
 	private void createTables() {
