@@ -381,12 +381,7 @@ public abstract class AbstractTable<T> {
 					value = CloneHelper.newInstance(fieldClass);
 					ViewUtil.view(referenceObject, value);
 				} else if (DbPersistenceHelper.isReference(property)) {
-					if (!dbPersistence.isImmutable(fieldClass)) {
-						value = CloneHelper.newInstance(fieldClass);
-						IdUtils.setId(value, (Long) value);
-					} else {
-						value = dereference(fieldClass, IdUtils.convertToLong(value), time);
-					}
+					value = dereference(fieldClass, IdUtils.convertToLong(value), time);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
