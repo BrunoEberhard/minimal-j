@@ -88,8 +88,7 @@ public abstract class AbstractTable<T> {
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = StringUtils.toDbName(field.getName());
-			if (fieldName.equals("ID") && FieldUtils.isAllowedId(field.getType())) continue;
-			if (fieldName.equals("VERSION") && FieldUtils.isAllowedVersionType(field.getType())) continue;
+			if (StringUtils.equals(fieldName, "ID", "VERSION")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
 				if (!dbPersistence.isImmutable(field.getType())) {
