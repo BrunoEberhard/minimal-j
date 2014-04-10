@@ -91,9 +91,7 @@ public abstract class AbstractTable<T> {
 			if (fieldName.equals("ID") && FieldUtils.isAllowedId(field.getType())) continue;
 			if (fieldName.equals("VERSION") && FieldUtils.isAllowedVersionType(field.getType())) continue;
 			if (FieldUtils.isList(field)) continue;
-			if (DbPersistenceHelper.isView(field)) {
-				columns.put(fieldName, new SimpleProperty(clazz, field));
-			} else if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
+			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
 				if (!dbPersistence.isImmutable(field.getType())) {
 					Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
 					boolean hasClassName = FieldUtils.hasClassName(field);
