@@ -59,7 +59,8 @@ public class SwingToolBar extends JToolBar implements IComponent {
 	}
 	
 	protected void fillToolBarSearch() {
-		if (MjApplication.getApplication().getSearchClasses().length > 0) {
+		Class<?>[] searchClasses = MjApplication.getApplication().getSearchClasses();
+		if (searchClasses != null && searchClasses.length > 0) {
 			add(createSearchField());
 		}
 	}
