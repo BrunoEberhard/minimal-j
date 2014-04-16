@@ -1,5 +1,11 @@
 package ch.openech.mj.toolkit;
 
+/**
+ * Same as ResourceAction but with a enabeld status 
+ * 
+ * @author bruno
+ *
+ */
 public abstract class ResourceActionEnabled extends ResourceAction {
 
 	private boolean enabled = true;
