@@ -13,7 +13,6 @@ import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.PageLink;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.toolkit.ActionWrapper;
 import ch.openech.mj.toolkit.IAction;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ResourceAction;
@@ -292,15 +291,37 @@ public class VaadinWindow extends Window implements PageContext {
 		return wrappedActions;
 	}
 	
-	public class VaadinActionWrapper extends ActionWrapper {
+	public class VaadinActionWrapper implements IAction {
+
+		private final IAction action;
 
 		public VaadinActionWrapper(IAction action) {
-			super(action);
+			this.action = action;
 		}
 
 		public void action(IComponent context) {
 			ApplicationContext.setApplicationContext(VaadinWindow.this.applicatonContext);
-			getAction().action(context);
+			action.action(context);
+		}
+
+		@Override
+		public String getName() {
+			return action.getName();
+		}
+
+		@Override
+		public String getDescription() {
+			return action.getDescription();
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return action.isEnabled();
+		}
+
+		@Override
+		public void setChangeListener(ActionChangeListener changeListener) {
+			action.setChangeListener(changeListener);
 		}
 	}
 	
