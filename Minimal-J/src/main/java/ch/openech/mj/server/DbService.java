@@ -43,5 +43,6 @@ public interface DbService {
 	
 	//
 	
+	@Deprecated // TODO replace with annotations on service methods
 	public <V> V transaction(Transaction<V> transaction, String description);
 }
