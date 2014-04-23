@@ -2,6 +2,7 @@ package ch.openech.mj.vaadin.toolkit;
 
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.util.Iterator;
 import java.util.List;
@@ -11,7 +12,6 @@ import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
-import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
@@ -336,15 +336,14 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public void export(IComponent parent, String buttonText, ExportHandler exportHandler) {
+	public OutputStream store(IComponent parent, String buttonText) {
 		Component parentComponent = (Component) parent;
 		Window window = parentComponent.getWindow();
-
-		new VaadinExportDialog(window, "Export", exportHandler);
+		return new VaadinExportDialog(window, "Export").getOutputStream();
 	}
 
 	@Override
-	public InputStream imprt(IComponent parent, String buttonText) {
+	public InputStream load(IComponent parent, String buttonText) {
 		Component parentComponent = (Component) parent;
 		Window window = parentComponent.getWindow();
 

@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -43,7 +44,6 @@ import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ClientToolkit.DialogListener.DialogResult;
 import ch.openech.mj.toolkit.ComboBox;
-import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
@@ -346,22 +346,24 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void export(IComponent parent, String buttonText, ExportHandler exportHandler) {
+	public OutputStream store(IComponent parent, String buttonText) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		if (JFileChooser.APPROVE_OPTION == chooser.showDialog((Component) parent, buttonText)) {
 			File outputFile = chooser.getSelectedFile();
 			try {
-				exportHandler.export(new FileOutputStream(outputFile));
+				return new FileOutputStream(outputFile);
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
+		} else {
+			return null;
 		}
 	}
 
 	@Override
-	public InputStream imprt(IComponent parent, String buttonText) {
+	public InputStream load(IComponent parent, String buttonText) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);

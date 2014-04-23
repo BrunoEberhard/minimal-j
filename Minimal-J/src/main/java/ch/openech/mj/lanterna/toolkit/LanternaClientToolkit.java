@@ -1,6 +1,7 @@
 package ch.openech.mj.lanterna.toolkit;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import ch.openech.mj.lanterna.component.LanternaForm;
 import ch.openech.mj.model.Search;
@@ -8,7 +9,6 @@ import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ComboBox;
-import ch.openech.mj.toolkit.ExportHandler;
 import ch.openech.mj.toolkit.FlowField;
 import ch.openech.mj.toolkit.GridFormLayout;
 import ch.openech.mj.toolkit.HorizontalLayout;
@@ -197,14 +197,13 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void export(IComponent parent, String buttonText,
-			ExportHandler exportHandler) {
+	public OutputStream store(IComponent parent, String buttonText) {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public InputStream imprt(IComponent parent, String buttonText) {
+	public InputStream load(IComponent parent, String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -213,7 +212,6 @@ public class LanternaClientToolkit extends ClientToolkit {
 	public void showConfirmDialog(IComponent component, String message,
 			String title, ConfirmDialogType type, DialogListener listener) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

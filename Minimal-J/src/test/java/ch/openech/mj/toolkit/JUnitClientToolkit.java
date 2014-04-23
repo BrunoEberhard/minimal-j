@@ -1,6 +1,7 @@
 package ch.openech.mj.toolkit;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import ch.openech.mj.model.Search;
@@ -192,16 +193,15 @@ public class JUnitClientToolkit extends ClientToolkit {
 		listener.close(nextConfirmAnswer);
 		nextConfirmAnswer = null;
 	}
-
+	
 	@Override
-	public void export(IComponent parent, String buttonText,
-			ExportHandler exportHandler) {
+	public OutputStream store(IComponent parent, String buttonText) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public InputStream imprt(IComponent parent, String buttonText) {
+	public InputStream load(IComponent parent, String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}

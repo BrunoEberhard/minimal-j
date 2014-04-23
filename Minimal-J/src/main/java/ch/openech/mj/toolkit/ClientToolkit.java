@@ -1,6 +1,7 @@
 package ch.openech.mj.toolkit;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import ch.openech.mj.model.Search;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
@@ -113,8 +114,22 @@ public abstract class ClientToolkit {
 
 	// Up / Dowload
 	
-	public abstract void export(IComponent parent, String buttonText, ExportHandler exportHandler);
+	/**
+	 * Store the output of a stream locally on a place to select
+	 * 
+	 * @param parent
+	 * @param buttonText the text displayed probably in a file browser
+	 * @return the stream provided through which the local resource can be filled
+	 */
+	public abstract OutputStream store(IComponent parent, String buttonText);
 
-	public abstract InputStream imprt(IComponent parent, String buttonText);
+	/**
+	 * Select a stream from a locally source
+	 * 
+	 * @param parent
+	 * @param buttonText the text displayed probably in a file browser
+	 * @return the stream provided by the selected local source
+	 */
+	public abstract InputStream load(IComponent parent, String buttonText);
 	
 }
