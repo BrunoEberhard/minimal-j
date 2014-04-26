@@ -1,8 +1,10 @@
 package ch.openech.mj.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,6 +24,8 @@ public class SerializationContainer implements Serializable {
 			return list;
 		} else if (object instanceof Serializable) {
 			return object;
+		} else if (object instanceof InputStream || object instanceof OutputStream) {
+			return null; // streams are handled differntly
 		} else {
 			SerializationContainer container = new SerializationContainer();
 			container.object = object;

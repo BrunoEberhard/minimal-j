@@ -1,7 +1,10 @@
 package ch.openech.mj.server;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -108,7 +111,9 @@ public class Services {
 					oos.writeObject(method.getName());
 					oos.writeObject(method.getParameterTypes());
 					oos.writeObject(SerializationContainer.wrap(args));
+					sendStream(oos, args);
 					try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+						receiveStream(ois, args);
 						Object result = SerializationContainer.unwrap(ois.readObject());
 						return result;
 					}
@@ -117,5 +122,35 @@ public class Services {
 				throw new RuntimeException("Couldn't connect to " + url + ":" + port);
 			}
 		}
+
+		// send data from client to server (import of data)
+		private void sendStream(ObjectOutputStream oos, Object[] args) throws IOException {
+			for (Object arg : args) {
+				if (arg instanceof InputStream) {
+					InputStream inputStream = (InputStream) arg;
+					int b;
+					while ((b = inputStream.read()) >= 0) {
+						oos.write(b);
+					}
+					oos.flush();
+					return;
+				}
+			}
+		}
+		
+		// send data from server to client (export data)
+		private void receiveStream(ObjectInputStream ois, Object[] args) throws IOException {
+			for (Object arg : args) {
+				if (arg instanceof OutputStream) {
+					OutputStream outputStream = (OutputStream) arg;
+					int b;
+					while ((b = ois.read()) >= 0) {
+						outputStream.write(b);
+					}
+					return;
+				}
+			}
+		}
+
 	}
 }

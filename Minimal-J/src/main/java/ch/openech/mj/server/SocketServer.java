@@ -1,8 +1,10 @@
 package ch.openech.mj.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -17,6 +19,7 @@ import ch.openech.mj.server.Services.ServiceNamingConvention;
 import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.SerializationContainer;
 import ch.openech.mj.util.StringUtils;
+import ch.openech.mj.util.UnclosingOoutputStream;
 
 
 public class SocketServer {
@@ -67,15 +70,27 @@ public class SocketServer {
 				String methodName = (String) ois.readObject();
 				Class<?>[] parameterTypes = (Class<?>[]) ois.readObject();
 				Object[] args = SerializationContainer.unwrap((Object[]) ois.readObject());
-
+				for (int i = 0; i<parameterTypes.length; i++) {
+					Class<?> parameterType = parameterTypes[i];
+					if (parameterType == InputStream.class) {
+						args[i] = ois;
+					}
+				}
+				
 				String implementationClassName = serviceNamingConvention.getImplementationClassName(serviceName);
 				Class<?> implementationClass = Class.forName(implementationClassName);
 				Method method = implementationClass.getMethod(methodName, parameterTypes);
 				Object implementation = implementationClass.newInstance();
 				
-				Object result = method.invoke(implementation, args);
-				
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+					for (int i = 0; i<parameterTypes.length; i++) {
+						Class<?> parameterType = parameterTypes[i];
+						if (parameterType == OutputStream.class) {
+							args[i] = new UnclosingOoutputStream(oos);
+						}
+					}
+					
+					Object result = method.invoke(implementation, args);
 					oos.writeObject(SerializationContainer.wrap(result));
 				}
 			} catch (IOException e) {
