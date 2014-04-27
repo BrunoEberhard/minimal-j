@@ -1,8 +1,10 @@
 package ch.openech.mj.edit.fields;
 
+import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.model.Search;
+import ch.openech.mj.model.ViewUtil;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ClientToolkit.ILookup;
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
@@ -12,8 +14,8 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	// private static final Logger logger = Logger.getLogger(ReferenceField.class.getName());
 	
 	private T object;
+	private final PropertyInterface property;
 	protected final ILookup<T> lookup;
-	private final Object[] searchColumns;
 
 	public ReferenceField(Object key, Search<T> search) {
 		this(key, search, search.getKeys());
@@ -25,9 +27,8 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 
 	public ReferenceField(Object key, Search<T> search, Object[] searchColumns, boolean editable) {
 		super(key, editable);
-		PropertyInterface property = Keys.getProperty(key);
+		property = Keys.getProperty(key);
 		lookup = ClientToolkit.getToolkit().createLookup(new ReferenceFieldChangeListener(), search, searchColumns);
-		this.searchColumns = searchColumns;
 	}
 
 	@Override
@@ -63,7 +64,10 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 
 		@Override
 		public void changed(IComponent source) {
-			setObject(lookup.getSelectedObject());
+			Object selectedObject = lookup.getSelectedObject();
+			@SuppressWarnings("unchecked")
+			T objectAsView = (T) ViewUtil.view(selectedObject, CloneHelper.newInstance(property.getFieldClazz()));
+			setObject(objectAsView);
 		}
 		
 	}
