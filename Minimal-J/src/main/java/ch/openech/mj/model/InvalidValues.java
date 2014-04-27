@@ -37,6 +37,12 @@ public class InvalidValues {
 		return key;
 	}
 	
+	public static Long createInvalidLong(String string) {
+		Long key = new Long(Long.MAX_VALUE);
+		values.put(key, string);
+		return key;
+	}
+	
 	public static <T extends Enum<T>> T createInvalidEnum(Class<T> enumClass, String value) {
 		T e = EnumUtils.createEnum(enumClass, "INVALID");
 		values.put(e, value);
