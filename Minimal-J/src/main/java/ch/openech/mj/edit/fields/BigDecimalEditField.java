@@ -15,19 +15,6 @@ public class BigDecimalEditField extends NumberEditField<BigDecimal> implements 
 	}
 
 	@Override
-	public void setObject(BigDecimal number) {
-		String text = null;
-		if (number != null) {
-			if (InvalidValues.isInvalid(number)) {
-				text = InvalidValues.getInvalidValue(number);
-			} else {
-				text = number.toString();
-			}
-		}
-		textField.setText(text);
-	}
-
-	@Override
 	public BigDecimal getObject() {
 		String text = textField.getText();
 		if (text != null) {

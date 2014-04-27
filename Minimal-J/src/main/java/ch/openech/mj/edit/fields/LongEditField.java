@@ -7,20 +7,20 @@ import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
 
 
-public class IntegerEditField extends NumberEditField<Integer> implements DemoEnabled {
+public class LongEditField extends NumberEditField<Long> implements DemoEnabled {
 
-	public IntegerEditField(PropertyInterface property, int size, boolean negative) {
+	public LongEditField(PropertyInterface property, int size, boolean negative) {
 		super(property, size, 0, negative);
 	}
 
 	@Override
-	public Integer getObject() {
+	public Long getObject() {
 		String text = textField.getText();
 		if (text != null) {
 			try {
-				return Integer.parseInt(text);
+				return Long.parseLong(text);
 			} catch (NumberFormatException nfe) {
-				return InvalidValues.createInvalidInteger(text);
+				return InvalidValues.createInvalidLong(text);
 			}
 		} else {
 			return null;
@@ -31,8 +31,11 @@ public class IntegerEditField extends NumberEditField<Integer> implements DemoEn
 	public void fillWithDemoData() {
 		Random random = new Random();
 		int max = 10;
-		for (int i = 0; i<size; i++) max *= 10; // is there a exponential operator in Java?
-		int value = random.nextInt(max);
+		for (long i = 0; i<size; i++) max *= 10; // is there a exponential operator in Java?
+		long value;
+		do {
+			value = random.nextLong();
+		} while (value < 0 || value > max);
 		if (!negative || random.nextBoolean()) {
 			setObject(value);
 		} else {

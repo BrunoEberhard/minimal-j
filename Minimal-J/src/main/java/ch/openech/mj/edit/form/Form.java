@@ -30,6 +30,7 @@ import ch.openech.mj.edit.fields.EnumFormField;
 import ch.openech.mj.edit.fields.EnumSetEditField;
 import ch.openech.mj.edit.fields.FormField;
 import ch.openech.mj.edit.fields.IntegerEditField;
+import ch.openech.mj.edit.fields.LongEditField;
 import ch.openech.mj.edit.fields.NumberFormField;
 import ch.openech.mj.edit.fields.TextEditField;
 import ch.openech.mj.edit.fields.TextFormField;
@@ -178,13 +179,16 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 				int size = AnnotationUtil.getSize(property);
 				boolean negative = AnnotationUtil.isNegative(property);
 				return new IntegerEditField(property, size, negative);
+			} else if (fieldClass == Long.class) {
+				int size = AnnotationUtil.getSize(property);
+				boolean negative = AnnotationUtil.isNegative(property);
+				return new LongEditField(property, size, negative);
 			} else if (fieldClass == BigDecimal.class) {
 				int size = AnnotationUtil.getSize(property);
 				int decimal = AnnotationUtil.getDecimal(property);
 				boolean negative = AnnotationUtil.isNegative(property);
 				return new BigDecimalEditField(property, size, decimal, negative);
-			} 	// TODO dates
-			
+			} 
 		} else {
 			if (fieldClass == String.class) {
 				String codeName = AnnotationUtil.getCode(property);
@@ -204,6 +208,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 				return field;
 			} 
 			else if (fieldClass == Integer.class) return new NumberFormField.IntegerFormField(property);
+			else if (fieldClass == Long.class) return new NumberFormField.LongFormField(property);
 			else if (fieldClass == BigDecimal.class) return new NumberFormField.BigDecimalFormField(property);
 			else if (fieldClass == Set.class) return new EnumSetEditField(property, editable);
 			

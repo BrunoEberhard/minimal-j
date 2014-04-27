@@ -1,5 +1,6 @@
 package ch.openech.mj.edit.fields;
 
+import ch.openech.mj.model.InvalidValues;
 import ch.openech.mj.model.PropertyInterface;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
@@ -22,6 +23,19 @@ public abstract class NumberEditField<T> implements EditField<T> {
 		this.decimalPlaces = decimalPlaces;
 		this.negative = negative;
 		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), getMaxLength(), getAllowedCharacters());
+	}
+
+	@Override
+	public void setObject(T number) {
+		String text = null;
+		if (number != null) {
+			if (InvalidValues.isInvalid(number)) {
+				text = InvalidValues.getInvalidValue(number);
+			} else {
+				text = number.toString();
+			}
+		}
+		textField.setText(text);
 	}
 
 	@Override

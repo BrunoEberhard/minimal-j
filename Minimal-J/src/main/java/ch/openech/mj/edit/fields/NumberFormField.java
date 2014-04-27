@@ -49,7 +49,27 @@ public abstract class NumberFormField<T> implements FormField<T> {
 			textField.setText(text);
 		}
 	}
-	
+
+	public static class LongFormField extends NumberFormField<Long> {
+
+		public LongFormField(PropertyInterface property) {
+			super(property);
+		}
+
+		@Override
+		public void setObject(Long number) {
+			String text = null;
+			if (number != null) {
+				if (InvalidValues.isInvalid(number)) {
+					text = InvalidValues.getInvalidValue(number);
+				} else {
+					text = number.toString();
+				}
+			}
+			textField.setText(text);
+		}
+	}
+
 	public static class BigDecimalFormField extends NumberFormField<BigDecimal> {
 
 		public BigDecimalFormField(PropertyInterface property) {
