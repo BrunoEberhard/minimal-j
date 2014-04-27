@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.openech.mj.criteria.Criteria;
+import ch.openech.mj.criteria.Criteria.MaxResultsCriteria;
 import ch.openech.mj.criteria.Criteria.SimpleCriteria;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
@@ -210,6 +211,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	public List<T> read(Criteria criteria) {
+		// TODO implement all the criteria and join of criteria
 		if (criteria instanceof SimpleCriteria) {
 			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
 			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
@@ -224,7 +226,16 @@ public abstract class AbstractTable<T> {
 				statement.setObject(1, value);
 				return executeSelectAll(statement);
 			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with ReferenceCriteria failed");
+				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+			}
+		} else if (criteria instanceof MaxResultsCriteria) {
+			MaxResultsCriteria maxResultsCriteria = (MaxResultsCriteria) criteria;
+			String query = "select * from " + getTableName();
+			try {
+				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+				return executeSelectAll(statement, maxResultsCriteria.getMaxResults());
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
 			}
 		}
 		throw new IllegalArgumentException(criteria + " not yet implemented");
@@ -338,9 +349,13 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) throws SQLException {
+		return executeSelectAll(preparedStatement, Long.MAX_VALUE);
+	}
+	
+	private List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) throws SQLException {
 		List<T> result = new ArrayList<T>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			while (resultSet.next()) {
+			while (resultSet.next() && result.size() < maxResults) {
 				T object = readResultSetRow(resultSet, null);
 				result.add(object);
 			}

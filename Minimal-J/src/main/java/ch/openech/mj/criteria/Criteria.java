@@ -45,6 +45,18 @@ public abstract class Criteria {
 			return value;
 		}
 	}
+	
+	public static class MaxResultsCriteria extends Criteria {
+		private final int maxResults;
+		
+		public MaxResultsCriteria(int maxResults) {
+			this.maxResults = maxResults;
+		}
+		
+		public int getMaxResults() {
+			return maxResults;
+		}
+	}
 
 	public static class JoinCriteria extends Criteria {
 		public static enum JoinType {and, or}
