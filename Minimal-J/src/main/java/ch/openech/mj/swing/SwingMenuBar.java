@@ -42,6 +42,10 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 			add(objectMenu);
 		}
 		add(createWindowMenu());
+		if (getParent() != null) {
+			getParent().revalidate();
+			getParent().repaint();
+		}
 	}
 	
 	private JMenu createFileMenu() {
