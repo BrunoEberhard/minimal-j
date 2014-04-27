@@ -101,11 +101,9 @@ public class FieldUtils {
 	
 	public static boolean isAllowedPrimitive(Class<?> fieldType) {
 		if (String.class == fieldType) return true;
-		if (Byte.class == fieldType || Byte.TYPE == fieldType) return true;
-		if (Short.class == fieldType || Short.TYPE == fieldType) return true;
-		if (Integer.class == fieldType || Integer.TYPE == fieldType) return true;
-		if (Long.class == fieldType || Long.TYPE == fieldType) return true;
-		if (Boolean.class == fieldType || Boolean.TYPE == fieldType) return true;
+		if (Integer.class == fieldType) return true;
+		if (Long.class == fieldType) return true;
+		if (Boolean.class == fieldType) return true;
 		if (BigDecimal.class == fieldType) return true;
 		if (LocalDate.class == fieldType) return true;
 		if (LocalTime.class == fieldType) return true;
