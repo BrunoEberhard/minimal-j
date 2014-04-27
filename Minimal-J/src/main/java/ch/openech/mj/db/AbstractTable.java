@@ -219,8 +219,7 @@ public abstract class AbstractTable<T> {
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
-				// TODO merge with setParameter
-				if (DbPersistenceHelper.isView(propertyInterface)) {
+				if (!(value instanceof Integer || value instanceof Long) && DbPersistenceHelper.isView(propertyInterface)) {
 					value = IdUtils.getId(value);
 				}
 				statement.setObject(1, value);
