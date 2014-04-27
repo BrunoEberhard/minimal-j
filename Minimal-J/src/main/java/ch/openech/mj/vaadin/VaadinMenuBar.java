@@ -25,30 +25,45 @@ public class VaadinMenuBar extends MenuBar {
 		removeItems();
 		
 		createFileMenu();
+		createViewMenu();
 		createObjectMenu();
 	}
 	
-	private MenuBar.MenuItem createFileMenu() {
+	private void createFileMenu() {
 		MenuBar.MenuItem menu = menu("file");
-		
-		addActions(menu, "new", MjApplication.getApplication().getActionsNew(vaadinWindow));
-		menu.addSeparator();
-		addActions(menu, "import", MjApplication.getApplication().getActionsImport(vaadinWindow));
-		addActions(menu, "export", MjApplication.getApplication().getActionsExport(vaadinWindow));
-		return menu;
+
+		boolean separator = false;
+		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew(vaadinWindow);
+		if (!actionsNew.isEmpty()) {
+			addActions(menu, "new", actionsNew);
+			separator = true;
+		}
+		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport(vaadinWindow);
+		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport(vaadinWindow);
+		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) {
+			if (separator) menu.addSeparator();
+		}
+		if (!actionsImport.isEmpty()) addActions(menu, "import", actionsImport);
+		if (!actionsExport.isEmpty()) addActions(menu, "export", actionsExport);
 	}
 	
-	private MenuBar.MenuItem createObjectMenu() {
+	private void createViewMenu() {
+		List<IAction> actionsView = MjApplication.getApplication().getActionsView(vaadinWindow);
+		if (!actionsView.isEmpty()) {
+			MenuBar.MenuItem menu = menu("view");
+			addActions(menu, actionsView);
+		}
+	}
+	
+	private void createObjectMenu() {
 		Page visiblePage = vaadinWindow.getVisiblePage();
 		if (visiblePage != null) {
 			ActionGroup actionGroup = visiblePage.getMenu();
 			if (actionGroup != null && actionGroup.getItems() != null) {
 				MenuBar.MenuItem menu = addItem(actionGroup.getName(), null);
 				addActions(menu, actionGroup.getItems());
-				return menu;
 			}
 		}
-		return null;
 	}
 
 	//

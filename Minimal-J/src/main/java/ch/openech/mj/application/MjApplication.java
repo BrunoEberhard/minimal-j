@@ -116,7 +116,7 @@ public abstract class MjApplication {
 		return Collections.emptyList();
 	}
 
-	public List<IAction> getActionsWindow(PageContext context) {
+	public List<IAction> getActionsView(PageContext context) {
 		return Collections.emptyList();
 	}
 

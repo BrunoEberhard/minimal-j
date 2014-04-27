@@ -47,14 +47,19 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	private JMenu createFileMenu() {
 		JMenu menu = menu("file");
 		
-		addActions(menu, "new", MjApplication.getApplication().getActionsNew(tab));
-		menu.addSeparator();
+		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew(tab);
+		if (!actionsNew.isEmpty()) {
+			addActions(menu, "new", actionsNew);
+			menu.addSeparator();
+		}
 		menu.add(new JMenuItem(tab.frame.closeWindowAction));
 		menu.add(new JMenuItem(tab.closeTabAction));
 		menu.addSeparator();
-		addActions(menu, "import", MjApplication.getApplication().getActionsImport(tab));
-		addActions(menu, "export", MjApplication.getApplication().getActionsExport(tab));
-		menu.addSeparator();
+		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport(tab);
+		if (!actionsImport.isEmpty()) addActions(menu, "import", actionsImport);
+		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport(tab);
+		if (!actionsExport.isEmpty()) addActions(menu, "export", actionsExport);
+		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) menu.addSeparator();
 		menu.add(new JMenuItem(tab.frame.exitAction));
 		return menu;
 	}
@@ -69,6 +74,11 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	
 	private JMenu createViewMenu() {
 		JMenu menu = menu("view");
+		List<IAction> actionsView = MjApplication.getApplication().getActionsView(tab);
+		if (!actionsView.isEmpty()) {
+			addActions(menu, actionsView);
+			menu.addSeparator();
+		}
 		menu.add(new JMenuItem(tab.previousAction));
 		menu.add(new JMenuItem(tab.nextAction));
 		menu.add(new JMenuItem(tab.refreshAction));
