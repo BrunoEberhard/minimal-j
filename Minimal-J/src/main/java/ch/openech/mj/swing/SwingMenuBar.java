@@ -71,8 +71,8 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	private JMenu createEditMenu() {
 		JMenu menu = menu("edit");
 		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "cut")));
-		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "copy")));
-		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "paste")));
+		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CopyAction(), Resources.getResourceBundle(), "copy")));
+		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.PasteAction(), Resources.getResourceBundle(), "paste")));
 		return menu;
 	}
 	
