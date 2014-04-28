@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import ch.openech.mj.criteria.Criteria;
 import ch.openech.mj.criteria.Criteria.MaxResultsCriteria;
 import ch.openech.mj.criteria.Criteria.SimpleCriteria;
+import ch.openech.mj.criteria.CriteriaOperator;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.Keys;
@@ -215,7 +216,7 @@ public abstract class AbstractTable<T> {
 		if (criteria instanceof SimpleCriteria) {
 			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
 			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
-			String query = "select * from " + getTableName() + " where " + whereStatement(propertyInterface.getFieldPath());
+			String query = "select * from " + getTableName() + " where " + whereStatement(propertyInterface.getFieldPath(), simpleCriteria.getOperator());
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
@@ -240,7 +241,7 @@ public abstract class AbstractTable<T> {
 		throw new IllegalArgumentException(criteria + " not yet implemented");
 	}
 
-	private String whereStatement(final String wholeFieldPath) {
+	private String whereStatement(final String wholeFieldPath, CriteriaOperator criteriaOperator) {
 		String fieldPath = wholeFieldPath;
 		String column;
 		while (true) {
@@ -254,9 +255,9 @@ public abstract class AbstractTable<T> {
 			String restOfFieldPath = wholeFieldPath.substring(fieldPath.length() + 1);
 			PropertyInterface subProperty = columns.get(column);
 			AbstractTable<?> subTable = dbPersistence.getTable(subProperty.getFieldClazz());
-			return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath) + ")";
+			return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
 		} else {
-			return column + " = ?";
+			return column + " " + criteriaOperator.getOperatorAsString() + " ?";
 		}
 	}
 	
