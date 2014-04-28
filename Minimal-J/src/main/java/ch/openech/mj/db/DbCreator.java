@@ -251,7 +251,7 @@ public class DbCreator {
 				// MySQL
 				s.append("DATETIME");
 			}
-		} else if (clazz.equals(BigDecimal.class)) {
+		} else if (clazz.equals(BigDecimal.class) || clazz.equals(Long.class)) {
 			s.append("DECIMAL");
 			int size = AnnotationUtil.getSize(property);
 			int decimal = AnnotationUtil.getDecimal(property);

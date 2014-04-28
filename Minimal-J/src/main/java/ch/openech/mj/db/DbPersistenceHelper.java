@@ -113,7 +113,7 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (clazz == Boolean.class) {
 			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == BigDecimal.class) {
+		} else if (clazz == BigDecimal.class || clazz == Long.class) {
 			preparedStatement.setNull(param, Types.DECIMAL);
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			preparedStatement.setNull(param, Types.INTEGER);
