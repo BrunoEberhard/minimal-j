@@ -1,11 +1,13 @@
 package ch.openech.mj.page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
+import ch.openech.mj.util.IdUtils;
 
 
 /**
@@ -17,6 +19,7 @@ public abstract class TablePage<T> extends AbstractPage implements RefreshablePa
 
 	private String text;
 	private ITable<T> table;
+	private List<T> objects;
 	
 	public TablePage(PageContext context, Object[] keys, String text) {
 		super(context);
@@ -34,9 +37,23 @@ public abstract class TablePage<T> extends AbstractPage implements RefreshablePa
 
 	protected abstract void clicked(T selectedObject, List<T> selectedObjects);
 
+	/**
+	 * not only shows the selected object but provides the pageContext a list of links.
+	 * The user can sroll up/down through all (not only the selected) rows of the table
+	 */
+	protected void showDetail(Class<? extends Page> detailPageClass, T selectedObject) {
+		List<String> links = new ArrayList<>(objects.size());
+		for (Object object : objects) {
+			long id = IdUtils.getId(object);
+			links.add(PageLink.link(detailPageClass, id));
+		}
+		int index = objects.indexOf(selectedObject);
+		getPageContext().show(links, index);
+	}
+	
 	@Override
 	public void refresh() {
-		List<T> objects = load(text);
+		objects = load(text);
 		table.setObjects(objects);
 	}
 
