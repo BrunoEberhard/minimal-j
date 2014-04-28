@@ -1,11 +1,13 @@
 package ch.openech.mj.criteria;
 
 import ch.openech.mj.criteria.Criteria.JoinCriteria.JoinType;
+import ch.openech.mj.model.Keys;
+import ch.openech.mj.model.PropertyInterface;
 
 public abstract class Criteria {
 	
 	public static Criteria equals(Object key, Object value) {
-		return new SimpleCriteria(key, SimpleCriteria.CriteriaOperator.equal, value);
+		return new SimpleCriteria(key, CriteriaOperator.equal, value);
 	}
 
 	public static Criteria and(Criteria criteria1, Criteria criteria2) {
@@ -17,8 +19,6 @@ public abstract class Criteria {
 	}
 
 	public static class SimpleCriteria extends Criteria {
-		private enum CriteriaOperator { less, lessOrEqual, equal, greaterOrEqual, greater}
-
 		private final CriteriaOperator operator;
 		private final Object key;
 		private final Object value;
@@ -31,6 +31,14 @@ public abstract class Criteria {
 			this.key = key;
 			this.operator = operator;
 			this.value = value;
+			checkOperator(Keys.getProperty(key), operator);
+		}
+
+		private void checkOperator(PropertyInterface property, CriteriaOperator operator) {
+			Class<?> clazz = property.getFieldClazz();
+			if (clazz == Integer.class || clazz == Long.class) return;
+			if (operator == CriteriaOperator.equal) return;
+			throw new IllegalArgumentException(operator + " only allowed for integer and long fields");
 		}
 
 		public CriteriaOperator getOperator() {
