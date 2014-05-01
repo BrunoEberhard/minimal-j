@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 // http://www.heise.de/ct/ftp/07/17/182/
 public class FirstNameGenerator {
-
+	public static final Logger LOG = Logger.getLogger(FirstNameGenerator.class.getName());
+	
 	private static List<NameWithFrequency> males = new ArrayList<NameWithFrequency>(2000);
 	private static List<NameWithFrequency> femals = new ArrayList<NameWithFrequency>(2000);
 	
@@ -36,8 +38,12 @@ public class FirstNameGenerator {
 	private static synchronized void readNames() {
 		try {
 			if (!males.isEmpty()) return; // other thread already read the names
-			InputStream inputStream = FirstNameGenerator.class.getResourceAsStream("/ch/openech/resources/vornamen.txt");
-			readNames(inputStream);
+			InputStream inputStream = FirstNameGenerator.class.getResourceAsStream("/ch/openech/mj/autofill/vornamen.txt");
+			if (inputStream != null) {
+				readNames(inputStream);
+			} else {
+				LOG.warning("vornamen.txt not available. Maybe test/resources folder is not included in build path");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
