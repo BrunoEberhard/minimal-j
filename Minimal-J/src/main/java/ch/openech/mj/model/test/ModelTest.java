@@ -45,7 +45,7 @@ public class ModelTest {
 	private void test() {
 		testedClasses.clear();
 		for (Class<?> clazz : mainModelClasses) {
-			testDomainClassCheckRecursion(clazz, true);
+			testClass(clazz, true);
 			testId(clazz);
 		}
 	}
@@ -54,7 +54,7 @@ public class ModelTest {
 		return problems;
 	}
 
-	private void testDomainClassCheckRecursion(Class<?> clazz, boolean listsAllowed) {
+	private void testClass(Class<?> clazz, boolean listsAllowed) {
 		if (!testedClasses.contains(clazz)) {
 			testedClasses.add(clazz);
 			testId(clazz);
@@ -140,9 +140,10 @@ public class ModelTest {
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !field.getName().equals("id") && !field.getName().equals("version")) {
 			testFieldType(field);
 			testNoMethodsForPublicField(field);
-			if (String.class.equals(field.getType())) {
+			Class<?> fieldType = field.getType();
+			if (fieldType == String.class || fieldType == Integer.class || fieldType == Long.class) {
 				testSize(field);
-			} else if (List.class.equals(field.getType()) && !listsAllowed) {
+			} else if (List.class.equals(fieldType) && !listsAllowed) {
 				String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 				problems.add(messagePrefix + ": not allowed. Only main model class or inline fields in these classes may contain lists");
 			}
@@ -220,7 +221,7 @@ public class ModelTest {
 			if (fieldType.isArray()) {
 				problems.add(messagePrefix + " is an array which is not allowed");
 			}
-			testDomainClassCheckRecursion(fieldType, listsAllowed);
+			testClass(fieldType, listsAllowed);
 		}
 	}
 
