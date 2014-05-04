@@ -215,8 +215,9 @@ public abstract class Editor<T> {
 				finish();
 			}
 		} catch (Exception x) {
-			logger.log(Level.SEVERE, x.getMessage(), x);
-			showError("Abschluss fehlgeschlagen: " + x.getMessage());
+			String message = x.getMessage() != null ? x.getMessage() : x.getClass().getSimpleName();
+			logger.log(Level.SEVERE, message, x);
+			showError("Technical problems: " + message);
 		}
 	}
 
