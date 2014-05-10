@@ -4,7 +4,6 @@ import java.util.List;
 
 import ch.openech.mj.criteria.Criteria;
 import ch.openech.mj.db.Transaction;
-import ch.openech.mj.model.Search;
 
 /**
  * Access is defined as annotations on the model classes
@@ -13,15 +12,13 @@ import ch.openech.mj.model.Search;
  */
 public interface DbService {
 
-	public <T> List<T> search(Search<T> index, String query);
-	
 	public <T> T read(Class<T> clazz, long id);
 
+	public <T> List<T> search(Class<T> clazz, String query, int maxResults);
+
+	public <T> List<T> search(Class<T> clazz, Object[] keys, String query, int maxResults);
+	
 	public <T> List<T> read(Class<T> clazz, Criteria critera);
-
-	public <T> List<T> read(Class<T> clazz, String whereClause);
-
-	public List<Object[]> read(String query);
 
 	public <T> long insert(T object);
 

@@ -113,7 +113,9 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 
 	public T read(long id, boolean complete) {
-		if (id < 1) throw new IllegalArgumentException(String.valueOf(id));
+		if (id < 1) {
+			throw new IllegalArgumentException(String.valueOf(id));
+		}
 
 		try {
 			PreparedStatement selectByIdStatement;
@@ -162,6 +164,11 @@ public class HistorizedTable<T> extends Table<T> {
 		dbPersistence.transaction(new UpdateTransaction(id, null), "Delete object on " + getTableName() + " / Object: " + object);
 	}
 
+	@Override
+	protected void loadRelations(T object, long id) throws SQLException {
+		loadRelations(object, id, null);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void loadRelations(T object, long id, Integer time) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {

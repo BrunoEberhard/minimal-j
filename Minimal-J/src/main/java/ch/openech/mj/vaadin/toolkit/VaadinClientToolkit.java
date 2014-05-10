@@ -7,7 +7,6 @@ import java.io.PipedInputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.openech.mj.model.Search;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;

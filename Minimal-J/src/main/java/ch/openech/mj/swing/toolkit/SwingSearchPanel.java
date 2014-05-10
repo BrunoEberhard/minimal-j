@@ -12,9 +12,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import ch.openech.mj.model.Search;
-import ch.openech.mj.server.DbService;
-import ch.openech.mj.server.Services;
+import ch.openech.mj.toolkit.ClientToolkit.Search;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
@@ -48,7 +46,7 @@ public class SwingSearchPanel<T> extends JPanel implements IComponent {
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<T> objects = Services.get(DbService.class).search(search, text.getText());
+				List<T> objects = search.search(text.getText());
 				table.setObjects(objects);
 			}
 		});

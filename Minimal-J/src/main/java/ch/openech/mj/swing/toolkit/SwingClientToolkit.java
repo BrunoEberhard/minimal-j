@@ -36,7 +36,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
-import ch.openech.mj.model.Search;
 import ch.openech.mj.swing.component.EditablePanel;
 import ch.openech.mj.swing.component.SwingCaption;
 import ch.openech.mj.toolkit.Caption;

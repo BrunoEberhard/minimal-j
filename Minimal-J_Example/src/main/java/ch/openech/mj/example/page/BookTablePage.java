@@ -49,7 +49,7 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 
 	@Override
 	protected List<Book> load(String query) {
-		return Services.get(DbService.class).search(Book.BY_FULLTEXT, (String) query);
+		return Services.get(DbService.class).search(Book.class, (String) query, 100);
 	}
 
 }

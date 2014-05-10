@@ -136,23 +136,20 @@ public class DbCreator {
 	
 	private void appendIndexes(StringBuilder s, AbstractTable<?> table) {
 		Set<String> indexed = new TreeSet<>();
-		for (Index<?> index : table.getIndexes()) {
-			String column = index.getColumn();
-			if (column != null) {
-				if (indexed.contains(column)) continue;
-				indexed.add(column);
-				
-				s.append(",\n INDEX IDX_");
-				s.append(table.getTableName());
-				s.append('_');
-				s.append(column);
-				s.append(" (");
-				s.append(column);
-				if (table instanceof HistorizedTable) {
-					s.append(", version");
-				}
-				s.append(")");
+		for (String column : table.getIndexes()) {
+			if (indexed.contains(column)) continue;
+			indexed.add(column);
+			
+			s.append(",\n INDEX IDX_");
+			s.append(table.getTableName());
+			s.append('_');
+			s.append(column);
+			s.append(" (");
+			s.append(column);
+			if (table instanceof HistorizedTable) {
+				s.append(", version");
 			}
+			s.append(")");
 		}
 		if (table instanceof ImmutableTable) {
 			s.append(",\n INDEX IDX_");
@@ -186,29 +183,25 @@ public class DbCreator {
 	// 		CONSTRAINT `FK_person_event` FOREIGN KEY (`EVENT`) REFERENCES `event` (`id`),
 
 	private void createIndexStatements(List<String> createStatements, AbstractTable<?> table) {
-		// CREATE INDEX OrigIndex ON Flights(orig_airport);
 		Set<String> indexed = new TreeSet<>();
-		for (Index<?> index : table.getIndexes()) {
-			String column = index.getColumn();
-			if (column != null) {
-				if (indexed.contains(column)) continue;
-				indexed.add(column);
-				
-				StringBuilder s = new StringBuilder();
-				s.append("CREATE INDEX IDX_");
-				s.append(table.getTableName());
-				s.append('_');
-				s.append(column);
-				s.append(" ON ");
-				s.append(table.getTableName());
-				s.append("(");
-				s.append(column);
-				if (table instanceof HistorizedTable) {
-					s.append(", version");
-				}
-				s.append(")");
-				createStatements.add(s.toString());
+		for (String column : table.getIndexes()) {
+			if (indexed.contains(column)) continue;
+			indexed.add(column);
+			
+			StringBuilder s = new StringBuilder();
+			s.append("CREATE INDEX IDX_");
+			s.append(table.getTableName());
+			s.append('_');
+			s.append(column);
+			s.append(" ON ");
+			s.append(table.getTableName());
+			s.append("(");
+			s.append(column);
+			if (table instanceof HistorizedTable) {
+				s.append(", version");
 			}
+			s.append(")");
+			createStatements.add(s.toString());
 		}
 		if (table instanceof ImmutableTable) {
 			StringBuilder s = new StringBuilder();

@@ -2,22 +2,20 @@ package ch.openech.mj.edit;
 
 import java.util.List;
 
-import ch.openech.mj.model.Search;
 import ch.openech.mj.toolkit.ClientToolkit;
+import ch.openech.mj.toolkit.ClientToolkit.Search;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.IDialog;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 import ch.openech.mj.toolkit.ResourceAction;
 
-public abstract class SearchDialogAction<T> extends ResourceAction {
+public abstract class SearchDialogAction<T> extends ResourceAction implements Search<T> {
 	private final IComponent source;
-	private final Search<T> search;
 	private final Object[] keys;
 	private IDialog dialog;
 	
-	protected SearchDialogAction(IComponent source, Search<T> search, Object... keys) {
+	protected SearchDialogAction(IComponent source, Object... keys) {
 		this.source = source;
-		this.search = search;
 		this.keys = keys;
 	}
 	
@@ -40,10 +38,12 @@ public abstract class SearchDialogAction<T> extends ResourceAction {
 	}
 	
 	private void showPageOn(IComponent source) {
-		dialog = ClientToolkit.getToolkit().createSearchDialog(source, search, keys, new SearchClickListener());
+		dialog = ClientToolkit.getToolkit().createSearchDialog(source, this, keys, new SearchClickListener());
 		dialog.openDialog();
 	}
 	
+	public abstract List<T> search(String query);
+
 	protected abstract void save(T object);
 	
 	private class SearchClickListener implements TableActionListener<T> {

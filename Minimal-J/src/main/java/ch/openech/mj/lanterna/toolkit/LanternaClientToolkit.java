@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import ch.openech.mj.lanterna.component.LanternaForm;
-import ch.openech.mj.model.Search;
 import ch.openech.mj.toolkit.Caption;
 import ch.openech.mj.toolkit.CheckBox;
 import ch.openech.mj.toolkit.ClientToolkit;

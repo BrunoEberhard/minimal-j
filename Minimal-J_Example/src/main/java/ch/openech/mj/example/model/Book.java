@@ -10,23 +10,21 @@ import org.joda.time.LocalDate;
 import ch.openech.mj.autofill.DemoEnabled;
 import ch.openech.mj.example.ExampleFormats;
 import ch.openech.mj.model.Keys;
-import ch.openech.mj.model.Search;
 import ch.openech.mj.model.annotation.Decimal;
 import ch.openech.mj.model.annotation.Required;
+import ch.openech.mj.model.annotation.Searched;
 import ch.openech.mj.model.annotation.Size;
 
 
 public class Book implements DemoEnabled, Serializable {
 	public static final Book BOOK = Keys.of(Book.class);
 
-	public static final Search<Book> BY_FULLTEXT = new Search<>(BOOK.title, BOOK.author);
-
 	public int id;
 	
-	@Required @Size(ExampleFormats.NAME) 
+	@Required @Size(ExampleFormats.NAME) @Searched
 	public String title;
 
-	@Size(ExampleFormats.NAME)
+	@Size(ExampleFormats.NAME) @Searched
 	public String author;
 
 	public final Set<Media> media = new HashSet<>();

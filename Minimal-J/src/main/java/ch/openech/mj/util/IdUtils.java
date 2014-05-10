@@ -37,7 +37,7 @@ public class IdUtils {
 			else if (idField.getType() == Long.TYPE) idField.set(object, (long) id);
 			else throw new IllegalArgumentException("Cannot set id on field with " + idField.getType());
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-			throw new LoggingRuntimeException(e, logger, "setting Id failed");
+			// throw new LoggingRuntimeException(e, logger, "setting Id failed");
 		}
 	}
 
@@ -47,7 +47,7 @@ public class IdUtils {
 			if (versionField.getType() == Integer.TYPE) versionField.set(object, (int) id);
 			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-			throw new LoggingRuntimeException(e, logger, "setting Version failed");
+			// throw new LoggingRuntimeException(e, logger, "setting Version failed");
 		}
 	}
 

@@ -31,7 +31,7 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 	
 	@Override
 	protected List<Customer> load(String query) {
-		return Services.get(DbService.class).search(Customer.BY_FULLTEXT, query);
+		return Services.get(DbService.class).search(Customer.class, query, 100);
 	}
 
 	@Override

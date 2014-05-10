@@ -3,11 +3,11 @@ package ch.openech.mj.edit.fields;
 import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
-import ch.openech.mj.model.Search;
 import ch.openech.mj.model.ViewUtil;
 import ch.openech.mj.toolkit.ClientToolkit;
 import ch.openech.mj.toolkit.ClientToolkit.ILookup;
 import ch.openech.mj.toolkit.ClientToolkit.InputComponentListener;
+import ch.openech.mj.toolkit.ClientToolkit.Search;
 import ch.openech.mj.toolkit.IComponent;
 
 public class ReferenceField<T> extends AbstractEditField<T> {
@@ -17,10 +17,6 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	private final PropertyInterface property;
 	protected final ILookup<T> lookup;
 
-	public ReferenceField(Object key, Search<T> search) {
-		this(key, search, search.getKeys());
-	}
-	
 	public ReferenceField(Object key, Search<T> search, Object... searchColumns) {
 		this(key, search, searchColumns, true);
 	}

@@ -2,8 +2,8 @@ package ch.openech.mj.toolkit;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
-import ch.openech.mj.model.Search;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
 /**
@@ -65,6 +65,12 @@ public abstract class ClientToolkit {
 		
 	    void changed(IComponent source);
 
+	}
+	
+	public interface Search<S> {
+		
+		public List<S> search(String query);
+		
 	}
 	
 	public abstract <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys);

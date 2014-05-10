@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import ch.openech.mj.model.Search;
 import ch.openech.mj.toolkit.ITable.TableActionListener;
 
 public class JUnitClientToolkit extends ClientToolkit {

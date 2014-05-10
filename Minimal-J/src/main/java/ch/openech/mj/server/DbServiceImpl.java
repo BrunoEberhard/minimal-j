@@ -7,10 +7,11 @@ import ch.openech.mj.application.MjApplication;
 import ch.openech.mj.criteria.Criteria;
 import ch.openech.mj.db.AbstractTable;
 import ch.openech.mj.db.DbPersistence;
+import ch.openech.mj.db.DbPersistenceHelper;
 import ch.openech.mj.db.HistorizedTable;
 import ch.openech.mj.db.Table;
 import ch.openech.mj.db.Transaction;
-import ch.openech.mj.model.Search;
+import ch.openech.mj.model.annotation.ViewOf;
 import ch.openech.mj.util.IdUtils;
 
 /**
@@ -49,8 +50,23 @@ public class DbServiceImpl implements DbService {
 	}
 
 	@Override
-	public <T> List<T> search(Search<T> search, String query) {
-		return persistence.getTable(search.getClazz()).search(search, query);
+	public <T> List<T> search(Class<T> resultClass, String query, int maxResults) {
+		if (ViewOf.class.isAssignableFrom(resultClass)) {
+			Class<?> viewedClass = DbPersistenceHelper.getViewedClass(resultClass);
+			return ((Table) persistence.getTable(viewedClass)).search(resultClass, query, maxResults);
+		} else {
+			return ((Table) persistence.getTable(resultClass)).search(query, maxResults);
+		}
+	}
+
+	@Override
+	public <T> List<T> search(Class<T> resultClass, Object[] fields, String query, int maxResults) {
+		if (ViewOf.class.isAssignableFrom(resultClass)) {
+			Class<?> viewedClass = DbPersistenceHelper.getViewedClass(resultClass);
+			return ((Table) persistence.getTable(viewedClass)).search(resultClass, fields, query, maxResults);
+		} else {
+			return ((Table) persistence.getTable(resultClass)).search(fields, query, maxResults);
+		}
 	}
 
 	@Override
@@ -61,16 +77,6 @@ public class DbServiceImpl implements DbService {
 	@Override
 	public <T> List<T> read(Class<T> clazz, Criteria criteria) {
 		return ((Table<T>) persistence.getTable(clazz)).read(criteria);
-	}
-
-	@Override
-	public <T> List<T> read(Class<T> clazz, String whereClause) {
-		return null;
-	}
-
-	@Override
-	public List<Object[]> read(String query) {
-		return null;
 	}
 
 	@Override

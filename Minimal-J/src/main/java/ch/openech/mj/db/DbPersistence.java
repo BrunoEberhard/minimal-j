@@ -336,7 +336,7 @@ public class DbPersistence {
 	
 	@SuppressWarnings("unchecked")
 	public <U> AbstractTable<U> getTable(Class<U> clazz) {
-		if (!tables.containsKey(clazz)) throw new IllegalArgumentException(clazz.getName());
+		if (!tables.containsKey(clazz)) return null; // throw new IllegalArgumentException(clazz.getName());
 		return (AbstractTable<U>) tables.get(clazz);
 	}
 	

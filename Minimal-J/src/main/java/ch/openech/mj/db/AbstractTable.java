@@ -25,7 +25,6 @@ import ch.openech.mj.edit.value.CloneHelper;
 import ch.openech.mj.model.EnumUtils;
 import ch.openech.mj.model.Keys;
 import ch.openech.mj.model.PropertyInterface;
-import ch.openech.mj.model.Search;
 import ch.openech.mj.model.ViewUtil;
 import ch.openech.mj.model.properties.ChainedProperty;
 import ch.openech.mj.model.properties.SimpleProperty;
@@ -54,8 +53,7 @@ public abstract class AbstractTable<T> {
 	
 	protected final String name;
 
-	protected final List<Index<T>> indexes = new ArrayList<>();
-	protected final Map<Search<T>, MultiIndex<T>> searches = new HashMap<>();
+	protected final List<String> indexes = new ArrayList<>();
 	
 	protected final Map<Connection, Map<String, PreparedStatement>> statements = new HashMap<>();
 
@@ -80,10 +78,9 @@ public abstract class AbstractTable<T> {
 		
 		findImmutables();
 		findIndexes();
-		findSearches();
 	}
 
-	private LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
+	protected static LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
 		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<String, PropertyInterface>();
 
 		for (Field field : clazz.getFields()) {
@@ -108,7 +105,7 @@ public abstract class AbstractTable<T> {
 		return columns;
 	}	
 	
-	private LinkedHashMap<String, PropertyInterface> findLists(Class<?> clazz) {
+	protected static LinkedHashMap<String, PropertyInterface> findLists(Class<?> clazz) {
 		LinkedHashMap<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
 		
 		for (Field field : clazz.getFields()) {
@@ -139,7 +136,7 @@ public abstract class AbstractTable<T> {
 		return lists;
 	}
 	
-	protected Collection<Index<T>> getIndexes() {
+	protected Collection<String> getIndexes() {
 		return indexes;
 	}
 	
@@ -199,16 +196,6 @@ public abstract class AbstractTable<T> {
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Clear of Table " + getTableName() + " failed");
 		}
-	}
-	
-	public List<T> search(Search<T> search, Object query) {
-		MultiIndex<T> multiIndex = searches.get(search);
-		List<Long> ids = multiIndex.findIds(query);
-		List<T> objects = new ArrayList<>(ids.size());
-		for (long id : ids) {
-			objects.add(multiIndex.lookup(id));
-		}
-		return objects;
 	}
 
 	public List<T> read(Criteria criteria) {
@@ -291,18 +278,6 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	private void findSearches() {
-		System.out.println("Find Searches in " + clazz.getSimpleName());
-		for (Field field : clazz.getFields()) {
-			if (!FieldUtils.isFinal(field) || !FieldUtils.isStatic(field)) continue;
-			if (field.getType() == Search.class) {
-				@SuppressWarnings("unchecked")
-				Search<T> search = (Search<T>) FieldUtils.getStaticValue(field);
-				createFulltextIndex(search);
- 			}
-		}
-	}
-
 	private void findIndexes() {
 //		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 //			PropertyInterface property = column.getValue();
@@ -363,16 +338,22 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	
 	protected T readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
+		return readResultSetRow(dbPersistence, clazz,  resultSet, time);
+	}
+	
+	protected static <T> T readResultSetRow(DbPersistence dbPersistence, Class<T> clazz, ResultSet resultSet, Integer time) throws SQLException {
 		T result = CloneHelper.newInstance(clazz);
+		
+		DbPersistenceHelper helper = new DbPersistenceHelper(dbPersistence);
+		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
 		
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			if ("ID".equalsIgnoreCase(columnName) && this instanceof Table) {
+			if ("ID".equalsIgnoreCase(columnName)) {
 				IdUtils.setId(result, resultSet.getLong(columnIndex));
 				continue;
-			} else if ("VERSION".equalsIgnoreCase(columnName) && this instanceof HistorizedTable) {
+			} else if ("VERSION".equalsIgnoreCase(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
 				continue;
 			}
@@ -391,7 +372,7 @@ public abstract class AbstractTable<T> {
 					value = CloneHelper.newInstance(fieldClass);
 					ViewUtil.view(referenceObject, value);
 				} else if (DbPersistenceHelper.isReference(property)) {
-					value = dereference(fieldClass, IdUtils.convertToLong(value), time);
+					value = dereference(dbPersistence, fieldClass, IdUtils.convertToLong(value), time);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
@@ -406,7 +387,7 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected <D> Object dereference(Class<D> clazz, long id, Integer time) {
+	protected static <D> Object dereference(DbPersistence dbPersistence, Class<D> clazz, long id, Integer time) {
 		AbstractTable<D> table = dbPersistence.getTable(clazz);
 		if (table instanceof ImmutableTable) {
 			return ((ImmutableTable<?>) table).read(id);
@@ -515,72 +496,28 @@ public abstract class AbstractTable<T> {
 		
 		return query.toString();
 	}
-
-	private void createFulltextIndex(Search<T> search) {
-		Object[] keys = search.getKeys();
-		ColumnIndex<T>[] indexes = new ColumnIndex[keys.length];
-		for (int i = 0; i<keys.length; i++) {
-			PropertyInterface property = Keys.getProperty(keys[i]);
-			if (property.getFieldClazz() == String.class) {
-				indexes[i] = createFulltextIndex(keys[i]);
-			} else {
-				indexes[i] = createIndex(keys[i]);
-			}
-		}
-		MultiIndex<T> index = new MultiIndex<T>(indexes);
-		searches.put(search, index);
-	}
-	
-	private ColumnIndex<T> createFulltextIndex(Object key) {
-		PropertyInterface property = Keys.getProperty(key);
-		String fieldPath = property.getFieldPath();
-		ColumnIndex<T> index = createFulltextIndex(property, fieldPath);
-		return index;
-	}
-	
-	private ColumnIndex<T> createFulltextIndex(PropertyInterface property, String fieldPath) {
-		ColumnIndex<T> result;
-		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
-
-		String myFieldPath = entry.getValue().getFieldPath();
-		if (fieldPath.length() > myFieldPath.length()) {
-			String rest = fieldPath.substring(myFieldPath.length() + 1);
-			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
-			ColumnIndex<?> innerIndex = innerTable.createFulltextIndex(property, rest);
-
-			result = new ColumnIndex<T>(dbPersistence, this, property, entry.getKey(), innerIndex);
-		} else {
-			result = new FulltextIndex<T>(dbPersistence, this, property, entry.getKey());
-		}
-		indexes.add(result);
-		return result;
-	}
 	
 	//
 
-	public ColumnIndex<T> createIndex(Object key) {
+	public void createIndex(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
 		String fieldPath = property.getFieldPath();
-		ColumnIndex<T> index = createIndex(property, fieldPath);
-		return index;
+		createIndex(property, fieldPath);
 	}
 	
-	public ColumnIndex<T> createIndex(PropertyInterface property, String fieldPath) {
+	public void createIndex(PropertyInterface property, String fieldPath) {
 		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
 		if (indexes.contains(entry.getKey())) {
-			return (ColumnIndex<T>) indexes.get(indexes.indexOf(entry.getKey()));
+			return;
 		}
 		
-		ColumnIndex<?> innerIndex = null;
 		String myFieldPath = entry.getValue().getFieldPath();
 		if (fieldPath.length() > myFieldPath.length()) {
 			String rest = fieldPath.substring(myFieldPath.length() + 1);
 			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
-			innerIndex = innerTable.createIndex(property, rest);
+			innerTable.createIndex(property, rest);
 		}
-		ColumnIndex<T> result = new ColumnIndex<T>(dbPersistence, this, property, entry.getKey(), innerIndex);
-		indexes.add(result);
-		return result;
+		indexes.add(entry.getKey());
 	}
 	
 	//

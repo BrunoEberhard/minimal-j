@@ -1,14 +1,8 @@
 package ch.openech.mj.model.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface ViewOf {
+public interface ViewOf<T> {
 
-	Class<?> value();
+	public String display();
 	
 }
