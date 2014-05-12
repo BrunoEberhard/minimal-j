@@ -12,12 +12,7 @@ public class EditorPageAction implements IAction {
 	private ActionChangeListener changeListener;
 	
 	public EditorPageAction(Editor<?> editor) {
-		this(editor, true);
-	}
-
-	public EditorPageAction(Editor<?> editor, boolean enabled) {
 		this.editor = editor;
-		this.enabled = enabled;
 	}
 
 	@Override
