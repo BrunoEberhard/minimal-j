@@ -39,7 +39,8 @@ public class HistorizedTable<T> extends Table<T> {
 		readVersionsQuery = readVersionsQuery();
 	}
 
-	long doInsert(T object) {
+	@Override
+	public long insert(T object) {
 		try {
 			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
 			long id = executeInsertWithAutoIncrement(insertStatement, object);
@@ -65,39 +66,42 @@ public class HistorizedTable<T> extends Table<T> {
 		return new HistorizedSubTable(dbPersistence, buildSubTableName(property), clazz);
 	}
 	
-	Void doUpdate(long id, T object) throws SQLException {
+	@Override
+	protected void update(long id, T object) {
 		// TODO Update sollte erst mal prüfen, ob update nötig ist.
 		// T oldObject = read(id);
 		// na, ob dann das mit allen subTables noch stimmt??
 		// if (ColumnAccess.equals(oldObject, object)) return;
 		
-		int version = findMaxVersion(id) + 1;
-		
-		PreparedStatement endStatement = getStatement(dbPersistence.getConnection(), endQuery, false);
-		endStatement.setInt(1, version);
-		endStatement.setLong(2, id);
-		endStatement.execute();	
-		
-		boolean doDelete = object == null;
-		if (doDelete) return null;
-		
-		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-		int parameterPos = setParameters(updateStatement, object, false, true);
-		updateStatement.setLong(parameterPos++, id);
-		updateStatement.execute();
-		
-		for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-			HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTable.getValue();
-			List list;
-			try {
-				list = (List) getLists().get(subTable.getKey()).getValue(object);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
+		try {
+			int version = findMaxVersion(id) + 1;
+			
+			PreparedStatement endStatement = getStatement(dbPersistence.getConnection(), endQuery, false);
+			endStatement.setInt(1, version);
+			endStatement.setLong(2, id);
+			endStatement.execute();	
+			
+			boolean doDelete = object == null;
+			if (doDelete) return;
+			
+			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
+			int parameterPos = setParameters(updateStatement, object, false, true);
+			updateStatement.setLong(parameterPos++, id);
+			updateStatement.execute();
+			
+			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
+				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTable.getValue();
+				List list;
+				try {
+					list = (List) getLists().get(subTable.getKey()).getValue(object);
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				}
+				historizedSubTable.update(id, list, version);
 			}
-			historizedSubTable.update(id, list, version);
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
 		}
-		
-		return null;
 	}
 	
 	private int findMaxVersion(long id) throws SQLException {
@@ -161,7 +165,7 @@ public class HistorizedTable<T> extends Table<T> {
 	public void delete(T object) {
 		Long id = IdUtils.getId(object);
 		// update to null object is delete
-		dbPersistence.transaction(new UpdateTransaction(id, null), "Delete object on " + getTableName() + " / Object: " + object);
+		update(id, null);
 	}
 
 	@Override

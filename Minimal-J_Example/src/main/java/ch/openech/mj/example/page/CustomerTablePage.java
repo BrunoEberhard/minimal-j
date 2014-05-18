@@ -4,13 +4,12 @@ import static ch.openech.mj.example.model.Customer.*;
 
 import java.util.List;
 
+import ch.openech.mj.backend.Backend;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.page.TablePage;
-import ch.openech.mj.server.DbService;
-import ch.openech.mj.server.Services;
 import ch.openech.mj.util.IdUtils;
 
 
@@ -31,7 +30,7 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 	
 	@Override
 	protected List<Customer> load(String query) {
-		return Services.get(DbService.class).search(Customer.class, query, 100);
+		return Backend.getInstance().search(Customer.class, query, 100);
 	}
 
 	@Override

@@ -4,13 +4,12 @@ import static ch.openech.mj.example.model.Book.*;
 
 import java.util.List;
 
+import ch.openech.mj.backend.Backend;
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.RefreshablePage;
 import ch.openech.mj.page.TablePage;
-import ch.openech.mj.server.DbService;
-import ch.openech.mj.server.Services;
 import ch.openech.mj.util.IdUtils;
 
 
@@ -49,7 +48,7 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 
 	@Override
 	protected List<Book> load(String query) {
-		return Services.get(DbService.class).search(Book.class, (String) query, 100);
+		return Backend.getInstance().search(Book.class, (String) query, 100);
 	}
 
 }

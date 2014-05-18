@@ -1,13 +1,12 @@
 package ch.openech.mj.example.page;
 
+import ch.openech.mj.backend.Backend;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.BookForm;
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.ObjectViewPage;
 import ch.openech.mj.page.PageContext;
-import ch.openech.mj.server.DbService;
-import ch.openech.mj.server.Services;
 
 public class BookPage extends ObjectViewPage<Book> {
 
@@ -19,7 +18,7 @@ public class BookPage extends ObjectViewPage<Book> {
 	}
 	
 	private static Book lookup(String key) {
-		return Services.get(DbService.class).read(Book.class, Long.valueOf(key));
+		return Backend.getInstance().read(Book.class, Long.valueOf(key));
 	}
 
 	@Override

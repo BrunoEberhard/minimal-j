@@ -1,11 +1,10 @@
 package ch.openech.mj.example;
 
+import ch.openech.mj.backend.Backend;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Customer;
 import ch.openech.mj.example.model.Lend;
-import ch.openech.mj.server.DbService;
-import ch.openech.mj.server.Services;
 
 public class AddLendEditor extends Editor<Lend> {
 
@@ -33,7 +32,7 @@ public class AddLendEditor extends Editor<Lend> {
 
 	@Override
 	public String save(Lend lend) throws Exception {
-		Services.get(DbService.class).insert(lend);
+		Backend.getInstance().insert(lend);
 		return "";
 	}
 

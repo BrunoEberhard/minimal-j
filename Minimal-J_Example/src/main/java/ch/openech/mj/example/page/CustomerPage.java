@@ -1,5 +1,6 @@
 package ch.openech.mj.example.page;
 
+import ch.openech.mj.backend.Backend;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.AddLendEditor;
 import ch.openech.mj.example.CustomerForm;
@@ -8,8 +9,6 @@ import ch.openech.mj.page.ActionGroup;
 import ch.openech.mj.page.ObjectViewPage;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.page.PageLink;
-import ch.openech.mj.server.DbService;
-import ch.openech.mj.server.Services;
 import ch.openech.mj.toolkit.IComponent;
 import ch.openech.mj.toolkit.ResourceAction;
 import ch.openech.mj.util.IdUtils;
@@ -24,7 +23,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 	}
 	
 	private static Customer lookup(String id) {
-		return Services.get(DbService.class).read(Customer.class, Long.valueOf(id));
+		return Backend.getInstance().read(Customer.class, Long.valueOf(id));
 	}
 
 	@Override

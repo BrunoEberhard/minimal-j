@@ -6,11 +6,11 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import ch.openech.mj.backend.Backend;
 import ch.openech.mj.page.EmptyPage;
 import ch.openech.mj.page.Page;
 import ch.openech.mj.page.PageContext;
 import ch.openech.mj.resources.Resources;
-import ch.openech.mj.server.Services;
 import ch.openech.mj.toolkit.IAction;
 
 /**
@@ -59,18 +59,18 @@ public abstract class MjApplication {
 	
 	protected MjApplication() {
 		setApplication(this);
-		initServices();
+		initBackend();
 		ResourceBundle resourceBundle = getResourceBundle();
 		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
 	}
 	
-	private void initServices() {
-		String serviceAddress = System.getProperty("MjServicesAddress");
-		String serivcePort = System.getProperty("MjServicesPort", "8020");
-		if (serviceAddress != null) {
-			Services.configureRemoteSocket(serviceAddress, Integer.valueOf(serivcePort));
+	private void initBackend() {
+		String backendAddress = System.getProperty("MjBackendAddress");
+		String backendPort = System.getProperty("MjBackendPort", "8020");
+		if (backendAddress != null) {
+			Backend.configureSocketBackend(backendAddress, Integer.valueOf(backendPort));
 		} else {
-			Services.configureLocal();
+			Backend.configureLocal();
 		}
 	}
 	

@@ -151,7 +151,7 @@ public abstract class AbstractTable<T> {
 		return statementsForConnection.get(query);
 	}
 	
-	PreparedStatement createStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
+	static PreparedStatement createStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
 		if (returnGeneratedKeys) {
 			if (sqlLogger.isLoggable(Level.FINE)) {
 				return new LoggingPreparedStatement(connection, query, Statement.RETURN_GENERATED_KEYS, sqlLogger);

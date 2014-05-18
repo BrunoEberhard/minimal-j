@@ -1,11 +1,8 @@
-package ch.openech.mj.server;
+package ch.openech.mj.backend;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -15,20 +12,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.openech.mj.application.MjApplication;
-import ch.openech.mj.server.Services.ServiceNamingConvention;
+import ch.openech.mj.transaction.StreamConsumer;
+import ch.openech.mj.transaction.StreamProducer;
+import ch.openech.mj.transaction.Transaction;
 import ch.openech.mj.util.LoggingRuntimeException;
-import ch.openech.mj.util.SerializationContainer;
 import ch.openech.mj.util.StringUtils;
 import ch.openech.mj.util.UnclosingOoutputStream;
 
-
-public class SocketServer {
-	private static final Logger logger = Logger.getLogger(SocketServer.class.getName());
+// TODO @Deploy(Server)
+public class SocketBackendServer {
+	private static final Logger logger = Logger.getLogger(SocketBackendServer.class.getName());
 	
 	private final int port;
 	private final ThreadPoolExecutor executor;
 	
-	public SocketServer(int port) {
+	public SocketBackendServer(int port) {
 		this.port = port;
 		this.executor = new ThreadPoolExecutor(10, 30, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 	}
@@ -47,7 +45,7 @@ public class SocketServer {
 			Socket socket;
 			try {
 				socket = serverSocket.accept();
-				SocketServerRunnable runnable = new SocketServerRunnable(socket);
+				SocketBackendRunnable runnable = new SocketBackendRunnable(socket);
 				executor.execute(runnable);
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Server socket couldn't accept connection", e);
@@ -55,43 +53,34 @@ public class SocketServer {
 		}
 	}
 	
-	private static class SocketServerRunnable implements Runnable {
+	private static class SocketBackendRunnable implements Runnable {
 		private final Socket socket;
-		private final ServiceNamingConvention serviceNamingConvention = new Services.DefaultServiceNamingConvention();
 
-		public SocketServerRunnable(Socket socket) {
+		public SocketBackendRunnable(Socket socket) {
 			this.socket = socket;
 		}
 
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-				String serviceName = (String) ois.readObject();
-				String methodName = (String) ois.readObject();
-				Class<?>[] parameterTypes = (Class<?>[]) ois.readObject();
-				Object[] args = SerializationContainer.unwrap((Object[]) ois.readObject());
-				for (int i = 0; i<parameterTypes.length; i++) {
-					Class<?> parameterType = parameterTypes[i];
-					if (parameterType == InputStream.class) {
-						args[i] = ois;
-					}
-				}
-				
-				String implementationClassName = serviceNamingConvention.getImplementationClassName(serviceName);
-				Class<?> implementationClass = Class.forName(implementationClassName);
-				Method method = implementationClass.getMethod(methodName, parameterTypes);
-				Object implementation = implementationClass.newInstance();
+				Object input = ois.readObject();
+
+				Object result = null;
+				if (input instanceof Transaction) {
+					Transaction transaction = (Transaction) input;
+					result = Backend.getInstance().execute(transaction);
+				} else if (input instanceof StreamConsumer) {
+					StreamConsumer streamConsumer = (StreamConsumer) input;
+					result = Backend.getInstance().execute(streamConsumer, ois);
+				} 
 				
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-					for (int i = 0; i<parameterTypes.length; i++) {
-						Class<?> parameterType = parameterTypes[i];
-						if (parameterType == OutputStream.class) {
-							args[i] = new UnclosingOoutputStream(oos);
-						}
+					if (input instanceof StreamProducer) {
+						StreamProducer streamProducer = (StreamProducer) input;
+						result = Backend.getInstance().execute(streamProducer, new UnclosingOoutputStream(oos));
 					}
-					
-					Object result = method.invoke(implementation, args);
-					oos.writeObject(SerializationContainer.wrap(result));
+					oos.writeObject(result);
 				}
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);
@@ -115,7 +104,7 @@ public class SocketServer {
 		MjApplication application = applicationClass.newInstance();
 		application.init();
 
-		new SocketServer(8020).run();
+		new SocketBackendServer(8020).run();
 	}
 
 }

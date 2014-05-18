@@ -1,6 +1,7 @@
 package ch.openech.mj.db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -15,9 +16,14 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.ReadablePartial;
 import org.mariadb.jdbc.MySQLDataSource;
 
 import ch.openech.mj.model.test.ModelTest;
+import ch.openech.mj.util.DateUtils;
 import ch.openech.mj.util.FieldUtils;
 import ch.openech.mj.util.LoggingRuntimeException;
 import ch.openech.mj.util.StringUtils;
@@ -125,38 +131,32 @@ public class DbPersistence {
 		}
 	}
 
-	public <V> V transaction(Transaction<V> transaction, String description) {
-		Connection transactionConnection = beginTransaction();
+	public synchronized void startTransaction() {
+		if (threadLocalTransactionConnection.get() != null) return;
+		
+		Connection transactionConnection = allocateConnection();
 		threadLocalTransactionConnection.set(transactionConnection);
-		boolean runThrough = false;
-		V result;
+	}
+
+	public synchronized void endTransaction(boolean commit) {
+		Connection transactionConnection = threadLocalTransactionConnection.get();
+		if (transactionConnection == null) return;
+		
 		try {
-			result = transaction.execute();
-			runThrough = true;
-		} finally {
-			try {
-				if (runThrough) {
-					transactionConnection.commit();
-				} else {
-					transactionConnection.rollback();
-				}
-				endTransaction(transactionConnection);
-			} catch (SQLException e) {
-				// TODO if commit/rollback throws exception, what should be done?
-				try {
-					transactionConnection.close();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				e.printStackTrace();
-			} finally {
-				threadLocalTransactionConnection.set(null);
+			if (commit) {
+				transactionConnection.commit();
+			} else {
+				transactionConnection.rollback();
 			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, logger, "Transaction failed");
 		}
-		return result;
+		
+		releaseConnection(transactionConnection);
+		threadLocalTransactionConnection.set(null);
 	}
 	
-	private Connection beginTransaction() {
+	private Connection allocateConnection() {
 		Connection connection = connectionDeque.poll();
 		while (true) {
 			boolean valid = false;
@@ -189,7 +189,7 @@ public class DbPersistence {
 		}
 	}
 	
-	private void endTransaction(Connection connection) {
+	private void releaseConnection(Connection connection) {
 		// last in first out in the hope that recent accessed objects are the fastest
 		connectionDeque.push(connection);
 	}
@@ -280,6 +280,37 @@ public class DbPersistence {
 
 	public boolean isMySqlDb() {
 		return isMySqlDb;
+	}
+	
+	public void execute(String query, Object... parameters) {
+		try (PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false)) {
+			int param = 1; // !
+			for (Object parameter : parameters) {
+				setParameter(preparedStatement, param++, parameter);
+			}
+			preparedStatement.execute();
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
+		}
+	}
+	
+	/*
+	 * TODO: should be merged with the setParameter in AbstractTable.
+	 */
+	private void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
+		if (value instanceof Enum<?>) {
+			Enum<?> e = (Enum<?>) value;
+			value = e.ordinal();
+		} else if (value instanceof LocalDate) {
+			value = new java.sql.Date(((LocalDate) value).toDate().getTime());
+		} else if (value instanceof LocalTime) {
+			value = new java.sql.Time(((LocalTime) value).toDateTimeToday().getMillis());
+		} else if (value instanceof LocalDateTime) {
+			value = new java.sql.Timestamp(((LocalDateTime) value).toDate().getTime());
+		} else if (value instanceof ReadablePartial) {
+			value = DateUtils.formatPartial((ReadablePartial) value);
+		}
+		preparedStatement.setObject(param, value);
 	}
 	
 	//

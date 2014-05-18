@@ -46,50 +46,26 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public final long insert(T object) {
-		Long newId = dbPersistence.transaction(new InsertTransaction(object), "Insert object in " + getTableName() + " / Object: " + object);
-		IdUtils.setId(object, newId);
-		return newId;
-	}
-	
-	private class InsertTransaction implements Transaction<Long> {
-		private final T object;
-		
-		public InsertTransaction(T object) {
-			this.object = object;
-		}
-
-		@Override
-		public Long execute() {
-			try {
-				return doInsert(object);
-			} catch (SQLException x) {
-				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert in " + getTableName() + " with " + object);
-			}
-		}
-	}
-
-	long doInsert(T object) throws SQLException {
-		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
-		long id = executeInsertWithAutoIncrement(insertStatement, object);
-		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
-			SubTable subTable = (SubTable) subTableEntry.getValue();
-			List list;
-			try {
-				list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
-				if (list != null && !list.isEmpty()) {
-					subTable.insert(id, list);
+	public long insert(T object) {
+		try {
+			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
+			long id = executeInsertWithAutoIncrement(insertStatement, object);
+			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+				SubTable subTable = (SubTable) subTableEntry.getValue();
+				List list;
+				try {
+					list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
+					if (list != null && !list.isEmpty()) {
+						subTable.insert(id, list);
+					}
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
 				}
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
 			}
+			return id;
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert in " + getTableName() + " with " + object);
 		}
-		return id;
-	}
-
-	public void update(T object) {
-		long id = IdUtils.getId(object);
-		dbPersistence.transaction(new UpdateTransaction(id, object), "Update object on " + getTableName() + " / Object: " + object);
 	}
 
 	public void delete(T object) {
@@ -126,45 +102,33 @@ public class Table<T> extends AbstractTable<T> {
 		return b.toString();
 	}
 	
-	class UpdateTransaction implements Transaction<Void> {
-		private final long id;
-		private final T object;
-		
-		public UpdateTransaction(long id, T object) {
-			super();
-			this.id = id;
-			this.object = object;
-		}
-
-		@Override
-		public Void execute() {
-			try {
-				return doUpdate(id, object);
-			} catch (SQLException x) {
-				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
-			}
-		}
+	public void update(T object) {
+		long id = IdUtils.getId(object);
+		update(id, object);
 	}
 
-	Void doUpdate(long id, T object) throws SQLException {
-		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-		int parameterPos = setParameters(updateStatement, object, false, true);
-		updateStatement.setLong(parameterPos++, id);
-		updateStatement.execute();
-		
-		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
-			SubTable subTable = (SubTable) subTableEntry.getValue();
-			List list;
-			try {
-				list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
+	protected void update(long id, T object) {
+		try {
+			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
+			int parameterPos = setParameters(updateStatement, object, false, true);
+			updateStatement.setLong(parameterPos++, id);
+			updateStatement.execute();
+			
+			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
+				SubTable subTable = (SubTable) subTableEntry.getValue();
+				List list;
+				try {
+					list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				}
+				subTable.update(id, list);
 			}
-			subTable.update(id, list);
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
 		}
-		return null;
 	}
-
+	
 	public T read(long id) {
 		return read(id, true);
 	}

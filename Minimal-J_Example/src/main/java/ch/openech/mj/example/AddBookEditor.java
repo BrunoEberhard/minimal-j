@@ -1,12 +1,11 @@
 package ch.openech.mj.example;
 
+import ch.openech.mj.backend.Backend;
 import ch.openech.mj.edit.Editor;
 import ch.openech.mj.edit.form.IForm;
 import ch.openech.mj.example.model.Book;
 import ch.openech.mj.example.page.BookPage;
 import ch.openech.mj.page.PageLink;
-import ch.openech.mj.server.DbService;
-import ch.openech.mj.server.Services;
 
 public class AddBookEditor extends Editor<Book> {
 
@@ -17,7 +16,7 @@ public class AddBookEditor extends Editor<Book> {
 	
 	@Override
 	public String save(Book book) throws Exception {
-		long id = Services.get(DbService.class).insert(book);
+		long id = Backend.getInstance().insert(book);
 		return PageLink.link(BookPage.class, id);
 	}
 
