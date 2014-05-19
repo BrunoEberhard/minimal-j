@@ -12,8 +12,8 @@ public class LendForm extends Form<Lend> {
 	public LendForm(boolean editable) {
 		super(editable);
 		
-		line(new ReferenceField<Book>(LEND.book, Book.BY_FULLTEXT, new Object[] { Book.BOOK.title, Book.BOOK.author }));
-		line(new ReferenceField<Customer>(LEND.customer, Customer.BY_FULLTEXT, new Object[] { Customer.CUSTOMER.firstName, Customer.CUSTOMER.name }));
+		line(new ReferenceField<Book>(LEND.book, Book.BOOK.title, Book.BOOK.author));
+		line(new ReferenceField<Customer>(LEND.customer, Customer.CUSTOMER.firstName, Customer.CUSTOMER.name));
 				
 		line(LEND.till);
 	}

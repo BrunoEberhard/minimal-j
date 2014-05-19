@@ -160,6 +160,8 @@ public class DbBackend extends Backend {
 			persistence.execute(query);
 		} else if (queryName.equals("DeleteAll")) {
 			// TODO
+		} else if (queryName.equals("MaxCustomer")) {
+			query = "SELECT MAX(ID) FROM CUSTUMER";
 		}
 		// TODO
 		return null;
