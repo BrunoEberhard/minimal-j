@@ -1,0 +1,29 @@
+package org.minimalj.frontend.swing.toolkit;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+
+import org.minimalj.frontend.toolkit.ProgressListener;
+
+public class SwingProgressComponent extends JPanel implements ProgressListener {
+	private static final long serialVersionUID = 1L;
+	
+	private final JProgressBar progressBar;
+	
+	public SwingProgressComponent() {
+		super(new BorderLayout());
+		
+		progressBar = new JProgressBar();
+		progressBar.setMinimum(0);
+		add(progressBar, BorderLayout.CENTER);
+	}
+	
+	@Override
+	public void showProgress(int value, int maximum) {
+		progressBar.setMaximum(maximum);
+		progressBar.setValue(value);
+	}
+
+}
