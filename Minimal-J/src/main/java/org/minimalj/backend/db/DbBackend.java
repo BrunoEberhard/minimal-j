@@ -81,7 +81,7 @@ public class DbBackend extends Backend {
 			Table<?> table = persistence.getTable(viewedClass);
 			return table.readView(resultClass, criteria, maxResults);
 		} else {
-			Table<T> table = (Table<T>) persistence.table(resultClass);
+			Table<T> table = persistence.getTable(resultClass);
 			return table.read(criteria, maxResults);
 		}
 	}
