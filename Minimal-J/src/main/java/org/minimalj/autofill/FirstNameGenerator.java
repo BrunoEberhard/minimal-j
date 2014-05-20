@@ -38,7 +38,7 @@ public class FirstNameGenerator {
 	private static synchronized void readNames() {
 		try {
 			if (!males.isEmpty()) return; // other thread already read the names
-			InputStream inputStream = FirstNameGenerator.class.getResourceAsStream("/ch/openech/mj/autofill/vornamen.txt");
+			InputStream inputStream = FirstNameGenerator.class.getResourceAsStream("/org/minimalj/autofill/vornamen.txt");
 			if (inputStream != null) {
 				readNames(inputStream);
 			} else {

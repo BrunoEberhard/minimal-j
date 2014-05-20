@@ -10,6 +10,7 @@ import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
+import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.IdUtils;
 
 
@@ -29,8 +30,8 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 	}
 	
 	@Override
-	protected List<Customer> load(String query) {
-		return Backend.getInstance().search(Customer.class, query, 100);
+	protected List<Customer> load(String searchText) {
+		return Backend.getInstance().read(Customer.class, Criteria.search(searchText), 100);
 	}
 
 	@Override

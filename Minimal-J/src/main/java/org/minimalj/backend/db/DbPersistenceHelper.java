@@ -140,7 +140,7 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.CHAR);
 		} else if (DbPersistenceHelper.isView(property)) {
 			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (dbPersistence.getTable(clazz) != null) {
+		} else if (dbPersistence.table(clazz) != null) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else {
 			throw new IllegalArgumentException(clazz.getSimpleName());

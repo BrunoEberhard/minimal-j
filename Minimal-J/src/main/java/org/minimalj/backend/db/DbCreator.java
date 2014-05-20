@@ -162,7 +162,7 @@ public class DbCreator {
 			PropertyInterface property = column.getValue();
 			
 			if (DbPersistenceHelper.isReference(property)) {
-				AbstractTable<?> referencedTable = dbPersistence.getTable(property.getFieldClazz());
+				AbstractTable<?> referencedTable = dbPersistence.table(property.getFieldClazz());
 
 				s.append(",\n CONSTRAINT `FK_");
 				s.append(table.getTableName()); s.append("_"); s.append(column.getKey());

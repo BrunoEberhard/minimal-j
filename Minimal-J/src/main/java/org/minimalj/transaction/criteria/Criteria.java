@@ -2,7 +2,6 @@ package org.minimalj.transaction.criteria;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.transaction.criteria.Criteria.JoinCriteria.JoinType;
 
 public abstract class Criteria {
 	
@@ -10,12 +9,16 @@ public abstract class Criteria {
 		return new SimpleCriteria(key, CriteriaOperator.equal, value);
 	}
 
-	public static Criteria and(Criteria criteria1, Criteria criteria2) {
-		return new JoinCriteria(criteria1, JoinType.and, criteria2);
+	public static SearchCriteria search(String searchText) {
+		return new SearchCriteria(null, searchText);
+	}
+	
+	public static SearchCriteria search(String searchText, Object... keys) {
+		return new SearchCriteria(keys, searchText);
 	}
 
-	public static Criteria or(Criteria criteria1, Criteria criteria2) {
-		return new JoinCriteria(criteria1, JoinType.or, criteria2);
+	public static AllCriteria all() {
+		return new AllCriteria();
 	}
 
 	public static class SimpleCriteria extends Criteria {
@@ -54,29 +57,26 @@ public abstract class Criteria {
 		}
 	}
 	
-	public static class MaxResultsCriteria extends Criteria {
-		private final int maxResults;
-		
-		public MaxResultsCriteria(int maxResults) {
-			this.maxResults = maxResults;
+	public static class SearchCriteria extends Criteria {
+		private final Object[] keys;
+		private final String query;
+
+		public SearchCriteria(Object[] keys, String query) {
+			this.keys = keys;
+			this.query = query;
 		}
-		
-		public int getMaxResults() {
-			return maxResults;
+
+		public Object[] getKeys() {
+			return keys;
+		}
+
+		public String getQuery() {
+			return query;
 		}
 	}
-
-	public static class JoinCriteria extends Criteria {
-		public static enum JoinType {and, or}
-		
-		private final Criteria criteria1, criteria2;
-		private final JoinType joinType;
-		
-		public JoinCriteria(Criteria criteria1, JoinType joinType, Criteria criteria2) {
-			this.criteria1 = criteria1;
-			this.joinType = joinType;
-			this.criteria2 = criteria2;
-		}
+	
+	public static class AllCriteria extends Criteria {
+		// empty for all objects of a class
 	}
-
+	
 }

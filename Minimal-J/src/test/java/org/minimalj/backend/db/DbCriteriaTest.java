@@ -8,7 +8,6 @@ import junit.framework.Assert;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.backend.db.DbPersistence;
 import org.minimalj.transaction.criteria.Criteria;
 
 public class DbCriteriaTest {
@@ -53,7 +52,7 @@ public class DbCriteriaTest {
 		h.g = g;
 		persistence.insert(h);
 		
-		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g, g));
+		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g, g), 3);
 		
 		Assert.assertEquals(2, hList.size());
 	}
@@ -72,7 +71,7 @@ public class DbCriteriaTest {
 		h.i.rG = g;
 		persistence.insert(h);
 		
-		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.i.rG, g));
+		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.i.rG, g), 3);
 		
 		Assert.assertEquals(2, hList.size());
 	}

@@ -42,7 +42,7 @@ public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
 	@Override
 	protected List<Lend> load(String query) {
 		Customer customer = Backend.getInstance().read(Customer.class, Long.valueOf(query));
-		return Backend.getInstance().read(Lend.class, Criteria.equals(Lend.LEND.customer, customer));
+		return Backend.getInstance().read(Lend.class, Criteria.equals(Lend.LEND.customer, customer), 100);
 	}
 
 	@Override

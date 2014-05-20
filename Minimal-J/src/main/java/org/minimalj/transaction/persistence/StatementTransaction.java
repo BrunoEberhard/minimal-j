@@ -1,8 +1,9 @@
-package org.minimalj.transaction;
+package org.minimalj.transaction.persistence;
 
 import java.io.Serializable;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.transaction.Transaction;
 
 public class StatementTransaction implements Transaction<Serializable> {
 	private static final long serialVersionUID = 1L;

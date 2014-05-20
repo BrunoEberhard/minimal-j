@@ -23,10 +23,7 @@ import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.SimpleProperty;
-import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.criteria.CriteriaOperator;
-import org.minimalj.transaction.criteria.Criteria.MaxResultsCriteria;
-import org.minimalj.transaction.criteria.Criteria.SimpleCriteria;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
@@ -198,56 +195,6 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	public List<T> read(Criteria criteria) {
-		// TODO implement all the criteria and join of criteria
-		if (criteria instanceof SimpleCriteria) {
-			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
-			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
-			String query = "select * from " + getTableName() + " where " + whereStatement(propertyInterface.getFieldPath(), simpleCriteria.getOperator());
-			try {
-				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
-				Object value = simpleCriteria.getValue();
-				if (!(value instanceof Integer || value instanceof Long) && DbPersistenceHelper.isView(propertyInterface)) {
-					value = IdUtils.getId(value);
-				}
-				statement.setObject(1, value);
-				return executeSelectAll(statement);
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
-			}
-		} else if (criteria instanceof MaxResultsCriteria) {
-			MaxResultsCriteria maxResultsCriteria = (MaxResultsCriteria) criteria;
-			String query = "select * from " + getTableName();
-			try {
-				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
-				return executeSelectAll(statement, maxResultsCriteria.getMaxResults());
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
-			}
-		}
-		throw new IllegalArgumentException(criteria + " not yet implemented");
-	}
-
-	private String whereStatement(final String wholeFieldPath, CriteriaOperator criteriaOperator) {
-		String fieldPath = wholeFieldPath;
-		String column;
-		while (true) {
-			column = findColumn(fieldPath);
-			if (column != null) break;
-			int pos = fieldPath.lastIndexOf('.');
-			if (pos < 0) throw new IllegalArgumentException("FieldPath " + wholeFieldPath + " not even partially found in " + getTableName());
-			fieldPath = fieldPath.substring(0, pos);
-		}
-		if (fieldPath.length() < wholeFieldPath.length()) {
-			String restOfFieldPath = wholeFieldPath.substring(fieldPath.length() + 1);
-			PropertyInterface subProperty = columns.get(column);
-			AbstractTable<?> subTable = dbPersistence.getTable(subProperty.getFieldClazz());
-			return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
-		} else {
-			return column + " " + criteriaOperator.getOperatorAsString() + " ?";
-		}
-	}
-	
 	private String findColumn(String fieldPath) {
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			if (entry.getValue().getFieldPath().equals(fieldPath)) {
@@ -256,7 +203,7 @@ public abstract class AbstractTable<T> {
 		}
 		return null;
 	}
-	
+
 	protected String getTableName() {
 		return name;
 	}
@@ -287,6 +234,26 @@ public abstract class AbstractTable<T> {
 //		}
 	}
 	
+	protected String whereStatement(final String wholeFieldPath, CriteriaOperator criteriaOperator) {
+		String fieldPath = wholeFieldPath;
+		String column;
+		while (true) {
+			column = findColumn(fieldPath);
+			if (column != null) break;
+			int pos = fieldPath.lastIndexOf('.');
+			if (pos < 0) throw new IllegalArgumentException("FieldPath " + wholeFieldPath + " not even partially found in " + getTableName());
+			fieldPath = fieldPath.substring(0, pos);
+		}
+		if (fieldPath.length() < wholeFieldPath.length()) {
+			String restOfFieldPath = wholeFieldPath.substring(fieldPath.length() + 1);
+			PropertyInterface subProperty = columns.get(column);
+			AbstractTable<?> subTable = dbPersistence.table(subProperty.getFieldClazz());
+			return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
+		} else {
+			return column + " " + criteriaOperator.getOperatorAsString() + " ?";
+		}
+	}
+
 	// execution helpers
 	
 	protected long executeInsertWithAutoIncrement(PreparedStatement statement, T object) throws SQLException {
@@ -327,11 +294,15 @@ public abstract class AbstractTable<T> {
 		return executeSelectAll(preparedStatement, Long.MAX_VALUE);
 	}
 	
-	private List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) throws SQLException {
+	protected List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) throws SQLException {
 		List<T> result = new ArrayList<T>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			while (resultSet.next() && result.size() < maxResults) {
 				T object = readResultSetRow(resultSet, null);
+				if (this instanceof Table) {
+					long id = IdUtils.getId(object);
+					((Table<T>) this).loadRelations(object, id);
+				}
 				result.add(object);
 			}
 		}
@@ -366,7 +337,7 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (DbPersistenceHelper.isView(property)) {
 					Class<?> viewedClass = DbPersistenceHelper.getViewedClass(property);
-					Table<?> referenceTable = (Table<?>) dbPersistence.getTable(viewedClass);
+					Table<?> referenceTable = dbPersistence.getTable(viewedClass);
 					Object referenceObject = referenceTable.read(((Number) value).longValue(), false); // false -> subEntities not loaded
 					
 					value = CloneHelper.newInstance(fieldClass);
@@ -388,7 +359,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected static <D> Object dereference(DbPersistence dbPersistence, Class<D> clazz, long id, Integer time) {
-		AbstractTable<D> table = dbPersistence.getTable(clazz);
+		AbstractTable<D> table = dbPersistence.table(clazz);
 		if (table instanceof ImmutableTable) {
 			return ((ImmutableTable<?>) table).read(id);
 		} else {
@@ -408,7 +379,7 @@ public abstract class AbstractTable<T> {
 	private <D> Long getIdOfImmutable(D value, boolean insertIfNotExisting) throws SQLException {
 		@SuppressWarnings("unchecked")
 		Class<D> clazz = (Class<D>) value.getClass();
-		AbstractTable<D> abstractTable = dbPersistence.getTable(clazz);
+		AbstractTable<D> abstractTable = dbPersistence.table(clazz);
 		if (abstractTable == null) {
 			throw new IllegalArgumentException(clazz.getName());
 		}
@@ -514,7 +485,7 @@ public abstract class AbstractTable<T> {
 		String myFieldPath = entry.getValue().getFieldPath();
 		if (fieldPath.length() > myFieldPath.length()) {
 			String rest = fieldPath.substring(myFieldPath.length() + 1);
-			AbstractTable<?> innerTable = dbPersistence.getTable(entry.getValue().getFieldClazz());
+			AbstractTable<?> innerTable = dbPersistence.table(entry.getValue().getFieldClazz());
 			innerTable.createIndex(property, rest);
 		}
 		indexes.add(entry.getKey());

@@ -52,7 +52,7 @@ public class Resources {
 	}
 	
 	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property, String postfix) {
-		// completeQualifiedKey example: " ch.openech.model.Person.nationality"
+		// completeQualifiedKey example: "ch.openech.model.Person.nationality"
 		String fieldName = property.getFieldName();
 		if (!StringUtils.isEmpty(postfix)) {
 			fieldName += postfix;

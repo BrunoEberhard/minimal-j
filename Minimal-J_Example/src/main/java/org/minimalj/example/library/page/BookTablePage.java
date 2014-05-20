@@ -10,6 +10,7 @@ import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
+import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.IdUtils;
 
 
@@ -47,8 +48,8 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 	}
 
 	@Override
-	protected List<Book> load(String query) {
-		return Backend.getInstance().search(Book.class, (String) query, 100);
+	protected List<Book> load(String searchText) {
+		return Backend.getInstance().read(Book.class, Criteria.search(searchText), 100);
 	}
 
 }

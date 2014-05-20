@@ -4,13 +4,14 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.ILookup;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
+import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
 
 public class ReferenceField<T> extends AbstractEditField<T> {
@@ -35,8 +36,8 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	private class ReferenceFieldSearch implements Search<T> {
 
 		@Override
-		public List<T> search(String query) {
-			return (List<T>) Backend.getInstance().search(property.getFieldClazz(), searchColumns, query, 100);
+		public List<T> search(String searchText) {
+			return (List<T>) Backend.getInstance().read(property.getFieldClazz(), Criteria.search(searchText, searchColumns), 100);
 		}
 	}
 	

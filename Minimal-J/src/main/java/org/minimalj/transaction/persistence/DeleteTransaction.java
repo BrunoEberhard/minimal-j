@@ -1,8 +1,9 @@
-package org.minimalj.transaction;
+package org.minimalj.transaction.persistence;
 
 import java.io.Serializable;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.transaction.Transaction;
 import org.minimalj.util.SerializationContainer;
 
 public class DeleteTransaction implements Transaction<Serializable> {

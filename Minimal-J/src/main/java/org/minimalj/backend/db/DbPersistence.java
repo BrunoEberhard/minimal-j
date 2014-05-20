@@ -237,24 +237,24 @@ public class DbPersistence {
 	}
 	
 	public <T> T read(Class<T> clazz, long id) {
-		Table<T> table = (Table<T>) getTable(clazz);
+		Table<T> table = getTable(clazz);
 		return table.read(id);
 	}
 	
 	public <T> T read(Class<T> clazz, long id, Integer time) {
-		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
+		HistorizedTable<T> table = (HistorizedTable<T>) table(clazz);
 		return table.read(id, time);
 	}
 
 	public List<Integer> readVersions(Class<?> clazz, long id) {
-		HistorizedTable<?> table = (HistorizedTable<?>) getTable(clazz);
+		HistorizedTable<?> table = (HistorizedTable<?>) table(clazz);
 		return table.readVersions(id);
 	}
 
 	public <T> long insert(T object) {
 		if (object != null) {
 			@SuppressWarnings("unchecked")
-			Table<T> table = (Table<T>) getTable(object.getClass());
+			Table<T> table = getTable((Class<T>) object.getClass());
 			return table.insert(object);
 		} else {
 			return 0;
@@ -263,13 +263,13 @@ public class DbPersistence {
 	
 	public <T> void update(T object) {
 		@SuppressWarnings("unchecked")
-		Table<T> table = (Table<T>) getTable(object.getClass());
+		Table<T> table = getTable((Class<T>) object.getClass());
 		table.update(object);
 	}
 	
 	public <T> void delete(T object) {
 		@SuppressWarnings("unchecked")
-		Table<T> table = (Table<T>) getTable(object.getClass());
+		Table<T> table = getTable((Class<T>) object.getClass());
 		table.delete(object);
 	}
 	
@@ -365,11 +365,17 @@ public class DbPersistence {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <U> AbstractTable<U> getTable(Class<U> clazz) {
-		if (!tables.containsKey(clazz)) return null; // throw new IllegalArgumentException(clazz.getName());
+	public <U> AbstractTable<U> table(Class<U> clazz) {
+		if (!tables.containsKey(clazz)) throw new IllegalArgumentException(clazz.getName());
 		return (AbstractTable<U>) tables.get(clazz);
 	}
-	
+
+	public <U> Table<U> getTable(Class<U> clazz) {
+		AbstractTable<U> table = table(clazz);
+		if (!(table instanceof Table)) throw new IllegalArgumentException(clazz.getName());
+		return (Table<U>) table;
+	}
+
 	private void testModel() {
 		List<Class<?>> mainModelClasses = new ArrayList<>();
 		for (Map.Entry<Class<?>, AbstractTable<?>> entry : tables.entrySet()) {

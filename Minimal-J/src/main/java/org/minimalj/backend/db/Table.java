@@ -14,6 +14,10 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.ViewOf;
+import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.criteria.Criteria.AllCriteria;
+import org.minimalj.transaction.criteria.Criteria.SearchCriteria;
+import org.minimalj.transaction.criteria.Criteria.SimpleCriteria;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -161,6 +165,154 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 
+	public List<T> read(Criteria criteria, int maxResults) {
+		String query = "select * from " + getTableName();
+		if (criteria instanceof SimpleCriteria) {
+			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
+			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
+			query += " where " + whereStatement(propertyInterface.getFieldPath(), simpleCriteria.getOperator());
+			try {
+				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+				Object value = simpleCriteria.getValue();
+				if (!(value instanceof Integer || value instanceof Long) && DbPersistenceHelper.isView(propertyInterface)) {
+					value = IdUtils.getId(value);
+				}
+				statement.setObject(1, value);
+				return executeSelectAll(statement, (long)maxResults);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+			}
+		} else if (criteria instanceof SearchCriteria) {
+			SearchCriteria searchCriteria = (SearchCriteria) criteria;
+
+			query += " where (";
+			List<String> searchColumns = searchCriteria.getKeys() != null ? getColumns(searchCriteria.getKeys()) : findSearchColumns(clazz);
+			boolean first = true;
+			for (String column : searchColumns) {
+				if (!first) {
+					query += " OR ";
+				} else {
+					first = false;
+				}
+				query += column + " like ?";
+			}
+			if (this instanceof HistorizedTable) {
+				query += ") and version = 0";
+			} else {
+				query += ")";
+			}
+
+			try {
+				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+				for (int i = 0; i<searchColumns.size(); i++) {
+					statement.setString(i+1, searchCriteria.getQuery());
+				}
+				return executeSelectAll(statement);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+			}
+		} else if (criteria instanceof AllCriteria) {
+			try {
+				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+				return executeSelectAll(statement, maxResults);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
+			}
+		}
+		throw new IllegalArgumentException(criteria + " not yet implemented");
+	}
+
+	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
+		String query = select(resultClass);
+		if (criteria instanceof SimpleCriteria) {
+			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
+			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
+			query += " where " + whereStatement(propertyInterface.getFieldPath(), simpleCriteria.getOperator());
+			try {
+				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+				Object value = simpleCriteria.getValue();
+				if (!(value instanceof Integer || value instanceof Long) && DbPersistenceHelper.isView(propertyInterface)) {
+					value = IdUtils.getId(value);
+				}
+				statement.setObject(1, value);
+				return executeSelectViewAll(resultClass, statement, maxResults);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+			}
+		} else if (criteria instanceof SearchCriteria) {
+			SearchCriteria searchCriteria = (SearchCriteria) criteria;
+
+			query += " where (";
+			List<String> searchColumns = searchCriteria.getKeys() != null ? getColumns(searchCriteria.getKeys()) : findSearchColumns(clazz);
+			boolean first = true;
+			for (String column : searchColumns) {
+				if (!first) {
+					query += " OR ";
+				} else {
+					first = false;
+				}
+				query += column + " like ?";
+			}
+			if (this instanceof HistorizedTable) {
+				query += ") and version = 0";
+			} else {
+				query += ")";
+			}
+
+			try (PreparedStatement statement = createStatement(dbPersistence.getConnection(), query, false)) {
+				for (int i = 0; i<searchColumns.size(); i++) {
+					statement.setString(i+1, searchCriteria.getQuery());
+				}
+				return executeSelectViewAll(resultClass, statement, maxResults);
+			} catch (Exception e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
+			}
+		} else if (criteria instanceof AllCriteria) {
+			try {
+				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+				return executeSelectViewAll(resultClass, statement, maxResults);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
+			}
+		}
+		throw new IllegalArgumentException(criteria + " not yet implemented");
+	}
+
+	private String select(Class<?> resultClass) {
+		String querySql = "select ID";
+		Map<String, PropertyInterface> propertiesByColumns = findColumns(resultClass);
+		for (String column : propertiesByColumns.keySet()) {
+			querySql += ", ";
+			querySql += column;
+		}
+		querySql += " from " + getTableName();
+		return querySql;
+	}
+	
+	protected <S> List<S> executeSelectViewAll(Class<S> resultClass, PreparedStatement preparedStatement, long maxResults) throws SQLException {
+		List<S> result = new ArrayList<>();
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			while (resultSet.next() && result.size() < maxResults) {
+				S resultObject = (S) readResultSetRow(dbPersistence, (Class<S>) resultClass, resultSet, 0);
+				result.add(resultObject);
+
+				long id = IdUtils.getId(resultObject);
+				LinkedHashMap<String, PropertyInterface> lists = findLists(resultClass);
+				for (String listField : lists.keySet()) {
+					List list = (List) lists.get(listField).getValue(resultObject);
+					if (subTables.get(listField) instanceof SubTable) {
+						SubTable subTable = (SubTable) subTables.get(listField);
+						list.addAll(subTable.read(id));
+					} else if (subTables.get(listField) instanceof HistorizedSubTable) {
+						HistorizedSubTable subTable = (HistorizedSubTable) subTables.get(listField);
+						list.addAll(subTable.read(id, 0));
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
 	public List<T> search(String query, int maxResults) {
 		List<String> searchColumns = findSearchColumns(clazz);
 		return search(searchColumns, query, maxResults);

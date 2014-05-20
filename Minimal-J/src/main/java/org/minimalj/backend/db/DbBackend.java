@@ -70,34 +70,20 @@ public class DbBackend extends Backend {
 
 	@Override
 	public <T> T read(Class<T> clazz, long id) {
-		Table<T> table = (Table<T>) persistence.getTable(clazz);
+		Table<T> table = persistence.getTable(clazz);
 		return table.read(id);
 	}
 
 	@Override
-	public <T> List<T> search(Class<T> resultClass, String query, int maxResults) {
+	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
 		if (ViewOf.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = DbPersistenceHelper.getViewedClass(resultClass);
-			return ((Table) persistence.getTable(viewedClass)).search(resultClass, query, maxResults);
+			Table<?> table = persistence.getTable(viewedClass);
+			return table.readView(resultClass, criteria, maxResults);
 		} else {
-			return ((Table) persistence.getTable(resultClass)).search(query, maxResults);
+			Table<T> table = (Table<T>) persistence.table(resultClass);
+			return table.read(criteria, maxResults);
 		}
-	}
-
-	@Override
-	public <T> List<T> search(Class<T> resultClass, Object[] fields, String query, int maxResults) {
-		if (ViewOf.class.isAssignableFrom(resultClass)) {
-			Class<?> viewedClass = DbPersistenceHelper.getViewedClass(resultClass);
-			return ((Table) persistence.getTable(viewedClass)).search(resultClass, fields, query, maxResults);
-		} else {
-			return ((Table) persistence.getTable(resultClass)).search(fields, query, maxResults);
-		}
-	}
-
-	@Override
-	public <T> List<T> read(Class<T> clazz, Criteria criteria) {
-		Table<T> table = (Table<T>) persistence.getTable(clazz);
-		return table.read(criteria);
 	}
 
 	@Override
@@ -117,13 +103,13 @@ public class DbBackend extends Backend {
 
 	@Override
 	public <T> void deleteAll(Class<T> clazz) {
-		Table<T> table = (Table<T>) persistence.getTable(clazz);
+		Table<T> table = persistence.getTable(clazz);
 		table.clear();
 	}
 
 	@Override
 	public <T> T read(Class<T> clazz, long id, Integer time) {
-		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.getTable(clazz);
+		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(clazz);
 		if (abstractTable instanceof HistorizedTable) {
 			return ((HistorizedTable<T>) abstractTable).read(id, time);
 		} else {
@@ -134,7 +120,7 @@ public class DbBackend extends Backend {
 	@Override
 	public <T> List<T> loadHistory(T object) {
 		@SuppressWarnings("unchecked")
-		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.getTable(object.getClass());
+		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(object.getClass());
 		if (abstractTable instanceof HistorizedTable) {
 			long id = IdUtils.getId(object);
 			List<Integer> times = ((HistorizedTable<T>) abstractTable).readVersions(id);

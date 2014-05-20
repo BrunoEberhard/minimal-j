@@ -1,6 +1,7 @@
-package org.minimalj.transaction;
+package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.transaction.Transaction;
 import org.minimalj.util.SerializationContainer;
 
 public class InsertTransaction implements Transaction<Long> {

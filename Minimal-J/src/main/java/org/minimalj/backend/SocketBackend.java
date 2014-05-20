@@ -10,18 +10,17 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.transaction.DeleteAllTransaction;
-import org.minimalj.transaction.DeleteTransaction;
-import org.minimalj.transaction.InsertTransaction;
-import org.minimalj.transaction.ReadCriteriaTransaction;
-import org.minimalj.transaction.ReadTransaction;
-import org.minimalj.transaction.SearchTransaction;
-import org.minimalj.transaction.StatementTransaction;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.UpdateTransaction;
 import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.persistence.DeleteAllTransaction;
+import org.minimalj.transaction.persistence.DeleteTransaction;
+import org.minimalj.transaction.persistence.InsertTransaction;
+import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
+import org.minimalj.transaction.persistence.ReadTransaction;
+import org.minimalj.transaction.persistence.StatementTransaction;
+import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.SerializationContainer;
 
 public class SocketBackend extends Backend {
@@ -104,21 +103,9 @@ public class SocketBackend extends Backend {
 		return read(clazz, id, null);
 	}
 	
-	public <T> List<T> search(Class<T> clazz, String query, int maxResults) {
+	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
 		@SuppressWarnings("unchecked")
-		List<T> result = (List<T>) SerializationContainer.unwrap(instance.execute(new SearchTransaction<T>(clazz, null, query, maxResults)));
-		return result;
-	}
-	
-	public <T> List<T> search(Class<T> clazz, Object[] keys, String query, int maxResults) {
-		@SuppressWarnings("unchecked")
-		List<T> result = (List<T>) SerializationContainer.unwrap(instance.execute(new SearchTransaction<T>(clazz, keys, query, maxResults)));
-		return result;
-	}
-	
-	public <T> List<T> read(Class<T> clazz, Criteria criteria) {
-		@SuppressWarnings("unchecked")
-		List<T> result = (List<T>) SerializationContainer.unwrap(instance.execute(new ReadCriteriaTransaction<T>(clazz, criteria)));
+		List<T> result = (List<T>) SerializationContainer.unwrap(instance.execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults)));
 		return result;
 	}
 	
