@@ -2,6 +2,7 @@ package org.minimalj.backend.db;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -281,18 +282,51 @@ public class DbPersistence {
 		return isMySqlDb;
 	}
 	
-	public void execute(String query, Object... parameters) {
-		try (PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false)) {
-			int param = 1; // !
-			for (Object parameter : parameters) {
-				setParameter(preparedStatement, param++, parameter);
+	public <T> T execute(Class<T> clazz, String query, Object... parameters) {
+		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				T result = null;
+				if (resultSet.next()) {
+					result = readResultRow(resultSet, clazz);
+				}
+				return result;
 			}
-			preparedStatement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
 		}
 	}
 	
+	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Object... parameters) {
+		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				List<T> result = new ArrayList<>();
+				while (resultSet.next() && result.size() < maxResults) {
+					result.add(readResultRow(resultSet, clazz));
+				}
+				return result;
+			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
+		}
+	}
+	
+	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {
+		PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false);
+		int param = 1; // !
+		for (Object parameter : parameters) {
+			setParameter(preparedStatement, param++, parameter);
+		}
+		return preparedStatement;
+	}
+	
+	private <T> T readResultRow(ResultSet resultSet, Class<T> clazz) throws SQLException {
+		if (clazz == Integer.class) {
+			return (T) Integer.valueOf(resultSet.getInt(1));
+		} else {
+			throw new IllegalArgumentException(clazz.getName());
+		}
+	}
+
 	/*
 	 * TODO: should be merged with the setParameter in AbstractTable.
 	 */

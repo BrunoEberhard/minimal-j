@@ -136,9 +136,14 @@ public class SocketBackend extends Backend {
 		return (T) SerializationContainer.unwrap(result);
 	}
 	
-	public Serializable executeStatement(String queryName, Serializable... parameter) {
-		StatementTransaction statementTransaction = new StatementTransaction(queryName, parameter);
-		return instance.execute(statementTransaction);
+	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
+		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, parameter);
+		return (T) instance.execute(statementTransaction);
+	}
+	
+	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter) {
+		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, maxResults, parameter);
+		return (List<T>) instance.execute(statementTransaction);
 	}
 
 }

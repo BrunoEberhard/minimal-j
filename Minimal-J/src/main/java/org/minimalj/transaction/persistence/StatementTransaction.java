@@ -8,17 +8,30 @@ import org.minimalj.transaction.Transaction;
 public class StatementTransaction implements Transaction<Serializable> {
 	private static final long serialVersionUID = 1L;
 
+	private final Class<?> clazz;
 	private final String queryName;
 	private final Serializable[] parameters;
+	private final int maxResults;
+
+	public StatementTransaction(Class<?> clazz, String queryName, Serializable[] parameters) {
+		this(clazz, queryName, 0, parameters);
+	}
 	
-	public StatementTransaction(String queryName, Serializable... parameters) {
+	public StatementTransaction(Class<?> clazz, String queryName, int maxResults, Serializable[] parameters) {
+		this.clazz = clazz;
 		this.queryName = queryName;
 		this.parameters = parameters;
+		this.maxResults = maxResults;
 	}
 
 	@Override
 	public Serializable execute(Backend backend) {
-		Serializable result = backend.executeStatement(queryName, parameters);
+		Serializable result;
+		if (maxResults > 0) {
+			result = (Serializable) backend.executeStatement(clazz, queryName, maxResults, parameters);
+		} else {
+			result = (Serializable) backend.executeStatement(clazz, queryName, parameters);
+		}
 		return result;
 	}
 

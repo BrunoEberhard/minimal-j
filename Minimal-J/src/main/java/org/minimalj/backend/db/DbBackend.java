@@ -133,24 +133,29 @@ public class DbBackend extends Backend {
 			throw new IllegalArgumentException(object.getClass() + " is not historized");
 		}
 	}
-
+	
 	@Override
-	public Serializable executeStatement(String queryName, Serializable... parameters) {
-		// TODO
+	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
+		T result = null;
 		String query;
 		if (queryName.equals("MaxPerson")) {
 			query = "SELECT MAX(ID) FROM PERSON";
-			persistence.execute(query);
+			result = persistence.execute(clazz, query);
 		} else if (queryName.equals("MaxOrganisation")) {
 			query = "SELECT MAX(ID) FROM ORGANISATION";
-			persistence.execute(query);
+			result = persistence.execute(clazz, query);
 		} else if (queryName.equals("DeleteAll")) {
 			// TODO
 		} else if (queryName.equals("MaxCustomer")) {
 			query = "SELECT MAX(ID) FROM CUSTUMER";
+			result = persistence.execute(clazz, query);
 		}
-		// TODO
-		return null;
+		return result;
+	}
+	
+	@Override
+	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameters) {
+		return persistence.execute(clazz, queryName, maxResults, parameters);
 	}
 	
 }
