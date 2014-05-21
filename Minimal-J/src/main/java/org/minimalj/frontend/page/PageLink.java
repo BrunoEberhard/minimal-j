@@ -69,7 +69,7 @@ public class PageLink implements IAction {
 			if (EmptyPage.class.getSimpleName().equals(className)) {
 				fullClassName = EmptyPage.class.getName();
 			} else {
-				fullClassName = MjApplication.getCompletePackageName("page") + "." + className;
+				fullClassName = MjApplication.getCompletePackageName("frontend.page") + "." + className;
 			}
 			Class<?> clazz = Class.forName(fullClassName);
 			if (pos > 0) {
