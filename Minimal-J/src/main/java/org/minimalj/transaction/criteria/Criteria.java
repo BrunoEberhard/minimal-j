@@ -1,9 +1,12 @@
 package org.minimalj.transaction.criteria;
 
+import java.io.Serializable;
+
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 
-public abstract class Criteria {
+public abstract class Criteria implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	public static Criteria equals(Object key, Object value) {
 		return new SimpleCriteria(key, CriteriaOperator.equal, value);
@@ -22,6 +25,8 @@ public abstract class Criteria {
 	}
 
 	public static class SimpleCriteria extends Criteria {
+		private static final long serialVersionUID = 1L;
+
 		private final CriteriaOperator operator;
 		private final Object key;
 		private final Object value;
@@ -58,6 +63,8 @@ public abstract class Criteria {
 	}
 	
 	public static class SearchCriteria extends Criteria {
+		private static final long serialVersionUID = 1L;
+
 		private final Object[] keys;
 		private final String query;
 
@@ -76,6 +83,8 @@ public abstract class Criteria {
 	}
 	
 	public static class AllCriteria extends Criteria {
+		private static final long serialVersionUID = 1L;
+
 		// empty for all objects of a class
 	}
 	
