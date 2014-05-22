@@ -22,13 +22,26 @@ public abstract class Backend {
 
 	static Backend instance;
 	
-	public static void configureSocketBackend(String backendAddress, int port) {
-		instance = new SocketBackend(backendAddress, port);
+	public static void setSocketBackend(String backendAddress, int port) {
+		setInstance(new SocketBackend(backendAddress, port));
 	}
 
-	public static void configureLocal() {
-		// TODO make this configurable
-		instance = new DbBackend();
+	public static void setEmbeddedDbBackend() {
+		setInstance(new DbBackend());
+	}
+	
+	public static void setDbBackend(String database, String user, String password) {
+		setInstance(new DbBackend(database, user, password));
+	}
+	
+	public static void setInstance(Backend backend) {
+		if (Backend.instance != null) {
+			throw new IllegalStateException("Backend cannot be changed");
+		}		
+		if (backend == null) {
+			throw new IllegalArgumentException("Backend cannot be null");
+		}
+		instance = backend;
 	}
 	
 	public static Backend getInstance() {

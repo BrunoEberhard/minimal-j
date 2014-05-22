@@ -20,8 +20,11 @@ public class DbBackend extends Backend {
 	private final DbPersistence persistence;
 
 	public DbBackend() {
-		// TODO make this configurable
 		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(), MjApplication.getApplication().getEntityClasses());
+	}
+	
+	public DbBackend(String database, String user, String password) {
+		this.persistence = new DbPersistence(DbPersistence.mariaDbDataSource(database, user, password), MjApplication.getApplication().getEntityClasses());
 	}
 	
 	//

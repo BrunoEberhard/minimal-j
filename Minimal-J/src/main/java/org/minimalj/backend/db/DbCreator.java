@@ -119,7 +119,7 @@ public class DbCreator {
 		
 		if (dbPersistence.isMySqlDb()) {
 			appendIndexes(s, table);
-			appendConstraints(s, table);
+			// appendConstraints(s, table);
 		}
 		s.append("\n)");
 		appendTableEnd(s);
@@ -162,7 +162,8 @@ public class DbCreator {
 			PropertyInterface property = column.getValue();
 			
 			if (DbPersistenceHelper.isReference(property)) {
-				AbstractTable<?> referencedTable = dbPersistence.table(property.getFieldClazz());
+				Class<?> fieldClass = DbPersistenceHelper.isView(property) ? DbPersistenceHelper.getViewedClass(property) : property.getFieldClazz();
+				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
 				s.append(",\n CONSTRAINT `FK_");
 				s.append(table.getTableName()); s.append("_"); s.append(column.getKey());
