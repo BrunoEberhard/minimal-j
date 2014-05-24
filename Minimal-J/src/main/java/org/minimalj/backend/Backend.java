@@ -4,12 +4,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.minimalj.backend.db.DbBackend;
+import org.minimalj.backend.db.DbPersistence;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.util.LoggingRuntimeException;
+import org.minimalj.util.StringUtils;
 
 /**
  * The backend can be in same VM as the frontend or it can
@@ -19,8 +23,41 @@ import org.minimalj.transaction.criteria.Criteria;
  *
  */
 public abstract class Backend {
+	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 
-	static Backend instance;
+	private static Backend instance;
+	
+	private static void initBackend() {
+		String backendAddress = System.getProperty("MjBackendAddress");
+		String backendPort = System.getProperty("MjBackendPort", "8020");
+		if (backendAddress != null) {
+			Backend.setSocketBackend(backendAddress, Integer.valueOf(backendPort));
+			return;
+		} 
+
+		String database = System.getProperty("MjBackendDatabase");
+		String user= System.getProperty("MjBackendDataBaseUser", "APP");
+		String password = System.getProperty("MjBackendDataBasePassword", "APP");
+		if (!StringUtils.isBlank(database)) {
+			Backend.setDbBackend(database, user, password);
+			return;
+		}
+		
+		String backendClassName = System.getProperty("MjBackend");
+		if (!StringUtils.isBlank(backendClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
+				Backend backend = backendClass.newInstance();
+				Backend.setInstance(backend);
+			} catch (Exception x) {
+				throw new LoggingRuntimeException(x, logger, "Set backend failed");
+			}
+			return;
+		} 
+		
+		Backend.setEmbeddedDbBackend();
+	}
 	
 	public static void setSocketBackend(String backendAddress, int port) {
 		setInstance(new SocketBackend(backendAddress, port));
@@ -45,6 +82,9 @@ public abstract class Backend {
 	}
 	
 	public static Backend getInstance() {
+		if (instance == null) {
+			initBackend();
+		}
 		return instance;
 	}
 

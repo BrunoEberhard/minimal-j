@@ -6,14 +6,10 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import org.minimalj.backend.Backend;
-import org.minimalj.backend.db.DbPersistence;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -25,7 +21,6 @@ import org.minimalj.util.resources.Resources;
  *
  */
 public abstract class MjApplication {
-	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	private static MjApplication application;
 	
 	public static MjApplication getApplication() {
@@ -35,7 +30,7 @@ public abstract class MjApplication {
 		return application;
 	}
 	
-	private static synchronized void setApplication(MjApplication application) {
+	public static synchronized void setApplication(MjApplication application) {
 		if (MjApplication.application != null) {
 			throw new IllegalStateException("Application cannot be changed");
 		}		
@@ -43,6 +38,9 @@ public abstract class MjApplication {
 			throw new IllegalArgumentException("Application cannot be null");
 		}
 		MjApplication.application = application;
+		
+		ResourceBundle resourceBundle = application.getResourceBundle();
+		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
 	}
 	
 	/**
@@ -62,43 +60,8 @@ public abstract class MjApplication {
 	}
 	
 	protected MjApplication() {
-		setApplication(this);
-		initBackend();
-		ResourceBundle resourceBundle = getResourceBundle();
-		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
 	}
 	
-	private void initBackend() {
-		String backendAddress = System.getProperty("MjBackendAddress");
-		String backendPort = System.getProperty("MjBackendPort", "8020");
-		if (backendAddress != null) {
-			Backend.setSocketBackend(backendAddress, Integer.valueOf(backendPort));
-			return;
-		} 
-
-		String database = System.getProperty("MjBackendDatabase");
-		String user= System.getProperty("MjBackendDataBaseUser", "APP");
-		String password = System.getProperty("MjBackendDataBasePassword", "APP");
-		if (!StringUtils.isBlank(database)) {
-			Backend.setDbBackend(database, user, password);
-			return;
-		}
-		
-		String backendClassName = System.getProperty("MjBackend");
-		if (!StringUtils.isBlank(backendClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
-				Backend backend = backendClass.newInstance();
-				Backend.setInstance(backend);
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set backend failed");
-			}
-			return;
-		} 
-		
-		Backend.setEmbeddedDbBackend();
-	}
 	
 	/**
 	 * note: Use MultiResourceBundle if more than one ResourceBundle
@@ -144,10 +107,6 @@ public abstract class MjApplication {
 
 	public List<IAction> getActionsView(PageContext context) {
 		return Collections.emptyList();
-	}
-
-	public void init() {
-		// can be used in concrete implementation, but use with care
 	}
 	
 }

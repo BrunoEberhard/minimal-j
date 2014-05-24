@@ -105,24 +105,24 @@ public class SocketBackend extends Backend {
 	
 	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
 		@SuppressWarnings("unchecked")
-		List<T> result = (List<T>) SerializationContainer.unwrap(instance.execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults)));
+		List<T> result = (List<T>) SerializationContainer.unwrap(getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults)));
 		return result;
 	}
 	
 	public long insert(Object object) {
-		return instance.execute(new InsertTransaction(object));
+		return getInstance().execute(new InsertTransaction(object));
 	}
 
 	public void update(Object object) {
-		instance.execute(new UpdateTransaction(object));
+		getInstance().execute(new UpdateTransaction(object));
 	}
 
 	public <T> void delete(T object) {
-		instance.execute(new DeleteTransaction(object));
+		getInstance().execute(new DeleteTransaction(object));
 	}
 	
 	public <T> void deleteAll(Class<T> clazz) {
-		instance.execute(new DeleteAllTransaction(clazz));
+		getInstance().execute(new DeleteAllTransaction(clazz));
 	}
 	
 	public <T> List<T> loadHistory(T object) {
@@ -132,18 +132,18 @@ public class SocketBackend extends Backend {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T read(Class<T> clazz, long id, Integer time) {
-		Serializable result = instance.execute(new ReadTransaction<T>(clazz, id, time));
+		Serializable result = getInstance().execute(new ReadTransaction<T>(clazz, id, time));
 		return (T) SerializationContainer.unwrap(result);
 	}
 	
 	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
 		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, parameter);
-		return (T) instance.execute(statementTransaction);
+		return (T) getInstance().execute(statementTransaction);
 	}
 	
 	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter) {
 		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, maxResults, parameter);
-		return (List<T>) instance.execute(statementTransaction);
+		return (List<T>) getInstance().execute(statementTransaction);
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 import org.minimalj.application.ApplicationContext;
+import org.minimalj.application.Launcher;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.Editor.EditorListener;
@@ -15,10 +16,10 @@ import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.frontend.lanterna.component.Select;
 import org.minimalj.frontend.lanterna.toolkit.LanternaActionAdapater;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
-import org.minimalj.frontend.lanterna.toolkit.LanternaDialog;
-import org.minimalj.frontend.lanterna.toolkit.LanternaSwitchLayout;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit.LanternaLink;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit.LanternaLinkListener;
+import org.minimalj.frontend.lanterna.toolkit.LanternaDialog;
+import org.minimalj.frontend.lanterna.toolkit.LanternaSwitchLayout;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
@@ -30,7 +31,6 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 import com.googlecode.lanterna.gui.Border;
@@ -47,9 +47,8 @@ import com.googlecode.lanterna.gui.layout.HorisontalLayout;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 
-public class LanternaLauncher {
+public class LanternaLauncher extends Launcher {
 
-	private static String applicationName;
 	private static ApplicationContext applicationContext;
 
 	private Editor<?> editor;
@@ -71,10 +70,6 @@ public class LanternaLauncher {
 			gui.setTheme(new HighContrastLanternaTheme());
 			ClientToolkit.setToolkit(new LanternaClientToolkit(gui));
 
-			Class<? extends MjApplication> applicationClass = (Class<? extends MjApplication>) Class
-					.forName(applicationName);
-			MjApplication application = applicationClass.newInstance();
-			application.init();
 			applicationContext = new LanternaApplicationContext();
 
 			screen.startScreen();
@@ -385,11 +380,7 @@ public class LanternaLauncher {
 	}
 	
 	public static void main(final String[] args) throws Exception {
-		applicationName = System.getProperty("MjApplication");
-		if (StringUtils.isBlank(applicationName)) {
-			System.err.println("Missing MjApplication parameter");
-			System.exit(-1);
-		}
+		initApplication(args);
 
 		new LanternaLauncher().run();
 	}

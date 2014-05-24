@@ -2,15 +2,14 @@ package org.minimalj.backend.db;
 
 import javax.sql.DataSource;
 
+import org.minimalj.application.Launcher;
 import org.minimalj.application.MjApplication;
 
 public class GenerateTablesLauncher {
 
 	public static void main(String[] args) throws Exception {
-		String applicationName = System.getProperty("MjApplication");
-		@SuppressWarnings("unchecked")
-		Class<? extends MjApplication> applicationClass = (Class<? extends MjApplication>) Class.forName(applicationName);
-		MjApplication application = applicationClass.newInstance();
+		Launcher.initApplication(args);
+		MjApplication application = MjApplication.getApplication();
 		
 		String database = System.getProperty("MjBackendDatabase");
 		String user= System.getProperty("MjBackendDataBaseUser", "APP");

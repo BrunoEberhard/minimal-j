@@ -5,14 +5,12 @@ import java.util.prefs.Preferences;
 import javax.swing.SwingUtilities;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Launcher;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.util.StringUtils;
 
-public class SwingLauncher implements Runnable {
+public class SwingLauncher extends Launcher implements Runnable {
 
-	private static String applicationName;
 	private static ApplicationContext applicationContext;
 
 	private SwingLauncher() {
@@ -30,18 +28,10 @@ public class SwingLauncher implements Runnable {
 	 */
 	@Override
 	public void run() {
-		try {
-			Class<? extends MjApplication> applicationClass = (Class<? extends MjApplication>) Class.forName(applicationName);
-			MjApplication application = applicationClass.newInstance();
-			
-			FrameManager.setSystemLookAndFeel();
-			ClientToolkit.setToolkit(new SwingClientToolkit());
-			applicationContext = new SwingApplicationContext();
-			application.init();
-			FrameManager.getInstance().openNavigationFrame();
-		} catch (Exception x) {
-			x.printStackTrace();
-		}
+		FrameManager.setSystemLookAndFeel();
+		ClientToolkit.setToolkit(new SwingClientToolkit());
+		applicationContext = new SwingApplicationContext();
+		FrameManager.getInstance().openNavigationFrame();
 	}
 
 	public class SwingApplicationContext extends ApplicationContext {
@@ -72,12 +62,8 @@ public class SwingLauncher implements Runnable {
 	}
 
 	public static void main(final String[] args) throws Exception {
-		applicationName = System.getProperty("MjApplication");
-		if (StringUtils.isBlank(applicationName)) {
-			System.err.println("Missing MjApplication parameter");
-			System.exit(-1);
-		}
-		
+		initApplication(args);
+
 		SwingUtilities.invokeAndWait(new SwingLauncher());
 	}
 	

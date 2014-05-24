@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.minimalj.application.ApplicationContext;
+import org.minimalj.application.Launcher;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.PageLink;
@@ -17,8 +18,8 @@ import com.vaadin.Application;
 /**
  * TODO VaadinApplication should make Preferences persistent
  * 
- * @author Bruno
- *
+ * Note: this class extends Vaadin - Application not the
+ * MjApplication
  */
 public class VaadinLauncher extends Application {
 	private static final long serialVersionUID = 1L;
@@ -38,18 +39,12 @@ public class VaadinLauncher extends Application {
 
 	private synchronized void initializeApplication() {
 		if (!applicationInitialized) {
-			String applicationClassName = getProperty("MjApplication");
-			if (StringUtils.isBlank(applicationClassName)) {
+			String applicationName = getProperty("MjApplication");
+			if (StringUtils.isBlank(applicationName)) {
 				throw new IllegalArgumentException("Missing MjApplication parameter");
 			}
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends MjApplication> applicationClass = (Class<? extends MjApplication>) Class.forName(applicationClassName);
-				MjApplication application = applicationClass.newInstance();
-				application.init();
-			} catch (IllegalAccessException | InstantiationException | ClassNotFoundException x) {
-				throw new RuntimeException(x);
-			}
+			MjApplication application = Launcher.createApplication(applicationName);
+			MjApplication.setApplication(application);
 			applicationInitialized = true;
 		}
 	}

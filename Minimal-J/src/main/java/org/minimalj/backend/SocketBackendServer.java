@@ -11,12 +11,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Launcher;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.UnclosingOoutputStream;
 
 // TODO @Deploy(Server)
@@ -93,17 +92,8 @@ public class SocketBackendServer {
 	}
 	
 	public static void main(final String[] args) throws Exception {
-		String applicationName = System.getProperty("MjApplication");
-		if (StringUtils.isBlank(applicationName)) {
-			System.err.println("Missing MjApplication parameter");
-			System.exit(-1);
-		}
-
-		@SuppressWarnings("unchecked")
-		Class<? extends MjApplication> applicationClass = (Class<? extends MjApplication>) Class.forName(applicationName);
-		MjApplication application = applicationClass.newInstance();
-		application.init();
-
+		Launcher.initApplication(args);
+		
 		new SocketBackendServer(8020).run();
 	}
 
