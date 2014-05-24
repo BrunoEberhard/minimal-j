@@ -1,6 +1,7 @@
-package org.minimalj.example.library.example;
+package org.minimalj.example.library.frontend.editor;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.example.library.frontend.form.LendForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.edit.Editor;

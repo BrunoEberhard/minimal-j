@@ -1,8 +1,9 @@
-package org.minimalj.example.library.example;
+package org.minimalj.example.library.frontend.editor;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.example.library.frontend.form.BookForm;
+import org.minimalj.example.library.frontend.page.BookPage;
 import org.minimalj.example.library.model.Book;
-import org.minimalj.example.library.page.BookPage;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.page.PageLink;

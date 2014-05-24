@@ -1,4 +1,4 @@
-package org.minimalj.example.library.page;
+package org.minimalj.example.library.frontend.page;
 
 import static org.minimalj.example.library.model.Customer.*;
 

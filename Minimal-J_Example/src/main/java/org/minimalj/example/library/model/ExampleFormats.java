@@ -1,4 +1,4 @@
-package org.minimalj.example.library.example;
+package org.minimalj.example.library.model;
 
 
 public class ExampleFormats {

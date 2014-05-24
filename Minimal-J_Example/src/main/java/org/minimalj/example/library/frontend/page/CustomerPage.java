@@ -1,8 +1,8 @@
-package org.minimalj.example.library.page;
+package org.minimalj.example.library.frontend.page;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.example.library.example.AddLendEditor;
-import org.minimalj.example.library.example.CustomerForm;
+import org.minimalj.example.library.frontend.editor.AddLendEditor;
+import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.page.ActionGroup;

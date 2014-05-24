@@ -1,4 +1,4 @@
-package org.minimalj.example.library.example;
+package org.minimalj.example.library.frontend.form;
 
 import static org.minimalj.example.library.model.Lend.*;
 
