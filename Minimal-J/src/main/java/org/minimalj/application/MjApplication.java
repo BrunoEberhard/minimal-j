@@ -94,7 +94,9 @@ public abstract class MjApplication {
 		return null;
 	}
 	
-	public abstract Class<?>[] getSearchClasses();
+	public Class<?>[] getSearchClasses() {
+		return new Class<?>[0];
+	}
 	
 	public Page createDefaultPage(PageContext context) {
 		return new EmptyPage(context);
