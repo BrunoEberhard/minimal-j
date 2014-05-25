@@ -36,11 +36,6 @@ public class MjExampleApplication extends MjApplication {
 	}
 
 	@Override
-	public Class<?> getPreferencesClass() {
-		return null;
-	}
-
-	@Override
 	public Class<?>[] getEntityClasses() {
 		return new Class<?>[]{Book.class, Customer.class, Lend.class};
 	}

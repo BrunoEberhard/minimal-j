@@ -90,7 +90,9 @@ public abstract class MjApplication {
 		}
 	}
 	
-	public abstract Class<?> getPreferencesClass();
+	public Class<?> getPreferencesClass() {
+		return null;
+	}
 	
 	public abstract Class<?>[] getSearchClasses();
 	
