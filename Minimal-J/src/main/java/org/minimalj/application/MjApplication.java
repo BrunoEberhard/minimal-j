@@ -15,10 +15,13 @@ import org.minimalj.util.resources.Resources;
 /**
  * Extend this class as main entry for your Application.<p>
  * 
- * Set the argument <code>MjApplication</code> as VM argument if the application
+ * Set the argument <code>MjApplication</code> as argument if the application
  * is started with SwingLauncher or set the <code>init-param</code> in the servlet
- * element in the <code>web.xml</code> if the VaadinLauncher is used.
+ * element in the <code>web.xml</code> if the VaadinLauncher is used.<p>
  *
+ * The only method you have to override is getEntityClasses to specify the
+ * main classes of your business data model. All other methods are optional.
+ * 
  */
 public abstract class MjApplication {
 	private static MjApplication application;
@@ -58,10 +61,6 @@ public abstract class MjApplication {
 			return applicationClassName + "." + simplePackageName;
 		}
 	}
-	
-	protected MjApplication() {
-	}
-	
 	
 	/**
 	 * note: Use MultiResourceBundle if more than one ResourceBundle
@@ -103,7 +102,6 @@ public abstract class MjApplication {
 	}
 	
 	public List<IAction> getActionsNew(PageContext context) {
-		// should be done in subclass
 		return Collections.emptyList();
 	}
 
