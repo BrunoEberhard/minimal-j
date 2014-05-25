@@ -82,7 +82,13 @@ public abstract class MjApplication {
 
 	public abstract Class<?>[] getEntityClasses();
 
-	public abstract String getWindowTitle(PageContext pageContext);
+	public String getName() {
+		if (Resources.getResourceBundle().containsKey("Application.title")) {
+			return Resources.getResourceBundle().getString("Application.title");
+		} else {
+			return getClass().getSimpleName();
+		}
+	}
 	
 	public abstract Class<?> getPreferencesClass();
 	

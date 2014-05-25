@@ -31,11 +31,6 @@ public class MjExampleApplication extends MjApplication {
 	}
 
 	@Override
-	public String getWindowTitle(PageContext pageContext) {
-		return "Minimal-J Example Application";
-	}
-
-	@Override
 	public Class<?>[] getSearchClasses() {
 		return new Class<?>[]{BookTablePage.class, CustomerTablePage.class};
 	}

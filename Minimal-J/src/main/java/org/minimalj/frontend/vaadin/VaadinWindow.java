@@ -264,7 +264,15 @@ public class VaadinWindow extends Window implements PageContext {
 	}
 	
 	protected void updateWindowTitle() {
-		setCaption(MjApplication.getApplication().getWindowTitle(this));
+		Page visiblePage = getVisiblePage();
+		String title = MjApplication.getApplication().getName();
+		if (visiblePage != null) {
+			String pageTitle = visiblePage.getTitle();
+			if (!StringUtils.isBlank(pageTitle)) {
+				title = title + " - " + pageTitle;
+			}
+		}
+		setCaption(title);
 	}
 	
 	private class VaadinWindowFragmentChangedListener implements FragmentChangedListener {

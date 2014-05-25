@@ -16,10 +16,10 @@ import javax.swing.JFrame;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.swing.component.HideableTabbedPane;
 import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.util.StringUtils;
 
 public class SwingFrame extends JFrame implements IComponent {
 	private static final long serialVersionUID = 1L;
@@ -183,8 +183,15 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 	
 	protected void updateWindowTitle() {
-		PageContext pageContext = getVisibleTab();
-		setTitle(MjApplication.getApplication().getWindowTitle(pageContext));
+		Page visiblePage = getVisiblePage();
+		String title = MjApplication.getApplication().getName();
+		if (visiblePage != null) {
+			String pageTitle = visiblePage.getTitle();
+			if (!StringUtils.isBlank(pageTitle)) {
+				title = title + " - " + pageTitle;
+			}
+		}
+		setTitle(title);
 	}
 	
 	protected void updateTitle() {
