@@ -49,7 +49,7 @@ public class DbBackend extends Backend {
 		T result;
 		try {
 			persistence.startTransaction();
-			result = streamConsumer.comsume(this, inputStream);
+			result = streamConsumer.consume(this, inputStream);
 			runThrough = true;
 		} finally {
 			persistence.endTransaction(runThrough);
@@ -63,7 +63,7 @@ public class DbBackend extends Backend {
 		T result;
 		try {
 			persistence.startTransaction();
-			result = streamProducer.consume(this, outputStream);
+			result = streamProducer.produce(this, outputStream);
 			runThrough = true;
 		} finally {
 			persistence.endTransaction(runThrough);

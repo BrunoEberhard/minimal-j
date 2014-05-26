@@ -7,6 +7,6 @@ import org.minimalj.backend.Backend;
 
 public interface StreamConsumer<T extends Serializable> extends Serializable {
 
-	public T comsume(Backend backend, InputStream stream);
+	public T consume(Backend backend, InputStream stream);
 	
 }
