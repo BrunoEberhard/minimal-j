@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.minimalj.application.MjApplication;
 import org.minimalj.backend.Backend;
@@ -18,13 +19,16 @@ import org.minimalj.util.IdUtils;
 public class DbBackend extends Backend {
 
 	private final DbPersistence persistence;
+	private final Map<String, String> queries;
 
 	public DbBackend() {
 		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(), MjApplication.getApplication().getEntityClasses());
+		this.queries = MjApplication.getApplication().getQueries();
 	}
 	
 	public DbBackend(String database, String user, String password) {
 		this.persistence = new DbPersistence(DbPersistence.mariaDbDataSource(database, user, password), MjApplication.getApplication().getEntityClasses());
+		this.queries = MjApplication.getApplication().getQueries();
 	}
 	
 	//
@@ -139,20 +143,12 @@ public class DbBackend extends Backend {
 	
 	@Override
 	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
-		T result = null;
-		String query;
-		if (queryName.equals("MaxPerson")) {
-			query = "SELECT MAX(ID) FROM PERSON";
-			result = persistence.execute(clazz, query);
-		} else if (queryName.equals("MaxOrganisation")) {
-			query = "SELECT MAX(ID) FROM ORGANISATION";
-			result = persistence.execute(clazz, query);
-		} else if (queryName.equals("DeleteAll")) {
-			// TODO
-		} else if (queryName.equals("MaxCustomer")) {
-			query = "SELECT MAX(ID) FROM CUSTUMER";
-			result = persistence.execute(clazz, query);
+		if (queries == null || !queries.containsKey(queryName)) {
+			throw new RuntimeException("Query not available: " + queryName);
 		}
+		T result = null;
+		String query = queries.get(queryName);
+		result = persistence.execute(clazz, query);
 		return result;
 	}
 	

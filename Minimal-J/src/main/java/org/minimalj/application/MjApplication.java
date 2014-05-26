@@ -1,7 +1,10 @@
 package org.minimalj.application;
 
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
@@ -79,6 +82,27 @@ public abstract class MjApplication {
 		}
 	}
 
+	public Map<String, String> getQueries() {
+		try {
+			ResourceBundle queriesResourceBundle = ResourceBundle.getBundle(getCompletePackageName("backend") + ".queries");
+			if (queriesResourceBundle != null) {
+				HashMap<String, String> queries = new HashMap<>();
+				Enumeration<String> keyEnumeration = queriesResourceBundle.getKeys();
+				while (keyEnumeration.hasMoreElements()) {
+					String key = keyEnumeration.nextElement();
+					queries.put(key, queriesResourceBundle.getString(key));
+				}
+				return queries;
+			} else {
+				return Collections.emptyMap();
+			}
+		} catch (MissingResourceException x) {
+			Logger logger = Logger.getLogger(MjApplication.class.getName());
+			logger.info("No queries available");
+			return null;
+		}
+	}
+	
 	public abstract Class<?>[] getEntityClasses();
 
 	public String getName() {
