@@ -1,6 +1,12 @@
 package org.minimalj.application;
 
-
+/**
+ * Launchers create the application. There are different kind of launchers
+ * for the different frontends and backends. Not every concret launcher has
+ * to extend this class. Sometimes that's not possible when a launcher has
+ * to extends a class of a other framewark.
+ *
+ */
 public abstract class Launcher {
 
 	public static void initApplication(String[] args) {
