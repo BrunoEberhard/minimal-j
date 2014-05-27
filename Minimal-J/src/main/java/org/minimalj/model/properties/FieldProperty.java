@@ -4,13 +4,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.minimalj.backend.db.EmptyObjects;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.LoggingRuntimeException;
 
 public class FieldProperty implements PropertyInterface {
+	private static Logger logger = Logger.getLogger(FieldProperty.class.getName());
+
 	private final Field field;
 	private final boolean isFinal;
 	
@@ -29,13 +33,11 @@ public class FieldProperty implements PropertyInterface {
 		try {
 			return field.get(object);
 		} catch (Exception e) {
-			System.out.println("E: " + e.getLocalizedMessage());
-			System.out.println("O: " + object + (object != null ? "  (" + object.getClass() +")" : ""));
-			System.out.println("F: " + field.getName() + " (" + field.getType() + ")");
-			throw new RuntimeException(e);
+			throw new LoggingRuntimeException(e, logger, "get of " + field.getName() + " failed");
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void setValue(Object object, Object value) {
 		try {
@@ -45,7 +47,7 @@ public class FieldProperty implements PropertyInterface {
 				Object finalObject = field.get(object);
 				if (finalObject == value) return;
 				if (finalObject instanceof List) {
-					List<?> finalList = (List<?>) finalObject;
+					List finalList = (List) finalObject;
 					finalList.clear();
 					if (value != null) {
 						finalList.addAll((List) value);
