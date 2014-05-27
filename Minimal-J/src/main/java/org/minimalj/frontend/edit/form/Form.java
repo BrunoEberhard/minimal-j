@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.joda.time.LocalDate;
@@ -21,6 +22,7 @@ import org.minimalj.frontend.edit.fields.CheckBoxStringField;
 import org.minimalj.frontend.edit.fields.CodeEditField;
 import org.minimalj.frontend.edit.fields.CodeFormField;
 import org.minimalj.frontend.edit.fields.EditField;
+import org.minimalj.frontend.edit.fields.EditField.EditFieldListener;
 import org.minimalj.frontend.edit.fields.Enable;
 import org.minimalj.frontend.edit.fields.EnumEditField;
 import org.minimalj.frontend.edit.fields.EnumFormField;
@@ -33,7 +35,6 @@ import org.minimalj.frontend.edit.fields.TextEditField;
 import org.minimalj.frontend.edit.fields.TextFormField;
 import org.minimalj.frontend.edit.fields.TextFormatField;
 import org.minimalj.frontend.edit.fields.TypeUnknownField;
-import org.minimalj.frontend.edit.fields.EditField.EditFieldListener;
 import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.GridFormLayout;
@@ -511,7 +512,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 				if (invert) methodName = methodName.substring(1);
 				try {
 					Object o = findParentObject(property);
-					Class clazz = o.getClass();
+					Class<?> clazz = o.getClass();
 					Method method = clazz.getMethod(methodName);
 					boolean e = (Boolean) method.invoke(o);
 					if (field.getValue() instanceof Enable) {
@@ -524,9 +525,11 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 						}
 					}
 				} catch (Exception x) {
-					x.printStackTrace();
-					System.out.println(property.getFieldName());
-					System.out.println(property.getFieldPath());
+					String fieldName = property.getFieldName();
+					if (!fieldName.equals(property.getFieldPath())) {
+						fieldName += " (" + property.getFieldPath() + ")";
+					}
+					logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed" , x);
 				}
 			}
 		}
