@@ -83,6 +83,7 @@ public class SerializationOutputStream {
 			dos.write(1);
 			dos.write(((Boolean) value).booleanValue() ? 1 : 0);
 		} else if (fieldClazz == List.class) {
+			@SuppressWarnings("rawtypes")
 			List list = (List) value;
 			dos.writeInt(list.size());
 			for (int i = 0; i<list.size(); i++) {
@@ -143,12 +144,6 @@ public class SerializationOutputStream {
 		} else {
 			dos.write(0);
 		}
-	}
-	
-	public static void main(String... args) {
-		// class [Ljava.lang.Object;
-		// class java.lang.Object
-		System.out.println(new Object().getClass());
 	}
 
 }
