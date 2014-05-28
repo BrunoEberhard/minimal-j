@@ -1,5 +1,6 @@
 package org.minimalj.frontend.vaadin;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -56,10 +57,10 @@ public class VaadinLauncher extends Application {
 	static {
 		Locale.setDefault(Locale.GERMAN); // TODO correct setting of Locale
 		ClientToolkit.setToolkit(new VaadinClientToolkit());
-		Resources.addResourceBundle(ResourceBundle.getBundle("org.minimalj.resources.MinimalJ"));
+		Resources.addResourceBundle(ResourceBundle.getBundle("org.minimalj.util.resources.MinimalJ"));
 	}
 
-	public class VaadinApplicationContext extends ApplicationContext {
+	public class VaadinApplicationContext extends ApplicationContext implements Serializable {
 		private Object preferences;
 		
 		@Override
