@@ -51,7 +51,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	}
 
 	@Override
-	public void setClickListener(TableActionListener clickListener) {
+	public void setClickListener(TableActionListener<T> clickListener) {
 		if (clickListener == null) {
 			if (tableClickListener != null) {
 				removeListener(tableClickListener);
