@@ -1,4 +1,4 @@
-package ch.openech.mj.edit.fields;
+package org.minimalj.edit.fields;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -6,7 +6,7 @@ import java.util.Calendar;
 
 import org.joda.time.LocalDate;
 
-import ch.openech.mj.model.InvalidValues;
+import org.minimalj.model.InvalidValues;
 
 
 // Not used at the moment. Swing specific

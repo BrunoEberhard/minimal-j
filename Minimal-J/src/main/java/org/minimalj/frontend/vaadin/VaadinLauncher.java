@@ -56,7 +56,7 @@ public class VaadinLauncher extends Application {
 	static {
 		Locale.setDefault(Locale.GERMAN); // TODO correct setting of Locale
 		ClientToolkit.setToolkit(new VaadinClientToolkit());
-		Resources.addResourceBundle(ResourceBundle.getBundle("ch.openech.mj.resources.MinimalJ"));
+		Resources.addResourceBundle(ResourceBundle.getBundle("org.minimalj.resources.MinimalJ"));
 	}
 
 	public class VaadinApplicationContext extends ApplicationContext {

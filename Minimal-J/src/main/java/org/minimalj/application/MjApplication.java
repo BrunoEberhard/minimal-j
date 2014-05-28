@@ -52,7 +52,7 @@ public abstract class MjApplication {
 	/**
 	 * 
 	 * @param simplePackageName for example "editor".
-	 * @return the package name of this type of package for this application. For example "ch.openech.mj.example.editor"
+	 * @return the package name of this type of package for this application. For example "org.minimalj.example.frontend.editor"
 	 */
 	public static String getCompletePackageName(String simplePackageName) {
 		MjApplication application = MjApplication.getApplication();
