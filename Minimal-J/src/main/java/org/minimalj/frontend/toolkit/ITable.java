@@ -7,13 +7,6 @@ public interface ITable<T> extends IComponent {
 
 	public void setObjects(List<T> objects);
 
-	// TODO
-	// public void setObjects(List<?> ids, Lookup<T> lookup);
-	// 
-	// public static interface Lookup<U> {
-	//	public U lookup(long id);
-	// }
-	
 	public void setClickListener(TableActionListener<T> listener);
 	public void setDeleteListener(TableActionListener<T> listener);
 	public void setInsertListener(InsertListener listener);
