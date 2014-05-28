@@ -15,12 +15,12 @@
 		<init-param>
 			<description>Vaadin application class to start</description>
 			<param-name>application</param-name>
-			<param-value>ch.openech.mj.vaadin.VaadinLauncher</param-value>
+			<param-value>org.minimalj.frontend.vaadin.VaadinLauncher</param-value>
 		</init-param>
 		<init-param>
 			<description>Minimal-J application class to start</description>
 			<param-name>MjApplication</param-name>
-			<param-value>ch.openech.mj.example.MjExampleApplication</param-value>
+			<param-value>org.mininmalj.example.library.MjExampleApplication</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
