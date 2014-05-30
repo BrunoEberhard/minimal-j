@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.Launcher;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.Editor.EditorListener;
@@ -47,13 +46,13 @@ import com.googlecode.lanterna.gui.layout.HorisontalLayout;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 
-public class LanternaLauncher extends Launcher {
+public class LanternaFrontend {
 
 	private static ApplicationContext applicationContext;
 
 	private Editor<?> editor;
 	
-	private LanternaLauncher() {
+	private LanternaFrontend() {
 		// private
 	}
 	
@@ -98,14 +97,14 @@ public class LanternaLauncher extends Launcher {
 		@Override
 		public void savePreferences(Object preferences) {
 			PreferencesHelper.save(Preferences
-					.userNodeForPackage(LanternaLauncher.this.getClass()),
+					.userNodeForPackage(LanternaFrontend.this.getClass()),
 					preferences);
 		}
 
 		@Override
 		public void loadPreferences(Object preferences) {
 			PreferencesHelper.load(Preferences
-					.userNodeForPackage(LanternaLauncher.this.getClass()),
+					.userNodeForPackage(LanternaFrontend.this.getClass()),
 					preferences);
 		}
 	}
@@ -347,7 +346,7 @@ public class LanternaLauncher extends Launcher {
 
 		@Override
 		public void show(Editor<?> editor) {
-			LanternaLauncher.this.editor = editor;
+			LanternaFrontend.this.editor = editor;
 			
 			IForm<?> form = editor.startEditor();
 			final LanternaDialog dialog = (LanternaDialog) ClientToolkit.getToolkit().createDialog(null, editor.getTitle(), form.getComponent(), editor.getActions());
@@ -355,8 +354,8 @@ public class LanternaLauncher extends Launcher {
 			dialog.setCloseListener(new org.minimalj.frontend.toolkit.IDialog.CloseListener() {
 				@Override
 				public boolean close() {
-					LanternaLauncher.this.editor.checkedClose();
-					return LanternaLauncher.this.editor.isFinished();
+					LanternaFrontend.this.editor.checkedClose();
+					return LanternaFrontend.this.editor.isFinished();
 				}
 			});
 			
@@ -380,8 +379,8 @@ public class LanternaLauncher extends Launcher {
 	}
 	
 	public static void main(final String[] args) throws Exception {
-		initApplication(args);
+		MjApplication.initApplication(args);
 
-		new LanternaLauncher().run();
+		new LanternaFrontend().run();
 	}
 }

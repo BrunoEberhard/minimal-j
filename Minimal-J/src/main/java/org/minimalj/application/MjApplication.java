@@ -9,22 +9,32 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.SocketBackendServer;
+import org.minimalj.backend.db.DbBackend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
+import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.toolkit.IAction;
+import org.minimalj.frontend.vaadin.VaadinFrontend;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Extend this class as main entry for your Application.<p>
+ * Extend this class as the start point for your Application.
+ * Both frontend and backend get their application
+ * specification from this class.<p>
  * 
- * Set the argument <code>MjApplication</code> as argument if the application
- * is started with SwingLauncher or set the <code>init-param</code> in the servlet
- * element in the <code>web.xml</code> if the VaadinLauncher is used.<p>
+ * Set the first argument of the JVM if the application
+ * is started with SwingFrontend or set the <code>init-param</code> in the servlet
+ * element in the <code>web.xml</code> if the VaadinFrontend is used.<p>
  *
- * The only method you have to override is getEntityClasses to specify the
+ * The only method you must override is getEntityClasses to specify the
  * main classes of your business data model. All other methods are optional.
  * 
+ * @see SwingFrontend
+ * @see VaadinFrontend
+ * @see SocketBackendServer
+ * @see DbBackend
  */
 public abstract class MjApplication {
 	private static MjApplication application;
@@ -36,6 +46,12 @@ public abstract class MjApplication {
 		return application;
 	}
 	
+	/**
+	 * Sets the application of this vm. Can only be called once.
+	 * This method should only be called by a frontend or a backend main class.
+	 * 
+	 * @param application normally the created by createApplication method
+	 */
 	public static synchronized void setApplication(MjApplication application) {
 		if (MjApplication.application != null) {
 			throw new IllegalStateException("Application cannot be changed");
@@ -47,6 +63,51 @@ public abstract class MjApplication {
 		
 		ResourceBundle resourceBundle = application.getResourceBundle();
 		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
+	}
+	
+	/**
+	 * This is just a shortcut for creating the application from jvm arguments.
+	 * Most frontend or backend main classes use this method
+	 * 
+	 * @param args the arguments provided to the jvm
+	 */
+	public static void initApplication(String[] args) {
+		if (args.length < 1) {
+			throw new IllegalArgumentException("Please specify a MjApplication as first argument");
+		}
+		
+		String applicationClassName = args[0];
+		MjApplication application = createApplication(applicationClassName);
+		MjApplication.setApplication(application);
+	}
+	
+	/**
+	 * Creates the MjApplication from a class name. This method should normally only
+	 * be called by a frontend or a backend main class.
+	 * 
+	 * @param applicationClassName qualified class name
+	 * @return the created application. Different exceptions are thrown if the
+	 * creation failed.
+	 */
+	public static MjApplication createApplication(String applicationClassName) {
+		Class<?> applicationClass;
+		try {
+			applicationClass = Class.forName(applicationClassName);
+		} catch (ClassNotFoundException e) {
+			throw new IllegalArgumentException("Could not found MjApplication class: " + applicationClassName);
+		}
+		Object application;
+		try {
+			application = applicationClass.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new IllegalArgumentException("Could not instantiate MjApplication class: " + applicationClassName, e);
+		}
+		
+		if (!(application instanceof MjApplication)) {
+			throw new IllegalArgumentException("Class " + applicationClassName + " doesn't extend MjApplication");
+		}
+		
+		return (MjApplication) application;
 	}
 	
 	/**

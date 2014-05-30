@@ -15,7 +15,7 @@
 		<init-param>
 			<description>Vaadin application class to start</description>
 			<param-name>application</param-name>
-			<param-value>org.minimalj.frontend.vaadin.VaadinLauncher</param-value>
+			<param-value>org.minimalj.frontend.vaadin.VaadinFrontend</param-value>
 		</init-param>
 		<init-param>
 			<description>Minimal-J application class to start</description>

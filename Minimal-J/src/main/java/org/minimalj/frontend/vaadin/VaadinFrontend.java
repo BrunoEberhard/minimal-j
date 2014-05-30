@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.Launcher;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.PageLink;
@@ -22,7 +21,7 @@ import com.vaadin.Application;
  * Note: this class extends Vaadin - Application not the
  * MjApplication
  */
-public class VaadinLauncher extends Application {
+public class VaadinFrontend extends Application {
 	private static final long serialVersionUID = 1L;
 	
 	private final ApplicationContext applicationContext = new VaadinApplicationContext();
@@ -44,7 +43,7 @@ public class VaadinLauncher extends Application {
 			if (StringUtils.isBlank(applicationName)) {
 				throw new IllegalArgumentException("Missing MjApplication parameter");
 			}
-			MjApplication application = Launcher.createApplication(applicationName);
+			MjApplication application = MjApplication.createApplication(applicationName);
 			MjApplication.setApplication(application);
 			applicationInitialized = true;
 		}
@@ -65,12 +64,12 @@ public class VaadinLauncher extends Application {
 		
 		@Override
 		public void setUser(String user) {
-			VaadinLauncher.this.setUser(user);
+			VaadinFrontend.this.setUser(user);
 		}
 
 		@Override
 		public String getUser() {
-			return (String) VaadinLauncher.this.getUser();
+			return (String) VaadinFrontend.this.getUser();
 		}
 
 		@Override

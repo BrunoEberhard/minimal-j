@@ -10,8 +10,8 @@ import org.minimalj.frontend.toolkit.ITable.TableActionListener;
  * To provide a new kind of client you have to implement two things:
  * <OL>
  * <LI>This class</LI>
- * <LI>Some kind of launcher. The launcher should take an instance of MjApplication and 
- * start the client. Take a look at the existing SwingLauncher, VaadinLauncher oder LanternaLauncher. The trickiest part will be to implement
+ * <LI>Some kind of Frontend. The Frontend should take an instance of MjApplication and 
+ * start the client. Take a look at the existing SwingFrontend, VaadinFrontend or LanternaFrontend. The trickiest part will be to implement
  * the PageContext.</LI>
  * </OL>
  *

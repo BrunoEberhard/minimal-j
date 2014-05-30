@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.application.Launcher;
+import org.minimalj.application.MjApplication;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
@@ -92,7 +92,7 @@ public class SocketBackendServer {
 	}
 	
 	public static void main(final String[] args) throws Exception {
-		Launcher.initApplication(args);
+		MjApplication.initApplication(args);
 		
 		new SocketBackendServer(8020).run();
 	}

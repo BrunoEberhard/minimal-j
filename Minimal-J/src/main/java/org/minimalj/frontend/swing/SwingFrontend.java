@@ -5,15 +5,15 @@ import java.util.prefs.Preferences;
 import javax.swing.SwingUtilities;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.Launcher;
+import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 
-public class SwingLauncher extends Launcher implements Runnable {
+public class SwingFrontend implements Runnable {
 
 	private static ApplicationContext applicationContext;
 
-	private SwingLauncher() {
+	private SwingFrontend() {
 		// private
 	}
 
@@ -52,19 +52,19 @@ public class SwingLauncher extends Launcher implements Runnable {
 		
 		@Override
 		public void savePreferences(Object preferences) {
-			PreferencesHelper.save(Preferences.userNodeForPackage(SwingLauncher.this.getClass()), preferences);
+			PreferencesHelper.save(Preferences.userNodeForPackage(SwingFrontend.this.getClass()), preferences);
 		}
 
 		@Override
 		public void loadPreferences(Object preferences) {
-			PreferencesHelper.load(Preferences.userNodeForPackage(SwingLauncher.this.getClass()), preferences);
+			PreferencesHelper.load(Preferences.userNodeForPackage(SwingFrontend.this.getClass()), preferences);
 		}
 	}
 
 	public static void main(final String[] args) throws Exception {
-		initApplication(args);
+		MjApplication.initApplication(args);
 
-		SwingUtilities.invokeAndWait(new SwingLauncher());
+		SwingUtilities.invokeAndWait(new SwingFrontend());
 	}
 	
 }
