@@ -2,7 +2,7 @@ package org.minimalj.example.library.model;
 
 import java.io.Serializable;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;

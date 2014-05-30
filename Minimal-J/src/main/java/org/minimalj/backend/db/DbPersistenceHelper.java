@@ -10,17 +10,15 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.derby.client.am.Types;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.InvalidValues;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.View;
 import org.minimalj.model.annotation.ViewOf;
-import org.minimalj.util.DateUtils;
 import org.minimalj.util.GenericUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 public class DbPersistenceHelper {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
@@ -38,7 +36,7 @@ public class DbPersistenceHelper {
 	 */
 	public static boolean isReference(PropertyInterface property) {
 		if (property.getFieldClazz().getName().startsWith("java")) return false;
-		if (property.getFieldClazz().getName().startsWith("org.joda")) return false;
+		if (property.getFieldClazz().getName().startsWith("org.threeten")) return false;
 		if (Enum.class.isAssignableFrom(property.getFieldClazz())) return false;
 		return true;
 	}
@@ -102,13 +100,11 @@ public class DbPersistenceHelper {
 					return;
 				}
 			} else if (value instanceof LocalDate) {
-				value = new java.sql.Date(((LocalDate) value).toDate().getTime());
+				value = convertToSql((LocalDate) value);
 			} else if (value instanceof LocalTime) {
-				value = new java.sql.Time(((LocalTime) value).toDateTimeToday().getMillis());
+				value = convertToSql((LocalTime) value);
 			} else if (value instanceof LocalDateTime) {
-				value = new java.sql.Timestamp(((LocalDateTime) value).toDate().getTime());
-			} else if (value instanceof ReadablePartial) {
-				value = DateUtils.formatPartial((ReadablePartial) value);
+				value = convertToSql((LocalDateTime) value);
 			} else if (value instanceof Set<?>) {
 				Set<?> set = (Set<?>) value;
 				Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
@@ -118,6 +114,47 @@ public class DbPersistenceHelper {
 		} 
 	}
 
+	// in jdk 8 there are converters. remove this when migrating
+	
+	static java.sql.Date convertToSql(LocalDate localDate) {
+		@SuppressWarnings("deprecation")
+		java.sql.Date timestamp = new java.sql.Date(localDate.getYear() - 1900, localDate.getMonthValue() - 1, localDate.getDayOfMonth());
+		return timestamp;
+	}
+	
+	static java.sql.Time convertToSql(LocalTime localTime) {
+		@SuppressWarnings("deprecation")
+		java.sql.Time time = new java.sql.Time(localTime.getHour(), localTime.getMinute(), localTime.getSecond());
+		return time;
+	}
+	
+	static java.sql.Timestamp convertToSql(LocalDateTime localDateTime) {
+		@SuppressWarnings("deprecation")
+		java.sql.Timestamp timestamp = new java.sql.Timestamp(localDateTime.getYear() - 1900, localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth(), //
+				localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), localDateTime.getNano());
+		return timestamp;
+	}
+	
+	@SuppressWarnings("deprecation")
+	static LocalDate convertFromSql(java.sql.Date date) {
+		return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
+	}
+	
+	@SuppressWarnings("deprecation")
+	static LocalTime convertFromSql(java.sql.Time time) {
+		return LocalTime.of(time.getHours(), time.getMinutes(), time.getSeconds());
+	}
+	
+	@SuppressWarnings("deprecation")
+	static LocalDateTime convertFromSql(java.sql.Timestamp timestamp) {
+		return LocalDateTime.of(timestamp.getYear() + 1900, timestamp.getMonth() + 1, timestamp.getDate(), timestamp.getHours(), timestamp.getMinutes(), timestamp.getSeconds());
+	}
+	
+	@SuppressWarnings("deprecation")
+	static LocalDateTime convertFromSqlToLocalDateTime(java.sql.Date date) {
+		return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+	}
+	
 	public void setParameterNull(PreparedStatement preparedStatement, int param, PropertyInterface property) throws SQLException {
 		Class<?> clazz = property.getFieldClazz();
 		if (clazz == String.class) {
@@ -136,8 +173,6 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.TIME);
 		} else if (clazz == LocalDateTime.class) {
 			preparedStatement.setNull(param, Types.DATE);
-		} else if (clazz == ReadablePartial.class) {
-			preparedStatement.setNull(param, Types.CHAR);
 		} else if (DbPersistenceHelper.isView(property)) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (dbPersistence.table(clazz) != null) {
@@ -153,32 +188,22 @@ public class DbPersistenceHelper {
 		
 		if (fieldClass == LocalDate.class) {
 			if (value instanceof java.sql.Date) {
-				value = new LocalDate((java.sql.Date) value);
+				value = convertFromSql((java.sql.Date) value);
 			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == LocalTime.class) {
 			if (value instanceof java.sql.Time) {
-				value = new LocalTime((java.sql.Time) value);
+				value = convertFromSql((java.sql.Time) value);
 			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == LocalDateTime.class) {
 			if (value instanceof java.sql.Timestamp) {
-				value = new LocalDateTime((java.sql.Timestamp) value);
+				value = convertFromSql((java.sql.Timestamp) value);
 			} else if (value instanceof java.sql.Date) {
-				value = new LocalDateTime((java.sql.Date) value);
+				value = convertFromSqlToLocalDateTime((java.sql.Date) value);
 			} else {
-				throw new IllegalArgumentException(value.getClass().getSimpleName());
-			}
-		} else if (fieldClass == ReadablePartial.class) {
-			if (value instanceof String) {
-				String text = ((String) value).trim(); // cut the spaces from CHAR - Column
-				value = DateUtils.parsePartial(text);
-			} else if (value instanceof java.sql.Date) {
-				// this should not happen, but is maybe usefull for migrating a DB
-				value = new LocalDate(((java.sql.Date) value).getTime());
-			} else if (value != null) {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == Boolean.class) {

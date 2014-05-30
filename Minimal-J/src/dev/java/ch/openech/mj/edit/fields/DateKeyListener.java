@@ -4,7 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Calendar;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import org.minimalj.model.InvalidValues;
 
@@ -43,7 +43,7 @@ public class DateKeyListener extends KeyAdapter {
 	}
 
 	private void setToday() {
-		dateField.setObject(new LocalDate());
+		dateField.setObject(LocalDate.now());
 	}
 	
 	private void changeYear(int amount) {

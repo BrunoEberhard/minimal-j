@@ -11,12 +11,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.properties.FlatProperties;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 
 public class SerializationInputStream {
@@ -62,13 +61,11 @@ public class SerializationInputStream {
 		} else if (fieldClazz == Boolean.class) {
 			return dis.read() != 0;
 		} else if (LocalDate.class.isAssignableFrom(fieldClazz)) {
-			return new LocalDate(readString(1));
+			return readLocalDate(dis);
 		} else if (LocalTime.class.isAssignableFrom(fieldClazz)) {
-			return new LocalTime(readString(1));
+			return readLocalTime(dis);
 		} else if (LocalDateTime.class.isAssignableFrom(fieldClazz)) {
-			return new LocalDateTime(readString(1));
-		} else if (ReadablePartial.class.isAssignableFrom(fieldClazz)) {
-			return DateUtils.parsePartial(readString(1));
+			return readLocalDateTime(dis);
 		} else if (fieldClazz.isArray()) {
 			int length = dis.readInt();
 			Object[] objects = (Object[]) Array.newInstance(fieldClazz, length);
@@ -81,6 +78,42 @@ public class SerializationInputStream {
 		}
 	}
 
+	private static LocalDate readLocalDate(DataInputStream dis) throws IOException {
+		int year = dis.readInt();
+		int month = dis.readByte();
+		int dayOfMonth = dis.readByte();
+		return LocalDate.of(year, month, dayOfMonth);
+	}
+
+	private static LocalTime readLocalTime(DataInputStream in) throws IOException {
+        int hour = in.readByte();
+        int minute = 0;
+        int second = 0;
+        int nano = 0;
+        if (hour < 0) {
+            hour = ~hour;
+        } else {
+            minute = in.readByte();
+            if (minute < 0) {
+                minute = ~minute;
+            } else {
+                second = in.readByte();
+                if (second < 0) {
+                    second = ~second;
+                } else {
+                    nano = in.readInt();
+                }
+            }
+        }
+        return LocalTime.of(hour, minute, second, nano);
+	}
+	
+	private static LocalDateTime readLocalDateTime(DataInputStream in) throws IOException {
+        LocalDate date = readLocalDate(in);
+        LocalTime time = readLocalTime(in);
+        return LocalDateTime.of(date, time);
+	}
+	
 	public Object readObject(Class<?> fieldClazz) throws IOException {
 		Object object = CloneHelper.newInstance(fieldClazz);
 		Field[] fields = fieldClazz.getDeclaredFields();

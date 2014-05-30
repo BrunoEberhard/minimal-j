@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.joda.time.Partial;
-import org.joda.time.ReadablePartial;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.StringUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 public class Keys {
 
@@ -98,7 +99,7 @@ public class Keys {
 				property = new ChainedProperty(enclosingProperty, property);
 			}
 
-			boolean fill = !type.getName().startsWith("java") && !type.getName().startsWith("org.joda");
+			boolean fill = !type.getName().startsWith("java") && !type.getName().startsWith("org.threeten");
 			if (fill && depth < 6) {
 				fillFields(value, property, depth + 1);
 			}
@@ -119,8 +120,12 @@ public class Keys {
 			return new Boolean(false);
 		} else if (type == BigDecimal.class) {
 			return new BigDecimal(0);
-		} else if (type == ReadablePartial.class) {
-			return new Partial();
+		} else if (type == LocalDate.class) {
+			return LocalDate.now();			
+		} else if (type == LocalDateTime.class) {
+			return LocalDateTime.now();	
+		} else if (type == LocalTime.class) {
+			return LocalTime.now();				
 		} else {
 			// note: LocalDate, LocaleDateTime etc have an empty constructor
 			// so they are constructed in the else branch

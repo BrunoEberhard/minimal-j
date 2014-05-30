@@ -3,47 +3,46 @@ import java.util.Locale;
 
 import junit.framework.Assert;
 
-import org.joda.time.DateTimeFieldType;
-import org.joda.time.LocalDate;
-import org.joda.time.Partial;
-import org.joda.time.ReadablePartial;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Test;
+import org.threeten.bp.Year;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
+import org.threeten.bp.temporal.ChronoField;
+import org.threeten.bp.temporal.TemporalAccessor;
 
 
 public class LocalDateExampleTest {
 
 	@Test
 	public void testParseAndFormatISO() {
-		LocalDate date = ISODateTimeFormat.date().parseLocalDate("2012-11-03");
-		Assert.assertEquals(2012, date.getYear());
-		Assert.assertEquals(11, date.getMonthOfYear());
-		Assert.assertEquals(3, date.getDayOfMonth());
-		String dateString = ISODateTimeFormat.date().print(date);
+		TemporalAccessor date = DateTimeFormatter.ISO_DATE.parse("2012-11-03");
+		Assert.assertEquals(2012, date.get(ChronoField.YEAR));
+		Assert.assertEquals(11, date.get(ChronoField.MONTH_OF_YEAR));
+		Assert.assertEquals(3, date.get(ChronoField.DAY_OF_MONTH));
+		String dateString = DateTimeFormatter.ISO_DATE.format(date);
 		Assert.assertEquals("2012-11-03", dateString);
 	}
 	
 	@Test
 	public void testParseAndFormatLocale() {
 		Locale.setDefault(Locale.GERMAN);
-		LocalDate date = DateTimeFormat.shortDate().parseLocalDate("3.11.12");
-		Assert.assertEquals(2012, date.getYear());
-		Assert.assertEquals(11, date.getMonthOfYear());
-		Assert.assertEquals(3, date.getDayOfMonth());
-		String dateString = DateTimeFormat.mediumDate().print(date);
+		TemporalAccessor date = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).parse("03.11.12");
+		Assert.assertEquals(2012, date.get(ChronoField.YEAR));
+		Assert.assertEquals(11, date.get(ChronoField.MONTH_OF_YEAR));
+		Assert.assertEquals(3, date.get(ChronoField.DAY_OF_MONTH));
+		String dateString = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(date);
 		Assert.assertEquals("03.11.2012", dateString);
 
-		dateString = DateTimeFormat.shortDate().print(date);
+		dateString = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(date);
 		Assert.assertEquals("03.11.12", dateString);
 	}
 	
 	@Test
 	public void testParse() {
 		Locale.setDefault(Locale.GERMAN);
-		ReadablePartial p = new Partial(DateTimeFieldType.year(), 2012);
-		Assert.assertEquals(2012, p.get(DateTimeFieldType.year()));
-		Assert.assertFalse(p.isSupported(DateTimeFieldType.monthOfYear()));
+		TemporalAccessor p = Year.of(2012);
+		Assert.assertEquals(2012, p.get(ChronoField.YEAR));
+		Assert.assertFalse(p.isSupported(ChronoField.MONTH_OF_YEAR));
 	}
 
 }

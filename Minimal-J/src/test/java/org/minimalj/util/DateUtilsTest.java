@@ -1,12 +1,8 @@
 package org.minimalj.util;
 
-import java.util.Locale;
-
 import junit.framework.Assert;
 
-import org.joda.time.ReadablePartial;
 import org.junit.Test;
-import org.minimalj.util.DateUtils;
 
 
 public class DateUtilsTest {
@@ -114,33 +110,6 @@ public class DateUtilsTest {
 	public void parseCH_09121974() {
 		Assert.assertEquals("1974-12-09", DateUtils.parseCH("09121974", true));
 		Assert.assertEquals("1974-12-09", DateUtils.parseCH("09121974", false));
-	}
-	
-	@Test
-	public void formatPartialYYYY() {
-		Locale.setDefault(Locale.GERMAN);
-		ReadablePartial p = DateUtils.newPartial("2012");
-		Assert.assertEquals("2012", DateUtils.formatPartial(p));
-		p = DateUtils.newPartial("998");
-		Assert.assertEquals("0998", DateUtils.formatPartial(p));
-	}
-	
-	@Test
-	public void formatPartialYYYYMM() {
-		Locale.setDefault(Locale.GERMAN);
-		ReadablePartial p = DateUtils.newPartial("2012", "09");
-		Assert.assertEquals("2012-09", DateUtils.formatPartial(p));
-		p = DateUtils.newPartial("2012", "10");
-		Assert.assertEquals("2012-10", DateUtils.formatPartial(p));
-	}
-
-	@Test
-	public void formatPartialYYYYMMDD() {
-		Locale.setDefault(Locale.GERMAN);
-		ReadablePartial p = DateUtils.newPartial("2012", "09", "23");
-		Assert.assertEquals("2012-09-23", DateUtils.formatPartial(p));
-		p = DateUtils.newPartial("2012", "10", "8");
-		Assert.assertEquals("2012-10-08", DateUtils.formatPartial(p));
 	}
 
 }

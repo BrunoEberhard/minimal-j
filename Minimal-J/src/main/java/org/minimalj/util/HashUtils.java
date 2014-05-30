@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.joda.time.ReadablePartial;
+import org.threeten.bp.temporal.TemporalAccessor;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.properties.FlatProperties;
 
@@ -73,7 +73,7 @@ public class HashUtils {
 			} else if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
 				writeString(dos, e.name());
-			} else if (value instanceof ReadablePartial) {
+			} else if (value instanceof TemporalAccessor) {
 				dos.writeInt(value.hashCode());
 			} else if (value instanceof BigDecimal) {
 				 BigDecimal bigDecimal = (BigDecimal) value;

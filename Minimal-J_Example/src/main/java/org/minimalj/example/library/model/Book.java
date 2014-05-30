@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.joda.time.LocalDate;
+import org.threeten.bp.LocalDate;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Required;
@@ -39,7 +39,7 @@ public class Book implements DemoEnabled, Serializable {
 //		media = Media.hardcover;
 		author = "Stephan King";
 		available = true;
-		date = new LocalDate(2009, 1, 1);
+		date = LocalDate.of(2009, 1, 1);
 		pages = 800;
 		price = new BigDecimal(3990).divide(new BigDecimal(100));
 	}

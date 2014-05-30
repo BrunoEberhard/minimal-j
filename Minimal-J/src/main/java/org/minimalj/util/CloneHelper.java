@@ -75,7 +75,7 @@ public class CloneHelper {
 	public static boolean isPrimitive(Field field) {
 		String fieldTypeName = field.getType().getName();
 		if (field.getType().isPrimitive() || fieldTypeName.startsWith("java")) return true;
-		if (fieldTypeName.startsWith("org.joda")) return true;
+		if (fieldTypeName.startsWith("org.threeten")) return true;
 		if (Enum.class.isAssignableFrom(field.getType())) return true;
 		return false;
 	}

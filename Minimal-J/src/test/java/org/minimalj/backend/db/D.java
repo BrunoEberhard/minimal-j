@@ -1,9 +1,8 @@
 package org.minimalj.backend.db;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 public class D {
 
@@ -12,9 +11,5 @@ public class D {
 	public LocalDate localDate;
 	public LocalTime localTime;
 	public LocalDateTime localDateTime;
-	
-	public ReadablePartial p1;
-	public ReadablePartial p2;
-	public ReadablePartial p3;
 	
 }

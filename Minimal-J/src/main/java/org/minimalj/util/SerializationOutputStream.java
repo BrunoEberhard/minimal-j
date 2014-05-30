@@ -8,9 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.joda.time.ReadablePartial;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.properties.FlatProperties;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 
 public class SerializationOutputStream {
@@ -104,8 +106,15 @@ public class SerializationOutputStream {
 				int asInt = EnumUtils.getInt(set, enumClass);
 				dos.writeInt(asInt);
 			}
-		} else if (ReadablePartial.class.isAssignableFrom(fieldClazz)) {
-			writeString(DateUtils.formatPartial((ReadablePartial) value));
+		} else if (value instanceof LocalDate) {
+			dos.write(1); // ok, year is probably not 0 but stilll.
+			write(dos, (LocalDate) value);
+		} else if (value instanceof LocalTime) {
+			dos.write(1);
+			write(dos, (LocalTime) value);
+		} else if (value instanceof LocalDateTime) {
+			dos.write(1);
+			write(dos, (LocalDateTime) value);
 		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
 			dos.writeByte(((Enum<?>) value).ordinal() + 1);
 		} else {
@@ -114,7 +123,44 @@ public class SerializationOutputStream {
 		return true;
 	}
 
-    public void writeString(String value) throws IOException {
+    private static void write(DataOutputStream dos, LocalDate value) throws IOException {
+    	dos.writeInt(value.getYear());
+    	dos.writeByte(value.getMonthValue());
+    	dos.writeByte(value.getDayOfMonth());
+	}
+    
+    private static void write(DataOutputStream out, LocalTime value) throws IOException {
+    	int nano = value.getNano();
+    	int second = value.getSecond();
+    	int minute = value.getMinute();
+    	int hour = value.getHour();
+        if (nano == 0) {
+            if (second == 0) {
+                if (minute == 0) {
+                    out.writeByte(~hour);
+                } else {
+                    out.writeByte(hour);
+                    out.writeByte(~minute);
+                }
+            } else {
+                out.writeByte(hour);
+                out.writeByte(minute);
+                out.writeByte(~second);
+            }
+        } else {
+            out.writeByte(hour);
+            out.writeByte(minute);
+            out.writeByte(second);
+            out.writeInt(nano);
+        }
+	}
+    
+    private static void write(DataOutputStream dos, LocalDateTime value) throws IOException {
+    	write(dos, value.toLocalDate());
+    	write(dos, value.toLocalTime());
+	}
+
+	public void writeString(String value) throws IOException {
 		int chunkSize = 20000;
 		int chunks = (value.length() - 1) / chunkSize + 1;
 		dos.write(chunks);
@@ -144,6 +190,10 @@ public class SerializationOutputStream {
 		} else {
 			dos.write(0);
 		}
+	}
+	
+	private static void writeTemporal(Object temporal) {
+		
 	}
 
 }

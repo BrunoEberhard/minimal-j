@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.Partial;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.temporal.Temporal;
 
 public class InvalidValues {
 
@@ -49,26 +49,26 @@ public class InvalidValues {
 		return e;
 	}
 
-	public static Partial createInvalidPartial(String string) {
-		Partial partial = new Partial();
+	public static Temporal createInvalidPartial(String string) {
+		Temporal partial = LocalDate.now();
 		values.put(partial, string);
 		return partial;
 	}
 
 	public static LocalDate createInvalidLocalDate(String string) {
-		LocalDate localDate = new LocalDate();
+		LocalDate localDate = LocalDate.now();
 		values.put(localDate, string);
 		return localDate;
 	}
 
 	public static LocalDateTime createInvalidLocalDateTime(String string) {
-		LocalDateTime localDateTime = new LocalDateTime();
+		LocalDateTime localDateTime = LocalDateTime.now();
 		values.put(localDateTime, string);
 		return localDateTime;
 	}
 	
 	public static LocalTime createInvalidLocalTime(String string) {
-		LocalTime localTime = new LocalTime();
+		LocalTime localTime = LocalTime.now();
 		values.put(localTime, string);
 		return localTime;
 	}

@@ -3,13 +3,14 @@ package org.minimalj.frontend.vaadin.toolkit;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.ReadablePartial;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.vaadin.PropertyVaadinContainer;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.util.JodaFormatter;
+import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAccessor;
 
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
@@ -23,7 +24,6 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
-	private final JodaFormatter jodaFormatter = new JodaFormatter();
 	private TableActionListener<T> listener;
 	private VaadinTableItemClickListener tableClickListener;
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
@@ -71,8 +71,8 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	protected String formatPropertyValue(Object rowId, Object colId,
 			Property property) {
 		Object v = property.getValue();
-		if (v instanceof ReadablePartial) {
-			return jodaFormatter.format(v, (PropertyInterface) colId);
+		if (v instanceof TemporalAccessor) {
+			return DateUtils.getTimeFormatter((PropertyInterface) colId).format((Temporal) v); 
 		}
 		return super.formatPropertyValue(rowId, colId, property);
 	}

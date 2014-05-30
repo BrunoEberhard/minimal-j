@@ -13,10 +13,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
-import org.minimalj.frontend.edit.fields.AbstractJodaField;
 import org.minimalj.frontend.edit.fields.BigDecimalEditField;
 import org.minimalj.frontend.edit.fields.CheckBoxStringField;
 import org.minimalj.frontend.edit.fields.CodeEditField;
@@ -29,11 +25,12 @@ import org.minimalj.frontend.edit.fields.EnumFormField;
 import org.minimalj.frontend.edit.fields.EnumSetEditField;
 import org.minimalj.frontend.edit.fields.FormField;
 import org.minimalj.frontend.edit.fields.IntegerEditField;
+import org.minimalj.frontend.edit.fields.LocalDateField;
+import org.minimalj.frontend.edit.fields.LocalTimeField;
 import org.minimalj.frontend.edit.fields.LongEditField;
 import org.minimalj.frontend.edit.fields.NumberFormField;
 import org.minimalj.frontend.edit.fields.TextEditField;
 import org.minimalj.frontend.edit.fields.TextFormField;
-import org.minimalj.frontend.edit.fields.TextFormatField;
 import org.minimalj.frontend.edit.fields.TypeUnknownField;
 import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.ClientToolkit;
@@ -47,7 +44,6 @@ import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.Required;
-import org.minimalj.model.annotation.StringLimitation;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
@@ -56,6 +52,8 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.DemoEnabled;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.resources.Resources;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
 
 public class Form<T> implements IForm<T>, DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getName());
@@ -135,9 +133,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 			field = (FormField<?>) key;
 			property = field.getProperty();
 			if (property == null) throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
-		} else if (key instanceof StringLimitation) {
-			property = Keys.getProperty(key);
-			field = createTextFormatField((StringLimitation) key, property);
 		} else {
 			property = Keys.getProperty(key);
 			// if ths happens for a getter-method there is the special line missing
@@ -146,10 +141,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		}
 
 		return field;
-	}
-	
-	protected FormField<?> createTextFormatField(StringLimitation textFormat, PropertyInterface property) {
-		return new TextFormatField(property, textFormat, editable);
 	}
 	
 	protected FormField<?> createField(PropertyInterface property) {
@@ -164,11 +155,9 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 					return new CodeEditField(property, codeName);
 				}
 			} else if (fieldClass == LocalDate.class) {
-				return new AbstractJodaField.JodaDateField(property, editable);
+				return new LocalDateField(property, editable);
 			} else if (fieldClass == LocalTime.class) {
-				return new AbstractJodaField.JodaTimeField(property, editable);
-			} else if (fieldClass == ReadablePartial.class) {
-				return new AbstractJodaField.JodaPartialField(property, editable);
+				return new LocalTimeField(property, editable);
 			} else if (Enum.class.isAssignableFrom(fieldClass)) {
 				return new EnumEditField(property);
 			} else if (fieldClass == Boolean.class) {
@@ -198,9 +187,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 					return new CodeFormField(property, codeName);
 				}
 			}
-			else if (fieldClass == ReadablePartial.class) return new AbstractJodaField.JodaPartialField(property, false);
-			else if (fieldClass == LocalDate.class) return new AbstractJodaField.JodaDateField(property, false);
-			else if (fieldClass == LocalTime.class) return new AbstractJodaField.JodaTimeField(property, false);
+			else if (fieldClass == LocalDate.class) return new LocalDateField(property, false);
+			else if (fieldClass == LocalTime.class) return new LocalTimeField(property, false);
 			else if (Enum.class.isAssignableFrom(fieldClass)) return new EnumFormField(property);
 			else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");

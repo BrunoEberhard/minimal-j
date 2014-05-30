@@ -12,7 +12,7 @@ public class EmptyObjects {
 	public static <T> boolean isEmpty(T object) {
 		if (object != null && !object.equals("")) {
 			Class<T> clazz = (Class<T>) object.getClass();
-			if (clazz.getName().startsWith("java") || clazz.getName().startsWith("org.joda") || //
+			if (clazz.getName().startsWith("java") || clazz.getName().startsWith("org.threeten") || //
 					Enum.class.isAssignableFrom(clazz)) return false;
 			
 			T emptyObject = getEmptyObject(clazz);

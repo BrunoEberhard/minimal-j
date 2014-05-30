@@ -11,13 +11,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Required;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 /**
  * Minimal-J internal<p>
@@ -232,10 +231,8 @@ public class DbCreator {
 			int size = AnnotationUtil.getSize(property);
 			s.append(" ("); s.append(size); s.append(")");
 		} else if (clazz.equals(LocalDate.class)) {
-			// TODO check partial
 			s.append("DATE");
 		} else if (clazz.equals(LocalTime.class)) {
-			// TODO check partial
 			s.append("TIME");		
 		} else if (clazz.equals(LocalDateTime.class)) {
 			if (dbPersistence.isDerbyDb()) {
@@ -263,8 +260,6 @@ public class DbCreator {
 			s.append("INTEGER");
 		} else if (clazz.equals(Set.class)) {
 			s.append("INTEGER");
-		} else if (clazz.equals(ReadablePartial.class)) {
-			s.append("CHAR (10)");
 		} else {
 			throw new IllegalArgumentException(property.getDeclaringClass() + "." + property.getFieldName() +": " + clazz.toString());
 		}

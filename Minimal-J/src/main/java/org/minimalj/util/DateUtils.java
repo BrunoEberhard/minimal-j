@@ -6,31 +6,27 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import org.joda.time.DateTimeFieldType;
-import org.joda.time.IllegalFieldValueException;
-import org.joda.time.LocalDate;
-import org.joda.time.Partial;
-import org.joda.time.ReadablePartial;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.minimalj.model.InvalidValues;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.Size;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoField;
+import org.threeten.bp.temporal.TemporalAccessor;
 
 
 public class DateUtils {
 	private static final Logger logger = Logger.getLogger(DateUtils.class.getName());
 	
-	private static final DateTimeFieldType[] DATE_TIME_FIELD_TYPES_WITH_DAYS = new DateTimeFieldType[]{DateTimeFieldType.year(), DateTimeFieldType.monthOfYear(), DateTimeFieldType.dayOfMonth()};
-	private static final DateTimeFieldType[] DATE_TIME_FIELD_TYPES_WITHOUT_DAYS = new DateTimeFieldType[]{DateTimeFieldType.year(), DateTimeFieldType.monthOfYear()};
-
-	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HH:mm");
-	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormat.forPattern("HH:mm:ss");
-	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormat.forPattern("HH:mm:ss.SSS");
+	public static final DateTimeFormatter DATE_FORMAT_CH = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+	
+	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss");
+	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
 	public static final DateFormat dateFormatUS = new SimpleDateFormat("yyyy-MM-dd");
 	
-	private static class TrippleString {
+	public static class TrippleString {
 		public String s1, s2, s3;
 		
 		public TrippleString(String text) {
@@ -86,7 +82,6 @@ public class DateUtils {
 		}
 	}
 	
-	
 	private static String parseCHWithDot(String text, boolean partialAllowed) {
 		TrippleString trippleString = new TrippleString(text);
 		if (trippleString.s1 != null && trippleString.s1.length() > 2) {
@@ -138,32 +133,6 @@ public class DateUtils {
 		}
 	}
 
-	
-	/**
-	 * 
-	 * @param text Date in format yyyy-mm-dd or yyyy-mm or yyyy
-	 * @return <ul><li><code>null</code> if input text is null</li>
-	 * <li>a partial if the input text is valid</li>
-	 * <li>an InvalidValue if the input text is not valid</li></ul>
-	 */
-	public static Partial parsePartial(final String text) {
-		if (text == null) return null;
-		
-		try {
-			int length = text.length();
-			if (length == 4) {
-				return newPartial(text);
-			} else if (length == 7) {
-				return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7));
-			} else if (length == 10) {
-				return newPartial(completeYear(text.substring(0, 4)), text.substring(5, 7), text.substring(8, 10));
-			} 
-		} catch (IllegalFieldValueException x) {
-			logger.fine("Return invalid value as could not parse " + text);
-		}
-		return InvalidValues.createInvalidPartial(text);
-	}
-
 	private static String cutNonDigitsAtBegin(String text) {
 		while (text.length() > 0 && !Character.isDigit(text.charAt(0))) {
 			text = text.substring(1);
@@ -178,44 +147,37 @@ public class DateUtils {
 		return text;
 	}
 
-	public static Partial newPartial(String year) {
-		return new Partial(DateTimeFieldType.year(), Integer.parseInt(year));
+	private static String completeYear(String year) {
+		if (year.length() == 2 && year.compareTo("20") < 1) year = "20" + year;
+		if (year.length() == 2) year = "19" + year;
+		return year;
 	}
 
-	public static Partial newPartial(String year, String month) {
-		return new Partial(DATE_TIME_FIELD_TYPES_WITHOUT_DAYS, new int[]{Integer.parseInt(year), Integer.parseInt(month)});
-	}
 
-	public static Partial newPartial(String year, String month, String day) {
-		return new Partial(DATE_TIME_FIELD_TYPES_WITH_DAYS, //
-				new int[]{Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day)});
-	}
-
-	public static String parseUS(String text) {
-		if (text.length() == 2) {
-			// Abgekürzter Fall, YY
-			return completeYear(text);
-		} else if (text.length() == 4) {
-			// Abgekürzter Fall, YYYY
-			return text;
-		} else if (text.length() == 5) {
-			// Abgekürzter Fall, YY-MM
-			return pad(completeYear(text.substring(0,2)), 4) + "-" + pad(text.substring(3,5), 2);
-		} else if (text.length() == 7) {
-			// Abgekürzter Fall, YYYY-MM
-			return pad(completeYear(text.substring(0,4)), 4) + "-" + pad(text.substring(5,7), 2);
-		}
-
-		if (text.length() == 6) text = text.substring(0, 2 ) + "-" + text.substring(2, 4) + "-" + text.substring(4);
-		else if (text.length() == 8) text = text.substring(0, 4 ) + "-" + text.substring(4, 6) + "-" + text.substring(6);
-		TrippleString trippleString = new TrippleString(text);
-		return pad(completeYear(trippleString.s1), 4) + "-" + pad(trippleString.s2, 2) + "-" + pad(trippleString.s3, 2);
+	private static String pad(String s, int length) {
+		return StringUtils.padLeft(s, length, '0');
 	}
 
 	public static String formatCH(LocalDate date) {
 		if (date == null) return null;
-		return DateTimeFormat.shortDate().print(date);
+		return DATE_FORMAT_CH.format(date);
 	}
+	
+	public static String format(String value) {
+		if (StringUtils.isEmpty(value))
+			return "";
+		if (InvalidValues.isInvalid(value))
+			return InvalidValues.getInvalidValue(value);
+		
+		TrippleString trippleString = new TrippleString(value);
+		if (!StringUtils.isEmpty(trippleString.s3)) {
+			return trippleString.s3 + "." + trippleString.s2 + "." + trippleString.s1;
+		} else if (!StringUtils.isEmpty(trippleString.s2)) {
+			return trippleString.s2 + "." + trippleString.s1;
+		} else {
+			return trippleString.s1;
+		}
+	}	
 	
 	private static SimpleDateFormat xsdDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	
@@ -235,49 +197,6 @@ public class DateUtils {
 		return xsdDateTimeFormat.parse(sb.toString());
 	}
 	
-	public static String pad(String s, int length) {
-		while (s.length() < length) {
-			s = "0" + s;
-		}
-		return s;
-	}
-	
-	public static String completeYear(String year) {
-		if (year.length() == 2 && year.compareTo("20") < 1) year = "20" + year;
-		if (year.length() == 2) year = "19" + year;
-		return year;
-	}
-
-	public static boolean isValueValidUS(String text) {
-		return isValueValidUS(text, false);
-	}
-		
-	public static boolean isValueValidUS(String text, boolean partialAllowed) {
-		if (StringUtils.isBlank(text)) return false;
-		
-		int index = 0;
-		while (index < text.length()) {
-			if (index == 4 || index == 7) {
-				if (text.charAt(index) != '-') return false;
-			} else {
-				if (!Character.isDigit(text.charAt(index))) return false;
-			}
-			index++;
-		}
-		if (partialAllowed) {
-			if (text.length() == 4) text += "-01-01";
-			else if (text.length() == 7) text += "-01";
-		}
-		
-		dateFormatUS.setLenient(false);
-		try {
-			dateFormatUS.parse(text);
-		} catch (ParseException pe) {
-			return false;
-		}
-		return true;
-	}
-	
 	public static DateTimeFormatter getTimeFormatter(PropertyInterface property) {
 		Size size = property.getAnnotation(Size.class);
 		if (size == null) {
@@ -293,22 +212,22 @@ public class DateUtils {
 		}
 	}
 
-	public static String formatPartial(ReadablePartial value) {
+	public static String formatPartial(TemporalAccessor value) {
 		if (value == null) return null;
 		StringBuilder s = new StringBuilder();
-		s.append(value.get(DateTimeFieldType.year()));
+		s.append(value.get(ChronoField.YEAR));
 		if (s.length() > 4) throw new IllegalArgumentException(value.toString());
 		while (s.length() < 4) {
 			s.insert(0, "0");
 		}
-		if (value.isSupported(DateTimeFieldType.monthOfYear())) {
+		if (value.isSupported(ChronoField.MONTH_OF_YEAR)) {
 			s.append("-");
-			int month = value.get(DateTimeFieldType.monthOfYear());
+			int month = value.get(ChronoField.MONTH_OF_YEAR);
 			if (month < 10) s.append("0");
 			s.append(month);
-			if (value.isSupported(DateTimeFieldType.dayOfMonth())) {
+			if (value.isSupported(ChronoField.DAY_OF_MONTH)) {
 				s.append("-");
-				int day = value.get(DateTimeFieldType.dayOfMonth());
+				int day = value.get(ChronoField.DAY_OF_MONTH);
 				if (day < 10) s.append("0");
 				s.append(day);
 			}
@@ -316,36 +235,25 @@ public class DateUtils {
 		return s.toString();
 	}
 	
-	public static String formatPartialCH(ReadablePartial value) {
+	public static String formatPartialCH(TemporalAccessor value) {
 		if (value == null) return null;
 
 		StringBuilder s = new StringBuilder();
-		if (value.isSupported(DateTimeFieldType.dayOfMonth())) {
-			int day = value.get(DateTimeFieldType.dayOfMonth());
+		if (value.isSupported(ChronoField.DAY_OF_MONTH)) {
+			int day = value.get(ChronoField.DAY_OF_MONTH);
 			if (day < 10) s.append("0");
 			s.append(day);
 			s.append(".");
 		}
-		if (value.isSupported(DateTimeFieldType.monthOfYear())) {
-			int month = value.get(DateTimeFieldType.monthOfYear());
+		if (value.isSupported(ChronoField.MONTH_OF_YEAR)) {
+			int month = value.get(ChronoField.MONTH_OF_YEAR);
 			if (month < 10) s.append("0");
 			s.append(month);
 			s.append(".");
 		}
 		// TODO year < 1000 in DateUtils.formatPartialCH
-		s.append(value.get(DateTimeFieldType.year()));
+		s.append(value.get(ChronoField.YEAR));
 		return s.toString();
-	}
-
-	public static LocalDate convertToLocalDate(ReadablePartial value) {
-		if (value == null) return null;
-		if (value.isSupported(DateTimeFieldType.dayOfMonth())) {
-			return new LocalDate(value.get(DateTimeFieldType.year()), //
-					value.get(DateTimeFieldType.monthOfYear()), //
-					value.get(DateTimeFieldType.dayOfMonth()));
-		} else {
-			return null;
-		}
 	}
 
 }

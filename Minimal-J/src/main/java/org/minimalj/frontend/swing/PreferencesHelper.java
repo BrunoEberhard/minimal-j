@@ -4,10 +4,11 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import org.joda.time.LocalDate;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.properties.FlatProperties;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
 
 public abstract class PreferencesHelper {
 	private static final Logger logger = Logger.getLogger(PreferencesHelper.class.getName());
@@ -29,7 +30,7 @@ public abstract class PreferencesHelper {
 			} else if (clazz == LocalDate.class) {
 				LocalDate presetValue = (LocalDate) FlatProperties.getValue(data, key);
 				String formattedDate = preferences.get(key, presetValue != null ? presetValue.toString() : null);
-				value = new LocalDate(formattedDate);
+				value = LocalDate.parse(formattedDate, DateTimeFormatter.ISO_DATE);
 			} else if (Enum.class.isAssignableFrom(clazz)) {
 				Enum<?> presetValue = (Enum<?>) FlatProperties.getValue(data, key);
 				int ordinal = preferences.getInt(key, presetValue != null ? presetValue.ordinal() : 0);

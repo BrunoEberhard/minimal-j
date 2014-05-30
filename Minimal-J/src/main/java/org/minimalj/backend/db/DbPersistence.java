@@ -17,16 +17,14 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
 import org.mariadb.jdbc.MySQLDataSource;
 import org.minimalj.model.test.ModelTest;
-import org.minimalj.util.DateUtils;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 /**
  * Most important class of the persistence layer.
@@ -335,13 +333,11 @@ public class DbPersistence {
 			Enum<?> e = (Enum<?>) value;
 			value = e.ordinal();
 		} else if (value instanceof LocalDate) {
-			value = new java.sql.Date(((LocalDate) value).toDate().getTime());
+			value = DbPersistenceHelper.convertToSql((LocalDate) value);
 		} else if (value instanceof LocalTime) {
-			value = new java.sql.Time(((LocalTime) value).toDateTimeToday().getMillis());
+			value = DbPersistenceHelper.convertToSql((LocalTime) value);
 		} else if (value instanceof LocalDateTime) {
-			value = new java.sql.Timestamp(((LocalDateTime) value).toDate().getTime());
-		} else if (value instanceof ReadablePartial) {
-			value = DateUtils.formatPartial((ReadablePartial) value);
+			value = DbPersistenceHelper.convertToSql((LocalDateTime) value);
 		}
 		preparedStatement.setObject(param, value);
 	}

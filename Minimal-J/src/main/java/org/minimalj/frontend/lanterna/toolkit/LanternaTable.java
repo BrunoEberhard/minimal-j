@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.joda.time.ReadablePartial;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.util.JodaFormatter;
+import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
+import org.threeten.bp.temporal.TemporalAccessor;
 
 import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.component.AbstractInteractableComponent;
@@ -22,8 +22,6 @@ import com.googlecode.lanterna.terminal.TerminalSize;
 public class LanternaTable<T> extends AbstractInteractableComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(LanternaTable.class.getName());
 
-	private static final JodaFormatter formatter = new JodaFormatter();
-	
 	private final List<PropertyInterface> properties;
 	private List<T> objects = Collections.emptyList();
 	private final int[] columnWidthArray;
@@ -145,9 +143,9 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	
 	protected String getValue(int row, int column) {
 		Object value = properties.get(column).getValue(getObject(row));
-		if (value instanceof ReadablePartial) {
+		if (value instanceof TemporalAccessor) {
 			PropertyInterface property = properties.get(column);
-			value = formatter.format(value, property);
+			value = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value); 
 		}
 		return "" + value;
 	}

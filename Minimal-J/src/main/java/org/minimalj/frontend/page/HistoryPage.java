@@ -3,7 +3,7 @@ package org.minimalj.frontend.page;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.LocalDateTime;
+import org.threeten.bp.LocalDateTime;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ITable;

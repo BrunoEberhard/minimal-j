@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 
 public class FieldUtils {
 	public static final Logger logger = Logger.getLogger(FieldUtils.class.getName());
@@ -108,7 +107,6 @@ public class FieldUtils {
 		if (LocalDate.class == fieldType) return true;
 		if (LocalTime.class == fieldType) return true;
 		if (LocalDateTime.class == fieldType) return true;
-		if (ReadablePartial.class == fieldType) return true;
 		return false;
 	}
 

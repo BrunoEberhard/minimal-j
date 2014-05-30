@@ -22,15 +22,15 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePartial;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.util.JodaFormatter;
+import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.temporal.TemporalAccessor;
 
 public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
@@ -58,7 +58,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		table.setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
 		table.setDefaultRenderer(LocalTime.class, new DateTableCellRenderer());
 		table.setDefaultRenderer(LocalDateTime.class, new DateTableCellRenderer());
-		table.setDefaultRenderer(ReadablePartial.class, new DateTableCellRenderer());
 		
 		table.setAutoCreateRowSorter(true);
 		
@@ -276,7 +275,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private class DateTableCellRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
-		private final JodaFormatter formatter = new JodaFormatter();
 		
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
@@ -284,9 +282,9 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				int column) {
 			
 			PropertyInterface property = properties.get(column);
-			value = formatter.format(value, property);
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
-					row, column);
+			value = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value); 
+
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 	}
 	
