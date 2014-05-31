@@ -10,7 +10,7 @@ import org.threeten.bp.format.DateTimeParseException;
 import org.threeten.bp.format.FormatStyle;
 
 public class LocalDateField extends TextFormatField<LocalDate> {
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
 	public LocalDateField(PropertyInterface property, boolean editable) {
 		super(property, editable);
