@@ -11,6 +11,7 @@ import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.Size;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
 import org.threeten.bp.temporal.ChronoField;
 import org.threeten.bp.temporal.TemporalAccessor;
 
@@ -18,8 +19,8 @@ import org.threeten.bp.temporal.TemporalAccessor;
 public class DateUtils {
 	private static final Logger logger = Logger.getLogger(DateUtils.class.getName());
 	
-	public static final DateTimeFormatter DATE_FORMAT_CH = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-	
+	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
@@ -160,9 +161,13 @@ public class DateUtils {
 
 	public static String formatCH(LocalDate date) {
 		if (date == null) return null;
-		return DATE_FORMAT_CH.format(date);
+		return DATE_FORMATTER.format(date);
 	}
 	
+	/**
+	 * @param value date in format yyyy-mm-dd
+	 * @return date in format dd.mm.yyyy
+	 */
 	public static String format(String value) {
 		if (StringUtils.isEmpty(value))
 			return "";
