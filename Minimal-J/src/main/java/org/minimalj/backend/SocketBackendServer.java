@@ -16,7 +16,7 @@ import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.UnclosingOoutputStream;
+import org.minimalj.util.UnclosingOutputStream;
 
 // TODO @Deploy(Server)
 public class SocketBackendServer {
@@ -77,7 +77,7 @@ public class SocketBackendServer {
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 					if (input instanceof StreamProducer) {
 						StreamProducer streamProducer = (StreamProducer) input;
-						result = Backend.getInstance().execute(streamProducer, new UnclosingOoutputStream(oos));
+						result = Backend.getInstance().execute(streamProducer, new UnclosingOutputStream(oos));
 					}
 					oos.writeObject(result);
 				}

@@ -9,11 +9,11 @@ import java.io.OutputStream;
  * 
  * @author bruno
  */
-public class UnclosingOoutputStream extends OutputStream {
+public class UnclosingOutputStream extends OutputStream {
 
 	private final OutputStream os;
 	
-	public UnclosingOoutputStream(OutputStream os) {
+	public UnclosingOutputStream(OutputStream os) {
 		this.os = os;
 	}
 
