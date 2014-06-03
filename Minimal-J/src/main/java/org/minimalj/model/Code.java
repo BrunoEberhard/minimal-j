@@ -13,7 +13,7 @@ public class Code {
 	private final String displayName;
 	private final String nullText;
 	private final String defolt;
-	private final List<CodeItem<String>> codeItems = new ArrayList<CodeItem<String>>();
+	private final List<CodeItem<String>> codeItems = new ArrayList<>();
 
 	public Code(ResourceBundle resources, String prefix) {
 		this.resources = resources;
