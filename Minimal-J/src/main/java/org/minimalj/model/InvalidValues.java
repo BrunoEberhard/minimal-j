@@ -13,15 +13,15 @@ public class InvalidValues {
 
 	private static final Map<Object, String> values = new WeakHashMap<Object, String>();
 	
-	public static boolean isInvalid(Object key) {
-		return values.containsKey(key);
+	public static boolean isInvalid(Object value) {
+		return values.containsKey(value);
 	}
 	
- 	public static String getInvalidValue(Object key) {
-		if (values.containsKey(key)) {
-			return values.get(key);
+ 	public static String getInvalidValue(Object value) {
+		if (values.containsKey(value)) {
+			return values.get(value);
 		} else {
-			throw new IllegalArgumentException("Key is not a illegal value: " + key);
+			throw new IllegalArgumentException("Key is not a illegal value: " + value);
 		}
 	}
 
