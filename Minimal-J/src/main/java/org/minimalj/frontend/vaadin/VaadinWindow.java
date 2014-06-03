@@ -79,8 +79,8 @@ public class VaadinWindow extends Window implements PageContext {
 		nav.setExpandRatio(menubar, 1.0F);
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
 		
-		if (MjApplication.getApplication().getSearchClasses().length > 0) {
-			Component searchComponent = createSearchField();
+		if (MjApplication.getApplication().getSearchClasses(this).length > 0) {
+			Component searchComponent = createSearchField(this);
 			nav.addComponent(searchComponent);
 			nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
 		}
@@ -96,15 +96,15 @@ public class VaadinWindow extends Window implements PageContext {
 		scrollablePanel.setSizeFull();
 	}
 
-	private Component createSearchField() {
+	private Component createSearchField(PageContext pageContext) {
 		final HorizontalLayout horizontalLayout = new HorizontalLayout();
 
 		comboBox.setNullSelectionAllowed(false);
-		for (Class<?> searchClass: MjApplication.getApplication().getSearchClasses()) {
+		for (Class<?> searchClass: MjApplication.getApplication().getSearchClasses(pageContext)) {
 			comboBox.addItem(searchClass);
 			comboBox.setItemCaption(searchClass, Resources.getString("Search." + searchClass.getSimpleName()));
 		}
-		comboBox.setValue(MjApplication.getApplication().getSearchClasses()[0]);
+		comboBox.setValue(MjApplication.getApplication().getSearchClasses(null)[0]);
 		horizontalLayout.addComponent(comboBox);
 		
         textFieldSearch.setWidth("160px");

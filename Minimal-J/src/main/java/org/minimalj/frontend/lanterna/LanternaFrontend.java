@@ -209,7 +209,7 @@ public class LanternaFrontend {
 			Panel panel = new Panel();
 			panel.setLayoutManager(new HorisontalLayout());
 			
-			Class<?>[] searchClasses = MjApplication.getApplication().getSearchClasses();
+			Class<?>[] searchClasses = MjApplication.getApplication().getSearchClasses(pageContext2);
 			List<String> objectNameList = new ArrayList<>();
 			for (Class<?> searchClass : searchClasses) {
 				String objectName = Resources.getString("Search." + searchClass.getSimpleName());

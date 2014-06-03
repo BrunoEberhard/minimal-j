@@ -31,7 +31,7 @@ public class MjExampleApplication extends MjApplication {
 	}
 
 	@Override
-	public Class<?>[] getSearchClasses() {
+	public Class<?>[] getSearchClasses(PageContext context) {
 		return new Class<?>[]{BookTablePage.class, CustomerTablePage.class};
 	}
 

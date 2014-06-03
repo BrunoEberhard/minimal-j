@@ -178,7 +178,7 @@ public abstract class MjApplication {
 		return null;
 	}
 	
-	public Class<?>[] getSearchClasses() {
+	public Class<?>[] getSearchClasses(PageContext context) {
 		return new Class<?>[0];
 	}
 	
