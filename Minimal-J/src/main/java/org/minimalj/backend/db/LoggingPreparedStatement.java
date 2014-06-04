@@ -164,6 +164,7 @@ class LoggingPreparedStatement implements PreparedStatement {
 
 	public void setLong(int parameterIndex, long x) throws SQLException {
 		preparedStatement.setLong(parameterIndex, x);
+		parameters.put(parameterIndex, String.valueOf(x));
 	}
 
 	public void setEscapeProcessing(boolean enable) throws SQLException {
