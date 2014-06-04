@@ -1,6 +1,5 @@
 package org.minimalj.util;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,8 +23,6 @@ public class DateUtils {
 	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
-	public static final DateFormat dateFormatUS = new SimpleDateFormat("yyyy-MM-dd");
-	
 	public static class TrippleString {
 		public String s1, s2, s3;
 		
