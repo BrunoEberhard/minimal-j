@@ -11,6 +11,7 @@ import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.Size;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 import org.threeten.bp.format.FormatStyle;
 import org.threeten.bp.temporal.ChronoField;
 import org.threeten.bp.temporal.TemporalAccessor;
@@ -159,9 +160,32 @@ public class DateUtils {
 		return StringUtils.padLeft(s, length, '0');
 	}
 
-	public static String formatCH(LocalDate date) {
+	/**
+	 * 
+	 * @param date a local date or <code>null</code>
+	 * @return the formatted date in FormatStyle MEDIUM
+	 */
+	public static String format(LocalDate date) {
 		if (date == null) return null;
 		return DATE_FORMATTER.format(date);
+	}
+
+	/**
+	 * Tries to be a little bit more clever than the normal
+	 * parsing. Accept dates like 1.2.2013 or 010214
+	 * 
+	 * @param date date as a String or <code>null</code>
+	 * @return LocalDate
+	 * @throws DateTimeParseException
+	 */
+	public static LocalDate parse(String date) throws DateTimeParseException {
+		if (date == null) return null;
+		if (date.contains(".")) {
+			date = parseCH(date, false);
+			return LocalDate.parse(date);
+		} else {
+			return LocalDate.parse(date, DATE_FORMATTER);
+		}
 	}
 	
 	/**
