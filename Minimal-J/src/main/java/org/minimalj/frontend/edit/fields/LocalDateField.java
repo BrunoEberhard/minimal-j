@@ -3,14 +3,12 @@ package org.minimalj.frontend.edit.fields;
 import org.minimalj.autofill.DateGenerator;
 import org.minimalj.model.InvalidValues;
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
-import org.threeten.bp.format.FormatStyle;
 
 public class LocalDateField extends TextFormatField<LocalDate> {
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 
 	public LocalDateField(PropertyInterface property, boolean editable) {
 		super(property, editable);
@@ -30,7 +28,7 @@ public class LocalDateField extends TextFormatField<LocalDate> {
 	public LocalDate getObject() {
 		String fieldText = textField.getText();
 		try {
-			return LocalDate.parse(fieldText, DATE_FORMATTER);
+			return DateUtils.parse(fieldText);
 		} catch (DateTimeParseException x) {
 			return InvalidValues.createInvalidLocalDate(fieldText);
 		}
@@ -42,7 +40,7 @@ public class LocalDateField extends TextFormatField<LocalDate> {
 			String text = InvalidValues.getInvalidValue(value);
 			textField.setText(text);
 		} else if (value != null) {
-			String text = DATE_FORMATTER.format(value);
+			String text = DateUtils.format(value);
 			if (!StringUtils.equals(textField.getText(), text)) {
 				textField.setText(text);
 			}
