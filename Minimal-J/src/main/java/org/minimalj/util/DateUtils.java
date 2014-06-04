@@ -13,8 +13,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
 import org.threeten.bp.format.FormatStyle;
-import org.threeten.bp.temporal.ChronoField;
-import org.threeten.bp.temporal.TemporalAccessor;
 
 
 public class DateUtils {
@@ -239,50 +237,6 @@ public class DateUtils {
 			logger.severe(property.getFieldPath() + " has wrong size for LocalTime. Use default.");
 			return TIME_FORMAT;
 		}
-	}
-
-	public static String formatPartial(TemporalAccessor value) {
-		if (value == null) return null;
-		StringBuilder s = new StringBuilder();
-		s.append(value.get(ChronoField.YEAR));
-		if (s.length() > 4) throw new IllegalArgumentException(value.toString());
-		while (s.length() < 4) {
-			s.insert(0, "0");
-		}
-		if (value.isSupported(ChronoField.MONTH_OF_YEAR)) {
-			s.append("-");
-			int month = value.get(ChronoField.MONTH_OF_YEAR);
-			if (month < 10) s.append("0");
-			s.append(month);
-			if (value.isSupported(ChronoField.DAY_OF_MONTH)) {
-				s.append("-");
-				int day = value.get(ChronoField.DAY_OF_MONTH);
-				if (day < 10) s.append("0");
-				s.append(day);
-			}
-		}
-		return s.toString();
-	}
-	
-	public static String formatPartialCH(TemporalAccessor value) {
-		if (value == null) return null;
-
-		StringBuilder s = new StringBuilder();
-		if (value.isSupported(ChronoField.DAY_OF_MONTH)) {
-			int day = value.get(ChronoField.DAY_OF_MONTH);
-			if (day < 10) s.append("0");
-			s.append(day);
-			s.append(".");
-		}
-		if (value.isSupported(ChronoField.MONTH_OF_YEAR)) {
-			int month = value.get(ChronoField.MONTH_OF_YEAR);
-			if (month < 10) s.append("0");
-			s.append(month);
-			s.append(".");
-		}
-		// TODO year < 1000 in DateUtils.formatPartialCH
-		s.append(value.get(ChronoField.YEAR));
-		return s.toString();
 	}
 
 }
