@@ -91,8 +91,8 @@ public class ModelTest {
 		try {
 			Field fieldId = clazz.getField("id");
 			if (mainModelClasses.contains(clazz)) {
-				if (fieldId.getType() == Long.class || fieldId.getType() == Integer.class) {
-					problems.add(clazz.getName() + ": Domain classes ids must be of primitiv type (int or long)");
+				if (fieldId.getType() == Long.class || fieldId.getType() == Integer.class || fieldId.getType() == Short.class || fieldId.getType() == Byte.class) {
+					problems.add(clazz.getName() + ": Domain classes ids must be of primitiv type (byte, short, int or long)");
 				}
 				if (!FieldUtils.isPublic(fieldId)) {
 					problems.add(clazz.getName() + ": field id must be public");
