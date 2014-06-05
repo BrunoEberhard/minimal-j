@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Required;
 import org.threeten.bp.LocalDate;
@@ -77,7 +78,7 @@ public class DbCreator {
 			
 			s.append(" "); s.append(column.getKey()); s.append(" "); 
 
-			if (DbPersistenceHelper.isReference(property) || DbPersistenceHelper.isView(property)) {
+			if (DbPersistenceHelper.isReference(property) || ViewUtil.isView(property)) {
 				s.append("INTEGER");
 			} else {
 				addColumnDefinition(s, property);
@@ -161,7 +162,7 @@ public class DbCreator {
 			PropertyInterface property = column.getValue();
 			
 			if (DbPersistenceHelper.isReference(property)) {
-				Class<?> fieldClass = DbPersistenceHelper.isView(property) ? DbPersistenceHelper.getViewedClass(property) : property.getFieldClazz();
+				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
 				s.append(",\n CONSTRAINT `FK_");

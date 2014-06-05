@@ -10,14 +10,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.minimalj.application.DevMode;
-import org.minimalj.backend.db.DbPersistenceHelper;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -164,7 +165,7 @@ public class ModelTest {
 			} else if (fieldType == Set.class) {
 				testSetFieldType(field, messagePrefix);
 			}
-		} else if (!DbPersistenceHelper.isView(field)) {
+		} else if (!ViewUtil.isView(field)) {
 			testFieldType(fieldType, messagePrefix, FieldUtils.isFinal(field));
 			// auf leeren Konstruktor prüfen?
 		}
@@ -247,6 +248,7 @@ public class ModelTest {
 	
 	private void testResources(Class<?> clazz) {
 		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+			if (StringUtils.equals(property.getFieldName(), "id", "version")) continue;
 			String resourceText = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
 			if (resourceText.startsWith("!!")) {
 				System.out.println(clazz.getSimpleName() + "." + resourceText.substring(2) + " = ");

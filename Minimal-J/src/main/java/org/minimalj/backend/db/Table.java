@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.transaction.criteria.Criteria;
@@ -174,7 +175,7 @@ public class Table<T> extends AbstractTable<T> {
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
-				if (!(value instanceof Integer || value instanceof Long) && DbPersistenceHelper.isView(propertyInterface)) {
+				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isView(propertyInterface)) {
 					value = IdUtils.getId(value);
 				}
 				statement.setObject(1, value);
@@ -231,7 +232,7 @@ public class Table<T> extends AbstractTable<T> {
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
-				if (!(value instanceof Integer || value instanceof Long) && DbPersistenceHelper.isView(propertyInterface)) {
+				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isView(propertyInterface)) {
 					value = IdUtils.getId(value);
 				}
 				statement.setObject(1, value);

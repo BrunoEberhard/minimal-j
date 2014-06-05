@@ -18,6 +18,7 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	// private static final Logger logger = Logger.getLogger(ReferenceField.class.getName());
 	
 	private final PropertyInterface property;
+	private final Class<?> fieldClazz;
 	private final Object[] searchColumns;
 	protected final ILookup<T> lookup;
 	private T object;
@@ -29,6 +30,7 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	public ReferenceField(Object key, Object[] searchColumns, boolean editable) {
 		super(key, editable);
 		property = Keys.getProperty(key);
+		fieldClazz = ViewUtil.resolve(property.getFieldClazz());
 		this.searchColumns = searchColumns;
 		lookup = ClientToolkit.getToolkit().createLookup(new ReferenceFieldChangeListener(), new ReferenceFieldSearch(), searchColumns);
 	}
@@ -37,7 +39,7 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 
 		@Override
 		public List<T> search(String searchText) {
-			return (List<T>) Backend.getInstance().read(property.getFieldClazz(), Criteria.search(searchText, searchColumns), 100);
+			return (List<T>) Backend.getInstance().read(fieldClazz, Criteria.search(searchText, searchColumns), 100);
 		}
 	}
 	

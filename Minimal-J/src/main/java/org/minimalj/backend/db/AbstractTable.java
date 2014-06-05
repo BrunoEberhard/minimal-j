@@ -215,7 +215,7 @@ public abstract class AbstractTable<T> {
 	private void findImmutables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
-			if (DbPersistenceHelper.isView(property)) continue;
+			if (ViewUtil.isView(property)) continue;
 			if (DbPersistenceHelper.isReference(property)) {
 				AbstractTable<?> refTable = dbPersistence.getImmutableTable(property.getFieldClazz());
 				if (refTable == null) {
@@ -335,8 +335,8 @@ public abstract class AbstractTable<T> {
 			Object value = resultSet.getObject(columnIndex);
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
-				if (DbPersistenceHelper.isView(property)) {
-					Class<?> viewedClass = DbPersistenceHelper.getViewedClass(property);
+				if (ViewUtil.isView(property)) {
+					Class<?> viewedClass = ViewUtil.getViewedClass(property);
 					Table<?> referenceTable = dbPersistence.getTable(viewedClass);
 					Object referenceObject = referenceTable.read(((Number) value).longValue(), false); // false -> subEntities not loaded
 					
@@ -408,7 +408,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
 			if (value != null) {
-				if (DbPersistenceHelper.isView(property)) {
+				if (ViewUtil.isView(property)) {
 					value = IdUtils.getId(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
 					value = getIdOfImmutable(value, insert);
