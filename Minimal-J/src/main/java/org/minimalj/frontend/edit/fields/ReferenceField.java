@@ -11,6 +11,7 @@ import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
 
@@ -65,7 +66,10 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	}
 
 	protected void display() {
-		if (object != null) {
+		if (object instanceof ViewOf) {
+			ViewOf<?> view = (ViewOf<?>) object;
+			lookup.setText(view.display());
+		} else if (object != null) {
 			lookup.setText(object.toString());
 		} else {
 			lookup.setText(null);
