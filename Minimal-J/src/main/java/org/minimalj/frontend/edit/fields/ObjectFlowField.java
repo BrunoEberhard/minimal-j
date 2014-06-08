@@ -86,20 +86,20 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 
 	protected void addText(String htmlText) {
 		if (htmlText != null) {
-			visual.add(ClientToolkit.getToolkit().createLabel(htmlText));
+			flowField.add(ClientToolkit.getToolkit().createLabel(htmlText));
 		}
 	}
 	
 	protected void addGap() {
-		visual.addGap();
+		flowField.addGap();
 	}
 	
 	protected void addAction(IAction action) {
-		visual.add(ClientToolkit.getToolkit().createLabel(action));
+		flowField.add(ClientToolkit.getToolkit().createLabel(action));
 	}
 
 	protected void addLink(String text, String address) {
-		visual.add(ClientToolkit.getToolkit().createLink(text, address));
+		flowField.add(ClientToolkit.getToolkit().createLink(text, address));
 	}
 	
 	protected void addAction(Editor<?> editor) {

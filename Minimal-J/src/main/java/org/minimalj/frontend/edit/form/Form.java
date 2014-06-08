@@ -208,8 +208,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	// 
 
 	public void line(Object key) {
-		FormField<?> visual = createField(key);
-		add(visual, columns);
+		FormField<?> field = createField(key);
+		add(field, columns);
 	}
 	
 //  with this it would be possible to split cells	
@@ -223,15 +223,15 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 //				IComponent[] components = new IComponent[split.length];
 //				int index = 0;
 //				for (Object o : split) {
-//					FormField<?> visual = createField(o);
-//					registerNamedField(visual);
-//					components[index++] = decorateWithCaption(visual);
+//					FormField<?> field = createField(o);
+//					registerNamedField(field);
+//					components[index++] = decorateWithCaption(field);
 //				}
 //				HorizontalLayout horizontalLayout = ClientToolkit.getToolkit().createHorizontalLayout(components);
 //				layout.add(horizontalLayout, i < keys.length - 1 ? span : rest);
 //			} else {
-//				FormField<?> visual = createField(key);
-//				add(visual, i < keys.length - 1 ? span : rest);
+//				FormField<?> field = createField(key);
+//				add(field, i < keys.length - 1 ? span : rest);
 //			}
 //			rest = rest - span;
 //		}
@@ -243,8 +243,8 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		int rest = columns;
 		for (int i = 0; i<keys.length; i++) {
 			Object key = keys[i];
-			FormField<?> visual = createField(key);
-			add(visual, i < keys.length - 1 ? span : rest);
+			FormField<?> field = createField(key);
+			add(field, i < keys.length - 1 ? span : rest);
 			rest = rest - span;
 		}
 	}
@@ -256,10 +256,10 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	// 
 
-	private Caption decorateWithCaption(FormField<?> visual) {
-		String captionText = caption(visual);
-		Caption captioned = ClientToolkit.getToolkit().decorateWithCaption(visual.getComponent(), captionText);
-		indicators.put(visual.getProperty(), captioned);
+	private Caption decorateWithCaption(FormField<?> field) {
+		String captionText = caption(field);
+		Caption captioned = ClientToolkit.getToolkit().decorateWithCaption(field.getComponent(), captionText);
+		indicators.put(field.getProperty(), captioned);
 		return captioned;
 	}
 	

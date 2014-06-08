@@ -18,9 +18,9 @@ public abstract class ObjectLinkField<T> extends ObjectField<T> {
 	@Override
 	protected void show(T object) {
 		if (isEditable()) {
-			visual.add(ClientToolkit.getToolkit().createLabel(new EditorDialogAction(new ObjectFieldEditor(display(object)))));
+			flowField.add(ClientToolkit.getToolkit().createLabel(new EditorDialogAction(new ObjectFieldEditor(display(object)))));
 		} else {
-			visual.add(ClientToolkit.getToolkit().createLabel(display(object)));
+			flowField.add(ClientToolkit.getToolkit().createLabel(display(object)));
 		}
 	}
 	

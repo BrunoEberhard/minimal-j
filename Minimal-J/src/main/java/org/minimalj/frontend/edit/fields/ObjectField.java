@@ -25,7 +25,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 	
 	private T object;
 	private boolean enabled = true;
-	protected final FlowField visual;
+	protected final FlowField flowField;
 	
 	public ObjectField(PropertyInterface property) {
 		this(property, true);
@@ -33,7 +33,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 	
 	public ObjectField(PropertyInterface property, boolean editable) {
 		super(property, editable);
-		visual = ClientToolkit.getToolkit().createFlowField();
+		flowField = ClientToolkit.getToolkit().createFlowField();
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 
 	@Override
 	public IComponent getComponent() {
-		return visual;
+		return flowField;
 	}
 	
 	protected abstract IForm<T> createFormPanel();
@@ -114,7 +114,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 	}
 
 	protected void display() {
-		visual.clear();
+		flowField.clear();
 		if (enabled) {
 			if (object != null) {
 				show(object);
