@@ -57,11 +57,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20090211</version>
-		</dependency>
-		<dependency>
 			<groupId>org.jumpmind.symmetric.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<version>1.1.1</version>
