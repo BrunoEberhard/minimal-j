@@ -9,8 +9,8 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
-import org.threeten.bp.temporal.Temporal;
-import org.threeten.bp.temporal.TemporalAccessor;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
 
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
@@ -70,9 +70,11 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	@Override
 	protected String formatPropertyValue(Object rowId, Object colId,
 			Property property) {
-		Object v = property.getValue();
-		if (v instanceof TemporalAccessor) {
-			return DateUtils.getTimeFormatter((PropertyInterface) colId).format((Temporal) v); 
+		Object value = property.getValue();
+		if (value instanceof LocalTime) {
+			return DateUtils.getTimeFormatter((PropertyInterface) colId).format((LocalTime) value); 
+		} else if (value instanceof LocalDate) {
+			return DateUtils.DATE_FORMATTER.format((LocalDate) value); 
 		}
 		return super.formatPropertyValue(rowId, colId, property);
 	}
