@@ -1,6 +1,7 @@
 package org.minimalj.frontend.vaadin;
 
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -45,9 +46,18 @@ public class VaadinFrontend extends Application {
 			}
 			MjApplication application = MjApplication.createApplication(applicationName);
 			MjApplication.setApplication(application);
+			copyPropertiesFromWebContextToSystem();
 			applicationInitialized = true;
 		}
 	}
+	
+	private void copyPropertiesFromWebContextToSystem() {
+		Enumeration<?> propertyNames = getPropertyNames();
+		while (propertyNames.hasMoreElements()) {
+			String propertyName = (String) propertyNames.nextElement();
+			System.setProperty(propertyName, getProperty(propertyName));
+		}
+	}	
 
 	protected ApplicationContext getApplicationContext() {
 		return applicationContext;
