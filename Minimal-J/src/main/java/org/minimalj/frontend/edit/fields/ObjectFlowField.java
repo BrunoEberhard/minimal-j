@@ -7,7 +7,6 @@ import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.util.resources.Resources;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -40,7 +39,7 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 		}
 		
 		public ObjectFieldPartEditor(String title) {
-			this.title = Resources.getString(title + ".text");
+			this.title = title;
 		}
 
 		@Override
