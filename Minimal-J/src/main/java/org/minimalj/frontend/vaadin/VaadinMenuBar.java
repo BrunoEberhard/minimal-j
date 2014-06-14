@@ -69,12 +69,12 @@ public class VaadinMenuBar extends MenuBar {
 	//
 	
 	private MenuBar.MenuItem menu(String resourceName) {
-		MenuBar.MenuItem menu = addItem(Resources.getString("Menu." + resourceName + ".text"), null);
+		MenuBar.MenuItem menu = addItem(Resources.getString("Menu." + resourceName), null);
 		return menu;
 	}
 
 	private MenuBar.MenuItem menu(MenuBar.MenuItem menu, String resourceName) {
-		return menu.addItem(Resources.getString("Menu." + resourceName + ".text"), null);
+		return menu.addItem(Resources.getString("Menu." + resourceName), null);
 	}
 
 	private void addActions(MenuBar.MenuItem menu, String type, List<IAction> actions) {

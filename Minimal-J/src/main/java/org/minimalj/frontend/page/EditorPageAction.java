@@ -3,7 +3,6 @@ package org.minimalj.frontend.page;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IComponent;
-import org.minimalj.util.resources.Resources;
 
 public class EditorPageAction implements IAction {
 
@@ -17,7 +16,7 @@ public class EditorPageAction implements IAction {
 
 	@Override
 	public String getName() {
-		return Resources.getString(editor.getClass().getSimpleName() + ".text");
+		return editor.getTitle();
 	}
 
 	@Override
@@ -46,4 +45,5 @@ public class EditorPageAction implements IAction {
 	public void setChangeListener(ActionChangeListener changeListener) {
 		this.changeListener = changeListener;
 	}
+	
 }

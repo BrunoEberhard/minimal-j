@@ -40,7 +40,7 @@ public class ActionGroup extends ResourceAction {
 		for (int i = 0; i<args.length; i++) {
 			link.append("/"); link.append(args[i]);
 		}
-		String name = Resources.getString(clazz.getSimpleName() + ".text");
+		String name = Resources.getString(clazz);
 		
 		items.add(new PageLink(name, link.toString()));
 	}

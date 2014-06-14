@@ -27,8 +27,8 @@ public class ResourceHelper {
 	public static Action initProperties(Action action, ResourceBundle resourceBundle, String baseName) {
 		action.putValue("actionName", baseName);
 		
-		// Action.text => Action.NAME,MNEMONIC_KEY,DISPLAYED_MNEMONIC_INDEX_KEY
-		String text = getString(resourceBundle, baseName + ".text");
+		// Action => Action.NAME,MNEMONIC_KEY,DISPLAYED_MNEMONIC_INDEX_KEY
+		String text = getString(resourceBundle, baseName);
 		if (text != null) {
 			MnemonicText.configure(action, text);
 		}

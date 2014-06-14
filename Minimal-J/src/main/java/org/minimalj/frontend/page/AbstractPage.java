@@ -17,7 +17,7 @@ public abstract class AbstractPage implements Page {
 	
 	@Override
 	public String getTitle() {
-		return Resources.getString(getClass().getSimpleName() + ".text");
+		return Resources.getString(getClass());
 	}
 
 	protected void show(Class<? extends Page> pageClass, String... args) {

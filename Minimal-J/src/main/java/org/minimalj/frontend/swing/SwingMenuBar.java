@@ -126,7 +126,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	
 	private JMenu menu(String resourceName) {
 		JMenu menu = new JMenu();
-		menu.setText(Resources.getString("Menu." + resourceName + ".text"));
+		menu.setText(Resources.getString("Menu." + resourceName));
 		return menu;
 	}
 	

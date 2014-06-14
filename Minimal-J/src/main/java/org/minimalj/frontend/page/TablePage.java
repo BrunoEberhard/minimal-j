@@ -3,6 +3,7 @@ package org.minimalj.frontend.page;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ITable;
@@ -15,7 +16,7 @@ import org.minimalj.util.IdUtils;
  *
  * @param <T> Class of objects in this overview
  */
-public abstract class TablePage<T> extends AbstractPage implements RefreshablePage {
+public abstract class TablePage<T> extends AbstractPage implements SearchOf<T>, RefreshablePage {
 
 	private String text;
 	private ITable<T> table;

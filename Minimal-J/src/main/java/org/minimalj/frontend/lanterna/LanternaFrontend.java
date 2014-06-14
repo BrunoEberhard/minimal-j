@@ -153,7 +153,7 @@ public class LanternaFrontend {
 		}
 		
 		protected void createMenu(String resourceName, List<IAction> actions) {
-			String name = Resources.getString("Menu." + resourceName + ".text");
+			String name = Resources.getString("Menu." + resourceName);
 			com.googlecode.lanterna.gui.Action newAction = actionGroup(name, actions);
 			if (newAction != null) {
 				Button button = new Button(newAction.toString(), newAction);

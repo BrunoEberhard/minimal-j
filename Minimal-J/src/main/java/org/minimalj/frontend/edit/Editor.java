@@ -7,15 +7,16 @@ import java.util.logging.Logger;
 import org.minimalj.application.DevMode;
 import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
+import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.toolkit.ResourceActionEnabled;
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.DemoEnabled;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -99,8 +100,24 @@ public abstract class Editor<T> {
 	protected abstract Object save(T object) throws Exception;
 
 	public String getTitle() {
-		String resourceName = getClass().getSimpleName() + ".text";
-		return Resources.getString(resourceName);
+		// specific name of editor
+		if (Resources.isAvailable(getClass().getName())) {
+			return Resources.getString(getClass().getName());
+		} 
+
+		// specific name of edited class
+		Class<?> clazz = GenericUtils.getGenericClass(getClass());
+		if (clazz != null && Resources.isAvailable(clazz.getName())) {
+			return Resources.getString(getClass().getName());
+		}
+		
+		// simple name of editor
+		if (clazz == null || Resources.isAvailable(getClass().getSimpleName())) {
+			return Resources.getString(getClass().getSimpleName());
+		}
+		
+		// simple name of edited class or default
+		return Resources.getString(clazz);
 	}
 
 	public IAction[] getActions() {

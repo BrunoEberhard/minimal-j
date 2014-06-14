@@ -1,6 +1,5 @@
 package org.minimalj.util.resources;
 
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -31,20 +30,27 @@ public class Resources {
 		Resources.resourceBundle = new MultiResourceBundle(resourceBundle, defaultResourcebundle);
 	}
 
+	public static boolean isAvailable(String resourceName) {
+		return getResourceBundle().containsKey(resourceName);
+	}
+
 	public static String getString(String resourceName) {
-		String text;
-		try {
-			text = getResourceBundle().getString(resourceName);
-		} catch (MissingResourceException x) {
+		if (isAvailable(resourceName)) {
+			return getResourceBundle().getString(resourceName);
+		} else {
 			if (DevMode.isActive() && !resourceName.endsWith(".description")) {
 				System.out.println(resourceName + "=");
 			}
-			text = "!" + resourceName + "!";
-		} catch (NullPointerException x) {
-			logger.severe("AbstractApplication.resourceBundle() not set");
-			text = resourceName;
+			return "!" + resourceName + "!";
 		}
-		return text;
+	}
+	
+	public static String getString(Class<?> clazz) {
+		if (isAvailable(clazz.getName())) {
+			return getString(clazz.getName());
+		} else {
+			return getString(clazz.getSimpleName());
+		}
 	}
 
 	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property) {
@@ -52,12 +58,12 @@ public class Resources {
 	}
 	
 	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property, String postfix) {
-		// completeQualifiedKey example: "ch.openech.model.Person.nationality"
 		String fieldName = property.getFieldName();
-		if (!StringUtils.isEmpty(postfix)) {
+		if (postfix != null) {
 			fieldName += postfix;
 		}
 		
+		// completeQualifiedKey example: "ch.openech.model.Person.nationality"
 		String completeQualifiedKey = property.getDeclaringClass().getName() + "." + fieldName;
 		if (resourceBundle.containsKey(completeQualifiedKey)) {
 			return resourceBundle.getString(completeQualifiedKey);
@@ -69,6 +75,14 @@ public class Resources {
 			return resourceBundle.getString(qualifiedKey);
 		}
 
+		// class of field
+		Class<?> fieldClass = property.getFieldClazz();
+		if (resourceBundle.containsKey(fieldClass.getName())) {
+			return getString(fieldClass.getName());
+		} else if (resourceBundle.containsKey(fieldClass.getName())) {
+			return getString(fieldClass.getSimpleName());
+		}
+		
 		// unqualifiedKey example: "nationality"
 		if (resourceBundle.containsKey(fieldName)) {
 			return resourceBundle.getString(fieldName);

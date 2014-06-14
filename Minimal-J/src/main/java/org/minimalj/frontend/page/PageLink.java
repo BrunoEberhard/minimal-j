@@ -36,7 +36,7 @@ public class PageLink implements IAction {
 	}
 	
 	public PageLink(Class<? extends Page> pageClass, String... args) {
-		this(Resources.getString(pageClass.getSimpleName() + ".text"), link(pageClass, args));
+		this(Resources.getString(pageClass), link(pageClass, args));
 	}
 	
 	@Override

@@ -18,7 +18,9 @@ import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
+import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
 public class SwingToolBar extends JToolBar implements IComponent {
@@ -94,7 +96,8 @@ public class SwingToolBar extends JToolBar implements IComponent {
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			Class<?> searchClass = (Class<?>) value;
-			value = Resources.getString("Search." + searchClass.getSimpleName());
+			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
+			value = Resources.getString(searchedClass);
 			return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		}
 	}
