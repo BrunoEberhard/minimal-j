@@ -358,8 +358,8 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected static <D> Object dereference(DbPersistence dbPersistence, Class<D> clazz, long id, Integer time) {
-		AbstractTable<D> table = dbPersistence.table(clazz);
+	protected static Object dereference(DbPersistence dbPersistence, Class<?> clazz, long id, Integer time) {
+		AbstractTable<?> table = dbPersistence.table(clazz);
 		if (table instanceof ImmutableTable) {
 			return ((ImmutableTable<?>) table).read(id);
 		} else {
