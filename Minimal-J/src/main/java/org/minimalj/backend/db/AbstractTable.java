@@ -376,15 +376,16 @@ public abstract class AbstractTable<T> {
 	 * @return <code>if value not found and parameter insert is false
 	 * @throws SQLException
 	 */
-	private <D> Long getIdOfImmutable(D value, boolean insertIfNotExisting) throws SQLException {
-		@SuppressWarnings("unchecked")
-		Class<D> clazz = (Class<D>) value.getClass();
-		AbstractTable<D> abstractTable = dbPersistence.table(clazz);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Long getIdOfImmutable(Object value, boolean insertIfNotExisting) throws SQLException {
+		Class<?> clazz = (Class<?>) value.getClass();
+		AbstractTable<?> abstractTable = dbPersistence.table(clazz);
 		if (abstractTable == null) {
 			throw new IllegalArgumentException(clazz.getName());
 		}
 		if (abstractTable instanceof ImmutableTable) {
-			return ((ImmutableTable<D>) abstractTable).getOrCreateId(value);
+			ImmutableTable immutableTable = (ImmutableTable) abstractTable;
+			return immutableTable.getOrCreateId(value);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}
