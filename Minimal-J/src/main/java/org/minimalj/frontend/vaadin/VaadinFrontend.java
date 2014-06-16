@@ -70,6 +70,7 @@ public class VaadinFrontend extends Application {
 	}
 
 	public class VaadinApplicationContext extends ApplicationContext implements Serializable {
+		private static final long serialVersionUID = 1L;
 		private Object preferences;
 		
 		@Override
