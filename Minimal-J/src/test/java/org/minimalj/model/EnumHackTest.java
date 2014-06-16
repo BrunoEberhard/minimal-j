@@ -3,7 +3,6 @@ package org.minimalj.model;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.minimalj.model.EnumUtils;
 
 public class EnumHackTest {
 
@@ -11,7 +10,7 @@ public class EnumHackTest {
 	public void testGenerateEnum() {
 		Assert.assertEquals(2, EnumHackTestEnum.values().length);
 		EnumHackTestEnum generatedEnum = EnumUtils.createEnum(EnumHackTestEnum.class, "c");
-		EnumHackTestEnum generatedEnum2 = EnumUtils.createEnum(EnumHackTestEnum.class, "d");
+		EnumUtils.createEnum(EnumHackTestEnum.class, "d");
 		EnumHackTestEnum generatedEnum_with_same_name = EnumUtils.createEnum(EnumHackTestEnum.class, "c");
 		Assert.assertNotSame(generatedEnum, generatedEnum_with_same_name);
 	}
