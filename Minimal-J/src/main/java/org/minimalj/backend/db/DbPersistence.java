@@ -76,6 +76,10 @@ public class DbPersistence {
 	
 	private static int memoryDbCount = 1;
 	
+	/**
+	 * Convinience method for prototyping and testing
+	 * @return a DataSource representing a in memory database managed by derby db.
+	 */
 	public static DataSource embeddedDataSource() {
 		EmbeddedDataSource dataSource = new EmbeddedDataSource();
 		dataSource.setDatabaseName("memory:TempDB" + (memoryDbCount++)); // for FileSystem use "data/testdb"
