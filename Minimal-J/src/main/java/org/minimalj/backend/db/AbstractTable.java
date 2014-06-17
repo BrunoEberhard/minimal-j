@@ -385,7 +385,7 @@ public abstract class AbstractTable<T> {
 		}
 		if (abstractTable instanceof ImmutableTable) {
 			ImmutableTable immutableTable = (ImmutableTable) abstractTable;
-			return immutableTable.getOrCreateId(value);
+			return immutableTable.getId(value);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}

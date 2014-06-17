@@ -33,27 +33,27 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		selectIdByHashQuery = selectIdByHashQuery();
 	}
 
+	/**
+	 * If the immutable already exists returns the id of the
+	 * existing id. If the immutable not yet exists creates it
+	 * and returns the id of the created immutable
+	 * 
+	 * @param object
+	 * @return <code>null</code> for the empty immutable or the id given immutable
+	 */
 	public Long getId(T object) {
-		return getId(object, false);
-	}
-
-	public Long getOrCreateId(T object) {
-		return getId(object, true);
-	}
-	
-	private Long getId(T object, boolean createIfNotExists) {
 		if (EmptyObjects.isEmpty(object)) return null;
 
 		int hash = HashUtils.getHash(object);
 		try {
 			Long id = getId(object, hash);
-			if (id == null && createIfNotExists) {
+			if (id == null) {
 				PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
 				id = executeInsertWithAutoIncrement(insertStatement, object, hash);
 			}
 			return id;
 		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't not getOrCreateId in " + getTableName() + " / Object: " + object);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't not getId in " + getTableName() + " / Object: " + object);
 		}
 	}
 	
