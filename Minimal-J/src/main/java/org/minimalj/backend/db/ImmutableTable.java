@@ -110,8 +110,7 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		return query.toString();
 	}
 	
-	@Override
-	protected String selectIdQuery() {
+	private String selectIdQuery() {
 		StringBuilder where = new StringBuilder();
 	
 		boolean first = true;	

@@ -441,34 +441,6 @@ public abstract class AbstractTable<T> {
 		return query.toString();
 	}
 	
-	protected String selectIdQuery() {
-		StringBuilder where = new StringBuilder();
-	
-		boolean first = true;	
-		
-		for (String key : columns.keySet()) {
-
-			if (!first) where.append(" AND "); else first = false;
-			
-			// where.append(column.getName()); where.append(" = ?");
-			// doesnt work for null so pattern is:
-			// ((? IS NULL AND col1 IS NULL) OR col1 = ?)
-			where.append("((? IS NULL AND "); where.append(key); where.append(" IS NULL) OR ");
-			where.append(key); where.append(" = ?)");
-		}
-		
-		if (this instanceof Table) {
-			where.append(" AND ((? IS NULL) OR event <= ?)");
-			where.append(" AND (endEvent IS NULL OR (endEvent IS NOT NULL AND (? IS NULL OR ? < endEvent)))");
-		}
-		
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT id FROM "); query.append(getTableName()); query.append(" WHERE ");
-		query.append(where);
-		
-		return query.toString();
-	}
-	
 	//
 
 	public void createIndex(Object key) {
