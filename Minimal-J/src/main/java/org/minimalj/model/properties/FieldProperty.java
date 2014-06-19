@@ -18,7 +18,7 @@ public class FieldProperty implements PropertyInterface {
 	private final Field field;
 	private final boolean isFinal;
 	
-	public FieldProperty(Class<?> clazz, Field field) {
+	public FieldProperty(Field field) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
 	}

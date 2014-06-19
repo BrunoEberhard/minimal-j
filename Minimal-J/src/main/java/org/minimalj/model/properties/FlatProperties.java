@@ -88,7 +88,7 @@ public class FlatProperties {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
 			if (!FieldUtils.isFinal(field) || FieldUtils.isList(field) && withLists) {
-				properties.put(field.getName(), new FieldProperty(clazz, field));
+				properties.put(field.getName(), new FieldProperty(field));
 			} else if (!FieldUtils.isList(field)) {
 				Map<String, PropertyInterface> inlinePropertys = properties(field.getType(), withLists);
 				boolean hasClassName = FieldUtils.hasClassName(field);
@@ -113,7 +113,7 @@ public class FlatProperties {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
 			if (!FieldUtils.isFinal(field)) {
-				String fieldPath = new FieldProperty(clazz, field).getFieldPath();
+				String fieldPath = new FieldProperty(field).getFieldPath();
 				if (!properties.containsKey(field.getName())) {
 					properties.put(field.getName(), fieldPath);
 				} else {
