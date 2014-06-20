@@ -145,7 +145,7 @@ public class ModelTest {
 			testFieldType(field);
 			testNoMethodsForPublicField(field);
 			Class<?> fieldType = field.getType();
-			if (fieldType == String.class || fieldType == Integer.class || fieldType == Long.class) {
+			if (fieldType == String.class) {
 				testSize(field);
 			} else if (List.class.equals(fieldType) && !listsAllowed) {
 				String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
