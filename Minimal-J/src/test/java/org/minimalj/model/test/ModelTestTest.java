@@ -3,6 +3,8 @@ package org.minimalj.model.test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -182,6 +184,34 @@ public class ModelTestTest {
 
 	public static class TestClass14 extends TestClass2 {
 		public Integer i;
+	}
+
+	//
+
+	@Test public void 
+	should_test_not_accept_list_without_type() {
+		ModelTest modelTest = new ModelTest(TestClass15.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass15 {
+		public int id;
+		@SuppressWarnings("rawtypes")
+		public final List list = new ArrayList();
+	}
+
+	//
+
+	@Test public void 
+	should_test_not_accept_set_without_type() {
+		ModelTest modelTest = new ModelTest(TestClass16.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass16 {
+		public int id;
+		@SuppressWarnings("rawtypes")
+		public final Set s = new TreeSet();
 	}
 
 	//
