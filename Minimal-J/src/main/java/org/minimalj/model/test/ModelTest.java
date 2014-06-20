@@ -47,12 +47,15 @@ public class ModelTest {
 		testedClasses.clear();
 		for (Class<?> clazz : mainModelClasses) {
 			testClass(clazz, true);
-			testId(clazz);
 		}
 	}
 	
 	public List<String> getProblems() {
 		return problems;
+	}
+	
+	public boolean isValid() {
+		return problems.isEmpty();
 	}
 
 	private void testClass(Class<?> clazz, boolean listsAllowed) {
