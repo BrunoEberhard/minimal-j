@@ -174,6 +174,18 @@ public class ModelTestTest {
 
 	//
 
+	@Test public void 
+	should_test_not_accept_inheritence() {
+		ModelTest modelTest = new ModelTest(TestClass14.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass14 extends TestClass2 {
+		public Integer i;
+	}
+
+	//
+
 	private void assertValid(ModelTest modelTest) {
 		if (!modelTest.isValid()) {
 			for (String s : modelTest.getProblems()) {

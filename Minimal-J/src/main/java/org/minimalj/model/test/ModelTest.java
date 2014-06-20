@@ -61,6 +61,7 @@ public class ModelTest {
 	private void testClass(Class<?> clazz, boolean listsAllowed) {
 		if (!testedClasses.contains(clazz)) {
 			testedClasses.add(clazz);
+			testNoSuperclass(clazz);
 			testId(clazz);
 			testVersion(clazz);
 			testConstructor(clazz);
@@ -91,6 +92,12 @@ public class ModelTest {
 		}
 	}
 
+	private void testNoSuperclass(Class<?> clazz) {
+		if (clazz.getSuperclass() != Object.class) {
+			problems.add(clazz.getName() + ": Domain classes must not extends other classes");
+		}
+	}
+				
 	private void testId(Class<?> clazz) {
 		try {
 			Field fieldId = clazz.getField("id");
