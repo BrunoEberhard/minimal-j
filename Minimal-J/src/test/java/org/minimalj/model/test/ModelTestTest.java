@@ -19,7 +19,7 @@ import org.threeten.bp.LocalTime;
 public class ModelTestTest {
 
 	@Test public void 
-	should_string_field_without_size_not_allowed() {
+	should_test_not_accept_string_field_without_size() {
 		ModelTest modelTest = new ModelTest(TestClass1.class);
 		Assert.assertFalse(modelTest.isValid());
 	}
@@ -79,7 +79,7 @@ public class ModelTestTest {
 	//
 
 	@Test public void 
-	should_test_check_for_id() {
+	should_test_not_accept_missing_id() {
 		ModelTest modelTest = new ModelTest(TestClass5.class);
 		Assert.assertFalse(modelTest.isValid());
 	}
