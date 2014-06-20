@@ -2,6 +2,7 @@ package org.minimalj.model.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Codes;
@@ -45,6 +46,11 @@ public class AnnotationUtil {
 				}
 			}
 		}
+		
+		if (property.getFieldClazz() == BigDecimal.class) {
+			return 10;
+		}
+		
 		logger.fine("You must annotate the fields with a @size or the entire class with @sizes");
 		throw new IllegalArgumentException("Size not specified for " + property.getFieldName() + " on " + property.getDeclaringClass());
 	}

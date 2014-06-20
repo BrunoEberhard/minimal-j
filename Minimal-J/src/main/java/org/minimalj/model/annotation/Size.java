@@ -5,6 +5,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation for String, Long, Integer, BigDecimal.
+ * 
+ * <UL>
+ * <LI>For String its mandatory.
+ * <LI>For Integer or Long the default size is defined by the size of the java values
+ * <LI>For BigDecimal the default size is 10 (with scale of 0) as in MySql DB
+ * </UL>
+ * 
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Size {
