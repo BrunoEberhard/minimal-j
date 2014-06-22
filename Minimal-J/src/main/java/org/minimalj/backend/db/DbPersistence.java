@@ -81,17 +81,30 @@ public class DbPersistence {
 	 * @return a DataSource representing a in memory database managed by derby db.
 	 */
 	public static DataSource embeddedDataSource() {
-		EmbeddedDataSource dataSource = new EmbeddedDataSource();
+		EmbeddedDataSource dataSource;
+		try {
+			dataSource = new EmbeddedDataSource();
+		} catch (NoClassDefFoundError e) {
+			logger.severe("Missing EmbeddedDataSource. Please ensure to have derby in the classpath");
+			throw new IllegalStateException("Configuration error: Missing EmbeddedDataSource");
+		}
+		
 		dataSource.setDatabaseName("memory:TempDB" + (memoryDbCount++)); // for FileSystem use "data/testdb"
 		dataSource.setCreateDatabase("create");
 		return dataSource;
 	}
 	
 	public static DataSource mariaDbDataSource(String database, String user, String password) {
-		MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, database);
-		dataSource.setUser(user);
-		dataSource.setPassword(password);
-		return dataSource;
+		try {
+			MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, database);
+			dataSource.setUser(user);
+			dataSource.setPassword(password);
+			return dataSource;
+		} catch (NoClassDefFoundError e) {
+			logger.severe("Missing MySQLDataSource. Please ensure to have mariadb-java-client in the classpath");
+			throw new IllegalStateException("Configuration error: Missing MySQLDataSource");
+		}
+		
 	}
 	
 //	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
