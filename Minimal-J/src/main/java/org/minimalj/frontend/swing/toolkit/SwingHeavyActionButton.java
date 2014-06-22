@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.SwingWorker;
+import javax.swing.SwingWorker.StateValue;
 
 import org.minimalj.frontend.toolkit.ProgressListener;
 
@@ -38,6 +39,8 @@ public class SwingHeavyActionButton extends JButton {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if ("progress".equals(evt.getPropertyName())) {
 					progress.showProgress((Integer) evt.getNewValue(), 100);
+				} else if ("state".equals(evt.getPropertyName()) && evt.getNewValue() == StateValue.DONE) {
+					progress.showProgress(100, 100);
 				}
 			}
 		});
