@@ -23,6 +23,7 @@ import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
+import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.swing.PreferencesHelper;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
@@ -30,6 +31,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
 import com.googlecode.lanterna.gui.Border;
@@ -212,7 +214,8 @@ public class LanternaFrontend {
 			Class<?>[] searchClasses = MjApplication.getApplication().getSearchClasses(pageContext2);
 			List<String> objectNameList = new ArrayList<>();
 			for (Class<?> searchClass : searchClasses) {
-				String objectName = Resources.getString("Search." + searchClass.getSimpleName());
+				Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
+				String objectName = Resources.getString(searchedClass);
 				objectNameList.add(objectName);
 				searchClassesByObjectName.put(objectName, searchClass);
 			}
