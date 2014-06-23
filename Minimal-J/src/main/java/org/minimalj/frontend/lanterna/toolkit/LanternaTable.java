@@ -12,7 +12,8 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
-import org.threeten.bp.temporal.TemporalAccessor;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
 
 import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.component.AbstractInteractableComponent;
@@ -143,9 +144,11 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	
 	protected String getValue(int row, int column) {
 		Object value = properties.get(column).getValue(getObject(row));
-		if (value instanceof TemporalAccessor) {
+		if (value instanceof LocalTime) {
 			PropertyInterface property = properties.get(column);
-			value = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value); 
+			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
+		} else if (value instanceof LocalDate) {
+			return DateUtils.DATE_FORMATTER.format((LocalDate) value); 
 		}
 		return "" + value;
 	}
