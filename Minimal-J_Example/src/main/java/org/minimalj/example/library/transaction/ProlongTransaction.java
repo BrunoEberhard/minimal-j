@@ -10,7 +10,6 @@ public class ProlongTransaction implements Transaction<Serializable> {
 
 	@Override
 	public Serializable execute(Backend backend) {
-		
 		return null;
 	}
 
