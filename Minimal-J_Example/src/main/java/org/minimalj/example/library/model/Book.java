@@ -1,20 +1,19 @@
 package org.minimalj.example.library.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.threeten.bp.LocalDate;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.util.DemoEnabled;
+import org.threeten.bp.LocalDate;
 
 
-public class Book implements DemoEnabled, Serializable {
+public class Book implements DemoEnabled {
 	public static final Book BOOK = Keys.of(Book.class);
 
 	public int id;
@@ -36,7 +35,6 @@ public class Book implements DemoEnabled, Serializable {
 	@Override
 	public void fillWithDemoData() {
 		title = "The dark tower";
-//		media = Media.hardcover;
 		author = "Stephan King";
 		available = true;
 		date = LocalDate.of(2009, 1, 1);

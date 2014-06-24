@@ -1,7 +1,6 @@
 package org.minimalj.example.library.model;
 
-import java.io.Serializable;
 
-public enum Media implements Serializable {
+public enum Media {
 	hardcover, paperback, ebook,
 }
