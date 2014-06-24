@@ -14,7 +14,7 @@ public class CustomerForm extends Form<Customer> {
 		
 		line(CUSTOMER.firstName);
 		line(CUSTOMER.name);
-		line(CUSTOMER.birthDay);
+		line(CUSTOMER.dateOfBirth);
 		line(CUSTOMER.remarks);
 		
 	}

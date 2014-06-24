@@ -12,7 +12,7 @@ public class Customer  {
 
 	@Size(ExampleFormats.NAME) @Searched
 	public String firstName, name;
-	public LocalDate birthDay;
+	public LocalDate dateOfBirth;
 	
 	@Size(2000)
 	public String remarks;

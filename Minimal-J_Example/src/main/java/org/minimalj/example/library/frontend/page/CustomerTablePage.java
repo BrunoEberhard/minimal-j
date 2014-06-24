@@ -21,7 +21,7 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 	public static final Object[] FIELDS = {
 		CUSTOMER.firstName, //
 		CUSTOMER.name, //
-		CUSTOMER.birthDay, //
+		CUSTOMER.dateOfBirth, //
 	};
 	
 	public CustomerTablePage(PageContext context, String text) {
