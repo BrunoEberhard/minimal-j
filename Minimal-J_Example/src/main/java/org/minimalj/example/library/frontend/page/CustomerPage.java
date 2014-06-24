@@ -38,7 +38,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 
 	@Override
 	public ActionGroup getMenu() {
-		ActionGroup menu = new ActionGroup("Person");
+		ActionGroup menu = new ActionGroup("Customer");
 		menu.add(new AddLendEditor(customer));
 		menu.add(new ShowLendsofCustomerAction(customer));
 		return menu;

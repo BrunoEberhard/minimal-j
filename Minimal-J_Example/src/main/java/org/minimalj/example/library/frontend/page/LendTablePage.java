@@ -31,7 +31,7 @@ public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
 
 	@Override
 	public String getTitle() {
-		return "Ausleihen für " + text;
+		return "Ausleihen";
 	}
 
 	@Override
