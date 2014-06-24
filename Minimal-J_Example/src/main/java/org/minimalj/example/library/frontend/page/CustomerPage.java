@@ -33,7 +33,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 
 	@Override
 	public String getTitle() {
-		return customer.display();
+		return customer.toString();
 	}
 
 	@Override
