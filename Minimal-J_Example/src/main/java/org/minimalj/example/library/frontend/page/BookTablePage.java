@@ -39,7 +39,7 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 	
 	@Override
 	public String getTitle() {
-		return "Treffer für " + text;
+		return "Search results: " + text;
 	}
 
 	@Override
