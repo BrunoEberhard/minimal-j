@@ -12,12 +12,14 @@ import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
+import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
 import org.minimalj.frontend.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.vaadin.toolkit.VaadinEditorLayout;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -102,7 +104,8 @@ public class VaadinWindow extends Window implements PageContext {
 		comboBox.setNullSelectionAllowed(false);
 		for (Class<?> searchClass: MjApplication.getApplication().getSearchClasses(pageContext)) {
 			comboBox.addItem(searchClass);
-			comboBox.setItemCaption(searchClass, Resources.getString("Search." + searchClass.getSimpleName()));
+			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
+			comboBox.setItemCaption(searchClass, Resources.getString(searchedClass));
 		}
 		comboBox.setValue(MjApplication.getApplication().getSearchClasses(null)[0]);
 		horizontalLayout.addComponent(comboBox);
