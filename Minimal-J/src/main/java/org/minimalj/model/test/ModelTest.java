@@ -93,7 +93,8 @@ public class ModelTest {
 	}
 
 	private void testNoSuperclass(Class<?> clazz) {
-		if (clazz.getSuperclass() != Object.class) {
+		boolean isMainModelClass = mainModelClasses.contains(clazz);
+		if (clazz.getSuperclass() != Object.class && (clazz.getSuperclass() != Enum.class || isMainModelClass)) {
 			problems.add(clazz.getName() + ": Domain classes must not extends other classes");
 		}
 	}
