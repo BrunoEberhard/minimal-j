@@ -225,24 +225,26 @@ public class DbCreator {
 	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 		Class<?> clazz = property.getFieldClazz();
 		
-		if (clazz.equals(Integer.class)) {
+		if (clazz == Integer.class) {
 			s.append("INTEGER");
-		} else if (clazz.equals(String.class)) {
+		} else if (clazz == Long.class) {
+			s.append("BIGINT");
+		} else if (clazz == String.class) {
 			s.append("VARCHAR");
 			int size = AnnotationUtil.getSize(property);
 			s.append(" ("); s.append(size); s.append(")");
-		} else if (clazz.equals(LocalDate.class)) {
+		} else if (clazz == LocalDate.class) {
 			s.append("DATE");
-		} else if (clazz.equals(LocalTime.class)) {
+		} else if (clazz == LocalTime.class) {
 			s.append("TIME");		
-		} else if (clazz.equals(LocalDateTime.class)) {
+		} else if (clazz == LocalDateTime.class) {
 			if (dbPersistence.isDerbyDb()) {
 				s.append("TIMESTAMP");
 			} else {
 				// MySQL
 				s.append("DATETIME");
 			}
-		} else if (clazz.equals(BigDecimal.class) || clazz.equals(Long.class)) {
+		} else if (clazz == BigDecimal.class) {
 			s.append("DECIMAL");
 			int size = AnnotationUtil.getSize(property);
 			int decimal = AnnotationUtil.getDecimal(property);
@@ -251,7 +253,7 @@ public class DbCreator {
 			} else {
 				s.append(" (" + size + ", " + decimal + ")");
 			}
-		} else if (clazz.equals(Boolean.class)) {
+		} else if (clazz == Boolean.class) {
 			if (dbPersistence.isDerbyDb()) {
 				s.append("SMALLINT");
 			} else {
@@ -259,7 +261,7 @@ public class DbCreator {
 			}
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			s.append("INTEGER");
-		} else if (clazz.equals(Set.class)) {
+		} else if (clazz == Set.class) {
 			s.append("INTEGER");
 		} else {
 			throw new IllegalArgumentException(property.getDeclaringClass() + "." + property.getFieldName() +": " + clazz.toString());
