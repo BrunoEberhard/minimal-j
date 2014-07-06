@@ -50,17 +50,6 @@ background-color: white;
   padding-left: 5px;
 }
 
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-previous span,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-previous.v-pressed span,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-previous.v-disabled span {
-	background-image: url(prev.png);
-}
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next span,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next.v-pressed span,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-disabled.v-nativebutton-next span {
-	background-image: url(next.png);
-}
-
 .v-nativebutton-borderless {
   border: none;
   background: transparent;
@@ -86,9 +75,6 @@ background-color: white;
 .v-app-OpenEchVaadinApplication .v-horizontallayout-topbar .v-nativebutton-link:hover span {
 	text-decoration: underline;
 }
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next:active,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next.v-pressed,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next.v-disabled,
 .v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch:active,
 .v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed,
 .v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-down.v-nativebutton-tree-switch {
@@ -110,15 +96,8 @@ background-color: white;
 .v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-popupview:active {
 	background-position: left bottom;
 }
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next,
 .v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch {
 	background-position: right top;
-}
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next:active,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-next.v-pressed,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch:active,
-.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed {
-	background-position: right bottom;
 }
 .v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton span,
 .v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-popupview span,
