@@ -137,6 +137,7 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 		final Button button = new NativeButton(action.getName());
 		button.setEnabled(action.isEnabled());
 		button.setDescription(action.getDescription());
+		button.setWidth((action.getName().length() + 5) + "ex");
 		// installShortcut(button, action);
 		button.addListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
