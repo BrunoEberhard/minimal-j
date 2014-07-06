@@ -1,2 +1,0 @@
-# Module ch.openech.vaadin.widgetset.ToolkitWidgetset
-# RPC service class, partial path of RPC policy file
