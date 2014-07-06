@@ -44,13 +44,30 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	public void create() throws SQLException {
-		super.create();
+	public void createTable(DbSyntax syntax) {
+		super.createTable(syntax);
 		for (AbstractTable<?> subTable : subTables.values()) {
-			subTable.create();
+			subTable.createTable(syntax);
+		}
+	}
+	
+
+	@Override
+	public void createIndexes(DbSyntax syntax) {
+		super.createIndexes(syntax);
+		for (AbstractTable<?> subTable : subTables.values()) {
+			subTable.createIndexes(syntax);
 		}
 	}
 
+	@Override
+	public void createConstraints(DbSyntax syntax) {
+		super.createConstraints(syntax);
+		for (AbstractTable<?> subTable : subTables.values()) {
+			subTable.createConstraints(syntax);
+		}
+	}
+	
 	public long insert(T object) {
 		try {
 			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
@@ -503,5 +520,8 @@ public class Table<T> extends AbstractTable<T> {
 		s.append("DELETE FROM "); s.append(getTableName()); s.append(" WHERE id = ?");
 		return s.toString();
 	}
-
+	
+	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+		syntax.addPrimaryKey(s, "id");
+	}	
 }

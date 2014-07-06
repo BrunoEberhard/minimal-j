@@ -21,6 +21,7 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.SimpleProperty;
 import org.minimalj.transaction.criteria.CriteriaOperator;
@@ -163,6 +164,14 @@ public abstract class AbstractTable<T> {
 			}
 		}
 	}
+	
+	protected void execute(String s) {
+		try (PreparedStatement statement = createStatement(dbPersistence.getConnection(), s.toString(), false)) {
+			statement.execute();
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Statement failed: \n" + s.toString());
+		}
+	}
 
 	public int getMaxId() {
 		try {
@@ -181,9 +190,59 @@ public abstract class AbstractTable<T> {
 		}
 	}
 	
-	public void create() throws SQLException {
-		DbCreator creator = new DbCreator(dbPersistence);
-		creator.create(dbPersistence.getConnection(), this);
+	protected void createTable(DbSyntax syntax) {
+		StringBuilder s = new StringBuilder();
+		syntax.addCreateStatementBegin(s, getTableName());
+		addSpecialColumns(syntax, s);
+		addFieldColumns(syntax, s);
+		addPrimaryKey(syntax, s);
+		syntax.addCreateStatementEnd(s);
+		
+		execute(s.toString());
+	}
+	
+	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+		syntax.addIdColumn(s);
+	}
+
+	protected void addFieldColumns(DbSyntax syntax, StringBuilder s) {
+		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
+			s.append(",\n "); s.append(column.getKey()); s.append(" "); 
+
+			PropertyInterface property = column.getValue();
+			if (DbPersistenceHelper.isReference(property) || ViewUtil.isView(property)) {
+				s.append("BIGINT");
+			} else {
+				syntax.addColumnDefinition(s, property);
+				boolean isRequired = property.getAnnotation(Required.class) != null;
+				s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
+			}
+		}
+	}
+
+	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+		syntax.addPrimaryKey(s, "id");
+	}
+	
+	protected void createIndexes(DbSyntax syntax) {
+		for (String index : indexes) {
+			String s = syntax.createIndex(getTableName(), index, this instanceof HistorizedTable);
+			execute(s.toString());
+		}
+	}
+	
+	protected void createConstraints(DbSyntax syntax) {
+		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
+			PropertyInterface property = column.getValue();
+			
+			if (DbPersistenceHelper.isReference(property)) {
+				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
+				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
+
+				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
+				execute(s.toString());
+			}
+		}
 	}
 	
 	public void clear() {
@@ -225,13 +284,13 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	private void findIndexes() {
-//		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
-//			PropertyInterface property = column.getValue();
-//			if (property.getType() instanceof Reference<?>) {
-//				createIndex(property, property.getFieldPath());
-//			}
-//		}
+	protected void findIndexes() {
+		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
+			PropertyInterface property = column.getValue();
+			if (ViewUtil.isView(property)) {
+				createIndex(property, property.getFieldPath());
+			}
+		}
 	}
 	
 	protected String whereStatement(final String wholeFieldPath, CriteriaOperator criteriaOperator) {

@@ -40,8 +40,7 @@ public class DbPersistence {
 	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
-	private final boolean isDerbyDb;
-	private final boolean isMySqlDb; 
+	private final DbSyntax syntax;
 	private final boolean createTablesOnInitialize;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
@@ -61,9 +60,15 @@ public class DbPersistence {
 		Connection connection = getAutoCommitConnection();
 		try {
 			String databaseProductName = connection.getMetaData().getDatabaseProductName();
-			isMySqlDb = StringUtils.equals(databaseProductName, "MySQL");
-			isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
-			if (!isMySqlDb && !isDerbyDb) throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
+			boolean isMySqlDb = StringUtils.equals(databaseProductName, "MySQL");
+			boolean isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
+			if (isMySqlDb) {
+				syntax = new DbSyntax.MariaDbSyntax();
+			} else if (isDerbyDb) {
+				syntax = new DbSyntax.DerbyDbSyntax();
+			} else {
+				throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
+			}
 			this.createTablesOnInitialize = createTablesOnInitialize;
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
@@ -289,14 +294,6 @@ public class DbPersistence {
 		table.delete(object);
 	}
 	
-	public boolean isDerbyDb() {
-		return isDerbyDb;
-	}
-
-	public boolean isMySqlDb() {
-		return isMySqlDb;
-	}
-	
 	public <T> T execute(Class<T> clazz, String query, Object... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -398,11 +395,13 @@ public class DbPersistence {
 	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
-			try {
-				table.create();
-			} catch (SQLException x) {
-				throw new LoggingRuntimeException(x, logger, "Couldn't initialize table: " + table.getTableName());
-			}
+			table.createTable(syntax);
+		}
+		for (AbstractTable<?> table : tableList) {
+			table.createIndexes(syntax);
+		}
+		for (AbstractTable<?> table : tableList) {
+			table.createConstraints(syntax);
 		}
 	}
 	

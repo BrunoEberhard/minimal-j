@@ -292,5 +292,14 @@ public class HistorizedTable<T> extends Table<T> {
 
 		return s.toString();
 	}
+	
+	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+		super.addSpecialColumns(syntax, s);
+		s.append(",\n version INTEGER NOT NULL");
+	}
+	
+	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+		syntax.addPrimaryKey(s, "id, version");
+	}
 
 }

@@ -139,4 +139,13 @@ public class SubTable extends AbstractTable {
 	protected String deleteQuery() {
 		return "DELETE FROM " + getTableName() + " WHERE id = ? AND position >= ?";
 	}
+	
+	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+		super.addSpecialColumns(syntax, s);
+		s.append(",\n position INTEGER NOT NULL");
+	}
+	
+	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+		syntax.addPrimaryKey(s, "id, position");
+	}
 }

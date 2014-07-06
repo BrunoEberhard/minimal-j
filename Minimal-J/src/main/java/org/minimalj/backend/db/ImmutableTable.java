@@ -32,6 +32,12 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		selectIdQuery = selectIdQuery();
 		selectIdByHashQuery = selectIdByHashQuery();
 	}
+	
+	@Override
+	protected void findIndexes() {
+		super.findIndexes();
+		indexes.add("hash");
+	}
 
 	/**
 	 * If the immutable already exists returns the id of the
@@ -160,4 +166,9 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		return s.toString();
 	}
 
+	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+		super.addSpecialColumns(syntax, s);
+		s.append(",\n hash INTEGER NOT NULL");
+	}
+	
 }
