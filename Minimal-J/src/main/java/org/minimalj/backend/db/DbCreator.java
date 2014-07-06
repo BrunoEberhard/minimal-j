@@ -90,31 +90,23 @@ public class DbCreator {
 		
 		if (table instanceof HistorizedTable<?>) {
 			s.append(" version INTEGER NOT NULL");
-			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id, version)");
-			}
+			addPrimaryKey(s, "id, version");
 		} else if (table instanceof Table<?>) {
 			s.delete(s.length()-2, s.length());
-			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id)");
-			}
+			addPrimaryKey(s, "id");
 		} else if (table instanceof HistorizedSubTable) {
 			s.append(" startVersion INTEGER NOT NULL,\n");
 			s.append(" endVersion INTEGER NOT NULL,\n");
 			s.append(" position INTEGER NOT NULL");
-			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id, startVersion, position)");
-			}
+			addPrimaryKey(s, "id, startVersion, position");
 		} else if (table instanceof SubTable) {
 			s.append(" position INTEGER NOT NULL");
-			if (dbPersistence.isMySqlDb()) {
-				s.append(",\n PRIMARY KEY (id, position)");
-			}
+			addPrimaryKey(s, "id, position");
 		} else if (table instanceof ImmutableTable) {
 			s.append(" hash INTEGER NOT NULL,\n");
-			s.append(" PRIMARY KEY (id)");
+			addPrimaryKey(s, "id");
 		} else {
-			s.append(" PRIMARY KEY (id)");
+			addPrimaryKey(s, "id");
 		}
 		
 		if (dbPersistence.isMySqlDb()) {
@@ -131,6 +123,17 @@ public class DbCreator {
 		}
 		
 		return createStatements;
+	}
+	
+	protected void addPrimaryKey(StringBuilder s, String keys) {
+		if (dbPersistence.isDerbyDb() && keys.indexOf(",") > 0) {
+			// no multi column primary keys possible
+			s.append(",\n");
+		} else {
+			s.append(",\n PRIMARY KEY (");
+			s.append(keys);
+			s.append(")");
+		}
 	}
 	
 	private void appendIndexes(StringBuilder s, AbstractTable<?> table) {
