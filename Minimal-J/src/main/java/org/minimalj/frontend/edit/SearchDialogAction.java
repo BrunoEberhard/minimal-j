@@ -3,11 +3,11 @@ package org.minimalj.frontend.edit;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ResourceAction;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
+import org.minimalj.frontend.toolkit.ResourceAction;
 
 public abstract class SearchDialogAction<T> extends ResourceAction implements Search<T> {
 	private final IComponent source;
@@ -33,10 +33,6 @@ public abstract class SearchDialogAction<T> extends ResourceAction implements Se
 		return 100;
 	}
 
-	protected void run(IComponent source) {
-		
-	}
-	
 	private void showPageOn(IComponent source) {
 		dialog = ClientToolkit.getToolkit().createSearchDialog(source, this, keys, new SearchClickListener());
 		dialog.openDialog();
