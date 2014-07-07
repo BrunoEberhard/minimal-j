@@ -3,10 +3,10 @@ package org.minimalj.backend.db;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.apache.derby.client.am.Types;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.InvalidValues;
 import org.minimalj.model.PropertyInterface;
