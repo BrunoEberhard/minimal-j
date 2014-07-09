@@ -41,21 +41,21 @@ import org.minimalj.frontend.swing.component.SwingCaption;
 import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.GridFormLayout;
 import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.IAction;
+import org.minimalj.frontend.toolkit.IAction.ActionChangeListener;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ILink;
 import org.minimalj.frontend.toolkit.ITable;
+import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.SwitchLayout;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
-import org.minimalj.frontend.toolkit.IAction.ActionChangeListener;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.util.StringUtils;
 
 public class SwingClientToolkit extends ClientToolkit {
@@ -185,13 +185,13 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showMessage(Object parent, String text) {
+	public void showMessage(IComponent parent, String text) {
 		Window window = findWindow((Component)parent);
 		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
-	public void showError(Object parent, String text) {
+	public void showError(IComponent parent, String text) {
 		Window window = findWindow((Component)parent);
 		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
 	}

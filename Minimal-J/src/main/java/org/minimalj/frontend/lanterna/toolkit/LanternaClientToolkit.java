@@ -16,9 +16,9 @@ import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ILink;
 import org.minimalj.frontend.toolkit.ITable;
+import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.SwitchLayout;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 
 import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.Component;
@@ -214,12 +214,12 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showError(Object parent, String text) {
+	public void showError(IComponent parent, String text) {
 		MessageBox.showMessageBox(gui, "Error", text);
 	}
 
 	@Override
-	public void showMessage(Object parent, String text) {
+	public void showMessage(IComponent parent, String text) {
 		MessageBox.showMessageBox(gui, "Message", text);
 
 	}

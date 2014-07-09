@@ -101,9 +101,9 @@ public abstract class ClientToolkit {
 
 	public abstract IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions);
 	
-	public abstract void showMessage(Object parent, String text);
+	public abstract void showMessage(IComponent parent, String text);
 	
-	public abstract void showError(Object parent, String text);
+	public abstract void showError(IComponent parent, String text);
 	
 	// Don't change order, is used in SwingClientToolkit
 	public static enum ConfirmDialogType { YES_NO, YES_NO_CANCEL }

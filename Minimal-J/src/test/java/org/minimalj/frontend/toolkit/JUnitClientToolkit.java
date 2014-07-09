@@ -4,20 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.Caption;
-import org.minimalj.frontend.toolkit.CheckBox;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ComboBox;
-import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.GridFormLayout;
-import org.minimalj.frontend.toolkit.HorizontalLayout;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
-import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.IFocusListener;
-import org.minimalj.frontend.toolkit.ITable;
-import org.minimalj.frontend.toolkit.SwitchLayout;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 
 public class JUnitClientToolkit extends ClientToolkit {
@@ -184,13 +170,13 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showMessage(Object parent, String text) {
+	public void showMessage(IComponent parent, String text) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void showError(Object parent, String text) {
+	public void showError(IComponent parent, String text) {
 		if (lastError != null) {
 			throw new IllegalStateException();
 		}
