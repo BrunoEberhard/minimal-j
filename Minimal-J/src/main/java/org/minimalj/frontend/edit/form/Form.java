@@ -55,7 +55,7 @@ import org.minimalj.util.resources.Resources;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
-public class Form<T> implements IForm<T>, DemoEnabled {
+public class Form<T> implements DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getName());
 
 	protected final boolean editable;
@@ -70,7 +70,7 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	private final FormPanelActionListener formPanelActionListener = new FormPanelActionListener();
 	
-	private IForm.FormChangeListener<T> changeListener;
+	private FormChangeListener<T> changeListener;
 	private boolean changeFromOutsite;
 	private boolean showWarningIfValidationForUnsuedField = true;
 	
@@ -119,7 +119,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 	
 	// Methods to create the form
 
-	@Override
 	public IComponent getComponent() {
 		return layout;
 	}
@@ -405,7 +404,6 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		indicators.get(property).setValidationMessages(validationMessages);
 	}
 
-	@Override
 	public void setObject(T object) {
 		if (editable && changeListener == null) throw new IllegalStateException("Listener has to be set on a editable Form");
 		changeFromOutsite = true;
@@ -429,11 +427,22 @@ public class Form<T> implements IForm<T>, DemoEnabled {
 		return property.getFieldName();
 	}
 	
-	@Override
-	public void setChangeListener(IForm.FormChangeListener<T> changeListener) {
+	public void setChangeListener(FormChangeListener<T> changeListener) {
 		if (changeListener == null) throw new IllegalArgumentException("Listener on Form must not be null");
 		if (this.changeListener != null) throw new IllegalStateException("Listener on Form cannot be changed");
 		this.changeListener = changeListener;
+	}
+	
+	public interface FormChangeListener<S> {
+
+		public void validate(S object, List<ValidationMessage> validationResult);
+
+		public void indicate(List<ValidationMessage> validationMessages, boolean allUsedFieldsValid);
+
+		public void changed();
+
+		public void commit();
+
 	}
 
 	private class FormPanelChangeListener implements EditFieldListener {

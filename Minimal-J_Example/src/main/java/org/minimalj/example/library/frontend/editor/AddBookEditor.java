@@ -5,13 +5,13 @@ import org.minimalj.example.library.frontend.form.BookForm;
 import org.minimalj.example.library.frontend.page.BookPage;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.PageLink;
 
 public class AddBookEditor extends Editor<Book> {
 
 	@Override
-	public IForm<Book> createForm() {
+	public Form<Book> createForm() {
 		return new BookForm(true);
 	}
 	

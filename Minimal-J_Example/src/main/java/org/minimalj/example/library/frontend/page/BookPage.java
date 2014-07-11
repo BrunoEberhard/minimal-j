@@ -3,7 +3,7 @@ package org.minimalj.example.library.frontend.page;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.BookForm;
 import org.minimalj.example.library.model.Book;
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectViewPage;
 import org.minimalj.frontend.page.PageContext;
@@ -22,7 +22,7 @@ public class BookPage extends ObjectViewPage<Book> {
 	}
 
 	@Override
-	protected IForm<Book> createForm() {
+	protected Form<Book> createForm() {
 		return new BookForm(false);
 	}
 

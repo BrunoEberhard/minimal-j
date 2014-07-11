@@ -1,7 +1,6 @@
 package org.minimalj.frontend.edit;
 
 import org.minimalj.frontend.edit.Editor.EditorListener;
-import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.IDialog;
@@ -33,8 +32,8 @@ public class EditorDialogAction extends ResourceAction {
 	}
 
 	public void showDialogOn(IComponent context) {
-		IForm<?> form = editor.startEditor();
-		final IDialog dialog = ClientToolkit.getToolkit().createDialog(context, editor.getTitle(), form.getComponent(), editor.getActions());
+		editor.startEditor();
+		final IDialog dialog = ClientToolkit.getToolkit().createDialog(context, editor.getTitle(), editor.getComponent(), editor.getActions());
 		
 		dialog.setCloseListener(new IDialog.CloseListener() {
 			@Override

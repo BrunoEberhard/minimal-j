@@ -5,10 +5,8 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.Editor.EditorListener;
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.JUnitClientToolkit;
 import org.minimalj.model.Keys;
@@ -88,8 +86,9 @@ public class EditorTest {
 	}
 	
 	@Test public void 
-	should_start_editor_creates_form() {
-		Assert.assertNotNull(editor.startEditor());
+	should_start_editor_creates_component() {
+		editor.startEditor();
+		Assert.assertNotNull(editor.getComponent());
 	}
 	
 	@Test public void 
@@ -151,7 +150,7 @@ public class EditorTest {
 	
 	private class TestEditor extends Editor<TestEditorObjectClass> {
 		@Override
-		protected IForm<TestEditorObjectClass> createForm() {
+		protected Form<TestEditorObjectClass> createForm() {
 			Form<TestEditorObjectClass> form = new Form<>();
 			form.line(TestEditorObjectClass.KEYS.field);
 			return form;

@@ -3,11 +3,12 @@ package org.minimalj.frontend.edit;
 import java.util.List;
 
 import org.minimalj.application.DevMode;
-import org.minimalj.frontend.edit.form.IForm;
-import org.minimalj.frontend.edit.form.SwitchForm;
+import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceActionEnabled;
+import org.minimalj.frontend.toolkit.SwitchLayout;
 import org.minimalj.model.validation.ValidationMessage;
 
 public abstract class Wizard<T> extends Editor<T> {
@@ -17,7 +18,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	protected final PreviousWizardStepAction prevAction;
 	protected final NextWizardStepAction nextAction;
-	private SwitchForm<T> switchForm;
+	private SwitchLayout switchLayout;
 	private final Indicator indicator;
 	private final EditorListener stepFinishedListener;
 	
@@ -65,25 +66,29 @@ public abstract class Wizard<T> extends Editor<T> {
 	}
 
 	@Override
-	protected final IForm<T> createForm() {
-		switchForm = new SwitchForm<T>();
-		return switchForm;
+	protected final Form<T> createForm() {
+		return null;
 	}
 	
 	@Override
-	public IForm<T> startEditor() {
-		IForm<T> formVisual = super.startEditor();
+	public void startEditor() {
+		super.startEditor();
+		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
 		setCurrentStep(getFirstStep());
-		return formVisual;
 	}
 
+	@Override
+	public IComponent getComponent() {
+		return switchLayout;
+	}
+	
 	private void setCurrentStep(WizardStep<?> step) {
 		currentStep = step;
 		currentStep.setIndicator(indicator);
 		currentStep.setEditorListener(stepFinishedListener);
  
-		IForm<?> form = currentStep.startEditor();
-		switchForm.setForm(form);
+		currentStep.startEditor();
+		switchLayout.show(currentStep.getComponent());
 		
 		prevAction.setEnabled(currentStepIndex > 0);
 	}

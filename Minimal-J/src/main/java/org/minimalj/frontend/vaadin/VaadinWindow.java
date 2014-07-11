@@ -7,7 +7,6 @@ import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.Editor.EditorListener;
-import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
@@ -210,10 +209,10 @@ public class VaadinWindow extends Window implements PageContext {
 	public void show(Editor<?> editor) {
 		this.editor = editor;
 		
-		IForm<?> form = editor.startEditor();
+		editor.startEditor();
 		IAction[] actions = editor.getActions();
 		actions = wrapActions(actions);
-		VaadinEditorLayout layout = new VaadinEditorLayout(form.getComponent(), actions);
+		VaadinEditorLayout layout = new VaadinEditorLayout(editor.getComponent(), actions);
 		final VaadinDialog dialog = new VaadinDialog(this, layout, editor.getTitle());
 
 		dialog.setCloseListener(new org.minimalj.frontend.toolkit.IDialog.CloseListener() {
@@ -239,7 +238,7 @@ public class VaadinWindow extends Window implements PageContext {
 			}
 		});
 		dialog.setVisible(true);
-		VaadinClientToolkit.focusFirstComponent((Component) form.getComponent());
+		VaadinClientToolkit.focusFirstComponent((Component) editor.getComponent());
 	}
 	
 	

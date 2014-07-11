@@ -1,19 +1,19 @@
 package org.minimalj.frontend.page;
 
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IComponent;
 
 public abstract class ObjectViewPage<T> extends AbstractPage implements RefreshablePage {
 
-	private IForm<T> objectPanel;
+	private Form<T> objectPanel;
 	private IComponent alignLayout;
 	
 	public ObjectViewPage(PageContext pageContext) {
 		super(pageContext);
 	}
 
-	protected abstract IForm<T> createForm();
+	protected abstract Form<T> createForm();
 
 	protected abstract T getObject();
 	

@@ -23,7 +23,6 @@ import javax.swing.SwingUtilities;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.Editor.EditorListener;
-import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
@@ -32,11 +31,11 @@ import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
+import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingLink;
 import org.minimalj.frontend.swing.toolkit.SwingEditorDialog;
 import org.minimalj.frontend.swing.toolkit.SwingEditorLayout;
 import org.minimalj.frontend.swing.toolkit.SwingInternalFrame;
 import org.minimalj.frontend.swing.toolkit.SwingSwitchLayout;
-import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingLink;
 import org.minimalj.frontend.toolkit.IComponent;
 
 public class SwingTab extends EditablePanel implements IComponent, PageContext {
@@ -304,8 +303,8 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		this.editor = editor;
 		
 		// TODO wrap this too. Might need server call
-		IForm<?> form = editor.startEditor();
-		SwingEditorLayout layout = new SwingEditorLayout(form.getComponent(), editor.getActions());
+		editor.startEditor();
+		SwingEditorLayout layout = new SwingEditorLayout(editor.getComponent(), editor.getActions());
 		final SwingInternalFrame dialog = new SwingInternalFrame(this, layout, editor.getTitle());
 		
 		dialog.setCloseListener(new SwingEditorDialog.CloseListener() {
@@ -335,7 +334,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 			}
 		});
 		dialog.openDialog();
-		SwingClientToolkit.focusFirstComponent((JComponent) form.getComponent());
+		SwingClientToolkit.focusFirstComponent((JComponent) editor.getComponent());
 	}
 	
 	@Override

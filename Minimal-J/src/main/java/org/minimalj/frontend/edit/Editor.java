@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
@@ -75,7 +75,7 @@ public abstract class Editor<T> {
 	protected static final Object SAVE_FAILED = null;
 	
 	private T original, editedObject;
-	private IForm<T> form;
+	private Form<T> form;
 	protected final SaveAction saveAction = new SaveAction();
 	protected final CancelAction cancelAction = new CancelAction();
 	protected final FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
@@ -85,7 +85,7 @@ public abstract class Editor<T> {
 	
 	// what to implement
 
-	protected abstract IForm<T> createForm();
+	protected abstract Form<T> createForm();
 
 	/**
 	 * Should load the object to be edited. Note: The object will be copied before
@@ -133,8 +133,8 @@ public abstract class Editor<T> {
 	protected Editor() {
 	}
 	
-	public IForm<T> startEditor() {
-		if (form != null) {
+	public void startEditor() {
+		if (editedObject != null) {
 			throw new IllegalStateException();
 		}
 		
@@ -142,12 +142,16 @@ public abstract class Editor<T> {
 		editedObject = createEditedObject(original);
 
 		form = createForm();
-		form.setChangeListener(new EditorChangeListener());
-		form.setObject(editedObject);
+		if (form != null) {
+			form.setChangeListener(new EditorChangeListener());
+			form.setObject(editedObject);
+		}
 
 		userEdited = false;
-		
-		return form;
+	}
+	
+	public IComponent getComponent() {
+		return form.getComponent();
 	}
 	
 	private T createEditedObject(T original) {
@@ -179,7 +183,7 @@ public abstract class Editor<T> {
 	}
 
 	protected void finish() {
-		form = null;
+		editedObject = null;
 	}
 	
 	protected void cancel() {
@@ -196,7 +200,7 @@ public abstract class Editor<T> {
 	}
 
 	public final boolean isFinished() {
-		return form == null;
+		return editedObject == null;
 	}
 	
 	private void fireSaved(Object saveResult) {
@@ -237,7 +241,7 @@ public abstract class Editor<T> {
 		}
 	}
 
-	private class EditorChangeListener implements IForm.FormChangeListener<T> {
+	private class EditorChangeListener implements Form.FormChangeListener<T> {
 
 		public void changed() {
 			userEdited = true;

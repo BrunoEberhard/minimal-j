@@ -4,7 +4,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.editor.AddLendEditor;
 import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.model.Customer;
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectViewPage;
 import org.minimalj.frontend.page.PageContext;
@@ -27,7 +27,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 	}
 
 	@Override
-	protected IForm<Customer> createForm() {
+	protected Form<Customer> createForm() {
 		return new CustomerForm(false);
 	}
 

@@ -10,7 +10,6 @@ import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.Editor.EditorListener;
-import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.frontend.lanterna.component.Select;
 import org.minimalj.frontend.lanterna.toolkit.LanternaActionAdapater;
@@ -351,8 +350,8 @@ public class LanternaFrontend {
 		public void show(Editor<?> editor) {
 			LanternaFrontend.this.editor = editor;
 			
-			IForm<?> form = editor.startEditor();
-			final LanternaDialog dialog = (LanternaDialog) ClientToolkit.getToolkit().createDialog(null, editor.getTitle(), form.getComponent(), editor.getActions());
+			editor.startEditor();
+			final LanternaDialog dialog = (LanternaDialog) ClientToolkit.getToolkit().createDialog(null, editor.getTitle(), editor.getComponent(), editor.getActions());
 
 			dialog.setCloseListener(new org.minimalj.frontend.toolkit.IDialog.CloseListener() {
 				@Override

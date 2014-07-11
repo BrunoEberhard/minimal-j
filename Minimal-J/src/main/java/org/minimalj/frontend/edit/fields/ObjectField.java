@@ -2,7 +2,7 @@ package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.backend.db.EmptyObjects;
 import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.IComponent;
@@ -52,7 +52,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 		return flowField;
 	}
 	
-	protected abstract IForm<T> createFormPanel();
+	protected abstract Form<T> createFormPanel();
 
 	public class ObjectFieldEditor extends Editor<T> {
 		private final String title;
@@ -75,7 +75,7 @@ public abstract class ObjectField<T> extends AbstractEditField<T> implements Ena
 		}
 
 		@Override
-		public IForm<T> createForm() {
+		public Form<T> createForm() {
 			return ObjectField.this.createFormPanel();
 		}
 

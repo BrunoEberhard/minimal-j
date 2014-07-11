@@ -8,7 +8,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.edit.form.IForm;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
@@ -47,7 +46,7 @@ public class EnumSetEditField<E extends Set<Enum<?>>> extends ObjectFlowField<E>
 	}
 
 	@Override
-	protected IForm<E> createFormPanel() {
+	protected Form<E> createFormPanel() {
 		String bundleName = enumClass.getName();
 		ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName);
 		Form<E> form = new Form<E>(resourceBundle, true);

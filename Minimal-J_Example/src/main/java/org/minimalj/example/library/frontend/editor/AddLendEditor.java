@@ -5,7 +5,7 @@ import org.minimalj.example.library.frontend.form.LendForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 
 public class AddLendEditor extends Editor<Lend> {
 
@@ -20,7 +20,7 @@ public class AddLendEditor extends Editor<Lend> {
 	}
 	
 	@Override
-	public IForm<Lend> createForm() {
+	public Form<Lend> createForm() {
 		return new LendForm(true);
 	}
 	

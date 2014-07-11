@@ -5,13 +5,13 @@ import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.frontend.page.CustomerPage;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.IForm;
+import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.PageLink;
 
 public class AddCustomerEditor extends Editor<Customer> {
 
 	@Override
-	public IForm<Customer> createForm() {
+	public Form<Customer> createForm() {
 		return new CustomerForm(true);
 	}
 	
