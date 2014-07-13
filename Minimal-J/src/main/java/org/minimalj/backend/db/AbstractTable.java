@@ -239,8 +239,10 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
-				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
-				execute(s.toString());
+				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
+				if (s != null) {
+					execute(s.toString());
+				}
 			}
 		}
 	}

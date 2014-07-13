@@ -91,7 +91,7 @@ public abstract class DbSyntax {
 		s.append("\n)");
 	}
 	
-	public String createConstraint(String tableName, String column, String referencedTableName) {
+	public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
 		StringBuilder s = new StringBuilder();
 		s.append("ALTER TABLE "); s.append(tableName);
 		s.append(" ADD CONSTRAINT FK_");
@@ -156,6 +156,15 @@ public abstract class DbSyntax {
 				super.addPrimaryKey(s, keys);
 			} else {
 				// no multi column primary keys possible
+			}
+		}
+		
+		@Override
+		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
+			if (!referencedTableIsHistorized) {
+				return super.createConstraint(tableName, column, referencedTableName, referencedTableIsHistorized);
+			} else {
+				return null;
 			}
 		}
 	}
