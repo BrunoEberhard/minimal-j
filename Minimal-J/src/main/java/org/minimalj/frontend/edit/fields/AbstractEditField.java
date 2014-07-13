@@ -1,6 +1,6 @@
 package org.minimalj.frontend.edit.fields;
 
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;

@@ -17,7 +17,7 @@ import org.minimalj.frontend.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import org.minimalj.frontend.swing.lookAndFeel.TerminalLookAndFeel;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.util.resources.ResourceHelper;
 import org.minimalj.util.resources.Resources;
 

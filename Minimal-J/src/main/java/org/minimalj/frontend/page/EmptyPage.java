@@ -1,6 +1,6 @@
 package org.minimalj.frontend.page;
 
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
 public class EmptyPage extends AbstractPage {
 
@@ -9,7 +9,7 @@ public class EmptyPage extends AbstractPage {
 	}
 	
 	@Override
-	public IComponent getComponent() {
+	public IContent getContent() {
 		return null;
 	}
 

@@ -4,8 +4,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.MjApplication;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -54,7 +54,7 @@ public class PageLink implements IAction {
 	}
 	
 	@Override
-	public void action(IComponent context) {
+	public void action(IContext context) {
 		((PageContext) context).show(link);
 	}
 	

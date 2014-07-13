@@ -2,6 +2,8 @@ package org.minimalj.frontend.toolkit;
 
 import java.util.List;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+
 
 public interface ComboBox<T> extends IComponent {
 

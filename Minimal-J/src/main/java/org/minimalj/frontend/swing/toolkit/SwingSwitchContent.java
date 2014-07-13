@@ -7,21 +7,21 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.minimalj.frontend.toolkit.IComponent;
-import org.minimalj.frontend.toolkit.SwitchLayout;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 
-public class SwingSwitchLayout extends JPanel implements SwitchLayout {
+public class SwingSwitchContent extends JPanel implements SwitchContent {
 	private static final long serialVersionUID = 1L;
 	
-	private IComponent shownComponent;
+	private IContent shownComponent;
 	
-	public SwingSwitchLayout() {
+	public SwingSwitchContent() {
 		super(new BorderLayout());
 		setInheritsPopupMenu(true);
 	}
 
 	@Override
-	public void show(IComponent c) {
+	public void show(IContent c) {
 		if (shownComponent != c) {
 			JComponent component = (JComponent) c;
 			removeAll();
@@ -38,11 +38,6 @@ public class SwingSwitchLayout extends JPanel implements SwitchLayout {
 	private void refresh(Component component) {
 		repaint();
 		revalidate();
-	}
-
-	@Override
-	public IComponent getShownComponent() {
-		return shownComponent;
 	}
 
 	@Override

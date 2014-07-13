@@ -139,14 +139,20 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public SwitchLayout createSwitchLayout() {
+	public SwitchContent createSwitchContent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public GridFormLayout createGridLayout(int columns, int columnWidth) {
-		return new GridFormLayout() {
+	public SwitchComponent createSwitchComponent(IComponent... components) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GridContent createGridContent(int columns, int columnWidth) {
+		return new GridContent() {
 			
 			@Override
 			public void add(IComponent field, int span) {
@@ -157,26 +163,20 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createFormAlignLayout(IComponent content) {
+	public IDialog createDialog(IContext context, String title,
+			IContent content, IAction... actions) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public IDialog createDialog(IComponent parent, String title,
-			IComponent content, IAction... actions) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void showMessage(IComponent parent, String text) {
+	public void showMessage(IContext context, String text) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void showError(IComponent parent, String text) {
+	public void showError(IContext context, String text) {
 		if (lastError != null) {
 			throw new IllegalStateException();
 		}
@@ -184,7 +184,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showConfirmDialog(IComponent component, String message,
+	public void showConfirmDialog(IDialog component, String message,
 			String title, ConfirmDialogType type, DialogListener listener) {
 		if (nextConfirmAnswer == null) {
 			throw new IllegalStateException();
@@ -194,19 +194,19 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public OutputStream store(IComponent parent, String buttonText) {
+	public OutputStream store(IContext context, String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public InputStream load(IComponent parent, String buttonText) {
+	public InputStream load(IContext context, String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,10 +1,10 @@
 package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.EditorDialogAction;
+import org.minimalj.frontend.edit.EditorAction;
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.model.PropertyInterface;
 
@@ -72,7 +72,7 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	// why public
 	public class RemoveObjectAction extends ResourceAction {
 		@Override
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			ObjectFlowField.this.setObject(null);
 		}
 	}
@@ -102,11 +102,11 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	}
 	
 	protected void addAction(Editor<?> editor) {
-		addAction(new EditorDialogAction(editor));
+		addAction(new EditorAction(editor));
 	}
 
 	protected void addAction(Editor<?> editor, String actionName) {
-		addAction(new EditorDialogAction(editor, actionName));
+		addAction(new EditorAction(editor, actionName));
 	}
 
 }

@@ -1,7 +1,7 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
 import org.minimalj.frontend.toolkit.HorizontalLayout;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;

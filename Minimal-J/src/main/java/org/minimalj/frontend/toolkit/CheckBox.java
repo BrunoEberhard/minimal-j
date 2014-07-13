@@ -1,5 +1,7 @@
 package org.minimalj.frontend.toolkit;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+
 
 public interface CheckBox extends IComponent {
 	

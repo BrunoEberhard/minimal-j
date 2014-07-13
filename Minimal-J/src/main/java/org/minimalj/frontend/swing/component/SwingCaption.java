@@ -13,7 +13,7 @@ import javax.swing.SwingConstants;
 import javax.swing.plaf.LabelUI;
 
 import org.minimalj.frontend.toolkit.Caption;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.resources.ResourceHelper;
 

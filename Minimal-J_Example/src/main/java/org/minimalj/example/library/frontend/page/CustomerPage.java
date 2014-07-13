@@ -9,7 +9,7 @@ import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectViewPage;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.util.IdUtils;
 
@@ -58,7 +58,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 		}
 
 		@Override
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			((PageContext) context).show(PageLink.link(LendTablePage.class, IdUtils.getIdString(customer)));
 		}
 		

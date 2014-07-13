@@ -1,13 +1,11 @@
 package org.minimalj.frontend.page;
 
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
 public abstract class ObjectViewPage<T> extends AbstractPage implements RefreshablePage {
 
 	private Form<T> objectPanel;
-	private IComponent alignLayout;
 	
 	public ObjectViewPage(PageContext pageContext) {
 		super(pageContext);
@@ -18,13 +16,12 @@ public abstract class ObjectViewPage<T> extends AbstractPage implements Refresha
 	protected abstract T getObject();
 	
 	@Override
-	public IComponent getComponent() {
-		if (alignLayout == null) {
+	public IContent getContent() {
+		if (objectPanel == null) {
 			objectPanel = createForm();
-			objectPanel.setObject(getObject());
-			alignLayout = ClientToolkit.getToolkit().createFormAlignLayout(objectPanel.getComponent());
+			refresh();
 		}
-		return alignLayout;
+		return objectPanel.getContent();
 	}
 	
 	@Override

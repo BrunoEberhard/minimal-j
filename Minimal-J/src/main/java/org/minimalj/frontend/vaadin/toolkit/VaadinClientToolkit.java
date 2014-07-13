@@ -12,16 +12,15 @@ import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.GridFormLayout;
+import org.minimalj.frontend.toolkit.GridContent;
 import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ILink;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
-import org.minimalj.frontend.toolkit.SwitchLayout;
+import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
 
@@ -62,10 +61,17 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 				@Override
 				public void buttonClick(ClickEvent event) {
-					action.action(VaadinActionLabel.this);
+					action.action(findContext(VaadinActionLabel.this));
 				}
 			});
 		}
+	}
+	
+	private static IContext findContext(Component component) {
+		while (!(component instanceof IContext)) {
+			component = component.getParent();
+		}
+		return (IContext) component;
 	}
 	
 	@Override
@@ -127,13 +133,18 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public GridFormLayout createGridLayout(int columns, int columnWidthPercentage) {
+	public GridContent createGridContent(int columns, int columnWidthPercentage) {
 		return new VaadinGridFormLayout(columns, columnWidthPercentage);
 	}
 
 	@Override
-	public SwitchLayout createSwitchLayout() {
-		return new VaadinSwitchLayout();
+	public SwitchContent createSwitchContent() {
+		return new VaadinSwitchContent();
+	}
+	
+	@Override
+	public SwitchComponent createSwitchComponent(IComponent... components) {
+		return new VaadinSwitchComponent(components);
 	}
 
 	public static void focusFirstComponent(Component component) {
@@ -160,23 +171,23 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public void showMessage(IComponent parent, String text) {
+	public void showMessage(IContext context, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component parentComponent = (Component) parent;
+		Component parentComponent = (Component) context;
 		Window window = parentComponent.getWindow();
 		window.showNotification("Information", text, Notification.TYPE_HUMANIZED_MESSAGE);
 	}
 	
 	@Override
-	public void showError(IComponent parent, String text) {
+	public void showError(IContext context, String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component parentComponent = (Component) parent;
+		Component parentComponent = (Component) context;
 		Window window = parentComponent.getWindow();
 		window.showNotification("Fehler", text, Notification.TYPE_ERROR_MESSAGE);
 	}
 
 	@Override
-	public void showConfirmDialog(IComponent c, String message, String title, ConfirmDialogType type, DialogListener listener) {
+	public void showConfirmDialog(IDialog c, String message, String title, ConfirmDialogType type, DialogListener listener) {
 		Component component = (Component) c;
 		Window window = component.getWindow();
 		while (window.getParent() != null) {
@@ -191,15 +202,15 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions) {
-		Component component = new VaadinEditorLayout(content, actions);
+	public IDialog createDialog(IContext context, String title, IContent content, IAction... actions) {
+		Component component = new VaadinEditorLayout(context, content, actions);
 		component.setSizeFull();
 
-		return createDialog(parent, title, component);
+		return createDialog(context, title, component);
 	}
 
-	private IDialog createDialog(IComponent parent, String title, Component component) {
-		Component parentComponent = (Component) parent;
+	private IDialog createDialog(IContext context, String title, Component component) {
+		Component parentComponent = (Component) context;
 		Window window = parentComponent.getWindow();
 		// need to find application-level window
 		while (window.getParent() != null) {
@@ -216,9 +227,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(index, keys, listener);
-		return createDialog(parent, null, panel);
+		return createDialog(context, null, panel);
 	}
 
 	@Override
@@ -274,7 +285,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						dialog = ((VaadinClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(VaadinLookup.this, search, keys, new LookupClickListener());
+						dialog = ((VaadinClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(findContext(VaadinLookup.this), search, keys, new LookupClickListener());
 						dialog.openDialog();
 					}
 				});
@@ -311,39 +322,15 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IComponent createFormAlignLayout(IComponent content) {
-		VaadinGridLayout gridLayout = new VaadinGridLayout(3, 3);
-		gridLayout.setMargin(false);
-		gridLayout.setStyleName("gridForm");
-		gridLayout.setSizeFull();
-		gridLayout.addComponent((Component) content, 1, 1);
-		gridLayout.setRowExpandRatio(0, 0.1f);
-		gridLayout.setRowExpandRatio(1, 0.7f);
-		gridLayout.setRowExpandRatio(2, 0.2f);
-		gridLayout.setColumnExpandRatio(0, 0.3f);
-		gridLayout.setColumnExpandRatio(1, 0.0f);
-		gridLayout.setColumnExpandRatio(2, 0.7f);
-		return gridLayout;
-	}
-	
-	private class VaadinGridLayout extends GridLayout implements IComponent {
-		private static final long serialVersionUID = 1L;
-
-		public VaadinGridLayout(int columns, int rows) {
-			super(columns, rows);
-		}
-	}
-	
-	@Override
-	public OutputStream store(IComponent parent, String buttonText) {
-		Component parentComponent = (Component) parent;
+	public OutputStream store(IContext context, String buttonText) {
+		Component parentComponent = (Component) context;
 		Window window = parentComponent.getWindow();
 		return new VaadinExportDialog(window, "Export").getOutputStream();
 	}
 
 	@Override
-	public InputStream load(IComponent parent, String buttonText) {
-		Component parentComponent = (Component) parent;
+	public InputStream load(IContext context, String buttonText) {
+		Component parentComponent = (Component) context;
 		Window window = parentComponent.getWindow();
 
 		VaadinImportDialog importDialog = new VaadinImportDialog(window, "Import");

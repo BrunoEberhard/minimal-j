@@ -3,9 +3,9 @@ package org.minimalj.frontend.edit.fields;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ComboBox;
-import org.minimalj.frontend.toolkit.IComponent;
-import org.minimalj.frontend.toolkit.SwitchLayout;
+import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.Code;
 import org.minimalj.model.CodeItem;
@@ -17,7 +17,7 @@ import org.minimalj.util.DemoEnabled;
 public class CodeEditField extends AbstractEditField<String> implements Enable, DemoEnabled {
 	private final Code code;
 	
-	private final SwitchLayout switchLayout;
+	private final SwitchComponent switchComponent;
 	private final ComboBox<CodeItem<String>> comboBox;
 	private final TextField textFieldDisabled;
 
@@ -31,8 +31,8 @@ public class CodeEditField extends AbstractEditField<String> implements Enable, 
 		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
 		textFieldDisabled.setText("-");
 		
-		switchLayout = ClientToolkit.getToolkit().createSwitchLayout();
-		switchLayout.show(comboBox);
+		switchComponent = ClientToolkit.getToolkit().createSwitchComponent(comboBox, textFieldDisabled);
+		switchComponent.show(comboBox);
 		
 		// TODO wirklich immer? Und bewirkt das wirklich etwas oder wird es
 		// gleich wieder überschrieben?
@@ -41,15 +41,15 @@ public class CodeEditField extends AbstractEditField<String> implements Enable, 
 	
 	@Override
 	public IComponent getComponent() {
-		return switchLayout;
+		return switchComponent;
 	}
 
 	public void setEnabled(boolean enabled) {
 		if (enabled) {
-			switchLayout.show(comboBox);
+			switchComponent.show(comboBox);
 			setDefault();
 		} else {
-			switchLayout.show(textFieldDisabled);
+			switchComponent.show(textFieldDisabled);
 		}
 	}
 
@@ -60,7 +60,7 @@ public class CodeEditField extends AbstractEditField<String> implements Enable, 
 	
 	@Override
 	public String getObject() {
-		if (switchLayout.getShownComponent() == comboBox) {
+		if (switchComponent.getShownComponent() == comboBox) {
 			if (comboBox.getSelectedObject() != null) {
 				return comboBox.getSelectedObject().getKey();
 			}
@@ -70,7 +70,7 @@ public class CodeEditField extends AbstractEditField<String> implements Enable, 
 
 	@Override
 	public void setObject(String value) {
-		if (switchLayout.getShownComponent() == textFieldDisabled) {
+		if (switchComponent.getShownComponent() == textFieldDisabled) {
 			return;
 		}
 
@@ -86,7 +86,7 @@ public class CodeEditField extends AbstractEditField<String> implements Enable, 
 		}
 		
 		comboBox.setSelectedObject(item);
-		switchLayout.show(comboBox);
+		switchComponent.show(comboBox);
 	}
 
 	@Override

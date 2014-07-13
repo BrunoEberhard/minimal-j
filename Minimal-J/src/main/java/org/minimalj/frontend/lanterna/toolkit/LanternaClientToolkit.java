@@ -9,15 +9,14 @@ import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.GridFormLayout;
+import org.minimalj.frontend.toolkit.GridContent;
 import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ILink;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
-import org.minimalj.frontend.toolkit.SwitchLayout;
+import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.Action;
@@ -44,7 +43,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions) {
+	public IDialog createDialog(IContext context, String title, IContent content, IAction... actions) {
 		return new LanternaDialog(gui, content, title, actions);
 	}
 
@@ -54,12 +53,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createFormAlignLayout(IComponent content) {
-		return content;
-	}
-
-	@Override
-	public GridFormLayout createGridLayout(int columns, int columnWidth) {
+	public GridContent createGridContent(int columns, int columnWidth) {
 		return new LanternaForm(columns);
 	}
 
@@ -89,18 +83,22 @@ public class LanternaClientToolkit extends ClientToolkit {
 	 */
 	private static class LanternaActionAdapter implements Action {
 		private final IAction action;
-		private IComponent component;
+		private Component component;
 		
 		public LanternaActionAdapter(IAction action) {
 			this.action = action;
 		}
 		
-		public void setComponent(IComponent component) {
+		public void setComponent(Component component) {
 			this.component = component;
 		}
 		
 		public void doAction() {
-			action.action(component);
+			Component c = component;
+			while (!(c instanceof IContext)) {
+				c = c.getParent();
+			}
+			action.action((IContext) c);
 		}
 	}
 
@@ -166,8 +164,13 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public SwitchLayout createSwitchLayout() {
-		return new LanternaSwitchLayout();
+	public SwitchContent createSwitchContent() {
+		return new LanternaSwitchContent();
+	}
+
+	@Override
+	public SwitchComponent createSwitchComponent(IComponent... components) {
+		return new LanternaSwitchComponent();
 	}
 
 	@Override
@@ -196,36 +199,36 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public OutputStream store(IComponent parent, String buttonText) {
+	public OutputStream store(IContext context, String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public InputStream load(IComponent parent, String buttonText) {
+	public InputStream load(IContext context, String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void showConfirmDialog(IComponent component, String message,
+	public void showConfirmDialog(IDialog component, String message,
 			String title, ConfirmDialogType type, DialogListener listener) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void showError(IComponent parent, String text) {
+	public void showError(IContext context, String text) {
 		MessageBox.showMessageBox(gui, "Error", text);
 	}
 
 	@Override
-	public void showMessage(IComponent parent, String text) {
+	public void showMessage(IContext context, String text) {
 		MessageBox.showMessageBox(gui, "Message", text);
 
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IComponent parent, Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,6 +1,6 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 import com.vaadin.ui.Label;
 

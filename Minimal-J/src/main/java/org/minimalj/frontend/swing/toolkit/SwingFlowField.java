@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 
 public class SwingFlowField extends JPanel implements FlowField {

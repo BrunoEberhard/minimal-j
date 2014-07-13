@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.util.IdUtils;
@@ -59,7 +59,7 @@ public abstract class TablePage<T> extends AbstractPage implements SearchOf<T>, 
 	}
 
 	@Override
-	public IComponent getComponent() {
+	public IContent getContent() {
 		return table;
 	}
 	

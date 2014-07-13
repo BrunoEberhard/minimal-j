@@ -9,8 +9,10 @@ import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.toolkit.ResourceActionEnabled;
 import org.minimalj.model.validation.ValidationMessage;
@@ -76,6 +78,7 @@ public abstract class Editor<T> {
 	
 	private T original, editedObject;
 	private Form<T> form;
+	private IDialog dialog;
 	protected final SaveAction saveAction = new SaveAction();
 	protected final CancelAction cancelAction = new CancelAction();
 	protected final FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
@@ -134,13 +137,13 @@ public abstract class Editor<T> {
 	}
 	
 	public void startEditor() {
-		if (editedObject != null) {
+		if (!isFinished()) {
 			throw new IllegalStateException();
 		}
 		
 		original = load();
 		editedObject = createEditedObject(original);
-
+		
 		form = createForm();
 		if (form != null) {
 			form.setChangeListener(new EditorChangeListener());
@@ -150,8 +153,8 @@ public abstract class Editor<T> {
 		userEdited = false;
 	}
 	
-	public IComponent getComponent() {
-		return form.getComponent();
+	public IContent getContent() {
+		return form.getContent();
 	}
 	
 	private T createEditedObject(T original) {
@@ -217,27 +220,19 @@ public abstract class Editor<T> {
 	
 	protected void save() {
 		if (isSaveable()) {
-			doSave();
-		} else {
-			showError("Abschluss nicht möglich.\n\nBitte Eingaben überprüfen.");
-		}
-	}
-
-	protected void showError(String error) {
-		ClientToolkit.getToolkit().showError(form.getComponent(), error);
-	}
-	
-	private void doSave() {
-		try {
-			Object saveResult = save(editedObject);
-			if (saveResult != null) {
-				fireSaved(saveResult);
-				finish();
+			try {
+				Object saveResult = save(editedObject);
+				if (saveResult != null) {
+					fireSaved(saveResult);
+					finish();
+				}
+			} catch (Exception x) {
+				String message = x.getMessage() != null ? x.getMessage() : x.getClass().getSimpleName();
+				logger.log(Level.SEVERE, message, x);
+				ClientToolkit.getToolkit().showError(null, "Technical problems: " + message);
 			}
-		} catch (Exception x) {
-			String message = x.getMessage() != null ? x.getMessage() : x.getClass().getSimpleName();
-			logger.log(Level.SEVERE, message, x);
-			showError("Technical problems: " + message);
+		} else {
+			ClientToolkit.getToolkit().showError(null, "Save is not possible because input is not valid");
 		}
 	}
 
@@ -293,7 +288,7 @@ public abstract class Editor<T> {
 					}
 				}
 			};
-			ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+			ClientToolkit.getToolkit().showConfirmDialog(dialog, "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
 					ConfirmDialogType.YES_NO_CANCEL, listener);
 
 		} else {
@@ -308,7 +303,7 @@ public abstract class Editor<T> {
 				}
 			};
 			
-			ClientToolkit.getToolkit().showConfirmDialog(form.getComponent(), "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+			ClientToolkit.getToolkit().showConfirmDialog(dialog, "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
 					"Schliessen", ConfirmDialogType.YES_NO, listener);
 		}
 	}
@@ -317,7 +312,7 @@ public abstract class Editor<T> {
 		private String description;
 		
 		@Override
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			save();
 		}
 		
@@ -348,13 +343,13 @@ public abstract class Editor<T> {
 	
 	private class CancelAction extends ResourceAction {
 		@Override
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			cancel();
 		}
 	}
 	
 	private class FillWithDemoDataAction extends ResourceAction {
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			fillWithDemoData();
 		}
 	}

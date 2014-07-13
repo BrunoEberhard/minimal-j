@@ -2,8 +2,10 @@ package org.minimalj.frontend.toolkit;
 
 import java.util.List;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
-public interface ITable<T> extends IComponent {
+
+public interface ITable<T> extends IContent {
 
 	public void setObjects(List<T> objects);
 

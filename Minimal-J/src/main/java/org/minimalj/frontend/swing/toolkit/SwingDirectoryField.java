@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.minimalj.frontend.edit.fields.EditField;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.PropertyInterface;
 
 public class SwingDirectoryField extends JPanel implements EditField<String>, IComponent {

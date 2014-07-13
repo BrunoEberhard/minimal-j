@@ -6,18 +6,17 @@ import java.util.Locale;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.Editor.EditorListener;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.page.type.SearchOf;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
+import org.minimalj.frontend.toolkit.GridContent;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
-import org.minimalj.frontend.vaadin.toolkit.VaadinDialog;
-import org.minimalj.frontend.vaadin.toolkit.VaadinEditorLayout;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -30,6 +29,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
@@ -40,7 +40,7 @@ import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class VaadinWindow extends Window implements PageContext {
+public class VaadinWindow extends Window implements IContext, PageContext {
 	private static final long serialVersionUID = 1L;
 
 	private final VerticalLayout windowContent = new VerticalLayout();
@@ -156,7 +156,7 @@ public class VaadinWindow extends Window implements PageContext {
 	
 	private void updateContent(String pageLink) {
 		visiblePage = PageLink.createPage(VaadinWindow.this, pageLink);
-		Component component = (Component) visiblePage.getComponent();
+		Component component = (Component) visiblePage.getContent();
 		updateContent(component);
 	}
 	
@@ -172,6 +172,9 @@ public class VaadinWindow extends Window implements PageContext {
 			windowContent.setExpandRatio(content, 1);
 			this.content.setSizeFull();
 		} else if (content != null) {
+			if (content instanceof GridContent) {
+				content = createFormAlignLayout(content);
+			}
 			scrollablePanel.removeAllComponents();
 			scrollablePanel.addComponent(content);
 			this.content = scrollablePanel;
@@ -186,17 +189,40 @@ public class VaadinWindow extends Window implements PageContext {
 		updateWindowTitle();
 		VaadinClientToolkit.focusFirstComponent(content);
 	}
+	
+	private Component createFormAlignLayout(Component content) {
+		VaadinGridLayout gridLayout = new VaadinGridLayout(3, 3);
+		gridLayout.setMargin(false);
+		gridLayout.setStyleName("gridForm");
+		gridLayout.setSizeFull();
+		gridLayout.addComponent(content, 1, 1);
+		gridLayout.setRowExpandRatio(0, 0.1f);
+		gridLayout.setRowExpandRatio(1, 0.7f);
+		gridLayout.setRowExpandRatio(2, 0.2f);
+		gridLayout.setColumnExpandRatio(0, 0.3f);
+		gridLayout.setColumnExpandRatio(1, 0.0f);
+		gridLayout.setColumnExpandRatio(2, 0.7f);
+		return gridLayout;
+	}
+	
+	private class VaadinGridLayout extends GridLayout implements IContent {
+		private static final long serialVersionUID = 1L;
+
+		public VaadinGridLayout(int columns, int rows) {
+			super(columns, rows);
+		}
+	}
 
 	protected class UpAction extends ResourceAction {
 		@Override
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			up();
 		}
 	}
 
 	protected class DownAction extends ResourceAction {
 		@Override
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			down();
 		}
 	}
@@ -204,43 +230,6 @@ public class VaadinWindow extends Window implements PageContext {
 	protected void fillHelpMenu(ActionGroup actionGroup) {
 		// 
 	}
-	
-	@Override
-	public void show(Editor<?> editor) {
-		this.editor = editor;
-		
-		editor.startEditor();
-		IAction[] actions = editor.getActions();
-		actions = wrapActions(actions);
-		VaadinEditorLayout layout = new VaadinEditorLayout(editor.getComponent(), actions);
-		final VaadinDialog dialog = new VaadinDialog(this, layout, editor.getTitle());
-
-		dialog.setCloseListener(new org.minimalj.frontend.toolkit.IDialog.CloseListener() {
-			@Override
-			public boolean close() {
-				VaadinWindow.this.editor.checkedClose();
-				return VaadinWindow.this.editor.isFinished();
-			}
-		});
-		
-		editor.setEditorListener(new EditorListener() {
-			@Override
-			public void saved(Object saveResult) {
-				dialog.closeDialog();
-				if (saveResult instanceof String) {
-					show((String) saveResult);
-				}
-			}
-
-			@Override
-			public void canceled() {
-				dialog.closeDialog();
-			}
-		});
-		dialog.setVisible(true);
-		VaadinClientToolkit.focusFirstComponent((Component) editor.getComponent());
-	}
-	
 	
 	@Override
 	public void show(List<String> pageLinks, int index) {
@@ -309,7 +298,7 @@ public class VaadinWindow extends Window implements PageContext {
 			this.action = action;
 		}
 
-		public void action(IComponent context) {
+		public void action(IContext context) {
 			ApplicationContext.setApplicationContext(VaadinWindow.this.applicatonContext);
 			action.action(context);
 		}

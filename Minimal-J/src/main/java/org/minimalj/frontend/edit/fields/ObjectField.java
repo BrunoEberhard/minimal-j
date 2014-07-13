@@ -5,7 +5,7 @@ import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 

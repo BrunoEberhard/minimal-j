@@ -86,9 +86,9 @@ public class EditorTest {
 	}
 	
 	@Test public void 
-	should_start_editor_creates_component() {
+	should_start_editor_creates_content() {
 		editor.startEditor();
-		Assert.assertNotNull(editor.getComponent());
+		Assert.assertNotNull(editor.getContent());
 	}
 	
 	@Test public void 

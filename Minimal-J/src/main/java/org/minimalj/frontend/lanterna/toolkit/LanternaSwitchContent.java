@@ -1,31 +1,22 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.IComponent;
-import org.minimalj.frontend.toolkit.SwitchLayout;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.component.AbstractContainer;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
-public class LanternaSwitchLayout extends AbstractContainer implements SwitchLayout {
+public class LanternaSwitchContent extends AbstractContainer implements SwitchContent {
 
 	@Override
-	public void show(IComponent component) {
+	public void show(IContent content) {
 		super.removeAllComponents();
-		if (component != null) {
-			super.addComponent((Component) component);
+		if (content != null) {
+			super.addComponent((Component) content);
 		}
 		invalidate();
-	}
-
-	@Override
-	public IComponent getShownComponent() {
-		if (getComponentCount() > 0) {
-			return (IComponent) getComponentAt(0);
-		} else {
-			return null;
-		}
 	}
 
 	@Override

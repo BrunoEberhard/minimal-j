@@ -1,6 +1,6 @@
 package org.minimalj.frontend.edit.fields;
 
-import org.minimalj.frontend.edit.EditorDialogAction;
+import org.minimalj.frontend.edit.EditorAction;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.model.PropertyInterface;
 
@@ -18,7 +18,7 @@ public abstract class ObjectLinkField<T> extends ObjectField<T> {
 	@Override
 	protected void show(T object) {
 		if (isEditable()) {
-			flowField.add(ClientToolkit.getToolkit().createLabel(new EditorDialogAction(new ObjectFieldEditor(display(object)))));
+			flowField.add(ClientToolkit.getToolkit().createLabel(new EditorAction(new ObjectFieldEditor(display(object)))));
 		} else {
 			flowField.add(ClientToolkit.getToolkit().createLabel(display(object)));
 		}

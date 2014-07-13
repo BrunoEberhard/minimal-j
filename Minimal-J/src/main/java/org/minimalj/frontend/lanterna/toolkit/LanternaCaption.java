@@ -3,7 +3,7 @@ package org.minimalj.frontend.lanterna.toolkit;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.Caption;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.component.CommonCheckBox;

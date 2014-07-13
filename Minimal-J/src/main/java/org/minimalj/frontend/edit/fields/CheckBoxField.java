@@ -2,7 +2,7 @@ package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.PropertyInterface;
 
 public class CheckBoxField extends AbstractEditField<Boolean> {

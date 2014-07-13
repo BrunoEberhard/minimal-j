@@ -3,7 +3,7 @@ package org.minimalj.frontend.edit.fields;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.PropertyInterface;

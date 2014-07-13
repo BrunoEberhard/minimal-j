@@ -3,8 +3,9 @@ package org.minimalj.frontend.edit;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ResourceAction;
@@ -20,9 +21,9 @@ public abstract class SearchDialogAction<T> extends ResourceAction implements Se
 	}
 	
 	@Override
-	public void action(IComponent context) {
+	public void action(IContext context) {
 		try {
-			showPageOn(source);
+			showPageOn(context);
 		} catch (Exception x) {
 			// TODO show dialog
 			x.printStackTrace();
@@ -33,8 +34,8 @@ public abstract class SearchDialogAction<T> extends ResourceAction implements Se
 		return 100;
 	}
 
-	private void showPageOn(IComponent source) {
-		dialog = ClientToolkit.getToolkit().createSearchDialog(source, this, keys, new SearchClickListener());
+	private void showPageOn(IContext context) {
+		dialog = ClientToolkit.getToolkit().createSearchDialog(context, this, keys, new SearchClickListener());
 		dialog.openDialog();
 	}
 	

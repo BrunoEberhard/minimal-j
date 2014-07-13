@@ -3,13 +3,13 @@ package org.minimalj.frontend.page;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.threeten.bp.LocalDateTime;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
+import org.threeten.bp.LocalDateTime;
 
 public abstract class HistoryPage<T> extends AbstractPage implements RefreshablePage {
 
@@ -52,7 +52,7 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 	protected abstract String link(T object, String version);
 
 	@Override
-	public IComponent getComponent() {
+	public IContent getContent() {
 		if (versions == null) {
 			refresh();
 		}

@@ -34,8 +34,9 @@ import org.minimalj.frontend.edit.fields.TextFormField;
 import org.minimalj.frontend.edit.fields.TypeUnknownField;
 import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.GridFormLayout;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.GridContent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.EmptyValidator;
 import org.minimalj.model.InvalidValues;
@@ -62,7 +63,7 @@ public class Form<T> implements DemoEnabled {
 	private final ResourceBundle resourceBundle;
 	
 	private final int columns;
-	private final GridFormLayout layout;
+	private final GridContent layout;
 	
 	private final LinkedHashMap<PropertyInterface, FormField<?>> fields = new LinkedHashMap<PropertyInterface, FormField<?>>();
 	private final Map<PropertyInterface, Caption> indicators = new HashMap<PropertyInterface, Caption>();
@@ -106,7 +107,7 @@ public class Form<T> implements DemoEnabled {
 		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;
 		this.columns = columns;
-		this.layout = ClientToolkit.getToolkit().createGridLayout(columns, getColumnWidthPercentage());
+		this.layout = ClientToolkit.getToolkit().createGridContent(columns, getColumnWidthPercentage());
 	}
 	
 	protected int getColumnWidthPercentage() {
@@ -119,7 +120,7 @@ public class Form<T> implements DemoEnabled {
 	
 	// Methods to create the form
 
-	public IComponent getComponent() {
+	public IContent getContent() {
 		return layout;
 	}
 

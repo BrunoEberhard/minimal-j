@@ -8,16 +8,13 @@ import java.util.prefs.Preferences;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.MjApplication;
-import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.Editor.EditorListener;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.frontend.lanterna.component.Select;
 import org.minimalj.frontend.lanterna.toolkit.LanternaActionAdapater;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit.LanternaLink;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit.LanternaLinkListener;
-import org.minimalj.frontend.lanterna.toolkit.LanternaDialog;
-import org.minimalj.frontend.lanterna.toolkit.LanternaSwitchLayout;
+import org.minimalj.frontend.lanterna.toolkit.LanternaSwitchContent;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
@@ -27,8 +24,8 @@ import org.minimalj.frontend.swing.PreferencesHelper;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
@@ -51,8 +48,6 @@ public class LanternaFrontend {
 
 	private static ApplicationContext applicationContext;
 
-	private Editor<?> editor;
-	
 	private LanternaFrontend() {
 		// private
 	}
@@ -243,7 +238,7 @@ public class LanternaFrontend {
 		
 		protected class SearchAction extends ResourceAction {
 			@Override
-			public void action(IComponent source) {
+			public void action(IContext context2) {
 				Class<?> searchObject = searchClassesByObjectName.get(comboBoxSearchObject.getSelectedObject());
 				String text = textFieldSearch.getText();
 				search((Class<? extends Page>) searchObject, text);
@@ -259,7 +254,7 @@ public class LanternaFrontend {
 	public class LanternaGUIScreen extends GUIScreen implements PageContext {
 
 		private LanternaMenuPanel menuPanel;
-		private LanternaSwitchLayout switchLayout;
+		private LanternaSwitchContent switchLayout;
 		
 		private final Window window;
 		private final History<String> history;
@@ -287,7 +282,7 @@ public class LanternaFrontend {
 			
 			window.addComponent((Component) menuPanel);
 
-			switchLayout = new LanternaSwitchLayout();
+			switchLayout = new LanternaSwitchContent();
 			menuPanel.addComponent((Component) switchLayout, BorderLayout.CENTER);
 
 			showWindow(window, Position.FULL_SCREEN);
@@ -319,8 +314,8 @@ public class LanternaFrontend {
 			}
 
 			private void show(Page page) {
-				switchLayout.show((IComponent) page.getComponent());
-				registerLinkListener((Component) page.getComponent());
+				switchLayout.show(page.getContent());
+				registerLinkListener((Component) page.getContent());
 				// ClientToolkit.getToolkit().focusFirstComponent(page.getComponent());
 			}
 		}
@@ -344,39 +339,6 @@ public class LanternaFrontend {
 					registerLinkListener(container.getComponentAt(i));
 				}
 			}
-		}
-
-		@Override
-		public void show(Editor<?> editor) {
-			LanternaFrontend.this.editor = editor;
-			
-			editor.startEditor();
-			final LanternaDialog dialog = (LanternaDialog) ClientToolkit.getToolkit().createDialog(null, editor.getTitle(), editor.getComponent(), editor.getActions());
-
-			dialog.setCloseListener(new org.minimalj.frontend.toolkit.IDialog.CloseListener() {
-				@Override
-				public boolean close() {
-					LanternaFrontend.this.editor.checkedClose();
-					return LanternaFrontend.this.editor.isFinished();
-				}
-			});
-			
-			editor.setEditorListener(new EditorListener() {
-				@Override
-				public void saved(Object saveResult) {
-					dialog.closeDialog();
-					if (saveResult instanceof String) {
-						show((String) saveResult);
-					}
-				}
-
-				@Override
-				public void canceled() {
-					dialog.closeDialog();
-				}
-			});
-			dialog.openDialog();
-//			LanternaClientToolkit.focusFirstComponent(form.getComponent());
 		}
 	}
 	

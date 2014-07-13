@@ -2,7 +2,7 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 

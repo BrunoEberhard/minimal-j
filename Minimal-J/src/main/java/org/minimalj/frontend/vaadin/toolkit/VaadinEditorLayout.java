@@ -1,22 +1,19 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IComponent;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.vaadin.VaadinBorderLayout;
 
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.event.ShortcutListener;
-import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -30,82 +27,18 @@ import com.vaadin.ui.Panel;
 public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
-	public VaadinEditorLayout(IComponent content, IAction[] actions) {
-		this(null, content, actions);
-	}
-
-	public VaadinEditorLayout(TextField text, Action searchAction, IComponent content, IAction[] actions) {
-		this(createHeaderComponent(text, searchAction), content, actions);
-	}
-
-	private VaadinEditorLayout(Component header, IComponent content, IAction[] actions) {
+	public VaadinEditorLayout(IContext context, IContent content, IAction[] actions) {
 		setSizeFull();
-		
-		if (header != null) {
-			addComponent(header, Constraint.NORTH);
-		}
 		
 		Component contentComponent = (Component) content;
 		Panel scrollPanel = decorateWithScrollPanel((ComponentContainer) contentComponent);
 		addComponent(scrollPanel, Constraint.CENTER);
 		
-		Component buttonBar = createButtonBar(actions);
+		Component buttonBar = createButtonBar(context, actions);
 		setMinimumSouthHeight("5ex");
 		addComponent(buttonBar, Constraint.SOUTH);
 	}
 
-	private static Component createHeaderComponent(TextField text, final Action searchAction) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.setWidth("100%");
-		
-		Component textFieldComponent = (Component) text;
-		textFieldComponent.setWidth("100%");
-        horizontalLayout.addComponent(textFieldComponent);
-        horizontalLayout.setExpandRatio(textFieldComponent, 1.0F);
-        
-        final Button button = new Button("Suche");
-        button.addListener(new ClickListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				searchAction.actionPerformed(new ActionEvent(button, 0, null));
-			}
-		});
-        
-        AbstractField field = findAbstractField(textFieldComponent);
-        if (field != null) {
-        	field.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
-    			private static final long serialVersionUID = 1L;
-
-				@Override
-    			public void handleAction(Object sender, Object target) {
-    				searchAction.actionPerformed(new ActionEvent(button, 0, null));
-    			}
-    		});
-        }
-        
-        horizontalLayout.addComponent(button);
-        horizontalLayout.setExpandRatio(button, 0.0F);
-		return horizontalLayout;
-	}
-
-	private static AbstractField findAbstractField(Component c) {
-		if (c instanceof AbstractField) {
-			return ((AbstractField) c);
-		} else if (c instanceof ComponentContainer) {
-			ComponentContainer container = (ComponentContainer) c;
-			Iterator<Component> components = container.getComponentIterator();
-			while (components.hasNext()) {
-				AbstractField field = findAbstractField(components.next());
-				if (field != null) {
-					return field;
-				}
-			}
-		}
-		return null;
-	}
-	
 	private static Panel decorateWithScrollPanel(ComponentContainer content) {
 		Panel scrollablePanel = new Panel(content);
 		scrollablePanel.setScrollable(true);
@@ -113,27 +46,27 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 		return scrollablePanel;
 	}
 	
-	private Component createButtonBar(IAction... actions) {
+	private Component createButtonBar(IContext context, IAction... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
 		horizontalLayout.setWidth("100%");
 		horizontalLayout.setSpacing(true);
 		horizontalLayout.setMargin(true);
 		
-		addButtons(horizontalLayout, actions);
+		addButtons(context, horizontalLayout, actions);
 		return horizontalLayout;
 	}
 	
-	private void addButtons(HorizontalLayout buttonBar, IAction... actions) {
+	private void addButtons(IContext context, HorizontalLayout buttonBar, IAction... actions) {
 		for (IAction action: actions) {
-			addActionButton(buttonBar, action);
+			addActionButton(context, buttonBar, action);
 		}
 		if (buttonBar.getComponentCount() > 0) {
 			buttonBar.setExpandRatio(buttonBar.getComponent(0), 1.0F);
 		}
 	}
 
-	private void addActionButton(HorizontalLayout buttonBar, final IAction action) {
+	private void addActionButton(final IContext context, HorizontalLayout buttonBar, final IAction action) {
 		final Button button = new NativeButton(action.getName());
 		button.setEnabled(action.isEnabled());
 		button.setDescription(action.getDescription());
@@ -144,7 +77,7 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				action.action(VaadinEditorLayout.this);
+				action.action(context);
 			}
 		});
 		installActionListener(action, button);

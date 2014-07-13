@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.component.Panel;

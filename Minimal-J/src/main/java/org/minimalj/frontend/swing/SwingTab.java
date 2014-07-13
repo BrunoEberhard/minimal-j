@@ -22,7 +22,6 @@ import javax.swing.SwingUtilities;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.Editor.EditorListener;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
@@ -30,15 +29,17 @@ import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
+import org.minimalj.frontend.swing.toolkit.ScrollablePanel;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingLink;
-import org.minimalj.frontend.swing.toolkit.SwingEditorDialog;
-import org.minimalj.frontend.swing.toolkit.SwingEditorLayout;
-import org.minimalj.frontend.swing.toolkit.SwingInternalFrame;
-import org.minimalj.frontend.swing.toolkit.SwingSwitchLayout;
-import org.minimalj.frontend.toolkit.IComponent;
+import org.minimalj.frontend.swing.toolkit.SwingFormAlignLayoutManager;
+import org.minimalj.frontend.swing.toolkit.SwingScrollPane;
+import org.minimalj.frontend.swing.toolkit.SwingSwitchContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
+import org.minimalj.frontend.toolkit.GridContent;
 
-public class SwingTab extends EditablePanel implements IComponent, PageContext {
+public class SwingTab extends EditablePanel implements IContext, PageContext {
 	private static final long serialVersionUID = 1L;
 	
 	final SwingFrame frame;
@@ -48,7 +49,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
-	private final SwingSwitchLayout switchLayout;
+	private final SwingSwitchContent switchLayout;
 	
 	private final History<String> history;
 	private final SwingPageContextHistoryListener historyListener;
@@ -87,7 +88,7 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		JPanel panel = new JPanel(new BorderLayout());
 		outerPanel.add(panel, BorderLayout.CENTER);
 		panel.add(toolBar, BorderLayout.NORTH);
-		switchLayout = new SwingSwitchLayout();
+		switchLayout = new SwingSwitchContent();
 		panel.add(switchLayout, BorderLayout.CENTER);
 		setContent(outerPanel);
 	}
@@ -214,11 +215,17 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 		}
 
 		private void show(Page page) {
-			switchLayout.show((IComponent) page.getComponent());
-			registerMouseListener((Component) page.getComponent());
-			if (page.getComponent() instanceof JComponent) {
+			IContent content = page.getContent();
+			if (content instanceof GridContent) {
+				JPanel panel = new JPanel(new SwingFormAlignLayoutManager());
+				panel.add((Component)content);
+				content = new SwingScrollPane(new ScrollablePanel(panel));
+			}
+			switchLayout.show(content);
+			registerMouseListener((Component) content);
+			if (content instanceof JComponent) {
 				// this is more about if component is not null (empty page)
-				SwingClientToolkit.focusFirstComponent((JComponent) page.getComponent());
+				SwingClientToolkit.focusFirstComponent((JComponent) content);
 			}
 		}
 	}
@@ -296,45 +303,6 @@ public class SwingTab extends EditablePanel implements IComponent, PageContext {
 			}
 			add(pageLink);
 		}
-	}
-	
-	@Override
-	public void show(Editor<?> editor) {
-		this.editor = editor;
-		
-		// TODO wrap this too. Might need server call
-		editor.startEditor();
-		SwingEditorLayout layout = new SwingEditorLayout(editor.getComponent(), editor.getActions());
-		final SwingInternalFrame dialog = new SwingInternalFrame(this, layout, editor.getTitle());
-		
-		dialog.setCloseListener(new SwingEditorDialog.CloseListener() {
-			@Override
-			public boolean close() {
-				SwingTab.this.editor.checkedClose();
-				return SwingTab.this.editor == null;
-			}
-		});
-		
-		editor.setEditorListener(new EditorListener() {
-			@Override
-			public void saved(Object saveResult) {
-				dialog.closeDialog();
-				dialog.dispose();
-				SwingTab.this.editor = null;
-				if (saveResult instanceof String) {
-					show((String) saveResult);
-				}
-			}
-
-			@Override
-			public void canceled() {
-				dialog.closeDialog();
-				dialog.dispose();
-				SwingTab.this.editor = null;
-			}
-		});
-		dialog.openDialog();
-		SwingClientToolkit.focusFirstComponent((JComponent) editor.getComponent());
 	}
 	
 	@Override

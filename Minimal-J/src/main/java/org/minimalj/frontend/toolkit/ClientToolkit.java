@@ -37,78 +37,80 @@ public abstract class ClientToolkit {
 		ClientToolkit.toolkit = toolkit;
 	}
 
-	// Widgets
-	
+	/**
+	 * Components are the smallest part of the gui. Things like textfields
+	 * and comboboxes.
+	 */
+	public interface IComponent {
+	}
+
 	public abstract IComponent createLabel(String string);
-	
 	public abstract IComponent createLabel(IAction action);
-	
 	public abstract IComponent createTitle(String string);
-
 	public abstract TextField createReadOnlyTextField();
-
 	public abstract TextField createTextField(InputComponentListener changeListener, int maxLength);
-	
 	public abstract TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters);
-
 	public abstract FlowField createFlowField();
-
 	public abstract <T> ComboBox<T> createComboBox(InputComponentListener changeListener);
-	
 	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);
-
-	public abstract <T> ITable<T> createTable(Object[] fields);
-
 	public abstract IComponent createLink(String text, String address);
 	
 	public interface InputComponentListener {
-		
 	    void changed(IComponent source);
-
 	}
 	
 	public interface Search<S> {
-		
 		public List<S> search(String query);
-		
 	}
 	
 	public abstract <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys);
 	
 	public interface ILookup<S> extends IComponent {
-		
 		void setText(String string);
-		
 		S getSelectedObject();
-		
 	}
-	
-	// Layouts
-	
-	public abstract Caption decorateWithCaption(IComponent component, String caption);
-	
+
 	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
 
-	public abstract SwitchLayout createSwitchLayout();
+	public abstract Caption decorateWithCaption(IComponent component, String caption);
+
+	public abstract SwitchComponent createSwitchComponent(IComponent... components);
+
+	/**
+	 * Content means the content of a dialog or of a page
+	 */
+	public interface IContent {
+	}
+
+	public abstract <T> ITable<T> createTable(Object[] fields);
+
+	public interface SwitchContent extends IContent {
+		public void show(IContent content);
+	}
+
+	public abstract SwitchContent createSwitchContent();
 	
-	public abstract GridFormLayout createGridLayout(int columns, int columnWidth);
+	public abstract GridContent createGridContent(int columns, int columnWidth);
 
-	public abstract IComponent createFormAlignLayout(IComponent content);
-
-	public abstract <T> IDialog createSearchDialog(IComponent parent, Search<T> index, Object[] keys, TableActionListener<T> listener);
-
-	// Dialogs / Notification
-
-	public abstract IDialog createDialog(IComponent parent, String title, IComponent content, IAction... actions);
+	/**
+	 * Context means context or parent of a dialog
+	 *
+	 */
+	public interface IContext {
+	}
 	
-	public abstract void showMessage(IComponent parent, String text);
+	public abstract IDialog createDialog(IContext context, String title, IContent content, IAction... actions);
+
+	public abstract <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener);
 	
-	public abstract void showError(IComponent parent, String text);
+	public abstract void showMessage(IContext context, String text);
+	
+	public abstract void showError(IContext context, String text);
 	
 	// Don't change order, is used in SwingClientToolkit
 	public static enum ConfirmDialogType { YES_NO, YES_NO_CANCEL }
 	
-	public abstract void showConfirmDialog(IComponent component, String message, String title, ConfirmDialogType type, DialogListener listener);
+	public abstract void showConfirmDialog(IDialog parent, String message, String title, ConfirmDialogType type, DialogListener listener);
 	
 	public static interface DialogListener {
 		
@@ -127,7 +129,7 @@ public abstract class ClientToolkit {
 	 * @param buttonText the text displayed probably in a file browser
 	 * @return the stream provided through which the local resource can be filled
 	 */
-	public abstract OutputStream store(IComponent parent, String buttonText);
+	public abstract OutputStream store(IContext context, String buttonText);
 
 	/**
 	 * Select a stream from a locally source
@@ -136,6 +138,6 @@ public abstract class ClientToolkit {
 	 * @param buttonText the text displayed probably in a file browser
 	 * @return the stream provided by the selected local source
 	 */
-	public abstract InputStream load(IComponent parent, String buttonText);
+	public abstract InputStream load(IContext context, String buttonText);
 	
 }
