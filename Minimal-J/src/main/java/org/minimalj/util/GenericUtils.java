@@ -25,7 +25,8 @@ public class GenericUtils {
 		if (type == null) {
 			throw new IllegalArgumentException(c.toString() + " must be parameterized!");
 		}
-		return getClass(type.getActualTypeArguments()[0]);
+		Type[] actualTypeArguments = type.getActualTypeArguments();
+		return actualTypeArguments.length > 0 ? getClass(actualTypeArguments[0]) : null;
 	}
 	
 	/**
