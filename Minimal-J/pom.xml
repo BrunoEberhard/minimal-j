@@ -19,10 +19,12 @@
 		<resources>
 			<resource>
 				<directory>src/main/java</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.png</include>
-				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>src/main/webapp</directory>
 			</resource>
 		</resources>
 		<testResources>
@@ -32,23 +34,35 @@
 					<include>**/*.properties</include>
 				</includes>
 			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.txt</include>
+				</includes>
+			</testResource>
 		</testResources>
 	</build>
 	<dependencies>
+		<!-- note: an application project has to have its own dependencies to jdbc or ui - jars -->
+		<!-- because all the variations of jdbc and ui technologies are here declared as scope compile -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<version>10.10.1.1</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyclient</artifactId>
 			<version>10.10.1.1</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
 			<version>6.8.13</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -60,16 +74,18 @@
 			<groupId>org.jumpmind.symmetric.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<version>1.1.1</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.threeten</groupId>
 			<artifactId>threetenbp</artifactId>
-		<version>0.9</version>
+			<version>0.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.lanterna</groupId>
 			<artifactId>lanterna</artifactId>
 			<version>2.1.6</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<properties>
