@@ -1,38 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="src" path="/Minimal-J"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derbyclient/10.8.2.2/derbyclient-10.8.2.2.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/vaadin/vaadin/6.7.6/vaadin-6.7.6.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-core/3.4.0/lucene-core-3.4.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/miglayout/miglayout/3.7.4/miglayout-3.7.4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-dbutils/commons-dbutils/1.4/commons-dbutils-1.4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/json/json/20090211/json-20090211.jar"/>
-	<classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.20/mysql-connector-java-5.1.20.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.0/joda-time-2.0.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6.jar"/>
-	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar"/>
-	<classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="src" path="/Minimal-J"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/derby/derby/10.10.1.1/derby-10.10.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/derby/derbyclient/10.10.1.1/derbyclient-10.10.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13.jar" sourcepath="M2_REPO/com/vaadin/vaadin/6.8.13/vaadin-6.8.13-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jumpmind/symmetric/jdbc/mariadb-java-client/1.1.1/mariadb-java-client-1.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/threeten/threetenbp/0.9/threetenbp-0.9.jar" sourcepath="M2_REPO/org/threeten/threetenbp/0.9/threetenbp-0.9-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6.jar" sourcepath="M2_REPO/com/googlecode/lanterna/lanterna/2.1.6/lanterna-2.1.6-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
 </classpath>
