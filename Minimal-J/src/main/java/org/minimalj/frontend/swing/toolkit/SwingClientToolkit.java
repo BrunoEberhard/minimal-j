@@ -442,7 +442,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	public static Action adaptAction(final IAction action, final IContext context) {
-		final Action swingAction = new AbstractAction() {
+		final Action swingAction = new AbstractAction(action.getName()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -450,6 +450,7 @@ public class SwingClientToolkit extends ClientToolkit {
 				action.action(context);
 			}
 		};
+		swingAction.putValue(Action.SHORT_DESCRIPTION, action.getDescription());
 		action.setChangeListener(new ActionChangeListener() {
 			{
 				update();
