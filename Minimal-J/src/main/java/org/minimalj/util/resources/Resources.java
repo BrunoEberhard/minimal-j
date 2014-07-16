@@ -1,16 +1,17 @@
 package org.minimalj.util.resources;
 
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.ViewOf;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.util.MultiResourceBundle;
 import org.minimalj.util.StringUtils;
 
 public class Resources {
 
-	private static final Logger logger = Logger.getLogger(Resources.class.getName());
 	private static final ResourceBundle defaultResourcebundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ");
 	private static ResourceBundle resourceBundle = defaultResourcebundle;
 	
@@ -93,6 +94,12 @@ public class Resources {
 			return resourceBundle.getString(StringUtils.upperFirstChar(fieldName));
 		}
 
+		if (ViewOf.class.isAssignableFrom(property.getDeclaringClass())) {
+			Class<?> viewedClass = ViewUtil.getViewedClass(property.getDeclaringClass());
+			PropertyInterface propertyInViewClass = Properties.getProperty(viewedClass, property.getFieldName());
+			return getObjectFieldName(resourceBundle, propertyInViewClass, postfix);
+		}
+		
 		return "!!" + fieldName;
 	}
 	
