@@ -44,6 +44,7 @@ public class CodeEditField extends AbstractEditField<String> implements Enable, 
 		return switchComponent;
 	}
 
+	@Override
 	public void setEnabled(boolean enabled) {
 		if (enabled) {
 			switchComponent.show(comboBox);

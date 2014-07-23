@@ -51,6 +51,7 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 		return switchComponent;
 	}
 
+	@Override
 	public void setEnabled(boolean enabled) {
 		if (enabled) {
 			switchComponent.show(comboBox);
