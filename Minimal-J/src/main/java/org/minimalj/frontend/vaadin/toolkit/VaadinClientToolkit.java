@@ -7,12 +7,13 @@ import java.io.PipedInputStream;
 import java.util.Iterator;
 import java.util.List;
 
+import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
@@ -22,6 +23,7 @@ import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.frontend.vaadin.VaadinWindow;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.terminal.ExternalResource;
@@ -38,6 +40,16 @@ import com.vaadin.ui.themes.BaseTheme;
 
 public class VaadinClientToolkit extends ClientToolkit {
 
+	private static ThreadLocal<Window> window = new ThreadLocal<Window>();
+	
+	public static void setWindow(Window value) {
+		window.set(value);
+	}
+	
+	public static Window getWindow() {
+		return window.get();
+	}
+	
 	@Override
 	public IComponent createLabel(String string) {
 		return new VaadinLabel(string);
@@ -61,17 +73,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 				@Override
 				public void buttonClick(ClickEvent event) {
-					action.action(findContext(VaadinActionLabel.this));
+					VaadinClientToolkit.setWindow(event.getComponent().getWindow());
+					action.action();
+					VaadinClientToolkit.setWindow(null);
 				}
 			});
 		}
-	}
-	
-	private static IContext findContext(Component component) {
-		while (!(component instanceof IContext)) {
-			component = component.getParent();
-		}
-		return (IContext) component;
 	}
 	
 	@Override
@@ -133,12 +140,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public GridContent createGridContent(int columns, int columnWidthPercentage) {
+	public FormContent createFormContent(int columns, int columnWidthPercentage) {
 		return new VaadinGridFormLayout(columns, columnWidthPercentage);
 	}
 
 	@Override
-	public SwitchContent createSwitchContent() {
+	public WizardContent createWizardContent() {
 		return new VaadinSwitchContent();
 	}
 	
@@ -171,25 +178,22 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public void showMessage(IContext context, String text) {
+	public void showMessage(String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component parentComponent = (Component) context;
-		Window window = parentComponent.getWindow();
+		Window window = getWindow();
 		window.showNotification("Information", text, Notification.TYPE_HUMANIZED_MESSAGE);
 	}
 	
 	@Override
-	public void showError(IContext context, String text) {
+	public void showError(String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
-		Component parentComponent = (Component) context;
-		Window window = parentComponent.getWindow();
+		Window window = getWindow();
 		window.showNotification("Fehler", text, Notification.TYPE_ERROR_MESSAGE);
 	}
 
 	@Override
-	public void showConfirmDialog(IDialog c, String message, String title, ConfirmDialogType type, DialogListener listener) {
-		Component component = (Component) c;
-		Window window = component.getWindow();
+	public void showConfirmDialog(String message, String title, ConfirmDialogType type, DialogListener listener) {
+		Window window = getWindow();
 		while (window.getParent() != null) {
 			window = window.getParent();
 		}
@@ -202,16 +206,15 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IDialog createDialog(IContext context, String title, IContent content, IAction... actions) {
-		Component component = new VaadinEditorLayout(context, content, actions);
+	public IDialog createDialog(String title, IContent content, IAction... actions) {
+		Component component = new VaadinEditorLayout(content, actions);
 		component.setSizeFull();
 
-		return createDialog(context, title, component);
+		return createDialog(title, component);
 	}
 
-	private IDialog createDialog(IContext context, String title, Component component) {
-		Component parentComponent = (Component) context;
-		Window window = parentComponent.getWindow();
+	private IDialog createDialog(String title, Component component) {
+		Window window = getWindow();
 		// need to find application-level window
 		while (window.getParent() != null) {
 			window = window.getParent();
@@ -227,9 +230,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(index, keys, listener);
-		return createDialog(context, null, panel);
+		return createDialog(null, panel);
 	}
 
 	@Override
@@ -285,8 +288,10 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						dialog = ((VaadinClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(findContext(VaadinLookup.this), search, keys, new LookupClickListener());
+						VaadinClientToolkit.setWindow(event.getComponent().getWindow());
+						dialog = ((VaadinClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(search, keys, new LookupClickListener());
 						dialog.openDialog();
+						VaadinClientToolkit.setWindow(null);
 					}
 				});
 			}
@@ -303,8 +308,10 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
+						VaadinClientToolkit.setWindow(event.getComponent().getWindow());
 						VaadinLookup.this.selectedObject = null;
 						changeListener.changed(VaadinLookup.this);
+						VaadinClientToolkit.setWindow(null);
 					}
 				});
 			}
@@ -322,16 +329,14 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public OutputStream store(IContext context, String buttonText) {
-		Component parentComponent = (Component) context;
-		Window window = parentComponent.getWindow();
+	public OutputStream store(String buttonText) {
+		Window window = getWindow();
 		return new VaadinExportDialog(window, "Export").getOutputStream();
 	}
 
 	@Override
-	public InputStream load(IContext context, String buttonText) {
-		Component parentComponent = (Component) context;
-		Window window = parentComponent.getWindow();
+	public InputStream load(String buttonText) {
+		Window window = getWindow();
 
 		VaadinImportDialog importDialog = new VaadinImportDialog(window, "Import");
 		PipedInputStream inputStream = importDialog.getInputStream();
@@ -357,6 +362,24 @@ public class VaadinClientToolkit extends ClientToolkit {
 			return address;
 		}
 		
+	}
+
+	@Override
+	public void show(String pageLink) {
+		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
+		window.show(pageLink);
+	}
+
+	@Override
+	public void show(List<String> pageLinks, int index) {
+		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
+		window.show(pageLinks, index);
+	}
+
+	@Override
+	public ApplicationContext getApplicationContext() {
+		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
+		return window.getApplicationContext();
 	}
 	
 }

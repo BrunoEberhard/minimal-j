@@ -13,7 +13,6 @@ import org.minimalj.example.library.model.Book;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.edit.EditorAction;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.toolkit.IAction;
 
 public class MjExampleApplication extends MjApplication {
@@ -22,7 +21,7 @@ public class MjExampleApplication extends MjApplication {
 	}
 
 	@Override
-	public List<IAction> getActionsNew(PageContext context) {
+	public List<IAction> getActionsNew() {
 		List<IAction> items = new ArrayList<>();
 		items.add(new EditorAction(new AddBookEditor()));
 		items.add(new EditorAction(new AddCustomerEditor()));
@@ -31,7 +30,7 @@ public class MjExampleApplication extends MjApplication {
 	}
 
 	@Override
-	public Class<?>[] getSearchClasses(PageContext context) {
+	public Class<?>[] getSearchClasses() {
 		return new Class<?>[]{BookTablePage.class, CustomerTablePage.class};
 	}
 

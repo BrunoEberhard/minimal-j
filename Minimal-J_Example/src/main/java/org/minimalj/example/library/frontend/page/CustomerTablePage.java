@@ -7,7 +7,6 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.transaction.criteria.Criteria;
@@ -24,8 +23,8 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 		CUSTOMER.dateOfBirth, //
 	};
 	
-	public CustomerTablePage(PageContext context, String text) {
-		super(context, FIELDS, text);
+	public CustomerTablePage(String text) {
+		super(FIELDS, text);
 		this.text = text;
 	}
 	

@@ -3,27 +3,24 @@ package org.minimalj.frontend.edit;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ResourceAction;
 
 public abstract class SearchDialogAction<T> extends ResourceAction implements Search<T> {
-	private final IComponent source;
 	private final Object[] keys;
 	private IDialog dialog;
 	
-	protected SearchDialogAction(IComponent source, Object... keys) {
-		this.source = source;
+	protected SearchDialogAction(Object... keys) {
 		this.keys = keys;
 	}
 	
 	@Override
-	public void action(IContext context) {
+	public void action() {
 		try {
-			showPageOn(context);
+			dialog = ClientToolkit.getToolkit().createSearchDialog(this, keys, new SearchClickListener());
+			dialog.openDialog();
 		} catch (Exception x) {
 			// TODO show dialog
 			x.printStackTrace();
@@ -34,11 +31,6 @@ public abstract class SearchDialogAction<T> extends ResourceAction implements Se
 		return 100;
 	}
 
-	private void showPageOn(IContext context) {
-		dialog = ClientToolkit.getToolkit().createSearchDialog(context, this, keys, new SearchClickListener());
-		dialog.openDialog();
-	}
-	
 	public abstract List<T> search(String query);
 
 	protected abstract void save(T object);

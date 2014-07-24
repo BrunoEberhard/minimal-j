@@ -5,15 +5,12 @@ import java.util.Locale;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.MjApplication;
-import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
@@ -40,7 +37,7 @@ import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class VaadinWindow extends Window implements IContext, PageContext {
+public class VaadinWindow extends Window {
 	private static final long serialVersionUID = 1L;
 
 	private final VerticalLayout windowContent = new VerticalLayout();
@@ -55,8 +52,6 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 	private Panel scrollablePanel;
 	private List<String> pageLinks;
 	private int indexInPageLinks;
-	
-	private Editor<?> editor;
 	
 	public VaadinWindow(ApplicationContext context) {
 		this.applicatonContext = context;
@@ -80,8 +75,8 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 		nav.setExpandRatio(menubar, 1.0F);
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
 		
-		if (MjApplication.getApplication().getSearchClasses(this).length > 0) {
-			Component searchComponent = createSearchField(this);
+		if (MjApplication.getApplication().getSearchClasses().length > 0) {
+			Component searchComponent = createSearchField();
 			nav.addComponent(searchComponent);
 			nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
 		}
@@ -97,16 +92,16 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 		scrollablePanel.setSizeFull();
 	}
 
-	private Component createSearchField(PageContext pageContext) {
+	private Component createSearchField() {
 		final HorizontalLayout horizontalLayout = new HorizontalLayout();
 
 		comboBox.setNullSelectionAllowed(false);
-		for (Class<?> searchClass: MjApplication.getApplication().getSearchClasses(pageContext)) {
+		for (Class<?> searchClass: MjApplication.getApplication().getSearchClasses()) {
 			comboBox.addItem(searchClass);
 			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
 			comboBox.setItemCaption(searchClass, Resources.getString(searchedClass));
 		}
-		comboBox.setValue(MjApplication.getApplication().getSearchClasses(null)[0]);
+		comboBox.setValue(MjApplication.getApplication().getSearchClasses()[0]);
 		horizontalLayout.addComponent(comboBox);
 		
         textFieldSearch.setWidth("160px");
@@ -140,7 +135,6 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 		show(PageLink.link((Class<? extends Page>) comboBox.getValue(), (String) textFieldSearch.getValue()));
 	}
 	
-	@Override
 	public void show(String pageLink) {
 		boolean sameAsExisting = StringUtils.equals(ufu.getFragment(), pageLink);
 		if (!sameAsExisting) {
@@ -155,7 +149,7 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 	}
 	
 	private void updateContent(String pageLink) {
-		visiblePage = PageLink.createPage(VaadinWindow.this, pageLink);
+		visiblePage = PageLink.createPage(pageLink);
 		Component component = (Component) visiblePage.getContent();
 		updateContent(component);
 	}
@@ -172,7 +166,7 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 			windowContent.setExpandRatio(content, 1);
 			this.content.setSizeFull();
 		} else if (content != null) {
-			if (content instanceof GridContent) {
+			if (content instanceof FormContent) {
 				content = createFormAlignLayout(content);
 			}
 			scrollablePanel.removeAllComponents();
@@ -215,14 +209,14 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 
 	protected class UpAction extends ResourceAction {
 		@Override
-		public void action(IContext context) {
+		public void action() {
 			up();
 		}
 	}
 
 	protected class DownAction extends ResourceAction {
 		@Override
-		public void action(IContext context) {
+		public void action() {
 			down();
 		}
 	}
@@ -231,7 +225,6 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 		// 
 	}
 	
-	@Override
 	public void show(List<String> pageLinks, int index) {
 		this.pageLinks = pageLinks;
 		this.indexInPageLinks = index;
@@ -277,7 +270,6 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 		}
 	}
 
-	@Override
 	public ApplicationContext getApplicationContext() {
 		return applicatonContext;
 	}
@@ -298,9 +290,9 @@ public class VaadinWindow extends Window implements IContext, PageContext {
 			this.action = action;
 		}
 
-		public void action(IContext context) {
+		public void action() {
 			ApplicationContext.setApplicationContext(VaadinWindow.this.applicatonContext);
-			action.action(context);
+			action.action();
 		}
 
 		@Override

@@ -20,10 +20,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.swing.component.EditablePanel;
@@ -36,10 +34,9 @@ import org.minimalj.frontend.swing.toolkit.SwingFormAlignLayoutManager;
 import org.minimalj.frontend.swing.toolkit.SwingScrollPane;
 import org.minimalj.frontend.swing.toolkit.SwingSwitchContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 
-public class SwingTab extends EditablePanel implements IContext, PageContext {
+public class SwingTab extends EditablePanel {
 	private static final long serialVersionUID = 1L;
 	
 	final SwingFrame frame;
@@ -49,7 +46,7 @@ public class SwingTab extends EditablePanel implements IContext, PageContext {
 
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
-	private final SwingSwitchContent switchLayout;
+	private final SwingSwitchContent switchContent;
 	
 	private final History<String> history;
 	private final SwingPageContextHistoryListener historyListener;
@@ -88,8 +85,8 @@ public class SwingTab extends EditablePanel implements IContext, PageContext {
 		JPanel panel = new JPanel(new BorderLayout());
 		outerPanel.add(panel, BorderLayout.CENTER);
 		panel.add(toolBar, BorderLayout.NORTH);
-		switchLayout = new SwingSwitchContent();
-		panel.add(switchLayout, BorderLayout.CENTER);
+		switchContent = new SwingSwitchContent();
+		panel.add(switchContent, BorderLayout.CENTER);
 		setContent(outerPanel);
 	}
 	
@@ -209,19 +206,19 @@ public class SwingTab extends EditablePanel implements IContext, PageContext {
 	private class SwingPageContextHistoryListener implements HistoryListener {
 		@Override
 		public void onHistoryChanged() {
-			page = PageLink.createPage(SwingTab.this, history.getPresent());
+			page = PageLink.createPage(history.getPresent());
 			show(page);
 			SwingTab.this.onHistoryChanged();
 		}
 
 		private void show(Page page) {
 			IContent content = page.getContent();
-			if (content instanceof GridContent) {
+			if (content instanceof FormContent) {
 				JPanel panel = new JPanel(new SwingFormAlignLayoutManager());
 				panel.add((Component)content);
 				content = new SwingScrollPane(new ScrollablePanel(panel));
 			}
-			switchLayout.show(content);
+			switchContent.show(content);
 			registerMouseListener((Component) content);
 			if (content instanceof JComponent) {
 				// this is more about if component is not null (empty page)
@@ -282,7 +279,6 @@ public class SwingTab extends EditablePanel implements IContext, PageContext {
 		history.previous();
 	}
 
-	@Override
 	public void show(final String pageLink) {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			try {
@@ -305,7 +301,6 @@ public class SwingTab extends EditablePanel implements IContext, PageContext {
 		}
 	}
 	
-	@Override
 	public void show(List<String> pageLinks, int index) {
 		this.pageLinks = pageLinks;
 		this.indexInPageLinks = index;
@@ -328,9 +323,4 @@ public class SwingTab extends EditablePanel implements IContext, PageContext {
 		replace(pageLinks.get(++indexInPageLinks));
 	}
 
-	@Override
-	public ApplicationContext getApplicationContext() {
-		return SwingFrontend.getApplicationContext();
-	}
-	
 }

@@ -16,8 +16,8 @@ import org.minimalj.frontend.swing.lookAndFeel.PrintLookAndFeel;
 import org.minimalj.frontend.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import org.minimalj.frontend.swing.lookAndFeel.TerminalLookAndFeel;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
-import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.util.resources.ResourceHelper;
 import org.minimalj.util.resources.Resources;
 
@@ -51,7 +51,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	private JMenu createFileMenu() {
 		JMenu menu = menu("file");
 		
-		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew(tab);
+		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew();
 		if (!actionsNew.isEmpty()) {
 			addActions(menu, "new", actionsNew);
 			menu.addSeparator();
@@ -59,9 +59,9 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		menu.add(new JMenuItem(tab.frame.closeWindowAction));
 		menu.add(new JMenuItem(tab.closeTabAction));
 		menu.addSeparator();
-		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport(tab);
+		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport();
 		if (!actionsImport.isEmpty()) addActions(menu, "import", actionsImport);
-		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport(tab);
+		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport();
 		if (!actionsExport.isEmpty()) addActions(menu, "export", actionsExport);
 		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) menu.addSeparator();
 		menu.add(new JMenuItem(tab.frame.exitAction));
@@ -78,7 +78,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	
 	private JMenu createViewMenu() {
 		JMenu menu = menu("view");
-		List<IAction> actionsView = MjApplication.getApplication().getActionsView(tab);
+		List<IAction> actionsView = MjApplication.getApplication().getActionsView();
 		if (!actionsView.isEmpty()) {
 			addActions(menu, actionsView);
 			menu.addSeparator();

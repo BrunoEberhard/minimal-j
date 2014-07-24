@@ -4,8 +4,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
 public class EmptyPage extends AbstractPage {
 
-	public EmptyPage(PageContext context) {
-		super(context);
+	public EmptyPage() {
 	}
 	
 	@Override

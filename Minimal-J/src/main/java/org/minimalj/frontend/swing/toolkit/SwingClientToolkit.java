@@ -36,6 +36,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
+import org.minimalj.application.ApplicationContext;
+import org.minimalj.frontend.swing.SwingFrontend;
+import org.minimalj.frontend.swing.SwingTab;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.SwingCaption;
 import org.minimalj.frontend.toolkit.Caption;
@@ -44,7 +47,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IAction.ActionChangeListener;
@@ -59,6 +62,8 @@ import org.minimalj.util.StringUtils;
 
 public class SwingClientToolkit extends ClientToolkit {
 
+	private SwingTab activeSwingTab;
+	
 	@Override
 	public IComponent createLabel(String string) {
 		return new SwingLabel(string);
@@ -82,7 +87,7 @@ public class SwingClientToolkit extends ClientToolkit {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					action.action(findContext(SwingActionLabel.this));
+					action.action();
 				}
 			});
 		}
@@ -136,7 +141,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public SwitchContent createSwitchContent() {
+	public WizardContent createWizardContent() {
 		return new SwingSwitchContent();
 	}
 
@@ -146,7 +151,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public GridContent createGridContent(int columns, int columnWidthPercentage) {
+	public FormContent createFormContent(int columns, int columnWidthPercentage) {
 		return new SwingGridFormLayout(columns, columnWidthPercentage);
 	}
 
@@ -180,23 +185,22 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showMessage(IContext context, String text) {
-		Window window = findWindow((Component)context);
+	public void showMessage(String text) {
+		Window window = findWindow(activeSwingTab);
 		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
-	public void showError(IContext context, String text) {
-		Window window = findWindow((Component)context);
+	public void showError(String text) {
+		Window window = findWindow(activeSwingTab);
 		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
 	}
 
 	@Override
-	public void showConfirmDialog(IDialog c, String message, String title, ConfirmDialogType type,
+	public void showConfirmDialog(String message, String title, ConfirmDialogType type,
 			DialogListener listener) {
-		Component parentComponent = (Component)c;
 		int optionType = type.ordinal();
-		int result = JOptionPane.showConfirmDialog(parentComponent, message, title, optionType);
+		int result = JOptionPane.showConfirmDialog(activeSwingTab, message, title, optionType);
 		listener.close(DialogResult.values()[result]);
 	}
 
@@ -205,14 +209,13 @@ public class SwingClientToolkit extends ClientToolkit {
 		return new SwingTable<T>(fields);
 	}
 
-	public static ProgressListener showProgress(Component parent, String text) {
-		EditablePanel editablePanel = EditablePanel.getEditablePanel(parent);
-		if (editablePanel != null) {
+	public ProgressListener showProgress(String text) {
+		if (activeSwingTab instanceof EditablePanel) {
 			SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
-			editablePanel.openModalDialog(frame);
+			activeSwingTab.openModalDialog(frame);
 			return frame;
 		} else {
-			Window window = findWindow((Component) parent);
+			Window window = findWindow((Component) activeSwingTab);
 			SwingProgressDialog dialog = new SwingProgressDialog(window, text);
 			dialog.setVisible(true);
 			return dialog;
@@ -220,20 +223,19 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(IContext context, String title, IContent content, IAction... actions) {
-		JComponent contentComponent = new SwingEditorLayout(context, content, actions);
+	public IDialog createDialog(String title, IContent content, IAction... actions) {
+		JComponent contentComponent = new SwingEditorLayout(activeSwingTab, content, actions);
 		// TODO check for OS or move this to UI
 		contentComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		return createDialog(context, title, contentComponent);
+		return createDialog(title, contentComponent);
 	}
 
-	private IDialog createDialog(IContext context, String title, JComponent content) {
-		EditablePanel editablePanel = EditablePanel.getEditablePanel((Component) context);
-		if (editablePanel != null) {
-			return new SwingInternalFrame(editablePanel, content, title);
+	private IDialog createDialog(String title, JComponent content) {
+		if (activeSwingTab instanceof EditablePanel) {
+			return new SwingInternalFrame(activeSwingTab, content, title);
 		} else {
-			Window window = findWindow((Component) context);
+			Window window = findWindow((Component) activeSwingTab);
 			return new SwingEditorDialog(window, content, title);
 		}
 	}
@@ -248,18 +250,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 		return (Window) parentComponent;
 	}
-	
-	public static IContext findContext(Component parentComponent) {
-		while (parentComponent != null && !(parentComponent instanceof IContext)) {
-			if (parentComponent instanceof JPopupMenu) {
-				parentComponent = ((JPopupMenu) parentComponent).getInvoker();
-			} else {
-				parentComponent = parentComponent.getParent();
-			}
-		}
-		return (IContext) parentComponent;
-	}
-	
+		
 	@Override
 	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
 		return new SwingLookup<T>(changeListener, index, keys);
@@ -310,7 +301,7 @@ public class SwingClientToolkit extends ClientToolkit {
 				addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						dialog = ((SwingClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(findContext(SwingLookup.this), search, keys, new LookupClickListener());
+						dialog = ((SwingClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(search, keys, new LookupClickListener());
 						dialog.openDialog();
 					}
 				});
@@ -345,17 +336,17 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	}
 
-	public <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
-		return createDialog(context, null, panel);
+		return createDialog(null, panel);
 	}
 
 	@Override
-	public OutputStream store(IContext context, String buttonText) {
+	public OutputStream store(String buttonText) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog((Component) context, buttonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(activeSwingTab, buttonText)) {
 			File outputFile = chooser.getSelectedFile();
 			try {
 				return new FileOutputStream(outputFile);
@@ -368,11 +359,11 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public InputStream load(IContext context, String buttonText) {
+	public InputStream load(String buttonText) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog((Component) context, buttonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(activeSwingTab, buttonText)) {
 			File inputFile = chooser.getSelectedFile();
 			try {
 				return new FileInputStream(inputFile);
@@ -433,21 +424,22 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 	}
 
-	public static Action[] adaptActions(IAction[] actions, IContext context) {
+	public static Action[] adaptActions(IAction[] actions, SwingTab swingTab) {
 		Action[] swingActions = new Action[actions.length];
 		for (int i = 0; i<actions.length; i++) {
-			swingActions[i] = adaptAction(actions[i], context);
+			swingActions[i] = adaptAction(actions[i], swingTab);
 		}
 		return swingActions;
 	}
 
-	public static Action adaptAction(final IAction action, final IContext context) {
+	public static Action adaptAction(final IAction action, final SwingTab swingTab) {
 		final Action swingAction = new AbstractAction(action.getName()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				action.action(context);
+				((SwingClientToolkit) ClientToolkit.getToolkit()).setActiveSwingTab(swingTab);
+				action.action();
 			}
 		};
 		swingAction.putValue(Action.SHORT_DESCRIPTION, action.getDescription());
@@ -466,6 +458,25 @@ public class SwingClientToolkit extends ClientToolkit {
 			}
 		});
 		return swingAction;
+	}
+
+	protected void setActiveSwingTab(SwingTab swingTab) {
+		this.activeSwingTab = swingTab;
+	}
+
+	@Override
+	public void show(String pageLink) {
+		activeSwingTab.show(pageLink);
+	}
+
+	@Override
+	public void show(List<String> pageLinks, int index) {
+		activeSwingTab.show(pageLinks, index);
+	}
+
+	@Override
+	public ApplicationContext getApplicationContext() {
+		return SwingFrontend.getApplicationContext();
 	}
 	
 }

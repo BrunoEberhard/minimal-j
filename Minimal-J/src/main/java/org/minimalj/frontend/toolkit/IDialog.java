@@ -1,9 +1,8 @@
 package org.minimalj.frontend.toolkit;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 
 
-public interface IDialog extends IContext {
+public interface IDialog {
 
 	public void setCloseListener(CloseListener closeListener);
 

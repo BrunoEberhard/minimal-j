@@ -1,5 +1,6 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
+import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
@@ -18,9 +19,9 @@ public class LanternaDialog implements IDialog {
 	
 	private CloseListener closeListener;
 	
-	public LanternaDialog(GUIScreen screen, IContent content, String title, IAction[] actions) {
+	public LanternaDialog(LanternaGUIScreen screen, IContent content, String title, IAction[] actions) {
 		this.screen = screen;
-		this.content = new LanternaEditorLayout(this, content, actions);
+		this.content = new LanternaEditorLayout(screen, content, actions);
 		this.title = title;
 	}
 	

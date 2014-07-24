@@ -2,7 +2,6 @@ package org.minimalj.frontend.edit;
 
 import org.minimalj.frontend.edit.Editor.EditorListener;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ResourceAction;
 
@@ -27,9 +26,9 @@ public class EditorAction extends ResourceAction {
 	}
 	
 	@Override
-	public void action(IContext context) {
+	public void action() {
 		editor.startEditor();
-		final IDialog dialog = ClientToolkit.getToolkit().createDialog(context, editor.getTitle(), editor.getContent(), editor.getActions());
+		final IDialog dialog = ClientToolkit.getToolkit().createDialog(editor.getTitle(), editor.getContent(), editor.getActions());
 		
 		dialog.setCloseListener(new IDialog.CloseListener() {
 			@Override

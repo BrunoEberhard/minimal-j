@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 
 public class JUnitClientToolkit extends ClientToolkit {
@@ -139,7 +140,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public SwitchContent createSwitchContent() {
+	public WizardContent createWizardContent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -151,8 +152,8 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public GridContent createGridContent(int columns, int columnWidth) {
-		return new GridContent() {
+	public FormContent createFormContent(int columns, int columnWidth) {
+		return new FormContent() {
 			
 			@Override
 			public void add(IComponent field, int span) {
@@ -163,20 +164,20 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(IContext context, String title,
+	public IDialog createDialog(String title,
 			IContent content, IAction... actions) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void showMessage(IContext context, String text) {
+	public void showMessage(String text) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void showError(IContext context, String text) {
+	public void showError(String text) {
 		if (lastError != null) {
 			throw new IllegalStateException();
 		}
@@ -184,7 +185,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void showConfirmDialog(IDialog component, String message,
+	public void showConfirmDialog(String message,
 			String title, ConfirmDialogType type, DialogListener listener) {
 		if (nextConfirmAnswer == null) {
 			throw new IllegalStateException();
@@ -194,19 +195,19 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public OutputStream store(IContext context, String buttonText) {
+	public OutputStream store(String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public InputStream load(IContext context, String buttonText) {
+	public InputStream load(String buttonText) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -217,5 +218,20 @@ public class JUnitClientToolkit extends ClientToolkit {
 		return null;
 	}
 
+	@Override
+	public void show(String pageLink) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void show(List<String> pageLinks, int index) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public ApplicationContext getApplicationContext() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

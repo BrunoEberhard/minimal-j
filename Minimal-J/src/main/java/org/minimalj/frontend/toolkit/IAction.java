@@ -1,7 +1,5 @@
 package org.minimalj.frontend.toolkit;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
-
 
 
 public interface IAction {
@@ -10,7 +8,7 @@ public interface IAction {
 
 	public String getDescription();
 	
-	public void action(IContext context2);
+	public void action();
 	
 	public boolean isEnabled();
 	

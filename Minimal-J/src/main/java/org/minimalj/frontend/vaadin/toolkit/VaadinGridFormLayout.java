@@ -1,13 +1,13 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
 import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 
-public class VaadinGridFormLayout extends GridLayout implements GridContent, VaadinComponentWithWidth {
+public class VaadinGridFormLayout extends GridLayout implements FormContent, VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
 	
 	private final int columns;

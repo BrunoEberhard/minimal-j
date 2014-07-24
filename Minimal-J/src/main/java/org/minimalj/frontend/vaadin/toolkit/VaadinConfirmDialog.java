@@ -186,9 +186,11 @@ public class VaadinConfirmDialog extends Window {
 		
 		@Override
 		public void buttonClick(ClickEvent event) {
+			VaadinClientToolkit.setWindow(event.getComponent().getWindow());
 			setVisible(false);
 			VaadinConfirmDialog.this.detach(); // mysterious
 			listener.close(result);
+			VaadinClientToolkit.setWindow(null);
 		}
 	}
 	

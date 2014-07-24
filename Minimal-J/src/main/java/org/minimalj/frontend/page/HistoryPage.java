@@ -16,8 +16,7 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 	private List<HistoryVersion<T>> versions;
 	private ITable<HistoryVersion<T>> table;
 	
-	public HistoryPage(PageContext pageContext) {
-		super(pageContext);
+	public HistoryPage() {
 		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.HISTORY_VERSION.version, HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
 		table.setClickListener(new TableActionListener<HistoryVersion<T>>() {
 			@Override
@@ -33,7 +32,7 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 					String link = link(version.object, version.version);
 					pageLinks.add(link);
 				}
-				getPageContext().show(pageLinks, selectedIndex);
+				ClientToolkit.getToolkit().show(pageLinks, selectedIndex);
 			}
 		});
 	}

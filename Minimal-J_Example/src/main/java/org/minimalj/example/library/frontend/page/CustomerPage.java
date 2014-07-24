@@ -7,9 +7,8 @@ import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectViewPage;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
+import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.util.IdUtils;
 
@@ -17,8 +16,7 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 
 	private final Customer customer;
 
-	public CustomerPage(PageContext context, String id) {
-		super(context);
+	public CustomerPage(String id) {
 		customer = lookup(id);
 	}
 	
@@ -58,8 +56,8 @@ public class CustomerPage extends ObjectViewPage<Customer> {
 		}
 
 		@Override
-		public void action(IContext context) {
-			((PageContext) context).show(PageLink.link(LendTablePage.class, IdUtils.getIdString(customer)));
+		public void action() {
+			ClientToolkit.getToolkit().show(PageLink.link(LendTablePage.class, IdUtils.getIdString(customer)));
 		}
 		
 	}

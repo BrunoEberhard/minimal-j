@@ -6,10 +6,10 @@ import org.minimalj.application.DevMode;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
+import org.minimalj.frontend.toolkit.ClientToolkit.WizardContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.ResourceActionEnabled;
-import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 import org.minimalj.model.validation.ValidationMessage;
 
 public abstract class Wizard<T> extends Editor<T> {
@@ -19,7 +19,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	protected final PreviousWizardStepAction prevAction;
 	protected final NextWizardStepAction nextAction;
-	private SwitchContent switchLayout;
+	private WizardContent wizardContent;
 	private final Indicator indicator;
 	private final EditorListener stepFinishedListener;
 	
@@ -54,14 +54,14 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	private class NextWizardStepAction extends ResourceActionEnabled {
 		@Override
-		public void action(IContext context) {
+		public void action() {
 			currentStep.save();
 		}
 	}
 
 	private class PreviousWizardStepAction extends ResourceActionEnabled {
 		@Override
-		public void action(IContext context) {
+		public void action() {
 			currentStep.cancel();
 		}
 	}
@@ -74,13 +74,13 @@ public abstract class Wizard<T> extends Editor<T> {
 	@Override
 	public void startEditor() {
 		super.startEditor();
-		switchLayout = ClientToolkit.getToolkit().createSwitchContent();
+		wizardContent = ClientToolkit.getToolkit().createWizardContent();
 		setCurrentStep(getFirstStep());
 	}
 
 	@Override
 	public IContent getContent() {
-		return switchLayout;
+		return wizardContent;
 	}
 	
 	private void setCurrentStep(WizardStep<?> step) {
@@ -89,7 +89,7 @@ public abstract class Wizard<T> extends Editor<T> {
 		currentStep.setEditorListener(stepFinishedListener);
  
 		currentStep.startEditor();
-		switchLayout.show(currentStep.getContent());
+		wizardContent.show((FormContent) currentStep.getContent());
 		
 		prevAction.setEnabled(currentStepIndex > 0);
 	}

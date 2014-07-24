@@ -14,10 +14,10 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
-public class SwingGridFormLayout extends JPanel implements GridContent {
+public class SwingGridFormLayout extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
 	
 	private final int columnWidth;

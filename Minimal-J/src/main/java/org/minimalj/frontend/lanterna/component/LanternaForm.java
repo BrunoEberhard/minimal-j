@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 import com.googlecode.lanterna.gui.Component;
@@ -14,7 +14,7 @@ import com.googlecode.lanterna.gui.component.AbstractContainer;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
-public class LanternaForm extends AbstractContainer implements GridContent {
+public class LanternaForm extends AbstractContainer implements FormContent {
 
 	private final List<List<Component>> rows = new ArrayList<>();
 	private final Map<Component, Integer> spans = new HashMap<Component, Integer>();

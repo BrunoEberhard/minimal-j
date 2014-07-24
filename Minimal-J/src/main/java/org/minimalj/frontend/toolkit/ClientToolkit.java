@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 
 /**
@@ -39,7 +40,7 @@ public abstract class ClientToolkit {
 
 	/**
 	 * Components are the smallest part of the gui. Things like textfields
-	 * and comboboxes.
+	 * and comboboxes. A form is filled with components.
 	 */
 	public interface IComponent {
 	}
@@ -82,35 +83,38 @@ public abstract class ClientToolkit {
 	public interface IContent {
 	}
 
+	public abstract FormContent createFormContent(int columns, int columnWidth);
+
+	public interface WizardContent extends IContent {
+		public void show(FormContent content);
+	}
+	
+	public abstract WizardContent createWizardContent();
+
 	public abstract <T> ITable<T> createTable(Object[] fields);
-
-	public interface SwitchContent extends IContent {
-		public void show(IContent content);
-	}
-
-	public abstract SwitchContent createSwitchContent();
 	
-	public abstract GridContent createGridContent(int columns, int columnWidth);
+	//
+	
+	public abstract void show(String pageLink);
 
-	/**
-	 * Context means context or parent of a dialog
-	 *
-	 */
-	public interface IContext {
-	}
+	public abstract void show(List<String> pageLinks, int index);
 	
-	public abstract IDialog createDialog(IContext context, String title, IContent content, IAction... actions);
+	public abstract ApplicationContext getApplicationContext();
+	
+	//
+	
+	public abstract IDialog createDialog(String title, IContent content, IAction... actions);
 
-	public abstract <T> IDialog createSearchDialog(IContext context, Search<T> index, Object[] keys, TableActionListener<T> listener);
+	public abstract <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener);
 	
-	public abstract void showMessage(IContext context, String text);
+	public abstract void showMessage(String text);
 	
-	public abstract void showError(IContext context, String text);
+	public abstract void showError(String text);
 	
 	// Don't change order, is used in SwingClientToolkit
 	public static enum ConfirmDialogType { YES_NO, YES_NO_CANCEL }
 	
-	public abstract void showConfirmDialog(IDialog parent, String message, String title, ConfirmDialogType type, DialogListener listener);
+	public abstract void showConfirmDialog(String message, String title, ConfirmDialogType type, DialogListener listener);
 	
 	public static interface DialogListener {
 		
@@ -129,7 +133,7 @@ public abstract class ClientToolkit {
 	 * @param buttonText the text displayed probably in a file browser
 	 * @return the stream provided through which the local resource can be filled
 	 */
-	public abstract OutputStream store(IContext context, String buttonText);
+	public abstract OutputStream store(String buttonText);
 
 	/**
 	 * Select a stream from a locally source
@@ -138,6 +142,6 @@ public abstract class ClientToolkit {
 	 * @param buttonText the text displayed probably in a file browser
 	 * @return the stream provided by the selected local source
 	 */
-	public abstract InputStream load(IContext context, String buttonText);
+	public abstract InputStream load(String buttonText);
 	
 }

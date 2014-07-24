@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.model.Keys;
@@ -159,7 +160,9 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	public Result keyboardInteraction(Key key) {
 		switch (key.getKind()) {
 		case Enter:
+			LanternaClientToolkit.setGui((LanternaGUIScreen) getWindow().getOwner());
 			clickListener.action(getSelectedObject(), getSelectedObjects());
+			LanternaClientToolkit.setGui(null);
 			return Result.EVENT_HANDLED;
 
 		case NormalKey:

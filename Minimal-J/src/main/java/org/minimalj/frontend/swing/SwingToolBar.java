@@ -16,7 +16,6 @@ import javax.swing.JToolBar;
 
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
@@ -37,14 +36,14 @@ public class SwingToolBar extends JToolBar implements IComponent {
 		
 		searchAction = new SearchAction();		
 		setFloatable(false);
-		fillToolBar(tab);
+		fillToolBar();
 	}
 	
-	protected void fillToolBar(PageContext pageContext) {
+	protected void fillToolBar() {
 		fillToolBarNavigation();
 		fillToolBarRefresh();
 		fillToolBarUpDown();
-		fillToolBarSearch(pageContext);
+		fillToolBarSearch();
 	}
 	
 	protected void fillToolBarNavigation() {
@@ -61,18 +60,18 @@ public class SwingToolBar extends JToolBar implements IComponent {
 		add(tab.downAction);
 	}
 	
-	protected void fillToolBarSearch(PageContext pageContext) {
-		Class<?>[] searchClasses = MjApplication.getApplication().getSearchClasses(null);
+	protected void fillToolBarSearch() {
+		Class<?>[] searchClasses = MjApplication.getApplication().getSearchClasses();
 		if (searchClasses != null && searchClasses.length > 0) {
-			add(createSearchField(pageContext));
+			add(createSearchField());
 		}
 	}
 
-	protected JPanel createSearchField(PageContext pageContext) {
+	protected JPanel createSearchField() {
 		FlowLayout flowLayout = new FlowLayout(FlowLayout.TRAILING);
 		flowLayout.setAlignOnBaseline(true);
 		JPanel panel = new JPanel(flowLayout);
-		comboBoxSearchObject = new JComboBox<>(MjApplication.getApplication().getSearchClasses(pageContext));
+		comboBoxSearchObject = new JComboBox<>(MjApplication.getApplication().getSearchClasses());
 		comboBoxSearchObject.setRenderer(new SearchCellRenderer());
 		panel.add(comboBoxSearchObject);
 		textFieldSearch = new JTextField();

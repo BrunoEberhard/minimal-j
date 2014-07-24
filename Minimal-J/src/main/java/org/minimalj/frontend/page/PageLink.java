@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.MjApplication;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
+import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -54,13 +54,13 @@ public class PageLink implements IAction {
 	}
 	
 	@Override
-	public void action(IContext context) {
-		((PageContext) context).show(link);
+	public void action() {
+		ClientToolkit.getToolkit().show(link);
 	}
 	
-	public static Page createPage(PageContext context, String pageLink) {
+	public static Page createPage(String pageLink) {
 		if (StringUtils.isEmpty(pageLink)) {
-			return MjApplication.getApplication().createDefaultPage(context);
+			return MjApplication.getApplication().createDefaultPage();
 		}
 		try {
 			int pos = pageLink.indexOf('/');
@@ -75,26 +75,23 @@ public class PageLink implements IAction {
 			if (pos > 0) {
 				String[] fragmentParts = pageLink.substring(pos+1).split("/");
 				if (fragmentParts.length > 1) {
-					Class<?>[] argumentClasses = new Class[2];
-					argumentClasses[0] = PageContext.class;
-					argumentClasses[1] = new String[0].getClass();
-					return (Page) clazz.getConstructor(argumentClasses).newInstance(new Object[]{context, fragmentParts});
+					Class<?>[] argumentClasses = new Class[1];
+					argumentClasses[0] = new String[0].getClass();
+					return (Page) clazz.getConstructor(argumentClasses).newInstance(new Object[]{fragmentParts});
 				} else {
-					Class<?>[] argumentClasses = new Class[2];
-					argumentClasses[0] = PageContext.class;
-					argumentClasses[1] = String.class;
-					return (Page) clazz.getConstructor(argumentClasses).newInstance(context, fragmentParts[0]);
+					Class<?>[] argumentClasses = new Class[1];
+					argumentClasses[0] = String.class;
+					return (Page) clazz.getConstructor(argumentClasses).newInstance(fragmentParts[0]);
 				}
 			} else {
-				Class<?>[] argumentClasses = new Class[1];
-				argumentClasses[0] = PageContext.class;
-				return (Page) clazz.getConstructor(argumentClasses).newInstance(context);
+				Class<?>[] argumentClasses = new Class[0];
+				return (Page) clazz.getConstructor(argumentClasses).newInstance();
 			}
 		} catch (Exception x) {
 			x.printStackTrace();
 			logger.log(Level.SEVERE, "UriFragment Auflösung fehlgeschlagen: " + pageLink, x);
 			// TODO It would be nice to have here an error page instead of an empty page
-			return new EmptyPage(context);
+			return new EmptyPage();
 		}
 	}
 

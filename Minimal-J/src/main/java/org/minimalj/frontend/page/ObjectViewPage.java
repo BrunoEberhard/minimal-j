@@ -7,8 +7,7 @@ public abstract class ObjectViewPage<T> extends AbstractPage implements Refresha
 
 	private Form<T> objectPanel;
 	
-	public ObjectViewPage(PageContext pageContext) {
-		super(pageContext);
+	public ObjectViewPage() {
 	}
 
 	protected abstract Form<T> createForm();

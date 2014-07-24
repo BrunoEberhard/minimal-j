@@ -13,7 +13,6 @@ import org.minimalj.backend.SocketBackendServer;
 import org.minimalj.backend.db.DbBackend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.vaadin.VaadinFrontend;
@@ -178,27 +177,27 @@ public abstract class MjApplication {
 		return null;
 	}
 	
-	public Class<?>[] getSearchClasses(PageContext context) {
+	public Class<?>[] getSearchClasses() {
 		return new Class<?>[0];
 	}
 	
-	public Page createDefaultPage(PageContext context) {
-		return new EmptyPage(context);
+	public Page createDefaultPage() {
+		return new EmptyPage();
 	}
 	
-	public List<IAction> getActionsNew(PageContext context) {
+	public List<IAction> getActionsNew() {
 		return Collections.emptyList();
 	}
 
-	public List<IAction> getActionsImport(PageContext context) {
+	public List<IAction> getActionsImport() {
 		return Collections.emptyList();
 	}
 
-	public List<IAction> getActionsExport(PageContext context) {
+	public List<IAction> getActionsExport() {
 		return Collections.emptyList();
 	}
 
-	public List<IAction> getActionsView(PageContext context) {
+	public List<IAction> getActionsView() {
 		return Collections.emptyList();
 	}
 	

@@ -6,14 +6,12 @@ import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectViewPage;
-import org.minimalj.frontend.page.PageContext;
 
 public class BookPage extends ObjectViewPage<Book> {
 
 	private final Book book;
 
-	public BookPage(PageContext context, String id) {
-		super(context);
+	public BookPage(String id) {
 		book = lookup(id);
 	}
 	

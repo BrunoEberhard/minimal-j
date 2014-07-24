@@ -8,6 +8,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IAction.ActionChangeListener;
+import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
 import org.minimalj.util.resources.Resources;
 
 import com.vaadin.ui.MenuBar;
@@ -33,13 +34,13 @@ public class VaadinMenuBar extends MenuBar {
 		MenuBar.MenuItem menu = menu("file");
 
 		boolean separator = false;
-		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew(vaadinWindow);
+		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew();
 		if (!actionsNew.isEmpty()) {
 			addActions(menu, "new", actionsNew);
 			separator = true;
 		}
-		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport(vaadinWindow);
-		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport(vaadinWindow);
+		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport();
+		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport();
 		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) {
 			if (separator) menu.addSeparator();
 		}
@@ -48,7 +49,7 @@ public class VaadinMenuBar extends MenuBar {
 	}
 	
 	private void createViewMenu() {
-		List<IAction> actionsView = MjApplication.getApplication().getActionsView(vaadinWindow);
+		List<IAction> actionsView = MjApplication.getApplication().getActionsView();
 		if (!actionsView.isEmpty()) {
 			MenuBar.MenuItem menu = menu("view");
 			addActions(menu, actionsView);
@@ -108,7 +109,9 @@ public class VaadinMenuBar extends MenuBar {
 
 		@Override
 		public void menuSelected(MenuItem selectedItem) {
-			action.action(vaadinWindow);
+			VaadinClientToolkit.setWindow(vaadinWindow);
+			action.action();
+			VaadinClientToolkit.setWindow(null);
 		}
 	}
 	

@@ -13,7 +13,6 @@ import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
-import javax.swing.JPopupMenu;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
@@ -170,21 +169,6 @@ public class EditablePanel extends JDesktopPane {
 			e.getInternalFrame().removeInternalFrameListener(this);
 		}
 	};
-
-	// helper
-	
-	public static EditablePanel getEditablePanel(Component component) {
-		while (component != null) {
-			if (component instanceof EditablePanel) {
-				return (EditablePanel) component;
-			} else if (component instanceof JPopupMenu) {
-				component = ((JPopupMenu) component).getInvoker();
-			} else {
-				component = component.getParent();
-			}
-		}
-		return null;
-	}
 
 	// see http://stackoverflow.com/questions/8136944/preventing-jinternalframe-from-being-moved-out-of-a-jdesktoppane
 	public class BoundedDesktopManager extends DefaultDesktopManager {

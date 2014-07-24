@@ -8,7 +8,6 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.PageContext;
 import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.transaction.criteria.Criteria;
@@ -24,8 +23,8 @@ public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
 		LEND.till
 	};
 	
-	public LendTablePage(PageContext context, String text) {
-		super(context, FIELDS, text);
+	public LendTablePage(String text) {
+		super(FIELDS, text);
 		this.text = text;
 	}
 

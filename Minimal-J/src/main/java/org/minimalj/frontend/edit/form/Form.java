@@ -35,8 +35,7 @@ import org.minimalj.frontend.edit.fields.TypeUnknownField;
 import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.GridContent;
+import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.EmptyValidator;
 import org.minimalj.model.InvalidValues;
@@ -63,7 +62,7 @@ public class Form<T> implements DemoEnabled {
 	private final ResourceBundle resourceBundle;
 	
 	private final int columns;
-	private final GridContent layout;
+	private final FormContent formContent;
 	
 	private final LinkedHashMap<PropertyInterface, FormField<?>> fields = new LinkedHashMap<PropertyInterface, FormField<?>>();
 	private final Map<PropertyInterface, Caption> indicators = new HashMap<PropertyInterface, Caption>();
@@ -107,7 +106,7 @@ public class Form<T> implements DemoEnabled {
 		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;
 		this.columns = columns;
-		this.layout = ClientToolkit.getToolkit().createGridContent(columns, getColumnWidthPercentage());
+		this.formContent = ClientToolkit.getToolkit().createFormContent(columns, getColumnWidthPercentage());
 	}
 	
 	protected int getColumnWidthPercentage() {
@@ -120,8 +119,8 @@ public class Form<T> implements DemoEnabled {
 	
 	// Methods to create the form
 
-	public IContent getContent() {
-		return layout;
+	public FormContent getContent() {
+		return formContent;
 	}
 
 	public FormField<?> createField(Object key) {
@@ -250,7 +249,7 @@ public class Form<T> implements DemoEnabled {
 	}
 	
 	private void add(FormField<?> c, int span) {
-		layout.add(decorateWithCaption(c).getComponent(), span);
+		formContent.add(decorateWithCaption(c).getComponent(), span);
 		registerNamedField(c);
 	}
 	
@@ -271,12 +270,12 @@ public class Form<T> implements DemoEnabled {
 	
 	public void text(String text, int span) {
 		IComponent label = ClientToolkit.getToolkit().createLabel(text);
-		layout.add(label, span);
+		formContent.add(label, span);
 	}
 
 	public void addTitle(String text) {
 		IComponent label = ClientToolkit.getToolkit().createTitle(text);
-		layout.add(label, columns);
+		formContent.add(label, columns);
 	}
 
 	//

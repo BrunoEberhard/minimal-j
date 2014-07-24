@@ -10,9 +10,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.toolkit.ResourceActionEnabled;
 import org.minimalj.model.validation.ValidationMessage;
@@ -78,7 +76,6 @@ public abstract class Editor<T> {
 	
 	private T original, editedObject;
 	private Form<T> form;
-	private IDialog dialog;
 	protected final SaveAction saveAction = new SaveAction();
 	protected final CancelAction cancelAction = new CancelAction();
 	protected final FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
@@ -229,10 +226,10 @@ public abstract class Editor<T> {
 			} catch (Exception x) {
 				String message = x.getMessage() != null ? x.getMessage() : x.getClass().getSimpleName();
 				logger.log(Level.SEVERE, message, x);
-				ClientToolkit.getToolkit().showError(null, "Technical problems: " + message);
+				ClientToolkit.getToolkit().showError("Technical problems: " + message);
 			}
 		} else {
-			ClientToolkit.getToolkit().showError(null, "Save is not possible because input is not valid");
+			ClientToolkit.getToolkit().showError("Save is not possible because input is not valid");
 		}
 	}
 
@@ -288,7 +285,7 @@ public abstract class Editor<T> {
 					}
 				}
 			};
-			ClientToolkit.getToolkit().showConfirmDialog(dialog, "Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+			ClientToolkit.getToolkit().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
 					ConfirmDialogType.YES_NO_CANCEL, listener);
 
 		} else {
@@ -303,7 +300,7 @@ public abstract class Editor<T> {
 				}
 			};
 			
-			ClientToolkit.getToolkit().showConfirmDialog(dialog, "Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+			ClientToolkit.getToolkit().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
 					"Schliessen", ConfirmDialogType.YES_NO, listener);
 		}
 	}
@@ -312,7 +309,7 @@ public abstract class Editor<T> {
 		private String description;
 		
 		@Override
-		public void action(IContext context) {
+		public void action() {
 			save();
 		}
 		
@@ -343,13 +340,13 @@ public abstract class Editor<T> {
 	
 	private class CancelAction extends ResourceAction {
 		@Override
-		public void action(IContext context) {
+		public void action() {
 			cancel();
 		}
 	}
 	
 	private class FillWithDemoDataAction extends ResourceAction {
-		public void action(IContext context) {
+		public void action() {
 			fillWithDemoData();
 		}
 	}

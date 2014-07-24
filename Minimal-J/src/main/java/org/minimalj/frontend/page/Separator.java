@@ -1,6 +1,5 @@
 package org.minimalj.frontend.page;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
 
 public class Separator implements IAction {
@@ -11,7 +10,7 @@ public class Separator implements IAction {
 	}
 
 	@Override
-	public void action(IContext context) {
+	public void action() {
 		// n/a
 	}
 

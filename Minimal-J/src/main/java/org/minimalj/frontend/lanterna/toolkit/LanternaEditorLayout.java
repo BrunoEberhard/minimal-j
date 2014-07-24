@@ -3,9 +3,9 @@ package org.minimalj.frontend.lanterna.toolkit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
 
 import com.googlecode.lanterna.gui.Component;
@@ -20,7 +20,7 @@ public class LanternaEditorLayout extends AbstractContainer implements IComponen
 	private final Component content;
 	private final List<Button> buttons = new ArrayList<>();
 	
-	public LanternaEditorLayout(final IContext context, IContent content, IAction[] actions) {
+	public LanternaEditorLayout(final LanternaGUIScreen screen, IContent content, IAction[] actions) {
 		this.content = (Component) content;
 		super.addComponent(this.content);
 		
@@ -28,7 +28,9 @@ public class LanternaEditorLayout extends AbstractContainer implements IComponen
 			com.googlecode.lanterna.gui.Action lanternaAction = new com.googlecode.lanterna.gui.Action() {
 				@Override
 				public void doAction() {
-					action.action(context);
+					LanternaClientToolkit.setGui(screen);
+					action.action();
+					LanternaClientToolkit.setGui(null);
 				}
 			};
 			Button button = new Button(action.getName(), lanternaAction);

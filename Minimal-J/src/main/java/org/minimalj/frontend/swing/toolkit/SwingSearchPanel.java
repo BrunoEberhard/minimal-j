@@ -12,11 +12,11 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 
-public class SwingSearchPanel<T> extends JPanel implements IComponent {
+public class SwingSearchPanel<T> extends JPanel implements IContent {
 	private static final long serialVersionUID = 1L;
 	private final JTextField text;
 	private final JButton searchButton;

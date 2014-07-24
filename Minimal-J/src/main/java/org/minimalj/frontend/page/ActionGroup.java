@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.EditorAction;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContext;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.util.resources.Resources;
@@ -19,7 +18,7 @@ public class ActionGroup extends ResourceAction {
 	}
 
 	@Override
-	public void action(IContext pageContext) {
+	public void action() {
 		// n/a
 	}
 

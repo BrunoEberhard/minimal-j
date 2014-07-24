@@ -22,8 +22,7 @@ public abstract class TablePage<T> extends AbstractPage implements SearchOf<T>, 
 	private ITable<T> table;
 	private List<T> objects;
 	
-	public TablePage(PageContext context, Object[] keys, String text) {
-		super(context);
+	public TablePage(Object[] keys, String text) {
 		this.text = text;
 		table = ClientToolkit.getToolkit().createTable(keys);
 		table.setClickListener(new TableClickListener());
@@ -49,7 +48,7 @@ public abstract class TablePage<T> extends AbstractPage implements SearchOf<T>, 
 			links.add(PageLink.link(detailPageClass, id));
 		}
 		int index = objects.indexOf(selectedObject);
-		getPageContext().show(links, index);
+		ClientToolkit.getToolkit().show(links, index);
 	}
 	
 	@Override
