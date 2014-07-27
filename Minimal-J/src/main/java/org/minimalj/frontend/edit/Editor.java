@@ -280,9 +280,9 @@ public abstract class Editor<T> {
 					if (answer == DialogResult.YES) {
 						// finish will be called at the end of save
 						save();
-					} else { // Cancel or Close
+					} else if (answer == DialogResult.NO) {
 						cancel();
-					}
+					} // else do nothing (dialog will not close)
 				}
 			};
 			ClientToolkit.getToolkit().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
