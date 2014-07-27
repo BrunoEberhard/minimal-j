@@ -37,6 +37,7 @@ import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.ApplicationContext;
+import org.minimalj.frontend.swing.SwingFrame;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.swing.SwingTab;
 import org.minimalj.frontend.swing.component.EditablePanel;
@@ -62,8 +63,6 @@ import org.minimalj.util.StringUtils;
 
 public class SwingClientToolkit extends ClientToolkit {
 
-	private SwingTab activeSwingTab;
-	
 	@Override
 	public IComponent createLabel(String string) {
 		return new SwingLabel(string);
@@ -186,13 +185,13 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void showMessage(String text) {
-		Window window = findWindow(activeSwingTab);
+		Window window = SwingFrame.getActiveWindow();
 		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
 	public void showError(String text) {
-		Window window = findWindow(activeSwingTab);
+		Window window = SwingFrame.getActiveWindow();
 		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
 	}
 
@@ -200,7 +199,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	public void showConfirmDialog(String message, String title, ConfirmDialogType type,
 			DialogListener listener) {
 		int optionType = type.ordinal();
-		int result = JOptionPane.showConfirmDialog(activeSwingTab, message, title, optionType);
+		int result = JOptionPane.showConfirmDialog(SwingTab.getActiveTab(), message, title, optionType);
 		listener.close(DialogResult.values()[result]);
 	}
 
@@ -210,12 +209,13 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	public ProgressListener showProgress(String text) {
+		SwingTab activeSwingTab = SwingTab.getActiveTab();
 		if (activeSwingTab instanceof EditablePanel) {
 			SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
 			activeSwingTab.openModalDialog(frame);
 			return frame;
 		} else {
-			Window window = findWindow((Component) activeSwingTab);
+			Window window = SwingFrame.getActiveWindow();
 			SwingProgressDialog dialog = new SwingProgressDialog(window, text);
 			dialog.setVisible(true);
 			return dialog;
@@ -224,7 +224,7 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public IDialog createDialog(String title, IContent content, IAction... actions) {
-		JComponent contentComponent = new SwingEditorLayout(activeSwingTab, content, actions);
+		JComponent contentComponent = new SwingEditorLayout(content, actions);
 		// TODO check for OS or move this to UI
 		contentComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -232,10 +232,11 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	private IDialog createDialog(String title, JComponent content) {
+		SwingTab activeSwingTab = SwingTab.getActiveTab();
 		if (activeSwingTab instanceof EditablePanel) {
 			return new SwingInternalFrame(activeSwingTab, content, title);
 		} else {
-			Window window = findWindow((Component) activeSwingTab);
+			Window window = SwingFrame.getActiveWindow();
 			return new SwingEditorDialog(window, content, title);
 		}
 	}
@@ -346,7 +347,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(activeSwingTab, buttonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(SwingFrame.getActiveWindow(), buttonText)) {
 			File outputFile = chooser.getSelectedFile();
 			try {
 				return new FileOutputStream(outputFile);
@@ -363,7 +364,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(activeSwingTab, buttonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(SwingTab.getActiveTab(), buttonText)) {
 			File inputFile = chooser.getSelectedFile();
 			try {
 				return new FileInputStream(inputFile);
@@ -424,21 +425,20 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 	}
 
-	public static Action[] adaptActions(IAction[] actions, SwingTab swingTab) {
+	public static Action[] adaptActions(IAction[] actions) {
 		Action[] swingActions = new Action[actions.length];
 		for (int i = 0; i<actions.length; i++) {
-			swingActions[i] = adaptAction(actions[i], swingTab);
+			swingActions[i] = adaptAction(actions[i]);
 		}
 		return swingActions;
 	}
 
-	public static Action adaptAction(final IAction action, final SwingTab swingTab) {
+	public static Action adaptAction(final IAction action) {
 		final Action swingAction = new AbstractAction(action.getName()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				((SwingClientToolkit) ClientToolkit.getToolkit()).setActiveSwingTab(swingTab);
 				action.action();
 			}
 		};
@@ -460,18 +460,14 @@ public class SwingClientToolkit extends ClientToolkit {
 		return swingAction;
 	}
 
-	protected void setActiveSwingTab(SwingTab swingTab) {
-		this.activeSwingTab = swingTab;
-	}
-
 	@Override
 	public void show(String pageLink) {
-		activeSwingTab.show(pageLink);
+		SwingTab.getActiveTab().show(pageLink);
 	}
 
 	@Override
 	public void show(List<String> pageLinks, int index) {
-		activeSwingTab.show(pageLinks, index);
+		SwingTab.getActiveTab().show(pageLinks, index);
 	}
 
 	@Override

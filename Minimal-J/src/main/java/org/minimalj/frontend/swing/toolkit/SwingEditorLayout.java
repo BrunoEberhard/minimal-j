@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.plaf.ComponentInputMapUIResource;
 
-import org.minimalj.frontend.swing.SwingTab;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.IAction;
@@ -29,12 +28,12 @@ import org.minimalj.frontend.toolkit.IAction;
 public class SwingEditorLayout extends JPanel implements IComponent {
 	private static final long serialVersionUID = 1L;
 
-	public SwingEditorLayout(SwingTab swingTab, IContent content, IAction[] actions) {
+	public SwingEditorLayout(IContent content, IAction[] actions) {
 		super(new BorderLayout());
 		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel((Component) content));
 		scrollPane.setBorder(new TopBottomBorder(scrollPane.getBorder()));
 		add(scrollPane, BorderLayout.CENTER);
-		ButtonBar buttonBar = new ButtonBar(SwingClientToolkit.adaptActions(actions, swingTab));
+		ButtonBar buttonBar = new ButtonBar(SwingClientToolkit.adaptActions(actions));
 		buttonBar.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 2)); // unknown: why the need for additional 2 pixel?
 		add(buttonBar, BorderLayout.SOUTH);
 	}

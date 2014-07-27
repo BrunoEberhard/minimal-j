@@ -2,6 +2,7 @@ package org.minimalj.frontend.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -151,6 +152,15 @@ public class SwingFrame extends JFrame implements IComponent {
 		}
 		
 		setVisible(false);
+	}
+
+	public static Window getActiveWindow() {
+		for (Window w : Window.getWindows()) {
+			if (w.isActive()) {
+				return w;
+			}
+		}
+		return null;
 	}
 
 	public SwingTab getVisibleTab() {

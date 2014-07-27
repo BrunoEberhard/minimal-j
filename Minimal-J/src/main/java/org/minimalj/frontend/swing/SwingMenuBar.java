@@ -140,13 +140,12 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		for (IAction action : actions) {
 			if (action instanceof org.minimalj.frontend.page.ActionGroup) {
 				org.minimalj.frontend.page.ActionGroup actionGroup = (org.minimalj.frontend.page.ActionGroup) action;
-				JMenu subMenu = new JMenu(SwingClientToolkit.adaptAction(action, tab));
+				JMenu subMenu = new JMenu(SwingClientToolkit.adaptAction(action));
 				addActions(subMenu, actionGroup.getItems());
 				menu.add(subMenu);
 			} else if (action instanceof Separator) {
 				menu.addSeparator();
-			} else {
-				menu.add(new JMenuItem(SwingClientToolkit.adaptAction(action, tab)));
+				menu.add(new JMenuItem(SwingClientToolkit.adaptAction(action)));
 			}
 		}
 	}

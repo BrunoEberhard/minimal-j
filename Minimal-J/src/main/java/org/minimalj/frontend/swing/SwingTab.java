@@ -3,6 +3,7 @@ package org.minimalj.frontend.swing;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -90,6 +91,14 @@ public class SwingTab extends EditablePanel {
 		setContent(outerPanel);
 	}
 	
+	public static SwingTab getActiveTab() {
+		Window w = SwingFrame.getActiveWindow();
+		if (w instanceof SwingFrame) {
+			return ((SwingFrame) w).getVisibleTab();
+		}
+		return null;
+	}
+
 	public Page getVisiblePage() {
 		return page;
 	}
