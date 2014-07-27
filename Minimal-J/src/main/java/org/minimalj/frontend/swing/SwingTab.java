@@ -21,7 +21,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.page.RefreshablePage;
@@ -57,8 +56,6 @@ public class SwingTab extends EditablePanel {
 	private List<String> pageLinks;
 	private int indexInPageLinks;
 
-	private Editor<?> editor;
-	
 	public SwingTab(SwingFrame frame) {
 		super();
 		this.frame = frame;
@@ -103,10 +100,6 @@ public class SwingTab extends EditablePanel {
 		return page;
 	}
 	
-	public Editor<?> getEditor() {
-		return editor;
-	}
-	
 	void onHistoryChanged() {
 		updateActions();
 		menuBar.onHistoryChanged();
@@ -115,7 +108,7 @@ public class SwingTab extends EditablePanel {
 	}
 
 	protected void updateActions() {
-		if (getVisiblePage() != null && editor == null) {
+		if (getVisiblePage() != null) {
 			previousAction.setEnabled(hasPast());
 			nextAction.setEnabled(hasFuture());
 			refreshAction.setEnabled(getVisiblePage() instanceof RefreshablePage);
@@ -330,6 +323,10 @@ public class SwingTab extends EditablePanel {
 
 	public void down() {
 		replace(pageLinks.get(++indexInPageLinks));
+	}
+
+	public boolean tryToClose() {
+		return tryToCloseDialogs();
 	}
 
 }

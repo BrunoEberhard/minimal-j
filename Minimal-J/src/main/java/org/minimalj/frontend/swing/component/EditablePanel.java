@@ -103,6 +103,15 @@ public class EditablePanel extends JDesktopPane {
 		repaintLater();
 	}
 	
+	public boolean tryToCloseDialogs() {
+		for (int i = openFrames.size()-1; i>= 0; i--) {
+			JInternalFrame frame = openFrames.get(i);
+			frame.doDefaultCloseAction();
+			if (frame.isVisible()) return false;
+		}
+		return true;
+	}
+	
 	private void closeModalDialog(JInternalFrame internalFrame) {
 		if (!openFrames.contains(internalFrame)) {
 			throw new IllegalArgumentException("Dialog to close not open");

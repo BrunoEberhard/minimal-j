@@ -99,7 +99,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	}
 
 	public void closeTabActionPerformed() {
-		if (checkClosable()) {
+		if (getVisibleTab().tryToClose()) {
 			closeTab();
 			if (tabbedPane.getTabCount() == 0) {
 				if (FrameManager.getInstance().askBeforeCloseLastWindow(this)) {
@@ -111,30 +111,12 @@ public class SwingFrame extends JFrame implements IComponent {
 		}
 	}
 	
-	/**
-	 * Check if actual page can be closed or replaced
-	 * 
-	 * @return true if visible Page (the one the selected Tab) is not
-	 * a EditorPage or if the user agrees to save or cancel the editing
-	 */
-	public boolean checkClosable() {
-		return checkClosable(getVisibleTab());
-	}
-	
-	private boolean checkClosable(SwingTab tab) {
-		if (tab.getEditor() != null) {
-			tabbedPane.setSelectedComponent(tab);
-			tab.getEditor().checkedClose();
-			return tab.getEditor().isFinished();
-		}
-		return true;
-	}
-	
 	public boolean tryToCloseWindow() {
 		boolean closable = true;
 		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
 			SwingTab tab = (SwingTab) tabbedPane.getTab(i);
-			closable = checkClosable(tab);
+			tabbedPane.setSelectedComponent(tab);
+			closable = tab.tryToClose();
 			if (!closable) return false;
 		}
 		closeWindow();
