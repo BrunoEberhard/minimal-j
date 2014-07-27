@@ -145,6 +145,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 				menu.add(subMenu);
 			} else if (action instanceof Separator) {
 				menu.addSeparator();
+			} else {
 				menu.add(new JMenuItem(SwingClientToolkit.adaptAction(action)));
 			}
 		}
