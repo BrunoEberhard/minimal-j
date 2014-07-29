@@ -87,7 +87,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 			if (event.isDoubleClick()) {
 				T id = (T) event.getItemId();
 				VaadinClientToolkit.setWindow(event.getComponent().getWindow());
-				listener.action(id, getSelectedObjects());
+				listener.action(id, getObjects());
 				VaadinClientToolkit.setWindow(null);
 			}
 		}
@@ -112,14 +112,12 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		
 	}
 
-	public List<T> getSelectedObjects() {
-		List<T> selectedIds = new ArrayList<>();
+	public List<T> getObjects() {
+		List<T> objects = new ArrayList<>();
 		for (Object itemId : getItemIds()) {
-			if (isSelected(itemId)) {
-				selectedIds.add((T) itemId);
-			}
+			objects.add((T) itemId);
 		}
-		return selectedIds;
+		return objects;
 	}
 
 	@Override
