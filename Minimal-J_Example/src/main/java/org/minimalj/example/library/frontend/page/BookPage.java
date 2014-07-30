@@ -5,9 +5,9 @@ import org.minimalj.example.library.frontend.form.BookForm;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.ObjectViewPage;
+import org.minimalj.frontend.page.ObjectPage;
 
-public class BookPage extends ObjectViewPage<Book> {
+public class BookPage extends ObjectPage<Book> {
 
 	private final Book book;
 

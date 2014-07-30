@@ -6,13 +6,13 @@ import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.ObjectViewPage;
+import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.util.IdUtils;
 
-public class CustomerPage extends ObjectViewPage<Customer> {
+public class CustomerPage extends ObjectPage<Customer> {
 
 	private final Customer customer;
 

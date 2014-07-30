@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.ObjectViewPage;
+import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.toolkit.IAction;
@@ -59,8 +59,8 @@ public class VaadinMenuBar extends MenuBar {
 	
 	private void createObjectMenu() {
 		Page visiblePage = vaadinWindow.getVisiblePage();
-		if (visiblePage instanceof ObjectViewPage) {
-			ActionGroup actionGroup = ((ObjectViewPage<?>) visiblePage).getMenu();
+		if (visiblePage instanceof ObjectPage) {
+			ActionGroup actionGroup = ((ObjectPage<?>) visiblePage).getMenu();
 			if (actionGroup != null && actionGroup.getItems() != null) {
 				MenuBar.MenuItem menu = addItem(actionGroup.getName(), null);
 				addActions(menu, actionGroup.getItems());
