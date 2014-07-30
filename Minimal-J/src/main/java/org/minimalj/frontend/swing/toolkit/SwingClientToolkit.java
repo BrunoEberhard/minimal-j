@@ -233,12 +233,7 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	private IDialog createDialog(String title, JComponent content) {
 		SwingTab activeSwingTab = SwingTab.getActiveTab();
-		if (activeSwingTab instanceof EditablePanel) {
-			return new SwingInternalFrame(activeSwingTab, content, title);
-		} else {
-			Window window = SwingFrame.getActiveWindow();
-			return new SwingEditorDialog(window, content, title);
-		}
+		return new SwingInternalFrame(activeSwingTab, content, title);
 	}
 
 	public static Window findWindow(Component parentComponent) {
