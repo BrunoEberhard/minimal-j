@@ -223,35 +223,5 @@ public class EditablePanel extends JDesktopPane {
 			return true;
 		}
 	}
-
-//	public static void main(String... args) {
-//		JFrame frame = new JFrame("Test EditablePanel " + new Date());
-//		frame.setSize(800, 600);
-//		frame.setLocationRelativeTo(null);
-//		
-//		frame.setLayout(new BorderLayout());
-//		EditablePanel panel = new EditablePanel();
-//		frame.add(panel, BorderLayout.CENTER);
-//		
-//		panel.setContent(new JLabel("Hallo"));
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frame.setVisible(true);
-//		
-//		JInternalFrame internalFrame = new JInternalFrame("Test Frame 1");
-//		internalFrame.setLayout(new BorderLayout());
-//		internalFrame.add(new JButton("World"), BorderLayout.CENTER);
-//		internalFrame.setSize(200, 100);
-//		internalFrame.setResizable(true);
-//		internalFrame.setClosable(true);
-//		panel.openModalDialog(internalFrame);
-//		
-//		internalFrame = new JInternalFrame("Test Frame 2");
-//		internalFrame.setLayout(new BorderLayout());
-//		internalFrame.add(new JButton("Hallo Editablepanel!"), BorderLayout.CENTER);
-//		internalFrame.setSize(160, 100);
-//		internalFrame.setResizable(true);
-//		internalFrame.setClosable(true);
-//		panel.openModalDialog(internalFrame);
-//	}
 	
 }
