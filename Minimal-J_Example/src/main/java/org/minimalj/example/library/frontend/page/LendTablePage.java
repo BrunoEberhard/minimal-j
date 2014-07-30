@@ -7,12 +7,11 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
-import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.transaction.criteria.Criteria;
 
 
-public class LendTablePage extends TablePage<Lend> implements RefreshablePage {
+public class LendTablePage extends TablePage<Lend> {
 
 	private final String text;
 	

@@ -9,4 +9,6 @@ public interface Page {
 	
 	public IContent getContent();
 
+	public void refresh();
+	
 }

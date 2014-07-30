@@ -6,13 +6,12 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Customer;
-import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.IdUtils;
 
 
-public class CustomerTablePage extends TablePage<Customer> implements RefreshablePage {
+public class CustomerTablePage extends TablePage<Customer> {
 
 	private final String text;
 	

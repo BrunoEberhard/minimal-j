@@ -11,7 +11,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.threeten.bp.LocalDateTime;
 
-public abstract class HistoryPage<T> extends AbstractPage implements RefreshablePage {
+public abstract class HistoryPage<T> extends AbstractPage {
 
 	private List<HistoryVersion<T>> versions;
 	private ITable<HistoryVersion<T>> table;

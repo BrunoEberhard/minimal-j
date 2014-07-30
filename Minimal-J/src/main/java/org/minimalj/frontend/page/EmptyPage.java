@@ -12,4 +12,9 @@ public class EmptyPage extends AbstractPage {
 		return null;
 	}
 
+	@Override
+	public void refresh() {
+		// nothing to do
+	}
+
 }

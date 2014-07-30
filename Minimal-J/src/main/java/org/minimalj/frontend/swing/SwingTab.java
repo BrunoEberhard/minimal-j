@@ -23,7 +23,6 @@ import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageLink;
-import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
@@ -111,13 +110,11 @@ public class SwingTab extends EditablePanel {
 		if (getVisiblePage() != null) {
 			previousAction.setEnabled(hasPast());
 			nextAction.setEnabled(hasFuture());
-			refreshAction.setEnabled(getVisiblePage() instanceof RefreshablePage);
 			upAction.setEnabled(!top());
 			downAction.setEnabled(!bottom());
 		} else {
 			previousAction.setEnabled(false);
 			nextAction.setEnabled(false);
-			refreshAction.setEnabled(false);
 			upAction.setEnabled(false);
 			downAction.setEnabled(false);
 		}
@@ -153,9 +150,7 @@ public class SwingTab extends EditablePanel {
 	}
 	
 	public void refresh() {
-		if (getVisiblePage() instanceof RefreshablePage) {
-			((RefreshablePage)getVisiblePage()).refresh();
-		}
+		getVisiblePage().refresh();
 	}
 
 	private class UpAction extends SwingResourceAction {

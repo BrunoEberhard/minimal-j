@@ -16,7 +16,7 @@ import org.minimalj.util.IdUtils;
  *
  * @param <T> Class of objects in this overview
  */
-public abstract class TablePage<T> extends AbstractPage implements SearchOf<T>, RefreshablePage {
+public abstract class TablePage<T> extends AbstractPage implements SearchOf<T> {
 
 	private String text;
 	private ITable<T> table;

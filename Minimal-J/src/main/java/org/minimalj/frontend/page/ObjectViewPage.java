@@ -3,7 +3,7 @@ package org.minimalj.frontend.page;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
-public abstract class ObjectViewPage<T> extends AbstractPage implements RefreshablePage {
+public abstract class ObjectViewPage<T> extends AbstractPage {
 
 	private Form<T> form;
 	
