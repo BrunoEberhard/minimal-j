@@ -1,6 +1,7 @@
 package org.minimalj.frontend.edit;
 
 import org.minimalj.frontend.edit.Editor.EditorListener;
+import org.minimalj.frontend.page.ObjectViewPage;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ResourceAction;
@@ -15,6 +16,7 @@ public class EditorAction extends ResourceAction {
 	private final Editor<?> editor;
 	private boolean enabled = true;
 	private ActionChangeListener changeListener;
+	private ObjectViewPage objectPage;
 	
 	public EditorAction(Editor<?> editor) {
 		this(editor, editor.getClass().getSimpleName());
@@ -42,6 +44,9 @@ public class EditorAction extends ResourceAction {
 			@Override
 			public void saved(Object savedObject) {
 				dialog.closeDialog();
+				if (objectPage != null) {
+					objectPage.updateObject(savedObject);
+				}
 			}
 
 			@Override
@@ -68,4 +73,9 @@ public class EditorAction extends ResourceAction {
 	public void setChangeListener(ActionChangeListener changeListener) {
 		this.changeListener = changeListener;
 	}
+	
+	public void setObjectViewPage(ObjectViewPage objectPage) {
+		this.objectPage = objectPage;
+	}
+	
 }

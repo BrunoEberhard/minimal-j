@@ -36,11 +36,6 @@ public abstract class HistoryPage<T> extends AbstractPage implements Refreshable
 			}
 		});
 	}
-	
-	@Override
-	public ActionGroup getMenu() {
-		return null;
-	}
 
 	protected abstract List<HistoryVersion<T>> loadVersions();
 

@@ -5,27 +5,35 @@ import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
 public abstract class ObjectViewPage<T> extends AbstractPage implements RefreshablePage {
 
-	private Form<T> objectPanel;
+	private Form<T> form;
 	
 	public ObjectViewPage() {
 	}
 
+	public ActionGroup getMenu() {
+		return null;
+	}
+
+	public void updateObject(T object) {
+		form.setObject(object);
+	}
+	
 	protected abstract Form<T> createForm();
 
 	protected abstract T getObject();
 	
 	@Override
 	public IContent getContent() {
-		if (objectPanel == null) {
-			objectPanel = createForm();
+		if (form == null) {
+			form = createForm();
 			refresh();
 		}
-		return objectPanel.getContent();
+		return form.getContent();
 	}
 	
 	@Override
 	public void refresh() {
-		objectPanel.setObject(getObject());
+		form.setObject(getObject());
 	}
 	
 }

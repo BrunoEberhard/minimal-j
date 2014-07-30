@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Book;
-import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.transaction.criteria.Criteria;
@@ -39,11 +38,6 @@ public class BookTablePage extends TablePage<Book> implements RefreshablePage {
 	@Override
 	public String getTitle() {
 		return "Search results: " + text;
-	}
-
-	@Override
-	public ActionGroup getMenu() {
-		return null;
 	}
 
 	@Override

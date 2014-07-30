@@ -149,9 +149,11 @@ public class VaadinWindow extends Window {
 	}
 	
 	private void updateContent(String pageLink) {
+		VaadinClientToolkit.setWindow(VaadinWindow.this);
 		visiblePage = PageLink.createPage(pageLink);
 		Component component = (Component) visiblePage.getContent();
 		updateContent(component);
+		VaadinClientToolkit.setWindow(null);
 	}
 	
 	private void updateContent(Component content) {

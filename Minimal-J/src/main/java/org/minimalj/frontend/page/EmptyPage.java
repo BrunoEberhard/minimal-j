@@ -12,9 +12,4 @@ public class EmptyPage extends AbstractPage {
 		return null;
 	}
 
-	@Override
-	public ActionGroup getMenu() {
-		return null;
-	}
-
 }

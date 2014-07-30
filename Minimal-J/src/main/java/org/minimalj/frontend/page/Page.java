@@ -9,6 +9,4 @@ public interface Page {
 	
 	public IContent getContent();
 
-	public ActionGroup getMenu();
-	
 }

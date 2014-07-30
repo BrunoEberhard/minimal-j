@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Customer;
-import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.RefreshablePage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.transaction.criteria.Criteria;
@@ -42,10 +41,4 @@ public class CustomerTablePage extends TablePage<Customer> implements Refreshabl
 	public String getTitle() {
 		return "Treffer für " + text;
 	}
-
-	@Override
-	public ActionGroup getMenu() {
-		return null;
-	}
-	
 }
