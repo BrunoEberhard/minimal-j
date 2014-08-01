@@ -97,6 +97,8 @@ public abstract class ClientToolkit {
 	
 	public abstract void show(String pageLink);
 
+	public abstract void refresh();
+
 	public abstract void show(List<String> pageLinks, int index);
 	
 	public abstract ApplicationContext getApplicationContext();

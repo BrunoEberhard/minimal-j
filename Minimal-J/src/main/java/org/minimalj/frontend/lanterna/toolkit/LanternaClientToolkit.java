@@ -248,6 +248,11 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
+	public void refresh() {
+		throw new RuntimeException("refresh on lanterna not yet implemented");
+	}
+	
+	@Override
 	public void show(List<String> pageLinks, int index) {
 		getGui().show(pageLinks.get(index));
 	}

@@ -249,7 +249,11 @@ public class SwingTab extends EditablePanel {
 	}
 
 	public void add(String pageLink) {
-		history.add(pageLink);
+		if (pageLink.equals(getPresent())) {
+			getVisiblePage().refresh();
+		} else {
+			history.add(pageLink);
+		}
 	}
 
 	public void replace(String pageLink) {

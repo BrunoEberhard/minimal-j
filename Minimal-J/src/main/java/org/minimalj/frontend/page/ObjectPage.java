@@ -6,6 +6,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 public abstract class ObjectPage<T> extends AbstractPage {
 
 	private Form<T> form;
+	private T object;
 	
 	public ObjectPage() {
 	}
@@ -14,13 +15,13 @@ public abstract class ObjectPage<T> extends AbstractPage {
 		return null;
 	}
 
-	public void updateObject(T object) {
-		form.setObject(object);
-	}
-	
 	protected abstract Form<T> createForm();
 
-	protected abstract T getObject();
+	protected abstract T loadObject();
+	
+	protected T getObject() {
+		return object;
+	}
 	
 	@Override
 	public IContent getContent() {
@@ -33,7 +34,8 @@ public abstract class ObjectPage<T> extends AbstractPage {
 	
 	@Override
 	public void refresh() {
-		form.setObject(getObject());
+		object = loadObject();
+		form.setObject(object);
 	}
 	
 }

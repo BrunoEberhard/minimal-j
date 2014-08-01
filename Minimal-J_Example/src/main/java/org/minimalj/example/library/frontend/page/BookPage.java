@@ -4,19 +4,19 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.BookForm;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 
 public class BookPage extends ObjectPage<Book> {
 
-	private final Book book;
+	private final long id;
 
 	public BookPage(String id) {
-		book = lookup(id);
+		this.id = Long.valueOf(id);
 	}
 	
-	private static Book lookup(String key) {
-		return Backend.getInstance().read(Book.class, Long.valueOf(key));
+	@Override
+	public Book loadObject() {
+		return Backend.getInstance().read(Book.class, id);
 	}
 
 	@Override
@@ -26,17 +26,6 @@ public class BookPage extends ObjectPage<Book> {
 
 	@Override
 	public String getTitle() {
-		return "Buch " + book.title;
+		return "Buch " + getObject().title;
 	}
-
-	@Override
-	public ActionGroup getMenu() {
-		return null;
-	}
-
-	@Override
-	protected Book getObject() {
-		return book;
-	}
-	
 }

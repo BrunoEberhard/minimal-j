@@ -224,6 +224,11 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
 	public void show(List<String> pageLinks, int index) {
 		// TODO Auto-generated method stub
 	}

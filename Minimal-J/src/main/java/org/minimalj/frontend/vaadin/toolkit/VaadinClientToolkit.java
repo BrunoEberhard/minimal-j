@@ -371,6 +371,13 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
+	public void refresh() {
+		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
+		window.refresh();
+	}
+
+	
+	@Override
 	public void show(List<String> pageLinks, int index) {
 		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
 		window.show(pageLinks, index);

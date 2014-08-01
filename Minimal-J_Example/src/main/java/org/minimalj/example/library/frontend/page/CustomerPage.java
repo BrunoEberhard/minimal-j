@@ -14,14 +14,15 @@ import org.minimalj.util.IdUtils;
 
 public class CustomerPage extends ObjectPage<Customer> {
 
-	private final Customer customer;
+	private final long id;
 
 	public CustomerPage(String id) {
-		customer = lookup(id);
+		this.id = Long.valueOf(id);
 	}
 	
-	private static Customer lookup(String id) {
-		return Backend.getInstance().read(Customer.class, Long.valueOf(id));
+	@Override
+	public Customer loadObject() {
+		return Backend.getInstance().read(Customer.class, id);
 	}
 
 	@Override
@@ -31,22 +32,19 @@ public class CustomerPage extends ObjectPage<Customer> {
 
 	@Override
 	public String getTitle() {
-		return customer.toString();
+		return getObject().toString();
 	}
 
 	@Override
 	public ActionGroup getMenu() {
+		Customer customer = getObject();
 		ActionGroup menu = new ActionGroup("Customer");
-		menu.add(new AddLendEditor(customer));
+		AddLendEditor addLendEditor = new AddLendEditor(customer);
+		menu.add(addLendEditor);
 		menu.add(new ShowLendsofCustomerAction(customer));
 		return menu;
 	}
 
-	@Override
-	protected Customer getObject() {
-		return customer;
-	}
-	
 	private static class ShowLendsofCustomerAction extends ResourceAction {
 
 		private final Customer customer;

@@ -143,7 +143,11 @@ public class VaadinWindow extends Window {
 			updateContent(pageLink);
 		}
 	}
-
+	
+	public void refresh() {
+		getVisiblePage().refresh();
+	}
+	
 	Page getVisiblePage() {
 		return visiblePage;
 	}

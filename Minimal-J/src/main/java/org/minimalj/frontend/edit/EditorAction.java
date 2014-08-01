@@ -1,7 +1,6 @@
 package org.minimalj.frontend.edit;
 
 import org.minimalj.frontend.edit.Editor.EditorListener;
-import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ResourceAction;
@@ -13,10 +12,12 @@ import org.minimalj.frontend.toolkit.ResourceAction;
  * 
  */
 public class EditorAction extends ResourceAction {
+	public static final String REFRESH = "refresh";
+	
 	private final Editor<?> editor;
 	private boolean enabled = true;
 	private ActionChangeListener changeListener;
-	private ObjectPage objectPage;
+	private String forward = REFRESH;
 	
 	public EditorAction(Editor<?> editor) {
 		this(editor, editor.getClass().getSimpleName());
@@ -25,6 +26,10 @@ public class EditorAction extends ResourceAction {
 	public EditorAction(Editor<?> editor, String actionName) {
 		super(actionName);
 		this.editor = editor;
+	}
+	
+	public void setForward(String forward) {
+		this.forward = forward;
 	}
 	
 	@Override
@@ -44,8 +49,11 @@ public class EditorAction extends ResourceAction {
 			@Override
 			public void saved(Object savedObject) {
 				dialog.closeDialog();
-				if (objectPage != null) {
-					objectPage.updateObject(savedObject);
+				if (forward == REFRESH) {
+					ClientToolkit.getToolkit().refresh();
+				} else if (forward != null) {
+					String pageLink = savedObject != null ? forward.replace("{0}", savedObject.toString()) : forward;
+					ClientToolkit.getToolkit().show(pageLink);
 				}
 			}
 
@@ -73,9 +81,4 @@ public class EditorAction extends ResourceAction {
 	public void setChangeListener(ActionChangeListener changeListener) {
 		this.changeListener = changeListener;
 	}
-	
-	public void setObjectViewPage(ObjectPage objectPage) {
-		this.objectPage = objectPage;
-	}
-	
 }

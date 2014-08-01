@@ -459,6 +459,11 @@ public class SwingClientToolkit extends ClientToolkit {
 	public void show(String pageLink) {
 		SwingTab.getActiveTab().show(pageLink);
 	}
+	
+	@Override
+	public void refresh() {
+		SwingTab.getActiveTab().refresh();
+	}
 
 	@Override
 	public void show(List<String> pageLinks, int index) {
