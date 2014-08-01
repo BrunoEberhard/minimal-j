@@ -7,7 +7,6 @@ import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.EditorAction;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.ResourceAction;
-import org.minimalj.util.resources.Resources;
 
 public class ActionGroup extends ResourceAction {
 
@@ -35,14 +34,7 @@ public class ActionGroup extends ResourceAction {
 	}
 
 	public void add(Class<? extends Page> clazz, String... args) {
-		StringBuilder link = new StringBuilder();
-		link.append(clazz.getSimpleName());
-		for (int i = 0; i<args.length; i++) {
-			link.append("/"); link.append(args[i]);
-		}
-		String name = Resources.getString(clazz);
-		
-		items.add(new PageLink(name, link.toString()));
+		items.add(new PageLink(clazz, args));
 	}
 	
 	public ActionGroup addGroup(String name) {
