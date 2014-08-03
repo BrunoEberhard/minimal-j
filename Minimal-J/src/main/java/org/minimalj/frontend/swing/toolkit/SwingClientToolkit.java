@@ -77,7 +77,6 @@ public class SwingClientToolkit extends ClientToolkit {
 		private static final long serialVersionUID = 1L;
 
 		public SwingActionLabel(final IAction action) {
-//			setIcon((Icon) action.getValue(Action.SMALL_ICON));
 			setText(action.getName());
 //			label.setToolTipText(Resources.getResourceBundle().getString(runnable.getClass().getSimpleName() + ".description"));
 			
