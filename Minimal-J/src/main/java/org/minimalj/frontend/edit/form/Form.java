@@ -333,13 +333,7 @@ public class Form<T> implements DemoEnabled {
 	public interface PropertyUpdater<FROM, TO, EDIT_OBJECT> {
 		public TO update(FROM input, EDIT_OBJECT copyOfEditObject);
 	}
-	
-	//
-	
-	protected FormField<?> getField(Object key) {
-		return fields.get(Keys.getProperty(key));
-	}
-	
+
 	//
 
 	private void registerNamedField(FormField<?> field) {
