@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
+import org.minimalj.frontend.swing.SwingTab;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ProgressListener;
 
@@ -25,11 +26,12 @@ public class SwingHeavyActionButton extends JButton {
 
 	@Override
     protected void fireActionPerformed(final ActionEvent event) {
+		final SwingTab tab = SwingClientToolkit.findSwingTab(SwingHeavyActionButton.this);
 		final ProgressListener progress = ((SwingClientToolkit) ClientToolkit.getToolkit()).showProgress("Waiting");
 		SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>() {
 			@Override
 			protected Object doInBackground() throws Exception {
-				// ApplicationContext.setApplicationContext(SwingTab.this.getApplicationContext());
+				SwingClientToolkit.updateEventTab(tab);
 				SwingHeavyActionButton.super.fireActionPerformed(event);
 				setProgress(100);
 				return null;

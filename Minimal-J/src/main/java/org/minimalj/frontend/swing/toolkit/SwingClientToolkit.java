@@ -34,13 +34,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.frontend.swing.SwingFrame;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.swing.SwingTab;
-import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.SwingCaption;
 import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.CheckBox;
@@ -63,6 +62,16 @@ import org.minimalj.util.StringUtils;
 
 public class SwingClientToolkit extends ClientToolkit {
 
+	private static ThreadLocal<SwingTab> tabByThread = new ThreadLocal<SwingTab>();
+	
+	public static SwingTab getTab() {
+		return tabByThread.get();
+	}
+	
+	public static void setTab(SwingTab tab) {
+		tabByThread.set(tab);
+	}
+	
 	@Override
 	public IComponent createLabel(String string) {
 		return new SwingLabel(string);
@@ -85,13 +94,29 @@ public class SwingClientToolkit extends ClientToolkit {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
+					updateEventTab((Component) e.getSource());
 					action.action();
 				}
 			});
 		}
-		
 	}
 	
+	public static SwingTab findSwingTab(Component c) {
+		while (c != null && !(c instanceof SwingTab)) {
+			if (c instanceof JPopupMenu) {
+				c = ((JPopupMenu) c).getInvoker();
+			} else {
+				c = c.getParent();
+			}
+		}
+		return (SwingTab) c;
+	}
+	
+	public static void updateEventTab(Component c) {
+		SwingTab swingTab = findSwingTab(c);
+		tabByThread.set(swingTab);
+	}
+
 	@Override
 	public IComponent createTitle(String string) {
 		return new SwingTitle(string);
@@ -184,13 +209,13 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void showMessage(String text) {
-		Window window = SwingFrame.getActiveWindow();
+		Window window = findWindow();
 		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
 	public void showError(String text) {
-		Window window = SwingFrame.getActiveWindow();
+		Window window = findWindow();
 		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
 	}
 
@@ -198,7 +223,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	public void showConfirmDialog(String message, String title, ConfirmDialogType type,
 			DialogListener listener) {
 		int optionType = type.ordinal();
-		int result = JOptionPane.showConfirmDialog(SwingTab.getActiveTab(), message, title, optionType);
+		int result = JOptionPane.showConfirmDialog(getTab(), message, title, optionType);
 		listener.close(DialogResult.values()[result]);
 	}
 
@@ -208,17 +233,9 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	public ProgressListener showProgress(String text) {
-		SwingTab activeSwingTab = SwingTab.getActiveTab();
-		if (activeSwingTab instanceof EditablePanel) {
-			SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
-			activeSwingTab.openModalDialog(frame);
-			return frame;
-		} else {
-			Window window = SwingFrame.getActiveWindow();
-			SwingProgressDialog dialog = new SwingProgressDialog(window, text);
-			dialog.setVisible(true);
-			return dialog;
-		}
+		SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
+		getTab().openModalDialog(frame);
+		return frame;
 	}
 
 	@Override
@@ -231,11 +248,11 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	private IDialog createDialog(String title, JComponent content) {
-		SwingTab activeSwingTab = SwingTab.getActiveTab();
-		return new SwingInternalFrame(activeSwingTab, content, title);
+		return new SwingInternalFrame(getTab(), content, title);
 	}
 
-	public static Window findWindow(Component parentComponent) {
+	public static Window findWindow() {
+		Component parentComponent = getTab();
 		while (parentComponent != null && !(parentComponent instanceof Window)) {
 			if (parentComponent instanceof JPopupMenu) {
 				parentComponent = ((JPopupMenu) parentComponent).getInvoker();
@@ -341,7 +358,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(SwingFrame.getActiveWindow(), buttonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(getTab(), buttonText)) {
 			File outputFile = chooser.getSelectedFile();
 			try {
 				return new FileOutputStream(outputFile);
@@ -358,7 +375,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(SwingTab.getActiveTab(), buttonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(getTab(), buttonText)) {
 			File inputFile = chooser.getSelectedFile();
 			try {
 				return new FileInputStream(inputFile);
@@ -433,6 +450,9 @@ public class SwingClientToolkit extends ClientToolkit {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (SwingUtilities.isEventDispatchThread()) {
+					SwingClientToolkit.updateEventTab((Component) e.getSource());
+				}
 				action.action();
 			}
 		};
@@ -456,17 +476,17 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void show(String pageLink) {
-		SwingTab.getActiveTab().show(pageLink);
-	}
-	
-	@Override
-	public void refresh() {
-		SwingTab.getActiveTab().refresh();
+		getTab().show(pageLink);
 	}
 
 	@Override
 	public void show(List<String> pageLinks, int index) {
-		SwingTab.getActiveTab().show(pageLinks, index);
+		getTab().show(pageLinks, index);
+	}
+
+	@Override
+	public void refresh() {
+		getTab().refresh();
 	}
 
 	@Override
