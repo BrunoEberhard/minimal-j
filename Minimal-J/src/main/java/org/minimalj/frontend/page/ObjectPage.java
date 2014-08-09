@@ -20,6 +20,9 @@ public abstract class ObjectPage<T> extends AbstractPage {
 	protected abstract T loadObject();
 	
 	protected T getObject() {
+		if (object == null) {
+			object = loadObject();
+		}
 		return object;
 	}
 	
@@ -27,15 +30,15 @@ public abstract class ObjectPage<T> extends AbstractPage {
 	public IContent getContent() {
 		if (form == null) {
 			form = createForm();
-			refresh();
+			form.setObject(getObject());
 		}
 		return form.getContent();
 	}
 	
 	@Override
 	public void refresh() {
-		object = loadObject();
-		form.setObject(object);
+		object = null;
+		form.setObject(getObject());
 	}
 	
 }
