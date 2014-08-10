@@ -130,4 +130,24 @@ public class StringUtils {
 		if (s.toString().equalsIgnoreCase("foreign")) return "FORIGN";
 		return s.toString();
 	}
+	
+	public static String escapeHTML(String s) {
+		StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+		escapeHTML(out, s);
+		return out.toString();
+	}
+	
+	public static void escapeHTML(StringBuilder builder, String s) {
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c > 127 || c == '"' || c == '<' || c == '>') {
+				builder.append("&#");
+				builder.append((int) c);
+				builder.append(';');
+			} else {
+				builder.append(c);
+			}
+		}
+	}
+
 }
