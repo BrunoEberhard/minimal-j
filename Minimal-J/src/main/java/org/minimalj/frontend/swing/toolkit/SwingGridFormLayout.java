@@ -14,13 +14,15 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
-import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.swing.component.SwingCaption;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.FormContent;
 
 public class SwingGridFormLayout extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
 	
 	private final int columnWidth;
+	private final Map<IComponent, SwingCaption> captionByComponent = new HashMap<>();
 	
 	public SwingGridFormLayout(int columns, int columnWidthPercentage) {
 		columnWidth = getColumnWidth() * columnWidthPercentage / 100;
@@ -34,9 +36,23 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 	}
 
 	@Override
-	public void add(IComponent c, int span) {
+	public void add(IComponent c) {
 		Component component = (Component) c;
-		add(component, new GridFormLayoutConstraint(span, SwingClientToolkit.verticallyGrowing(component)));
+		add(component, new GridFormLayoutConstraint(SwingClientToolkit.verticallyGrowing(component)));
+	}
+
+	@Override
+	public void add(String caption, IComponent c, int span) {
+		Component component = (Component) c;
+		SwingCaption swingCaption = new SwingCaption(component, caption);
+		captionByComponent.put(c, swingCaption);
+		add(swingCaption, new GridFormLayoutConstraint(span, SwingClientToolkit.verticallyGrowing(component)));
+	}
+	
+	@Override
+	public void setValidationMessages(IComponent component, List<String> validationMessages) {
+		SwingCaption swingCaption = captionByComponent.get(component);
+		swingCaption.setValidationMessages(validationMessages);
 	}
 
 	private static class GridFormLayoutConstraint {
@@ -44,6 +60,10 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 		private final int span;
 		private final boolean verticallyGrowing;
 		
+		public GridFormLayoutConstraint(boolean verticallyGrowing) {
+			this(0, verticallyGrowing);
+		}
+
 		public GridFormLayoutConstraint(int span, boolean verticallyGrowing) {
 			super();
 			this.span = span;
@@ -56,6 +76,10 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 
 		protected boolean isVerticallyGrowing() {
 			return verticallyGrowing;
+		}
+
+		public boolean isCompleteRow() {
+			return span < 1;
 		}
 		
 	}
@@ -115,7 +139,7 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 			for (Component component : row) {
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
-				int componentWidth = constraint.getSpan() * width / columns;
+				int componentWidth = constraint.isCompleteRow() ? width : constraint.getSpan() * width / columns;
 				x += componentWidth; 
 				component.setSize(componentWidth, height);
 			}
@@ -164,7 +188,7 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 				row = rows.get(rows.size()-1);
 			}
 			row.add(comp);
-			column += formConstraint.getSpan();
+			column = formConstraint.isCompleteRow() ? columns : column + formConstraint.getSpan();
 			lastParentBounds = null;
 		}
 

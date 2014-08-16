@@ -2,9 +2,6 @@ package org.minimalj.frontend.lanterna.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.Caption;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.component.CommonCheckBox;
 import com.googlecode.lanterna.gui.component.Label;
@@ -13,7 +10,7 @@ import com.googlecode.lanterna.gui.layout.HorisontalLayout;
 import com.googlecode.lanterna.gui.layout.VerticalLayout;
 import com.googlecode.lanterna.terminal.Terminal;
 
-public class LanternaCaption extends Panel implements Caption, IComponent {
+public class LanternaCaption extends Panel {
 
 	private Label validationLabel;
 	
@@ -34,12 +31,6 @@ public class LanternaCaption extends Panel implements Caption, IComponent {
 		}
 	}
 	
-	@Override
-	public IComponent getComponent() {
-		return this;
-	}
-
-	@Override
 	public void setValidationMessages(List<String> validationMessages) {
 		String text = validationMessages.isEmpty() ? "" : "*";
 		if (!text.equals(validationLabel.getText())) {

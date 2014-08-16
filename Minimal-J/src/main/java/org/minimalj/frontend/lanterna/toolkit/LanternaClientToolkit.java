@@ -7,7 +7,6 @@ import java.util.List;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.lanterna.component.LanternaForm;
-import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
@@ -23,7 +22,6 @@ import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.Action;
-import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
 
@@ -194,11 +192,6 @@ public class LanternaClientToolkit extends ClientToolkit {
 	@Override
 	public IComponent createTitle(String text) {
 		return new LanternaLabel(text);
-	}
-
-	@Override
-	public Caption decorateWithCaption(IComponent component, String caption) {
-		return new LanternaCaption((Component) component, caption);
 	}
 
 	@Override

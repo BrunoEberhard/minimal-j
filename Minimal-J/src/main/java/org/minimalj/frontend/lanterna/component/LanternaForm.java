@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.lanterna.toolkit.LanternaCaption;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.FormContent;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.TextGraphics;
@@ -18,8 +19,9 @@ public class LanternaForm extends AbstractContainer implements FormContent {
 
 	private final List<List<Component>> rows = new ArrayList<>();
 	private final Map<Component, Integer> spans = new HashMap<Component, Integer>();
+	private final Map<IComponent, LanternaCaption> captionByComponent = new HashMap<>();
 	private final int columns;
-	
+
 	private List<Component> actualRow = new ArrayList<>();
 	private int actualColumn;
 	private boolean hasArea;
@@ -37,15 +39,33 @@ public class LanternaForm extends AbstractContainer implements FormContent {
 	}
 
 	@Override
-	public void add(IComponent component, int span) {
+	public void add(IComponent component) {
+		createNewRow();
+		Component lanternaComponent = (Component) component;
+		actualRow.add(lanternaComponent);
+		actualColumn = columns;
+		spans.put((Component) component, columns);
+		super.addComponent((Component) component);
+	}
+
+	@Override
+	public void add(String caption, IComponent component, int span) {
+		LanternaCaption lanternaComponent = new LanternaCaption((Component) component, caption);
+		captionByComponent.put(component, lanternaComponent);
 		if (actualColumn >= columns) {
 			createNewRow();
 		}
-		actualRow.add((Component) component);
+		actualRow.add(lanternaComponent);
 		actualColumn += span;
 		spans.put((Component) component, span);
 		super.addComponent((Component) component);
 //		hasArea |= verticalGrow; // TODO
+	}
+
+	@Override
+	public void setValidationMessages(IComponent component, List<String> validationMessages) {
+		LanternaCaption caption = captionByComponent.get(component);
+		caption.setValidationMessages(validationMessages);
 	}
 
 	@Override

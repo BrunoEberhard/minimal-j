@@ -40,8 +40,6 @@ import javax.swing.text.JTextComponent;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.swing.SwingTab;
-import org.minimalj.frontend.swing.component.SwingCaption;
-import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
@@ -151,11 +149,6 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public CheckBox createCheckBox(InputComponentListener changeListener, String text) {
 		return new SwingCheckBox(changeListener, text);
-	}
-
-	@Override
-	public Caption decorateWithCaption(IComponent component, String caption) {
-		return new SwingCaption((Component)component, caption);
 	}
 
 	@Override

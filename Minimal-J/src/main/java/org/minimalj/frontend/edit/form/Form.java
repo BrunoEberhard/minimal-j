@@ -32,7 +32,6 @@ import org.minimalj.frontend.edit.fields.NumberFormField;
 import org.minimalj.frontend.edit.fields.TextEditField;
 import org.minimalj.frontend.edit.fields.TextFormField;
 import org.minimalj.frontend.edit.fields.TypeUnknownField;
-import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.FormContent;
@@ -65,7 +64,6 @@ public class Form<T> implements DemoEnabled {
 	private final FormContent formContent;
 	
 	private final LinkedHashMap<PropertyInterface, FormField<?>> fields = new LinkedHashMap<PropertyInterface, FormField<?>>();
-	private final Map<PropertyInterface, Caption> indicators = new HashMap<PropertyInterface, Caption>();
 	
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	private final FormPanelActionListener formPanelActionListener = new FormPanelActionListener();
@@ -248,34 +246,22 @@ public class Form<T> implements DemoEnabled {
 		}
 	}
 	
-	private void add(FormField<?> c, int span) {
-		formContent.add(decorateWithCaption(c).getComponent(), span);
-		registerNamedField(c);
+	private void add(FormField<?> field, int span) {
+		String captionText = caption(field);
+		formContent.add(captionText, field.getComponent(), span);
+		registerNamedField(field);
 	}
 	
 	// 
 
-	private Caption decorateWithCaption(FormField<?> field) {
-		String captionText = caption(field);
-		Caption captioned = ClientToolkit.getToolkit().decorateWithCaption(field.getComponent(), captionText);
-		indicators.put(field.getProperty(), captioned);
-		return captioned;
-	}
-	
-	//
-
 	public void text(String text) {
-		text(text, columns);
-	}
-	
-	public void text(String text, int span) {
 		IComponent label = ClientToolkit.getToolkit().createLabel(text);
-		formContent.add(label, span);
+		formContent.add(label);
 	}
 
 	public void addTitle(String text) {
 		IComponent label = ClientToolkit.getToolkit().createTitle(text);
-		formContent.add(label, columns);
+		formContent.add(label);
 	}
 
 	//
@@ -395,7 +381,8 @@ public class Form<T> implements DemoEnabled {
 	}
 
 	private void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
-		indicators.get(property).setValidationMessages(validationMessages);
+		FormField<?> field = fields.get(property);
+		formContent.setValidationMessages(field.getComponent(), validationMessages);
 	}
 
 	public void setObject(T object) {

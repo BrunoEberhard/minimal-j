@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.frontend.toolkit.Caption;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
@@ -27,7 +26,6 @@ import org.minimalj.frontend.vaadin.VaadinWindow;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.terminal.ExternalResource;
-import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -114,24 +112,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 	@Override
 	public CheckBox createCheckBox(InputComponentListener listener, String text) {
 		return new VaadinCheckBox(listener, text);
-	}
-
-	@Override
-	public Caption decorateWithCaption(final IComponent component, String text) {
-		final AbstractComponent vaadinComponent = (AbstractComponent) component;
-		vaadinComponent.setCaption(text);
-		Caption caption = new Caption() {
-			@Override
-			public void setValidationMessages(List<String> validationMessages) {
-				VaadinIndication.setValidationMessages(validationMessages, vaadinComponent);
-			}
-
-			@Override
-			public IComponent getComponent() {
-				return component;
-			}
-		};
-		return caption;
 	}
 
 	@Override

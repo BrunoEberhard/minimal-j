@@ -12,12 +12,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.LabelUI;
 
-import org.minimalj.frontend.toolkit.Caption;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.resources.ResourceHelper;
 
-public class SwingCaption extends JPanel implements Caption, IComponent {
+public class SwingCaption extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private final JLabel captionLabel;
@@ -34,7 +32,6 @@ public class SwingCaption extends JPanel implements Caption, IComponent {
 		((JComponent) component).putClientProperty(SwingCaption.class, this);
 	}
 
-	@Override
 	public void setValidationMessages(List<String> validationMessages) {
 		if (!validationMessages.isEmpty()) {
 			captionLabel.setIcon(ResourceHelper.getIcon("field_error.png"));
@@ -69,12 +66,6 @@ public class SwingCaption extends JPanel implements Caption, IComponent {
 			setFont(font.deriveFont(fontSize).deriveFont(Font.BOLD));
 		}
 		
-	}
-
-
-	@Override
-	public IComponent getComponent() {
-		return this;
 	}
 
 }

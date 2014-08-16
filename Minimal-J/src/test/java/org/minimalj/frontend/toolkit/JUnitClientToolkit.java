@@ -120,20 +120,6 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public Caption decorateWithCaption(final IComponent component, String caption) {
-		return new Caption() {
-			@Override
-			public void setValidationMessages(List<String> validationMessages) {
-			}
-			
-			@Override
-			public IComponent getComponent() {
-				return component;
-			}
-		};
-	}
-
-	@Override
 	public HorizontalLayout createHorizontalLayout(IComponent... components) {
 		// TODO Auto-generated method stub
 		return null;
@@ -154,11 +140,19 @@ public class JUnitClientToolkit extends ClientToolkit {
 	@Override
 	public FormContent createFormContent(int columns, int columnWidth) {
 		return new FormContent() {
-			
 			@Override
-			public void add(IComponent field, int span) {
+			public void add(IComponent component) {
 				// TODO Auto-generated method stub
-				
+			}
+
+			@Override
+			public void add(String caption, IComponent component, int span) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void setValidationMessages(IComponent component, List<String> validationMessages) {
+				// TODO Auto-generated method stub
 			}
 		};
 	}

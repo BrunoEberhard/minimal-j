@@ -73,8 +73,6 @@ public abstract class ClientToolkit {
 
 	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
 
-	public abstract Caption decorateWithCaption(IComponent component, String caption);
-
 	public abstract SwitchComponent createSwitchComponent(IComponent... components);
 
 	/**
