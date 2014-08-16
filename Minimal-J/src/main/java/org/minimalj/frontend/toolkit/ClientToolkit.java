@@ -71,7 +71,7 @@ public abstract class ClientToolkit {
 		S getSelectedObject();
 	}
 
-	public abstract HorizontalLayout createHorizontalLayout(IComponent... components);
+	public abstract IComponent createHorizontalLayout(IComponent... components);
 
 	public abstract SwitchComponent createSwitchComponent(IComponent... components);
 

@@ -46,7 +46,6 @@ import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IAction.ActionChangeListener;
 import org.minimalj.frontend.toolkit.IDialog;
@@ -152,7 +151,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public HorizontalLayout createHorizontalLayout(IComponent... components) {
+	public IComponent createHorizontalLayout(IComponent... components) {
 		return new SwingHorizontalLayout(components);
 	}
 

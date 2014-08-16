@@ -13,7 +13,6 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ILink;
@@ -115,7 +114,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public HorizontalLayout createHorizontalLayout(IComponent... components) {
+	public IComponent createHorizontalLayout(IComponent... components) {
 		return new VaadinHorizontalLayout(components);
 	}
 

@@ -5,11 +5,10 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
-import org.minimalj.frontend.toolkit.HorizontalLayout;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
 
-public class SwingHorizontalLayout extends JPanel implements HorizontalLayout {
+public class SwingHorizontalLayout extends JPanel implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	public SwingHorizontalLayout(IComponent... components) {
