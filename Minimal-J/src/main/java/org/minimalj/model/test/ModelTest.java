@@ -1,6 +1,8 @@
 package org.minimalj.model.test;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,8 +85,16 @@ public class ModelTest {
 			}
 		} else {
 			try {
-				if (!Modifier.isPublic(clazz.getConstructor().getModifiers())) {
+				Constructor<?> constructor = clazz.getConstructor();
+				if (!Modifier.isPublic(constructor.getModifiers())) {
 					problems.add("Constructor of " + clazz.getName() + " not public");
+				} else {
+					try {
+						// this ensures that static initializations are done before check of annotations
+						constructor.newInstance();
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						problems.add(clazz.getName() + " constructor of empty constructor failed");
+					}
 				}
 			} catch (NoSuchMethodException e) {
 				problems.add(clazz.getName() + " has no public empty constructor");
