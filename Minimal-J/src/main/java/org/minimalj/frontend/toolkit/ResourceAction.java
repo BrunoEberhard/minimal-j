@@ -18,7 +18,7 @@ public abstract class ResourceAction implements IAction {
 
 	protected ResourceAction(String actionName) {
 		this.name = actionName == null ? Resources.getString(getClass()) : Resources.getString(actionName);
-		this.description = Resources.getString(actionName + ".description");
+		this.description = Resources.getString(actionName + ".description", Resources.OPTIONAL);
 	}
 	
 	@Override

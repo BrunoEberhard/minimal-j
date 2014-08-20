@@ -15,6 +15,8 @@ public class Resources {
 	private static final ResourceBundle defaultResourcebundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ");
 	private static ResourceBundle resourceBundle = defaultResourcebundle;
 	
+	public static final boolean OPTIONAL = false;
+	
 	public static ResourceBundle getDefaultResourcebundle() {
 		return defaultResourcebundle;
 	}
@@ -36,13 +38,21 @@ public class Resources {
 	}
 
 	public static String getString(String resourceName) {
+		return getString(resourceName, true);
+	}
+	
+	/**
+	 * Use the constant OPTIONAL if its not an application error when the resource
+	 * is not available.
+	 */
+	public static String getString(String resourceName, boolean reportIfMissing) {
 		if (isAvailable(resourceName)) {
 			return getResourceBundle().getString(resourceName);
-		} else {
-			if (DevMode.isActive() && !resourceName.endsWith(".description")) {
-				System.out.println(resourceName + "=");
-			}
+		} else if (reportIfMissing && DevMode.isActive()) {
+			System.out.println(resourceName + "=");
 			return "!" + resourceName + "!";
+		} else {
+			return null;
 		}
 	}
 	
