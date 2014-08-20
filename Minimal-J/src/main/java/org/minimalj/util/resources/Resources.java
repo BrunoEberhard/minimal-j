@@ -6,7 +6,6 @@ import org.minimalj.application.DevMode;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.ViewOf;
-import org.minimalj.model.properties.Properties;
 import org.minimalj.util.MultiResourceBundle;
 import org.minimalj.util.StringUtils;
 
@@ -73,21 +72,26 @@ public class Resources {
 		if (postfix != null) {
 			fieldName += postfix;
 		}
+		Class<?> declaringClass = property.getDeclaringClass();
+		Class<?> fieldClass = property.getFieldClazz();
 		
+		return getObjectFieldName(resourceBundle, fieldName, declaringClass, fieldClass);
+	}
+
+	private static String getObjectFieldName(ResourceBundle resourceBundle, String fieldName, Class<?> declaringClass, Class<?> fieldClass) {
 		// completeQualifiedKey example: "ch.openech.model.Person.nationality"
-		String completeQualifiedKey = property.getDeclaringClass().getName() + "." + fieldName;
+		String completeQualifiedKey = declaringClass.getName() + "." + fieldName;
 		if (resourceBundle.containsKey(completeQualifiedKey)) {
 			return resourceBundle.getString(completeQualifiedKey);
 		}
 		
 		// qualifiedKey example: "Person.nationality"
-		String qualifiedKey = property.getDeclaringClass().getSimpleName() + "." + fieldName;
+		String qualifiedKey = declaringClass.getSimpleName() + "." + fieldName;
 		if (resourceBundle.containsKey(qualifiedKey)) {
 			return resourceBundle.getString(qualifiedKey);
 		}
 
 		// class of field
-		Class<?> fieldClass = property.getFieldClazz();
 		if (resourceBundle.containsKey(fieldClass.getName())) {
 			return getString(fieldClass.getName());
 		} else if (resourceBundle.containsKey(fieldClass.getName())) {
@@ -104,10 +108,9 @@ public class Resources {
 			return resourceBundle.getString(StringUtils.upperFirstChar(fieldName));
 		}
 
-		if (ViewOf.class.isAssignableFrom(property.getDeclaringClass())) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(property.getDeclaringClass());
-			PropertyInterface propertyInViewClass = Properties.getProperty(viewedClass, property.getFieldName());
-			return getObjectFieldName(resourceBundle, propertyInViewClass, postfix);
+		if (ViewOf.class.isAssignableFrom(declaringClass)) {
+			Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
+			return getObjectFieldName(resourceBundle, fieldName, viewedClass, fieldClass);
 		}
 		
 		return "!!" + fieldName;
