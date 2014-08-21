@@ -7,7 +7,6 @@ import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.util.MultiResourceBundle;
-import org.minimalj.util.StringUtils;
 
 public class Resources {
 
@@ -56,11 +55,26 @@ public class Resources {
 	}
 	
 	public static String getString(Class<?> clazz) {
+		String result = getStringOrNull(clazz);
+		if (result != null) {
+			return result;
+		} 
+		return "!" + getString(clazz.getSimpleName()) + "!";
+	}
+
+	private static String getStringOrNull(Class<?> clazz) {
 		if (isAvailable(clazz.getName())) {
 			return getString(clazz.getName());
-		} else {
+		} else if (isAvailable(clazz.getSimpleName())) {
 			return getString(clazz.getSimpleName());
+		} else if (ViewOf.class.isAssignableFrom(clazz)) {
+			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
+			String byViewedClass = getStringOrNull(viewedClass);
+			if (byViewedClass != null) {
+				return byViewedClass;
+			}
 		}
+		return null;
 	}
 
 	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property) {
@@ -91,26 +105,21 @@ public class Resources {
 			return resourceBundle.getString(qualifiedKey);
 		}
 
+		// if declaring class is a view check to viewed class
+		if (ViewOf.class.isAssignableFrom(declaringClass)) {
+			Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
+			return getObjectFieldName(resourceBundle, fieldName, viewedClass, fieldClass);
+		}
+		
 		// class of field
-		if (resourceBundle.containsKey(fieldClass.getName())) {
-			return getString(fieldClass.getName());
-		} else if (resourceBundle.containsKey(fieldClass.getName())) {
-			return getString(fieldClass.getSimpleName());
+		String byFieldClass = getStringOrNull(fieldClass);
+		if (byFieldClass != null) {
+			return byFieldClass;
 		}
 		
 		// unqualifiedKey example: "nationality"
 		if (resourceBundle.containsKey(fieldName)) {
 			return resourceBundle.getString(fieldName);
-		}
-		
-		// unqualifiedKey example: "Nationality"
-		if (resourceBundle.containsKey(StringUtils.upperFirstChar(fieldName))) {
-			return resourceBundle.getString(StringUtils.upperFirstChar(fieldName));
-		}
-
-		if (ViewOf.class.isAssignableFrom(declaringClass)) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
-			return getObjectFieldName(resourceBundle, fieldName, viewedClass, fieldClass);
 		}
 		
 		return "!!" + fieldName;
