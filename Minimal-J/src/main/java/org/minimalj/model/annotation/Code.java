@@ -6,14 +6,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a property to be a code. Codes must be registred at the
- * <code>Codes</code> class.
+ * Marks a field to be a uninque code. This may be used by the persistence
+ * instead of an special id field.
+ * 
+ * One, but only one, instance can have a <code>null</code> value
+ * for this field
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Code {
 
-	String value() default "";
-	
 }

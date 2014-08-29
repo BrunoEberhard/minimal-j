@@ -77,11 +77,15 @@ public class EnumUtils {
 		}
 		
 		String bundleName = enumElement.getClass().getName();
-		try {
-			ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName);
-			return resourceBundle.getString(enumElement.name());
-		} catch (MissingResourceException mre) {
-			return enumElement.name();
+		while (true) {
+			try {
+				ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName);
+				return resourceBundle.getString(enumElement.name());
+			} catch (MissingResourceException mre) {
+				int pos = bundleName.lastIndexOf('$');
+				if (pos < 0) return enumElement.name();
+				bundleName = bundleName.substring(0, pos);
+			}
 		}
 	}
 

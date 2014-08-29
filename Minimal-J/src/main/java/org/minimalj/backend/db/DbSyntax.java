@@ -91,7 +91,7 @@ public abstract class DbSyntax {
 		s.append("\n)");
 	}
 	
-	public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
+	public String createConstraint(String tableName, String column, String referencedTableName, String referencedKey, boolean referencedTableIsHistorized) {
 		StringBuilder s = new StringBuilder();
 		s.append("ALTER TABLE "); s.append(tableName);
 		s.append(" ADD CONSTRAINT FK_");
@@ -100,8 +100,9 @@ public abstract class DbSyntax {
 		s.append(column);
 		s.append(") REFERENCES ");
 		s.append(referencedTableName);
-		s.append(" (id)");
-//		s.append(" ON DELETE CASCADE");
+		s.append(" (");
+		s.append(referencedKey);
+		s.append(")");
 		return s.toString();
 	}
 	
@@ -160,9 +161,9 @@ public abstract class DbSyntax {
 		}
 		
 		@Override
-		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
+		public String createConstraint(String tableName, String column, String referencedTableName, String referencedKey, boolean referencedTableIsHistorized) {
 			if (!referencedTableIsHistorized) {
-				return super.createConstraint(tableName, column, referencedTableName, referencedTableIsHistorized);
+				return super.createConstraint(tableName, column, referencedTableName, referencedKey, referencedTableIsHistorized);
 			} else {
 				return null;
 			}

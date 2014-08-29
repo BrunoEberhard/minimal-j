@@ -26,6 +26,7 @@ import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.SimpleProperty;
 import org.minimalj.transaction.criteria.CriteriaOperator;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.CodeUtils;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -210,18 +211,25 @@ public abstract class AbstractTable<T> {
 			s.append(",\n "); s.append(column.getKey()); s.append(" "); 
 
 			PropertyInterface property = column.getValue();
-			if (DbPersistenceHelper.isReference(property) || ViewUtil.isView(property)) {
+			if (CodeUtils.isCode(property.getFieldClazz())) {
+				PropertyInterface codeProperty = CodeUtils.getCodeProperty(property.getFieldClazz());
+				syntax.addColumnDefinition(s, codeProperty);
+			} else if (DbPersistenceHelper.isReference(property) || ViewUtil.isView(property)) {
 				s.append("BIGINT");
 			} else {
 				syntax.addColumnDefinition(s, property);
-				boolean isRequired = property.getAnnotation(Required.class) != null;
-				s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 			}
+			boolean isRequired = property.getAnnotation(Required.class) != null;
+			s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 		}
 	}
 
+	protected String getPrimaryKey() {
+		return "ID";
+	}
+	
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
-		syntax.addPrimaryKey(s, "id");
+		syntax.addPrimaryKey(s, getPrimaryKey());
 	}
 	
 	protected void createIndexes(DbSyntax syntax) {
@@ -239,7 +247,7 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
-				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
+				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable.getPrimaryKey(), referencedTable instanceof HistorizedTable);
 				if (s != null) {
 					execute(s.toString());
 				}
@@ -277,10 +285,12 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			if (ViewUtil.isView(property)) continue;
-			if (DbPersistenceHelper.isReference(property)) {
-				AbstractTable<?> refTable = dbPersistence.getImmutableTable(property.getFieldClazz());
-				if (refTable == null) {
-					dbPersistence.addImmutableClass(property.getFieldClazz());
+			Class<?> fieldClazz = property.getFieldClazz();
+			if (DbPersistenceHelper.isReference(property) && !dbPersistence.tableExists(fieldClazz) ) {
+				if (CodeUtils.isCode(fieldClazz)) {
+					dbPersistence.addCodeClass(fieldClazz);
+				} else {
+					dbPersistence.addImmutableClass(fieldClazz);
 				}
 			}
 		}
@@ -404,7 +414,7 @@ public abstract class AbstractTable<T> {
 					value = CloneHelper.newInstance(fieldClass);
 					ViewUtil.view(referenceObject, value);
 				} else if (DbPersistenceHelper.isReference(property)) {
-					value = dereference(dbPersistence, fieldClass, IdUtils.convertToLong(value), time);
+					value = dereference(dbPersistence, fieldClass, value, time);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
@@ -419,10 +429,12 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected static Object dereference(DbPersistence dbPersistence, Class<?> clazz, long id, Integer time) {
+	protected static Object dereference(DbPersistence dbPersistence, Class<?> clazz, Object value, Integer time) {
 		AbstractTable<?> table = dbPersistence.table(clazz);
 		if (table instanceof ImmutableTable) {
-			return ((ImmutableTable<?>) table).read(id);
+			return ((ImmutableTable<?>) table).read(IdUtils.convertToLong(value));
+		} else if (table instanceof CodeTable) {
+			return ((CodeTable<?>) table).read(value);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
@@ -438,7 +450,7 @@ public abstract class AbstractTable<T> {
 	 * @throws SQLException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Long getIdOfImmutable(Object value, boolean insertIfNotExisting) throws SQLException {
+	private Object getReferenceValue(Object value, boolean insertIfNotExisting) throws SQLException {
 		Class<?> clazz = (Class<?>) value.getClass();
 		AbstractTable<?> abstractTable = dbPersistence.table(clazz);
 		if (abstractTable == null) {
@@ -447,6 +459,10 @@ public abstract class AbstractTable<T> {
 		if (abstractTable instanceof ImmutableTable) {
 			ImmutableTable immutableTable = (ImmutableTable) abstractTable;
 			return immutableTable.getId(value);
+		} else if (abstractTable instanceof CodeTable) {
+			CodeTable codeTable = (CodeTable) abstractTable;
+			codeTable.create(value);
+			return CodeUtils.getCode(value);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}
@@ -473,7 +489,7 @@ public abstract class AbstractTable<T> {
 				if (ViewUtil.isView(property)) {
 					value = IdUtils.getId(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
-					value = getIdOfImmutable(value, insert);
+					value = getReferenceValue(value, insert);
 				} 
 			}
 			helper.setParameter(statement, parameterPos++, value, property);

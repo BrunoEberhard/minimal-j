@@ -15,8 +15,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.frontend.edit.fields.BigDecimalEditField;
 import org.minimalj.frontend.edit.fields.CheckBoxStringField;
-import org.minimalj.frontend.edit.fields.CodeEditField;
-import org.minimalj.frontend.edit.fields.CodeFormField;
 import org.minimalj.frontend.edit.fields.EditField;
 import org.minimalj.frontend.edit.fields.EditField.EditFieldListener;
 import org.minimalj.frontend.edit.fields.Enable;
@@ -145,12 +143,7 @@ public class Form<T> implements DemoEnabled {
 		if (editable && !property.isFinal()) {
 			if (fieldClass == String.class) {
 				int size = AnnotationUtil.getSize(property);
-				String codeName = AnnotationUtil.getCode(property);
-				if (codeName == null) {
-					return new TextEditField(property, size);
-				} else {
-					return new CodeEditField(property, codeName);
-				}
+				return new TextEditField(property, size);
 			} else if (fieldClass == LocalDate.class) {
 				return new LocalDateField(property, editable);
 			} else if (fieldClass == LocalTime.class) {
@@ -176,14 +169,7 @@ public class Form<T> implements DemoEnabled {
 				return new BigDecimalEditField(property, size, decimal, negative);
 			} 
 		} else {
-			if (fieldClass == String.class) {
-				String codeName = AnnotationUtil.getCode(property);
-				if (codeName == null) {
-					return new TextFormField(property);
-				} else {
-					return new CodeFormField(property, codeName);
-				}
-			}
+			if (fieldClass == String.class) return new TextFormField(property);
 			else if (fieldClass == LocalDate.class) return new LocalDateField(property, false);
 			else if (fieldClass == LocalTime.class) return new LocalTimeField(property, false);
 			else if (Enum.class.isAssignableFrom(fieldClass)) return new EnumFormField(property);

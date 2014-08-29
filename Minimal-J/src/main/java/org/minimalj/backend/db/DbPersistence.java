@@ -392,6 +392,12 @@ public class DbPersistence {
 		return table;
 	}
 	
+	<U> CodeTable<U> addCodeClass(Class<U> clazz) {
+		CodeTable<U> table = new CodeTable<U>(this, clazz);
+		add(table);
+		return table;
+	}
+	
 	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
@@ -411,6 +417,11 @@ public class DbPersistence {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public <U> CodeTable<U> getCodeTable(Class<U> clazz) {
+		return (CodeTable<U>) tables.get(clazz);
+	}
+	
+	@SuppressWarnings("unchecked")
 	public <U> AbstractTable<U> table(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) throw new IllegalArgumentException(clazz.getName());
 		return (AbstractTable<U>) tables.get(clazz);
@@ -422,10 +433,14 @@ public class DbPersistence {
 		return (Table<U>) table;
 	}
 
+	public boolean tableExists(Class<?> clazz) {
+		return tables.containsKey(clazz);
+	}
+	
 	private void testModel() {
 		List<Class<?>> mainModelClasses = new ArrayList<>();
 		for (Map.Entry<Class<?>, AbstractTable<?>> entry : tables.entrySet()) {
-			if (!(entry.getValue() instanceof ImmutableTable)) {
+			if (!(entry.getValue() instanceof ImmutableTable) && !(entry.getValue() instanceof CodeTable)) {
 				mainModelClasses.add(entry.getKey());
 			}
 		}
