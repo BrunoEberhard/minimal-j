@@ -170,6 +170,31 @@ public abstract class DbSyntax {
 				return null;
 			}
 		}
+		
+//		@Override
+//		public String createUniqueIndex(String tableName, String column) {
+//			StringBuilder s = new StringBuilder();
+//			s.append("CREATE UNIQUE INDEX ");
+//			s.append(tableName);
+//			s.append("_CODE ON ");
+//			s.append(tableName);
+//			s.append(" (");
+//			s.append(column);
+//			s.append(")");
+//			return s.toString();
+//		}
+		
+		public String createUniqueIndex(String tableName, String column) {
+			StringBuilder s = new StringBuilder();
+			s.append("ALTER TABLE ");
+			s.append(tableName);
+			s.append(" ADD CONSTRAINT ");
+			s.append(column);
+			s.append("_UNIQUE UNIQUE (");
+			s.append(column);
+			s.append(")");
+			return s.toString();
+		}
 	}
 	
 }
