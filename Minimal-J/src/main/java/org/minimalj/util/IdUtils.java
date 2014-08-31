@@ -1,8 +1,6 @@
 package org.minimalj.util;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 
@@ -55,14 +53,6 @@ public class IdUtils {
 		return String.valueOf(getId(object));
 	}
 
-	public static List<String> getIdStrings(List<?> objects) {
-		List<String> idStrings = new ArrayList<>(objects.size());
-		for (Object object : objects) {
-			idStrings.add(String.valueOf(getId(object)));
-		}
-		return idStrings;
-	}
-	
 	public static long convertToLong(Object value) {
 		if (value instanceof Integer) {
 			return ((Integer) value).longValue();
