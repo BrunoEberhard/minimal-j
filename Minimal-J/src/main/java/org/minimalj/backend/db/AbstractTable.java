@@ -203,7 +203,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
-		syntax.addIdColumn(s);
+		syntax.addIdColumn(s, true);
 	}
 
 	protected void addFieldColumns(DbSyntax syntax, StringBuilder s) {
@@ -224,12 +224,8 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	protected String getPrimaryKey() {
-		return "ID";
-	}
-	
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
-		syntax.addPrimaryKey(s, getPrimaryKey());
+		syntax.addPrimaryKey(s, "ID");
 	}
 	
 	protected void createIndexes(DbSyntax syntax) {
@@ -247,7 +243,8 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
-				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable.getPrimaryKey(), referencedTable instanceof HistorizedTable);
+				String referencedKey = CodeUtils.isCode(fieldClass) ? StringUtils.toDbName(CodeUtils.getCodeProperty(fieldClass).getFieldName()) : "ID";
+				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedKey, referencedTable instanceof HistorizedTable);
 				if (s != null) {
 					execute(s.toString());
 				}
@@ -413,6 +410,9 @@ public abstract class AbstractTable<T> {
 					
 					value = CloneHelper.newInstance(fieldClass);
 					ViewUtil.view(referenceObject, value);
+				} else if (CodeUtils.isCode(fieldClass)) {
+					CodeTable<?> codeTable = (CodeTable<?>) dbPersistence.getTable(fieldClass);
+					value = codeTable.readByCode(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
 					value = dereference(dbPersistence, fieldClass, value, time);
 				} else if (fieldClass == Set.class) {
@@ -433,8 +433,6 @@ public abstract class AbstractTable<T> {
 		AbstractTable<?> table = dbPersistence.table(clazz);
 		if (table instanceof ImmutableTable) {
 			return ((ImmutableTable<?>) table).read(IdUtils.convertToLong(value));
-		} else if (table instanceof CodeTable) {
-			return ((CodeTable<?>) table).read(value);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
@@ -460,8 +458,6 @@ public abstract class AbstractTable<T> {
 			ImmutableTable immutableTable = (ImmutableTable) abstractTable;
 			return immutableTable.getId(value);
 		} else if (abstractTable instanceof CodeTable) {
-			CodeTable codeTable = (CodeTable) abstractTable;
-			codeTable.create(value);
 			return CodeUtils.getCode(value);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
