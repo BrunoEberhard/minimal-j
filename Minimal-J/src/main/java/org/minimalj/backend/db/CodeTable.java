@@ -1,10 +1,10 @@
 package org.minimalj.backend.db;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.minimalj.util.CodeUtils;
-import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
@@ -21,13 +21,15 @@ import org.minimalj.util.StringUtils;
 public class CodeTable<T> extends Table<T> {
 	
 	protected final String selectByCodeQuery;
+	protected final String selectIdByCodeQuery;
 	
 	public CodeTable(DbPersistence dbPersistence, Class<T> clazz) {
 		super(dbPersistence, clazz);
 		if (!CodeUtils.isCode(clazz)) {
 			throw new IllegalArgumentException(clazz.getName());
 		}
-		this.selectByCodeQuery = selectByCodeQuery();
+		this.selectByCodeQuery = selectByCodeQuery(false);
+		this.selectIdByCodeQuery = selectByCodeQuery(true);
 	}
 	
 	@Override
@@ -44,8 +46,7 @@ public class CodeTable<T> extends Table<T> {
 
 	public void update(T object) {
 		Object code = CodeUtils.getCode(object);
-		Object existingObject = readByCode(code);
-		long id = IdUtils.getId(existingObject);
+		long id = readIdByCode(code);
 		super.update(id, object);
 	}
 	
@@ -60,9 +61,27 @@ public class CodeTable<T> extends Table<T> {
 		}
 	}
 
-	protected String selectByCodeQuery() {
+	public int readIdByCode(Object code) {
+		try {
+			PreparedStatement selectByCodeStatement = getStatement(dbPersistence.getConnection(), selectIdByCodeQuery, false);
+			selectByCodeStatement.setObject(1, code);
+			try (ResultSet resultSet = selectByCodeStatement.executeQuery()) {
+				if (!resultSet.next()) {
+					throw new IllegalArgumentException("No id found for code " + code);
+				}
+				return resultSet.getInt(1);
+			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with code " + code);
+		}
+	}
+
+	protected String selectByCodeQuery(boolean onlyId) {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); 
+		query.append("SELECT "); 
+		query.append(onlyId ? "ID" : "*"); 
+		query.append(" FROM "); 
+		query.append(getTableName()); 
 		query.append(" WHERE ");
 		query.append(StringUtils.toDbName(CodeUtils.getCodeProperty(clazz).getFieldName()));
 		query.append(" = ?");
