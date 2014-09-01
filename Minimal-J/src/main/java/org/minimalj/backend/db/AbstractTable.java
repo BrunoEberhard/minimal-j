@@ -367,7 +367,7 @@ public abstract class AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			while (resultSet.next() && result.size() < maxResults) {
 				T object = readResultSetRow(resultSet, null);
-				if (this instanceof Table) {
+				if (this instanceof Table && !(this instanceof CodeTable)) {
 					long id = IdUtils.getId(object);
 					((Table<T>) this).loadRelations(object, id);
 				}
