@@ -22,17 +22,16 @@ public class CodeUtils {
 		return property.getValue(object);
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static Object findCode(List codes, Object value) {
+	public static <T> T findCode(List<T> codes, Object value) {
 		if (value != null) {
-			for (Object code : codes) {
+			for (T code : codes) {
 				Object codeValue = CodeUtils.getCode(code);
 				if (value.equals(codeValue)) {
 					return code;
 				}
 			}
 		} else {
-			for (Object code : codes) {
+			for (T code : codes) {
 				Object codeValue = CodeUtils.getCode(code);
 				if (codeValue == null) {
 					return code;
