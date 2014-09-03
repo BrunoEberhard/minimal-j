@@ -2,23 +2,21 @@ package org.minimalj.frontend.edit.fields;
 
 import java.util.List;
 
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CodeUtils;
+import org.minimalj.util.Codes;
 
-// TODO: Typisierung bringt hier so was von nichts
-public class CodeFormField extends AbstractEditField<Object> {
+public class CodeFormField<T> extends AbstractEditField<Object> {
 	
-	private final List codes;
+	private final List<T> codes;
 	private final TextField textFieldDisabled;
 
 	public CodeFormField(PropertyInterface property, String codeName) {
 		super(property, true);
-		codes = Backend.getInstance().read(property.getFieldClazz(), Criteria.all(), 1000);
+		codes = Codes.get((Class<T>) property.getFieldClazz());
 		
 		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
 	}

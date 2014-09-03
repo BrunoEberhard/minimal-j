@@ -2,28 +2,26 @@ package org.minimalj.frontend.edit.fields;
 
 import java.util.List;
 
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CodeUtils;
+import org.minimalj.util.Codes;
 import org.minimalj.util.DemoEnabled;
 
-// TODO: Typisierung bringt hier so was von nichts
-public class CodeEditField extends AbstractEditField<Object> implements Enable, DemoEnabled {
-	private final List codes;
+public class CodeEditField<T> extends AbstractEditField<Object> implements Enable, DemoEnabled {
+	private final List<T> codes;
 	
 	private final SwitchComponent switchComponent;
-	private final ComboBox comboBox;
+	private final ComboBox<T> comboBox;
 	private final TextField textFieldDisabled;
 
 	public CodeEditField(PropertyInterface property, String prefix) {
 		super(property, true);
-		codes = Backend.getInstance().read(property.getFieldClazz(), Criteria.all(), 1000);
+		codes = Codes.get((Class<T>) property.getFieldClazz());
 		
 		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
 		comboBox.setObjects(codes);
@@ -64,7 +62,7 @@ public class CodeEditField extends AbstractEditField<Object> implements Enable, 
 		if (switchComponent.getShownComponent() == textFieldDisabled) {
 			return;
 		}
-		Object code = CodeUtils.findCode(codes, value);
+		T code = CodeUtils.findCode(codes, value);
 		comboBox.setSelectedObject(code);
 	}
 
