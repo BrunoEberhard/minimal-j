@@ -31,6 +31,14 @@ public class StringUtils {
 		return false;
 	}
 	
+	public static int compare(String s1, String s2) {
+		if (isEmpty(s1)) {
+			return isEmpty(s2) ? -1 : 1;
+		} else {
+			return s1.compareTo(s2);
+		}
+	}
+	
 	public static boolean isEmpty(String s) {
 		return s == null || s.length() == 0;
 	}
