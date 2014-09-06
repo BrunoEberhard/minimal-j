@@ -113,6 +113,8 @@ public class Keys {
 			return new String(fieldName);
 		} else if (type == Integer.class) {
 			return new Integer(0);
+		} else if (type == Long.class) {
+			return new Long(0);
 		} else if (Enum.class.isAssignableFrom(type)) {
 			Class<Enum> enumClass = (Class<Enum>) type;
 			return EnumUtils.createEnum(enumClass, fieldName);
