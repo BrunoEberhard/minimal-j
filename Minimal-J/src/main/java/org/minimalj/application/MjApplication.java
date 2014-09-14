@@ -40,7 +40,7 @@ public abstract class MjApplication {
 	
 	public static MjApplication getApplication() {
 		if (application == null) {
-			throw new IllegalStateException("CientApplicationConfig has to be initialized");
+			throw new IllegalStateException("Application has to be initialized");
 		}
 		return application;
 	}
