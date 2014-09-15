@@ -21,12 +21,14 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.SimpleProperty;
+import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.criteria.CriteriaOperator;
 import org.minimalj.util.CloneHelper;
-import org.minimalj.util.CodeUtils;
+import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -52,6 +54,8 @@ public abstract class AbstractTable<T> {
 	
 	protected final String name;
 
+	protected final PropertyInterface idProperty;
+
 	protected final List<String> indexes = new ArrayList<>();
 	
 	protected final Map<Connection, Map<String, PreparedStatement>> statements = new HashMap<>();
@@ -61,12 +65,15 @@ public abstract class AbstractTable<T> {
 	protected final String selectMaxIdQuery;
 	protected final String clearQuery;
 	
-
-	public AbstractTable(DbPersistence dbPersistence, String name, Class<T> clazz) {
+	// TODO: its a little bit strange to pass the idProperty here. Also because the property
+	// is not allways a property of clazz. idProperty is only necessary because the clazz AND the
+	// size of the idProperty is needed
+	protected AbstractTable(DbPersistence dbPersistence, String name, Class<T> clazz, PropertyInterface idProperty) {
 		this.dbPersistence = dbPersistence;
 		this.helper = new DbPersistenceHelper(dbPersistence);
 		this.name = name != null ? name : StringUtils.toDbName(clazz.getSimpleName());
 		this.clazz = clazz;
+		this.idProperty = idProperty;
 		this.columns = findColumns(clazz);
 		this.lists = findLists(clazz);
 		
@@ -75,6 +82,7 @@ public abstract class AbstractTable<T> {
 		this.selectMaxIdQuery = selectMaxIdQuery();
 		this.clearQuery = clearQuery();
 		
+		findCodes();
 		findImmutables();
 		findIndexes();
 	}
@@ -87,7 +95,7 @@ public abstract class AbstractTable<T> {
 			String fieldName = StringUtils.toDbName(field.getName());
 			if (StringUtils.equals(fieldName, "ID", "VERSION")) continue;
 			if (FieldUtils.isList(field)) continue;
-			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field)) {
+			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field);
 				for (String inlineKey : inlinePropertys.keySet()) {
@@ -202,23 +210,14 @@ public abstract class AbstractTable<T> {
 		execute(s.toString());
 	}
 	
-	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
-		syntax.addIdColumn(s, true);
-	}
-
+	protected abstract void addSpecialColumns(DbSyntax syntax, StringBuilder s);
+	
 	protected void addFieldColumns(DbSyntax syntax, StringBuilder s) {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			s.append(",\n "); s.append(column.getKey()); s.append(" "); 
 
 			PropertyInterface property = column.getValue();
-			if (CodeUtils.isCode(property.getFieldClazz())) {
-				PropertyInterface codeProperty = CodeUtils.getCodeProperty(property.getFieldClazz());
-				syntax.addColumnDefinition(s, codeProperty);
-			} else if (DbPersistenceHelper.isReference(property) || ViewUtil.isView(property)) {
-				s.append("BIGINT");
-			} else {
-				syntax.addColumnDefinition(s, property);
-			}
+			syntax.addColumnDefinition(s, property);
 			boolean isRequired = property.getAnnotation(Required.class) != null;
 			s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
 		}
@@ -243,8 +242,7 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
-				String referencedKey = CodeUtils.isCode(fieldClass) ? StringUtils.toDbName(CodeUtils.getCodeProperty(fieldClass).getFieldName()) : "ID";
-				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedKey, referencedTable instanceof HistorizedTable);
+				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
 				if (s != null) {
 					execute(s.toString());
 				}
@@ -278,17 +276,23 @@ public abstract class AbstractTable<T> {
 		return clazz;
 	}
 	
+	private void findCodes() {
+		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
+			PropertyInterface property = column.getValue();
+			Class<?> fieldClazz = property.getFieldClazz();
+			if (Code.class.isAssignableFrom(fieldClazz) && !dbPersistence.tableExists(fieldClazz)) {
+				dbPersistence.addClass(fieldClazz);
+			}
+		}
+	}
+	
 	private void findImmutables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			if (ViewUtil.isView(property)) continue;
 			Class<?> fieldClazz = property.getFieldClazz();
 			if (DbPersistenceHelper.isReference(property) && !dbPersistence.tableExists(fieldClazz) ) {
-				if (CodeUtils.isCode(fieldClazz)) {
-					dbPersistence.addCodeClass(fieldClazz);
-				} else {
-					dbPersistence.addImmutableClass(fieldClazz);
-				}
+				dbPersistence.addImmutableClass(fieldClazz);
 			}
 		}
 	}
@@ -323,24 +327,13 @@ public abstract class AbstractTable<T> {
 	}
 
 	// execution helpers
-	
-	protected long executeInsertWithAutoIncrement(PreparedStatement statement, T object) throws SQLException {
-		return executeInsertWithAutoIncrement(statement, object, null);
-	}
-	
-	protected long executeInsertWithAutoIncrement(PreparedStatement statement, T object, Integer hash) throws SQLException {
-		setParameters(statement, object, false, true, hash);
-		statement.execute();
-		try (ResultSet autoIncrementResultSet = statement.getGeneratedKeys()) {
-			autoIncrementResultSet.next();
-			long id = autoIncrementResultSet.getLong(1);
-			if (sqlLogger.isLoggable(Level.FINE)) sqlLogger.fine("AutoIncrement is " + id);
-			return id;
-		}
-	}
-	
+
 	protected void executeInsert(PreparedStatement statement, T object) throws SQLException {
-		setParameters(statement, object);
+		executeInsert(statement, object, null);
+	}
+	
+	protected void executeInsert(PreparedStatement statement, T object, Object id) throws SQLException {
+		setParameters(statement, object, id);
 		statement.execute();
 	}
 
@@ -367,8 +360,8 @@ public abstract class AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			while (resultSet.next() && result.size() < maxResults) {
 				T object = readResultSetRow(resultSet, null);
-				if (this instanceof Table && !(this instanceof CodeTable)) {
-					long id = IdUtils.getId(object);
+				if (this instanceof Table) {
+					Object id = IdUtils.getId(object);
 					((Table<T>) this).loadRelations(object, id);
 				}
 				result.add(object);
@@ -390,7 +383,7 @@ public abstract class AbstractTable<T> {
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
 			if ("ID".equalsIgnoreCase(columnName)) {
-				IdUtils.setId(result, resultSet.getLong(columnIndex));
+				IdUtils.setId(result, resultSet.getObject(columnIndex));
 				continue;
 			} else if ("VERSION".equalsIgnoreCase(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
@@ -403,16 +396,16 @@ public abstract class AbstractTable<T> {
 			Object value = resultSet.getObject(columnIndex);
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
-				if (ViewUtil.isView(property)) {
+				if (Code.class.isAssignableFrom(fieldClass)) {
+					Table<?> codeTable = dbPersistence.getTable(fieldClass);
+					value = codeTable.read(value, false);
+				} else if (ViewUtil.isView(property)) {
 					Class<?> viewedClass = ViewUtil.getViewedClass(property);
 					Table<?> referenceTable = dbPersistence.getTable(viewedClass);
-					Object referenceObject = referenceTable.read(((Number) value).longValue(), false); // false -> subEntities not loaded
+					Object referenceObject = referenceTable.read(value, false); // false -> subEntities not loaded
 					
 					value = CloneHelper.newInstance(fieldClass);
 					ViewUtil.view(referenceObject, value);
-				} else if (CodeUtils.isCode(fieldClass)) {
-					CodeTable<?> codeTable = (CodeTable<?>) dbPersistence.getTable(fieldClass);
-					value = codeTable.readByCode(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
 					value = dereference(dbPersistence, fieldClass, value, time);
 				} else if (fieldClass == Set.class) {
@@ -432,7 +425,7 @@ public abstract class AbstractTable<T> {
 	protected static Object dereference(DbPersistence dbPersistence, Class<?> clazz, Object value, Integer time) {
 		AbstractTable<?> table = dbPersistence.table(clazz);
 		if (table instanceof ImmutableTable) {
-			return ((ImmutableTable<?>) table).read(IdUtils.convertToLong(value));
+			return ((ImmutableTable<?>) table).read((String)value);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
@@ -457,8 +450,8 @@ public abstract class AbstractTable<T> {
 		if (abstractTable instanceof ImmutableTable) {
 			ImmutableTable immutableTable = (ImmutableTable) abstractTable;
 			return immutableTable.getId(value);
-		} else if (abstractTable instanceof CodeTable) {
-			return CodeUtils.getCode(value);
+		} else if (value instanceof Code) {
+			return IdUtils.getId(value);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}
@@ -468,21 +461,23 @@ public abstract class AbstractTable<T> {
 		return setParameters(statement, object, null);
 	}
 
-	protected int setParameters(PreparedStatement statement, T object, Integer hash) throws SQLException {
-		return setParameters(statement, object, false, false, hash);
+	protected int setParameters(PreparedStatement statement, T object, Object id) throws SQLException {
+		return setParameters(statement, object, false, false, id);
 	}
 
 	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert) throws SQLException {
 		return setParameters(statement, object, doubleValues, insert, null);
 	}
 	
-	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert, Integer hash) throws SQLException {
+	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert, Object id) throws SQLException {
 		int parameterPos = 1;
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
 			if (value != null) {
-				if (ViewUtil.isView(property)) {
+				if (value instanceof Code) {
+					value = findId((Code) value);
+				} else if (ViewUtil.isView(property)) {
 					value = IdUtils.getId(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
 					value = getReferenceValue(value, insert);
@@ -491,11 +486,25 @@ public abstract class AbstractTable<T> {
 			helper.setParameter(statement, parameterPos++, value, property);
 			if (doubleValues) helper.setParameter(statement, parameterPos++, value, property);
 		}
-		if (hash != null) {
-			statement.setInt(parameterPos++, hash);
-			if (doubleValues) statement.setInt(parameterPos++, hash);
+		if (id != null) {
+			statement.setObject(parameterPos++, id);
+			if (doubleValues) statement.setObject(parameterPos++, id);
 		}
 		return parameterPos;
+	}
+	
+	private Object findId(Code code) {
+		Object id = IdUtils.getId(code);
+		if (id != null) {
+			return id;
+		}
+		List<?> codes = dbPersistence.getTable(code.getClass()).read(Criteria.all(), 1000);
+		for (Object c : codes) {
+			if (code.equals(c)) {
+				return IdUtils.getId(c);
+			}
+		}
+		return null;
 	}
 			
 	protected abstract String insertQuery();

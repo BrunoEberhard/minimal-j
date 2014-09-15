@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.util.CodeUtils;
 import org.minimalj.util.FieldUtils;
 
 public class AnnotationUtil {
@@ -18,11 +17,6 @@ public class AnnotationUtil {
 		Size size = property.getAnnotation(Size.class);
 		if (size != null) {
 			return size.value();
-		}
-		
-		if (CodeUtils.isCode(property.getFieldClazz())) {
-			PropertyInterface codeProperty = CodeUtils.getCodeProperty(property.getFieldClazz());
-			return getSize(codeProperty);
 		}
 		
 		Sizes sizes = property.getDeclaringClass().getAnnotation(Sizes.class);

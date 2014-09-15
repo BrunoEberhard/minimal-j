@@ -12,7 +12,7 @@ public class H {
 		// needed for reflection constructor
 	}
 
-	public int id;
+	public Object id;
 
 	@Size(20)
 	public String name;

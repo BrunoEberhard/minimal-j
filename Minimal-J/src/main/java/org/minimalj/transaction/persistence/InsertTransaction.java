@@ -4,7 +4,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.SerializationContainer;
 
-public class InsertTransaction implements Transaction<Long> {
+public class InsertTransaction implements Transaction<Object> {
 	private static final long serialVersionUID = 1L;
 
 	private final Object object;
@@ -14,7 +14,7 @@ public class InsertTransaction implements Transaction<Long> {
 	}
 
 	@Override
-	public Long execute(Backend backend) {
+	public Object execute(Backend backend) {
 		return backend.insert(SerializationContainer.unwrap(object));
 	}
 

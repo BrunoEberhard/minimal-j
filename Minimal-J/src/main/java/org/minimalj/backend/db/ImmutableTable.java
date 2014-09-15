@@ -5,9 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.HashUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -20,25 +18,20 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class ImmutableTable<T> extends AbstractTable<T> {
 	
-	protected final String selectIdQuery;
-	protected final String selectIdByHashQuery;
+	protected final String checkByUuid;
 
 	public ImmutableTable(DbPersistence dbPersistence, Class<T> clazz) {
-		super(dbPersistence, null, clazz);
+		super(dbPersistence, null, clazz, null);
 		if (clazz.equals(List.class)) {
 			throw new IllegalArgumentException();
 		}
+		checkByUuid = checkByUuid();
+	}
 
-		selectIdQuery = selectIdQuery();
-		selectIdByHashQuery = selectIdByHashQuery();
+	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+		syntax.addIdColumn(s, Object.class, 0);
 	}
 	
-	@Override
-	protected void findIndexes() {
-		super.findIndexes();
-		indexes.add("hash");
-	}
-
 	/**
 	 * If the immutable already exists returns the id of the
 	 * existing id. If the immutable not yet exists creates it
@@ -47,54 +40,37 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 	 * @param object
 	 * @return <code>null</code> for the empty immutable or the id given immutable
 	 */
-	public Long getId(T object) {
+	public String getId(T object) {
 		if (EmptyObjects.isEmpty(object)) return null;
 
-		int hash = HashUtils.getHash(object);
+		String id = HashUtils.getUuid(object).toString();
 		try {
-			Long id = getId(object, hash);
-			if (id == null) {
-				PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
-				id = executeInsertWithAutoIncrement(insertStatement, object, hash);
+			boolean exists = check(id);
+			if (!exists) {
+				PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
+				executeInsert(insertStatement, object, id);
 			}
-			return id;
+			return id.toString();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't not getId in " + getTableName() + " / Object: " + object);
 		}
 	}
 	
-	private Long getId(T object, int hash) throws SQLException {
-		Long result;
-		
-		PreparedStatement selectIdByHashStatement = getStatement(dbPersistence.getConnection(), selectIdByHashQuery, true);
-		selectIdByHashStatement.setInt(1, hash);
-		try (ResultSet resultSet = selectIdByHashStatement.executeQuery()) {
-			if (!resultSet.next()) {
-				return null;
-			}
-			result = resultSet.getLong(1);
-			boolean resultByHashUnique = !resultSet.next();
-			if (resultByHashUnique) {
-				return result;
-			}
-		}
-		
-		PreparedStatement selectIdStatement = getStatement(dbPersistence.getConnection(), selectIdQuery, true);
-		int parameterPos = setParameters(selectIdStatement, object, true, false);
-		selectIdStatement.setInt(parameterPos, hash);
-		try (ResultSet resultSet = selectIdStatement.executeQuery()) {
-			result = resultSet.next() ? resultSet.getLong(1) : null;
-			return result;
+	private boolean check(String id) throws SQLException {
+		PreparedStatement checkByUuidStatement = getStatement(dbPersistence.getConnection(), checkByUuid, false);
+		checkByUuidStatement.setString(1, id);
+		try (ResultSet resultSet = checkByUuidStatement.executeQuery()) {
+			return resultSet.next();
 		}
 	}
 
-	public T read(Long id) {
+	public T read(String id) {
 		if (id == null) return EmptyObjects.getEmptyObject(getClazz());
 		
 		Connection connection = dbPersistence.getConnection();
 		try {
 			PreparedStatement selectByIdStatement = getStatement(connection, selectByIdQuery, true);
-			selectByIdStatement.setLong(1, id);
+			selectByIdStatement.setString(1, id);
 			return executeSelect(selectByIdStatement, 0);
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
@@ -116,31 +92,9 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		return query.toString();
 	}
 	
-	private String selectIdQuery() {
-		StringBuilder where = new StringBuilder();
-	
-		boolean first = true;	
-		for (String key : getColumns().keySet()) {
-			if (!first) where.append(" AND "); else first = false;
-			
-			// where.append(column.getName()); where.append(" = ?");
-			// doesnt work for null so pattern is:
-			// ((? IS NULL AND col1 IS NULL) OR col1 = ?)
-			where.append("((? IS NULL AND "); where.append(key); where.append(" IS NULL) OR ");
-			where.append(key); where.append(" = ?)");
-		}
-		
+	protected String checkByUuid() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT id FROM "); query.append(getTableName()); query.append(" WHERE ");
-		query.append(where);
-		query.append(" AND hash = ?");
-		
-		return query.toString();
-	}
-	
-	protected String selectIdByHashQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT id FROM "); query.append(getTableName()); query.append(" WHERE hash = ?");
+		query.append("SELECT 1 FROM "); query.append(getTableName()); query.append(" WHERE id = ?");
 		
 		return query.toString();
 	}
@@ -150,25 +104,16 @@ public class ImmutableTable<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
-		Map<String, PropertyInterface> properties = getColumns();
-		int size = properties.entrySet().size();
-		for (String name : properties.keySet()) {
-			s.append(name);
+		for (String columnName : getColumns().keySet()) {
+			s.append(columnName);
 			s.append(", ");
 		}
-		s.append("hash) VALUES (");
-		for (int j = 0; j<size; j++) {
-			s.append("?");
-			s.append(", ");
+		s.append("id) VALUES (");
+		for (int i = 0; i<getColumns().size(); i++) {
+			s.append("?, ");
 		}
-		s.append(" ?)");
-		
+		s.append("?)");
+
 		return s.toString();
 	}
-
-	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
-		super.addSpecialColumns(syntax, s);
-		s.append(",\n hash INTEGER NOT NULL");
-	}
-	
 }

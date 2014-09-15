@@ -32,7 +32,7 @@ public class SocketBackend extends Backend {
 		this.port = port;
 	}
 
-	public <T extends Serializable> T execute(Transaction<T> transaction) {
+	public <T> T execute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				oos.writeObject(transaction);
@@ -99,7 +99,7 @@ public class SocketBackend extends Backend {
 		return;
 	}
 	
-	public <T> T read(Class<T> clazz, long id) {
+	public <T> T read(Class<T> clazz, Object id) {
 		return read(clazz, id, null);
 	}
 	
@@ -109,7 +109,7 @@ public class SocketBackend extends Backend {
 		return result;
 	}
 	
-	public long insert(Object object) {
+	public <T> Object insert(T object) {
 		return getInstance().execute(new InsertTransaction(object));
 	}
 
@@ -131,7 +131,7 @@ public class SocketBackend extends Backend {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T read(Class<T> clazz, long id, Integer time) {
+	public <T> T read(Class<T> clazz, Object id, Integer time) {
 		Serializable result = getInstance().execute(new ReadTransaction<T>(clazz, id, time));
 		return (T) SerializationContainer.unwrap(result);
 	}

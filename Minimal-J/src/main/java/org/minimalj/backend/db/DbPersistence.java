@@ -257,31 +257,28 @@ public class DbPersistence {
 		return dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
 	}
 	
-	public <T> T read(Class<T> clazz, long id) {
+	public <T> T read(Class<T> clazz, Object id) {
 		Table<T> table = getTable(clazz);
 		return table.read(id);
 	}
 	
-	public <T> T read(Class<T> clazz, long id, Integer time) {
+	public <T> T read(Class<T> clazz, Object id, Integer time) {
 		HistorizedTable<T> table = (HistorizedTable<T>) table(clazz);
 		return table.read(id, time);
 	}
 
-	public List<Integer> readVersions(Class<?> clazz, long id) {
+	public List<Integer> readVersions(Class<?> clazz, Object id) {
 		HistorizedTable<?> table = (HistorizedTable<?>) table(clazz);
 		return table.readVersions(id);
 	}
 
-	public <T> long insert(T object) {
-		if (object != null) {
-			@SuppressWarnings("unchecked")
-			Table<T> table = getTable((Class<T>) object.getClass());
-			return table.insert(object);
-		} else {
-			return 0;
-		}
+	public <T> Object insert(T object) {
+		if (object == null) throw new NullPointerException();
+		@SuppressWarnings("unchecked")
+		Table<T> table = getTable((Class<T>) object.getClass());
+		return table.insert(object);
 	}
-	
+
 	public <T> void update(T object) {
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
@@ -362,7 +359,7 @@ public class DbPersistence {
 		tables.put(table.getClazz(), table);
 	}
 	
-	private <U> AbstractTable<U> addClass(Class<U> clazz) {
+	<U> AbstractTable<U> addClass(Class<U> clazz) {
 		if (FieldUtils.hasValidIdfield(clazz)) {
 			if (FieldUtils.hasValidVersionfield(clazz)) {
 				return addHistorizedClass(clazz);
@@ -392,12 +389,6 @@ public class DbPersistence {
 		return table;
 	}
 	
-	<U> CodeTable<U> addCodeClass(Class<U> clazz) {
-		CodeTable<U> table = new CodeTable<U>(this, clazz);
-		add(table);
-		return table;
-	}
-	
 	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
@@ -417,13 +408,10 @@ public class DbPersistence {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <U> CodeTable<U> getCodeTable(Class<U> clazz) {
-		return (CodeTable<U>) tables.get(clazz);
-	}
-	
-	@SuppressWarnings("unchecked")
 	public <U> AbstractTable<U> table(Class<U> clazz) {
-		if (!tables.containsKey(clazz)) throw new IllegalArgumentException(clazz.getName());
+		if (!tables.containsKey(clazz)) {
+			throw new IllegalArgumentException(clazz.getName());
+		}
 		return (AbstractTable<U>) tables.get(clazz);
 	}
 
@@ -440,7 +428,7 @@ public class DbPersistence {
 	private void testModel() {
 		List<Class<?>> mainModelClasses = new ArrayList<>();
 		for (Map.Entry<Class<?>, AbstractTable<?>> entry : tables.entrySet()) {
-			if (!(entry.getValue() instanceof ImmutableTable) && !(entry.getValue() instanceof CodeTable)) {
+			if (!(entry.getValue() instanceof ImmutableTable)) {
 				mainModelClasses.add(entry.getKey());
 			}
 		}

@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.threeten.bp.temporal.TemporalAccessor;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.properties.FlatProperties;
+import org.threeten.bp.temporal.TemporalAccessor;
 
 public class HashUtils {
 	private static final Logger logger = Logger.getLogger(HashUtils.class.getName());
@@ -88,7 +88,7 @@ public class HashUtils {
 				}
 				dos.write((int)'}');
 			} else {
-				throw new IllegalArgumentException("value cannot be used for hash: " + value);
+				writeString(dos, getUuid(value).toString());
 			}
 		}
 	}

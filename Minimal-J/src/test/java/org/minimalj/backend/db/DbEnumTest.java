@@ -27,7 +27,7 @@ public class DbEnumTest {
 		f.fenum.add(FEnum.element2);
 		f.fenum.add(FEnum.element3);
 		
-		long id = persistence.insert(f);
+		Object id = persistence.insert(f);
 
 		//
 		

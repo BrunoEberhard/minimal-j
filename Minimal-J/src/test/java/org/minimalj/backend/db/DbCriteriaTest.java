@@ -26,23 +26,23 @@ public class DbCriteriaTest {
 	@Test // if fields of class reference are correctly written and read
 	public void testReferenceField() throws SQLException {
 		G g = new G("g1");
-		int gid = (int) persistence.insert(g);
-		g = persistence.read(G.class, gid);
+		Object id = persistence.insert(g);
+		g = persistence.read(G.class, id);
 		
 		H h = new H();
 		h.g = g;
-		long idH = persistence.insert(h);
+		Object idH = persistence.insert(h);
 
 		h = persistence.read(H.class, idH);
 		
-		Assert.assertEquals(gid, h.g.id);
+		Assert.assertEquals(id, h.g.id);
 	}
 
 	@Test // if read by a foreign key works correctly
 	public void testForeignKeyCriteria() throws SQLException {
 		G g = new G("g1");
-		int gid = (int) persistence.insert(g);
-		g = persistence.read(G.class, gid);
+		Object id = persistence.insert(g);
+		g = persistence.read(G.class, id);
 		
 		H h = new H();
 		h.g = g;
@@ -60,8 +60,8 @@ public class DbCriteriaTest {
 	@Test // if read by a foreign key works correctly if the reference is in a immutalbe
 	public void testForeignKeyCriteriaInImmutable() throws SQLException {
 		G g = new G("g1");
-		int gid = (int) persistence.insert(g);
-		g = persistence.read(G.class, gid);
+		Object id = persistence.insert(g);
+		g = persistence.read(G.class, id);
 		
 		H h = new H();
 		h.i.rG = g;

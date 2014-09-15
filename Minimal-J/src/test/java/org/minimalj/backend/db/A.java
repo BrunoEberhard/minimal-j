@@ -18,7 +18,7 @@ public class A {
 		this.aName = aName;
 	}
 	
-	public int id;
+	public Object id;
 	public int version;
 	
 	@Size(30)

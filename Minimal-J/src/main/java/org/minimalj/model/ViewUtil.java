@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.View;
 import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.model.properties.FlatProperties;
@@ -60,6 +61,9 @@ public class ViewUtil {
 	}
 	
 	public static Class<?> getViewedClass(Class<?> clazz) {
+		if (Code.class.isAssignableFrom(clazz)) {
+			return clazz;
+		}
 		for (Type type : clazz.getGenericInterfaces()) {
 			if (type instanceof ParameterizedType) {
 				ParameterizedType parameterizedType = (ParameterizedType) type;
@@ -73,7 +77,9 @@ public class ViewUtil {
 	}
 
 	public static Class<?> resolve(Class<?> clazz) {
-		if (ViewOf.class.isAssignableFrom(clazz)) {
+		if (Code.class.isAssignableFrom(clazz)) {
+			return clazz;
+		} else if (ViewOf.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = getViewedClass(clazz);
 			return viewedClass;
 		} else {

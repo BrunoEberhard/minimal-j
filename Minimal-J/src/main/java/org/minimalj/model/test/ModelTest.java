@@ -16,8 +16,10 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
+import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
@@ -48,7 +50,7 @@ public class ModelTest {
 	private void test() {
 		testedClasses.clear();
 		for (Class<?> clazz : mainModelClasses) {
-			testClass(clazz, true);
+			testClass(clazz, false);
 		}
 	}
 	
@@ -60,14 +62,14 @@ public class ModelTest {
 		return problems.isEmpty();
 	}
 
-	private void testClass(Class<?> clazz, boolean listsAllowed) {
+	private void testClass(Class<?> clazz, boolean isListElement) {
 		if (!testedClasses.contains(clazz)) {
 			testedClasses.add(clazz);
 			testNoSuperclass(clazz);
-			testId(clazz);
+			testId(clazz, isListElement);
 			testVersion(clazz);
 			testConstructor(clazz);
-			testFields(clazz, listsAllowed);
+			testFields(clazz, isListElement);
 			problems.addAll(FlatProperties.testProperties(clazz));
 			if (DevMode.isActive()) {
 				testResources(clazz);
@@ -109,19 +111,17 @@ public class ModelTest {
 		}
 	}
 				
-	private void testId(Class<?> clazz) {
+	private void testId(Class<?> clazz, boolean isListElement) {
 		try {
 			Field fieldId = clazz.getField("id");
-			if (mainModelClasses.contains(clazz)) {
-				if (!fieldId.getType().isPrimitive()) {
-					problems.add(clazz.getName() + ": Domain classes ids must be of primitiv type (int or long)");
-				} else if (fieldId.getType() != Long.TYPE && fieldId.getType() != Integer.TYPE) {
-					problems.add(clazz.getName() + ": Domain classes ids must be int or long");
+			if (mainModelClasses.contains(clazz) || Codes.isCode(clazz)) {
+				if (!FieldUtils.isAllowedId(fieldId.getType())) {
+					problems.add(clazz.getName() + ": Domain classes ids must be of Integer, Long, String or UUID");
 				}
 				if (!FieldUtils.isPublic(fieldId)) {
 					problems.add(clazz.getName() + ": field id must be public");
 				}
-			} else {
+			} else if (isListElement) {
 				problems.add(clazz.getName() + ": Only domain classes are allowed to have an id field");
 			}
 		} catch (NoSuchFieldException e) {
@@ -153,21 +153,21 @@ public class ModelTest {
 		}
 	}
 	
-	private void testFields(Class<?> clazz, boolean listsAllowed) {
+	private void testFields(Class<?> clazz, boolean isListElement) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			testField(field, listsAllowed);
+			testField(field, isListElement);
 		}
 	}
 
-	private void testField(Field field, boolean listsAllowed) {
+	private void testField(Field field, boolean isListElement) {
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !field.getName().equals("id") && !field.getName().equals("version")) {
 			testFieldType(field);
 			testNoMethodsForPublicField(field);
 			Class<?> fieldType = field.getType();
 			if (fieldType == String.class) {
 				testSize(field);
-			} else if (List.class.equals(fieldType) && !listsAllowed) {
+			} else if (List.class.equals(fieldType) && isListElement) {
 				String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 				problems.add(messagePrefix + ": not allowed. Only main model class or inline fields in these classes may contain lists");
 			}
@@ -189,7 +189,7 @@ public class ModelTest {
 				testSetFieldType(field, messagePrefix);
 			}
 		} else if (!ViewUtil.isView(field)) {
-			testFieldType(fieldType, messagePrefix, FieldUtils.isFinal(field));
+			testFieldType(fieldType, messagePrefix, false);
 			// auf leeren Konstruktor prüfen?
 		}
 	}
@@ -203,7 +203,7 @@ public class ModelTest {
 		}
 		if (listType != null) {
 			messagePrefix = "Generic of " + messagePrefix;
-			testFieldType(listType, messagePrefix, false);
+			testFieldType(listType, messagePrefix, true);
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}
@@ -239,7 +239,7 @@ public class ModelTest {
 			if (Modifier.isAbstract(fieldType.getModifiers())) {
 				problems.add(messagePrefix + " must not be of an abstract Type");
 			}
-			if (mainModelClasses.contains(fieldType)) {
+			if (mainModelClasses.contains(fieldType) && !ViewOf.class.isAssignableFrom(fieldType)) {
 				problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
 			}
 			if (fieldType.isArray()) {

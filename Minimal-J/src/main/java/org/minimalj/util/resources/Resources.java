@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 import org.minimalj.application.DevMode;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.util.MultiResourceBundle;
 
@@ -67,7 +68,7 @@ public class Resources {
 			return getString(clazz.getName());
 		} else if (isAvailable(clazz.getSimpleName())) {
 			return getString(clazz.getSimpleName());
-		} else if (ViewOf.class.isAssignableFrom(clazz)) {
+		} else if (ViewOf.class.isAssignableFrom(clazz) && !Code.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
 			String byViewedClass = getStringOrNull(viewedClass);
 			if (byViewedClass != null) {
@@ -106,7 +107,7 @@ public class Resources {
 		}
 
 		// if declaring class is a view check to viewed class
-		if (ViewOf.class.isAssignableFrom(declaringClass)) {
+		if (ViewOf.class.isAssignableFrom(declaringClass) && !Code.class.isAssignableFrom(declaringClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
 			return getObjectFieldName(resourceBundle, fieldName, viewedClass, fieldClass);
 		}

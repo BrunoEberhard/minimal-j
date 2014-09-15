@@ -8,14 +8,15 @@ import org.minimalj.backend.Backend;
  * The transaction is the action the frontend passes to the backend for
  * execution.<p>
  * 
- * For simple CRUD-Transactions there exist shortcuts in the backend
- * interface.<p>
+ * For simple CRUD-Transactions there exist shortcuts in the abstract Backend
+ * class.<p>
  *
- * @param <T> type of return value. Has to be an extension of Serializable.
- * Sadly <code>Void</code> is not serializable. Use Integer if you don't have a return value
- * and return null from the execute method.
+ * @param <T> type of return value.
+ * (should extend Serializable, but thats not enforced by 'extends Serializable'
+ * because signatures of methods get complicated by that and Void-Transactions
+ * would not be possible because Void is not Serializable!)
  */
-public interface Transaction<T extends Serializable> extends Serializable {
+public interface Transaction<T> extends Serializable {
 
 	/**
 	 * The invocation method for the backend. Application code should not need

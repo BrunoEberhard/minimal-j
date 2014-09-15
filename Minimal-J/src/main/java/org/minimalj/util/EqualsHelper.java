@@ -7,6 +7,12 @@ import java.util.Iterator;
 public class EqualsHelper {
 
 	public static boolean equals(Object from, Object to) {
+		if (from == null) {
+			return to == null;
+		}
+		if (to == null) {
+			return false;
+		}
 		try {
 			return _equals(from, to);
 		} catch (IllegalAccessException | IllegalArgumentException x) {

@@ -1,12 +1,10 @@
 package org.minimalj.transaction.persistence;
 
-import java.io.Serializable;
-
 import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.SerializationContainer;
 
-public class DeleteTransaction implements Transaction<Serializable> {
+public class DeleteTransaction implements Transaction<Void> {
 	private static final long serialVersionUID = 1L;
 
 	private final Object object;
@@ -16,7 +14,7 @@ public class DeleteTransaction implements Transaction<Serializable> {
 	}
 
 	@Override
-	public Serializable execute(Backend backend) {
+	public Void execute(Backend backend) {
 		backend.delete(SerializationContainer.unwrap(object));
 		return null;
 	}

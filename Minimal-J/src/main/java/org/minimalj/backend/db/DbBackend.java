@@ -35,7 +35,7 @@ public class DbBackend extends Backend {
 	//
 	
 	@Override
-	public <T extends Serializable> T execute(Transaction<T> transaction) {
+	public <T> T execute(Transaction<T> transaction) {
 		boolean runThrough = false;
 		T result;
 		try {
@@ -77,7 +77,7 @@ public class DbBackend extends Backend {
 	}
 
 	@Override
-	public <T> T read(Class<T> clazz, long id) {
+	public <T> T read(Class<T> clazz, Object id) {
 		Table<T> table = persistence.getTable(clazz);
 		return table.read(id);
 	}
@@ -95,7 +95,7 @@ public class DbBackend extends Backend {
 	}
 
 	@Override
-	public <T> long insert(T object) {
+	public <T> Object insert(T object) {
 		return persistence.insert(object);
 	}
 
@@ -116,7 +116,7 @@ public class DbBackend extends Backend {
 	}
 
 	@Override
-	public <T> T read(Class<T> clazz, long id, Integer time) {
+	public <T> T read(Class<T> clazz, Object id, Integer time) {
 		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(clazz);
 		if (abstractTable instanceof HistorizedTable) {
 			return ((HistorizedTable<T>) abstractTable).read(id, time);
@@ -130,7 +130,7 @@ public class DbBackend extends Backend {
 		@SuppressWarnings("unchecked")
 		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(object.getClass());
 		if (abstractTable instanceof HistorizedTable) {
-			long id = IdUtils.getId(object);
+			Object id = IdUtils.getId(object);
 			List<Integer> times = ((HistorizedTable<T>) abstractTable).readVersions(id);
 			List<T> result = new ArrayList<>();
 			for (int time : times) {	

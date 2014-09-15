@@ -12,7 +12,7 @@ public class G {
 		this.g = g;
 	}
 
-	public int id;
+	public Object id;
 
 	@Size(20)
 	public String g;

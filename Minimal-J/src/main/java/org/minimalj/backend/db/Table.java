@@ -9,12 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.ViewOf;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.criteria.Criteria.AllCriteria;
 import org.minimalj.transaction.criteria.Criteria.SearchCriteria;
@@ -34,7 +36,8 @@ public class Table<T> extends AbstractTable<T> {
 	protected final Map<String, AbstractTable<?>> subTables;
 	
 	public Table(DbPersistence dbPersistence, Class<T> clazz) {
-		super(dbPersistence, null, clazz);
+		super(dbPersistence, null, clazz, FlatProperties.getProperty(clazz, "id"));
+		
 		this.subTables = findSubTables();
 		
 		this.selectByIdQuery = selectByIdQuery();
@@ -68,10 +71,15 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	public long insert(T object) {
+	public Object insert(T object) {
 		try {
 			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
-			long id = executeInsertWithAutoIncrement(insertStatement, object);
+			Object id = IdUtils.getId(object);
+			if (id == null) {
+				id = UUID.randomUUID().toString();
+				IdUtils.setId(object, id);
+			}
+			executeInsert(insertStatement, object, id);
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 				SubTable subTable = (SubTable) subTableEntry.getValue();
 				List list;
@@ -91,11 +99,11 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void delete(T object) {
-		long id = IdUtils.getId(object);
+		Object id = IdUtils.getId(object);
 		PreparedStatement updateStatement;
 		try {
 			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
-			updateStatement.setLong(1, id);
+			updateStatement.setObject(1, id);
 			updateStatement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
@@ -113,7 +121,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
-		return new SubTable(dbPersistence, buildSubTableName(property), clazz);
+		return new SubTable(dbPersistence, buildSubTableName(property), clazz, idProperty);
 	}
 
 	protected String buildSubTableName(PropertyInterface property) {
@@ -125,15 +133,15 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public void update(T object) {
-		long id = IdUtils.getId(object);
+		Object id = IdUtils.getId(object);
 		update(id, object);
 	}
 
-	protected void update(long id, T object) {
+	protected void update(Object id, T object) {
 		try {
 			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
 			int parameterPos = setParameters(updateStatement, object, false, true);
-			updateStatement.setLong(parameterPos++, id);
+			updateStatement.setObject(parameterPos++, id);
 			updateStatement.execute();
 			
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
@@ -151,14 +159,14 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	public T read(long id) {
+	public T read(Object id) {
 		return read(id, true);
 	}
 	
-	protected T read(long id, boolean complete) {
+	protected T read(Object id, boolean complete) {
 		try {
 			PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
-			selectByIdStatement.setLong(1, id);
+			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (complete && object != null) {
 				loadRelations(object, id);
@@ -314,7 +322,7 @@ public class Table<T> extends AbstractTable<T> {
 				S resultObject = (S) readResultSetRow(dbPersistence, (Class<S>) resultClass, resultSet, 0);
 				result.add(resultObject);
 
-				long id = IdUtils.getId(resultObject);
+				Object id = IdUtils.getId(resultObject);
 				LinkedHashMap<String, PropertyInterface> lists = findLists(resultClass);
 				for (String listField : lists.keySet()) {
 					List list = (List) lists.get(listField).getValue(resultObject);
@@ -390,7 +398,7 @@ public class Table<T> extends AbstractTable<T> {
 					T resultObject = (T) readResultSetRow(dbPersistence, (Class<T>) clazz, resultSet, 0);
 					result.add(resultObject);
 
-					long id = IdUtils.getId(resultObject);
+					Object id = IdUtils.getId(resultObject);
 					loadRelations((T) resultObject, id);
 				}
 			}
@@ -436,7 +444,7 @@ public class Table<T> extends AbstractTable<T> {
 					S resultObject = (S) readResultSetRow(dbPersistence, (Class<T>) resultClass, resultSet, 0);
 					result.add(resultObject);
 
-					long id = IdUtils.getId(resultObject);
+					Object id = IdUtils.getId(resultObject);
 					LinkedHashMap<String, PropertyInterface> lists = findLists(resultClass);
 					for (String listField : lists.keySet()) {
 						List list = (List) lists.get(listField).getValue(resultObject);
@@ -457,7 +465,7 @@ public class Table<T> extends AbstractTable<T> {
 	}	
 
 	@SuppressWarnings("unchecked")
-	protected void loadRelations(T object, long id) throws SQLException {
+	protected void loadRelations(T object, Object id) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			SubTable subTable = (SubTable) subTableEntry.getValue();
 			List list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
@@ -490,13 +498,11 @@ public class Table<T> extends AbstractTable<T> {
 			s.append(columnName);
 			s.append(", ");
 		}
-		s.delete(s.length()-2, s.length());
-		s.append(") VALUES (");
+		s.append("id) VALUES (");
 		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
-		s.delete(s.length()-2, s.length());
-		s.append(")");
+		s.append("?)");
 
 		return s.toString();
 	}
@@ -519,6 +525,11 @@ public class Table<T> extends AbstractTable<T> {
 		StringBuilder s = new StringBuilder();
 		s.append("DELETE FROM "); s.append(getTableName()); s.append(" WHERE id = ?");
 		return s.toString();
+	}
+	
+	@Override
+	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+		syntax.addIdColumn(s, idProperty);
 	}
 	
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {

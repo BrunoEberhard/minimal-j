@@ -111,7 +111,10 @@ public class FieldUtils {
 	}
 
 	public static boolean isAllowedId(Class<?> classOfId) {
-		return classOfId == Byte.TYPE || classOfId == Short.TYPE || classOfId == Integer.TYPE || classOfId == Long.TYPE;
+		if (Object.class == classOfId) return true;
+		if (String.class == classOfId) return true;
+		if (Integer.class == classOfId) return true;
+		return false;
 	}
 	
 	public static boolean isAllowedVersionType(Class<?> classOfId) {

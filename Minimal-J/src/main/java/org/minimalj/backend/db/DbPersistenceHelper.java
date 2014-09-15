@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
@@ -60,6 +61,8 @@ public class DbPersistenceHelper {
 				Set<?> set = (Set<?>) value;
 				Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
 				value = EnumUtils.getInt(set, enumClass);
+			} else if (value instanceof UUID) {
+				value = value.toString();
 			}
 			preparedStatement.setObject(param, value);
 		} 
@@ -110,6 +113,8 @@ public class DbPersistenceHelper {
 		Class<?> clazz = property.getFieldClazz();
 		if (clazz == String.class) {
 			preparedStatement.setNull(param, Types.VARCHAR);
+		} else if (clazz == UUID.class) {
+			preparedStatement.setNull(param, Types.CHAR);
 		} else if (clazz == Integer.class) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (clazz == Boolean.class) {
@@ -167,6 +172,8 @@ public class DbPersistenceHelper {
 			}
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
 			value = EnumUtils.valueList((Class<Enum>)fieldClass).get((Integer) value);
+		} else if (fieldClass == UUID.class) {
+			value = UUID.fromString((String) value);
 		}
 		return value;
 	}

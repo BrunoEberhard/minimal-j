@@ -27,7 +27,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass1 {
-		public int id;
+		public Object id;
 
 		public String a;
 	}
@@ -41,7 +41,7 @@ public class ModelTestTest {
 	}
 	
 	public static class TestClass2 {
-		public int id;
+		public Object id;
 		
 		@Size(255)
 		public String a;
@@ -61,7 +61,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass3 {
-		public int id;
+		public Object id;
 		public int a;
 	}
 
@@ -74,7 +74,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass4 {
-		public int id;
+		public Object id;
 		public long a;
 	}
 	
@@ -99,7 +99,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass6 {
-		public int id;
+		public Object id;
 		public TestClass2 ref;
 	}
 
@@ -112,7 +112,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass7 {
-		public int id;
+		public Object id;
 		@View
 		public TestClass2 ref;
 	}
@@ -126,7 +126,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass8 implements ViewOf<TestClass2> {
-		public int id;
+		public Object id;
 
 		@Override
 		public String display() {
@@ -135,7 +135,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass9 {
-		public int id;
+		public Object id;
 		@View
 		public TestClass2 ref;
 	}
@@ -149,7 +149,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass10 {
-		public int id;
+		public Object id;
 		public final List<TestClass11> list = new ArrayList<>();
 	}
 
@@ -170,7 +170,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass13 {
-		public int id;
+		public Object id;
 		public List<TestClass12> list = new ArrayList<>();
 	}
 
@@ -195,7 +195,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass15 {
-		public int id;
+		public Object id;
 		@SuppressWarnings("rawtypes")
 		public final List list = new ArrayList();
 	}
@@ -209,7 +209,7 @@ public class ModelTestTest {
 	}
 
 	public static class TestClass16 {
-		public int id;
+		public Object id;
 		@SuppressWarnings("rawtypes")
 		public final Set s = new TreeSet();
 	}

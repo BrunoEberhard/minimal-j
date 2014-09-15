@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class F {
 
-	public int id;
+	public Object id;
 	
 	public final Set<FEnum> fenum = new HashSet<>();
 	

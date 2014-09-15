@@ -30,7 +30,7 @@ public class DbDateTimeTest {
 		d.localTime = LocalTime.of(12, 34, 56);
 		d.localDateTime = LocalDateTime.of(2001, 02, 03, 10, 20, 30);
 		
-		long id = persistence.insert(d);
+		Object id = persistence.insert(d);
 
 		//
 		

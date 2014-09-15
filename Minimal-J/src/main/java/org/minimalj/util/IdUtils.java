@@ -8,16 +8,12 @@ public class IdUtils {
 	
 	private static final Logger logger = Logger.getLogger(IdUtils.class.getName());
 
-	public static long getId(Object object) {
+	public static Object getId(Object object) {
 		if (object != null) {
 			try {
 				Field idField = object.getClass().getField("id");
 				Object id = idField.get(object);
-				if (id instanceof Byte) return Long.valueOf((Byte) id);
-				else if (id instanceof Short) return Long.valueOf((Short) id);
-				else if (id instanceof Integer) return Long.valueOf((Integer) id);
-				else if (id instanceof Long) return Long.valueOf((Long) id);
-				throw new IllegalArgumentException("Cannot convert id: " + object);
+				return id;
 			} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 				throw new LoggingRuntimeException(e, logger, "getting Id failed");
 			}
@@ -26,16 +22,14 @@ public class IdUtils {
 		}
 	}
 	
-	public static void setId(Object object, long id) {
+	public static void setId(Object object, Object id) {
 		try {
 			Field idField = object.getClass().getField("id");
-			if (idField.getType() == Byte.TYPE) idField.set(object, (byte) id);
-			else if (idField.getType() == Short.TYPE) idField.set(object, (short) id);
-			else if (idField.getType() == Integer.TYPE) idField.set(object, (int) id);
-			else if (idField.getType() == Long.TYPE) idField.set(object, (long) id);
-			else throw new IllegalArgumentException("Cannot set id on field with " + idField.getType());
+			idField.set(object, id);
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 			// throw new LoggingRuntimeException(e, logger, "setting Id failed");
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -8,20 +8,20 @@ import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.util.CodeUtils;
+import org.minimalj.model.annotation.Code;
 import org.minimalj.util.Codes;
 import org.minimalj.util.DemoEnabled;
 
-public class CodeEditField<T> extends AbstractEditField<Object> implements Enable, DemoEnabled {
-	private final List<T> codes;
+public class CodeEditField extends AbstractEditField<Code> implements Enable, DemoEnabled {
+	private final List<Code> codes;
 	
 	private final SwitchComponent switchComponent;
-	private final ComboBox<T> comboBox;
+	private final ComboBox<Code> comboBox;
 	private final TextField textFieldDisabled;
 
 	public CodeEditField(PropertyInterface property, String prefix) {
 		super(property, true);
-		codes = Codes.get((Class<T>) property.getFieldClazz());
+		codes = Codes.get((Class<Code>) property.getFieldClazz());
 		
 		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
 		comboBox.setObjects(codes);
@@ -48,28 +48,25 @@ public class CodeEditField<T> extends AbstractEditField<Object> implements Enabl
 	}
 
 	@Override
-	public Object getObject() {
+	public Code getObject() {
 		if (switchComponent.getShownComponent() == comboBox) {
-			if (comboBox.getSelectedObject() != null) {
-				return CodeUtils.getCode(comboBox.getSelectedObject());
-			}
+			return comboBox.getSelectedObject();
 		}
 		return null;
 	}
 
 	@Override
-	public void setObject(Object value) {
+	public void setObject(Code value) {
 		if (switchComponent.getShownComponent() == textFieldDisabled) {
 			return;
 		}
-		T code = CodeUtils.findCode(codes, value);
-		comboBox.setSelectedObject(code);
+		comboBox.setSelectedObject(value);
 	}
 
 	@Override
 	public void fillWithDemoData() {
 		int index = (int)(Math.random() * (double)codes.size());
-		setObject(CodeUtils.getCode(codes.get(index)));
+		setObject(codes.get(index));
 	}
 	
 }

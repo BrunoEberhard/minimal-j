@@ -88,16 +88,16 @@ public abstract class Backend {
 		return instance;
 	}
 
-	public abstract <T extends Serializable> T execute(Transaction<T> transaction);
+	public abstract <T> T execute(Transaction<T> transaction);
 	public abstract <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream);
 	public abstract <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream);
 
 	// persistence
 	
-	public abstract <T> T read(Class<T> clazz, long id);
+	public abstract <T> T read(Class<T> clazz, Object id);
 	public abstract <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
 
-	public abstract <T> long insert(T object);
+	public abstract <T> Object insert(T object);
 	public abstract <T> void update(T object);
 	public abstract <T> void delete(T object);
 	public abstract <T> void deleteAll(Class<T> clazz);
@@ -107,6 +107,6 @@ public abstract class Backend {
 
 	// Only for historized entities
 	public abstract <T> List<T> loadHistory(T object);
-	public abstract <T> T read(Class<T> clazz, long id, Integer time);
+	public abstract <T> T read(Class<T> clazz, Object id, Integer time);
 	
 }

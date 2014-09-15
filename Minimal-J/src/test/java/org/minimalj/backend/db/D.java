@@ -6,7 +6,7 @@ import org.threeten.bp.LocalTime;
 
 public class D {
 
-	public int id;
+	public Object id;
 	
 	public LocalDate localDate;
 	public LocalTime localTime;

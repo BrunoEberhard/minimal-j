@@ -6,7 +6,6 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.util.CodeUtils;
 import org.minimalj.util.Codes;
 
 public class CodeFormField<T> extends AbstractEditField<Object> {
@@ -33,7 +32,7 @@ public class CodeFormField<T> extends AbstractEditField<Object> {
 
 	@Override
 	public void setObject(Object value) {
-		Object code = CodeUtils.findCode(codes, value);
+		Object code = Codes.findCode(codes, value);
 		textFieldDisabled.setText(code.toString());
 	}
 

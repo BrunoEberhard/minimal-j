@@ -44,7 +44,7 @@ public abstract class TablePage<T> extends AbstractPage implements SearchOf<T> {
 	protected void showDetail(Class<? extends Page> detailPageClass, T selectedObject) {
 		List<String> links = new ArrayList<>(objects.size());
 		for (Object object : objects) {
-			long id = IdUtils.getId(object);
+			String id = IdUtils.getId(object).toString();
 			links.add(PageLink.link(detailPageClass, id));
 		}
 		int index = objects.indexOf(selectedObject);
