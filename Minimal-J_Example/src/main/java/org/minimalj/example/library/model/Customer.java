@@ -8,7 +8,7 @@ import org.threeten.bp.LocalDate;
 public class Customer  {
 	public static final Customer CUSTOMER = Keys.of(Customer.class);
 
-	public int id;
+	public Object id;
 
 	@Size(ExampleFormats.NAME) @Searched
 	public String firstName, name;

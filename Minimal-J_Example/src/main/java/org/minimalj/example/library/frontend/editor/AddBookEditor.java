@@ -17,8 +17,8 @@ public class AddBookEditor extends Editor<Book> {
 	
 	@Override
 	public String save(Book book) throws Exception {
-		long id = Backend.getInstance().insert(book);
-		return PageLink.link(BookPage.class, id);
+		Object id = Backend.getInstance().insert(book);
+		return PageLink.link(BookPage.class, id.toString());
 	}
 
 	@Override

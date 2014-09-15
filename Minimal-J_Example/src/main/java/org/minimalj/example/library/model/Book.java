@@ -16,7 +16,7 @@ import org.threeten.bp.LocalDate;
 public class Book implements DemoEnabled {
 	public static final Book BOOK = Keys.of(Book.class);
 
-	public int id;
+	public Object id;
 	
 	@Required @Size(ExampleFormats.NAME) @Searched
 	public String title;

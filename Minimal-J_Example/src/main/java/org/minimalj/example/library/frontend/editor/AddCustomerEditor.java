@@ -17,8 +17,8 @@ public class AddCustomerEditor extends Editor<Customer> {
 	
 	@Override
 	public String save(Customer customer) throws Exception {
-		long id = Backend.getInstance().insert(customer);
-		return PageLink.link(CustomerPage.class, id);
+		Object id = Backend.getInstance().insert(customer);
+		return PageLink.link(CustomerPage.class, id.toString());
 	}
 
 	@Override
