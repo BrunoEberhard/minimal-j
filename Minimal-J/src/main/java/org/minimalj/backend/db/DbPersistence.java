@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,9 @@ import javax.sql.DataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.util.Codes;
+import org.minimalj.util.Codes.CodeCacheItem;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -51,6 +55,8 @@ public class DbPersistence {
 	private BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
 
+	private HashMap<Class<?>, CodeCacheItem<?>> codeCache = new HashMap<>();
+	
 	public DbPersistence(DataSource dataSource, Class<?>... classes) {
 		this(dataSource, createTablesOnInitialize(dataSource), classes);
 	}
@@ -439,6 +445,26 @@ public class DbPersistence {
 			}
 			throw new IllegalArgumentException("The persistent classes don't apply to the given rules");
 		}
+	}
+
+	public <T> T getCode(Class<T> clazz, Object code) {
+		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
+		if (cacheItem == null || !cacheItem.isValid()) {
+			updateCode(clazz);
+		}
+		cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
+		List<T> codes = cacheItem.getCodes();
+		return Codes.findCode(codes, code);
+	}
+	
+	private <T> void updateCode(Class<T> clazz) {
+		List<T> codes = getTable(clazz).read(Criteria.all(), Integer.MAX_VALUE);
+		CodeCacheItem<T> codeItem = new CodeCacheItem<T>(codes);
+		codeCache.put(clazz, codeItem);
+	}
+
+	public void invalidateCodeCache(Class<?> clazz) {
+		codeCache.remove(clazz);
 	}
 	
 }

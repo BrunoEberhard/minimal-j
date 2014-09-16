@@ -9,7 +9,7 @@ import org.minimalj.transaction.criteria.Criteria;
 
 public class Codes {
 
-	public static HashMap<Class<?>, CodeCacheItem<?>> cache = new HashMap<>();
+	private static HashMap<Class<?>, CodeCacheItem<?>> cache = new HashMap<>();
 	
 	public static <T> T findCode(Class<T> clazz, String code) {
 		return findCode(clazz, (Object) code);
@@ -41,7 +41,7 @@ public class Codes {
 	@SuppressWarnings("unchecked")
 	public synchronized static <T> List<T> get(Class<T> clazz) {
 		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
-		if (cacheItem == null || (cacheItem.getTimestamp() - System.currentTimeMillis()) / 1000 > 10) {
+		if (cacheItem == null || !cacheItem.isValid()) {
 			updateCode(clazz);
 		}
 		cacheItem = (CodeCacheItem<T>) cache.get(clazz);
@@ -51,23 +51,23 @@ public class Codes {
 	
 	private static <T> void updateCode(Class<T> clazz) {
 		List<T> codes = Backend.getInstance().read(clazz, Criteria.all(), Integer.MAX_VALUE);
-		CodeCacheItem<T> codeItem = new CodeCacheItem<T>(codes, System.currentTimeMillis());
+		CodeCacheItem<T> codeItem = new CodeCacheItem<T>(codes);
 		cache.put(clazz, codeItem);
 	}
 	
-	private static class CodeCacheItem<S> {
+	public static class CodeCacheItem<S> {
 		private final long timestamp;
 		private final List<S> codes;
 		
-		public CodeCacheItem(List<S> codes, long timestamp) {
+		public CodeCacheItem(List<S> codes) {
 			this.codes = codes;
-			this.timestamp = timestamp;
+			this.timestamp = System.currentTimeMillis();
 		}
 
-		public long getTimestamp() {
-			return timestamp;
+		public boolean isValid() {
+			return (System.currentTimeMillis() - timestamp) / 1000 < 10;
 		}
-
+		
 		public List<S> getCodes() {
 			return codes;
 		}

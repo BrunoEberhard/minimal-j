@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.model.properties.FlatProperties;
@@ -92,6 +93,9 @@ public class Table<T> extends AbstractTable<T> {
 					throw new RuntimeException(e);
 				}
 			}
+			if (object instanceof Code) {
+				dbPersistence.invalidateCodeCache(object.getClass());
+			}
 			return id;
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert in " + getTableName() + " with " + object);
@@ -105,6 +109,10 @@ public class Table<T> extends AbstractTable<T> {
 			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
+			
+			if (object instanceof Code) {
+				dbPersistence.invalidateCodeCache(object.getClass());
+			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
 		}
@@ -153,6 +161,10 @@ public class Table<T> extends AbstractTable<T> {
 					throw new RuntimeException(e);
 				}
 				subTable.update(id, list);
+			}
+			
+			if (object instanceof Code) {
+				dbPersistence.invalidateCodeCache(object.getClass());
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
