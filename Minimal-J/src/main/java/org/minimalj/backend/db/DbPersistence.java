@@ -79,7 +79,10 @@ public class DbPersistence {
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
 			}
-			initialize();
+			testModel(classes);
+			if (createTablesOnInitialize) {
+				createTables();
+			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
 		}
@@ -147,7 +150,9 @@ public class DbPersistence {
 
 	private Connection getAutoCommitConnection() {
 		try {
-			if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
+			// problem with isValid in maria db driver < 1.1.8 
+			// if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
+			if (autoCommitConnection == null) {
 				autoCommitConnection = dataSource.getConnection();
 				autoCommitConnection.setAutoCommit(true);
 			}
@@ -227,14 +232,7 @@ public class DbPersistence {
 	public void clear() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
-			if (!(table instanceof ImmutableTable)) {
-				table.clear();
-			}
-		}
-		for (AbstractTable<?> table : tableList) {
-			if (table instanceof ImmutableTable) {
-				table.clear();
-			}
+			table.clear();
 		}
 	}
 
@@ -249,13 +247,6 @@ public class DbPersistence {
 			return connection;
 		} else {
 			return getAutoCommitConnection();
-		}
-	}
-	
-	private void initialize() {
-		testModel();
-		if (createTablesOnInitialize) {
-			createTables();
 		}
 	}
 	
@@ -385,16 +376,6 @@ public class DbPersistence {
 		return table;
 	}
 	
-	/**
-	 * @param clazz objects of this class will not be inlined
-	 * @return
-	 */
-	<U> ImmutableTable<U> addImmutableClass(Class<U> clazz) {
-		ImmutableTable<U> table = new ImmutableTable<U>(this, clazz);
-		add(table);
-		return table;
-	}
-	
 	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
@@ -406,11 +387,6 @@ public class DbPersistence {
 		for (AbstractTable<?> table : tableList) {
 			table.createConstraints(syntax);
 		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <U> ImmutableTable<U> getImmutableTable(Class<U> clazz) {
-		return (ImmutableTable<U>) tables.get(clazz);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -431,14 +407,8 @@ public class DbPersistence {
 		return tables.containsKey(clazz);
 	}
 	
-	private void testModel() {
-		List<Class<?>> mainModelClasses = new ArrayList<>();
-		for (Map.Entry<Class<?>, AbstractTable<?>> entry : tables.entrySet()) {
-			if (!(entry.getValue() instanceof ImmutableTable)) {
-				mainModelClasses.add(entry.getKey());
-			}
-		}
-		ModelTest test = new ModelTest(mainModelClasses);
+	private void testModel(Class<?>[] classes) {
+		ModelTest test = new ModelTest(classes);
 		if (!test.getProblems().isEmpty()) {
 			for (String s : test.getProblems()) {
 				logger.severe(s);

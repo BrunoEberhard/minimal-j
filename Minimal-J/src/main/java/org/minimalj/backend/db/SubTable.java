@@ -29,8 +29,7 @@ public class SubTable extends AbstractTable {
 		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
-			int parameterPos = setParameters(insertStatement, object, false, true);
-			insertStatement.setObject(parameterPos++, parentId);
+			int parameterPos = setParameters(insertStatement, object, false, false, parentId);
 			insertStatement.setInt(parameterPos++, position);
 			insertStatement.execute();
 		}
@@ -53,8 +52,7 @@ public class SubTable extends AbstractTable {
 			
 			if (insert) {
 				PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
-				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
-				insertStatement.setObject(parameterPos++, parentId);
+				int parameterPos = setParameters(insertStatement, objects.get(position), false, false, parentId);
 				insertStatement.setInt(parameterPos++, position);
 				insertStatement.execute();
 			}
@@ -65,8 +63,7 @@ public class SubTable extends AbstractTable {
 	private void update(Object parentId, int position, Object object) throws SQLException {
 		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
 
-		int parameterPos = setParameters(updateStatement, object, false, true);
-		updateStatement.setObject(parameterPos++, parentId);
+		int parameterPos = setParameters(updateStatement, object, false, false, parentId);
 		updateStatement.setInt(parameterPos++, position);
 		updateStatement.execute();
 	}
@@ -74,8 +71,7 @@ public class SubTable extends AbstractTable {
 	private void insert(Object parentId, int position, Object object) throws SQLException {
 		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 
-		int parameterPos = setParameters(insertStatement, object, false, true);
-		insertStatement.setObject(parameterPos++, parentId);
+		int parameterPos = setParameters(insertStatement, object, false, false, parentId);
 		insertStatement.setInt(parameterPos++, position);
 		insertStatement.execute();
 	}

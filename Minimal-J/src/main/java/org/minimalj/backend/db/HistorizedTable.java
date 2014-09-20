@@ -49,7 +49,8 @@ public class HistorizedTable<T> extends Table<T> {
 				id = UUID.randomUUID().toString();
 				IdUtils.setId(object, id);
 			}
-			executeInsert(insertStatement, object, id);
+			setParameters(insertStatement, object, false, true, id);
+			insertStatement.execute();
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTableEntry.getValue();
 				List list;
@@ -67,7 +68,7 @@ public class HistorizedTable<T> extends Table<T> {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert object into " + getTableName() + " / Object: " + object);
 		}
 	}
-
+	
 	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
 		return new HistorizedSubTable(dbPersistence, buildSubTableName(property), clazz, idProperty);
 	}
@@ -91,8 +92,7 @@ public class HistorizedTable<T> extends Table<T> {
 			if (doDelete) return;
 			
 			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-			int parameterPos = setParameters(updateStatement, object, false, true);
-			updateStatement.setObject(parameterPos++, id);
+			setParameters(updateStatement, object, false, true, id);
 			updateStatement.execute();
 			
 			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {

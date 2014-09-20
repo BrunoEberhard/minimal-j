@@ -80,7 +80,8 @@ public class Table<T> extends AbstractTable<T> {
 				id = UUID.randomUUID().toString();
 				IdUtils.setId(object, id);
 			}
-			executeInsert(insertStatement, object, id);
+			setParameters(insertStatement, object, false, false, id);
+			insertStatement.execute();
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 				SubTable subTable = (SubTable) subTableEntry.getValue();
 				List list;
@@ -148,8 +149,7 @@ public class Table<T> extends AbstractTable<T> {
 	protected void update(Object id, T object) {
 		try {
 			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-			int parameterPos = setParameters(updateStatement, object, false, true);
-			updateStatement.setObject(parameterPos++, id);
+			setParameters(updateStatement, object, false, false, id);
 			updateStatement.execute();
 			
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {

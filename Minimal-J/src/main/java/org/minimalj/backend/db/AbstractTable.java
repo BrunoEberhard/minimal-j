@@ -29,6 +29,7 @@ import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.criteria.CriteriaOperator;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
+import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -83,7 +84,7 @@ public abstract class AbstractTable<T> {
 		this.clearQuery = clearQuery();
 		
 		findCodes();
-		findImmutables();
+		findDependables();
 		findIndexes();
 	}
 
@@ -286,13 +287,13 @@ public abstract class AbstractTable<T> {
 		}
 	}
 	
-	private void findImmutables() {
+	private void findDependables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			if (ViewUtil.isView(property)) continue;
 			Class<?> fieldClazz = property.getFieldClazz();
 			if (DbPersistenceHelper.isReference(property) && !dbPersistence.tableExists(fieldClazz) ) {
-				dbPersistence.addImmutableClass(fieldClazz);
+				dbPersistence.addClass(fieldClazz);
 			}
 		}
 	}
@@ -327,15 +328,6 @@ public abstract class AbstractTable<T> {
 	}
 
 	// execution helpers
-
-	protected void executeInsert(PreparedStatement statement, T object) throws SQLException {
-		executeInsert(statement, object, null);
-	}
-	
-	protected void executeInsert(PreparedStatement statement, T object, Object id) throws SQLException {
-		setParameters(statement, object, id);
-		statement.execute();
-	}
 
 	protected T executeSelect(PreparedStatement preparedStatement) throws SQLException {
 		return executeSelect(preparedStatement, null);
@@ -380,6 +372,10 @@ public abstract class AbstractTable<T> {
 		DbPersistenceHelper helper = new DbPersistenceHelper(dbPersistence);
 		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
 		
+		// first read the resultSet completly then resolve references
+		// derby db mixes closing of resultSets.
+		
+		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
 			if ("ID".equalsIgnoreCase(columnName)) {
@@ -394,6 +390,13 @@ public abstract class AbstractTable<T> {
 			if (property == null) continue;
 			
 			Object value = resultSet.getObject(columnIndex);
+			if (value == null) continue;
+			values.put(property, value);
+		}
+		
+		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
+			Object value = entry.getValue();
+			PropertyInterface property = entry.getKey();
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
@@ -423,8 +426,8 @@ public abstract class AbstractTable<T> {
 	
 	protected static Object dereference(DbPersistence dbPersistence, Class<?> clazz, Object value, Integer time) {
 		AbstractTable<?> table = dbPersistence.table(clazz);
-		if (table instanceof ImmutableTable) {
-			return ((ImmutableTable<?>) table).read((String)value);
+		if (table instanceof Table) {
+			return ((Table<?>) table).read(value);
 		} else {
 			throw new IllegalArgumentException("Clazz: " + clazz);
 		}
@@ -435,40 +438,40 @@ public abstract class AbstractTable<T> {
 	 * At the moment no references of other values than immutables are allowed.
 	 * 
 	 * @param value the object from which to get the reference.
-	 * @param insertIfNotExisting true => create if not existing
+	 * @param copyOnchange
 	 * @return <code>if value not found and parameter insert is false
 	 * @throws SQLException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Object getReferenceValue(Object value, boolean insertIfNotExisting) throws SQLException {
+	private Object getReferenceValue(Object value, boolean copyOnchange) throws SQLException {
 		Class<?> clazz = (Class<?>) value.getClass();
 		AbstractTable<?> abstractTable = dbPersistence.table(clazz);
 		if (abstractTable == null) {
 			throw new IllegalArgumentException(clazz.getName());
 		}
-		if (abstractTable instanceof ImmutableTable) {
-			ImmutableTable immutableTable = (ImmutableTable) abstractTable;
-			return immutableTable.getId(value);
-		} else if (value instanceof Code) {
-			return IdUtils.getId(value);
+		if (abstractTable instanceof Table) {
+			Table table = (Table) abstractTable;
+			Object id = IdUtils.getId(value);
+			Object objectInDb = id != null ? table.read(id) : null;
+			if (objectInDb != null) {
+				if (!EqualsHelper.equals(value, objectInDb)) {
+					if (copyOnchange) {
+						IdUtils.setId(value, null);
+						id = table.insert(value);
+					} else {
+						table.update(id, value);
+					}
+				}
+			} else {
+				id = table.insert(value);
+			}
+			return id;
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}
 	}
 	
-	protected int setParameters(PreparedStatement statement, T object) throws SQLException {
-		return setParameters(statement, object, null);
-	}
-
-	protected int setParameters(PreparedStatement statement, T object, Object id) throws SQLException {
-		return setParameters(statement, object, false, false, id);
-	}
-
-	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert) throws SQLException {
-		return setParameters(statement, object, doubleValues, insert, null);
-	}
-	
-	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean insert, Object id) throws SQLException {
+	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, boolean copyReferencesOnchange, Object id) throws SQLException {
 		int parameterPos = 1;
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
@@ -479,16 +482,14 @@ public abstract class AbstractTable<T> {
 				} else if (ViewUtil.isView(property)) {
 					value = IdUtils.getId(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
-					value = getReferenceValue(value, insert);
+					value = getReferenceValue(value, copyReferencesOnchange);
 				} 
 			}
 			helper.setParameter(statement, parameterPos++, value, property);
 			if (doubleValues) helper.setParameter(statement, parameterPos++, value, property);
 		}
-		if (id != null) {
-			statement.setObject(parameterPos++, id);
-			if (doubleValues) statement.setObject(parameterPos++, id);
-		}
+		statement.setObject(parameterPos++, id);
+		if (doubleValues) statement.setObject(parameterPos++, id);
 		return parameterPos;
 	}
 	

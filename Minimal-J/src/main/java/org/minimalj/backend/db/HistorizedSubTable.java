@@ -40,8 +40,7 @@ public class HistorizedSubTable extends AbstractTable {
 		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
-			int parameterPos = setParameters(insertStatement, object, false, true);
-			insertStatement.setObject(parameterPos++, parentId);
+			int parameterPos = setParameters(insertStatement, object, false, true, parentId);
 			insertStatement.setInt(parameterPos++, position);
 			insertStatement.setInt(parameterPos++, version);
 			insertStatement.execute();
@@ -74,8 +73,7 @@ public class HistorizedSubTable extends AbstractTable {
 			}
 			
 			if (insert) {
-				int parameterPos = setParameters(insertStatement, objects.get(position), false, true);
-				insertStatement.setObject(parameterPos++, parentId);
+				int parameterPos = setParameters(insertStatement, objects.get(position), false, true, parentId);
 				insertStatement.setInt(parameterPos++, position);
 				insertStatement.setInt(parameterPos++, version);
 				insertStatement.execute();
