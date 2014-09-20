@@ -219,10 +219,8 @@ public abstract class Editor<T> {
 		if (isSaveable()) {
 			try {
 				Object saveResult = save(editedObject);
-				if (saveResult != null) {
-					fireSaved(saveResult);
-					finish();
-				}
+				fireSaved(saveResult);
+				finish();
 			} catch (Exception x) {
 				String message = x.getMessage() != null ? x.getMessage() : x.getClass().getSimpleName();
 				logger.log(Level.SEVERE, message, x);
