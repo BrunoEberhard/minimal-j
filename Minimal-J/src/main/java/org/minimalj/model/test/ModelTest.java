@@ -231,7 +231,7 @@ public class ModelTest {
 		}
 	}
 	
-	private void testFieldType(Class<?> fieldType, String messagePrefix, boolean listsAllowed) {
+	private void testFieldType(Class<?> fieldType, String messagePrefix, boolean isListElement) {
 		if (!FieldUtils.isAllowedPrimitive(fieldType)) {
 			if (fieldType.isPrimitive()) {
 				problems.add(messagePrefix + " has invalid Type");
@@ -245,7 +245,7 @@ public class ModelTest {
 			if (fieldType.isArray()) {
 				problems.add(messagePrefix + " is an array which is not allowed");
 			}
-			testClass(fieldType, listsAllowed);
+			testClass(fieldType, isListElement);
 		}
 	}
 
