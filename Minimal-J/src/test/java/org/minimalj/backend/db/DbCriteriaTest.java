@@ -57,8 +57,8 @@ public class DbCriteriaTest {
 		Assert.assertEquals(2, hList.size());
 	}
 
-	@Test // if read by a foreign key works correctly if the reference is in a immutalbe
-	public void testForeignKeyCriteriaInImmutable() throws SQLException {
+	@Test // if read by a foreign key works correctly if the reference is in a dependable
+	public void testForeignKeyCriteriaInDependable() throws SQLException {
 		G g = new G("g1");
 		Object id = persistence.insert(g);
 		g = persistence.read(G.class, id);

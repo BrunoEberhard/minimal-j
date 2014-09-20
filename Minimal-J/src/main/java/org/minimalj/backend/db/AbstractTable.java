@@ -434,8 +434,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	/**
-	 * Search or create an immutable.<br>
-	 * At the moment no references of other values than immutables are allowed.
+	 * creates or updates the dependable values
 	 * 
 	 * @param value the object from which to get the reference.
 	 * @param copyOnchange

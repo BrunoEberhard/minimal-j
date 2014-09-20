@@ -29,7 +29,7 @@ public class DbPersistenceHelper {
 	/**
 	 * 
 	 * @param property
-	 * @return true if property isn't a simply object like String, Integer, Date etc but a immutable or reference
+	 * @return true if property isn't a simply object like String, Integer, Date etc but a dependable or view
 	 */
 	public static boolean isReference(PropertyInterface property) {
 		if (property.getFieldClazz().getName().startsWith("java")) return false;
