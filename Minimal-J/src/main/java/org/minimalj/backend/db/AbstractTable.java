@@ -63,7 +63,6 @@ public abstract class AbstractTable<T> {
 
 	protected final String selectByIdQuery;
 	protected final String insertQuery;
-	protected final String selectMaxIdQuery;
 	protected final String clearQuery;
 	
 	// TODO: its a little bit strange to pass the idProperty here. Also because the property
@@ -80,7 +79,6 @@ public abstract class AbstractTable<T> {
 		
 		this.selectByIdQuery = selectByIdQuery();
 		this.insertQuery = insertQuery();
-		this.selectMaxIdQuery = selectMaxIdQuery();
 		this.clearQuery = clearQuery();
 		
 		findCodes();
@@ -183,23 +181,6 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	public int getMaxId() {
-		try {
-			PreparedStatement statement = getStatement(dbPersistence.getConnection(), selectMaxIdQuery, false);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				if (resultSet.next()) {
-					return resultSet.getInt(1);
-				} else {
-					return 0;
-				}
-			} catch (SQLException x) {
-				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't get max Id of " + getTableName());
-			}
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't get max Id of " + getTableName());
-		}
-	}
-	
 	protected void createTable(DbSyntax syntax) {
 		StringBuilder s = new StringBuilder();
 		syntax.addCreateStatementBegin(s, getTableName());
@@ -510,12 +491,6 @@ public abstract class AbstractTable<T> {
 
 	protected abstract String selectByIdQuery();
 
-	protected String selectMaxIdQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT MAX(id) FROM "); query.append(getTableName()); 
-		return query.toString();
-	}
-	
 	protected String clearQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("DELETE FROM "); query.append(getTableName()); 
