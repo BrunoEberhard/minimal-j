@@ -1,13 +1,12 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.WizardContent;
-import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 
-public class VaadinSwitchContent extends GridLayout implements WizardContent {
+public class VaadinSwitchContent extends GridLayout implements SwitchContent {
 	private static final long serialVersionUID = 1L;
 
 	private IContent showContent;
@@ -22,7 +21,7 @@ public class VaadinSwitchContent extends GridLayout implements WizardContent {
 	}
 
 	@Override
-	public void show(FormContent c) {
+	public void show(IContent c) {
 		if (showContent != null) {
 			Component component = (Component) showContent;
 			removeComponent(component);

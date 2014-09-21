@@ -1,17 +1,17 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.WizardContent;
-import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.component.AbstractContainer;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
-public class LanternaSwitchContent extends AbstractContainer implements WizardContent {
+public class LanternaSwitchContent extends AbstractContainer implements SwitchContent {
 
 	@Override
-	public void show(FormContent content) {
+	public void show(IContent content) {
 		show((Component) content);
 	}
 	

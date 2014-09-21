@@ -126,7 +126,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public WizardContent createWizardContent() {
+	public SwitchContent createSwitchContent() {
 		// TODO Auto-generated method stub
 		return null;
 	}

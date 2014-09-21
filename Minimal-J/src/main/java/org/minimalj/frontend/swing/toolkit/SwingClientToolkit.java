@@ -156,7 +156,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public WizardContent createWizardContent() {
+	public SwitchContent createSwitchContent() {
 		return new SwingSwitchContent();
 	}
 

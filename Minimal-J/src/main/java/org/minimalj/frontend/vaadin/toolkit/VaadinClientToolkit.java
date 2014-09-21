@@ -124,7 +124,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public WizardContent createWizardContent() {
+	public SwitchContent createSwitchContent() {
 		return new VaadinSwitchContent();
 	}
 	

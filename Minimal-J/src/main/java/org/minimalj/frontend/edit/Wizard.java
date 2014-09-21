@@ -6,7 +6,7 @@ import org.minimalj.application.DevMode;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.WizardContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.ResourceActionEnabled;
@@ -19,7 +19,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	protected final PreviousWizardStepAction prevAction;
 	protected final NextWizardStepAction nextAction;
-	private WizardContent wizardContent;
+	private SwitchContent wizardContent;
 	private final Indicator indicator;
 	private final EditorListener stepFinishedListener;
 	
@@ -74,7 +74,7 @@ public abstract class Wizard<T> extends Editor<T> {
 	@Override
 	public void startEditor() {
 		super.startEditor();
-		wizardContent = ClientToolkit.getToolkit().createWizardContent();
+		wizardContent = ClientToolkit.getToolkit().createSwitchContent();
 		setCurrentStep(getFirstStep());
 	}
 

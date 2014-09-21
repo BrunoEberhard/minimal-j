@@ -83,11 +83,11 @@ public abstract class ClientToolkit {
 
 	public abstract FormContent createFormContent(int columns, int columnWidth);
 
-	public interface WizardContent extends IContent {
-		public void show(FormContent content);
+	public interface SwitchContent extends IContent {
+		public void show(IContent content);
 	}
 	
-	public abstract WizardContent createWizardContent();
+	public abstract SwitchContent createSwitchContent();
 
 	public abstract <T> ITable<T> createTable(Object[] fields);
 	

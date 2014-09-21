@@ -8,10 +8,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.WizardContent;
-import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 
-public class SwingSwitchContent extends JPanel implements WizardContent {
+public class SwingSwitchContent extends JPanel implements SwitchContent {
 	private static final long serialVersionUID = 1L;
 	
 	private IContent shownComponent;
@@ -22,10 +21,6 @@ public class SwingSwitchContent extends JPanel implements WizardContent {
 	}
 
 	@Override
-	public void show(FormContent c) {
-		show((IContent) c);
-	}
-	
 	public void show(IContent c) {
 		if (shownComponent != c) {
 			JComponent component = (JComponent) c;
