@@ -233,9 +233,10 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		public Object getValueAt(int row, int column) {
 			try {
 				Object object = getObject(row);
-				return properties.get(column).getValue(object);
+				PropertyInterface property = properties.get(column);
+				return property.getValue(object);
 			} catch (Exception x) {
-				x.printStackTrace();
+				logger.severe("Couldn't get value for " + row + "/" + column + ": " + x.getMessage());
 				return row + "/" + column + ": " + x.getMessage();
 			}
 		}
