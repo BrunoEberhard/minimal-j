@@ -19,7 +19,7 @@ public class CodeEditField extends AbstractEditField<Code> implements Enable, De
 	private final ComboBox<Code> comboBox;
 	private final TextField textFieldDisabled;
 
-	public CodeEditField(PropertyInterface property, String prefix) {
+	public CodeEditField(PropertyInterface property) {
 		super(property, true);
 		codes = Codes.get((Class<Code>) property.getFieldClazz());
 		

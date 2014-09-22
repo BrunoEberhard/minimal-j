@@ -13,7 +13,7 @@ public class CodeFormField<T> extends AbstractEditField<Object> {
 	private final List<T> codes;
 	private final TextField textFieldDisabled;
 
-	public CodeFormField(PropertyInterface property, String codeName) {
+	public CodeFormField(PropertyInterface property) {
 		super(property, true);
 		codes = Codes.get((Class<T>) property.getFieldClazz());
 		

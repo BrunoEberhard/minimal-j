@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 
 import org.minimalj.frontend.edit.fields.BigDecimalEditField;
 import org.minimalj.frontend.edit.fields.CheckBoxStringField;
+import org.minimalj.frontend.edit.fields.CodeEditField;
+import org.minimalj.frontend.edit.fields.CodeFormField;
 import org.minimalj.frontend.edit.fields.EditField;
 import org.minimalj.frontend.edit.fields.EditField.EditFieldListener;
 import org.minimalj.frontend.edit.fields.Enable;
@@ -39,6 +41,7 @@ import org.minimalj.model.InvalidValues;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.Properties;
@@ -150,6 +153,8 @@ public class Form<T> implements DemoEnabled {
 				return new LocalTimeField(property, editable);
 			} else if (Enum.class.isAssignableFrom(fieldClass)) {
 				return new EnumEditField(property);
+			} else if (Code.class.isAssignableFrom(fieldClass)) {
+				return new CodeEditField(property);
 			} else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
 				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
@@ -173,6 +178,7 @@ public class Form<T> implements DemoEnabled {
 			else if (fieldClass == LocalDate.class) return new LocalDateField(property, false);
 			else if (fieldClass == LocalTime.class) return new LocalTimeField(property, false);
 			else if (Enum.class.isAssignableFrom(fieldClass)) return new EnumFormField(property);
+			else if (Code.class.isAssignableFrom(fieldClass)) return new CodeFormField(property);
 			else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
 				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, false);
