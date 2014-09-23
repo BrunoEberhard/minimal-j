@@ -8,7 +8,6 @@ public class LoggingRuntimeException extends RuntimeException {
 
 	public LoggingRuntimeException(Exception x, Logger logger, String text) {
 		super(text);
-		x.printStackTrace();
 		logger.log(Level.SEVERE, text, x);
 	}
 }
