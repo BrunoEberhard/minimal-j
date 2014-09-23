@@ -33,7 +33,7 @@ public class CodeFormField<T> extends AbstractEditField<Object> {
 	@Override
 	public void setObject(Object value) {
 		Object code = Codes.findCode(codes, value);
-		textFieldDisabled.setText(code.toString());
+		textFieldDisabled.setText(code != null ? code.toString() : null);
 	}
 
 }
