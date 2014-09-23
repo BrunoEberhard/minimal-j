@@ -36,7 +36,7 @@ public abstract class PreferencesHelper {
 				int ordinal = preferences.getInt(key, presetValue != null ? presetValue.ordinal() : 0);
 				value = EnumUtils.valueList((Class<Enum>) presetValue.getClass()).get(ordinal);
 			} else {
-				logger.warning("Preference Field with unsupported Class: " + key + " of class " + clazz.getName());
+				logger.warning("Preference Field with unsupported Class: " + key + " of class " + clazz.getSimpleName() + " in " + data.getClass().getSimpleName());
 			}
 			FlatProperties.set(data, key, value);
 		}
