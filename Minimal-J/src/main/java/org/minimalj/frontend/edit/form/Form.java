@@ -50,13 +50,13 @@ import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.DemoEnabled;
-import org.minimalj.util.LoggingRuntimeException;
+import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.resources.Resources;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
 public class Form<T> implements DemoEnabled {
-	private static Logger logger = Logger.getLogger(Form.class.getName());
+	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
 
 	protected final boolean editable;
 	private final ResourceBundle resourceBundle;
@@ -368,7 +368,7 @@ public class Form<T> implements DemoEnabled {
 		try {
 			formField.setObject(value);
 		} catch (Exception x) {
-			throw new LoggingRuntimeException(x, logger, "Failed to set " + property.getFieldPath());
+			ExceptionUtils.logReducedStackTrace(logger, x);
 		}
 	}
 
