@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -47,7 +48,8 @@ public class SwingCaption extends JPanel {
 	private static class CaptionLabel extends JLabel {
 
 		private static final long serialVersionUID = 1L;
-
+		private static WeakHashMap<Font, Font> boldFonts = new WeakHashMap<Font, Font>();
+		
 		public CaptionLabel(String caption) {
 			super(caption);
 			setHorizontalTextPosition(SwingConstants.LEADING);
@@ -61,9 +63,14 @@ public class SwingCaption extends JPanel {
 			
 			super.setUI(ui);
 			Font font = getFont();
-			float fontSize = font.getSize();
-			fontSize = (float)((int)(fontSize * 4.0F / 5.0F + 1.0F));
-			setFont(font.deriveFont(fontSize).deriveFont(Font.BOLD));
+			Font boldFont = boldFonts.get(font);
+			if (boldFont == null) {
+				float fontSize = font.getSize();
+				fontSize = (float)((int)(fontSize * 4.0F / 5.0F + 1.0F));
+				boldFont = font.deriveFont(fontSize).deriveFont(Font.BOLD);
+				boldFonts.put(font, boldFont);
+			}
+			setFont(boldFont);
 		}
 		
 	}
