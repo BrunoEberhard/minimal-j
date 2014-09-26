@@ -47,6 +47,8 @@ import org.minimalj.util.StringUtils;
 public abstract class AbstractTable<T> {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
 	
+	private static final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
+	
 	protected final DbPersistence dbPersistence;
 	protected final DbPersistenceHelper helper;
 	protected final Class<T> clazz;
@@ -87,8 +89,11 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected static LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
+		if (columnsForClass.containsKey(clazz)) {
+			return columnsForClass.get(clazz);
+		}
+		
 		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<String, PropertyInterface>();
-
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = StringUtils.toDbName(field.getName());
@@ -108,6 +113,7 @@ public abstract class AbstractTable<T> {
 				columns.put(fieldName, new SimpleProperty(clazz, field));
 			}
 		}
+		columnsForClass.put(clazz, columns);
 		return columns;
 	}	
 	
@@ -347,7 +353,7 @@ public abstract class AbstractTable<T> {
 		return readResultSetRow(dbPersistence, clazz,  resultSet, time);
 	}
 	
-	protected static <T> T readResultSetRow(DbPersistence dbPersistence, Class<T> clazz, ResultSet resultSet, Integer time) throws SQLException {
+	protected <T> T readResultSetRow(DbPersistence dbPersistence, Class<T> clazz, ResultSet resultSet, Integer time) throws SQLException {
 		T result = CloneHelper.newInstance(clazz);
 		
 		DbPersistenceHelper helper = new DbPersistenceHelper(dbPersistence);
