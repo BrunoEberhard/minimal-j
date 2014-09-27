@@ -27,43 +27,57 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	
 	private final SwingTab tab;
 
+	private JMenu fileMenu;
+	private JMenu newSubMenu;
+	private JMenu objectMenu;
+	
 	public SwingMenuBar(SwingTab tab) {
 		super();
 		this.tab = tab;
-		updateMenu();
+
+		fileMenu = createFileMenu();
+		add(fileMenu);
+		add(createEditMenu());
+		add(createViewMenu());
+		add(createWindowMenu());
 	}
 	
 	protected void updateMenu() {
-		removeAll();
-		add(createFileMenu());
-		add(createEditMenu());
-		add(createViewMenu());
-		JMenu objectMenu = createObjectMenu();
+		updateFileMenu();
 		if (objectMenu != null) {
-			add(objectMenu);
+			remove(objectMenu);
 		}
-		add(createWindowMenu());
+		objectMenu = createObjectMenu();
+		if (objectMenu != null) {
+			add(objectMenu, 3); // position 3 : after file, edit and display
+		}
 		if (getParent() != null) {
 			getParent().revalidate();
 			getParent().repaint();
 		}
 	}
 	
+	private void updateFileMenu() {
+		if (newSubMenu != null) {
+			fileMenu.remove(newSubMenu);
+		}
+		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew();
+		newSubMenu = menu("new", actionsNew);
+		if (!actionsNew.isEmpty()) {
+			fileMenu.add(newSubMenu, 0);
+		}
+	}
+
 	private JMenu createFileMenu() {
 		JMenu menu = menu("file");
 		
-		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew();
-		if (!actionsNew.isEmpty()) {
-			addActions(menu, "new", actionsNew);
-			menu.addSeparator();
-		}
 		menu.add(new JMenuItem(tab.frame.closeWindowAction));
 		menu.add(new JMenuItem(tab.closeTabAction));
 		menu.addSeparator();
 		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport();
-		if (!actionsImport.isEmpty()) addActions(menu, "import", actionsImport);
+		if (!actionsImport.isEmpty()) menu.add(menu("import", actionsImport));
 		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport();
-		if (!actionsExport.isEmpty()) addActions(menu, "export", actionsExport);
+		if (!actionsExport.isEmpty()) menu.add(menu("export", actionsExport));
 		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) menu.addSeparator();
 		menu.add(new JMenuItem(tab.frame.exitAction));
 		return menu;
@@ -131,10 +145,10 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		return menu;
 	}
 	
-	private void addActions(JMenu menu, String type, List<IAction> actions) {
+	private JMenu menu(String type, List<IAction> actions) {
 		JMenu subMenu = menu(type);
 		addActions(subMenu, actions);
-		menu.add(subMenu);
+		return subMenu;
 	}
 	
 	private void addActions(JMenu menu, List<IAction> actions) {
@@ -151,7 +165,6 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 			}
 		}
 	}
-	
 	
 	void onHistoryChanged() {
 		updateMenu();
