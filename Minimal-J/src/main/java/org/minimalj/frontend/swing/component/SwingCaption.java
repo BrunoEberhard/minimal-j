@@ -57,9 +57,11 @@ public class SwingCaption extends JPanel {
 
 		@Override
 		public void setUI(LabelUI ui) {
-			// set the Font to "unchanged", otherwise the font gets smaller and smaller
-			// with every setUI
-			setFont(null);
+			if (getFont() != null) {
+				// set the Font to "unchanged", otherwise the font gets smaller and smaller
+				// with every setUI
+				setFont(null);
+			}
 			
 			super.setUI(ui);
 			Font font = getFont();
