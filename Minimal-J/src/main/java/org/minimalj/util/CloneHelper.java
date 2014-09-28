@@ -85,7 +85,6 @@ public class CloneHelper {
 	}
 	
 	public static <T> T newInstance(Class<T> clazz) {
-		new Exception().printStackTrace();
 		@SuppressWarnings("unchecked")
 		Constructor<T> constructor = (Constructor<T>) contructors.get(clazz);
 		if (constructor == null) {
