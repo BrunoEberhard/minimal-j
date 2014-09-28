@@ -3,7 +3,9 @@ package org.minimalj.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -15,6 +17,8 @@ import java.util.Set;
  */
 public class CloneHelper {
 
+	private static Map<Class<?>, Constructor<?>> contructors = new HashMap<>(200);
+	
 	public static <T> T clone(T object) {
 		if (object == null) return null;
 
@@ -81,11 +85,21 @@ public class CloneHelper {
 	}
 	
 	public static <T> T newInstance(Class<T> clazz) {
+		new Exception().printStackTrace();
+		@SuppressWarnings("unchecked")
+		Constructor<T> constructor = (Constructor<T>) contructors.get(clazz);
+		if (constructor == null) {
+			try {
+				constructor = clazz.getConstructor();
+				contructors.put(clazz, constructor);
+			} catch (SecurityException | NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		try {
-			Constructor<T> constructor = clazz.getConstructor();
 			T newInstance = (T) constructor.newInstance();
 			return newInstance;
-		} catch (SecurityException | NoSuchMethodException| IllegalArgumentException | //
+		} catch (IllegalArgumentException | //
 				InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
