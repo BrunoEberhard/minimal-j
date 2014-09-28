@@ -8,17 +8,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * note: this class works only with special classes validatable through
- * ModelTest .
- * 
- * @author bruno
- *
- */
 public class CloneHelper {
 
+	/*
+	 * With all the security checks getting a constructor is quite expensive.
+	 * So here is a cache for the constructors for the already cloned classes.
+	 */
 	private static Map<Class<?>, Constructor<?>> contructors = new HashMap<>(200);
 	
+	/**
+	 * note: clone works only with special classes validatable through
+	 * ModelTest . 
+	 * 
+	 */
 	public static <T> T clone(T object) {
 		if (object == null) return null;
 
@@ -32,7 +34,12 @@ public class CloneHelper {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
+	/**
+	 * note: deepCopy works only with special classes validatable through
+	 * ModelTest . 
+	 * 
+	 */
 	public static void deepCopy(Object from, Object to) {
 		if (from == null) throw new IllegalArgumentException("from must not be null");
 		if (to == null) throw new IllegalArgumentException("to must not be null");
