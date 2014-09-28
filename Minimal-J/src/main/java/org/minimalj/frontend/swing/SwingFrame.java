@@ -91,13 +91,6 @@ public class SwingFrame extends JFrame implements IComponent {
 		return tab;
 	}
 	
-	public void refresh() {
-		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
-			SwingTab tab = (SwingTab) tabbedPane.getTab(i);
-			tab.refresh();
-		}
-	}
-
 	public void closeTabActionPerformed() {
 		if (getVisibleTab().tryToClose()) {
 			closeTab();
