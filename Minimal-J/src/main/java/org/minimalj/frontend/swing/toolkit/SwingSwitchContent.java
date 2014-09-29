@@ -5,7 +5,6 @@ import java.awt.Component;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
@@ -26,15 +25,13 @@ public class SwingSwitchContent extends JPanel implements SwitchContent {
 			JComponent component = (JComponent) c;
 			removeAll();
 			if (component != null) {
-				// TODO the updateComponentTreeUI uses 4-5ms. This should only be done if necessary (if l&f has changed)
-				SwingUtilities.updateComponentTreeUI(component);
 				add(component, BorderLayout.CENTER);
 			}
 			refresh(this);
 		}
 		shownComponent = c;
 	}
-
+	
 	private void refresh(Component component) {
 		repaint();
 		revalidate();
@@ -47,5 +44,5 @@ public class SwingSwitchContent extends JPanel implements SwitchContent {
 			component.requestFocus();
 		}
 	}
-	
+
 }
