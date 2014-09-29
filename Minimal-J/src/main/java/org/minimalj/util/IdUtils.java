@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 
 
 public class IdUtils {
-	
 	private static final Logger logger = Logger.getLogger(IdUtils.class.getName());
+
 	private static final Map<Class<?>, Field> idFieldOfClass = new HashMap<>(200);
 	
 	private static Field getIdField(Class<?> clazz) {
@@ -76,19 +76,5 @@ public class IdUtils {
 
 	public static String getIdString(Object object) {
 		return String.valueOf(getId(object));
-	}
-
-	public static long convertToLong(Object value) {
-		if (value instanceof Integer) {
-			return ((Integer) value).longValue();
-		} else if (value instanceof Long) {
-			return ((Long) value).longValue();
-		} else if (value instanceof Short) {
-			return ((Short) value).longValue();
-		} else if (value instanceof Byte) {
-			return ((Byte) value).longValue();
-		} else {
-			return 0;
-		}
 	}
 }
