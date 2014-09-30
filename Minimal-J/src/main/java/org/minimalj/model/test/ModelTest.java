@@ -16,10 +16,8 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
@@ -114,15 +112,15 @@ public class ModelTest {
 	private void testId(Class<?> clazz, boolean isListElement) {
 		try {
 			Field fieldId = clazz.getField("id");
-			if (mainModelClasses.contains(clazz) || Codes.isCode(clazz)) {
+			if (isListElement) {
+				problems.add(clazz.getName() + ": List elements aren't allowed to have an id field");
+			} else {
 				if (!FieldUtils.isAllowedId(fieldId.getType())) {
 					problems.add(clazz.getName() + ": Domain classes ids must be of Integer, Long, String or UUID");
 				}
 				if (!FieldUtils.isPublic(fieldId)) {
 					problems.add(clazz.getName() + ": field id must be public");
 				}
-			} else if (isListElement) {
-				problems.add(clazz.getName() + ": Only domain classes are allowed to have an id field");
 			}
 		} catch (NoSuchFieldException e) {
 			if (mainModelClasses.contains(clazz)) {
@@ -162,7 +160,7 @@ public class ModelTest {
 
 	private void testField(Field field, boolean isListElement) {
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !field.getName().equals("id") && !field.getName().equals("version")) {
-			testFieldType(field);
+			testTypeOfField(field);
 			testNoMethodsForPublicField(field);
 			Class<?> fieldType = field.getType();
 			if (fieldType == String.class) {
@@ -175,7 +173,7 @@ public class ModelTest {
 		}
 	}
 
-	private void testFieldType(Field field) {
+	private void testTypeOfField(Field field) {
 		Class<?> fieldType = field.getType();
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
@@ -184,17 +182,16 @@ public class ModelTest {
 				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
 			}
 			if (fieldType == List.class) {
-				testListFieldType(field, messagePrefix);
+				testTypeOfListField(field, messagePrefix);
 			} else if (fieldType == Set.class) {
-				testSetFieldType(field, messagePrefix);
+				testTypeOfSetField(field, messagePrefix);
 			}
-		} else if (!ViewUtil.isView(field)) {
-			testFieldType(fieldType, messagePrefix, false);
-			// auf leeren Konstruktor prüfen?
+		} else {
+			testTypeOfField(field, messagePrefix);
 		}
 	}
 
-	private void testListFieldType(Field field, String messagePrefix) {
+	private void testTypeOfListField(Field field, String messagePrefix) {
 		Class<?> listType = null;
 		try {
 			listType = GenericUtils.getGenericClass(field);
@@ -203,13 +200,13 @@ public class ModelTest {
 		}
 		if (listType != null) {
 			messagePrefix = "Generic of " + messagePrefix;
-			testFieldType(listType, messagePrefix, true);
+			testTypeOfListField(listType, messagePrefix);
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}
 	}
 
-	private void testSetFieldType(Field field, String messagePrefix) {
+	private void testTypeOfSetField(Field field, String messagePrefix) {
 		@SuppressWarnings("rawtypes")
 		Class setType = null;
 		try {
@@ -231,24 +228,42 @@ public class ModelTest {
 		}
 	}
 	
-	private void testFieldType(Class<?> fieldType, String messagePrefix, boolean isListElement) {
-		if (!FieldUtils.isAllowedPrimitive(fieldType)) {
-			if (fieldType.isPrimitive()) {
-				problems.add(messagePrefix + " has invalid Type");
-			}
-			if (Modifier.isAbstract(fieldType.getModifiers())) {
-				problems.add(messagePrefix + " must not be of an abstract Type");
-			}
-			if (mainModelClasses.contains(fieldType) && !ViewOf.class.isAssignableFrom(fieldType)) {
-				problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
-			}
-			if (fieldType.isArray()) {
-				problems.add(messagePrefix + " is an array which is not allowed");
-			}
-			testClass(fieldType, isListElement);
+	private void testTypeOfField(Field field, String messagePrefix) {
+		Class<?> fieldType = field.getType();
+		if (FieldUtils.isAllowedPrimitive(fieldType)) {
+			return;
 		}
+		if (fieldType.isPrimitive()) {
+			problems.add(messagePrefix + " has invalid Type");
+		}
+		if (Modifier.isAbstract(fieldType.getModifiers())) {
+			problems.add(messagePrefix + " must not be of an abstract Type");
+		}
+		if (mainModelClasses.contains(fieldType) && !ViewUtil.isView(field)) {
+			problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
+		}
+		if (fieldType.isArray()) {
+			problems.add(messagePrefix + " is an array which is not allowed");
+		}
+		testClass(fieldType, false);
 	}
 
+	private void testTypeOfListField(Class<?> fieldType, String messagePrefix) {
+		if (fieldType.isPrimitive()) {
+			problems.add(messagePrefix + " has invalid Type");
+		}
+		if (Modifier.isAbstract(fieldType.getModifiers())) {
+			problems.add(messagePrefix + " must not be of an abstract Type");
+		}
+		if (mainModelClasses.contains(fieldType)) {
+			problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
+		}
+		if (fieldType.isArray()) {
+			problems.add(messagePrefix + " is an array which is not allowed");
+		}
+		testClass(fieldType, true);
+	}
+	
 	private void testSize(Field field) {
 		PropertyInterface property = Properties.getProperty(field);
 		try {
