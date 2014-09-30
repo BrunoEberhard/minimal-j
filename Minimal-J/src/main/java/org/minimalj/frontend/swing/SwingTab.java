@@ -16,7 +16,6 @@ import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -27,7 +26,6 @@ import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
 import org.minimalj.frontend.swing.toolkit.ScrollablePanel;
-import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingLink;
 import org.minimalj.frontend.swing.toolkit.SwingFormAlignLayoutManager;
 import org.minimalj.frontend.swing.toolkit.SwingScrollPane;
@@ -217,10 +215,6 @@ public class SwingTab extends EditablePanel {
 			}
 			switchContent.show(content);
 			registerMouseListener((Component) content);
-			if (content instanceof JComponent) {
-				// this is more about if component is not null (empty page)
-				SwingClientToolkit.focusFirstComponent((JComponent) content);
-			}
 		}
 	}
 	
