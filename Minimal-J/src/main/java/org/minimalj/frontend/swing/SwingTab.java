@@ -149,6 +149,7 @@ public class SwingTab extends EditablePanel {
 	
 	public void refresh() {
 		getVisiblePage().refresh();
+		registerMouseListener((Component) getVisiblePage().getContent());
 	}
 
 	private class UpAction extends SwingResourceAction {
