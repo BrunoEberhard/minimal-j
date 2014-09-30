@@ -16,7 +16,6 @@ import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -39,7 +38,6 @@ public class SwingTab extends EditablePanel {
 	final SwingFrame frame;
 	final Action previousAction, nextAction, refreshAction, upAction, downAction;
 	final Action closeTabAction;
-	final JMenuItem menuItemToolBarVisible;
 
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
@@ -73,8 +71,6 @@ public class SwingTab extends EditablePanel {
 		toolBar = new SwingToolBar(this);
 		menuBar = new SwingMenuBar(this);
 
-		menuItemToolBarVisible = new MenuItemToolBarVisible();
-		
 		JPanel outerPanel = new JPanel(new BorderLayout());
 		outerPanel.add(menuBar, BorderLayout.NORTH);
 		JPanel panel = new JPanel(new BorderLayout());
