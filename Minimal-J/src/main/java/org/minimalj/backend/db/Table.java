@@ -453,7 +453,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next() && result.size() < maxResults) {
-					S resultObject = (S) readResultSetRow(dbPersistence, (Class<T>) resultClass, resultSet, 0);
+					S resultObject = (S) readResultSetRow(dbPersistence, (Class<S>) resultClass, resultSet, 0);
 					result.add(resultObject);
 
 					Object id = IdUtils.getId(resultObject);
