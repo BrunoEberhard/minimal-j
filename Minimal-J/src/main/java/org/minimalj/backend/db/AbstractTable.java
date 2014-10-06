@@ -353,8 +353,8 @@ public abstract class AbstractTable<T> {
 		return readResultSetRow(dbPersistence, clazz,  resultSet, time);
 	}
 	
-	protected <T> T readResultSetRow(DbPersistence dbPersistence, Class<T> clazz, ResultSet resultSet, Integer time) throws SQLException {
-		T result = CloneHelper.newInstance(clazz);
+	protected <R> R readResultSetRow(DbPersistence dbPersistence, Class<R> clazz, ResultSet resultSet, Integer time) throws SQLException {
+		R result = CloneHelper.newInstance(clazz);
 		
 		DbPersistenceHelper helper = new DbPersistenceHelper(dbPersistence);
 		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
