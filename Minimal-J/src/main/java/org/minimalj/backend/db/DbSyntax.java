@@ -90,11 +90,11 @@ public abstract class DbSyntax {
 		} else if (clazz == Set.class) {
 			s.append("INTEGER");
 		} else {
-			PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id");
-			if (idProperty == null) {
-				s.append("CHAR(36)");
-			} else {
+			if (FlatProperties.hasProperty(clazz, "id")) {
+				PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id");
 				addColumnDefinition(s, idProperty);
+			} else {
+				s.append("CHAR(36)");
 			}
 		}
 	}

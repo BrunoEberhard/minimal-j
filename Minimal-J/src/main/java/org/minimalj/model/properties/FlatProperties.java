@@ -29,12 +29,14 @@ public class FlatProperties {
 		Map<String, PropertyInterface> propertiesForClass = getProperties(clazz);
 		PropertyInterface propertyInterface = propertiesForClass.get(fieldName);
 
-		if (propertyInterface != null) {
-			return propertyInterface;
-		} else {
-			logger.severe("No field/setMethod " + fieldName + " in Class " + clazz.getName());
-			return null;
-		}
+		if (propertyInterface == null) throw new IllegalArgumentException("No field/setMethod " + fieldName + " in Class " + clazz.getName());
+
+		return propertyInterface;
+	}
+
+	public static boolean hasProperty(Class<?> clazz, String fieldName) {
+		Map<String, PropertyInterface> propertiesForClass = getProperties(clazz);
+		return propertiesForClass.containsKey(fieldName);
 	}
 
 	public static PropertyInterface getProperty(Field field) {
