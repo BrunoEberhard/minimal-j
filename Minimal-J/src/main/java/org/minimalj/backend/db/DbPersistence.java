@@ -45,7 +45,6 @@ public class DbPersistence {
 	public static final boolean CREATE_TABLES = true;
 	
 	private final DbSyntax syntax;
-	private final boolean createTablesOnInitialize;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	
@@ -75,7 +74,6 @@ public class DbPersistence {
 			} else {
 				throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
 			}
-			this.createTablesOnInitialize = createTablesOnInitialize;
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
 			}
