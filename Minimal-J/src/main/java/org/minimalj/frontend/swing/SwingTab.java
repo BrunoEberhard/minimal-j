@@ -5,17 +5,13 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -172,24 +168,6 @@ public class SwingTab extends EditablePanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			frame.closeTab();
-		}
-	}
-	
-	private class MenuItemToolBarVisible extends JCheckBoxMenuItem implements ItemListener {
-		private static final long serialVersionUID = 1L;
-		private final Preferences preferences =  Preferences.userNodeForPackage(MenuItemToolBarVisible.class).node(MenuItemToolBarVisible.class.getSimpleName());
-		
-		public MenuItemToolBarVisible() {
-			super("Navigation sichtbar");
-			addItemListener(this);
-			setSelected(preferences.getBoolean("visible", true));
-			toolBar.setVisible(isSelected());
-		}
-
-		@Override
-		public void itemStateChanged(ItemEvent e) {
-			toolBar.setVisible(isSelected());
-			preferences.putBoolean("visible", isSelected());
 		}
 	}
 	
