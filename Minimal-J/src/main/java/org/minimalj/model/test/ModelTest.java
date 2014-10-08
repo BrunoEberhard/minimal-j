@@ -115,8 +115,12 @@ public class ModelTest {
 			if (isListElement) {
 				problems.add(clazz.getName() + ": List elements aren't allowed to have an id field");
 			} else {
-				if (!FieldUtils.isAllowedId(fieldId.getType())) {
-					problems.add(clazz.getName() + ": Domain classes ids must be of Integer, Long, String or UUID");
+				if (mainModelClasses.contains(clazz)) {
+					if (fieldId.getType() != Object.class) {
+						problems.add(clazz.getName() + ": Domain class id must be Object");
+					} else if (!FieldUtils.isAllowedId(fieldId.getType())) {
+						problems.add(clazz.getName() + ": Domain classes ids must be of Integer, String or Object");
+					}
 				}
 				if (!FieldUtils.isPublic(fieldId)) {
 					problems.add(clazz.getName() + ": field id must be public");
