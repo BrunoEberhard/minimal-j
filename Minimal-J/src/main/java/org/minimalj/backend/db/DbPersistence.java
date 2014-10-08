@@ -355,25 +355,12 @@ public class DbPersistence {
 	}
 	
 	<U> AbstractTable<U> addClass(Class<U> clazz) {
-		if (FieldUtils.hasValidIdfield(clazz)) {
-			if (FieldUtils.hasValidVersionfield(clazz)) {
-				return addHistorizedClass(clazz);
-			} else {
-				Table<U> table = new Table<U>(this, clazz);
-				add(table);
-				return table;
-			}
-		} else {
-			throw new IllegalArgumentException(clazz.getName() + " has no valid id field");
-		}
-	}
-
-	private <U> HistorizedTable<U> addHistorizedClass(Class<U> clazz) {
-		HistorizedTable<U> table = new HistorizedTable<U>(this, clazz);
+		boolean historized = FieldUtils.hasValidVersionfield(clazz);
+		Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
 		add(table);
 		return table;
 	}
-	
+
 	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
