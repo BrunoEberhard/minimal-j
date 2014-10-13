@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
+import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -88,17 +89,18 @@ public class PageLink implements IAction {
 				return (Page) clazz.getConstructor(argumentClasses).newInstance();
 			}
 		} catch (Exception x) {
-			x.printStackTrace();
-			logger.log(Level.SEVERE, "UriFragment Auflösung fehlgeschlagen: " + pageLink, x);
+			String message = "Page could not be created: " + pageLink;
+			if (x.getCause() instanceof Exception) {
+				logger.log(Level.SEVERE, message);
+				ExceptionUtils.logReducedStackTrace(logger, (Exception) x.getCause());
+			} else {
+				logger.log(Level.SEVERE, message, x);
+			}
 			// TODO It would be nice to have here an error page instead of an empty page
 			return new EmptyPage();
 		}
 	}
 
-	public static String link(Class<? extends Page> pageClass, long id) {
-		return link(pageClass, String.valueOf(id));
-	}
-	
 	public static String link(Class<? extends Page> pageClass, String... args) {
 		StringBuilder s = new StringBuilder();
 		s.append(pageClass.getSimpleName());
