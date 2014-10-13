@@ -38,8 +38,8 @@ public class DbCriteriaTest {
 		Assert.assertEquals(id, h.g.id);
 	}
 
-	@Test // if read by a foreign key works correctly
-	public void testForeignKeyCriteria() throws SQLException {
+	@Test // if read by a reference works correctly
+	public void testSimpleCriteria() throws SQLException {
 		G g = new G("g1");
 		Object id = persistence.insert(g);
 		g = persistence.read(G.class, id);
@@ -53,8 +53,13 @@ public class DbCriteriaTest {
 		persistence.insert(h);
 		
 		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g, g), 3);
-		
-		Assert.assertEquals(2, hList.size());
+		Assert.assertEquals("Read by reference", 2, hList.size());
+
+		hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g.id, g.id), 3);
+		Assert.assertEquals("Read by references id", 2, hList.size());
+
+		hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g.g, "g1"), 3);
+		Assert.assertEquals("Read by references field", 2, hList.size());
 	}
 
 	@Test // if read by a foreign key works correctly if the reference is in a dependable

@@ -306,9 +306,13 @@ public abstract class AbstractTable<T> {
 		}
 		if (fieldPath.length() < wholeFieldPath.length()) {
 			String restOfFieldPath = wholeFieldPath.substring(fieldPath.length() + 1);
-			PropertyInterface subProperty = columns.get(column);
-			AbstractTable<?> subTable = dbPersistence.table(subProperty.getFieldClazz());
-			return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
+			if ("id".equals(restOfFieldPath)) {
+				return column + " " + criteriaOperator.getOperatorAsString() + " ?";
+			} else {
+				PropertyInterface subProperty = columns.get(column);
+				AbstractTable<?> subTable = dbPersistence.table(ViewUtil.resolve(subProperty.getFieldClazz()));
+				return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
+			}
 		} else {
 			return column + " " + criteriaOperator.getOperatorAsString() + " ?";
 		}
