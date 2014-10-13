@@ -241,7 +241,11 @@ public class ModelTest {
 		if (fieldType.isArray()) {
 			problems.add(messagePrefix + " is an array which is not allowed");
 		}
-		testClass(fieldType, false);
+		if (!ViewUtil.isView(field)) {
+			testClass(fieldType, false);
+		} else {
+			// TODO test for matching fields
+		}
 	}
 
 	private void testTypeOfListField(Class<?> fieldType, String messagePrefix) {
