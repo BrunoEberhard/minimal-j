@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.model.properties.Properties;
-import org.minimalj.util.FieldUtils;
 import org.minimalj.util.StringUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
@@ -81,10 +80,6 @@ public class Keys {
 	private static <T> void fillFields(T object, PropertyInterface enclosingProperty, int depth) throws IllegalAccessException, InstantiationException {
 		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (PropertyInterface property : propertiesOfObject.values()) {
-			// primitiv id fields are not set
-			if (property.getFieldName().equals("id") && FieldUtils.isAllowedId((Class<?>) property.getType())) continue;
-			if (property.getFieldName().equals("version") && FieldUtils.isAllowedVersionType((Class<?>) property.getType())) continue;
-			
 			Object value = null;
 			Class<?> type = property.getFieldClazz();
 
@@ -111,14 +106,14 @@ public class Keys {
 	private static Object createKey(Class<?> type, String fieldName, Class<?> declaringClass) {
 		if (type == String.class) {
 			return new String(fieldName);
-		} else if (type == Integer.class) {
+		} else if (type == Integer.class || type == Integer.TYPE) {
 			return new Integer(0);
-		} else if (type == Long.class) {
+		} else if (type == Long.class || type == Long.TYPE) {
 			return new Long(0);
 		} else if (Enum.class.isAssignableFrom(type)) {
 			Class<Enum> enumClass = (Class<Enum>) type;
 			return EnumUtils.createEnum(enumClass, fieldName);
-		} else if (type == Boolean.class) {
+		} else if (type == Boolean.class || type == Boolean.TYPE) {
 			return new Boolean(false);
 		} else if (type == BigDecimal.class) {
 			return new BigDecimal(0);
