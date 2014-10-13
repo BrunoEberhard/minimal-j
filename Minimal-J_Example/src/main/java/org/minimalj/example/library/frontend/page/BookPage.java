@@ -8,15 +8,15 @@ import org.minimalj.frontend.page.ObjectPage;
 
 public class BookPage extends ObjectPage<Book> {
 
-	private final long id;
+	private final String idString;
 
-	public BookPage(String id) {
-		this.id = Long.valueOf(id);
+	public BookPage(String idString) {
+		this.idString = idString;
 	}
 	
 	@Override
 	public Book loadObject() {
-		return Backend.getInstance().read(Book.class, id);
+		return Backend.getInstance().read(Book.class, idString);
 	}
 
 	@Override
