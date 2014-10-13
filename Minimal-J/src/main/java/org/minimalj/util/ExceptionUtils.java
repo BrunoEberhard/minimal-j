@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 
 public class ExceptionUtils {
 
+	private static final Logger EXCEPTION_LOGGER = Logger.getLogger("Exception");
+	
 	/**
 	 * Logs only the relevant part of the stack trace. For example
 	 * if a getter fails it's irrelevant if the getter is called
@@ -31,7 +33,7 @@ public class ExceptionUtils {
 			linesToSkip++;
 		}
 		for (int i = 0; i<=throwableStrings.length-linesToSkip; i++) {
-			logger.log(Level.SEVERE, throwableStrings[i]);
+			EXCEPTION_LOGGER.log(Level.SEVERE, throwableStrings[i]);
 		}
 	}
 
