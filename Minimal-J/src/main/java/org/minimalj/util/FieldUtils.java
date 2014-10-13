@@ -121,21 +121,6 @@ public class FieldUtils {
 		return classOfId == Integer.TYPE || classOfId == Long.TYPE;
 	}
 	
-	public static boolean hasValidIdfield(Class<?> clazz) {
-		try {
-			Field field = clazz.getField("id");
-			if (isAllowedId(field.getType())) {
-				return true;
-			} else {
-				throw new RuntimeException("Type of id field invalid: " + field.getType());
-			}
-		} catch (NoSuchFieldException e) {
-			return false;
-		} catch (SecurityException e) {
-			throw new LoggingRuntimeException(e, logger, "hasValidIdfield failed");
-		}
-	}
-	
 	public static boolean hasValidVersionfield(Class<?> clazz) {
 		try {
 			Field field = clazz.getField("version");
