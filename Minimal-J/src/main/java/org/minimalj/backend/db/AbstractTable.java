@@ -268,7 +268,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getFieldClazz();
-			if (Code.class.isAssignableFrom(fieldClazz) && !dbPersistence.tableExists(fieldClazz)) {
+			if (Code.class.isAssignableFrom(fieldClazz) && !dbPersistence.tableExists(fieldClazz) && fieldClazz != clazz) {
 				dbPersistence.addClass(fieldClazz);
 			}
 		}
