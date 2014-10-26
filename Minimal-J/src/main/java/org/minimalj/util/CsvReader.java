@@ -12,7 +12,11 @@ import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.properties.FlatProperties;
 
 /**
- * RFC: {@link http://tools.ietf.org/html/rfc4180}<p>
+ * This class doesn't replace a library like OpenCSV.
+ * It cannot be configured and it does accept only valid
+ * files as specified in the rfc and encoded in UTF-8.<p>
+ * 
+ * RFC: {@link http://tools.ietf.org/html/rfc4180}
  * 
  */
 public class CsvReader {
@@ -62,7 +66,7 @@ public class CsvReader {
     	return objects;
     }
     
-    List<String> readRecord() {
+    public List<String> readRecord() {
     	try {
     		return _readRecord();
     	} catch (IOException x) {
