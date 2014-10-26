@@ -1,5 +1,6 @@
 package org.minimalj.backend.db;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,10 +20,12 @@ import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
+import org.minimalj.model.annotation.Code;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
+import org.minimalj.util.CsvReader;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -80,6 +83,7 @@ public class DbPersistence {
 			testModel(classes);
 			if (createTablesOnInitialize) {
 				createTables();
+				createCodes();
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
@@ -371,6 +375,40 @@ public class DbPersistence {
 		}
 		for (AbstractTable<?> table : tableList) {
 			table.createConstraints(syntax);
+		}
+	}
+
+	private void createCodes() {
+		createConstantCodes();
+		createCsvCodes();
+	}
+	
+	private void createConstantCodes() {
+		for (AbstractTable<?> table : tables.values()) {
+			if (Code.class.isAssignableFrom(table.getClazz())) {
+				Class<? extends Code> codeClass = (Class<? extends Code>) table.getClazz(); 
+				List<? extends Code> constants = Codes.getConstants(codeClass);
+				for (Code code : constants) {
+					((Table<Code>) table).insert(code);
+				}
+			}
+		}
+	}
+
+	private void createCsvCodes() {
+		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		for (AbstractTable<?> table : tableList) {
+			if (Code.class.isAssignableFrom(table.getClazz())) {
+				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
+				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
+				if (is != null) {
+					CsvReader<? extends Code> reader = new CsvReader<>(clazz);
+					List<? extends Code> values = reader.readValues(is);
+					for (Code value : values) {
+						((Table<Code>) table).insert(value);
+					}
+				}
+			}
 		}
 	}
 	

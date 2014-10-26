@@ -1,9 +1,12 @@
 package org.minimalj.util;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Code;
 import org.minimalj.transaction.criteria.Criteria;
 
@@ -85,6 +88,19 @@ public class Codes {
 			}
 		}
 		return null;
+	}
+
+	public static <T extends Code> List<T> getConstants(Class<T> clazz) {
+		List<T> constants = new ArrayList<T>();
+		for (Field field : clazz.getDeclaredFields()) {
+			if (!FieldUtils.isStatic(field)) continue;
+			if (!FieldUtils.isFinal(field)) continue;
+			if (field.getType() != clazz) continue;
+			T constant = FieldUtils.getStaticValue(field);
+			if (Keys.isKeyObject(constant)) continue;
+			constants.add(constant);
+		}
+		return constants;
 	}
 	
 }
