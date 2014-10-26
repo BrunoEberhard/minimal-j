@@ -15,20 +15,19 @@ import org.minimalj.model.properties.FlatProperties;
  * RFC: {@link http://tools.ietf.org/html/rfc4180}<p>
  * 
  */
-public class CsvReader<T> {
+public class CsvReader {
 
     private static final char SEPARATOR = ',';
     private static final char QUOTE_CHAR = '"';
 
-    private final Class<T> clazz;
+    private final PushbackReader reader;
     
-    public CsvReader(Class<T> clazz) {
-    	this.clazz = clazz;
+    public CsvReader(InputStream is) {
+    	reader = new PushbackReader(new InputStreamReader(is));
     }
 
-    public List<T> readValues(InputStream is) {
-    	PushbackReader reader = new PushbackReader(new InputStreamReader(is));
-    	List<String> fields = readRecord(reader);
+    public <T> List<T> readValues(Class<T> clazz) {
+    	List<String> fields = readRecord();
     	List<PropertyInterface> properties = new ArrayList<PropertyInterface>(fields.size());
 		for (String field : fields) {
 			try {
@@ -38,7 +37,7 @@ public class CsvReader<T> {
 			}
 		}
     	List<T> objects = new ArrayList<>();
-    	List<String> values = readRecord(reader);
+    	List<String> values = readRecord();
     	while (values != null) {
     		T object = CloneHelper.newInstance(clazz);
         	for (int i = 0; i<fields.size(); i++) {
@@ -58,14 +57,14 @@ public class CsvReader<T> {
         		property.setValue(object, value);
         	}
         	objects.add(object);
-        	values = readRecord(reader);
+        	values = readRecord();
     	}
     	return objects;
     }
     
-    static List<String> readRecord(PushbackReader reader) {
+    List<String> readRecord() {
     	try {
-    		return _readRecord(reader);
+    		return _readRecord();
     	} catch (IOException x) {
     		throw new RuntimeException(x);
     	}
@@ -73,7 +72,7 @@ public class CsvReader<T> {
 
     // header = name *(COMMA name)
     // record = field *(COMMA field)
-    private static List<String> _readRecord(PushbackReader reader) throws IOException {
+    private List<String> _readRecord() throws IOException {
     	while (true) {
     		int c = reader.read();
     		if (c < 0) {
@@ -85,13 +84,13 @@ public class CsvReader<T> {
     	}
     	
         List<String> values = new ArrayList<>();
-        String value = readField(reader);
+        String value = readField();
         if (value == null) throw new IllegalStateException();
         values.add(value);
         while (value != null) {
         	int c = reader.read();
         	if (c == SEPARATOR) {
-                value = readField(reader);
+                value = readField();
                 if (value == null) throw new IllegalStateException();
                 values.add(value);
         	} else {
@@ -102,19 +101,19 @@ public class CsvReader<T> {
     }
     
     // field = (escaped / non-escaped)
-    static String readField(PushbackReader reader) throws IOException {
+    String readField() throws IOException {
     	int c = reader.read();
     	if (c == -1) throw new IllegalStateException();
     	reader.unread(c);
     	if (c == QUOTE_CHAR) {
-    		return readEscaped(reader);
+    		return readEscaped();
     	} else {
-    		return readNonEscaped(reader);
+    		return readNonEscaped();
     	}
     }
     
     // escaped = DQUOTE *(TEXTDATA / COMMA / CR / LF / 2DQUOTE) DQUOTE
-    static String readEscaped(PushbackReader reader) throws IOException {
+    String readEscaped() throws IOException {
 		StringBuilder s = new StringBuilder();
 		int quote = reader.read();
 		if (quote != QUOTE_CHAR) throw new IllegalStateException();
@@ -137,7 +136,7 @@ public class CsvReader<T> {
     }
     
     // non-escaped = *TEXTDATA
-    static String readNonEscaped(PushbackReader reader) throws IOException {
+    String readNonEscaped() throws IOException {
 		StringBuilder s = new StringBuilder();
 		do {
 			int c = reader.read();

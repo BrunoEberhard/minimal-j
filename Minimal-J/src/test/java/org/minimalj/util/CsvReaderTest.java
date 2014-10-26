@@ -1,8 +1,6 @@
 package org.minimalj.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.PushbackReader;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -13,21 +11,21 @@ public class CsvReaderTest {
 
 	@Test
 	public void testReadFile() throws Exception {
-		PushbackReader reader = reader("a,b\na,b");
-		List<String> values = CsvReader.readRecord(reader);
+		CsvReader reader = reader("a,b\na,b");
+		List<String> values = reader.readRecord();
 		Assert.assertTrue(isAB(values));
-		values = CsvReader.readRecord(reader);
+		values = reader.readRecord();
 		Assert.assertTrue(isAB(values));
 	}
 	
 	@Test
 	public void testReadRecord() throws Exception {
-		PushbackReader reader = reader("a,b");
-		List<String> values = CsvReader.readRecord(reader);
+		CsvReader reader = reader("a,b");
+		List<String> values = reader.readRecord();
 		Assert.assertTrue(isAB(values));
 		
 		reader = reader("a,\"b\"");
-		values = CsvReader.readRecord(reader);
+		values = reader.readRecord();
 		Assert.assertTrue(isAB(values));
 	}
 	
@@ -38,52 +36,52 @@ public class CsvReaderTest {
 	
 	@Test
 	public void testReadField() throws Exception {
-		PushbackReader reader = reader("\"ab\"");
-		Assert.assertEquals("ab", CsvReader.readField(reader));
+		CsvReader reader = reader("\"ab\"");
+		Assert.assertEquals("ab", reader.readField());
 		
 		reader = reader("\"ab\"\n");
-		Assert.assertEquals("ab", CsvReader.readField(reader));
+		Assert.assertEquals("ab", reader.readField());
 
 		reader = reader("\"ab\",");
-		Assert.assertEquals("ab", CsvReader.readField(reader));
+		Assert.assertEquals("ab", reader.readField());
 		
 		reader = reader("ab");
-		Assert.assertEquals("ab", CsvReader.readField(reader));
+		Assert.assertEquals("ab", reader.readField());
 		
 		reader = reader("ab\n");
-		Assert.assertEquals("ab", CsvReader.readField(reader));
+		Assert.assertEquals("ab", reader.readField());
 		
 		reader = reader("ab,");
-		Assert.assertEquals("ab", CsvReader.readField(reader));
+		Assert.assertEquals("ab", reader.readField());
 	}
 	
 	
 	@Test
 	public void testReadEscaped() throws Exception {
-		PushbackReader reader = reader("\"ab\"");
-		Assert.assertEquals("ab", CsvReader.readEscaped(reader));
+		CsvReader reader = reader("\"ab\"");
+		Assert.assertEquals("ab", reader.readEscaped());
 		
 		reader = reader("\"ab\"\n");
-		Assert.assertEquals("ab", CsvReader.readEscaped(reader));
+		Assert.assertEquals("ab", reader.readEscaped());
 
 		reader = reader("\"ab\",");
-		Assert.assertEquals("ab", CsvReader.readEscaped(reader));
+		Assert.assertEquals("ab", reader.readEscaped());
 	}
 	
 	@Test
 	public void testReadNonEscaped() throws Exception {
-		PushbackReader reader = reader("ab");
-		Assert.assertEquals("ab", CsvReader.readNonEscaped(reader));
+		CsvReader reader = reader("ab");
+		Assert.assertEquals("ab", reader.readNonEscaped());
 		
 		reader = reader("ab\n");
-		Assert.assertEquals("ab", CsvReader.readNonEscaped(reader));
+		Assert.assertEquals("ab", reader.readNonEscaped());
 		
 		reader = reader("ab,");
-		Assert.assertEquals("ab", CsvReader.readNonEscaped(reader));
+		Assert.assertEquals("ab", reader.readNonEscaped());
 	}
 	
-	private static PushbackReader reader(String s) {
+	private static CsvReader reader(String s) {
 		ByteArrayInputStream bais = new ByteArrayInputStream(s.getBytes());
-		return new PushbackReader(new InputStreamReader(bais));
+		return new CsvReader(bais);
 	}
 }

@@ -402,8 +402,8 @@ public class DbPersistence {
 				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
 				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
 				if (is != null) {
-					CsvReader<? extends Code> reader = new CsvReader<>(clazz);
-					List<? extends Code> values = reader.readValues(is);
+					CsvReader reader = new CsvReader(is);
+					List<? extends Code> values = reader.readValues(clazz);
 					for (Code value : values) {
 						((Table<Code>) table).insert(value);
 					}
