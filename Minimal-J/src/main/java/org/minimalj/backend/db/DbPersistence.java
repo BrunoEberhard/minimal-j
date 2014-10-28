@@ -441,15 +441,24 @@ public class DbPersistence {
 	}
 
 	public <T> T getCode(Class<T> clazz, Object code) {
+		return getCode(clazz, code, true);
+	}
+
+	<T> T getCode(Class<T> clazz, Object code, boolean forceCache) {
 		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
 		if (cacheItem == null || !cacheItem.isValid()) {
-			updateCode(clazz);
+			if (forceCache) {
+				updateCode(clazz);
+			} else {
+				// this special case is needed to break a possible reference cycle
+				return getTable(clazz).read(code);
+			}
 		}
 		cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
 		List<T> codes = cacheItem.getCodes();
 		return Codes.findCode(codes, code);
 	}
-	
+
 	private <T> void updateCode(Class<T> clazz) {
 		List<T> codes = getTable(clazz).read(Criteria.all(), Integer.MAX_VALUE);
 		CodeCacheItem<T> codeItem = new CodeCacheItem<T>(codes);
@@ -459,5 +468,5 @@ public class DbPersistence {
 	public void invalidateCodeCache(Class<?> clazz) {
 		codeCache.remove(clazz);
 	}
-	
+
 }

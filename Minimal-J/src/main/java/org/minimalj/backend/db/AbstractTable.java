@@ -391,7 +391,7 @@ public abstract class AbstractTable<T> {
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
-					value = dbPersistence.getCode(fieldClass, value);
+					value = dbPersistence.getCode(fieldClass, value, false);
 				} else if (ViewUtil.isView(property)) {
 					Class<?> viewedClass = ViewUtil.getViewedClass(property);
 					Table<?> referenceTable = dbPersistence.getTable(viewedClass);
