@@ -1,12 +1,7 @@
 package org.minimalj.backend.db;
 
-import org.minimalj.model.annotation.ViewOf;
+import org.minimalj.model.View;
 
-public class AView implements ViewOf<A> {
-
-	@Override
-	public String display() {
-		return null;
-	}
+public class AView implements View<A> {
 
 }

@@ -6,8 +6,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.minimalj.model.annotation.Code;
-import org.minimalj.model.annotation.View;
-import org.minimalj.model.annotation.ViewOf;
+import org.minimalj.model.annotation.Reference;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.util.GenericUtils;
 
@@ -34,27 +33,27 @@ public class ViewUtil {
 	 */
 	public static boolean isView(Field field) {
 		Class<?> clazz = field.getType();
-		if (ViewOf.class.isAssignableFrom(clazz)) return true;
-		if (field.getAnnotation(View.class) != null) return true;
+		if (View.class.isAssignableFrom(clazz)) return true;
+		if (field.getAnnotation(Reference.class) != null) return true;
 		return false;
 	}
 	
 	/**
 	 * 
 	 * @param property
-	 * @return true if property or class of property is annotated as View
+	 * @return true if property or class of property is marked as reference
 	 */
-	public static boolean isView(PropertyInterface property) {
+	public static boolean isReference(PropertyInterface property) {
 		Class<?> clazz = property.getFieldClazz();
-		if (ViewOf.class.isAssignableFrom(clazz)) return true;
-		if (property.getAnnotation(View.class) != null) return true;
+		if (View.class.isAssignableFrom(clazz)) return true;
+		if (property.getAnnotation(Reference.class) != null) return true;
 		return false;
 	}
 	
-	public static Class<?> getViewedClass(PropertyInterface property) {
-		if (!isView(property)) throw new IllegalArgumentException(property.getFieldPath());
-		View view = property.getAnnotation(View.class);
-		if (view != null) return property.getFieldClazz();
+	public static Class<?> getReferencedClass(PropertyInterface property) {
+		if (!isReference(property)) throw new IllegalArgumentException(property.getFieldPath());
+		Reference reference = property.getAnnotation(Reference.class);
+		if (reference != null) return property.getFieldClazz();
 		
 		Class<?> clazz = property.getFieldClazz();
 		return getViewedClass(clazz);
@@ -68,7 +67,7 @@ public class ViewUtil {
 			if (type instanceof ParameterizedType) {
 				ParameterizedType parameterizedType = (ParameterizedType) type;
 				Type rawType = parameterizedType.getRawType();
-				if (rawType.equals(ViewOf.class)) {
+				if (rawType.equals(View.class)) {
 					return GenericUtils.getGenericClass(parameterizedType);
 				}
 			}
@@ -79,13 +78,12 @@ public class ViewUtil {
 	public static Class<?> resolve(Class<?> clazz) {
 		if (Code.class.isAssignableFrom(clazz)) {
 			return clazz;
-		} else if (ViewOf.class.isAssignableFrom(clazz)) {
+		} else if (View.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = getViewedClass(clazz);
 			return viewedClass;
 		} else {
 			return clazz;
 		}
-
 	}
 	
 }

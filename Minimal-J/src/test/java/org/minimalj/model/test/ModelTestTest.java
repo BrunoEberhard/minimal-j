@@ -8,9 +8,9 @@ import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.minimalj.model.View;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.annotation.View;
-import org.minimalj.model.annotation.ViewOf;
+import org.minimalj.model.annotation.Reference;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
@@ -113,7 +113,7 @@ public class ModelTestTest {
 
 	public static class TestClass7 {
 		public Object id;
-		@View
+		@Reference
 		public TestClass2 ref;
 	}
 
@@ -125,18 +125,13 @@ public class ModelTestTest {
 		assertValid(modelTest);
 	}
 
-	public static class TestClass8 implements ViewOf<TestClass2> {
+	public static class TestClass8 implements View<TestClass2> {
 		public Object id;
-
-		@Override
-		public String display() {
-			return null;
-		}
 	}
 
 	public static class TestClass9 {
 		public Object id;
-		@View
+		@Reference
 		public TestClass2 ref;
 	}
 

@@ -129,7 +129,7 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.TIME);
 		} else if (clazz == LocalDateTime.class) {
 			preparedStatement.setNull(param, Types.DATE);
-		} else if (ViewUtil.isView(property)) {
+		} else if (ViewUtil.isReference(property)) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (dbPersistence.table(clazz) != null) {
 			preparedStatement.setNull(param, Types.INTEGER);

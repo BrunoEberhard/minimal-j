@@ -2,7 +2,7 @@ package org.minimalj.backend.db;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.annotation.View;
+import org.minimalj.model.annotation.Reference;
 
 public class H {
 
@@ -17,7 +17,7 @@ public class H {
 	@Size(20)
 	public String name;
 	
-	@View
+	@Reference
 	public G g;
 	
 	public final I i = new I();

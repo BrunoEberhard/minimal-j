@@ -1,7 +1,7 @@
 package org.minimalj.backend.db;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.View;
+import org.minimalj.model.annotation.Reference;
 
 public class I {
 
@@ -11,6 +11,6 @@ public class I {
 		// needed for reflection constructor
 	}
 
-	@View
+	@Reference
 	public G rG;
 }

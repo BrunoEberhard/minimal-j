@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.minimalj.application.MjApplication;
 import org.minimalj.backend.Backend;
+import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
@@ -84,7 +84,7 @@ public class DbBackend extends Backend {
 
 	@Override
 	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
-		if (ViewOf.class.isAssignableFrom(resultClass)) {
+		if (View.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
 			Table<?> table = persistence.getTable(viewedClass);
 			return table.readView(resultClass, criteria, maxResults);

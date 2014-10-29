@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
-import org.minimalj.model.annotation.ViewOf;
+import org.minimalj.model.View;
 
 public class ResourcesTest {
 
@@ -93,7 +93,7 @@ public class ResourcesTest {
 		
 	}
 	
-	public static class ResourcesTestView implements ViewOf<ResourcesTest> {
+	public static class ResourcesTestView implements View<ResourcesTest> {
 		public static final ResourcesTestView _ = Keys.of(ResourcesTestView.class);
 		
 		public ResourcesTest1 fullQualified;
@@ -101,11 +101,5 @@ public class ResourcesTest {
 		
 		public ResourcesTest3 byFieldClass;
 		public ResourcesTest4 byFullQualifiedFieldClass;
-		
-		@Override
-		public String display() {
-			return null;
-		}
-		
 	}
 }

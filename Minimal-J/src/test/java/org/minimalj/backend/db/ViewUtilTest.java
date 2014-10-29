@@ -13,7 +13,7 @@ public class ViewUtilTest {
 	@Test
 	public void testGetViewedClassForViewOf() {
 		PropertyInterface property = Keys.getProperty(J.J_.aView);
-		Assert.assertEquals(A.class, ViewUtil.getViewedClass(property));
+		Assert.assertEquals(A.class, ViewUtil.getReferencedClass(property));
 	}
 	
 	public void testGetViewedClassOfView() {

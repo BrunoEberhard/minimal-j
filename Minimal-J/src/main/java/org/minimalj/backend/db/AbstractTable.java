@@ -277,7 +277,7 @@ public abstract class AbstractTable<T> {
 	private void findDependables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
-			if (ViewUtil.isView(property)) continue;
+			if (ViewUtil.isReference(property)) continue;
 			Class<?> fieldClazz = property.getFieldClazz();
 			if (DbPersistenceHelper.isReference(property) && !dbPersistence.tableExists(fieldClazz) ) {
 				dbPersistence.addClass(fieldClazz);
@@ -288,7 +288,7 @@ public abstract class AbstractTable<T> {
 	protected void findIndexes() {
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
-			if (ViewUtil.isView(property)) {
+			if (ViewUtil.isReference(property)) {
 				createIndex(property, property.getFieldPath());
 			}
 		}
@@ -311,7 +311,7 @@ public abstract class AbstractTable<T> {
 			} else {
 				PropertyInterface subProperty = columns.get(column);
 				AbstractTable<?> subTable = dbPersistence.table(ViewUtil.resolve(subProperty.getFieldClazz()));
-				return column + " = select (ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
+				return column + " = (select ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
 			}
 		} else {
 			return column + " " + criteriaOperator.getOperatorAsString() + " ?";
@@ -392,8 +392,8 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					value = dbPersistence.getCode(fieldClass, value, false);
-				} else if (ViewUtil.isView(property)) {
-					Class<?> viewedClass = ViewUtil.getViewedClass(property);
+				} else if (ViewUtil.isReference(property)) {
+					Class<?> viewedClass = ViewUtil.getReferencedClass(property);
 					Table<?> referenceTable = dbPersistence.getTable(viewedClass);
 					Object referenceObject = referenceTable.read(value, false); // false -> subEntities not loaded
 					
@@ -469,7 +469,7 @@ public abstract class AbstractTable<T> {
 			if (value != null) {
 				if (value instanceof Code) {
 					value = findId((Code) value);
-				} else if (ViewUtil.isView(property)) {
+				} else if (ViewUtil.isReference(property)) {
 					value = IdUtils.getId(value);
 				} else if (DbPersistenceHelper.isReference(property)) {
 					value = getReferenceValue(value, copyReferencesOnchange);

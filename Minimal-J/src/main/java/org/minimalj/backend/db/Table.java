@@ -13,10 +13,10 @@ import java.util.UUID;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Searched;
-import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.criteria.Criteria.AllCriteria;
@@ -212,7 +212,7 @@ public class Table<T> extends AbstractTable<T> {
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
-				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isView(propertyInterface)) {
+				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isReference(propertyInterface)) {
 					value = IdUtils.getId(value);
 				}
 				statement.setObject(1, value);
@@ -269,7 +269,7 @@ public class Table<T> extends AbstractTable<T> {
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
-				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isView(propertyInterface)) {
+				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isReference(propertyInterface)) {
 					value = IdUtils.getId(value);
 				}
 				statement.setObject(1, value);
@@ -360,11 +360,11 @@ public class Table<T> extends AbstractTable<T> {
 		return search(getColumns(keys), query, maxResults);
 	}
 
-	public <S extends ViewOf<T>> List<S> search(Class<S> viewClass, Object[] keys, String query, int maxResults) {
+	public <S extends View<T>> List<S> search(Class<S> viewClass, Object[] keys, String query, int maxResults) {
 		return search(viewClass, getColumns(keys), query, maxResults);
 	}
 	
-	public <S extends ViewOf<?>> List<S> search(Class<S> viewClass, String query, int maxResults) {
+	public <S extends View<?>> List<S> search(Class<S> viewClass, String query, int maxResults) {
 		List<String> searchColumns = findSearchColumns(clazz);
 		return search(viewClass, searchColumns, query, maxResults);
 	}
