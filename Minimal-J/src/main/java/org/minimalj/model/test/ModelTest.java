@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
@@ -34,6 +36,7 @@ public class ModelTest {
 	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
 	
 	private final List<String> problems = new ArrayList<String>();
+	private final SortedSet<String> missingResources = new TreeSet<String>();
 	
 	public ModelTest(Class<?>... mainModelClasses) {
 		this(Arrays.asList(mainModelClasses));
@@ -45,7 +48,6 @@ public class ModelTest {
 	}
 	
 	private void test() {
-		testedClasses.clear();
 		for (Class<?> clazz : mainModelClasses) {
 			testClass(clazz, false);
 		}
@@ -289,8 +291,14 @@ public class ModelTest {
 			if (StringUtils.equals(property.getFieldName(), "id", "version")) continue;
 			String resourceText = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
 			if (resourceText.startsWith("!!")) {
-				System.out.println(clazz.getSimpleName() + "." + resourceText.substring(2) + " = ");
+				missingResources.add(resourceText.substring(2));
 			}
+		}
+	}
+	
+	public void printMissingResources() {
+		for (String key : missingResources) {
+			System.out.println(key + " = ");
 		}
 	}
 
