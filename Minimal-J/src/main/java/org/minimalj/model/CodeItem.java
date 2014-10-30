@@ -1,7 +1,9 @@
 package org.minimalj.model;
 
+import java.util.Locale;
 
-public class CodeItem<E> {
+
+public class CodeItem<E> implements Rendering.RenderingWithTooltip {
 
 	private final E key;
 	private final String text;
@@ -22,14 +24,16 @@ public class CodeItem<E> {
 		return key;
 	}
 
-	public String getText() {
+	@Override
+	public String render(RenderType renderType, Locale locale) {
 		return text;
 	}
 
-	public String getDescription() {
+	@Override
+	public String renderTooltip(RenderType renderType, Locale locale) {
 		return description;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		if (key == null) {

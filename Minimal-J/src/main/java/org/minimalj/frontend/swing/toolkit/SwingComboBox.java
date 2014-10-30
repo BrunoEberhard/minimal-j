@@ -5,17 +5,22 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import org.minimalj.frontend.toolkit.ComboBox;
+import org.minimalj.application.DevMode;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.model.CodeItem;
+import org.minimalj.frontend.toolkit.ComboBox;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.CloneHelper;
 
 public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
@@ -169,8 +174,20 @@ public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 		@Override
 		public Component getListCellRendererComponent(JList<? extends T> list, T value, int index, boolean isSelected, boolean cellHasFocus) {
 			Component component = delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (component instanceof JComponent && value instanceof CodeItem) {
-				((JComponent) component).setToolTipText(((CodeItem<?>)value).getDescription());
+			if (value instanceof Rendering) {
+				if (component instanceof JLabel) {
+					String text = ((Rendering) value).render(RenderType.PLAIN_TEXT, Locale.getDefault());
+					((JLabel) component).setText(text);
+					if (value instanceof Rendering.RenderingWithTooltip) {
+						((JComponent) component).setToolTipText(((Rendering.RenderingWithTooltip)value).renderTooltip(RenderType.PLAIN_TEXT, Locale.getDefault()));
+					}
+				} else {
+					if (DevMode.isActive()) {
+						throw new RuntimeException("Cell component expected to be a JLabel");
+					} else {
+						Logger.getLogger(this.getClass().getName()).warning("Cell component expected to be a JLabel");
+					}
+				}
 			}
 			return component;
 		}

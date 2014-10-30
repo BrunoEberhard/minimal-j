@@ -1,17 +1,19 @@
 package org.minimalj.frontend.edit.fields;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.ILookup;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.ViewOf;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
 
@@ -66,9 +68,9 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	}
 
 	protected void display() {
-		if (object instanceof ViewOf) {
-			ViewOf<?> view = (ViewOf<?>) object;
-			lookup.setText(view.display());
+		if (object instanceof Rendering) {
+			Rendering rendering = (Rendering) object;
+			lookup.setText(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));
 		} else if (object != null) {
 			lookup.setText(object.toString());
 		} else {
