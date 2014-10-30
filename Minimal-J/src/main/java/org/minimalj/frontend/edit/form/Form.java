@@ -329,10 +329,15 @@ public class Form<T> implements DemoEnabled {
 	@Override
 	public final void fillWithDemoData() {
 		changeFromOutsite = true;
-		fillWithDemoData(object);
-		readValueFromObject();
-		changeListener.changed();
-		changeFromOutsite = false;
+		try {
+			fillWithDemoData(object);
+		} catch (Exception x) {
+			logger.log(Level.SEVERE, "Fill with demo data failed", x);
+		} finally {
+			readValueFromObject();
+			changeListener.changed();
+			changeFromOutsite = false;
+		}
 	}
 
 	protected void fillWithDemoData(T object) {
