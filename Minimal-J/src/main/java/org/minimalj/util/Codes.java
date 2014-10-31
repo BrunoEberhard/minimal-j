@@ -14,23 +14,23 @@ public class Codes {
 
 	private static HashMap<Class<?>, CodeCacheItem<?>> cache = new HashMap<>();
 	
-	public static <T> T findCode(Class<T> clazz, String code) {
-		return findCode(clazz, (Object) code);
+	public static <T extends Code> T findCode(Class<T> clazz, String codeId) {
+		return findCode(clazz, (Object) codeId);
 	}
 
-	public static <T> T findCode(Class<T> clazz, Integer code) {
-		return findCode(clazz, (Object) code);
+	public static <T extends Code> T findCode(Class<T> clazz, Integer codeId) {
+		return findCode(clazz, (Object) codeId);
 	}
 
-	public static <T> T findCode(Class<T> clazz, Object code) {
+	public static <T extends Code> T findCode(Class<T> clazz, Object codeId) {
 		List<T> codes = get(clazz);
-		return findCode(codes, code);
+		return findCode(codes, codeId);
 	}
 	
-	public static <T> T findCode(List<T> codes, Object value) {
+	public static <T extends Code> T findCode(List<T> codes, Object codeId) {
 		for (T code : codes) {
-			Object codeValue = IdUtils.getId(code);
-			if (codeValue == null && value == null || codeValue.equals(value)) {
+			Object aCodeId = IdUtils.getId(code);
+			if (aCodeId == null && codeId == null || aCodeId.equals(codeId)) {
 				return code;
 			}
 		}
@@ -42,7 +42,7 @@ public class Codes {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized static <T> List<T> get(Class<T> clazz) {
+	public synchronized static <T extends Code> List<T> get(Class<T> clazz) {
 		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
 		if (cacheItem == null || !cacheItem.isValid()) {
 			updateCode(clazz);
