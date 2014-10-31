@@ -25,7 +25,6 @@ import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.SimpleProperty;
-import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.criteria.CriteriaOperator;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
@@ -391,7 +390,9 @@ public abstract class AbstractTable<T> {
 			if (value != null) {
 				Class<?> fieldClass = property.getFieldClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
-					value = dbPersistence.getCode(fieldClass, value, false);
+					@SuppressWarnings("unchecked")
+					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
+					value = dbPersistence.getCode(codeClass, value, false);
 				} else if (ViewUtil.isReference(property)) {
 					Class<?> viewedClass = ViewUtil.getReferencedClass(property);
 					Table<?> referenceTable = dbPersistence.getTable(viewedClass);
@@ -488,7 +489,7 @@ public abstract class AbstractTable<T> {
 		if (id != null) {
 			return id;
 		}
-		List<?> codes = dbPersistence.getTable(code.getClass()).read(Criteria.all(), 1000);
+		List<?> codes = dbPersistence.getCodes(code.getClass());
 		for (Object c : codes) {
 			if (code.equals(c)) {
 				return IdUtils.getId(c);

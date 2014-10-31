@@ -444,23 +444,33 @@ public class DbPersistence {
 		}
 	}
 
-	public <T> T getCode(Class<T> clazz, Object code) {
-		return getCode(clazz, code, true);
+	public <T extends Code> T getCode(Class<T> clazz, Object codeId) {
+		return getCode(clazz, codeId, true);
 	}
 
-	<T> T getCode(Class<T> clazz, Object code, boolean forceCache) {
+	<T extends Code> T getCode(Class<T> clazz, Object codeId, boolean forceCache) {
 		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
 		if (cacheItem == null || !cacheItem.isValid()) {
 			if (forceCache) {
 				updateCode(clazz);
 			} else {
 				// this special case is needed to break a possible reference cycle
-				return getTable(clazz).read(code);
+				return getTable(clazz).read(codeId);
 			}
 		}
 		cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
 		List<T> codes = cacheItem.getCodes();
-		return Codes.findCode(codes, code);
+		return Codes.findCode(codes, codeId);
+	}
+
+	<T extends Code> List<T> getCodes(Class<T> clazz) {
+		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
+		if (cacheItem == null || !cacheItem.isValid()) {
+			updateCode(clazz);
+		}
+		cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
+		List<T> codes = cacheItem.getCodes();
+		return codes;
 	}
 
 	private <T> void updateCode(Class<T> clazz) {
