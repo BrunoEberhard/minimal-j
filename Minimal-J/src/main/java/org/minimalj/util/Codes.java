@@ -53,17 +53,17 @@ public class Codes {
 	}
 	
 	private static <T> void updateCode(Class<T> clazz) {
-		List<T> codes = Backend.getInstance().read(clazz, Criteria.all(), Integer.MAX_VALUE);
-		CodeCacheItem<T> codeItem = new CodeCacheItem<T>(codes);
+		CodeCacheItem<T> codeItem = new CodeCacheItem<T>();
 		cache.put(clazz, codeItem);
+		List<T> codes = Backend.getInstance().read(clazz, Criteria.all(), Integer.MAX_VALUE);
+		codeItem.setCodes(codes);
 	}
 	
 	public static class CodeCacheItem<S> {
 		private final long timestamp;
-		private final List<S> codes;
+		private List<S> codes;
 		
-		public CodeCacheItem(List<S> codes) {
-			this.codes = codes;
+		public CodeCacheItem() {
 			this.timestamp = System.currentTimeMillis();
 		}
 
@@ -73,6 +73,14 @@ public class Codes {
 		
 		public List<S> getCodes() {
 			return codes;
+		}
+
+		public boolean isLoading() {
+			return codes == null;
+		}
+
+		public void setCodes(List<S> codes) {
+			this.codes = codes;
 		}
 	}
 

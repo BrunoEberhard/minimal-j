@@ -58,7 +58,7 @@ public class DbPersistence {
 	private BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
 
-	private HashMap<Class<?>, CodeCacheItem<?>> codeCache = new HashMap<>();
+	private HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
 	public DbPersistence(DataSource dataSource, Class<?>... classes) {
 		this(dataSource, createTablesOnInitialize(dataSource), classes);
@@ -328,6 +328,7 @@ public class DbPersistence {
 		return preparedStatement;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private <T> T readResultRow(ResultSet resultSet, Class<T> clazz) throws SQLException {
 		if (clazz == Integer.class) {
 			return (T) Integer.valueOf(resultSet.getInt(1));
@@ -384,6 +385,7 @@ public class DbPersistence {
 		createCsvCodes();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void createConstantCodes() {
 		for (AbstractTable<?> table : tables.values()) {
 			if (Code.class.isAssignableFrom(table.getClazz())) {
@@ -396,6 +398,7 @@ public class DbPersistence {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void createCsvCodes() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
@@ -449,34 +452,38 @@ public class DbPersistence {
 	}
 
 	<T extends Code> T getCode(Class<T> clazz, Object codeId, boolean forceCache) {
-		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
-		if (cacheItem == null || !cacheItem.isValid()) {
-			if (forceCache) {
-				updateCode(clazz);
-			} else {
-				// this special case is needed to break a possible reference cycle
-				return getTable(clazz).read(codeId);
-			}
+		if (isLoading(clazz)) {
+			// this special case is needed to break a possible reference cycle
+			return getTable(clazz).read(codeId);
 		}
-		cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
-		List<T> codes = cacheItem.getCodes();
+		List<T> codes = getCodes(clazz);
 		return Codes.findCode(codes, codeId);
 	}
-
-	<T extends Code> List<T> getCodes(Class<T> clazz) {
+	
+	@SuppressWarnings("unchecked")
+	private <T extends Code> boolean isLoading(Class<T> clazz) {
 		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
-		if (cacheItem == null || !cacheItem.isValid()) {
-			updateCode(clazz);
-		}
-		cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
-		List<T> codes = cacheItem.getCodes();
-		return codes;
+		return cacheItem != null && cacheItem.isLoading();
 	}
 
-	private <T> void updateCode(Class<T> clazz) {
+	@SuppressWarnings("unchecked")
+	<T extends Code> List<T> getCodes(Class<T> clazz) {
+		synchronized (clazz) {
+			CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
+			if (cacheItem == null || !cacheItem.isValid()) {
+				updateCode(clazz);
+			}
+			cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
+			List<T> codes = cacheItem.getCodes();
+			return codes;
+		}
+	}
+
+	private <T extends Code> void updateCode(Class<T> clazz) {
+		CodeCacheItem<T> codeCacheItem = new CodeCacheItem<T>();
+		codeCache.put(clazz, codeCacheItem);
 		List<T> codes = getTable(clazz).read(Criteria.all(), Integer.MAX_VALUE);
-		CodeCacheItem<T> codeItem = new CodeCacheItem<T>(codes);
-		codeCache.put(clazz, codeItem);
+		codeCacheItem.setCodes(codes);
 	}
 
 	public void invalidateCodeCache(Class<?> clazz) {
