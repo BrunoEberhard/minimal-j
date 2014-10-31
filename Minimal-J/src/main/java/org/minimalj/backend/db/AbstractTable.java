@@ -430,9 +430,6 @@ public abstract class AbstractTable<T> {
 	private Object getReferenceValue(Object value, boolean copyOnchange) throws SQLException {
 		Class<?> clazz = (Class<?>) value.getClass();
 		AbstractTable<?> abstractTable = dbPersistence.table(clazz);
-		if (abstractTable == null) {
-			throw new IllegalArgumentException(clazz.getName());
-		}
 		if (abstractTable instanceof Table) {
 			Table table = (Table) abstractTable;
 			Object id = IdUtils.getId(value);
