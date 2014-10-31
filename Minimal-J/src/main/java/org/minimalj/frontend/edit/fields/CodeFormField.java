@@ -6,9 +6,10 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.annotation.Code;
 import org.minimalj.util.Codes;
 
-public class CodeFormField<T> extends AbstractEditField<Object> {
+public class CodeFormField<T extends Code> extends AbstractEditField<Object> {
 	
 	private final List<T> codes;
 	private final TextField textFieldDisabled;
