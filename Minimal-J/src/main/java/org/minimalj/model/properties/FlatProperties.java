@@ -2,10 +2,8 @@ package org.minimalj.model.properties;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -68,13 +66,9 @@ public class FlatProperties {
 	}
 	
 	private static Map<String, PropertyInterface> properties(Class<?> clazz) {
-		Map<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
+		Map<String, PropertyInterface> properties = new HashMap<String, PropertyInterface>();
 		
 		Field[] fields = clazz.getFields();
-		// there is no contrat in the jvm that fields have to keep the declared
-		// order. As these properties are used for hash they have to be always in
-		// the same order. Thats done with sorting them alphabetically.
-		Arrays.sort(fields, new FieldComparator());
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
@@ -97,7 +91,7 @@ public class FlatProperties {
 	
 	public static List<String> testProperties(Class<?> clazz) {
 		List<String> problems = new ArrayList<>();
-		Map<String, String> properties = new LinkedHashMap<String, String>();
+		Map<String, String> properties = new HashMap<String, String>();
 		
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
