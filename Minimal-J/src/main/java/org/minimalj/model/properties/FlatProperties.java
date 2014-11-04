@@ -20,9 +20,6 @@ public class FlatProperties {
 	private static final Map<Class<?>, Map<String, PropertyInterface>> properties = 
 			new HashMap<Class<?>, Map<String, PropertyInterface>>();
 
-	private static final Map<Class<?>, Map<String, PropertyInterface>> propertiesWithLists = 
-			new HashMap<Class<?>, Map<String, PropertyInterface>>();
-
 	public static PropertyInterface getProperty(Class<?> clazz, String fieldName) {
 		if (fieldName == null) throw new NullPointerException();
 
@@ -64,21 +61,13 @@ public class FlatProperties {
 	
 	public static Map<String, PropertyInterface> getProperties(Class<?> clazz) {
 		if (!properties.containsKey(clazz)) {
-			properties.put(clazz, properties(clazz, false));
+			properties.put(clazz, properties(clazz));
 		}
 		Map<String, PropertyInterface> propertiesForClass = properties.get(clazz);
 		return propertiesForClass;
 	}
 	
-	public static Map<String, PropertyInterface> getPropertiesWithLists(Class<?> clazz) {
-		if (!propertiesWithLists.containsKey(clazz)) {
-			propertiesWithLists.put(clazz, properties(clazz, true));
-		}
-		Map<String, PropertyInterface> propertiesForClass = propertiesWithLists.get(clazz);
-		return propertiesForClass;
-	}
-	
-	private static Map<String, PropertyInterface> properties(Class<?> clazz, boolean withLists) {
+	private static Map<String, PropertyInterface> properties(Class<?> clazz) {
 		Map<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
 		
 		Field[] fields = clazz.getFields();
@@ -89,10 +78,10 @@ public class FlatProperties {
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
-			if (!FieldUtils.isFinal(field) || FieldUtils.isList(field) && withLists) {
+			if (!FieldUtils.isFinal(field)) {
 				properties.put(field.getName(), new FieldProperty(field));
 			} else if (!FieldUtils.isList(field)) {
-				Map<String, PropertyInterface> inlinePropertys = properties(field.getType(), withLists);
+				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field);
 				for (String inlineKey : inlinePropertys.keySet()) {
 					String key = inlineKey;
@@ -122,7 +111,7 @@ public class FlatProperties {
 					problems.add(field.getName() + " collides with " + properties.get(field.getName()));
 				}
 			} else if (!FieldUtils.isList(field)) {
-				Map<String, PropertyInterface> inlinePropertys = properties(field.getType(), false);
+				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field);
 				for (String inlineKey : inlinePropertys.keySet()) {
 					String key = inlineKey;
