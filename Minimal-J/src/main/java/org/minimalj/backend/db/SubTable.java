@@ -39,7 +39,6 @@ public class SubTable extends AbstractTable {
 		List objectsInDb = read(parentId);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
-			boolean insert = false;
 			if (position < objectsInDb.size() && position < objects.size()) {
 				update(parentId, position, objects.get(position));
 			} else if (position < objectsInDb.size()) {
@@ -48,13 +47,6 @@ public class SubTable extends AbstractTable {
 				break; 
 			} else /* if (position < objects.size()) */ {
 				insert(parentId, position, objects.get(position));
-			}
-			
-			if (insert) {
-				PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
-				int parameterPos = setParameters(insertStatement, objects.get(position), false, false, parentId);
-				insertStatement.setInt(parameterPos++, position);
-				insertStatement.execute();
 			}
 			position++;
 		}
