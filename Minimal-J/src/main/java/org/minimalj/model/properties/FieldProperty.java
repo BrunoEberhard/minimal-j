@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.minimalj.backend.db.EmptyObjects;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
@@ -54,13 +53,12 @@ public class FieldProperty implements PropertyInterface {
 					}
 				} else {
 					if (value == null) {
-						value = EmptyObjects.getEmptyObject(field.getType());
+						throw new IllegalArgumentException("Field " + field.getName() + " is final and cannot be set to null");
 					}
 					CloneHelper.deepCopy(value, finalObject);
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}
