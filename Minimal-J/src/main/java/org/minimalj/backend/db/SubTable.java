@@ -35,7 +35,7 @@ public class SubTable extends AbstractTable {
 		}
 	}
 
-	public void update(Object parentId, List objects) throws SQLException {
+	protected void update(Object parentId, List objects) throws SQLException {
 		List objectsInDb = read(parentId);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
