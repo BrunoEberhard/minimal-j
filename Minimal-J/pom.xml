@@ -49,13 +49,13 @@
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
-			<version>10.10.1.1</version>
+			<version>10.11.1.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyclient</artifactId>
-			<version>10.10.1.1</version>
+			<version>10.11.1.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -87,6 +87,18 @@
 			<version>2.1.6</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- 
+		<dependency>
+			<groupId>fi.iki.elonen</groupId>
+			<artifactId>nanohttpd</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>fi.iki.elonen</groupId>
+			<artifactId>nanohttpd-webserver</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+		 -->
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
