@@ -27,6 +27,10 @@ public class IdUtils {
 		}
 	}
 	
+	public static boolean hasId(Class<?> clazz) {
+		return getIdField(clazz) != null;
+	}
+	
 	public static Object getId(Object object) {
 		if (object != null) {
 			try {
