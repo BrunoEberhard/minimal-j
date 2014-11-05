@@ -19,12 +19,16 @@ public class FlatProperties {
 			new HashMap<Class<?>, Map<String, PropertyInterface>>();
 
 	public static PropertyInterface getProperty(Class<?> clazz, String fieldName) {
+		return getProperty(clazz, fieldName, false);
+	}
+	
+	public static PropertyInterface getProperty(Class<?> clazz, String fieldName, boolean safe) {
 		if (fieldName == null) throw new NullPointerException();
 
 		Map<String, PropertyInterface> propertiesForClass = getProperties(clazz);
 		PropertyInterface propertyInterface = propertiesForClass.get(fieldName);
 
-		if (propertyInterface == null) throw new IllegalArgumentException("No field/setMethod " + fieldName + " in Class " + clazz.getName());
+		if (propertyInterface == null && !safe) throw new IllegalArgumentException("No field/setMethod " + fieldName + " in Class " + clazz.getName());
 
 		return propertyInterface;
 	}
