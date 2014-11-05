@@ -29,7 +29,7 @@ public class SubTable extends AbstractTable {
 		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
-			int parameterPos = setParameters(insertStatement, object, false, false, parentId);
+			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos++, position);
 			insertStatement.execute();
 		}
@@ -55,7 +55,7 @@ public class SubTable extends AbstractTable {
 	private void update(Object parentId, int position, Object object) throws SQLException {
 		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
 
-		int parameterPos = setParameters(updateStatement, object, false, false, parentId);
+		int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
 		updateStatement.setInt(parameterPos++, position);
 		updateStatement.execute();
 	}
@@ -63,7 +63,7 @@ public class SubTable extends AbstractTable {
 	private void insert(Object parentId, int position, Object object) throws SQLException {
 		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
 
-		int parameterPos = setParameters(insertStatement, object, false, false, parentId);
+		int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
 		insertStatement.setInt(parameterPos++, position);
 		insertStatement.execute();
 	}

@@ -49,7 +49,7 @@ public class HistorizedTable<T> extends Table<T> {
 				id = UUID.randomUUID().toString();
 				IdUtils.setId(object, id);
 			}
-			setParameters(insertStatement, object, false, true, id);
+			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
 			insertStatement.execute();
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTableEntry.getValue();
@@ -92,7 +92,7 @@ public class HistorizedTable<T> extends Table<T> {
 			if (doDelete) return;
 			
 			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-			setParameters(updateStatement, object, false, true, id);
+			setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
 			updateStatement.execute();
 			
 			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {

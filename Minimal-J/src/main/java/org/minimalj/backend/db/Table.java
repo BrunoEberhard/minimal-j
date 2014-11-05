@@ -37,7 +37,7 @@ public class Table<T> extends AbstractTable<T> {
 	protected final Map<String, AbstractTable<?>> subTables;
 	
 	public Table(DbPersistence dbPersistence, Class<T> clazz) {
-		super(dbPersistence, null, clazz, FlatProperties.getProperty(clazz, "id"));
+		super(dbPersistence, null, clazz, FlatProperties.getProperty(clazz, "id", true));
 		
 		this.subTables = findSubTables();
 		
@@ -75,12 +75,17 @@ public class Table<T> extends AbstractTable<T> {
 	public Object insert(T object) {
 		try {
 			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
-			Object id = IdUtils.getId(object);
-			if (id == null) {
+			Object id;
+			if (IdUtils.hasId(object.getClass())) {
+				id = IdUtils.getId(object);
+				if (id == null) {
+					id = UUID.randomUUID().toString();
+					IdUtils.setId(object, id);
+				}
+			} else {
 				id = UUID.randomUUID().toString();
-				IdUtils.setId(object, id);
 			}
-			setParameters(insertStatement, object, false, false, id);
+			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
 			insertStatement.execute();
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 				SubTable subTable = (SubTable) subTableEntry.getValue();
@@ -103,6 +108,7 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	@Deprecated // TODO delete should only request id
 	public void delete(T object) {
 		Object id = IdUtils.getId(object);
 		PreparedStatement updateStatement;
@@ -114,6 +120,17 @@ public class Table<T> extends AbstractTable<T> {
 			if (object instanceof Code) {
 				dbPersistence.invalidateCodeCache(object.getClass());
 			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
+		}
+	}
+
+	public void deleteById(Object id) {
+		PreparedStatement updateStatement;
+		try {
+			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
+			updateStatement.setObject(1, id);
+			updateStatement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
 		}
@@ -149,7 +166,7 @@ public class Table<T> extends AbstractTable<T> {
 	protected void update(Object id, T object) {
 		try {
 			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
-			setParameters(updateStatement, object, false, false, id);
+			setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
 			updateStatement.execute();
 			
 			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
@@ -541,7 +558,11 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
-		syntax.addIdColumn(s, idProperty);
+		if (idProperty != null) {
+			syntax.addIdColumn(s, idProperty);
+		} else {
+			syntax.addIdColumn(s, Object.class, 36);
+		}
 	}
 	
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {

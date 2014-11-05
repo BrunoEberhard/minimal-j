@@ -118,7 +118,7 @@ public abstract class DbSyntax {
 		s.append(column);
 		s.append(") REFERENCES ");
 		s.append(referencedTableName);
-		s.append(" (ID)");
+		s.append(" (ID) INITIALLY DEFERRED");
 		return s.toString();
 	}
 	

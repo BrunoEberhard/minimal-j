@@ -1,8 +1,8 @@
 package org.minimalj.backend.db;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.Reference;
+import org.minimalj.model.annotation.Size;
 
 public class H {
 
@@ -19,6 +19,8 @@ public class H {
 	
 	@Reference
 	public G g;
+	
+	public K k;
 	
 	public final I i = new I();
 }

@@ -15,7 +15,7 @@ public class DbCrudTest {
 	
 	@BeforeClass
 	public static void setupDb() throws SQLException {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class);
+		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class);
 	}
 	
 	@AfterClass
@@ -105,6 +105,18 @@ public class DbCrudTest {
 		Assert.assertEquals(2, persistence.read(A.class, id, versions.get(2)).b.size());
 		Assert.assertEquals(1, persistence.read(A.class, id, versions.get(1)).b.size());
 		Assert.assertEquals(0, persistence.read(A.class, id, versions.get(0)).b.size());
+	}
+	
+	@Test
+	public void testRemoveDependable() throws Exception {
+		H h = new H();
+		h.k = new K("Test");
+		Object id = persistence.insert(h);
+		
+		h = persistence.read(H.class, id);
+		h.k = null;
+		
+		persistence.update(h);
 	}
 
 	private Object writeSimpleA() throws SQLException {

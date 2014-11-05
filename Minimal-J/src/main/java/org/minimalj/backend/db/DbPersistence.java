@@ -282,7 +282,18 @@ public class DbPersistence {
 	public <T> void update(T object) {
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
-		table.update(object);
+		if (isTransactionActive()) {
+			table.update(object);
+		} else {
+			boolean runThrough = false;
+			try {
+				startTransaction();
+				table.update(object);
+				runThrough = true;
+			} finally {
+				endTransaction(runThrough);
+			}
+		}
 	}
 	
 	public <T> void delete(T object) {
