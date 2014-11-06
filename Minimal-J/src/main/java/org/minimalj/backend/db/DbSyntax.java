@@ -5,7 +5,8 @@ import java.util.Set;
 
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.Properties;
+import org.minimalj.util.IdUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
@@ -90,8 +91,8 @@ public abstract class DbSyntax {
 		} else if (clazz == Set.class) {
 			s.append("INTEGER");
 		} else {
-			if (FlatProperties.hasProperty(clazz, "id")) {
-				PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id");
+			if (IdUtils.hasId(clazz)) {
+				PropertyInterface idProperty = Properties.getProperty(clazz, "id");
 				addColumnDefinition(s, idProperty);
 			} else {
 				s.append("CHAR(36)");
