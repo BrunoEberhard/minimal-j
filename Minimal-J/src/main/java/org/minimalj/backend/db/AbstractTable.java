@@ -458,7 +458,7 @@ public abstract class AbstractTable<T> {
 					}
 				}
 			} else if (mode == ParameterMode.UPDATE) {
-				dependableTable.deleteById(dependableId);
+				dependableTable.delete(dependableId);
 			}
 		} else {
 			if (dependableObject != null) {

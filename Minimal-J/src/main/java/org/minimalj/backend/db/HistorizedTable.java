@@ -164,8 +164,7 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 	
 	@Override
-	public void delete(T object) {
-		Object id = IdUtils.getId(object);
+	public void delete(Object id) {
 		// update to null object is delete
 		update(id, null);
 	}

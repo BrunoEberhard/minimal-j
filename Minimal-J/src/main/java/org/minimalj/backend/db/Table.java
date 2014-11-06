@@ -108,24 +108,7 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	@Deprecated // TODO delete should only request id
-	public void delete(T object) {
-		Object id = IdUtils.getId(object);
-		PreparedStatement updateStatement;
-		try {
-			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
-			updateStatement.setObject(1, id);
-			updateStatement.execute();
-			
-			if (object instanceof Code) {
-				dbPersistence.invalidateCodeCache(object.getClass());
-			}
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
-		}
-	}
-
-	public void deleteById(Object id) {
+	public void delete(Object id) {
 		PreparedStatement updateStatement;
 		try {
 			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);

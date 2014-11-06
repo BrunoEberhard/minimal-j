@@ -105,8 +105,8 @@ public class DbBackend extends Backend {
 	}
 	
 	@Override
-	public <T> void delete(T object) {
-		persistence.delete(object);
+	public <T> void delete(Class<T> clazz, Object id) {
+		persistence.delete(clazz, id);
 	}
 
 	@Override

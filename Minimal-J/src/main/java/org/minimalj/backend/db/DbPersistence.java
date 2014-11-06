@@ -28,6 +28,7 @@ import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
 import org.minimalj.util.CsvReader;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 import org.threeten.bp.LocalDate;
@@ -295,11 +296,15 @@ public class DbPersistence {
 			}
 		}
 	}
-	
+
 	public <T> void delete(T object) {
+		delete(object.getClass(), IdUtils.getId(object));
+	}
+
+	public <T> void delete(Class<T> clazz, Object id) {
 		@SuppressWarnings("unchecked")
-		Table<T> table = getTable((Class<T>) object.getClass());
-		table.delete(object);
+		Table<T> table = getTable(clazz);
+		table.delete(id);
 	}
 	
 	public <T> T execute(Class<T> clazz, String query, Object... parameters) {

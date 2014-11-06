@@ -117,8 +117,8 @@ public class SocketBackend extends Backend {
 		getInstance().execute(new UpdateTransaction(object));
 	}
 
-	public <T> void delete(T object) {
-		getInstance().execute(new DeleteTransaction(object));
+	public <T> void delete(Class<T> clazz, Object id) {
+		getInstance().execute(new DeleteTransaction(clazz, id));
 	}
 	
 	public <T> void deleteAll(Class<T> clazz) {

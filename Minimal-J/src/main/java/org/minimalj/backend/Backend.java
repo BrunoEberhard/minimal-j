@@ -99,7 +99,7 @@ public abstract class Backend {
 
 	public abstract <T> Object insert(T object);
 	public abstract <T> void update(T object);
-	public abstract <T> void delete(T object);
+	public abstract <T> void delete(Class<T> clazz, Object id);
 	public abstract <T> void deleteAll(Class<T> clazz);
 
 	public abstract <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter);
