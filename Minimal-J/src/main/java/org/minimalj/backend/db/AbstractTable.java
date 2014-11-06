@@ -473,10 +473,8 @@ public abstract class AbstractTable<T> {
 			Object value = property.getValue(object);
 			if (value instanceof Code) {
 				value = findId((Code) value);
-			} else if (ViewUtil.isReference(property)) {
-				if (value != null) {
-					value = IdUtils.getId(value);
-				}						
+			} else if (ViewUtil.isReference(property) && value != null) {
+				value = IdUtils.getId(value);
 			} else if (DbPersistenceHelper.isDependable(property)) {
 				if (mode == ParameterMode.INSERT) {
 					if (value != null) {
@@ -488,7 +486,7 @@ public abstract class AbstractTable<T> {
 					if (dependableId != null) {
 						if (value != null) {
 							value = updateDependable(dependableId, value, mode == ParameterMode.HISTORIZE);
-						} else {
+						} else if (mode == ParameterMode.UPDATE) {
 							deleteDependable(property.getFieldClazz(), dependableId);
 						}
 					} else {
