@@ -218,7 +218,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			
-			if (DbPersistenceHelper.isReference(property)) {
+			if (DbPersistenceHelper.isDependable(property)) {
 				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
@@ -271,7 +271,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			if (ViewUtil.isReference(property)) continue;
 			Class<?> fieldClazz = property.getFieldClazz();
-			if (DbPersistenceHelper.isReference(property) && !dbPersistence.tableExists(fieldClazz) ) {
+			if (DbPersistenceHelper.isDependable(property) && !dbPersistence.tableExists(fieldClazz) ) {
 				dbPersistence.addClass(fieldClazz);
 			}
 		}
@@ -393,7 +393,7 @@ public abstract class AbstractTable<T> {
 					
 					value = CloneHelper.newInstance(fieldClass);
 					ViewUtil.view(referenceObject, value);
-				} else if (DbPersistenceHelper.isReference(property)) {
+				} else if (DbPersistenceHelper.isDependable(property)) {
 					value = dereference(dbPersistence, fieldClass, value, time);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
@@ -477,7 +477,7 @@ public abstract class AbstractTable<T> {
 				if (value != null) {
 					value = IdUtils.getId(value);
 				}						
-			} else if (DbPersistenceHelper.isReference(property)) {
+			} else if (DbPersistenceHelper.isDependable(property)) {
 				if (mode == ParameterMode.INSERT) {
 					if (value != null) {
 						value = insertDependable(value);

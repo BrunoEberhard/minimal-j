@@ -31,7 +31,7 @@ public class DbPersistenceHelper {
 	 * @param property
 	 * @return true if property isn't a simply object like String, Integer, Date etc but a dependable or view
 	 */
-	public static boolean isReference(PropertyInterface property) {
+	public static boolean isDependable(PropertyInterface property) {
 		if (property.getFieldClazz().getName().startsWith("java")) return false;
 		if (property.getFieldClazz().getName().startsWith("org.threeten")) return false;
 		if (Enum.class.isAssignableFrom(property.getFieldClazz())) return false;
