@@ -218,7 +218,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			
-			if (DbPersistenceHelper.isDependable(property)) {
+			if (DbPersistenceHelper.isDependable(property) || ViewUtil.isReference(property)) {
 				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
@@ -394,7 +394,7 @@ public abstract class AbstractTable<T> {
 					value = CloneHelper.newInstance(fieldClass);
 					ViewUtil.view(referenceObject, value);
 				} else if (DbPersistenceHelper.isDependable(property)) {
-					value = dereference(dbPersistence, fieldClass, value, time);
+					value = dbPersistence.getTable(fieldClass).read(value);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
@@ -409,59 +409,6 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected static Object dereference(DbPersistence dbPersistence, Class<?> clazz, Object value, Integer time) {
-		AbstractTable<?> table = dbPersistence.table(clazz);
-		if (table instanceof Table) {
-			return ((Table<?>) table).read(value);
-		} else {
-			throw new IllegalArgumentException("Clazz: " + clazz);
-		}
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Object insertDependable(Object value) throws SQLException {
-		Class<?> clazz = (Class<?>) value.getClass();
-		AbstractTable<?> abstractTable = dbPersistence.table(clazz);
-		if (abstractTable instanceof Table) {
-			Table table = (Table) abstractTable;
-			return table.insert(value);
-		} else {
-			throw new IllegalArgumentException(clazz.getName());
-		}
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Object updateDependable(Object id, Object value, boolean keepHistory) throws SQLException {
-		Class<?> clazz = (Class<?>) value.getClass();
-		AbstractTable<?> abstractTable = dbPersistence.table(clazz);
-		if (abstractTable instanceof Table) {
-			Table table = (Table) abstractTable;
-			Object objectInDb = table.read(id);
-			if (!EqualsHelper.equals(value, objectInDb)) {
-				if (keepHistory) {
-					IdUtils.setId(value, null);
-					id = table.insert(value);
-				} else {
-					table.update(id, value);
-				}
-			}
-			return id;
-		} else {
-			throw new IllegalArgumentException(clazz.getName());
-		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	private void deleteDependable(Class<?> clazz, Object id) throws SQLException {
-		AbstractTable<?> abstractTable = dbPersistence.table(clazz);
-		if (abstractTable instanceof Table) {
-			Table table = (Table) abstractTable;
-			table.deleteById(id);
-		} else {
-			throw new IllegalArgumentException(clazz.getName());
-		}
-	}
-
 	protected enum ParameterMode {
 		INSERT, UPDATE, HISTORIZE;
 	}
@@ -473,27 +420,21 @@ public abstract class AbstractTable<T> {
 			Object value = property.getValue(object);
 			if (value instanceof Code) {
 				value = findId((Code) value);
-			} else if (ViewUtil.isReference(property) && value != null) {
-				value = IdUtils.getId(value);
+			} else if (ViewUtil.isReference(property)) {
+				if (value != null) {
+					value = IdUtils.getId(value);
+				}
 			} else if (DbPersistenceHelper.isDependable(property)) {
+				Table dependableTable = dbPersistence.getTable(property.getFieldClazz());
 				if (mode == ParameterMode.INSERT) {
 					if (value != null) {
-						value = insertDependable(value);
+						value = dependableTable.insert(value);
 					}							
 				} else {
 					// update
-					Object dependableId = getValue(id, column.getKey());
-					if (dependableId != null) {
-						if (value != null) {
-							value = updateDependable(dependableId, value, mode == ParameterMode.HISTORIZE);
-						} else if (mode == ParameterMode.UPDATE) {
-							deleteDependable(property.getFieldClazz(), dependableId);
-						}
-					} else {
-						if (value != null) {
-							value = insertDependable(value);
-						}
-					}
+					String dependableColumnName = column.getKey();
+					Object dependableId = getDependableId(id, dependableColumnName);
+					value = updateDependable(dependableTable, dependableId, value, mode);
 				}
 			} 
 			helper.setParameter(statement, parameterPos++, value, property);
@@ -503,8 +444,32 @@ public abstract class AbstractTable<T> {
 		if (doubleValues) statement.setObject(parameterPos++, id);
 		return parameterPos;
 	}
+
+	protected Object updateDependable(Table dependableTable, Object dependableId, Object dependableObject, ParameterMode mode) {
+		if (dependableId != null) {
+			if (dependableObject != null) {
+				Object objectInDb = dependableTable.read(dependableId);
+				if (!EqualsHelper.equals(dependableObject, objectInDb)) {
+					if (mode == ParameterMode.HISTORIZE) {
+						IdUtils.setId(dependableObject, null);
+						dependableObject = dependableTable.insert(dependableObject);
+					} else {
+						dependableTable.update(dependableId, dependableObject);
+					}
+				}
+			} else if (mode == ParameterMode.UPDATE) {
+				dependableTable.deleteById(dependableId);
+			}
+		} else {
+			if (dependableObject != null) {
+				dependableObject = dependableTable.insert(dependableObject);
+			}
+		}
+		return dependableObject;
+	}
 	
-	private Object getValue(Object id, String column) throws SQLException {
+	// TODO multiple dependables could be get with one (prepared) statement
+	private Object getDependableId(Object id, String column) throws SQLException {
 		String query = "SELECT " + column + " FROM " + getTableName() + " WHERE ID = ?";
 		if (this instanceof HistorizedTable) {
 			query += " AND VERSION = 0";
