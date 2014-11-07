@@ -201,4 +201,17 @@ public abstract class MjApplication {
 		return Collections.emptyList();
 	}
 	
+	public static void main(String[] args) throws Exception {
+		Logger logger = Logger.getLogger(MjApplication.class.getName());
+		logger.warning("Starting the MjApplication class is not the intended way to start a Minimal-J application");
+		String mainClass = System.getProperty("sun.java.command");
+		if (mainClass == null) {
+			logger.severe("and the started application could not be retrieved. Nothing started.");
+		} else if (MjApplication.class.getName().equals(mainClass)) {
+			logger.severe("and starting the MjApplication class doesn't work at all. Nothing started.");
+		} else {
+			SwingFrontend.main(new String[]{mainClass});
+		}
+	}
+	
 }
