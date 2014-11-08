@@ -24,11 +24,11 @@ import org.minimalj.util.resources.Resources;
  * specification from this class.<p>
  * 
  * Set the first argument of the JVM if the application
- * is started with SwingFrontend or set the <code>init-param</code> in the servlet
+ * is started with SwingFrontend as main class or set the <code>init-param</code> in the servlet
  * element in the <code>web.xml</code> if the VaadinFrontend is used.<p>
  *
- * The only method you must override is getEntityClasses to specify the
- * main classes of your business data model. All other methods are optional.
+ * All non static methods can be overridden to define to behavior
+ * of the application.
  * 
  * @see SwingFrontend
  * @see VaadinFrontend
@@ -163,7 +163,9 @@ public abstract class MjApplication {
 		}
 	}
 	
-	public abstract Class<?>[] getEntityClasses();
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[0];
+	}
 
 	public String getName() {
 		if (Resources.getResourceBundle().containsKey("Application.title")) {
