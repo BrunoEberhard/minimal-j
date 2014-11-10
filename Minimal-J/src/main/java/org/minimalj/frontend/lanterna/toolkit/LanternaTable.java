@@ -1,5 +1,7 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,8 +15,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
 
 import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.component.AbstractInteractableComponent;

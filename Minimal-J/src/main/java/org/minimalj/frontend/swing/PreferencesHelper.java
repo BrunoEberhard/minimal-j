@@ -1,5 +1,7 @@
 package org.minimalj.frontend.swing;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -7,8 +9,6 @@ import java.util.prefs.Preferences;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.properties.FlatProperties;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
 
 public abstract class PreferencesHelper {
 	private static final Logger logger = Logger.getLogger(PreferencesHelper.class.getName());

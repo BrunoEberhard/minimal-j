@@ -4,7 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Calendar;
 
-import org.threeten.bp.LocalDate;
+import java.time.LocalDate;
 
 import org.minimalj.model.InvalidValues;
 

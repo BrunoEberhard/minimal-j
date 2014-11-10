@@ -7,6 +7,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,10 +31,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.temporal.TemporalAccessor;
 
 public class SwingTable<T> extends JScrollPane implements ITable<T> {
 

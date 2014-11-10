@@ -1,13 +1,14 @@
 package org.minimalj.frontend.edit.fields;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 import org.minimalj.autofill.DateGenerator;
 import org.minimalj.model.InvalidValues;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
 public class LocalTimeField extends TextFormatField<LocalTime> {
 	private final DateTimeFormatter formatter;

@@ -2,16 +2,16 @@ package org.minimalj.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.logging.Logger;
 
 import org.minimalj.model.InvalidValues;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.Size;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeParseException;
-import org.threeten.bp.format.FormatStyle;
 
 
 public class DateUtils {

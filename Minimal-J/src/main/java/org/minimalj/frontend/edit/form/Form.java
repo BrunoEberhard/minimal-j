@@ -2,6 +2,8 @@ package org.minimalj.frontend.edit.form;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,8 +54,6 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.DemoEnabled;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.resources.Resources;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
 
 public class Form<T> implements DemoEnabled {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());

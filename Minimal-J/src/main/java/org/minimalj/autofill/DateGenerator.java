@@ -1,8 +1,9 @@
 package org.minimalj.autofill;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import org.minimalj.model.annotation.Size;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
 
 public class DateGenerator {
 

@@ -1,13 +1,12 @@
 package org.minimalj.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.Temporal;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.temporal.Temporal;
 
 public class InvalidValues {
 

@@ -1,15 +1,15 @@
 package org.minimalj.backend.db;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Set;
 
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.util.IdUtils;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
 
 /**
  * The db product specifics

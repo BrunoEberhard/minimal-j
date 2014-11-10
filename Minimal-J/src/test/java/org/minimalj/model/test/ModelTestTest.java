@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.Reference;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * This tests don't test models. It tests the tests for the model.

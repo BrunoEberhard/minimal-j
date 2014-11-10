@@ -5,6 +5,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -14,9 +17,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.properties.Properties;
 import org.minimalj.util.StringUtils;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
 
 public class Keys {
 
@@ -94,7 +94,7 @@ public class Keys {
 				property = new ChainedProperty(enclosingProperty, property);
 			}
 
-			boolean fill = !type.getName().startsWith("java") && !type.getName().startsWith("org.threeten");
+			boolean fill = !type.getName().startsWith("java");
 			if (fill && depth < 6) {
 				fillFields(value, property, depth + 1);
 			}

@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -13,9 +16,6 @@ import org.minimalj.model.InvalidValues;
 import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.util.GenericUtils;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
 
 public class DbPersistenceHelper {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
@@ -33,7 +33,6 @@ public class DbPersistenceHelper {
 	 */
 	public static boolean isDependable(PropertyInterface property) {
 		if (property.getFieldClazz().getName().startsWith("java")) return false;
-		if (property.getFieldClazz().getName().startsWith("org.threeten")) return false;
 		if (Enum.class.isAssignableFrom(property.getFieldClazz())) return false;
 		if (property.isFinal()) return false;
 		return true;

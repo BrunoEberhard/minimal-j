@@ -1,5 +1,6 @@
 package org.minimalj.frontend.page;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.threeten.bp.LocalDateTime;
 
 public abstract class HistoryPage<T> extends AbstractPage {
 
