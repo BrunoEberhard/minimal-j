@@ -1,9 +1,10 @@
 package org.minimalj.example.library.model;
 
+import java.time.LocalDate;
+
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
-import org.threeten.bp.LocalDate;
 
 public class Customer  {
 	public static final Customer CUSTOMER = Keys.of(Customer.class);

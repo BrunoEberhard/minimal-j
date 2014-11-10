@@ -1,6 +1,7 @@
 package org.minimalj.example.library.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,7 +11,6 @@ import org.minimalj.model.annotation.Required;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.util.DemoEnabled;
-import org.threeten.bp.LocalDate;
 
 
 public class Book implements DemoEnabled {
