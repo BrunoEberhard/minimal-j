@@ -12,6 +12,8 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
+import org.minimalj.util.resources.Resources;
+
 public class LookAndFeelAction extends AbstractAction {
 	private static final long serialVersionUID = 1L;
 
@@ -20,7 +22,7 @@ public class LookAndFeelAction extends AbstractAction {
 	}
 
 	public LookAndFeelAction(String name, String laf) {
-		super(name);
+		super(Resources.getString("LookAndFeel." + name));
 		putValue(ACTION_COMMAND_KEY, laf);
 	}
 
