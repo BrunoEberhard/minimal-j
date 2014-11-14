@@ -10,7 +10,7 @@ import org.minimalj.model.View;
 
 public class ResourcesTest {
 
-	public static final ResourcesTest _ = Keys.of(ResourcesTest.class);
+	public static final ResourcesTest $ = Keys.of(ResourcesTest.class);
 	
 	public ResourcesTest1 fullQualified;
 	public ResourcesTest2 normal;
@@ -26,49 +26,49 @@ public class ResourcesTest {
 	
 	@Test
 	public void should_find_name_of_full_qualified_field() throws Exception {
-		Assert.assertEquals("Test1", getFieldName(_.fullQualified));
+		Assert.assertEquals("Test1", getFieldName($.fullQualified));
 	}
 	
 	@Test
 	public void should_find_name_of_normal_field() throws Exception {
-		Assert.assertEquals("Test2", getFieldName(_.normal));
+		Assert.assertEquals("Test2", getFieldName($.normal));
 	}
 	
 	@Test
 	public void should_find_name_by_field_class() throws Exception {
-		Assert.assertEquals("Test3", getFieldName(_.byFieldClass));
+		Assert.assertEquals("Test3", getFieldName($.byFieldClass));
 	}
 	
 	@Test
 	public void should_find_name_by_full_qualified_field_class() throws Exception {
-		Assert.assertEquals("Test4", getFieldName(_.byFullQualifiedFieldClass));
+		Assert.assertEquals("Test4", getFieldName($.byFullQualifiedFieldClass));
 	}
 	
 	@Test
 	public void should_find_name_by_field_name() throws Exception {
-		Assert.assertEquals("Test5", getFieldName(_.byFieldName));
+		Assert.assertEquals("Test5", getFieldName($.byFieldName));
 	}
 	
 	// same in view
 	
 	@Test
 	public void should_find_name_of_full_qualified_field_in_view() throws Exception {
-		Assert.assertEquals("Test1", getFieldName(ResourcesTestView._.fullQualified));
+		Assert.assertEquals("Test1", getFieldName(ResourcesTestView.$.fullQualified));
 	}
 	
 	@Test
 	public void should_find_name_of_normal_field_in_view() throws Exception {
-		Assert.assertEquals("Test2", getFieldName(ResourcesTestView._.normal));
+		Assert.assertEquals("Test2", getFieldName(ResourcesTestView.$.normal));
 	}
 	
 	@Test
 	public void should_find_name_by_field_class_in_view() throws Exception {
-		Assert.assertEquals("Test3", getFieldName(ResourcesTestView._.byFieldClass));
+		Assert.assertEquals("Test3", getFieldName(ResourcesTestView.$.byFieldClass));
 	}
 	
 	@Test
 	public void should_find_name_by_full_qualified_field_class_in_view() throws Exception {
-		Assert.assertEquals("Test4", getFieldName(ResourcesTestView._.byFullQualifiedFieldClass));
+		Assert.assertEquals("Test4", getFieldName(ResourcesTestView.$.byFullQualifiedFieldClass));
 	}
 	
 	private String getFieldName(Object key) throws Exception {
@@ -94,7 +94,7 @@ public class ResourcesTest {
 	}
 	
 	public static class ResourcesTestView implements View<ResourcesTest> {
-		public static final ResourcesTestView _ = Keys.of(ResourcesTestView.class);
+		public static final ResourcesTestView $ = Keys.of(ResourcesTestView.class);
 		
 		public ResourcesTest1 fullQualified;
 		public ResourcesTest2 normal;
