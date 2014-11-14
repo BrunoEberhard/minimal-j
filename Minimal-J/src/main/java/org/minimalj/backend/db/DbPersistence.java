@@ -302,7 +302,6 @@ public class DbPersistence {
 	}
 
 	public <T> void delete(Class<T> clazz, Object id) {
-		@SuppressWarnings("unchecked")
 		Table<T> table = getTable(clazz);
 		table.delete(id);
 	}
