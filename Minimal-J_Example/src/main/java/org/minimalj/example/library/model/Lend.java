@@ -7,7 +7,7 @@ import org.minimalj.model.annotation.Reference;
 
 public class Lend {
 
-	public static final Lend LEND = Keys.of(Lend.class);
+	public static final Lend $ = Keys.of(Lend.class);
 	
 	public Object id;
 	

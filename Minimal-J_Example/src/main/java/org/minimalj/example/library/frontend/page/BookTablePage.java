@@ -16,12 +16,12 @@ public class BookTablePage extends TablePage<Book> {
 	private final String text;
 	
 	public static final Object[] FIELDS = {
-		BOOK.title, //
-		BOOK.author, //
-		BOOK.date, //
-		BOOK.media, //
-		BOOK.pages, //
-		BOOK.available, //
+		$.title, //
+		$.author, //
+		$.date, //
+		$.media, //
+		$.pages, //
+		$.available, //
 	};
 	
 	public BookTablePage(String text) {

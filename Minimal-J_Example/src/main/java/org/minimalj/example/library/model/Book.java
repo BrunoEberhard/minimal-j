@@ -14,7 +14,7 @@ import org.minimalj.util.DemoEnabled;
 
 
 public class Book implements DemoEnabled {
-	public static final Book BOOK = Keys.of(Book.class);
+	public static final Book $ = Keys.of(Book.class);
 
 	public Object id;
 	

@@ -16,9 +16,9 @@ public class CustomerTablePage extends TablePage<Customer> {
 	private final String text;
 	
 	public static final Object[] FIELDS = {
-		CUSTOMER.firstName, //
-		CUSTOMER.name, //
-		CUSTOMER.dateOfBirth, //
+		$.firstName, //
+		$.name, //
+		$.dateOfBirth, //
 	};
 	
 	public CustomerTablePage(String text) {

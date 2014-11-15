@@ -13,10 +13,10 @@ public class LendForm extends Form<Lend> {
 	public LendForm(boolean editable) {
 		super(editable);
 		
-		line(new ReferenceField<Book>(LEND.book, Book.BOOK.title, Book.BOOK.author));
-		line(new ReferenceField<Customer>(LEND.customer, Customer.CUSTOMER.firstName, Customer.CUSTOMER.name));
+		line(new ReferenceField<Book>($.book, Book.$.title, Book.$.author));
+		line(new ReferenceField<Customer>($.customer, Customer.$.firstName, Customer.$.name));
 				
-		line(LEND.till);
+		line($.till);
 	}
 	
 }

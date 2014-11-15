@@ -16,9 +16,9 @@ public class LendTablePage extends TablePage<Lend> {
 	private final String text;
 	
 	public static final Object[] FIELDS = {
-		LEND.book.title, //
-		LEND.book.author, //
-		LEND.till
+		$.book.title, //
+		$.book.author, //
+		$.till
 	};
 	
 	public LendTablePage(String text) {
@@ -34,7 +34,7 @@ public class LendTablePage extends TablePage<Lend> {
 	@Override
 	protected List<Lend> load(String query) {
 		Customer customer = Backend.getInstance().read(Customer.class, Long.valueOf(query));
-		return Backend.getInstance().read(Lend.class, Criteria.equals(Lend.LEND.customer, customer), 100);
+		return Backend.getInstance().read(Lend.class, Criteria.equals(Lend.$.customer, customer), 100);
 	}
 
 	@Override

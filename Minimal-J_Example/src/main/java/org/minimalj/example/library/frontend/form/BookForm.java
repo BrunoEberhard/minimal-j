@@ -10,10 +10,10 @@ public class BookForm extends Form<Book> {
 	public BookForm(boolean editable) {
 		super(editable, 2);
 		
-		line(BOOK.title);
-		line(BOOK.author, BOOK.date);
-		line(BOOK.media, BOOK.pages);
-		line(BOOK.available, BOOK.price);
+		line($.title);
+		line($.author, $.date);
+		line($.media, $.pages);
+		line($.available, $.price);
 	}
 	
 }

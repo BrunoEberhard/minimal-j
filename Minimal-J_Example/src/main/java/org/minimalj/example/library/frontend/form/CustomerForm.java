@@ -12,10 +12,10 @@ public class CustomerForm extends Form<Customer> {
 	public CustomerForm(boolean editable) {
 		super(editable);
 		
-		line(CUSTOMER.firstName);
-		line(CUSTOMER.name);
-		line(CUSTOMER.dateOfBirth);
-		line(CUSTOMER.remarks);
+		line($.firstName);
+		line($.name);
+		line($.dateOfBirth);
+		line($.remarks);
 		
 	}
 
