@@ -16,7 +16,7 @@ public class KeysTest {
 		TestClass1 object1 = new TestClass1();
 		
 		object1.s1 = "Test";
-		PropertyInterface property = Keys.getProperty(TestClass1.KEYS.s1);
+		PropertyInterface property = Keys.getProperty(TestClass1.$.s1);
 		Assert.assertEquals("Get should return the value of the public field", object1.s1, property.getValue(object1));
 	}
 
@@ -25,7 +25,7 @@ public class KeysTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.testClass1.s1 = "TestS1";
-		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.testClass1.s1);
+		PropertyInterface property = Keys.getProperty(TestClass2.$.testClass1.s1);
 		Assert.assertEquals("Get should return the value of referenced Objects", testObject2.testClass1.s1, property.getValue(testObject2));
 	}
 
@@ -34,7 +34,7 @@ public class KeysTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setS3("access5");
-		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.getS3());
+		PropertyInterface property = Keys.getProperty(TestClass2.$.getS3());
 		Assert.assertEquals("If private, get should use the getter method", testObject2.getS3(), property.getValue(testObject2));
 		
 		property.setValue(testObject2, "access5a");
@@ -46,7 +46,7 @@ public class KeysTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setB1(true);
-		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.getB1());
+		PropertyInterface property = Keys.getProperty(TestClass2.$.getB1());
 		Assert.assertEquals("For private boolean, get should use the isXy method", testObject2.getB1(), property.getValue(testObject2));
 		
 		property.setValue(testObject2, Boolean.FALSE);
@@ -60,10 +60,10 @@ public class KeysTest {
 		testObject2.testClass1.b2 = true;
 		testObject2.testClass1b.b2 = false;
 		
-		PropertyInterface property = Keys.getProperty(TestClass2.KEYS.testClass1.getB2());
+		PropertyInterface property = Keys.getProperty(TestClass2.$.testClass1.getB2());
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.getB2(), property.getValue(testObject2));
 
-		PropertyInterface propertyB = Keys.getProperty(TestClass2.KEYS.getTestClass1b().getB2());
+		PropertyInterface propertyB = Keys.getProperty(TestClass2.$.getTestClass1b().getB2());
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.getTestClass1b().getB2(), propertyB.getValue(testObject2));
 		testObject2.testClass1b.b2 = true;
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.getTestClass1b().getB2(), propertyB.getValue(testObject2));
@@ -79,7 +79,7 @@ public class KeysTest {
 		list.add(new TestClass1());
 		Assert.assertEquals(1, testClass3.list.size());
 		
-		PropertyInterface property = Keys.getProperty(TestClass3.KEYS.list);
+		PropertyInterface property = Keys.getProperty(TestClass3.$.list);
 		property.setValue(testClass3, list);
 		
 		Assert.assertEquals("After set a final list field with its existing values the content must be the same", 1, testClass3.list.size());
@@ -92,7 +92,7 @@ public class KeysTest {
 	}
 	
 	public static class TestClass1 {
-		public static final TestClass1 KEYS = Keys.of(TestClass1.class);
+		public static final TestClass1 $ = Keys.of(TestClass1.class);
 		
 		public String s1;
 		private Boolean b2;
@@ -109,7 +109,7 @@ public class KeysTest {
 	}
 
 	public static class TestClass2 {
-		public static final TestClass2 KEYS = Keys.of(TestClass2.class);
+		public static final TestClass2 $ = Keys.of(TestClass2.class);
 		
 		public String s2;
 		private String s3;
@@ -146,7 +146,7 @@ public class KeysTest {
 	}
 
 	public static class TestClass3 {
-		public static final TestClass3 KEYS = Keys.of(TestClass3.class);
+		public static final TestClass3 $ = Keys.of(TestClass3.class);
 		
 		public final List<TestClass1> list = new ArrayList<>();
 	}

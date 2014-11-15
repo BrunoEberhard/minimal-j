@@ -17,7 +17,7 @@ public abstract class HistoryPage<T> extends AbstractPage {
 	private ITable<HistoryVersion<T>> table;
 	
 	public HistoryPage() {
-		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.HISTORY_VERSION.version, HistoryVersion.HISTORY_VERSION.time, HistoryVersion.HISTORY_VERSION.description});
+		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description});
 		table.setClickListener(new TableActionListener<HistoryVersion<T>>() {
 			@Override
 			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selectedObjects) {
@@ -60,8 +60,7 @@ public abstract class HistoryPage<T> extends AbstractPage {
 	}
 
 	public static class HistoryVersion<T> {
-
-		public static final HistoryVersion<?> HISTORY_VERSION = Keys.of(HistoryVersion.class);
+		public static final HistoryVersion<?> $ = Keys.of(HistoryVersion.class);
 		
 		public String version;
 		public LocalDateTime time;

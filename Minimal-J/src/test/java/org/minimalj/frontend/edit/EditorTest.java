@@ -152,7 +152,7 @@ public class EditorTest {
 		@Override
 		protected Form<TestEditorObjectClass> createForm() {
 			Form<TestEditorObjectClass> form = new Form<>();
-			form.line(TestEditorObjectClass.KEYS.field);
+			form.line(TestEditorObjectClass.$.field);
 			return form;
 		}
 
@@ -169,7 +169,7 @@ public class EditorTest {
 	}
 	
 	public static class TestEditorObjectClass {
-		public static final TestEditorObjectClass KEYS = Keys.of(TestEditorObjectClass.class);
+		public static final TestEditorObjectClass $ = Keys.of(TestEditorObjectClass.class);
 		
 		@Size(1) @Required
 		public String field = "A";
