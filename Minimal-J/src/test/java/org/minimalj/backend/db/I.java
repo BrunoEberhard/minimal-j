@@ -5,7 +5,7 @@ import org.minimalj.model.annotation.Reference;
 
 public class I {
 
-	public static final I I_ = Keys.of(I.class);
+	public static final I $ = Keys.of(I.class);
 	
 	public I() {
 		// needed for reflection constructor

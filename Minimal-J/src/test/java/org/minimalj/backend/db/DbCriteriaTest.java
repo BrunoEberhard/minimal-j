@@ -52,13 +52,13 @@ public class DbCriteriaTest {
 		h.g = g;
 		persistence.insert(h);
 		
-		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g, g), 3);
+		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.$.g, g), 3);
 		Assert.assertEquals("Read by reference", 2, hList.size());
 
-		hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g.id, g.id), 3);
+		hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.$.g.id, g.id), 3);
 		Assert.assertEquals("Read by references id", 2, hList.size());
 
-		hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.g.g, "g2"), 3);
+		hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.$.g.g, "g2"), 3);
 		Assert.assertEquals("Read by references field", 2, hList.size());
 	}
 
@@ -76,7 +76,7 @@ public class DbCriteriaTest {
 		h.i.rG = g;
 		persistence.insert(h);
 		
-		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.H_.i.rG, g), 3);
+		List<H> hList = persistence.getTable(H.class).read(new Criteria.SimpleCriteria(H.$.i.rG, g), 3);
 		
 		Assert.assertEquals(2, hList.size());
 	}

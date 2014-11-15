@@ -8,7 +8,7 @@ import org.minimalj.model.annotation.Size;
 
 public class A {
 
-	public static final A A = Keys.of(A.class);
+	public static final A $ = Keys.of(A.class);
 	
 	public A() {
 		// needed for reflection constructor

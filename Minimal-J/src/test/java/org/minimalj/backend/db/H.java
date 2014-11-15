@@ -6,7 +6,7 @@ import org.minimalj.model.annotation.Size;
 
 public class H {
 
-	public static final H H_ = Keys.of(H.class);
+	public static final H $ = Keys.of(H.class);
 	
 	public H() {
 		// needed for reflection constructor

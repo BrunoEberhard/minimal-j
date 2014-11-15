@@ -36,7 +36,7 @@ public class DbSimpleCriteriaTest {
 	
 	@Test 
 	public void testFindByIntegerField() throws SQLException {
-		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.A.int1, 5), 2);
+		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.int1, 5), 2);
 		Assert.assertEquals(1, list.size());
 		A a = list.get(0);
 		Assert.assertNotNull(a.int1);
@@ -45,13 +45,13 @@ public class DbSimpleCriteriaTest {
 	
 	@Test 
 	public void testMinimumForField() throws SQLException {
-		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.A.int1, CriteriaOperator.greaterOrEqual, 7), 3);
+		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.int1, CriteriaOperator.greaterOrEqual, 7), 3);
 		Assert.assertEquals(2, list.size());
 	}
 	
 	@Test(expected = IllegalArgumentException.class) 
 	public void testOperatorCheck() throws SQLException {
-		persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.A.e, CriteriaOperator.greaterOrEqual, 7), 1);
+		persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.e, CriteriaOperator.greaterOrEqual, 7), 1);
 	}
 
 }
