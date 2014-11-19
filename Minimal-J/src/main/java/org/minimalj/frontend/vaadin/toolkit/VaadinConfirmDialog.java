@@ -46,7 +46,7 @@ public class VaadinConfirmDialog extends Window {
 		this.listener = listener;
 		
    	    WebApplicationContext context = (WebApplicationContext) window.getApplication().getContext();
-        Locale locale = context.getBrowser().getLocale();
+        Locale locale = Locale.getDefault(); // TODO: context.getBrowser().getLocale(); does not compile with jdk, but with eclipse
 		
 		setCaption(title);
 		
