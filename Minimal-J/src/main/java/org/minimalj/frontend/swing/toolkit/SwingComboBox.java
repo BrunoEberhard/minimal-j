@@ -175,11 +175,13 @@ public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 		public Component getListCellRendererComponent(JList<? extends T> list, T value, int index, boolean isSelected, boolean cellHasFocus) {
 			Component component = delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (value instanceof Rendering) {
+				Rendering renderingValue = (Rendering) value;
 				if (component instanceof JLabel) {
-					String text = ((Rendering) value).render(RenderType.PLAIN_TEXT, Locale.getDefault());
+					String text = renderingValue.render(RenderType.PLAIN_TEXT, Locale.getDefault());
 					((JLabel) component).setText(text);
-					if (value instanceof Rendering.RenderingWithTooltip) {
-						((JComponent) component).setToolTipText(((Rendering.RenderingWithTooltip)value).renderTooltip(RenderType.PLAIN_TEXT, Locale.getDefault()));
+					String tooltip = renderingValue.renderTooltip(RenderType.PLAIN_TEXT, Locale.getDefault());
+					if (tooltip != null) {
+						((JComponent) component).setToolTipText(tooltip);
 					}
 				} else {
 					if (DevMode.isActive()) {

@@ -3,7 +3,7 @@ package org.minimalj.model;
 import java.util.Locale;
 
 
-public class CodeItem<E> implements Rendering.RenderingWithTooltip {
+public class CodeItem<E> implements Rendering {
 
 	private final E key;
 	private final String text;

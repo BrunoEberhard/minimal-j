@@ -17,10 +17,8 @@ public interface Rendering {
 	 */
 	public String render(RenderType renderType, Locale locale);
 	
-	public static interface RenderingWithTooltip extends Rendering {
-		
-		public String renderTooltip(RenderType renderType, Locale locale);
-		
+	public default String renderTooltip(RenderType renderType, Locale locale) {
+		return null;
 	}
 	
 }
