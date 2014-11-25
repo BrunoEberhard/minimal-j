@@ -434,7 +434,18 @@ public abstract class AbstractTable<T> {
 					// update
 					String dependableColumnName = column.getKey();
 					Object dependableId = getDependableId(id, dependableColumnName);
-					value = updateDependable(dependableTable, dependableId, value, mode);
+					if (value != null) {
+						value = updateDependable(dependableTable, dependableId, value, mode);
+					} else {
+						if (mode == ParameterMode.UPDATE) {
+							// to delete a dependable the value where its used has to be set
+							// to null first. This problem could also be solved by setting the
+							// reference constraint to 'deferred'. But this 'deferred' is more
+							// expensive for database and doesn't work with maria db (TODO: really?)
+							setColumnToNull(id, dependableColumnName);
+							dependableTable.delete(dependableId);
+						}
+					}
 				}
 			} 
 			helper.setParameter(statement, parameterPos++, value, property);
@@ -447,23 +458,17 @@ public abstract class AbstractTable<T> {
 
 	protected Object updateDependable(Table dependableTable, Object dependableId, Object dependableObject, ParameterMode mode) {
 		if (dependableId != null) {
-			if (dependableObject != null) {
-				Object objectInDb = dependableTable.read(dependableId);
-				if (!EqualsHelper.equals(dependableObject, objectInDb)) {
-					if (mode == ParameterMode.HISTORIZE) {
-						IdUtils.setId(dependableObject, null);
-						dependableObject = dependableTable.insert(dependableObject);
-					} else {
-						dependableTable.update(dependableId, dependableObject);
-					}
+			Object objectInDb = dependableTable.read(dependableId);
+			if (!EqualsHelper.equals(dependableObject, objectInDb)) {
+				if (mode == ParameterMode.HISTORIZE) {
+					IdUtils.setId(dependableObject, null);
+					dependableObject = dependableTable.insert(dependableObject);
+				} else {
+					dependableTable.update(dependableId, dependableObject);
 				}
-			} else if (mode == ParameterMode.UPDATE) {
-				dependableTable.delete(dependableId);
 			}
 		} else {
-			if (dependableObject != null) {
-				dependableObject = dependableTable.insert(dependableObject);
-			}
+			dependableObject = dependableTable.insert(dependableObject);
 		}
 		return dependableObject;
 	}
@@ -484,7 +489,14 @@ public abstract class AbstractTable<T> {
 			}
 		}
 	}
-	
+
+	private void setColumnToNull(Object id, String column) throws SQLException {
+		String update = "UPDATE " + getTableName() + " SET " + column + " = NULL WHERE ID = ?";
+		PreparedStatement preparedStatement = getStatement(dbPersistence.getConnection(), update, false);
+		preparedStatement.setObject(1, id);
+		preparedStatement.execute();
+	}
+
 	private Object findId(Code code) {
 		Object id = IdUtils.getId(code);
 		if (id != null) {
