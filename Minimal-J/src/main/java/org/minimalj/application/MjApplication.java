@@ -27,7 +27,7 @@ import org.minimalj.util.resources.Resources;
  * is started with SwingFrontend as main class or set the <code>init-param</code> in the servlet
  * element in the <code>web.xml</code> if the VaadinFrontend is used.<p>
  *
- * All non static methods can be overridden to define to behavior
+ * All non static methods can be overridden to define the behavior
  * of the application.
  * 
  * @see SwingFrontend
