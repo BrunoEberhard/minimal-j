@@ -19,7 +19,7 @@
 		</init-param>
 		<init-param>
 			<description>Minimal-J application class to start</description>
-			<param-name>MjApplication</param-name>
+			<param-name>Application</param-name>
 			<param-value>org.minimalj.example.library.MjExampleApplication</param-value>
 		</init-param>
 	</servlet>
