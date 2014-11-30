@@ -5,8 +5,8 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.MjApplication;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.toolkit.ClientToolkit;
@@ -14,15 +14,13 @@ import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-import com.vaadin.Application;
-
 /**
  * TODO VaadinApplication should make Preferences persistent
  * 
  * Note: this class extends Vaadin - Application not the
- * MjApplication
+ * Minimal-J Application
  */
-public class VaadinFrontend extends Application {
+public class VaadinFrontend extends com.vaadin.Application {
 	private static final long serialVersionUID = 1L;
 	
 	private final ApplicationContext applicationContext = new VaadinApplicationContext();
@@ -40,12 +38,12 @@ public class VaadinFrontend extends Application {
 
 	private synchronized void initializeApplication() {
 		if (!applicationInitialized) {
-			String applicationName = getProperty("MjApplication");
+			String applicationName = getProperty("Application");
 			if (StringUtils.isBlank(applicationName)) {
-				throw new IllegalArgumentException("Missing MjApplication parameter");
+				throw new IllegalArgumentException("Missing Application parameter");
 			}
-			MjApplication application = MjApplication.createApplication(applicationName);
-			MjApplication.setApplication(application);
+			Application application = Application.createApplication(applicationName);
+			Application.setApplication(application);
 			copyPropertiesFromWebContextToSystem();
 			applicationInitialized = true;
 		}

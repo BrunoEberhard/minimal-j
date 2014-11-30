@@ -3,7 +3,7 @@ package org.minimalj.frontend.lanterna;
 import java.util.prefs.Preferences;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
 import org.minimalj.frontend.swing.PreferencesHelper;
@@ -74,7 +74,7 @@ public class LanternaFrontend {
 	}
 
 	public static void main(final String[] args) throws Exception {
-		MjApplication.initApplication(args);
+		Application.initApplication(args);
 
 		new LanternaFrontend().run();
 	}

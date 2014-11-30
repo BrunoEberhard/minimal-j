@@ -26,7 +26,7 @@ public abstract class ApplicationContext {
 	}
 
 	private Object newPreferencesInstance() {
-		Class<?> preferencesClass = MjApplication.getApplication().getPreferencesClass();
+		Class<?> preferencesClass = Application.getApplication().getPreferencesClass();
 		if (preferencesClass == null)
 			return new Object();
 		try {

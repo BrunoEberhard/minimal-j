@@ -7,7 +7,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
@@ -61,7 +61,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		if (newSubMenu != null) {
 			fileMenu.remove(newSubMenu);
 		}
-		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew();
+		List<IAction> actionsNew = Application.getApplication().getActionsNew();
 		newSubMenu = menu("new", actionsNew);
 		if (!actionsNew.isEmpty()) {
 			fileMenu.add(newSubMenu, 0);
@@ -74,9 +74,9 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 		menu.add(new JMenuItem(tab.frame.closeWindowAction));
 		menu.add(new JMenuItem(tab.closeTabAction));
 		menu.addSeparator();
-		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport();
+		List<IAction> actionsImport = Application.getApplication().getActionsImport();
 		if (!actionsImport.isEmpty()) menu.add(menu("import", actionsImport));
-		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport();
+		List<IAction> actionsExport = Application.getApplication().getActionsExport();
 		if (!actionsExport.isEmpty()) menu.add(menu("export", actionsExport));
 		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) menu.addSeparator();
 		menu.add(new JMenuItem(tab.frame.exitAction));
@@ -93,7 +93,7 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	
 	private JMenu createViewMenu() {
 		JMenu menu = menu("view");
-		List<IAction> actionsView = MjApplication.getApplication().getActionsView();
+		List<IAction> actionsView = Application.getApplication().getActionsView();
 		if (!actionsView.isEmpty()) {
 			addActions(menu, actionsView);
 			menu.addSeparator();

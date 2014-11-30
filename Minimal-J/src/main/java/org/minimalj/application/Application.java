@@ -35,10 +35,10 @@ import org.minimalj.util.resources.Resources;
  * @see SocketBackendServer
  * @see DbBackend
  */
-public abstract class MjApplication {
-	private static MjApplication application;
+public abstract class Application {
+	private static Application application;
 	
-	public static MjApplication getApplication() {
+	public static Application getApplication() {
 		if (application == null) {
 			throw new IllegalStateException("Application has to be initialized");
 		}
@@ -51,14 +51,14 @@ public abstract class MjApplication {
 	 * 
 	 * @param application normally the created by createApplication method
 	 */
-	public static synchronized void setApplication(MjApplication application) {
-		if (MjApplication.application != null) {
+	public static synchronized void setApplication(Application application) {
+		if (Application.application != null) {
 			throw new IllegalStateException("Application cannot be changed");
 		}		
 		if (application == null) {
 			throw new IllegalArgumentException("Application cannot be null");
 		}
-		MjApplication.application = application;
+		Application.application = application;
 		
 		ResourceBundle resourceBundle = application.getResourceBundle();
 		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
@@ -72,41 +72,41 @@ public abstract class MjApplication {
 	 */
 	public static void initApplication(String[] args) {
 		if (args.length < 1) {
-			throw new IllegalArgumentException("Please specify a MjApplication as first argument");
+			throw new IllegalArgumentException("Please specify an Application as first argument");
 		}
 		
 		String applicationClassName = args[0];
-		MjApplication application = createApplication(applicationClassName);
-		MjApplication.setApplication(application);
+		Application application = createApplication(applicationClassName);
+		Application.setApplication(application);
 	}
 	
 	/**
-	 * Creates the MjApplication from a class name. This method should normally only
+	 * Creates the Application from a class name. This method should normally only
 	 * be called by a frontend or a backend main class.
 	 * 
 	 * @param applicationClassName qualified class name
 	 * @return the created application. Different exceptions are thrown if the
 	 * creation failed.
 	 */
-	public static MjApplication createApplication(String applicationClassName) {
+	public static Application createApplication(String applicationClassName) {
 		Class<?> applicationClass;
 		try {
 			applicationClass = Class.forName(applicationClassName);
 		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException("Could not found MjApplication class: " + applicationClassName);
+			throw new IllegalArgumentException("Could not found Application class: " + applicationClassName);
 		}
 		Object application;
 		try {
 			application = applicationClass.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			throw new IllegalArgumentException("Could not instantiate MjApplication class: " + applicationClassName, e);
+			throw new IllegalArgumentException("Could not instantiate Application class: " + applicationClassName, e);
 		}
 		
-		if (!(application instanceof MjApplication)) {
-			throw new IllegalArgumentException("Class " + applicationClassName + " doesn't extend MjApplication");
+		if (!(application instanceof Application)) {
+			throw new IllegalArgumentException("Class " + applicationClassName + " doesn't extend Application");
 		}
 		
-		return (MjApplication) application;
+		return (Application) application;
 	}
 	
 	/**
@@ -115,7 +115,7 @@ public abstract class MjApplication {
 	 * @return the package name of this type of package for this application. For example "org.minimalj.example.frontend.editor"
 	 */
 	public static String getCompletePackageName(String simplePackageName) {
-		MjApplication application = MjApplication.getApplication();
+		Application application = Application.getApplication();
 		String applicationClassName = application.getClass().getName();
 		int pos = applicationClassName.lastIndexOf(".");
 		if (pos  >= 0) {
@@ -134,7 +134,7 @@ public abstract class MjApplication {
 		try {
 			return ResourceBundle.getBundle(this.getClass().getName());
 		} catch (MissingResourceException x) {
-			Logger logger = Logger.getLogger(MjApplication.class.getName());
+			Logger logger = Logger.getLogger(Application.class.getName());
 			logger.warning("Missing the default ResourceBundle for " + this.getClass().getName());
 			logger.fine("The default ResourceBundle has the same name as the Application that is launched.");
 			logger.fine("See the MjExampleApplication.java and MjExampleApplication.properties");
@@ -157,7 +157,7 @@ public abstract class MjApplication {
 				return Collections.emptyMap();
 			}
 		} catch (MissingResourceException x) {
-			Logger logger = Logger.getLogger(MjApplication.class.getName());
+			Logger logger = Logger.getLogger(Application.class.getName());
 			logger.info("No queries available");
 			return null;
 		}
@@ -204,13 +204,13 @@ public abstract class MjApplication {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Logger logger = Logger.getLogger(MjApplication.class.getName());
-		logger.warning("Starting the MjApplication class is not the intended way to start a Minimal-J application");
+		Logger logger = Logger.getLogger(Application.class.getName());
+		logger.warning("Starting the Application class is not the intended way to start a Minimal-J application");
 		String mainClass = System.getProperty("sun.java.command");
 		if (mainClass == null) {
 			logger.severe("and the started application could not be retrieved. Nothing started.");
-		} else if (MjApplication.class.getName().equals(mainClass)) {
-			logger.severe("and starting the MjApplication class doesn't work at all. Nothing started.");
+		} else if (Application.class.getName().equals(mainClass)) {
+			logger.severe("and starting the Application class doesn't work at all. Nothing started.");
 		} else {
 			SwingFrontend.main(new String[]{mainClass});
 		}

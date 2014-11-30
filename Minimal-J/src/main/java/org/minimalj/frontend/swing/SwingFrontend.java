@@ -5,7 +5,7 @@ import java.util.prefs.Preferences;
 import javax.swing.SwingUtilities;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 
@@ -62,7 +62,7 @@ public class SwingFrontend implements Runnable {
 	}
 
 	public static void main(final String[] args) throws Exception {
-		MjApplication.initApplication(args);
+		Application.initApplication(args);
 
 		SwingUtilities.invokeAndWait(new SwingFrontend());
 	}

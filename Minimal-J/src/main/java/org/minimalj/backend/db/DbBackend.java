@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
@@ -23,13 +23,13 @@ public class DbBackend extends Backend {
 	private final Map<String, String> queries;
 
 	public DbBackend() {
-		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(), MjApplication.getApplication().getEntityClasses());
-		this.queries = MjApplication.getApplication().getQueries();
+		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(), Application.getApplication().getEntityClasses());
+		this.queries = Application.getApplication().getQueries();
 	}
 	
 	public DbBackend(String database, String user, String password) {
-		this.persistence = new DbPersistence(DbPersistence.mariaDbDataSource(database, user, password), MjApplication.getApplication().getEntityClasses());
-		this.queries = MjApplication.getApplication().getQueries();
+		this.persistence = new DbPersistence(DbPersistence.mariaDbDataSource(database, user, password), Application.getApplication().getEntityClasses());
+		this.queries = Application.getApplication().getQueries();
 	}
 	
 	//

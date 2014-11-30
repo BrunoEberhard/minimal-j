@@ -3,7 +3,7 @@ package org.minimalj.frontend.page;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.util.ExceptionUtils;
@@ -61,7 +61,7 @@ public class PageLink implements IAction {
 	
 	public static Page createPage(String pageLink) {
 		if (StringUtils.isEmpty(pageLink)) {
-			return MjApplication.getApplication().createDefaultPage();
+			return Application.getApplication().createDefaultPage();
 		}
 		try {
 			int pos = pageLink.indexOf('/');
@@ -70,7 +70,7 @@ public class PageLink implements IAction {
 			if (EmptyPage.class.getSimpleName().equals(className)) {
 				fullClassName = EmptyPage.class.getName();
 			} else {
-				fullClassName = MjApplication.getCompletePackageName("frontend.page") + "." + className;
+				fullClassName = Application.getCompletePackageName("frontend.page") + "." + className;
 			}
 			Class<?> clazz = Class.forName(fullClassName);
 			if (pos > 0) {

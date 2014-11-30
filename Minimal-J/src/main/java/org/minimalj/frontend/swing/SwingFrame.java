@@ -14,7 +14,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageLink;
@@ -169,7 +169,7 @@ public class SwingFrame extends JFrame implements IComponent {
 	
 	protected void updateWindowTitle() {
 		Page visiblePage = getVisiblePage();
-		String title = MjApplication.getApplication().getName();
+		String title = Application.getApplication().getName();
 		if (visiblePage != null) {
 			String pageTitle = visiblePage.getTitle();
 			if (!StringUtils.isBlank(pageTitle)) {

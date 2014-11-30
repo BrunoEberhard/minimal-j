@@ -52,11 +52,11 @@ public class DbPersistenceHelper {
 					return;
 				}
 			} else if (value instanceof LocalDate) {
-				value = convertToSql((LocalDate) value);
+				value = java.sql.Date.valueOf((LocalDate) value);
 			} else if (value instanceof LocalTime) {
-				value = convertToSql((LocalTime) value);
+				value = java.sql.Time.valueOf((LocalTime) value);
 			} else if (value instanceof LocalDateTime) {
-				value = convertToSql((LocalDateTime) value);
+				value = java.sql.Timestamp.valueOf((LocalDateTime) value);
 			} else if (value instanceof Set<?>) {
 				Set<?> set = (Set<?>) value;
 				Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
@@ -66,47 +66,6 @@ public class DbPersistenceHelper {
 			}
 			preparedStatement.setObject(param, value);
 		} 
-	}
-
-	// in jdk 8 there are converters. remove this when migrating
-	
-	static java.sql.Date convertToSql(LocalDate localDate) {
-		@SuppressWarnings("deprecation")
-		java.sql.Date timestamp = new java.sql.Date(localDate.getYear() - 1900, localDate.getMonthValue() - 1, localDate.getDayOfMonth());
-		return timestamp;
-	}
-	
-	static java.sql.Time convertToSql(LocalTime localTime) {
-		@SuppressWarnings("deprecation")
-		java.sql.Time time = new java.sql.Time(localTime.getHour(), localTime.getMinute(), localTime.getSecond());
-		return time;
-	}
-	
-	static java.sql.Timestamp convertToSql(LocalDateTime localDateTime) {
-		@SuppressWarnings("deprecation")
-		java.sql.Timestamp timestamp = new java.sql.Timestamp(localDateTime.getYear() - 1900, localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth(), //
-				localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), localDateTime.getNano());
-		return timestamp;
-	}
-	
-	@SuppressWarnings("deprecation")
-	static LocalDate convertFromSql(java.sql.Date date) {
-		return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
-	}
-	
-	@SuppressWarnings("deprecation")
-	static LocalTime convertFromSql(java.sql.Time time) {
-		return LocalTime.of(time.getHours(), time.getMinutes(), time.getSeconds());
-	}
-	
-	@SuppressWarnings("deprecation")
-	static LocalDateTime convertFromSql(java.sql.Timestamp timestamp) {
-		return LocalDateTime.of(timestamp.getYear() + 1900, timestamp.getMonth() + 1, timestamp.getDate(), timestamp.getHours(), timestamp.getMinutes(), timestamp.getSeconds());
-	}
-	
-	@SuppressWarnings("deprecation")
-	static LocalDateTime convertFromSqlToLocalDateTime(java.sql.Date date) {
-		return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
 	}
 	
 	public void setParameterNull(PreparedStatement preparedStatement, int param, PropertyInterface property) throws SQLException {
@@ -144,21 +103,21 @@ public class DbPersistenceHelper {
 		
 		if (fieldClass == LocalDate.class) {
 			if (value instanceof java.sql.Date) {
-				value = convertFromSql((java.sql.Date) value);
+				value = ((java.sql.Date) value).toLocalDate();
 			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == LocalTime.class) {
 			if (value instanceof java.sql.Time) {
-				value = convertFromSql((java.sql.Time) value);
+				value = ((java.sql.Time) value).toLocalTime();
 			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (fieldClass == LocalDateTime.class) {
 			if (value instanceof java.sql.Timestamp) {
-				value = convertFromSql((java.sql.Timestamp) value);
+				value = ((java.sql.Timestamp) value).toLocalDateTime();
 			} else if (value instanceof java.sql.Date) {
-				value = convertFromSqlToLocalDateTime((java.sql.Date) value);
+				value = ((java.sql.Date) value).toLocalDate().atStartOfDay();
 			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}

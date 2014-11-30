@@ -2,7 +2,7 @@ package org.minimalj.frontend.vaadin;
 
 import java.util.List;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
@@ -35,13 +35,13 @@ public class VaadinMenuBar extends MenuBar {
 		MenuBar.MenuItem menu = menu("file");
 
 		boolean separator = false;
-		List<IAction> actionsNew = MjApplication.getApplication().getActionsNew();
+		List<IAction> actionsNew = Application.getApplication().getActionsNew();
 		if (!actionsNew.isEmpty()) {
 			addActions(menu, "new", actionsNew);
 			separator = true;
 		}
-		List<IAction> actionsImport = MjApplication.getApplication().getActionsImport();
-		List<IAction> actionsExport = MjApplication.getApplication().getActionsExport();
+		List<IAction> actionsImport = Application.getApplication().getActionsImport();
+		List<IAction> actionsExport = Application.getApplication().getActionsExport();
 		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) {
 			if (separator) menu.addSeparator();
 		}
@@ -50,7 +50,7 @@ public class VaadinMenuBar extends MenuBar {
 	}
 	
 	private void createViewMenu() {
-		List<IAction> actionsView = MjApplication.getApplication().getActionsView();
+		List<IAction> actionsView = Application.getApplication().getActionsView();
 		if (!actionsView.isEmpty()) {
 			MenuBar.MenuItem menu = menu("view");
 			addActions(menu, actionsView);

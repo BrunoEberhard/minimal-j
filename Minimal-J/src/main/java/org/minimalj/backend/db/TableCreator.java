@@ -2,13 +2,13 @@ package org.minimalj.backend.db;
 
 import javax.sql.DataSource;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 
 public class TableCreator {
 
 	public static void main(String[] args) throws Exception {
-		MjApplication.initApplication(args);
-		MjApplication application = MjApplication.getApplication();
+		Application.initApplication(args);
+		Application application = Application.getApplication();
 		
 		String database = System.getProperty("MjBackendDatabase");
 		String user= System.getProperty("MjBackendDataBaseUser", "APP");

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageLink;
@@ -75,7 +75,7 @@ public class VaadinWindow extends Window {
 		nav.setExpandRatio(menubar, 1.0F);
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
 		
-		if (MjApplication.getApplication().getSearchClasses().length > 0) {
+		if (Application.getApplication().getSearchClasses().length > 0) {
 			Component searchComponent = createSearchField();
 			nav.addComponent(searchComponent);
 			nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
@@ -96,12 +96,12 @@ public class VaadinWindow extends Window {
 		final HorizontalLayout horizontalLayout = new HorizontalLayout();
 
 		comboBox.setNullSelectionAllowed(false);
-		for (Class<?> searchClass: MjApplication.getApplication().getSearchClasses()) {
+		for (Class<?> searchClass: Application.getApplication().getSearchClasses()) {
 			comboBox.addItem(searchClass);
 			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
 			comboBox.setItemCaption(searchClass, Resources.getString(searchedClass));
 		}
-		comboBox.setValue(MjApplication.getApplication().getSearchClasses()[0]);
+		comboBox.setValue(Application.getApplication().getSearchClasses()[0]);
 		horizontalLayout.addComponent(comboBox);
 		
         textFieldSearch.setWidth("160px");
@@ -255,7 +255,7 @@ public class VaadinWindow extends Window {
 	
 	protected void updateWindowTitle() {
 		Page visiblePage = getVisiblePage();
-		String title = MjApplication.getApplication().getName();
+		String title = Application.getApplication().getName();
 		if (visiblePage != null) {
 			String pageTitle = visiblePage.getTitle();
 			if (!StringUtils.isBlank(pageTitle)) {

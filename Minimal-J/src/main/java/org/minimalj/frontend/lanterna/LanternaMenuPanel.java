@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.minimalj.application.MjApplication;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.lanterna.component.Select;
 import org.minimalj.frontend.lanterna.toolkit.LanternaActionAdapater;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
@@ -53,14 +53,14 @@ public class LanternaMenuPanel extends Panel {
 	public void updateMenu(Page page) {
 		bar.removeAllComponents();
 
-		createMenu("new", MjApplication.getApplication().getActionsNew());
+		createMenu("new", Application.getApplication().getActionsNew());
 
 		if (page instanceof ObjectPage) {
 			createMenu(((ObjectPage<?>) page).getMenu());
 		}
 
-		createMenu("import", MjApplication.getApplication().getActionsImport());
-		createMenu("export", MjApplication.getApplication().getActionsExport());
+		createMenu("import", Application.getApplication().getActionsImport());
+		createMenu("export", Application.getApplication().getActionsExport());
 	}
 
 	protected void createMenu(ActionGroup menu) {
@@ -127,7 +127,7 @@ public class LanternaMenuPanel extends Panel {
 		Panel panel = new Panel();
 		panel.setLayoutManager(new HorisontalLayout());
 
-		Class<?>[] searchClasses = MjApplication.getApplication().getSearchClasses();
+		Class<?>[] searchClasses = Application.getApplication().getSearchClasses();
 		List<String> objectNameList = new ArrayList<>();
 		for (Class<?> searchClass : searchClasses) {
 			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);

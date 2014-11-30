@@ -360,11 +360,11 @@ public class DbPersistence {
 			Enum<?> e = (Enum<?>) value;
 			value = e.ordinal();
 		} else if (value instanceof LocalDate) {
-			value = DbPersistenceHelper.convertToSql((LocalDate) value);
+			value = java.sql.Date.valueOf((LocalDate) value);
 		} else if (value instanceof LocalTime) {
-			value = DbPersistenceHelper.convertToSql((LocalTime) value);
+			value = java.sql.Time.valueOf((LocalTime) value);
 		} else if (value instanceof LocalDateTime) {
-			value = DbPersistenceHelper.convertToSql((LocalDateTime) value);
+			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
 		}
 		preparedStatement.setObject(param, value);
 	}
