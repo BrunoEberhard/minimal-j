@@ -10,10 +10,6 @@ public class History<T> {
 	private T present;
 	private int presentIndex = -1;
 	
-	public History() {
-		this(null);
-	}
-	
 	public History(HistoryListener historyListener) {
 		this.historyListener = historyListener;
 	}
@@ -33,9 +29,7 @@ public class History<T> {
 	}
 
 	private void fireHistoryChanged() {
-		if (historyListener != null) {
-			historyListener.onHistoryChanged();
-		}
+		historyListener.onHistoryChanged();
 	}
 	
 	public void replace(T page) {
