@@ -16,7 +16,7 @@ import org.minimalj.model.properties.FlatProperties;
  * It cannot be configured and it does accept only valid
  * files as specified in the rfc and encoded in UTF-8.<p>
  * 
- * RFC: {@link http://tools.ietf.org/html/rfc4180}
+ * @see <a href="http://tools.ietf.org/html/rfc4180">http://tools.ietf.org/html/rfc4180</a>
  * 
  */
 public class CsvReader {

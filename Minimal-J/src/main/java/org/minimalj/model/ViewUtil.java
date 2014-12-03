@@ -28,7 +28,7 @@ public class ViewUtil {
 	
 	/**
 	 * 
-	 * @param property
+	 * @param field
 	 * @return true if property or class of property is annotated as View
 	 */
 	public static boolean isView(Field field) {

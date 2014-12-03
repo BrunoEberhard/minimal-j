@@ -4,8 +4,8 @@ import java.util.prefs.Preferences;
 
 import javax.swing.SwingUtilities;
 
-import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.Application;
+import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 
@@ -24,7 +24,6 @@ public class SwingFrontend implements Runnable {
 	/**
 	 * Initializes application and opens a new frame
 	 * 
-	 * @param application
 	 */
 	@Override
 	public void run() {

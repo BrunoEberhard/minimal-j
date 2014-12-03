@@ -15,8 +15,10 @@ import org.minimalj.util.resources.ResourceHelper;
 
 /**
  * Manages:
+ * <OL>
  * <LI>The open and closing of Frames
  * <LI>Can refresh all open Frames (reason for being refreshable)
+ * </OL>
  * 
  * @author bruno
  * 
@@ -79,7 +81,7 @@ public class FrameManager {
 	/**
 	 * Asks the use about closing and then tries to close the Window
 	 * 
-	 * @param navigationFrameView NavigationFrameView to close
+	 * @param frameView NavigationFrameView to close
 	 */
 	public void closeWindowPerformed(SwingFrame frameView) {
 		if (!navigationFrames.contains(frameView)) return;
@@ -109,7 +111,7 @@ public class FrameManager {
 	 * Closes the NavigationFrameView without further questions. This
 	 * is done when the user closes the last tab of a window
 	 * 
-	 * @param navigationFrameView NavigationFrameView to close
+	 * @param frameView NavigationFrameView to close
 	 */
 	public void lastTabClosed(SwingFrame frameView) {
 		frameView.closeWindow();

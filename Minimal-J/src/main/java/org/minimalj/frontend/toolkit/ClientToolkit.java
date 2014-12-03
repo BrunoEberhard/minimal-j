@@ -129,7 +129,6 @@ public abstract class ClientToolkit {
 	/**
 	 * Store the output of a stream locally on a place to select
 	 * 
-	 * @param parent
 	 * @param buttonText the text displayed probably in a file browser
 	 * @return the stream provided through which the local resource can be filled
 	 */
@@ -138,7 +137,6 @@ public abstract class ClientToolkit {
 	/**
 	 * Select a stream from a locally source
 	 * 
-	 * @param parent
 	 * @param buttonText the text displayed probably in a file browser
 	 * @return the stream provided by the selected local source
 	 */
