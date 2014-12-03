@@ -14,6 +14,11 @@ import org.minimalj.util.resources.Resources;
 public class PageLink implements IAction {
 	private static final Logger logger = Logger.getLogger(PageLink.class.getName());
 
+	/**
+	 * The link to show the default page defined by the application
+	 */
+	public static final String DEFAULT = "";
+	
 	private final String name;
 	private final String link;
 	private final boolean enabled;
