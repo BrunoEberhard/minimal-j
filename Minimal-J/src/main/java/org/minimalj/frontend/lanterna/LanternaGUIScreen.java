@@ -44,6 +44,8 @@ public class LanternaGUIScreen extends GUIScreen {
 		switchLayout = new LanternaSwitchContent();
 		menuPanel.addComponent((Component) switchLayout, BorderLayout.CENTER);
 
+		history.add(PageLink.DEFAULT);
+
 		showWindow(window, Position.FULL_SCREEN);
 	}
 	

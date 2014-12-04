@@ -2,8 +2,8 @@ package org.minimalj.frontend.lanterna;
 
 import java.util.prefs.Preferences;
 
-import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.Application;
+import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
 import org.minimalj.frontend.swing.PreferencesHelper;
@@ -26,12 +26,13 @@ public class LanternaFrontend {
 
 	public void run() {
 		try {
+			ClientToolkit.setToolkit(new LanternaClientToolkit());
+
 			SwingTerminal terminal = new SwingTerminal();
 			Screen screen = new Screen(terminal);
 
 			LanternaGUIScreen gui = new LanternaGUIScreen(screen);
 			gui.setTheme(new HighContrastLanternaTheme());
-			ClientToolkit.setToolkit(new LanternaClientToolkit());
 
 			applicationContext = new LanternaApplicationContext();
 
