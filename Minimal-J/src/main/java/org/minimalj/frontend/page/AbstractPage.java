@@ -15,12 +15,8 @@ public abstract class AbstractPage implements Page {
 	}
 
 	protected void show(Class<? extends Page> pageClass, String... args) {
-		String pageLink = link(pageClass, args);
+		String pageLink = PageLink.link(pageClass, args);
 		ClientToolkit.getToolkit().show(pageLink);
 	}
 
-	public static String link(Class<? extends Page> pageClass, String... args) {
-		return PageLink.link(pageClass, args);
-	}
-	
 }
