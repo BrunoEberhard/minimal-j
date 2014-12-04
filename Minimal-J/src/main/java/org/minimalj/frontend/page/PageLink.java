@@ -124,20 +124,4 @@ public class PageLink implements IAction {
 	public void setChangeListener(ActionChangeListener changeListener) {
 		// n/a
 	}
-	
-//	public static String link(String... args) {
-//		if (args.length == 0) {
-//			return "";
-//		} else if (args.length == 1) {
-//			return args[0];
-//		} else {
-//			StringBuilder s = new StringBuilder();
-//			s.append(args[0]);
-//			for (int i = 1; i<args.length; i++) {
-//				s.append("/"); s.append(args[i]);
-//			}
-//			return s.toString();
-//		}
-//	}
-	
 }
