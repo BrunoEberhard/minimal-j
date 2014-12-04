@@ -251,27 +251,4 @@ public class VaadinBorderLayout extends VerticalLayout {
 		return minimumEastWidth;
 	}
 
-	/**
-	 * Return component from specific position
-	 * 
-	 * @param position
-	 * @return
-	 */
-	public Component getComponent(Constraint position) {
-		if (position == Constraint.NORTH) {
-			return north;
-		} else if (position == Constraint.WEST) {
-			return west;
-		} else if (position == Constraint.CENTER) {
-			return center;
-		} else if (position == Constraint.EAST) {
-			return east;
-		} else if (position == Constraint.SOUTH) {
-			return south;
-		} else {
-			throw new IllegalArgumentException(
-					"Invalid BorderLayout constraint.");
-		}
-	}
-
 }
