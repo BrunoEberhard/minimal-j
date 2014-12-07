@@ -32,13 +32,6 @@ public class Properties {
 		return getProperty(field.getDeclaringClass(), field.getName());
 	}
 	
-	public static void set(Object object, String fieldName, Object value) {
-		if (fieldName == null) throw new NullPointerException();
-		if (object == null) throw new NullPointerException();
-		
-		getProperty(object.getClass(), fieldName).setValue(object, value);
-	}
-	
 	public static Map<String, PropertyInterface> getProperties(Class<?> clazz) {
 		if (!properties.containsKey(clazz)) {
 			properties.put(clazz, properties(clazz));
