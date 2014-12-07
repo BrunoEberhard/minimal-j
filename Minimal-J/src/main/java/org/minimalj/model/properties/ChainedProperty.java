@@ -4,8 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-import org.minimalj.model.PropertyInterface;
-
 public class ChainedProperty implements PropertyInterface {
 	private PropertyInterface next;
 	private Field field;

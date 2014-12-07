@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.StringUtils;
 
 public class Keys {

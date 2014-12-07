@@ -8,6 +8,7 @@ import java.util.Map;
 import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Reference;
 import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 
 public class ViewUtil {

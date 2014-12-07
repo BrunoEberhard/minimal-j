@@ -5,7 +5,7 @@ import java.time.format.DateTimeParseException;
 
 import org.minimalj.autofill.DateGenerator;
 import org.minimalj.model.InvalidValues;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 

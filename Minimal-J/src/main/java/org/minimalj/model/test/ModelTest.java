@@ -16,11 +16,11 @@ import java.util.TreeSet;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;

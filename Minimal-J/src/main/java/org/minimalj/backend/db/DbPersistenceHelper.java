@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.InvalidValues;
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 
 public class DbPersistenceHelper {

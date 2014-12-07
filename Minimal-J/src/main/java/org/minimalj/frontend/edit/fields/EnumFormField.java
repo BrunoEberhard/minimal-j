@@ -6,7 +6,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.EnumUtils;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 // TODO: Typisierung bringt hier so was von nichts
 public class EnumFormField<E extends Enum<E>> extends AbstractEditField<E> {

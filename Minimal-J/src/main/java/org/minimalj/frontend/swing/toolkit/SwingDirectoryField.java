@@ -11,7 +11,7 @@ import javax.swing.JTextField;
 
 import org.minimalj.frontend.edit.fields.EditField;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 public class SwingDirectoryField extends JPanel implements EditField<String>, IComponent {
 	private static final long serialVersionUID = 1L;

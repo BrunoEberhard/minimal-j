@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.FieldUtils;
 
 public class SimpleProperty implements PropertyInterface {

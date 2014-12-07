@@ -2,7 +2,7 @@ package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.frontend.edit.EditorAction;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 public abstract class ObjectLinkField<T> extends ObjectField<T> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());

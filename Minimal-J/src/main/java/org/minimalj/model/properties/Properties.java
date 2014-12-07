@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.util.FieldUtils;
 
 public class Properties {

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Random;
 
 import org.minimalj.model.InvalidValues;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DemoEnabled;
 
 

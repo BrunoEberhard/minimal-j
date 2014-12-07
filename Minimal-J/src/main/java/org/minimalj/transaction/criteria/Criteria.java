@@ -3,7 +3,7 @@ package org.minimalj.transaction.criteria;
 import java.io.Serializable;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 public abstract class Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;

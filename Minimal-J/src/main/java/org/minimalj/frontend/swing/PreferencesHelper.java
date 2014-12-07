@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 import org.minimalj.model.EnumUtils;
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.PropertyInterface;
 
 public abstract class PreferencesHelper {
 	private static final Logger logger = Logger.getLogger(PreferencesHelper.class.getName());

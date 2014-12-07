@@ -5,7 +5,7 @@ import org.minimalj.frontend.edit.EditorAction;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.ResourceAction;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>

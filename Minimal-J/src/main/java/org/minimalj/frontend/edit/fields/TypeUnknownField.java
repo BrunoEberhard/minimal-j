@@ -3,7 +3,7 @@ package org.minimalj.frontend.edit.fields;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 /**
  * If no field class is found for a property then a TypeUnknownField

@@ -5,8 +5,8 @@ import java.util.ResourceBundle;
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.Keys;
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.View;
+import org.minimalj.model.properties.PropertyInterface;
 
 public class ResourcesTest {
 

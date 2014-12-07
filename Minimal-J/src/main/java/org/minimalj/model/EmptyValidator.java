@@ -6,6 +6,7 @@ import java.util.ResourceBundle;
 import org.minimalj.backend.db.EmptyObjects;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;

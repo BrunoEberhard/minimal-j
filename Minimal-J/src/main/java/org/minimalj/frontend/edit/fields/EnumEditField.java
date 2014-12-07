@@ -10,7 +10,7 @@ import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DemoEnabled;
 
 // TODO: Typisierung bringt hier so was von nichts

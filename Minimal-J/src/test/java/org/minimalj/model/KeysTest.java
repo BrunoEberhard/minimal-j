@@ -7,7 +7,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.minimalj.model.Keys;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 public class KeysTest {
 

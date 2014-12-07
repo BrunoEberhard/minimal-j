@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.FieldUtils;
 
 public class AnnotationUtil {

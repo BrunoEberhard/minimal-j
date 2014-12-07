@@ -1,4 +1,4 @@
-package org.minimalj.model;
+package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

@@ -1,7 +1,7 @@
 package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 
 /**
  * A read only / display Field in a Form.<br>

@@ -19,11 +19,11 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.ChainedProperty;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.properties.SimpleProperty;
 import org.minimalj.transaction.criteria.CriteriaOperator;
 import org.minimalj.util.CloneHelper;

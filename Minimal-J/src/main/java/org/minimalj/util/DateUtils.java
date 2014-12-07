@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.logging.Logger;
 
 import org.minimalj.model.InvalidValues;
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.model.properties.PropertyInterface;
 
 
 public class DateUtils {

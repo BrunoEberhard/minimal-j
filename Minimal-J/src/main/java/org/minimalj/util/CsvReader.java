@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.model.PropertyInterface;
 import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.PropertyInterface;
 
 /**
  * This class doesn't replace a library like OpenCSV.

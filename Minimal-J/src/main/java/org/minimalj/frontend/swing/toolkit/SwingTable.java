@@ -28,7 +28,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.model.Keys;
-import org.minimalj.model.PropertyInterface;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
 
