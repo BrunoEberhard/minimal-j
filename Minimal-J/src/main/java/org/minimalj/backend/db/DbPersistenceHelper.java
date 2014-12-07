@@ -32,8 +32,8 @@ public class DbPersistenceHelper {
 	 * @return true if property isn't a simply object like String, Integer, Date etc but a dependable
 	 */
 	public static boolean isDependable(PropertyInterface property) {
-		if (property.getFieldClazz().getName().startsWith("java")) return false;
-		if (Enum.class.isAssignableFrom(property.getFieldClazz())) return false;
+		if (property.getClazz().getName().startsWith("java")) return false;
+		if (Enum.class.isAssignableFrom(property.getClazz())) return false;
 		if (property.isFinal()) return false;
 		return true;
 	}
@@ -69,7 +69,7 @@ public class DbPersistenceHelper {
 	}
 	
 	public void setParameterNull(PreparedStatement preparedStatement, int param, PropertyInterface property) throws SQLException {
-		Class<?> clazz = property.getFieldClazz();
+		Class<?> clazz = property.getClazz();
 		if (clazz == String.class) {
 			preparedStatement.setNull(param, Types.VARCHAR);
 		} else if (clazz == UUID.class) {

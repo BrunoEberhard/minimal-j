@@ -120,7 +120,7 @@ public class ModelTest {
 			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
 			switch (modelClassType) {
 			case CODE:
-				if (!FieldUtils.isAllowedId(property.getFieldClazz())) {
+				if (!FieldUtils.isAllowedId(property.getClazz())) {
 					problems.add(clazz.getName() + ": Code ids must be of Integer, String or Object");
 				}
 				break;
@@ -306,7 +306,7 @@ public class ModelTest {
 		try {
 			AnnotationUtil.getSize(property);
 		} catch (IllegalArgumentException x) {
-			problems.add("Missing size for: " + property.getDeclaringClass().getName() + "." + property.getFieldPath());
+			problems.add("Missing size for: " + property.getDeclaringClass().getName() + "." + property.getPath());
 		}
 	}
 		
@@ -323,7 +323,7 @@ public class ModelTest {
 	
 	private void testResources(Class<?> clazz) {
 		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
-			if (StringUtils.equals(property.getFieldName(), "id", "version")) continue;
+			if (StringUtils.equals(property.getName(), "id", "version")) continue;
 			String resourceText = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
 			if (resourceText.startsWith("!!")) {
 				missingResources.add(resourceText.substring(2));

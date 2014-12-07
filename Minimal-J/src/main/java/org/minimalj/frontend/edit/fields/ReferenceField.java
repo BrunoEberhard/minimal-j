@@ -33,7 +33,7 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	public ReferenceField(Object key, Object[] searchColumns, boolean editable) {
 		super(key, editable);
 		property = Keys.getProperty(key);
-		fieldClazz = ViewUtil.resolve(property.getFieldClazz());
+		fieldClazz = ViewUtil.resolve(property.getClazz());
 		this.searchColumns = searchColumns;
 		lookup = ClientToolkit.getToolkit().createLookup(new ReferenceFieldChangeListener(), new ReferenceFieldSearch(), searchColumns);
 	}
@@ -84,7 +84,7 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 		public void changed(IComponent source) {
 			Object selectedObject = lookup.getSelectedObject();
 			@SuppressWarnings("unchecked")
-			T objectAsView = (T) ViewUtil.view(selectedObject, CloneHelper.newInstance(property.getFieldClazz()));
+			T objectAsView = (T) ViewUtil.view(selectedObject, CloneHelper.newInstance(property.getClazz()));
 			setObject(objectAsView);
 		}
 		

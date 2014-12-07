@@ -60,7 +60,7 @@ public class Keys {
 			qualifiedMethodName = keyObject.getClass().getName() + "." + methodName;
 		} else {
 			PropertyInterface property = properties.get(keyObject);
-			qualifiedMethodName = property.getFieldPath() + "." + methodName;
+			qualifiedMethodName = property.getPath() + "." + methodName;
 		}
 		
 		if (methodKeyByName.containsKey(qualifiedMethodName)) {
@@ -82,12 +82,12 @@ public class Keys {
 		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (PropertyInterface property : propertiesOfObject.values()) {
 			Object value = null;
-			Class<?> type = property.getFieldClazz();
+			Class<?> type = property.getClazz();
 
 			if (property.isFinal()) {
 				value = property.getValue(object);
 			} else {
-				value = createKey(type, property.getFieldName(), property.getDeclaringClass());
+				value = createKey(type, property.getName(), property.getDeclaringClass());
 				property.setValue(object, value);	
 			}
 			
@@ -189,13 +189,13 @@ public class Keys {
 		}
 
 		@Override
-		public String getFieldName() {
-			return property2.getFieldName();
+		public String getName() {
+			return property2.getName();
 		}
 		
 		@Override
-		public String getFieldPath() {
-			return property1.getFieldPath() + "." + property2.getFieldPath();
+		public String getPath() {
+			return property1.getPath() + "." + property2.getPath();
 		}
 		
 		@Override
@@ -204,8 +204,8 @@ public class Keys {
 		}
 		
 		@Override
-		public Class<?> getFieldClazz() {
-			return property2.getFieldClazz();
+		public Class<?> getClazz() {
+			return property2.getClazz();
 		}
 
 		@Override
@@ -291,13 +291,13 @@ public class Keys {
 		}
 
 		@Override
-		public String getFieldName() {
+		public String getName() {
 			return name;
 		}
 
 		@Override
-		public String getFieldPath() {
-			return getFieldName();
+		public String getPath() {
+			return getName();
 		}
 
 		@Override
@@ -306,7 +306,7 @@ public class Keys {
 		}
 
 		@Override
-		public Class<?> getFieldClazz() {
+		public Class<?> getClazz() {
 			return getterMethod.getReturnType();
 		}
 		

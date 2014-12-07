@@ -224,14 +224,14 @@ public class DateUtils {
 	public static DateTimeFormatter getTimeFormatter(PropertyInterface property) {
 		Size size = property.getAnnotation(Size.class);
 		if (size == null) {
-			logger.warning(property.getFieldPath() + " has no size for LocalTime. Use default.");
+			logger.warning(property.getPath() + " has no size for LocalTime. Use default.");
 			return TIME_FORMAT;
 		}
 		if (size.value() == Size.TIME_HH_MM) return TIME_FORMAT;
 		else if (size.value() == Size.TIME_WITH_SECONDS) return TIME_FORMAT_WITH_SECONDS;
 		else if (size.value() == Size.TIME_WITH_MILLIS) return TIME_FORMAT_WITH_MILIS;
 		else {
-			logger.severe(property.getFieldPath() + " has wrong size for LocalTime. Use default.");
+			logger.severe(property.getPath() + " has wrong size for LocalTime. Use default.");
 			return TIME_FORMAT;
 		}
 	}

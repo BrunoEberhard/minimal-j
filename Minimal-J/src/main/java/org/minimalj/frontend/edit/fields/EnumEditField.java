@@ -32,7 +32,7 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 	@SuppressWarnings("unchecked")
 	public EnumEditField(PropertyInterface property, List<E> allowedValues) {
 		super(property, true);
-		this.enumClass = (Class<E>) property.getFieldClazz();
+		this.enumClass = (Class<E>) property.getClazz();
 		
 		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
 		comboBox.setObjects(allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass));

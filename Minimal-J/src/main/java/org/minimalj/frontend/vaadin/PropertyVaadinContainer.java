@@ -46,7 +46,7 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 	@Override
 	public Class<?> getType(Object propertyId) {
 		PropertyInterface property = (PropertyInterface) propertyId;
-		return property.getFieldClazz();
+		return property.getClazz();
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class PropertyVaadinContainer<T> implements Container.Sortable {
 		public Property getItemProperty(Object id) {
 			PropertyInterface property = (PropertyInterface) id;
 			Object value = property.getValue(object);
-			return new PropertyVaadinContainerProperty(property.getFieldClazz(), value);
+			return new PropertyVaadinContainerProperty(property.getClazz(), value);
 		}
 
 		@Override

@@ -63,13 +63,13 @@ public class FieldProperty implements PropertyInterface {
 	}
 
 	@Override
-	public String getFieldName() {
+	public String getName() {
 		return field.getName();
 	}
 
 	@Override
-	public String getFieldPath() {
-		return getFieldName();
+	public String getPath() {
+		return getName();
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class FieldProperty implements PropertyInterface {
 	}
 
 	@Override
-	public Class<?> getFieldClazz() {
+	public Class<?> getClazz() {
 		return field.getType();
 	}
 	

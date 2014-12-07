@@ -20,7 +20,7 @@ public class CodeFormField<T extends Code> extends AbstractEditField<Object> {
 	@SuppressWarnings("unchecked")
 	public CodeFormField(PropertyInterface property) {
 		super(property, true);
-		codes = Codes.get((Class<T>) property.getFieldClazz());
+		codes = Codes.get((Class<T>) property.getClazz());
 		
 		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
 	}

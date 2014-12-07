@@ -219,7 +219,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			
 			if (DbPersistenceHelper.isDependable(property) || ViewUtil.isReference(property)) {
-				Class<?> fieldClass = ViewUtil.resolve(property.getFieldClazz());
+				Class<?> fieldClass = ViewUtil.resolve(property.getClazz());
 				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
 
 				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
@@ -241,7 +241,7 @@ public abstract class AbstractTable<T> {
 
 	private String findColumn(String fieldPath) {
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-			if (entry.getValue().getFieldPath().equals(fieldPath)) {
+			if (entry.getValue().getPath().equals(fieldPath)) {
 				return entry.getKey();
 			}
 		}
@@ -259,7 +259,7 @@ public abstract class AbstractTable<T> {
 	private void findCodes() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
-			Class<?> fieldClazz = property.getFieldClazz();
+			Class<?> fieldClazz = property.getClazz();
 			if (Code.class.isAssignableFrom(fieldClazz) && !dbPersistence.tableExists(fieldClazz) && fieldClazz != clazz) {
 				dbPersistence.addClass(fieldClazz);
 			}
@@ -270,7 +270,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			if (ViewUtil.isReference(property)) continue;
-			Class<?> fieldClazz = property.getFieldClazz();
+			Class<?> fieldClazz = property.getClazz();
 			if (DbPersistenceHelper.isDependable(property) && !dbPersistence.tableExists(fieldClazz) ) {
 				dbPersistence.addClass(fieldClazz);
 			}
@@ -281,7 +281,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
 			if (ViewUtil.isReference(property)) {
-				createIndex(property, property.getFieldPath());
+				createIndex(property, property.getPath());
 			}
 		}
 	}
@@ -302,7 +302,7 @@ public abstract class AbstractTable<T> {
 				return column + " " + criteriaOperator.getOperatorAsString() + " ?";
 			} else {
 				PropertyInterface subProperty = columns.get(column);
-				AbstractTable<?> subTable = dbPersistence.table(ViewUtil.resolve(subProperty.getFieldClazz()));
+				AbstractTable<?> subTable = dbPersistence.table(ViewUtil.resolve(subProperty.getClazz()));
 				return column + " = (select ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
 			}
 		} else {
@@ -381,7 +381,7 @@ public abstract class AbstractTable<T> {
 			Object value = entry.getValue();
 			PropertyInterface property = entry.getKey();
 			if (value != null) {
-				Class<?> fieldClass = property.getFieldClazz();
+				Class<?> fieldClass = property.getClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					@SuppressWarnings("unchecked")
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
@@ -425,7 +425,7 @@ public abstract class AbstractTable<T> {
 					value = IdUtils.getId(value);
 				}
 			} else if (DbPersistenceHelper.isDependable(property)) {
-				Table dependableTable = dbPersistence.getTable(property.getFieldClazz());
+				Table dependableTable = dbPersistence.getTable(property.getClazz());
 				if (mode == ParameterMode.INSERT) {
 					if (value != null) {
 						value = dependableTable.insert(value);
@@ -525,7 +525,7 @@ public abstract class AbstractTable<T> {
 
 	public void createIndex(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
-		String fieldPath = property.getFieldPath();
+		String fieldPath = property.getPath();
 		createIndex(property, fieldPath);
 	}
 	
@@ -535,10 +535,10 @@ public abstract class AbstractTable<T> {
 			return;
 		}
 		
-		String myFieldPath = entry.getValue().getFieldPath();
+		String myFieldPath = entry.getValue().getPath();
 		if (fieldPath.length() > myFieldPath.length()) {
 			String rest = fieldPath.substring(myFieldPath.length() + 1);
-			AbstractTable<?> innerTable = dbPersistence.table(entry.getValue().getFieldClazz());
+			AbstractTable<?> innerTable = dbPersistence.table(entry.getValue().getClazz());
 			innerTable.createIndex(property, rest);
 		}
 		indexes.add(entry.getKey());
@@ -549,7 +549,7 @@ public abstract class AbstractTable<T> {
 	protected Entry<String, PropertyInterface> findX(String fieldPath) {
 		while (true) {
 			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-				String columnFieldPath = entry.getValue().getFieldPath();
+				String columnFieldPath = entry.getValue().getPath();
 				if (columnFieldPath.equals(fieldPath)) {
 					return entry;
 				}

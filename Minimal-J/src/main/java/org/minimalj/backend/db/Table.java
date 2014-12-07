@@ -124,7 +124,7 @@ public class Table<T> extends AbstractTable<T> {
 		Map<String, PropertyInterface> properties = getLists();
 		for (PropertyInterface property : properties.values()) {
 			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
-			subTables.put(property.getFieldName(), createSubTable(property, clazz));
+			subTables.put(property.getName(), createSubTable(property, clazz));
 		}
 		return subTables;
 	}
@@ -136,7 +136,7 @@ public class Table<T> extends AbstractTable<T> {
 	protected String buildSubTableName(PropertyInterface property) {
 		StringBuilder b = new StringBuilder();
 		b.append(getTableName());
-		String fieldName = StringUtils.upperFirstChar(property.getFieldName());
+		String fieldName = StringUtils.upperFirstChar(property.getName());
 		b.append('_'); b.append(fieldName); 
 		return b.toString();
 	}
@@ -195,7 +195,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			PropertyInterface property = entry.getValue();
 			for (PropertyInterface p : properties) {
-				if (p.getFieldPath().equals(property.getFieldPath())) {
+				if (p.getPath().equals(property.getPath())) {
 					result.add(entry.getKey());
 				}
 			}
@@ -208,7 +208,7 @@ public class Table<T> extends AbstractTable<T> {
 		if (criteria instanceof SimpleCriteria) {
 			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
 			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
-			query += " where " + whereStatement(propertyInterface.getFieldPath(), simpleCriteria.getOperator());
+			query += " where " + whereStatement(propertyInterface.getPath(), simpleCriteria.getOperator());
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();
@@ -265,7 +265,7 @@ public class Table<T> extends AbstractTable<T> {
 		if (criteria instanceof SimpleCriteria) {
 			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
 			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
-			query += " where " + whereStatement(propertyInterface.getFieldPath(), simpleCriteria.getOperator());
+			query += " where " + whereStatement(propertyInterface.getPath(), simpleCriteria.getOperator());
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				Object value = simpleCriteria.getValue();

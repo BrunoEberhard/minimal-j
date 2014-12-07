@@ -25,7 +25,7 @@ public class AnnotationUtil {
 			for (Field field : sizeClass.getFields()) {
 				if (field.getType() != Integer.TYPE) continue;
 				if (!FieldUtils.isStatic(field)) continue;
-				if (!field.getName().equals(property.getFieldName())) continue;
+				if (!field.getName().equals(property.getName())) continue;
 				try {
 					return field.getInt(null);
 				} catch (Exception x) {
@@ -34,12 +34,12 @@ public class AnnotationUtil {
 			}
 		}
 		
-		if (property.getFieldClazz() == BigDecimal.class) {
+		if (property.getClazz() == BigDecimal.class) {
 			return 10;
 		}
 		
 		logger.fine("You must annotate the fields with a @size or the entire class with @sizes");
-		throw new IllegalArgumentException("Size not specified for " + property.getFieldName() + " on " + property.getDeclaringClass());
+		throw new IllegalArgumentException("Size not specified for " + property.getName() + " on " + property.getDeclaringClass());
 	}
 		
 	public static int getDecimal(PropertyInterface property) {

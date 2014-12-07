@@ -47,13 +47,13 @@ public class CsvReader {
         	for (int i = 0; i<fields.size(); i++) {
         		Object value = values.get(i);
         		PropertyInterface property = properties.get(i);
-        		if (property.getFieldClazz() == Integer.class) {
+        		if (property.getClazz() == Integer.class) {
         			value = Integer.valueOf(values.get(i));
-        		} else if (property.getFieldClazz() == Long.class) {
+        		} else if (property.getClazz() == Long.class) {
         			value = Long.valueOf(values.get(i));
-        		} else if (property.getFieldClazz() == Boolean.class) {
+        		} else if (property.getClazz() == Boolean.class) {
         			value = Boolean.valueOf(values.get(i));
-        		} else if (property.getFieldClazz() == BigDecimal.class) {
+        		} else if (property.getClazz() == BigDecimal.class) {
         			value = new BigDecimal(values.get(i));
         		} else {
         			value = values.get(i);

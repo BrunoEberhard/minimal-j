@@ -253,7 +253,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
-			return properties.get(columnIndex).getFieldClazz();
+			return properties.get(columnIndex).getClazz();
 		}
 	}
 	

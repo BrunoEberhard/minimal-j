@@ -13,11 +13,11 @@ public interface PropertyInterface {
 
 	public Class<?> getDeclaringClass();
 	
-	public String getFieldName();
+	public String getName();
 
-	public String getFieldPath();
+	public String getPath();
 
-	public Class<?> getFieldClazz();
+	public Class<?> getClazz();
 
 	public Type getType();
 

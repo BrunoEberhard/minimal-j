@@ -142,7 +142,7 @@ public class Form<T> implements DemoEnabled {
 	}
 	
 	protected FormField<?> createField(PropertyInterface property) {
-		Class<?> fieldClass = property.getFieldClazz();
+		Class<?> fieldClass = property.getClazz();
 		if (editable && !property.isFinal()) {
 			if (fieldClass == String.class) {
 				int size = AnnotationUtil.getSize(property);
@@ -190,7 +190,7 @@ public class Form<T> implements DemoEnabled {
 			else if (fieldClass == Set.class) return new EnumSetEditField(property, editable);
 			
 		}
-		logger.severe("No FormField could be created for: " + property.getFieldName() + " of class " + fieldClass.getName());
+		logger.severe("No FormField could be created for: " + property.getName() + " of class " + fieldClass.getName());
 		return new TypeUnknownField(property);
 	}
 	
@@ -404,7 +404,7 @@ public class Form<T> implements DemoEnabled {
 	
 	private String getName(FormField<?> field) {
 		PropertyInterface property = field.getProperty();
-		return property.getFieldName();
+		return property.getName();
 	}
 	
 	public void setChangeListener(FormChangeListener<T> changeListener) {
@@ -496,15 +496,15 @@ public class Form<T> implements DemoEnabled {
 						((Enable) field.getValue()).setEnabled(e ^ invert);
 					} else {
 						if (editable) {
-							logger.severe("field " + property.getFieldPath() + " should implement Enable");
+							logger.severe("field " + property.getPath() + " should implement Enable");
 						} else {
-							logger.fine("field " + property.getFieldPath() + " should maybe implement Enable");
+							logger.fine("field " + property.getPath() + " should maybe implement Enable");
 						}
 					}
 				} catch (Exception x) {
-					String fieldName = property.getFieldName();
-					if (!fieldName.equals(property.getFieldPath())) {
-						fieldName += " (" + property.getFieldPath() + ")";
+					String fieldName = property.getName();
+					if (!fieldName.equals(property.getPath())) {
+						fieldName += " (" + property.getPath() + ")";
 					}
 					logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed" , x);
 				}
@@ -514,9 +514,9 @@ public class Form<T> implements DemoEnabled {
 	
 	private Object findParentObject(PropertyInterface property) {
 		Object result = object;
-		String fieldPath = property.getFieldPath();
+		String fieldPath = property.getPath();
 		while (fieldPath.indexOf(".") > -1) {
-			int pos = property.getFieldPath().indexOf(".");
+			int pos = property.getPath().indexOf(".");
 			PropertyInterface p2 = Properties.getProperty(result.getClass(), fieldPath.substring(0, pos));
 			result = p2.getValue(result);
 			fieldPath = fieldPath.substring(pos + 1);
@@ -599,7 +599,7 @@ public class Form<T> implements DemoEnabled {
 				return false;
 			} else {
 				if (showWarningIfValidationForUnsuedField) {
-					logger.warning("There is a validation message for " + validationMessage.getProperty().getFieldName() + " but the field is not used in the form");
+					logger.warning("There is a validation message for " + validationMessage.getProperty().getName() + " but the field is not used in the form");
 					logger.warning("The message is: " + validationMessage.getFormattedText());
 					logger.fine("This can be ok if at some point not all validations in a object have to be ok");
 					logger.fine("But you have to make sure to get valid data in database");

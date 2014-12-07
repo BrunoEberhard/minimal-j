@@ -22,7 +22,7 @@ public abstract class DbSyntax {
 	} 
 
 	protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
-		Class<?> fieldClazz = idProperty.getFieldClazz();
+		Class<?> fieldClazz = idProperty.getClazz();
 		int size = fieldClazz == String.class ? AnnotationUtil.getSize(idProperty) : 0;
 		addIdColumn(s, fieldClazz, size);
 	}
@@ -59,7 +59,7 @@ public abstract class DbSyntax {
 	 * @param property
 	 */
 	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
-		Class<?> clazz = property.getFieldClazz();
+		Class<?> clazz = property.getClazz();
 		
 		if (clazz == Integer.class) {
 			s.append("INTEGER");
@@ -169,7 +169,7 @@ public abstract class DbSyntax {
 		
 		@Override
 		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
-			Class<?> clazz = property.getFieldClazz();
+			Class<?> clazz = property.getClazz();
 			
 			if (clazz == LocalDateTime.class) {
 				s.append("TIMESTAMP");

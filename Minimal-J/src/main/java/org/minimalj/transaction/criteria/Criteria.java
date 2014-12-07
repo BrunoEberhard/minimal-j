@@ -43,7 +43,7 @@ public abstract class Criteria implements Serializable {
 		}
 
 		private void checkOperator(PropertyInterface property, CriteriaOperator operator) {
-			Class<?> clazz = property.getFieldClazz();
+			Class<?> clazz = property.getClazz();
 			if (clazz == Integer.class || clazz == Long.class) return;
 			if (operator == CriteriaOperator.equal) return;
 			throw new IllegalArgumentException(operator + " only allowed for integer and long fields");

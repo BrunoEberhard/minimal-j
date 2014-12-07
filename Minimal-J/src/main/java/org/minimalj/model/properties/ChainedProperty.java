@@ -39,13 +39,13 @@ public class ChainedProperty implements PropertyInterface {
 	}
 
 	@Override
-	public String getFieldName() {
-		return next.getFieldName();
+	public String getName() {
+		return next.getName();
 	}
 
 	@Override
-	public String getFieldPath() {
-		return field.getName() + "." + next.getFieldPath();
+	public String getPath() {
+		return field.getName() + "." + next.getPath();
 	}
 
 	@Override
@@ -54,8 +54,8 @@ public class ChainedProperty implements PropertyInterface {
 	}
 	
 	@Override
-	public Class<?> getFieldClazz() {
-		return next.getFieldClazz();
+	public Class<?> getClazz() {
+		return next.getClazz();
 	}
 
 	@Override

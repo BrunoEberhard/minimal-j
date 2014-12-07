@@ -16,7 +16,7 @@ public abstract class PreferencesHelper {
 	public static void load(Preferences preferences, Object data) {
 		for (Entry<String, PropertyInterface> entry : FlatProperties.getProperties(data.getClass()).entrySet()) {
 			String key = entry.getKey();
-			Class<?> clazz = entry.getValue().getFieldClazz();
+			Class<?> clazz = entry.getValue().getClazz();
 			Object value = null;
 			if (String.class.equals(clazz)) {
 				String presetValue = (String) FlatProperties.getValue(data, key);

@@ -83,12 +83,12 @@ public class Resources {
 	}
 	
 	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property, String postfix) {
-		String fieldName = property.getFieldName();
+		String fieldName = property.getName();
 		if (postfix != null) {
 			fieldName += postfix;
 		}
 		Class<?> declaringClass = property.getDeclaringClass();
-		Class<?> fieldClass = property.getFieldClazz();
+		Class<?> fieldClass = property.getClazz();
 		
 		return getObjectFieldName(resourceBundle, fieldName, declaringClass, fieldClass);
 	}

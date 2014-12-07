@@ -82,17 +82,17 @@ public class EnumSetEditField<E extends Set<Enum<?>>> extends ObjectFlowField<E>
 		}
 
 		@Override
-		public String getFieldName() {
+		public String getName() {
 			return value.name();
 		}
 
 		@Override
-		public String getFieldPath() {
+		public String getPath() {
 			return value.name();
 		}
 
 		@Override
-		public Class<?> getFieldClazz() {
+		public Class<?> getClazz() {
 			return enumClass;
 		}
 

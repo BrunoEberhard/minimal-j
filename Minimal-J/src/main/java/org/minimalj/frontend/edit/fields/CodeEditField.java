@@ -21,7 +21,7 @@ public class CodeEditField extends AbstractEditField<Code> implements Enable, De
 
 	public CodeEditField(PropertyInterface property) {
 		super(property, true);
-		codes = Codes.get((Class<Code>) property.getFieldClazz());
+		codes = Codes.get((Class<Code>) property.getClazz());
 		
 		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
 		comboBox.setObjects(codes);

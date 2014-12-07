@@ -45,18 +45,18 @@ public class ViewUtil {
 	 * @return true if property or class of property is marked as reference
 	 */
 	public static boolean isReference(PropertyInterface property) {
-		Class<?> clazz = property.getFieldClazz();
+		Class<?> clazz = property.getClazz();
 		if (View.class.isAssignableFrom(clazz)) return true;
 		if (property.getAnnotation(Reference.class) != null) return true;
 		return false;
 	}
 	
 	public static Class<?> getReferencedClass(PropertyInterface property) {
-		if (!isReference(property)) throw new IllegalArgumentException(property.getFieldPath());
+		if (!isReference(property)) throw new IllegalArgumentException(property.getPath());
 		Reference reference = property.getAnnotation(Reference.class);
-		if (reference != null) return property.getFieldClazz();
+		if (reference != null) return property.getClazz();
 		
-		Class<?> clazz = property.getFieldClazz();
+		Class<?> clazz = property.getClazz();
 		return getViewedClass(clazz);
 	}
 	

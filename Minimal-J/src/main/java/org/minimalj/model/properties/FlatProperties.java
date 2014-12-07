@@ -101,7 +101,7 @@ public class FlatProperties {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
 			if (!FieldUtils.isFinal(field)) {
-				String fieldPath = new FieldProperty(field).getFieldPath();
+				String fieldPath = new FieldProperty(field).getPath();
 				if (!properties.containsKey(field.getName())) {
 					properties.put(field.getName(), fieldPath);
 				} else {
@@ -116,7 +116,7 @@ public class FlatProperties {
 						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
 					}
 					if (!properties.containsKey(key)) {
-						properties.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)).getFieldPath());
+						properties.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)).getPath());
 					} else {
 						problems.add(key + " collides with " + properties.get(key));
 					}
