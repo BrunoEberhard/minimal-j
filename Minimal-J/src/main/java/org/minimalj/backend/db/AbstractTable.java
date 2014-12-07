@@ -23,8 +23,8 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.ChainedProperty;
+import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.properties.SimpleProperty;
 import org.minimalj.transaction.criteria.CriteriaOperator;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
@@ -109,7 +109,7 @@ public abstract class AbstractTable<T> {
 					columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
 				}
 			} else {
-				columns.put(fieldName, new SimpleProperty(clazz, field));
+				columns.put(fieldName, new FieldProperty(field));
 			}
 		}
 		columnsForClass.put(clazz, columns);
@@ -133,7 +133,7 @@ public abstract class AbstractTable<T> {
 					properties.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
 				}
 			} else if (FieldUtils.isList(field)) {
-				properties.put(field.getName(), new SimpleProperty(clazz, field));
+				properties.put(field.getName(), new FieldProperty(field));
 			}
 		}
 		return properties; 
