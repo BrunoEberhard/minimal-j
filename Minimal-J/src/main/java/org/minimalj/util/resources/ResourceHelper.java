@@ -144,7 +144,7 @@ public class ResourceHelper {
 				logger.log(Level.CONFIG, key + " missing", e);
 				loggedMissings.add(key);
 			}
-			return "!" + key + "!";
+			return "'" + key + "'";
 		}
 	}
 

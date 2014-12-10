@@ -325,7 +325,7 @@ public class ModelTest {
 		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
 			if (StringUtils.equals(property.getName(), "id", "version")) continue;
 			String resourceText = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
-			if (resourceText.startsWith("!!")) {
+			if (resourceText.startsWith("'") && resourceText.endsWith("'")) {
 				missingResources.add(resourceText.substring(2));
 			}
 		}

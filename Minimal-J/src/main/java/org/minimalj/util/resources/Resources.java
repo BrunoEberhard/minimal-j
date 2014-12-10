@@ -47,11 +47,11 @@ public class Resources {
 	public static String getString(String resourceName, boolean reportIfMissing) {
 		if (isAvailable(resourceName)) {
 			return getResourceBundle().getString(resourceName);
-		} else if (reportIfMissing && DevMode.isActive()) {
-			System.out.println(resourceName + "=");
-			return "!" + resourceName + "!";
 		} else {
-			return null;
+			if (reportIfMissing && DevMode.isActive()) {
+				System.out.println(resourceName + "=");
+			}
+			return "'" + resourceName + "'";
 		}
 	}
 	
@@ -60,7 +60,7 @@ public class Resources {
 		if (result != null) {
 			return result;
 		} 
-		return "!" + getString(clazz.getSimpleName()) + "!";
+		return getString(clazz.getSimpleName());
 	}
 
 	private static String getStringOrNull(Class<?> clazz) {
@@ -123,7 +123,7 @@ public class Resources {
 			return resourceBundle.getString(fieldName);
 		}
 		
-		return "!!" + qualifiedKey;
+		return "'" + qualifiedKey + "'";
 	}
 	
 }
