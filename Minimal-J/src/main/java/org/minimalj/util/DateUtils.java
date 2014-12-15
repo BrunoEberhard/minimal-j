@@ -9,9 +9,9 @@ import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import org.minimalj.model.InvalidValues;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.validation.InvalidValues;
 
 
 public class DateUtils {

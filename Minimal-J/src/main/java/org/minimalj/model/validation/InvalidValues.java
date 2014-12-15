@@ -1,4 +1,4 @@
-package org.minimalj.model;
+package org.minimalj.model.validation;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -7,6 +7,8 @@ import java.time.LocalTime;
 import java.time.temporal.Temporal;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import org.minimalj.model.EnumUtils;
 
 public class InvalidValues {
 

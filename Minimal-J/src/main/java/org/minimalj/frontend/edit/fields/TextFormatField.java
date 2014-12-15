@@ -4,8 +4,8 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.model.InvalidValues;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validatable;
 import org.minimalj.util.DemoEnabled;
 

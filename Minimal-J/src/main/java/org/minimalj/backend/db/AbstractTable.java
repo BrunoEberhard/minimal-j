@@ -17,10 +17,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;

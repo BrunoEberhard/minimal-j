@@ -3,9 +3,9 @@ package org.minimalj.util.resources;
 import java.util.ResourceBundle;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.Code;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.MultiResourceBundle;
 

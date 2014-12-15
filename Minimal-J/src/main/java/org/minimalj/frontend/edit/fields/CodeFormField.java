@@ -6,9 +6,9 @@ import java.util.Locale;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.model.Code;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
-import org.minimalj.model.annotation.Code;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
 

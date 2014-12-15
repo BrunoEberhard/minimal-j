@@ -1,6 +1,5 @@
-package org.minimalj.model.annotation;
+package org.minimalj.model;
 
-import org.minimalj.model.View;
 
 
 /**

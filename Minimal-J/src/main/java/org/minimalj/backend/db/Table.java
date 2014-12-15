@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.Code;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;

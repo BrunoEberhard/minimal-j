@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
 import org.minimalj.application.DevMode;
-import org.minimalj.model.annotation.Code;
+import org.minimalj.model.Code;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.Codes;

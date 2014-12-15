@@ -4,9 +4,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import org.minimalj.autofill.DateGenerator;
-import org.minimalj.model.InvalidValues;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 
