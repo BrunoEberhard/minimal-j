@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.frontend.edit.fields.BigDecimalEditField;
-import org.minimalj.frontend.edit.fields.CheckBoxStringField;
+import org.minimalj.frontend.edit.fields.CheckBoxField;
 import org.minimalj.frontend.edit.fields.CodeEditField;
 import org.minimalj.frontend.edit.fields.CodeFormField;
 import org.minimalj.frontend.edit.fields.EditField;
@@ -157,7 +157,7 @@ public class Form<T> implements DemoEnabled {
 				return new CodeEditField(property);
 			} else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
-				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, editable);
+				CheckBoxField field = new CheckBoxField(property, checkBoxText, editable);
 				return field;
 			} else if (fieldClass == Integer.class) {
 				int size = AnnotationUtil.getSize(property);
@@ -181,7 +181,7 @@ public class Form<T> implements DemoEnabled {
 			else if (Code.class.isAssignableFrom(fieldClass)) return new CodeFormField(property);
 			else if (fieldClass == Boolean.class) {
 				String checkBoxText = Resources.getObjectFieldName(resourceBundle, property, ".checkBoxText");
-				CheckBoxStringField field = new CheckBoxStringField(property, checkBoxText, false);
+				CheckBoxField field = new CheckBoxField(property, checkBoxText, false);
 				return field;
 			} 
 			else if (fieldClass == Integer.class) return new NumberFormField.IntegerFormField(property);

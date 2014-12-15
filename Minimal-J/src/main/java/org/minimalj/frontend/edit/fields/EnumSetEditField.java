@@ -52,7 +52,7 @@ public class EnumSetEditField<E extends Set<Enum<?>>> extends ObjectFlowField<E>
 		Form<E> form = new Form<E>(resourceBundle, true);
 		for (Object object : allowedValues) {
 			Enum<?> value = (Enum<?>) object;
-			form.line(new CheckBoxField(new EnumSetFieldEditorPropertyInterface(value), EnumUtils.getText((Enum) object)));
+			form.line(new CheckBoxField(new EnumSetFieldEditorPropertyInterface(value), EnumUtils.getText((Enum) object), true));
 		}
 		return form;
 	}

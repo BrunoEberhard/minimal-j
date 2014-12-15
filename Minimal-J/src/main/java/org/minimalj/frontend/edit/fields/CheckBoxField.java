@@ -6,12 +6,12 @@ import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class CheckBoxField extends AbstractEditField<Boolean> {
-	
 	private final CheckBox checkBox;
 	
-	public CheckBoxField(PropertyInterface property, String text) {
-		super(property, true);
+	public CheckBoxField(PropertyInterface property, String text, boolean editable) {
+		super(property, editable);
 		checkBox = ClientToolkit.getToolkit().createCheckBox(listener(), text);
+		checkBox.setEditable(editable);
 	}
 	
 	@Override
