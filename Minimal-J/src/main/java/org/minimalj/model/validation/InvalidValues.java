@@ -10,6 +10,20 @@ import java.util.WeakHashMap;
 
 import org.minimalj.model.EnumUtils;
 
+/**
+ * Invalid values represent strings that cannot be converted in valid objects
+ * as defined by their field classes.<p>
+ * 
+ * For example '42A' cannot be converted to an Integer. But temporarly it should
+ * be stored in an Integer field because it's entered in a form field.<p>
+ * 
+ * The form class converts the String in an InvalidValues object. So the
+ * value can be stored in the Integer field. All validators should check for
+ * invalid values when validating. And when a form field displays a value
+ * it should check with the 'isInvalid' method if the value represents an
+ * invalid value.<p>
+ *
+ */
 public class InvalidValues {
 
 	private static final Map<Object, String> values = new WeakHashMap<Object, String>();
