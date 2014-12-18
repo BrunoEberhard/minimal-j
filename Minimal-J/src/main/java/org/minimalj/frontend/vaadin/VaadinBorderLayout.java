@@ -189,8 +189,6 @@ public class VaadinBorderLayout extends VerticalLayout {
 
 	/**
 	 * Set minimum height of the component in the BorderLayout.NORTH
-	 * 
-	 * @param minimumNorthHeight
 	 */
 	public void setMinimumNorthHeight(String minimumNorthHeight) {
 		this.minimumNorthHeight = minimumNorthHeight;
@@ -205,8 +203,6 @@ public class VaadinBorderLayout extends VerticalLayout {
 
 	/**
 	 * Set minimum height of the component in the BorderLayout.SOUTH
-	 * 
-	 * @param minimumSouthHeight
 	 */
 	public void setMinimumSouthHeight(String minimumSouthHeight) {
 		this.minimumSouthHeight = minimumSouthHeight;
@@ -221,8 +217,6 @@ public class VaadinBorderLayout extends VerticalLayout {
 
 	/**
 	 * Set minimum height of the component in the BorderLayout.WEST
-	 * 
-	 * @param minimumWestWidth
 	 */
 	public void setMinimumWestWidth(String minimumWestWidth) {
 		this.minimumWestWidth = minimumWestWidth;
@@ -237,8 +231,6 @@ public class VaadinBorderLayout extends VerticalLayout {
 
 	/**
 	 * Set minimum height of the component in the BorderLayout.EAST
-	 * 
-	 * @param minimumEastWidth
 	 */
 	public void setMinimumEastWidth(String minimumEastWidth) {
 		this.minimumEastWidth = minimumEastWidth;
