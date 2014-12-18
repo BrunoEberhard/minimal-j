@@ -7,7 +7,7 @@ import java.util.List;
 import org.minimalj.model.properties.PropertyInterface;
 
 /**
- * Minimal-J internal<p>
+ * Minimal-J internal
  * 
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
