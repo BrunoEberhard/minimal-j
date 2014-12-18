@@ -54,9 +54,6 @@ public abstract class DbSyntax {
 	/**
 	 * Only public for tests. If this method doesnt throw an IllegalArgumentException
 	 * then a property is valid
-	 * 
-	 * @param s
-	 * @param property
 	 */
 	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 		Class<?> clazz = property.getClazz();
