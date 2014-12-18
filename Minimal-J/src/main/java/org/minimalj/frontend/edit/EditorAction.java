@@ -8,7 +8,7 @@ import org.minimalj.frontend.toolkit.ResourceAction;
 /**
  * An Action that shows a given Editor in a dialog if executed.
  * Dialog means the editor covers only the needed part of the screen
- * and blocks the rest of it.<p>
+ * and blocks the rest of it.
  * 
  */
 public class EditorAction extends ResourceAction {
