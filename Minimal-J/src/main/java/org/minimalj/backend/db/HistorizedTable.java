@@ -18,7 +18,7 @@ import org.minimalj.util.LoggingRuntimeException;
  *
  * A HistorizedTable contains a column named version. In the actual valid row this
  * column is set to 0. After updates the row with the version 1 is the oldest row
- * the row with version 2 the second oldest and so on.<p>
+ * the row with version 2 the second oldest and so on.
  * 
  */
 @SuppressWarnings("rawtypes")
