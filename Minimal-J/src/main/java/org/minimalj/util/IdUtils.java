@@ -63,17 +63,6 @@ public class IdUtils {
 		}
 	}
 	
-	public static void setIdSafe(Object object, Object id) {
-		try {
-			Field idField = getIdField(object.getClass());
-			if (idField != null) {
-				idField.set(object, id);
-			}
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new LoggingRuntimeException(e, logger, "setting Id failed");
-		}
-	}
-	
 	/**
 	 * Set the value of the <code>id</code> in the given object
 	 * 

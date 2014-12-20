@@ -362,7 +362,7 @@ public abstract class AbstractTable<T> {
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
 			if ("ID".equalsIgnoreCase(columnName)) {
-				IdUtils.setIdSafe(result, resultSet.getObject(columnIndex));
+				IdUtils.setId(result, resultSet.getObject(columnIndex));
 				continue;
 			} else if ("VERSION".equalsIgnoreCase(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
