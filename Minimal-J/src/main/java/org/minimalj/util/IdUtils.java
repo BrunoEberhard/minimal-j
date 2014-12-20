@@ -5,7 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-
+/**
+ * Every main entity in a minimal-j model must have a public field named <code>id</code>.<p>
+ *
+ * This class provides get and set for this special field. It caches the
+ * reflection calls. Mostly it's used for minimal-j internal stuff.
+ */
 public class IdUtils {
 	private static final Logger logger = Logger.getLogger(IdUtils.class.getName());
 
@@ -26,11 +31,23 @@ public class IdUtils {
 			throw new LoggingRuntimeException(e, logger, "getting Id failed");
 		}
 	}
-	
+
+	/**
+	 * Check if a class has an <code>id</code> field
+	 * 
+	 * @param clazz class to check. Must not be <code>null</code>
+	 * @return true if the given class has a field named <code>id</code>
+	 */
 	public static boolean hasId(Class<?> clazz) {
 		return getIdField(clazz) != null;
 	}
 	
+	/**
+	 * Get the value of the <code>id</code> field
+	 * 
+	 * @param object object containing the id. Must not be <code>null</code>
+	 * @return the value of the <code>id</code> field
+	 */
 	public static Object getId(Object object) {
 		if (object != null) {
 			try {
@@ -57,6 +74,12 @@ public class IdUtils {
 		}
 	}
 	
+	/**
+	 * Set the value of the <code>id</code> in the given object
+	 * 
+	 * @param object object containing a public <code>id</code> field. Must not be <code>null</code>
+	 * @param id the new value. Can be <code>null</code>.
+	 */
 	public static void setId(Object object, Object id) {
 		try {
 			Field idField = getIdField(object.getClass());
@@ -68,6 +91,12 @@ public class IdUtils {
 		}
 	}
 
+	/**
+	 * Set the value of the <code>version</code> in the given object
+	 * 
+	 * @param object object containing a public <code>version</code> field. Must not be <code>null</code>
+	 * @param id the new value. Can be <code>null</code>.
+	 */
 	public static void setVersion(Object object, int id) {
 		try {
 			Field versionField = object.getClass().getField("version");
@@ -78,6 +107,12 @@ public class IdUtils {
 		}
 	}
 
+	/**
+	 * Get the value of the <code>id</code> field as String
+	 * 
+	 * @param object object containing the id. Must not be <code>null</code>
+	 * @return the value of the <code>id</code> field as String
+	 */
 	public static String getIdString(Object object) {
 		return String.valueOf(getId(object));
 	}
