@@ -326,7 +326,7 @@ public class ModelTest {
 			if (StringUtils.equals(property.getName(), "id", "version")) continue;
 			String resourceText = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
 			if (resourceText.startsWith("'") && resourceText.endsWith("'")) {
-				missingResources.add(resourceText.substring(2));
+				missingResources.add(resourceText.substring(1, resourceText.length()-1));
 			}
 		}
 	}
