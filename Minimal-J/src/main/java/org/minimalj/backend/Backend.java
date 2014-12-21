@@ -16,11 +16,28 @@ import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
- * The backend can be in same VM as the frontend or it can
- * be on a remote server.<p>
+ * A backend is reponsible for executing the transactions.
+ * It can do this by keeping a database (DbBackend) or by
+ * delegating everything to an other backend (SocketBackend).<p>
  * 
- * @author bruno
- *
+ * Every frontend needs a backend. But a backend can serve more
+ * than one frontend.<p>
+ * 
+ * The backend configuration must be done with system properties.
+ * These are handled in the initBackend method. The configuration
+ * cannot be changed during the lifetime of an application VM.<p>
+ * 
+ * The configuration properties:
+ * <UL>
+ * <LI><code>MjBackendAddress</code> and <code>MjBackendPort</code>: if
+ * these two are set the transactions are delegated to a remote
+ * SocketBackendServer.</LI>
+ * <LI><code>MjBackendDatabase</code>, <code>MjBackendDatabaseUser</code>, <code>MjBackendDatabasePassword</code>: if
+ * these properties are set the transactions are executed with
+ * a relational database.</LI>
+ * <LI><code>MjBackend</code>: if this property is set it specifies
+ * the classname of the backend.</LI>
+ * </UL>
  */
 public abstract class Backend {
 	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
@@ -36,8 +53,8 @@ public abstract class Backend {
 		} 
 
 		String database = System.getProperty("MjBackendDatabase");
-		String user= System.getProperty("MjBackendDataBaseUser", "APP");
-		String password = System.getProperty("MjBackendDataBasePassword", "APP");
+		String user= System.getProperty("MjBackendDatabaseUser", "APP");
+		String password = System.getProperty("MjBackendDatabasePassword", "APP");
 		if (!StringUtils.isBlank(database)) {
 			Backend.setDbBackend(database, user, password);
 			return;
