@@ -11,10 +11,10 @@ import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.DemoEnabled;
+import org.minimalj.util.mock.Mocking;
 
 // TODO: Typisierung bringt hier so was von nichts
-public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> implements Enable, DemoEnabled {
+public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> implements Enable, Mocking {
 	private final Class<E> enumClass;
 	
 	private final SwitchComponent switchComponent;
@@ -101,7 +101,7 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 	}
 
 	@Override
-	public void fillWithDemoData() {
+	public void mock() {
 		if (Math.random() < 0.2) {
 			setDefault();
 		} else {

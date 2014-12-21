@@ -7,9 +7,9 @@ import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validatable;
-import org.minimalj.util.DemoEnabled;
+import org.minimalj.util.mock.Mocking;
 
-public abstract class TextFormatField<T> extends AbstractEditField<T> implements Enable, DemoEnabled {
+public abstract class TextFormatField<T> extends AbstractEditField<T> implements Enable, Mocking {
 	
 	protected final TextField textField;
 	

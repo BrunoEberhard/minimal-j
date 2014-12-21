@@ -1,4 +1,4 @@
-package org.minimalj.autofill;
+package org.minimalj.util.mock;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -8,8 +8,22 @@ import java.util.Scanner;
 import java.util.logging.Logger;
 
 // http://www.heise.de/ct/ftp/07/17/182/
-public class FirstNameGenerator {
-	public static final Logger LOG = Logger.getLogger(FirstNameGenerator.class.getName());
+public class MockPrename {
+	public static final Logger LOG = Logger.getLogger(MockPrename.class.getName());
+	
+	public static class NameWithFrequency {
+		public int frequency;
+		public String name;
+		public String callName;
+		
+		// eclipse
+		
+		@Override
+		public String toString() {
+			return "NameWithFrequency [callName=" + callName + ", frequency=" + frequency + ", name=" + name + "]";
+		}
+		
+	}
 	
 	private static List<NameWithFrequency> males = new ArrayList<NameWithFrequency>(2000);
 	private static List<NameWithFrequency> femals = new ArrayList<NameWithFrequency>(2000);
@@ -38,7 +52,7 @@ public class FirstNameGenerator {
 	private static synchronized void readNames() {
 		try {
 			if (!males.isEmpty()) return; // other thread already read the names
-			InputStream inputStream = FirstNameGenerator.class.getResourceAsStream("/org/minimalj/autofill/vornamen.txt");
+			InputStream inputStream = MockPrename.class.getResourceAsStream("/org/minimalj/util/mock/prenames.txt");
 			if (inputStream != null) {
 				readNames(inputStream);
 			} else {

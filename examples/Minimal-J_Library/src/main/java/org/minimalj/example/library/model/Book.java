@@ -10,10 +10,10 @@ import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.util.DemoEnabled;
+import org.minimalj.util.mock.Mocking;
 
 
-public class Book implements DemoEnabled {
+public class Book implements Mocking {
 	public static final Book $ = Keys.of(Book.class);
 
 	public Object id;
@@ -33,7 +33,7 @@ public class Book implements DemoEnabled {
 	public BigDecimal price;
 	
 	@Override
-	public void fillWithDemoData() {
+	public void mock() {
 		title = "The dark tower";
 		author = "Stephan King";
 		available = true;

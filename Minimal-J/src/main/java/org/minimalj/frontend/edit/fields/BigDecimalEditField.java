@@ -5,10 +5,10 @@ import java.util.Random;
 
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
-import org.minimalj.util.DemoEnabled;
+import org.minimalj.util.mock.Mocking;
 
 
-public class BigDecimalEditField extends NumberEditField<BigDecimal> implements DemoEnabled {
+public class BigDecimalEditField extends NumberEditField<BigDecimal> implements Mocking {
 
 	public BigDecimalEditField(PropertyInterface property, int size, int decimalPlaces, boolean negative) {
 		super(property, size, decimalPlaces, negative);
@@ -29,7 +29,7 @@ public class BigDecimalEditField extends NumberEditField<BigDecimal> implements 
 	}
 
 	@Override
-	public void fillWithDemoData() {
+	public void mock() {
 		// TODO check for valid ranges for size-decimalPlaces
 		Random random = new Random();
 		double value = random.nextDouble() * (10 ^ (size - decimalPlaces));

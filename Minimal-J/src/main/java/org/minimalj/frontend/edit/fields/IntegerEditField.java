@@ -4,10 +4,10 @@ import java.util.Random;
 
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
-import org.minimalj.util.DemoEnabled;
+import org.minimalj.util.mock.Mocking;
 
 
-public class IntegerEditField extends NumberEditField<Integer> implements DemoEnabled {
+public class IntegerEditField extends NumberEditField<Integer> implements Mocking {
 
 	public IntegerEditField(PropertyInterface property, int size, boolean negative) {
 		super(property, size, 0, negative);
@@ -28,7 +28,7 @@ public class IntegerEditField extends NumberEditField<Integer> implements DemoEn
 	}
 
 	@Override
-	public void fillWithDemoData() {
+	public void mock() {
 		Random random = new Random();
 		int max = 10;
 		for (int i = 0; i<size; i++) max *= 10; // is there a exponential operator in Java?

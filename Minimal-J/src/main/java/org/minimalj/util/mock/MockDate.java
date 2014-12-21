@@ -1,11 +1,11 @@
-package org.minimalj.autofill;
+package org.minimalj.util.mock;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import org.minimalj.model.annotation.Size;
 
-public class DateGenerator {
+public class MockDate {
 
 	public static LocalDate generateRandomDate() {
 		int year = (int) (Math.random() * 80) + 1930;

@@ -3,11 +3,11 @@ package org.minimalj.frontend.edit.fields;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-import org.minimalj.autofill.DateGenerator;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.mock.MockDate;
 
 public class LocalDateField extends TextFormatField<LocalDate> {
 
@@ -51,7 +51,7 @@ public class LocalDateField extends TextFormatField<LocalDate> {
 	}
 	
 	@Override
-	public void fillWithDemoData() {
-		setObject(DateGenerator.generateRandomDate());
+	public void mock() {
+		setObject(MockDate.generateRandomDate());
 	}
 }

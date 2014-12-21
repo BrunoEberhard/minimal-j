@@ -11,11 +11,11 @@ import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.DemoEnabled;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.mock.Mocking;
 
 // TODO: Typisierung bringt hier so was von nichts
-public class EnumSetEditField<E extends Set<Enum<?>>> extends ObjectFlowField<E> implements Enable, DemoEnabled {
+public class EnumSetEditField<E extends Set<Enum<?>>> extends ObjectFlowField<E> implements Enable, Mocking {
 	private final Class enumClass;
 	private final Collection allowedValues;
 	
@@ -34,7 +34,7 @@ public class EnumSetEditField<E extends Set<Enum<?>>> extends ObjectFlowField<E>
 	}
 	
 	@Override
-	public void fillWithDemoData() {
+	public void mock() {
 		E newValues = (E) new HashSet();
 		for (Object object : allowedValues) {
 			if (Math.random() <0.5) {

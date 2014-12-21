@@ -1,6 +1,6 @@
-package org.minimalj.autofill;
+package org.minimalj.util.mock;
 
-public class NameGenerator {
+public class MockName {
 
 	// http://www.adp-gmbh.ch/misc/tel_book_ch.html
 	

@@ -10,9 +10,9 @@ import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.Code;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
-import org.minimalj.util.DemoEnabled;
+import org.minimalj.util.mock.Mocking;
 
-public class CodeEditField extends AbstractEditField<Code> implements Enable, DemoEnabled {
+public class CodeEditField extends AbstractEditField<Code> implements Enable, Mocking {
 	private final List<Code> codes;
 	
 	private final SwitchComponent switchComponent;
@@ -64,7 +64,7 @@ public class CodeEditField extends AbstractEditField<Code> implements Enable, De
 	}
 
 	@Override
-	public void fillWithDemoData() {
+	public void mock() {
 		int index = (int)(Math.random() * (double)codes.size());
 		setObject(codes.get(index));
 	}

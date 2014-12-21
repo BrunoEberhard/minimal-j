@@ -51,11 +51,11 @@ import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
-import org.minimalj.util.DemoEnabled;
 import org.minimalj.util.ExceptionUtils;
+import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
-public class Form<T> implements DemoEnabled {
+public class Form<T> implements Mocking {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
 
 	protected final boolean editable;
@@ -329,7 +329,7 @@ public class Form<T> implements DemoEnabled {
 	}
 
 	@Override
-	public final void fillWithDemoData() {
+	public final void mock() {
 		changeFromOutsite = true;
 		try {
 			fillWithDemoData(object);
@@ -345,9 +345,9 @@ public class Form<T> implements DemoEnabled {
 	protected void fillWithDemoData(T object) {
 		for (FormField field : fields.values()) {
 			PropertyInterface property = field.getProperty();
-			if (field instanceof DemoEnabled) {
-				DemoEnabled demoEnabledField = (DemoEnabled) field;
-				demoEnabledField.fillWithDemoData();
+			if (field instanceof Mocking) {
+				Mocking demoEnabledField = (Mocking) field;
+				demoEnabledField.mock();
 				property.setValue(object, ((EditField<?>) field).getObject());
 			}
 		}		

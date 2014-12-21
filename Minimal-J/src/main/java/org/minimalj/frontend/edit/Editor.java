@@ -15,8 +15,8 @@ import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.toolkit.ResourceActionEnabled;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
-import org.minimalj.util.DemoEnabled;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -325,12 +325,12 @@ public abstract class Editor<T> {
 	}
 	
 	public void fillWithDemoData() {
-		if (editedObject instanceof DemoEnabled) {
-			((DemoEnabled) editedObject).fillWithDemoData();
+		if (editedObject instanceof Mocking) {
+			((Mocking) editedObject).mock();
 			// re-set the object to update the FormFields
 			form.setObject(editedObject);
-		} else if (form instanceof DemoEnabled) {
-			((DemoEnabled) form).fillWithDemoData();
+		} else if (form instanceof Mocking) {
+			((Mocking) form).mock();
 		}
 	}
 	

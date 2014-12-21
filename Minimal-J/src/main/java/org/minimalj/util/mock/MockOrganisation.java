@@ -1,4 +1,4 @@
-package org.minimalj.autofill;
+package org.minimalj.util.mock;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 // http://en.wikipedia.org/wiki/List_of_companies_of_Switzerland
-public class OrganisationNameGenerator {
+public class MockOrganisation {
 
 	private static List<String> names = new ArrayList<String>(200);
 	private static int pos = -1;
@@ -20,7 +20,7 @@ public class OrganisationNameGenerator {
 	
 	private static void readNames() {
 		try {
-			InputStream inputStream = OrganisationNameGenerator.class.getResourceAsStream("/ch/openech/resources/firmen.txt");
+			InputStream inputStream = MockOrganisation.class.getResourceAsStream("/org/minimalj/util/mock/organisations.txt");
 			readNames(inputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
