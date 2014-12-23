@@ -329,8 +329,8 @@ public abstract class Editor<T> {
 			((Mocking) editedObject).mock();
 			// re-set the object to update the FormFields
 			form.setObject(editedObject);
-		} else if (form instanceof Mocking) {
-			((Mocking) form).mock();
+		} else {
+			form.mock();
 		}
 	}
 	
