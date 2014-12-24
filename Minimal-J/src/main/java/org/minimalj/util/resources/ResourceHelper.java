@@ -16,69 +16,62 @@ import javax.swing.KeyStroke;
 import org.minimalj.util.StringUtils;
 
 public class ResourceHelper {
+	private static final Logger logger = Logger.getLogger(ResourceHelper.class.getName());
 	private static final String ICONS_DIRECTORY = "icons";
-	private static Logger logger = Logger.getLogger(ResourceHelper.class.getName());
 	private static Set<String> loggedMissings = new HashSet<>();
 	
-	/*
-	 * Init all of the Action properties for the @Action named
-	 * actionName.
-	 */
 	public static Action initProperties(Action action, ResourceBundle resourceBundle, String baseName) {
-		action.putValue("actionName", baseName);
-		
-		// Action => Action.NAME,MNEMONIC_KEY,DISPLAYED_MNEMONIC_INDEX_KEY
 		String text = getString(resourceBundle, baseName);
 		if (text != null) {
-			MnemonicText.configure(action, text);
+			int mnemonicIndex = getMnemonicIndex(text);
+			if (text.indexOf('\'') > -1) {
+				text = text.replace("'&'", "&");
+			}
+			action.putValue(Action.NAME, text);
+			if (mnemonicIndex > 0) {
+				action.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, mnemonicIndex);
+				action.putValue(Action.MNEMONIC_KEY, text.charAt(mnemonicIndex));
+			}
 		}
 		
-		// Action.mnemonic => Action.MNEMONIC_KEY
 		Integer mnemonic = getKeyCode(resourceBundle, baseName + ".mnemonic");
 		if (mnemonic != null) {
 			action.putValue(Action.MNEMONIC_KEY, mnemonic);
 		}
 		
-		// Action.mnemonic => Action.DISPLAYED_MNEMONIC_INDEX_KEY
 		Integer index = getInteger(resourceBundle, baseName + ".displayedMnemonicIndex");
 		if (index != null) {
 			action.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, index);
 		}
 		
-		// Action.accelerator => Action.ACCELERATOR_KEY
 		KeyStroke key = getKeyStroke(resourceBundle, baseName + ".accelerator");
 		if (key != null) {
 			action.putValue(Action.ACCELERATOR_KEY, key);
 		}
 		
-		// Action.icon => Action.SMALL_ICON,LARGE_ICON_KEY
 		Icon icon = getIcon(resourceBundle, baseName + ".icon");
 		if (icon != null) {
 			action.putValue(Action.SMALL_ICON, icon);
 			action.putValue(Action.LARGE_ICON_KEY, icon);
 		}
 		
-		// Action.smallIcon => Action.SMALL_ICON
 		Icon smallIcon = getIcon(resourceBundle, baseName + ".smallIcon");
 		if (smallIcon != null) {
 			action.putValue(Action.SMALL_ICON, smallIcon);
 		}
 		
-		// Action.largeIcon => Action.LARGE_ICON
 		Icon largeIcon = getIcon(resourceBundle, baseName + ".largeIcon");
 		if (largeIcon != null) {
 			action.putValue(Action.LARGE_ICON_KEY, largeIcon);
 		}
 		
-		addActionValue(action, Action.SHORT_DESCRIPTION, resourceBundle, baseName + ".shortDescription");
-		addActionValue(action, Action.LONG_DESCRIPTION, resourceBundle, baseName + ".longDescription");
-		addActionValue(action, Action.ACTION_COMMAND_KEY, resourceBundle, baseName + ".command");
+		addValue(action, Action.SHORT_DESCRIPTION, resourceBundle, baseName + ".shortDescription");
+		addValue(action, Action.LONG_DESCRIPTION, resourceBundle, baseName + ".longDescription");
 		
 		return action;
 	}
 	
-	private static void addActionValue(Action action, String actionKey, ResourceBundle resourceBundle,
-			String property) {
+	private static void addValue(Action action, String actionKey, ResourceBundle resourceBundle, String property) {
 		if (resourceBundle.containsKey(property)) {
 			action.putValue(actionKey, resourceBundle.getString(property));
 		}
@@ -170,6 +163,25 @@ public class ResourceHelper {
 
 	public static String getApplicationVersion() {
 		return ResourceHelper.getString(Resources.getResourceBundle(), "Application.version");
+	}
+
+	public static int getMnemonicIndex(String string) {
+		if (string.length() < 2) {
+			return -1;
+		}
+		if (string.charAt(0) == '&') {
+			return 1;
+		}
+		string = string.replace("'&'", "_");
+		for (int i = 1; i<string.length()-1; i++) {
+			if (string.charAt(i-1) == '\'' && string.charAt(i+1) == '\'') {
+				continue;
+			}
+			if (string.charAt(i) == '&') {
+				return i+1;
+			}
+		}
+		return -1;
 	}
 
 }
