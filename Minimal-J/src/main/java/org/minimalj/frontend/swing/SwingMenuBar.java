@@ -19,7 +19,6 @@ import org.minimalj.frontend.swing.lookAndFeel.TerminalLookAndFeel;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.util.resources.ResourceHelper;
 import org.minimalj.util.resources.Resources;
 
 public class SwingMenuBar extends JMenuBar implements IComponent {
@@ -85,9 +84,9 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	
 	private JMenu createEditMenu() {
 		JMenu menu = menu("edit");
-		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CutAction(), Resources.getResourceBundle(), "cut")));
-		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.CopyAction(), Resources.getResourceBundle(), "copy")));
-		menu.add(new JMenuItem(ResourceHelper.initProperties(new DefaultEditorKit.PasteAction(), Resources.getResourceBundle(), "paste")));
+		menu.add(new JMenuItem(SwingResourceAction.initProperties(new DefaultEditorKit.CutAction(), "cut")));
+		menu.add(new JMenuItem(SwingResourceAction.initProperties(new DefaultEditorKit.CopyAction(), "copy")));
+		menu.add(new JMenuItem(SwingResourceAction.initProperties(new DefaultEditorKit.PasteAction(), "paste")));
 		return menu;
 	}
 	

@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import javax.swing.plaf.LabelUI;
 
 import org.minimalj.model.validation.ValidationMessage;
-import org.minimalj.util.resources.ResourceHelper;
+import org.minimalj.util.resources.Resources;
 
 public class SwingCaption extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -35,7 +35,7 @@ public class SwingCaption extends JPanel {
 
 	public void setValidationMessages(List<String> validationMessages) {
 		if (!validationMessages.isEmpty()) {
-			captionLabel.setIcon(ResourceHelper.getIcon("field_error.png"));
+			captionLabel.setIcon(Resources.getIcon("field_error.png"));
 			String validationMessage = ValidationMessage.formatHtmlString(validationMessages);
 			captionLabel.setToolTipText(validationMessage);
 		} else {

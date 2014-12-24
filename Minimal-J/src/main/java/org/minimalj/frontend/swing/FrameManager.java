@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.minimalj.application.DevMode;
-import org.minimalj.util.resources.ResourceHelper;
+import org.minimalj.util.resources.Resources;
 
 /**
  * Manages:
@@ -41,7 +41,7 @@ public class FrameManager {
 	public static void setSystemLookAndFeel() {
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", ResourceHelper.getApplicationTitle());
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getString(Resources.APPLICATION_TITLE));
 			
 			String name = UIManager.getSystemLookAndFeelClassName();
 			UIManager.setLookAndFeel(name);

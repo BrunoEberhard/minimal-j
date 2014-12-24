@@ -1,6 +1,11 @@
 package org.minimalj.util.resources;
 
+import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.model.Code;
@@ -10,15 +15,18 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.MultiResourceBundle;
 
 public class Resources {
+	private static final Logger logger = Logger.getLogger(Resources.class.getName());
+	private static final String ICONS_DIRECTORY = "icons";
 
 	private static final ResourceBundle defaultResourcebundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ");
 	private static ResourceBundle resourceBundle = defaultResourcebundle;
 	
 	public static final boolean OPTIONAL = false;
 	
-	public static ResourceBundle getDefaultResourcebundle() {
-		return defaultResourcebundle;
-	}
+	public static String APPLICATION_TITLE = "Application.title";
+	public static String APPLICATION_VENDOR = "Application.vendor";
+	public static String APPLICATION_HOMEPAGE = "Application.homepage";
+	public static String APPLICATION_VERSION = "Application.version";
 	
 	public static ResourceBundle getResourceBundle() {
 		return resourceBundle;
@@ -35,6 +43,42 @@ public class Resources {
 	public static boolean isAvailable(String resourceName) {
 		return getResourceBundle().containsKey(resourceName);
 	}
+	
+	public static Integer getInteger(String resourceName, boolean reportIfMissing) {
+		if (Resources.isAvailable(resourceName)) {
+			String integerString = Resources.getString(resourceName);
+			try {
+				return Integer.parseInt(integerString);
+			} catch (NumberFormatException nfe) {
+				logger.warning("Number format wrong for resource " + resourceName + "('" + integerString + "')");
+				return null;
+			}
+		} else {
+			reportMissing(resourceName, reportIfMissing);
+			return null;
+		}
+	}
+	
+	public static Icon getIconByResourceName(String resourceName) {
+		if (Resources.isAvailable(resourceName)) {
+			String filename = Resources.getString(resourceName);
+			URL url = Resources.class.getResource(ICONS_DIRECTORY + "/" + filename);
+			if (url != null) {
+				return new ImageIcon(url);
+			}
+		}
+		return null;
+	}
+	
+	public static Icon getIcon(String filename) {
+		filename = ICONS_DIRECTORY + "/" + filename;
+		URL url = Resources.class.getResource(filename);
+		if (url != null) {
+			return new ImageIcon(url);
+		} else {
+			return null;
+		}
+	}
 
 	public static String getString(String resourceName) {
 		return getString(resourceName, true);
@@ -48,10 +92,14 @@ public class Resources {
 		if (isAvailable(resourceName)) {
 			return getResourceBundle().getString(resourceName);
 		} else {
-			if (reportIfMissing && DevMode.isActive()) {
-				System.out.println(resourceName + "=");
-			}
+			reportMissing(resourceName, reportIfMissing);
 			return "'" + resourceName + "'";
+		}
+	}
+	
+	private static void reportMissing(String resourceName, boolean reportIfMissing) {
+		if (reportIfMissing && DevMode.isActive()) {
+			System.out.println(resourceName + "=");
 		}
 	}
 	
