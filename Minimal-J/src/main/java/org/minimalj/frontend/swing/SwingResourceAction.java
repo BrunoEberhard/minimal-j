@@ -5,6 +5,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.KeyStroke;
 
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public abstract class SwingResourceAction extends AbstractAction {
@@ -22,20 +23,9 @@ public abstract class SwingResourceAction extends AbstractAction {
 	//
 	
 	public static Action initProperties(Action action, String baseName) {
-		if (Resources.isAvailable(baseName)) {
-			String text = Resources.getString(baseName);
-			if (text != null) {
-				int mnemonicIndex = getMnemonicIndex(text);
-				if (text.indexOf('\'') > -1) {
-					text = text.replace("'&'", "&");
-				}
-				action.putValue(Action.NAME, text);
-				if (mnemonicIndex > 0) {
-					action.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, mnemonicIndex);
-					action.putValue(Action.MNEMONIC_KEY, text.charAt(mnemonicIndex));
-				}
-			}
-		}
+		String text = Resources.getString(baseName);
+		action.putValue(Action.NAME, text);
+		action.putValue(Action.MNEMONIC_KEY, keyCode(text));
 		
 		Integer mnemonic = getKeyCode(baseName + ".mnemonic");
 		if (mnemonic != null) {
@@ -90,32 +80,21 @@ public abstract class SwingResourceAction extends AbstractAction {
 	
 	public static Integer getKeyCode(String resourceName) {
 		if (Resources.isAvailable(resourceName)) {
-			String keyStrokeString = Resources.getString(resourceName);
-			KeyStroke keyStroke = KeyStroke.getKeyStroke(keyStrokeString);
-			if (keyStroke != null) {
-				return keyStroke.getKeyCode();
-			}
+			String mnemonicString = Resources.getString(resourceName);
+			return keyCode(mnemonicString);
 		}
 		return null;
 	}
 	
-	public static int getMnemonicIndex(String string) {
-		if (string.length() < 2) {
-			return -1;
-		}
-		if (string.charAt(0) == '&') {
-			return 1;
-		}
-		string = string.replace("'&'", "_");
-		for (int i = 1; i<string.length()-1; i++) {
-			if (string.charAt(i-1) == '\'' && string.charAt(i+1) == '\'') {
-				continue;
+	private static Integer keyCode(String mnemonicString) {
+		if (!StringUtils.isEmpty(mnemonicString)) {
+			int mnemonicKey = (int) mnemonicString.charAt(0);
+			if (mnemonicKey >= 'a' && mnemonicKey <= 'z') {
+				mnemonicKey -= ('a' - 'A');
 			}
-			if (string.charAt(i) == '&') {
-				return i+1;
-			}
+			return mnemonicKey;
 		}
-		return -1;
+		return null;
 	}
 
 }

@@ -3,7 +3,6 @@ package org.minimalj.frontend.swing.lookAndFeel;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.LookAndFeel;
@@ -12,9 +11,9 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
-import org.minimalj.util.resources.Resources;
+import org.minimalj.frontend.swing.SwingResourceAction;
 
-public class LookAndFeelAction extends AbstractAction {
+public class LookAndFeelAction extends SwingResourceAction {
 	private static final long serialVersionUID = 1L;
 
 	public LookAndFeelAction(String name) {
@@ -22,7 +21,7 @@ public class LookAndFeelAction extends AbstractAction {
 	}
 
 	public LookAndFeelAction(String name, String laf) {
-		super(Resources.getString("LookAndFeel." + name));
+		super("LookAndFeel." + name);
 		putValue(ACTION_COMMAND_KEY, laf);
 	}
 

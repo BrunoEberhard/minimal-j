@@ -19,6 +19,7 @@ import org.minimalj.frontend.swing.lookAndFeel.TerminalLookAndFeel;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.IAction;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class SwingMenuBar extends JMenuBar implements IComponent {
@@ -139,8 +140,14 @@ public class SwingMenuBar extends JMenuBar implements IComponent {
 	//
 	
 	private JMenu menu(String resourceName) {
-		JMenu menu = new JMenu();
-		menu.setText(Resources.getString("Menu." + resourceName));
+		String text = Resources.getString("Menu." + resourceName);
+		JMenu menu = new JMenu(text);
+		Integer mnemonic = SwingResourceAction.getKeyCode("Menu." + resourceName + ".mnemonic");
+		if (mnemonic != null) {
+			menu.setMnemonic(mnemonic);
+		} else if (!StringUtils.isEmpty(text)) {
+			menu.setMnemonic(text.charAt(0));
+		}
 		return menu;
 	}
 	
