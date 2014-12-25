@@ -23,10 +23,10 @@ public class Resources {
 	
 	public static final boolean OPTIONAL = false;
 	
-	public static String APPLICATION_TITLE = "Application.title";
-	public static String APPLICATION_VENDOR = "Application.vendor";
-	public static String APPLICATION_HOMEPAGE = "Application.homepage";
-	public static String APPLICATION_VERSION = "Application.version";
+	public static final String APPLICATION_TITLE = "Application.title";
+	public static final String APPLICATION_VENDOR = "Application.vendor";
+	public static final String APPLICATION_HOMEPAGE = "Application.homepage";
+	public static final String APPLICATION_VERSION = "Application.version";
 	
 	public static ResourceBundle getResourceBundle() {
 		return resourceBundle;
