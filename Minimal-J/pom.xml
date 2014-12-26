@@ -22,8 +22,8 @@
 	</licenses>
 
 	<scm>
-		<url>https://code.google.com/p/minimal-j/Minimal-J/</url>
-		<developerConnection>scm:git:https://bruno.eberhard%40pop.ch@code.google.com/p/minimal-j/Minimal-J/</developerConnection>
+		<url>https://code.google.com/p/minimal-j/</url>
+		<developerConnection>scm:git:https://bruno.eberhard%40pop.ch@code.google.com/p/minimal-j/</developerConnection>
 	</scm>
 
 	<build>
