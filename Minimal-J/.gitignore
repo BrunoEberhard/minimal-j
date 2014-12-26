@@ -1,6 +1,6 @@
-/target
-/bin
+/.classpath
+/.project
+/.settings/
+/target/
+/bin/
 derby.log
-/backup
-/patch
-/target
