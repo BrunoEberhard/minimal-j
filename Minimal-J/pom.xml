@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.2.0.0</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>https://code.google.com/p/minimal-j/</url>
@@ -24,6 +23,8 @@
 
 	<scm>
 		<url>https://code.google.com/p/minimal-j/</url>
+		<connection>scm:git:https://code.google.com/p/minimal-j/</connection>
+		<developerConnection>scm:git:https://code.google.com/p/minimal-j/</developerConnection>
 	</scm>
 
 	<build>
