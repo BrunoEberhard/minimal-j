@@ -16,6 +16,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.vaadin.VaadinFrontend;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -201,6 +202,16 @@ public abstract class Application {
 
 	public List<IAction> getActionsView() {
 		return Collections.emptyList();
+	}
+	
+	
+	static {
+		// Feel free to set your own log format. For me the two line default format of java is terrible.
+		// note: the default handler streams to System.err . This is why the output in eclipse is red.
+		// I haven't figured out yet how this can be changed easily. 
+		if (StringUtils.isEmpty(System.getProperty("java.util.logging.SimpleFormatter.format"))) {
+			System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT:%1$tL %4$-11s %2$-60s %5$s %6$s%n");
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {
