@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -233,9 +232,6 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public IDialog createDialog(String title, IContent content, IAction... actions) {
 		JComponent contentComponent = new SwingEditorLayout(content, actions);
-		// TODO check for OS or move this to UI
-		contentComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
 		return createDialog(title, contentComponent);
 	}
 
