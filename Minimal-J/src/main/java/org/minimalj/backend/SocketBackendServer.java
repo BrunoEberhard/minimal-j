@@ -18,7 +18,6 @@ import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.UnclosingOutputStream;
 
-// TODO @Deploy(Server)
 public class SocketBackendServer {
 	private static final Logger logger = Logger.getLogger(SocketBackendServer.class.getName());
 	
