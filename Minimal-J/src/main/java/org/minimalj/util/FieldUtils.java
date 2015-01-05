@@ -109,7 +109,7 @@ public class FieldUtils {
 		return false;
 	}
 
-	public static boolean isAllowedId(Class<?> classOfId) {
+	public static boolean isAllowedCodeId(Class<?> classOfId) {
 		if (Object.class == classOfId) return true;
 		if (String.class == classOfId) return true;
 		if (Integer.class == classOfId) return true;

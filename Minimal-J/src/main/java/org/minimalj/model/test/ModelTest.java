@@ -120,11 +120,14 @@ public class ModelTest {
 			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
 			switch (modelClassType) {
 			case CODE:
-				if (!FieldUtils.isAllowedId(property.getClazz())) {
-					problems.add(clazz.getName() + ": Code ids must be of Integer, String or Object");
+				if (!FieldUtils.isAllowedCodeId(property.getClazz())) {
+					problems.add(clazz.getName() + ": Code id must be of Integer, String or Object");
 				}
 				break;
 			case MAIN:
+				if (property.getClazz() != Object.class) {
+					problems.add(clazz.getName() + ": Id must be Object");
+				}				
 				break;
 			default:
 				problems.add(clazz.getName() + ": is not allowed to have an id field");
