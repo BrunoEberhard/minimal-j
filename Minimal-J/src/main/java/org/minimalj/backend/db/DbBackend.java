@@ -15,7 +15,6 @@ import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.util.IdUtils;
 
 public class DbBackend extends Backend {
 
@@ -109,13 +108,11 @@ public class DbBackend extends Backend {
 		persistence.delete(clazz, id);
 	}
 
-	@Override
 	public <T> void deleteAll(Class<T> clazz) {
 		Table<T> table = persistence.getTable(clazz);
 		table.clear();
 	}
 
-	@Override
 	public <T> T read(Class<T> clazz, Object id, Integer time) {
 		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(clazz);
 		if (abstractTable instanceof HistorizedTable) {
@@ -125,12 +122,11 @@ public class DbBackend extends Backend {
 		}
 	}
 
-	@Override
-	public <T> List<T> loadHistory(T object) {
+	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
+		// TODO maxResults is ignored in loadHistory
 		@SuppressWarnings("unchecked")
-		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(object.getClass());
+		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(clazz);
 		if (abstractTable instanceof HistorizedTable) {
-			Object id = IdUtils.getId(object);
 			List<Integer> times = ((HistorizedTable<T>) abstractTable).readVersions(id);
 			List<T> result = new ArrayList<>();
 			for (int time : times) {	
@@ -138,7 +134,7 @@ public class DbBackend extends Backend {
 			}
 			return result;
 		} else {
-			throw new IllegalArgumentException(object.getClass() + " is not historized");
+			throw new IllegalArgumentException(clazz.getSimpleName() + " is not historized");
 		}
 	}
 	

@@ -3,6 +3,7 @@ package org.minimalj.util;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,7 +37,12 @@ public class SerializationOutputStream {
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
-			if (!writePrimitiv(value, field.getType())) {
+			Class<?> fieldClass = field.getType();
+			if (fieldClass == Object.class && "id".equals(field.getName())) {
+				// at the moment strings are used as id
+				fieldClass = String.class;
+			}
+			if (!writePrimitiv(value, fieldClass)) {
 	    		write(value);	
 			}
 		}
@@ -92,10 +98,10 @@ public class SerializationOutputStream {
 				write(list.get(i));
 			}
 		} else if (fieldClazz.isArray()) {
-			Object[] objects = (Object[]) value;
-			dos.writeInt(objects.length);
-			for (int i = 0; i<objects.length; i++) {
-				write(objects[i]);
+			int arrayLength = Array.getLength(value);
+			dos.writeInt(arrayLength);
+			for (int i = 0; i<arrayLength; i++) {
+				write(Array.get(value, i));
 			}
 		} else if (value instanceof Set<?>) {
 			Set<?> set = (Set<?>) value;
@@ -107,7 +113,7 @@ public class SerializationOutputStream {
 				dos.writeInt(asInt);
 			}
 		} else if (value instanceof LocalDate) {
-			dos.write(1); // ok, year is probably not 0 but stilll.
+			dos.write(1); // ok, year is probably not 0 but still
 			write(dos, (LocalDate) value);
 		} else if (value instanceof LocalTime) {
 			dos.write(1);

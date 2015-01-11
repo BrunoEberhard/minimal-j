@@ -7,7 +7,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.transaction.StreamConsumer;
@@ -32,19 +31,25 @@ public class SocketBackend extends Backend {
 		this.port = port;
 	}
 
+	@Override
 	public <T> T execute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				oos.writeObject(transaction);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-					@SuppressWarnings("unchecked")
-					T result = (T) ois.readObject();
-					return result;
+					return readResult(ois);
 				}
 			}
 		} catch (Exception c) {
 			throw new RuntimeException("Couldn't connect to " + url + ":" + port);
 		}
+	}
+
+	protected <T> T readResult(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		Object wrappedResult = ois.readObject();
+		@SuppressWarnings("unchecked")
+		T result =  (T) SerializationContainer.unwrap(wrappedResult);
+		return result;
 	}
 	
 	@Override
@@ -54,9 +59,7 @@ public class SocketBackend extends Backend {
 				oos.writeObject(streamConsumer);
 				sendStream(oos, inputStream);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-					@SuppressWarnings("unchecked")
-					T result = (T) ois.readObject();
-					return result;
+					return readResult(ois);
 				}
 			}
 		} catch (Exception c) {
@@ -80,9 +83,7 @@ public class SocketBackend extends Backend {
 				oos.writeObject(streamProducer);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					receiveStream(ois, outputStream);
-					@SuppressWarnings("unchecked")
-					T result = (T) ois.readObject();
-					return result;
+					return readResult(ois);
 				}
 			}
 		} catch (Exception c) {
@@ -104,8 +105,7 @@ public class SocketBackend extends Backend {
 	}
 	
 	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		@SuppressWarnings("unchecked")
-		List<T> result = (List<T>) SerializationContainer.unwrap(getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults)));
+		List<T> result = getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
 		return result;
 	}
 	
@@ -125,15 +125,9 @@ public class SocketBackend extends Backend {
 		getInstance().execute(new DeleteAllTransaction(clazz));
 	}
 	
-	public <T> List<T> loadHistory(T object) {
-		// TODO
-		return new ArrayList<>();
-	}
-	
-	@SuppressWarnings("unchecked")
 	public <T> T read(Class<T> clazz, Object id, Integer time) {
-		Serializable result = getInstance().execute(new ReadTransaction<T>(clazz, id, time));
-		return (T) SerializationContainer.unwrap(result);
+		T result = getInstance().execute(new ReadTransaction<T>(clazz, id, time));
+		return result;
 	}
 	
 	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {

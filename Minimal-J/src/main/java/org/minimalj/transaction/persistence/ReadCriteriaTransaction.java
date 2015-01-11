@@ -1,14 +1,12 @@
 package org.minimalj.transaction.persistence;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.util.SerializationContainer;
 
-public class ReadCriteriaTransaction<T> implements Transaction<Serializable> {
+public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
 	private static final long serialVersionUID = 1L;
 
 	private final Class<T> clazz;
@@ -22,9 +20,9 @@ public class ReadCriteriaTransaction<T> implements Transaction<Serializable> {
 	}
 
 	@Override
-	public Serializable execute(Backend backend) {
+	public List<T> execute(Backend backend) {
 		List<T>	result = backend.read(clazz, criteria, maxResults);
-		return SerializationContainer.wrap(result);
+		return result;
 	}
 
 }

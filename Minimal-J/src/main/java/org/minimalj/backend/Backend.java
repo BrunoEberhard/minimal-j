@@ -117,13 +117,7 @@ public abstract class Backend {
 	public abstract <T> Object insert(T object);
 	public abstract <T> void update(T object);
 	public abstract <T> void delete(Class<T> clazz, Object id);
-	public abstract <T> void deleteAll(Class<T> clazz);
 
 	public abstract <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter);
 	public abstract <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter);
-
-	// Only for historized entities
-	public abstract <T> List<T> loadHistory(T object);
-	public abstract <T> T read(Class<T> clazz, Object id, Integer time);
-	
 }

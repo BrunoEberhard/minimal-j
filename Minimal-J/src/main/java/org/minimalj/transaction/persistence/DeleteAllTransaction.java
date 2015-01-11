@@ -1,6 +1,7 @@
 package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.backend.db.DbBackend;
 import org.minimalj.transaction.Transaction;
 
 public class DeleteAllTransaction implements Transaction<Void> {
@@ -14,8 +15,13 @@ public class DeleteAllTransaction implements Transaction<Void> {
 
 	@Override
 	public Void execute(Backend backend) {
-		backend.deleteAll(clazz);
-		return null;
+		if (backend instanceof DbBackend) {
+			DbBackend dbBackend = (DbBackend) backend;
+			dbBackend.deleteAll(clazz);
+			return null;
+		} else {
+			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + DbBackend.class.getSimpleName());
+		}
 	}
 
 }

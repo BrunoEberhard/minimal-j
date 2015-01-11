@@ -16,6 +16,7 @@ import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
+import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.UnclosingOutputStream;
 
 public class SocketBackendServer {
@@ -78,7 +79,8 @@ public class SocketBackendServer {
 						StreamProducer streamProducer = (StreamProducer) input;
 						result = Backend.getInstance().execute(streamProducer, new UnclosingOutputStream(oos));
 					}
-					oos.writeObject(result);
+					Object wrappedResult = SerializationContainer.wrap(result);
+					oos.writeObject(wrappedResult);
 				}
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);

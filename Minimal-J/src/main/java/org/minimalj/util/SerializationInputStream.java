@@ -68,9 +68,9 @@ public class SerializationInputStream {
 			return readLocalDateTime(dis);
 		} else if (fieldClazz.isArray()) {
 			int length = dis.readInt();
-			Object[] objects = (Object[]) Array.newInstance(fieldClazz, length);
+			Object objects = Array.newInstance(fieldClazz, length);
 			for (int i = 0; i<length; i++) {
-				objects[i] = read(fieldClazz);
+				Array.set(objects, i, read(fieldClazz));
 			}
 			return objects;
 		} else {
@@ -121,7 +121,12 @@ public class SerializationInputStream {
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 			if (!FieldUtils.isFinal(field)) {
-				Object value = read(field.getType());
+				Class<?> fieldClass = field.getType();
+				if (fieldClass == Object.class && "id".equals(field.getName())) {
+					// at the moment strings are used as id
+					fieldClass = String.class;
+				}
+				Object value = read(fieldClass);
 				try {
 					field.setAccessible(true);
 					field.set(object, value);
