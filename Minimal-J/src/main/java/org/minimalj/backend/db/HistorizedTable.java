@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.IdUtils;
@@ -46,7 +45,7 @@ public class HistorizedTable<T> extends Table<T> {
 			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
 			Object id = IdUtils.getId(object);
 			if (id == null) {
-				id = UUID.randomUUID().toString();
+				id = IdUtils.createId();
 				IdUtils.setId(object, id);
 			}
 			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);

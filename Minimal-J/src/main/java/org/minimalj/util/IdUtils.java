@@ -3,6 +3,7 @@ package org.minimalj.util;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -105,4 +106,15 @@ public class IdUtils {
 	public static String getIdString(Object object) {
 		return String.valueOf(getId(object));
 	}
+
+	/**
+	 * Note: Do not depend on the class of the returned id. It
+	 * could be changed. 
+	 * 
+	 * @return a new unique id
+	 */
+	public static Object createId() {
+		return UUID.randomUUID().toString();
+	}
+
 }

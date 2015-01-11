@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
@@ -79,11 +78,11 @@ public class Table<T> extends AbstractTable<T> {
 			if (IdUtils.hasId(object.getClass())) {
 				id = IdUtils.getId(object);
 				if (id == null) {
-					id = UUID.randomUUID().toString();
+					id = IdUtils.createId();
 					IdUtils.setId(object, id);
 				}
 			} else {
-				id = UUID.randomUUID().toString();
+				id = IdUtils.createId();
 			}
 			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
 			insertStatement.execute();
