@@ -1,0 +1,111 @@
+@import "../reindeer/styles.css";
+
+.v-caption {
+font-weight: bolder;
+font-size: smaller;
+}
+
+.v-caption .v-errorindicator {
+height: 10px;
+}
+
+input.v-textfield-readonly,
+textarea.v-textarea-readonly {
+border-color: activeborder;
+border-width: thin;
+border-style: solid;
+}
+
+.v-html-readonly {
+background-color: white;
+}
+
+.topbar {
+	/* @see http://www.css3.info/border-radius-apple-vs-mozilla/ */
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	border-bottom: 1px solid #eaeaea;
+	background: #5c5d60 url(top-bg.png) repeat-x;
+}
+
+.v-orderedlayout-margin-top,
+.v-horizontallayout-margin-top,
+.v-verticallayout-margin-top {
+  padding-top: 5px;
+}
+.v-orderedlayout-margin-right,
+.v-horizontallayout-margin-right,
+.v-verticallayout-margin-right {
+  padding-right: 5px;
+}
+.v-orderedlayout-margin-bottom,
+.v-horizontallayout-margin-bottom,
+.v-verticallayout-margin-bottom {
+  padding-bottom: 5px;
+}
+.v-orderedlayout-margin-left,
+.v-horizontallayout-margin-left,
+.v-verticallayout-margin-left {
+  padding-left: 5px;
+}
+
+.v-nativebutton-borderless {
+  border: none;
+  background: transparent;
+}
+
+.gridFormTable {
+	background: red;
+}
+
+.gridForm {
+	margin: 0px;
+	border: 0px;
+	background-color: #F0F0F0;
+}
+
+.whiteBackground {
+	background-color: white;
+}	
+
+.v-app-OpenEchVaadinApplication .v-horizontallayout-topbar .v-nativebutton-link span {
+	text-decoration: none;
+}
+.v-app-OpenEchVaadinApplication .v-horizontallayout-topbar .v-nativebutton-link:hover span {
+	text-decoration: underline;
+}
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch:active,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-down.v-nativebutton-tree-switch {
+	background-position: right bottom;
+}
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton.v-disabled,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-popupview {
+	width: 30px;
+	height: 24px;
+	overflow: hidden;
+	padding: 0;
+	border: none;
+	background: transparent url(segment.png) no-repeat;
+	cursor: default;
+}
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton:active,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton.v-pressed,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-popupview:active {
+	background-position: left bottom;
+}
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton-tree-switch {
+	background-position: right top;
+}
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton span,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-popupview span,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton.v-pressed span,
+.v-app-OpenEchVaadinApplication .v-horizontallayout-segment .v-nativebutton.v-disabled span {
+	display: block;
+	height: 24px;
+	background-repeat: no-repeat;
+	background-position: 50% 40%;
+}
+

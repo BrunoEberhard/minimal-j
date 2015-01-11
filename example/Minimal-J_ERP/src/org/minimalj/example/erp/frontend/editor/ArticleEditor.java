@@ -1,0 +1,35 @@
+package org.minimalj.example.erp.frontend.editor;
+
+import org.minimalj.backend.Backend;
+import org.minimalj.example.erp.frontend.form.ArticleForm;
+import org.minimalj.example.erp.frontend.page.ArticlePage;
+import org.minimalj.example.erp.model.Article;
+import org.minimalj.frontend.edit.Editor;
+import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.page.PageLink;
+
+public class ArticleEditor extends Editor<Article> {
+
+	private final Article article;
+	
+	public ArticleEditor(Article article) {
+		this.article = article;
+	}
+	
+	@Override
+	protected Article load() {
+		return article;
+	}
+
+	@Override
+	protected Form<Article> createForm() {
+		return new ArticleForm(true);
+	}
+
+	@Override
+	protected String save(Article article) throws Exception {
+		Backend.getInstance().update(article);
+		return PageLink.link(ArticlePage.class, article.id.toString());
+	}
+
+}

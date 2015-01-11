@@ -1,0 +1,20 @@
+package org.minimalj.example.erp.frontend.form;
+
+import static org.minimalj.example.erp.model.Article.*;
+
+import org.minimalj.example.erp.model.Article;
+import org.minimalj.frontend.edit.form.Form;
+
+public class ArticleForm extends Form<Article> {
+
+	public ArticleForm(boolean editable) {
+		super(editable);
+		
+		line($.article_nr);
+		line($.article);
+		line($.articleCategory);
+		line($.description);
+		line($.price);
+		line($.unit);
+	}
+}

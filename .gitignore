@@ -1,0 +1,14 @@
+/.metadata/
+/RemoteSystemsTempFiles/
+/Servers/
+
+examples/Minimal-J_ERP/.classpath
+examples/Minimal-J_ERP/.project
+examples/Minimal-J_EventManager/.classpath
+examples/Minimal-J_EventManager/.project
+examples/Minimal-J_Library/.classpath
+examples/Minimal-J_Library/.project
+/target/
+/.classpath
+/.project
+/derby.log
