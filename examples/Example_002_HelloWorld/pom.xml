@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.minimalj</groupId>
-	<artifactId>minimalj-emptyApplication</artifactId>
+	<groupId>org.minimalj.example</groupId>
+	<artifactId>helloWorld</artifactId>
 	<version>1.0</version>
 	<name>Example_002_HelloWorld</name>
 	<description>The hello world application shows how a simple page can be displayed</description>
