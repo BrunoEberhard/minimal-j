@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * <LI>For String its mandatory.
  * <LI>For Integer or Long the default size is defined by the size of the java values
  * <LI>For BigDecimal the default size is 10 (with scale of 0) as in MySql DB
+ * <LI>For Time the defined constants must be used
  * </UL>
  * 
  */
