@@ -128,10 +128,14 @@ public class SwingClientToolkit extends ClientToolkit {
 	public TextField createTextField(InputComponentListener changeListener, int maxLength) {
 		return new SwingTextField(changeListener, maxLength);
 	}
-
+	
 	@Override
-	public TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
-		return new SwingTextField(changeListener, maxLength, allowedCharacters);
+	public TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String pattern, InputType inputType) {
+		if (multiLine == null && maxLength >= 256 || multiLine) {
+			return new SwingTextAreaField(changeListener, maxLength, pattern);
+		} else {
+			return new SwingTextField(changeListener, maxLength, pattern);
+		}
 	}
 
 	@Override
@@ -377,7 +381,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	public static boolean verticallyGrowing(Component component) {
-		if (component instanceof SwingFlowField || component instanceof JTable) {
+		if (component instanceof SwingFlowField || component instanceof JTable || component instanceof SwingTextAreaField) {
 			return true;
 		}
 		if (component instanceof Container) {

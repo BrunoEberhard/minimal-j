@@ -2,8 +2,9 @@ package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
+import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 
@@ -22,7 +23,7 @@ public abstract class NumberEditField<T> implements EditField<T> {
 		this.size = size;
 		this.decimalPlaces = decimalPlaces;
 		this.negative = negative;
-		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), getMaxLength(), getAllowedCharacters());
+		this.textField = ClientToolkit.getToolkit().createTextField(false, new ForwardingChangeListener(), getMaxLength(), getAllowedCharacters(), InputType.NUMBER);
 	}
 
 	@Override

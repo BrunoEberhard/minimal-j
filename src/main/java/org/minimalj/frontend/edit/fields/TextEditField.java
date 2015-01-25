@@ -2,8 +2,9 @@ package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
+import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.properties.PropertyInterface;
 
 
@@ -15,9 +16,13 @@ public class TextEditField implements EditField<String>, Enable {
 	private EditFieldListener changeListener;
 
 	public TextEditField(PropertyInterface property, int maxLength) {
+		this(property, null, maxLength);
+	}
+	
+	public TextEditField(PropertyInterface property, Boolean multiLine, int maxLength) {
 		this.property =  property;
 		this.maxLength = maxLength;
-		this.textField = ClientToolkit.getToolkit().createTextField(new ForwardingChangeListener(), maxLength);
+		this.textField = ClientToolkit.getToolkit().createTextField(multiLine, new ForwardingChangeListener(), maxLength, null, InputType.FREE);
 	}
 
 	@Override

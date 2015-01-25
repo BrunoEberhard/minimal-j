@@ -184,7 +184,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
+	public TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String allowedCharacters,
+			InputType inputType) {
 		return new LanternaTextField(changeListener);
 	}
 

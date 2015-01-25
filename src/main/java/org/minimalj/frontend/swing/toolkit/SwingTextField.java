@@ -12,9 +12,9 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
 public class SwingTextField extends JTextField implements TextField, FocusListener {
 	private static final long serialVersionUID = 1L;
@@ -68,7 +68,7 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 		}
 	}
 
-	private static class FilteredDocument extends PlainDocument {
+	static class FilteredDocument extends PlainDocument {
 		private static final long serialVersionUID = 1L;
 		private final int maxLength;
 		private final String allowedCharacters;
@@ -98,7 +98,7 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 				replace(0, length, filteredString, attr);
 			}
 		}
-
+		
 		private String filter(String s) {
 			if (allowedCharacters == null) return s;
 			

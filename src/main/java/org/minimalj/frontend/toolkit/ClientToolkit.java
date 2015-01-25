@@ -44,13 +44,16 @@ public abstract class ClientToolkit {
 	 */
 	public interface IComponent {
 	}
+	
+	 // http://www.w3schools.com/html/html_form_input_types.asp 
+	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
 
 	public abstract IComponent createLabel(String string);
 	public abstract IComponent createLabel(IAction action);
 	public abstract IComponent createTitle(String string);
 	public abstract TextField createReadOnlyTextField();
 	public abstract TextField createTextField(InputComponentListener changeListener, int maxLength);
-	public abstract TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters);
+	public abstract TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String allowedCharacters, InputType inputType);
 	public abstract FlowField createFlowField();
 	public abstract <T> ComboBox<T> createComboBox(InputComponentListener changeListener);
 	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);

@@ -94,8 +94,13 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public TextField createTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
-		return new VaadinTextField(changeListener, maxLength, allowedCharacters);
+	public TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String allowedCharacters,
+			InputType inputType) {
+		if (multiLine == null && maxLength >= 256 || multiLine) {
+			return new VaadinTextAreaField(changeListener, maxLength, allowedCharacters);
+		} else {
+			return new VaadinTextField(changeListener, maxLength, allowedCharacters);
+		}
 	}
 
 	@Override
