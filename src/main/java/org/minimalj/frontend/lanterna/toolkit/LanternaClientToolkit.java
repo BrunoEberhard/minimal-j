@@ -14,7 +14,6 @@ import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ILink;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.SwitchComponent;
@@ -115,7 +114,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 		return link;
 	}
 	
-	public static class LanternaLink extends Button implements ILink {
+	public static class LanternaLink extends Button implements IComponent {
 		private final String address;
 		private LanternaLinkAction action;
 		
@@ -125,7 +124,6 @@ public class LanternaClientToolkit extends ClientToolkit {
 			this.action = action;
 		}
 
-		@Override
 		public String getAddress() {
 			return address;
 		}
@@ -135,7 +133,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 		}
 	}
 
-	public class LanternaLinkAction implements Action {
+	public class LanternaLinkAction implements Action, IComponent {
 		private final String address;
 		private LanternaLinkListener listener;
 		

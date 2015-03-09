@@ -48,7 +48,6 @@ import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IAction.ActionChangeListener;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ILink;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
@@ -395,12 +394,11 @@ public class SwingClientToolkit extends ClientToolkit {
 		return false;
 	}
 
-	@Override
-	public ILink createLink(String text, String address) {
+	public IComponent createLink(String text, String address) {
         return new SwingLink(text, address);
 	}
 	
-	public static class SwingLink extends JLabel implements ILink {
+	public static class SwingLink extends JLabel implements IComponent {
 		private static final long serialVersionUID = 1L;
 		private final String address;
 		private MouseListener mouseListener;

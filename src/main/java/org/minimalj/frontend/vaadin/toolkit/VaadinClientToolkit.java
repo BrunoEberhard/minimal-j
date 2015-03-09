@@ -15,7 +15,6 @@ import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ILink;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
@@ -327,13 +326,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return inputStream;
 	}
 
-	@Override
-	public ILink createLink(String text, String address) {
+	public IComponent createLink(String text, String address) {
 		final VaadinActionLink button = new VaadinActionLink(text, address);
 		return button;
 	}
 	
-	public static class VaadinActionLink extends Link implements ILink {
+	public static class VaadinActionLink extends Link implements IComponent {
 		private static final long serialVersionUID = 1L;
 		private final String address;
 		
