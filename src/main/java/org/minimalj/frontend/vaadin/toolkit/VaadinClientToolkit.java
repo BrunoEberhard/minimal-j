@@ -118,7 +118,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createHorizontalLayout(IComponent... components) {
+	public IComponent createComponentGroup(IComponent... components) {
 		return new VaadinHorizontalLayout(components);
 	}
 

@@ -120,7 +120,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createHorizontalLayout(IComponent... components) {
+	public IComponent createComponentGroup(IComponent... components) {
 		// TODO Auto-generated method stub
 		return null;
 	}

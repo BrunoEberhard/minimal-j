@@ -153,7 +153,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createHorizontalLayout(IComponent... components) {
+	public IComponent createComponentGroup(IComponent... components) {
 		return new SwingHorizontalLayout(components);
 	}
 
