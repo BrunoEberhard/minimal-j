@@ -9,7 +9,7 @@ public interface ComboBox<T> extends IComponent {
 
 	public void setObjects(List<T> object);
 	
-	public void setSelectedObject(T object) throws IllegalArgumentException;
+	public void setSelectedObject(T object);
 
 	public T getSelectedObject();
 
