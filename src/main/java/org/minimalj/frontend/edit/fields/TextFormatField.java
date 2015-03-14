@@ -21,8 +21,8 @@ public abstract class TextFormatField<T> extends AbstractEditField<T> implements
 	public TextFormatField(PropertyInterface property, boolean editable) {
 		super(property, editable);
 		if (editable) {
-			textField = ClientToolkit.getToolkit().createTextField(false, listener(), getAllowedSize(property), getAllowedCharacters(property),
-					getInputType());
+			textField = ClientToolkit.getToolkit().createTextField(getAllowedSize(property), getAllowedCharacters(property),
+					getInputType(), null, listener());
 			installFocusLostListener();
 		} else {
 			textField = ClientToolkit.getToolkit().createReadOnlyTextField();

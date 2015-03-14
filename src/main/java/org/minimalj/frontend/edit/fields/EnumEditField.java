@@ -34,8 +34,8 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 		super(property, true);
 		this.enumClass = (Class<E>) property.getClazz();
 		
-		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
-		comboBox.setObjects(allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass));
+		List<CodeItem<E>> itemList = allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass);
+		comboBox = ClientToolkit.getToolkit().createComboBox(itemList, listener());
 		
 		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
 		textFieldDisabled.setText("-");

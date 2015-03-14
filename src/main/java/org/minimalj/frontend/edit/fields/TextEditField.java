@@ -22,7 +22,7 @@ public class TextEditField implements EditField<String>, Enable {
 	public TextEditField(PropertyInterface property, Boolean multiLine, int maxLength) {
 		this.property =  property;
 		this.maxLength = maxLength;
-		this.textField = ClientToolkit.getToolkit().createTextField(multiLine, new ForwardingChangeListener(), maxLength, null, InputType.FREE);
+		this.textField = ClientToolkit.getToolkit().createTextField(maxLength, null, InputType.FREE, null, new ForwardingChangeListener());
 	}
 
 	@Override

@@ -3,7 +3,6 @@ package org.minimalj.frontend.swing.toolkit;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -29,20 +28,15 @@ public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 	private final InputComponentListener listener;
 	private final NullableComboBoxModel<T> model;
 	
-	public SwingComboBox(InputComponentListener listener) {
+	public SwingComboBox(List<T> objects, InputComponentListener listener) {
 		this.listener = listener;
 		setRenderer(new CodeItemRenderer(getRenderer()));
 		addItemListener(new ComboBoxChangeListener());
 		setInheritsPopupMenu(true);
-		model = new NullableComboBoxModel<T>();
+		model = new NullableComboBoxModel<T>(objects);
 		setModel(model);
 	}
 	
-	@Override
-	public void setObjects(List<T> objects) {
-		model.setObjects(objects);
-	}
-
 	@Override
 	public void setSelectedObject(T object) {
 		model.setObject(object);
@@ -83,12 +77,13 @@ public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 	
 	private static class NullableComboBoxModel<T> extends AbstractListModel<T> implements ComboBoxModel<T> {
 		private static final long serialVersionUID = 1L;
-		private List<T> objects = Collections.emptyList();
+		private final List<T> objects;
 		private T setObject;
 		private T selectedObject;
 		private boolean setObjectInObjects;
 		
-		private NullableComboBoxModel() {
+		public NullableComboBoxModel(List<T> objects) {
+			this.objects = objects;
 		}
 
 		@Override
@@ -150,18 +145,10 @@ public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 			fireContentsChanged(this, -1, -1);
 		}
 		
-		protected void setObjects(List<T> objects) {
-			this.objects = objects;
-			updateSetObjectInObjects();
-			fireContentsChanged(this, -1, -1);
-		}
-		
 		private void updateSetObjectInObjects() {
 			setObjectInObjects = (setObject == null || objects.contains(setObject));
 		}
 	}
-	
-	
 	
 	private class CodeItemRenderer implements ListCellRenderer<T> {
 

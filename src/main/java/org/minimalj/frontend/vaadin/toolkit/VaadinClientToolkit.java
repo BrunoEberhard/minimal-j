@@ -87,19 +87,21 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return new VaadinReadOnlyTextField();
 	}
 
-	@Override
-	public TextField createTextField(InputComponentListener changeListener, int maxLength) {
-		return new VaadinTextField(changeListener, maxLength);
-	}
+	
 	
 	@Override
-	public TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String allowedCharacters,
-			InputType inputType) {
-		if (multiLine == null && maxLength >= 256 || multiLine) {
-			return new VaadinTextAreaField(changeListener, maxLength, allowedCharacters);
-		} else {
+	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+			InputComponentListener changeListener) {
+		if (autocomplete == null) {
 			return new VaadinTextField(changeListener, maxLength, allowedCharacters);
+		} else {
+			return new VaadinTextFieldAutocomplete(autocomplete, changeListener);
 		}
+	}
+
+	@Override
+	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
+		return new VaadinTextAreaField(changeListener, maxLength, allowedCharacters);
 	}
 
 	@Override
@@ -108,8 +110,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(InputComponentListener listener) {
-		return new VaadinComboBox<T>(listener);
+	public <T> ComboBox<T> createComboBox(List<T> objects, InputComponentListener listener) {
+		return new VaadinComboBox<T>(objects, listener);
 	}
 
 	@Override

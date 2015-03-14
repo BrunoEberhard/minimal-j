@@ -124,17 +124,18 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(InputComponentListener changeListener, int maxLength) {
-		return new SwingTextField(changeListener, maxLength);
-	}
-	
-	@Override
-	public TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String pattern, InputType inputType) {
-		if (multiLine == null && maxLength >= 256 || multiLine) {
-			return new SwingTextAreaField(changeListener, maxLength, pattern);
+	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+			InputComponentListener changeListener) {
+		if (autocomplete == null) {
+			return new SwingTextField(changeListener, maxLength, allowedCharacters);
 		} else {
-			return new SwingTextField(changeListener, maxLength, pattern);
+			return new SwingTextFieldAutocomplete(changeListener, autocomplete);
 		}
+	}
+
+	@Override
+	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
+		return new SwingTextAreaField(changeListener, maxLength, null);
 	}
 
 	@Override
@@ -143,8 +144,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(InputComponentListener changeListener) {
-		return new SwingComboBox<T>(changeListener);
+	public <T> ComboBox<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
+		return new SwingComboBox<T>(objects, changeListener);
 	}
 
 	@Override

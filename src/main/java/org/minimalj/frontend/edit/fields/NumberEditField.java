@@ -23,7 +23,7 @@ public abstract class NumberEditField<T> implements EditField<T> {
 		this.size = size;
 		this.decimalPlaces = decimalPlaces;
 		this.negative = negative;
-		this.textField = ClientToolkit.getToolkit().createTextField(false, new ForwardingChangeListener(), getMaxLength(), getAllowedCharacters(), InputType.NUMBER);
+		this.textField = ClientToolkit.getToolkit().createTextField(getMaxLength(), getAllowedCharacters(), InputType.NUMBER, null, new ForwardingChangeListener());
 	}
 
 	@Override

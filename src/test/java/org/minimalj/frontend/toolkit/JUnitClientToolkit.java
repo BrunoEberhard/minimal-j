@@ -47,8 +47,8 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(InputComponentListener changeListener,
-			int maxLength) {
+	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+			InputComponentListener changeListener) {
 		return new TextField() {
 			
 			@Override
@@ -84,19 +84,19 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String allowedCharacters,
-			InputType inputType) {
-		return createTextField(changeListener, maxLength);
-	}
-
-	@Override
 	public FlowField createFlowField() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(InputComponentListener changeListener) {
+	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> ComboBox<T> createComboBox(List<T> object, InputComponentListener changeListener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

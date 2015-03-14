@@ -43,8 +43,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(InputComponentListener changeListener) {
-		return new LanternaComboBox<T>(changeListener);
+	public <T> ComboBox<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
+		return new LanternaComboBox<T>(objects, changeListener);
 	}
 
 	@Override
@@ -177,13 +177,13 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(InputComponentListener changeListener, int maxLength) {
+	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+			InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}
 
 	@Override
-	public TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String allowedCharacters,
-			InputType inputType) {
+	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}
 

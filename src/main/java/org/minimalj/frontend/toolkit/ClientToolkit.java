@@ -52,10 +52,10 @@ public abstract class ClientToolkit {
 	public abstract IComponent createLabel(IAction action);
 	public abstract IComponent createTitle(String string);
 	public abstract TextField createReadOnlyTextField();
-	public abstract TextField createTextField(InputComponentListener changeListener, int maxLength);
-	public abstract TextField createTextField(Boolean multiLine, InputComponentListener changeListener, int maxLength, String allowedCharacters, InputType inputType);
+	public abstract TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete, InputComponentListener changeListener);
+	public abstract TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract FlowField createFlowField();
-	public abstract <T> ComboBox<T> createComboBox(InputComponentListener changeListener);
+	public abstract <T> ComboBox<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);
 	public abstract IComponent createLink(String text, String address);
 	

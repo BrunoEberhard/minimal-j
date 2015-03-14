@@ -23,8 +23,7 @@ public class CodeEditField extends AbstractEditField<Code> implements Enable, Mo
 		super(property, true);
 		codes = Codes.get((Class<Code>) property.getClazz());
 		
-		comboBox = ClientToolkit.getToolkit().createComboBox(listener());
-		comboBox.setObjects(codes);
+		comboBox = ClientToolkit.getToolkit().createComboBox(codes, listener());
 		
 		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
 		textFieldDisabled.setText("-");
