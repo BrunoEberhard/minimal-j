@@ -30,9 +30,4 @@ public class TextFormField implements FormField<String> {
 	public void setObject(String string) {
 		textField.setText(string);
 	}
-
-	public void setEnabled(boolean enabled) {
-		textField.setEditable(enabled);
-	}
-
 }
