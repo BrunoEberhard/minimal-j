@@ -132,12 +132,6 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public SwitchComponent createSwitchComponent(IComponent... components) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public FormContent createFormContent(int columns, int columnWidth) {
 		return new FormContent() {
 			@Override

@@ -59,4 +59,9 @@ public class VaadinComboBox<T> extends Select implements ComboBox<T> {
 		}
 	}
 
+	@Override
+	public void setEditable(boolean editable) {
+		setEnabled(editable);
+	}
+
 }

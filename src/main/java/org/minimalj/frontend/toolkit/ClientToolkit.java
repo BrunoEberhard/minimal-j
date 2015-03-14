@@ -76,8 +76,6 @@ public abstract class ClientToolkit {
 
 	public abstract IComponent createComponentGroup(IComponent... components);
 
-	public abstract SwitchComponent createSwitchComponent(IComponent... components);
-
 	/**
 	 * Content means the content of a dialog or of a page
 	 */

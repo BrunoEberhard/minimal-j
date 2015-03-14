@@ -51,7 +51,6 @@ import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
-import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
 
@@ -161,11 +160,6 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public SwitchContent createSwitchContent() {
 		return new SwingSwitchContent();
-	}
-
-	@Override
-	public SwitchComponent createSwitchComponent(IComponent... components) {
-		return new SwingSwitchComponent(components);
 	}
 
 	@Override

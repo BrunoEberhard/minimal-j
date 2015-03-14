@@ -16,7 +16,6 @@ import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
-import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.Action;
@@ -164,11 +163,6 @@ public class LanternaClientToolkit extends ClientToolkit {
 	@Override
 	public SwitchContent createSwitchContent() {
 		return new LanternaSwitchContent();
-	}
-
-	@Override
-	public SwitchComponent createSwitchComponent(IComponent... components) {
-		return new LanternaSwitchComponent();
 	}
 
 	@Override

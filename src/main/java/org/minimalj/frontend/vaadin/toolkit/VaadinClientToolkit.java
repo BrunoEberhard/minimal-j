@@ -18,7 +18,6 @@ import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ITable;
 import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
-import org.minimalj.frontend.toolkit.SwitchComponent;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.vaadin.VaadinWindow;
 import org.minimalj.util.StringUtils;
@@ -134,11 +133,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return new VaadinSwitchContent();
 	}
 	
-	@Override
-	public SwitchComponent createSwitchComponent(IComponent... components) {
-		return new VaadinSwitchComponent(components);
-	}
-
 	public static void focusFirstComponent(Component component) {
 		AbstractField field = findAbstractField(component);
 		if (field != null) {

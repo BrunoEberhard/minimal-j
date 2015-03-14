@@ -5,8 +5,6 @@ import java.util.List;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ComboBox;
-import org.minimalj.frontend.toolkit.SwitchComponent;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
@@ -17,9 +15,7 @@ import org.minimalj.util.mock.Mocking;
 public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> implements Enable, Mocking {
 	private final Class<E> enumClass;
 	
-	private final SwitchComponent switchComponent;
 	private final ComboBox<CodeItem<E>> comboBox;
-	private final TextField textFieldDisabled;
 
 	public EnumEditField(PropertyInterface property) {
 		this(property, null);
@@ -37,28 +33,17 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 		List<CodeItem<E>> itemList = allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass);
 		comboBox = ClientToolkit.getToolkit().createComboBox(itemList, listener());
 		
-		textFieldDisabled = ClientToolkit.getToolkit().createReadOnlyTextField();
-		textFieldDisabled.setText("-");
-		
-		switchComponent = ClientToolkit.getToolkit().createSwitchComponent(comboBox, textFieldDisabled);
-		switchComponent.show(comboBox);
-		
 		setDefault();
 	}
 	
 	@Override
 	public IComponent getComponent() {
-		return switchComponent;
+		return comboBox;
 	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		if (enabled) {
-			switchComponent.show(comboBox);
-			setDefault();
-		} else {
-			switchComponent.show(textFieldDisabled);
-		}
+		comboBox.setEditable(enabled);
 	}
 
 	private void setDefault() {
@@ -71,20 +56,15 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 	
 	@Override
 	public E getObject() {
-		if (switchComponent.getShownComponent() == comboBox) {
-			if (comboBox.getSelectedObject() != null) {
-				return comboBox.getSelectedObject().getKey();
-			}
+		if (comboBox.getSelectedObject() != null) {
+			return comboBox.getSelectedObject().getKey();
+		} else {
+			return null;
 		}
-		return null;
 	}
 
 	@Override
 	public void setObject(E value) {
-		if (switchComponent.getShownComponent() == textFieldDisabled) {
-			return;
-		}
-
 		CodeItem<E> item = null;
 		if (value != null) {
 			List<CodeItem<E>> itemList = EnumUtils.itemList(enumClass);
@@ -97,7 +77,6 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 		}
 		
 		comboBox.setSelectedObject(item);
-		switchComponent.show(comboBox);
 	}
 
 	@Override

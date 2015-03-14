@@ -16,4 +16,5 @@ public interface ComboBox<T> extends IComponent {
 
 	public T getSelectedObject();
 
+	public void setEditable(boolean editable);
 }

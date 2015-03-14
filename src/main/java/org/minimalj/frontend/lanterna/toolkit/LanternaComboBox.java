@@ -29,4 +29,9 @@ public class LanternaComboBox<T> extends Select<T> implements ComboBox<T> {
 		}
 		return result;
 	}
+
+	@Override
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
 }
