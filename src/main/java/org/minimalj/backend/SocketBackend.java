@@ -109,12 +109,12 @@ public class SocketBackend extends Backend {
 		return result;
 	}
 	
-	public <T> Object insert(T object) {
-		return getInstance().execute(new InsertTransaction(object));
+	public <T> T insert(T object) {
+		return getInstance().execute(new InsertTransaction<T>(object));
 	}
 
-	public void update(Object object) {
-		getInstance().execute(new UpdateTransaction(object));
+	public <T> T update(T object) {
+		return getInstance().execute(new UpdateTransaction<T>(object));
 	}
 
 	public <T> void delete(Class<T> clazz, Object id) {

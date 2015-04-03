@@ -15,6 +15,7 @@ import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.util.IdUtils;
 
 public class DbBackend extends Backend {
 
@@ -93,14 +94,18 @@ public class DbBackend extends Backend {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Object insert(T object) {
-		return persistence.insert(object);
+	public <T> T insert(T object) {
+		persistence.insert(object);
+		return (T) read(object.getClass(), IdUtils.getId(object));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <T> void update(T object) {
+	public <T> T update(T object) {
 		persistence.update(object);
+		return (T) read(object.getClass(), IdUtils.getId(object));
 	}
 	
 	@Override

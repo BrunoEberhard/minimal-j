@@ -4,18 +4,19 @@ import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.SerializationContainer;
 
-public class InsertTransaction implements Transaction<Object> {
+@SuppressWarnings("unchecked")
+public class InsertTransaction<T> implements Transaction<T> {
 	private static final long serialVersionUID = 1L;
 
-	private final Object object;
-
+	private final T object;
+	
 	public InsertTransaction(Object object) {
-		this.object = SerializationContainer.wrap(object);
+		this.object = (T) SerializationContainer.wrap(object);
 	}
 
 	@Override
-	public Object execute(Backend backend) {
-		return backend.insert(SerializationContainer.unwrap(object));
+	public T execute(Backend backend) {
+		return (T) backend.insert(SerializationContainer.unwrap(object));
 	}
 
 }

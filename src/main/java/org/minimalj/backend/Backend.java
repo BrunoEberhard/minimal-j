@@ -114,8 +114,8 @@ public abstract class Backend {
 	public abstract <T> T read(Class<T> clazz, Object id);
 	public abstract <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
 
-	public abstract <T> Object insert(T object);
-	public abstract <T> void update(T object);
+	public abstract <T> T insert(T object);
+	public abstract <T> T update(T object);
 	public abstract <T> void delete(Class<T> clazz, Object id);
 
 	public abstract <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter);
