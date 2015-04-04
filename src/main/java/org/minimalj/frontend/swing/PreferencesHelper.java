@@ -13,6 +13,7 @@ import org.minimalj.model.properties.PropertyInterface;
 public abstract class PreferencesHelper {
 	private static final Logger logger = Logger.getLogger(PreferencesHelper.class.getName());
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void load(Preferences preferences, Object data) {
 		for (Entry<String, PropertyInterface> entry : FlatProperties.getProperties(data.getClass()).entrySet()) {
 			String key = entry.getKey();
