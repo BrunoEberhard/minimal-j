@@ -4,12 +4,11 @@ import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.vaadin.VaadinBorderLayout;
 
 import com.vaadin.event.ShortcutAction;
@@ -26,7 +25,7 @@ import com.vaadin.ui.Panel;
 public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
-	public VaadinEditorLayout(IContent content, IAction[] actions) {
+	public VaadinEditorLayout(IContent content, Action[] actions) {
 		setSizeFull();
 		
 		Component contentComponent = (Component) content;
@@ -45,7 +44,7 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 		return scrollablePanel;
 	}
 	
-	private Component createButtonBar(IAction... actions) {
+	private Component createButtonBar(Action... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
 		horizontalLayout.setWidth("100%");
@@ -56,8 +55,8 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 		return horizontalLayout;
 	}
 	
-	private void addButtons(HorizontalLayout buttonBar, IAction... actions) {
-		for (IAction action: actions) {
+	private void addButtons(HorizontalLayout buttonBar, Action... actions) {
+		for (Action action: actions) {
 			addActionButton(buttonBar, action);
 		}
 		if (buttonBar.getComponentCount() > 0) {
@@ -65,7 +64,7 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 		}
 	}
 
-	private void addActionButton(HorizontalLayout buttonBar, final IAction action) {
+	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
 		final Button button = new NativeButton(action.getName());
 		button.setEnabled(action.isEnabled());
 		button.setDescription(action.getDescription());
@@ -86,8 +85,8 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 		buttonBar.setComponentAlignment(button, Alignment.MIDDLE_RIGHT);
 	}
 	
-	private static void installShortcut(Button button, Action action) {
-		KeyStroke key = (KeyStroke)action.getValue(Action.ACCELERATOR_KEY);
+	private static void installShortcut(Button button, javax.swing.Action action) {
+		KeyStroke key = (KeyStroke)action.getValue(javax.swing.Action.ACCELERATOR_KEY);
 		if (key != null) {
 			button.setClickShortcut(key.getKeyCode(), convertSwingModifierToVaadin(key.getModifiers()));
 		}
@@ -114,8 +113,8 @@ public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent
 		return result;
 	}
 	
-	private static void installActionListener(final IAction action, final Button button) {
-		action.setChangeListener(new IAction.ActionChangeListener() {
+	private static void installActionListener(final Action action, final Button button) {
+		action.setChangeListener(new Action.ActionChangeListener() {
 			
 			@Override
 			public void change() {

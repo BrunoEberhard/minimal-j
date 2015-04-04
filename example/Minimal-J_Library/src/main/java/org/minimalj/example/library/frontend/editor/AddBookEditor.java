@@ -6,7 +6,7 @@ import org.minimalj.example.library.frontend.page.BookPage;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.page.PageLink;
+import org.minimalj.frontend.page.Page;
 
 public class AddBookEditor extends Editor<Book> {
 
@@ -16,9 +16,9 @@ public class AddBookEditor extends Editor<Book> {
 	}
 	
 	@Override
-	public String save(Book book) throws Exception {
-		Object id = Backend.getInstance().insert(book);
-		return PageLink.link(BookPage.class, id.toString());
+	public Page save(Book book) throws Exception {
+		Book savedBook = Backend.getInstance().insert(book);
+		return new BookPage(savedBook);
 	}
 
 	@Override

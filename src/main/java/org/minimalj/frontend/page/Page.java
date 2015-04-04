@@ -1,25 +1,24 @@
 package org.minimalj.frontend.page;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.util.resources.Resources;
 
 /**
  * Pages are one of the building blocks of an application. They are intended to fill the whole space
  * of a window (or simply the display space if the frontend has no windows). Their content is static
  * in contrast to dialogs which are meant to allow inputs.<p>
  * 
- * A page can have a title and a content. There is no way the content or the title can
- * change without a refresh.<p>
- * 
- * The refresh method exists because for some frontends its much cheaper to simple
- * change the data of the page than to create it again from scratch.
+ * A page can have a title and a content. Pages are meant to be ContentProvider. Pages are
+ * allocated a lot. They should be lightweight! The heavy stuff should be done when calling
+ * getContent().
  *
  */
 public interface Page {
 	
-	public String getTitle();
+	public default String getTitle() {
+		return Resources.getString(getClass());
+	}
 	
 	public IContent getContent();
-
-	public void refresh();
 	
 }

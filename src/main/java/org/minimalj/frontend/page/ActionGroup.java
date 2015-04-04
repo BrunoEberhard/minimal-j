@@ -5,12 +5,11 @@ import java.util.List;
 
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.EditorAction;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.ResourceAction;
+import org.minimalj.frontend.toolkit.Action;
 
-public class ActionGroup extends ResourceAction {
+public class ActionGroup extends Action {
 
-	private final List<IAction> items = new ArrayList<>();
+	private final List<Action> items = new ArrayList<>();
 
 	public ActionGroup(String resourceName) {
 		super(resourceName);
@@ -21,20 +20,24 @@ public class ActionGroup extends ResourceAction {
 		// n/a
 	}
 
-	public void add(IAction item) {
+	public void add(Action item) {
 		items.add(item);
 	}
 
 	public void add(Editor<?> editor) {
 		items.add(new EditorAction(editor));
 	}
-
-	public List<IAction> getItems() {
-		return items;
+	
+	public void add(Page page) {
+		items.add(new PageAction(page));
 	}
 
-	public void add(Class<? extends Page> clazz, String... args) {
-		items.add(new PageLink(clazz, args));
+	public void add(Page page, String name) {
+		items.add(new PageAction(page, name));
+	}
+
+	public List<Action> getItems() {
+		return items;
 	}
 	
 	public ActionGroup addGroup(String name) {

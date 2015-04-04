@@ -8,7 +8,6 @@ import java.util.ResourceBundle;
 import org.minimalj.application.Application;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.EmptyPage;
-import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
 import org.minimalj.util.StringUtils;
@@ -33,7 +32,7 @@ public class VaadinFrontend extends com.vaadin.Application {
 		setTheme("openech");
 		VaadinWindow mainWindow = new VaadinWindow(applicationContext);
 		setMainWindow(mainWindow);
-		mainWindow.show(PageLink.link(EmptyPage.class));
+		mainWindow.show(new EmptyPage());
 	}
 
 	private synchronized void initializeApplication() {

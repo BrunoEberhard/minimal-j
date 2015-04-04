@@ -1,16 +1,15 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
 import org.minimalj.frontend.lanterna.LanternaGUIScreen;
-import org.minimalj.frontend.toolkit.IAction;
 
 import com.googlecode.lanterna.gui.Action;
 
 public class LanternaActionAdapater implements Action {
 
 	private final LanternaGUIScreen guiScreen;
-	private final IAction action;
+	private final org.minimalj.frontend.toolkit.Action action;
 	
-	public LanternaActionAdapater(LanternaGUIScreen guiScreen, IAction action) {
+	public LanternaActionAdapater(LanternaGUIScreen guiScreen, org.minimalj.frontend.toolkit.Action action) {
 		this.guiScreen = guiScreen;
 		this.action = action;
 	}

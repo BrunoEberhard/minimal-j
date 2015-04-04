@@ -1,14 +1,25 @@
 package org.minimalj.frontend.page;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.util.IdUtils;
 
-public abstract class ObjectPage<T> extends AbstractPage {
+public abstract class ObjectPage<T> implements Page {
 
-	private Form<T> form;
-	private T object;
+	private final Class<T> objectClass;
+	private final Object objectId;
+	private transient T object;
+	private transient Form<T> form;
 	
-	public ObjectPage() {
+	@SuppressWarnings("unchecked")
+	public ObjectPage(T object) {
+		this((Class<T>) object.getClass(), IdUtils.getId(object));
+	}
+	
+	public ObjectPage(Class<T> objectClass, Object objectId) {
+		this.objectClass = objectClass;
+		this.objectId = objectId;
 	}
 
 	public ActionGroup getMenu() {
@@ -17,11 +28,17 @@ public abstract class ObjectPage<T> extends AbstractPage {
 
 	protected abstract Form<T> createForm();
 
-	protected abstract T loadObject();
-	
+	public Class<T> getObjectClass() {
+		return objectClass;
+	}
+
+	public Object getObjectId() {
+		return objectId;
+	}
+
 	protected T getObject() {
 		if (object == null) {
-			object = loadObject();
+			object = load();
 		}
 		return object;
 	}
@@ -30,15 +47,18 @@ public abstract class ObjectPage<T> extends AbstractPage {
 	public IContent getContent() {
 		if (form == null) {
 			form = createForm();
-			form.setObject(getObject());
 		}
+		unload();
+		form.setObject(getObject());
 		return form.getContent();
 	}
-	
-	@Override
-	public void refresh() {
-		object = null;
-		form.setObject(getObject());
+
+	public T load() {
+		return Backend.getInstance().read(objectClass, objectId);
 	}
 	
+	public void unload() {
+		object = null;
+	}
+
 }

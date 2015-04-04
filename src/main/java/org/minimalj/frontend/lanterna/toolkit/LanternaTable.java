@@ -10,7 +10,8 @@ import java.util.logging.Logger;
 
 import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
-import org.minimalj.frontend.toolkit.ITable;
+import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
+import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
@@ -31,11 +32,12 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	private int scrollIndex, lines;
 	private final List<T> selectedObjects;
 	private int selectedLine;
-	private InsertListener insertListener;
-	private TableActionListener<T> clickListener, deleteListener;
+	private final TableActionListener<T> listener;
 	
-	public LanternaTable(Object[] keys) {
+	public LanternaTable(Object[] keys, TableActionListener<T> listener) {
 		this.properties = convert(keys);
+		this.listener = listener;
+
 		selectedObjects = new ArrayList<>();
 		
 		columnTitleArray = new String[keys.length];
@@ -161,7 +163,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		switch (key.getKind()) {
 		case Enter:
 			LanternaClientToolkit.setGui((LanternaGUIScreen) getWindow().getOwner());
-			clickListener.action(getSelectedObject(), getSelectedObjects());
+			listener.action(getSelectedObject(), getSelectedObjects());
 			LanternaClientToolkit.setGui(null);
 			return Result.EVENT_HANDLED;
 
@@ -253,26 +255,6 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 
 	public T getSelectedObject() {
 		return getObject(scrollIndex + selectedLine);
-	}
-
-	@Override
-	public void setClickListener(TableActionListener<T> listener) {
-		this.clickListener = listener;
-	}
-
-	@Override
-	public void setDeleteListener(TableActionListener<T> listener) {
-		this.deleteListener = listener;
-	}
-
-	@Override
-	public void setInsertListener(InsertListener listener) {
-		this.insertListener = listener;
-	}
-
-	@Override
-	public void setFunctionListener(int function, TableActionListener<T> listener) {
-		// TODO Function Action in Lanterna Table
 	}
 
 	@Override

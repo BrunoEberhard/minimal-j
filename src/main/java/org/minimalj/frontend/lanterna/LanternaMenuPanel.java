@@ -12,11 +12,9 @@ import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageLink;
-import org.minimalj.frontend.page.type.SearchOf;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.ResourceAction;
-import org.minimalj.util.GenericUtils;
+import org.minimalj.frontend.page.SearchPage;
+import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.util.resources.Resources;
 
 import com.googlecode.lanterna.gui.Border;
@@ -59,8 +57,8 @@ public class LanternaMenuPanel extends Panel {
 			createMenu(((ObjectPage<?>) page).getMenu());
 		}
 
-		createMenu("import", Application.getApplication().getActionsImport());
-		createMenu("export", Application.getApplication().getActionsExport());
+		createMenu("import", Application.getApplication().getActionImport());
+		createMenu("export", Application.getApplication().getActionExport());
 	}
 
 	protected void createMenu(ActionGroup menu) {
@@ -69,7 +67,7 @@ public class LanternaMenuPanel extends Panel {
 		}
 	}
 
-	protected void createMenu(String resourceName, List<IAction> actions) {
+	protected void createMenu(String resourceName, List<Action> actions) {
 		String name = Resources.getString("Menu." + resourceName);
 		com.googlecode.lanterna.gui.Action newAction = actionGroup(name, actions);
 		if (newAction != null) {
@@ -78,11 +76,11 @@ public class LanternaMenuPanel extends Panel {
 		}
 	}
 
-	protected com.googlecode.lanterna.gui.Action actionGroup(String name, List<IAction> actions) {
+	protected com.googlecode.lanterna.gui.Action actionGroup(String name, List<Action> actions) {
 		if (actions.isEmpty())
 			return null;
 		ActionSelection as = new ActionSelection(name);
-		for (IAction action : actions) {
+		for (Action action : actions) {
 			if (action instanceof ActionGroup) {
 				ActionGroup subGroup = (ActionGroup) action;
 				as.addAction(actionGroup(subGroup.getName(), subGroup.getItems()));
@@ -121,19 +119,18 @@ public class LanternaMenuPanel extends Panel {
 
 	private Select<String> comboBoxSearchObject;
 	private TextBox textFieldSearch;
-	private Map<String, Class<?>> searchClassesByObjectName = new HashMap<String, Class<?>>();
+	private Map<String, SearchPage> searchPageByObjectName = new HashMap<String, SearchPage>();
 
 	protected Panel createSearchField() {
 		Panel panel = new Panel();
 		panel.setLayoutManager(new HorisontalLayout());
 
-		Class<?>[] searchClasses = Application.getApplication().getSearchClasses();
+		SearchPage[] searchPages = Application.getApplication().getSearchPages();
 		List<String> objectNameList = new ArrayList<>();
-		for (Class<?> searchClass : searchClasses) {
-			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
-			String objectName = Resources.getString(searchedClass);
+		for (SearchPage searchPage : searchPages) {
+			String objectName = searchPage.getName();
 			objectNameList.add(objectName);
-			searchClassesByObjectName.put(objectName, searchClass);
+			searchPageByObjectName.put(objectName, searchPage);
 		}
 
 		comboBoxSearchObject = new Select<>();
@@ -160,19 +157,16 @@ public class LanternaMenuPanel extends Panel {
 	// }
 	// }
 
-	protected class SearchAction extends ResourceAction {
+	protected class SearchAction extends Action {
 		@Override
 		public void action() {
 			LanternaClientToolkit.setGui(guiScreen);
-			Class<?> searchObject = searchClassesByObjectName.get(comboBoxSearchObject.getSelectedObject());
-			String text = textFieldSearch.getText();
-			search((Class<? extends Page>) searchObject, text);
+			SearchPage searchPage = searchPageByObjectName.get(comboBoxSearchObject.getSelectedObject());
+			String query = textFieldSearch.getText();
+			searchPage.setQuery(query);
+			LanternaClientToolkit.getGui().show(searchPage);
 			LanternaClientToolkit.setGui(null);
 		}
-	}
-
-	public void search(Class<? extends Page> searchClass, String text) {
-		LanternaClientToolkit.getGui().show(PageLink.link(searchClass, text));
 	}
 
 }

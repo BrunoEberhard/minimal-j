@@ -5,14 +5,15 @@ import java.util.List;
 import org.minimalj.application.Application;
 import org.minimalj.example.erp.frontend.editor.AddArticleEditor;
 import org.minimalj.example.erp.frontend.editor.AddCustomerEditor;
-import org.minimalj.example.erp.frontend.page.ArticleTablePage;
+import org.minimalj.example.erp.frontend.page.ArticleSearchPage;
+import org.minimalj.example.erp.frontend.page.CustomerSearchPage;
 import org.minimalj.example.erp.frontend.page.CustomerTablePage;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.PageLink;
-import org.minimalj.frontend.toolkit.IAction;
+import org.minimalj.frontend.page.SearchPage;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.test.ModelTest;
 
 public class ErpApplication extends Application {
@@ -21,7 +22,7 @@ public class ErpApplication extends Application {
 	}
 
 	@Override
-	public List<IAction> getActionsNew() {
+	public List<Action> getActionsNew() {
 		ActionGroup menu = new ActionGroup(null);
 		menu.add(new AddCustomerEditor());
 		menu.add(new AddArticleEditor());
@@ -29,15 +30,15 @@ public class ErpApplication extends Application {
 	}	
 	
 	@Override
-	public List<IAction> getActionsView() {
+	public List<Action> getActionView() {
 		ActionGroup menu = new ActionGroup(null);
-		menu.add(new PageLink(CustomerTablePage.class));
+		menu.add(new CustomerTablePage());
 		return menu.getItems();
 	}
 
 	@Override
-	public Class<?>[] getSearchClasses() {
-		return new Class<?>[] { ArticleTablePage.class, CustomerTablePage.class };
+	public SearchPage[] getSearchPages() {
+		return new SearchPage[] { new ArticleSearchPage(), new CustomerSearchPage() };
 	}
 
 	@Override

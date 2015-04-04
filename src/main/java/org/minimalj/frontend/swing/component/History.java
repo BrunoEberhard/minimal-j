@@ -33,8 +33,6 @@ public class History<T> {
 	}
 	
 	public void replace(T page) {
-		if (page.equals(present)) return;
-		
 		history.set(presentIndex, page);
 		present = page;
 		

@@ -3,20 +3,16 @@ package org.minimalj.frontend.vaadin;
 import java.util.List;
 import java.util.Locale;
 
-import org.minimalj.application.ApplicationContext;
 import org.minimalj.application.Application;
+import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageLink;
-import org.minimalj.frontend.page.type.SearchOf;
+import org.minimalj.frontend.page.SearchPage;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -31,9 +27,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UriFragmentUtility;
-import com.vaadin.ui.UriFragmentUtility.FragmentChangedEvent;
-import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -44,14 +37,13 @@ public class VaadinWindow extends Window {
 	private final VaadinMenuBar menubar = new VaadinMenuBar(this);
 	private final ComboBox comboBox = new ComboBox();
 	private final TextField textFieldSearch = new TextField();
-	private final UriFragmentUtility ufu;
 	private final ApplicationContext applicatonContext;
 	
 	private Page visiblePage;
 	private Component content;
 	private Panel scrollablePanel;
-	private List<String> pageLinks;
-	private int indexInPageLinks;
+	private List<Page> pages;
+	private int indexInPages;
 	
 	public VaadinWindow(ApplicationContext context) {
 		this.applicatonContext = context;
@@ -75,15 +67,11 @@ public class VaadinWindow extends Window {
 		nav.setExpandRatio(menubar, 1.0F);
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
 		
-		if (Application.getApplication().getSearchClasses().length > 0) {
+		if (Application.getApplication().getSearchPages().length > 0) {
 			Component searchComponent = createSearchField();
 			nav.addComponent(searchComponent);
 			nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
 		}
-		
-		ufu = new UriFragmentUtility();
-		ufu.addListener(new VaadinWindowFragmentChangedListener());
-		windowContent.addComponent(ufu);
 		
 		VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(false);
@@ -96,12 +84,12 @@ public class VaadinWindow extends Window {
 		final HorizontalLayout horizontalLayout = new HorizontalLayout();
 
 		comboBox.setNullSelectionAllowed(false);
-		for (Class<?> searchClass: Application.getApplication().getSearchClasses()) {
-			comboBox.addItem(searchClass);
-			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
-			comboBox.setItemCaption(searchClass, Resources.getString(searchedClass));
+		for (SearchPage searchPage : Application.getApplication().getSearchPages()) {
+			comboBox.addItem(searchPage);
+			comboBox.setItemCaption(searchPage, searchPage.getName());
 		}
-		comboBox.setValue(Application.getApplication().getSearchClasses()[0]);
+		
+		comboBox.setValue(comboBox.getItemIds().iterator().next());
 		horizontalLayout.addComponent(comboBox);
 		
         textFieldSearch.setWidth("160px");
@@ -130,31 +118,27 @@ public class VaadinWindow extends Window {
         return horizontalLayout;
     }
 
-	@SuppressWarnings("unchecked")
 	private void showSearchPage() {
-		show(PageLink.link((Class<? extends Page>) comboBox.getValue(), (String) textFieldSearch.getValue()));
+		SearchPage searchPage = (SearchPage) comboBox.getValue();
+		searchPage.setQuery((String) textFieldSearch.getValue());
+		show(searchPage);
 	}
 	
-	public void show(String pageLink) {
-		boolean sameAsExisting = StringUtils.equals(ufu.getFragment(), pageLink);
-		if (!sameAsExisting) {
-			ufu.setFragment(pageLink, true);
-		} else {
-			updateContent(pageLink);
-		}
+	public void show(Page page) {
+		updateContent(page);
 	}
 	
 	public void refresh() {
-		getVisiblePage().refresh();
+		updateContent(getVisiblePage());
 	}
 	
 	Page getVisiblePage() {
 		return visiblePage;
 	}
 	
-	private void updateContent(String pageLink) {
+	private void updateContent(Page page) {
 		VaadinClientToolkit.setWindow(VaadinWindow.this);
-		visiblePage = PageLink.createPage(pageLink);
+		visiblePage = page;
 		Component component = (Component) visiblePage.getContent();
 		updateContent(component);
 		VaadinClientToolkit.setWindow(null);
@@ -212,45 +196,31 @@ public class VaadinWindow extends Window {
 			super(columns, rows);
 		}
 	}
-
-	protected class UpAction extends ResourceAction {
-		@Override
-		public void action() {
-			up();
-		}
-	}
-
-	protected class DownAction extends ResourceAction {
-		@Override
-		public void action() {
-			down();
-		}
-	}
 	
 	protected void fillHelpMenu(ActionGroup actionGroup) {
 		// 
 	}
 	
-	public void show(List<String> pageLinks, int index) {
-		this.pageLinks = pageLinks;
-		this.indexInPageLinks = index;
-		show(pageLinks.get(indexInPageLinks));
+	public void show(List<Page> pages, int index) {
+		this.pages = pages;
+		this.indexInPages = index;
+		show(pages.get(indexInPages));
 	}
 	
 	public boolean top() {
-		return pageLinks == null ||indexInPageLinks == 0;
+		return pages == null ||indexInPages == 0;
 	}
 
 	public boolean bottom() {
-		return pageLinks == null || indexInPageLinks == pageLinks.size() - 1;
+		return pages == null || indexInPages == pages.size() - 1;
 	}
 
 	public void up() {
-		show(pageLinks.get(--indexInPageLinks));
+		show(pages.get(--indexInPages));
 	}
 
 	public void down() {
-		show(pageLinks.get(++indexInPageLinks));
+		show(pages.get(++indexInPages));
 	}
 	
 	protected void updateWindowTitle() {
@@ -265,34 +235,23 @@ public class VaadinWindow extends Window {
 		setCaption(title);
 	}
 	
-	private class VaadinWindowFragmentChangedListener implements FragmentChangedListener {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void fragmentChanged(FragmentChangedEvent source) {
-			String pageLink = source.getUriFragmentUtility().getFragment();
-			updateContent(pageLink);
-		}
-	}
-
 	public ApplicationContext getApplicationContext() {
 		return applicatonContext;
 	}
 	
-	private IAction[] wrapActions(IAction[] actions) {
-		IAction[] wrappedActions = new IAction[actions.length];
+	private Action[] wrapActions(Action[] actions) {
+		Action[] wrappedActions = new Action[actions.length];
 		for (int i = 0; i<actions.length; i++) {
 			wrappedActions[i] = new VaadinActionWrapper(actions[i]);
 		}
 		return wrappedActions;
 	}
 	
-	public class VaadinActionWrapper implements IAction {
+	public class VaadinActionWrapper extends Action {
 
-		private final IAction action;
+		private final Action action;
 
-		public VaadinActionWrapper(IAction action) {
+		public VaadinActionWrapper(Action action) {
 			this.action = action;
 		}
 

@@ -8,12 +8,13 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.page.TablePage;
+import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.transaction.criteria.Criteria;
 
 
 public class LendTablePage extends TablePage<Lend> {
 
-	private final String text;
+	private final Customer customer;
 	
 	public static final Object[] FIELDS = {
 		$.book.title, //
@@ -21,9 +22,9 @@ public class LendTablePage extends TablePage<Lend> {
 		$.till
 	};
 	
-	public LendTablePage(String text) {
-		super(FIELDS, text);
-		this.text = text;
+	public LendTablePage(Customer customer) {
+		super(FIELDS);
+		this.customer = customer;
 	}
 
 	@Override
@@ -32,15 +33,13 @@ public class LendTablePage extends TablePage<Lend> {
 	}
 
 	@Override
-	protected List<Lend> load(String query) {
-		Customer customer = Backend.getInstance().read(Customer.class, Long.valueOf(query));
+	protected List<Lend> load() {
 		return Backend.getInstance().read(Lend.class, Criteria.equals(Lend.$.customer, customer), 100);
 	}
 
 	@Override
-	protected void clicked(Lend selectedObject, List<Lend> selectedObjects) {
-		// TODO
-		// show(BookPage.class, selectedObject.book.);
+	public void action(Lend selectedObject, List<Lend> selectedObjects) {
+		ClientToolkit.getToolkit().show(new BookPage(selectedObject.book));
 	}
 	
 }

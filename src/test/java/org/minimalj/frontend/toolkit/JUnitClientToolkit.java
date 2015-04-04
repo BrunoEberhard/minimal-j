@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
+import org.minimalj.frontend.page.Page;
 
 public class JUnitClientToolkit extends ClientToolkit {
 
@@ -29,8 +29,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createLabel(IAction action) {
-		// TODO Auto-generated method stub
+	public IComponent createLabel(Action action) {
 		return null;
 	}
 
@@ -108,13 +107,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Object[] fields) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IComponent createLink(String text, String address) {
+	public <T> ITable<T> createTable(Object[] keys, org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener<T> links) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -153,7 +146,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 
 	@Override
 	public IDialog createDialog(String title,
-			IContent content, IAction... actions) {
+			IContent content, Action... actions) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -205,19 +198,19 @@ public class JUnitClientToolkit extends ClientToolkit {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
-	public void show(String pageLink) {
+	public void show(List<Page> pages, int startIndex) {
 		// TODO Auto-generated method stub
 	}
 
+	@Override
+	public void show(Page page) {
+		// TODO Auto-generated method stub
+	}
+	
 	@Override
 	public void refresh() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void show(List<String> pageLinks, int index) {
 		// TODO Auto-generated method stub
 	}
 

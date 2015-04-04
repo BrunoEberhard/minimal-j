@@ -7,18 +7,16 @@ import java.util.List;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.lanterna.component.LanternaForm;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ITable;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.TextField;
 
-import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
 
@@ -47,7 +45,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(String title, IContent content, IAction... actions) {
+	public IDialog createDialog(String title, IContent content, Action... actions) {
 		return new LanternaDialog(getGui(), content, title, actions);
 	}
 
@@ -67,14 +65,14 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IComponent createLabel(final IAction action) {
+	public IComponent createLabel(final Action action) {
 		LanternaActionAdapter lanternaAction = new LanternaActionAdapter(action);
 		LanternaActionLabel button = new LanternaActionLabel(action.getName(), lanternaAction);
 		return button;
 	}
 
 	private static class LanternaActionLabel extends Button implements IComponent {
-		public LanternaActionLabel(String name, Action action) {
+		public LanternaActionLabel(String name, com.googlecode.lanterna.gui.Action action) {
 			super(name, action);
 		}
 	}
@@ -84,11 +82,11 @@ public class LanternaClientToolkit extends ClientToolkit {
 	 * to the button constructor. And the minimal-j action needs the component for
 	 * the action method.
 	 */
-	private static class LanternaActionAdapter implements Action {
+	private static class LanternaActionAdapter implements com.googlecode.lanterna.gui.Action {
 		private final LanternaGUIScreen guiScreen;
-		private final IAction action;
+		private final Action action;
 		
-		public LanternaActionAdapter(IAction action) {
+		public LanternaActionAdapter(Action action) {
 			this.action = action;
 			this.guiScreen = getGui();
 		}
@@ -99,62 +97,12 @@ public class LanternaClientToolkit extends ClientToolkit {
 			setGui(null);
 		}
 	}
-
 	
 	@Override
 	public IComponent createLabel(String text) {
 		return new LanternaLabel(text);
 	}
 
-	@Override
-	public IComponent createLink(String text, String address) {
-		LanternaLinkAction action = new LanternaLinkAction(address);
-		LanternaLink link = new LanternaLink(text, address, action);
-		return link;
-	}
-	
-	public static class LanternaLink extends Button implements IComponent {
-		private final String address;
-		private LanternaLinkAction action;
-		
-		public LanternaLink(String text, String address, LanternaLinkAction action) {
-			super(text, action);
-			this.address = address;
-			this.action = action;
-		}
-
-		public String getAddress() {
-			return address;
-		}
-		
-		public void setListener(LanternaLinkListener listener) {
-			action.setListener(listener);
-		}
-	}
-
-	public class LanternaLinkAction implements Action, IComponent {
-		private final String address;
-		private LanternaLinkListener listener;
-		
-		public LanternaLinkAction(String address) {
-			this.address = address;
-		}
-
-		public void setListener(LanternaLinkListener listener) {
-			this.listener = listener;
-		}
-		
-		@Override
-		public void doAction() {
-			listener.action(address);
-		}
-	}
-
-	public static interface LanternaLinkListener {
-		public void action(String address);
-	}
-
-	
 	@Override
 	public TextField createReadOnlyTextField() {
 		return new LanternaReadOnlyTextField();
@@ -166,8 +114,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Object[] fields) {
-		return new LanternaTable<T>(fields);
+	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
+		return new LanternaTable<T>(keys, listener);
 	}
 
 	@Override
@@ -228,8 +176,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void show(String pageLink) {
-		getGui().show(pageLink);
+	public void show(Page page) {
+		getGui().show(page);
 	}
 
 	@Override
@@ -238,8 +186,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public void show(List<String> pageLinks, int index) {
-		getGui().show(pageLinks.get(index));
+	public void show(List<Page> pages, int startIndex) {
+		getGui().show(pages.get(startIndex));
 	}
 
 	@Override

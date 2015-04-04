@@ -2,12 +2,8 @@ package org.minimalj.frontend.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -16,12 +12,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
 import org.minimalj.frontend.swing.toolkit.ScrollablePanel;
-import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingLink;
 import org.minimalj.frontend.swing.toolkit.SwingFormAlignLayoutManager;
 import org.minimalj.frontend.swing.toolkit.SwingScrollPane;
 import org.minimalj.frontend.swing.toolkit.SwingSwitchContent;
@@ -39,12 +33,11 @@ public class SwingTab extends EditablePanel {
 	private final SwingMenuBar menuBar;
 	private final SwingSwitchContent switchContent;
 	
-	private final History<String> history;
+	private final History<Page> history;
 	private final SwingPageContextHistoryListener historyListener;
-	private final MouseListener mouseListener;
 
 	private Page page;
-	private List<String> pageLinks;
+	private List<Page> pages;
 	private int indexInPageLinks;
 
 	public SwingTab(SwingFrame frame) {
@@ -52,10 +45,8 @@ public class SwingTab extends EditablePanel {
 		this.frame = frame;
 
 		historyListener = new SwingPageContextHistoryListener();
-		history = new History<String>(historyListener);
+		history = new History<>(historyListener);
 
-		mouseListener = new SwingTabMouseListener();
-		
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
 		refreshAction = new RefreshAction();
@@ -140,8 +131,7 @@ public class SwingTab extends EditablePanel {
 	}
 	
 	public void refresh() {
-		getVisiblePage().refresh();
-		registerMouseListener((Component) getVisiblePage().getContent());
+		replace(getVisiblePage());
 	}
 
 	private class UpAction extends SwingResourceAction {
@@ -176,7 +166,7 @@ public class SwingTab extends EditablePanel {
 	private class SwingPageContextHistoryListener implements HistoryListener {
 		@Override
 		public void onHistoryChanged() {
-			page = PageLink.createPage(history.getPresent());
+			page = history.getPresent();
 			show(page);
 			SwingTab.this.onHistoryChanged();
 		}
@@ -189,47 +179,18 @@ public class SwingTab extends EditablePanel {
 				content = new SwingScrollPane(new ScrollablePanel(panel));
 			}
 			switchContent.show(content);
-			registerMouseListener((Component) content);
 		}
 	}
 	
-	private class SwingTabMouseListener extends MouseAdapter {
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			Object source = e.getSource();
-			if (source instanceof SwingLink) {
-				SwingLink link = (SwingLink) source;
-				show(link.getAddress());
-			}
-		}
-		
-	}
-	
-	private void registerMouseListener(Component component) {
-		if (component instanceof SwingLink) {
-			 ((SwingLink) component).setMouseListener(mouseListener);
-		}
-		if (component instanceof Container) {
-			for (Component c : ((Container) component).getComponents()) {
-				registerMouseListener(c);
-			}
-		}
+	public void add(Page page) {
+		history.add(page);
 	}
 
-	public void add(String pageLink) {
-		if (pageLink.equals(getPresent())) {
-			getVisiblePage().refresh();
-		} else {
-			history.add(pageLink);
-		}
+	public void replace(Page page) {
+		history.replace(page);
 	}
 
-	public void replace(String pageLink) {
-		history.replace(pageLink);
-	}
-
-	public String getPresent() {
+	public Page getPresent() {
 		return history.getPresent();
 	}
 
@@ -249,13 +210,13 @@ public class SwingTab extends EditablePanel {
 		history.previous();
 	}
 
-	public void show(final String pageLink) {
+	public void show(final Page page) {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						show(pageLink);
+						show(page);
 					};
 				});
 			} catch (InterruptedException e) {
@@ -264,33 +225,33 @@ public class SwingTab extends EditablePanel {
 				e.printStackTrace();
 			}
 		} else {
-			if (pageLinks != null && !pageLinks.contains(pageLink)) {
-				pageLinks = null;
+			if (pages != null && !pages.contains(page)) {
+				pages = null;
 			}
-			add(pageLink);
+			add(page);
 		}
 	}
 	
-	public void show(List<String> pageLinks, int index) {
-		this.pageLinks = pageLinks;
+	public void show(List<Page> pages, int index) {
+		this.pages = pages;
 		this.indexInPageLinks = index;
-		show(pageLinks.get(indexInPageLinks));
+		show(pages.get(indexInPageLinks));
 	}
 
 	public boolean top() {
-		return pageLinks == null || indexInPageLinks == 0;
+		return pages == null || indexInPageLinks == 0;
 	}
 
 	public boolean bottom() {
-		return pageLinks == null || indexInPageLinks == pageLinks.size() - 1;
+		return pages == null || indexInPageLinks == pages.size() - 1;
 	}
 
 	public void up() {
-		replace(pageLinks.get(--indexInPageLinks));
+		replace(pages.get(--indexInPageLinks));
 	}
 
 	public void down() {
-		replace(pageLinks.get(++indexInPageLinks));
+		replace(pages.get(++indexInPageLinks));
 	}
 
 	public boolean tryToClose() {

@@ -2,13 +2,13 @@ package org.minimalj.frontend.edit;
 
 import java.util.List;
 
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
+import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
-import org.minimalj.frontend.toolkit.ResourceAction;
 
-public abstract class SearchDialogAction<T> extends ResourceAction implements Search<T> {
+public abstract class SearchDialogAction<T> extends Action implements Search<T> {
 	private final Object[] keys;
 	private IDialog dialog;
 	

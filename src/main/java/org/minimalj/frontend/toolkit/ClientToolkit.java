@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.minimalj.application.ApplicationContext;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
+import org.minimalj.frontend.page.Page;
 
 /**
  * To provide a new kind of client you have to implement two things:
@@ -49,7 +49,7 @@ public abstract class ClientToolkit {
 	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
 
 	public abstract IComponent createLabel(String string);
-	public abstract IComponent createLabel(IAction action);
+	public abstract IComponent createLabel(Action action);
 	public abstract IComponent createTitle(String string);
 	public abstract TextField createReadOnlyTextField();
 	public abstract TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete, InputComponentListener changeListener);
@@ -57,8 +57,7 @@ public abstract class ClientToolkit {
 	public abstract FlowField createFlowField();
 	public abstract <T> ComboBox<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);
-	public abstract IComponent createLink(String text, String address);
-	
+
 	public interface InputComponentListener {
 	    void changed(IComponent source);
 	}
@@ -90,24 +89,45 @@ public abstract class ClientToolkit {
 	
 	public abstract SwitchContent createSwitchContent();
 
-	public abstract <T> ITable<T> createTable(Object[] fields);
+	public interface ITable<T> extends IContent {
+
+		public void setObjects(List<T> objects);
+		
+	}
+
+	public static interface TableActionListener<U> {
+
+		public default void action(U selectedObject, List<U> selectedObjects) {
+		}
+		
+		public default void delete(U selectedObject, List<U> selectedObjects) {
+		}
+ 
+		public default void insert() {
+		}
+
+		public default void function(int function, U selectedObject, List<U> selectedObjects) {
+		}
+	}
+	
+	public abstract <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener);
 	
 	//
 	
-	public abstract void show(String pageLink);
+	public abstract void show(Page page);
+
+	public abstract void show(List<Page> pages, int startIndex);
 
 	public abstract void refresh();
 
-	public abstract void show(List<String> pageLinks, int index);
-	
 	public abstract ApplicationContext getApplicationContext();
 	
 	//
 	
-	public abstract IDialog createDialog(String title, IContent content, IAction... actions);
+	public abstract IDialog createDialog(String title, IContent content, Action... actions);
 
 	public abstract <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener);
-	
+
 	public abstract void showMessage(String text);
 	
 	public abstract void showError(String text);

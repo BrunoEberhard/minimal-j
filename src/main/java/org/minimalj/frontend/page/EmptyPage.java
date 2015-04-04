@@ -2,7 +2,7 @@ package org.minimalj.frontend.page;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
-public class EmptyPage extends AbstractPage {
+public class EmptyPage implements Page {
 
 	public EmptyPage() {
 	}
@@ -10,11 +10,6 @@ public class EmptyPage extends AbstractPage {
 	@Override
 	public IContent getContent() {
 		return null;
-	}
-
-	@Override
-	public void refresh() {
-		// nothing to do
 	}
 
 }

@@ -7,7 +7,7 @@ import org.minimalj.example.erp.model.OfferArticle;
 import org.minimalj.frontend.edit.fields.ObjectFlowField;
 import org.minimalj.frontend.edit.fields.ReferenceField;
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.toolkit.ResourceAction;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.Keys;
 
 public class OfferArticleField extends ObjectFlowField<List<OfferArticle>> {
@@ -57,7 +57,7 @@ public class OfferArticleField extends ObjectFlowField<List<OfferArticle>> {
 	}
 
 
-	public class RemoveOfferArticlesAction extends ResourceAction {
+	public class RemoveOfferArticlesAction extends Action {
 
 		@Override
 		public void action() {

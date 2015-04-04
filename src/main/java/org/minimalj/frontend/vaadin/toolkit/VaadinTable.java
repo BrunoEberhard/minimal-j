@@ -5,7 +5,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ITable;
+import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
+import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.frontend.vaadin.PropertyVaadinContainer;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
@@ -24,13 +25,12 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
 	private final List<PropertyInterface> properties = new ArrayList<PropertyInterface>();
-	private TableActionListener<T> listener;
-	private VaadinTableItemClickListener tableClickListener;
+	private final TableActionListener<T> listener;
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
 
-	public VaadinTable(Object[] keys) {
+	public VaadinTable(Object[] keys, TableActionListener<T> listener) {
 		setSelectable(true);
 		setMultiSelect(false);
 		setSizeFull();
@@ -42,29 +42,18 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 			setColumnHeader(property, header);
 		}
 		
+		this.listener = listener;
+		if (listener != null) {
+			VaadinTableItemClickListener tableClickListener = new VaadinTableItemClickListener();
+			addListener(tableClickListener);
+		}
+		
 		addActionHandler(new VaadinTableActionHandler());
 	}
 	
 	@Override
 	public void setObjects(List<T> objects) {
 		setContainerDataSource(new PropertyVaadinContainer<T>(objects, properties));
-	}
-
-	@Override
-	public void setClickListener(TableActionListener<T> clickListener) {
-		if (clickListener == null) {
-			if (tableClickListener != null) {
-				removeListener(tableClickListener);
-				tableClickListener = null;
-			}
-		}
-		this.listener = clickListener;
-		if (clickListener != null) {
-			if (tableClickListener == null) {
-				tableClickListener = new VaadinTableItemClickListener();
-				addListener(tableClickListener);
-			}
-		}
 	}
 	
 	@Override
@@ -118,21 +107,6 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 			objects.add((T) itemId);
 		}
 		return objects;
-	}
-
-	@Override
-	public void setDeleteListener(TableActionListener<T> listener) {
-		// TODO Delete Action on Vaadin Table
-	}
-
-	@Override
-	public void setInsertListener(InsertListener listener) {
-		// TODO Insert Action on Vaadin Table
-	}
-
-	@Override
-	public void setFunctionListener(int function, TableActionListener<T> listener) {
-		// TODO Function Action on Vaadin Table
 	}
 	
 }

@@ -12,7 +12,6 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,7 +21,6 @@ import java.io.OutputStream;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.FocusManager;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -37,19 +35,19 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.ApplicationContext;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.swing.SwingFrame;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.swing.SwingTab;
+import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.IAction.ActionChangeListener;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ITable;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
@@ -72,14 +70,14 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IComponent createLabel(IAction action) {
+	public IComponent createLabel(Action action) {
 		return new SwingActionLabel(action);
 	}
 
 	private static class SwingActionLabel extends JLabel implements IComponent {
 		private static final long serialVersionUID = 1L;
 
-		public SwingActionLabel(final IAction action) {
+		public SwingActionLabel(final Action action) {
 			setText(action.getName());
 //			label.setToolTipText(Resources.getResourceBundle().getString(runnable.getClass().getSimpleName() + ".description"));
 			
@@ -217,8 +215,18 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Object[] fields) {
-		return new SwingTable<T>(fields);
+	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
+		return new SwingTable<T>(keys, listener);
+	}
+
+	@Override
+	public void show(Page page) {
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(page);
+	}
+
+	@Override
+	public void show(List<Page> pages, int startIndex) {
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(pages, startIndex);
 	}
 
 	public ProgressListener showProgress(String text) {
@@ -228,8 +236,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(String title, IContent content, IAction... actions) {
-		JComponent contentComponent = new SwingEditorLayout(content, actions);
+	public IDialog createDialog(String title, IContent content, Action... actions) {
+		JComponent contentComponent = new SwingEditorPanel(content, actions);
 		return createDialog(title, contentComponent);
 	}
 
@@ -334,6 +342,7 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	}
 
+	@Override
 	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
 		return createDialog(null, panel);
@@ -388,49 +397,17 @@ public class SwingClientToolkit extends ClientToolkit {
 		}
 		return false;
 	}
-
-	public IComponent createLink(String text, String address) {
-        return new SwingLink(text, address);
-	}
 	
-	public static class SwingLink extends JLabel implements IComponent {
-		private static final long serialVersionUID = 1L;
-		private final String address;
-		private MouseListener mouseListener;
-		
-		public SwingLink(String text, String address) {
-			super(text);
-			this.address = address;
-			setForeground(Color.BLUE);
-			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					mouseListener.mouseClicked(e);
-				}
-			});
-		}
-
-		public String getAddress() {
-			return address;
-		}
-
-		public void setMouseListener(MouseListener mouseListener) {
-			this.mouseListener = mouseListener;
-		}
-	}
-
-	public static Action[] adaptActions(IAction[] actions) {
-		Action[] swingActions = new Action[actions.length];
+	public static javax.swing.Action[] adaptActions(Action[] actions) {
+		javax.swing.Action[] swingActions = new javax.swing.Action[actions.length];
 		for (int i = 0; i<actions.length; i++) {
 			swingActions[i] = adaptAction(actions[i]);
 		}
 		return swingActions;
 	}
 
-	public static Action adaptAction(final IAction action) {
-		final Action swingAction = new AbstractAction(action.getName()) {
+	public static javax.swing.Action adaptAction(final Action action) {
+		final javax.swing.Action swingAction = new AbstractAction(action.getName()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -441,7 +418,7 @@ public class SwingClientToolkit extends ClientToolkit {
 				action.action();
 			}
 		};
-		swingAction.putValue(Action.SHORT_DESCRIPTION, action.getDescription());
+		swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());
 		action.setChangeListener(new ActionChangeListener() {
 			{
 				update();
@@ -458,17 +435,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		});
 		return swingAction;
 	}
-
-	@Override
-	public void show(String pageLink) {
-		getTab().show(pageLink);
-	}
-
-	@Override
-	public void show(List<String> pageLinks, int index) {
-		getTab().show(pageLinks, index);
-	}
-
+	
 	@Override
 	public void refresh() {
 		getTab().refresh();

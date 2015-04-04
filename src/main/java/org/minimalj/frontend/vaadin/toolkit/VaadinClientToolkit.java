@@ -8,15 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.minimalj.application.ApplicationContext;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.IAction;
 import org.minimalj.frontend.toolkit.IDialog;
-import org.minimalj.frontend.toolkit.ITable;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.vaadin.VaadinWindow;
@@ -51,7 +50,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IComponent createLabel(IAction action) {
+	public IComponent createLabel(Action action) {
 		return new VaadinActionLabel(action);
 	}
 
@@ -59,7 +58,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 		private static final long serialVersionUID = 1L;
 
-		public VaadinActionLabel(final IAction action) {
+		public VaadinActionLabel(final Action action) {
 			super(action.getName());
 //			button.setDescription((String) action.getValue(Action.LONG_DESCRIPTION));
 			setStyleName(BaseTheme.BUTTON_LINK);
@@ -180,12 +179,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Object[] fields) {
-		return new VaadinTable<T>(fields);
+	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
+		return new VaadinTable<T>(keys, listener);
 	}
 	
 	@Override
-	public IDialog createDialog(String title, IContent content, IAction... actions) {
+	public IDialog createDialog(String title, IContent content, Action... actions) {
 		Component component = new VaadinEditorLayout(content, actions);
 		component.setSizeFull();
 
@@ -208,7 +207,6 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return progressDialog;
 	}
 	
-	@Override
 	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(index, keys, listener);
 		return createDialog(null, panel);
@@ -343,9 +341,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void show(String pageLink) {
+	public void show(Page page) {
 		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
-		window.show(pageLink);
+		window.show(page);
 	}
 
 	@Override
@@ -356,9 +354,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 
 	
 	@Override
-	public void show(List<String> pageLinks, int index) {
+	public void show(List<Page> pages, int index) {
 		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
-		window.show(pageLinks, index);
+		window.show(pages, index);
 	}
 
 	@Override

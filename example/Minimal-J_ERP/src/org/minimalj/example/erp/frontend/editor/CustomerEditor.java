@@ -6,7 +6,7 @@ import org.minimalj.example.erp.frontend.page.CustomerPage;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.page.PageLink;
+import org.minimalj.frontend.page.Page;
 
 public class CustomerEditor extends Editor<Customer> {
 
@@ -18,7 +18,7 @@ public class CustomerEditor extends Editor<Customer> {
 	
 	@Override
 	protected Customer load() {
-		return customer;
+		return Backend.getInstance().read(Customer.class, customer.id);
 	}
 
 	@Override
@@ -27,9 +27,9 @@ public class CustomerEditor extends Editor<Customer> {
 	}
 
 	@Override
-	protected String save(Customer customer) throws Exception {
-		Backend.getInstance().update(customer);
-		return PageLink.link(CustomerPage.class, customer.id.toString());
+	protected Page save(Customer customer) throws Exception {
+		Customer savedCustomer = Backend.getInstance().update(customer);
+		return new CustomerPage(savedCustomer);
 	}
 
 }

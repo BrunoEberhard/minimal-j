@@ -6,7 +6,7 @@ import org.minimalj.example.erp.frontend.page.ArticlePage;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.page.PageLink;
+import org.minimalj.frontend.page.Page;
 
 public class AddArticleEditor extends Editor<Article> {
 
@@ -16,9 +16,9 @@ public class AddArticleEditor extends Editor<Article> {
 	}
 
 	@Override
-	protected String save(Article article) throws Exception {
-		Object id = Backend.getInstance().insert(article);
-		return PageLink.link(ArticlePage.class, id.toString());
+	protected Page save(Article article) throws Exception {
+		Article savedArticle = Backend.getInstance().insert(article);
+		return new ArticlePage(savedArticle);
 	}
 
 }

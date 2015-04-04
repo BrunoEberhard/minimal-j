@@ -16,7 +16,6 @@ import javax.swing.JFrame;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.swing.component.HideableTabbedPane;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.util.StringUtils;
@@ -82,7 +81,7 @@ public class SwingFrame extends JFrame implements IComponent {
 		tabbedPane.addTab("", tab);
 		tabbedPane.setSelectedComponent(tab);
 
-		tab.show(PageLink.DEFAULT);
+		tab.show(Application.getApplication().createDefaultPage());
 
 		return tab;
 	}

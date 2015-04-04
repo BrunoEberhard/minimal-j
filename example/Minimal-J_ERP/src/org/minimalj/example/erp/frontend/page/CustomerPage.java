@@ -1,6 +1,5 @@
 package org.minimalj.example.erp.frontend.page;
 
-import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.editor.AddOfferEditor;
 import org.minimalj.example.erp.frontend.editor.CustomerEditor;
 import org.minimalj.example.erp.frontend.form.CustomerForm;
@@ -8,21 +7,13 @@ import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.page.PageLink;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ResourceAction;
+import org.minimalj.frontend.toolkit.Action;
 
 public class CustomerPage extends ObjectPage<Customer> {
 
-	private final String customerId;
-
-	public CustomerPage(String customerId) {
-		this.customerId = customerId;
-	}
-	
-	@Override
-	protected Customer loadObject() {
-		return Backend.getInstance().read(Customer.class, customerId);
+	public CustomerPage(Customer customer) {
+		super(customer);
 	}
 	
 	@Override
@@ -40,7 +31,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 		return new CustomerForm(false);
 	}
 
-	private static class ShowOffersAction extends ResourceAction {
+	private static class ShowOffersAction extends Action {
 
 		private final Customer customer;
 		
@@ -50,7 +41,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 
 		@Override
 		public void action() {
-			ClientToolkit.getToolkit().show(PageLink.link(OfferTablePage.class, customer.id.toString()));
+			ClientToolkit.getToolkit().show(new OfferTablePage(customer));
 		}
 		
 	}

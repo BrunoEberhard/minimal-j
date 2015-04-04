@@ -11,20 +11,16 @@ import org.minimalj.frontend.page.TablePage;
 public class CurrencyTablePage extends TablePage<Currency> {
 	
 	public CurrencyTablePage() {
-		super(new Object[]{Currency.$.name, Currency.$.value, Currency.$.date}, null);
+		super(new Object[]{Currency.$.name, Currency.$.value, Currency.$.date});
 	}
 
 	@Override
-	protected List<Currency> load(String query) {
+	protected List<Currency> load() {
 		Currency c = new Currency();
 		c.name = "EUR";
 		c.value = new BigDecimal("0.834");
 		c.date = LocalDate.now();
 		return Collections.singletonList(c);
 	}
-
-	@Override
-	protected void clicked(Currency selectedObject, List<Currency> selectedObjects) {
-	}		
 
 }

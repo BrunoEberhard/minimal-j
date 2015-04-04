@@ -6,7 +6,7 @@ import org.minimalj.example.library.frontend.page.CustomerPage;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.form.Form;
-import org.minimalj.frontend.page.PageLink;
+import org.minimalj.frontend.page.Page;
 
 public class AddCustomerEditor extends Editor<Customer> {
 
@@ -16,9 +16,9 @@ public class AddCustomerEditor extends Editor<Customer> {
 	}
 	
 	@Override
-	public String save(Customer customer) throws Exception {
-		Object id = Backend.getInstance().insert(customer);
-		return PageLink.link(CustomerPage.class, id.toString());
+	protected Page save(Customer customer) throws Exception {
+		Customer savedCustomer = Backend.getInstance().insert(customer);
+		return new CustomerPage(savedCustomer);
 	}
 
 	@Override

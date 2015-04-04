@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
+import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 
 public class SwingSearchPanel<T> extends JPanel implements IContent {
 	private static final long serialVersionUID = 1L;
@@ -27,7 +27,7 @@ public class SwingSearchPanel<T> extends JPanel implements IContent {
 		
 		text = new JTextField();
 		searchButton = new SwingHeavyActionButton("Search");
-		table = new SwingTable<T>(keys);
+		table = new SwingTable<T>(keys, listener);
 
 		JPanel northPanel = new JPanel(new BorderLayout());
 		northPanel.add(text, BorderLayout.CENTER);
@@ -50,8 +50,6 @@ public class SwingSearchPanel<T> extends JPanel implements IContent {
 				table.setObjects(objects);
 			}
 		});
-		
-		table.setClickListener(listener);
 	}
 
 	private static Component border(Component component, int top, int left, int bottom, int right) {

@@ -2,9 +2,10 @@ package org.minimalj.frontend.edit.fields;
 
 import org.minimalj.frontend.edit.Editor;
 import org.minimalj.frontend.edit.EditorAction;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageAction;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.ResourceAction;
 import org.minimalj.model.properties.PropertyInterface;
 
 /**
@@ -69,7 +70,7 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 	}
 	
 	// why public
-	public class RemoveObjectAction extends ResourceAction {
+	public class RemoveObjectAction extends Action {
 		@Override
 		public void action() {
 			ObjectFlowField.this.setObject(null);
@@ -92,14 +93,18 @@ public abstract class ObjectFlowField<T> extends ObjectField<T> {
 		flowField.addGap();
 	}
 	
-	protected void addAction(IAction action) {
+	protected void addAction(Action action) {
 		flowField.add(ClientToolkit.getToolkit().createLabel(action));
 	}
 
-	protected void addLink(String text, String address) {
-		flowField.add(ClientToolkit.getToolkit().createLink(text, address));
+	protected void addAction(Page page) {
+		addAction(new PageAction(page));
 	}
-	
+
+	protected void addAction(Page page, String actionName) {
+		addAction(new PageAction(page, actionName));
+	}
+
 	protected void addAction(Editor<?> editor) {
 		addAction(new EditorAction(editor));
 	}

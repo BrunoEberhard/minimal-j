@@ -11,16 +11,16 @@ public class NoteTablePage extends TablePage<Note> {
 	private static final Object[] columns = new Object[]{Note.$.date, Note.$.text};
 	
 	public NoteTablePage() {
-		super(columns, null);
+		super(columns);
 	}
 
 	@Override
-	protected List<Note> load(String query) {
+	protected List<Note> load() {
 		return Backend.getInstance().read(Note.class, Criteria.all(), Integer.MAX_VALUE);
 	}
 
 	@Override
-	protected void clicked(Note selectedObject, List<Note> selectedObjects) {
+	public void action(Note selectedObject, List<Note> selectedObjects) {
 		// ignored, could open the note for editing
 	}
 

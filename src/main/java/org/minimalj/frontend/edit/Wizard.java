@@ -4,12 +4,11 @@ import java.util.List;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.ResourceActionEnabled;
 import org.minimalj.model.validation.ValidationMessage;
 
 public abstract class Wizard<T> extends Editor<T> {
@@ -17,15 +16,13 @@ public abstract class Wizard<T> extends Editor<T> {
 	private WizardStep<?> currentStep;
 	private int currentStepIndex = 0;
 	
-	protected final PreviousWizardStepAction prevAction;
-	protected final NextWizardStepAction nextAction;
+	protected PreviousWizardStepAction prevAction;
+	protected NextWizardStepAction nextAction;
 	private SwitchContent wizardContent;
 	private final Indicator indicator;
 	private final EditorListener stepFinishedListener;
 	
 	protected Wizard() {
-		nextAction = new NextWizardStepAction();
-		prevAction = new PreviousWizardStepAction();
 		indicator = new WizardIndicator();
 		stepFinishedListener = new WizardStepFinishedListener();
 	}
@@ -33,11 +30,11 @@ public abstract class Wizard<T> extends Editor<T> {
 	protected abstract WizardStep<?> getFirstStep();
 	
 	@Override
-	public IAction[] getActions() {
+	public Action[] getActions() {
 		if (DevMode.isActive()) {
-			return new IAction[]{demoAction, cancelAction, prevAction, nextAction, saveAction};
+			return new Action[]{demoAction, cancelAction, prevAction, nextAction, saveAction};
 		} else {
-			return new IAction[]{cancelAction, prevAction, nextAction, saveAction};
+			return new Action[]{cancelAction, prevAction, nextAction, saveAction};
 		}
 	}
 
@@ -48,18 +45,18 @@ public abstract class Wizard<T> extends Editor<T> {
 		currentStep.save();
 	}
 
-	protected int getCurrentStepIndex() {
+	public int getCurrentStepIndex() {
 		return currentStepIndex;
 	}
 	
-	private class NextWizardStepAction extends ResourceActionEnabled {
+	private class NextWizardStepAction extends Action {
 		@Override
 		public void action() {
 			currentStep.save();
 		}
 	}
 
-	private class PreviousWizardStepAction extends ResourceActionEnabled {
+	private class PreviousWizardStepAction extends Action {
 		@Override
 		public void action() {
 			currentStep.cancel();
@@ -74,8 +71,14 @@ public abstract class Wizard<T> extends Editor<T> {
 	@Override
 	public void startEditor() {
 		super.startEditor();
+		initActions();
 		wizardContent = ClientToolkit.getToolkit().createSwitchContent();
 		setCurrentStep(getFirstStep());
+	}
+	
+	private void initActions() {
+		prevAction = new PreviousWizardStepAction();
+		nextAction = new NextWizardStepAction();
 	}
 
 	@Override

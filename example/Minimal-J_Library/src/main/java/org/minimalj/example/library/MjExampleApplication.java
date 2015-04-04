@@ -7,13 +7,14 @@ import org.minimalj.application.Application;
 import org.minimalj.example.library.frontend.editor.AddBookEditor;
 import org.minimalj.example.library.frontend.editor.AddCustomerEditor;
 import org.minimalj.example.library.frontend.editor.AddLendEditor;
-import org.minimalj.example.library.frontend.page.BookTablePage;
-import org.minimalj.example.library.frontend.page.CustomerTablePage;
+import org.minimalj.example.library.frontend.page.BookSearchPage;
+import org.minimalj.example.library.frontend.page.CustomerSearchPage;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.edit.EditorAction;
-import org.minimalj.frontend.toolkit.IAction;
+import org.minimalj.frontend.page.SearchPage;
+import org.minimalj.frontend.toolkit.Action;
 
 public class MjExampleApplication extends Application {
 
@@ -21,8 +22,8 @@ public class MjExampleApplication extends Application {
 	}
 
 	@Override
-	public List<IAction> getActionsNew() {
-		List<IAction> items = new ArrayList<>();
+	public List<Action> getActionsNew() {
+		List<Action> items = new ArrayList<>();
 		items.add(new EditorAction(new AddBookEditor()));
 		items.add(new EditorAction(new AddCustomerEditor()));
 		items.add(new EditorAction(new AddLendEditor()));
@@ -30,8 +31,8 @@ public class MjExampleApplication extends Application {
 	}
 
 	@Override
-	public Class<?>[] getSearchClasses() {
-		return new Class<?>[]{BookTablePage.class, CustomerTablePage.class};
+	public SearchPage[] getSearchPages() {
+		return new SearchPage[]{new BookSearchPage(), new CustomerSearchPage()};
 	}
 
 	@Override

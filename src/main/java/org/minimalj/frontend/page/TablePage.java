@@ -1,14 +1,11 @@
 package org.minimalj.frontend.page;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.page.type.SearchOf;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ITable;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
-import org.minimalj.util.IdUtils;
+import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
+import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 
 
 /**
@@ -16,58 +13,25 @@ import org.minimalj.util.IdUtils;
  *
  * @param <T> Class of objects in this overview
  */
-public abstract class TablePage<T> extends AbstractPage implements SearchOf<T> {
+public abstract class TablePage<T> implements Page, TableActionListener<T> {
 
-	private String text;
-	private ITable<T> table;
-	private List<T> objects;
+	private final Object[] keys;
+	private transient ITable<T> table;
 	
-	public TablePage(Object[] keys, String text) {
-		this.text = text;
-		table = ClientToolkit.getToolkit().createTable(keys);
-		table.setClickListener(new TableClickListener());
-		refresh();
+	public TablePage(Object[] keys) {
+		this.keys = keys;
 	}
 
-	protected ITable<T> getTable() {
-		return table;
-	}
-	
-	protected abstract List<T> load(String query);
-
-	protected abstract void clicked(T selectedObject, List<T> selectedObjects);
-
-	/**
-	 * not only shows the selected object but provides the pageContext a list of links.
-	 * The user can sroll up/down through all (not only the selected) rows of the table
-	 */
-	protected void showDetail(Class<? extends Page> detailPageClass, T selectedObject) {
-		List<String> links = new ArrayList<>(objects.size());
-		for (Object object : objects) {
-			String id = IdUtils.getId(object).toString();
-			links.add(PageLink.link(detailPageClass, id));
-		}
-		int index = objects.indexOf(selectedObject);
-		ClientToolkit.getToolkit().show(links, index);
-	}
-	
-	@Override
-	public void refresh() {
-		objects = load(text);
-		table.setObjects(objects);
-	}
+	protected abstract List<T> load();
 
 	@Override
 	public IContent getContent() {
-		return table;
-	}
-	
-	private class TableClickListener implements TableActionListener<T> {
-
-		@Override
-		public void action(T selectedObject, List<T> selectedObjects) {
-			clicked(selectedObject, selectedObjects);
+		if (table == null) {
+			table = ClientToolkit.getToolkit().createTable(keys, this);
 		}
+		List<T> objects = load();
+		table.setObjects(objects);
+		return table;
 	}
 	
 }

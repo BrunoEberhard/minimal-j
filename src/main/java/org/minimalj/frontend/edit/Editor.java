@@ -6,13 +6,11 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.IAction;
-import org.minimalj.frontend.toolkit.ResourceAction;
-import org.minimalj.frontend.toolkit.ResourceActionEnabled;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
@@ -42,9 +40,9 @@ public abstract class Editor<T> {
 	
 	private T original, editedObject;
 	private Form<T> form;
-	protected final SaveAction saveAction = new SaveAction();
-	protected final CancelAction cancelAction = new CancelAction();
-	protected final FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
+	protected SaveAction saveAction;
+	protected CancelAction cancelAction;
+	protected FillWithDemoDataAction demoAction;
 	private EditorListener editorListener;
 	private Indicator indicator;
 	private boolean userEdited;
@@ -86,11 +84,11 @@ public abstract class Editor<T> {
 		return Resources.getString(clazz);
 	}
 
-	public IAction[] getActions() {
+	public Action[] getActions() {
 		if (DevMode.isActive()) {
-			return new IAction[] { demoAction, cancelAction, saveAction };
+			return new Action[] { demoAction, cancelAction, saveAction };
 		} else {
-			return new IAction[] { cancelAction, saveAction };
+			return new Action[] { cancelAction, saveAction };
 		}
 	}
 
@@ -104,6 +102,8 @@ public abstract class Editor<T> {
 			throw new IllegalStateException();
 		}
 		
+		initActions();
+		
 		original = load();
 		editedObject = createEditedObject(original);
 		
@@ -114,6 +114,12 @@ public abstract class Editor<T> {
 		}
 
 		userEdited = false;
+	}
+	
+	private void initActions() {
+		saveAction = new SaveAction();
+		cancelAction = new CancelAction();
+		demoAction = new FillWithDemoDataAction();
 	}
 	
 	public IContent getContent() {
@@ -269,7 +275,7 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	protected final class SaveAction extends ResourceActionEnabled implements Indicator {
+	protected final class SaveAction extends Action implements Indicator {
 		private String description;
 		
 		@Override
@@ -302,14 +308,14 @@ public abstract class Editor<T> {
 		}
 	}
 	
-	private class CancelAction extends ResourceAction {
+	private class CancelAction extends Action {
 		@Override
 		public void action() {
 			cancel();
 		}
 	}
 	
-	private class FillWithDemoDataAction extends ResourceAction {
+	private class FillWithDemoDataAction extends Action {
 		public void action() {
 			fillWithDemoData();
 		}

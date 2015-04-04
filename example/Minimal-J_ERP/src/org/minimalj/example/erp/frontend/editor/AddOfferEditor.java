@@ -11,14 +11,10 @@ import org.minimalj.model.ViewUtil;
 
 public class AddOfferEditor extends Editor<Offer> {
 
-	private Customer startWithCustomer;
-	
-	public AddOfferEditor() {
-		// empty
-	}
+	private final Customer customer;
 	
 	public AddOfferEditor(Customer customer) {
-		this.startWithCustomer = customer;
+		this.customer = customer;
 	}
 	
 	@Override
@@ -28,6 +24,8 @@ public class AddOfferEditor extends Editor<Offer> {
 	
 	@Override
 	protected Offer newInstance() {
+		Customer startWithCustomer = customer;
+
 		Offer offer = new Offer();
 		if (startWithCustomer != null) {
 			offer.customer = ViewUtil.view(startWithCustomer, new CustomerView());

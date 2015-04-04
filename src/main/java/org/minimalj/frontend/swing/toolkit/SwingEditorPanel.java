@@ -23,18 +23,17 @@ import javax.swing.plaf.ComponentInputMapUIResource;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.IAction;
 
-public class SwingEditorLayout extends JPanel implements IComponent {
+public class SwingEditorPanel extends JPanel implements IComponent {
 	private static final long serialVersionUID = 1L;
-
-	public SwingEditorLayout(IContent content, IAction[] actions) {
+	
+	public SwingEditorPanel(IContent content, org.minimalj.frontend.toolkit.Action[] actions) {
 		super(new BorderLayout());
 		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel((Component) content));
 		scrollPane.setBorder(new TopBottomBorder(scrollPane.getBorder()));
 		add(scrollPane, BorderLayout.CENTER);
+		
 		ButtonBar buttonBar = new ButtonBar(SwingClientToolkit.adaptActions(actions));
-		buttonBar.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 2)); // unknown: why the need for additional 2 pixel?
 		add(buttonBar, BorderLayout.SOUTH);
 	}
 	
@@ -63,60 +62,49 @@ public class SwingEditorLayout extends JPanel implements IComponent {
 		}
 		
 	}
+	
+	public static JButton createButton(Action action) {
+		JButton button = new SwingHeavyActionButton(action);
+		installAccelerator(action, button);
+		installAdditionalActionListener(action, button);
+		return button;
+	}
 
+	private static void installAdditionalActionListener(Action action, final JButton button) {
+		action.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if ("foreground".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Color)) {
+					button.setForeground((Color) evt.getNewValue());
+				}
+			}
+		});
+	}
+
+	private static void installAccelerator(Action action, final JButton button) {
+		if (action.getValue(Action.ACCELERATOR_KEY) instanceof KeyStroke) {
+			KeyStroke keyStroke = (KeyStroke)action.getValue(Action.ACCELERATOR_KEY);
+			InputMap windowInputMap = SwingUtilities.getUIInputMap(button, JComponent.WHEN_IN_FOCUSED_WINDOW);
+			if (windowInputMap == null) {
+				windowInputMap = new ComponentInputMapUIResource(button);
+				SwingUtilities.replaceUIInputMap(button, JComponent.WHEN_IN_FOCUSED_WINDOW, windowInputMap);
+			}
+			windowInputMap.put(keyStroke, keyStroke.toString());
+			button.getActionMap().put(keyStroke.toString(), action);
+		}
+	}
 	
 	private static class ButtonBar extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		public ButtonBar(Action... actions) {
 			super(new FlowLayout(FlowLayout.RIGHT, 5, 0)); // align, hgap, vgap
-			addButtons(actions);
-		}
-		
-		private void addButtons(Action... actions) {
+			setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 2)); // unknown: why the need for additional 2 pixel?
+
 			for (Action action: actions) {
-				addActionButton(action);
+				add(new JButton(action));
 			}
 		}
-
-		private void addActionButton(Action action) {
-			JButton button = createButton(action);
-			add(button);
-		}
-
-		public static JButton createButton(Action action) {
-			JButton button = new SwingHeavyActionButton(action);
-			installAccelerator(action, button);
-			installAdditionalActionListener(action, button);
-			return button;
-		}
-
-		private static void installAdditionalActionListener(Action action, final JButton button) {
-			action.addPropertyChangeListener(new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					if ("visible".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Boolean)) {
-						button.setVisible((Boolean) evt.getNewValue());
-					} else if ("foreground".equals(evt.getPropertyName()) && (evt.getNewValue() instanceof Color)) {
-						button.setForeground((Color) evt.getNewValue());
-					}
-				}
-			});
-		}
-
-		private static void installAccelerator(Action action, final JButton button) {
-			if (action.getValue(Action.ACCELERATOR_KEY) instanceof KeyStroke) {
-				KeyStroke keyStroke = (KeyStroke)action.getValue(Action.ACCELERATOR_KEY);
-				InputMap windowInputMap = SwingUtilities.getUIInputMap(button, JComponent.WHEN_IN_FOCUSED_WINDOW);
-				if (windowInputMap == null) {
-					windowInputMap = new ComponentInputMapUIResource(button);
-					SwingUtilities.replaceUIInputMap(button, JComponent.WHEN_IN_FOCUSED_WINDOW, windowInputMap);
-				}
-				windowInputMap.put(keyStroke, keyStroke.toString());
-				button.getActionMap().put(keyStroke.toString(), action);
-			}
-		}
-		
 	}
 
 }

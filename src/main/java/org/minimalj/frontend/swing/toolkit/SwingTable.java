@@ -26,7 +26,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.minimalj.frontend.toolkit.ITable;
+import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
+import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
@@ -41,10 +42,12 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private final List<PropertyInterface> properties;
 	private final JTable table;
 	private final ItemTableModel tableModel;
-	private TableActionListener<T> listener;
+	private final TableActionListener<T> listener;
 	
-	public SwingTable(Object[] keys) {
+	public SwingTable(Object[] keys, TableActionListener<T> listener) {
 		this.keys = keys;
+		this.listener = listener;
+		
 		this.properties = convert(keys);
 		
 		tableModel = new ItemTableModel();
@@ -66,6 +69,9 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		bindRowHeightToFont();
 
 		table.addMouseListener(new SwingTableMouseListener());
+		bindInsertKey();
+		bindDeleteKey();
+		bindFunctionKeys();
 	}
 
 	private List<PropertyInterface> convert(Object[] keys) {
@@ -116,11 +122,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 		return selectedIds;
 	}
-	
-	@Override
-	public void setClickListener(TableActionListener<T> listener) {
-		this.listener = listener;
-	}
 
 	private class SwingTableMouseListener extends MouseAdapter {
 		
@@ -137,57 +138,45 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 
-	@Override
-	public void setInsertListener(final InsertListener listener) {
-		if (listener != null) {
-			Action action = new AbstractAction() {
-				private static final long serialVersionUID = 1L;
+	private void bindInsertKey() {
+		Action action = new AbstractAction() {
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					SwingClientToolkit.updateEventTab((Component) e.getSource());
-					listener.action();
-				}
-			};
-			bindKey(KeyEvent.VK_INSERT, action);
-		} else {
-			unbindKey(KeyEvent.VK_INSERT);
-		}
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SwingClientToolkit.updateEventTab((Component) e.getSource());
+				listener.insert();
+			}
+		};
+		bindKey(KeyEvent.VK_INSERT, action);
 	}
 
-	@Override
-	public void setDeleteListener(final TableActionListener<T> listener) {
-		if (listener != null) {
-			Action action = new AbstractAction() {
-				private static final long serialVersionUID = 1L;
+	private void bindDeleteKey() {
+		Action action = new AbstractAction() {
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					SwingClientToolkit.updateEventTab((Component) e.getSource());
-					listener.action(getSelectedObject(), getSelectedObjects());
-				}
-			};
-			bindKey(KeyEvent.VK_DELETE, action);
-		} else {
-			unbindKey(KeyEvent.VK_DELETE);
-		}
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SwingClientToolkit.updateEventTab((Component) e.getSource());
+				listener.delete(getSelectedObject(), getSelectedObjects());
+			}
+		};
+		bindKey(KeyEvent.VK_DELETE, action);
 	}
 
-	@Override
-	public void setFunctionListener(final int function, final TableActionListener<T> listener) {
-		if (listener != null) {
+	private void bindFunctionKeys() {
+		for (int i = 0; i<12; i++) {
+			final int function = i;
 			Action action = new AbstractAction() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					SwingClientToolkit.updateEventTab((Component) e.getSource());
-					listener.action(getSelectedObject(), getSelectedObjects());
+					listener.function(function, getSelectedObject(), getSelectedObjects());
 				}
 			};
 			bindKey(KeyEvent.VK_F1+function, action);
-		} else {
-			unbindKey(KeyEvent.VK_F1+function);
 		}
 	}
 	
@@ -196,11 +185,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keyEvent, 0), keyEvent);
 	}
 
-	private void unbindKey(int keyEvent) {
-		getActionMap().remove(keyEvent);
-		getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).remove(KeyStroke.getKeyStroke(keyEvent, 0));
-	}
-	
 	public class ItemTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
@@ -254,26 +238,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
 			return properties.get(columnIndex).getClazz();
-		}
-	}
-	
-	private class BooleanTableCellRenderer extends DefaultTableCellRenderer {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			
-			if ("1".equals(value)) {
-				value = "ja";
-			} else {
-				value = "nein";
-			}
-			
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
-					row, column);
 		}
 	}
 	

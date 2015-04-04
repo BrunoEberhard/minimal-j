@@ -15,18 +15,14 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageLink;
-import org.minimalj.frontend.page.type.SearchOf;
+import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.util.GenericUtils;
-import org.minimalj.util.resources.Resources;
 
 public class SwingToolBar extends JToolBar implements IComponent {
 	private static final long serialVersionUID = 1L;
 	
 	private final SwingTab tab;
-	private JComboBox<Class<?>> comboBoxSearchObject;
+	private JComboBox<SearchPage> comboBoxSearchObject;
 	private JTextField textFieldSearch;
 	private SearchAction searchAction;
 
@@ -61,8 +57,8 @@ public class SwingToolBar extends JToolBar implements IComponent {
 	}
 	
 	protected void fillToolBarSearch() {
-		Class<?>[] searchClasses = Application.getApplication().getSearchClasses();
-		if (searchClasses != null && searchClasses.length > 0) {
+		SearchPage[] searchPages = Application.getApplication().getSearchPages();
+		if (searchPages != null && searchPages.length > 0) {
 			add(createSearchField());
 		}
 	}
@@ -71,7 +67,8 @@ public class SwingToolBar extends JToolBar implements IComponent {
 		FlowLayout flowLayout = new FlowLayout(FlowLayout.TRAILING);
 		flowLayout.setAlignOnBaseline(true);
 		JPanel panel = new JPanel(flowLayout);
-		comboBoxSearchObject = new JComboBox<>(Application.getApplication().getSearchClasses());
+		SearchPage[] searchPages = Application.getApplication().getSearchPages();
+		comboBoxSearchObject = new JComboBox<SearchPage>(searchPages);
 		comboBoxSearchObject.setRenderer(new SearchCellRenderer());
 		panel.add(comboBoxSearchObject);
 		textFieldSearch = new JTextField();
@@ -94,10 +91,8 @@ public class SwingToolBar extends JToolBar implements IComponent {
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			Class<?> searchClass = (Class<?>) value;
-			Class<?> searchedClass = GenericUtils.getTypeArgument(searchClass, SearchOf.class);
-			value = Resources.getString(searchedClass);
-			return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			SearchPage searchPage = (SearchPage) value;
+			return super.getListCellRendererComponent(list, searchPage.getName(), index, isSelected, cellHasFocus);
 		}
 	}
 	
@@ -106,14 +101,11 @@ public class SwingToolBar extends JToolBar implements IComponent {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Class<? extends Page> searchObject = (Class<? extends Page>) comboBoxSearchObject.getSelectedItem();
-			String text = textFieldSearch.getText();
-			search(searchObject, text);
+			SearchPage searchPage = (SearchPage) comboBoxSearchObject.getSelectedItem();
+			String query = textFieldSearch.getText();
+			searchPage.setQuery(query);
+			tab.show(searchPage);
 		}
-	}
-	
-	public void search(Class<? extends Page> searchClass, String text) {
-		tab.show(PageLink.link(searchClass, text));
 	}
 	
 	void onHistoryChanged() {

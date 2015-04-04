@@ -6,35 +6,13 @@ import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ITable;
-import org.minimalj.frontend.toolkit.ITable.TableActionListener;
+import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
-public abstract class HistoryPage<T> extends AbstractPage {
+public abstract class HistoryPage<T> implements Page {
 
-	private List<HistoryVersion<T>> versions;
-	private ITable<HistoryVersion<T>> table;
-	
 	public HistoryPage() {
-		table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description});
-		table.setClickListener(new TableActionListener<HistoryVersion<T>>() {
-			@Override
-			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selectedObjects) {
-				List<String> pageLinks = new ArrayList<String>(versions.size());
-				int selectedIndex = 0;
-				int count = 0;
-				for (HistoryVersion<T> version : versions) {
-					if (version == selectedObject) {
-						selectedIndex = count;
-					}
-					count++;
-					String link = link(version.object, version.version);
-					pageLinks.add(link);
-				}
-				ClientToolkit.getToolkit().show(pageLinks, selectedIndex);
-			}
-		});
 	}
 
 	protected abstract List<HistoryVersion<T>> loadVersions();
@@ -43,20 +21,30 @@ public abstract class HistoryPage<T> extends AbstractPage {
 
 	protected abstract String getDescription(T object);
 	
-	protected abstract String link(T object, String version);
+	protected abstract Page click(T object, String version);
 
 	@Override
 	public IContent getContent() {
-		if (versions == null) {
-			refresh();
-		}
+		List<HistoryVersion<T>> versions = loadVersions();
+		TableActionListener<HistoryVersion<T>> listener = new TableActionListener<HistoryVersion<T>>() {
+			@Override
+			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selectedObjects) {
+				List<Page> pages = new ArrayList<>(versions.size());
+				int selectedIndex = 0;
+				int count = 0;
+				for (HistoryVersion<T> version : versions) {
+					if (version == selectedObject) {
+						selectedIndex = count;
+					}
+					count++;
+					Page page = HistoryPage.this.click(version.object, version.version);
+					pages.add(page);
+				}
+				ClientToolkit.getToolkit().show(pages, selectedIndex);
+			}
+		};
+		IContent table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description}, listener);
 		return table;
-	}
-
-	@Override
-	public void refresh() {
-		versions = loadVersions();
-		table.setObjects(versions);
 	}
 
 	public static class HistoryVersion<T> {

@@ -1,8 +1,8 @@
 package org.minimalj.frontend.page;
 
-import org.minimalj.frontend.toolkit.IAction;
+import org.minimalj.frontend.toolkit.Action;
 
-public class Separator implements IAction {
+public class Separator extends Action {
 
 	@Override
 	public String getName() {
@@ -11,23 +11,7 @@ public class Separator implements IAction {
 
 	@Override
 	public void action() {
-		// n/a
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// n/a
-		return true;
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public void setChangeListener(ActionChangeListener changeListener) {
-		// n/a
+		throw new IllegalStateException("Separator should not trigger action");
 	}
 
 }
