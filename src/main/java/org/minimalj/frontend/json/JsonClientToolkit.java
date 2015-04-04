@@ -17,6 +17,7 @@ import org.minimalj.frontend.toolkit.TextField;
 
 public class JsonClientToolkit extends ClientToolkit {
 
+	private static ThreadLocal<JsonClient> client = new ThreadLocal<>();
 	
 	@Override
 	public IComponent createLabel(String string) {
@@ -88,12 +89,14 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public void show(Page page) {
-		JsonComponent content = (JsonComponent) page.getContent();
-		System.out.println(content.toString());
+		JsonComponent jsonComponent = (JsonComponent) page.getContent();
 
-		// 1. page.getContent() should provide content of page
-		// -> send it to browser togehter with ObjectActions etc
-		// serialize the page and store it
+		JsonMessage message = new JsonMessage("showPage");
+		message.put("id", page.hashCode());
+		message.put("title", page.getTitle());
+		message.put("content", jsonComponent);
+		
+		// jsonComponent.setListener(...);
 	}
 
 	@Override
