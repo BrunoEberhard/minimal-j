@@ -43,7 +43,7 @@ public class JsonWriter {
 	}
 
 	private void nl() {
-		add("\r\n");
+		add("\n");
 		indent();
 	}
 
