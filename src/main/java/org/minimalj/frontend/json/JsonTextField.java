@@ -6,7 +6,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
-public class JsonTextField extends JsonComponent implements TextField {
+public class JsonTextField extends JsonValueComponent implements TextField {
 
 	private static final String EDITABLE = "editable";
 	private static final String MAX_LENGTH = "maxLength";
@@ -14,21 +14,20 @@ public class JsonTextField extends JsonComponent implements TextField {
 	private static final String INPUT_TYPE = "inputType";
 	private static final String AUTOCOMPLETE = "autocomplete";
 	
-	public JsonTextField(String component) {
-		super(component);
+	public JsonTextField(String type) {
+		this(type, 0, null, null, null, null);
 	}
-
-	public JsonTextField(String clazz, int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	
+	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
 			InputComponentListener changeListener) {
-		this(clazz);
-		put(MAX_LENGTH, MAX_LENGTH);
+		super(type, changeListener);
+		put(MAX_LENGTH, maxLength);
 		put(ALLOWED_CHARACTERS, allowedCharacters);
 		if (inputType != null) {
 			put(INPUT_TYPE, inputType.name());
 		}
-		// TODO autocomplete, changeListener
 	}
-
+	
 	@Override
 	public void setText(String text) {
 		put(VALUE, text);

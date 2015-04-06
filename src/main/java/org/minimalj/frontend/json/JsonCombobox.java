@@ -5,12 +5,11 @@ import java.util.List;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ComboBox;
 
-public class JsonCombobox<T> extends JsonComponent implements ComboBox<T> {
+public class JsonCombobox<T> extends JsonValueComponent implements ComboBox<T> {
 
-	private static final String EDITABLE = "editable";
-	
 	public JsonCombobox(List<T> objects, InputComponentListener changeListener) {
-		super("combobox");
+		super("Combobox", changeListener);
+		
 	}
 
 	@Override
