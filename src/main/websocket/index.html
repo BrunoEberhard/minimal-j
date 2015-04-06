@@ -30,7 +30,10 @@
 			function onClose(evt) {
 			}
 			function onMessage(evt) {
-	            writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>');
+	            var dataObject = JSON.parse(evt.data);
+	            if (dataObject["content"] != undefined) {
+	            	showContent(dataObject["content"]);
+	            }
 	            websocket.close();
 			}
 			function onError(evt) {
@@ -41,7 +44,54 @@
 	            pre.style.wordWrap = "break-word";
 	            pre.innerHTML = message;
 	            output.appendChild(pre);
-	        }			
+	        }		
+	        function showContent(content) {
+	        	var element = createContent(content);
+	        	document.getElementById("content").appendChild(element);
+	        }	
+	        function createContent(content) {
+	        	var type = content.type;
+	        	if (type == "Form") {
+	        		var element = document.createElement("table");
+	        		element.columns = content.columns;
+	        		element.border = 1;
+	        		element.width = "100%";
+	        		var rows = content.rows;
+	        		for (var i = 0; i<rows.length; i++) {
+	        			element.appendChild(createRow(rows[i]));
+	        		}
+	        		return element;
+	        	} else if (type == "ReadOnlyTextField") {
+	        		var element = document.createElement("div");
+	        		element.appendChild(document.createTextNode(content.value));
+	        		return element;
+	        	} else if (type == "Vertical") {
+	        		var element = document.createElement("div");
+	        		var components = content.components;
+	        		for (var i = 0; i<components.length; i++) {
+	        			element.appendChild(createContent(components[i]));
+	        		}
+	        		return element;
+	        	} else {
+	        		var element = document.createElement("div");
+	        		element.appendChild(document.createTextNode("unknown: " + type));
+	        		return element;
+	        	}
+	        }
+	        function createRow(row) {
+        		var element = document.createElement("tr");
+        		for (var i = 0; i<row.length; i++) {
+        			element.appendChild(createCell(row[i]));
+        		}
+        		return element;
+	        }
+	        function createCell(cell) {
+        		var element = document.createElement("td");
+        		element.colSpan = cell.span;
+        		element.appendChild(createContent(cell));
+        		return element;
+	        }
+
 		} else {
 			var data = {};
 			data["request"] = "showPage";
@@ -52,6 +102,7 @@
 </head>
 <body>
 	<input type="button" onclick="buildmenu();">
+	<div id="content"></div>
 	<pre id="output"></pre>
 </body>
 </html>
