@@ -2,13 +2,14 @@ package org.minimalj.frontend.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.FlowField;
 
 public class JsonFlowField extends JsonValueComponent implements FlowField {
 
-	private final List<JsonComponent> components = new ArrayList<>();
+	private final List<Map<String, Object>> components = new ArrayList<>();
 	
 	public JsonFlowField() {
 		super("Vertical", null);
@@ -30,7 +31,7 @@ public class JsonFlowField extends JsonValueComponent implements FlowField {
 	@Override
 	public void add(IComponent component) {
 		JsonComponent jsonComponent = (JsonComponent) component;
-		components.add(jsonComponent);
+		components.add(jsonComponent.getValues());
 	}
 
 }

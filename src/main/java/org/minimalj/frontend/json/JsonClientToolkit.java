@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
@@ -187,11 +186,6 @@ public class JsonClientToolkit extends ClientToolkit {
 	}
 
 	
-	protected void handle(String jsonString) {
-		Map<String, Object> json = (Map<String, Object>) new JsonReader().read(jsonString);
-		String sessionId = (String) json.get("session");
-		JsonClientSession session = JsonClientSession.getSession(sessionId);
-		this.session.set(session);
-	}
+
 	
 }

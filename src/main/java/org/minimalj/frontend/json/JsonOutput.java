@@ -16,6 +16,10 @@ public class JsonOutput {
 		componentPropertyChanges.put(property, value);
 	}
 
+	public void add(String name, Object object) {
+		output.put(name, object);
+	}
+	
 	private Map<String, Object> getOrCreate(String name) {
 		return getOrCreate(output, name);
 	}

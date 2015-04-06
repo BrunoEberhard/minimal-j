@@ -2,7 +2,9 @@ package org.minimalj.frontend.json;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.json.JsonClientToolkit.JsonActionLabel;
 import org.minimalj.frontend.json.JsonComponent.JsonComponentListener;
@@ -14,6 +16,7 @@ public class JsonClientSession {
 	private final ApplicationContext applicatonContext;
 	private Page visiblePage;
 	private Map<String, JsonComponent> componentById = new HashMap<>();
+	private Map<String, Page> pageById = new HashMap<>();
 	private final JsonOutputComponentListener listener = new JsonOutputComponentListener();
 	private JsonOutput output;
 
@@ -24,6 +27,13 @@ public class JsonClientSession {
 	
 	public static JsonClientSession getSession(String sessionId) {
 		return sessions.get(sessionId);
+	}
+	
+	public static String createSession() {
+		String sessionId = UUID.randomUUID().toString();
+		JsonClientSession session = new JsonClientSession(null);
+		sessions.put(sessionId, session);
+		return sessionId;
 	}
 	
 	public void setPage(Page page) {
@@ -46,8 +56,20 @@ public class JsonClientSession {
 		}
 	}
 
-	public Map<Object, Object> handle(JsonInput input) {
+	public JsonOutput handle(JsonInput input) {
 		output = new JsonOutput();
+
+		if (input.containsObject(JsonInput.SHOW_PAGE)) {
+			String pageId = (String) input.getObject(JsonInput.SHOW_PAGE);
+			Page page;
+			if (pageId != null) {
+				page = pageById.get(pageId);
+			} else {
+				page = Application.getApplication().createDefaultPage();
+			}
+			JsonComponent content = (JsonComponent) page.getContent();
+			output.add("content", content.getValues());
+		}
 		
 		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
 		for (Map.Entry<String, Object> entry : changedValue.entrySet()) {
@@ -66,12 +88,7 @@ public class JsonClientSession {
 				actionLabel.action();
 			}
 		}
-
-		return null;
 		
-//		String closeDialog = (String) input.getObject(JsonInput.CLOSE_DIALOG);
-
-		
-//		return output.toString();
+		return output;
 	}
 }

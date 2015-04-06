@@ -81,8 +81,10 @@ public class JsonWriter {
 				array((Iterator) object);
 			else if (object instanceof Collection)
 				array(((Collection) object).iterator());
-			else
+			else {
+				System.err.println(buf.toString());
 				throw new IllegalArgumentException("cannot be serialized in json: " + object);
+			}
 			calls.pop();
 		}
 	}

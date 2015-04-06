@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>Build page</title>
+<link rel="stylesheet" type="text/css" href="mj.css">
+<script type="text/javascript">
+	var websocket;
+
+	function buildmenu() {
+		if (websocket == null || websocket.readyState !== websocket.OPEN) {
+			websocket = new WebSocket("ws://" + location.host + "/");
+
+			websocket.onopen = function(evt) {
+				onOpen(evt)
+			};
+			websocket.onclose = function(evt) {
+				onClose(evt)
+			};
+			websocket.onmessage = function(evt) {
+				onMessage(evt)
+			};
+			websocket.onerror = function(evt) {
+				onError(evt)
+			};
+
+			function onOpen(evt) {
+				var data = {};
+				data["showPage"] = null;
+				websocket.send(JSON.stringify(data));
+			}
+			function onClose(evt) {
+			}
+			function onMessage(evt) {
+	            writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>');
+	            websocket.close();
+			}
+			function onError(evt) {
+			}
+	        function writeToScreen(message) {
+	        	var output = document.getElementById("output");
+	            var pre = document.createElement("p");
+	            pre.style.wordWrap = "break-word";
+	            pre.innerHTML = message;
+	            output.appendChild(pre);
+	        }			
+		} else {
+			var data = {};
+			data["request"] = "showPage";
+			websocket.send(JSON.stringify(data));
+		}
+	}
+</script>
+</head>
+<body>
+	<input type="button" onclick="buildmenu();">
+	<pre id="output"></pre>
+</body>
+</html>

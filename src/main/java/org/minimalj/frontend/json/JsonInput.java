@@ -6,12 +6,17 @@ import java.util.Map;
 
 public class JsonInput {
 
+	public static final String SHOW_PAGE = "showPage";
 	public static final String CHANGED_VALUE = "changedValue";
 	public static final String ACTIVATED_ACTION = "activatedAction";
 	public static final String CLOSE_DIALOG = "closeDialog";
 	
 	private final Map<String, Object> input;
 
+	public JsonInput(String json) {
+		this((Map<String, Object>) new JsonReader().read(json));
+	}
+	
 	public JsonInput(Map<String, Object> input) {
 		this.input = input;
 	}
@@ -26,6 +31,10 @@ public class JsonInput {
 
 	public Object getObject(String name) {
 		return input.get(name);
+	}
+	
+	public boolean containsObject(String name) {
+		return input.containsKey(name);
 	}
 
 	public static Map<String, Object> get(Map<String, Object> object, String name) {

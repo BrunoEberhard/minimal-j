@@ -19,18 +19,14 @@ public abstract class JsonValueComponent extends JsonComponent {
 	
 	@Override
 	public void put(String key, Object value) {
-		if (VALUE.equals(key)) {
-			setValue((String) value);
-		} else {
-			super.put(key, value);
+		super.put(key, value);
+		if (changeListener != null) {
+			changeListener.changed(this);
 		}
 	}
 
 	public void setValue(String value) {
 		put(VALUE, value);
-		if (changeListener != null) {
-			changeListener.changed(this);
-		}
 	}
 
 	public String getValue() {
