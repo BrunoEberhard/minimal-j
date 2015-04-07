@@ -1,0 +1,106 @@
+th { text-align: left; }
+
+table { width: 100%; }
+
+tr:hover {
+	background: white;
+}
+
+body {
+	font: normal .8em/1.5em Arial, Helvetica, sans-serif;
+	background: #ebebeb;
+	margin: 0px;
+	color: #666;
+}
+a {
+	color: #333;
+}
+#nav {
+	margin: 0;
+	width: 100%;
+	padding: 7px 6px 0;
+	line-height: 100%;
+	background: #8b8b8b;
+}
+#nav li {
+	color: white;
+	margin: 0 5px;
+	padding: 1ex 1ex 2ex 1ex;
+	float: left;
+	position: relative;
+	list-style: none;
+}
+/* main level link */
+#nav a {
+	/* font-weight: bold; */
+	color: #e7e5e5;
+	text-decoration: none;
+	display: block;
+	padding:  4px 10px;
+	margin: 1ex;
+}
+/* main level link hover */
+#nav .current a, #nav li:hover > a {
+	background: #d1d1d1;
+	color: #444;
+}
+/* sub levels link hover */
+#nav ul li:hover a, #nav li:hover li a {
+	background: none;
+	border: none;
+	color: #666;
+	box-shadow: none;
+}
+#nav ul a:hover {
+	background: #0399d4 !important; /* for non-css3 browsers */
+
+	color: #fff !important;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+/* level 2 list */
+#nav ul {
+	background: #ddd; /* for non-css3 browsers */
+
+	display: none;
+	margin: 0;
+	padding: 0;
+	width: 185px;
+	position: absolute;
+	top: 24px;
+	left: 0;
+	border: solid 1px #b4b4b4;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+/* dropdown */
+#nav li:hover > ul {
+	display: block;
+}
+#nav ul li {
+	float: none;
+	margin: 0;
+	padding: 0;
+}
+#nav ul a {
+	font-weight: normal;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, .9);
+}
+/* level 3+ list */
+#nav ul ul {
+	left: 181px;
+	top: -3px;
+}
+/* clearfix */
+#nav:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+#nav {
+	display: inline-block;
+}
+html[xmlns] #nav {
+	display: block;
+}
