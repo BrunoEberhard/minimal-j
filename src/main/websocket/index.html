@@ -86,10 +86,16 @@
         		return element;
 	        }
 	        function createCell(cell) {
-        		var element = document.createElement("td");
-        		element.colSpan = cell.span;
-        		element.appendChild(createContent(cell));
-        		return element;
+        		var td = document.createElement("td");
+        		if (cell.span != undefined) {
+	        		td.colSpan = cell.span;
+        		}
+        		var caption = document.createElement("div");
+        		caption.id = "caption";
+        		caption.innerHTML = cell.caption;
+        		td.appendChild(caption);
+        		td.appendChild(createContent(cell));
+        		return td;
 	        }
 
 		} else {
