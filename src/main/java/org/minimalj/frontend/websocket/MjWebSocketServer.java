@@ -21,8 +21,13 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 	@Override
     public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
             Map<String, String> files) {
-		Response response = new Response(Status.OK, "text/html", this.getClass().getClassLoader().getResourceAsStream("index.html"));
-		return response;
+		if (uri.equals("/")) {
+			return new Response(Status.OK, "text/html", this.getClass().getClassLoader().getResourceAsStream("index.html"));
+		} else if (uri.equals("/mj.css")) {
+			return new Response(Status.OK, "text/css", this.getClass().getClassLoader().getResourceAsStream("mj.css"));
+		} else {
+			return new Response(Status.NOT_FOUND, "text/html", uri + " not found");
+		}
 	}
 
 
