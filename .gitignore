@@ -14,3 +14,4 @@ examples/Minimal-J_Library/.project
 /derby.log
 /.idea/
 *.iml
+/.settings/
