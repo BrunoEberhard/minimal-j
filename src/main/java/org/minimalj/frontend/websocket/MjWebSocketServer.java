@@ -47,6 +47,7 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 		JsonClientSession session = JsonClientSession.getSession(sessionId);
 		JsonInput input = new JsonInput(data);
 		JsonOutput output = session.handle(input);
+		output.add("session", sessionId);
 		
 		try {
 			webSocket.send(output.toString());
@@ -58,7 +59,7 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 
 	@Override
 	protected void onClose(WebSocket webSocket, CloseCode code, String reason, boolean initiatedByRemote) {
-		// TODO Auto-generated method stub
+		System.out.println("Close " + reason + " / " + initiatedByRemote);
 
 	}
 

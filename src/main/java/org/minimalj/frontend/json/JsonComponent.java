@@ -18,8 +18,6 @@ public class JsonComponent implements IComponent {
 	private final Map<String, Object> values = new LinkedHashMap<>();
 	private final List<JsonComponent> components = new ArrayList<>();
 	
-	private JsonComponentListener listener;
-	
 	public JsonComponent(String type) {
 		values.put(TYPE, type);
 		values.put(ID, UUID.randomUUID().toString());
@@ -27,9 +25,7 @@ public class JsonComponent implements IComponent {
 
 	public void put(String key, Object value) {
 		values.put(key, value);
-		if (listener != null) {
-			listener.changed((String) values.get(ID), ID, value);
-		}
+		JsonClientToolkit.getSession().setProperty(getId(), key, value);
 	}
 	
 	public Object get(String key) {
@@ -55,13 +51,5 @@ public class JsonComponent implements IComponent {
 	
 	public List<JsonComponent> getComponents() {
 		return components;
-	}
-	
-	public void setListener(JsonComponentListener listener) {
-		this.listener = listener;
-	}
-	
-	public static interface JsonComponentListener {
-		public void changed(String id, String property, Object value);
 	}
 }

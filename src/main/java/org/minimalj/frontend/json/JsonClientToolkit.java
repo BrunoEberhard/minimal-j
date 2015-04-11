@@ -18,7 +18,15 @@ import org.minimalj.frontend.toolkit.TextField;
 
 public class JsonClientToolkit extends ClientToolkit {
 
-	private final ThreadLocal<JsonClientSession> session = new ThreadLocal<>();
+	private static final ThreadLocal<JsonClientSession> session = new ThreadLocal<>();
+	
+	static void setSession(JsonClientSession session) {
+		JsonClientToolkit.session.set(session);
+	}
+	
+	public static JsonClientSession getSession() {
+		return session.get();
+	}
 	
 	@Override
 	public IComponent createLabel(String string) {
@@ -34,6 +42,8 @@ public class JsonClientToolkit extends ClientToolkit {
 			super("Action");
 			this.action = action;
 			setText(action.getName());
+			String id = getSession().registerAction(action);
+			put("id", id);
 		}
 		
 		public void action() {
@@ -92,15 +102,7 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public void show(Page page) {
-		JsonComponent jsonComponent = (JsonComponent) page.getContent();
-
-		System.out.println(jsonComponent.toString());
-//		
-//		message.put("id", page.hashCode());
-//		message.put("title", page.getTitle());
-//		message.put("content", jsonComponent);
-//		
-//		// jsonComponent.setListener(...);
+		session.get().showPage(page);
 	}
 
 	@Override
@@ -140,13 +142,37 @@ public class JsonClientToolkit extends ClientToolkit {
 	@Override
 	public ApplicationContext getApplicationContext() {
 		// TODO Auto-generated method stub
-		return null;
+		return new ApplicationContext() {
+			
+			@Override
+			public void setUser(String user) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void savePreferences(Object preferences) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void loadPreferences(Object preferences) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public String getUser() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
 	}
 
 	@Override
 	public IDialog createDialog(String title, IContent content, Action... actions) {
-		// TODO Auto-generated method stub
-		return null;
+		return new JsonDialog(session.get(), title, content, actions);
 	}
 
 	@Override
