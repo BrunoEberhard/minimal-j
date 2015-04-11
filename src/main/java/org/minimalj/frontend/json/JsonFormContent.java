@@ -51,7 +51,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 
 	@Override
 	public void add(String caption, IComponent component, int span) {
-		JsonValueComponent jsonComponent = (JsonValueComponent) component;
+		JsonComponent jsonComponent = (JsonComponent) component;
 		jsonComponent.put(CAPTION, caption);
 		if (actualColumn >= columns) {
 			createNewRow();
@@ -66,7 +66,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
-		JsonValueComponent jsonComponent = (JsonValueComponent) component;
+		JsonComponent jsonComponent = (JsonComponent) component;
 		if (!validationMessages.isEmpty()) {
 			String validationMessage = ValidationMessage.formatHtmlString(validationMessages);
 			jsonComponent.put(VALIDATION_MESSAGE, validationMessage);

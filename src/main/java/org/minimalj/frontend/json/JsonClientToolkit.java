@@ -2,8 +2,10 @@ package org.minimalj.frontend.json;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
@@ -96,8 +98,7 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
-		// TODO Auto-generated method stub
-		return null;
+		return new JsonTable(keys, listener);
 	}
 
 	@Override
@@ -124,7 +125,11 @@ public class JsonClientToolkit extends ClientToolkit {
 	@Override
 	public IComponent createComponentGroup(IComponent... components) {
 		JsonComponent group = new JsonComponent("group");
-		group.put("components", Arrays.asList(components));
+		List<Map<String, Object>> c = new ArrayList<>();
+		for (IComponent component : components) {
+			c.add(((JsonComponent) component).getValues());
+		}
+		group.put("components", c);
 		return group;
 	}
 
@@ -172,7 +177,7 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public IDialog createDialog(String title, IContent content, Action... actions) {
-		return new JsonDialog(session.get(), title, content, actions);
+		return new JsonDialog(title, content, actions);
 	}
 
 	@Override

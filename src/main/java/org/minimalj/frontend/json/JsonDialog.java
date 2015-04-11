@@ -8,17 +8,15 @@ import org.minimalj.frontend.toolkit.IDialog;
 
 public class JsonDialog extends JsonComponent implements IDialog {
 
-	private final JsonClientSession session;
 	private CloseListener closeListener;
 	
-	public JsonDialog(JsonClientSession session, String title, IContent content, Action[] actions) {
+	public JsonDialog(String title, IContent content, Action[] actions) {
 		super("Dialog");
-		this.session = session;
 		String id = UUID.randomUUID().toString();
 		put("id", id);
 		put("title", title);
 		put("content", ((JsonComponent) content).getValues());
-		put("actions", session.createActions(actions));
+		put("actions", JsonClientToolkit.getSession().createActions(actions));
 	}
 
 	@Override
@@ -28,12 +26,12 @@ public class JsonDialog extends JsonComponent implements IDialog {
 
 	@Override
 	public void openDialog() {
-		session.openDialog(this);
+		JsonClientToolkit.getSession().openDialog(this);
 	}
 
 	@Override
 	public void closeDialog() {
-		session.closeDialog((String) get("id"));
+		JsonClientToolkit.getSession().closeDialog((String) get("id"));
 	}
 
 }

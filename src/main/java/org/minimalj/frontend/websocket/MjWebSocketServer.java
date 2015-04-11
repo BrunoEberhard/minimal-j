@@ -25,6 +25,13 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 			return new Response(Status.OK, "text/html", this.getClass().getClassLoader().getResourceAsStream("index.html"));
 		} else if (uri.equals("/mj.css")) {
 			return new Response(Status.OK, "text/css", this.getClass().getClassLoader().getResourceAsStream("mj.css"));
+
+		} else if (uri.startsWith("/") && uri.endsWith("css")) {
+			return new Response(Status.OK, "text/css", this.getClass().getClassLoader().getResourceAsStream(uri.substring(1)));
+
+		} else if (uri.startsWith("/") && uri.endsWith("js")) {
+			return new Response(Status.OK, "application/javascript", this.getClass().getClassLoader().getResourceAsStream(uri.substring(1)));
+			
 		} else {
 			return new Response(Status.NOT_FOUND, "text/html", uri + " not found");
 		}

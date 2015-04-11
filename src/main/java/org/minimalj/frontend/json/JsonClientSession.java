@@ -13,6 +13,7 @@ import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -74,6 +75,13 @@ public class JsonClientSession {
 				action.action();
 			}
 		}
+		
+		String search = (String) input.getObject("search");
+		if (search != null) {
+			SearchPage searchPage = Application.getApplication().getSearchPages()[0];
+			searchPage.setQuery(search);
+			showPage(searchPage);
+		}
 
 		JsonClientToolkit.setSession(null);
 		return output;
@@ -81,7 +89,6 @@ public class JsonClientSession {
 
 	public void showPage(Page page) {
 		actionById.clear();
-		pageById.clear();
 		componentById.clear();
 		
 		JsonComponent content = (JsonComponent) page.getContent();
@@ -89,6 +96,10 @@ public class JsonClientSession {
 
 		Object menu = createMenu(page);
 		output.add("menu", menu);
+		
+		String pageId = UUID.randomUUID().toString();
+		pageById.put(pageId, page);
+		output.add("pageId", pageId);
 	}
 
 	private List<Object> createMenu(Page page) {

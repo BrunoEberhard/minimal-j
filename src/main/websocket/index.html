@@ -1,7 +1,11 @@
 <html>
 <head>
 <title>Build page</title>
-<link rel="stylesheet" type="text/css" href="mj.css">
+  
+<script src="dialog-polyfill.js"></script>
+<link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
+
+<link rel="stylesheet" type="text/css" href="mj.css" />
 <script type="text/javascript">
 	var websocket;
 	var session;
@@ -20,6 +24,9 @@
         if (dataObject["menu"] != undefined) {
         	showMenuBar(dataObject["menu"]);
         }
+        if (dataObject["pageId"] != undefined) {
+        	history.pushState(dataObject["pageId"]);
+        }         
         if (dataObject["dialog"] != undefined) {
         	showDialog(dataObject["dialog"]);
         }
@@ -35,7 +42,11 @@
         		var value = propertyChange.value;
         		var element = document.getElementById(id);
         		if (element != undefined) {
-            		document.getElementById(id)[property] = value;
+        			if (property == "tableContent") {
+        				document.getElementById(id).appendChild(createTableRows(value));
+        			} else {
+                		document.getElementById(id)[property] = value;
+        			}
         		}
         	}
         }
@@ -44,86 +55,172 @@
 	}
        
 	function showContent(content) {
+		var contentElement = document.getElementById("content");
+		while (contentElement.firstChild) {
+			contentElement.removeChild(contentElement.firstChild);
+		}
+		
        	var element = createContent(content);
-       	document.getElementById("content").appendChild(element);
+       	if (content.type == "Form") {
+       		var p = document.createElement("table");
+       		p.setAttribute("class", "formContainer");
+       		
+       		var paddingLeft = document.createElement("td");
+			paddingLeft.setAttribute("class", "nopadding");
+			paddingLeft.width = "10%";
+			p.appendChild(paddingLeft);
+			
+			var formContent = document.createElement("td");
+			p.appendChild(element);
+			
+       		var paddingRight = document.createElement("td");
+       		paddingRight.setAttribute("class", "nopadding");
+       		paddingRight.width = "20%";
+       		p.appendChild(paddingRight);
+       		
+       		contentElement.appendChild(p);
+       	} else {
+       		contentElement.appendChild(element);
+       	}
     }	
        
     function createContent(content) {
        	var type = content.type;
+       	var element;
        	if (type == "Form") {
-       		var element = document.createElement("table");
+       		element = document.createElement("table");
+       		element.setAttribute("class", "form");
        		element.columns = content.columns;
        		var rows = content.rows;
-       		for (var i = 0; i<rows.length; i++) {
-       			element.appendChild(createRow(rows[i]));
-       		}
-       		return element;
-       	} else if (type == "ReadOnlyTextField" || type == "Label") {
-       		var element = document.createElement("div");
+       		element.appendChild(createFormRows(rows));
+       	} else if (type == "Table") {
+       		element = document.createElement("table");
+       		element.appendChild(createTableHeaders(content.headers));
+       	} else if (type == "ReadOnlyTextField") {
+       		element = document.createElement("div");
        		if (content.value != undefined) {
 	       		element.appendChild(document.createTextNode(content.value));
+       		} else {
+	       		element.innerHTML = "&nbsp;";
        		}
-       		return element;
+       	} else if (type == "Label") {
+       		element = document.createElement("div");
+       		if (content.value != undefined) {
+	       		element.innerHTML = content.value;
+       		} else {
+	       		element.innerHTML = "&nbsp;";
+       		}
+       	} else if (type == "Action") {
+       		element = document.createElement("div");
+       		element.setAttribute("class", "action");
+       		element.innerHTML = content.value;
+       		element.setAttribute("onclick", "action(\"" + content.id + "\");");
        	} else if (type == "TextField") {
-       		var element = document.createElement("input");
+       		element = document.createElement("input");
        		element.type="text";
-       		element.id = content.id;
+       		element.setAttribute("width", "100%");
        		if (content.value != undefined) {
 	       		element.appendChild(document.createTextNode(content.value));
        		}
-       		return element;
+       	} else if (type == "Combobox") {
+       		element = document.createElement("select");
+       		element.setAttribute("width", "100%");
+       		if (content.options != undefined) {
+       			for (var id in content.options) {
+       				option = document.createElement("option");
+       				option.value = id;
+       				option.innerHTML = content.options[id];
+		       		element.appendChild(option);
+       			}
+       		}       		
        	} else if (type == "Vertical") {
-       		var element = document.createElement("div");
+       		element = document.createElement("div");
        		var components = content.components;
        		for (var i = 0; i<components.length; i++) {
        			element.appendChild(createContent(components[i]));
        		}
-       		return element;
        	} else {
-       		var element = document.createElement("div");
+       		element = document.createElement("div");
        		element.appendChild(document.createTextNode("unknown: " + type));
-       		return element;
        	}
-       	
-        function createRow(row) {
-       		var element = document.createElement("tr");
-       		for (var i = 0; i<row.length; i++) {
-       			element.appendChild(createCell(row[i]));
-       		}
-       		return element;
-        }
-        function createCell(cell) {
-       		var td = document.createElement("td");
-       		if (cell.span != undefined) {
-        		td.colSpan = cell.span;
-       		}
-       		var caption = document.createElement("div");
-       		caption.setAttribute("class", "caption");
-       		caption.innerHTML = cell.caption;
-       		td.appendChild(caption);
-       		td.appendChild(createContent(cell));
-       		return td;
-        }
-        
+       	if (content.id != undefined) {
+	   		element.id = content.id;
+       	}
+   		return element;       		
+    }
+
+    function createFormRows(rows) {
+    	element = document.createElement("tbody");
+   		for (var i = 0; i<rows.length; i++) {
+   			element.appendChild(createFormRow(rows[i]));
+   		}
+   		return element;
+    }
+    function createFormRow(row) {
+   		var element = document.createElement("tr");
+   		for (var i = 0; i<row.length; i++) {
+   			element.appendChild(createFormCell(row[i]));
+   		}
+   		return element;
+    }
+    function createFormCell(cell) {
+   		var td = document.createElement("td");
+   		if (cell.span != undefined) {
+    		td.colSpan = cell.span;
+   		}
+   		var caption = document.createElement("div");
+   		caption.setAttribute("class", "caption");
+   		caption.innerHTML = cell.caption;
+   		td.appendChild(caption);
+   		td.appendChild(createContent(cell));
+   		return td;
+    }
+    
+    function createTableHeaders(headers) {
+    	element = document.createElement("thead");
+   		for (var i = 0; i<headers.length; i++) {
+   			th = document.createElement("th");
+   			th.appendChild(document.createTextNode(headers[i]));
+   			element.appendChild(th);
+   		}
+   		return element;
+    }
+    function createTableRows(rows) {
+    	element = document.createElement("tbody");
+   		for (var i = 0; i<rows.length; i++) {
+   			element.appendChild(createTableRow(rows[i]));
+   		}
+   		return element;
+    }
+    function createTableRow(row) {
+   		var element = document.createElement("tr");
+   		for (var i = 0; i<row.length; i++) {
+   			element.appendChild(createTableCell(row[i]));
+   		}
+   		return element;
+    }
+    function createTableCell(cell) {
+   		var td = document.createElement("td");
+   		if (cell != undefined) {
+	   		td.appendChild(document.createTextNode(cell));
+   		}
+   		return td;
     }
     
    function showMenuBar(menus) {
-        var element = createMenuBar(menus);
-        document.getElementById("menubar").appendChild(element);
-
-        function createMenuBar(menus) {
-       		var ul = document.createElement("ul");
-       		ul.id = "nav";
-
-       		for (var i = 0; i<menus.length; i++) {
-       			var menu = menus[i];
-           		var li = document.createElement("li");
-           		ul.appendChild(li);
-           		li.appendChild(document.createTextNode(menu.name));
-           		li.appendChild(createMenu(menu));
-       		}
-       		return ul;
-        }
+   		var ul = document.getElementById("menu");
+		while (ul.firstChild) {
+			ul.removeChild(ul.firstChild);
+		}
+   		
+   		for (var i = 0; i<menus.length; i++) {
+  			var menu = menus[i];
+       		var li = document.createElement("li");
+       		ul.appendChild(li);
+       		li.appendChild(document.createTextNode(menu.name));
+       		li.appendChild(createMenu(menu));
+   		}
+       		
         function createMenu(menu) {
        		var ul = document.createElement("ul");
 
@@ -152,11 +249,14 @@
 
     function showDialog(json) {
     	var dialog = document.createElement("dialog");
-   		dialog.id = json.id;
+    	dialogPolyfill.registerDialog(dialog);
+    	dialog.id = json.id;
    		
    		var header = document.createElement("div");
    		header.id = "dialogHeader";
-   		header.appendChild(document.createTextNode(json.title));
+   		var headerDiv = document.createElement("div");
+   		headerDiv.appendChild(document.createTextNode(json.title));
+   		header.appendChild(headerDiv);
        	dialog.appendChild(header);
    		
    		var content = document.createElement("div");
@@ -166,25 +266,18 @@
    		
    		var footer = document.createElement("div");
    		footer.id = "dialogFooter";
-   		footer.appendChild(createActions(json["actions"]));
+   		var actions = json["actions"];
+   		for (var i = 0; i<actions.length; i++) {
+   			var action = actions[i];
+       		var button = document.createElement("button");
+       		button.appendChild(document.createTextNode(action.name));
+			button.setAttribute("onclick", "action(\"" + action.id + "\");");
+			footer.appendChild(button);
+	   	}
        	dialog.appendChild(footer);
        	
        	document.getElementById("all").appendChild(dialog);
        	dialog.showModal();
-       	
-        function createActions(actions) {
-       		var row = document.createElement("div");
-
-       		for (var i = 0; i<actions.length; i++) {
-       			var action = actions[i];
-	       		var button = document.createElement("button");
-	       		button.setAttribute("width", "50px");
-	       		button.appendChild(document.createTextNode(action.name));
-				button.setAttribute("onclick", "action(\"" + action.id + "\");");
-           		row.appendChild(button);
-   	   		}
-       		return row;
-        }
 	}
     
     function init() {
@@ -194,16 +287,35 @@
 		};
     	websocket.onopen = function(evt) {
 			showPage();
-		};    	
+		};    
+		window.onpopstate = function(event) {
+			if (event.state) {
+				var data = {};
+				data["showPage"] = event.state;
+				send(data);
+			}
+		}
     }
 
     function showPage() {
 		var data = {};
 		data["showPage"] = null;
-		websocket.send(JSON.stringify(data));
+		send(data);
     }
     
     function action(actionId) {
+		var data = {};
+		data["activatedAction"] = actionId;
+		send(data);
+    }
+
+    function search() {
+		var data = {};
+		data["search"] = document.getElementsByName("query")[0].value;
+		send(data);
+    }
+    
+    function send(data) {
     	if (websocket.readyState > 1) {
     		websocket = new WebSocket("ws://" + location.host + "/");
         	websocket.onmessage = function(evt) {
@@ -213,8 +325,6 @@
     			action(actionId);
     		}
     	} else {
-			var data = {};
-			data["activatedAction"] = actionId;
 			data["session"] = session;
 			websocket.send(JSON.stringify(data));
     	}
@@ -225,19 +335,12 @@
 <body onload="init();">
 	<div id="all">
 		<div id="header">
-			<div id="menubar"></div>
+			<div id="menu"></div>
 			<div id="search">
-				<input type="text" name="query" value="" /> <input type="submit" value="Search" />
+				<input type="text" name="query" value="" /> <input type="submit" value="Search" onclick="search();"/>
 			</div>
 		</div>
-		<div id="rest">
-			<table>
-				<tr>
-					<td class="nopadding" width="10%"></td>
-					<td class="nopadding"><div id="content"></div>
-					<td class="nopadding" width="20%"></td>
-				</tr>
-			</table>
+		<div id="content">
 		</div>
 	</div>
 </body>
