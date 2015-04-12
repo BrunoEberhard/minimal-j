@@ -1,55 +1,50 @@
 package org.minimalj.frontend.json;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
-public class JsonComponent implements IComponent {
+public class JsonComponent extends LinkedHashMap<String, Object> implements IComponent {
+	private static final long serialVersionUID = 1L;
 
 	private static final String ID = "id";
-	public static final String TYPE = "type";
+	private static final String TYPE = "type";
 
-	private static final JsonWriter writer = new JsonWriter();
-	
-	private final Map<String, Object> values = new LinkedHashMap<>();
-	private final List<JsonComponent> components = new ArrayList<>();
+	private JsonComponentPropertyListener listener;
 	
 	public JsonComponent(String type) {
-		values.put(TYPE, type);
-		values.put(ID, UUID.randomUUID().toString());
-	}
-
-	public void put(String key, Object value) {
-		values.put(key, value);
-		JsonClientToolkit.getSession().setProperty(getId(), key, value);
+		this(type, true);
 	}
 	
-	public Object get(String key) {
-		return values.get(key);
+	public JsonComponent(String type, boolean identifiable) {
+		put(TYPE, type);
+		if (identifiable) {
+			put(ID, UUID.randomUUID().toString());
+		}
 	}
 	
-	public Map<String, Object> getValues() {
-		return values;
+	public void setListener(JsonComponentPropertyListener listener) {
+		this.listener = listener;
 	}
-
+	
+	public Object put(String property, Object value) {
+		Object oldValue = super.put(property, value);
+		if (listener != null && !Objects.equals(oldValue, value)) {
+			listener.propertyChange(getId(), property, value);
+		}
+		return oldValue;
+	}
+	
 	public String getId() {
-		return (String) values.get(ID);
+		return (String) get(ID);
 	}
 	
-	@Override
-	public String toString() {
-		return writer.write(values);
+	public static interface JsonComponentPropertyListener {
+		
+		public void propertyChange(String componentId, String property, Object value);
+	
 	}
 	
-	protected void addComponent(JsonComponent component) {
-		components.add(component);
-	}
-	
-	public List<JsonComponent> getComponents() {
-		return components;
-	}
 }

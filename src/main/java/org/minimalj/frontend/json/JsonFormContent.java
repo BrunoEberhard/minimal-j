@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.minimalj.frontend.lanterna.component.LanternaForm;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.model.validation.ValidationMessage;
@@ -23,7 +22,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	
 	public JsonFormContent(int columns, int columnWidth) {
 		super("Form");
-		if (columns < 1) throw new IllegalArgumentException(LanternaForm.class.getSimpleName() + " can only work with at least 1 column");
+		if (columns < 1) throw new IllegalArgumentException(JsonFormContent.class.getSimpleName() + " can only work with at least 1 column");
 		this.columns = columns;
 
 		put("columns", columns);
@@ -44,8 +43,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public void add(IComponent component) {
 		JsonComponent jsonComponent = (JsonComponent) component;
 		createNewRow();
-		actualRow.add(jsonComponent.getValues());
-		addComponent(jsonComponent);
+		actualRow.add(jsonComponent);
 		actualColumn = columns;
 	}
 
@@ -59,8 +57,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		if (span > 1) {
 			jsonComponent.put(SPAN, span);
 		}
-		actualRow.add(jsonComponent.getValues());
-		addComponent(jsonComponent);
+		actualRow.add(jsonComponent);
 		actualColumn += span;
 	}
 

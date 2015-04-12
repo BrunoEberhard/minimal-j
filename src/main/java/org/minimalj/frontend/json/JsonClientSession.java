@@ -23,14 +23,12 @@ public class JsonClientSession {
 	private static final Map<String, JsonClientSession> sessions = new HashMap<>();
 	private final ApplicationContext applicatonContext;
 	private Page visiblePage;
-	private Map<String, JsonComponent> componentById = new HashMap<>();
+	private Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private Map<String, Page> pageById = new HashMap<>();
-	private Map<String, Action> actionById = new HashMap<>();
 	private JsonOutput output;
 
 	public JsonClientSession(ApplicationContext context) {
 		this.applicatonContext = context;
-		
 	}
 	
 	public static JsonClientSession getSession(String sessionId) {
@@ -70,10 +68,8 @@ public class JsonClientSession {
 		
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
 		if (actionId != null) {
-			Action action = actionById.get(actionId);
-			if (action != null) {
-				action.action();
-			}
+			JsonAction action = (JsonAction) componentById.get(actionId);
+			action.action();
 		}
 		
 		String search = (String) input.getObject("search");
@@ -88,13 +84,14 @@ public class JsonClientSession {
 	}
 
 	public void showPage(Page page) {
-		actionById.clear();
 		componentById.clear();
 		
 		JsonComponent content = (JsonComponent) page.getContent();
-		output.add("content", content.getValues());
+		registerIds(content);
+		output.add("content", content);
 
 		Object menu = createMenu(page);
+		registerIds(menu);
 		output.add("menu", menu);
 		
 		String pageId = UUID.randomUUID().toString();
@@ -165,26 +162,39 @@ public class JsonClientSession {
 		return createActions(Arrays.asList(actions));
 	}
 
-	Map<String, Object> createAction(Action action) {
-		Map<String, Object> item = new LinkedHashMap<String, Object>();
-		item.put("name", action.getName());
-		if (!StringUtils.isEmpty(action.getDescription())) {
-			item.put("description", action.getDescription());
-		}
+	JsonComponent createAction(Action action) {
+		JsonComponent item;
 		if (action instanceof ActionGroup) {
 			ActionGroup actionGroup = (ActionGroup) action;
+			item = new JsonAction.JsonActionGroup();
 			item.put("items", createActions(actionGroup.getItems()));
 		} else {
-			String id = registerAction(action);
-			item.put("id", id);
+			item = new JsonAction(action);
 		}
+		item.put("name", action.getName());
 		return item;
 	}
 
-	public String registerAction(Action action) {
-		String id = UUID.randomUUID().toString();
-		actionById.put(id, action);
-		return id;
+	public void registerIds(Object o) {
+		if (o instanceof JsonComponent) {
+			JsonComponent component = (JsonComponent) o;
+			String id = component.getId();
+			if (id != null) {
+				componentById.put(component.getId(), component);
+			}
+		}
+		if (o instanceof Map) {
+			Map map = (Map) o;
+			for (Object o2 : map.values()) {
+				registerIds(o2);
+			}
+		}
+		if (o instanceof List) {
+			List list = (List) o;
+			for (Object o2 : list) {
+				registerIds(o2);
+			}
+		}
 	}
 
 	private Map<String, Object> createObjectMenu(Page page) {
@@ -210,14 +220,15 @@ public class JsonClientSession {
 	}
 
 	public void openDialog(JsonDialog jsonDialog) {
-		output.add("dialog", jsonDialog.getValues());
+		registerIds(jsonDialog);
+		output.add("dialog", jsonDialog);
 	}
 
 	public void closeDialog(String id) {
 		output.add("closeDialog", id);
 	}
 
-	public void setProperty(String id, String property, Object value) {
-		output.propertyChange(id, property, value);
+	public void propertyChange(String componentId, String property, Object value) {
+		output.propertyChange(componentId, property, value);
 	}
 }

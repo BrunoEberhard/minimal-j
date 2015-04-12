@@ -10,6 +10,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
+import org.minimalj.util.EqualsHelper;
 
 public class JsonCombobox<T> extends JsonValueComponent implements ComboBox<T> {
 
@@ -33,11 +34,23 @@ public class JsonCombobox<T> extends JsonValueComponent implements ComboBox<T> {
 
 	@Override
 	public void setSelectedObject(T object) {
+		for (Map.Entry<String, T> entry : objectById.entrySet()) {
+			if (EqualsHelper.equals(entry.getValue(), object)) {
+				setValue(entry.getKey());
+				return;
+			}
+		} 
+		setValue(null);
 	}
 
 	@Override
 	public T getSelectedObject() {
-		return null;
+		String selectedId = getValue();
+		if (selectedId != null) {
+			return objectById.get(selectedId);
+		} else {
+			return null;
+		}
 	}
 
 	@Override

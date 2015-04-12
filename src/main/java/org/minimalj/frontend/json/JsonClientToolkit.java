@@ -2,10 +2,8 @@ package org.minimalj.frontend.json;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
@@ -36,26 +34,10 @@ public class JsonClientToolkit extends ClientToolkit {
 		component.setText(string);
 		return component;
 	}
-
-	public static class JsonActionLabel extends JsonTextField {
-		private final Action action;
-		
-		public JsonActionLabel(Action action) {
-			super("Action");
-			this.action = action;
-			setText(action.getName());
-			String id = getSession().registerAction(action);
-			put("id", id);
-		}
-		
-		public void action() {
-			action.action();
-		}
-	}
 	
 	@Override
 	public IComponent createLabel(Action action) {
-		return new JsonActionLabel(action);
+		return new JsonAction(action);
 	}
 
 	@Override
@@ -124,12 +106,8 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public IComponent createComponentGroup(IComponent... components) {
-		JsonComponent group = new JsonComponent("group");
-		List<Map<String, Object>> c = new ArrayList<>();
-		for (IComponent component : components) {
-			c.add(((JsonComponent) component).getValues());
-		}
-		group.put("components", c);
+		JsonComponent group = new JsonComponent("Group", false);
+		group.put("components", Arrays.asList(components));
 		return group;
 	}
 

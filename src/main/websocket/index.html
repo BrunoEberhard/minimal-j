@@ -1,10 +1,10 @@
 <html>
 <head>
 <title>Build page</title>
-  
+
 <script src="dialog-polyfill.js"></script>
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
-
+ 
 <link rel="stylesheet" type="text/css" href="mj.css" />
 <script type="text/javascript">
 	var websocket;
@@ -44,6 +44,14 @@
         		if (element != undefined) {
         			if (property == "tableContent") {
         				document.getElementById(id).appendChild(createTableRows(value));
+        			} else if (property == "validationMessage") {
+        				element = document.getElementById(id + "-validation");
+        				if (value == undefined || value == "") {
+        					element.className = "hide";
+        				} else {
+        					element.className = "";
+        					element.title = value;
+        				}
         			} else {
                 		document.getElementById(id)[property] = value;
         			}
@@ -63,10 +71,10 @@
        	var element = createContent(content);
        	if (content.type == "Form") {
        		var p = document.createElement("table");
-       		p.setAttribute("class", "formContainer");
+       		p.className = "formContainer";
        		
        		var paddingLeft = document.createElement("td");
-			paddingLeft.setAttribute("class", "nopadding");
+			paddingLeft.className = "nopadding";
 			paddingLeft.width = "10%";
 			p.appendChild(paddingLeft);
 			
@@ -74,7 +82,7 @@
 			p.appendChild(element);
 			
        		var paddingRight = document.createElement("td");
-       		paddingRight.setAttribute("class", "nopadding");
+       		paddingRight.className = "nopadding";
        		paddingRight.width = "20%";
        		p.appendChild(paddingRight);
        		
@@ -89,8 +97,9 @@
        	var element;
        	if (type == "Form") {
        		element = document.createElement("table");
-       		element.setAttribute("class", "form");
+       		element.className = "form";
        		element.columns = content.columns;
+       		element.setAttribute("width", (content.columns * content.columnWidth / 4) + "ex"); 
        		var rows = content.rows;
        		element.appendChild(createFormRows(rows));
        	} else if (type == "Table") {
@@ -110,29 +119,43 @@
        		} else {
 	       		element.innerHTML = "&nbsp;";
        		}
+       	} else if (type == "Group") {
+       		element = document.createElement("table");
+       		element.className = "group";
+       		tr = document.createElement("tr");
+       		element.appendChild(tr);
+       		var components = content.components;
+       		for (var i = 0; i<components.length; i++) {
+       			td = document.createElement("td");
+       			td.appendChild(createContent(components[i]));
+       			tr.appendChild(td);
+       		}
        	} else if (type == "Action") {
        		element = document.createElement("div");
-       		element.setAttribute("class", "action");
-       		element.innerHTML = content.value;
+       		element.className = "action";
+       		element.innerHTML = content.name;
        		element.setAttribute("onclick", "action(\"" + content.id + "\");");
        	} else if (type == "TextField") {
        		element = document.createElement("input");
        		element.type="text";
-       		element.setAttribute("width", "100%");
+       		element.setAttribute("onchange", "sendchange(this);");
        		if (content.value != undefined) {
 	       		element.appendChild(document.createTextNode(content.value));
        		}
        	} else if (type == "Combobox") {
        		element = document.createElement("select");
-       		element.setAttribute("width", "100%");
+       		var option = document.createElement("option");
+       		element.appendChild(option);
        		if (content.options != undefined) {
        			for (var id in content.options) {
-       				option = document.createElement("option");
+       				var option = document.createElement("option");
        				option.value = id;
        				option.innerHTML = content.options[id];
 		       		element.appendChild(option);
        			}
-       		}       		
+       		}       
+       		element.value = content.value;
+       		element.setAttribute("onchange", "sendchange(this);");
        	} else if (type == "Vertical") {
        		element = document.createElement("div");
        		var components = content.components;
@@ -169,8 +192,16 @@
     		td.colSpan = cell.span;
    		}
    		var caption = document.createElement("div");
-   		caption.setAttribute("class", "caption");
-   		caption.innerHTML = cell.caption;
+   		caption.className = "caption";
+   		caption.appendChild(document.createTextNode(cell.caption));
+   		var tooltip = document.createElement("img");
+   		tooltip.id = cell.id + "-validation";
+   		tooltip.setAttribute("src", "field_error.png");
+   		tooltip.setAttribute("title", "The tooltip");
+   		if (cell.validation == undefined) {
+   			tooltip.className = "hide";
+   		}
+   		caption.appendChild(tooltip);
    		td.appendChild(caption);
    		td.appendChild(createContent(cell));
    		return td;
@@ -237,7 +268,7 @@
 	   	 	       		var a = document.createElement("a");
 	   	 	       		li.appendChild(a);
 	   	        		a.appendChild(document.createTextNode(item.name));
-   	    				a.setAttribute("onclick", "action(\"" + item.id + "\");");
+   	    				li.setAttribute("onclick", "action(\"" + item.id + "\");");
    	        		}
            		} else {
            			li.appendChild(document.createElement("hr"));
@@ -249,7 +280,9 @@
 
     function showDialog(json) {
     	var dialog = document.createElement("dialog");
-    	dialogPolyfill.registerDialog(dialog);
+    	if (dialog.show == undefined) {
+	    	dialogPolyfill.registerDialog(dialog);
+    	}
     	dialog.id = json.id;
    		
    		var header = document.createElement("div");
@@ -297,6 +330,15 @@
 		}
     }
 
+	
+	function sendchange(source) {
+		var data = {};
+		var changedValue = {};
+		changedValue[source.id] = source.value;
+		data.changedValue = changedValue;
+		send(data);
+	}
+	
     function showPage() {
 		var data = {};
 		data["showPage"] = null;
@@ -322,7 +364,7 @@
     			onMessage(evt)
     		};    		
     		websocket.onopen = function(evt) {
-    			action(actionId);
+    			send(data);
     		}
     	} else {
 			data["session"] = session;

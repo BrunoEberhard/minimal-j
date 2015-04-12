@@ -1,7 +1,5 @@
 package org.minimalj.frontend.json;
 
-import java.util.UUID;
-
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.IDialog;
@@ -12,10 +10,8 @@ public class JsonDialog extends JsonComponent implements IDialog {
 	
 	public JsonDialog(String title, IContent content, Action[] actions) {
 		super("Dialog");
-		String id = UUID.randomUUID().toString();
-		put("id", id);
 		put("title", title);
-		put("content", ((JsonComponent) content).getValues());
+		put("content", ((JsonComponent) content));
 		put("actions", JsonClientToolkit.getSession().createActions(actions));
 	}
 

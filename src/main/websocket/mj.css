@@ -57,8 +57,18 @@ body {
 	margin-bottom: 0.5ex;
 }
 
+.hide {
+	visibility: hidden;
+}
+
+table {
+	width: 100%;	
+	table-layout: fixed;
+}
+
 th {
 	text-align: left;
+	white-space: nowrap;
 }
 
 table tr:nth-child(even) {
@@ -103,6 +113,21 @@ td {
 
 table.form input, table.form select {
 	width: 100%;
+}
+
+table.group, table.group td {
+	background: transparent;
+	table-layout: fixed;
+	width: 100%;
+	height: auto;
+	margin: 0px;
+	padding: 0px 0px 0px 0px;
+	border: 0px;
+	border-spacing: 0px;
+}
+
+table.group tr {
+	height: auto;
 }
 
 #search {

@@ -1,9 +1,12 @@
 package org.minimalj.frontend.json;
 
+import java.util.Objects;
+
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
 public abstract class JsonValueComponent extends JsonComponent {
-
+	private static final long serialVersionUID = 1L;
+	
 	public static final String VALUE = "value";
 	public static final String EDITABLE = "editable";
 
@@ -18,11 +21,13 @@ public abstract class JsonValueComponent extends JsonComponent {
 	}
 	
 	@Override
-	public void put(String key, Object value) {
-		super.put(key, value);
-		if (changeListener != null) {
+	public Object put(String property, Object value) {
+		Object oldValue = super.put(property, value);
+		if (changeListener != null && !Objects.equals(oldValue, value)) {
 			changeListener.changed(this);
+			JsonClientToolkit.getSession().propertyChange(getId(), property, value);
 		}
+		return oldValue;
 	}
 
 	public void setValue(String value) {
