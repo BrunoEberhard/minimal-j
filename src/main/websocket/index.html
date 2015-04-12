@@ -7,6 +7,7 @@
  
 <link rel="stylesheet" type="text/css" href="mj.css" />
 <script type="text/javascript">
+	"use strict";
 	var websocket;
 	var session;
 	
@@ -173,7 +174,7 @@
     }
 
     function createFormRows(rows) {
-    	element = document.createElement("tbody");
+    	var element = document.createElement("tbody");
    		for (var i = 0; i<rows.length; i++) {
    			element.appendChild(createFormRow(rows[i]));
    		}
@@ -208,7 +209,7 @@
     }
     
     function createTableHeaders(headers) {
-    	element = document.createElement("thead");
+    	var element = document.createElement("thead");
    		for (var i = 0; i<headers.length; i++) {
    			th = document.createElement("th");
    			th.appendChild(document.createTextNode(headers[i]));
@@ -217,7 +218,7 @@
    		return element;
     }
     function createTableRows(rows) {
-    	element = document.createElement("tbody");
+    	var element = document.createElement("tbody");
    		for (var i = 0; i<rows.length; i++) {
    			element.appendChild(createTableRow(rows[i]));
    		}
