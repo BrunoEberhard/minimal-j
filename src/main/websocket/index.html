@@ -10,7 +10,8 @@
 	"use strict";
 	var websocket;
 	var session;
-	
+   	var isMobile = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/); 
+
 	function onMessage(evt) {
         var dataObject = JSON.parse(evt.data);
         session = dataObject["session"];
@@ -23,7 +24,7 @@
         var pageId = dataObject["pageId"];
         if (pageId != undefined) {
         	if (history.state != pageId) {
-	        	history.pushState(dataObject["pageId"]);
+	        	history.pushState(dataObject["pageId"], "TODO: Title");
         	}
         }         
         if (dataObject["dialog"] != undefined) {
@@ -32,6 +33,15 @@
         if (dataObject["closeDialog"] != undefined) {
         	document.getElementById(dataObject["closeDialog"]).close();
         }     
+        if (dataObject["switch"] != undefined) {
+        	var sw = dataObject["switch"];
+        	var swElement = document.getElementById(sw.id);
+        	if (swElement.firstChild) {
+        		swElement.replaceChild(createContent(sw.content), swElement.firstChild);		
+        	} else {
+        		swElement.appendChild(createContent(sw.content));		
+        	}
+        } 
         if (dataObject["propertyChanges"] != undefined) {
         	var propertyChanges = dataObject["propertyChanges"];
         	for (var i = 0; i<propertyChanges.length; i++) {
@@ -51,6 +61,12 @@
         					element.className = "";
         					element.title = value;
         				}
+        			} else if (property == "editable") {
+        				if (value) {
+        					element.removeAttribute("disabled");
+        				} else {
+	        				element.setAttribute("disabled", "true");
+        				}
         			} else {
                 		document.getElementById(id)[property] = value;
         			}
@@ -68,7 +84,7 @@
 		}
 		
        	var element = createContent(content);
-       	if (content.type == "Form") {
+       	if (content.type == "Form" && !isMobile) {
        		var p = document.createElement("table");
        		p.className = "formContainer";
        		
@@ -98,7 +114,11 @@
        		element = document.createElement("table");
        		element.className = "form";
        		element.columns = content.columns;
-       		element.setAttribute("width", (content.columns * content.columnWidth / 4) + "ex"); 
+       		if (!isMobile) {
+	       		element.setAttribute("style", "width: " + (content.columns * content.columnWidth / 4) + "ex;"); 
+       		} else {
+	       		element.setAttribute("style", "width: 100%;"); 
+       		}
        		var rows = content.rows;
        		element.appendChild(createFormRows(rows));
        	} else if (type == "Table") {
@@ -129,6 +149,8 @@
        			td.appendChild(createContent(components[i]));
        			tr.appendChild(td);
        		}
+       	} else if (type == "Switch") {
+       		element = document.createElement("div");
        	} else if (type == "Action") {
        		element = document.createElement("div");
        		element.className = "action";
@@ -324,8 +346,11 @@
 		};    
 		window.onpopstate = function(event) {
 			var data = {};
-			data.showPage = event.state;
-			send(data);
+			/* TODO */
+			if (event.state != undefined) {
+				data.showPage = event.state;
+				send(data);
+			}
 		}
     }
 
