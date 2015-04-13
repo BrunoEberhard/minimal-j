@@ -11,24 +11,26 @@
 	var websocket;
 	var session;
    	var isMobile = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/); 
-
+   	var titleElement = document.getElementById("title");
+   	
 	function onMessage(evt) {
         var dataObject = JSON.parse(evt.data);
         session = dataObject["session"];
         if (dataObject["content"] != undefined) {
+        	var title = dataObject.title;
+        	var pageId = dataObject.pageId;
+        	if (history.state == undefined) {
+				history.replaceState(pageId, title);
+        	} else if (history.state != pageId) {
+				history.pushState(pageId, title);
+        	}
+			
         	showContent(dataObject["content"]);
-        	var titleElement = document.getElementById("title");
-    		titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);		
+    		titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);		
         }
         if (dataObject["menu"] != undefined) {
         	showMenuBar(dataObject["menu"]);
         }
-        var pageId = dataObject["pageId"];
-        if (pageId != undefined) {
-        	if (history.state != pageId) {
-	        	history.pushState(pageId, dataObject.title);
-        	}
-        }         
         if (dataObject["dialog"] != undefined) {
         	showDialog(dataObject["dialog"]);
         }
@@ -346,25 +348,6 @@
        	document.getElementById("all").appendChild(dialog);
        	dialog.showModal();
 	}
-    
-    function init() {
-    	websocket = new WebSocket("ws://" + location.host + "/");
-    	websocket.onmessage = function(evt) {
-			onMessage(evt)
-		};
-    	websocket.onopen = function(evt) {
-			showPage();
-		};    
-		window.onpopstate = function(event) {
-			var data = {};
-			/* TODO */
-			if (event.state != undefined) {
-				data.showPage = event.state;
-				send(data);
-			}
-		}
-    }
-
 	
 	function sendchange(source) {
 		var data = {};
@@ -421,6 +404,21 @@
     	}
     }
 
+    
+    function init() {
+    	websocket = new WebSocket("ws://" + location.host + "/");
+    	websocket.onmessage = function(evt) {
+			onMessage(evt)
+		};
+    	websocket.onopen = function(evt) {
+			showPage();
+		};    
+		window.onpopstate = function(event) {
+			var data = {};
+			data.showPage = event.state;
+			send(data);
+		}
+    }
 </script>
 </head>
 <body onload="init();">
