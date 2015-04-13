@@ -23,6 +23,7 @@ public class JsonClientSession {
 	private static final Map<String, JsonClientSession> sessions = new HashMap<>();
 	private final ApplicationContext applicatonContext;
 	private Page visiblePage;
+	private String visiblePageId;
 	private Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private Map<String, Page> pageById = new HashMap<>();
 	private JsonOutput output;
@@ -110,6 +111,13 @@ public class JsonClientSession {
 		}
 		pageById.put(pageId, page);
 		output.add("pageId", pageId);
+		
+		this.visiblePage = page;
+		this.visiblePageId = pageId;
+	}
+	
+	public void refresh() {
+		showPage(visiblePage, visiblePageId);
 	}
 
 	private List<Object> createMenu(Page page) {
@@ -239,6 +247,14 @@ public class JsonClientSession {
 
 	public void closeDialog(String id) {
 		output.add("closeDialog", id);
+	}
+	
+	public void switchContent(String switchId, JsonComponent content) {
+		registerId(content);
+		Map<String, Object> sw = new HashMap<>();
+		sw.put("id", switchId);
+		sw.put("content", content);
+		output.add("switch", sw);
 	}
 	
 	public void propertyChange(String componentId, String property, Object value) {
