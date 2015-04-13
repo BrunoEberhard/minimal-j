@@ -24,7 +24,7 @@
         var pageId = dataObject["pageId"];
         if (pageId != undefined) {
         	if (history.state != pageId) {
-	        	history.pushState(dataObject["pageId"], "TODO: Title");
+	        	history.pushState(pageId, "TODO: Title");
         	}
         }         
         if (dataObject["dialog"] != undefined) {
@@ -177,6 +177,15 @@
        		}       
        		element.value = content.value;
        		element.setAttribute("onchange", "sendchange(this);");
+       	} else if (type == "CheckBox") {
+       		element = document.createElement("input");
+       		element.type = "checkbox";
+       		element.setAttribute("onchange", "sendchange(this);");
+       		element.id = content.id;
+       		var label = document.createElement("label");
+       		label.appendChild(element);
+       		label.appendChild(document.createTextNode(content.text));
+       		return label; /* ! */ 
        	} else if (type == "Vertical") {
        		element = document.createElement("div");
        		var components = content.components;
@@ -358,7 +367,12 @@
 	function sendchange(source) {
 		var data = {};
 		var changedValue = {};
-		changedValue[source.id] = source.value;
+		if (source.type = "checkbox") {
+			/* for checkboxes value is always true */
+			changedValue[source.id] = source.checked.toString();
+		} else {
+			changedValue[source.id] = source.value;
+		}
 		data.changedValue = changedValue;
 		send(data);
 	}
