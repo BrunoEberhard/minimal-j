@@ -96,7 +96,7 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public void refresh() {
-		// TODO Auto-generated method stub
+		session.get().refresh();
 	}
 
 	@Override
@@ -119,8 +119,7 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public SwitchContent createSwitchContent() {
-		// TODO Auto-generated method stub
-		return null;
+		return new JsonSwitchContent();
 	}
 
 	@Override
