@@ -426,7 +426,7 @@
 		<div id="header">
 			<div id="menu"></div>
 			<div id="search">
-				<input type="text" name="query" value="" /> <input type="submit" value="Search" onclick="search();"/>
+				<input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit" value="Search" onclick="search();"/>
 			</div>
 		</div>
 		<div id="content">
