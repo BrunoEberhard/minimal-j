@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.model.validation.ValidationMessage;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 
@@ -64,9 +63,15 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
 		JsonComponent jsonComponent = (JsonComponent) component;
-		if (!validationMessages.isEmpty()) {
-			String validationMessage = ValidationMessage.formatHtmlString(validationMessages);
-			jsonComponent.put(VALIDATION_MESSAGE, validationMessage);
+		if (validationMessages.size() == 1) {
+			jsonComponent.put(VALIDATION_MESSAGE, validationMessages.get(0));
+		} else if (!validationMessages.isEmpty()) {
+			StringBuilder s = new StringBuilder();
+			for (int i = 0; i<validationMessages.size()-1; i++) {
+				s.append(validationMessages.get(i));
+				s.append("<BR>");
+			}
+			s.append(validationMessages.get(validationMessages.size()-1));
 		} else {
 			jsonComponent.put(VALIDATION_MESSAGE, "");
 		}
