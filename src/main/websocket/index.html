@@ -11,11 +11,6 @@
 	var websocket;
 	var session;
 	
-	function onOpen(evt) {
-		var data = {};
-		data["showPage"] = null;
-		websocket.send(JSON.stringify(data));
-	}
 	function onMessage(evt) {
         var dataObject = JSON.parse(evt.data);
         session = dataObject["session"];
@@ -25,8 +20,11 @@
         if (dataObject["menu"] != undefined) {
         	showMenuBar(dataObject["menu"]);
         }
-        if (dataObject["pageId"] != undefined) {
-        	history.pushState(dataObject["pageId"]);
+        var pageId = dataObject["pageId"];
+        if (pageId != undefined) {
+        	if (history.state != pageId) {
+	        	history.pushState(dataObject["pageId"]);
+        	}
         }         
         if (dataObject["dialog"] != undefined) {
         	showDialog(dataObject["dialog"]);
@@ -325,11 +323,9 @@
 			showPage();
 		};    
 		window.onpopstate = function(event) {
-			if (event.state) {
-				var data = {};
-				data["showPage"] = event.state;
-				send(data);
-			}
+			var data = {};
+			data.showPage = event.state;
+			send(data);
 		}
     }
 
@@ -344,7 +340,7 @@
 	
     function showPage() {
 		var data = {};
-		data["showPage"] = null;
+		data.showPage = null;
 		send(data);
     }
     

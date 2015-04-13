@@ -54,7 +54,7 @@ public class JsonClientSession {
 			} else {
 				page = Application.getApplication().createDefaultPage();
 			}
-			showPage(page);
+			showPage(page, pageId);
 		}
 		
 		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
@@ -91,6 +91,10 @@ public class JsonClientSession {
 	}
 
 	public void showPage(Page page) {
+		showPage(page, null);
+	}
+	
+	public void showPage(Page page, String pageId) {
 		componentById.clear();
 		
 		JsonComponent content = (JsonComponent) page.getContent();
@@ -101,7 +105,9 @@ public class JsonClientSession {
 		registerId(menu);
 		output.add("menu", menu);
 		
-		String pageId = UUID.randomUUID().toString();
+		if (pageId == null) {
+			pageId = UUID.randomUUID().toString();
+		}
 		pageById.put(pageId, page);
 		output.add("pageId", pageId);
 	}
