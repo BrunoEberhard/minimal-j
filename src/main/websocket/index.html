@@ -352,7 +352,7 @@
 	function sendchange(source) {
 		var data = {};
 		var changedValue = {};
-		if (source.type = "checkbox") {
+		if (source.type == "checkbox") {
 			/* for checkboxes value is always true */
 			changedValue[source.id] = source.checked.toString();
 		} else {
