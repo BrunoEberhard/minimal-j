@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Build page</title>
+<title id="title">Loading</title>
 
 <script src="dialog-polyfill.js"></script>
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -17,6 +17,8 @@
         session = dataObject["session"];
         if (dataObject["content"] != undefined) {
         	showContent(dataObject["content"]);
+        	var titleElement = document.getElementById("title");
+    		titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);		
         }
         if (dataObject["menu"] != undefined) {
         	showMenuBar(dataObject["menu"]);
@@ -24,7 +26,7 @@
         var pageId = dataObject["pageId"];
         if (pageId != undefined) {
         	if (history.state != pageId) {
-	        	history.pushState(pageId, "TODO: Title");
+	        	history.pushState(pageId, dataObject.title);
         	}
         }         
         if (dataObject["dialog"] != undefined) {

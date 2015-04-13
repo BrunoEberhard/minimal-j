@@ -101,6 +101,7 @@ public class JsonClientSession {
 		JsonComponent content = (JsonComponent) page.getContent();
 		registerId(content);
 		output.add("content", content);
+		output.add("title", page.getTitle());
 
 		Object menu = createMenu(page);
 		registerId(menu);
