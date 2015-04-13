@@ -3,7 +3,7 @@ package org.minimalj.frontend.json;
 import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
-public class JsonCheckBox extends JsonValueComponent implements CheckBox {
+public class JsonCheckBox extends JsonInputComponent implements CheckBox {
 
 	public JsonCheckBox(String text, InputComponentListener changeListener) {
 		super("CheckBox", changeListener);

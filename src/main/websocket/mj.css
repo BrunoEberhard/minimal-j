@@ -64,6 +64,7 @@ body {
 table {
 	width: 100%;	
 	table-layout: fixed;
+	font-size: 80%
 }
 
 th {
@@ -89,6 +90,7 @@ table.form {
 	border-spacing: 0px;
 	width: 100%;
 	margin: 0.5ex;
+	font-size: 100%
 }
 
 table.form tr {

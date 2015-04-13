@@ -43,7 +43,7 @@ public class JsonClientToolkit extends ClientToolkit {
 	@Override
 	public IComponent createTitle(String string) {
 		JsonComponent component = new JsonComponent("Title");
-		component.put(JsonValueComponent.VALUE, string);
+		component.put(JsonInputComponent.VALUE, string);
 		return component;
 	}
 
@@ -90,7 +90,8 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public void show(List<Page> pages, int startIndex) {
-		// TODO Auto-generated method stub
+		// TODO
+		show(pages.get(startIndex));
 	}
 
 	@Override

@@ -63,13 +63,20 @@ public class JsonClientSession {
 			String newValue = (String) entry.getValue();
 			
 			JsonComponent component = componentById.get(componentId);
-			((JsonValueComponent) component).setValue((String) newValue); 
+			((JsonInputComponent) component).setValue((String) newValue); 
 		}
 		
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
 		if (actionId != null) {
 			JsonAction action = (JsonAction) componentById.get(actionId);
 			action.action();
+		}
+		
+		Map<String, Object> tableAction = input.get(JsonInput.TABLE_ACTION);
+		if (tableAction != null && !tableAction.isEmpty()) {
+			JsonTable<?> table = (JsonTable<?>) componentById.get(tableAction.get("table"));
+			int row = ((Long) tableAction.get("row")).intValue();
+			table.action(row);
 		}
 		
 		String search = (String) input.getObject("search");
@@ -87,11 +94,11 @@ public class JsonClientSession {
 		componentById.clear();
 		
 		JsonComponent content = (JsonComponent) page.getContent();
-		registerIds(content);
+		registerId(content);
 		output.add("content", content);
 
 		Object menu = createMenu(page);
-		registerIds(menu);
+		registerId(menu);
 		output.add("menu", menu);
 		
 		String pageId = UUID.randomUUID().toString();
@@ -175,7 +182,7 @@ public class JsonClientSession {
 		return item;
 	}
 
-	public void registerIds(Object o) {
+	public void registerId(Object o) {
 		if (o instanceof JsonComponent) {
 			JsonComponent component = (JsonComponent) o;
 			String id = component.getId();
@@ -186,13 +193,13 @@ public class JsonClientSession {
 		if (o instanceof Map) {
 			Map map = (Map) o;
 			for (Object o2 : map.values()) {
-				registerIds(o2);
+				registerId(o2);
 			}
 		}
 		if (o instanceof List) {
 			List list = (List) o;
 			for (Object o2 : list) {
-				registerIds(o2);
+				registerId(o2);
 			}
 		}
 	}
@@ -220,15 +227,16 @@ public class JsonClientSession {
 	}
 
 	public void openDialog(JsonDialog jsonDialog) {
-		registerIds(jsonDialog);
+		registerId(jsonDialog);
 		output.add("dialog", jsonDialog);
 	}
 
 	public void closeDialog(String id) {
 		output.add("closeDialog", id);
 	}
-
+	
 	public void propertyChange(String componentId, String property, Object value) {
 		output.propertyChange(componentId, property, value);
 	}
+
 }

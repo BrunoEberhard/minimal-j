@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
-public abstract class JsonValueComponent extends JsonComponent {
+public abstract class JsonInputComponent extends JsonComponent {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String VALUE = "value";
@@ -12,7 +12,7 @@ public abstract class JsonValueComponent extends JsonComponent {
 
 	private final InputComponentListener changeListener;
 	
-	public JsonValueComponent(String type, InputComponentListener changeListener) {
+	public JsonInputComponent(String type, InputComponentListener changeListener) {
 		super(type);
 		this.changeListener = changeListener;
 		if (changeListener == null) {
@@ -25,7 +25,6 @@ public abstract class JsonValueComponent extends JsonComponent {
 		Object oldValue = super.put(property, value);
 		if (changeListener != null && !Objects.equals(oldValue, value)) {
 			changeListener.changed(this);
-			JsonClientToolkit.getSession().propertyChange(getId(), property, value);
 		}
 		return oldValue;
 	}

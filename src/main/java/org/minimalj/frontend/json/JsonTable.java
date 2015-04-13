@@ -3,8 +3,8 @@ package org.minimalj.frontend.json;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,10 +26,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		super("Table");
 		this.properties = convert(keys);
 		this.listener = listener;
-		
-		String id = UUID.randomUUID().toString();
-		put("id", id);
-		
+
 		List<String> headers = new ArrayList<>();
 		for (PropertyInterface property : properties) {
 			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
@@ -79,6 +76,11 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 		
 		put("tableContent", tableContent);
+	}
+	
+	public void action(int row) {
+		T object = objects.get(row);
+		listener.action(object, Collections.singletonList(object));
 	}
 
 }

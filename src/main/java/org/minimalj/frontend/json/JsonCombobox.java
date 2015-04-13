@@ -12,7 +12,7 @@ import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.EqualsHelper;
 
-public class JsonCombobox<T> extends JsonValueComponent implements ComboBox<T> {
+public class JsonCombobox<T> extends JsonInputComponent implements ComboBox<T> {
 
 	private final Map<String, T> objectById = new LinkedHashMap<>();
 	private final Map<String, Object> options = new LinkedHashMap<>();

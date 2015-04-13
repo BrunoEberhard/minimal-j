@@ -44,7 +44,7 @@
         		var element = document.getElementById(id);
         		if (element != undefined) {
         			if (property == "tableContent") {
-        				document.getElementById(id).appendChild(createTableRows(value));
+        				document.getElementById(id).appendChild(createTableRows(id, value));
         			} else if (property == "validationMessage") {
         				element = document.getElementById(id + "-validation");
         				if (value == undefined || value == "") {
@@ -123,11 +123,11 @@
        	} else if (type == "Group") {
        		element = document.createElement("table");
        		element.className = "group";
-       		tr = document.createElement("tr");
+       		var tr = document.createElement("tr");
        		element.appendChild(tr);
        		var components = content.components;
        		for (var i = 0; i<components.length; i++) {
-       			td = document.createElement("td");
+       			var td = document.createElement("td");
        			td.appendChild(createContent(components[i]));
        			tr.appendChild(td);
        		}
@@ -211,16 +211,18 @@
     function createTableHeaders(headers) {
     	var element = document.createElement("thead");
    		for (var i = 0; i<headers.length; i++) {
-   			th = document.createElement("th");
+   			var th = document.createElement("th");
    			th.appendChild(document.createTextNode(headers[i]));
    			element.appendChild(th);
    		}
    		return element;
     }
-    function createTableRows(rows) {
+    function createTableRows(tableId, rows) {
     	var element = document.createElement("tbody");
    		for (var i = 0; i<rows.length; i++) {
-   			element.appendChild(createTableRow(rows[i]));
+   			var rowElement = createTableRow(rows[i]);
+   			rowElement.setAttribute("onclick", "tableAction(\"" + tableId + "\", " + i + " );");
+   			element.appendChild(rowElement);
    		}
    		return element;
     }
@@ -352,6 +354,15 @@
 		send(data);
     }
 
+    function tableAction(tableId, row) {
+		var tableAction = {};
+		tableAction.table = tableId;
+		tableAction.row = row;
+		var data = {};
+		data.tableAction = tableAction;
+		send(data);
+    }
+    
     function search() {
 		var data = {};
 		data["search"] = document.getElementsByName("query")[0].value;

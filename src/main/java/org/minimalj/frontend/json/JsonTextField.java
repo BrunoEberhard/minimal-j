@@ -6,7 +6,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
-public class JsonTextField extends JsonValueComponent implements TextField {
+public class JsonTextField extends JsonInputComponent implements TextField {
 
 	private static final String EDITABLE = "editable";
 	private static final String MAX_LENGTH = "maxLength";
