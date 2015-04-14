@@ -10,7 +10,7 @@
 	"use strict";
 	var websocket;
 	var session;
-   	var isMobile = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/); 
+   	var isMobile = window.outerWidth <= 480; //navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/); 
    	var titleElement = document.getElementById("title");
    	
 	function onMessage(evt) {
@@ -30,6 +30,9 @@
         }
         if (dataObject["menu"] != undefined) {
         	showMenuBar(dataObject["menu"]);
+        }
+        if (dataObject["searches"] != undefined) {
+        	showSearches(dataObject["searches"]);
         }
         if (dataObject["dialog"] != undefined) {
         	showDialog(dataObject["dialog"]);
@@ -128,6 +131,7 @@
        	} else if (type == "Table") {
        		element = document.createElement("table");
        		element.appendChild(createTableHeaders(content.headers));
+       		element.appendChild(createTableRows(content.id, content.tableContent));
        	} else if (type == "ReadOnlyTextField") {
        		element = document.createElement("div");
        		if (content.value != undefined) {
@@ -209,8 +213,16 @@
     function createFormRows(rows) {
     	var element = document.createElement("tbody");
    		for (var i = 0; i<rows.length; i++) {
-   			element.appendChild(createFormRow(rows[i]));
-   		}
+	    	if (!isMobile) {
+	   			element.appendChild(createFormRow(rows[i]));
+	    	} else {
+	    		var row = rows[i];
+	       		for (var j = 0; j<row.length; j++) {
+	       			var singleRow = [row[j]];
+	       			element.appendChild(createFormRow(singleRow));
+	       		}
+	   		}
+    	}
    		return element;
     }
     function createFormRow(row) {
@@ -222,7 +234,7 @@
     }
     function createFormCell(cell) {
    		var td = document.createElement("td");
-   		if (cell.span != undefined) {
+   		if (cell.span != undefined && !isMobile) {
     		td.colSpan = cell.span;
    		}
    		var caption = document.createElement("div");
@@ -314,44 +326,58 @@
        		return ul;
         }
 	}
+   
 
-    function showDialog(json) {
-    	var dialog = document.createElement("dialog");
-    	if (dialog.show == undefined) {
-	    	dialogPolyfill.registerDialog(dialog);
-    	}
-    	dialog.id = json.id;
-   		
-   		var header = document.createElement("div");
-   		header.id = "dialogHeader";
-   		var headerDiv = document.createElement("div");
-   		headerDiv.appendChild(document.createTextNode(json.title));
-   		header.appendChild(headerDiv);
-       	dialog.appendChild(header);
-   		
-   		var content = document.createElement("div");
-   		content.id = "dialogContent";
-   		content.appendChild(createContent(json["content"]));
-       	dialog.appendChild(content);
-   		
-   		var footer = document.createElement("div");
-   		footer.id = "dialogFooter";
-   		var actions = json["actions"];
-   		for (var i = 0; i<actions.length; i++) {
-   			var action = actions[i];
-       		var button = document.createElement("button");
-       		button.id = action.id;
-       		button.appendChild(document.createTextNode(action.name));
-			button.setAttribute("onclick", "action(\"" + action.id + "\");");
-			if (!action.enabled) button.setAttribute("disabled", "true");
-			footer.appendChild(button);
-	   	}
-       	dialog.appendChild(footer);
-       	
-       	document.getElementById("all").appendChild(dialog);
-       	dialog.showModal();
+	function showSearches(searches) {
+		var searchesElement = document.getElementsByName("searchSelection")[0];
+		while (searchesElement.firstChild) {
+			searchesElement.removeChild(searchesElement.firstChild);
+		}
+		for (var i = 0; i < searches.length; i++) {
+			var optionElement = document.createElement("option");
+			optionElement.appendChild(document.createTextNode(searches[i]));
+			searchesElement.appendChild(optionElement);
+		}
 	}
-	
+
+	function showDialog(json) {
+		var dialog = document.createElement("dialog");
+		if (dialog.show == undefined) {
+			dialogPolyfill.registerDialog(dialog);
+		}
+		dialog.id = json.id;
+
+		var header = document.createElement("div");
+		header.id = "dialogHeader";
+		var headerDiv = document.createElement("div");
+		headerDiv.appendChild(document.createTextNode(json.title));
+		header.appendChild(headerDiv);
+		dialog.appendChild(header);
+
+		var content = document.createElement("div");
+		content.id = "dialogContent";
+		content.appendChild(createContent(json["content"]));
+		dialog.appendChild(content);
+
+		var footer = document.createElement("div");
+		footer.id = "dialogFooter";
+		var actions = json["actions"];
+		for (var i = 0; i < actions.length; i++) {
+			var action = actions[i];
+			var button = document.createElement("button");
+			button.id = action.id;
+			button.appendChild(document.createTextNode(action.name));
+			button.setAttribute("onclick", "action(\"" + action.id + "\");");
+			if (!action.enabled)
+				button.setAttribute("disabled", "true");
+			footer.appendChild(button);
+		}
+		dialog.appendChild(footer);
+
+		document.getElementById("all").appendChild(dialog);
+		dialog.showModal();
+	}
+
 	function sendchange(source) {
 		var data = {};
 		var changedValue = {};
@@ -364,64 +390,64 @@
 		data.changedValue = changedValue;
 		send(data);
 	}
-	
-    function showPage() {
+
+	function showPage() {
 		var data = {};
 		data.showPage = null;
 		send(data);
-    }
-    
-    function action(actionId) {
+	}
+
+	function action(actionId) {
 		var data = {};
 		data["activatedAction"] = actionId;
 		send(data);
-    }
+	}
 
-    function tableAction(tableId, row) {
+	function tableAction(tableId, row) {
 		var tableAction = {};
 		tableAction.table = tableId;
 		tableAction.row = row;
 		var data = {};
 		data.tableAction = tableAction;
 		send(data);
-    }
-    
-    function search() {
+	}
+
+	function search() {
 		var data = {};
+		data["searchName"] = document.getElementsByName("searchSelection")[0].value;
 		data["search"] = document.getElementsByName("query")[0].value;
 		send(data);
-    }
-    
-    function send(data) {
-    	if (websocket.readyState > 1) {
-    		websocket = new WebSocket("ws://" + location.host + "/");
-        	websocket.onmessage = function(evt) {
-    			onMessage(evt)
-    		};    		
-    		websocket.onopen = function(evt) {
-    			send(data);
-    		}
-    	} else {
+	}
+
+	function send(data) {
+		if (websocket.readyState > 1) {
+			websocket = new WebSocket("ws://" + location.host + "/");
+			websocket.onmessage = function(evt) {
+				onMessage(evt)
+			};
+			websocket.onopen = function(evt) {
+				send(data);
+			}
+		} else {
 			data["session"] = session;
 			websocket.send(JSON.stringify(data));
-    	}
-    }
+		}
+	}
 
-    
-    function init() {
-    	websocket = new WebSocket("ws://" + location.host + "/");
-    	websocket.onmessage = function(evt) {
+	function init() {
+		websocket = new WebSocket("ws://" + location.host + "/");
+		websocket.onmessage = function(evt) {
 			onMessage(evt)
 		};
-    	websocket.onopen = function(evt) {
+		websocket.onopen = function(evt) {
 			showPage();
-		};    
+		};
 		window.onpopstate = function(event) {
 			var data = {};
 			data.showPage = event.state;
 			send(data);
 		}
-    }
+	}
 </script>
 </head>
 <body onload="init();">
@@ -429,7 +455,7 @@
 		<div id="header">
 			<div id="menu"></div>
 			<div id="search">
-				<input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit" value="Search" onclick="search();"/>
+				<select name="searchSelection"></select><input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit" value="Search" onclick="search();"/>
 			</div>
 		</div>
 		<div id="content">

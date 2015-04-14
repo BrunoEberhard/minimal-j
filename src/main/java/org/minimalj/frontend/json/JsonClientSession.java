@@ -84,9 +84,14 @@ public class JsonClientSession {
 		
 		String search = (String) input.getObject("search");
 		if (search != null) {
-			SearchPage searchPage = Application.getApplication().getSearchPages()[0];
-			searchPage.setQuery(search);
-			showPage(searchPage);
+			String searchName = (String) input.getObject("searchName");
+			for (SearchPage searchPage : Application.getApplication().getSearchPages()) {
+				if (searchPage.getName().equals(searchName)) {
+					searchPage.setQuery(search);
+					showPage(searchPage);
+					break;
+				}
+			}
 		}
 
 		JsonClientToolkit.setSession(null);
@@ -108,6 +113,9 @@ public class JsonClientSession {
 		Object menu = createMenu(page);
 		register(menu);
 		output.add("menu", menu);
+		
+		Object searchNames = getSearchNames();
+		output.add("searches", searchNames);
 		
 		if (pageId == null) {
 			pageId = UUID.randomUUID().toString();
@@ -197,6 +205,14 @@ public class JsonClientSession {
 		}
 		item.put("name", action.getName());
 		return item;
+	}
+	
+	List<Object> getSearchNames() {
+		List<Object> names = new ArrayList<>();
+		for (SearchPage searchPage : Application.getApplication().getSearchPages()) {
+			names.add(searchPage.getName());
+		}
+		return names;
 	}
 
 	public void register(Object o) {
