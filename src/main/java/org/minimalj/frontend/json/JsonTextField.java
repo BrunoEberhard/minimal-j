@@ -15,7 +15,7 @@ public class JsonTextField extends JsonInputComponent implements TextField {
 	private static final String AUTOCOMPLETE = "autocomplete";
 	
 	public JsonTextField(String type) {
-		this(type, 0, null, null, null, null);
+		super(type, null);
 	}
 	
 	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,

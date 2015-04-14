@@ -15,9 +15,6 @@ public abstract class JsonInputComponent extends JsonComponent {
 	public JsonInputComponent(String type, InputComponentListener changeListener) {
 		super(type);
 		this.changeListener = changeListener;
-		if (changeListener == null) {
-			put(EDITABLE, false);
-		}
 	}
 	
 	@Override
