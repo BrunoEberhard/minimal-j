@@ -65,7 +65,7 @@
         					element.className = "";
         					element.title = value;
         				}
-        			} else if (property == "editable") {
+        			} else if (property == "editable" || property == "enabled") {
         				if (value) {
         					element.removeAttribute("disabled");
         				} else {
@@ -339,6 +339,7 @@
    		for (var i = 0; i<actions.length; i++) {
    			var action = actions[i];
        		var button = document.createElement("button");
+       		button.id = action.id;
        		button.appendChild(document.createTextNode(action.name));
 			button.setAttribute("onclick", "action(\"" + action.id + "\");");
 			footer.appendChild(button);

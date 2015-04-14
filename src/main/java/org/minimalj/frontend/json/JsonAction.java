@@ -1,6 +1,7 @@
 package org.minimalj.frontend.json;
 
 import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
 import org.minimalj.util.StringUtils;
 
 public class JsonAction extends JsonComponent {
@@ -14,6 +15,8 @@ public class JsonAction extends JsonComponent {
 		if (!StringUtils.isEmpty(action.getDescription())) {
 			put("description", action.getDescription());
 		}
+		put("enabled", action.isEnabled());
+		action.setChangeListener(new JsonActionChangeListener());
 	}
 
 	public void action() {
@@ -25,6 +28,14 @@ public class JsonAction extends JsonComponent {
 		
 		public JsonActionGroup() {
 			super("ActionGroup", false);
+		}
+	}
+	
+	private class JsonActionChangeListener implements ActionChangeListener {
+
+		@Override
+		public void change() {
+			put("enabled", action.isEnabled());
 		}
 	}
 	
