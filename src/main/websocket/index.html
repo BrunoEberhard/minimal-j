@@ -231,8 +231,9 @@
    		var tooltip = document.createElement("img");
    		tooltip.id = cell.id + "-validation";
    		tooltip.setAttribute("src", "field_error.png");
-   		tooltip.setAttribute("title", "The tooltip");
-   		if (cell.validation == undefined) {
+   		if (cell.validationMessage != undefined && cell.validationMessage.length > 0) {
+	   		tooltip.setAttribute("title", cell.validationMessage);
+   		} else {
    			tooltip.className = "hide";
    		}
    		caption.appendChild(tooltip);
