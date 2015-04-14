@@ -342,6 +342,7 @@
        		button.id = action.id;
        		button.appendChild(document.createTextNode(action.name));
 			button.setAttribute("onclick", "action(\"" + action.id + "\");");
+			if (!action.enabled) button.setAttribute("disabled", "true");
 			footer.appendChild(button);
 	   	}
        	dialog.appendChild(footer);
