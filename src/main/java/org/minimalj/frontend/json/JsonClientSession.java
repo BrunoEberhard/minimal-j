@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.ApplicationContext;
+import org.minimalj.frontend.json.JsonComponent.JsonPropertyListener;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
@@ -27,6 +28,7 @@ public class JsonClientSession {
 	private Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private Map<String, Page> pageById = new HashMap<>();
 	private JsonOutput output;
+	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
 	public JsonClientSession(ApplicationContext context) {
 		this.applicatonContext = context;
@@ -99,12 +101,12 @@ public class JsonClientSession {
 		componentById.clear();
 		
 		JsonComponent content = (JsonComponent) page.getContent();
-		registerId(content);
+		register(content);
 		output.add("content", content);
 		output.add("title", page.getTitle());
 
 		Object menu = createMenu(page);
-		registerId(menu);
+		register(menu);
 		output.add("menu", menu);
 		
 		if (pageId == null) {
@@ -197,24 +199,25 @@ public class JsonClientSession {
 		return item;
 	}
 
-	public void registerId(Object o) {
+	public void register(Object o) {
 		if (o instanceof JsonComponent) {
 			JsonComponent component = (JsonComponent) o;
 			String id = component.getId();
 			if (id != null) {
 				componentById.put(component.getId(), component);
 			}
+			component.setPropertyListener(propertyListener);
 		}
 		if (o instanceof Map) {
 			Map map = (Map) o;
 			for (Object o2 : map.values()) {
-				registerId(o2);
+				register(o2);
 			}
 		}
 		if (o instanceof List) {
 			List list = (List) o;
 			for (Object o2 : list) {
-				registerId(o2);
+				register(o2);
 			}
 		}
 	}
@@ -242,7 +245,7 @@ public class JsonClientSession {
 	}
 
 	public void openDialog(JsonDialog jsonDialog) {
-		registerId(jsonDialog);
+		register(jsonDialog);
 		output.add("dialog", jsonDialog);
 	}
 
@@ -251,15 +254,18 @@ public class JsonClientSession {
 	}
 	
 	public void switchContent(String switchId, JsonComponent content) {
-		registerId(content);
+		register(content);
 		Map<String, Object> sw = new HashMap<>();
 		sw.put("id", switchId);
 		sw.put("content", content);
 		output.add("switch", sw);
 	}
 	
-	public void propertyChange(String componentId, String property, Object value) {
-		output.propertyChange(componentId, property, value);
+	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {
+		
+		public void propertyChange(String componentId, String property, Object value) {
+			output.propertyChange(componentId, property, value);
+		}
 	}
 
 }

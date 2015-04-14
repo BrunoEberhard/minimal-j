@@ -12,6 +12,8 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 	private static final String ID = "id";
 	private static final String TYPE = "type";
 
+	private JsonPropertyListener propertyListener;
+	
 	public JsonComponent(String type) {
 		this(type, true);
 	}
@@ -25,14 +27,23 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 	
 	public Object put(String property, Object value) {
 		Object oldValue = super.put(property, value);
-		if (!Objects.equals(oldValue, value)) {
-			JsonClientToolkit.getSession().propertyChange(getId(), property, value);
+		if (!Objects.equals(oldValue, value) && propertyListener != null) {
+			propertyListener.propertyChange(getId(), property, value);
 		}
 		return oldValue;
 	}
 	
 	public String getId() {
 		return (String) get(ID);
+	}
+	
+	public void setPropertyListener(JsonPropertyListener propertyListener) {
+		this.propertyListener = propertyListener;
+	}
+	
+	public static interface JsonPropertyListener {
+		
+		public void propertyChange(String componentId, String property, Object value);
 	}
 	
 }
