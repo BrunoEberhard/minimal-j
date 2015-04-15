@@ -70,7 +70,8 @@
         				}
         			} else if (property == "editable" || property == "enabled") {
         				if (value) {
-        					element.removeAttribute("disabled");
+        					// button in dialog footer is not enabled with disabled = false
+        					element.removeAttribute("disabled", value);
         				} else {
 	        				element.setAttribute("disabled", "true");
         				}
@@ -314,13 +315,15 @@
 	   	        		li.appendChild(document.createTextNode(item.name));
    	            		li.appendChild(createMenu(item));
    	    			} else if (item.id != undefined) {
+	   	 	       		li.id = item.id;
 	   	 	       		var a = document.createElement("a");
 	   	 	       		if (!item.enabled){		   	 	       			
-		   	 	       		li.className = "disabledMenu";
+		   	 	       		li.setAttribute("disabled", "true");
+	   	 	       		} else {
+	   	    				li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id + "\");");
 	   	 	       		}
 	   	 	       		li.appendChild(a);
 	   	        		a.appendChild(document.createTextNode(item.name));
-   	    				li.setAttribute(item.enabled ? "onclick" : "onclick_disabled", "action(\"" + item.id + "\");");
    	        		}
            		} else {
            			li.appendChild(document.createElement("hr"));
