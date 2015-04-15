@@ -315,9 +315,12 @@
    	            		li.appendChild(createMenu(item));
    	    			} else if (item.id != undefined) {
 	   	 	       		var a = document.createElement("a");
+	   	 	       		if (!item.enabled){		   	 	       			
+		   	 	       		li.className = "disabledMenu";
+	   	 	       		}
 	   	 	       		li.appendChild(a);
 	   	        		a.appendChild(document.createTextNode(item.name));
-   	    				li.setAttribute("onclick", "action(\"" + item.id + "\");");
+   	    				li.setAttribute(item.enabled ? "onclick" : "onclick_disabled", "action(\"" + item.id + "\");");
    	        		}
            		} else {
            			li.appendChild(document.createElement("hr"));
