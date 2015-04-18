@@ -28,11 +28,16 @@ public class LanternaReadOnlyTextField extends Label implements TextField {
 	}
 	
 	@Override
-	public void setText(String text) {
+	public void setValue(String text) {
 		if (text == null) {
 			text = "";
 		}
 		super.setText(text);
+	}
+
+	@Override
+	public String getValue() {
+		return getText();
 	}
 
 }

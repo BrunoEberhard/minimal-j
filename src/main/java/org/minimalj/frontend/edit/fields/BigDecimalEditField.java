@@ -16,7 +16,7 @@ public class BigDecimalEditField extends NumberEditField<BigDecimal> implements 
 
 	@Override
 	public BigDecimal getObject() {
-		String text = textField.getText();
+		String text = textField.getValue();
 		if (text != null) {
 			try {
 				return new BigDecimal(text);

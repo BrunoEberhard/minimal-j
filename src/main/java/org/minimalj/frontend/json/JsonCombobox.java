@@ -7,12 +7,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.EqualsHelper;
 
-public class JsonCombobox<T> extends JsonInputComponent implements ComboBox<T> {
+public class JsonCombobox<T> extends JsonInputComponent<T> {
 
 	private final Map<String, T> objectById = new LinkedHashMap<>();
 	private final Map<String, Object> options = new LinkedHashMap<>();
@@ -33,28 +32,23 @@ public class JsonCombobox<T> extends JsonInputComponent implements ComboBox<T> {
 	}
 
 	@Override
-	public void setSelectedObject(T object) {
+	public void setValue(T object) {
 		for (Map.Entry<String, T> entry : objectById.entrySet()) {
 			if (EqualsHelper.equals(entry.getValue(), object)) {
-				setValue(entry.getKey());
+				put(VALUE, entry.getKey());
 				return;
 			}
 		} 
-		setValue(null);
+		put(VALUE, null);
 	}
 
 	@Override
-	public T getSelectedObject() {
-		String selectedId = getValue();
+	public T getValue() {
+		String selectedId = (String) get(VALUE);
 		if (selectedId != null) {
 			return objectById.get(selectedId);
 		} else {
 			return null;
 		}
-	}
-
-	@Override
-	public void setEditable(boolean editable) {
-		put(EDITABLE, editable);
 	}
 }

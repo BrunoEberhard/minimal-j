@@ -6,20 +6,23 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.vaadin.VaadinWindow;
-import org.minimalj.util.StringUtils;
+import org.minimalj.frontend.vaadin.toolkit.VaadinTextAreaField.VaadinTextAreaDelegate;
+import org.minimalj.frontend.vaadin.toolkit.VaadinTextField.VaadinTextDelegate;
+import org.minimalj.frontend.vaadin.toolkit.VaadinTextFieldAutocomplete.VaadinTextAutocompleteDelegate;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbstractField;
@@ -91,15 +94,15 @@ public class VaadinClientToolkit extends ClientToolkit {
 	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
 			InputComponentListener changeListener) {
 		if (autocomplete == null) {
-			return new VaadinTextField(changeListener, maxLength, allowedCharacters);
+			return new VaadinTextDelegate(changeListener, maxLength, allowedCharacters);
 		} else {
-			return new VaadinTextFieldAutocomplete(autocomplete, changeListener);
+			return new VaadinTextAutocompleteDelegate(autocomplete, changeListener);
 		}
 	}
 
 	@Override
 	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
-		return new VaadinTextAreaField(changeListener, maxLength, allowedCharacters);
+		return new VaadinTextAreaDelegate(changeListener, maxLength, allowedCharacters);
 	}
 
 	@Override
@@ -108,12 +111,12 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(List<T> objects, InputComponentListener listener) {
+	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener listener) {
 		return new VaadinComboBox<T>(objects, listener);
 	}
 
 	@Override
-	public CheckBox createCheckBox(InputComponentListener listener, String text) {
+	public Input<Boolean> createCheckBox(InputComponentListener listener, String text) {
 		return new VaadinCheckBox(listener, text);
 	}
 
@@ -213,17 +216,18 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
+	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
 		return new VaadinLookup<T>(changeListener, index, keys);
 	}
 	
-	private static class VaadinLookup<T> extends GridLayout implements ILookup<T> {
+	private static class VaadinLookup<T> extends GridLayout implements Input<T> {
 		private static final long serialVersionUID = 1L;
 		
 		private final InputComponentListener changeListener;
 		private final Search<T> search;
 		private final Object[] keys;
 		private final VaadinLookupLabel actionLabel;
+		private final VaadinRemoveLabel removeLabel;
 		private IDialog dialog;
 		private T selectedObject;
 		
@@ -235,26 +239,41 @@ public class VaadinClientToolkit extends ClientToolkit {
 			this.keys = keys;
 			
 			this.actionLabel = new VaadinLookupLabel();
+			this.removeLabel = new VaadinRemoveLabel();
 			addComponent(actionLabel);
-			addComponent(new VaadinRemoveLabel());
+			addComponent(removeLabel);
 			setColumnExpandRatio(0, 1.0f);
 			setColumnExpandRatio(1, 0.0f);
 		}
 
 		@Override
-		public void setText(String text) {
-			if (!StringUtils.isBlank(text)) {
-				actionLabel.setCaption(text);
-			} else {
-				actionLabel.setCaption("[+]");
-			}
+		public void setValue(T value) {
+			this.selectedObject = value;
+			display();
 		}
 
+		protected void display() {
+			if (selectedObject instanceof Rendering) {
+				Rendering rendering = (Rendering) selectedObject;
+				actionLabel.setValue(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));
+			} else if (selectedObject != null) {
+				actionLabel.setValue(selectedObject.toString());
+			} else {
+				actionLabel.setValue("[+]");
+			}
+		}
+		
 		@Override
-		public T getSelectedObject() {
+		public T getValue() {
 			return selectedObject;
 		}
 		
+		@Override
+		public void setEditable(boolean editable) {
+			actionLabel.setEnabled(editable);
+			removeLabel.setEnabled(editable);
+		}
+
 		private class VaadinLookupLabel extends Button {
 			private static final long serialVersionUID = 1L;
 

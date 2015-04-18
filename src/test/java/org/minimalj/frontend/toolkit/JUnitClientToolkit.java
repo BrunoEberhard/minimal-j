@@ -51,7 +51,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 		return new TextField() {
 			
 			@Override
-			public void setText(String text) {
+			public void setValue(String text) {
 				// TODO Auto-generated method stub
 				
 			}
@@ -75,7 +75,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 			}
 			
 			@Override
-			public String getText() {
+			public String getValue() {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -95,13 +95,13 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(List<T> object, InputComponentListener changeListener) {
+	public <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public CheckBox createCheckBox(InputComponentListener changeListener, String text) {
+	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -194,7 +194,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
+	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
 		// TODO Auto-generated method stub
 		return null;
 	}

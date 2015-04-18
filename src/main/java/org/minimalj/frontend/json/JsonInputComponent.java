@@ -2,9 +2,10 @@ package org.minimalj.frontend.json;
 
 import java.util.Objects;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
-public abstract class JsonInputComponent extends JsonComponent {
+public abstract class JsonInputComponent<T> extends JsonComponent implements Input<T> {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String VALUE = "value";
@@ -25,13 +26,9 @@ public abstract class JsonInputComponent extends JsonComponent {
 		}
 		return oldValue;
 	}
-
-	public void setValue(String value) {
-		put(VALUE, value);
+	
+	@Override
+	public void setEditable(boolean editable) {
+		put(EDITABLE, editable);
 	}
-
-	public String getValue() {
-		return (String) get(VALUE);
-	}
-
 }

@@ -45,6 +45,15 @@ public abstract class ClientToolkit {
 	public interface IComponent {
 	}
 	
+	public interface Input<T> extends IComponent {
+		
+		public void setValue(T value);
+
+		public T getValue();
+
+		public void setEditable(boolean editable);
+	}
+
 	 // http://www.w3schools.com/html/html_form_input_types.asp 
 	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
 
@@ -55,8 +64,8 @@ public abstract class ClientToolkit {
 	public abstract TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete, InputComponentListener changeListener);
 	public abstract TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract FlowField createFlowField();
-	public abstract <T> ComboBox<T> createComboBox(List<T> object, InputComponentListener changeListener);
-	public abstract CheckBox createCheckBox(InputComponentListener changeListener, String text);
+	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
+	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
 	public interface InputComponentListener {
 	    void changed(IComponent source);
@@ -66,13 +75,8 @@ public abstract class ClientToolkit {
 		public List<S> search(String query);
 	}
 	
-	public abstract <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys);
+	public abstract <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys);
 	
-	public interface ILookup<S> extends IComponent {
-		void setText(String string);
-		S getSelectedObject();
-	}
-
 	public abstract IComponent createComponentGroup(IComponent... components);
 
 	/**

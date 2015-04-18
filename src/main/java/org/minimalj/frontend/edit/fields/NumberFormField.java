@@ -46,7 +46,7 @@ public abstract class NumberFormField<T> implements FormField<T> {
 					text = number.toString();
 				}
 			}
-			textField.setText(text);
+			textField.setValue(text);
 		}
 	}
 
@@ -66,7 +66,7 @@ public abstract class NumberFormField<T> implements FormField<T> {
 					text = number.toString();
 				}
 			}
-			textField.setText(text);
+			textField.setValue(text);
 		}
 	}
 
@@ -86,7 +86,7 @@ public abstract class NumberFormField<T> implements FormField<T> {
 					text = number.toString();
 				}
 			}
-			textField.setText(text);
+			textField.setValue(text);
 		}
 	}
 

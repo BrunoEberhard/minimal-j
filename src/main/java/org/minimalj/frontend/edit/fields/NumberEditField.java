@@ -36,7 +36,7 @@ public abstract class NumberEditField<T> implements EditField<T> {
 				text = number.toString();
 			}
 		}
-		textField.setText(text);
+		textField.setValue(text);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public abstract class NumberEditField<T> implements EditField<T> {
 //	@Override
 //	public void validate(List<ValidationMessage> list) {
 //		if (clazz == BigDecimal.class) {
-//			String text = textField.getText();
+//			String text = textField.getValue();
 //			if (!StringUtils.isEmpty(text)) {
 //				try {
 //					new BigDecimal(text);

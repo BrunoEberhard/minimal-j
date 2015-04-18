@@ -1,5 +1,6 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
@@ -8,21 +9,18 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
+import com.vaadin.ui.Component;
 
 /**
  * Nearly identical with TextField but extends from TextArea.
  * Maybe some code could be deduplicated.
  * 
  */
-public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements TextField {
+public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	private TextChangeEvent event;
 	private Runnable commitListener;
-	
-	public VaadinTextAreaField(InputComponentListener changeListener, int maxLength) {
-		this(changeListener, maxLength, null);
-	}
 	
 	public VaadinTextAreaField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
 		setMaxLength(maxLength);
@@ -48,10 +46,10 @@ public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements TextF
 	}
 
 
-	@Override
-	public void setCommitListener(Runnable commitListener) {
-		this.commitListener = commitListener;
-	}
+//	@Override
+//	public void setCommitListener(Runnable commitListener) {
+//		this.commitListener = commitListener;
+//	}
 	
 	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
 		private static final long serialVersionUID = 1L;
@@ -70,34 +68,76 @@ public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements TextF
 	}
 
 	@Override
-	public void setEditable(boolean editable) {
-		setReadOnly(!editable);
-	}
-
-	@Override
-	public void setText(String text) {
+	public void setValue(Object text) {
 		boolean readOnly = isReadOnly();
 		if (readOnly) {
 			setReadOnly(false);
-			setValue(text);
+			super.setValue(text);
 			setReadOnly(true);
 		} else {
-			setValue(text);
+			super.setValue(text);
 		}		
 	}
 
 	@Override
-	public String getText() {
+	public Object getValue() {
 		if (event != null) {
 			return event.getText();
 		} else {
-			return (String) getValue();
+			return super.getValue();
+		}
+	}
+	
+	public static class VaadinTextAreaDelegate implements TextField, VaadinDelegateComponent {
+		
+		private final VaadinTextAreaField delegate;
+		
+		public VaadinTextAreaDelegate(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
+			this.delegate = new VaadinTextAreaField(changeListener, maxLength, allowedCharacters);
+		}
+
+		@Override
+		public void setValue(String value) {
+			delegate.setValue((String) value);
+		}
+
+		@Override
+		public String getValue() {
+			return (String) delegate.getValue();
+		}
+
+		@Override
+		public void setEditable(boolean editable) {
+			delegate.setReadOnly(!editable);
+		}
+
+		@Override
+		public void setFocusListener(IFocusListener focusListener) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void setCommitListener(Runnable runnable) {
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public Component getDelegate() {
+			return delegate;
 		}
 	}
 
-	@Override
-	public void setFocusListener(IFocusListener focusListener) {
-		// TODO Auto-generated method stub
-	}
+//	public void setValue(Object value) {
+//		setValue((String) value);
+//	}
+//	
+//	public String getValue() {
+//		return (String) getValue();
+//	}
+//	
+//	@Override
+//	public void setFocusListener(IFocusListener focusListener) {
+//		// TODO Auto-generated method stub
+//	}
 	
 }

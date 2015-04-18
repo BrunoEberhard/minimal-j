@@ -1,19 +1,16 @@
 package org.minimalj.frontend.edit.fields;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.ILookup;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.model.Keys;
-import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
-import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
 
@@ -23,8 +20,7 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 	private final PropertyInterface property;
 	private final Class<?> fieldClazz;
 	private final Object[] searchColumns;
-	protected final ILookup<T> lookup;
-	private T object;
+	protected final Input<T> lookup;
 	
 	public ReferenceField(Object key, Object... searchColumns) {
 		this(key, searchColumns, true);
@@ -53,36 +49,19 @@ public class ReferenceField<T> extends AbstractEditField<T> {
 
 	@Override
 	public T getObject() {
-		return object;
+		return lookup.getValue();
 	}
 
 	@Override
 	public void setObject(T object) {
-		this.object = object;
-		fireObjectChange();
-	}
-	
-	protected void fireObjectChange() {
-		display();
-		super.fireChange();
-	}
-
-	protected void display() {
-		if (object instanceof Rendering) {
-			Rendering rendering = (Rendering) object;
-			lookup.setText(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));
-		} else if (object != null) {
-			lookup.setText(object.toString());
-		} else {
-			lookup.setText(null);
-		}
+		lookup.setValue(object);
 	}
 
 	private class ReferenceFieldChangeListener implements InputComponentListener {
 
 		@Override
 		public void changed(IComponent source) {
-			Object selectedObject = lookup.getSelectedObject();
+			Object selectedObject = lookup.getValue();
 			@SuppressWarnings("unchecked")
 			T objectAsView = (T) ViewUtil.view(selectedObject, CloneHelper.newInstance(property.getClazz()));
 			setObject(objectAsView);

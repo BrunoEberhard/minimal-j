@@ -6,9 +6,8 @@ import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
-public class JsonTextField extends JsonInputComponent implements TextField {
+public class JsonTextField extends JsonInputComponent<String> implements TextField {
 
-	private static final String EDITABLE = "editable";
 	private static final String MAX_LENGTH = "maxLength";
 	private static final String ALLOWED_CHARACTERS = "allowedCharacters";
 	private static final String INPUT_TYPE = "inputType";
@@ -29,18 +28,13 @@ public class JsonTextField extends JsonInputComponent implements TextField {
 	}
 	
 	@Override
-	public void setText(String text) {
+	public void setValue(String text) {
 		put(VALUE, text);
 	}
 
 	@Override
-	public String getText() {
+	public String getValue() {
 		return (String) get(VALUE);
-	}
-
-	@Override
-	public void setEditable(boolean editable) {
-		put(EDITABLE, editable);
 	}
 
 	@Override

@@ -15,7 +15,7 @@ public class IntegerEditField extends NumberEditField<Integer> implements Mockin
 
 	@Override
 	public Integer getObject() {
-		String text = textField.getText();
+		String text = textField.getValue();
 		if (text != null) {
 			try {
 				return Integer.parseInt(text);

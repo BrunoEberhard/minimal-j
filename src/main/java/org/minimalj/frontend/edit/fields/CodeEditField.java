@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ComboBox;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.model.Code;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
@@ -13,7 +13,7 @@ import org.minimalj.util.mock.Mocking;
 public class CodeEditField extends AbstractEditField<Code> implements Enable, Mocking {
 	private final List<Code> codes;
 	
-	private final ComboBox<Code> comboBox;
+	private final Input<Code> comboBox;
 
 	public CodeEditField(PropertyInterface property) {
 		super(property, true);
@@ -34,12 +34,12 @@ public class CodeEditField extends AbstractEditField<Code> implements Enable, Mo
 
 	@Override
 	public Code getObject() {
-		return comboBox.getSelectedObject();
+		return comboBox.getValue();
 	}
 
 	@Override
 	public void setObject(Code value) {
-		comboBox.setSelectedObject(value);
+		comboBox.setValue(value);
 	}
 
 	@Override

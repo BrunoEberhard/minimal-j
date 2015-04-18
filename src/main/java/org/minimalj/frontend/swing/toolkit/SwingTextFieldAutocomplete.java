@@ -99,12 +99,12 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Tex
 	}
 
 	@Override
-	public void setText(String text) {
+	public void setValue(String text) {
 		super.setSelectedItem(text);
 	}
 
 	@Override
-	public String getText() {
+	public String getValue() {
 		return (String) super.getSelectedItem();
 	}
 

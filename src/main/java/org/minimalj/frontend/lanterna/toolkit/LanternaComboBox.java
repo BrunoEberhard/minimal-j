@@ -3,12 +3,12 @@ package org.minimalj.frontend.lanterna.toolkit;
 import java.util.List;
 
 import org.minimalj.frontend.lanterna.component.Select;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ComboBox;
 
 import com.googlecode.lanterna.input.Key;
 
-public class LanternaComboBox<T> extends Select<T> implements ComboBox<T> {
+public class LanternaComboBox<T> extends Select<T> implements Input<T> {
 
 	private final InputComponentListener changeListener;
 	
@@ -33,5 +33,15 @@ public class LanternaComboBox<T> extends Select<T> implements ComboBox<T> {
 	@Override
 	public void setEditable(boolean editable) {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setValue(T value) {
+		setSelectedObject(value);
+	}
+
+	@Override
+	public T getValue() {
+		return getSelectedObject();
 	}
 }

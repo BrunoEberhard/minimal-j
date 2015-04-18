@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ComboBox;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
@@ -15,7 +15,7 @@ import org.minimalj.util.mock.Mocking;
 public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> implements Enable, Mocking {
 	private final Class<E> enumClass;
 	
-	private final ComboBox<CodeItem<E>> comboBox;
+	private final Input<CodeItem<E>> comboBox;
 
 	public EnumEditField(PropertyInterface property) {
 		this(property, null);
@@ -56,8 +56,8 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 	
 	@Override
 	public E getObject() {
-		if (comboBox.getSelectedObject() != null) {
-			return comboBox.getSelectedObject().getKey();
+		if (comboBox.getValue() != null) {
+			return comboBox.getValue().getKey();
 		} else {
 			return null;
 		}
@@ -76,7 +76,7 @@ public class EnumEditField<E extends Enum<E>> extends AbstractEditField<E> imple
 			}
 		}
 		
-		comboBox.setSelectedObject(item);
+		comboBox.setValue(item);
 	}
 
 	@Override
