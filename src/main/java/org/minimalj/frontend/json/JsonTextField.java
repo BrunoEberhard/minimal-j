@@ -17,6 +17,10 @@ public class JsonTextField extends JsonInputComponent<String> implements TextFie
 		super(type, null);
 	}
 	
+	public JsonTextField(String type, InputComponentListener changeListener) {
+		super(type, changeListener);
+	}
+	
 	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
 			InputComponentListener changeListener) {
 		super(type, changeListener);

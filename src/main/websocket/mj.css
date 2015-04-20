@@ -10,6 +10,7 @@ body {
 
 #all {
 	height: 100%;
+	overflow: auto;
 }
 
 #header {
@@ -66,7 +67,7 @@ body {
 }
 
 table {
-	width: 100%;	
+	width: 100%;
 	table-layout: fixed;
 	font-size: 80%
 }
@@ -74,6 +75,7 @@ table {
 th {
 	text-align: left;
 	white-space: nowrap;
+	overflow: hidden;
 }
 
 table tr:nth-child(even) {
@@ -107,6 +109,7 @@ td {
 	color: black;
 	white-space: nowrap;
 	vertical-align: top;
+	overflow: hidden;
 }
 
 .action {
@@ -171,7 +174,7 @@ table.group tr {
 	line-height: 5ex;
 	text-align: left;
 	background: #8b8b8b;
-	padding-left: 0ex;	
+	padding-left: 0ex;
 }
 
 #menu li {
@@ -218,7 +221,7 @@ table.group tr {
 }
 
 li[disabled=true] {
-	color: #999 !important; 
+	color: #999 !important;
 }
 
 #menu li:hover>ul {

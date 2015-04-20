@@ -33,6 +33,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			headers.add(header);
 		}
 		put("headers", headers);
+		put("tableContent", Collections.emptyList());
 	}
 
 	private static List<PropertyInterface> convert(Object[] keys) {

@@ -78,7 +78,7 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
-		return new JsonTable(keys, listener);
+		return new JsonTable<T>(keys, listener);
 	}
 
 	@Override
@@ -158,8 +158,7 @@ public class JsonClientToolkit extends ClientToolkit {
 
 	@Override
 	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
-		// TODO Auto-generated method stub
-		return null;
+		return new JsonDialog.JsonSearchDialog(index, keys, listener);
 	}
 
 	@Override
