@@ -15,7 +15,7 @@ public class LongEditField extends NumberEditField<Long> implements Mocking {
 
 	@Override
 	public Long getObject() {
-		String text = textField.getText();
+		String text = textField.getValue();
 		if (text != null) {
 			try {
 				return Long.parseLong(text);

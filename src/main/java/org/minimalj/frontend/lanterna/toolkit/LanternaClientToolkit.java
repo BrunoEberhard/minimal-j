@@ -9,9 +9,7 @@ import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
@@ -35,12 +33,12 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public CheckBox createCheckBox(InputComponentListener changeListener, String text) {
+	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		return new LanternaCheckBox(changeListener, text);
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
+	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
 		return new LanternaComboBox<T>(objects, changeListener);
 	}
 
@@ -170,7 +168,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
+	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -82,29 +82,4 @@ public class ValidationMessage {
 		}
 	}
 
-	public static String formatHtmlString(List<String> validationMessages) {
-		if (validationMessages.size() > 0) {
-			StringBuilder s = new StringBuilder();
-			s.append("<html>");
-			for (int i = 0; i<validationMessages.size(); i++) {
-				s.append(validationMessages.get(i));
-				if (i < validationMessages.size() - 1) {
-					s.append("<br>");
-				}
-			}
-			s.append("</html>");
-			return s.toString();
-		} else {
-			return null;
-		}
-	}
-
-	public static String formatHtml(String validationMessage) {
-		StringBuilder s = new StringBuilder();
-		s.append("<html>");
-		s.append(validationMessage);
-		s.append("</html>");
-		return s.toString();
-	}
-
 }

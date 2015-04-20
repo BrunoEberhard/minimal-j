@@ -5,10 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import org.minimalj.frontend.toolkit.CheckBox;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
-public class SwingCheckBox extends JCheckBox implements CheckBox {
+public class SwingCheckBox extends JCheckBox implements Input<Boolean> {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener listener;
@@ -34,6 +34,16 @@ public class SwingCheckBox extends JCheckBox implements CheckBox {
 		public void actionPerformed(ActionEvent e) {
 			fireChangeEvent();
 		}
+	}
+
+	@Override
+	public void setValue(Boolean value) {
+		setSelected(Boolean.TRUE.equals(value));
+	}
+
+	@Override
+	public Boolean getValue() {
+		return isSelected();
 	}
 
 }

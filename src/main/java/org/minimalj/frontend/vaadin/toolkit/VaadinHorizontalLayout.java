@@ -12,7 +12,7 @@ public class VaadinHorizontalLayout extends GridLayout implements IComponent {
 		super(components.length, 1);
 		
 		for (IComponent c : components) {
-			Component component = (Component) c;
+			Component component = c instanceof VaadinDelegateComponent ? ((VaadinDelegateComponent) c).getDelegate() : (Component) c;
 			component.setWidth("100%");
 			addComponent(component);
 		}

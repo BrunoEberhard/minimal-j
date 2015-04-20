@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.FocusManager;
@@ -41,16 +42,15 @@ import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.swing.SwingTab;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
-import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
-import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.util.StringUtils;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 
 public class SwingClientToolkit extends ClientToolkit {
 
@@ -141,12 +141,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> ComboBox<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
+	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
 		return new SwingComboBox<T>(objects, changeListener);
 	}
 
 	@Override
-	public CheckBox createCheckBox(InputComponentListener changeListener, String text) {
+	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		return new SwingCheckBox(changeListener, text);
 	}
 
@@ -258,17 +258,18 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 		
 	@Override
-	public <T> ILookup<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
+	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
 		return new SwingLookup<T>(changeListener, index, keys);
 	}
 	
-	private static class SwingLookup<T> extends JPanel implements ILookup<T> {
+	private static class SwingLookup<T> extends JPanel implements Input<T> {
 		private static final long serialVersionUID = 1L;
 		
 		private final InputComponentListener changeListener;
 		private final Search<T> search;
 		private final Object[] keys;
 		private final SwingLookupLabel actionLabel;
+		private final SwingRemoveLabel removeLabel;
 		private IDialog dialog;
 		private T selectedObject;
 		
@@ -280,22 +281,37 @@ public class SwingClientToolkit extends ClientToolkit {
 			this.keys = keys;
 			
 			this.actionLabel = new SwingLookupLabel();
+			this.removeLabel = new SwingRemoveLabel();
 			add(actionLabel, BorderLayout.CENTER);
-			add(new SwingRemoveLabel(), BorderLayout.LINE_END);
+			add(removeLabel, BorderLayout.LINE_END);
 		}
 
 		@Override
-		public void setText(String text) {
-			if (!StringUtils.isBlank(text)) {
-				actionLabel.setText(text);
+		public void setValue(T value) {
+			this.selectedObject = value;
+			display();
+		}
+		
+		protected void display() {
+			if (selectedObject instanceof Rendering) {
+				Rendering rendering = (Rendering) selectedObject;
+				actionLabel.setText(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));
+			} else if (selectedObject != null) {
+				actionLabel.setText(selectedObject.toString());
 			} else {
 				actionLabel.setText("[+]");
 			}
 		}
 
 		@Override
-		public T getSelectedObject() {
+		public T getValue() {
 			return selectedObject;
+		}
+		
+		@Override
+		public void setEditable(boolean editable) {
+			actionLabel.setEnabled(editable);
+			removeLabel.setEnabled(editable);
 		}
 		
 		private class SwingLookupLabel extends JLabel {

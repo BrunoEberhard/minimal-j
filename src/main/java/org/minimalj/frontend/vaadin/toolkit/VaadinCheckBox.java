@@ -1,11 +1,12 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.VerticalLayout;
 
-public class VaadinCheckBox extends VerticalLayout implements org.minimalj.frontend.toolkit.CheckBox {
+public class VaadinCheckBox extends VerticalLayout implements Input<Boolean> {
 
 	private static final long serialVersionUID = 1L;
 	private final InputComponentListener listener;
@@ -20,16 +21,16 @@ public class VaadinCheckBox extends VerticalLayout implements org.minimalj.front
 	}
 
 	@Override
-	public void setSelected(boolean selected) {
+	public void setValue(Boolean selected) {
 		boolean readOnly = checkBox.isReadOnly();
 		checkBox.setReadOnly(false);
-		checkBox.setValue(selected);
+		checkBox.setValue(Boolean.TRUE.equals(selected));
 		checkBox.setReadOnly(readOnly);
 	}
 
 	@Override
-	public boolean isSelected() {
-		return Boolean.TRUE.equals(checkBox.getValue());
+	public Boolean getValue() {
+		return (Boolean) checkBox.getValue();
 	}
 	
 	@Override

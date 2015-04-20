@@ -79,5 +79,15 @@ public class SwingTextAreaField extends JTextArea implements TextField, FocusLis
 			focusListener.onFocusLost();
 		}
 	}
+
+	@Override
+	public void setValue(String value) {
+		super.setText(value);
+	}
+
+	@Override
+	public String getValue() {
+		return super.getText();
+	}
 }
 

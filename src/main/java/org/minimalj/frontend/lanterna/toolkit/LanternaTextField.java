@@ -1,8 +1,8 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
 import com.googlecode.lanterna.gui.component.InteractableComponent;
 import com.googlecode.lanterna.gui.component.TextBox;
@@ -35,14 +35,14 @@ public class LanternaTextField extends TextBox implements TextField {
 	}
 
 	@Override
-	public String getText() {
+	public String getValue() {
 		String text = super.getText();
 		if (text.length() == 0) return null;
 		return text;
 	}
 
 	@Override
-	public void setText(String text) {
+	public void setValue(String text) {
 		if (text == null) {
 			text = "";
 		}

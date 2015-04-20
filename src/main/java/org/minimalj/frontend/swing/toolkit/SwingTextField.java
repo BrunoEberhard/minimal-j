@@ -140,6 +140,17 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 			focusListener.onFocusLost();
 		}
 	}
+	
+	@Override
+	public void setValue(String value) {
+		super.setText(value);
+	}
+
+	@Override
+	public String getValue() {
+		return super.getText();
+	}
+
 }
 
 

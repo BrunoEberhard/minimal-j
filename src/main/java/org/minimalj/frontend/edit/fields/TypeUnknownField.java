@@ -19,7 +19,7 @@ public class TypeUnknownField implements org.minimalj.frontend.edit.fields.FormF
 		this.property = property;
 		
 		textField = ClientToolkit.getToolkit().createReadOnlyTextField();
-		textField.setText("No Field for found:" + property.getName());
+		textField.setValue("No Field for found:" + property.getName());
 	}
 
 	@Override

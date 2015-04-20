@@ -46,7 +46,7 @@ public class CodeFormField<T extends Code> extends AbstractEditField<Object> {
 		} else {
 			text = null;
 		}
-		textFieldDisabled.setText(text);
+		textFieldDisabled.setValue(text);
 	}
 
 }

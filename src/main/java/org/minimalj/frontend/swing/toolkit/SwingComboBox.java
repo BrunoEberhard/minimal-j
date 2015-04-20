@@ -16,13 +16,13 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ComboBox;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.CloneHelper;
 
-public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
+public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener listener;
@@ -38,12 +38,12 @@ public class SwingComboBox<T> extends JComboBox<T> implements ComboBox<T> {
 	}
 	
 	@Override
-	public void setSelectedObject(T object) {
+	public void setValue(T object) {
 		model.setObject(object);
 	}
 
 	@Override
-	public T getSelectedObject() {
+	public T getValue() {
 		return model.getSelectedObject();
 	}
 	

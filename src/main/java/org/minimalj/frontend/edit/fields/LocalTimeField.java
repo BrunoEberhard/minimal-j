@@ -43,7 +43,7 @@ public class LocalTimeField extends TextFormatField<LocalTime> {
 
 	@Override
 	public LocalTime getObject() {
-		String text = textField.getText();
+		String text = textField.getValue();
 		if (text != null) {
 			try {
 				return LocalTime.parse(text, formatter);
@@ -59,14 +59,14 @@ public class LocalTimeField extends TextFormatField<LocalTime> {
 	public void setObject(LocalTime value) {
 		if (InvalidValues.isInvalid(value)) {
 			String text = InvalidValues.getInvalidValue(value);
-			textField.setText(text);
+			textField.setValue(text);
 		} else if (value != null) {
 			String text = formatter.format(value);
-			if (!StringUtils.equals(textField.getText(), text)) {
-				textField.setText(text);
+			if (!StringUtils.equals(textField.getValue(), text)) {
+				textField.setValue(text);
 			}
 		} else {
-			textField.setText(null);
+			textField.setValue(null);
 		}
 	}
 

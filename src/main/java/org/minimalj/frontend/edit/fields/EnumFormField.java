@@ -35,7 +35,7 @@ public class EnumFormField<E extends Enum<E>> extends AbstractEditField<E> {
 
 	@Override
 	public void setObject(E value) {
-		textFieldDisabled.setText(EnumUtils.getText(value));
+		textFieldDisabled.setValue(EnumUtils.getText(value));
 	}
 	
 }

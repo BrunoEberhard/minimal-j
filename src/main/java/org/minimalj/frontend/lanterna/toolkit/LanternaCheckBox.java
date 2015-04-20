@@ -1,11 +1,12 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
 import com.googlecode.lanterna.gui.component.CheckBox;
 import com.googlecode.lanterna.input.Key;
 
-public class LanternaCheckBox extends CheckBox implements org.minimalj.frontend.toolkit.CheckBox {
+public class LanternaCheckBox extends CheckBox implements Input<Boolean> {
 
 	private final InputComponentListener changeListener;
 	
@@ -15,10 +16,15 @@ public class LanternaCheckBox extends CheckBox implements org.minimalj.frontend.
 	}
 
 	@Override
-	public void setSelected(boolean selected) {
-		if (isScrollable() != selected) {
+	public void setValue(Boolean selected) {
+		if (isScrollable() != (Boolean.TRUE.equals(selected))) {
 			select();
 		}
+	}
+
+	@Override
+	public Boolean getValue() {
+		return isSelected();
 	}
 
 	private void fireChangeEvent() {
@@ -38,5 +44,4 @@ public class LanternaCheckBox extends CheckBox implements org.minimalj.frontend.
 	public void setEditable(boolean enabled) {
 		// not supported
 	}
-
 }

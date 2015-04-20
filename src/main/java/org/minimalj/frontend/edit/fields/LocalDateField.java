@@ -27,7 +27,7 @@ public class LocalDateField extends TextFormatField<LocalDate> {
 
 	@Override
 	public LocalDate getObject() {
-		String fieldText = textField.getText();
+		String fieldText = textField.getValue();
 		try {
 			return DateUtils.parse(fieldText);
 		} catch (DateTimeParseException x) {
@@ -39,14 +39,14 @@ public class LocalDateField extends TextFormatField<LocalDate> {
 	public void setObject(LocalDate value) {
 		if (InvalidValues.isInvalid(value)) {
 			String text = InvalidValues.getInvalidValue(value);
-			textField.setText(text);
+			textField.setValue(text);
 		} else if (value != null) {
 			String text = DateUtils.format(value);
-			if (!StringUtils.equals(textField.getText(), text)) {
-				textField.setText(text);
+			if (!StringUtils.equals(textField.getValue(), text)) {
+				textField.setValue(text);
 			}
 		} else {
-			textField.setText(null);
+			textField.setValue(null);
 		}
 	}
 	

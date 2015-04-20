@@ -20,12 +20,12 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 	}
 
 	@Override
-	public void setText(String text) {
+	public void setValue(String text) {
 		super.setText(text);
 	}
 
 	@Override
-	public String getText() {
+	public String getValue() {
 		return super.getText();
 	}
 

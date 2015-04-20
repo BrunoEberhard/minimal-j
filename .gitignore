@@ -12,3 +12,6 @@ examples/Minimal-J_Library/.project
 /.classpath
 /.project
 /derby.log
+/.idea/
+*.iml
+/.settings/

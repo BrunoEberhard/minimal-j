@@ -31,7 +31,7 @@ public class VaadinVerticalFlowField extends VerticalLayout implements FlowField
 	@Override
 	public void addGap() {
 		VaadinReadOnlyTextField field = new VaadinReadOnlyTextField();
-		field.setText(null);
+		field.setValue(null);
 		addComponent(field);
 	}
 

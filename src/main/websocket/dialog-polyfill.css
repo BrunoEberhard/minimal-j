@@ -1,0 +1,25 @@
+dialog {
+	position: absolute; margin : auto;
+	border: 1px solid;
+	padding: 0px;
+	background: white;
+	color: black;
+	width: -moz-fit-content;
+	width: -webkit-fit-content;
+	width: fit-content;
+	display: none;
+	margin: auto
+}
+
+dialog[open] {
+	display: block;
+}
+
+.backdrop {
+	position: fixed;
+	background-color: rgba(0, 0, 0, 0.1);
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}

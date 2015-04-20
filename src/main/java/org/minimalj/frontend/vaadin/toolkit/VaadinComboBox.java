@@ -2,12 +2,12 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.List;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ComboBox;
 
 import com.vaadin.ui.Select;
 
-public class VaadinComboBox<T> extends Select implements ComboBox<T> {
+public class VaadinComboBox<T> extends Select implements Input {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener listener;
@@ -36,16 +36,16 @@ public class VaadinComboBox<T> extends Select implements ComboBox<T> {
 	}
 
 	@Override
-	public void setSelectedObject(T object) throws IllegalArgumentException {
+	public void setValue(Object object) throws IllegalArgumentException {
 		if (setObject != null && !setObject.equals(object) || setObject == null && object != null) {
-			this.setObject = object;
+			this.setObject = (T) object;
 			updateChoice();
 		}
 		super.setValue(object);
 	}
 
 	@Override
-	public T getSelectedObject() {
+	public T getValue() {
 		return (T) super.getValue();
 	}
 

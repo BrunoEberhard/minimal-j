@@ -1,0 +1,239 @@
+html {
+	height: 100%;
+}
+
+body {
+	font-family: sans-serif;
+	margin: 0px;
+	height: 100%;
+}
+
+#all {
+	height: 100%;
+	overflow: auto;
+}
+
+#header {
+	height: 5ex;
+}
+
+#content {
+	width: 100%;
+	height: calc(100% - 5ex);
+	overflow: auto;
+	background: #ebebeb;
+	color: black;
+}
+
+.nopadding {
+	padding: 0px;
+}
+
+#dialog {
+	display: block;
+}
+
+#dialogHeader {
+	height: 2em;
+	line-height: 2em;
+	padding-left: 1em;
+	background: linear-gradient(#ddd, #999);
+}
+
+#dialogContent {
+	padding: 0.5ex 0.5ex 0.5ex 0ex;
+}
+
+#dialogFooter {
+	height: 2em;
+	text-align: right;
+	background: #ccc;
+	padding-top: 1ex;
+	padding-right: 1ex;
+}
+
+#dialogFooter button {
+	margin-right: 0.5ex;
+}
+
+.caption {
+	font-size: x-small;
+	font-weight: bolder;
+	margin-bottom: 0.5ex;
+}
+
+.hide {
+	visibility: hidden;
+}
+
+table {
+	width: 100%;
+	table-layout: fixed;
+	font-size: 80%
+}
+
+th {
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+table tr:nth-child(even) {
+	background: #f8f8f8;
+}
+
+table tr:nth-child(odd) {
+	background: white;
+}
+
+table.formContainer {
+	table-layout: auto;
+	border-spacing: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+table.form {
+	border-spacing: 0px;
+	width: 100%;
+	margin: 0.5ex;
+	font-size: 100%
+}
+
+table.form tr {
+	height: 3em;
+}
+
+td {
+	padding: 0.5ex 1ex;
+	color: black;
+	white-space: nowrap;
+	vertical-align: top;
+	overflow: hidden;
+}
+
+.action {
+	font-size: small;
+	color: blue;
+}
+
+.action:hover {
+	text-decoration: underline;
+}
+
+table.form input[type="text"], table.form select {
+	width: 100%;
+}
+
+table.group, table.group td {
+	background: transparent;
+	table-layout: fixed;
+	width: 100%;
+	height: auto;
+	margin: 0px;
+	padding: 0px 0px 0px 0px;
+	border: 0px;
+	border-spacing: 0px;
+}
+
+table.group tr {
+	height: auto;
+}
+
+#search {
+	position: absolute;
+	top: 0;
+	right: 10px;
+}
+
+#search p {
+	display: inline-block;
+	margin: 0;
+}
+
+#search input {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+#search input:focus {
+	outline: none;
+}
+
+#search input[type=text] {
+	border: solid 1px #666;
+	padding: 2px 5px;
+	background: linear-gradient(top, #f2f2f2 0, #fff 100%);
+}
+
+#header {
+	margin: 0px;
+	top: 0px;
+	width: 100%;
+	height: 5ex;
+	line-height: 5ex;
+	text-align: left;
+	background: #8b8b8b;
+	padding-left: 0ex;
+}
+
+#menu li {
+	color: white;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+	margin-left: 1.5em;
+	padding: 0ex;
+	float: left;
+	position: relative;
+	list-style: none;
+}
+
+#menu ul {
+	font-size: small;
+	background: #ddd;
+	display: none;
+	margin: 0px;
+	padding: 0px;
+	min-width: 12em;
+	position: absolute;
+	top: 2.5em;
+	left: 0;
+	border: solid 1px #b4b4b4;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+
+#menu ul ul {
+	left: 10em;
+	top: -3px;
+	line-height: 180%;
+}
+
+#menu ul li {
+	margin: 0.5ex;
+	color: black;
+	float: none;
+	line-height: 180%;
+	white-space: nowrap;
+}
+
+#menu ul a:hover, #menu ul li:hover {
+	background: #acf !important;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+
+li[disabled=true] {
+	color: #999 !important;
+}
+
+#menu li:hover>ul {
+	display: block;
+}
+
+/* clearfix */
+#menu:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}

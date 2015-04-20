@@ -1,12 +1,12 @@
 package org.minimalj.frontend.edit.fields;
 
-import org.minimalj.frontend.toolkit.CheckBox;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class CheckBoxField extends AbstractEditField<Boolean> {
-	private final CheckBox checkBox;
+	private final Input<Boolean> checkBox;
 	
 	public CheckBoxField(PropertyInterface property, String text, boolean editable) {
 		super(property, editable);
@@ -21,12 +21,12 @@ public class CheckBoxField extends AbstractEditField<Boolean> {
 	
 	@Override
 	public Boolean getObject() {
-		return checkBox.isSelected();
+		return checkBox.getValue();
 	}		
 	
 	@Override
 	public void setObject(Boolean value) {
-		checkBox.setSelected(Boolean.TRUE.equals(value));
+		checkBox.setValue(Boolean.TRUE.equals(value));
 	}
 
 }

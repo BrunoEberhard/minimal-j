@@ -16,7 +16,7 @@ public class VaadinReadOnlyTextField extends VerticalLayout implements TextField
 	}
 
 	@Override
-	public void setText(String text) {
+	public void setValue(String text) {
 		removeAllComponents();
 		Label label = !StringUtils.isEmpty(text) ? new Label(text, Label.CONTENT_TEXT) : new Label("&nbsp;", Label.CONTENT_XHTML);
 		label.addStyleName("v-html-readonly");
@@ -24,7 +24,7 @@ public class VaadinReadOnlyTextField extends VerticalLayout implements TextField
 	}
 
 	@Override
-	public String getText() {
+	public String getValue() {
 		// not possible
 		return label != null ? (String) label.getValue() : null;
 	}

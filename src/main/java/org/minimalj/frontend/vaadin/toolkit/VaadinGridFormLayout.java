@@ -54,7 +54,7 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 		gridLayout.setMargin(new MarginInfo(false, column + span >= columns, false, true));
 		gridLayout.setSpacing(false);
 		
-		Component component = (Component) field;
+		Component component = field instanceof VaadinDelegateComponent ? ((VaadinDelegateComponent) field).getDelegate() : (Component) field;
 		component.setWidth("100%");
 		component.setCaption(caption);
 		gridLayout.addComponent(component, 0, 0);
@@ -75,7 +75,12 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
-		AbstractComponent vaadinComponent = (AbstractComponent) component;
+		AbstractComponent vaadinComponent;
+		if (component instanceof VaadinDelegateComponent) {
+			vaadinComponent = (AbstractComponent) ((VaadinDelegateComponent) component).getDelegate();
+		} else {
+			vaadinComponent = (AbstractComponent) component;
+		}
 		VaadinIndication.setValidationMessages(validationMessages, vaadinComponent);
 	}
 
