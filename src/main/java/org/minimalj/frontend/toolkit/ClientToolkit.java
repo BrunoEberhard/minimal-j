@@ -128,10 +128,12 @@ public abstract class ClientToolkit {
 	
 	//
 	
-	public abstract IDialog createDialog(String title, IContent content, Action... actions);
+	public abstract IDialog showDialog(String title, IContent content, Action closeAction, Action... actions);
 
-	public abstract <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener);
+	public abstract <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener);
 
+	//
+	
 	public abstract void showMessage(String text);
 	
 	public abstract void showError(String text);
@@ -144,7 +146,7 @@ public abstract class ClientToolkit {
 	public static interface DialogListener {
 		
 		// Don't change order, is used in SwingClientToolkit
-		public enum DialogResult { YES, NO, CANCEL }
+		public enum ConfirmDialogResult { YES, NO, CANCEL }
 		
 		void close(Object result);
 	}

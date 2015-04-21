@@ -8,29 +8,22 @@ import org.minimalj.frontend.toolkit.IDialog;
 
 public class JsonDialog extends JsonComponent implements IDialog {
 
-	private CloseListener closeListener;
+	private final Action closeAction;
 	
-	public JsonDialog(String title, IContent content, Action[] actions) {
+	public JsonDialog(String title, IContent content, Action closeAction, Action[] actions) {
 		super("Dialog");
+		this.closeAction = closeAction;
 		put("title", title);
 		put("content", ((JsonComponent) content));
 		put("actions", JsonClientToolkit.getSession().createActions(actions));
+		JsonClientToolkit.getSession().openDialog(this);
 	}
 
 	private JsonDialog(String type, IContent content) {
 		super(type);
+		this.closeAction = null;
 		put("title", "Search");
 		put("content", ((JsonComponent) content));
-	}
-
-	
-	@Override
-	public void setCloseListener(CloseListener closeListener) {
-		this.closeListener = closeListener;
-	}
-
-	@Override
-	public void openDialog() {
 		JsonClientToolkit.getSession().openDialog(this);
 	}
 

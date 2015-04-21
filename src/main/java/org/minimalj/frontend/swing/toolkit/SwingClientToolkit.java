@@ -43,7 +43,7 @@ import org.minimalj.frontend.swing.SwingTab;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
+import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.ConfirmDialogResult;
 import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
@@ -211,7 +211,7 @@ public class SwingClientToolkit extends ClientToolkit {
 			DialogListener listener) {
 		int optionType = type.ordinal();
 		int result = JOptionPane.showConfirmDialog(getTab(), message, title, optionType);
-		listener.close(DialogResult.values()[result]);
+		listener.close(ConfirmDialogResult.values()[result]);
 	}
 
 	@Override
@@ -236,13 +236,13 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(String title, IContent content, Action... actions) {
+	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
 		JComponent contentComponent = new SwingEditorPanel(content, actions);
-		return createDialog(title, contentComponent);
+		return createDialog(title, contentComponent, closeAction);
 	}
 
-	private IDialog createDialog(String title, JComponent content) {
-		return new SwingInternalFrame(getTab(), content, title);
+	private IDialog createDialog(String title, JComponent content, Action closeAction) {
+		return new SwingInternalFrame(getTab(), title, content, closeAction);
 	}
 
 	public static Window findWindow() {
@@ -323,8 +323,7 @@ public class SwingClientToolkit extends ClientToolkit {
 				addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						dialog = ((SwingClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(search, keys, new LookupClickListener());
-						dialog.openDialog();
+						((SwingClientToolkit) ClientToolkit.getToolkit()).showSearchDialog(search, keys, new LookupClickListener());
 					}
 				});
 			}
@@ -359,9 +358,9 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
-		return createDialog(null, panel);
+		return createDialog(null, panel, null);
 	}
 
 	@Override

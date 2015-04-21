@@ -1,5 +1,7 @@
 package org.minimalj.frontend.edit;
 
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -12,6 +14,7 @@ import org.minimalj.frontend.toolkit.JUnitClientToolkit;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.model.validation.ValidationMessage;
 
 public class EditorTest {
 
@@ -42,6 +45,11 @@ public class EditorTest {
 			@Override
 			public void canceled() {
 				canceled = true;
+			}
+
+			@Override
+			public void setValidationMessages(List<ValidationMessage> validationMessages) {
+				// ignored
 			}
 		});
 		originalObject = new TestEditorObjectClass();

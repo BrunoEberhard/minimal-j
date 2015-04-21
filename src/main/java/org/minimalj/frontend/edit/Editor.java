@@ -8,8 +8,6 @@ import org.minimalj.application.DevMode;
 import org.minimalj.frontend.edit.form.Form;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
@@ -44,7 +42,6 @@ public abstract class Editor<T> {
 	protected CancelAction cancelAction;
 	protected FillWithDemoDataAction demoAction;
 	private EditorListener editorListener;
-	private Indicator indicator;
 	private boolean userEdited;
 	
 	// what to implement
@@ -91,7 +88,11 @@ public abstract class Editor<T> {
 			return new Action[] { cancelAction, saveAction };
 		}
 	}
-
+	
+	public boolean isUserEdited() {
+		return userEdited;
+	}
+	
 	// /////
 
 	protected Editor() {
@@ -150,15 +151,11 @@ public abstract class Editor<T> {
 		this.editorListener = savedListener;
 	}
 	
-	public final void setIndicator(Indicator indicator) {
-		this.indicator = indicator;
-	}
-
 	protected void finish() {
 		editedObject = null;
 	}
 	
-	protected void cancel() {
+	public void cancel() {
 		fireCanceled();
 		finish();
 	}
@@ -187,7 +184,7 @@ public abstract class Editor<T> {
 		return editedObject;
 	}
 	
-	protected void save() {
+	public void save() {
 		if (isSaveable()) {
 			try {
 				Object saveResult = save(editedObject);
@@ -225,9 +222,8 @@ public abstract class Editor<T> {
 		public void indicate(List<ValidationMessage> validationMessages, boolean allUsedFieldsValid) {
 			saveAction.setEnabled(allUsedFieldsValid);
 			saveAction.setValidationMessages(validationMessages);
-			
-			if (indicator != null) {
-				indicator.setValidationMessages(validationMessages);
+			if (editorListener != null) {
+				editorListener.setValidationMessages(validationMessages);
 			}
 		}
 	}		
@@ -240,42 +236,7 @@ public abstract class Editor<T> {
 		return saveAction.isEnabled();
 	}
 	
-	public void checkedClose() {
-		if (!userEdited) {
-			cancel();
-		} else if (isSaveable()) {
-			DialogListener listener = new DialogListener() {
-				@Override
-				public void close(Object answer) {
-					if (answer == DialogResult.YES) {
-						// finish will be called at the end of save
-						save();
-					} else if (answer == DialogResult.NO) {
-						cancel();
-					} // else do nothing (dialog will not close)
-				}
-			};
-			ClientToolkit.getToolkit().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
-					ConfirmDialogType.YES_NO_CANCEL, listener);
-
-		} else {
-			DialogListener listener = new DialogListener() {
-				@Override
-				public void close(Object answer) {
-					if (answer == DialogResult.YES) {
-						cancel();
-					} else { // No or Close
-						// do nothing
-					}
-				}
-			};
-			
-			ClientToolkit.getToolkit().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
-					"Schliessen", ConfirmDialogType.YES_NO, listener);
-		}
-	}
-	
-	protected final class SaveAction extends Action implements Indicator {
+	protected final class SaveAction extends Action {
 		private String description;
 		
 		@Override
@@ -283,7 +244,6 @@ public abstract class Editor<T> {
 			save();
 		}
 		
-		@Override
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
 //			String iconKey;
 			String description;
@@ -325,6 +285,8 @@ public abstract class Editor<T> {
 	
 	public interface EditorListener {
 		
+		public void setValidationMessages(List<ValidationMessage> validationMessages);
+
 		public void saved(Object savedResult);
 		
 		public void canceled();

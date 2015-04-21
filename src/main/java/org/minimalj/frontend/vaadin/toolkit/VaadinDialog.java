@@ -2,6 +2,7 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.Iterator;
 
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.IDialog;
 
 import com.vaadin.ui.Component;
@@ -12,12 +13,11 @@ import com.vaadin.ui.Window;
 public class VaadinDialog extends Window implements IDialog {
 	private static final long serialVersionUID = 1L;
 	
-	private final Window parentWindow;
-	private org.minimalj.frontend.toolkit.IDialog.CloseListener closeListener;
+	private final Action closeAction;
 	
-	public VaadinDialog(Window parentWindow, ComponentContainer content, String title) {
+	public VaadinDialog(Window parentWindow, String title, ComponentContainer content, Action closeAction) {
 		super(title, content);
-		this.parentWindow = parentWindow;
+		this.closeAction = closeAction;
 		
 		setModal(true);
 		addListener(new VaadinDialogListener());
@@ -27,6 +27,9 @@ public class VaadinDialog extends Window implements IDialog {
 		if (componentWithWidth != null) {
 			setWidth((componentWithWidth.getDialogWidth() + 1) + "ex");
 		}
+		
+		setVisible(true);
+		VaadinClientToolkit.focusFirstComponent(getContent());
 	}
 	
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {
@@ -35,23 +38,14 @@ public class VaadinDialog extends Window implements IDialog {
 
 		@Override
 		public void windowClose(CloseEvent e) {
-			if (closeListener == null || closeListener.close()) {
-				parentWindow.removeWindow(VaadinDialog.this);
+			if (closeAction != null) {
+				closeAction.action();
+			} else {
+				closeDialog();
 			}
 		}
 	}
 	
-	@Override
-	public void setCloseListener(org.minimalj.frontend.toolkit.IDialog.CloseListener closeListener) {
-		this.closeListener = closeListener;
-	}
-	
-	@Override
-	public void openDialog() {
-		setVisible(true);
-		VaadinClientToolkit.focusFirstComponent(getContent());
-	}
-
 	@Override
 	public void closeDialog() {
 		setVisible(false);
@@ -79,7 +73,10 @@ public class VaadinDialog extends Window implements IDialog {
 	@Override
 	protected void close() {
 		// super.close(); DONT, would always close without ask
+
+		VaadinClientToolkit.setWindow(getWindow());
 		fireClose();
+		VaadinClientToolkit.setWindow(null);
 	}
 
 }

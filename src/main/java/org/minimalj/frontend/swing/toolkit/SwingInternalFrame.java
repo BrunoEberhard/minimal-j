@@ -8,6 +8,7 @@ import java.beans.PropertyVetoException;
 import javax.swing.JInternalFrame;
 
 import org.minimalj.frontend.swing.component.EditablePanel;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.IDialog;
 
 public class SwingInternalFrame extends JInternalFrame implements IDialog {
@@ -16,17 +17,18 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 	
 	private final EditablePanel editablePanel;
 	private final Component focusAfterClose;
-	private CloseListener closeListener;
+	private final Action closeAction;
 	
 	//
 	
-	public SwingInternalFrame(EditablePanel editablePanel, Component content, String title) {
-		this(editablePanel, content, title, null);
+	public SwingInternalFrame(EditablePanel editablePanel, String title, Component content, Action closeAction) {
+		this(editablePanel, title, content, closeAction, null);
 	}
 
-	public SwingInternalFrame(EditablePanel editablePanel, Component content, String title, Component focusAfterClose) {
+	public SwingInternalFrame(EditablePanel editablePanel, String title, Component content, Action closeAction, Component focusAfterClose) {
 		this.editablePanel = editablePanel;
 		this.focusAfterClose = focusAfterClose;
+		this.closeAction = closeAction;
 		
 		setTitle(title);
 		setResizable(true);
@@ -37,18 +39,21 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 		pack();
 		
 		setClosable(true);
+		
+		editablePanel.openModalDialog(this);
+		if (getHeight() >= editablePanel.getHeight()) {
+			setLocation(getLocation().x, 0);
+		}
+		SwingClientToolkit.focusFirstComponent(this);
 	}
 	
 	@Override
 	public void doDefaultCloseAction() {
-		if (closeListener == null || closeListener.close()) {
+		if (closeAction != null) {
+			closeAction.action();
+		} else {
 			closeDialog();
 		}
-	}
-
-	@Override
-	public void setCloseListener(CloseListener closeListener) {
-		this.closeListener = closeListener;
 	}
 
 	@Override
@@ -83,13 +88,4 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 		}
 	}
 
-	@Override
-	public void openDialog() {
-		editablePanel.openModalDialog(this);
-		if (getHeight() >= editablePanel.getHeight()) {
-			setLocation(getLocation().x, 0);
-		}
-		SwingClientToolkit.focusFirstComponent(this);
-	}
-	
 }

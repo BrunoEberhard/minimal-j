@@ -18,13 +18,7 @@ public abstract class SearchDialogAction<T> extends Action implements Search<T> 
 	
 	@Override
 	public void action() {
-		try {
-			dialog = ClientToolkit.getToolkit().createSearchDialog(this, keys, new SearchClickListener());
-			dialog.openDialog();
-		} catch (Exception x) {
-			// TODO show dialog
-			x.printStackTrace();
-		}
+		dialog = ClientToolkit.getToolkit().showSearchDialog(this, keys, new SearchClickListener());
 	}
 
 	protected int getColumnWidthPercentage() {

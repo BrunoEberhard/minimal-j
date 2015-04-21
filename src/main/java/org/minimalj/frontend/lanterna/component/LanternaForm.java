@@ -57,8 +57,8 @@ public class LanternaForm extends AbstractContainer implements FormContent {
 		}
 		actualRow.add(lanternaComponent);
 		actualColumn += span;
-		spans.put((Component) component, span);
-		super.addComponent((Component) component);
+		spans.put(lanternaComponent, span);
+		super.addComponent(lanternaComponent);
 //		hasArea |= verticalGrow; // TODO
 	}
 

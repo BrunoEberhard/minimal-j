@@ -152,12 +152,12 @@ public class JsonClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(String title, IContent content, Action... actions) {
-		return new JsonDialog(title, content, actions);
+	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
+		return new JsonDialog(title, content, closeAction, actions);
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		return new JsonDialog.JsonSearchDialog(index, keys, listener);
 	}
 

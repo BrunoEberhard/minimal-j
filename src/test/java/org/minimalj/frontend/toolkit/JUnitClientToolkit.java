@@ -145,8 +145,8 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(String title,
-			IContent content, Action... actions) {
+	public IDialog showDialog(String title,
+			IContent content, Action closeAction, Action... actions) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -188,7 +188,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

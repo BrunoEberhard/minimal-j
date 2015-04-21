@@ -43,8 +43,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog createDialog(String title, IContent content, Action... actions) {
-		return new LanternaDialog(getGui(), content, title, actions);
+	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
+		return new LanternaDialog(getGui(), content, title, closeAction, actions);
 	}
 
 	@Override
@@ -162,7 +162,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -191,7 +191,32 @@ public class LanternaClientToolkit extends ClientToolkit {
 	@Override
 	public ApplicationContext getApplicationContext() {
 		// TODO Auto-generated method stub
-		return null;
+		return new ApplicationContext() {
+			
+			@Override
+			public void setUser(String user) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void savePreferences(Object preferences) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void loadPreferences(Object preferences) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public String getUser() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
 	}
 
 	

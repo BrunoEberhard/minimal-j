@@ -1,10 +1,15 @@
 package org.minimalj.frontend.edit;
 
+import java.util.List;
+
 import org.minimalj.frontend.edit.Editor.EditorListener;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
+import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
 import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.model.validation.ValidationMessage;
 
 /**
  * An Action that shows a given Editor in a dialog if executed.
@@ -16,6 +21,8 @@ public class EditorAction extends Action {
 	public static final String REFRESH = "refresh";
 	
 	private final Editor<?> editor;
+	
+	private List<ValidationMessage> validationMessages;
 	
 	public EditorAction(Editor<?> editor) {
 		this(editor, editor.getClass().getSimpleName());
@@ -30,18 +37,7 @@ public class EditorAction extends Action {
 	public void action() {
 		editor.startEditor();
 		
-		// TODO this should be replaced by show(Editor) in the ClientToolkit to be
-		// symetrical with the method show(Page)
-		
-		final IDialog dialog = ClientToolkit.getToolkit().createDialog(editor.getTitle(), editor.getContent(), editor.getActions());
-		
-		dialog.setCloseListener(new IDialog.CloseListener() {
-			@Override
-			public boolean close() {
-				editor.checkedClose();
-				return editor.isFinished();
-			}
-		});
+		final IDialog dialog = ClientToolkit.getToolkit().showDialog(editor.getTitle(), editor.getContent(), new EditorCloseAction(), editor.getActions());
 		
 		editor.setEditorListener(new EditorListener() {
 			@Override
@@ -58,7 +54,56 @@ public class EditorAction extends Action {
 			public void canceled() {
 				dialog.closeDialog();
 			}
+
+			@Override
+			public void setValidationMessages(List<ValidationMessage> validationMessages) {
+				EditorAction.this.validationMessages = validationMessages;
+			}
 		});
-		dialog.openDialog();
 	}
+	
+	public class EditorCloseAction extends Action {
+
+		@Override
+		public void action() {
+			checkedClose();
+		}
+
+		public void checkedClose() {
+			if (!editor.isUserEdited()) {
+				editor.cancel();
+			} else if (editor.isSaveable()) {
+				DialogListener listener = new DialogListener() {
+					@Override
+					public void close(Object answer) {
+						if (answer == ConfirmDialogResult.YES) {
+							// finish will be called at the end of save
+							editor.save();
+						} else if (answer == ConfirmDialogResult.NO) {
+							editor.cancel();
+						} // else do nothing (dialog will not close)
+					}
+				};
+				ClientToolkit.getToolkit().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+						ConfirmDialogType.YES_NO_CANCEL, listener);
+
+			} else {
+				DialogListener listener = new DialogListener() {
+					@Override
+					public void close(Object answer) {
+						if (answer == ConfirmDialogResult.YES) {
+							editor.cancel();
+						} else { // No or Close
+							// do nothing
+						}
+					}
+				};
+				
+				ClientToolkit.getToolkit().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+						"Schliessen", ConfirmDialogType.YES_NO, listener);
+			}
+		}
+
+	}
+	
 }

@@ -187,20 +187,20 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IDialog createDialog(String title, IContent content, Action... actions) {
+	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
 		Component component = new VaadinEditorLayout(content, actions);
 		component.setSizeFull();
 
-		return createDialog(title, component);
+		return createDialog(title, component, closeAction);
 	}
 
-	private IDialog createDialog(String title, Component component) {
+	private IDialog createDialog(String title, Component component, Action closeAction) {
 		Window window = getWindow();
 		// need to find application-level window
 		while (window.getParent() != null) {
 			window = window.getParent();
 		}
-		return new VaadinDialog(window, (ComponentContainer) component, title);
+		return new VaadinDialog(window, title, (ComponentContainer) component, closeAction);
 	}
 
 	public static ProgressListener showProgress(Object parent, String text) {
@@ -210,9 +210,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return progressDialog;
 	}
 	
-	public <T> IDialog createSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(index, keys, listener);
-		return createDialog(null, panel);
+		return createDialog(null, panel, null);
 	}
 
 	@Override
@@ -285,8 +285,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 					@Override
 					public void buttonClick(ClickEvent event) {
 						VaadinClientToolkit.setWindow(event.getComponent().getWindow());
-						dialog = ((VaadinClientToolkit) ClientToolkit.getToolkit()).createSearchDialog(search, keys, new LookupClickListener());
-						dialog.openDialog();
+						dialog = ((VaadinClientToolkit) ClientToolkit.getToolkit()).showSearchDialog(search, keys, new LookupClickListener());
 						VaadinClientToolkit.setWindow(null);
 					}
 				});

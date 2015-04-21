@@ -19,11 +19,9 @@ public abstract class Wizard<T> extends Editor<T> {
 	protected PreviousWizardStepAction prevAction;
 	protected NextWizardStepAction nextAction;
 	private SwitchContent wizardContent;
-	private final Indicator indicator;
 	private final EditorListener stepFinishedListener;
 	
 	protected Wizard() {
-		indicator = new WizardIndicator();
 		stepFinishedListener = new WizardStepFinishedListener();
 	}
 
@@ -88,7 +86,6 @@ public abstract class Wizard<T> extends Editor<T> {
 	
 	private void setCurrentStep(WizardStep<?> step) {
 		currentStep = step;
-		currentStep.setIndicator(indicator);
 		currentStep.setEditorListener(stepFinishedListener);
  
 		currentStep.startEditor();
@@ -97,6 +94,11 @@ public abstract class Wizard<T> extends Editor<T> {
 		prevAction.setEnabled(currentStepIndex > 0);
 	}
 	
+	@Override
+	public boolean isUserEdited() {
+		return currentStep.isUserEdited();
+	}
+
 	protected void commit() {
 		if (currentStep.isSaveable()) {
 			currentStep.save();
@@ -112,15 +114,6 @@ public abstract class Wizard<T> extends Editor<T> {
 	@Override
 	protected abstract Object save(T object) throws Exception;
 	
-	private class WizardIndicator implements Indicator {
-
-		@Override
-		public void setValidationMessages(List<ValidationMessage> validationResult) {
-			nextAction.setEnabled(validationResult.isEmpty() && currentStep.getNextStep() != null);
-			saveAction.setEnabled(validationResult.isEmpty() && currentStep.canFinish());
-		}
-	}
-	
 	private class WizardStepFinishedListener implements EditorListener {
 
 		@Override
@@ -135,6 +128,12 @@ public abstract class Wizard<T> extends Editor<T> {
 			currentStepIndex--;
 			setCurrentStep(currentStep.getPreviousStep());
 		}
+		
+		@Override
+		public void setValidationMessages(List<ValidationMessage> validationResult) {
+			nextAction.setEnabled(validationResult.isEmpty() && currentStep.getNextStep() != null);
+			saveAction.setEnabled(validationResult.isEmpty() && currentStep.canFinish());
+		}
 	}
 	
 	private class WizardFinishedListener implements EditorListener {
@@ -147,6 +146,11 @@ public abstract class Wizard<T> extends Editor<T> {
 		@Override
 		public void canceled() {
 			// not used
+		}
+
+		@Override
+		public void setValidationMessages(List<ValidationMessage> validationMessages) {
+			// TODO Auto-generated method stub
 		}
 	}
 	

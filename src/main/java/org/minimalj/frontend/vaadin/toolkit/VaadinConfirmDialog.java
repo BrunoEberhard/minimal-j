@@ -7,7 +7,7 @@ import javax.swing.UIManager;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.DialogResult;
+import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.ConfirmDialogResult;
 
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
@@ -57,7 +57,7 @@ public class VaadinConfirmDialog extends Window {
 			public void windowClose(CloseEvent ce) {
                 if (isEnabled()) {
                     setEnabled(false); // avoid double processing
-                    VaadinConfirmDialog.this.listener.close(DialogResult.CANCEL);
+                    VaadinConfirmDialog.this.listener.close(ConfirmDialogResult.CANCEL);
                 }
             }
         });
@@ -98,14 +98,14 @@ public class VaadinConfirmDialog extends Window {
         	buttonYes.setClickShortcut(KeyCode.ENTER, null);
             buttons.addComponent(buttonYes);
             buttons.setComponentAlignment(buttonYes, Alignment.MIDDLE_RIGHT);
-            buttonYes.addListener(new ConfirmDialogButtonListener(DialogResult.YES));
+            buttonYes.addListener(new ConfirmDialogButtonListener(ConfirmDialogResult.YES));
             
             buttonNo = new NativeButton(UIManager.getString("OptionPane.noButtonText", locale));
         	buttonNo.setData(true);
         	buttonNo.setClickShortcut(KeyCode.ESCAPE, null);
             buttons.addComponent(buttonNo);
             buttons.setComponentAlignment(buttonNo, Alignment.MIDDLE_RIGHT);
-            buttonNo.addListener(new ConfirmDialogButtonListener(DialogResult.NO));
+            buttonNo.addListener(new ConfirmDialogButtonListener(ConfirmDialogResult.NO));
         }
         
         /* not used at the moment 
@@ -125,7 +125,7 @@ public class VaadinConfirmDialog extends Window {
             buttonCancel.setClickShortcut(KeyCode.ESCAPE, null);
             buttons.addComponent(buttonCancel);
             buttons.setComponentAlignment(buttonCancel, Alignment.MIDDLE_RIGHT);
-            buttonCancel.addListener(new ConfirmDialogButtonListener(DialogResult.CANCEL));
+            buttonCancel.addListener(new ConfirmDialogButtonListener(ConfirmDialogResult.CANCEL));
         }
         
         // Keyboard support
@@ -178,9 +178,9 @@ public class VaadinConfirmDialog extends Window {
 
 	private class ConfirmDialogButtonListener implements ClickListener {
 		private static final long serialVersionUID = 1L;
-		private DialogResult result;
+		private ConfirmDialogResult result;
 
-		public ConfirmDialogButtonListener(DialogResult result) {
+		public ConfirmDialogButtonListener(ConfirmDialogResult result) {
 			this.result = result;
 		}
 		
