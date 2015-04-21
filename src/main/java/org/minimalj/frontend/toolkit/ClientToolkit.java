@@ -138,15 +138,13 @@ public abstract class ClientToolkit {
 	
 	public abstract void showError(String text);
 	
-	// Don't change order, is used in SwingClientToolkit
+	// Don't change enum orders. Needed by SwingClientToolkit
 	public static enum ConfirmDialogType { YES_NO, YES_NO_CANCEL }
+	public static enum ConfirmDialogResult { YES, NO, CANCEL }
 	
 	public abstract void showConfirmDialog(String message, String title, ConfirmDialogType type, DialogListener listener);
 	
 	public static interface DialogListener {
-		
-		// Don't change order, is used in SwingClientToolkit
-		public enum ConfirmDialogResult { YES, NO, CANCEL }
 		
 		void close(Object result);
 	}

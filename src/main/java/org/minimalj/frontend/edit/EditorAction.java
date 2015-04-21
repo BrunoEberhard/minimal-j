@@ -6,6 +6,7 @@ import org.minimalj.frontend.edit.Editor.EditorListener;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogResult;
 import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
 import org.minimalj.frontend.toolkit.IDialog;

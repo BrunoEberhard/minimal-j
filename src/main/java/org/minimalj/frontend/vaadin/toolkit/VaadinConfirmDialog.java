@@ -5,9 +5,9 @@ import java.util.Locale;
 
 import javax.swing.UIManager;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogResult;
 import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
 import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener.ConfirmDialogResult;
 
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
