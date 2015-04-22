@@ -100,7 +100,10 @@ public abstract class Editor<T> {
 	
 	public void startEditor() {
 		if (!isFinished()) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Editor already started");
+		}
+		if (editorListener == null) {
+			throw new IllegalStateException("EditorListener must be set before start Editor");
 		}
 		
 		initActions();
@@ -222,9 +225,7 @@ public abstract class Editor<T> {
 		public void indicate(List<ValidationMessage> validationMessages, boolean allUsedFieldsValid) {
 			saveAction.setEnabled(allUsedFieldsValid);
 			saveAction.setValidationMessages(validationMessages);
-			if (editorListener != null) {
-				editorListener.setValidationMessages(validationMessages);
-			}
+			editorListener.setValidationMessages(validationMessages);
 		}
 	}		
 

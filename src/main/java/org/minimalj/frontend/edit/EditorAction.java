@@ -23,6 +23,7 @@ public class EditorAction extends Action {
 	
 	private final Editor<?> editor;
 	
+	private IDialog dialog;
 	private List<ValidationMessage> validationMessages;
 	
 	public EditorAction(Editor<?> editor) {
@@ -36,10 +37,6 @@ public class EditorAction extends Action {
 	
 	@Override
 	public void action() {
-		editor.startEditor();
-		
-		final IDialog dialog = ClientToolkit.getToolkit().showDialog(editor.getTitle(), editor.getContent(), new EditorCloseAction(), editor.getActions());
-		
 		editor.setEditorListener(new EditorListener() {
 			@Override
 			public void saved(Object result) {
@@ -61,6 +58,8 @@ public class EditorAction extends Action {
 				EditorAction.this.validationMessages = validationMessages;
 			}
 		});
+		editor.startEditor();
+		dialog = ClientToolkit.getToolkit().showDialog(editor.getTitle(), editor.getContent(), new EditorCloseAction(), editor.getActions());
 	}
 	
 	public class EditorCloseAction extends Action {
