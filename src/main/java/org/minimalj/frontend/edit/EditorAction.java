@@ -76,7 +76,7 @@ public class EditorAction extends Action {
 			} else if (editor.isSaveable()) {
 				DialogListener listener = new DialogListener() {
 					@Override
-					public void close(Object answer) {
+					public void close(ConfirmDialogResult answer) {
 						if (answer == ConfirmDialogResult.YES) {
 							// finish will be called at the end of save
 							editor.save();
@@ -91,7 +91,7 @@ public class EditorAction extends Action {
 			} else {
 				DialogListener listener = new DialogListener() {
 					@Override
-					public void close(Object answer) {
+					public void close(ConfirmDialogResult answer) {
 						if (answer == ConfirmDialogResult.YES) {
 							editor.cancel();
 						} else { // No or Close

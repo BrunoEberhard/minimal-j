@@ -146,7 +146,7 @@ public abstract class ClientToolkit {
 	
 	public static interface DialogListener {
 		
-		void close(Object result);
+		void close(ConfirmDialogResult result);
 	}
 
 	// Up / Dowload

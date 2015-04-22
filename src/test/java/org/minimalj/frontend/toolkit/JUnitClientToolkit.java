@@ -10,7 +10,7 @@ import org.minimalj.frontend.page.Page;
 public class JUnitClientToolkit extends ClientToolkit {
 
 	private String lastError = null;
-	private DialogListener nextConfirmAnswer = null;
+	private ConfirmDialogResult nextConfirmAnswer = null;
 	
 	public String pullError() {
 		String error = lastError;
@@ -18,7 +18,7 @@ public class JUnitClientToolkit extends ClientToolkit {
 		return error;
 	}
 
-	public void setNextConfirAnswer(DialogListener answer) {
+	public void setNextConfirmAnswer(ConfirmDialogResult answer) {
 		this.nextConfirmAnswer = answer;
 	}
 
