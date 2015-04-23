@@ -17,7 +17,6 @@ import javax.swing.text.JTextComponent;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
 public class SwingTextFieldAutocomplete extends JComboBox<String> implements TextField {
@@ -106,11 +105,6 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Tex
 	@Override
 	public String getValue() {
 		return (String) super.getSelectedItem();
-	}
-
-	@Override
-	public void setFocusListener(IFocusListener focusListener) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
