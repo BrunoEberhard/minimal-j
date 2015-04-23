@@ -28,7 +28,8 @@ public class LanternaDialog implements IDialog {
 				}
 			}
 		});
-		screen.showWindow(window);
+		
+		LanternaClientToolkit.getGui().show(window);
 	}
 	
 	@Override

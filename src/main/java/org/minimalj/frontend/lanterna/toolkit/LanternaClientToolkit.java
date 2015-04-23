@@ -25,6 +25,9 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 	
 	public static void setGui(LanternaGUIScreen value) {
+		if (value == null && gui.get() != null) {
+			gui.get().actionComplete();
+		}
 		gui.set(value);
 	}
 	

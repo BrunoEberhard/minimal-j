@@ -22,6 +22,8 @@ public class LanternaGUIScreen extends GUIScreen {
 	private final History<Page> history;
 	private final LanternaPageContextHistoryListener historyListener;
 	
+	private Window windowToOpen = null;
+	
 	public LanternaGUIScreen(Screen screen) {
 		super(screen);
 		historyListener = new LanternaPageContextHistoryListener();
@@ -60,5 +62,18 @@ public class LanternaGUIScreen extends GUIScreen {
 	
 	public void show(Page page) {
 		history.add(page);
+	}
+
+	/* as showWindow is blocking the call has to be deferred on actionComplete */
+	public void show(Window window) {
+		windowToOpen = window;
+	}
+
+	public void actionComplete() {
+		Window w = windowToOpen;
+		windowToOpen = null;
+		if (w != null) {
+			showWindow(w);
+		}
 	}
 }
