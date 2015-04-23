@@ -1,6 +1,5 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
 
@@ -32,11 +31,6 @@ public class VaadinReadOnlyTextField extends VerticalLayout implements TextField
 	@Override
 	public void setEditable(boolean editable) {
 		// read only field cannot be enabled
-	}
-
-	@Override
-	public void setFocusListener(IFocusListener focusListener) {
-		// read only field cannot be focused
 	}
 
 	@Override

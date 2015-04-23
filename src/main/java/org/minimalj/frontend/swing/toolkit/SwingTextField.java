@@ -13,15 +13,17 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.util.StringUtils;
 
 public class SwingTextField extends JTextField implements TextField, FocusListener {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener changeListener;
-	private IFocusListener focusListener;
 	private Runnable commitListener;
+	
+	private String textOnFocusLost;
+	private boolean internalChange;
 	
 	public SwingTextField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
@@ -64,7 +66,9 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 		}
 		
 		private void fireChangeEvent() {
-			changeListener.changed(SwingTextField.this);
+			if (!internalChange) {
+				changeListener.changed(SwingTextField.this);
+			}
 		}
 	}
 
@@ -120,30 +124,30 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 	}
 
 	@Override
-	public void setFocusListener(IFocusListener focusListener) {
-		this.focusListener = focusListener;
-	}
-
-	@Override
 	public void setCommitListener(Runnable commitListener) {
 		this.commitListener = commitListener;
 	}
 
 	@Override
 	public void focusGained(FocusEvent e) {
-		// not used
+		textOnFocusLost = getText();
 	}
 
 	@Override
 	public void focusLost(FocusEvent e) {
-		if (focusListener != null) {
-			focusListener.onFocusLost();
+		if (!StringUtils.equals(textOnFocusLost, getText())) {
+			internalChange = true;
+			super.setText(textOnFocusLost);
+			internalChange = false;
 		}
 	}
 	
 	@Override
 	public void setValue(String value) {
-		super.setText(value);
+		textOnFocusLost = value;
+		if (!hasFocus()) {
+			super.setText(value);
+		}
 	}
 
 	@Override
@@ -152,7 +156,3 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 	}
 
 }
-
-
-
-

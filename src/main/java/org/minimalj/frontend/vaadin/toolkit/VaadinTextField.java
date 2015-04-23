@@ -2,7 +2,6 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -107,11 +106,6 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements ICompone
 		@Override
 		public void setEditable(boolean editable) {
 			delegate.setReadOnly(!editable);
-		}
-
-		@Override
-		public void setFocusListener(IFocusListener focusListener) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override

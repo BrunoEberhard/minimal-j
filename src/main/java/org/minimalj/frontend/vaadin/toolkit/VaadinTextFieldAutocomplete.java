@@ -8,7 +8,6 @@ import java.util.Map;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
 
@@ -87,11 +86,6 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 		@Override
 		public void setEditable(boolean editable) {
 			delegate.setReadOnly(!editable);
-		}
-
-		@Override
-		public void setFocusListener(IFocusListener focusListener) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override

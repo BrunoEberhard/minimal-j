@@ -57,12 +57,6 @@ public class JUnitClientToolkit extends ClientToolkit {
 			}
 			
 			@Override
-			public void setFocusListener(IFocusListener focusListener) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
 			public void setEditable(boolean editable) {
 				// TODO Auto-generated method stub
 				

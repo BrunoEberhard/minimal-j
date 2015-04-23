@@ -3,7 +3,6 @@ package org.minimalj.frontend.json;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
 public class JsonTextField extends JsonInputComponent<String> implements TextField {
@@ -39,11 +38,6 @@ public class JsonTextField extends JsonInputComponent<String> implements TextFie
 	@Override
 	public String getValue() {
 		return (String) get(VALUE);
-	}
-
-	@Override
-	public void setFocusListener(IFocusListener focusListener) {
-		// ?
 	}
 
 	@Override

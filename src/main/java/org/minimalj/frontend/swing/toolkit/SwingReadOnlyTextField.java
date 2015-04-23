@@ -3,7 +3,6 @@ package org.minimalj.frontend.swing.toolkit;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
 public class SwingReadOnlyTextField extends JLabel implements TextField {
@@ -36,11 +35,6 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 
 	@Override
 	public void requestFocus() {
-		// read only field cannot be focused
-	}
-
-	@Override
-	public void setFocusListener(IFocusListener focusListener) {
 		// read only field cannot be focused
 	}
 

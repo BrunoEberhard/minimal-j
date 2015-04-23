@@ -1,8 +1,8 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.util.StringUtils;
 
 import com.googlecode.lanterna.gui.component.InteractableComponent;
 import com.googlecode.lanterna.gui.component.TextBox;
@@ -12,8 +12,9 @@ import com.googlecode.lanterna.input.Key;
 public class LanternaTextField extends TextBox implements TextField {
 
 	private final InputComponentListener changeListener;
-	private IFocusListener focusListener;
 	
+	private String textOnFocusLost;
+
 	public LanternaTextField(InputComponentListener changeListener) {
 		this.changeListener = changeListener;
 		addComponentListener(new TextFieldComponentListener());
@@ -22,11 +23,6 @@ public class LanternaTextField extends TextBox implements TextField {
 	@Override
 	public void setEditable(boolean editable) {
 		super.setVisible(editable);
-	}
-
-	@Override
-	public void setFocusListener(IFocusListener focusListener) {
-		this.focusListener = focusListener;
 	}
 
 	@Override
@@ -46,7 +42,10 @@ public class LanternaTextField extends TextBox implements TextField {
 		if (text == null) {
 			text = "";
 		}
-		super.setText(text);
+		textOnFocusLost = text;
+		if (!hasFocus()) {
+			super.setText(text);
+		}
 	}
 	
 	private void fireChangeEvent() {
@@ -66,13 +65,13 @@ public class LanternaTextField extends TextBox implements TextField {
 
 		@Override
 		public void onComponentReceivedFocus(InteractableComponent interactableComponent) {
-			// not used
+			textOnFocusLost = getText();
 		}
 		
 		@Override
 		public void onComponentLostFocus(InteractableComponent interactableComponent) {
-			if (focusListener != null) {
-				focusListener.onFocusLost();
+			if (!StringUtils.equals(textOnFocusLost, getText())) {
+				setText(textOnFocusLost);
 			}
 		}
 	}

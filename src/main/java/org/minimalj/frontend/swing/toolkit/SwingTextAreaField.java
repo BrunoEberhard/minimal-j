@@ -1,20 +1,15 @@
 package org.minimalj.frontend.swing.toolkit;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
-public class SwingTextAreaField extends JTextArea implements TextField, FocusListener {
+public class SwingTextAreaField extends JTextArea implements TextField {
 	
 	private final InputComponentListener changeListener;
-	private IFocusListener focusListener;
 	private Runnable commitListener;
 	
 	public SwingTextAreaField(InputComponentListener changeListener, int maxLength, String pattern) {
@@ -32,8 +27,6 @@ public class SwingTextAreaField extends JTextArea implements TextField, FocusLis
 //				}
 //			}
 //		});
-
-		addFocusListener(this);
 	}
 
 	public class TextFieldChangeListener implements DocumentListener {
@@ -59,25 +52,8 @@ public class SwingTextAreaField extends JTextArea implements TextField, FocusLis
 	}
 
 	@Override
-	public void setFocusListener(IFocusListener focusListener) {
-		this.focusListener = focusListener;
-	}
-
-	@Override
 	public void setCommitListener(Runnable commitListener) {
 		this.commitListener = commitListener;
-	}
-
-	@Override
-	public void focusGained(FocusEvent e) {
-		// not used
-	}
-
-	@Override
-	public void focusLost(FocusEvent e) {
-		if (focusListener != null) {
-			focusListener.onFocusLost();
-		}
 	}
 
 	@Override

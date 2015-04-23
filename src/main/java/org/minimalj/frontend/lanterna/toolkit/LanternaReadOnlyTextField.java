@@ -1,6 +1,5 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.IFocusListener;
 import org.minimalj.frontend.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.component.Label;
@@ -14,11 +13,6 @@ public class LanternaReadOnlyTextField extends Label implements TextField {
 
 	@Override
 	public void setEditable(boolean editable) {
-		// ignored
-	}
-
-	@Override
-	public void setFocusListener(IFocusListener focusListener) {
 		// ignored
 	}
 
