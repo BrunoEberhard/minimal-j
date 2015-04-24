@@ -225,12 +225,14 @@ public class JsonClientSession {
 			component.setPropertyListener(propertyListener);
 		}
 		if (o instanceof Map) {
+			@SuppressWarnings("rawtypes")
 			Map map = (Map) o;
 			for (Object o2 : map.values()) {
 				register(o2);
 			}
 		}
 		if (o instanceof List) {
+			@SuppressWarnings("rawtypes")
 			List list = (List) o;
 			for (Object o2 : list) {
 				register(o2);
