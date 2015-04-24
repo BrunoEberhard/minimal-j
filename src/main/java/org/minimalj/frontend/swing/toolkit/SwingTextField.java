@@ -68,6 +68,7 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 		private void fireChangeEvent() {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
+					textOnFocusLost = getText();
 					changeListener.changed(SwingTextField.this);
 				}
 			});
