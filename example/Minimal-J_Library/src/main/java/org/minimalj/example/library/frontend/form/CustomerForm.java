@@ -3,7 +3,7 @@ package org.minimalj.example.library.frontend.form;
 import static org.minimalj.example.library.model.Customer.*;
 
 import org.minimalj.example.library.model.Customer;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.util.mock.MockPrename;
 import org.minimalj.util.mock.MockName;
 

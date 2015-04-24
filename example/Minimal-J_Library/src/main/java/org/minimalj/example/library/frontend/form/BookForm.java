@@ -3,7 +3,7 @@ package org.minimalj.example.library.frontend.form;
 import static org.minimalj.example.library.model.Book.*;
 
 import org.minimalj.example.library.model.Book;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.form.Form;
 
 public class BookForm extends Form<Book> {
 

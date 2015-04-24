@@ -4,8 +4,8 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.BookForm;
 import org.minimalj.example.library.frontend.page.BookPage;
 import org.minimalj.example.library.model.Book;
-import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page;
 
 public class AddBookEditor extends Editor<Book> {

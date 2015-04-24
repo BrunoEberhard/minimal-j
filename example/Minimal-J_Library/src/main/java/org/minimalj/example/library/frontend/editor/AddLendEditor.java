@@ -4,8 +4,8 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.LendForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
-import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.form.Form;
 
 public class AddLendEditor extends Editor<Lend> {
 

@@ -4,8 +4,8 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.form.CustomerForm;
 import org.minimalj.example.erp.frontend.page.CustomerPage;
 import org.minimalj.example.erp.model.Customer;
-import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page;
 
 public class CustomerEditor extends Editor<Customer> {

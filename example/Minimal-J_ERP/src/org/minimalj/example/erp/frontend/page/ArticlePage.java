@@ -3,7 +3,7 @@ package org.minimalj.example.erp.frontend.page;
 import org.minimalj.example.erp.frontend.editor.ArticleEditor;
 import org.minimalj.example.erp.frontend.form.ArticleForm;
 import org.minimalj.example.erp.model.Article;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 

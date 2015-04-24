@@ -3,7 +3,7 @@ package org.minimalj.example.erp.frontend.form;
 import static org.minimalj.example.erp.model.Customer.*;
 
 import org.minimalj.example.erp.model.Customer;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.form.Form;
 
 public class CustomerForm extends Form<Customer> {
 

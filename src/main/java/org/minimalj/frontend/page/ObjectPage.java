@@ -1,7 +1,7 @@
 package org.minimalj.frontend.page;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.util.IdUtils;
 

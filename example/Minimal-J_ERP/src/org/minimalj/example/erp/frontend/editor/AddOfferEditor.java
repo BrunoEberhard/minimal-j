@@ -5,8 +5,8 @@ import org.minimalj.example.erp.frontend.form.OfferForm;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.CustomerView;
 import org.minimalj.example.erp.model.Offer;
-import org.minimalj.frontend.edit.Editor;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.model.ViewUtil;
 
 public class AddOfferEditor extends Editor<Offer> {

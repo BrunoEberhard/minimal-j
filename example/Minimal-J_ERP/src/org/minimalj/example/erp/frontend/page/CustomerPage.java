@@ -4,7 +4,7 @@ import org.minimalj.example.erp.frontend.editor.AddOfferEditor;
 import org.minimalj.example.erp.frontend.editor.CustomerEditor;
 import org.minimalj.example.erp.frontend.form.CustomerForm;
 import org.minimalj.example.erp.model.Customer;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.toolkit.ClientToolkit;

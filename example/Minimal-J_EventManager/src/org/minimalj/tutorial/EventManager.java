@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.edit.EditorAction;
+import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.tutorial.domain.Event;
 import org.minimalj.tutorial.domain.Person;

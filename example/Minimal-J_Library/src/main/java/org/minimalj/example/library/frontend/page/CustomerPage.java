@@ -3,7 +3,7 @@ package org.minimalj.example.library.frontend.page;
 import org.minimalj.example.library.frontend.editor.AddLendEditor;
 import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.model.Customer;
-import org.minimalj.frontend.edit.form.Form;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
 

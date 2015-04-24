@@ -1,0 +1,20 @@
+package org.minimalj.frontend.form.element;
+
+import org.minimalj.model.properties.PropertyInterface;
+
+/**
+ * If no FormElement class is found for a property then a TypeUnknownField
+ * is created to show the developer what is missing. 
+ *
+ */
+public class TypeUnknownFormElement extends TextFormElement {
+
+	public TypeUnknownFormElement(PropertyInterface property) {
+		super(property);
+	}
+	
+	@Override
+	public void setObject(Object object) {
+		super.setObject("No Field for found:" + getProperty().getName());
+	}
+}
