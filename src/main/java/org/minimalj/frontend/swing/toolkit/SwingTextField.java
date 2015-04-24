@@ -6,6 +6,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
@@ -23,7 +24,6 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 	private Runnable commitListener;
 	
 	private String textOnFocusLost;
-	private boolean internalChange;
 	
 	public SwingTextField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
@@ -66,9 +66,11 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 		}
 		
 		private void fireChangeEvent() {
-			if (!internalChange) {
-				changeListener.changed(SwingTextField.this);
-			}
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					changeListener.changed(SwingTextField.this);
+				}
+			});
 		}
 	}
 
@@ -135,18 +137,14 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 
 	@Override
 	public void focusLost(FocusEvent e) {
-		if (!StringUtils.equals(textOnFocusLost, getText())) {
-			internalChange = true;
-			super.setText(textOnFocusLost);
-			internalChange = false;
-		}
+		super.setText(textOnFocusLost);
 	}
 	
 	@Override
 	public void setValue(String value) {
 		textOnFocusLost = value;
-		if (!hasFocus()) {
-			super.setText(value);
+		if (!hasFocus() && !StringUtils.equals(value, getText())) {
+			setText(value);
 		}
 	}
 
