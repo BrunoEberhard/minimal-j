@@ -14,7 +14,7 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 	}
 
 	@Override
-	public Integer getObject() {
+	public Integer getValue() {
 		String text = textField.getValue();
 		if (text != null) {
 			try {
@@ -34,9 +34,9 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 		for (int i = 0; i<size; i++) max *= 10; // is there a exponential operator in Java?
 		int value = random.nextInt(max);
 		if (!negative || random.nextBoolean()) {
-			setObject(value);
+			setValue(value);
 		} else {
-			setObject(-value);
+			setValue(-value);
 		}
 	}
 

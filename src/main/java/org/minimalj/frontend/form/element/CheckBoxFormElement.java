@@ -25,12 +25,12 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> {
 	}
 	
 	@Override
-	public Boolean getObject() {
+	public Boolean getValue() {
 		return checkBox.getValue();
 	}		
 	
 	@Override
-	public void setObject(Boolean value) {
+	public void setValue(Boolean value) {
 		checkBox.setValue(Boolean.TRUE.equals(value));
 	}
 

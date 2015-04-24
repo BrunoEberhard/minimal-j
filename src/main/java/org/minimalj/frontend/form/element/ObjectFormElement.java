@@ -44,12 +44,12 @@ public abstract class ObjectFormElement<T> extends AbstractFormElement<T> implem
 	}
 	
 	@Override
-	public T getObject() {
+	public T getValue() {
 		return object;
 	}
 
 	@Override
-	public void setObject(T object) {
+	public void setValue(T object) {
 		this.object = object;
 		fireObjectChange();
 	}
@@ -88,7 +88,7 @@ public abstract class ObjectFormElement<T> extends AbstractFormElement<T> implem
 
 		@Override
 		public T load() {
-			return ObjectFormElement.this.getObject();
+			return ObjectFormElement.this.getValue();
 		}
 		
 		@Override
@@ -100,7 +100,7 @@ public abstract class ObjectFormElement<T> extends AbstractFormElement<T> implem
 
 		@Override
 		public Object save(T edited) {
-			ObjectFormElement.this.setObject(edited);
+			ObjectFormElement.this.setValue(edited);
 			return SAVE_SUCCESSFUL;
 		}
 	}
@@ -133,7 +133,7 @@ public abstract class ObjectFormElement<T> extends AbstractFormElement<T> implem
 	}
 
 	public boolean isEmpty() {
-		Object object = getObject();
+		Object object = getValue();
 		return object == null || EmptyObjects.isEmpty(object);
 	}
 	

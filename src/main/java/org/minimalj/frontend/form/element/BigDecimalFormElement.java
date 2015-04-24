@@ -15,7 +15,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	}
 
 	@Override
-	public BigDecimal getObject() {
+	public BigDecimal getValue() {
 		String text = textField.getValue();
 		if (text != null) {
 			try {
@@ -34,9 +34,9 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 		Random random = new Random();
 		double value = random.nextDouble() * (10 ^ (size - decimalPlaces));
 		if (!negative || random.nextBoolean()) {
-			setObject(BigDecimal.valueOf(value));
+			setValue(BigDecimal.valueOf(value));
 		} else {
-			setObject(BigDecimal.valueOf(-value));
+			setValue(BigDecimal.valueOf(-value));
 		}
 	}
 

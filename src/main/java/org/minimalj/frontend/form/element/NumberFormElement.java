@@ -23,7 +23,7 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 	}
 
 	@Override
-	public void setObject(T number) {
+	public void setValue(T number) {
 		String text = null;
 		if (number != null) {
 			if (InvalidValues.isInvalid(number)) {

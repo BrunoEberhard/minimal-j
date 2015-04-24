@@ -41,12 +41,12 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 	}
 
 	@Override
-	public T getObject() {
+	public T getValue() {
 		return lookup.getValue();
 	}
 
 	@Override
-	public void setObject(T object) {
+	public void setValue(T object) {
 		lookup.setValue(object);
 	}
 
@@ -57,7 +57,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 			Object selectedObject = lookup.getValue();
 			@SuppressWarnings("unchecked")
 			T objectAsView = (T) ViewUtil.view(selectedObject, CloneHelper.newInstance(getProperty().getClazz()));
-			setObject(objectAsView);
+			setValue(objectAsView);
 		}
 		
 	}

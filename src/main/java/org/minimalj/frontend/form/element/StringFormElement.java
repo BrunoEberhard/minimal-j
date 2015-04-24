@@ -29,7 +29,7 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 	}
 
 	@Override
-	public void setObject(String string) {
+	public void setValue(String string) {
 		if (string != null) {
 			if (maxLength > 0 && string.length() > maxLength) {
 				string = string.substring(0, maxLength);
@@ -39,7 +39,7 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 	}
 
 	@Override
-	public String getObject() {
+	public String getValue() {
 		return textField.getValue();
 	}
 

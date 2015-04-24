@@ -61,7 +61,7 @@ public class OfferArticleFormElement extends ObjectPanelFormElement<List<OfferAr
 
 		@Override
 		public void action() {
-			getObject().clear();
+			getValue().clear();
 			fireObjectChange();
 		}
 	}

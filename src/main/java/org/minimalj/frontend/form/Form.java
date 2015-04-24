@@ -292,7 +292,7 @@ public class Form<T> implements Mocking {
 			if (field instanceof Mocking) {
 				Mocking demoEnabledElement = (Mocking) field;
 				demoEnabledElement.mock();
-				property.setValue(object, field.getObject());
+				property.setValue(object, field.getValue());
 			}
 		}		
 	}
@@ -317,7 +317,7 @@ public class Form<T> implements Mocking {
 	private void set(PropertyInterface property, Object value) {
 		FormElement element = elements.get(property);
 		try {
-			element.setObject(value);
+			element.setValue(value);
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
 		}
@@ -372,7 +372,7 @@ public class Form<T> implements Mocking {
 	private class FormPanelChangeListener implements FormElementListener {
 
 		@Override
-		public void changed(FormElement changedField) {
+		public void valueChanged(FormElement changedField) {
 			if (changeFromOutsite) return;
 			if (changeListener == null) {
 				logger.severe("Editable Form must have a listener");
@@ -382,7 +382,7 @@ public class Form<T> implements Mocking {
 			logger.fine("ChangeEvent from " + getName(changedField));
 			
 			PropertyInterface property = changedField.getProperty();
-			Object newValue = changedField.getObject();
+			Object newValue = changedField.getValue();
 
 			// Call updaters before set the new value  (so they also can read the old value)
 			executeUpdater(property, newValue);
@@ -406,7 +406,7 @@ public class Form<T> implements Mocking {
 				List<PropertyInterface> dependendProperties = dependencies.get(property);
 				for (PropertyInterface dependendProperty : dependendProperties) {
 					Object newDependedValue = dependendProperty.getValue(object);
-					((FormElement) elements.get(dependendProperty)).setObject(newDependedValue);
+					((FormElement) elements.get(dependendProperty)).setValue(newDependedValue);
 				}
 			}
 		}

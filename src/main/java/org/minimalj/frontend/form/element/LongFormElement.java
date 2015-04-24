@@ -14,7 +14,7 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 	}
 
 	@Override
-	public Long getObject() {
+	public Long getValue() {
 		String text = textField.getValue();
 		if (text != null) {
 			try {
@@ -37,9 +37,9 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 			value = random.nextLong();
 		} while (value < 0 || value > max);
 		if (!negative || random.nextBoolean()) {
-			setObject(value);
+			setValue(value);
 		} else {
-			setObject(-value);
+			setValue(-value);
 		}
 	}
 

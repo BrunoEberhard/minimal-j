@@ -42,7 +42,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	}
 
 	@Override
-	public LocalTime getObject() {
+	public LocalTime getValue() {
 		String text = textField.getValue();
 		if (text != null) {
 			try {
@@ -56,7 +56,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	}
 	
 	@Override
-	public void setObject(LocalTime value) {
+	public void setValue(LocalTime value) {
 		if (InvalidValues.isInvalid(value)) {
 			String text = InvalidValues.getInvalidValue(value);
 			textField.setValue(text);
@@ -72,7 +72,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 
 	@Override
 	public void mock() {
-		setObject(MockDate.generateRandomTime(size));
+		setValue(MockDate.generateRandomTime(size));
 	}
 
 }

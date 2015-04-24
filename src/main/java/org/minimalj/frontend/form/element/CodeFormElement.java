@@ -32,19 +32,19 @@ public class CodeFormElement extends AbstractFormElement<Code> implements Enable
 	}
 
 	@Override
-	public Code getObject() {
+	public Code getValue() {
 		return comboBox.getValue();
 	}
 
 	@Override
-	public void setObject(Code value) {
+	public void setValue(Code value) {
 		comboBox.setValue(value);
 	}
 
 	@Override
 	public void mock() {
 		int index = (int)(Math.random() * (double)codes.size());
-		setObject(codes.get(index));
+		setValue(codes.get(index));
 	}
 	
 }

@@ -14,7 +14,7 @@ public class TypeUnknownFormElement extends TextFormElement {
 	}
 	
 	@Override
-	public void setObject(Object object) {
-		super.setObject("No Field for found:" + getProperty().getName());
+	public void setValue(Object object) {
+		super.setValue("No Field for found:" + getProperty().getName());
 	}
 }

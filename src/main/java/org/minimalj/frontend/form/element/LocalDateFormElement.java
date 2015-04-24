@@ -26,7 +26,7 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 	}
 
 	@Override
-	public LocalDate getObject() {
+	public LocalDate getValue() {
 		String fieldText = textField.getValue();
 		try {
 			return DateUtils.parse(fieldText);
@@ -36,7 +36,7 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 	}
 	
 	@Override
-	public void setObject(LocalDate value) {
+	public void setValue(LocalDate value) {
 		if (InvalidValues.isInvalid(value)) {
 			String text = InvalidValues.getInvalidValue(value);
 			textField.setValue(text);
@@ -52,6 +52,6 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 	
 	@Override
 	public void mock() {
-		setObject(MockDate.generateRandomDate());
+		setValue(MockDate.generateRandomDate());
 	}
 }

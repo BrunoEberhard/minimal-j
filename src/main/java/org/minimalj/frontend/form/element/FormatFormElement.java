@@ -37,21 +37,21 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		return textField;
 	}
 
-	public abstract T getObject();
+	public abstract T getValue();
 
-	public abstract void setObject(T value);
+	public abstract void setValue(T value);
 
 	private class TextFormatFieldChangeListener implements InputComponentListener {
 		@Override
 		public void changed(IComponent source) {
 			// Formattierung auslösen
-			T value = getObject();
+			T value = getValue();
 			boolean valid = true;
 			valid &= !InvalidValues.isInvalid(value);
 			valid &= !(value instanceof Validatable) || ((Validatable) value).validate() == null;
 
 			if (valid) {
-				setObject(value);
+				setValue(value);
 			}
 			
 			fireChange();

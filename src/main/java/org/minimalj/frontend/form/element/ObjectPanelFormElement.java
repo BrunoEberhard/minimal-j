@@ -53,12 +53,12 @@ public abstract class ObjectPanelFormElement<T> extends ObjectFormElement<T> {
 
 		@Override
 		public P load() {
-			return getPart(ObjectPanelFormElement.this.getObject());
+			return getPart(ObjectPanelFormElement.this.getValue());
 		}
 		
 		@Override
 		public Object save(P part) {
-			setPart(ObjectPanelFormElement.this.getObject(), part);
+			setPart(ObjectPanelFormElement.this.getValue(), part);
 			fireObjectChange();
 			return SAVE_SUCCESSFUL;
 		}
@@ -73,7 +73,7 @@ public abstract class ObjectPanelFormElement<T> extends ObjectFormElement<T> {
 	public class RemoveObjectAction extends Action {
 		@Override
 		public void action() {
-			ObjectPanelFormElement.this.setObject(null);
+			ObjectPanelFormElement.this.setValue(null);
 		}
 	}
 	

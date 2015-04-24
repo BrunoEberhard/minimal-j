@@ -38,7 +38,7 @@ public class TextFormElement implements FormElement<Object> {
 	}
 
 	@Override
-	public Object getObject() {
+	public Object getValue() {
 		throw new RuntimeException("getObject() on TextElement " + this.getClass().getSimpleName() + " must not be called");
 	}
 
@@ -48,7 +48,7 @@ public class TextFormElement implements FormElement<Object> {
 	}
 
 	@Override
-	public void setObject(Object object) {
+	public void setValue(Object object) {
 		if (object instanceof Rendering) {
 			Rendering rendering = (Rendering) object;
 			textField.setValue(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));

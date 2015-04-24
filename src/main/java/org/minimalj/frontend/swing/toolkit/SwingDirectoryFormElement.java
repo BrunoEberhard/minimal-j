@@ -35,26 +35,26 @@ public class SwingDirectoryFormElement extends JPanel implements FormElement<Str
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser(getObject());
+				JFileChooser chooser = new JFileChooser(getValue());
 				chooser.setMultiSelectionEnabled(false);
 				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				if (JFileChooser.APPROVE_OPTION == chooser.showDialog(textField, "Verzeichnis wählen")) {
-					setObject(chooser.getSelectedFile().getPath());
+					setValue(chooser.getSelectedFile().getPath());
 				}
 			}
 		});
 	}
 
 	@Override
-	public String getObject() {
+	public String getValue() {
 		return textField.getText();
 	}
 
 	@Override
-	public void setObject(String value) {
+	public void setValue(String value) {
 		textField.setText(value);
 		if (listener != null) {
-			listener.changed(this);
+			listener.valueChanged(this);
 		}
 	}
 

@@ -16,15 +16,15 @@ import org.minimalj.model.properties.PropertyInterface;
  */
 public interface FormElement<T> {
 
-	public void setObject(T object);
+	public void setValue(T object);
 
-	public T getObject();
+	public T getValue();
 
 	public void setChangeListener(FormElementListener listener);
 
 	public interface FormElementListener {
 		
-	    void changed(FormElement source);
+	    void valueChanged(FormElement source);
 	}
 	
 	public IComponent getComponent();

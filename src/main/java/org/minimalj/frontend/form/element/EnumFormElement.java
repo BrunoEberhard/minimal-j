@@ -48,14 +48,14 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 
 	private void setDefault() {
     	E defolt = EnumUtils.getDefault(enumClass);
-    	if (!defolt.equals(getObject())) {
-    		setObject(defolt);
+    	if (!defolt.equals(getValue())) {
+    		setValue(defolt);
     		fireChange();
     	}
 	}
 	
 	@Override
-	public E getObject() {
+	public E getValue() {
 		if (comboBox.getValue() != null) {
 			return comboBox.getValue().getKey();
 		} else {
@@ -64,7 +64,7 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 	}
 
 	@Override
-	public void setObject(E value) {
+	public void setValue(E value) {
 		CodeItem<E> item = null;
 		if (value != null) {
 			List<CodeItem<E>> itemList = EnumUtils.itemList(enumClass);
@@ -86,7 +86,7 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 		} else {
 			List<E> valueList = EnumUtils.valueList(enumClass);
 			int index = (int)(Math.random() * (double)valueList.size());
-			setObject(valueList.get(index));
+			setValue(valueList.get(index));
 		}
 	}
 	

@@ -49,7 +49,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	
 	protected void fireChange() {
 		if (changeListener != null) {
-			changeListener.changed(AbstractFormElement.this);
+			changeListener.valueChanged(AbstractFormElement.this);
 		}
 	}
 	

@@ -42,7 +42,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectPanelFormE
 				newValues.add(value);
 			}
 		}
-		setObject(newValues);
+		setValue(newValues);
 	}
 
 	@Override
