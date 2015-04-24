@@ -24,7 +24,7 @@ public interface FormElement<T> {
 
 	public interface FormElementListener {
 		
-	    void valueChanged(FormElement source);
+	    void valueChanged(FormElement<?> source);
 	}
 	
 	public IComponent getComponent();

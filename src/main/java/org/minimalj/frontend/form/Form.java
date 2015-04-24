@@ -287,7 +287,7 @@ public class Form<T> implements Mocking {
 	}
 
 	protected void fillWithDemoData(T object) {
-		for (FormElement field : elements.values()) {
+		for (FormElement<?> field : elements.values()) {
 			PropertyInterface property = field.getProperty();
 			if (field instanceof Mocking) {
 				Mocking demoEnabledElement = (Mocking) field;
@@ -372,7 +372,7 @@ public class Form<T> implements Mocking {
 	private class FormPanelChangeListener implements FormElementListener {
 
 		@Override
-		public void valueChanged(FormElement changedField) {
+		public void valueChanged(FormElement<?> changedField) {
 			if (changeFromOutsite) return;
 			if (changeListener == null) {
 				logger.severe("Editable Form must have a listener");
