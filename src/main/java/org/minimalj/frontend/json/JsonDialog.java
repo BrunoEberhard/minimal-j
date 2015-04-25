@@ -19,11 +19,11 @@ public class JsonDialog extends JsonComponent implements IDialog {
 		JsonClientToolkit.getSession().openDialog(this);
 	}
 
-	private JsonDialog(String type, IContent content) {
+	private JsonDialog(String type, JsonComponent content) {
 		super(type);
 		this.closeAction = null;
 		put("title", "Search");
-		put("content", ((JsonComponent) content));
+		put("content", content);
 		JsonClientToolkit.getSession().openDialog(this);
 	}
 

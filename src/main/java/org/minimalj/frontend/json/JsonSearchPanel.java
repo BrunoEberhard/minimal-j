@@ -1,12 +1,11 @@
 package org.minimalj.frontend.json;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 
-public class JsonSearchPanel<T> extends JsonFlowField implements IContent {
+public class JsonSearchPanel<T> extends JsonFlowField {
 
 	private final Search<T> search;
 	private final JsonTable<T> table;
