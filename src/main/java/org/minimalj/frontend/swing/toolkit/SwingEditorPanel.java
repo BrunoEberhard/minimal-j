@@ -21,10 +21,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.plaf.ComponentInputMapUIResource;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
-public class SwingEditorPanel extends JPanel implements IComponent {
+public class SwingEditorPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	public SwingEditorPanel(IContent content, org.minimalj.frontend.toolkit.Action[] actions) {

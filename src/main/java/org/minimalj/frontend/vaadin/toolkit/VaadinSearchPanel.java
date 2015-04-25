@@ -2,7 +2,6 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 
@@ -13,7 +12,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, VaadinComponentWithWidth {
+public class VaadinSearchPanel<T> extends VerticalLayout implements VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
 	private final TextField text;
 	private final Button searchButton;

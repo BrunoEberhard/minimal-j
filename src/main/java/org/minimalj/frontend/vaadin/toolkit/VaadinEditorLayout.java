@@ -7,7 +7,6 @@ import java.util.List;
 import javax.swing.KeyStroke;
 
 import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.vaadin.VaadinBorderLayout;
 
@@ -22,7 +21,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.Panel;
 
-public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent {
+public class VaadinEditorLayout extends VaadinBorderLayout {
 	private static final long serialVersionUID = 1L;
 
 	public VaadinEditorLayout(IContent content, Action[] actions) {

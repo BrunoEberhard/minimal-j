@@ -17,10 +17,9 @@ import javax.swing.JFrame;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.swing.component.HideableTabbedPane;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.util.StringUtils;
 
-public class SwingFrame extends JFrame implements IComponent {
+public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private HideableTabbedPane tabbedPane;

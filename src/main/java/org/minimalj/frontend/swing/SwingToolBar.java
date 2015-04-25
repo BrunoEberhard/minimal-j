@@ -16,9 +16,8 @@ import javax.swing.JToolBar;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.page.SearchPage;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 
-public class SwingToolBar extends JToolBar implements IComponent {
+public class SwingToolBar extends JToolBar {
 	private static final long serialVersionUID = 1L;
 	
 	private final SwingTab tab;

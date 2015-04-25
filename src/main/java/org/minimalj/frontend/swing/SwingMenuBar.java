@@ -18,11 +18,10 @@ import org.minimalj.frontend.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import org.minimalj.frontend.swing.lookAndFeel.TerminalLookAndFeel;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-public class SwingMenuBar extends JMenuBar implements IComponent {
+public class SwingMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	
 	private final SwingTab tab;
