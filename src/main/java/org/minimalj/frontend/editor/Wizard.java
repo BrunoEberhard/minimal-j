@@ -8,7 +8,6 @@ import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
-import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.model.validation.ValidationMessage;
 
 public abstract class Wizard<T> extends Editor<T> {
@@ -89,7 +88,7 @@ public abstract class Wizard<T> extends Editor<T> {
 		currentStep.setEditorListener(stepFinishedListener);
  
 		currentStep.startEditor();
-		wizardContent.show((FormContent) currentStep.getContent());
+		wizardContent.show(currentStep.getContent());
 		
 		prevAction.setEnabled(currentStepIndex > 0);
 	}
