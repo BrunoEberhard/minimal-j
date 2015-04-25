@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.page.Page;
@@ -17,7 +18,6 @@ import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
 import org.minimalj.frontend.swing.toolkit.ScrollablePanel;
 import org.minimalj.frontend.swing.toolkit.SwingFormAlignLayoutManager;
-import org.minimalj.frontend.swing.toolkit.SwingScrollPane;
 import org.minimalj.frontend.swing.toolkit.SwingSwitchContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.FormContent;
@@ -176,9 +176,12 @@ public class SwingTab extends EditablePanel {
 			if (content instanceof FormContent) {
 				JPanel panel = new JPanel(new SwingFormAlignLayoutManager());
 				panel.add((Component)content);
-				content = new SwingScrollPane(new ScrollablePanel(panel));
+				JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(panel));
+				scrollPane.setBorder(null);
+				switchContent.show(scrollPane);
+			} else {
+				switchContent.show(content);
 			}
-			switchContent.show(content);
 		}
 	}
 	

@@ -12,7 +12,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
 public class SwingSwitchContent extends JPanel implements SwitchContent {
 	private static final long serialVersionUID = 1L;
 	
-	private IContent shownComponent;
+	private JComponent shownComponent;
 	
 	public SwingSwitchContent() {
 		super(new BorderLayout());
@@ -21,15 +21,18 @@ public class SwingSwitchContent extends JPanel implements SwitchContent {
 
 	@Override
 	public void show(IContent c) {
-		if (shownComponent != c) {
-			JComponent component = (JComponent) c;
+		show((JComponent) c);
+	}
+	
+	public void show(JComponent component) {
+		if (shownComponent != component) {
 			removeAll();
 			if (component != null) {
 				add(component, BorderLayout.CENTER);
 			}
 			refresh(this);
 		}
-		shownComponent = c;
+		shownComponent = component;
 	}
 	
 	private void refresh(Component component) {
@@ -40,8 +43,7 @@ public class SwingSwitchContent extends JPanel implements SwitchContent {
 	@Override
 	public void requestFocus() {
 		if (shownComponent != null) {
-			Component component = (Component) shownComponent;
-			component.requestFocus();
+			shownComponent.requestFocus();
 		}
 	}
 
