@@ -36,7 +36,7 @@ public class LanternaGUIScreen extends GUIScreen {
 	public void init() {
 		menuPanel = new LanternaMenuPanel(this);
 		
-		window.addComponent((Component) menuPanel);
+		window.addComponent(menuPanel);
 
 		switchLayout = new LanternaSwitchContent();
 		menuPanel.addComponent((Component) switchLayout, BorderLayout.CENTER);

@@ -31,7 +31,7 @@ public class StatementTransaction<T> implements Transaction<T> {
 		if (maxResults > 0) {
 			result = (T) backend.executeStatement(clazz, queryName, maxResults, parameters);
 		} else {
-			result = (T) backend.executeStatement(clazz, queryName, parameters);
+			result = backend.executeStatement(clazz, queryName, parameters);
 		}
 		return result;
 	}

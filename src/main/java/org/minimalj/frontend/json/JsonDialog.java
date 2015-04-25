@@ -14,7 +14,7 @@ public class JsonDialog extends JsonComponent implements IDialog {
 		super("Dialog");
 		this.closeAction = closeAction;
 		put("title", title);
-		put("content", ((JsonComponent) content));
+		put("content", (content));
 		put("actions", JsonClientToolkit.getSession().createActions(actions));
 		JsonClientToolkit.getSession().openDialog(this);
 	}

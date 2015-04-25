@@ -33,7 +33,7 @@ public class SwingSearchPanel<T> extends JPanel {
 		northPanel.add(searchButton, BorderLayout.EAST);
 				
 		add(border(northPanel, 5, 5, 5, 5), BorderLayout.NORTH);
-		add((Component) table, BorderLayout.CENTER);
+		add(table, BorderLayout.CENTER);
 
 		text.addActionListener(new ActionListener() {
 			@Override

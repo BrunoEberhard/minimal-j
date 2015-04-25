@@ -75,7 +75,7 @@ public class SwingCaption extends JPanel {
 			Font boldFont = boldFonts.get(font);
 			if (boldFont == null) {
 				float fontSize = font.getSize();
-				fontSize = (float)((int)(fontSize * 4.0F / 5.0F + 1.0F));
+				fontSize = ((int)(fontSize * 4.0F / 5.0F + 1.0F));
 				boldFont = font.deriveFont(fontSize).deriveFont(Font.BOLD);
 				boldFonts.put(font, boldFont);
 			}

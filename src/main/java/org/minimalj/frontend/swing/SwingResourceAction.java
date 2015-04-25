@@ -88,7 +88,7 @@ public abstract class SwingResourceAction extends AbstractAction {
 	
 	private static Integer keyCode(String mnemonicString) {
 		if (!StringUtils.isEmpty(mnemonicString)) {
-			int mnemonicKey = (int) mnemonicString.charAt(0);
+			int mnemonicKey = mnemonicString.charAt(0);
 			if (mnemonicKey >= 'a' && mnemonicKey <= 'z') {
 				mnemonicKey -= ('a' - 'A');
 			}

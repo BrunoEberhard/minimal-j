@@ -95,12 +95,12 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements ICompone
 
 		@Override
 		public void setValue(String value) {
-			delegate.setValue((String) value);
+			delegate.setValue(value);
 		}
 
 		@Override
 		public String getValue() {
-			return (String) delegate.getValue();
+			return delegate.getValue();
 		}
 
 		@Override

@@ -75,7 +75,7 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 
 		@Override
 		public void setValue(String value) {
-			delegate.setValue((String) value);
+			delegate.setValue(value);
 		}
 
 		@Override

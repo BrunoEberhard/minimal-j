@@ -119,7 +119,7 @@ public class DbBackend extends Backend {
 	}
 
 	public <T> T read(Class<T> clazz, Object id, Integer time) {
-		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(clazz);
+		AbstractTable<T> abstractTable = persistence.table(clazz);
 		if (abstractTable instanceof HistorizedTable) {
 			return ((HistorizedTable<T>) abstractTable).read(id, time);
 		} else {

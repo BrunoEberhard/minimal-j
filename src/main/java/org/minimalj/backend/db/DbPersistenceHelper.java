@@ -123,7 +123,7 @@ public class DbPersistenceHelper {
 			}
 		} else if (fieldClass == Boolean.class) {
 			if (value instanceof Boolean) {
-				return (Boolean) value;
+				return value;
 			} else if (value instanceof Integer) {
 				value = Boolean.valueOf(((int) value) == 1);
 			} else if (value != null) {

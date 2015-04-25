@@ -43,7 +43,7 @@ public class CodeFormElement extends AbstractFormElement<Code> implements Enable
 
 	@Override
 	public void mock() {
-		int index = (int)(Math.random() * (double)codes.size());
+		int index = (int)(Math.random() * codes.size());
 		setValue(codes.get(index));
 	}
 	

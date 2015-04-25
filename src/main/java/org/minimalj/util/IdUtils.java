@@ -90,7 +90,7 @@ public class IdUtils {
 	public static void setVersion(Object object, int id) {
 		try {
 			Field versionField = object.getClass().getField("version");
-			if (versionField.getType() == Integer.TYPE) versionField.set(object, (int) id);
+			if (versionField.getType() == Integer.TYPE) versionField.set(object, id);
 			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 			// throw new LoggingRuntimeException(e, logger, "setting Version failed");

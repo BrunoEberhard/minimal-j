@@ -85,7 +85,7 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 			setDefault();
 		} else {
 			List<E> valueList = EnumUtils.valueList(enumClass);
-			int index = (int)(Math.random() * (double)valueList.size());
+			int index = (int)(Math.random() * valueList.size());
 			setValue(valueList.get(index));
 		}
 	}

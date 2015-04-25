@@ -29,7 +29,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectPanelFormE
 		
 	public EnumSetFormElement(PropertyInterface property, E allowedValues, boolean editable) {
 		super(property, editable);
-		this.enumClass = (Class) GenericUtils.getGenericClass(property.getType());
+		this.enumClass = GenericUtils.getGenericClass(property.getType());
 		this.allowedValues = allowedValues != null ? allowedValues : EnumUtils.valueList(enumClass);
 	}
 	

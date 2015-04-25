@@ -64,7 +64,7 @@ public class EnumUtils {
 			Method method = enumClass.getMethod("values");
 			@SuppressWarnings("unchecked")
 			T[] values = (T[]) method.invoke(null);
-			return (List<T>) Arrays.asList(values);
+			return Arrays.asList(values);
 		} catch (Exception x) {
 			x.printStackTrace();
 			throw new RuntimeException(x);

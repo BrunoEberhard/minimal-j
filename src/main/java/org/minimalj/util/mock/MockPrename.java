@@ -44,7 +44,7 @@ public class MockPrename {
 	private static NameWithFrequency choose(List<NameWithFrequency> list) {
 		Collections.shuffle(list);
 		for (NameWithFrequency name : list) {
-			if (Math.random() > (0.95 / (double)name.frequency)) return name;
+			if (Math.random() > (0.95 / name.frequency)) return name;
 		}
 		return null;
  	}

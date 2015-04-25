@@ -97,7 +97,7 @@ public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements IComp
 
 		@Override
 		public void setValue(String value) {
-			delegate.setValue((String) value);
+			delegate.setValue(value);
 		}
 
 		@Override

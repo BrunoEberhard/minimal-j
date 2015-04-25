@@ -105,7 +105,7 @@ public class JsonWriter {
 
 		Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<?, ?> e = (Map.Entry<?, ?>) it.next();
+			Map.Entry<?, ?> e = it.next();
 			value(e.getKey());
 			add(":");
 			value(e.getValue());

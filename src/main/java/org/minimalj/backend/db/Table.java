@@ -215,7 +215,7 @@ public class Table<T> extends AbstractTable<T> {
 					value = IdUtils.getId(value);
 				}
 				statement.setObject(1, value);
-				return executeSelectAll(statement, (long)maxResults);
+				return executeSelectAll(statement, maxResults);
 			} catch (SQLException e) {
 				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 			}
@@ -330,7 +330,7 @@ public class Table<T> extends AbstractTable<T> {
 		List<S> result = new ArrayList<>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			while (resultSet.next() && result.size() < maxResults) {
-				S resultObject = (S) readResultSetRow(dbPersistence, (Class<S>) resultClass, resultSet, 0);
+				S resultObject = readResultSetRow(dbPersistence, resultClass, resultSet, 0);
 				result.add(resultObject);
 
 				Object id = IdUtils.getId(resultObject);
@@ -406,11 +406,11 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next() && result.size() < maxResults) {
-					T resultObject = (T) readResultSetRow(dbPersistence, (Class<T>) clazz, resultSet, 0);
+					T resultObject = readResultSetRow(dbPersistence, clazz, resultSet, 0);
 					result.add(resultObject);
 
 					Object id = IdUtils.getId(resultObject);
-					loadRelations((T) resultObject, id);
+					loadRelations(resultObject, id);
 				}
 			}
 			return result;
@@ -452,7 +452,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next() && result.size() < maxResults) {
-					S resultObject = (S) readResultSetRow(dbPersistence, (Class<S>) resultClass, resultSet, 0);
+					S resultObject = readResultSetRow(dbPersistence, resultClass, resultSet, 0);
 					result.add(resultObject);
 
 					Object id = IdUtils.getId(resultObject);

@@ -102,7 +102,7 @@ public class CloneHelper {
 			}
 		}
 		try {
-			T newInstance = (T) constructor.newInstance();
+			T newInstance = constructor.newInstance();
 			return newInstance;
 		} catch (IllegalArgumentException | //
 				InstantiationException | IllegalAccessException | InvocationTargetException e) {
