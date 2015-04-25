@@ -9,7 +9,6 @@ import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
 import org.minimalj.util.StringUtils;
@@ -189,7 +188,7 @@ public class VaadinWindow extends Window {
 		return gridLayout;
 	}
 	
-	private class VaadinGridLayout extends GridLayout implements IContent {
+	private class VaadinGridLayout extends GridLayout {
 		private static final long serialVersionUID = 1L;
 
 		public VaadinGridLayout(int columns, int rows) {
