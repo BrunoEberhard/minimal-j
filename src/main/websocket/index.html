@@ -70,8 +70,7 @@
 						}
 					} else if (property == "editable" || property == "enabled") {
 						if (value) {
-							// button in dialog footer is not enabled with disabled = false
-							element.removeAttribute("disabled", value);
+							element.removeAttribute("disabled");
 						} else {
 							element.setAttribute("disabled", "true");
 						}
