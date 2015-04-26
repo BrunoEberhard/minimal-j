@@ -52,7 +52,7 @@ public class JsonClientSession {
 		if (input.containsObject(JsonInput.SHOW_PAGE)) {
 			String pageId = (String) input.getObject(JsonInput.SHOW_PAGE);
 			Page page;
-			if (pageId != null) {
+			if (pageById.containsKey(pageId)) {
 				page = pageById.get(pageId);
 			} else {
 				page = Application.getApplication().createDefaultPage();
@@ -99,7 +99,7 @@ public class JsonClientSession {
 	}
 
 	public void showPage(Page page) {
-		showPage(page, null);
+		showPage(page, UUID.randomUUID().toString());
 	}
 	
 	public void showPage(Page page, String pageId) {
@@ -117,9 +117,6 @@ public class JsonClientSession {
 		Object searchNames = getSearchNames();
 		output.add("searches", searchNames);
 		
-		if (pageId == null) {
-			pageId = UUID.randomUUID().toString();
-		}
 		pageById.put(pageId, page);
 		output.add("pageId", pageId);
 		
@@ -255,7 +252,7 @@ public class JsonClientSession {
 	private Map<String, Object> createMenu(String resourceName) {
 		Map<String, Object> menu = new LinkedHashMap<>();
 		menu.put("name", Resources.getString("Menu." + resourceName));
-		String description = Resources.getString("Menu." + resourceName + ".description");
+		String description = Resources.getString("Menu." + resourceName + ".description", Resources.OPTIONAL);
 		if (!StringUtils.isEmpty(description)) {
 			menu.put("description", description);
 		}

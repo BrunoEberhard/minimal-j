@@ -19,12 +19,13 @@
 		if (dataObject["content"] != undefined) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
-			if (history.state == undefined) {
-				history.replaceState(pageId, title);
-			} else if (history.state != pageId) {
-				history.pushState(pageId, title);
+			if (history.state != pageId) {
+				if (pageId.indexOf("default") == 0) {
+					history.replaceState(pageId, title);
+				} else {
+					history.pushState(pageId, title);
+				}
 			}
-
 			showContent(dataObject["content"]);
 			titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);
 		}
@@ -424,7 +425,7 @@
 
 	function showPage() {
 		var data = {};
-		data.showPage = null;
+		data.showPage = "default-" + (new Date().getTime());
 		send(data);
 	}
 
