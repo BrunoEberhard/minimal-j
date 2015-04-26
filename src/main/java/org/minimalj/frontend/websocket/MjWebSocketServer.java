@@ -7,11 +7,10 @@ import org.minimalj.frontend.json.JsonClientSession;
 import org.minimalj.frontend.json.JsonInput;
 import org.minimalj.frontend.json.JsonOutput;
 import org.minimalj.frontend.json.JsonReader;
+import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer;
+import org.minimalj.frontend.websocket.nanoserver.NanoHTTPD.Response.Status;
+import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer.WebSocketFrame.CloseCode;
 import org.minimalj.util.resources.Resources;
-
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.NanoWebSocketServer;
-import fi.iki.elonen.NanoWebSocketServer.WebSocketFrame.CloseCode;
 
 public class MjWebSocketServer extends NanoWebSocketServer {
 
