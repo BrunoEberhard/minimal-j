@@ -221,6 +221,9 @@
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
 		}
+		if (!(content.editable == undefined) && !content.editable) {
+			element.setAttribute("disabled", "true");
+		}
 		if (content.id != undefined) {
 			element.id = content.id;
 		}
