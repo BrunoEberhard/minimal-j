@@ -4,12 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
-import org.minimalj.util.EqualsHelper;
 
 public class JsonCombobox<T> extends JsonInputComponent<T> {
 
@@ -34,7 +34,7 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 	@Override
 	public void setValue(T object) {
 		for (Map.Entry<String, T> entry : objectById.entrySet()) {
-			if (EqualsHelper.equals(entry.getValue(), object)) {
+			if (Objects.equals(entry.getValue(), object)) {
 				put(VALUE, entry.getKey());
 				return;
 			}

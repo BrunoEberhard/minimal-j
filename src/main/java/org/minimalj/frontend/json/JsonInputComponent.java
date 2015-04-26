@@ -19,16 +19,14 @@ public abstract class JsonInputComponent<T> extends JsonComponent implements Inp
 	}
 	
 	@Override
-	public Object put(String property, Object value) {
-		Object oldValue = super.put(property, value);
-		if (changeListener != null && !Objects.equals(oldValue, value)) {
-			changeListener.changed(this);
-		}
-		return oldValue;
-	}
-	
-	@Override
 	public void setEditable(boolean editable) {
 		put(EDITABLE, editable);
+	}
+
+	public void changedValue(String value) {
+		Object oldValue = super.put(VALUE, value);
+		if (!Objects.equals(oldValue, value)) {
+			changeListener.changed(this);
+		}
 	}
 }

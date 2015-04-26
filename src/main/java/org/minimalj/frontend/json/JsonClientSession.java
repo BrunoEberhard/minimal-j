@@ -66,7 +66,7 @@ public class JsonClientSession {
 			String newValue = (String) entry.getValue();
 			
 			JsonComponent component = componentById.get(componentId);
-			((JsonInputComponent) component).setValue(newValue); 
+			((JsonInputComponent) component).changedValue(newValue); 
 		}
 		
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
