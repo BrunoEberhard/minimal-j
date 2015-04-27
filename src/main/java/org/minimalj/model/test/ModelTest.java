@@ -39,6 +39,7 @@ public class ModelTest {
 		MAIN, // a main class can have fields of a simple class, lists of list_elements
 		SIMPLE, // as simple class can have fields of simple classes but no lists
 		LIST_ELEMENT, // list element class cannot have a reference to simple classes or contain lists itself
+		VIEW,
 		CODE; 
 	}
 	
@@ -125,6 +126,7 @@ public class ModelTest {
 				}
 				break;
 			case MAIN:
+			case VIEW:
 				if (property.getClazz() != Object.class) {
 					problems.add(clazz.getName() + ": Id must be Object");
 				}				
@@ -134,9 +136,19 @@ public class ModelTest {
 				break;
 			}
 		} catch (IllegalArgumentException e) {
-			if (modelClassType == ModelClassType.MAIN || modelClassType == ModelClassType.CODE) {
-				problems.add(clazz.getName() + ": Domain classes must have an id field of type int oder long");
-			} 
+			switch (modelClassType) {
+			case CODE:
+				problems.add(clazz.getName() + ": Code classes must have an id field of Integer, String or Object");
+				break;
+			case MAIN:
+				problems.add(clazz.getName() + ": Domain classes must have an id field of type object");
+				break;
+			case VIEW:
+				problems.add(clazz.getName() + ": View classes must have an id field of type object");			
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -262,7 +274,13 @@ public class ModelTest {
 				testClass(fieldType);
 			}
 		}
-		if (!ViewUtil.isView(field) && !FieldUtils.isFinal(field)) {
+		if (ViewUtil.isView(field)) {
+			if (!modelClassTypes.containsKey(fieldType)) {
+				modelClassTypes.put(fieldType, ModelClassType.VIEW);
+				testClass(fieldType);
+			}
+		}
+		if (!FieldUtils.isFinal(field)) {
 			if (!modelClassTypes.containsKey(fieldType)) {
 				modelClassTypes.put(fieldType, ModelClassType.SIMPLE);
 				testClass(fieldType);
@@ -292,7 +310,8 @@ public class ModelTest {
 		// report problem
 		switch (type) {
 		case MAIN:
-			problems.add(messagePrefix + " is a list of other main objects which is not allowed");
+		case VIEW:	
+			problems.add(messagePrefix + " is a list of other main objects or views which is not allowed");
 			break;
 		case CODE:
 			problems.add(messagePrefix + " is a list of codes which is not allowed");
