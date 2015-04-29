@@ -2,17 +2,20 @@ package org.minimalj.frontend.websocket;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.minimalj.frontend.json.JsonClientSession;
 import org.minimalj.frontend.json.JsonInput;
 import org.minimalj.frontend.json.JsonOutput;
 import org.minimalj.frontend.json.JsonReader;
-import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer;
 import org.minimalj.frontend.websocket.nanoserver.NanoHTTPD.Response.Status;
+import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer;
 import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer.WebSocketFrame.CloseCode;
 import org.minimalj.util.resources.Resources;
 
 public class MjWebSocketServer extends NanoWebSocketServer {
+	private Logger logger = Logger.getLogger(MjWebSocketServer.class.getName());
 
 	public MjWebSocketServer(int port) {
 		super(port);
@@ -56,14 +59,20 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 		}
 		JsonClientSession session = JsonClientSession.getSession(sessionId);
 		JsonInput input = new JsonInput(data);
-		JsonOutput output = session.handle(input);
+		JsonOutput output;
+		try {
+			output = session.handle(input);
+		} catch (Exception x) {
+			output = new JsonOutput();
+			output.add("exception", x.getMessage());
+			logger.log(Level.SEVERE, "Internal Error", x);
+		}
 		output.add("session", sessionId);
 		
 		try {
 			webSocket.send(output.toString());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Send response failed", e);
 		}
 	}
 
