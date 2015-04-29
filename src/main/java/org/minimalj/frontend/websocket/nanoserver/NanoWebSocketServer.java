@@ -163,7 +163,6 @@ public abstract class NanoWebSocketServer extends NanoHTTPD {
         }
 
         private void handleWebsocketFrame(WebSocketFrame frame) throws IOException {
-        	onFrameReceived(frame);
             if (frame.getOpCode() == OpCode.Close) {
                 handleCloseFrame(frame);
             } else if (frame.getOpCode() == OpCode.Ping) {
@@ -229,7 +228,6 @@ public abstract class NanoWebSocketServer extends NanoHTTPD {
         }
 
         public synchronized void sendFrame(WebSocketFrame frame) throws IOException {
-        	onSendFrame(frame);
             frame.write(out);
         }
 
@@ -728,12 +726,5 @@ public abstract class NanoWebSocketServer extends NanoHTTPD {
 
     protected abstract void onException(WebSocket webSocket, IOException e);
     
-    protected void onFrameReceived(WebSocketFrame webSocket) {
-    	// only for debugging
-    }
-
-    public void onSendFrame(WebSocketFrame webSocket) {
-    	// only for debugging
-    }
 }
 
