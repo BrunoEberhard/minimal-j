@@ -12,9 +12,9 @@ import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.vaadin.VaadinWindow;
@@ -57,7 +57,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 		return new VaadinActionLabel(action);
 	}
 
-	private static class VaadinActionLabel extends Button implements IComponent {
+	public static class VaadinActionLabel extends Button implements IComponent {
 
 		private static final long serialVersionUID = 1L;
 
@@ -106,8 +106,8 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public FlowField createFlowField() {
-		return new VaadinVerticalFlowField();
+	public IList createList(Action... actions) {
+		return new VaadinList(actions);
 	}
 
 	@Override
@@ -382,5 +382,4 @@ public class VaadinClientToolkit extends ClientToolkit {
 		VaadinWindow window = (VaadinWindow) getWindow().getApplication().getMainWindow();
 		return window.getApplicationContext();
 	}
-	
 }

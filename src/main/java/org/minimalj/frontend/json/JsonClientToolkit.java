@@ -9,10 +9,11 @@ import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.model.Rendering.RenderType;
 
 public class JsonClientToolkit extends ClientToolkit {
 
@@ -62,8 +63,8 @@ public class JsonClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public FlowField createFlowField() {
-		return new JsonFlowField();
+	public IList createList(Action... actions) {
+		return new JsonList(actions);
 	}
 
 	@Override
@@ -190,8 +191,4 @@ public class JsonClientToolkit extends ClientToolkit {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
-
-	
 }

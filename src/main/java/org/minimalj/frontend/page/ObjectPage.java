@@ -49,6 +49,7 @@ public abstract class ObjectPage<T> implements Page {
 			form = createForm();
 		}
 		unload();
+		// TODO try catch around getObject to catch load problems and display stack trace
 		form.setObject(getObject());
 		return form.getContent();
 	}

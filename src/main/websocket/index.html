@@ -41,46 +41,55 @@
 		if (dataObject["closeDialog"] != undefined) {
 			document.getElementById(dataObject["closeDialog"]).close();
 		}
-		if (dataObject["switch"] != undefined) {
-			var sw = dataObject["switch"];
-			var swElement = document.getElementById(sw.id);
-			if (swElement.firstChild) {
-				swElement.replaceChild(createContent(sw.content), swElement.firstChild);
-			} else {
-				swElement.appendChild(createContent(sw.content));
-			}
-		}
 		if (dataObject["propertyChanges"] != undefined) {
 			var propertyChanges = dataObject["propertyChanges"];
-			for (var i = 0; i < propertyChanges.length; i++) {
-				var propertyChange = propertyChanges[i];
-				var id = propertyChange.id;
-				var property = propertyChange.property;
-				var value = propertyChange.value;
+			for (var id in propertyChanges) {
 				var element = document.getElementById(id);
 				if (element != undefined) {
-					if (property == "tableContent") {
-						document.getElementById(id).appendChild(createTableRows(id, value));
-					} else if (property == "validationMessage") {
-						element = document.getElementById(id + "-validation");
-						if (value == undefined || value == "") {
-							element.className = "hide";
+					for (var property in propertyChanges[id])  {
+						var value = propertyChanges[id][property];
+						if (property == "tableContent") {
+							element.appendChild(createTableRows(id, value));
+						} else if (property == "validationMessage") {
+							element = document.getElementById(id + "-validation");
+							if (value == undefined || value == "") {
+								element.className = "hide";
+							} else {
+								element.className = "";
+								element.title = value;
+							}
+						} else if (property == "editable" || property == "enabled") {
+							if (value) {
+								element.removeAttribute("disabled");
+							} else {
+								element.setAttribute("disabled", "true");
+							}
 						} else {
-							element.className = "";
-							element.title = value;
+							element[property] = value;
 						}
-					} else if (property == "editable" || property == "enabled") {
-						if (value) {
-							element.removeAttribute("disabled");
-						} else {
-							element.setAttribute("disabled", "true");
-						}
-					} else {
-						document.getElementById(id)[property] = value;
 					}
 				}
 			}
 		}
+		if (dataObject["contentChanges"] != undefined) {
+			var contentChanges = dataObject["contentChanges"];
+			for (var id in contentChanges) {
+				var element = document.getElementById(id);
+				if (element != undefined) {
+					for (var i = 0; i < contentChanges[id].length; i++) {
+						var c = contentChanges[id][i];
+						if (c == "clear") {
+							while (element.firstChild) {
+								element.removeChild(element.firstChild);
+							}
+						} else {
+							element.appendChild(createContent(c));
+						}
+					}
+				}
+			}
+		}
+		
 	}
 	function onError(evt) {
 	}
@@ -212,12 +221,8 @@
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
-		} else if (type == "Vertical") {
+		} else if (type == "List") {
 			element = document.createElement("div");
-			var components = content.components;
-			for (var i = 0; i < components.length; i++) {
-				element.appendChild(createContent(components[i]));
-			}
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));

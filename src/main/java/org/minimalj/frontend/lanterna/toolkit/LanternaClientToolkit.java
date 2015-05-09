@@ -10,9 +10,9 @@ import org.minimalj.frontend.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.component.Button;
@@ -51,8 +51,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public FlowField createFlowField() {
-		return new LanternaFlowField();
+	public IList createList(Action... actions) {
+		return new LanternaList(actions);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 		return button;
 	}
 
-	private static class LanternaActionLabel extends Button implements IComponent {
+	public static class LanternaActionLabel extends Button implements IComponent {
 		public LanternaActionLabel(String name, com.googlecode.lanterna.gui.Action action) {
 			super(name, action);
 		}
@@ -222,6 +222,4 @@ public class LanternaClientToolkit extends ClientToolkit {
 		};
 	}
 
-	
-	
 }

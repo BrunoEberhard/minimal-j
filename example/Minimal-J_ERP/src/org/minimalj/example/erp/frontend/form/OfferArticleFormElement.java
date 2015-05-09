@@ -4,13 +4,14 @@ import java.util.List;
 
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.example.erp.model.OfferArticle;
+import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.form.element.ObjectPanelFormElement;
+import org.minimalj.frontend.form.element.ListFormElement;
 import org.minimalj.frontend.form.element.ReferenceFormElement;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.Keys;
 
-public class OfferArticleFormElement extends ObjectPanelFormElement<List<OfferArticle>> {
+public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 
 	public OfferArticleFormElement(List<OfferArticle> key, boolean editable) {
 		super(Keys.getProperty(key), editable);
@@ -22,20 +23,16 @@ public class OfferArticleFormElement extends ObjectPanelFormElement<List<OfferAr
 	}
 
 	@Override
-	protected void show(List<OfferArticle> offerArticles) {
-		for (OfferArticle offerArticle : offerArticles) {
-			addText(offerArticle.article.description);
-			addGap();
-		}
+	protected void showEntry(OfferArticle offerArticle) {
+		add(offerArticle.article.description);
 	}
 	
 	@Override
-	protected void showActions() {
-		addAction(new AddOfferArticleEditor());
-		addAction(new RemoveOfferArticlesAction());
+	protected Action[] getActions() {
+		return new Action[] { new EditorAction(new AddOfferArticleEditor()), new RemoveOfferArticlesAction() };
 	}
 
-	public class AddOfferArticleEditor extends ObjectFieldPartEditor<OfferArticle> {
+	public class AddOfferArticleEditor extends AddListEntryEditor {
 		@Override
 		public Form<OfferArticle> createForm() {
 			Form<OfferArticle> form = new Form<>();
@@ -46,13 +43,8 @@ public class OfferArticleFormElement extends ObjectPanelFormElement<List<OfferAr
 		}
 
 		@Override
-		protected OfferArticle getPart(List<OfferArticle> object) {
-			return new OfferArticle();
-		}
-
-		@Override
-		protected void setPart(List<OfferArticle> object, OfferArticle p) {
-			object.add(p);
+		protected void addEntry(OfferArticle offerArticle) {
+			getValue().add(offerArticle);
 		}
 	}
 
@@ -62,7 +54,7 @@ public class OfferArticleFormElement extends ObjectPanelFormElement<List<OfferAr
 		@Override
 		public void action() {
 			getValue().clear();
-			fireObjectChange();
+			handleChange();
 		}
 	}
 

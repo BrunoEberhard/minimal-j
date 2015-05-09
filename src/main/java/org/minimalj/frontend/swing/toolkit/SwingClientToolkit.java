@@ -43,9 +43,9 @@ import org.minimalj.frontend.swing.SwingTab;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.FlowField;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.ProgressListener;
 import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.Rendering;
@@ -73,7 +73,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		return new SwingActionLabel(action);
 	}
 
-	private static class SwingActionLabel extends JLabel implements IComponent {
+	public static class SwingActionLabel extends JLabel implements IComponent {
 		private static final long serialVersionUID = 1L;
 
 		public SwingActionLabel(final Action action) {
@@ -135,8 +135,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public FlowField createFlowField() {
-		return new SwingFlowField();
+	public IList createList(Action... actions) {
+		return new SwingList(actions);
 	}
 
 	@Override
@@ -398,7 +398,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	public static boolean verticallyGrowing(Component component) {
-		if (component instanceof SwingFlowField || component instanceof JTable || component instanceof SwingTextAreaField) {
+		if (component instanceof SwingList || component instanceof JTable || component instanceof SwingTextAreaField) {
 			return true;
 		}
 		if (component instanceof Container) {

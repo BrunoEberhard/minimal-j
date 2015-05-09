@@ -5,7 +5,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 
-public class JsonSearchPanel<T> extends JsonFlowField {
+public class JsonSearchPanel<T> extends JsonList {
 
 	private final Search<T> search;
 	private final JsonTable<T> table;

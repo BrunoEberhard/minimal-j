@@ -63,7 +63,7 @@ public abstract class ClientToolkit {
 	public abstract TextField createReadOnlyTextField();
 	public abstract TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete, InputComponentListener changeListener);
 	public abstract TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
-	public abstract FlowField createFlowField();
+	public abstract IList createList(Action... actions);
 	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 

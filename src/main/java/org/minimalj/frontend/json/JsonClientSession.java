@@ -268,12 +268,13 @@ public class JsonClientSession {
 		output.add("closeDialog", id);
 	}
 	
-	public void switchContent(String switchId, JsonComponent content) {
+	public void clearContent(String elementId) {
+		output.removeContent(elementId);
+	}
+	
+	public void addContent(String elementId, JsonComponent content) {
 		register(content);
-		Map<String, Object> sw = new HashMap<>();
-		sw.put("id", switchId);
-		sw.put("content", content);
-		output.add("switch", sw);
+		output.addContent(elementId, content);
 	}
 	
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {

@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
@@ -15,7 +17,7 @@ import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
 
 // TODO: Typisierung bringt hier so was von nichts
-public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectPanelFormElement<E> implements Enable, Mocking {
+public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElement<E> implements Enable, Mocking {
 	private final Class enumClass;
 	private final Collection allowedValues;
 	
@@ -60,13 +62,13 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectPanelFormE
 	@Override
 	protected void show(E objects) {
 		for (Object object : objects) {
-			addObject(object);
+			add(object);
 		}
 	}
 
 	@Override
-	protected void showActions() {
-		addAction(new ObjectFieldEditor());
+	protected Action[] getActions() {
+		return new Action[] { new EditorAction(new ObjectFormElementEditor()) };
 	}
 	
 	private class EnumSetFieldEditorPropertyInterface implements PropertyInterface {

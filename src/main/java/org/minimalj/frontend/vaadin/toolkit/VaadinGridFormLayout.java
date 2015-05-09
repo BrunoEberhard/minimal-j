@@ -3,7 +3,7 @@ package org.minimalj.frontend.vaadin.toolkit;
 import java.util.List;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.FlowField;
+import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.FormContent;
 
 import com.vaadin.ui.AbstractComponent;
@@ -68,7 +68,7 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 			row++;
 		}
 		
-		if (field instanceof FlowField) {
+		if (field instanceof IList) {
 			isVerticallyGrowing = true;
 		}
 	}

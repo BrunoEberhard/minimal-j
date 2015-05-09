@@ -9,21 +9,30 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.toolkit.FlowField;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingActionLabel;
+import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.toolkit.IList;
 
 
-public class SwingFlowField extends JPanel implements FlowField {
+public class SwingList extends JPanel implements IList {
 	private static final long serialVersionUID = 1L;
 	
-	private JLabel lastLabel;
+	private final int actionCount;
 	
-	public SwingFlowField() {
-		super(new FlowLayoutManager());
+	public SwingList(Action... actions) {
+		super(new VerticalLayoutManager());
+		if (actions != null) {
+			for (Action action : actions) {
+				add(new SwingActionLabel(action), "");
+			}
+			actionCount = actions.length;
+		} else {
+			actionCount = 0;
+		}
 	}
 	
 	@Override
@@ -40,32 +49,34 @@ public class SwingFlowField extends JPanel implements FlowField {
 
 	@Override
 	public void clear() {
-		removeAll();
-		repaint();
-		revalidate();
-	}
-
-	@Override
-	public void addGap() {
-		if (lastLabel != null) {
-			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+		for (int i = getComponentCount() - actionCount - 1; i>=0; i--) {
+			remove(i);
 		}
-	}
-
-	@Override
-	public void add(IComponent component) {
-		super.add((Component) component, ""); // empty string need otherwise LayoutManager doesn't get the component
 		repaint();
 		revalidate();
 	}
-	
-	private static class FlowLayoutManager implements LayoutManager {
+
+	@Override
+	public void add(Object object, Action... actions) {
+		JComponent label = (object instanceof Action) ? new SwingActionLabel((Action) object) : new SwingLabel(object);
+		super.add(label, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
+		for (Action action : actions) {
+			super.add(new SwingActionLabel(action), "", getComponentCount() - actionCount);
+		}
+		JComponent lastLabel = (JComponent) super.getComponent(super.getComponentCount()-1);
+		lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+		
+		repaint();
+		revalidate();
+	}
+
+	private static class VerticalLayoutManager implements LayoutManager {
 
 		private final List<Component> components = new LinkedList<>();
 		private Dimension size;
 		private Rectangle lastParentBounds = null;
 		
-		public FlowLayoutManager() {
+		public VerticalLayoutManager() {
 		}
 
 		@Override

@@ -21,4 +21,18 @@ public interface Rendering {
 		return null;
 	}
 	
+	public default RenderType getPreferredRenderType(RenderType firstType, RenderType... otherTypes) {
+		return firstType;
+	}
+	
+	public static String render(Object o, RenderType renderType, Locale locale) {
+		if (o instanceof Rendering) {
+			return ((Rendering) o).render(renderType, locale);
+		} else if (o != null) {
+			return o.toString();
+		} else {
+			return null;
+		}
+	}
+	
 }

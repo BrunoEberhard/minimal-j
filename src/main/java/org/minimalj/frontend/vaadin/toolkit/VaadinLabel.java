@@ -1,6 +1,10 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
+import java.util.Locale;
+
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 
 import com.vaadin.ui.Label;
 
@@ -12,4 +16,19 @@ public class VaadinLabel extends Label implements IComponent {
 		setContentMode(Label.CONTENT_XHTML);
 	}
 
+	public VaadinLabel(Object object) {
+		if (object instanceof Rendering) {
+			Rendering rendering = (Rendering) object;
+			RenderType renderType = rendering.getPreferredRenderType(RenderType.HMTL, RenderType.PLAIN_TEXT);
+			String s = rendering.render(renderType, Locale.getDefault());
+			if (renderType == RenderType.HMTL) {
+				setContentMode(Label.CONTENT_XHTML);
+			} else {
+				setContentMode(Label.CONTENT_TEXT);
+			}
+			setValue(s);
+		} else if (object != null) {
+			setValue(object.toString());
+		}
+	}
 }

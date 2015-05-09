@@ -12,7 +12,8 @@ public class JsonSwitchContent extends JsonComponent implements SwitchContent {
 
 	@Override
 	public void show(IContent content) {
-		JsonClientToolkit.getSession().switchContent(getId(), (JsonComponent) content);
+		JsonClientToolkit.getSession().clearContent(getId());
+		JsonClientToolkit.getSession().addContent(getId(), (JsonComponent) content);
 	}
 
 }
