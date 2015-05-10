@@ -223,6 +223,17 @@
 			return label; /* ! */
 		} else if (type == "List") {
 			element = document.createElement("div");
+			if (content.actions != undefined) {
+				var actionElement = document.createElement("div");
+				for (var i = 0; i < content.actions.length; i++) {
+					actionElement.appendChild(createContent(content.actions[i]));
+				}
+				element.id = content.id;
+				var elementWithActions = document.createElement("div");
+				elementWithActions.appendChild(element);
+				elementWithActions.appendChild(actionElement);
+				return elementWithActions;
+			}
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));

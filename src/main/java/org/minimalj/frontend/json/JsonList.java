@@ -1,5 +1,8 @@
 package org.minimalj.frontend.json;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.IList;
@@ -8,6 +11,13 @@ public class JsonList extends JsonComponent implements IList {
 
 	public JsonList(Action... actions) {
 		super("List");
+		if (actions != null && actions.length > 0) {
+			List<JsonAction> actionLabels = new ArrayList<>();
+			for (Action action : actions) {
+				actionLabels.add(new JsonAction(action));
+			}
+			put("actions", actionLabels);
+		}
 	}
 
 	@Override
