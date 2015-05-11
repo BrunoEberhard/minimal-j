@@ -12,16 +12,17 @@ import org.minimalj.util.mock.Mocking;
 
 public abstract class FormatFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
 
-	protected final TextField textField;
+	private final boolean editable;
+	
+	/*
+	 * textField is instantiated lazy because callbacks are used
+	 * and the subclasses need a chance to initialize the values
+	 */
+	protected TextField textField;
 
 	public FormatFormElement(PropertyInterface property, boolean editable) {
 		super(property);
-		if (editable) {
-			textField = ClientToolkit.getToolkit().createTextField(getAllowedSize(property), getAllowedCharacters(property),
-					getInputType(), null, new TextFormatFieldChangeListener());
-		} else {
-			textField = ClientToolkit.getToolkit().createReadOnlyTextField();
-		}
+		this.editable = editable;
 	}
 
 	protected abstract String getAllowedCharacters(PropertyInterface property);
@@ -34,6 +35,15 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 
 	@Override
 	public IComponent getComponent() {
+		if (textField == null) {
+			if (editable) {
+				textField = ClientToolkit.getToolkit().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
+						getInputType(), null, new TextFormatFieldChangeListener());
+			} else {
+				textField = ClientToolkit.getToolkit().createReadOnlyTextField();
+			}
+
+		}
 		return textField;
 	}
 
