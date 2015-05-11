@@ -322,7 +322,7 @@ public class SwingClientToolkit extends ClientToolkit {
 				addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						((SwingClientToolkit) ClientToolkit.getToolkit()).showSearchDialog(search, keys, new LookupClickListener());
+						dialog = ((SwingClientToolkit) ClientToolkit.getToolkit()).showSearchDialog(search, keys, new LookupClickListener());
 					}
 				});
 			}
