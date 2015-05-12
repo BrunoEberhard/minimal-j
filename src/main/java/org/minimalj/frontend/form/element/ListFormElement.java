@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.CloneHelper;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -41,6 +42,14 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		public AddListEntryEditor() {
 		}
 
+		@Override
+		protected T newInstance() {
+			@SuppressWarnings("unchecked")
+			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(ListFormElement.this.getClass());
+			T newInstance = CloneHelper.newInstance(clazz);
+			return newInstance;
+		}
+		
 		@Override
 		public Object save(T entry) {
 			addEntry(entry);
