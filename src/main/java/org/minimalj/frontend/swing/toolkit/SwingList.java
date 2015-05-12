@@ -5,8 +5,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -24,7 +22,8 @@ public class SwingList extends JPanel implements IList {
 	private final int actionCount;
 	
 	public SwingList(Action... actions) {
-		super(new VerticalLayoutManager());
+		super(null, true);
+		setLayout(new VerticalLayoutManager());
 		if (actions != null) {
 			for (Action action : actions) {
 				add(new SwingActionLabel(action), "");
@@ -70,9 +69,8 @@ public class SwingList extends JPanel implements IList {
 		revalidate();
 	}
 
-	private static class VerticalLayoutManager implements LayoutManager {
+	private class VerticalLayoutManager implements LayoutManager {
 
-		private final List<Component> components = new LinkedList<>();
 		private Dimension size;
 		private Rectangle lastParentBounds = null;
 		
@@ -100,7 +98,7 @@ public class SwingList extends JPanel implements IList {
 			int x = 1;
 			int width = parent.getWidth();
 			int widthWithoutIns = width - x;
-			for (Component component : components) {
+			for (Component component : getComponents()) {
 				int height = component.getPreferredSize().height;
 				component.setBounds(x, y, widthWithoutIns, height);
 				y += height;
@@ -110,13 +108,11 @@ public class SwingList extends JPanel implements IList {
 
 		@Override
 		public void addLayoutComponent(String name, Component comp) {
-			components.add(comp);
 			lastParentBounds = null;
 		}
 
 		@Override
 		public void removeLayoutComponent(Component comp) {
-			components.remove(comp);
 			lastParentBounds = null;
 		}
 	}
