@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
+import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.FlatProperties;
@@ -185,7 +186,9 @@ public class ModelTest {
 			testNoMethodsForPublicField(field);
 			Class<?> fieldType = field.getType();
 			if (fieldType == String.class) {
-				testSize(field);
+				if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
+					testSize(field);
+				}
 			} else if (List.class.equals(fieldType)) {
 				if (!isMain(field.getDeclaringClass())) {
 					String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
