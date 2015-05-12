@@ -1,9 +1,12 @@
 package org.minimalj.example.erp.model;
 
+import java.util.Locale;
+
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.View;
 
-public class ArticleView implements View<Article> {
+public class ArticleView implements View<Article>, Rendering {
 
 	public static final ArticleView $ = Keys.of(ArticleView.class);
 
@@ -15,7 +18,8 @@ public class ArticleView implements View<Article> {
 	
 	public String description;
 	
-	public String display() {
+	@Override
+	public String render(RenderType renderType, Locale locale) {
 		return article;
 	}
 }
