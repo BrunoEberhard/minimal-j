@@ -24,7 +24,7 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 
 	@Override
 	protected void showEntry(OfferArticle offerArticle) {
-		add(offerArticle.article.description);
+		add(offerArticle.article);
 	}
 	
 	@Override
