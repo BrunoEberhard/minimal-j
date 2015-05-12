@@ -43,8 +43,6 @@ public class EditorAction extends Action {
 				dialog.closeDialog();
 				if (result instanceof Page) {
 					ClientToolkit.getToolkit().show((Page) result);
-				} else {
-					ClientToolkit.getToolkit().refresh();
 				}
 			}
 
