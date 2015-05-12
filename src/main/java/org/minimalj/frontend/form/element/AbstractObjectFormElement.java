@@ -84,6 +84,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		@Override
 		public Object save(T edited) {
 			AbstractObjectFormElement.this.setValue(edited);
+			handleChange();
 			return SAVE_SUCCESSFUL;
 		}
 	}
