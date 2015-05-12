@@ -58,6 +58,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 			@SuppressWarnings("unchecked")
 			T objectAsView = (T) ViewUtil.view(selectedObject, CloneHelper.newInstance(getProperty().getClazz()));
 			setValue(objectAsView);
+			fireChange();
 		}
 		
 	}
