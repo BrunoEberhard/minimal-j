@@ -12,7 +12,6 @@ import org.minimalj.application.Application;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.json.JsonComponent.JsonPropertyListener;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.Action;
@@ -238,13 +237,11 @@ public class JsonClientSession {
 	}
 
 	private Map<String, Object> createObjectMenu(Page page) {
-		if (page instanceof ObjectPage) {
-			ActionGroup actionGroup = ((ObjectPage<?>) page).getMenu();
-			if (actionGroup != null && actionGroup.getItems() != null) {
-				Map<String, Object> objectMenu = createAction(actionGroup);
-				objectMenu.put("items", createActions(actionGroup.getItems()));
-				return objectMenu;
-			}
+		ActionGroup actionGroup = page.getMenu();
+		if (actionGroup != null && actionGroup.getItems() != null) {
+			Map<String, Object> objectMenu = createAction(actionGroup);
+			objectMenu.put("items", createActions(actionGroup.getItems()));
+			return objectMenu;
 		}
 		return null;
 	}

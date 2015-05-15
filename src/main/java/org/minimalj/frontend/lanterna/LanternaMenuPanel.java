@@ -10,10 +10,8 @@ import org.minimalj.frontend.lanterna.component.Select;
 import org.minimalj.frontend.lanterna.toolkit.LanternaActionAdapater;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
-import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.util.resources.Resources;
 
@@ -53,9 +51,7 @@ public class LanternaMenuPanel extends Panel {
 
 		createMenu("new", Application.getApplication().getActionsNew());
 
-		if (page instanceof ObjectPage) {
-			createMenu(((ObjectPage<?>) page).getMenu());
-		}
+		createMenu(page.getMenu());
 
 		createMenu("import", Application.getApplication().getActionImport());
 		createMenu("export", Application.getApplication().getActionExport());

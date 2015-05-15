@@ -21,4 +21,8 @@ public interface Page {
 	
 	public IContent getContent();
 	
+	// TODO rename to getActions, return Array of Actions
+	public default ActionGroup getMenu() {
+		return null;
+	}
 }

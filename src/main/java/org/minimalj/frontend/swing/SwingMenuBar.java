@@ -9,7 +9,6 @@ import javax.swing.text.DefaultEditorKit;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.swing.lookAndFeel.LookAndFeelAction;
@@ -118,13 +117,11 @@ public class SwingMenuBar extends JMenuBar {
 
 	private JMenu createObjectMenu() {
 		Page visiblePage = tab.getVisiblePage();
-		if (visiblePage instanceof ObjectPage) {
-			ActionGroup linkGroup = ((ObjectPage<?>) visiblePage).getMenu();
-			if (linkGroup != null && linkGroup.getItems() != null) {
-				JMenu menu = new JMenu(linkGroup.getName());
-				addActions(menu, linkGroup.getItems());
-				return menu;
-			}
+		ActionGroup linkGroup = visiblePage.getMenu();
+		if (linkGroup != null && linkGroup.getItems() != null) {
+			JMenu menu = new JMenu(linkGroup.getName());
+			addActions(menu, linkGroup.getItems());
+			return menu;
 		}
 		return null;
 	}
