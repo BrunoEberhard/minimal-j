@@ -347,7 +347,7 @@ public class SwingClientToolkit extends ClientToolkit {
 		
 		private class LookupClickListener implements TableActionListener<T> {
 			@Override
-			public void action(T selectedObject, List<T> selectedObjects) {
+			public void action(T selectedObject) {
 				SwingLookup.this.selectedObject = selectedObject;
 				dialog.closeDialog();
 				changeListener.changed(SwingLookup.this);

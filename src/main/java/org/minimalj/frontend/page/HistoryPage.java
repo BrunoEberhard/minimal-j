@@ -28,7 +28,7 @@ public abstract class HistoryPage<T> implements Page {
 		loadVersions();
 		TableActionListener<HistoryVersion<T>> listener = new TableActionListener<HistoryVersion<T>>() {
 			@Override
-			public void action(HistoryVersion<T> selectedObject, List<HistoryVersion<T>> selectedObjects) {
+			public void action(HistoryVersion<T> selectedObject) {
 				Page page = HistoryPage.this.click(selectedObject.object, selectedObject.version);
 				ClientToolkit.getToolkit().show(page);
 			}

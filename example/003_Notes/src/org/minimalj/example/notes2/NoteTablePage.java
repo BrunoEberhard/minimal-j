@@ -20,7 +20,7 @@ public class NoteTablePage extends TablePage<Note> {
 	}
 
 	@Override
-	public void action(Note selectedObject, List<Note> selectedObjects) {
+	public void action(Note selectedObject) {
 		// ignored, could open the note for editing
 	}
 

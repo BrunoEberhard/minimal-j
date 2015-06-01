@@ -81,7 +81,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	
 	public void action(int row) {
 		T object = objects.get(row);
-		listener.action(object, Collections.singletonList(object));
+		listener.action(object);
 	}
 
 }

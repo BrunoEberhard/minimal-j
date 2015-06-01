@@ -76,7 +76,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 			if (event.isDoubleClick()) {
 				T id = (T) event.getItemId();
 				VaadinClientToolkit.setWindow(event.getComponent().getWindow());
-				listener.action(id, getObjects());
+				listener.action(id);
 				VaadinClientToolkit.setWindow(null);
 			}
 		}

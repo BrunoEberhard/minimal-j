@@ -130,7 +130,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			if (e.getClickCount() >= 2 && listener != null) {
 				try {
 					SwingClientToolkit.updateEventTab((Component) e.getSource());
-					listener.action(getSelectedObject(), getSelectedObjects());
+					listener.action(getSelectedObject());
 				} catch (Exception x) {
 					x.printStackTrace();
 				}

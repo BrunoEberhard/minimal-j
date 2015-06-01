@@ -163,7 +163,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		switch (key.getKind()) {
 		case Enter:
 			LanternaClientToolkit.setGui((LanternaGUIScreen) getWindow().getOwner());
-			listener.action(getSelectedObject(), getSelectedObjects());
+			listener.action(getSelectedObject());
 			LanternaClientToolkit.setGui(null);
 			return Result.EVENT_HANDLED;
 

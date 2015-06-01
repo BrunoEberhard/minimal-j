@@ -101,7 +101,10 @@ public abstract class ClientToolkit {
 
 	public static interface TableActionListener<U> {
 
-		public default void action(U selectedObject, List<U> selectedObjects) {
+		public default void selectionChanged(U selectedObject, List<U> selectedObjects) {
+		}
+		
+		public default void action(U selectedObject) {
 		}
 		
 		public default void delete(U selectedObject, List<U> selectedObjects) {

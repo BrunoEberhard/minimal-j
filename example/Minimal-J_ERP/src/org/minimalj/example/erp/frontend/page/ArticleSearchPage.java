@@ -29,7 +29,7 @@ public class ArticleSearchPage extends AbstractSearchPage<Article> {
 	}
 
 	@Override
-	public void action(Article selectedObject, List<Article> selectedObjects) {
+	public void action(Article selectedObject) {
 		ClientToolkit.getToolkit().show(new ArticlePage(selectedObject));
 	}
 

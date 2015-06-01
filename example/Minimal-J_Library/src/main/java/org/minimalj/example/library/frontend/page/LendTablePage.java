@@ -38,7 +38,7 @@ public class LendTablePage extends TablePage<Lend> {
 	}
 
 	@Override
-	public void action(Lend selectedObject, List<Lend> selectedObjects) {
+	public void action(Lend selectedObject) {
 		ClientToolkit.getToolkit().show(new BookPage(selectedObject.book));
 	}
 	

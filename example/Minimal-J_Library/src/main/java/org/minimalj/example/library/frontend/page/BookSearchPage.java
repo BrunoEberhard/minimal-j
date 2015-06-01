@@ -27,7 +27,7 @@ public class BookSearchPage extends AbstractSearchPage<Book> {
 	}
 	
 	@Override
-	public void action(Book selectedBook, List<Book> selectedObjects) {
+	public void action(Book selectedBook) {
 		ClientToolkit.getToolkit().show(new BookPage(selectedBook));
 	}
 	

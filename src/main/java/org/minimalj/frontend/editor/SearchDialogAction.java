@@ -31,7 +31,7 @@ public abstract class SearchDialogAction<T> extends Action implements Search<T> 
 	
 	private class SearchClickListener implements TableActionListener<T> {
 		@Override
-		public void action(T selectedObject, List<T> selectedObjects) {
+		public void action(T selectedObject) {
 			save(selectedObject);
 			dialog.closeDialog();
 		}
