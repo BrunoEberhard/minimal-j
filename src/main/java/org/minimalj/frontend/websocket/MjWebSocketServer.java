@@ -15,7 +15,7 @@ import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer.WebSocketF
 import org.minimalj.util.resources.Resources;
 
 public class MjWebSocketServer extends NanoWebSocketServer {
-	private Logger logger = Logger.getLogger(MjWebSocketServer.class.getName());
+	private static final Logger logger = Logger.getLogger(MjWebSocketServer.class.getName());
 
 	public MjWebSocketServer(int port) {
 		super(port);
@@ -66,6 +66,8 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 			output = new JsonOutput();
 			output.add("exception", x.getMessage());
 			logger.log(Level.SEVERE, "Internal Error", x);
+			// why does logger not work here?
+			x.printStackTrace();
 		}
 		output.add("session", sessionId);
 		

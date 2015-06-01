@@ -118,9 +118,11 @@ public abstract class ClientToolkit {
 	
 	//
 	
+	public void show(Page page, boolean asTopPage) {
+		show(page);
+	}
+	
 	public abstract void show(Page page);
-
-	public abstract void show(List<Page> pages, int startIndex);
 
 	public abstract void refresh();
 

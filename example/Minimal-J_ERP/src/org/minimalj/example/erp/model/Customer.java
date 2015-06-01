@@ -2,13 +2,12 @@ package org.minimalj.example.erp.model;
 
 import java.time.LocalDate;
 
-import org.minimalj.backend.Backend;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.util.mock.MockName;
 import org.minimalj.util.mock.MockPrename;
 import org.minimalj.util.mock.Mocking;
-import org.minimalj.util.mock.MockName;
 
 public class Customer implements Mocking {	
 	public static final Customer $ = Keys.of(Customer.class);
@@ -37,7 +36,7 @@ public class Customer implements Mocking {
 
 	@Override
 	public void mock() {
-		customerNr = "CN - " + (Backend.getInstance().executeStatement(Integer.class, "MaxCustomer") + 1);
+		customerNr = "CN - " + (int)(Math.random() * 9000 + 1000);
 		boolean male = Math.random() < 0.5;
 		firstname = MockPrename.getFirstName(male);
 		surname = MockName.officialName();

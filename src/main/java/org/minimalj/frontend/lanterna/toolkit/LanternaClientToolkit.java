@@ -187,11 +187,6 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public void show(List<Page> pages, int startIndex) {
-		getGui().show(pages.get(startIndex));
-	}
-
-	@Override
 	public ApplicationContext getApplicationContext() {
 		// TODO Auto-generated method stub
 		return new ApplicationContext() {

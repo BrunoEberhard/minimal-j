@@ -38,7 +38,7 @@ public class CustomerSearchPage extends AbstractSearchPage<Customer> {
 
 	@Override
 	public void action(Customer selectedObject, List<Customer> selectedObjects) {
-		ClientToolkit.getToolkit().show(new CustomerPage(selectedObject));
+		ClientToolkit.getToolkit().show(new CustomerPage(selectedObject), false);
 	}
 
 }

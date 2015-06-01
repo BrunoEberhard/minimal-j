@@ -7,8 +7,8 @@ import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.toolkit.ClientToolkit;
 
 public class CustomerPage extends ObjectPage<Customer> {
 
@@ -41,7 +41,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 
 		@Override
 		public void action() {
-			ClientToolkit.getToolkit().show(new OfferTablePage(customer));
+			ClientToolkit.getToolkit().show(new OfferTablePage(customer), false);
 		}
 		
 	}

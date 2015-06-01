@@ -37,7 +37,6 @@ public class SwingToolBar extends JToolBar {
 	protected void fillToolBar() {
 		fillToolBarNavigation();
 		fillToolBarRefresh();
-		fillToolBarUpDown();
 		fillToolBarSearch();
 	}
 	
@@ -48,11 +47,6 @@ public class SwingToolBar extends JToolBar {
 	
 	protected void fillToolBarRefresh() {
 		add(tab.refreshAction);
-	}
-	
-	protected void fillToolBarUpDown() {
-		add(tab.upAction);
-		add(tab.downAction);
 	}
 	
 	protected void fillToolBarSearch() {

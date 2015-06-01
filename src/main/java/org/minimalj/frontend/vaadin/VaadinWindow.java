@@ -1,6 +1,5 @@
 package org.minimalj.frontend.vaadin;
 
-import java.util.List;
 import java.util.Locale;
 
 import org.minimalj.application.Application;
@@ -41,7 +40,6 @@ public class VaadinWindow extends Window {
 	private Page visiblePage;
 	private Component content;
 	private Panel scrollablePanel;
-	private List<Page> pages;
 	private int indexInPages;
 	
 	public VaadinWindow(ApplicationContext context) {
@@ -198,28 +196,6 @@ public class VaadinWindow extends Window {
 	
 	protected void fillHelpMenu(ActionGroup actionGroup) {
 		// 
-	}
-	
-	public void show(List<Page> pages, int index) {
-		this.pages = pages;
-		this.indexInPages = index;
-		show(pages.get(indexInPages));
-	}
-	
-	public boolean top() {
-		return pages == null ||indexInPages == 0;
-	}
-
-	public boolean bottom() {
-		return pages == null || indexInPages == pages.size() - 1;
-	}
-
-	public void up() {
-		show(pages.get(--indexInPages));
-	}
-
-	public void down() {
-		show(pages.get(++indexInPages));
 	}
 	
 	protected void updateWindowTitle() {

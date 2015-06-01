@@ -13,7 +13,6 @@ import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.TextField;
-import org.minimalj.model.Rendering.RenderType;
 
 public class JsonClientToolkit extends ClientToolkit {
 
@@ -85,12 +84,6 @@ public class JsonClientToolkit extends ClientToolkit {
 	@Override
 	public void show(Page page) {
 		session.get().showPage(page);
-	}
-
-	@Override
-	public void show(List<Page> pages, int startIndex) {
-		// TODO
-		show(pages.get(startIndex));
 	}
 
 	@Override

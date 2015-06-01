@@ -220,12 +220,12 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void show(Page page) {
-		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(page);
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(page, true);
 	}
 
 	@Override
-	public void show(List<Page> pages, int startIndex) {
-		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(pages, startIndex);
+	public void show(Page page, boolean asTopPage) {
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(page, asTopPage);
 	}
 
 	public ProgressListener showProgress(String text) {
