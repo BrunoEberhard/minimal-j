@@ -9,10 +9,11 @@ import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
-public abstract class AbstractSearchPage<T> implements SearchPage, TableActionListener<T> {
+public abstract class AbstractSearchPage<T, D> implements SearchPage, TableActionListener<T> {
 
 	private final Object[] keys;
 	private String query;
+	private ObjectPage<D> objectPage;
 	
 	public AbstractSearchPage(Object[] keys) {
 		this.keys = keys;
@@ -20,6 +21,12 @@ public abstract class AbstractSearchPage<T> implements SearchPage, TableActionLi
 
 	protected abstract List<T> load(String query);
 
+	protected D load(T searchObject) {
+		return (D) searchObject;
+	}
+	
+	protected abstract ObjectPage<D> createPage(D initialObject);
+	
 	@Override
 	public IContent getContent() {
 		ITable<T> table = ClientToolkit.getToolkit().createTable(keys, this);
@@ -44,4 +51,29 @@ public abstract class AbstractSearchPage<T> implements SearchPage, TableActionLi
 		return Resources.getString(genericClass);
 	}
 	
+	@Override
+	public void selectionChanged(T selectedObject, List<T> selectedObjects) {
+		if (objectPage != null) {
+			D selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
+			objectPage.setObject(selectedDetailObject);
+		}
+	}
+		
+	@Override
+	public void action(T selectedObject) {
+		D selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
+		if (objectPage != null) {
+			objectPage.setObject(selectedDetailObject);
+		} else {
+			objectPage = createPage(selectedDetailObject);
+			ClientToolkit.getToolkit().show(objectPage, false);
+		}
+	}
+	
+	public static abstract class AbstractSimpleSearchPage<T> extends AbstractSearchPage<T, T> {
+
+		public AbstractSimpleSearchPage(Object[] keys) {
+			super(keys);
+		}
+	}
 }

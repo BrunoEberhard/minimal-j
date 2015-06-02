@@ -8,7 +8,7 @@ import org.minimalj.util.IdUtils;
 public abstract class ObjectPage<T> implements Page {
 
 	private final Class<T> objectClass;
-	private final Object objectId;
+	private Object objectId;
 	private transient T object;
 	private transient Form<T> form;
 	
@@ -22,6 +22,20 @@ public abstract class ObjectPage<T> implements Page {
 		this.objectId = objectId;
 	}
 
+	public void setObject(T object) {
+		if (object == null) {
+			throw new NullPointerException();
+		} else if (object.getClass() != objectClass) {
+			throw new IllegalArgumentException("Object is " + object.getClass() + " instead of " + objectClass);
+		} else {
+			objectId = IdUtils.getId(object);
+			this.object = object;
+			if (form != null) {
+				form.setObject(object);
+			}
+		}
+	}
+	
 	public ActionGroup getMenu() {
 		return null;
 	}

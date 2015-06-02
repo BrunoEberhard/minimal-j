@@ -1,8 +1,6 @@
 package org.minimalj.frontend.swing.toolkit;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -17,12 +15,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -69,9 +66,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		bindRowHeightToFont();
 
 		table.addMouseListener(new SwingTableMouseListener());
-		bindInsertKey();
-		bindDeleteKey();
-		bindFunctionKeys();
+		table.getSelectionModel().addListSelectionListener(new SwingTableSelectionListener());
 	}
 
 	private List<PropertyInterface> convert(Object[] keys) {
@@ -138,53 +133,13 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 
-	private void bindInsertKey() {
-		Action action = new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingClientToolkit.updateEventTab((Component) e.getSource());
-				listener.insert();
-			}
-		};
-		bindKey(KeyEvent.VK_INSERT, action);
-	}
-
-	private void bindDeleteKey() {
-		Action action = new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingClientToolkit.updateEventTab((Component) e.getSource());
-				listener.delete(getSelectedObject(), getSelectedObjects());
-			}
-		};
-		bindKey(KeyEvent.VK_DELETE, action);
-	}
-
-	private void bindFunctionKeys() {
-		for (int i = 0; i<12; i++) {
-			final int function = i;
-			Action action = new AbstractAction() {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					SwingClientToolkit.updateEventTab((Component) e.getSource());
-					listener.function(function, getSelectedObject(), getSelectedObjects());
-				}
-			};
-			bindKey(KeyEvent.VK_F1+function, action);
+	private class SwingTableSelectionListener implements ListSelectionListener {
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			listener.selectionChanged(getSelectedObject(), getSelectedObjects());
 		}
 	}
 	
-	private void bindKey(int keyEvent, Action action) {
-		getActionMap().put(keyEvent, action);
-		getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keyEvent, 0), keyEvent);
-	}
-
 	public class ItemTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;

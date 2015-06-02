@@ -2,6 +2,7 @@ package org.minimalj.frontend.toolkit;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.application.ApplicationContext;
@@ -107,13 +108,8 @@ public abstract class ClientToolkit {
 		public default void action(U selectedObject) {
 		}
 		
-		public default void delete(U selectedObject, List<U> selectedObjects) {
-		}
- 
-		public default void insert() {
-		}
-
-		public default void function(int function, U selectedObject, List<U> selectedObjects) {
+		public default List<Action> getActions(U selectedObject, List<U> selectedObjects) {
+			return Collections.emptyList();
 		}
 	}
 	

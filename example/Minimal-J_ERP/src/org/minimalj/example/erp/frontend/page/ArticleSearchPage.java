@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Article;
-import org.minimalj.frontend.page.AbstractSearchPage;
-import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.page.AbstractSearchPage.AbstractSimpleSearchPage;
+import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.transaction.criteria.Criteria;
 
 
-public class ArticleSearchPage extends AbstractSearchPage<Article> {
+public class ArticleSearchPage extends AbstractSimpleSearchPage<Article> {
 
 	public static final Object[] FIELDS = {
 		$.article_nr, //
@@ -29,8 +29,7 @@ public class ArticleSearchPage extends AbstractSearchPage<Article> {
 	}
 
 	@Override
-	public void action(Article selectedObject) {
-		ClientToolkit.getToolkit().show(new ArticlePage(selectedObject));
+	protected ObjectPage<Article> createPage(Article initialObject) {
+		return new ArticlePage(initialObject);
 	}
-
 }

@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Book;
-import org.minimalj.frontend.page.AbstractSearchPage;
-import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.page.AbstractSearchPage.AbstractSimpleSearchPage;
+import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.transaction.criteria.Criteria;
 
 
-public class BookSearchPage extends AbstractSearchPage<Book> {
+public class BookSearchPage extends AbstractSimpleSearchPage<Book> {
 
 	public static final Object[] FIELDS = {
 		$.title, //
@@ -27,13 +27,13 @@ public class BookSearchPage extends AbstractSearchPage<Book> {
 	}
 	
 	@Override
-	public void action(Book selectedBook) {
-		ClientToolkit.getToolkit().show(new BookPage(selectedBook));
-	}
-	
-	@Override
 	protected List<Book> load(String query) {
 		return Backend.getInstance().read(Book.class, Criteria.search(query), 100);
+	}
+
+	@Override
+	protected ObjectPage<Book> createPage(Book initialObject) {
+		return new BookPage(initialObject);
 	}
 
 }
