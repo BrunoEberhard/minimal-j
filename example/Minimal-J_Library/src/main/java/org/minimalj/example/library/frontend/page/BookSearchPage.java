@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Book;
-import org.minimalj.frontend.page.AbstractSearchPage.AbstractSimpleSearchPage;
+import org.minimalj.frontend.page.AbstractSearchPage.SimpleSearchPage;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.transaction.criteria.Criteria;
 
 
-public class BookSearchPage extends AbstractSimpleSearchPage<Book> {
+public class BookSearchPage extends SimpleSearchPage<Book> {
 
 	public static final Object[] FIELDS = {
 		$.title, //

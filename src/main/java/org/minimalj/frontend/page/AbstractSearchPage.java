@@ -70,9 +70,9 @@ public abstract class AbstractSearchPage<T, D> implements SearchPage, TableActio
 		}
 	}
 	
-	public static abstract class AbstractSimpleSearchPage<T> extends AbstractSearchPage<T, T> {
+	public static abstract class SimpleSearchPage<T> extends AbstractSearchPage<T, T> {
 
-		public AbstractSimpleSearchPage(Object[] keys) {
+		public SimpleSearchPage(Object[] keys) {
 			super(keys);
 		}
 	}
