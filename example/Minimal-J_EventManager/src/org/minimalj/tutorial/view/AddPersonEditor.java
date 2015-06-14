@@ -1,11 +1,11 @@
 package org.minimalj.tutorial.view;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.tutorial.domain.Person;
 
-public class AddPersonEditor extends Editor<Person> {
+public class AddPersonEditor extends SimpleEditor<Person> {
 
 	@Override
 	protected Form<Person> createForm() {
@@ -16,7 +16,7 @@ public class AddPersonEditor extends Editor<Person> {
 	}
 
 	@Override
-	protected Object save(Person person) throws Exception {
+	protected Person save(Person person) {
 		return Backend.getInstance().insert(person);
 	}
 

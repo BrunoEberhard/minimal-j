@@ -3,8 +3,6 @@ package org.minimalj.frontend.page;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.editor.Editor;
-import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.toolkit.Action;
 
 public class ActionGroup extends Action {
@@ -24,10 +22,6 @@ public class ActionGroup extends Action {
 		items.add(item);
 	}
 
-	public void add(Editor<?> editor) {
-		items.add(new EditorAction(editor));
-	}
-	
 	public void add(Page page) {
 		items.add(new PageAction(page));
 	}

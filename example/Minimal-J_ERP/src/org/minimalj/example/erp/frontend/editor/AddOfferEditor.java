@@ -9,7 +9,7 @@ import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.ViewUtil;
 
-public class AddOfferEditor extends Editor<Offer> {
+public class AddOfferEditor extends Editor<Offer, Void> {
 
 	private final Customer customer;
 	
@@ -23,7 +23,7 @@ public class AddOfferEditor extends Editor<Offer> {
 	}
 	
 	@Override
-	protected Offer newInstance() {
+	protected Offer createObject() {
 		Customer startWithCustomer = customer;
 
 		Offer offer = new Offer();
@@ -34,9 +34,9 @@ public class AddOfferEditor extends Editor<Offer> {
 	}
 
 	@Override
-	public String save(Offer offer) throws Exception {
+	public Void save(Offer offer) {
 		Backend.getInstance().insert(offer);
-		return "";
+		return null;
 	}
 
 	@Override

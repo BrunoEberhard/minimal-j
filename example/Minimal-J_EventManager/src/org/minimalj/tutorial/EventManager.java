@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.tutorial.domain.Event;
 import org.minimalj.tutorial.domain.Person;
@@ -20,7 +19,7 @@ public class EventManager extends Application {
 	@Override
 	public List<Action> getActionsNew() {
 		List<Action> actions = new ArrayList<>();
-		actions.add(new EditorAction(new AddPersonEditor()));
+		actions.add(new AddPersonEditor());
 		return actions;
 	}
 

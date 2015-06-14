@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.EnumUtils;
@@ -68,7 +67,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 
 	@Override
 	protected Action[] getActions() {
-		return new Action[] { new EditorAction(new ObjectFormElementEditor()) };
+		return new Action[] { new ObjectFormElementEditor() };
 	}
 	
 	private class EnumSetFieldEditorPropertyInterface implements PropertyInterface {

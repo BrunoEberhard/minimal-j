@@ -1,7 +1,6 @@
 package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.editor.Editor;
-import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
@@ -60,7 +59,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	
 	protected abstract Form<T> createFormPanel();
 
-	public class ObjectFormElementEditor extends Editor<T> {
+	public class ObjectFormElementEditor extends Editor<T, Void> {
 		public ObjectFormElementEditor() {
 		}
 
@@ -70,27 +69,24 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		}
 
 		@Override
-		public T load() {
+		public T createObject() {
 			return AbstractObjectFormElement.this.getValue();
-		}
-		
-		@Override
-		public T newInstance() {
-			// Delegate ObjectField class. Its not possible to override here
-			// (because of some strange erasure thing)
-			return AbstractObjectFormElement.this.newInstance();
 		}
 
 		@Override
-		public Object save(T edited) {
+		public Void save(T edited) {
 			AbstractObjectFormElement.this.setValue(edited);
+			return null;
+		}
+		
+		@Override
+		protected void finished(Void result) {
 			handleChange();
-			return SAVE_SUCCESSFUL;
 		}
 	}
 	
 	protected Action getEditorAction() {
-		return new EditorAction(new ObjectFormElementEditor());
+		return new ObjectFormElementEditor();
 	}
 	
 	/*
@@ -120,7 +116,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	protected void add(Object object, Action... actions) {
 		if (isEditable()) {
 			list.add(object, actions);
-		} else {
+		} else if (!(object instanceof Action)) {
 			list.add(object);
 		}
 	}

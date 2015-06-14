@@ -4,11 +4,11 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.form.CustomerForm;
 import org.minimalj.example.erp.frontend.page.CustomerPage;
 import org.minimalj.example.erp.model.Customer;
-import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.toolkit.ClientToolkit;
 
-public class CustomerEditor extends Editor<Customer> {
+public class CustomerEditor extends SimpleEditor<Customer> {
 
 	private final Customer customer;
 	
@@ -17,7 +17,7 @@ public class CustomerEditor extends Editor<Customer> {
 	}
 	
 	@Override
-	protected Customer load() {
+	protected Customer createObject() {
 		return Backend.getInstance().read(Customer.class, customer.id);
 	}
 
@@ -27,9 +27,13 @@ public class CustomerEditor extends Editor<Customer> {
 	}
 
 	@Override
-	protected Page save(Customer customer) throws Exception {
-		Customer savedCustomer = Backend.getInstance().update(customer);
-		return new CustomerPage(savedCustomer);
+	protected Customer save(Customer customer) {
+		return Backend.getInstance().update(customer);
+	}
+	
+	@Override
+	protected void finished(Customer result) {
+		ClientToolkit.getToolkit().show(new CustomerPage(result));
 	}
 
 }

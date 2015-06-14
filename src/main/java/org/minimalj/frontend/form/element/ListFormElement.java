@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.CloneHelper;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -37,51 +36,48 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 
 	protected abstract void showEntry(T entry);
 
-	public abstract class AddListEntryEditor extends Editor<T> {
+	public abstract class AddListEntryAction extends Editor<T, Void> {
 		
-		public AddListEntryEditor() {
+		public AddListEntryAction() {
 		}
 
-		@Override
-		protected T newInstance() {
-			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(ListFormElement.this.getClass());
-			T newInstance = CloneHelper.newInstance(clazz);
-			return newInstance;
+		public AddListEntryAction(String name) {
+			super(name);
 		}
 		
 		@Override
-		public Object save(T entry) {
+		public Void save(T entry) {
 			addEntry(entry);
-			handleChange();
-			return SAVE_SUCCESSFUL;
+			return null;
 		}
 
 		protected abstract void addEntry(T entry);
-		
+
+		@Override
+		protected void finished(Void result) {
+			handleChange();
+		}
 	}
 
-	public abstract class EditListEntryEditor extends Editor<T> {
+	public abstract class EditListEntryAction extends Editor<T, Void> {
 		private final T originalEntry;
 		
-		public EditListEntryEditor(T originalEntry) {
+		public EditListEntryAction(T originalEntry) {
 			this.originalEntry = originalEntry;
 		}
 
 		@Override
-		public T load() {
-			return originalEntry;
-		}
-		
-		@Override
-		public Object save(T entry) {
+		public Void save(T entry) {
 			editEntry(originalEntry, entry);
-			handleChange();
-			return SAVE_SUCCESSFUL;
+			return null;
 		}
 
 		protected abstract void editEntry(T originalEntry, T entry);
-		
+
+		@Override
+		protected void finished(Void result) {
+			handleChange();
+		}
 	}
 	
 }

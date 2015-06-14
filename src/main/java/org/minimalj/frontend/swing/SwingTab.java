@@ -9,19 +9,26 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
+import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
+import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 import org.minimalj.frontend.swing.toolkit.SwingSwitchContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
 
 public class SwingTab extends EditablePanel {
@@ -152,13 +159,24 @@ public class SwingTab extends EditablePanel {
 		public void onHistoryChanged() {
 			page = history.getPresent();
 			
-			IContent content = page.getContent();
-			if (content instanceof ITable) {
-				switchContent.show((JComponent) content);
-			} else if (content != null) {
-				splitPane.setLeftComponent(null);
-				verticalPanel.removeAll();
-				verticalPanel.add((JComponent) content, "");
+			JComponent content = (JComponent) page.getContent();
+			if (content != null) {
+				JPopupMenu menu = createMenu(page.getMenu());
+				content.setComponentPopupMenu(menu);
+				setInheritMenu(content);
+				if (content instanceof ITable) {
+					switchContent.show(content);
+				} else {
+					splitPane.setLeftComponent(null);
+					verticalPanel.removeAll();
+					verticalPanel.add(content, "");
+					JPanel filler = new JPanel();
+					filler.setPreferredSize(new Dimension(150, 1)); // TODO calculate
+					splitPane.setLeftComponent(filler);
+					JScrollPane scrollPane = new JScrollPane(verticalPanel);
+					splitPane.setRightComponent(scrollPane);
+					switchContent.show(splitPane);
+				}
 			} else {
 				switchContent.show((JComponent) null);
 			}
@@ -166,59 +184,11 @@ public class SwingTab extends EditablePanel {
 			SwingTab.this.onHistoryChanged();
 		}
 	}
-
-//	private void updateContent() {
-//		if (pages.isEmpty()) {
-//			switchContent.show((JComponent) null);
-//			return;
-//		}
-//		
-//		Page firstPage = pages.get(0);
-//		IContent firstContent = firstPage.getContent();
-//
-//		if (pages.size() == 1 && firstContent == null) {
-//			switchContent.show((JComponent) null);
-//			return;
-//		}
-//		
-//		JScrollPane firstComponent = new JScrollPane(new ScrollablePanel((JComponent) firstContent));
-//		firstComponent.setBorder(null);
-//		
-//		if (pages.size() == 1 && firstContent instanceof ITable) {
-//			switchContent.show(firstComponent);
-//			return;
-//		}
-//		
-//		JSplitPane splitPane = new JSplitPane();
-//		splitPane.setBorder(BorderFactory.createEmptyBorder());
-//		
-//		if (pages.size() == 1) {
-//			splitPane.setLeftComponent(new JPanel());
-//			splitPane.setRightComponent(firstComponent);
-//		} else {
-//			boolean firstContentIsTable = firstContent instanceof ITable;
-//			if (firstContentIsTable) {
-//				splitPane.setLeftComponent(firstComponent);
-//			} else {
-//				splitPane.setLeftComponent(new JPanel());
-//			}
-//			JPanel rightComponent = new JPanel(new VerticalLayoutManager());
-//			for (int i = firstContentIsTable ? 1 : 0; i<pages.size(); i++) {
-//				IContent content = pages.get(i).getContent();
-//				rightComponent.add((Component) content, "");
-//			}
-//			JScrollPane rightScrollPane = new JScrollPane(rightComponent);
-//			rightScrollPane.setBorder(null);
-//			splitPane.setRightComponent(rightScrollPane);
-//		}
-//		switchContent.show(splitPane);
-//
-//	}
-	
 	
 	private class VerticalLayoutManager implements LayoutManager {
 
 		private Dimension size;
+		private Dimension preferredSize = new Dimension(100, 100);
 		private Rectangle lastParentBounds = null;
 		
 		public VerticalLayoutManager() {
@@ -226,7 +196,7 @@ public class SwingTab extends EditablePanel {
 
 		@Override
 		public Dimension preferredLayoutSize(Container parent) {
-			return new Dimension(100, 100);
+			return preferredSize;
 		}
 
 		@Override
@@ -249,6 +219,7 @@ public class SwingTab extends EditablePanel {
 				y += height;
 			}
 			size = new Dimension(width, y);
+			preferredSize = new Dimension(100, y);
 		}
 
 		@Override
@@ -318,9 +289,46 @@ public class SwingTab extends EditablePanel {
 					switchContent.show(splitPane);
 				}
 				
-				verticalPanel.removeAll();
-				verticalPanel.add((JComponent) page.getContent(), "");
-				verticalPanel.revalidate();
+				JComponent content = (JComponent) page.getContent();
+				JPopupMenu menu = createMenu(page.getMenu());
+				content.setComponentPopupMenu(menu);
+				setInheritMenu(content);
+				verticalPanel.add(content, "");
+				verticalPanel.getParent().revalidate();
+				verticalPanel.getParent().repaint();
+			}
+		}
+	}
+	
+	private JPopupMenu createMenu(ActionGroup actionGroup) {
+		if (actionGroup != null && actionGroup.getItems() != null) {
+			JPopupMenu menu = new JPopupMenu(actionGroup.getName());
+			addActions(menu, actionGroup.getItems());
+			return menu;
+		}
+		return null;
+	}
+	
+	public static void addActions(JPopupMenu menu, List<org.minimalj.frontend.toolkit.Action> actions) {
+		for (org.minimalj.frontend.toolkit.Action action : actions) {
+			if (action instanceof org.minimalj.frontend.page.ActionGroup) {
+				org.minimalj.frontend.page.ActionGroup actionGroup = (org.minimalj.frontend.page.ActionGroup) action;
+				JMenu subMenu = new JMenu(SwingClientToolkit.adaptAction(action));
+				SwingMenuBar.addActions(subMenu, actionGroup.getItems());
+				menu.add(subMenu);
+			} else if (action instanceof Separator) {
+				menu.addSeparator();
+			} else {
+				menu.add(new JMenuItem(SwingClientToolkit.adaptAction(action)));
+			}
+		}
+	}
+
+	private void setInheritMenu(JComponent component) {
+		component.setInheritsPopupMenu(true);
+		for (Component c : component.getComponents()) {
+			if (c instanceof JComponent) {
+				setInheritMenu((JComponent) c);
 			}
 		}
 	}

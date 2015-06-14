@@ -4,18 +4,18 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.LendForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
-import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 
-public class AddLendEditor extends Editor<Lend> {
+public class AddLendAction extends SimpleEditor<Lend> {
 
 	private Customer startWithCustomer;
 	
-	public AddLendEditor() {
+	public AddLendAction() {
 		// empty
 	}
 	
-	public AddLendEditor(Customer customer) {
+	public AddLendAction(Customer customer) {
 		this.startWithCustomer = customer;
 	}
 	
@@ -25,16 +25,15 @@ public class AddLendEditor extends Editor<Lend> {
 	}
 	
 	@Override
-	protected Lend newInstance() {
+	protected Lend createObject() {
 		Lend lend = new Lend();
 		lend.customer = startWithCustomer;
 		return lend;
 	}
 
 	@Override
-	public String save(Lend lend) throws Exception {
-		Backend.getInstance().insert(lend);
-		return "";
+	public Lend save(Lend lend) {
+		return Backend.getInstance().insert(lend);
 	}
 
 	@Override

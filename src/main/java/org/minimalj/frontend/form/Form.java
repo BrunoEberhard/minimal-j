@@ -37,13 +37,8 @@ import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Enabled;
-import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.validation.EmptyValidator;
-import org.minimalj.model.validation.InvalidValues;
-import org.minimalj.model.validation.Validatable;
-import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
@@ -66,9 +61,6 @@ public class Form<T> implements Mocking {
 	
 	private FormChangeListener<T> changeListener;
 	private boolean changeFromOutsite;
-	private boolean showWarningIfValidationForUnsuedElement = true;
-	
-	private final Map<PropertyInterface, String> propertyValidations = new HashMap<>();
 
 	private final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 	@SuppressWarnings("rawtypes")
@@ -281,7 +273,6 @@ public class Form<T> implements Mocking {
 			logger.log(Level.SEVERE, "Fill with demo data failed", x);
 		} finally {
 			readValueFromObject();
-			changeListener.changed();
 			changeFromOutsite = false;
 		}
 	}
@@ -309,7 +300,7 @@ public class Form<T> implements Mocking {
 	 * 
 	 * @return Collection provided by a LinkedHashMap so it will be a ordered set
 	 */
-	private Collection<PropertyInterface> getProperties() {
+	public Collection<PropertyInterface> getProperties() {
 		return elements.keySet();
 	}
 	
@@ -340,10 +331,8 @@ public class Form<T> implements Mocking {
 		for (PropertyInterface property : getProperties()) {
 			Object propertyValue = property.getValue(object);
 			set(property, propertyValue);
-			updatePropertyValidation(property, propertyValue);
 		}
 		updateEnable();
-		updateValidation();
 	}
 	
 	private String getName(FormElement<?> field) {
@@ -359,11 +348,7 @@ public class Form<T> implements Mocking {
 	
 	public interface FormChangeListener<S> {
 
-		public void validate(S object, List<ValidationMessage> validationResult);
-
-		public void indicate(List<ValidationMessage> validationMessages, boolean allUsedElementsValid);
-
-		public void changed();
+		public void changed(PropertyInterface property, Object newValue);
 
 		public void commit();
 
@@ -393,10 +378,7 @@ public class Form<T> implements Mocking {
 			// update enable/disable fields
 			updateEnable();
 			
-			updatePropertyValidation(property, newValue);
-			updateValidation();
-
-			changeListener.changed();
+			changeListener.changed(property, newValue);
 		}
 
 
@@ -456,6 +438,13 @@ public class Form<T> implements Mocking {
 		}
 	}
 	
+	public void indicate(List<ValidationMessage> validationMessages) {
+		for (PropertyInterface property : getProperties()) {
+			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
+			setValidationMessage(property, filteredValidationMessages);
+		}
+	}
+
 	private Object findParentObject(PropertyInterface property) {
 		Object result = object;
 		String fieldPath = property.getPath();
@@ -479,83 +468,5 @@ public class Form<T> implements Mocking {
 
 	}
 
-	// Validation
-	
-	private void updateValidation() {
-		List<ValidationMessage> validationMessages = new ArrayList<>();
-		if (object instanceof Validation) {
-			((Validation) object).validate(validationMessages);
-		}
-		for (Map.Entry<PropertyInterface, String> entry : propertyValidations.entrySet()) {
-			validationMessages.add(new ValidationMessage(entry.getKey(), entry.getValue()));
-		}
-		validateForEmpty(validationMessages);
-		validateForInvalid(validationMessages);
-		if (changeListener != null) {
-			changeListener.validate(object, validationMessages);
-		}
-		indicate(validationMessages);
-	}
-
-	private void validateForEmpty(List<ValidationMessage> validationMessages) {
-		for (PropertyInterface property : getProperties()) {
-			if (property.getAnnotation(Required.class) != null) {
-				EmptyValidator.validate(validationMessages, object, property);
-			}
-		}
-	}
-
-	private void validateForInvalid(List<ValidationMessage> validationMessages) {
-		for (PropertyInterface property : getProperties()) {
-			Object value = property.getValue(object);
-			if (InvalidValues.isInvalid(value)) {
-				String caption = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
-				validationMessages.add(new ValidationMessage(property, caption + " ungültig"));
-			}
-		}
-	}
-
-	private void updatePropertyValidation(PropertyInterface property, Object value) {
-		propertyValidations.remove(property);
-		if (value instanceof Validatable) {
-			String validationMessage = ((Validatable) value).validate();
-			if (validationMessage != null) {
-				propertyValidations.put(property, validationMessage);
-			}
-		}
-	}
-
-	private void indicate(List<ValidationMessage> validationMessages) {
-		for (PropertyInterface property : getProperties()) {
-			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
-			setValidationMessage(property, filteredValidationMessages);
-		}
-		
-		if (changeListener != null) {
-			changeListener.indicate(validationMessages, allUsedFieldsValid(validationMessages));
-		}
-		
-	}
-	
-	private boolean allUsedFieldsValid(List<ValidationMessage> validationMessages) {
-		for (ValidationMessage validationMessage : validationMessages) {
-			if (getProperties().contains(validationMessage.getProperty())) {
-				return false;
-			} else {
-				if (showWarningIfValidationForUnsuedElement) {
-					logger.warning("There is a validation message for " + validationMessage.getProperty().getName() + " but the element is not used in the form");
-					logger.warning("The message is: " + validationMessage.getFormattedText());
-					logger.fine("This can be ok if at some point not all validations in a object have to be ok");
-					logger.fine("But you have to make sure to get valid data in database");
-					logger.fine("You can avoid these warnings if you set showWarningIfValidationForUnsuedField to false");
-				}
-			}
-		}
-		return true;
-	}
-
-	public void setShowWarningIfValidationForUnsuedField(boolean b) {
-		this.showWarningIfValidationForUnsuedElement = b;
-	}
 
 }

@@ -4,11 +4,11 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.form.ArticleForm;
 import org.minimalj.example.erp.frontend.page.ArticlePage;
 import org.minimalj.example.erp.model.Article;
-import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.toolkit.ClientToolkit;
 
-public class ArticleEditor extends Editor<Article> {
+public class ArticleEditor extends SimpleEditor<Article> {
 
 	private final Article article;
 	
@@ -17,7 +17,7 @@ public class ArticleEditor extends Editor<Article> {
 	}
 	
 	@Override
-	protected Article load() {
+	protected Article createObject() {
 		return article;
 	}
 
@@ -27,9 +27,15 @@ public class ArticleEditor extends Editor<Article> {
 	}
 
 	@Override
-	protected Page save(Article article) throws Exception {
+	protected Article save(Article article) {
 		Article updatedArticle = Backend.getInstance().update(article);
-		return new ArticlePage(updatedArticle);
+		return updatedArticle;
 	}
+	
+    @Override
+    protected void finished(Article result) {
+    	ClientToolkit.getToolkit().show(new ArticlePage(result));
+    }
+
 
 }

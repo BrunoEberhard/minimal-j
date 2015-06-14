@@ -1,6 +1,6 @@
 package org.minimalj.example.library.frontend.page;
 
-import org.minimalj.example.library.frontend.editor.AddLendEditor;
+import org.minimalj.example.library.frontend.editor.AddLendAction;
 import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.form.Form;
@@ -27,8 +27,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 	public ActionGroup getMenu() {
 		Customer customer = getObject();
 		ActionGroup menu = new ActionGroup("Customer");
-		AddLendEditor addLendEditor = new AddLendEditor(customer);
-		menu.add(addLendEditor);
+		menu.add(new AddLendAction(customer));
 		menu.add(new LendTablePage(customer));
 		return menu;
 	}

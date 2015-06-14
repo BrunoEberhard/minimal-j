@@ -8,8 +8,6 @@ import javax.swing.JMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.swing.lookAndFeel.LookAndFeelAction;
 import org.minimalj.frontend.swing.lookAndFeel.PrintLookAndFeel;
@@ -27,7 +25,6 @@ public class SwingMenuBar extends JMenuBar {
 
 	private JMenu fileMenu;
 	private JMenu newSubMenu;
-	private JMenu objectMenu;
 	
 	public SwingMenuBar(SwingTab tab) {
 		super();
@@ -42,13 +39,6 @@ public class SwingMenuBar extends JMenuBar {
 	
 	protected void updateMenu() {
 		updateFileMenu();
-		if (objectMenu != null) {
-			remove(objectMenu);
-		}
-		objectMenu = createObjectMenu();
-		if (objectMenu != null) {
-			add(objectMenu, 3); // position 3 : after file, edit and display
-		}
 		if (getParent() != null) {
 			getParent().revalidate();
 			getParent().repaint();
@@ -115,17 +105,6 @@ public class SwingMenuBar extends JMenuBar {
 		return menu;
 	}
 
-	private JMenu createObjectMenu() {
-		Page visiblePage = tab.getVisiblePage();
-		ActionGroup linkGroup = visiblePage.getMenu();
-		if (linkGroup != null && linkGroup.getItems() != null) {
-			JMenu menu = new JMenu(linkGroup.getName());
-			addActions(menu, linkGroup.getItems());
-			return menu;
-		}
-		return null;
-	}
-	
 	private JMenu createWindowMenu() {
 		JMenu menu = menu("window");
 		menu.add(new JMenuItem(tab.frame.newWindowAction));
@@ -153,7 +132,7 @@ public class SwingMenuBar extends JMenuBar {
 		return subMenu;
 	}
 	
-	private void addActions(JMenu menu, List<Action> actions) {
+	public static void addActions(JMenu menu, List<Action> actions) {
 		for (Action action : actions) {
 			if (action instanceof org.minimalj.frontend.page.ActionGroup) {
 				org.minimalj.frontend.page.ActionGroup actionGroup = (org.minimalj.frontend.page.ActionGroup) action;

@@ -1,64 +1,43 @@
 package org.minimalj.frontend.editor;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogResult;
+import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
+import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
+import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
-/**
- * An <code>Editor</code> knows
- * <UL>
- * <LI>How to build the FormPanel containing FormField s
- * <LI>How to load an Object
- * <LI>How to validate the object
- * <LI>How to save the object
- * <LI>What additional Actions the Editor provides
- * <LI>Its name (for Window Title oder Tab Title)
- * </UL>
- * @author Bruno
- * 
- * @param <T>
- *            Class of the edited Object
- */
-public abstract class Editor<T> {
+public abstract class Editor<T, RESULT> extends Action {
 
 	private static final Logger logger = Logger.getLogger(Editor.class.getName());
-	protected static final Object SAVE_SUCCESSFUL = new Object();
-	protected static final Object SAVE_FAILED = null;
-	
-	private T original, editedObject;
-	private Form<T> form;
-	protected SaveAction saveAction;
-	protected CancelAction cancelAction;
-	protected FillWithDemoDataAction demoAction;
-	private EditorListener editorListener;
+
+	private T object;
 	private boolean userEdited;
+	private Form<T> form;
+	private final List<ValidationMessage> validationMessages = new ArrayList<>();
+	private SaveAction saveAction;
+	private IDialog dialog;
 	
-	// what to implement
-
-	protected abstract Form<T> createForm();
-
-	/**
-	 * Should load the object to be edited. Note: The object will be copied before
-	 * changed by the editor
-	 * 
-	 * @return null if newInstance() should be used
-	 */
-	protected T load() {
-		return null;
+	public Editor() {
+		super();
 	}
 
-	protected abstract Object save(T object) throws Exception;
+	public Editor(String actionName) {
+		super(actionName);
+	}
 
 	public String getTitle() {
 		// specific name of editor
@@ -81,132 +60,88 @@ public abstract class Editor<T> {
 		return Resources.getString(clazz);
 	}
 
-	public Action[] getActions() {
-		if (DevMode.isActive()) {
-			return new Action[] { demoAction, cancelAction, saveAction };
-		} else {
-			return new Action[] { cancelAction, saveAction };
-		}
-	}
-	
-	public boolean isUserEdited() {
-		return userEdited;
-	}
-	
-	// /////
-
-	protected Editor() {
-	}
-	
-	public void startEditor() {
-		if (!isFinished()) {
-			throw new IllegalStateException("Editor already started");
-		}
-		if (editorListener == null) {
-			throw new IllegalStateException("EditorListener must be set before start Editor");
-		}
-		
-		initActions();
-		
-		original = load();
-		editedObject = createEditedObject(original);
-		
+	@Override
+	public void action() {
+		object = createObject();
 		form = createForm();
-		if (form != null) {
-			form.setChangeListener(new EditorChangeListener());
-			form.setObject(editedObject);
-		}
-
-		userEdited = false;
-	}
-	
-	private void initActions() {
+		
 		saveAction = new SaveAction();
-		cancelAction = new CancelAction();
-		demoAction = new FillWithDemoDataAction();
+		
+		validate(object);
+
+		form.setChangeListener(new EditorChangeListener());
+		form.setObject(object);
+		
+		dialog = ClientToolkit.getToolkit().showDialog(getTitle(), form.getContent(), new CancelAction(), createActions());
 	}
 	
-	public IContent getContent() {
-		return form.getContent();
-	}
-	
-	private T createEditedObject(T original) {
-		if (original != null) {
-			return CloneHelper.clone(original);
-		} else {
-			return newInstance();
+	private Action[] createActions() {
+		List<Action> additionalActions = createAdditionalActions();
+		Action[] actions = new Action[additionalActions.size() + 2];
+		int index;
+		for (index = 0; index<additionalActions.size(); index++) {
+			actions[index] = additionalActions.get(index);
 		}
+		actions[index++] = new CancelAction();
+		actions[index++] = saveAction;
+		return actions;
+	}
+ 	
+	protected List<Action> createAdditionalActions() {
+		List<Action> actions = new ArrayList<Action>();
+		if (DevMode.isActive()) {
+			actions.add(new FillWithDemoDataAction());
+		}
+		return actions;
 	}
 	
-	/**
-	 * Override this method to preset values for the editor
-	 * 
-	 * @return The object this editor should edit.
-	 */
-	protected T newInstance() {
+	protected T createObject() {
 		@SuppressWarnings("unchecked")
 		Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(Editor.this.getClass());
 		T newInstance = CloneHelper.newInstance(clazz);
 		return newInstance;
 	}
 	
-	public final void setEditorListener(EditorListener savedListener) {
-		this.editorListener = savedListener;
+	protected T getObject() {
+		return object;
 	}
 	
-	protected void finish() {
-		editedObject = null;
-	}
+	protected abstract Form<T> createForm();
 	
-	public void cancel() {
-		fireCanceled();
-		finish();
-	}
-
-	private void fireCanceled() {
-		try {
-			editorListener.canceled();
-		} catch (Exception x) {
-			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+	private void validate(T object) {
+		validationMessages.clear();
+		if (object instanceof Validation) {
+			((Validation) object).validate(validationMessages);
 		}
-	}
-
-	public final boolean isFinished() {
-		return editedObject == null;
-	}
-	
-	private void fireSaved(Object saveResult) {
-		try {
-			editorListener.saved(saveResult);
-		} catch (Exception x) {
-			logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
-		}
-	}
-
-	protected final T getObject() {
-		return editedObject;
+		ObjectValidator.validateForEmpty(object, validationMessages, form.getProperties());
+		ObjectValidator.validateForInvalid(object, validationMessages, form.getProperties());
+		ObjectValidator.validatePropertyValues(object, validationMessages, form.getProperties());
+		validate(object, validationMessages);
+		saveAction.setValidationMessages(validationMessages);
 	}
 	
-	public void save() {
-		if (isSaveable()) {
-			try {
-				Object saveResult = save(editedObject);
-				fireSaved(saveResult);
-				finish();
-			} catch (Exception x) {
-				String message = x.getMessage() != null ? x.getMessage() : x.getClass().getSimpleName();
-				logger.log(Level.SEVERE, message, x);
-				ClientToolkit.getToolkit().showError("Technical problems: " + message);
-			}
-		} else {
-			ClientToolkit.getToolkit().showError("Save is not possible because input is not valid");
-		}
+	protected void validate(T object, List<ValidationMessage> validationMessages) {
+		// 
+	}
+	
+	private void save() {
+		RESULT result = save(object);
+		dialog.closeDialog();
+		finished(result);
+	}
+	
+	protected abstract RESULT save(T object);
+	
+	protected void finished(RESULT result) {
+		//
 	}
 
 	private class EditorChangeListener implements Form.FormChangeListener<T> {
 
-		public void changed() {
+		public void changed(PropertyInterface property, Object newValue) {
 			userEdited = true;
+			validate(object);
+			saveAction.setValidationMessages(validationMessages);
 		}
 
 		@Override
@@ -215,30 +150,15 @@ public abstract class Editor<T> {
 				save();
 			}
 		}
+	}	
 
-		@Override
-		public void validate(T object, List<ValidationMessage> validationResult) {
-			Editor.this.validate(object, validationResult);
-		}
-
-		@Override
-		public void indicate(List<ValidationMessage> validationMessages, boolean allUsedElementsValid) {
-			saveAction.setEnabled(allUsedElementsValid);
-			saveAction.setValidationMessages(validationMessages);
-			editorListener.setValidationMessages(validationMessages);
-		}
-	}		
-
-	protected void validate(T object, List<ValidationMessage> validationMessages) {
-		// overwrite this method to add Editor specific validation
+	private boolean isSaveable() {
+		return validationMessages.isEmpty();
 	}
-	
-	protected final boolean isSaveable() {
-		return saveAction.isEnabled();
-	}
-	
+
 	protected final class SaveAction extends Action {
 		private String description;
+		private boolean valid = false;
 		
 		@Override
 		public void action() {
@@ -246,23 +166,20 @@ public abstract class Editor<T> {
 		}
 		
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
-//			String iconKey;
-			String description;
-			boolean valid = validationMessages == null || validationMessages.isEmpty();
+			valid = validationMessages == null || validationMessages.isEmpty();
 			if (valid) {
-//				iconKey = getClass().getSimpleName() + ".icon.Ok";
 				description = "Eingaben speichern";
 			} else {
-//				iconKey = getClass().getSimpleName() + ".icon.Error";
 				description = ValidationMessage.formatHtml(validationMessages);
 			}
-			
-//			Icon icon = ResourceHelper.getIcon(Resources.getResourceBundle(), iconKey);
-//			putValue(LARGE_ICON_KEY, icon);
-			this.description = description;
 			fireChange();
 		}
 
+		@Override
+		public boolean isEnabled() {
+			return valid;
+		}
+		
 		@Override
 		public String getDescription() {
 			return description;
@@ -276,31 +193,60 @@ public abstract class Editor<T> {
 		}
 	}
 	
+	public void cancel() {
+		if (!userEdited) {
+			dialog.closeDialog();
+		} else if (isSaveable()) {
+			DialogListener listener = new DialogListener() {
+				@Override
+				public void close(ConfirmDialogResult answer) {
+					if (answer == ConfirmDialogResult.YES) {
+						// finish will be called at the end of save
+						save();
+					} else if (answer == ConfirmDialogResult.NO) {
+						dialog.closeDialog();
+					} // else do nothing (dialog will not close)
+				}
+			};
+			ClientToolkit.getToolkit().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+					ConfirmDialogType.YES_NO_CANCEL, listener);
+
+		} else {
+			DialogListener listener = new DialogListener() {
+				@Override
+				public void close(ConfirmDialogResult answer) {
+					if (answer == ConfirmDialogResult.YES) {
+						dialog.closeDialog();
+					} else { // No or Close
+						// do nothing
+					}
+				}
+			};
+			
+			ClientToolkit.getToolkit().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+					"Schliessen", ConfirmDialogType.YES_NO, listener);
+		}
+	}
+
+	
 	private class FillWithDemoDataAction extends Action {
 		public void action() {
 			fillWithDemoData();
 		}
 	}
 	
-	//
-	
-	public interface EditorListener {
-		
-		public void setValidationMessages(List<ValidationMessage> validationMessages);
-
-		public void saved(Object savedResult);
-		
-		public void canceled();
-	}
-	
-	public void fillWithDemoData() {
-		if (editedObject instanceof Mocking) {
-			((Mocking) editedObject).mock();
+	protected void fillWithDemoData() {
+		if (object instanceof Mocking) {
+			((Mocking) object).mock();
 			// re-set the object to update the FormFields
-			form.setObject(editedObject);
-		} else {
-			form.mock();
+			form.setObject(object);
+		} else if (form instanceof Mocking) {
+			((Mocking) form).mock();
 		}
 	}
 	
+	public static abstract class SimpleEditor<T> extends Editor<T, T> {
+
+	}
+
 }

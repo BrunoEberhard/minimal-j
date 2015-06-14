@@ -194,7 +194,7 @@ public abstract class AbstractTable<T> {
 	
 	protected void addFieldColumns(DbSyntax syntax, StringBuilder s) {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			s.append(",\n "); s.append(column.getKey()); s.append(" "); 
+			s.append(",\n ").append(DbPersistenceHelper.columnName(column.getKey())).append(" "); 
 
 			PropertyInterface property = column.getValue();
 			syntax.addColumnDefinition(s, property);

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.example.erp.model.OfferArticle;
-import org.minimalj.frontend.editor.EditorAction;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.ListFormElement;
 import org.minimalj.frontend.form.element.ReferenceFormElement;
@@ -29,10 +28,10 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 	
 	@Override
 	protected Action[] getActions() {
-		return new Action[] { new EditorAction(new AddOfferArticleEditor()), new RemoveOfferArticlesAction() };
+		return new Action[] { new AddOfferArticleEditor(), new RemoveOfferArticlesAction() };
 	}
 
-	public class AddOfferArticleEditor extends AddListEntryEditor {
+	public class AddOfferArticleEditor extends AddListEntryAction {
 		@Override
 		public Form<OfferArticle> createForm() {
 			Form<OfferArticle> form = new Form<>();

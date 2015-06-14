@@ -1,67 +1,23 @@
 package org.minimalj.frontend.editor;
 
+import org.minimalj.frontend.form.Form;
+
 /**
  * Named <i>Step</i> so not to be confused with the concept of the pages.
- * Loosly based on jface WizardPages.
  * 
  */
-public abstract class WizardStep<T> extends Editor<T> {
+public interface WizardStep<T> {
 
-    /**
-	 * Returns this dialog step's title.
-	 *
-	 * @return the title of this wizard step, 
-	 *  or <code>null</code> if none
-	 */
-	@Override
-	public abstract String getTitle();
+	public String getTitle();
 
-	/**
-     * Returns this wizard step's description text.
-     *
-     * @return the description text for this wizard step, 
-     *  or <code>null</code> if none
-     */
-    public abstract String getDescription();
+	public String getDescription();
 
-    /**
-     * Returns the current message for this wizard step.
-     * <p>
-     * A message provides instruction or information to the 
-     * user, as opposed to an error message which should 
-     * describe some error state.
-     * </p>
-     * 
-     * @return the message, or <code>null</code> if none
-     */
-    public abstract String getMessage();
+	public T createObject();
 
-    /**
-	 * Returns whether this step is complete or not.
-	 * <p>
-	 * This information is typically used by the wizard to decide
-	 * when it is okay to finish.
-	 * </p>
-	 *
-	 * @return <code>true</code> if this step is complete, and
-	 *  <code>false</code> otherwise
-	 */
-	public abstract boolean canFinish();
+	public Form<T> createForm();
 
-	/**
-     * Returns the wizard step that would to be shown if the user was to
-     * press the Next button.
-     *
-     * @return the next wizard step, or <code>null</code> if none
-     */
-    public abstract WizardStep<?> getNextStep();
+	public WizardStep<?> getNextStep();
 
-    /**
-     * Returns the wizard step that would to be shown if the user was to
-     * press the Back button.
-     *
-     * @return the previous wizard step, or <code>null</code> if this is the first step
-     */
-    public abstract WizardStep<?> getPreviousStep();
-    
+	public WizardStep<?> getPreviousStep();
+
 }

@@ -1,6 +1,7 @@
 package org.minimalj.backend.db;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -347,6 +348,10 @@ public class DbPersistence {
 	private <T> T readResultRow(ResultSet resultSet, Class<T> clazz) throws SQLException {
 		if (clazz == Integer.class) {
 			return (T) Integer.valueOf(resultSet.getInt(1));
+		} else if (clazz == BigDecimal.class) {
+			return (T) resultSet.getBigDecimal(1);
+		} else if (clazz == String.class) {
+			return (T) resultSet.getString(1);
 		} else {
 			throw new IllegalArgumentException(clazz.getName());
 		}

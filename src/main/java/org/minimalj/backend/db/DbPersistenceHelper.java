@@ -7,6 +7,8 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -135,6 +137,16 @@ public class DbPersistenceHelper {
 			value = UUID.fromString((String) value);
 		}
 		return value;
+	}
+	
+	private static final List<String> SQL_KEYWORDS = Arrays.asList("SELECT", "FROM", "TO", "WHERE");
+	
+	public static String columnName(String name) {
+		if (SQL_KEYWORDS.contains(name)) {
+			return "'" + name + "'";
+		} else {
+			return name;
+		}
 	}
 
 }

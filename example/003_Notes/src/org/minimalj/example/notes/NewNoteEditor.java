@@ -1,10 +1,10 @@
 package org.minimalj.example.notes;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 
-public class NewNoteEditor extends Editor<Note> {
+public class NewNoteEditor extends SimpleEditor<Note> {
 
 	@Override
 	protected Form<Note> createForm() {
@@ -12,9 +12,8 @@ public class NewNoteEditor extends Editor<Note> {
 	}
 
 	@Override
-	protected Object save(Note object) throws Exception {
-		Backend.getInstance().insert(object);
-		return null;
+	protected Note save(Note object) {
+		return Backend.getInstance().insert(object);
 	}
 
 	private static class NoteForm extends Form<Note> {
