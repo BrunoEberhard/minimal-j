@@ -1,13 +1,11 @@
 package org.minimalj.frontend.page;
 
-import java.util.function.Consumer;
-
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.util.IdUtils;
 
-public abstract class ObjectPage<T> implements Page, Consumer<T> {
+public abstract class ObjectPage<T> implements Page {
 
 	private final Class<T> objectClass;
 	private Object objectId;
@@ -22,11 +20,6 @@ public abstract class ObjectPage<T> implements Page, Consumer<T> {
 	public ObjectPage(Class<T> objectClass, Object objectId) {
 		this.objectClass = objectClass;
 		this.objectId = objectId;
-	}
-
-	@Override
-	public void accept(T object) {
-		setObject(object);
 	}
 
 	public void setObject(T object) {
