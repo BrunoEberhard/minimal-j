@@ -281,8 +281,10 @@ public class SwingTab extends EditablePanel {
 			}
 		} else {
 			if (asTopPage) {
+				verticalPanel.removeAll();
 				history.add(page);
 			} else {
+				this.page = page;
 				Component firstComponent = switchContent.getComponent(0);
 				if (firstComponent != splitPane) {
 					splitPane.setLeftComponent(firstComponent);
