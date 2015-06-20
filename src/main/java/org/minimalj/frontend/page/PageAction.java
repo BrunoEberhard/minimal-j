@@ -7,20 +7,14 @@ public class PageAction extends Action {
 
 	private final Page page;
 	private final String name;
-	private final boolean topPage;
 	
 	public PageAction(Page page) {
-		this(page, null, true);
+		this(page, null);
 	}
 	
 	public PageAction(Page page, String name) {
-		this(page, name, true);
-	}
-
-	public PageAction(Page page, String name, boolean topPage) {
 		this.page = page;
 		this.name = name != null ? name : page.getTitle();
-		this.topPage = topPage;
 	}
 	
 	@Override
@@ -30,7 +24,7 @@ public class PageAction extends Action {
 
 	@Override
 	public void action() {
-		ClientToolkit.getToolkit().show(page, topPage);
+		ClientToolkit.getToolkit().show(page);
 	}
 	
 }

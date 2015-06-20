@@ -12,6 +12,8 @@ import org.minimalj.model.annotation.Size;
 
 public abstract class HistoryPage<T> implements Page {
 
+	private transient ITable<HistoryVersion<T>> table;
+	
 	public HistoryPage() {
 	}
 
@@ -25,19 +27,26 @@ public abstract class HistoryPage<T> implements Page {
 
 	@Override
 	public IContent getContent() {
-		loadVersions();
-		TableActionListener<HistoryVersion<T>> listener = new TableActionListener<HistoryVersion<T>>() {
-			@Override
-			public void action(HistoryVersion<T> selectedObject) {
-				Page page = HistoryPage.this.click(selectedObject.object, selectedObject.version);
-				ClientToolkit.getToolkit().show(page);
-			}
-		};
-		ITable<HistoryVersion<T>> table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description}, listener);
-		table.setObjects(loadVersions());
+		if (table == null) {
+			TableActionListener<HistoryVersion<T>> listener = new TableActionListener<HistoryVersion<T>>() {
+				@Override
+				public void action(HistoryVersion<T> selectedObject) {
+					Page page = HistoryPage.this.click(selectedObject.object, selectedObject.version);
+					ClientToolkit.getToolkit().show(page);
+				}
+			};
+			table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description}, listener);
+			refresh();
+		}
 		return table;
 	}
 
+	public void refresh() {
+		if (table != null) {
+			table.setObjects(loadVersions());
+		}
+	}
+	
 	public static class HistoryVersion<T> {
 		public static final HistoryVersion<?> $ = Keys.of(HistoryVersion.class);
 		

@@ -26,6 +26,10 @@ public class ActionGroup extends Action {
 		items.add(new PageAction(page));
 	}
 
+	public void add(Page page, PageWithDetail pageWithDetail) {
+		items.add(new DetailPageAction(page, pageWithDetail));
+	}
+
 	public void add(Page page, String name) {
 		items.add(new PageAction(page, name));
 	}

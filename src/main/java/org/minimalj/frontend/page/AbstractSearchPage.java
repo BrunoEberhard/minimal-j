@@ -9,7 +9,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
-public abstract class AbstractSearchPage<T, D> implements SearchPage, TableActionListener<T> {
+public abstract class AbstractSearchPage<T, D> implements SearchPage, PageWithDetail, TableActionListener<T> {
 
 	private final Object[] keys;
 	private String query;
@@ -60,13 +60,21 @@ public abstract class AbstractSearchPage<T, D> implements SearchPage, TableActio
 	}
 		
 	@Override
+	public void detailClosed(Page page) {
+		if (page == objectPage) {
+			objectPage = null;
+		}
+	}
+
+	
+	@Override
 	public void action(T selectedObject) {
 		D selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
 		if (objectPage != null) {
 			objectPage.setObject(selectedDetailObject);
 		} else {
 			objectPage = createPage(selectedDetailObject);
-			ClientToolkit.getToolkit().show(objectPage, false);
+			ClientToolkit.getToolkit().show(objectPage, this);
 		}
 	}
 	
