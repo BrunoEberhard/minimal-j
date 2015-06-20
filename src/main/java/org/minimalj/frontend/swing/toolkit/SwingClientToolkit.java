@@ -37,6 +37,7 @@ import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageWithDetail;
 import org.minimalj.frontend.swing.SwingFrame;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.swing.SwingTab;
@@ -224,8 +225,8 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void show(Page page, boolean asTopPage) {
-		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(page, asTopPage);
+	public void show(Page detail, PageWithDetail pageWithDetail) {
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(detail, false);
 	}
 
 	public ProgressListener showProgress(String text) {

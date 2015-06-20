@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageWithDetail;
 
 /**
  * To provide a new kind of client you have to implement two things:
@@ -117,8 +118,8 @@ public abstract class ClientToolkit {
 	
 	//
 	
-	public void show(Page page, boolean asTopPage) {
-		show(page);
+	public void show(Page detail, PageWithDetail ownerPage) {
+		show(detail);
 	}
 	
 	public abstract void show(Page page);
