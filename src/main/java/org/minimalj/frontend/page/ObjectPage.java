@@ -1,8 +1,10 @@
 package org.minimalj.frontend.page;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 
 public abstract class ObjectPage<T> implements Page {
@@ -50,7 +52,7 @@ public abstract class ObjectPage<T> implements Page {
 		return objectId;
 	}
 
-	protected T getObject() {
+	public T getObject() {
 		if (object == null) {
 			object = load();
 		}
@@ -74,6 +76,19 @@ public abstract class ObjectPage<T> implements Page {
 	
 	public void unload() {
 		object = null;
+	}
+	
+	public abstract class ObjectEditor extends Editor<T, T> {
+		
+		@Override
+		protected T createObject() {
+			return CloneHelper.clone(ObjectPage.this.getObject());
+		}
+		
+		@Override
+		protected void finished(T result) {
+			setObject(result);
+		}
 	}
 
 }
