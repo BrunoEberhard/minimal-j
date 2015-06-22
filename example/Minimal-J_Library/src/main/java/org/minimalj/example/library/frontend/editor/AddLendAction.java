@@ -4,10 +4,10 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.LendForm;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
-import org.minimalj.frontend.editor.Editor.SimpleEditor;
+import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
 
-public class AddLendAction extends SimpleEditor<Lend> {
+public class AddLendAction extends NewObjectEditor<Lend> {
 
 	private Customer startWithCustomer;
 	

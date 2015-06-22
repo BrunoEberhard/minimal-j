@@ -2,11 +2,11 @@ package org.minimalj.example.notes2;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.notes.Note;
-import org.minimalj.frontend.editor.Editor.SimpleEditor;
+import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 
-public class NewNoteEditor extends SimpleEditor<Note> {
+public class NewNoteEditor extends NewObjectEditor<Note> {
 
 	@Override
 	protected Form<Note> createForm() {

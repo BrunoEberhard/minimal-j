@@ -33,6 +33,11 @@ public class OfferTablePage extends TablePage<Offer> {
 		super(FIELDS);
 		this.customer = customer;
 	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+		refresh();
+	}
 	
 	@Override
 	protected List<Offer> load() {

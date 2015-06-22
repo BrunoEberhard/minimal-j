@@ -4,11 +4,11 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.form.CustomerForm;
 import org.minimalj.example.erp.frontend.page.CustomerPage;
 import org.minimalj.example.erp.model.Customer;
-import org.minimalj.frontend.editor.Editor.SimpleEditor;
+import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 
-public class AddCustomerEditor extends SimpleEditor<Customer> {
+public class AddCustomerEditor extends NewObjectEditor<Customer> {
 
 	@Override
 	protected Form<Customer> createForm() {

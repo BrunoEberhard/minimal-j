@@ -3,7 +3,6 @@ package org.minimalj.example.erp.frontend.page;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.form.ArticleForm;
 import org.minimalj.example.erp.model.Article;
-import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
@@ -26,12 +25,7 @@ public class ArticlePage extends ObjectPage<Article> {
 		return new ArticleForm(false);
 	}
 
-	public class ArticleEditorAction extends SimpleEditor<Article> {
-
-		@Override
-		protected Article createObject() {
-			return ArticlePage.this.getObject();
-		}
+	public class ArticleEditorAction extends ObjectEditor {
 
 		@Override
 		protected Form<Article> createForm() {
@@ -41,11 +35,6 @@ public class ArticlePage extends ObjectPage<Article> {
 		@Override
 		protected Article save(Article article) {
 			return Backend.getInstance().update(article);
-		}
-		
-		@Override
-		protected void finished(Article result) {
-			setObject(result);
 		}
 	}
 }
