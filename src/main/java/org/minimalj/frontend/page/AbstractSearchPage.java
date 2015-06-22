@@ -74,8 +74,8 @@ public abstract class AbstractSearchPage<T, D> implements SearchPage, PageWithDe
 			objectPage.setObject(selectedDetailObject);
 		} else {
 			objectPage = createPage(selectedDetailObject);
-			ClientToolkit.getToolkit().show(objectPage, this);
 		}
+		ClientToolkit.getToolkit().show(objectPage, this);
 	}
 	
 	public static abstract class SimpleSearchPage<T> extends AbstractSearchPage<T, T> {
