@@ -48,8 +48,9 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 		addFocusListener(this);
 	}
 
-	public class TextFieldChangeListener implements DocumentListener {
-
+	public class TextFieldChangeListener implements DocumentListener, Runnable {
+		private boolean invokeSet = false;
+		
 		@Override
 		public void changedUpdate(DocumentEvent arg0) {
 			fireChangeEvent();
@@ -66,12 +67,18 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 		}
 		
 		private void fireChangeEvent() {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					textOnFocusLost = getText();
-					changeListener.changed(SwingTextField.this);
-				}
-			});
+			// gather all remove/insert of document in one change
+			if (!invokeSet) {
+				invokeSet = true;
+				SwingUtilities.invokeLater(this);
+			}
+		}
+
+		@Override
+		public void run() {
+			invokeSet = false;
+			textOnFocusLost = getText();
+			changeListener.changed(SwingTextField.this);
 		}
 	}
 
