@@ -63,6 +63,10 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		public ObjectFormElementEditor() {
 		}
 
+		public ObjectFormElementEditor(String name) {
+			super(name);
+		}
+
 		@Override
 		public Form<T> createForm() {
 			return AbstractObjectFormElement.this.createFormPanel();
@@ -123,6 +127,10 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 
 	protected void add(String text, Page linkedPage) {
 		list.add(new PageAction(linkedPage, text));
+	}
+
+	protected void add(Object object, Page linkedPage) {
+		list.add(object, new PageAction(linkedPage));
 	}
 	
 	/**
