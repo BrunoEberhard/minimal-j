@@ -235,8 +235,8 @@ public abstract class Editor<T, RESULT> extends Action {
 			((Mocking) object).mock();
 			// re-set the object to update the FormFields
 			form.setObject(object);
-		} else if (form instanceof Mocking) {
-			((Mocking) form).mock();
+		} else {
+			form.mock();
 		}
 	}
 	
