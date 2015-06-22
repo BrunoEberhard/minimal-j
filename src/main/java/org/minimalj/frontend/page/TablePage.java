@@ -34,7 +34,7 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		return table;
 	}
 	
-	protected void refresh() {
+	public void refresh() {
 		if (table != null) {
 			List<T> objects = load();
 			table.setObjects(objects);
