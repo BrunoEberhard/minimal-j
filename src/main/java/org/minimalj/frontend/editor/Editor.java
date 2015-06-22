@@ -95,12 +95,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		return actions;
 	}
 	
-	protected T createObject() {
-		@SuppressWarnings("unchecked")
-		Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(Editor.this.getClass());
-		T newInstance = CloneHelper.newInstance(clazz);
-		return newInstance;
-	}
+	protected abstract T createObject();
 	
 	protected T getObject() {
 		return object;
@@ -245,7 +240,14 @@ public abstract class Editor<T, RESULT> extends Action {
 		}
 	}
 	
-	public static abstract class SimpleEditor<T> extends Editor<T, T> {
+	public static abstract class NewObjectEditor<T> extends Editor<T, T> {
+
+		protected T createObject() {
+			@SuppressWarnings("unchecked")
+			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(NewObjectEditor.this.getClass());
+			T newInstance = CloneHelper.newInstance(clazz);
+			return newInstance;
+		}
 
 	}
 
