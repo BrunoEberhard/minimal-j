@@ -111,6 +111,7 @@ public abstract class Wizard<RESULT> extends Action {
 		if (step instanceof Validatable) {
 			((Validatable) step).validate();
 		}
+		form.indicate(validationMessages);
 		nextAction.setValidationMessages(validationMessages);
 		finishAction.setValidationMessages(validationMessages);
 	}
