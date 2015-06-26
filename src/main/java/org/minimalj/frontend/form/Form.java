@@ -33,7 +33,6 @@ import org.minimalj.frontend.form.element.TypeUnknownFormElement;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Enabled;
@@ -258,10 +257,6 @@ public class Form<T> implements Mocking {
 	private void registerNamedElement(FormElement<?> field) {
 		elements.put(field.getProperty(), field);
 		field.setChangeListener(formPanelChangeListener);
-		if (field.getComponent() instanceof TextField) {
-			TextField textField = (TextField) field.getComponent();
-			textField.setCommitListener(formPanelActionListener);
-		}
 	}
 
 	@Override

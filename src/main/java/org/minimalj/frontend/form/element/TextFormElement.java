@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
@@ -20,7 +20,7 @@ public class TextFormElement implements FormElement<Object> {
 
 	private final PropertyInterface property;
 
-	protected final TextField textField;
+	protected final Input<String> textField;
 
 	public TextFormElement(PropertyInterface property) {
 		this.property = property;

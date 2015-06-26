@@ -13,7 +13,6 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.IList;
-import org.minimalj.frontend.toolkit.TextField;
 
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
@@ -46,7 +45,8 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
+	public IDialog showDialog(String title, IContent content, Action closeAction, Action saveAction, Action... actions) {
+		// TODO use saveAction (Enter in TextFields should save the dialog)
 		return new LanternaDialog(getGui(), content, title, closeAction, actions);
 	}
 
@@ -105,7 +105,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createReadOnlyTextField() {
+	public Input<String> createReadOnlyTextField() {
 		return new LanternaReadOnlyTextField();
 	}
 
@@ -120,13 +120,13 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
 			InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}
 
 	@Override
-	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
+	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}
 

@@ -2,8 +2,8 @@ package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.PropertyInterface;
 
@@ -11,7 +11,7 @@ import org.minimalj.model.properties.PropertyInterface;
 public class StringFormElement extends  AbstractFormElement<String> implements Enable {
 
 	private final int maxLength;
-	private final TextField textField;
+	private final Input<String> textField;
 
 	public StringFormElement(PropertyInterface property) {
 		this(property, null);

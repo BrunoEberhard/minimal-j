@@ -48,7 +48,6 @@ import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.ProgressListener;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
@@ -116,12 +115,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createReadOnlyTextField() {
+	public Input<String> createReadOnlyTextField() {
 		return new SwingReadOnlyTextField();
 	}
 
 	@Override
-	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
 			InputComponentListener changeListener) {
 		if (autocomplete == null) {
 			return new SwingTextField(changeListener, maxLength, allowedCharacters);
@@ -131,7 +130,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
+	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new SwingTextAreaField(changeListener, maxLength, null);
 	}
 
@@ -236,13 +235,13 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
+	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
 		JComponent contentComponent = new SwingEditorPanel(content, actions);
-		return createDialog(title, contentComponent, closeAction);
+		return createDialog(title, contentComponent, saveAction, closeAction);
 	}
 
-	private IDialog createDialog(String title, JComponent content, Action closeAction) {
-		return new SwingInternalFrame(getTab(), title, content, closeAction);
+	private IDialog createDialog(String title, JComponent content, Action saveAction, Action closeAction) {
+		return new SwingInternalFrame(getTab(), title, content, saveAction, closeAction);
 	}
 
 	public static Window findWindow() {
@@ -360,7 +359,7 @@ public class SwingClientToolkit extends ClientToolkit {
 	@Override
 	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
-		return createDialog(null, panel, null);
+		return createDialog(null, panel, null, null);
 	}
 
 	@Override

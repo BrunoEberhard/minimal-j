@@ -10,6 +10,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.GenericUtils;
 
 /**
  * The state of an ObjectField is saved in the object variable.<p>
@@ -59,6 +60,14 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	
 	protected abstract Form<T> createFormPanel();
 
+	protected T createObject() {
+		if (AbstractObjectFormElement.this.getValue() != null) {
+			return CloneHelper.clone(AbstractObjectFormElement.this.getValue());
+		} else {
+			return (T) CloneHelper.newInstance(GenericUtils.getGenericClass(AbstractObjectFormElement.this.getClass()));
+		}
+	}
+
 	public class ObjectFormElementEditor extends Editor<T, Void> {
 		public ObjectFormElementEditor() {
 		}
@@ -74,7 +83,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 
 		@Override
 		public T createObject() {
-			return AbstractObjectFormElement.this.getValue();
+			return AbstractObjectFormElement.this.createObject();
 		}
 
 		@Override

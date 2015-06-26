@@ -62,9 +62,9 @@ public abstract class ClientToolkit {
 	public abstract IComponent createLabel(String string);
 	public abstract IComponent createLabel(Action action);
 	public abstract IComponent createTitle(String string);
-	public abstract TextField createReadOnlyTextField();
-	public abstract TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete, InputComponentListener changeListener);
-	public abstract TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
+	public abstract Input<String> createReadOnlyTextField();
+	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete, InputComponentListener changeListener);
+	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract IList createList(Action... actions);
 	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
@@ -130,7 +130,7 @@ public abstract class ClientToolkit {
 	
 	//
 	
-	public abstract IDialog showDialog(String title, IContent content, Action closeAction, Action... actions);
+	public abstract IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions);
 
 	public abstract <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener);
 

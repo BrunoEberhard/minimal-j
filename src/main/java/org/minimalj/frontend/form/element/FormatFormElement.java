@@ -2,9 +2,9 @@ package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validatable;
@@ -18,7 +18,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 * textField is instantiated lazy because callbacks are used
 	 * and the subclasses need a chance to initialize the values
 	 */
-	protected TextField textField;
+	protected Input<String> textField;
 
 	public FormatFormElement(PropertyInterface property, boolean editable) {
 		super(property);

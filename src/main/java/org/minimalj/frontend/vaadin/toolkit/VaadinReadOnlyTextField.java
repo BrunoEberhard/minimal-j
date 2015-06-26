@@ -1,12 +1,12 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
-import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-public class VaadinReadOnlyTextField extends VerticalLayout implements TextField {
+public class VaadinReadOnlyTextField extends VerticalLayout implements Input<String> {
 	private static final long serialVersionUID = 1L;
 	private Label label;
 	
@@ -31,11 +31,6 @@ public class VaadinReadOnlyTextField extends VerticalLayout implements TextField
 	@Override
 	public void setEditable(boolean editable) {
 		// read only field cannot be enabled
-	}
-
-	@Override
-	public void setCommitListener(Runnable listener) {
-		// read only field cannot get commit command
 	}
 	
 }

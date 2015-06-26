@@ -3,9 +3,9 @@ package org.minimalj.frontend.swing.toolkit;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 
-public class SwingReadOnlyTextField extends JLabel implements TextField {
+public class SwingReadOnlyTextField extends JLabel implements Input<String> {
 	private static final long serialVersionUID = 1L;
 
 	public SwingReadOnlyTextField() {
@@ -37,13 +37,5 @@ public class SwingReadOnlyTextField extends JLabel implements TextField {
 	public void requestFocus() {
 		// read only field cannot be focused
 	}
-
-	@Override
-	public void setCommitListener(Runnable runnable) {
-		// read only field cannot get commit command
-	}
-
-	
-	
 }
 

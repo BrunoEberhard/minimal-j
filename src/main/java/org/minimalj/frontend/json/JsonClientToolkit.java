@@ -12,7 +12,6 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.IList;
-import org.minimalj.frontend.toolkit.TextField;
 
 public class JsonClientToolkit extends ClientToolkit {
 
@@ -46,18 +45,18 @@ public class JsonClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createReadOnlyTextField() {
+	public Input<String> createReadOnlyTextField() {
 		return new JsonTextField("ReadOnlyTextField");
 	}
 
 	@Override
-	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
 			InputComponentListener changeListener) {
 		return new JsonTextField("TextField", maxLength, allowedCharacters, inputType, autocomplete, changeListener);
 	}
 
 	@Override
-	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
+	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new JsonTextField("AreaField", maxLength, allowedCharacters, null, null, changeListener);
 	}
 
@@ -146,7 +145,8 @@ public class JsonClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
+	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
+		// TODO use saveAction (Enter in TextFields should save the dialog)
 		return new JsonDialog(title, content, closeAction, actions);
 	}
 

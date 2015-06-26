@@ -4,13 +4,12 @@ import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.TextField;
 
-public class SwingTextAreaField extends JTextArea implements TextField {
+public class SwingTextAreaField extends JTextArea implements Input<String> {
 	
 	private final InputComponentListener changeListener;
-	private Runnable commitListener;
 	
 	public SwingTextAreaField(InputComponentListener changeListener, int maxLength, String pattern) {
 		super(new SwingTextField.FilteredDocument(maxLength, pattern));
@@ -49,11 +48,6 @@ public class SwingTextAreaField extends JTextArea implements TextField {
 		private void fireChangeEvent() {
 			changeListener.changed(SwingTextAreaField.this);
 		}
-	}
-
-	@Override
-	public void setCommitListener(Runnable commitListener) {
-		this.commitListener = commitListener;
 	}
 
 	@Override

@@ -72,7 +72,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		form.setChangeListener(new EditorChangeListener());
 		form.setObject(object);
 		
-		dialog = ClientToolkit.getToolkit().showDialog(getTitle(), form.getContent(), new CancelAction(), createActions());
+		dialog = ClientToolkit.getToolkit().showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
 	}
 	
 	private Action[] createActions() {

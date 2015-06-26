@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.ui.ComboBox;
@@ -65,7 +65,7 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 		}
 	}
 	
-	public static class VaadinTextAutocompleteDelegate implements TextField, VaadinDelegateComponent {
+	public static class VaadinTextAutocompleteDelegate implements Input<String>, VaadinDelegateComponent {
 		
 		private final VaadinTextFieldAutocomplete delegate;
 		
@@ -86,11 +86,6 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 		@Override
 		public void setEditable(boolean editable) {
 			delegate.setReadOnly(!editable);
-		}
-
-		@Override
-		public void setCommitListener(Runnable runnable) {
-			// TODO Auto-generated method stub
 		}
 		
 		@Override

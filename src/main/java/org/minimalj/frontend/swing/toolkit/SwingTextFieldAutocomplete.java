@@ -15,11 +15,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.TextField;
 
-public class SwingTextFieldAutocomplete extends JComboBox<String> implements TextField {
+public class SwingTextFieldAutocomplete extends JComboBox<String> implements Input<String> {
 	private static final long serialVersionUID = -1;
 
 	public SwingTextFieldAutocomplete(InputComponentListener changeListener, Search<String> searchable) {
@@ -106,10 +106,4 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Tex
 	public String getValue() {
 		return (String) super.getSelectedItem();
 	}
-
-	@Override
-	public void setCommitListener(Runnable runnable) {
-		// TODO Auto-generated method stub
-	}
-
 }

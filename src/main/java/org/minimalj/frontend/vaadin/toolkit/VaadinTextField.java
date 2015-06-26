@@ -1,8 +1,8 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.TextField;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
@@ -85,7 +85,7 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements ICompone
 		}
 	}
 
-	public static class VaadinTextDelegate implements TextField, VaadinDelegateComponent {
+	public static class VaadinTextDelegate implements Input<String>, VaadinDelegateComponent {
 		
 		private final VaadinTextField delegate;
 		
@@ -109,15 +109,9 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements ICompone
 		}
 
 		@Override
-		public void setCommitListener(Runnable runnable) {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
 		public Component getDelegate() {
 			return delegate;
 		}
 	}
-
 	
 }

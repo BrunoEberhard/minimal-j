@@ -17,17 +17,16 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 	
 	private final EditablePanel editablePanel;
 	private final Component focusAfterClose;
-	private final Action closeAction;
+	private final Action saveAction, closeAction;
 	
-	//
-	
-	public SwingInternalFrame(EditablePanel editablePanel, String title, Component content, Action closeAction) {
-		this(editablePanel, title, content, closeAction, null);
+	public SwingInternalFrame(EditablePanel editablePanel, String title, Component content, Action saveAction, Action closeAction) {
+		this(editablePanel, title, content, saveAction, closeAction, null);
 	}
 
-	public SwingInternalFrame(EditablePanel editablePanel, String title, Component content, Action closeAction, Component focusAfterClose) {
+	public SwingInternalFrame(EditablePanel editablePanel, String title, Component content, Action saveAction, Action closeAction, Component focusAfterClose) {
 		this.editablePanel = editablePanel;
 		this.focusAfterClose = focusAfterClose;
+		this.saveAction = saveAction;
 		this.closeAction = closeAction;
 		
 		setTitle(title);
@@ -88,4 +87,7 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 		}
 	}
 
+	public Action getSaveAction() {
+		return saveAction;
+	}
 }

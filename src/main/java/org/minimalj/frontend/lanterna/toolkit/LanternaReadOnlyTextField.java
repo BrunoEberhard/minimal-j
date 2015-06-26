@@ -1,10 +1,10 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.TextField;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 
 import com.googlecode.lanterna.gui.component.Label;
 
-public class LanternaReadOnlyTextField extends Label implements TextField {
+public class LanternaReadOnlyTextField extends Label implements Input<String> {
 
 	public LanternaReadOnlyTextField() {
 		super();
@@ -13,11 +13,6 @@ public class LanternaReadOnlyTextField extends Label implements TextField {
 
 	@Override
 	public void setEditable(boolean editable) {
-		// ignored
-	}
-
-	@Override
-	public void setCommitListener(Runnable listener) {
 		// ignored
 	}
 	

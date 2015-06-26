@@ -1,11 +1,11 @@
 package org.minimalj.frontend.json;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
 import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.TextField;
 
-public class JsonTextField extends JsonInputComponent<String> implements TextField {
+public class JsonTextField extends JsonInputComponent<String> implements Input<String> {
 
 	private static final String MAX_LENGTH = "maxLength";
 	private static final String ALLOWED_CHARACTERS = "allowedCharacters";
@@ -38,10 +38,5 @@ public class JsonTextField extends JsonInputComponent<String> implements TextFie
 	@Override
 	public String getValue() {
 		return (String) get(VALUE);
-	}
-
-	@Override
-	public void setCommitListener(Runnable runnable) {
-		// ?
 	}
 }

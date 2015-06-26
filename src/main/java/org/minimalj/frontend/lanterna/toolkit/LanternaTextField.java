@@ -1,7 +1,7 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
 
 import com.googlecode.lanterna.gui.component.InteractableComponent;
@@ -9,7 +9,7 @@ import com.googlecode.lanterna.gui.component.TextBox;
 import com.googlecode.lanterna.gui.listener.ComponentAdapter;
 import com.googlecode.lanterna.input.Key;
 
-public class LanternaTextField extends TextBox implements TextField {
+public class LanternaTextField extends TextBox implements Input<String> {
 
 	private final InputComponentListener changeListener;
 	
@@ -23,11 +23,6 @@ public class LanternaTextField extends TextBox implements TextField {
 	@Override
 	public void setEditable(boolean editable) {
 		super.setVisible(editable);
-	}
-
-	@Override
-	public void setCommitListener(Runnable listener) {
-		// ignored at the moment
 	}
 
 	@Override

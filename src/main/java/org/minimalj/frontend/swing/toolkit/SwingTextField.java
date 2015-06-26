@@ -1,5 +1,6 @@
 package org.minimalj.frontend.swing.toolkit;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -13,15 +14,15 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.util.StringUtils;
 
-public class SwingTextField extends JTextField implements TextField, FocusListener {
+public class SwingTextField extends JTextField implements Input<String>, FocusListener {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener changeListener;
-	private Runnable commitListener;
 	
 	private String textOnFocusLost;
 	
@@ -40,12 +41,25 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 		addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (commitListener != null) {
-					commitListener.run();
+				SwingInternalFrame frame = findFrame();
+				if (frame != null) {
+					Action saveAction = frame.getSaveAction();
+					saveAction.action();
 				}
 			}
 		});
 		addFocusListener(this);
+	}
+	
+	private SwingInternalFrame findFrame() {
+		Component c = this;
+		while (c != null) {
+			if (c instanceof SwingInternalFrame) {
+				return (SwingInternalFrame) c;
+			}
+			c = c.getParent();
+		}
+		return null;
 	}
 
 	public class TextFieldChangeListener implements DocumentListener, Runnable {
@@ -131,11 +145,6 @@ public class SwingTextField extends JTextField implements TextField, FocusListen
 			return result;
 		}
 
-	}
-
-	@Override
-	public void setCommitListener(Runnable commitListener) {
-		this.commitListener = commitListener;
 	}
 
 	@Override

@@ -16,7 +16,6 @@ import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.ProgressListener;
-import org.minimalj.frontend.toolkit.TextField;
 import org.minimalj.frontend.vaadin.VaadinWindow;
 import org.minimalj.frontend.vaadin.toolkit.VaadinTextAreaField.VaadinTextAreaDelegate;
 import org.minimalj.frontend.vaadin.toolkit.VaadinTextField.VaadinTextDelegate;
@@ -84,14 +83,14 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createReadOnlyTextField() {
+	public Input<String> createReadOnlyTextField() {
 		return new VaadinReadOnlyTextField();
 	}
 
 	
 	
 	@Override
-	public TextField createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
 			InputComponentListener changeListener) {
 		if (autocomplete == null) {
 			return new VaadinTextDelegate(changeListener, maxLength, allowedCharacters);
@@ -101,7 +100,7 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public TextField createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
+	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new VaadinTextAreaDelegate(changeListener, maxLength, allowedCharacters);
 	}
 
@@ -187,7 +186,9 @@ public class VaadinClientToolkit extends ClientToolkit {
 	}
 	
 	@Override
-	public IDialog showDialog(String title, IContent content, Action closeAction, Action... actions) {
+	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
+		// TODO use saveAction (Enter in TextFields should save the dialog)
+
 		Component component = new VaadinEditorLayout(content, actions);
 		component.setSizeFull();
 
