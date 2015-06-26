@@ -17,9 +17,7 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
-import org.minimalj.util.resources.Resources;
 
 public abstract class Wizard<RESULT> extends Action {
 
@@ -31,7 +29,7 @@ public abstract class Wizard<RESULT> extends Action {
 	private final EditorChangeListener changeListener = new EditorChangeListener();
 	private final List<ValidationMessage> validationMessages = new ArrayList<>();
 	private FinishAction finishAction;
-	private NextAction nextAction;
+	private NextWizardStepAction nextAction;
 	private IDialog dialog;
 	private SwitchContent switchContent;
 	private int stepIndex;
@@ -45,24 +43,7 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 
 	public String getTitle() {
-		// specific name of editor
-		if (Resources.isAvailable(getClass().getName())) {
-			return Resources.getString(getClass().getName());
-		} 
-
-		// specific name of edited class
-		Class<?> clazz = GenericUtils.getGenericClass(getClass());
-		if (clazz != null && Resources.isAvailable(clazz.getName())) {
-			return Resources.getString(getClass().getName());
-		}
-		
-		// simple name of editor
-		if (clazz == null || Resources.isAvailable(getClass().getSimpleName())) {
-			return Resources.getString(getClass().getSimpleName());
-		}
-		
-		// simple name of edited class or default
-		return Resources.getString(clazz);
+		return getName();
 	}
 
 	@Override
@@ -70,8 +51,8 @@ public abstract class Wizard<RESULT> extends Action {
 		switchContent = ClientToolkit.getToolkit().createSwitchContent();
 
 		CancelAction cancelAction = new CancelAction();
-		PreviousAction previousAction = new PreviousAction();
-		nextAction = new NextAction();
+		PreviousWizardStepAction previousAction = new PreviousWizardStepAction();
+		nextAction = new NextWizardStepAction();
 		finishAction = new FinishAction();
 
 		stepIndex = 0;
@@ -159,7 +140,7 @@ public abstract class Wizard<RESULT> extends Action {
 		}
 	}	
 
-	protected final class NextAction extends Action {
+	protected final class NextWizardStepAction extends Action {
 		private String description;
 		private boolean valid = false;
 		
@@ -189,7 +170,7 @@ public abstract class Wizard<RESULT> extends Action {
 		}
 	}
 	
-	protected final class PreviousAction extends Action {
+	protected final class PreviousWizardStepAction extends Action {
 		@Override
 		public void action() {
 			previous();
