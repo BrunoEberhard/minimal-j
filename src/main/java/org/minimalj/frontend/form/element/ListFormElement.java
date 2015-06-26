@@ -37,12 +37,12 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 
 	protected abstract void showEntry(T entry);
 
-	public abstract class AddListEntryAction extends Editor<T, Void> {
+	public abstract class AddListEntryEditor extends Editor<T, Void> {
 		
-		public AddListEntryAction() {
+		public AddListEntryEditor() {
 		}
 
-		public AddListEntryAction(String name) {
+		public AddListEntryEditor(String name) {
 			super(name);
 		}
 		
