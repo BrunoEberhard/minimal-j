@@ -80,9 +80,9 @@ public abstract class Wizard<RESULT> extends Action {
 		
 		if (DevMode.isActive()) {
 			FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
-			dialog = ClientToolkit.getToolkit().showDialog(getTitle(), switchContent, cancelAction, demoAction, cancelAction, previousAction, nextAction, finishAction);
+			dialog = ClientToolkit.getToolkit().showDialog(getTitle(), switchContent, nextAction, cancelAction, demoAction, cancelAction, previousAction, nextAction, finishAction);
 		} else {
-			dialog = ClientToolkit.getToolkit().showDialog(getTitle(), switchContent, cancelAction, cancelAction, previousAction, nextAction, finishAction);
+			dialog = ClientToolkit.getToolkit().showDialog(getTitle(), switchContent, nextAction, cancelAction, cancelAction, previousAction, nextAction, finishAction);
 		}
 	}
 
