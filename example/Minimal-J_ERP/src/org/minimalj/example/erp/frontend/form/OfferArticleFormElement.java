@@ -31,7 +31,7 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 		return new Action[] { new AddOfferArticleEditor(), new RemoveOfferArticlesAction() };
 	}
 
-	public class AddOfferArticleEditor extends AddListEntryAction {
+	public class AddOfferArticleEditor extends AddListEntryEditor {
 		@Override
 		public Form<OfferArticle> createForm() {
 			Form<OfferArticle> form = new Form<>();
