@@ -12,7 +12,10 @@ import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.MultiResourceBundle;
+
+import com.vaadin.data.Container.Editor;
 
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
@@ -172,6 +175,28 @@ public class Resources {
 		}
 		
 		return "'" + qualifiedKey + "'";
+	}
+	
+	public static String getActionName(Class<?> clazz) {
+		// specific name of action
+		if (Resources.isAvailable(clazz.getName())) {
+			return Resources.getString(clazz.getName());
+		} 
+
+		// specific name of edited class
+		if (Editor.class.isAssignableFrom(clazz)) {
+			Class clazz2 = GenericUtils.getGenericClass(clazz);
+			if (clazz2 != null && Resources.isAvailable(clazz2.getName())) {
+				return Resources.getString(clazz2.getName());
+			}
+		}
+		
+		// simple name of action
+		if (clazz == null || Resources.isAvailable(clazz.getSimpleName())) {
+			return Resources.getString(clazz.getSimpleName());
+		}
+		
+		return "'" + clazz.getSimpleName() + "'";
 	}
 	
 }

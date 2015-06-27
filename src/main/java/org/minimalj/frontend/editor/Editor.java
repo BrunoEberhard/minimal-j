@@ -16,9 +16,7 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
-import org.minimalj.util.resources.Resources;
 
 public abstract class Editor<T, RESULT> extends Action {
 
@@ -40,24 +38,7 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
 
 	public String getTitle() {
-		// specific name of editor
-		if (Resources.isAvailable(getClass().getName())) {
-			return Resources.getString(getClass().getName());
-		} 
-
-		// specific name of edited class
-		Class<?> clazz = GenericUtils.getGenericClass(getClass());
-		if (clazz != null && Resources.isAvailable(clazz.getName())) {
-			return Resources.getString(getClass().getName());
-		}
-		
-		// simple name of editor
-		if (clazz == null || Resources.isAvailable(getClass().getSimpleName())) {
-			return Resources.getString(getClass().getSimpleName());
-		}
-		
-		// simple name of edited class or default
-		return Resources.getString(clazz);
+		return getName();
 	}
 
 	@Override

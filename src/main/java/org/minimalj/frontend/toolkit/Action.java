@@ -24,7 +24,7 @@ public abstract class Action {
 	}
 	
 	protected Action(String actionName) {
-		this.name = actionName == null ? Resources.getString(getClass()) : Resources.getString(actionName);
+		this.name = actionName == null ? Resources.getActionName(getClass()) : Resources.getString(actionName);
 		if (actionName != null) {
 			this.description = Resources.getString(actionName + ".description", Resources.OPTIONAL);
 		}
