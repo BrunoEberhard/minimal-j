@@ -50,7 +50,7 @@ public class JsonClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> autocomplete,
 			InputComponentListener changeListener) {
 		return new JsonTextField("TextField", maxLength, allowedCharacters, inputType, autocomplete, changeListener);
 	}

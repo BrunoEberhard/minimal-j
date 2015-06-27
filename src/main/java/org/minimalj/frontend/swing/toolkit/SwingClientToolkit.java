@@ -120,12 +120,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice,
 			InputComponentListener changeListener) {
-		if (autocomplete == null) {
+		if (choice == null) {
 			return new SwingTextField(changeListener, maxLength, allowedCharacters);
 		} else {
-			return new SwingTextFieldAutocomplete(changeListener, autocomplete);
+			return new SwingTextFieldAutocomplete(changeListener, choice);
 		}
 	}
 

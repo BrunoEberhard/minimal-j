@@ -1,28 +1,21 @@
 package org.minimalj.frontend.swing.toolkit;
 
 import java.awt.Component;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JComboBox;
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 
 public class SwingTextFieldAutocomplete extends JComboBox<String> implements Input<String> {
 	private static final long serialVersionUID = -1;
 
-	public SwingTextFieldAutocomplete(InputComponentListener changeListener, Search<String> searchable) {
+	public SwingTextFieldAutocomplete(InputComponentListener changeListener, List<String> suggestions) {
+		super(suggestions.toArray(new String[suggestions.size()]));
 		setEditable(true);
 		Component c = getEditor().getEditorComponent();
 		if (c instanceof JTextComponent) {
@@ -32,64 +25,19 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Inp
 				@Override
 				public void changedUpdate(DocumentEvent arg0) {
 					changeListener.changed(SwingTextFieldAutocomplete.this);
+					hideIfNoMatchingItem();
 				}
 
 				@Override
 				public void insertUpdate(DocumentEvent arg0) {
-					update();
 					changeListener.changed(SwingTextFieldAutocomplete.this);
+					hideIfNoMatchingItem();
 				}
 
 				@Override
 				public void removeUpdate(DocumentEvent arg0) {
-					update();
 					changeListener.changed(SwingTextFieldAutocomplete.this);
-				}
-
-				private void update() {
-					// perform separately, as listener conflicts between the editing component
-					// and JComboBox will result in an IllegalStateException due to editing
-					// the component when it is locked.
-					SwingUtilities.invokeLater(new Runnable() {
-
-						@Override
-						public void run() {
-							List<String> founds = new ArrayList<String>(searchable.search(tc.getText()));
-							Set<String> foundSet = new HashSet<String>();
-							for (String s : founds) {
-								foundSet.add(s.toLowerCase());
-							}
-							Collections.sort(founds);// sort alphabetically
-							setEditable(false);
-							removeAllItems();
-
-							// if founds contains the search text, then only add once.
-							if (!foundSet.contains(tc.getText().toLowerCase())) {
-								addItem(tc.getText());
-							}
-
-							for (String s : founds) {
-								addItem(s);
-							}
-
-							setEditable(true);
-							setPopupVisible(true);
-						}
-					});
-				}
-			});
-
-			// When the text component changes, focus is gained
-			// and the menu disappears. To account for this, whenever the focus
-			// is gained by the JTextComponent and it has searchable values, we
-			// show the popup.
-
-			tc.addFocusListener(new FocusAdapter() {
-				@Override
-				public void focusGained(FocusEvent arg0) {
-					if (tc.getText().length() > 0) {
-						setPopupVisible(true);
-					}
+					hideIfNoMatchingItem();
 				}
 			});
 		} else {
@@ -97,6 +45,37 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Inp
 		}
 	}
 
+	private void hideIfNoMatchingItem() {
+		if (isPopupVisible()) {
+			String selectedItem = (String) getSelectedItem();
+			if (selectedItem != null && !selectedItem.startsWith(getValue())) {
+				hidePopup();
+			}
+		}
+	}
+
+	@Override
+	public int getSelectedIndex() {
+		if (getEditor() == null) {
+			return -1;
+		}
+		
+		String value = getValue();
+		if (value == null) {
+			return -1;
+		} else {
+			int index = -1;
+			for (int i = 0; i < getModel().getSize(); i++) {
+				String item = getModel().getElementAt(i);
+				if (item != null && item.startsWith(value)) {
+					index = i;
+					break;
+				}
+			}
+			return index;
+		}
+	}	
+	
 	@Override
 	public void setValue(String text) {
 		super.setSelectedItem(text);
@@ -104,6 +83,9 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Inp
 
 	@Override
 	public String getValue() {
-		return (String) super.getSelectedItem();
+		Component c = getEditor().getEditorComponent();
+		JTextComponent tc = (JTextComponent) c;
+		return tc.getText();
 	}
+
 }

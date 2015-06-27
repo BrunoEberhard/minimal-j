@@ -8,7 +8,6 @@ import java.util.Map;
 import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.ui.ComboBox;
@@ -18,12 +17,12 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 	private static final long serialVersionUID = 1L;
 
 	private final InputComponentListener listener;
-	private final Search<String> autocomplete;
+	private final List<String> choice;
 	private String filterstring;
 	
-	public VaadinTextFieldAutocomplete(Search<String> autocomplete, InputComponentListener listener) {
+	public VaadinTextFieldAutocomplete(List<String> choice, InputComponentListener listener) {
 		this.listener = listener;
-		this.autocomplete = autocomplete;
+		this.choice = choice;
 		addListener(new ComboBoxChangeListener());
 
 		setImmediate(true);
@@ -39,7 +38,12 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 	@Override
 	protected List<?> getFilteredOptions() {
 		if (!StringUtils.isBlank(filterstring)) {
-			List<String> items = autocomplete.search(filterstring);
+			List<String> items = new ArrayList<>();
+			for (String i : choice) {
+				if (i != null && i.startsWith(filterstring)) {
+					items.add(i);
+				}
+			}
 			if (items.isEmpty()) {
 				return Collections.singletonList(filterstring);
 			} else if (items.contains(filterstring)) {
@@ -69,8 +73,8 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 		
 		private final VaadinTextFieldAutocomplete delegate;
 		
-		public VaadinTextAutocompleteDelegate(Search<String> autocomplete, InputComponentListener listener) {
-			this.delegate = new VaadinTextFieldAutocomplete(autocomplete,listener);
+		public VaadinTextAutocompleteDelegate(List<String> choice, InputComponentListener listener) {
+			this.delegate = new VaadinTextFieldAutocomplete(choice, listener);
 		}
 
 		@Override

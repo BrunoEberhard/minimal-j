@@ -63,7 +63,7 @@ public abstract class ClientToolkit {
 	public abstract IComponent createLabel(Action action);
 	public abstract IComponent createTitle(String string);
 	public abstract Input<String> createReadOnlyTextField();
-	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete, InputComponentListener changeListener);
+	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract IList createList(Action... actions);
 	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);

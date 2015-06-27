@@ -1,9 +1,10 @@
 package org.minimalj.frontend.json;
 
+import java.util.List;
+
 import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
 
 public class JsonTextField extends JsonInputComponent<String> implements Input<String> {
 
@@ -20,7 +21,7 @@ public class JsonTextField extends JsonInputComponent<String> implements Input<S
 		super(type, changeListener);
 	}
 	
-	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType, List<String> choice,
 			InputComponentListener changeListener) {
 		super(type, changeListener);
 		put(MAX_LENGTH, maxLength);

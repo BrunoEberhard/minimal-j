@@ -120,7 +120,7 @@ public class LanternaClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> autocomplete,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice,
 			InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}
