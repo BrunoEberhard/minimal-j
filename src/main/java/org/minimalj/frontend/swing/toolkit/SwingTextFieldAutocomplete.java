@@ -1,8 +1,11 @@
 package org.minimalj.frontend.swing.toolkit;
 
 import java.awt.Component;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.List;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -10,6 +13,7 @@ import javax.swing.text.JTextComponent;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.Input;
 import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.util.StringUtils;
 
 public class SwingTextFieldAutocomplete extends JComboBox<String> implements Input<String> {
 	private static final long serialVersionUID = -1;
@@ -40,9 +44,39 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Inp
 					hideIfNoMatchingItem();
 				}
 			});
+			
+			tc.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusGained(FocusEvent e) {
+					DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) getModel();
+					if (modelNeedsUpdate(model, suggestions)) {
+						String selection = tc.getText();
+						model.removeAllElements();
+						for (String s : suggestions) {
+							model.addElement(s);
+						}
+						tc.setText(selection);
+					}
+				}
+
+				private boolean modelNeedsUpdate(DefaultComboBoxModel<String> model, List<String> suggestions) {
+					if (model.getSize() == suggestions.size()) {
+						for (int index=0; index<model.getSize(); index++) {
+							if (!StringUtils.equals(model.getElementAt(index), suggestions.get(index))) {
+								return true;
+							}
+						}
+						return false;
+					} else {
+						return true;
+					}
+				}
+			});
+
 		} else {
 			throw new IllegalStateException("Editing component is not a JTextComponent!");
 		}
+		
 	}
 
 	private void hideIfNoMatchingItem() {
