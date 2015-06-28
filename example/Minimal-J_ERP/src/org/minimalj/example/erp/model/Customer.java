@@ -40,6 +40,8 @@ public class Customer implements Mocking {
 		boolean male = Math.random() < 0.5;
 		firstname = MockPrename.getFirstName(male);
 		surname = MockName.officialName();
+		email = firstname.toLowerCase() + "." + surname.toLowerCase() + "@loremipsum.com";
+		company = surname + " " + (Math.random() < 0.5 ? "AG" : "GmbH");
 		salutation = male ? Salutation.Male : Salutation.Female;
 		customersince = LocalDate.now();
 	}
