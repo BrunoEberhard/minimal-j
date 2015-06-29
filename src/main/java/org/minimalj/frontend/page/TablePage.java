@@ -26,9 +26,7 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 
 	@Override
 	public IContent getContent() {
-		if (table == null) {
-			table = ClientToolkit.getToolkit().createTable(keys, this);
-		}
+		table = ClientToolkit.getToolkit().createTable(keys, this);
 		List<T> objects = load();
 		table.setObjects(objects);
 		return table;
@@ -40,5 +38,56 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 			table.setObjects(objects);
 		}
 	}
+	
+	public static abstract class TablePageWithDetail<T, DETAIL> extends TablePage<T> implements PageWithDetail {
+		
+		public TablePageWithDetail(Object[] keys) {
+			super(keys);
+		}
+
+		private ObjectPage<DETAIL> objectPage;
+		
+		protected abstract DETAIL load(T searchObject);
+		
+		protected abstract ObjectPage<DETAIL> createPage(DETAIL initialObject);
+	
+		@Override
+		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
+			if (objectPage != null) {
+				DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
+				objectPage.setObject(selectedDetailObject);
+			}
+		}
+			
+		@Override
+		public void detailClosed(Page page) {
+			if (page == objectPage) {
+				objectPage = null;
+			}
+		}
+		
+		@Override
+		public void action(T selectedObject) {
+			DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
+			if (objectPage != null) {
+				objectPage.setObject(selectedDetailObject);
+			} else {
+				objectPage = createPage(selectedDetailObject);
+			}
+			ClientToolkit.getToolkit().show(objectPage, this);
+		}
+	}
+	
+	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, T> {
+
+		public SimpleTablePageWithDetail(Object[] keys) {
+			super(keys);
+		}
+		
+		protected T load(T searchObject) {
+			return (T) searchObject;
+		}
+	}
+
 	
 }
