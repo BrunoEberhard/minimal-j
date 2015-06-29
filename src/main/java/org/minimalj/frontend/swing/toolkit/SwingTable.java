@@ -101,7 +101,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	
 	public T getSelectedObject() {
 		int leadSelectionIndex = table.getSelectionModel().getLeadSelectionIndex();
-		if (leadSelectionIndex >= 0) {
+		if (leadSelectionIndex >= 0 && leadSelectionIndex < table.getRowCount()) {
 			int leadSelectionIndexInModel = table.convertRowIndexToModel(leadSelectionIndex);
 			return tableModel.getObject(leadSelectionIndexInModel);
 		} else {
