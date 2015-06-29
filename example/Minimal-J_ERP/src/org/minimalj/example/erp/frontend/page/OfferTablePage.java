@@ -7,11 +7,11 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
-import org.minimalj.frontend.page.TablePage;
+import org.minimalj.frontend.page.ObjectPage;
+import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
 import org.minimalj.transaction.criteria.Criteria;
 
-
-public class OfferTablePage extends TablePage<Offer> {
+public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 
 	private Customer customer;
 	
@@ -49,4 +49,9 @@ public class OfferTablePage extends TablePage<Offer> {
 		return "Offers for " + customer.surname;
 	}
 
+	@Override
+	protected ObjectPage<Offer> createPage(Offer offer) {
+		return new OfferPage(offer);
+	}
+	
 }
