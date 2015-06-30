@@ -38,10 +38,6 @@ public abstract class ObjectPage<T> implements Page {
 		}
 	}
 	
-	public ActionGroup getMenu() {
-		return null;
-	}
-
 	protected abstract Form<T> createForm();
 
 	public Class<T> getObjectClass() {
