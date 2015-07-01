@@ -129,7 +129,7 @@ public class JsonClientSession {
 
 	private List<Object> createMenu(Page page) {
 		List<Object> items = new ArrayList<>();
-		items.add(createFileMenu());
+		items.add(createMenu());
 		Object objectMenu = createObjectMenu(page);
 		if (objectMenu != null) {
 			items.add(objectMenu);
@@ -137,45 +137,13 @@ public class JsonClientSession {
 		return items;
 	}
 	
-	private Map<String, Object> createFileMenu() {
-		Map<String, Object> fileMenu = createMenu("file");
-		List<Object> fileItems = new ArrayList<>();
-		fileMenu.put("items", fileItems);
+	private Map<String, Object> createMenu() {
+		Map<String, Object> menu = createMenu("menu");
+		List<Action> menuActions = Application.getApplication().getMenu();
+		List<Object> menuItems = createActions(menuActions);
+		menu.put("items", menuItems);
 		
-		List<Action> actionsNew = Application.getApplication().getActionsNew();
-		if (!actionsNew.isEmpty()) {
-			Map<String, Object> newMenu = createMenu("new");
-			fileItems.add(newMenu);
-
-			List<Object> itemsNew = createActions(actionsNew);
-			newMenu.put("items", itemsNew);
-			
-			fileItems.add("separator");
-		}
-		
-		List<Action> actionsImport = Application.getApplication().getActionImport();
-		if (!actionsImport.isEmpty()) {
-			Map<String, Object> importMenu = createMenu("import");
-			fileItems.add(importMenu);
-			
-			List<Object> itemsImport = createActions(actionsImport);
-			importMenu.put("items", itemsImport);
-		}
-
-		List<Action> actionsExport = Application.getApplication().getActionExport();
-		if (!actionsExport.isEmpty()) {
-			Map<String, Object> exportMenu = createMenu("export");
-			fileItems.add(exportMenu);
-			
-			List<Object> itemsexport = createActions(actionsExport);
-			exportMenu.put("items", itemsexport);
-		}
-		
-//		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) {
-//			fileItems.add("separator");
-//		}
-		
-		return fileMenu;
+		return menu;
 	}
 	
 	List<Object> createActions(List<Action> actions) {

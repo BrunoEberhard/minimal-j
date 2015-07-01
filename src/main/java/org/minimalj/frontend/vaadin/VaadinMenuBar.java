@@ -34,26 +34,26 @@ public class VaadinMenuBar extends MenuBar {
 		MenuBar.MenuItem menu = menu("file");
 
 		boolean separator = false;
-		List<Action> actionsNew = Application.getApplication().getActionsNew();
-		if (!actionsNew.isEmpty()) {
-			addActions(menu, "new", actionsNew);
-			separator = true;
-		}
-		List<Action> actionsImport = Application.getApplication().getActionImport();
-		List<Action> actionsExport = Application.getApplication().getActionExport();
-		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) {
-			if (separator) menu.addSeparator();
-		}
-		if (!actionsImport.isEmpty()) addActions(menu, "import", actionsImport);
-		if (!actionsExport.isEmpty()) addActions(menu, "export", actionsExport);
+		List<Action> actionsNew = Application.getApplication().getMenu();
+//		if (!actionsNew.isEmpty()) {
+//			addActions(menu, "new", actionsNew);
+//			separator = true;
+//		}
+//		List<Action> actionsImport = Application.getApplication().getActionImport();
+//		List<Action> actionsExport = Application.getApplication().getActionExport();
+//		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) {
+//			if (separator) menu.addSeparator();
+//		}
+//		if (!actionsImport.isEmpty()) addActions(menu, "import", actionsImport);
+//		if (!actionsExport.isEmpty()) addActions(menu, "export", actionsExport);
 	}
 	
 	private void createViewMenu() {
-		List<Action> actionsView = Application.getApplication().getActionView();
-		if (!actionsView.isEmpty()) {
+//		List<Action> actionsView = Application.getApplication().getActionView();
+//		if (!actionsView.isEmpty()) {
 			MenuBar.MenuItem menu = menu("view");
-			addActions(menu, actionsView);
-		}
+//			addActions(menu, actionsView);
+//		}
 	}
 	
 	private void createObjectMenu() {
