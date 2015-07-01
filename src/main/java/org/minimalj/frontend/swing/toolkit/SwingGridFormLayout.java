@@ -194,9 +194,7 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 
 		@Override
 		public Dimension maximumLayoutSize(Container target) {
-			layoutContainer(target);
-			return size;
-
+			return new Dimension(30000, 30000);
 		}
 
 		@Override

@@ -8,10 +8,16 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -21,15 +27,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
+import org.minimalj.application.Application;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
+import org.minimalj.frontend.swing.component.SwingPageBar;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
-import org.minimalj.frontend.swing.toolkit.SwingSwitchContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
 
 public class SwingTab extends EditablePanel {
 	private static final long serialVersionUID = 1L;
@@ -40,11 +46,13 @@ public class SwingTab extends EditablePanel {
 
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
-	private final SwingSwitchContent switchContent;
 	private final JSplitPane splitPane;
+	private final JScrollPane menuScrollPane;
+	private final JScrollPane contentScrollPane;
 	private final JPanel verticalPanel;
 	
 	private final History<Page> history;
+	private final List<Page> pages;
 	private final SwingPageContextHistoryListener historyListener;
 
 	private Page page;
@@ -56,28 +64,49 @@ public class SwingTab extends EditablePanel {
 		historyListener = new SwingPageContextHistoryListener();
 		history = new History<>(historyListener);
 
+		pages = new ArrayList<Page>();
+		
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
 		refreshAction = new RefreshAction();
 
 		closeTabAction = new CloseTabAction();
 		
-		toolBar = new SwingToolBar(this);
-		menuBar = new SwingMenuBar(this);
-
 		JPanel outerPanel = new JPanel(new BorderLayout());
+		
+		menuBar = new SwingMenuBar(this);
 		outerPanel.add(menuBar, BorderLayout.NORTH);
+		setContent(outerPanel);
+
 		JPanel panel = new JPanel(new BorderLayout());
 		outerPanel.add(panel, BorderLayout.CENTER);
+
+		toolBar = new SwingToolBar(this);
 		panel.add(toolBar, BorderLayout.NORTH);
 
-		switchContent = new SwingSwitchContent();
-		panel.add(switchContent, BorderLayout.CENTER);
-		setContent(outerPanel);
-		
 		splitPane = new JSplitPane();
+		splitPane.setBorder(BorderFactory.createEmptyBorder());
+		panel.add(splitPane, BorderLayout.CENTER);
+
 		verticalPanel = new JPanel(new VerticalLayoutManager());
-		splitPane.setRightComponent(verticalPanel);
+		contentScrollPane = new JScrollPane(verticalPanel);
+		contentScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+		contentScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		splitPane.setRightComponent(contentScrollPane);
+		
+		contentScrollPane.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				verticalPanel.revalidate();
+			}
+		});
+		
+		ActionTree actionTree = new ActionTree(Application.getApplication().getMenu(), Application.getApplication().getName());
+		menuScrollPane = new JScrollPane(actionTree);
+		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		splitPane.setLeftComponent(menuScrollPane);
+		
+		splitPane.setDividerLocation(200);
 	}
 	
 	public static SwingTab getActiveTab() {
@@ -94,7 +123,6 @@ public class SwingTab extends EditablePanel {
 	
 	void onHistoryChanged() {
 		updateActions();
-		menuBar.onHistoryChanged();
 		toolBar.onHistoryChanged();
 		frame.onHistoryChanged();
 	}
@@ -159,33 +187,33 @@ public class SwingTab extends EditablePanel {
 		public void onHistoryChanged() {
 			page = history.getPresent();
 			
-			JComponent content = (JComponent) page.getContent();
-			if (content != null) {
-				JPopupMenu menu = createMenu(page.getMenu());
-				content.setComponentPopupMenu(menu);
-				setInheritMenu(content);
-				if (content instanceof ITable) {
-					switchContent.show(content);
-				} else {
-					splitPane.setLeftComponent(null);
-					verticalPanel.removeAll();
-					verticalPanel.add(content, "");
-					JPanel filler = new JPanel();
-					filler.setPreferredSize(new Dimension(150, 1)); // TODO calculate
-					splitPane.setLeftComponent(filler);
-					JScrollPane scrollPane = new JScrollPane(verticalPanel);
-					splitPane.setRightComponent(scrollPane);
-					switchContent.show(splitPane);
-				}
-			} else {
-				switchContent.show((JComponent) null);
-			}
+			closeAllPages();
+			addPage(page);
 			
 			SwingTab.this.onHistoryChanged();
 		}
 	}
 	
-	private class VerticalLayoutManager implements LayoutManager {
+	private void addPage(Page page) {
+		pages.add(page);
+		JComponent content = (JComponent) page.getContent();
+		if (content != null) {
+			JPopupMenu menu = createMenu(page.getMenu());
+			content.setComponentPopupMenu(menu);
+			setInheritMenu(content);
+			verticalPanel.add(new SwingPageBar(page.getTitle()));
+			verticalPanel.add(content, "");
+			verticalPanel.revalidate();
+			verticalPanel.repaint();
+		}
+	}
+	
+	private void closeAllPages() {
+		verticalPanel.removeAll();
+		pages.clear();
+	}
+	
+	public class VerticalLayoutManager implements LayoutManager {
 
 		private Dimension size;
 		private Dimension preferredSize = new Dimension(100, 100);
@@ -196,6 +224,9 @@ public class SwingTab extends EditablePanel {
 
 		@Override
 		public Dimension preferredLayoutSize(Container parent) {
+			if (preferredSize == null) {
+				layoutContainer(parent);
+			}
 			return preferredSize;
 		}
 
@@ -209,15 +240,41 @@ public class SwingTab extends EditablePanel {
 			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds())) return;
 			lastParentBounds = parent.getBounds();
 			
-			int y = 4;
-			int x = 1;
+			int minSum = 0;
+			for (Component component : parent.getComponents()) {
+				minSum += component.getMinimumSize().height;
+			}
+
+			Set<Component> verticallyGrowingComponents = new HashSet<>();
+			for (Component component : parent.getComponents()) {
+				if (component.getPreferredSize().height > component.getMinimumSize().height) {
+					verticallyGrowingComponents.add(component);
+				}
+			}
+			
+			// the last one always gets to grow
+			if (parent.getComponentCount() > 0) {
+				verticallyGrowingComponents.add(parent.getComponent(parent.getComponentCount() - 1));
+			}
+			
+			int y = 0;		
+			int x = 0;
 			int width = parent.getWidth();
 			int widthWithoutIns = width - x;
+//			int moreThanMin = parent.getHeight() - minSum;
+			int moreThanMin = contentScrollPane.getHeight() - minSum;
+			if (moreThanMin < 0) {
+				verticallyGrowingComponents.clear();
+			}
 			for (Component component : parent.getComponents()) {
-				int height = component.getPreferredSize().height;
+				int height = component.getMinimumSize().height;
+				if (verticallyGrowingComponents.contains(component)) {
+					height += moreThanMin / verticallyGrowingComponents.size();
+				}
 				component.setBounds(x, y, widthWithoutIns, height);
 				y += height;
 			}
+			
 			size = new Dimension(width, y);
 			preferredSize = new Dimension(100, y);
 		}
@@ -225,11 +282,13 @@ public class SwingTab extends EditablePanel {
 		@Override
 		public void addLayoutComponent(String name, Component comp) {
 			lastParentBounds = null;
+			preferredSize = null;
 		}
 
 		@Override
 		public void removeLayoutComponent(Component comp) {
 			lastParentBounds = null;
+			preferredSize = null;
 		}
 	}
 
@@ -281,23 +340,10 @@ public class SwingTab extends EditablePanel {
 			}
 		} else {
 			if (asTopPage) {
-				verticalPanel.removeAll();
 				history.add(page);
 			} else {
 				this.page = page;
-				Component firstComponent = switchContent.getComponent(0);
-				if (firstComponent != splitPane) {
-					splitPane.setLeftComponent(firstComponent);
-					switchContent.show(splitPane);
-				}
-				
-				JComponent content = (JComponent) page.getContent();
-				JPopupMenu menu = createMenu(page.getMenu());
-				content.setComponentPopupMenu(menu);
-				setInheritMenu(content);
-				verticalPanel.add(content, "");
-				verticalPanel.getParent().revalidate();
-				verticalPanel.getParent().repaint();
+				addPage(page);
 			}
 		}
 	}

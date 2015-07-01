@@ -7,7 +7,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.swing.lookAndFeel.LookAndFeelAction;
 import org.minimalj.frontend.swing.lookAndFeel.PrintLookAndFeel;
@@ -23,50 +22,22 @@ public class SwingMenuBar extends JMenuBar {
 	
 	private final SwingTab tab;
 
-	private JMenu fileMenu;
-	private JMenu newSubMenu;
-	
 	public SwingMenuBar(SwingTab tab) {
 		super();
 		this.tab = tab;
 
-		fileMenu = createFileMenu();
-		add(fileMenu);
+		add(createFileMenu());
 		add(createEditMenu());
 		add(createViewMenu());
 		add(createWindowMenu());
 	}
 	
-	protected void updateMenu() {
-		updateFileMenu();
-		if (getParent() != null) {
-			getParent().revalidate();
-			getParent().repaint();
-		}
-	}
-	
-	private void updateFileMenu() {
-		if (newSubMenu != null) {
-			fileMenu.remove(newSubMenu);
-		}
-		List<Action> actionsNew = Application.getApplication().getActionsNew();
-		newSubMenu = menu("new", actionsNew);
-		if (!actionsNew.isEmpty()) {
-			fileMenu.add(newSubMenu, 0);
-		}
-	}
-
 	private JMenu createFileMenu() {
 		JMenu menu = menu("file");
 		
 		menu.add(new JMenuItem(tab.frame.closeWindowAction));
 		menu.add(new JMenuItem(tab.closeTabAction));
 		menu.addSeparator();
-		List<Action> actionsImport = Application.getApplication().getActionImport();
-		if (!actionsImport.isEmpty()) menu.add(menu("import", actionsImport));
-		List<Action> actionsExport = Application.getApplication().getActionExport();
-		if (!actionsExport.isEmpty()) menu.add(menu("export", actionsExport));
-		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) menu.addSeparator();
 		menu.add(new JMenuItem(tab.frame.exitAction));
 		return menu;
 	}
@@ -81,11 +52,6 @@ public class SwingMenuBar extends JMenuBar {
 	
 	private JMenu createViewMenu() {
 		JMenu menu = menu("view");
-		List<Action> actionsView = Application.getApplication().getActionView();
-		if (!actionsView.isEmpty()) {
-			addActions(menu, actionsView);
-			menu.addSeparator();
-		}
 		menu.add(new JMenuItem(tab.previousAction));
 		menu.add(new JMenuItem(tab.nextAction));
 		menu.add(new JMenuItem(tab.refreshAction));
@@ -146,9 +112,4 @@ public class SwingMenuBar extends JMenuBar {
 			}
 		}
 	}
-	
-	void onHistoryChanged() {
-		updateMenu();
-	}
-
 }	

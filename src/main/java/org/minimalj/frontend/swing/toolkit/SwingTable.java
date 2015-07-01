@@ -1,6 +1,7 @@
 package org.minimalj.frontend.swing.toolkit;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -53,6 +55,8 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setRowSelectionAllowed(true);
 		table.setFillsViewportHeight(true);
+		
+		setBorder(BorderFactory.createEmptyBorder());
 		
 //		setDefaultRenderer(BooleanFormat.class, new BooleanTableCellRenderer());
 		table.setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
@@ -231,5 +235,21 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 
+	@Override
+	public Dimension getMinimumSize() {
+		Dimension header = table.getTableHeader().getMinimumSize();
+		return new Dimension(0, header.height + 10 * table.getRowHeight());
+	};
+
+	@Override
+	public Dimension getPreferredSize() {
+		Dimension minimum = getMinimumSize();
+		return new Dimension(30000, minimum.height);
+	}
+	
+	@Override
+	public Dimension getMaximumSize() {
+		return new Dimension(30000, 30000);
+	};
 
 }
