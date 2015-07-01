@@ -21,7 +21,7 @@ public class MjExampleApplication extends Application {
 	}
 
 	@Override
-	public List<Action> getActionsNew() {
+	public List<Action> getMenu() {
 		List<Action> items = new ArrayList<>();
 		items.add(new AddBookEditor());
 		items.add(new AddCustomerEditor());

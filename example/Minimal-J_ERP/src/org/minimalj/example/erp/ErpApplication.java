@@ -1,5 +1,6 @@
 package org.minimalj.example.erp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.application.Application;
@@ -22,20 +23,21 @@ public class ErpApplication extends Application {
 	}
 
 	@Override
-	public List<Action> getActionsNew() {
-		ActionGroup menu = new ActionGroup(null);
-		menu.add(new AddCustomerEditor());
-		menu.add(new AddArticleEditor());
-		return menu.getItems();
+	public List<Action> getMenu() {
+		List<Action> actions = new ArrayList<>();
+		
+		ActionGroup customerActions = new ActionGroup("Kunden");
+		actions.add(customerActions);
+		customerActions.add(new AddCustomerEditor());
+		customerActions.add(new CustomerTablePage());
+		
+		ActionGroup articleActions = new ActionGroup("Artikel");
+		actions.add(articleActions);
+		articleActions.add(new AddArticleEditor());
+		
+		return actions;
 	}	
 	
-	@Override
-	public List<Action> getActionView() {
-		ActionGroup menu = new ActionGroup(null);
-		menu.add(new CustomerTablePage());
-		return menu.getItems();
-	}
-
 	@Override
 	public SearchPage[] getSearchPages() {
 		return new SearchPage[] { new ArticleSearchPage(), new CustomerSearchPage() };

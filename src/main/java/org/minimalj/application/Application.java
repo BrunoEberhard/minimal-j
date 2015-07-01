@@ -189,22 +189,9 @@ public abstract class Application {
 		return new EmptyPage();
 	}
 	
-	public List<Action> getActionsNew() {
+	public List<Action> getMenu() {
 		return Collections.emptyList();
 	}
-
-	public List<Action> getActionImport() {
-		return Collections.emptyList();
-	}
-
-	public List<Action> getActionExport() {
-		return Collections.emptyList();
-	}
-
-	public List<Action> getActionView() {
-		return Collections.emptyList();
-	}
-	
 	
 	static {
 		// Feel free to set your own log format. For me the two line default format of java is terrible.

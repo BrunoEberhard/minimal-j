@@ -17,7 +17,7 @@ public class EventManager extends Application {
 	}
 
 	@Override
-	public List<Action> getActionsNew() {
+	public List<Action> getMenu() {
 		List<Action> actions = new ArrayList<>();
 		actions.add(new AddPersonEditor());
 		return actions;
