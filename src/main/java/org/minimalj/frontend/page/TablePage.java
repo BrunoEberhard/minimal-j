@@ -73,8 +73,8 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 				objectPage.setObject(selectedDetailObject);
 			} else {
 				objectPage = createPage(selectedDetailObject);
+				ClientToolkit.getToolkit().show(objectPage, this);
 			}
-			ClientToolkit.getToolkit().show(objectPage, this);
 		}
 	}
 	
