@@ -100,7 +100,7 @@ public class Resources {
 		}
 	}
 	
-	private static void reportMissing(String resourceName, boolean reportIfMissing) {
+	public static void reportMissing(String resourceName, boolean reportIfMissing) {
 		if (reportIfMissing && DevMode.isActive()) {
 			System.out.println(resourceName + "=");
 		}
@@ -177,26 +177,32 @@ public class Resources {
 		return "'" + qualifiedKey + "'";
 	}
 	
-	public static String getActionName(Class<?> clazz) {
-		// specific name of action
+	public static String getActionResourceName(Class<?> clazz) {
+		// qualified name of action
 		if (Resources.isAvailable(clazz.getName())) {
-			return Resources.getString(clazz.getName());
+			return clazz.getName();
 		} 
 
-		// specific name of edited class
+		// qualified name of edited class
+		Class<?> clazz2 = null;
 		if (Editor.class.isAssignableFrom(clazz)) {
-			Class clazz2 = GenericUtils.getGenericClass(clazz);
-			if (clazz2 != null && Resources.isAvailable(clazz2.getName())) {
-				return Resources.getString(clazz2.getName());
-			}
+			clazz2 = GenericUtils.getGenericClass(clazz);
+		}
+		if (clazz2 != null && Resources.isAvailable(clazz2.getName())) {
+			return clazz2.getName();
 		}
 		
 		// simple name of action
-		if (clazz == null || Resources.isAvailable(clazz.getSimpleName())) {
-			return Resources.getString(clazz.getSimpleName());
+		if (Resources.isAvailable(clazz.getSimpleName())) {
+			return clazz.getSimpleName();
 		}
 		
-		return "'" + clazz.getSimpleName() + "'";
+		// simple name of edited class
+		if (clazz2 != null && Resources.isAvailable(clazz2.getSimpleName())) {
+			return clazz2.getSimpleName();
+		}
+		
+		return clazz.getSimpleName();
 	}
 	
 }

@@ -10,7 +10,7 @@ import org.minimalj.util.resources.Resources;
  */
 public abstract class Action {
 
-	private String name;
+	private final String name;
 	private String description;
 	private boolean enabled = true;
 	private ActionChangeListener changeListener;
@@ -20,14 +20,13 @@ public abstract class Action {
 	 * class name.
 	 */
 	protected Action() {
-		this(null);
+		String resourceName = Resources.getActionResourceName(getClass());
+		this.name = Resources.getString(resourceName);
+		this.description = Resources.getString(resourceName + ".description", Resources.OPTIONAL);
 	}
 	
-	protected Action(String actionName) {
-		this.name = actionName == null ? Resources.getActionName(getClass()) : Resources.getString(actionName);
-		if (actionName != null) {
-			this.description = Resources.getString(actionName + ".description", Resources.OPTIONAL);
-		}
+	protected Action(String name) {
+		this.name = name;
 	}
 	
 	public String getName() {
@@ -52,18 +51,6 @@ public abstract class Action {
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
 			fireChange();
-		}
-	}
-
-	/**
-	 * Note: this is not supported yet. You cannot change name
-	 * of an action.
-	 * 
-	 * @param name New name display for this action
-	 */
-	public void setName(String name) {
-		if (!StringUtils.equals(this.name, name)) {
-			throw new IllegalArgumentException("Name of action cannot be changed");
 		}
 	}
 
