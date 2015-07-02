@@ -196,16 +196,19 @@ public class SwingTab extends EditablePanel {
 	
 	private void addPage(Page page) {
 		pages.add(page);
+		verticalPanel.add(new SwingPageBar(page.getTitle()));
+
 		JComponent content = (JComponent) page.getContent();
 		if (content != null) {
 			JPopupMenu menu = createMenu(page.getMenu());
 			content.setComponentPopupMenu(menu);
 			setInheritMenu(content);
-			verticalPanel.add(new SwingPageBar(page.getTitle()));
 			verticalPanel.add(content, "");
-			verticalPanel.revalidate();
-			verticalPanel.repaint();
+		} else {
+			verticalPanel.add(new JPanel(), "");
 		}
+		verticalPanel.revalidate();
+		verticalPanel.repaint();
 	}
 	
 	private void closeAllPages() {
