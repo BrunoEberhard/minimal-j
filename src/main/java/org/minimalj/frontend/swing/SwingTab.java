@@ -218,7 +218,6 @@ public class SwingTab extends EditablePanel {
 	
 	public class VerticalLayoutManager implements LayoutManager {
 
-		private Dimension size;
 		private Dimension preferredSize = new Dimension(100, 100);
 		private Rectangle lastParentBounds = null;
 		
@@ -278,7 +277,6 @@ public class SwingTab extends EditablePanel {
 				y += height;
 			}
 			
-			size = new Dimension(width, y);
 			preferredSize = new Dimension(100, y);
 		}
 
