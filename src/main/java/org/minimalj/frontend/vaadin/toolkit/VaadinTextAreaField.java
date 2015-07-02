@@ -123,10 +123,5 @@ public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements IComp
 //	public String getValue() {
 //		return (String) getValue();
 //	}
-//	
-//	@Override
-//	public void setFocusListener(IFocusListener focusListener) {
-//		// TODO Auto-generated method stub
-//	}
-	
+
 }
