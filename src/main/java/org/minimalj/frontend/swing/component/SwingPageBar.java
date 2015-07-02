@@ -46,6 +46,8 @@ public class SwingPageBar extends JMenuBar {
 		button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
 		button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
 		add(button);
+		
+		setPreferredSize(getMinimumSize());
 	}
 
 //	
