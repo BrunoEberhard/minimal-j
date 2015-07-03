@@ -55,7 +55,12 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
 			if (objectPage != null) {
 				DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
-				objectPage.setObject(selectedDetailObject);
+				if (selectedDetailObject != null) {
+					objectPage.setObject(selectedDetailObject);
+				} else {
+					objectPage = null;
+					ClientToolkit.getToolkit().show(this, null);
+				}
 			}
 		}
 			
@@ -73,7 +78,7 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 				objectPage.setObject(selectedDetailObject);
 			} else {
 				objectPage = createPage(selectedDetailObject);
-				ClientToolkit.getToolkit().show(objectPage, this);
+				ClientToolkit.getToolkit().show(this, objectPage);
 			}
 		}
 	}
