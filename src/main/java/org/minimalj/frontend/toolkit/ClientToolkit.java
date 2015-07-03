@@ -118,7 +118,7 @@ public abstract class ClientToolkit {
 	
 	//
 	
-	public void show(Page detail, PageWithDetail ownerPage) {
+	public void show(PageWithDetail parent, Page detail) {
 		show(detail);
 	}
 	

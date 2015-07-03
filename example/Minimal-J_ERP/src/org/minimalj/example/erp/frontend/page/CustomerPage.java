@@ -52,7 +52,7 @@ public class CustomerPage extends ObjectPage<Customer> implements PageWithDetail
 			} else {
 				offerTablePage.setCustomer(getObject());
 			}
-			ClientToolkit.getToolkit().show(offerTablePage, CustomerPage.this);
+			ClientToolkit.getToolkit().show(CustomerPage.this, offerTablePage);
 		}
 	}
 

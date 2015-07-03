@@ -224,8 +224,12 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void show(Page detail, PageWithDetail pageWithDetail) {
-		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(detail, false);
+	public void show(PageWithDetail parent, Page detail) {
+		if (detail != null) {
+			((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(detail, false);
+		} else {
+			((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().hideDetails(parent);
+		}
 	}
 
 	public ProgressListener showProgress(String text) {

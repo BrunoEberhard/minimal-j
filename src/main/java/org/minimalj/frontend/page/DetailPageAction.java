@@ -5,17 +5,17 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 
 public class DetailPageAction extends Action {
 
-	private final Page page;
-	private final PageWithDetail pageWithDetail;
+	private final Page detailPage;
+	private final PageWithDetail parent;
 	
-	public DetailPageAction(Page page, PageWithDetail pageWithDetail) {
-		this.page = page;
-		this.pageWithDetail = pageWithDetail;
+	public DetailPageAction(PageWithDetail parent, Page detailPage) {
+		this.detailPage = detailPage;
+		this.parent = parent;
 	}
 	
 	@Override
 	public void action() {
-		ClientToolkit.getToolkit().show(page, pageWithDetail);
+		ClientToolkit.getToolkit().show(parent, detailPage);
 	}
 	
 }
