@@ -145,17 +145,24 @@ public class DbBackend extends Backend {
 	
 	@Override
 	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameters) {
-		if (queries == null || !queries.containsKey(queryName)) {
-			throw new RuntimeException("Query not available: " + queryName);
-		}
-		String query = queries.get(queryName);
+		String query = getQuery(queryName);
 		T result = persistence.execute(clazz, query, (Object[]) parameters);
 		return result;
 	}
 	
 	@Override
 	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameters) {
-		return persistence.execute(clazz, queryName, maxResults, (Object[]) parameters);
+		String query = getQuery(queryName);
+		return persistence.execute(clazz, query, maxResults, (Object[]) parameters);
 	}
 	
+	private String getQuery(String queryName) {
+		if (queries == null) {
+			throw new RuntimeException("No queries available: " + queryName);
+		} else if (!queries.containsKey(queryName)) {
+			throw new RuntimeException("Query not available: " + queryName);
+		}
+		return queries.get(queryName);
+	}
+
 }
