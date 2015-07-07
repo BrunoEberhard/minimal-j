@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>0.1.0.0</version>
+			<version>0.4.0.0-Snapshot</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
