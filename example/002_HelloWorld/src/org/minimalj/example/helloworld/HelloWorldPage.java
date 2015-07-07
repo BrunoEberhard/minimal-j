@@ -19,9 +19,4 @@ public class HelloWorldPage implements Page {
 		return form;
 	}
 
-	@Override
-	public void refresh() {
-		// nothing to do
-	}
-
 }
