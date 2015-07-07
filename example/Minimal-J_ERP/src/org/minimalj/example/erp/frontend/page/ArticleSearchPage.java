@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Article;
-import org.minimalj.frontend.page.AbstractSearchPage.SimpleSearchPage;
 import org.minimalj.frontend.page.ObjectPage;
+import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
 import org.minimalj.transaction.criteria.Criteria;
 
 
@@ -19,8 +19,8 @@ public class ArticleSearchPage extends SimpleSearchPage<Article> {
 		$.price, //
 	};
 	
-	public ArticleSearchPage() {
-		super(FIELDS);
+	public ArticleSearchPage(String query) {
+		super(query, FIELDS);
 	}
 	
 	@Override
@@ -29,7 +29,7 @@ public class ArticleSearchPage extends SimpleSearchPage<Article> {
 	}
 
 	@Override
-	protected ObjectPage<Article> createPage(Article initialObject) {
+	public ObjectPage<Article> createDetailPage(Article initialObject) {
 		return new ArticlePage(initialObject);
 	}
 }

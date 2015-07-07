@@ -32,9 +32,6 @@
 		if (dataObject["menu"] != undefined) {
 			showMenuBar(dataObject["menu"]);
 		}
-		if (dataObject["searches"] != undefined) {
-			showSearches(dataObject["searches"]);
-		}
 		if (dataObject["dialog"] != undefined) {
 			showDialog(dataObject["dialog"]);
 		}
@@ -43,10 +40,10 @@
 		}
 		if (dataObject["propertyChanges"] != undefined) {
 			var propertyChanges = dataObject["propertyChanges"];
-			for (var id in propertyChanges) {
+			for ( var id in propertyChanges) {
 				var element = document.getElementById(id);
 				if (element != undefined) {
-					for (var property in propertyChanges[id])  {
+					for ( var property in propertyChanges[id]) {
 						var value = propertyChanges[id][property];
 						if (property == "tableContent") {
 							element.appendChild(createTableRows(id, value));
@@ -73,7 +70,7 @@
 		}
 		if (dataObject["contentChanges"] != undefined) {
 			var contentChanges = dataObject["contentChanges"];
-			for (var id in contentChanges) {
+			for ( var id in contentChanges) {
 				var element = document.getElementById(id);
 				if (element != undefined) {
 					for (var i = 0; i < contentChanges[id].length; i++) {
@@ -89,7 +86,7 @@
 				}
 			}
 		}
-		
+
 	}
 	function onError(evt) {
 	}
@@ -371,18 +368,6 @@
 		}
 	}
 
-	function showSearches(searches) {
-		var searchesElement = document.getElementsByName("searchSelection")[0];
-		while (searchesElement.firstChild) {
-			searchesElement.removeChild(searchesElement.firstChild);
-		}
-		for (var i = 0; i < searches.length; i++) {
-			var optionElement = document.createElement("option");
-			optionElement.appendChild(document.createTextNode(searches[i]));
-			searchesElement.appendChild(optionElement);
-		}
-	}
-
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
 		if (dialog.show == undefined) {
@@ -470,7 +455,6 @@
 
 	function search() {
 		var data = {};
-		data["searchName"] = document.getElementsByName("searchSelection")[0].value;
 		data["search"] = document.getElementsByName("query")[0].value;
 		send(data);
 	}
@@ -534,8 +518,8 @@
 		<div id="header">
 			<div id="menu"></div>
 			<div id="search">
-				<select name="searchSelection"></select><input type="text" name="query" value=""
-					onkeydown="if (event.keyCode == 13) search();" /> <input type="submit" value="Search" onclick="search();" />
+				<input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit"
+					value="Search" onclick="search();" />
 			</div>
 		</div>
 		<div id="content"></div>

@@ -10,7 +10,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
-public abstract class HistoryPage<T> implements Page {
+public abstract class HistoryPage<T> extends Page {
 
 	private transient ITable<HistoryVersion<T>> table;
 	

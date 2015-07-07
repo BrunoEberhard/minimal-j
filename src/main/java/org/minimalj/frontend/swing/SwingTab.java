@@ -349,14 +349,14 @@ public class SwingTab extends EditablePanel {
 		}
 	}
 
-	public void hideDetails(Page page) {
+	public void hide(Page page) {
 		int index;
 		for (index = 0; index < pages.size(); index++) {
 			if (pages.get(index) == page) {
 				break;
 			}
 		}
-		for (int index2 = pages.size() - 1; index2 > index; index2--) {
+		for (int index2 = pages.size() - 1; index2 >= index; index2--) {
 			pages.remove(index2);
 			// remove bar and content
 			verticalPanel.remove(verticalPanel.getComponentCount()-1);
@@ -364,6 +364,10 @@ public class SwingTab extends EditablePanel {
 		}
 		verticalPanel.revalidate();
 		verticalPanel.repaint();
+	}
+	
+	public boolean isShown(Page page) {
+		return pages.contains(page);
 	}
 	
 	private JPopupMenu createMenu(ActionGroup actionGroup) {

@@ -13,7 +13,6 @@ import org.minimalj.backend.SocketBackendServer;
 import org.minimalj.backend.db.DbBackend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.vaadin.VaadinFrontend;
@@ -181,10 +180,10 @@ public abstract class Application {
 		return null;
 	}
 	
-	public SearchPage[] getSearchPages() {
-		return new SearchPage[0];
+	public Page createSearchPage(String query) {
+		return new EmptyPage();
 	}
-	
+
 	public Page createDefaultPage() {
 		return new EmptyPage();
 	}

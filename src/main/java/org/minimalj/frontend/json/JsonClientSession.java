@@ -13,7 +13,6 @@ import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.json.JsonComponent.JsonPropertyListener;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -83,14 +82,8 @@ public class JsonClientSession {
 		
 		String search = (String) input.getObject("search");
 		if (search != null) {
-			String searchName = (String) input.getObject("searchName");
-			for (SearchPage searchPage : Application.getApplication().getSearchPages()) {
-				if (searchPage.getName().equals(searchName)) {
-					searchPage.setQuery(search);
-					showPage(searchPage);
-					break;
-				}
-			}
+			Page searchPage = Application.getApplication().createSearchPage(search);
+			showPage(searchPage);
 		}
 
 		JsonClientToolkit.setSession(null);
@@ -112,9 +105,6 @@ public class JsonClientSession {
 		Object menu = createMenu(page);
 		register(menu);
 		output.add("menu", menu);
-		
-		Object searchNames = getSearchNames();
-		output.add("searches", searchNames);
 		
 		pageById.put(pageId, page);
 		output.add("pageId", pageId);
@@ -169,14 +159,6 @@ public class JsonClientSession {
 		}
 		item.put("name", action.getName());
 		return item;
-	}
-	
-	List<Object> getSearchNames() {
-		List<Object> names = new ArrayList<>();
-		for (SearchPage searchPage : Application.getApplication().getSearchPages()) {
-			names.add(searchPage.getName());
-		}
-		return names;
 	}
 
 	public void register(Object o) {

@@ -13,10 +13,11 @@ import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
  *
  * @param <T> Class of objects in this overview
  */
-public abstract class TablePage<T> implements Page, TableActionListener<T> {
+public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
 	private final Object[] keys;
 	private transient ITable<T> table;
+	private transient List<T> objects;
 	
 	public TablePage(Object[] keys) {
 		this.keys = keys;
@@ -27,59 +28,60 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	@Override
 	public IContent getContent() {
 		table = ClientToolkit.getToolkit().createTable(keys, this);
-		List<T> objects = load();
+		if (objects == null) {
+			objects = load();
+		}
 		table.setObjects(objects);
 		return table;
+	}
+
+	public int getResultCount() {
+		if (objects == null) {
+			objects = load();
+		}
+		return objects.size();
 	}
 	
 	public void refresh() {
 		if (table != null) {
-			List<T> objects = load();
+			objects = load();
 			table.setObjects(objects);
 		}
 	}
 	
-	public static abstract class TablePageWithDetail<T, DETAIL> extends TablePage<T> implements PageWithDetail {
+	public static abstract class TablePageWithDetail<T, DETAIL> extends TablePage<T> {
 		
 		public TablePageWithDetail(Object[] keys) {
 			super(keys);
 		}
 
-		private ObjectPage<DETAIL> objectPage;
+		private ObjectPage<DETAIL> detailPage;
 		
 		protected abstract DETAIL load(T searchObject);
 		
-		protected abstract ObjectPage<DETAIL> createPage(DETAIL initialObject);
+		protected abstract ObjectPage<DETAIL> createDetailPage(DETAIL initialObject);
 	
 		@Override
 		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
-			if (objectPage != null) {
+			if (detailPage != null && ClientToolkit.getToolkit().isDetailShown(detailPage)) {
 				DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
 				if (selectedDetailObject != null) {
-					objectPage.setObject(selectedDetailObject);
+					detailPage.setObject(selectedDetailObject);
 				} else {
-					objectPage = null;
-					ClientToolkit.getToolkit().show(this, null);
+					ClientToolkit.getToolkit().hideDetail(detailPage);
 				}
-			}
-		}
-			
-		@Override
-		public void detailClosed(Page page) {
-			if (page == objectPage) {
-				objectPage = null;
 			}
 		}
 		
 		@Override
 		public void action(T selectedObject) {
 			DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
-			if (objectPage != null) {
-				objectPage.setObject(selectedDetailObject);
+			if (detailPage != null) {
+				detailPage.setObject(selectedDetailObject);
 			} else {
-				objectPage = createPage(selectedDetailObject);
-				ClientToolkit.getToolkit().show(this, objectPage);
+				detailPage = createDetailPage(selectedDetailObject);
 			}
+			ClientToolkit.getToolkit().showDetail(detailPage);
 		}
 	}
 	

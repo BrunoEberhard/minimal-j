@@ -13,16 +13,16 @@ import org.minimalj.util.resources.Resources;
  * getContent().
  *
  */
-public interface Page {
+public abstract class Page {
 	
-	public default String getTitle() {
+	public String getTitle() {
 		return Resources.getString(getClass());
 	}
 	
-	public IContent getContent();
+	public abstract IContent getContent();
 	
 	// TODO rename to getActions, return Array of Actions
-	public default ActionGroup getMenu() {
+	public ActionGroup getMenu() {
 		return null;
 	}
 }

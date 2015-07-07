@@ -1,17 +1,13 @@
 package org.minimalj.frontend.lanterna;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.lanterna.component.Select;
 import org.minimalj.frontend.lanterna.toolkit.LanternaActionAdapater;
 import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.util.resources.Resources;
 
@@ -106,25 +102,11 @@ public class LanternaMenuPanel extends Panel {
 		}
 	}
 
-	private Select<String> comboBoxSearchObject;
 	private TextBox textFieldSearch;
-	private Map<String, SearchPage> searchPageByObjectName = new HashMap<String, SearchPage>();
 
 	protected Panel createSearchField() {
 		Panel panel = new Panel();
 		panel.setLayoutManager(new HorisontalLayout());
-
-		SearchPage[] searchPages = Application.getApplication().getSearchPages();
-		List<String> objectNameList = new ArrayList<>();
-		for (SearchPage searchPage : searchPages) {
-			String objectName = searchPage.getName();
-			objectNameList.add(objectName);
-			searchPageByObjectName.put(objectName, searchPage);
-		}
-
-		comboBoxSearchObject = new Select<>();
-		comboBoxSearchObject.setObjects(objectNameList);
-		panel.addComponent(comboBoxSearchObject);
 
 		textFieldSearch = new TextBox();
 		panel.addComponent(textFieldSearch);
@@ -150,9 +132,8 @@ public class LanternaMenuPanel extends Panel {
 		@Override
 		public void action() {
 			LanternaClientToolkit.setGui(guiScreen);
-			SearchPage searchPage = searchPageByObjectName.get(comboBoxSearchObject.getSelectedObject());
 			String query = textFieldSearch.getText();
-			searchPage.setQuery(query);
+			Page searchPage = Application.getApplication().createSearchPage(query);
 			LanternaClientToolkit.getGui().show(searchPage);
 			LanternaClientToolkit.setGui(null);
 		}

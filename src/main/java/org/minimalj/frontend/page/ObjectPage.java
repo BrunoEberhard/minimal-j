@@ -7,7 +7,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 
-public abstract class ObjectPage<T> implements Page {
+public abstract class ObjectPage<T> extends Page {
 
 	private final Class<T> objectClass;
 	private Object objectId;

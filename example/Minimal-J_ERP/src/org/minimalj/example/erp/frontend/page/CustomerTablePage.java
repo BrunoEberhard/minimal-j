@@ -21,7 +21,7 @@ public class CustomerTablePage extends SimpleTablePageWithDetail<Customer> {
 	}
 
 	@Override
-	protected ObjectPage<Customer> createPage(Customer customer) {
+	protected ObjectPage<Customer> createDetailPage(Customer customer) {
 		return new CustomerPage(customer);
 	}
 

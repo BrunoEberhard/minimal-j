@@ -12,6 +12,7 @@ import org.minimalj.example.library.frontend.page.CustomerSearchPage;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.Action;
 
@@ -30,8 +31,10 @@ public class MjExampleApplication extends Application {
 	}
 
 	@Override
-	public SearchPage[] getSearchPages() {
-		return new SearchPage[]{new BookSearchPage(), new CustomerSearchPage()};
+	public Page createSearchPage(String query) {
+		BookSearchPage bookSearchPage = new BookSearchPage(query);
+		CustomerSearchPage customerSearchPage = new CustomerSearchPage(query);
+		return SearchPage.handle(bookSearchPage, customerSearchPage);
 	}
 
 	@Override

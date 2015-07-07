@@ -6,7 +6,6 @@ import org.minimalj.application.Application;
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
@@ -18,7 +17,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -33,7 +31,6 @@ public class VaadinWindow extends Window {
 
 	private final VerticalLayout windowContent = new VerticalLayout();
 	private final VaadinMenuBar menubar = new VaadinMenuBar(this);
-	private final ComboBox comboBox = new ComboBox();
 	private final TextField textFieldSearch = new TextField();
 	private final ApplicationContext applicatonContext;
 	
@@ -64,11 +61,9 @@ public class VaadinWindow extends Window {
 		nav.setExpandRatio(menubar, 1.0F);
 		nav.setComponentAlignment(menubar, Alignment.MIDDLE_LEFT);
 		
-		if (Application.getApplication().getSearchPages().length > 0) {
-			Component searchComponent = createSearchField();
-			nav.addComponent(searchComponent);
-			nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
-		}
+		Component searchComponent = createSearchField();
+		nav.addComponent(searchComponent);
+		nav.setComponentAlignment(searchComponent, Alignment.MIDDLE_RIGHT);
 		
 		VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(false);
@@ -80,15 +75,6 @@ public class VaadinWindow extends Window {
 	private Component createSearchField() {
 		final HorizontalLayout horizontalLayout = new HorizontalLayout();
 
-		comboBox.setNullSelectionAllowed(false);
-		for (SearchPage searchPage : Application.getApplication().getSearchPages()) {
-			comboBox.addItem(searchPage);
-			comboBox.setItemCaption(searchPage, searchPage.getName());
-		}
-		
-		comboBox.setValue(comboBox.getItemIds().iterator().next());
-		horizontalLayout.addComponent(comboBox);
-		
         textFieldSearch.setWidth("160px");
         horizontalLayout.addComponent(textFieldSearch);
         
@@ -116,8 +102,8 @@ public class VaadinWindow extends Window {
     }
 
 	private void showSearchPage() {
-		SearchPage searchPage = (SearchPage) comboBox.getValue();
-		searchPage.setQuery((String) textFieldSearch.getValue());
+		String query = (String) textFieldSearch.getValue();
+		Page searchPage = Application.getApplication().createSearchPage(query);
 		show(searchPage);
 	}
 	

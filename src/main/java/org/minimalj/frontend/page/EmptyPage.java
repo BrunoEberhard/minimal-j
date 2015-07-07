@@ -2,7 +2,7 @@ package org.minimalj.frontend.page;
 
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 
-public class EmptyPage implements Page {
+public class EmptyPage extends Page {
 
 	public EmptyPage() {
 	}

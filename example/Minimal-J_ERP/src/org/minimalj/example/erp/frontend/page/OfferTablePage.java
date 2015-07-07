@@ -50,7 +50,7 @@ public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 	}
 
 	@Override
-	protected ObjectPage<Offer> createPage(Offer offer) {
+	protected ObjectPage<Offer> createDetailPage(Offer offer) {
 		return new OfferPage(offer);
 	}
 	

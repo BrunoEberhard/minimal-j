@@ -7,12 +7,10 @@ import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageWithDetail;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 
-public class CustomerPage extends ObjectPage<Customer> implements PageWithDetail {
+public class CustomerPage extends ObjectPage<Customer> {
 
 	private OfferTablePage offerTablePage;
 	
@@ -52,7 +50,7 @@ public class CustomerPage extends ObjectPage<Customer> implements PageWithDetail
 			} else {
 				offerTablePage.setCustomer(getObject());
 			}
-			ClientToolkit.getToolkit().show(CustomerPage.this, offerTablePage);
+			ClientToolkit.getToolkit().showDetail(offerTablePage);
 		}
 	}
 
@@ -66,13 +64,6 @@ public class CustomerPage extends ObjectPage<Customer> implements PageWithDetail
 		@Override
 		protected Customer save(Customer customer) {
 			return Backend.getInstance().update(customer);
-		}
-	}
-
-	@Override
-	public void detailClosed(Page page) {
-		if (page == offerTablePage) {
-			offerTablePage = null;
 		}
 	}
 

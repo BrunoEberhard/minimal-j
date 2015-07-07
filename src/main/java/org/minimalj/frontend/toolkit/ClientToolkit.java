@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageWithDetail;
 
 /**
  * To provide a new kind of client you have to implement two things:
@@ -118,12 +117,20 @@ public abstract class ClientToolkit {
 	
 	//
 	
-	public void show(PageWithDetail parent, Page detail) {
-		show(detail);
-	}
-	
 	public abstract void show(Page page);
 
+	public void showDetail(Page page) {
+		show(page);
+	}
+	
+	public void hideDetail(Page page) {
+		// do nothing
+	}
+	
+	public boolean isDetailShown(Page page) {
+		return false;
+	}
+	
 	public abstract void refresh();
 
 	public abstract ApplicationContext getApplicationContext();

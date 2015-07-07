@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Book;
-import org.minimalj.frontend.page.AbstractSearchPage.SimpleSearchPage;
 import org.minimalj.frontend.page.ObjectPage;
+import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
 import org.minimalj.transaction.criteria.Criteria;
 
 
@@ -22,8 +22,8 @@ public class BookSearchPage extends SimpleSearchPage<Book> {
 		$.available, //
 	};
 	
-	public BookSearchPage() {
-		super(FIELDS);
+	public BookSearchPage(String query) {
+		super(query, FIELDS);
 	}
 	
 	@Override
@@ -32,7 +32,7 @@ public class BookSearchPage extends SimpleSearchPage<Book> {
 	}
 
 	@Override
-	protected ObjectPage<Book> createPage(Book initialObject) {
+	public ObjectPage<Book> createDetailPage(Book initialObject) {
 		return new BookPage(initialObject);
 	}
 

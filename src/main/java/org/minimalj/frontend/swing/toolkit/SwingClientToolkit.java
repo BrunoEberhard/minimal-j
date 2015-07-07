@@ -37,7 +37,6 @@ import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.ApplicationContext;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageWithDetail;
 import org.minimalj.frontend.swing.SwingFrame;
 import org.minimalj.frontend.swing.SwingFrontend;
 import org.minimalj.frontend.swing.SwingTab;
@@ -224,14 +223,22 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public void show(PageWithDetail parent, Page detail) {
-		if (detail != null) {
+	public void showDetail(Page detail) {
+		if (!isDetailShown(detail)) {
 			((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(detail, false);
-		} else {
-			((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().hideDetails(parent);
 		}
 	}
 
+	@Override
+	public void hideDetail(Page page) {
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().hide(page);
+	}
+	
+	@Override
+	public boolean isDetailShown(Page page) {
+		return ((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().isShown(page);
+	}
+	
 	public ProgressListener showProgress(String text) {
 		SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
 		getTab().openModalDialog(frame);
