@@ -28,7 +28,6 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.swing.component.EditablePanel;
@@ -200,7 +199,7 @@ public class SwingTab extends EditablePanel {
 
 		JComponent content = (JComponent) page.getContent();
 		if (content != null) {
-			JPopupMenu menu = createMenu(page.getMenu());
+			JPopupMenu menu = createMenu(page.getActions());
 			content.setComponentPopupMenu(menu);
 			setInheritMenu(content);
 			verticalPanel.add(content, "");
@@ -370,10 +369,10 @@ public class SwingTab extends EditablePanel {
 		return pages.contains(page);
 	}
 	
-	private JPopupMenu createMenu(ActionGroup actionGroup) {
-		if (actionGroup != null && actionGroup.getItems() != null) {
-			JPopupMenu menu = new JPopupMenu(actionGroup.getName());
-			addActions(menu, actionGroup.getItems());
+	private JPopupMenu createMenu(List<org.minimalj.frontend.toolkit.Action> actions) {
+		if (actions != null && actions.size() > 0) {
+			JPopupMenu menu = new JPopupMenu();
+			addActions(menu, actions);
 			return menu;
 		}
 		return null;

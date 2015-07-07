@@ -187,10 +187,10 @@ public class JsonClientSession {
 	}
 
 	private Map<String, Object> createObjectMenu(Page page) {
-		ActionGroup actionGroup = page.getMenu();
-		if (actionGroup != null && actionGroup.getItems() != null) {
-			Map<String, Object> objectMenu = createAction(actionGroup);
-			objectMenu.put("items", createActions(actionGroup.getItems()));
+		List<Action> actions = page.getActions();
+		if (actions != null && actions.size() > 0) {
+			Map<String, Object> objectMenu = new JsonAction.JsonActionGroup();
+			objectMenu.put("items", createActions(actions));
 			return objectMenu;
 		}
 		return null;

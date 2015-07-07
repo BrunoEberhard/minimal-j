@@ -1,11 +1,15 @@
 package org.minimalj.example.erp.frontend.page;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.form.ArticleForm;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
+import org.minimalj.frontend.toolkit.Action;
 
 public class ArticlePage extends ObjectPage<Article> {
 
@@ -14,10 +18,8 @@ public class ArticlePage extends ObjectPage<Article> {
 	}
 	
 	@Override
-	public ActionGroup getMenu() {
-		ActionGroup menu = new ActionGroup("Article");
-		menu.add(new ArticleEditorAction());
-		return menu;
+	public List<Action> getActions() {
+		return Arrays.asList(new ActionGroup("Article"));
 	}
 
 	@Override

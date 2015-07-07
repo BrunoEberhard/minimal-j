@@ -58,10 +58,10 @@ public class VaadinMenuBar extends MenuBar {
 	
 	private void createObjectMenu() {
 		Page visiblePage = vaadinWindow.getVisiblePage();
-		ActionGroup actionGroup = visiblePage.getMenu();
-		if (actionGroup != null && actionGroup.getItems() != null) {
-			MenuBar.MenuItem menu = addItem(actionGroup.getName(), null);
-			addActions(menu, actionGroup.getItems());
+		List<Action> actions = visiblePage.getActions();
+		if (actions != null && actions.size() > 0) {
+			MenuBar.MenuItem menu = addItem("Actions", null);
+			addActions(menu, actions);
 		}
 	}
 

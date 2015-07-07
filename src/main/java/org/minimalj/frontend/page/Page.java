@@ -1,5 +1,8 @@
 package org.minimalj.frontend.page;
 
+import java.util.List;
+
+import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.util.resources.Resources;
 
@@ -21,8 +24,7 @@ public abstract class Page {
 	
 	public abstract IContent getContent();
 	
-	// TODO rename to getActions, return Array of Actions
-	public ActionGroup getMenu() {
+	public List<Action> getActions() {
 		return null;
 	}
 }

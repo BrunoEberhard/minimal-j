@@ -47,8 +47,8 @@ public class LanternaMenuPanel extends Panel {
 
 		createMenu("Menu", Application.getApplication().getMenu());
 
-		if (page != null && page.getMenu() != null) {
-			createMenu("Actions", page.getMenu().getItems());
+		if (page != null && page.getActions() != null) {
+			createMenu("Actions", page.getActions());
 		}
 	}
 
