@@ -20,6 +20,8 @@
 		<sourceDirectory>src</sourceDirectory>
 	</build>
 	<dependencies>
+		<!-- to reference eclipse project and not jar use: -->
+		<!-- mvn -Declipse.workspace=c:\projects\workspaces\minimal-j eclipse:eclipse -->
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>

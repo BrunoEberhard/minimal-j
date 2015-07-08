@@ -5,7 +5,7 @@ import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.frontend.toolkit.FormContent;
 
-public class HelloWorldPage implements Page {
+public class HelloWorldPage extends Page {
 
 	@Override
 	public String getTitle() {
