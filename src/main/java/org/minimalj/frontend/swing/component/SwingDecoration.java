@@ -1,10 +1,12 @@
 package org.minimalj.frontend.swing.component;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 
@@ -14,59 +16,77 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JPanel;
 
-public class SwingPageBar extends JMenuBar {
+public class SwingDecoration extends JPanel {
 	private static final long serialVersionUID = 1L;
-
-	public SwingPageBar(String title) {
-		this(title, null);
+	
+	private final String title;
+	private final Component content;
+	private final ActionListener closeListener;
+	
+	public SwingDecoration(String title, Component content, ActionListener closeListener) {
+		super(new BorderLayout());
+		this.title = title;;
+		this.content = content;
+		this.closeListener = closeListener;
+		
+		add(createBar(), BorderLayout.NORTH);
+		
+		content.setVisible(true);
+		add(content, BorderLayout.CENTER);
 	}
 	
-	public SwingPageBar(String title, ActionListener closeListener) {
+	public void setContentVisible() {
+		content.setVisible(true);
+		content.getParent().revalidate();
+		content.getParent().repaint();
+	}
+	
+	private Component createBar() {
+		JMenuBar bar = new JMenuBar();
+		
 		JLabel label = new JLabel(title);
 		label.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 0));
-		add(label);
+		bar.add(label);
 
+			
+		bar.add(Box.createHorizontalGlue());
+			
+		JButton button = new JButton();
+		button.setFocusPainted(false);
+		button.setMargin(new Insets(0,0,0,0));
+		button.setIcon(new FrameButtonIcon(Part.WP_MINBUTTON));
+		button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+		button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+		bar.add(button);
+			
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				content.setVisible(!content.isShowing());
+				content.getParent().revalidate();
+				content.getParent().repaint();
+			}
+		});
+		
 		if (closeListener != null) {
-			
-			add(Box.createHorizontalGlue());
-			
-//			JButton button = new JButton();
-//			button.setFocusPainted(false);
-//			button.setMargin(new Insets(0,0,0,0));
-//			button.setIcon(new FrameButtonIcon(Part.WP_MINBUTTON));
-//			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-//			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-//			add(button);
-//			
-//			button = new JButton();
-//			button.setFocusPainted(false);
-//			button.setMargin(new Insets(0, 0, 0, 0));
-//			button.setIcon(new FrameButtonIcon(Part.WP_MAXBUTTON));
-//			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-//			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-//			add(button);
-			
-			JButton button = new JButton();
+			button = new JButton();
 			button.setFocusPainted(false);
 			button.setMargin(new Insets(0, 0, 0, 0));
 			button.setIcon(new FrameButtonIcon(Part.WP_CLOSEBUTTON));
 			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
 			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-			add(button);
+			bar.add(button);
 			button.addActionListener(closeListener);
 		}
 		
-		setPreferredSize(getMinimumSize());
+		bar.setPreferredSize(bar.getMinimumSize());
+		
+		return bar;
 	}
-
-//	
 	
-//    maxIcon = UIManager.getIcon("InternalFrame.maximizeIcon");
-//    minIcon = UIManager.getIcon("InternalFrame.minimizeIcon");
-//    iconIcon = UIManager.getIcon("InternalFrame.iconifyIcon");
-//    closeIcon = UIManager.getIcon("InternalFrame.closeIcon");
- 
+	
 	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, WP_MAXBUTTON, WP_RESTOREBUTTON };
 
 	private static class FrameButtonIcon implements Icon, Serializable {
@@ -151,5 +171,4 @@ public class SwingPageBar extends JMenuBar {
             return 16;
         }
     }
-    
 }

@@ -1,6 +1,5 @@
 package org.minimalj.frontend.swing;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -10,7 +9,6 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import org.minimalj.frontend.page.ActionGroup;
-import org.minimalj.frontend.swing.component.SwingPageBar;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingActionLabel;
 import org.minimalj.frontend.swing.toolkit.SwingLabel;
 import org.minimalj.frontend.toolkit.Action;
@@ -19,12 +17,6 @@ import org.minimalj.frontend.toolkit.Action;
 public class ActionTree extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	public ActionTree(List<Action> actions, String title) {
-		super(new BorderLayout());
-		add(new SwingPageBar(title), BorderLayout.NORTH);
-		add(new ActionTree(actions), BorderLayout.CENTER);
-	}
-	
 	public ActionTree(List<Action> actions) {
 		super(new VerticalLayoutManager());
 		

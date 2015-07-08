@@ -5,13 +5,13 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
-import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +32,7 @@ import org.minimalj.frontend.page.Separator;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
-import org.minimalj.frontend.swing.component.SwingPageBar;
+import org.minimalj.frontend.swing.component.SwingDecoration;
 import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
 
 public class SwingTab extends EditablePanel {
@@ -98,10 +98,10 @@ public class SwingTab extends EditablePanel {
 			}
 		});
 		
-		ActionTree actionTree = new ActionTree(Application.getApplication().getMenu(), Application.getApplication().getName());
-		menuScrollPane = new JScrollPane(actionTree);
+		ActionTree menuTree = new ActionTree(Application.getApplication().getMenu());
+		menuScrollPane = new JScrollPane(menuTree);
 		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		splitPane.setLeftComponent(menuScrollPane);
+		splitPane.setLeftComponent(new SwingDecoration(Application.getApplication().getName(), menuScrollPane, null));
 		
 		splitPane.setDividerLocation(200);
 	}
@@ -194,8 +194,7 @@ public class SwingTab extends EditablePanel {
 	
 	public class VerticalLayoutManager implements LayoutManager {
 
-		private Dimension preferredSize = new Dimension(100, 100);
-		private Rectangle lastParentBounds = null;
+		private Dimension preferredSize = null;
 		
 		public VerticalLayoutManager() {
 		}
@@ -214,17 +213,17 @@ public class SwingTab extends EditablePanel {
 		}
 
 		@Override
-		public void layoutContainer(Container parent) {
-			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds())) return;
-			lastParentBounds = parent.getBounds();
+		public void layoutContainer(Container parent) {	
+			List<Component> visibleComponents = new ArrayList<>(Arrays.asList(parent.getComponents()));
+			visibleComponents.removeIf((Component component) -> !component.isVisible());
 			
 			int minSum = 0;
-			for (Component component : parent.getComponents()) {
+			for (Component component : visibleComponents) {
 				minSum += component.getMinimumSize().height;
 			}
 
 			Set<Component> verticallyGrowingComponents = new HashSet<>();
-			for (Component component : parent.getComponents()) {
+			for (Component component : visibleComponents) {
 				if (component.getPreferredSize().height > component.getMinimumSize().height) {
 					verticallyGrowingComponents.add(component);
 				}
@@ -244,7 +243,7 @@ public class SwingTab extends EditablePanel {
 			if (moreThanMin < 0) {
 				verticallyGrowingComponents.clear();
 			}
-			for (Component component : parent.getComponents()) {
+			for (Component component : visibleComponents) {
 				int height = component.getMinimumSize().height;
 				if (verticallyGrowingComponents.contains(component)) {
 					height += moreThanMin / verticallyGrowingComponents.size();
@@ -258,13 +257,11 @@ public class SwingTab extends EditablePanel {
 
 		@Override
 		public void addLayoutComponent(String name, Component comp) {
-			lastParentBounds = null;
 			preferredSize = null;
 		}
 
 		@Override
 		public void removeLayoutComponent(Component comp) {
-			lastParentBounds = null;
 			preferredSize = null;
 		}
 	}
@@ -302,7 +299,10 @@ public class SwingTab extends EditablePanel {
 	}
 
 	public void showDetail(Page detail) {
-		if (pageAndDetails.contains(detail)) {
+		int index = pageAndDetails.indexOf(detail);
+		if (index > -1) {
+			SwingDecoration decoration = (SwingDecoration) verticalPanel.getComponents()[index];
+			decoration.setContentVisible();
 			return;
 		}
 		removeDetailsOf(SwingClientToolkit.getPage());
@@ -320,7 +320,6 @@ public class SwingTab extends EditablePanel {
 				}
 			};
 		}
-		verticalPanel.add(new SwingPageBar(page.getTitle(), closeListener));
 	
 		JComponent content = (JComponent) page.getContent();
 		if (content != null) {
@@ -331,7 +330,8 @@ public class SwingTab extends EditablePanel {
 			content = new JPanel();
 		}
 		content.putClientProperty("page", page);
-		verticalPanel.add(content, "");
+
+		verticalPanel.add(new SwingDecoration(page.getTitle(), content, closeListener));
 		verticalPanel.revalidate();
 		verticalPanel.repaint();
 	}
@@ -344,8 +344,6 @@ public class SwingTab extends EditablePanel {
 	private void removeDetails(int index) {
 		for (int index2 = pageAndDetails.size() - 1; index2 >= index; index2--) {
 			pageAndDetails.remove(index2);
-			// remove bar and content
-			verticalPanel.remove(verticalPanel.getComponentCount()-1);
 			verticalPanel.remove(verticalPanel.getComponentCount()-1);
 		}
 		verticalPanel.revalidate();
