@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
 import java.io.Serializable;
 
 import javax.swing.BorderFactory;
@@ -18,34 +19,43 @@ public class SwingPageBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 
 	public SwingPageBar(String title) {
+		this(title, null);
+	}
+	
+	public SwingPageBar(String title, ActionListener closeListener) {
 		JLabel label = new JLabel(title);
 		label.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 0));
 		add(label);
-		add(Box.createHorizontalGlue());
-		
-		JButton button = new JButton();
-		button.setFocusPainted(false);
-		button.setMargin(new Insets(0,0,0,0));
-		button.setIcon(new FrameButtonIcon(Part.WP_MINBUTTON));
-		button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		add(button);
-		
-		button = new JButton();
-		button.setFocusPainted(false);
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setIcon(new FrameButtonIcon(Part.WP_MAXBUTTON));
-		button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		add(button);
 
-		button = new JButton();
-		button.setFocusPainted(false);
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setIcon(new FrameButtonIcon(Part.WP_CLOSEBUTTON));
-		button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		add(button);
+		if (closeListener != null) {
+			
+			add(Box.createHorizontalGlue());
+			
+//			JButton button = new JButton();
+//			button.setFocusPainted(false);
+//			button.setMargin(new Insets(0,0,0,0));
+//			button.setIcon(new FrameButtonIcon(Part.WP_MINBUTTON));
+//			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+//			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+//			add(button);
+//			
+//			button = new JButton();
+//			button.setFocusPainted(false);
+//			button.setMargin(new Insets(0, 0, 0, 0));
+//			button.setIcon(new FrameButtonIcon(Part.WP_MAXBUTTON));
+//			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+//			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+//			add(button);
+			
+			JButton button = new JButton();
+			button.setFocusPainted(false);
+			button.setMargin(new Insets(0, 0, 0, 0));
+			button.setIcon(new FrameButtonIcon(Part.WP_CLOSEBUTTON));
+			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+			add(button);
+			button.addActionListener(closeListener);
+		}
 		
 		setPreferredSize(getMinimumSize());
 	}

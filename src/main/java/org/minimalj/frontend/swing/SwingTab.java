@@ -8,9 +8,9 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.page.Page;
@@ -299,22 +298,7 @@ public class SwingTab extends EditablePanel {
 	}
 
 	public void show(Page page) {
-		if (!SwingUtilities.isEventDispatchThread()) {
-			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						show(page);
-					};
-				});
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		} else {
-			history.add(page);
-		}
+		history.add(page);
 	}
 
 	public void showDetail(Page detail) {
@@ -327,7 +311,16 @@ public class SwingTab extends EditablePanel {
 	
 	private void addPageOrDetail(Page page) {
 		pageAndDetails.add(page);
-		verticalPanel.add(new SwingPageBar(page.getTitle()));
+		ActionListener closeListener = null;
+		if (pageAndDetails.size() > 1) {
+			closeListener = new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					hideDetail(page);
+				}
+			};
+		}
+		verticalPanel.add(new SwingPageBar(page.getTitle(), closeListener));
 	
 		JComponent content = (JComponent) page.getContent();
 		if (content != null) {
