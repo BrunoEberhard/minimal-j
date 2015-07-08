@@ -321,16 +321,12 @@ public class SwingTab extends EditablePanel {
 	}
 
 	public void show(Page page) {
-		show(page, true);
-	}
-	
-	public void show(Page page, boolean asTopPage) {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						show(page, asTopPage);
+						show(page);
 					};
 				});
 			} catch (InterruptedException e) {
@@ -339,15 +335,15 @@ public class SwingTab extends EditablePanel {
 				e.printStackTrace();
 			}
 		} else {
-			if (asTopPage) {
-				history.add(page);
-			} else {
-				this.page = page;
-				addPage(page);
-			}
+			history.add(page);
 		}
 	}
 
+	public void showDetail(Page page) {
+		this.page = page;
+		addPage(page);
+	}
+	
 	public void hide(Page page) {
 		int index;
 		for (index = 0; index < pages.size(); index++) {

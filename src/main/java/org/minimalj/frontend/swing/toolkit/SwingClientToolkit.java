@@ -44,6 +44,7 @@ import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.toolkit.IDetail;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.ProgressListener;
@@ -219,26 +220,14 @@ public class SwingClientToolkit extends ClientToolkit {
 
 	@Override
 	public void show(Page page) {
-		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(page, true);
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(page);
 	}
 
 	@Override
-	public void showDetail(Page detail) {
-		if (!isDetailShown(detail)) {
-			((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().show(detail, false);
-		}
+	public IDetail showDetail(Page detail) {
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().showDetail(detail);
 	}
 
-	@Override
-	public void hideDetail(Page page) {
-		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().hide(page);
-	}
-	
-	@Override
-	public boolean isDetailShown(Page page) {
-		return ((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().isShown(page);
-	}
-	
 	public ProgressListener showProgress(String text) {
 		SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
 		getTab().openModalDialog(frame);
