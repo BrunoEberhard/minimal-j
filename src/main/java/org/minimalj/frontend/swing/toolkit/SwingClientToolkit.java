@@ -44,7 +44,6 @@ import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
 import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.toolkit.IDetail;
 import org.minimalj.frontend.toolkit.IDialog;
 import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.frontend.toolkit.ProgressListener;
@@ -53,16 +52,17 @@ import org.minimalj.model.Rendering.RenderType;
 
 public class SwingClientToolkit extends ClientToolkit {
 
-	private static ThreadLocal<SwingTab> tabByThread = new ThreadLocal<SwingTab>();
+	private static ThreadLocal<SwingTab> tabByThread = new ThreadLocal<>();
+	private static ThreadLocal<Page> pageByThread = new ThreadLocal<>();
 	
 	public static SwingTab getTab() {
 		return tabByThread.get();
 	}
-	
-	public static void setTab(SwingTab tab) {
-		tabByThread.set(tab);
+
+	public static Page getPage() {
+		return pageByThread.get();
 	}
-	
+
 	@Override
 	public IComponent createLabel(String string) {
 		return new SwingLabel(string);
@@ -103,9 +103,31 @@ public class SwingClientToolkit extends ClientToolkit {
 		return (SwingTab) c;
 	}
 	
+	public static Page findPage(Component c) {
+		while (c != null && getPageProperty(c) == null) {
+			if (c instanceof JPopupMenu) {
+				c = ((JPopupMenu) c).getInvoker();
+			} else {
+				c = c.getParent();
+			}
+		}
+		return getPageProperty(c);
+	}
+	
+	private static Page getPageProperty(Component c) {
+		if (c instanceof JComponent) {
+			JComponent jcomponent = (JComponent) c;
+			return (Page) jcomponent.getClientProperty("page");
+		} else {
+			return null;
+		}
+	}
+	
 	public static void updateEventTab(Component c) {
 		SwingTab swingTab = findSwingTab(c);
 		tabByThread.set(swingTab);
+		Page page = findPage(c);
+		pageByThread.set(page);
 	}
 
 	@Override
@@ -224,10 +246,20 @@ public class SwingClientToolkit extends ClientToolkit {
 	}
 
 	@Override
-	public IDetail showDetail(Page detail) {
+	public void showDetail(Page detail) {
 		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().showDetail(detail);
 	}
 
+	@Override
+	public void hideDetail(Page page) {
+		((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().hideDetail(page);
+	}
+	
+	@Override
+	public boolean isDetailShown(Page page) {
+		return ((SwingFrame) SwingFrame.getActiveWindow()).getVisibleTab().isShown(page);
+	}
+	
 	public ProgressListener showProgress(String text) {
 		SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
 		getTab().openModalDialog(frame);

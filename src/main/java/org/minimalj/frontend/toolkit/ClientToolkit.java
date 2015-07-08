@@ -119,19 +119,16 @@ public abstract class ClientToolkit {
 	
 	public abstract void show(Page page);
 
-	public IDetail showDetail(Page page) {
+	public void showDetail(Page page) {
 		show(page);
-		return new IDetail() {
-			@Override
-			public boolean isShown() {
-				return false;
-			}
-			
-			@Override
-			public void closeDetail() {
-				// do nothing
-			}
-		};
+	}
+	
+	public void hideDetail(Page page) {
+		// do nothing
+	}
+	
+	public boolean isDetailShown(Page page) {
+		return false;
 	}
 	
 	public abstract void refresh();

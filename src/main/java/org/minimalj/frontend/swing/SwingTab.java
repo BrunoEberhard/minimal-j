@@ -51,10 +51,9 @@ public class SwingTab extends EditablePanel {
 	private final JPanel verticalPanel;
 	
 	private final History<Page> history;
-	private final List<Page> pages;
 	private final SwingPageContextHistoryListener historyListener;
 
-	private Page page;
+	private final List<Page> pageAndDetails;
 
 	public SwingTab(SwingFrame frame) {
 		super();
@@ -63,7 +62,7 @@ public class SwingTab extends EditablePanel {
 		historyListener = new SwingPageContextHistoryListener();
 		history = new History<>(historyListener);
 
-		pages = new ArrayList<Page>();
+		pageAndDetails = new ArrayList<Page>();
 		
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
@@ -117,7 +116,7 @@ public class SwingTab extends EditablePanel {
 	}
 
 	public Page getVisiblePage() {
-		return page;
+		return pageAndDetails.get(0);
 	}
 	
 	void onHistoryChanged() {
@@ -184,35 +183,14 @@ public class SwingTab extends EditablePanel {
 
 		@Override
 		public void onHistoryChanged() {
-			page = history.getPresent();
-			
-			closeAllPages();
-			addPage(page);
+			pageAndDetails.clear();
+			verticalPanel.removeAll();
+
+			Page page = history.getPresent();
+			addPageOrDetail(page);
 			
 			SwingTab.this.onHistoryChanged();
 		}
-	}
-	
-	private void addPage(Page page) {
-		pages.add(page);
-		verticalPanel.add(new SwingPageBar(page.getTitle()));
-
-		JComponent content = (JComponent) page.getContent();
-		if (content != null) {
-			JPopupMenu menu = createMenu(page.getActions());
-			content.setComponentPopupMenu(menu);
-			setInheritMenu(content);
-			verticalPanel.add(content, "");
-		} else {
-			verticalPanel.add(new JPanel(), "");
-		}
-		verticalPanel.revalidate();
-		verticalPanel.repaint();
-	}
-
-	private void closeAllPages() {
-		verticalPanel.removeAll();
-		pages.clear();
 	}
 	
 	public class VerticalLayoutManager implements LayoutManager {
@@ -339,20 +317,40 @@ public class SwingTab extends EditablePanel {
 		}
 	}
 
-	public void showDetail(Page page) {
-		this.page = page;
-		addPage(page);
+	public void showDetail(Page detail) {
+		if (pageAndDetails.contains(detail)) {
+			return;
+		}
+		removeDetailsOf(SwingClientToolkit.getPage());
+		addPageOrDetail(detail);
 	}
 	
-	public void hide(Page page) {
-		int index;
-		for (index = 0; index < pages.size(); index++) {
-			if (pages.get(index) == page) {
-				break;
-			}
+	private void addPageOrDetail(Page page) {
+		pageAndDetails.add(page);
+		verticalPanel.add(new SwingPageBar(page.getTitle()));
+	
+		JComponent content = (JComponent) page.getContent();
+		if (content != null) {
+			JPopupMenu menu = createMenu(page.getActions());
+			content.setComponentPopupMenu(menu);
+			setInheritMenu(content);
+		} else {
+			content = new JPanel();
 		}
-		for (int index2 = pages.size() - 1; index2 >= index; index2--) {
-			pages.remove(index2);
+		content.putClientProperty("page", page);
+		verticalPanel.add(content, "");
+		verticalPanel.revalidate();
+		verticalPanel.repaint();
+	}
+
+	private void removeDetailsOf(Page page) {
+		int index = pageAndDetails.indexOf(page);
+		removeDetails(index + 1);
+	}
+
+	private void removeDetails(int index) {
+		for (int index2 = pageAndDetails.size() - 1; index2 >= index; index2--) {
+			pageAndDetails.remove(index2);
 			// remove bar and content
 			verticalPanel.remove(verticalPanel.getComponentCount()-1);
 			verticalPanel.remove(verticalPanel.getComponentCount()-1);
@@ -360,11 +358,16 @@ public class SwingTab extends EditablePanel {
 		verticalPanel.revalidate();
 		verticalPanel.repaint();
 	}
-	
-	public boolean isShown(Page page) {
-		return pages.contains(page);
+
+	public boolean isShown(Page detail) {
+		return pageAndDetails.contains(detail);
 	}
 	
+	public void hideDetail(Page detail) {
+		int index = pageAndDetails.indexOf(detail);
+		removeDetails(index);
+	}
+
 	private JPopupMenu createMenu(List<org.minimalj.frontend.toolkit.Action> actions) {
 		if (actions != null && actions.size() > 0) {
 			JPopupMenu menu = new JPopupMenu();
