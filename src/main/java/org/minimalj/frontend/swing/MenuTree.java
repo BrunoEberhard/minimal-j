@@ -14,17 +14,17 @@ import org.minimalj.frontend.swing.toolkit.SwingLabel;
 import org.minimalj.frontend.toolkit.Action;
 
 
-public class ActionTree extends JPanel {
+public class MenuTree extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	public ActionTree(List<Action> actions) {
+	public MenuTree(List<Action> actions) {
 		super(new VerticalLayoutManager());
 		
 		for (Action action : actions) {
 			if (action instanceof ActionGroup) {
 				add(new SwingLabel(action.getName()));
 				ActionGroup actionGroup = (ActionGroup) action;
-				add(new ActionTree(actionGroup.getItems()));
+				add(new MenuTree(actionGroup.getItems()));
 			} else {
 				add(new SwingActionLabel(action));
 			}

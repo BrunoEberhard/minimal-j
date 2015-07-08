@@ -98,7 +98,7 @@ public class SwingTab extends EditablePanel {
 			}
 		});
 		
-		ActionTree menuTree = new ActionTree(Application.getApplication().getMenu());
+		MenuTree menuTree = new MenuTree(Application.getApplication().getMenu());
 		menuScrollPane = new JScrollPane(menuTree);
 		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		splitPane.setLeftComponent(new SwingDecoration(Application.getApplication().getName(), menuScrollPane, null));
