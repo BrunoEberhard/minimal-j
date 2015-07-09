@@ -37,14 +37,8 @@ import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
- * Most important class of the persistence layer.
- * <OL>
- * <LI>Add your classes with addClass and andHistorizedClass
- * <LI>Call connect
- * </OL>
+ * The Mapper to a relationale Database
  * 
- * @author bruno
- *
  */
 public class DbPersistence {
 	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
