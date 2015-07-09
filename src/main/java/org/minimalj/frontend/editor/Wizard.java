@@ -248,8 +248,8 @@ public abstract class Wizard<RESULT> extends Action {
 			((Mocking) stepObject).mock();
 			// re-set the object to update the FormFields
 			form.setObject(stepObject);
-		} else if (form instanceof Mocking) {
-			((Mocking) form).mock();
+		} else {
+			form.mock();
 		}
 	}
 
