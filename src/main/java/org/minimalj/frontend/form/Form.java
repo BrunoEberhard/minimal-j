@@ -44,7 +44,7 @@ import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
-public class Form<T> implements Mocking {
+public class Form<T> {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
 
 	protected final boolean editable;
@@ -259,7 +259,6 @@ public class Form<T> implements Mocking {
 		field.setChangeListener(formPanelChangeListener);
 	}
 
-	@Override
 	public final void mock() {
 		changeFromOutsite = true;
 		try {
