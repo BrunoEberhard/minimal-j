@@ -241,6 +241,7 @@ public abstract class Editor<T, RESULT> extends Action {
 			super(actionName);
 		}
 
+		@Override
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
 			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(NewObjectEditor.this.getClass());
