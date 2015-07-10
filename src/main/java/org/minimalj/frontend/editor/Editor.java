@@ -221,8 +221,18 @@ public abstract class Editor<T, RESULT> extends Action {
 			form.mock();
 		}
 	}
-	
-	public static abstract class NewObjectEditor<T> extends Editor<T, T> {
+
+	public static abstract class SimpleEditor<T> extends Editor<T, T> {
+
+		public SimpleEditor() {
+		}
+
+		public SimpleEditor(String actionName) {
+			super(actionName);
+		}
+	}
+
+	public static abstract class NewObjectEditor<T> extends SimpleEditor<T> {
 
 		public NewObjectEditor() {
 		}
