@@ -224,13 +224,19 @@ public abstract class Editor<T, RESULT> extends Action {
 	
 	public static abstract class NewObjectEditor<T> extends Editor<T, T> {
 
+		public NewObjectEditor() {
+		}
+
+		public NewObjectEditor(String actionName) {
+			super(actionName);
+		}
+
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
 			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(NewObjectEditor.this.getClass());
 			T newInstance = CloneHelper.newInstance(clazz);
 			return newInstance;
 		}
-
 	}
 
 }
