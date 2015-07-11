@@ -1,5 +1,6 @@
 package org.minimalj.backend.db;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -24,7 +25,8 @@ public class DbBackend extends Backend {
 
 	public DbBackend() {
 		String databaseFile = System.getProperty("MjBackendDatabaseFile", null);
-		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(databaseFile), Application.getApplication().getEntityClasses());
+		boolean createTables = databaseFile == null || !new File(databaseFile).exists();
+		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(databaseFile), createTables, Application.getApplication().getEntityClasses());
 		this.queries = Application.getApplication().getQueries();
 	}
 	
