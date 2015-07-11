@@ -23,7 +23,8 @@ public class DbBackend extends Backend {
 	private final Map<String, String> queries;
 
 	public DbBackend() {
-		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(), Application.getApplication().getEntityClasses());
+		String databaseFile = System.getProperty("MjBackendDatabaseFile", null);
+		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(databaseFile), Application.getApplication().getEntityClasses());
 		this.queries = Application.getApplication().getQueries();
 	}
 	

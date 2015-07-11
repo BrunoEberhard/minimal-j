@@ -87,13 +87,15 @@ public class DbPersistence {
 		}
 	}
 	
-	private static int memoryDbCount = 1;
-	
 	/**
 	 * Convinience method for prototyping and testing
 	 * @return a DataSource representing a in memory database managed by derby db.
 	 */
 	public static DataSource embeddedDataSource() {
+		return embeddedDataSource(null);
+	}
+	
+	public static DataSource embeddedDataSource(String file) {
 		EmbeddedDataSource dataSource;
 		try {
 			dataSource = new EmbeddedDataSource();
@@ -102,7 +104,7 @@ public class DbPersistence {
 			throw new IllegalStateException("Configuration error: Missing EmbeddedDataSource");
 		}
 		
-		dataSource.setDatabaseName("memory:TempDB" + (memoryDbCount++)); // for FileSystem use "data/testdb"
+		dataSource.setDatabaseName(file != null ? file : "memory:TempDB");
 		dataSource.setCreateDatabase("create");
 		return dataSource;
 	}
