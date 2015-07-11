@@ -1,4 +1,4 @@
-package org.minimalj.example.notes2;
+package org.minimalj.example.notes;
 
 import java.util.List;
 
