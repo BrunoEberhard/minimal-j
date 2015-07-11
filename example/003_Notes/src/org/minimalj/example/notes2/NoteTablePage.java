@@ -18,10 +18,4 @@ public class NoteTablePage extends TablePage<Note> {
 	protected List<Note> load() {
 		return Backend.getInstance().read(Note.class, Criteria.all(), Integer.MAX_VALUE);
 	}
-
-	@Override
-	public void action(Note selectedObject) {
-		// ignored, could open the note for editing
-	}
-
 }
