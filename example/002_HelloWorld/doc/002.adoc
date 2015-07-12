@@ -209,11 +209,11 @@ type (generic parameter) of the editor class.
 But what about erasure? Aren't generics not removed at compilation time? Not all of them. A class
 with generics keeps the information even at runtime. Minimal-J uses this trick at some places.
 Unfortunately use of types cannot be declared mandatory. If you use NewObjectEditor without
-type parameter /and/ remove the createObject the default createObject will throw an exception!
+type parameter _and_ remove the createObject the default createObject will throw an exception!
 
 ==== The edited entity
 
-[source,java,title="Magic of NewObjectEditor"]
+[source,java,title="User.java"]
 ----
 package org.minimalj.example.helloworld2;
 
@@ -251,12 +251,13 @@ It doesn't call the getAttribute method it references it. JavaScript like, isn't
 So class::attribute would be the value of this attribute but a reference to the specific field in
 the class. But as I said this doesn't exist yet so the fancy $ is still needed.
 
-Note1: First the fancy object was called _ but this is not recommanded to be used in java 8 anymore.
-
-Note2: Do *never* change the content of the $ object. Not even temporary. You'll see other possibilities
+WARNING: Do *never* change the content of the $ object. Not even temporary. You'll see other possibilities
 to change the created form fields.
 
-Note3: The $ trick works quite well. There is only one point where it gets ugly: enum. Don't be
+
+//// move this to the $ section
+
+Note2: The $ trick works quite well. There is only one point where it gets ugly: enum. Don't be
 afraid the framework does everything for you. The problem is that the framework needs to be able
 to differentiate between to attributes of the same enum class. For this a arbitrary (?willkürlich) number of
 enum elements must be created at runtime. This is done in the EnumUtils class. This class works
