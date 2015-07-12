@@ -140,3 +140,30 @@ Java must know about this file. You have to add a VM property
 [source,title="logging.properties"]
 -Djava.util.logging.config.file=logging.properties
 
+=== The resource bundle
+
+in the previous examples some labels were marked with ' signs. This meant that the resource texts for those
+labels were missing. For this example there is a property file with the needed texts. Minimal-J uses the
+resource bundles included in the jdk. For an introduction see https://docs.oracle.com/javase/tutorial/i18n/resbundle/propfile.html .
+
+[source,title="NotesApplication.properties"]
+----
+Note.text=Note
+Note.date=Date
+
+NewNoteEditor=New note
+
+NoteTablePage=Notes
+----
+
+Minimal-J looks for a property file with the same name as the application on the same place. If you put
+the property file in the java source folder make sure that it is copied from there when building.
+
+image::003_eclipse_build_path.png[title="Properties in src folder"]
+
+Of course you can put the property file in a seperate resource folder. I don't always see why it's a good idea to have
+it so far away from the rest but most projects are configured that way. Maybe if the application works in more
+than one language.
+
+To have a resource bundle with different name you can override the method getResourceBundle() in your Application. If you
+have multiple files you should have a look at the class MultiResourceBundle which can combine two or more bundles in one.
