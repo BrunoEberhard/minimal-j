@@ -102,9 +102,9 @@ public class JsonClientSession {
 		output.add("content", content);
 		output.add("title", page.getTitle());
 
-		Object menu = createMenu(page);
-		register(menu);
-		output.add("menu", menu);
+		List<Object> menuBar = createMenuBar(page);
+		register(menuBar);
+		output.add("menu", menuBar);
 		
 		pageById.put(pageId, page);
 		output.add("pageId", pageId);
@@ -117,10 +117,10 @@ public class JsonClientSession {
 		showPage(visiblePage, visiblePageId);
 	}
 
-	private List<Object> createMenu(Page page) {
+	private List<Object> createMenuBar(Page page) {
 		List<Object> items = new ArrayList<>();
 		items.add(createMenu());
-		Object objectMenu = createObjectMenu(page);
+		Object objectMenu = createActionMenu(page);
 		if (objectMenu != null) {
 			items.add(objectMenu);
 		}
@@ -128,7 +128,7 @@ public class JsonClientSession {
 	}
 	
 	private Map<String, Object> createMenu() {
-		Map<String, Object> menu = createMenu("menu");
+		Map<String, Object> menu = createMenu("application");
 		List<Action> menuActions = Application.getApplication().getMenu();
 		List<Object> menuItems = createActions(menuActions);
 		menu.put("items", menuItems);
@@ -136,6 +136,16 @@ public class JsonClientSession {
 		return menu;
 	}
 	
+	private Map<String, Object> createActionMenu(Page page) {
+		List<Action> actions = page.getActions();
+		if (actions != null && actions.size() > 0) {
+			Map<String, Object> actionMenu = createMenu("page");
+			actionMenu.put("items", createActions(actions));
+			return actionMenu;
+		}
+		return null;
+	}
+
 	List<Object> createActions(List<Action> actions) {
 		List<Object> items = new ArrayList<>();
 		for (Action action : actions) {
@@ -186,16 +196,6 @@ public class JsonClientSession {
 		}
 	}
 
-	private Map<String, Object> createObjectMenu(Page page) {
-		List<Action> actions = page.getActions();
-		if (actions != null && actions.size() > 0) {
-			Map<String, Object> objectMenu = new JsonAction.JsonActionGroup();
-			objectMenu.put("items", createActions(actions));
-			return objectMenu;
-		}
-		return null;
-	}
-	
 	private Map<String, Object> createMenu(String resourceName) {
 		Map<String, Object> menu = new LinkedHashMap<>();
 		menu.put("name", Resources.getString("Menu." + resourceName));
