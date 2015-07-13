@@ -2,6 +2,7 @@ package org.minimalj.frontend.swing;
 
 import java.util.List;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -57,8 +58,8 @@ public class SwingMenuBar extends JMenuBar {
 		menu.add(new JMenuItem(tab.previousAction));
 		menu.add(new JMenuItem(tab.nextAction));
 		menu.add(new JMenuItem(tab.refreshAction));
-//		menu.addSeparator();
-//		menu.add(new JMenuItem(tab.menuItemToolBarVisible));
+		menu.addSeparator();
+		menu.add(new JCheckBoxMenuItem(tab.toggleMenuAction));
 		menu.addSeparator();
 		menu.add(createLookAndFeeldMenu());
 		return menu;
@@ -85,12 +86,6 @@ public class SwingMenuBar extends JMenuBar {
 			menu.setMnemonic(text.charAt(0));
 		}
 		return menu;
-	}
-	
-	private JMenu menu(String type, List<Action> actions) {
-		JMenu subMenu = menu(type);
-		addActions(subMenu, actions);
-		return subMenu;
 	}
 	
 	public static void addActions(JMenu menu, List<Action> actions) {

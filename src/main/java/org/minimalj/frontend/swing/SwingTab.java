@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.UIManager;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.page.Page;
@@ -41,11 +42,12 @@ public class SwingTab extends EditablePanel {
 	final SwingFrame frame;
 	final Action previousAction, nextAction, refreshAction;
 	final Action closeTabAction;
+	final Action toggleMenuAction;
 
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
 	private final JSplitPane splitPane;
-	private final JScrollPane menuScrollPane;
+	private final SwingDecoration decoratedMenuPane;
 	private final JScrollPane contentScrollPane;
 	private final JPanel verticalPanel;
 	
@@ -68,6 +70,8 @@ public class SwingTab extends EditablePanel {
 		refreshAction = new RefreshAction();
 
 		closeTabAction = new CloseTabAction();
+		
+		toggleMenuAction = new ToggleMenuAction();
 		
 		JPanel outerPanel = new JPanel(new BorderLayout());
 		
@@ -99,9 +103,17 @@ public class SwingTab extends EditablePanel {
 		});
 		
 		MenuTree menuTree = new MenuTree(Application.getApplication().getMenu());
-		menuScrollPane = new JScrollPane(menuTree);
+		JScrollPane menuScrollPane = new JScrollPane(menuTree);
 		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		splitPane.setLeftComponent(new SwingDecoration(Application.getApplication().getName(), menuScrollPane, null));
+		ActionListener menuClosedListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				toggleMenuAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
+				toggleMenuAction.actionPerformed(e);
+			}
+		};
+		decoratedMenuPane = new SwingDecoration(Application.getApplication().getName(), menuScrollPane, menuClosedListener);
+		splitPane.setLeftComponent(decoratedMenuPane);
 		
 		splitPane.setDividerLocation(200);
 	}
@@ -173,6 +185,29 @@ public class SwingTab extends EditablePanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			frame.closeTab();
+		}
+	}
+	
+	private class ToggleMenuAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		private int lastDividerLocation;
+		
+		public ToggleMenuAction() {
+			putValue(Action.SELECTED_KEY, Boolean.TRUE);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Boolean.TRUE.equals(getValue(Action.SELECTED_KEY))) {
+				splitPane.setLeftComponent(decoratedMenuPane);
+				splitPane.setDividerSize((Integer) UIManager.get("SplitPane.dividerSize"));
+				splitPane.setDividerLocation(lastDividerLocation);
+			} else {
+				lastDividerLocation = splitPane.getDividerLocation();
+				splitPane.setLeftComponent(null);
+				splitPane.setDividerSize(0);
+			}
 		}
 	}
 	
