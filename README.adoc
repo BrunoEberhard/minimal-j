@@ -19,5 +19,5 @@ feel free to change major points. There is no 1.0 version yet.
 . link:example/001_EmptyApplication/doc/001.adoc[Empty Application]
 . link:example/002_HelloWorld/doc/002.adoc[Hello World]
 . link:example/003_Notes/doc/003.adoc[Notes]
-. link:example/004_Library/doc/004.adoc[Notes]
+. link:example/004_Library/doc/004.adoc[Library]
 
