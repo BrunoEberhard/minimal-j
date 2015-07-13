@@ -45,15 +45,15 @@ public class LanternaMenuPanel extends Panel {
 	public void updateMenu(Page page) {
 		bar.removeAllComponents();
 
-		createMenu("Menu", Application.getApplication().getMenu());
+		createMenu("application", Application.getApplication().getMenu());
 
 		if (page != null && page.getActions() != null) {
-			createMenu("Actions", page.getActions());
+			createMenu("page", page.getActions());
 		}
 	}
 
 	protected void createMenu(String resourceName, List<Action> actions) {
-		String name = Resources.getString(resourceName);
+		String name = Resources.getString("Menu." + resourceName);
 		com.googlecode.lanterna.gui.Action newAction = actionGroup(name, actions);
 		if (newAction != null) {
 			Button button = new Button(newAction.toString(), newAction);
