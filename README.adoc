@@ -2,6 +2,8 @@
 
 image::doc/frontends.png[title="Minimal-J"]
 
+== Idea
+
 Minimal-J is an opinionated java framework. The focus is:
 
 * Small
