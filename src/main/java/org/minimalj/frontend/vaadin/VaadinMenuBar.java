@@ -25,62 +25,31 @@ public class VaadinMenuBar extends MenuBar {
 	public void updateMenu() {
 		removeItems();
 		
-		createFileMenu();
-		createViewMenu();
+		createMenu();
 		createObjectMenu();
 	}
 	
-	private void createFileMenu() {
-		MenuBar.MenuItem menu = menu("file");
+	private void createMenu() {
+		List<Action> menuActions = Application.getApplication().getMenu();
 
-		boolean separator = false;
-		List<Action> actionsNew = Application.getApplication().getMenu();
-//		if (!actionsNew.isEmpty()) {
-//			addActions(menu, "new", actionsNew);
-//			separator = true;
-//		}
-//		List<Action> actionsImport = Application.getApplication().getActionImport();
-//		List<Action> actionsExport = Application.getApplication().getActionExport();
-//		if (!actionsImport.isEmpty() || !actionsExport.isEmpty()) {
-//			if (separator) menu.addSeparator();
-//		}
-//		if (!actionsImport.isEmpty()) addActions(menu, "import", actionsImport);
-//		if (!actionsExport.isEmpty()) addActions(menu, "export", actionsExport);
-	}
-	
-	private void createViewMenu() {
-//		List<Action> actionsView = Application.getApplication().getActionView();
-//		if (!actionsView.isEmpty()) {
-			MenuBar.MenuItem menu = menu("view");
-//			addActions(menu, actionsView);
-//		}
+		MenuBar.MenuItem menu = menu("application");
+		addActions(menu, menuActions);
 	}
 	
 	private void createObjectMenu() {
 		Page visiblePage = vaadinWindow.getVisiblePage();
 		List<Action> actions = visiblePage.getActions();
 		if (actions != null && actions.size() > 0) {
-			MenuBar.MenuItem menu = addItem("Actions", null);
+			MenuBar.MenuItem menu = menu("page");
 			addActions(menu, actions);
 		}
 	}
 
-	//
-	
 	private MenuBar.MenuItem menu(String resourceName) {
 		MenuBar.MenuItem menu = addItem(Resources.getString("Menu." + resourceName), null);
 		return menu;
 	}
 
-	private MenuBar.MenuItem menu(MenuBar.MenuItem menu, String resourceName) {
-		return menu.addItem(Resources.getString("Menu." + resourceName), null);
-	}
-
-	private void addActions(MenuBar.MenuItem menu, String type, List<Action> actions) {
-		MenuBar.MenuItem subMenu = menu(menu, type);
-		addActions(subMenu, actions);
-	}
-	
 	private void addActions(MenuBar.MenuItem menu, List<Action> actions) {
 		for (Action action : actions) {
 			if (action instanceof org.minimalj.frontend.page.ActionGroup) {
@@ -96,6 +65,8 @@ public class VaadinMenuBar extends MenuBar {
 			}
 		}
 	}
+	
+	//
 	
 	private class ActionCommand implements Command {
 		private static final long serialVersionUID = 1L;
