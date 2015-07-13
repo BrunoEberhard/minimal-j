@@ -4,8 +4,8 @@
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj-example</artifactId>
 	<version>0.1-SNAPSHOT</version>
-	<name>Minimal-J_Example</name>
-	<description>Small example for Minimal-J</description>
+	<name>Example_004_Library</name>
+	<description>This exampe focuses on the model</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -46,12 +46,6 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin</artifactId>
 			<version>6.8.15</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jumpmind.symmetric.jdbc</groupId>

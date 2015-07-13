@@ -8,6 +8,7 @@ import org.minimalj.example.erp.frontend.form.CustomerForm;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ActionGroup;
+import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.frontend.toolkit.ClientToolkit;
@@ -35,6 +36,8 @@ public class CustomerPage extends ObjectPage<Customer> {
 		menu.add(new ShowOffersAction());
 		menu.addSeparator();
 		menu.add(new CustomerEditor());
+		menu.addSeparator();
+		menu.add(new EmptyAction());
 		return menu.getItems();
 	}
 
@@ -56,6 +59,14 @@ public class CustomerPage extends ObjectPage<Customer> {
 		}
 	}
 
+	private class EmptyAction extends Action {
+
+		@Override
+		public void action() {
+			ClientToolkit.getToolkit().showDetail(new EmptyPage());
+		}
+	}
+	
 	public class CustomerEditor extends ObjectEditor {
 
 		@Override
