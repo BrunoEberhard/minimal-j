@@ -1,8 +1,12 @@
 = Minimal-J
 
+image::doc/frontends.png[title="Minimal-J"]
+
 Minimal-J is an opinionated java framework. The focus is:
 
 * Small
+* Easy to use
+* Easy to specify
 * No dependencies
 * Works with Html / Vaadin / Swing / Terminal
 * DB persistence
