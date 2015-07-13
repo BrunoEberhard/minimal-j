@@ -3,9 +3,11 @@ package org.minimalj.example.library.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.annotation.Searched;
@@ -13,7 +15,7 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.util.mock.Mocking;
 
 
-public class Book implements Mocking {
+public class Book implements Rendering, Mocking {
 	public static final Book $ = Keys.of(Book.class);
 
 	public Object id;
@@ -43,8 +45,7 @@ public class Book implements Mocking {
 	}
 
 	@Override
-	public String toString() {
+	public String render(RenderType renderType, Locale locale) {
 		return author + ": " + title;
 	}
-
 }
