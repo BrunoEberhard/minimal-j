@@ -26,16 +26,18 @@ public class SwingMenuBar extends JMenuBar {
 		super();
 		this.tab = tab;
 
-		add(createFileMenu());
+		add(createWindowMenu());
 		add(createEditMenu());
 		add(createViewMenu());
-		add(createWindowMenu());
 	}
 	
-	private JMenu createFileMenu() {
-		JMenu menu = menu("file");
+	private JMenu createWindowMenu() {
+		JMenu menu = menu("window");
 		
+		menu.add(new JMenuItem(tab.frame.newWindowAction));
 		menu.add(new JMenuItem(tab.frame.closeWindowAction));
+		menu.addSeparator();
+		menu.add(new JMenuItem(tab.frame.newTabAction));
 		menu.add(new JMenuItem(tab.closeTabAction));
 		menu.addSeparator();
 		menu.add(new JMenuItem(tab.frame.exitAction));
@@ -68,13 +70,6 @@ public class SwingMenuBar extends JMenuBar {
 		menu.add(new JMenuItem(new LookAndFeelAction("highContrast", TerminalLookAndFeel.class.getName())));
 		menu.add(new JMenuItem(new LookAndFeelAction("highContrastLarge", TerminalLargeFontLookAndFeel.class.getName())));
 		menu.add(new JMenuItem(new LookAndFeelAction("print", PrintLookAndFeel.class.getName())));
-		return menu;
-	}
-
-	private JMenu createWindowMenu() {
-		JMenu menu = menu("window");
-		menu.add(new JMenuItem(tab.frame.newWindowAction));
-		menu.add(new JMenuItem(tab.frame.newTabAction));
 		return menu;
 	}
 
