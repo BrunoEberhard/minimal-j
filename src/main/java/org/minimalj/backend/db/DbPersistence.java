@@ -95,6 +95,9 @@ public class DbPersistence {
 		return embeddedDataSource(null);
 	}
 	
+	// every JUnit test must have a fresh memory db
+	private static int memoryDbCount = 1;
+	
 	public static DataSource embeddedDataSource(String file) {
 		EmbeddedDataSource dataSource;
 		try {
@@ -104,7 +107,7 @@ public class DbPersistence {
 			throw new IllegalStateException("Configuration error: Missing EmbeddedDataSource");
 		}
 		
-		dataSource.setDatabaseName(file != null ? file : "memory:TempDB");
+		dataSource.setDatabaseName(file != null ? file : "memory:TempDB" + (memoryDbCount++));
 		dataSource.setCreateDatabase("create");
 		return dataSource;
 	}
