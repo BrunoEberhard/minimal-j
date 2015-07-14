@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj-example</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.5.0.0-SNAPSHOT</version>
 	<name>Example_004_Library</name>
 	<description>This exampe focuses on the model</description>
 	<build>
@@ -27,10 +27,12 @@
 		</resources>
 	</build>
 	<dependencies>
+		<!-- to reference eclipse project and not jar use: -->
+		<!-- mvn -Declipse.workspace=c:\projects\workspaces\minimal-j eclipse:eclipse -->
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
