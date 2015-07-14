@@ -26,15 +26,14 @@ import java.util.TimeZone;
 
 /**
  * A simple, tiny, nicely embeddable HTTP server in Java
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * NanoHTTPD
- * <p></p>Copyright (c) 2012-2013 by Paul S. Hawke, 2001,2005-2013 by Jarno Elonen, 2010 by Konstantinos Togias</p>
- * <p/>
- * <p/>
+ * <p>Copyright (c) 2012-2013 by Paul S. Hawke, 2001,2005-2013 by Jarno Elonen, 2010 by Konstantinos Togias</p>
+ * <p>
+ * <p>
  * <b>Features + limitations: </b>
  * <ul>
- * <p/>
  * <li>Only one Java file</li>
  * <li>Java 5 compatible</li>
  * <li>Released as open source, Modified BSD licence</li>
@@ -55,17 +54,14 @@ import java.util.TimeZone;
  * <li>File server serves also very long files without memory overhead</li>
  * <li>Contains a built-in list of most common mime types</li>
  * <li>All header names are converted lowercase so they don't vary between browsers/clients</li>
- * <p/>
  * </ul>
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * <b>How to use: </b>
  * <ul>
- * <p/>
  * <li>Subclass and implement serve() and embed to your own program</li>
- * <p/>
  * </ul>
- * <p/>
+ * <p>
  * See the separate "LICENSE.md" file for the distribution license (Modified BSD licence)
  */
 public abstract class NanoHTTPD {
@@ -255,8 +251,8 @@ public abstract class NanoHTTPD {
 
     /**
      * Override this to customize the server.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * (By default, this delegates to serveFile() and allows directory listing.)
      *
      * @param uri     Percent-decoded URI without parameters, for example "/index.cgi"
@@ -273,8 +269,8 @@ public abstract class NanoHTTPD {
 
     /**
      * Override this to customize the server.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * (By default, this delegates to serveFile() and allows directory listing.)
      *
      * @param session The HTTP session
@@ -417,7 +413,7 @@ public abstract class NanoHTTPD {
 
     /**
      * Temp file manager.
-     * <p/>
+     * <p>
      * <p>Temp file managers are created 1-to-1 with incoming requests, to create and cleanup
      * temporary files created as a result of handling the request.</p>
      */
@@ -429,7 +425,7 @@ public abstract class NanoHTTPD {
 
     /**
      * A temp file.
-     * <p/>
+     * <p>
      * <p>Temp files are responsible for managing the actual temporary storage and cleaning
      * themselves up when no longer needed.</p>
      */
@@ -443,7 +439,7 @@ public abstract class NanoHTTPD {
 
     /**
      * Default threading strategy for NanoHttpd.
-     * <p/>
+     * <p>
      * <p>By default, the server spawns a new Thread for every incoming request.  These are set
      * to <i>daemon</i> status, and named according to the request number.  The name is
      * useful when profiling the application.</p>
@@ -463,8 +459,8 @@ public abstract class NanoHTTPD {
 
     /**
      * Default strategy for creating and cleaning up temporary files.
-     * <p/>
-     * <p></p>This class stores its files in the standard location (that is,
+     * <p>
+     * <p>This class stores its files in the standard location (that is,
      * wherever <code>java.io.tmpdir</code> points to).  Files are added
      * to an internal list, and deleted when no longer needed (that is,
      * when <code>clear()</code> is invoked at the end of processing a
@@ -500,8 +496,8 @@ public abstract class NanoHTTPD {
 
     /**
      * Default strategy for creating and cleaning up temporary files.
-     * <p/>
-     * <p></p></[>By default, files are created by <code>File.createTempFile()</code> in
+     * <p>
+     * <p>By default, files are created by <code>File.createTempFile()</code> in
      * the directory specified.</p>
      */
     public static class DefaultTempFile implements TempFile {
@@ -821,7 +817,7 @@ public abstract class NanoHTTPD {
 
         /**
          * Adds the files in the request body to the files map.
-         * @arg files - map to modify
+         * @param files - map to modify
          */
         void parseBody(Map<String, String> files) throws IOException, ResponseException;
     }
