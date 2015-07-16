@@ -374,16 +374,15 @@ public class DbPersistence {
 	}
 	
 	//
-
-	private void add(AbstractTable<?> table) {
-		tables.put(table.getClazz(), table);
-	}
 	
+	@SuppressWarnings("unchecked")
 	<U> AbstractTable<U> addClass(Class<U> clazz) {
-		boolean historized = FieldUtils.hasValidVersionfield(clazz);
-		Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
-		add(table);
-		return table;
+		if (!tables.containsKey(clazz)) {
+			boolean historized = FieldUtils.hasValidVersionfield(clazz);
+			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
+			tables.put(table.getClazz(), table);
+		}
+		return (AbstractTable<U>) tables.get(clazz);
 	}
 
 	private void createTables() {

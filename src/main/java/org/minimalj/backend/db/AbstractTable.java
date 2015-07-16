@@ -260,7 +260,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
-			if (Code.class.isAssignableFrom(fieldClazz) && !dbPersistence.tableExists(fieldClazz) && fieldClazz != clazz) {
+			if (Code.class.isAssignableFrom(fieldClazz) && fieldClazz != clazz) {
 				dbPersistence.addClass(fieldClazz);
 			}
 		}
@@ -269,9 +269,8 @@ public abstract class AbstractTable<T> {
 	private void findDependables() {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
-			if (ViewUtil.isReference(property)) continue;
 			Class<?> fieldClazz = property.getClazz();
-			if (DbPersistenceHelper.isDependable(property) && !dbPersistence.tableExists(fieldClazz) ) {
+			if (DbPersistenceHelper.isDependable(property) && fieldClazz != clazz) {
 				dbPersistence.addClass(fieldClazz);
 			}
 		}

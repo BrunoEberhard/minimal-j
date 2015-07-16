@@ -29,9 +29,8 @@ public class DbPersistenceHelper {
 	}
 	
 	/**
-	 * 
 	 * @param property
-	 * @return true if property isn't a simply object like String, Integer, Date etc but a dependable
+	 * @return true if property isn't a base object like String, Integer, Date, enum but a dependable
 	 */
 	public static boolean isDependable(PropertyInterface property) {
 		if (property.getClazz().getName().startsWith("java")) return false;
@@ -39,7 +38,6 @@ public class DbPersistenceHelper {
 		if (property.isFinal()) return false;
 		return true;
 	}
-	
 	
 	public void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
 		if (value == null) {
