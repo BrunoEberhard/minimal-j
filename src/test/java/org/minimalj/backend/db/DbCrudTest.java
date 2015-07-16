@@ -3,11 +3,11 @@ package org.minimalj.backend.db;
 import java.sql.SQLException;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import junit.framework.Assert;
 
 public class DbCrudTest {
 	
@@ -108,15 +108,23 @@ public class DbCrudTest {
 	}
 	
 	@Test
-	public void testRemoveDependable() throws Exception {
+	public void testDependable() throws Exception {
 		H h = new H();
-		h.k = new K("Test");
 		Object id = persistence.insert(h);
-		
+
 		h = persistence.read(H.class, id);
-		h.k = null;
-		
+		h.k = new K("Test");
 		persistence.update(h);
+
+		h = persistence.read(H.class, id);
+		Assert.assertNotNull("Dependable should be available", h.k);
+		Assert.assertEquals("Content of dependable should be stored", "Test", h.k.k);
+		
+		h.k = null;
+		persistence.update(h);
+
+		h = persistence.read(H.class, id);
+		Assert.assertNull("Dependable should be removed", h.k);
 	}
 
 	private Object writeSimpleA() throws SQLException {
