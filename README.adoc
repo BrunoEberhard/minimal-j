@@ -12,7 +12,6 @@ Minimal-J is an opinionated java framework. The focus is:
 * No dependencies
 * Works with Html / Vaadin / Swing / Terminal
 * DB persistence
-* be reactive
 
 == Status
 
