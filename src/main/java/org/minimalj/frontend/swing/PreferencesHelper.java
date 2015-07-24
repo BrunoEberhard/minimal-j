@@ -6,9 +6,12 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
+import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.Codes;
+import org.minimalj.util.IdUtils;
 
 public abstract class PreferencesHelper {
 	private static final Logger logger = Logger.getLogger(PreferencesHelper.class.getName());
@@ -36,6 +39,26 @@ public abstract class PreferencesHelper {
 				Enum<?> presetValue = (Enum<?>) FlatProperties.getValue(data, key);
 				int ordinal = preferences.getInt(key, presetValue != null ? presetValue.ordinal() : 0);
 				value = EnumUtils.valueList((Class<Enum>) presetValue.getClass()).get(ordinal);
+			} else if (Code.class.isAssignableFrom(clazz)) {
+				Code presetValue = (Code) FlatProperties.getValue(data, key);
+				PropertyInterface property = FlatProperties.getProperty(clazz, "id");
+				if (property.getClazz() == String.class) {
+					String id = preferences.get(key, null);
+					if (id != null) {
+						Class clazz2 = clazz;
+						value = Codes.findCode(clazz2, id);
+					} else {
+						value = presetValue;
+					}
+				} else if (property.getClazz() == Integer.class) {
+					Integer id = preferences.getInt(key, 0);
+					if (id != 0) {
+						Class clazz2 = clazz;
+						value = Codes.findCode(clazz2, id);
+					} else {
+						value = presetValue;
+					}
+				}
 			} else {
 				logger.warning("Preference Field with unsupported Class: " + key + " of class " + clazz.getSimpleName() + " in " + data.getClass().getSimpleName());
 			}
@@ -60,6 +83,15 @@ public abstract class PreferencesHelper {
 				preferences.putInt(key, e.ordinal());
 			} else if (value instanceof LocalDate) {
 				preferences.put(key, ((LocalDate) value).toString());
+			} else if (value instanceof Code) {
+				Object id = IdUtils.getId(value);
+				if (id instanceof String) {
+					preferences.put(key, (String) id);
+				} else if (id instanceof Integer) {
+					preferences.putInt(key, (Integer) id);
+				} else {
+					throw new IllegalArgumentException("Only codes with String or Integer ids are allowed for preferences object");
+				}
 			} else {
 				throw new IllegalArgumentException();
 			}
