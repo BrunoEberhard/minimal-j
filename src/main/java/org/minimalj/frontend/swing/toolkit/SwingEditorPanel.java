@@ -62,6 +62,7 @@ public class SwingEditorPanel extends JPanel {
 		
 	}
 	
+	// TODO: move this unused stuff to ButtonBar
 	public static JButton createButton(Action action) {
 		JButton button = new SwingHeavyActionButton(action);
 		installAccelerator(action, button);
