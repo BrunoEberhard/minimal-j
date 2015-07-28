@@ -44,20 +44,18 @@ public abstract class Backend {
 
 	private static Backend instance;
 	
-	private static void initBackend() {
+	public static Backend createBackend() {
 		String backendAddress = System.getProperty("MjBackendAddress");
 		String backendPort = System.getProperty("MjBackendPort", "8020");
 		if (backendAddress != null) {
-			Backend.setSocketBackend(backendAddress, Integer.valueOf(backendPort));
-			return;
+			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
 		} 
 
 		String database = System.getProperty("MjBackendDatabase");
 		String user= System.getProperty("MjBackendDatabaseUser", "APP");
 		String password = System.getProperty("MjBackendDatabasePassword", "APP");
 		if (!StringUtils.isBlank(database)) {
-			Backend.setDbBackend(database, user, password);
-			return;
+			return new DbBackend(database, user, password);
 		}
 		
 		String backendClassName = System.getProperty("MjBackend");
@@ -66,29 +64,16 @@ public abstract class Backend {
 				@SuppressWarnings("unchecked")
 				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
 				Backend backend = backendClass.newInstance();
-				Backend.setInstance(backend);
+				return backend;
 			} catch (Exception x) {
 				throw new LoggingRuntimeException(x, logger, "Set backend failed");
 			}
-			return;
 		} 
 		
-		Backend.setEmbeddedDbBackend();
+		return new DbBackend();
 	}
 	
-	public static void setSocketBackend(String backendAddress, int port) {
-		setInstance(new SocketBackend(backendAddress, port));
-	}
-
-	public static void setEmbeddedDbBackend() {
-		setInstance(new DbBackend());
-	}
-	
-	public static void setDbBackend(String database, String user, String password) {
-		setInstance(new DbBackend(database, user, password));
-	}
-	
-	public static void setInstance(Backend backend) {
+	public static synchronized void setInstance(Backend backend) {
 		if (Backend.instance != null) {
 			throw new IllegalStateException("Backend cannot be changed");
 		}		
@@ -100,7 +85,7 @@ public abstract class Backend {
 	
 	public static Backend getInstance() {
 		if (instance == null) {
-			initBackend();
+			instance = createBackend();
 		}
 		return instance;
 	}
