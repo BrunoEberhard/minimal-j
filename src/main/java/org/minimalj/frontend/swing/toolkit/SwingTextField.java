@@ -14,9 +14,9 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.util.StringUtils;
 
 public class SwingTextField extends JTextField implements Input<String>, FocusListener {

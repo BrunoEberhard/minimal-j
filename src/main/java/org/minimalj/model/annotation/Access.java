@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation specifies the needed role to access a field or
- * a transaction class.<p>
+ * a transaction class. If more than role is listed 
+ * the user must have at least one of the roles.
  * 
- * NOT YET IMPLEMENTED
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})

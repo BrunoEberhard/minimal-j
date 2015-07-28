@@ -9,8 +9,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.FormElement;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class SwingDirectoryFormElement extends JPanel implements FormElement<String>, IComponent {

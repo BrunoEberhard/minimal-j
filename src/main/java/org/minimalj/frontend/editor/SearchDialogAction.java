@@ -2,11 +2,11 @@ package org.minimalj.frontend.editor;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
-import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.IDialog;
 
 public abstract class SearchDialogAction<T> extends Action implements Search<T> {
 	private final Object[] keys;
@@ -18,7 +18,7 @@ public abstract class SearchDialogAction<T> extends Action implements Search<T> 
 	
 	@Override
 	public void action() {
-		dialog = ClientToolkit.getToolkit().showSearchDialog(this, keys, new SearchClickListener());
+		dialog = Frontend.getBrowser().showSearchDialog(this, keys, new SearchClickListener());
 	}
 
 	protected int getColumnWidthPercentage() {

@@ -6,7 +6,7 @@ import java.beans.PropertyVetoException;
 import javax.swing.JInternalFrame;
 import javax.swing.JProgressBar;
 
-import org.minimalj.frontend.toolkit.ProgressListener;
+import org.minimalj.frontend.page.ProgressListener;
 
 public class SwingProgressInternalFrame extends JInternalFrame implements ProgressListener {
 	private static final long serialVersionUID = 1L;

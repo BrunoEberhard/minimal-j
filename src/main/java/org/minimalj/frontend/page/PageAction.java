@@ -1,7 +1,7 @@
 package org.minimalj.frontend.page;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.action.Action;
 
 public class PageAction extends Action {
 
@@ -24,7 +24,7 @@ public class PageAction extends Action {
 
 	@Override
 	public void action() {
-		ClientToolkit.getToolkit().show(page);
+		Frontend.getBrowser().show(page);
 	}
 	
 }

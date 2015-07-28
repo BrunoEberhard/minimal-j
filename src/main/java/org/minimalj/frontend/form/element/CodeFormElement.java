@@ -2,9 +2,9 @@ package org.minimalj.frontend.form.element;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Code;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
@@ -18,7 +18,7 @@ public class CodeFormElement extends AbstractFormElement<Code> implements Enable
 	public CodeFormElement(PropertyInterface property) {
 		super(property);
 		codes = Codes.get((Class<Code>) property.getClazz());
-		comboBox = ClientToolkit.getToolkit().createComboBox(codes, listener());
+		comboBox = Frontend.getInstance().createComboBox(codes, listener());
 	}
 	
 	@Override

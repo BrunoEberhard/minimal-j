@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
@@ -30,9 +33,6 @@ import org.minimalj.frontend.form.element.LongFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
 import org.minimalj.frontend.form.element.TypeUnknownFormElement;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.FormContent;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Enabled;
@@ -91,7 +91,7 @@ public class Form<T> {
 		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;
 		this.columns = columns;
-		this.formContent = ClientToolkit.getToolkit().createFormContent(columns, getColumnWidthPercentage());
+		this.formContent = Frontend.getInstance().createFormContent(columns, getColumnWidthPercentage());
 	}
 	
 	protected int getColumnWidthPercentage() {
@@ -185,12 +185,12 @@ public class Form<T> {
 	// 
 
 	public void text(String text) {
-		IComponent label = ClientToolkit.getToolkit().createLabel(text);
+		IComponent label = Frontend.getInstance().createLabel(text);
 		formContent.add(label);
 	}
 
 	public void addTitle(String text) {
-		IComponent label = ClientToolkit.getToolkit().createTitle(text);
+		IComponent label = Frontend.getInstance().createTitle(text);
 		formContent.add(label);
 	}
 

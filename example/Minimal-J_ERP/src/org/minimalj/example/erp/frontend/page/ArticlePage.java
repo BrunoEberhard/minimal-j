@@ -6,10 +6,10 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.frontend.form.ArticleForm;
 import org.minimalj.example.erp.model.Article;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.toolkit.Action;
 
 public class ArticlePage extends ObjectPage<Article> {
 

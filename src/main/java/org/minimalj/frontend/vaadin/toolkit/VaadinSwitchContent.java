@@ -1,7 +1,7 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.SwitchContent;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
@@ -31,7 +31,7 @@ public class VaadinSwitchContent extends GridLayout implements SwitchContent {
 			Component component = (Component) c;
 			component.setWidth("100%");
 			addComponent(component);
-			VaadinClientToolkit.focusFirstComponent(component);
+			VaadinFrontend.focusFirstComponent(component);
 		}
 		this.showContent = c;
 	}

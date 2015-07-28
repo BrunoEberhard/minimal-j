@@ -11,9 +11,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.swing.toolkit.SwingClientToolkit.SwingActionLabel;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.IList;
+import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.swing.toolkit.SwingFrontend.SwingActionLabel;
 
 
 public class SwingList extends JPanel implements IList {

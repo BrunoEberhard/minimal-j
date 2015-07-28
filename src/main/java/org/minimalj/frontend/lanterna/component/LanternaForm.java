@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.lanterna.toolkit.LanternaCaption;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.FormContent;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.TextGraphics;

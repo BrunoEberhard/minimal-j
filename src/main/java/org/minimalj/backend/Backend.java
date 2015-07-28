@@ -12,6 +12,12 @@ import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.persistence.DeleteTransaction;
+import org.minimalj.transaction.persistence.InsertTransaction;
+import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
+import org.minimalj.transaction.persistence.ReadTransaction;
+import org.minimalj.transaction.persistence.StatementTransaction;
+import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
@@ -94,15 +100,39 @@ public abstract class Backend {
 	public abstract <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream);
 	public abstract <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream);
 
-	// persistence
+	// persistence shortcuts
 	
-	public abstract <T> T read(Class<T> clazz, Object id);
-	public abstract <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
+	public <T> T read(Class<T> clazz, Object id) {
+		return execute(new ReadTransaction<T>(clazz, id, null));
+	}
+	
+	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
+		List<T> result = execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		return result;
+	}
+	
+	public <T> T insert(T object) {
+		return execute(new InsertTransaction<T>(object));
+	}
 
-	public abstract <T> T insert(T object);
-	public abstract <T> T update(T object);
-	public abstract <T> void delete(Class<T> clazz, Object id);
+	public <T> T update(T object) {
+		return execute(new UpdateTransaction<T>(object));
+	}
 
-	public abstract <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter);
-	public abstract <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter);
+	public <T> void delete(Class<T> clazz, Object id) {
+		execute(new DeleteTransaction(clazz, id));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
+		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, parameter);
+		return (T) getInstance().execute(statementTransaction);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter) {
+		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, maxResults, parameter);
+		return (List<T>) getInstance().execute(statementTransaction);
+	}
+	
 }

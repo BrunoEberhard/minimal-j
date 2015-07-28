@@ -1,8 +1,8 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.IList;
-import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit.VaadinActionLabel;
+import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.vaadin.toolkit.VaadinFrontend.VaadinActionLabel;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;

@@ -1,10 +1,10 @@
 package org.minimalj.frontend.json;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
-import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.IDialog;
 
 public class JsonDialog extends JsonComponent implements IDialog {
 
@@ -15,8 +15,8 @@ public class JsonDialog extends JsonComponent implements IDialog {
 		this.closeAction = closeAction;
 		put("title", title);
 		put("content", (content));
-		put("actions", JsonClientToolkit.getSession().createActions(actions));
-		JsonClientToolkit.getSession().openDialog(this);
+		put("actions", JsonFrontend.getClientSession().createActions(actions));
+		JsonFrontend.getClientSession().openDialog(this);
 	}
 
 	private JsonDialog(String type, JsonComponent content) {
@@ -24,12 +24,12 @@ public class JsonDialog extends JsonComponent implements IDialog {
 		this.closeAction = null;
 		put("title", "Search");
 		put("content", content);
-		JsonClientToolkit.getSession().openDialog(this);
+		JsonFrontend.getClientSession().openDialog(this);
 	}
 
 	@Override
 	public void closeDialog() {
-		JsonClientToolkit.getSession().closeDialog((String) get("id"));
+		JsonFrontend.getClientSession().closeDialog((String) get("id"));
 	}
 	
 	public static class JsonSearchDialog<T> extends JsonDialog {

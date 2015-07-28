@@ -3,6 +3,7 @@ package org.minimalj.backend;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,6 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Authentication;
+import org.minimalj.application.Subject;
+import org.minimalj.transaction.Role;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
@@ -52,7 +56,7 @@ public class SocketBackendServer {
 		}
 	}
 	
-	private static class SocketBackendRunnable implements Runnable {
+	private class SocketBackendRunnable implements Runnable {
 		private final Socket socket;
 
 		public SocketBackendRunnable(Socket socket) {
@@ -63,8 +67,23 @@ public class SocketBackendServer {
 		@Override
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+
+				String user = (String) ois.readObject();
+				Serializable authentication = null;
+				if (user != null) {
+					authentication = (Serializable) ois.readObject();
+					Subject.set(Authentication.getInstance().login(user, authentication));
+				} else {
+					Subject.set(null);
+				}
+
 				Object input = ois.readObject();
 
+				Role role = input.getClass().getAnnotation(Role.class);
+				if (role != null) {
+					Authentication.checkPermission(role.value());
+				}
+				
 				Object result = null;
 				if (input instanceof Transaction) {
 					Transaction transaction = (Transaction) input;

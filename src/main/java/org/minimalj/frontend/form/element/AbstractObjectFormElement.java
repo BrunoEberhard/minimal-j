@@ -1,13 +1,13 @@
 package org.minimalj.frontend.form.element;
 
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.IList;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
@@ -35,7 +35,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	public AbstractObjectFormElement(PropertyInterface property, boolean editable) {
 		super(property);
 		this.editable = editable;
-		list = editable ? ClientToolkit.getToolkit().createList(getActions()) : ClientToolkit.getToolkit().createList();
+		list = editable ? Frontend.getInstance().createList(getActions()) : Frontend.getInstance().createList();
 	}
 
 	protected final boolean isEditable() {

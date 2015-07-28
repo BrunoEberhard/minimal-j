@@ -4,8 +4,8 @@ import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 
 public class SwingTextAreaField extends JTextArea implements Input<String> {
 	

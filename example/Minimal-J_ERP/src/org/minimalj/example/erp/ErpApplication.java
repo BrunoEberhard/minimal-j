@@ -12,10 +12,10 @@ import org.minimalj.example.erp.frontend.page.CustomerTablePage;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
-import org.minimalj.frontend.page.ActionGroup;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
-import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.test.ModelTest;
 
 public class ErpApplication extends Application {

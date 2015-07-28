@@ -3,11 +3,11 @@ package org.minimalj.frontend.form.element;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.transaction.criteria.Criteria;
@@ -24,7 +24,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 		super(Keys.getProperty(key));
 		fieldClazz = ViewUtil.resolve(getProperty().getClazz());
 		this.searchColumns = searchColumns;
-		lookup = ClientToolkit.getToolkit().createLookup(new ReferenceFieldChangeListener(), new ReferenceFieldSearch(), searchColumns);
+		lookup = Frontend.getInstance().createLookup(new ReferenceFieldChangeListener(), new ReferenceFieldSearch(), searchColumns);
 	}
 
 	private class ReferenceFieldSearch implements Search<T> {

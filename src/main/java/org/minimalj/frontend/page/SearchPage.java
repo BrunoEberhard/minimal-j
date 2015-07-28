@@ -3,8 +3,8 @@ package org.minimalj.frontend.page;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.page.TablePage.TablePageWithDetail;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 

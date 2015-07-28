@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.example.erp.model.OfferArticle;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.ListFormElement;
 import org.minimalj.frontend.form.element.ReferenceFormElement;
-import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.Keys;
 
 public class OfferArticleFormElement extends ListFormElement<OfferArticle> {

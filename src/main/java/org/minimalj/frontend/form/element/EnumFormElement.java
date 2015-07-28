@@ -2,9 +2,9 @@ package org.minimalj.frontend.form.element;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
@@ -31,7 +31,7 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 		this.enumClass = (Class<E>) property.getClazz();
 		
 		List<CodeItem<E>> itemList = allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass);
-		comboBox = ClientToolkit.getToolkit().createComboBox(itemList, listener());
+		comboBox = Frontend.getInstance().createComboBox(itemList, listener());
 		
 		setDefault();
 	}

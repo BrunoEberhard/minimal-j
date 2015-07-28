@@ -1,9 +1,10 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.lanterna.LanternaGUIScreen;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.page.IDialog;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.Window;
@@ -29,7 +30,7 @@ public class LanternaDialog implements IDialog {
 			}
 		});
 		
-		LanternaClientToolkit.getGui().show(window);
+		((LanternaGUIScreen) Frontend.getBrowser()).show(window);
 	}
 	
 	@Override

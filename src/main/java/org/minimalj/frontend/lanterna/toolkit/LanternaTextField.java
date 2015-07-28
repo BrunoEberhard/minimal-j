@@ -1,7 +1,7 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.util.StringUtils;
 
 import com.googlecode.lanterna.gui.component.InteractableComponent;

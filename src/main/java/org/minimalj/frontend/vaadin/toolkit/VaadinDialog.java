@@ -2,8 +2,10 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.Iterator;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.vaadin.VaadinWindow;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -29,7 +31,7 @@ public class VaadinDialog extends Window implements IDialog {
 		}
 		
 		setVisible(true);
-		VaadinClientToolkit.focusFirstComponent(getContent());
+		VaadinFrontend.focusFirstComponent(getContent());
 	}
 	
 	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {
@@ -74,9 +76,9 @@ public class VaadinDialog extends Window implements IDialog {
 	protected void close() {
 		// super.close(); DONT, would always close without ask
 
-		VaadinClientToolkit.setWindow(getWindow());
+		Frontend.setBrowser((VaadinWindow) getWindow());
 		fireClose();
-		VaadinClientToolkit.setWindow(null);
+		Frontend.setBrowser(null);
 	}
 
 }

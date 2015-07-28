@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
+import org.minimalj.frontend.Frontend.ITable;
+import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;

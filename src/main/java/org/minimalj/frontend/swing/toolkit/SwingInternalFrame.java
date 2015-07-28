@@ -7,9 +7,9 @@ import java.beans.PropertyVetoException;
 
 import javax.swing.JInternalFrame;
 
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.swing.component.EditablePanel;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.IDialog;
 
 public class SwingInternalFrame extends JInternalFrame implements IDialog {
 	// private static final Logger logger = Logger.getLogger(EditorInternalFrameDecorator.class.getName());
@@ -43,7 +43,7 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 		if (getHeight() >= editablePanel.getHeight()) {
 			setLocation(getLocation().x, 0);
 		}
-		SwingClientToolkit.focusFirstComponent(this);
+		SwingFrontend.focusFirstComponent(this);
 	}
 	
 	@Override

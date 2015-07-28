@@ -1,7 +1,7 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.SwitchContent;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.TextGraphics;

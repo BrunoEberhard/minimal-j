@@ -8,13 +8,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
-import org.minimalj.frontend.page.Separator;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.swing.lookAndFeel.LookAndFeelAction;
 import org.minimalj.frontend.swing.lookAndFeel.PrintLookAndFeel;
 import org.minimalj.frontend.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import org.minimalj.frontend.swing.lookAndFeel.TerminalLookAndFeel;
-import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
-import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.swing.toolkit.SwingFrontend;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -90,15 +90,15 @@ public class SwingMenuBar extends JMenuBar {
 	
 	public static void addActions(JMenu menu, List<Action> actions) {
 		for (Action action : actions) {
-			if (action instanceof org.minimalj.frontend.page.ActionGroup) {
-				org.minimalj.frontend.page.ActionGroup actionGroup = (org.minimalj.frontend.page.ActionGroup) action;
-				JMenu subMenu = new JMenu(SwingClientToolkit.adaptAction(action));
+			if (action instanceof org.minimalj.frontend.action.ActionGroup) {
+				org.minimalj.frontend.action.ActionGroup actionGroup = (org.minimalj.frontend.action.ActionGroup) action;
+				JMenu subMenu = new JMenu(SwingFrontend.adaptAction(action));
 				addActions(subMenu, actionGroup.getItems());
 				menu.add(subMenu);
 			} else if (action instanceof Separator) {
 				menu.addSeparator();
 			} else {
-				menu.add(new JMenuItem(SwingClientToolkit.adaptAction(action)));
+				menu.add(new JMenuItem(SwingFrontend.adaptAction(action)));
 			}
 		}
 	}

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 

@@ -5,7 +5,7 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.Frontend.IComponent;
 
 
 public class SwingHorizontalLayout extends JPanel implements IComponent {

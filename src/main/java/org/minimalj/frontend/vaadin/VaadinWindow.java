@@ -1,14 +1,31 @@
 package org.minimalj.frontend.vaadin;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
 import java.util.Locale;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.ApplicationContext;
-import org.minimalj.frontend.page.ActionGroup;
+import org.minimalj.application.Subject;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.FormContent;
-import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
+import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.ProgressListener;
+import org.minimalj.frontend.vaadin.toolkit.VaadinConfirmDialog;
+import org.minimalj.frontend.vaadin.toolkit.VaadinDialog;
+import org.minimalj.frontend.vaadin.toolkit.VaadinEditorLayout;
+import org.minimalj.frontend.vaadin.toolkit.VaadinExportDialog;
+import org.minimalj.frontend.vaadin.toolkit.VaadinFrontend;
+import org.minimalj.frontend.vaadin.toolkit.VaadinImportDialog;
+import org.minimalj.frontend.vaadin.toolkit.VaadinProgressDialog;
+import org.minimalj.frontend.vaadin.toolkit.VaadinSearchPanel;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.event.ShortcutAction;
@@ -18,6 +35,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
@@ -26,21 +44,21 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class VaadinWindow extends Window {
+public class VaadinWindow extends Window implements PageBrowser {
 	private static final long serialVersionUID = 1L;
 
 	private final VerticalLayout windowContent = new VerticalLayout();
 	private final VaadinMenuBar menubar = new VaadinMenuBar(this);
 	private final TextField textFieldSearch = new TextField();
-	private final ApplicationContext applicatonContext;
+	private final Subject subject;
 	
 	private Page visiblePage;
 	private Component content;
 	private Panel scrollablePanel;
 	private int indexInPages;
 	
-	public VaadinWindow(ApplicationContext context) {
-		this.applicatonContext = context;
+	public VaadinWindow(Subject subject) {
+		this.subject = subject;
 		
 		setLocale(Locale.GERMAN);
 
@@ -107,10 +125,12 @@ public class VaadinWindow extends Window {
 		show(searchPage);
 	}
 	
+	@Override
 	public void show(Page page) {
 		updateContent(page);
 	}
 	
+	@Override
 	public void refresh() {
 		updateContent(getVisiblePage());
 	}
@@ -119,12 +139,79 @@ public class VaadinWindow extends Window {
 		return visiblePage;
 	}
 	
+	@Override
+	public void showMessage(String text) {
+		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
+		showNotification("Information", text, Notification.TYPE_HUMANIZED_MESSAGE);
+	}
+	
+	@Override
+	public void showError(String text) {
+		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
+		showNotification("Fehler", text, Notification.TYPE_ERROR_MESSAGE);
+	}
+	
+	@Override
+	public void showConfirmDialog(String message, String title, ConfirmDialogType type, DialogListener listener) {
+		Window window = this;
+		while (window.getParent() != null) {
+			window = window.getParent();
+		}
+		new VaadinConfirmDialog(window, message, title, type, listener);
+	}
+	
+	@Override
+	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
+		// TODO use saveAction (Enter in TextFields should save the dialog)
+
+		Component component = new VaadinEditorLayout(content, actions);
+		component.setSizeFull();
+
+		return createDialog(title, component, closeAction);
+	}	
+	
+	private IDialog createDialog(String title, Component component, Action closeAction) {
+		Window window = this;
+		// need to find application-level window
+		while (window.getParent() != null) {
+			window = window.getParent();
+		}
+		return new VaadinDialog(window, title, (ComponentContainer) component, closeAction);
+	}
+
+	public static ProgressListener showProgress(Object parent, String text) {
+		Component parentComponent = (Component) parent;
+		Window window = parentComponent.getWindow();
+		VaadinProgressDialog progressDialog = new VaadinProgressDialog(window, text);
+		return progressDialog;
+	}
+	
+	@Override
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+		VaadinSearchPanel<T> panel = new VaadinSearchPanel<>(index, keys, listener);
+		return createDialog(null, panel, null);
+	}
+
+	@Override
+	public OutputStream store(String buttonText) {
+		return new VaadinExportDialog(this, "Export").getOutputStream();
+	}
+
+	@Override
+	public InputStream load(String buttonText) {
+		VaadinImportDialog importDialog = new VaadinImportDialog(this, "Import");
+		PipedInputStream inputStream = importDialog.getInputStream();
+		return inputStream;
+	}
+	
+	//
+	
 	private void updateContent(Page page) {
-		VaadinClientToolkit.setWindow(VaadinWindow.this);
+		Frontend.setBrowser(VaadinWindow.this);
 		visiblePage = page;
 		Component component = (Component) visiblePage.getContent();
 		updateContent(component);
-		VaadinClientToolkit.setWindow(null);
+		Frontend.setBrowser(null);
 	}
 	
 	private void updateContent(Component content) {
@@ -154,7 +241,7 @@ public class VaadinWindow extends Window {
 		
 		menubar.updateMenu();
 		updateWindowTitle();
-		VaadinClientToolkit.focusFirstComponent(content);
+		VaadinFrontend.focusFirstComponent(content);
 	}
 	
 	private Component createFormAlignLayout(Component content) {
@@ -196,10 +283,6 @@ public class VaadinWindow extends Window {
 		setCaption(title);
 	}
 	
-	public ApplicationContext getApplicationContext() {
-		return applicatonContext;
-	}
-	
 	private Action[] wrapActions(Action[] actions) {
 		Action[] wrappedActions = new Action[actions.length];
 		for (int i = 0; i<actions.length; i++) {
@@ -216,9 +299,11 @@ public class VaadinWindow extends Window {
 			this.action = action;
 		}
 
+		@Override
 		public void action() {
-			ApplicationContext.setApplicationContext(VaadinWindow.this.applicatonContext);
+			Frontend.setBrowser(VaadinWindow.this);
 			action.action();
+			Frontend.setBrowser(null);
 		}
 
 		@Override

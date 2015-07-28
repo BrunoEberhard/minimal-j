@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.SwitchContent;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogResult;
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
-import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.PageBrowser.ConfirmDialogResult;
+import org.minimalj.frontend.page.PageBrowser.ConfirmDialogType;
+import org.minimalj.frontend.page.PageBrowser.DialogListener;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
@@ -48,7 +48,7 @@ public abstract class Wizard<RESULT> extends Action {
 
 	@Override
 	public void action() {
-		switchContent = ClientToolkit.getToolkit().createSwitchContent();
+		switchContent = Frontend.getInstance().createSwitchContent();
 
 		CancelAction cancelAction = new CancelAction();
 		PreviousWizardStepAction previousAction = new PreviousWizardStepAction();
@@ -61,9 +61,9 @@ public abstract class Wizard<RESULT> extends Action {
 		
 		if (DevMode.isActive()) {
 			FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
-			dialog = ClientToolkit.getToolkit().showDialog(getTitle(), switchContent, nextAction, cancelAction, demoAction, cancelAction, previousAction, nextAction, finishAction);
+			dialog = Frontend.getBrowser().showDialog(getTitle(), switchContent, nextAction, cancelAction, demoAction, cancelAction, previousAction, nextAction, finishAction);
 		} else {
-			dialog = ClientToolkit.getToolkit().showDialog(getTitle(), switchContent, nextAction, cancelAction, cancelAction, previousAction, nextAction, finishAction);
+			dialog = Frontend.getBrowser().showDialog(getTitle(), switchContent, nextAction, cancelAction, cancelAction, previousAction, nextAction, finishAction);
 		}
 	}
 
@@ -232,12 +232,13 @@ public abstract class Wizard<RESULT> extends Action {
 				} 
 			}
 		};
-		ClientToolkit.getToolkit().showConfirmDialog("Soll der Wizard abgebrochen und alle Eingaben verworfen werden?", "Schliessen",
+		Frontend.getBrowser().showConfirmDialog("Soll der Wizard abgebrochen und alle Eingaben verworfen werden?", "Schliessen",
 				ConfirmDialogType.YES_NO, listener);
 	}
 
 	
 	private class FillWithDemoDataAction extends Action {
+		@Override
 		public void action() {
 			fillWithDemoData();
 		}

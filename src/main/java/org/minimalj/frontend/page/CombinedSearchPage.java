@@ -3,8 +3,8 @@ package org.minimalj.frontend.page;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.CombinedSearchPage.SearchResult;
-import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.model.Keys;
 
 public class CombinedSearchPage extends TablePage<SearchResult> {
@@ -27,7 +27,7 @@ public class CombinedSearchPage extends TablePage<SearchResult> {
 
 	@Override
 	public void action(SearchResult selectedObject) {
-		ClientToolkit.getToolkit().show(selectedObject.searchPage);
+		Frontend.getBrowser().show(selectedObject.searchPage);
 	}
 	
 	@SuppressWarnings("rawtypes")

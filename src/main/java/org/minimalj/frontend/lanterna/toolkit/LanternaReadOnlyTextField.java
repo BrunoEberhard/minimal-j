@@ -1,6 +1,6 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
+import org.minimalj.frontend.Frontend.Input;
 
 import com.googlecode.lanterna.gui.component.Label;
 

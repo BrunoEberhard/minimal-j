@@ -10,6 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,8 +25,10 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -28,15 +36,25 @@ import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.action.Separator;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.Separator;
+import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
 import org.minimalj.frontend.swing.component.SwingDecoration;
-import org.minimalj.frontend.swing.toolkit.SwingClientToolkit;
+import org.minimalj.frontend.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.swing.toolkit.SwingEditorPanel;
+import org.minimalj.frontend.swing.toolkit.SwingInternalFrame;
+import org.minimalj.frontend.swing.toolkit.SwingProgressInternalFrame;
+import org.minimalj.frontend.swing.toolkit.SwingSearchPanel;
 
-public class SwingTab extends EditablePanel {
+public class SwingTab extends EditablePanel implements PageBrowser {
 	private static final long serialVersionUID = 1L;
 	
 	final SwingFrame frame;
@@ -56,6 +74,8 @@ public class SwingTab extends EditablePanel {
 
 	private final List<Page> pageAndDetails;
 
+	private Page focusedPage;
+	
 	public SwingTab(SwingFrame frame) {
 		super();
 		this.frame = frame;
@@ -175,6 +195,7 @@ public class SwingTab extends EditablePanel {
 		}
 	}
 	
+	@Override
 	public void refresh() {
 		replace(getVisiblePage());
 	}
@@ -329,10 +350,12 @@ public class SwingTab extends EditablePanel {
 		history.previous();
 	}
 
+	@Override
 	public void show(Page page) {
 		history.add(page);
 	}
 
+	@Override
 	public void showDetail(Page detail) {
 		int index = pageAndDetails.indexOf(detail);
 		if (index > -1) {
@@ -340,8 +363,12 @@ public class SwingTab extends EditablePanel {
 			decoration.setContentVisible();
 			return;
 		}
-		removeDetailsOf(SwingClientToolkit.getPage());
+		removeDetailsOf(focusedPage);
 		addPageOrDetail(detail);
+	}
+	
+	public void setFocusedPage(Page focusedPage) {
+		this.focusedPage = focusedPage;
 	}
 	
 	private void addPageOrDetail(Page page) {
@@ -385,16 +412,108 @@ public class SwingTab extends EditablePanel {
 		verticalPanel.repaint();
 	}
 
-	public boolean isShown(Page detail) {
+	@Override
+	public boolean isDetailShown(Page detail) {
 		return pageAndDetails.contains(detail);
 	}
 	
+	@Override
 	public void hideDetail(Page detail) {
 		int index = pageAndDetails.indexOf(detail);
 		removeDetails(index);
 	}
+	
+	@Override
+	public void showConfirmDialog(String message, String title, ConfirmDialogType type,
+			DialogListener listener) {
+		int optionType = type.ordinal();
+		int result = JOptionPane.showConfirmDialog(this, message, title, optionType);
+		listener.close(ConfirmDialogResult.values()[result]);
+	}
+	
+	@Override
+	public void showError(String text) {
+		Window window = findWindow();
+		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	private Window findWindow() {
+		Component parentComponent = this;
+		while (parentComponent != null && !(parentComponent instanceof Window)) {
+			if (parentComponent instanceof JPopupMenu) {
+				parentComponent = ((JPopupMenu) parentComponent).getInvoker();
+			} else {
+				parentComponent = parentComponent.getParent();
+			}
+		}
+		return (Window) parentComponent;
+	}
 
-	private JPopupMenu createMenu(List<org.minimalj.frontend.toolkit.Action> actions) {
+	@Override
+	public IDialog showDialog(String title, IContent content, org.minimalj.frontend.action.Action saveAction, org.minimalj.frontend.action.Action closeAction, org.minimalj.frontend.action.Action... actions) {
+		JComponent contentComponent = new SwingEditorPanel(content, actions);
+		return createDialog(title, contentComponent, saveAction, closeAction);
+	}
+
+	private IDialog createDialog(String title, JComponent content, org.minimalj.frontend.action.Action saveAction, org.minimalj.frontend.action.Action closeAction) {
+		return new SwingInternalFrame(this, title, content, saveAction, closeAction);
+	}
+	
+	@Override
+	public void showMessage(String text) {
+		Window window = findWindow();
+		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	@Override
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
+		return createDialog(null, panel, null, null);
+	}
+	
+	@Override
+	public OutputStream store(String buttonText) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(false);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, buttonText)) {
+			File outputFile = chooser.getSelectedFile();
+			try {
+				return new FileOutputStream(outputFile);
+			} catch (FileNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public InputStream load(String buttonText) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(false);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, buttonText)) {
+			File inputFile = chooser.getSelectedFile();
+			try {
+				return new FileInputStream(inputFile);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+	
+	@Deprecated
+	public ProgressListener showProgress(String text) {
+		SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);
+		openModalDialog(frame);
+		return frame;
+	}
+	
+	private JPopupMenu createMenu(List<org.minimalj.frontend.action.Action> actions) {
 		if (actions != null && actions.size() > 0) {
 			JPopupMenu menu = new JPopupMenu();
 			addActions(menu, actions);
@@ -403,17 +522,17 @@ public class SwingTab extends EditablePanel {
 		return null;
 	}
 	
-	public static void addActions(JPopupMenu menu, List<org.minimalj.frontend.toolkit.Action> actions) {
-		for (org.minimalj.frontend.toolkit.Action action : actions) {
-			if (action instanceof org.minimalj.frontend.page.ActionGroup) {
-				org.minimalj.frontend.page.ActionGroup actionGroup = (org.minimalj.frontend.page.ActionGroup) action;
-				JMenu subMenu = new JMenu(SwingClientToolkit.adaptAction(action));
+	public static void addActions(JPopupMenu menu, List<org.minimalj.frontend.action.Action> actions) {
+		for (org.minimalj.frontend.action.Action action : actions) {
+			if (action instanceof org.minimalj.frontend.action.ActionGroup) {
+				org.minimalj.frontend.action.ActionGroup actionGroup = (org.minimalj.frontend.action.ActionGroup) action;
+				JMenu subMenu = new JMenu(SwingFrontend.adaptAction(action));
 				SwingMenuBar.addActions(subMenu, actionGroup.getItems());
 				menu.add(subMenu);
 			} else if (action instanceof Separator) {
 				menu.addSeparator();
 			} else {
-				menu.add(new JMenuItem(SwingClientToolkit.adaptAction(action)));
+				menu.add(new JMenuItem(SwingFrontend.adaptAction(action)));
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 package org.minimalj.frontend.json;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.SwitchContent;
 
 public class JsonSwitchContent extends JsonComponent implements SwitchContent {
 	private static final long serialVersionUID = 1L;
@@ -12,8 +12,8 @@ public class JsonSwitchContent extends JsonComponent implements SwitchContent {
 
 	@Override
 	public void show(IContent content) {
-		JsonClientToolkit.getSession().clearContent(getId());
-		JsonClientToolkit.getSession().addContent(getId(), (JsonComponent) content);
+		JsonFrontend.getClientSession().clearContent(getId());
+		JsonFrontend.getClientSession().addContent(getId(), (JsonComponent) content);
 	}
 
 }

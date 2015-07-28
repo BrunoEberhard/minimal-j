@@ -11,11 +11,11 @@ import java.util.logging.Logger;
 
 import org.minimalj.backend.SocketBackendServer;
 import org.minimalj.backend.db.DbBackend;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.swing.SwingFrontend;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.vaadin.VaadinFrontend;
+import org.minimalj.frontend.swing.SwingApplication;
+import org.minimalj.frontend.vaadin.VaadinApplication;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -31,8 +31,8 @@ import org.minimalj.util.resources.Resources;
  * All non static methods can be overridden to define the behavior
  * of the application.
  * 
- * @see SwingFrontend
- * @see VaadinFrontend
+ * @see SwingApplication
+ * @see VaadinApplication
  * @see SocketBackendServer
  * @see DbBackend
  */
@@ -176,10 +176,6 @@ public abstract class Application {
 		}
 	}
 	
-	public Class<?> getPreferencesClass() {
-		return null;
-	}
-	
 	public Page createSearchPage(String query) {
 		return new EmptyPage();
 	}
@@ -210,7 +206,7 @@ public abstract class Application {
 		} else if (Application.class.getName().equals(mainClass)) {
 			logger.severe("and starting the Application class doesn't work at all. Nothing started.");
 		} else {
-			SwingFrontend.main(new String[]{mainClass});
+			SwingApplication.main(new String[]{mainClass});
 		}
 	}
 	

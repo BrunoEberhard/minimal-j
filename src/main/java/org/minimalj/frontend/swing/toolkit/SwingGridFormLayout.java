@@ -14,9 +14,9 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.swing.component.SwingCaption;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.FormContent;
 
 public class SwingGridFormLayout extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
@@ -38,7 +38,7 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 	@Override
 	public void add(IComponent c) {
 		Component component = (Component) c;
-		add(component, new GridFormLayoutConstraint(SwingClientToolkit.verticallyGrowing(component)));
+		add(component, new GridFormLayoutConstraint(SwingFrontend.verticallyGrowing(component)));
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 		Component component = (Component) c;
 		SwingCaption swingCaption = new SwingCaption(component, caption);
 		captionByComponent.put(c, swingCaption);
-		add(swingCaption, new GridFormLayoutConstraint(span, SwingClientToolkit.verticallyGrowing(component)));
+		add(swingCaption, new GridFormLayoutConstraint(span, SwingFrontend.verticallyGrowing(component)));
 	}
 	
 	@Override
@@ -167,7 +167,7 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 			int height = 0;
 			for (List<Component> row : rows) {
 				for (Component component : row) {
-					if (!SwingClientToolkit.verticallyGrowing(component)) {
+					if (!SwingFrontend.verticallyGrowing(component)) {
 						height = Math.max(height, component.getPreferredSize().height);
 					}
 				}

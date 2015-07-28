@@ -2,8 +2,8 @@ package org.minimalj.frontend.page;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.util.resources.Resources;
 
 /**

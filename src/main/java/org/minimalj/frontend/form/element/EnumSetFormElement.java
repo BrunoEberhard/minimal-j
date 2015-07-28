@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;

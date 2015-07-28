@@ -1,9 +1,9 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.PropertyInterface;
 
@@ -20,7 +20,7 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 	public StringFormElement(PropertyInterface property, Boolean multiLine) {
 		super(property);
 		this.maxLength = AnnotationUtil.getSize(property);
-		this.textField = ClientToolkit.getToolkit().createTextField(maxLength, null, InputType.FREE, null, listener());
+		this.textField = Frontend.getInstance().createTextField(maxLength, null, InputType.FREE, null, listener());
 	}
 
 	@Override

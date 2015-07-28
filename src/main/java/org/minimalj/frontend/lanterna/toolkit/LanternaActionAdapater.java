@@ -7,18 +7,18 @@ import com.googlecode.lanterna.gui.Action;
 public class LanternaActionAdapater implements Action {
 
 	private final LanternaGUIScreen guiScreen;
-	private final org.minimalj.frontend.toolkit.Action action;
+	private final org.minimalj.frontend.action.Action action;
 	
-	public LanternaActionAdapater(LanternaGUIScreen guiScreen, org.minimalj.frontend.toolkit.Action action) {
+	public LanternaActionAdapater(LanternaGUIScreen guiScreen, org.minimalj.frontend.action.Action action) {
 		this.guiScreen = guiScreen;
 		this.action = action;
 	}
 
 	@Override
 	public void doAction() {
-		LanternaClientToolkit.setGui(guiScreen);
+		LanternaFrontend.setGui(guiScreen);
 		action.action();
-		LanternaClientToolkit.setGui(null);
+		LanternaFrontend.setGui(null);
 	}
 	
 	public String getText() {

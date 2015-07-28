@@ -5,8 +5,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 
 public class SwingCheckBox extends JCheckBox implements Input<Boolean> {
 	private static final long serialVersionUID = 1L;

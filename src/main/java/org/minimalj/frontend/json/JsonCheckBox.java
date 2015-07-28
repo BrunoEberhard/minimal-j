@@ -1,6 +1,6 @@
 package org.minimalj.frontend.json;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 
 public class JsonCheckBox extends JsonInputComponent<Boolean> {
 

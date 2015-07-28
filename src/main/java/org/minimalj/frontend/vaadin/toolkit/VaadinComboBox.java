@@ -2,8 +2,8 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 
 import com.vaadin.ui.Select;
 

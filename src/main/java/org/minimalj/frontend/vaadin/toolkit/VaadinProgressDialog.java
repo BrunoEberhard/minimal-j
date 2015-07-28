@@ -1,6 +1,6 @@
 package org.minimalj.frontend.vaadin.toolkit;
 
-import org.minimalj.frontend.toolkit.ProgressListener;
+import org.minimalj.frontend.page.ProgressListener;
 
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;

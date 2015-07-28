@@ -1,8 +1,8 @@
 package org.minimalj.frontend.lanterna.toolkit;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.IList;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.action.Action;
 
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.component.Panel;
@@ -16,7 +16,7 @@ public class LanternaList extends Panel implements IList {
 		setLayoutManager(new VerticalLayout());
 		if (actions != null) {
 			for (Action action : actions) {
-				addComponent((Component) ClientToolkit.getToolkit().createLabel(action));
+				addComponent((Component) Frontend.getInstance().createLabel(action));
 			}
 			actionCount = actions.length;
 		} else {
@@ -39,7 +39,7 @@ public class LanternaList extends Panel implements IList {
 
 	@Override
 	public void add(Object object, Action... actions) {
-		Component label = object instanceof Action ? (Component) ClientToolkit.getToolkit().createLabel((Action) object) : new LanternaLabel(object);
+		Component label = object instanceof Action ? (Component) Frontend.getInstance().createLabel((Action) object) : new LanternaLabel(object);
 		super.addComponent(label);
 		
 		// TODO actions

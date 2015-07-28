@@ -2,10 +2,10 @@ package org.minimalj.frontend.page;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.ITable;
+import org.minimalj.frontend.Frontend.TableActionListener;
 
 
 /**
@@ -27,7 +27,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 
 	@Override
 	public IContent getContent() {
-		table = ClientToolkit.getToolkit().createTable(keys, this);
+		table = Frontend.getInstance().createTable(keys, this);
 		if (objects == null) {
 			objects = load();
 		}
@@ -63,12 +63,12 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	
 		@Override
 		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
-			if (detailPage != null && ClientToolkit.getToolkit().isDetailShown(detailPage)) {
+			if (detailPage != null && Frontend.getBrowser().isDetailShown(detailPage)) {
 				DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
 				if (selectedDetailObject != null) {
 					detailPage.setObject(selectedDetailObject);
 				} else {
-					ClientToolkit.getToolkit().hideDetail(detailPage);
+					Frontend.getBrowser().hideDetail(detailPage);
 				}
 			}
 		}
@@ -81,7 +81,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			} else {
 				detailPage = createDetailPage(selectedDetailObject);
 			}
-			ClientToolkit.getToolkit().showDetail(detailPage);
+			Frontend.getBrowser().showDetail(detailPage);
 		}
 	}
 	

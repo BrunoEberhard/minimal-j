@@ -1,6 +1,6 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.model.properties.PropertyInterface;
 
 public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> {

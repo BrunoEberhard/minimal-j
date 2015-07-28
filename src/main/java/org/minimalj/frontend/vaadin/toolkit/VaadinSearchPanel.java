@@ -2,8 +2,11 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.vaadin.VaadinWindow;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -41,10 +44,10 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements VaadinCompon
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				VaadinClientToolkit.setWindow(event.getComponent().getWindow());
+				Frontend.setBrowser((VaadinWindow) event.getComponent().getWindow());
 				List<T> objects = search.search((String) text.getValue());
 				table.setObjects(objects);
-				VaadinClientToolkit.setWindow(null);
+				Frontend.setBrowser(null);
 			}
 		});
 		

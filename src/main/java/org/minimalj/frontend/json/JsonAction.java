@@ -1,7 +1,7 @@
 package org.minimalj.frontend.json;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.util.StringUtils;
 
 public class JsonAction extends JsonComponent {

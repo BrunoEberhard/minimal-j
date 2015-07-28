@@ -5,9 +5,11 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.ITable;
+import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.vaadin.PropertyVaadinContainer;
+import org.minimalj.frontend.vaadin.VaadinWindow;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
@@ -75,9 +77,9 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		public void itemClick(ItemClickEvent event) {
 			if (event.isDoubleClick()) {
 				T id = (T) event.getItemId();
-				VaadinClientToolkit.setWindow(event.getComponent().getWindow());
+				Frontend.setBrowser((VaadinWindow) event.getComponent().getWindow());
 				listener.action(id);
-				VaadinClientToolkit.setWindow(null);
+				Frontend.setBrowser(null);
 			}
 		}
 	}

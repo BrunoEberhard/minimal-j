@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IComponent;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 

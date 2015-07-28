@@ -1,5 +1,7 @@
 package org.minimalj.frontend.json;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,18 +11,22 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.ApplicationContext;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.json.JsonComponent.JsonPropertyListener;
-import org.minimalj.frontend.page.ActionGroup;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-public class JsonClientSession {
+public class JsonClientSession implements PageBrowser {
 
 	private static final Map<String, JsonClientSession> sessions = new HashMap<>();
-	private final ApplicationContext applicatonContext;
 	private Page visiblePage;
 	private String visiblePageId;
 	private Map<String, JsonComponent> componentById = new HashMap<>(100);
@@ -28,8 +34,7 @@ public class JsonClientSession {
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
-	public JsonClientSession(ApplicationContext context) {
-		this.applicatonContext = context;
+	public JsonClientSession() {
 	}
 	
 	public static JsonClientSession getSession(String sessionId) {
@@ -38,13 +43,13 @@ public class JsonClientSession {
 	
 	public static String createSession() {
 		String sessionId = UUID.randomUUID().toString();
-		JsonClientSession session = new JsonClientSession(null);
+		JsonClientSession session = new JsonClientSession();
 		sessions.put(sessionId, session);
 		return sessionId;
 	}
 	
 	public JsonOutput handle(JsonInput input) {
-		JsonClientToolkit.setSession(this);
+		Frontend.setBrowser(this);
 		output = new JsonOutput();
 
 		if (input.containsObject(JsonInput.SHOW_PAGE)) {
@@ -55,7 +60,7 @@ public class JsonClientSession {
 			} else {
 				page = Application.getApplication().createDefaultPage();
 			}
-			showPage(page, pageId);
+			show(page, pageId);
 		}
 		
 		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
@@ -83,18 +88,19 @@ public class JsonClientSession {
 		String search = (String) input.getObject("search");
 		if (search != null) {
 			Page searchPage = Application.getApplication().createSearchPage(search);
-			showPage(searchPage);
+			show(searchPage);
 		}
 
-		JsonClientToolkit.setSession(null);
+		Frontend.setBrowser(null);
 		return output;
 	}
 
-	public void showPage(Page page) {
-		showPage(page, UUID.randomUUID().toString());
+	@Override
+	public void show(Page page) {
+		show(page, UUID.randomUUID().toString());
 	}
 	
-	public void showPage(Page page, String pageId) {
+	public void show(Page page, String pageId) {
 		componentById.clear();
 		
 		JsonComponent content = (JsonComponent) page.getContent();
@@ -111,12 +117,52 @@ public class JsonClientSession {
 		
 		this.visiblePage = page;
 		this.visiblePageId = pageId;
+
 	}
 	
+	@Override
 	public void refresh() {
-		showPage(visiblePage, visiblePageId);
+		show(visiblePage, visiblePageId);
 	}
 
+	@Override
+	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
+		// TODO use saveAction (Enter in TextFields should save the dialog)
+		return new JsonDialog(title, content, closeAction, actions);
+	}
+
+	@Override
+	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+		return new JsonDialog.JsonSearchDialog(index, keys, listener);
+	}
+
+	@Override
+	public void showMessage(String text) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void showError(String text) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void showConfirmDialog(String message, String title, ConfirmDialogType type, DialogListener listener) {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public OutputStream store(String buttonText) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InputStream load(String buttonText) {
+		// TODO Auto-generated method stub
+		return null;
+	}	
+	
 	private List<Object> createMenuBar(Page page) {
 		List<Object> items = new ArrayList<>();
 		items.add(createMenu());

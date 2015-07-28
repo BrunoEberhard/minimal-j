@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.Frontend.IComponent;
 
 public class JsonComponent extends LinkedHashMap<String, Object> implements IComponent {
 	private static final long serialVersionUID = 1L;

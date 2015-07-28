@@ -6,9 +6,11 @@ import java.util.List;
 
 import javax.swing.KeyStroke;
 
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.vaadin.VaadinBorderLayout;
+import org.minimalj.frontend.vaadin.VaadinWindow;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.Alignment;
@@ -74,9 +76,9 @@ public class VaadinEditorLayout extends VaadinBorderLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				VaadinClientToolkit.setWindow(event.getComponent().getWindow());
+				Frontend.setBrowser((VaadinWindow) event.getComponent().getWindow());
 				action.action();
-				VaadinClientToolkit.setWindow(null);
+				Frontend.setBrowser(null);
 			}
 		});
 		installActionListener(action, button);

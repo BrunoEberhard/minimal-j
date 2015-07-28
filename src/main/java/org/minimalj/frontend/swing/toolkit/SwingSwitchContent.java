@@ -6,8 +6,8 @@ import java.awt.Component;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.SwitchContent;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.SwitchContent;
 
 public class SwingSwitchContent extends JPanel implements SwitchContent {
 	private static final long serialVersionUID = 1L;

@@ -7,25 +7,17 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-import java.util.List;
 
+import org.minimalj.application.Subject;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.persistence.DeleteAllTransaction;
-import org.minimalj.transaction.persistence.DeleteTransaction;
-import org.minimalj.transaction.persistence.InsertTransaction;
-import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
-import org.minimalj.transaction.persistence.ReadTransaction;
-import org.minimalj.transaction.persistence.StatementTransaction;
-import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.SerializationContainer;
 
 public class SocketBackend extends Backend {
 	private final String url;
 	private final int port;
-	
+
 	public SocketBackend(String url, int port) {
 		this.url = url;
 		this.port = port;
@@ -35,6 +27,7 @@ public class SocketBackend extends Backend {
 	public <T> T execute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+				authenticate(oos);
 				oos.writeObject(transaction);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					return readResult(ois);
@@ -44,6 +37,17 @@ public class SocketBackend extends Backend {
 			throw new RuntimeException("Couldn't connect to " + url + ":" + port);
 		}
 	}
+	
+	private void authenticate(ObjectOutputStream oos) throws IOException {
+		Subject subject = Subject.get();
+		if (subject != null) {
+			oos.writeObject(subject.getUser());
+			oos.writeObject(subject.getAuthentication());
+		} else {
+			oos.writeObject(null);
+		}
+	}
+	
 
 	protected <T> T readResult(ObjectInputStream ois) throws IOException, ClassNotFoundException {
 		Object wrappedResult = ois.readObject();
@@ -57,6 +61,7 @@ public class SocketBackend extends Backend {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				oos.writeObject(streamConsumer);
+				authenticate(oos);
 				sendStream(oos, inputStream);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					return readResult(ois);
@@ -80,6 +85,7 @@ public class SocketBackend extends Backend {
 	public <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+				authenticate(oos);
 				oos.writeObject(streamProducer);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					receiveStream(ois, outputStream);
@@ -98,46 +104,6 @@ public class SocketBackend extends Backend {
 			outputStream.write(b);
 		}
 		return;
-	}
-	
-	public <T> T read(Class<T> clazz, Object id) {
-		return read(clazz, id, null);
-	}
-	
-	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
-		return result;
-	}
-	
-	public <T> T insert(T object) {
-		return getInstance().execute(new InsertTransaction<T>(object));
-	}
-
-	public <T> T update(T object) {
-		return getInstance().execute(new UpdateTransaction<T>(object));
-	}
-
-	public <T> void delete(Class<T> clazz, Object id) {
-		getInstance().execute(new DeleteTransaction(clazz, id));
-	}
-	
-	public <T> void deleteAll(Class<T> clazz) {
-		getInstance().execute(new DeleteAllTransaction(clazz));
-	}
-	
-	public <T> T read(Class<T> clazz, Object id, Integer time) {
-		T result = getInstance().execute(new ReadTransaction<T>(clazz, id, time));
-		return result;
-	}
-	
-	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
-		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, parameter);
-		return (T) getInstance().execute(statementTransaction);
-	}
-	
-	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter) {
-		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, maxResults, parameter);
-		return (List<T>) getInstance().execute(statementTransaction);
 	}
 
 }

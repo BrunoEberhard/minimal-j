@@ -16,8 +16,8 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import org.minimalj.application.DevMode;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.CloneHelper;

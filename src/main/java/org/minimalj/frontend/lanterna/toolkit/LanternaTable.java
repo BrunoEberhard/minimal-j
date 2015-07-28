@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.frontend.Frontend.ITable;
+import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.lanterna.component.HighContrastLanternaTheme;
-import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
@@ -162,9 +162,9 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	public Result keyboardInteraction(Key key) {
 		switch (key.getKind()) {
 		case Enter:
-			LanternaClientToolkit.setGui((LanternaGUIScreen) getWindow().getOwner());
+			LanternaFrontend.setGui((LanternaGUIScreen) getWindow().getOwner());
 			listener.action(getSelectedObject());
-			LanternaClientToolkit.setGui(null);
+			LanternaFrontend.setGui(null);
 			return Result.EVENT_HANDLED;
 
 		case NormalKey:

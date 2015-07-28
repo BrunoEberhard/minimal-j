@@ -1,4 +1,4 @@
-package org.minimalj.frontend.toolkit;
+package org.minimalj.frontend.action;
 
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -43,7 +43,7 @@ public abstract class Action {
 	
 	/**
 	 * Note: this is not supported if the action was used to create
-	 * a label by the ClientToolkit
+	 * a label by the Frontend
 	 * 
 	 * @param enabled
 	 */

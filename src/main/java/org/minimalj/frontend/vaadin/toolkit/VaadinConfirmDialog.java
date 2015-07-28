@@ -5,9 +5,11 @@ import java.util.Locale;
 
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogResult;
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.page.PageBrowser.ConfirmDialogResult;
+import org.minimalj.frontend.page.PageBrowser.ConfirmDialogType;
+import org.minimalj.frontend.page.PageBrowser.DialogListener;
+import org.minimalj.frontend.vaadin.VaadinWindow;
 
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
@@ -186,11 +188,11 @@ public class VaadinConfirmDialog extends Window {
 		
 		@Override
 		public void buttonClick(ClickEvent event) {
-			VaadinClientToolkit.setWindow(event.getComponent().getWindow());
+			Frontend.setBrowser((VaadinWindow) event.getComponent().getWindow());
 			setVisible(false);
 			VaadinConfirmDialog.this.detach(); // mysterious
 			listener.close(result);
-			VaadinClientToolkit.setWindow(null);
+			Frontend.setBrowser(null);
 		}
 	}
 	

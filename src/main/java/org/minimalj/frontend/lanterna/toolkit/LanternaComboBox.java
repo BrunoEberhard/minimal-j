@@ -2,9 +2,9 @@ package org.minimalj.frontend.lanterna.toolkit;
 
 import java.util.List;
 
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.lanterna.component.Select;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
 
 import com.googlecode.lanterna.input.Key;
 

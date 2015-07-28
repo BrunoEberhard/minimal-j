@@ -3,12 +3,13 @@ package org.minimalj.frontend.vaadin;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.page.ActionGroup;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.action.Separator;
+import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.Separator;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.Action.ActionChangeListener;
-import org.minimalj.frontend.vaadin.toolkit.VaadinClientToolkit;
+import org.minimalj.frontend.vaadin.toolkit.VaadinFrontend;
 import org.minimalj.util.resources.Resources;
 
 import com.vaadin.ui.MenuBar;
@@ -52,7 +53,7 @@ public class VaadinMenuBar extends MenuBar {
 
 	private void addActions(MenuBar.MenuItem menu, List<Action> actions) {
 		for (Action action : actions) {
-			if (action instanceof org.minimalj.frontend.page.ActionGroup) {
+			if (action instanceof org.minimalj.frontend.action.ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
 				MenuBar.MenuItem subMenu = menu.addItem(action.getName(), null);
 				addActions(subMenu, actionGroup.getItems());
@@ -78,9 +79,9 @@ public class VaadinMenuBar extends MenuBar {
 
 		@Override
 		public void menuSelected(MenuItem selectedItem) {
-			VaadinClientToolkit.setWindow(vaadinWindow);
+			Frontend.setBrowser((VaadinWindow) vaadinWindow);
 			action.action();
-			VaadinClientToolkit.setWindow(null);
+			Frontend.setBrowser(null);
 		}
 	}
 	

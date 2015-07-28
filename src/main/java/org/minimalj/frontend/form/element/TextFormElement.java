@@ -2,9 +2,9 @@ package org.minimalj.frontend.form.element;
 
 import java.util.Locale;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
@@ -24,7 +24,7 @@ public class TextFormElement implements FormElement<Object> {
 
 	public TextFormElement(PropertyInterface property) {
 		this.property = property;
-		this.textField = ClientToolkit.getToolkit().createReadOnlyTextField();
+		this.textField = Frontend.getInstance().createReadOnlyTextField();
 	}
 
 	@Override

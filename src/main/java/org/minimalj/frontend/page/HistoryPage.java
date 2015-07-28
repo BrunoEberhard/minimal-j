@@ -3,10 +3,10 @@ package org.minimalj.frontend.page;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.ClientToolkit.ITable;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.ITable;
+import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
@@ -32,10 +32,10 @@ public abstract class HistoryPage<T> extends Page {
 				@Override
 				public void action(HistoryVersion<T> selectedObject) {
 					Page page = HistoryPage.this.click(selectedObject.object, selectedObject.version);
-					ClientToolkit.getToolkit().show(page);
+					Frontend.getBrowser().show(page);
 				}
 			};
-			table = ClientToolkit.getToolkit().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description}, listener);
+			table = Frontend.getInstance().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description}, listener);
 			refresh();
 		}
 		return table;

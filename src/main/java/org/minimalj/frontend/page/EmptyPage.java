@@ -1,6 +1,6 @@
 package org.minimalj.frontend.page;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.Frontend.IContent;
 
 public class EmptyPage extends Page {
 

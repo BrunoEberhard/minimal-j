@@ -21,18 +21,18 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.plaf.ComponentInputMapUIResource;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
+import org.minimalj.frontend.Frontend.IContent;
 
 public class SwingEditorPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
-	public SwingEditorPanel(IContent content, org.minimalj.frontend.toolkit.Action[] actions) {
+	public SwingEditorPanel(IContent content, org.minimalj.frontend.action.Action[] actions) {
 		super(new BorderLayout());
 		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel((Component) content));
 		scrollPane.setBorder(new TopBottomBorder(scrollPane.getBorder()));
 		add(scrollPane, BorderLayout.CENTER);
 		
-		ButtonBar buttonBar = new ButtonBar(SwingClientToolkit.adaptActions(actions));
+		ButtonBar buttonBar = new ButtonBar(SwingFrontend.adaptActions(actions));
 		add(buttonBar, BorderLayout.SOUTH);
 	}
 	

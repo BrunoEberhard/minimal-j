@@ -1,9 +1,9 @@
 package org.minimalj.frontend.json;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.Search;
-import org.minimalj.frontend.toolkit.ClientToolkit.TableActionListener;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.TableActionListener;
 
 public class JsonSearchPanel<T> extends JsonList {
 

@@ -2,8 +2,8 @@ package org.minimalj.frontend.json;
 
 import java.util.Objects;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 
 public abstract class JsonInputComponent<T> extends JsonComponent implements Input<T> {
 	private static final long serialVersionUID = 1L;

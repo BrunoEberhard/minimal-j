@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.lanterna.toolkit.LanternaActionAdapater;
-import org.minimalj.frontend.lanterna.toolkit.LanternaClientToolkit;
-import org.minimalj.frontend.page.ActionGroup;
+import org.minimalj.frontend.lanterna.toolkit.LanternaFrontend;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.toolkit.Action;
 import org.minimalj.util.resources.Resources;
 
 import com.googlecode.lanterna.gui.Border;
@@ -131,11 +132,11 @@ public class LanternaMenuPanel extends Panel {
 	protected class SearchAction extends Action {
 		@Override
 		public void action() {
-			LanternaClientToolkit.setGui(guiScreen);
+			LanternaFrontend.setGui(guiScreen);
 			String query = textFieldSearch.getText();
 			Page searchPage = Application.getApplication().createSearchPage(query);
-			LanternaClientToolkit.getGui().show(searchPage);
-			LanternaClientToolkit.setGui(null);
+			Frontend.getBrowser().show(searchPage);
+			LanternaFrontend.setGui(null);
 		}
 	}
 

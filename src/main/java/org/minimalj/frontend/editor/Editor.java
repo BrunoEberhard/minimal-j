@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogResult;
-import org.minimalj.frontend.toolkit.ClientToolkit.ConfirmDialogType;
-import org.minimalj.frontend.toolkit.ClientToolkit.DialogListener;
-import org.minimalj.frontend.toolkit.IDialog;
+import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.PageBrowser.ConfirmDialogResult;
+import org.minimalj.frontend.page.PageBrowser.ConfirmDialogType;
+import org.minimalj.frontend.page.PageBrowser.DialogListener;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
@@ -53,7 +53,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		form.setChangeListener(new EditorChangeListener());
 		form.setObject(object);
 		
-		dialog = ClientToolkit.getToolkit().showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
+		dialog = Frontend.getBrowser().showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
 	}
 	
 	private Action[] createActions() {
@@ -185,7 +185,7 @@ public abstract class Editor<T, RESULT> extends Action {
 					} // else do nothing (dialog will not close)
 				}
 			};
-			ClientToolkit.getToolkit().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
+			Frontend.getBrowser().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
 					ConfirmDialogType.YES_NO_CANCEL, listener);
 
 		} else {
@@ -200,13 +200,14 @@ public abstract class Editor<T, RESULT> extends Action {
 				}
 			};
 			
-			ClientToolkit.getToolkit().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
+			Frontend.getBrowser().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
 					"Schliessen", ConfirmDialogType.YES_NO, listener);
 		}
 	}
 
 	
 	private class FillWithDemoDataAction extends Action {
+		@Override
 		public void action() {
 			fillWithDemoData();
 		}

@@ -1,10 +1,10 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validatable;
@@ -37,10 +37,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	public IComponent getComponent() {
 		if (textField == null) {
 			if (editable) {
-				textField = ClientToolkit.getToolkit().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
+				textField = Frontend.getInstance().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
 						getInputType(), null, new TextFormatFieldChangeListener());
 			} else {
-				textField = ClientToolkit.getToolkit().createReadOnlyTextField();
+				textField = Frontend.getInstance().createReadOnlyTextField();
 			}
 
 		}

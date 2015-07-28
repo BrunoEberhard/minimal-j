@@ -3,7 +3,7 @@ package org.minimalj.frontend.swing.toolkit;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
+import org.minimalj.frontend.Frontend.Input;
 
 public class SwingReadOnlyTextField extends JLabel implements Input<String> {
 	private static final long serialVersionUID = 1L;

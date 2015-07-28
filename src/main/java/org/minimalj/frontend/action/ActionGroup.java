@@ -1,9 +1,11 @@
-package org.minimalj.frontend.page;
+package org.minimalj.frontend.action;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.page.DetailPageAction;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageAction;
 
 public class ActionGroup extends Action {
 

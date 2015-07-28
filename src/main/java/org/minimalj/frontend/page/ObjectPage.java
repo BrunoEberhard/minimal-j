@@ -1,9 +1,9 @@
 package org.minimalj.frontend.page;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 

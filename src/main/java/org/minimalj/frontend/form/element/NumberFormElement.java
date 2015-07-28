@@ -1,6 +1,6 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.InputType;
+import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;

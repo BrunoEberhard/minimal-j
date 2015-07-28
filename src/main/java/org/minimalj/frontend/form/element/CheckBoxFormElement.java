@@ -1,8 +1,8 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.Input;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.resources.Resources;
 
@@ -15,7 +15,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> {
 	 
 	public CheckBoxFormElement(PropertyInterface property, String text, boolean editable) {
 		super(property);
-		checkBox = ClientToolkit.getToolkit().createCheckBox(listener(), text);
+		checkBox = Frontend.getInstance().createCheckBox(listener(), text);
 		checkBox.setEditable(editable);
 	}
 	

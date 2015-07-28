@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import javax.swing.JLabel;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 

@@ -2,9 +2,9 @@ package org.minimalj.frontend.vaadin.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.IList;
-import org.minimalj.frontend.toolkit.FormContent;
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.IList;
 
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;

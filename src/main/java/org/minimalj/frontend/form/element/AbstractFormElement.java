@@ -1,7 +1,7 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
-import org.minimalj.frontend.toolkit.ClientToolkit.InputComponentListener;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 

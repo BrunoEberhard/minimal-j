@@ -1,6 +1,6 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.frontend.toolkit.ClientToolkit.IComponent;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.properties.PropertyInterface;
 
 /**
