@@ -4,9 +4,9 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.BookForm;
 import org.minimalj.example.library.frontend.page.BookPage;
 import org.minimalj.example.library.model.Book;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.ClientToolkit;
 
 public class AddBookEditor extends NewObjectEditor<Book> {
 
@@ -27,7 +27,7 @@ public class AddBookEditor extends NewObjectEditor<Book> {
 	
 	@Override
 	protected void finished(Book book) {
-		ClientToolkit.getToolkit().show(new BookPage(book));
+		Frontend.getBrowser().show(new BookPage(book));
 	}
 
 }

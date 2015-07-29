@@ -131,4 +131,52 @@ an id attribute.
 With this principle (and one more of the same type) it is ensured that every database action
 is execute in reasonable time.
 
+=== Containment
+
+With references you can relate two main entities. But a entity can also be complete dependable
+of an other entity:
+
+[source,java,title="Customer.java"]
+----
+package org.minimalj.example.library.model;
+
+import [..]
+
+public class Customer {
+	public static final Customer $ = Keys.of(Customer.class);
+	public Object id;
+
+	@Size(ExampleFormats.NAME) @Searched
+	public String firstName, name;
+	public LocalDate dateOfBirth;
+	
+	@Size(2000)
+	public String remarks;
+
+	public final List<Address> addresses = new ArrayList<>();
+}
+----
+
+Here a customer can have one or more addresses. These addresses belong completly to one customer
+and are not shared among other customers.
+
+This also clearly visible when we look at the generated tables:
+
+----
+CREATE TABLE CUSTOMER_Addresses (
+ id CHAR(36),
+ position INTEGER NOT NULL,
+ STREET VARCHAR (30) DEFAULT NULL,
+ CITY VARCHAR (30) DEFAULT NULL
+) 
+----
+
+The table name is put together from main entity plus attribute name. If you would use Address for a
+second attribute or hav it in other entity than customer then additional tables would be created.
+
+The id in CUSTOMER_ADDRESSES is the id of the customer! Also note the position column. The
+persistence layer keeps depending objects in the given order.
+
+
+
  

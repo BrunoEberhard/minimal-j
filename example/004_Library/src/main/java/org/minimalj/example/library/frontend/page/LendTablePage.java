@@ -7,8 +7,8 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.frontend.toolkit.ClientToolkit;
 import org.minimalj.transaction.criteria.Criteria;
 
 
@@ -39,7 +39,7 @@ public class LendTablePage extends TablePage<Lend> {
 
 	@Override
 	public void action(Lend selectedObject) {
-		ClientToolkit.getToolkit().show(new BookPage(selectedObject.book));
+		Frontend.getBrowser().show(new BookPage(selectedObject.book));
 	}
 	
 }

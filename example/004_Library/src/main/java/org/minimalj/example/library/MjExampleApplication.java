@@ -12,9 +12,9 @@ import org.minimalj.example.library.frontend.page.CustomerSearchPage;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
-import org.minimalj.frontend.toolkit.Action;
 
 public class MjExampleApplication extends Application {
 

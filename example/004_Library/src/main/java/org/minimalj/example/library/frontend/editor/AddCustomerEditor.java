@@ -4,9 +4,9 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.frontend.page.CustomerPage;
 import org.minimalj.example.library.model.Customer;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.ClientToolkit;
 
 public class AddCustomerEditor extends NewObjectEditor<Customer> {
 
@@ -27,7 +27,7 @@ public class AddCustomerEditor extends NewObjectEditor<Customer> {
 	
 	@Override
 	protected void finished(Customer result) {
-		ClientToolkit.getToolkit().show(new CustomerPage(result));
+		Frontend.getBrowser().show(new CustomerPage(result));
 	}
 
 }

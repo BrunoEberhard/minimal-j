@@ -5,10 +5,10 @@ import java.util.List;
 import org.minimalj.example.library.frontend.editor.AddLendAction;
 import org.minimalj.example.library.frontend.form.CustomerForm;
 import org.minimalj.example.library.model.Customer;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.ActionGroup;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.toolkit.Action;
 
 public class CustomerPage extends ObjectPage<Customer> {
 
