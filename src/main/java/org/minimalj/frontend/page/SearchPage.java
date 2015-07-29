@@ -1,6 +1,7 @@
 package org.minimalj.frontend.page;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -14,15 +15,32 @@ public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAI
 	
 	public SearchPage(String query, Object[] keys) {
 		super(keys);
-		this.query = query;
+		String separator = System.getProperty("MjSearchQualifierSeparator", ":");
+		int pos = query.indexOf(separator);
+		if (pos > 0 && pos < query.length()-1) {
+			String searchQualifier = query.substring(0, pos).toLowerCase();
+			if (getQualifier().startsWith(searchQualifier)) {
+				this.query = query.substring(pos+1);
+			} else {
+				this.query = null;
+			}
+		} else {
+			this.query = query;
+		}
 	}
 	
+	@Override
 	protected List<T> load() {
-		return load(query);
+		if (query != null) {
+			return load(query);
+		} else {
+			return Collections.emptyList();
+		}
 	}
 
 	protected abstract List<T> load(String query);
 
+	@Override
 	public abstract ObjectPage<DETAIL> createDetailPage(DETAIL initialObject);
 	
 	@Override
@@ -30,6 +48,10 @@ public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAI
 		return getName() + " / " + query;
 	}
 
+	protected String getQualifier() {
+		return getName().toLowerCase();
+	}
+	
 	public String getName() {
 		Class<?> genericClass = GenericUtils.getGenericClass(getClass());
 		return Resources.getString(genericClass);
@@ -41,8 +63,9 @@ public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAI
 			super(query, keys);
 		}
 		
+		@Override
 		protected T load(T searchObject) {
-			return (T) searchObject;
+			return searchObject;
 		}
 	}
 
