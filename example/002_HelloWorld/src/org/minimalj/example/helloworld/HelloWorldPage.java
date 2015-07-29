@@ -1,9 +1,9 @@
 package org.minimalj.example.helloworld;
 
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.FormContent;
 
 public class HelloWorldPage extends Page {
 
@@ -14,8 +14,8 @@ public class HelloWorldPage extends Page {
 
 	@Override
 	public IContent getContent() {
-		FormContent form = ClientToolkit.getToolkit().createFormContent(1, 100);
-		form.add(ClientToolkit.getToolkit().createLabel("Hello World"));
+		FormContent form = Frontend.getInstance().createFormContent(1, 100);
+		form.add(Frontend.getInstance().createLabel("Hello World"));
 		return form;
 	}
 

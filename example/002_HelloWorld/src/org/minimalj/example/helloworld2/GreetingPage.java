@@ -3,11 +3,11 @@ package org.minimalj.example.helloworld2;
 import java.util.Collections;
 import java.util.List;
 
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
+import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.toolkit.Action;
-import org.minimalj.frontend.toolkit.ClientToolkit;
-import org.minimalj.frontend.toolkit.ClientToolkit.IContent;
-import org.minimalj.frontend.toolkit.FormContent;
 
 public class GreetingPage extends Page {
 
@@ -24,8 +24,8 @@ public class GreetingPage extends Page {
 
 	@Override
 	public IContent getContent() {
-		FormContent form = ClientToolkit.getToolkit().createFormContent(1, 100);
-		form.add(ClientToolkit.getToolkit().createLabel("Hello " + user.name));
+		FormContent form = Frontend.getInstance().createFormContent(1, 100);
+		form.add(Frontend.getInstance().createLabel("Hello " + user.name));
 		return form;
 	}
 	

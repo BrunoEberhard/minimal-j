@@ -1,8 +1,8 @@
 package org.minimalj.example.helloworld2;
 
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.ClientToolkit;
 
 public class UserNameEditor extends NewObjectEditor<User> {
 
@@ -30,7 +30,7 @@ public class UserNameEditor extends NewObjectEditor<User> {
 	
 	@Override
 	protected void finished(User user) {
-		ClientToolkit.getToolkit().show(new GreetingPage(user));
+		Frontend.getBrowser().show(new GreetingPage(user));
 	}
 
 }

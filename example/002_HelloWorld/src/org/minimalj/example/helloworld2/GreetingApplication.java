@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.toolkit.Action;
+import org.minimalj.frontend.action.Action;
 
 public class GreetingApplication extends Application {
 
