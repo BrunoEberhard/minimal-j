@@ -60,7 +60,7 @@ import [..]
 public class NotesApplication extends Application {
 
 	@Override
-	public List<Action> getMenu() { 
+	public List<Action> getMenu() {
 		ActionGroup menu = new ActionGroup(null);
 		menu.add(new NewNoteEditor());
 		return menu.getItems();
@@ -75,6 +75,7 @@ public class NotesApplication extends Application {
 	public Class<?>[] getEntityClasses() {
 		return new Class[]{Note.class};
 	}
+
 }
 ----
 

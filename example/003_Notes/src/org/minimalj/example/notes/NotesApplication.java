@@ -3,9 +3,9 @@ package org.minimalj.example.notes;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.page.ActionGroup;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.toolkit.Action;
 
 public class NotesApplication extends Application {
 
@@ -25,6 +25,5 @@ public class NotesApplication extends Application {
 	public Class<?>[] getEntityClasses() {
 		return new Class[]{Note.class};
 	}
-	
-	
+
 }

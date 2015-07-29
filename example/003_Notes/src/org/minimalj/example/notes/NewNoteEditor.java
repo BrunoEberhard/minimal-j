@@ -1,9 +1,9 @@
 package org.minimalj.example.notes;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.toolkit.ClientToolkit;
 
 public class NewNoteEditor extends NewObjectEditor<Note> {
 
@@ -19,7 +19,7 @@ public class NewNoteEditor extends NewObjectEditor<Note> {
 	
 	@Override
 	protected void finished(Note result) {
-		ClientToolkit.getToolkit().show(new NoteTablePage());
+		Frontend.getBrowser().show(new NoteTablePage());
 	}
 
 	private static class NoteForm extends Form<Note> {
