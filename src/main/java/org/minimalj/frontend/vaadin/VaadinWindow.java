@@ -6,7 +6,6 @@ import java.io.PipedInputStream;
 import java.util.Locale;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Subject;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
@@ -50,16 +49,13 @@ public class VaadinWindow extends Window implements PageBrowser {
 	private final VerticalLayout windowContent = new VerticalLayout();
 	private final VaadinMenuBar menubar = new VaadinMenuBar(this);
 	private final TextField textFieldSearch = new TextField();
-	private final Subject subject;
 	
 	private Page visiblePage;
 	private Component content;
 	private Panel scrollablePanel;
 	private int indexInPages;
 	
-	public VaadinWindow(Subject subject) {
-		this.subject = subject;
-		
+	public VaadinWindow() {
 		setLocale(Locale.GERMAN);
 
 		setContent(windowContent);
@@ -282,49 +278,4 @@ public class VaadinWindow extends Window implements PageBrowser {
 		}
 		setCaption(title);
 	}
-	
-	private Action[] wrapActions(Action[] actions) {
-		Action[] wrappedActions = new Action[actions.length];
-		for (int i = 0; i<actions.length; i++) {
-			wrappedActions[i] = new VaadinActionWrapper(actions[i]);
-		}
-		return wrappedActions;
-	}
-	
-	public class VaadinActionWrapper extends Action {
-
-		private final Action action;
-
-		public VaadinActionWrapper(Action action) {
-			this.action = action;
-		}
-
-		@Override
-		public void action() {
-			Frontend.setBrowser(VaadinWindow.this);
-			action.action();
-			Frontend.setBrowser(null);
-		}
-
-		@Override
-		public String getName() {
-			return action.getName();
-		}
-
-		@Override
-		public String getDescription() {
-			return action.getDescription();
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return action.isEnabled();
-		}
-
-		@Override
-		public void setChangeListener(ActionChangeListener changeListener) {
-			action.setChangeListener(changeListener);
-		}
-	}
-	
 }

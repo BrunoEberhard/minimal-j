@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Subject;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.vaadin.toolkit.VaadinFrontend;
@@ -21,7 +20,6 @@ import org.minimalj.util.resources.Resources;
 public class VaadinApplication extends com.vaadin.Application {
 	private static final long serialVersionUID = 1L;
 	
-	private final Subject applicationContext = new Subject();
 	private static boolean applicationInitialized;
 	
 	@Override
@@ -29,7 +27,7 @@ public class VaadinApplication extends com.vaadin.Application {
 		initializeApplication();
 		
 		setTheme("openech");
-		VaadinWindow mainWindow = new VaadinWindow(applicationContext);
+		VaadinWindow mainWindow = new VaadinWindow();
 		setMainWindow(mainWindow);
 		mainWindow.show(new EmptyPage());
 	}
@@ -54,10 +52,6 @@ public class VaadinApplication extends com.vaadin.Application {
 			System.setProperty(propertyName, getProperty(propertyName));
 		}
 	}	
-
-	protected Subject getApplicationContext() {
-		return applicationContext;
-	}
 
 	static {
 		Locale.setDefault(Locale.GERMAN); // TODO correct setting of Locale
