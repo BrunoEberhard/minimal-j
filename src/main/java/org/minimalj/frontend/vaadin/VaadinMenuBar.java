@@ -5,11 +5,10 @@ import java.util.List;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.action.Separator;
-import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.vaadin.toolkit.VaadinFrontend;
 import org.minimalj.util.resources.Resources;
 
 import com.vaadin.ui.MenuBar;
@@ -79,7 +78,7 @@ public class VaadinMenuBar extends MenuBar {
 
 		@Override
 		public void menuSelected(MenuItem selectedItem) {
-			Frontend.setBrowser((VaadinWindow) vaadinWindow);
+			Frontend.setBrowser(vaadinWindow);
 			action.action();
 			Frontend.setBrowser(null);
 		}
