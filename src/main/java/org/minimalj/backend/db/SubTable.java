@@ -130,12 +130,14 @@ public class SubTable extends AbstractTable {
 		return "DELETE FROM " + getTableName() + " WHERE id = ? AND position >= ?";
 	}
 	
+	@Override
 	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
 		s.append(" id ");
 		syntax.addColumnDefinition(s, idProperty);
 		s.append(",\n position INTEGER NOT NULL");
 	}
 	
+	@Override
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id, position");
 	}

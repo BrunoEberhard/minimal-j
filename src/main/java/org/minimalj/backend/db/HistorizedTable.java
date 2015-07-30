@@ -68,6 +68,7 @@ public class HistorizedTable<T> extends Table<T> {
 		}
 	}
 	
+	@Override
 	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
 		return new HistorizedSubTable(dbPersistence, buildSubTableName(property), clazz, idProperty);
 	}
@@ -121,6 +122,7 @@ public class HistorizedTable<T> extends Table<T> {
 		}
 	}
 
+	@Override
 	public T read(Object id, boolean complete) {
 		try {
 			PreparedStatement selectByIdStatement;
@@ -252,6 +254,7 @@ public class HistorizedTable<T> extends Table<T> {
 		return s.toString();
 	}
 	
+	@Override
 	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
@@ -293,11 +296,13 @@ public class HistorizedTable<T> extends Table<T> {
 		return s.toString();
 	}
 	
+	@Override
 	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
 		super.addSpecialColumns(syntax, s);
 		s.append(",\n version INTEGER NOT NULL");
 	}
 	
+	@Override
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id, version");
 	}

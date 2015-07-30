@@ -97,7 +97,8 @@ public class SwingDecoration extends JPanel {
             this.part = part;
         }
 
-        public void paintIcon(Component c, Graphics g, int x0, int y0) {
+        @Override
+		public void paintIcon(Component c, Graphics g, int x0, int y0) {
             int width = getIconWidth();
             int height = getIconHeight();
 
@@ -163,11 +164,13 @@ public class SwingDecoration extends JPanel {
                 }
         }
 
-        public int getIconWidth() {
+        @Override
+		public int getIconWidth() {
             return 16;
         }
 
-        public int getIconHeight() {
+        @Override
+		public int getIconHeight() {
             return 16;
         }
     }

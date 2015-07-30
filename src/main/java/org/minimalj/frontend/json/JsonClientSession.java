@@ -272,6 +272,7 @@ public class JsonClientSession implements PageBrowser {
 	
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {
 		
+		@Override
 		public void propertyChange(String componentId, String property, Object value) {
 			output.propertyChange(componentId, property, value);
 		}

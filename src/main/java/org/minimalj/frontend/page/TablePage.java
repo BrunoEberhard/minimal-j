@@ -91,8 +91,9 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			super(keys);
 		}
 		
+		@Override
 		protected T load(T searchObject) {
-			return (T) searchObject;
+			return searchObject;
 		}
 	}
 

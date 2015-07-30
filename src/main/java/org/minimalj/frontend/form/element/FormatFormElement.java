@@ -47,8 +47,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		return textField;
 	}
 
+	@Override
 	public abstract T getValue();
 
+	@Override
 	public abstract void setValue(T value);
 
 	private class TextFormatFieldChangeListener implements InputComponentListener {
@@ -68,6 +70,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		}
 	}
 	
+	@Override
 	public void setEnabled(boolean enabled) {
 		textField.setEditable(enabled);
 	}

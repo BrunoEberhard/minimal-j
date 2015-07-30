@@ -127,6 +127,7 @@ public abstract class Wizard<RESULT> extends Action {
 
 	private class EditorChangeListener implements Form.FormChangeListener {
 
+		@Override
 		public void changed(PropertyInterface property, Object newValue) {
 			validate(stepObject);
 			finishAction.setValidationMessages(validationMessages);

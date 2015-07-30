@@ -25,6 +25,7 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 		}
 	}
 	
+	@Override
 	public Object put(String property, Object value) {
 		Object oldValue = super.put(property, value);
 		if (!Objects.equals(oldValue, value) && propertyListener != null) {

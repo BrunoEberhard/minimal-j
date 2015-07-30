@@ -164,6 +164,7 @@ public class HistorizedSubTable extends AbstractTable {
 		return s.toString();
 	}
 	
+	@Override
 	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
 		s.append(" id ");
 		syntax.addColumnDefinition(s, idProperty);
@@ -172,6 +173,7 @@ public class HistorizedSubTable extends AbstractTable {
 		s.append(",\n position INTEGER NOT NULL");
 	}
 	
+	@Override
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id, startVersion, position");
 	}	

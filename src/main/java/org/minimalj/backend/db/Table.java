@@ -547,6 +547,7 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	@Override
 	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id");
 	}	

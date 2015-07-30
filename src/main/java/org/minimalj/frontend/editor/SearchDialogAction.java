@@ -25,6 +25,7 @@ public abstract class SearchDialogAction<T> extends Action implements Search<T> 
 		return 100;
 	}
 
+	@Override
 	public abstract List<T> search(String query);
 
 	protected abstract void save(T object);

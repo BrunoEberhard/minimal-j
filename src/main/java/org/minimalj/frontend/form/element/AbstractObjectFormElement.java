@@ -152,6 +152,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		return null;
 	}
 	
+	@Override
 	public void setEnabled(boolean enabled) {
 		list.setEnabled(enabled);
 	}

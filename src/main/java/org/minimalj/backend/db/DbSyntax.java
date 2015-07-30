@@ -195,6 +195,7 @@ public abstract class DbSyntax {
 			}
 		}
 		
+		@Override
 		public String createUniqueIndex(String tableName, String column) {
 			StringBuilder s = new StringBuilder();
 			s.append("ALTER TABLE ");

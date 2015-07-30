@@ -18,6 +18,7 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 		negative = AnnotationUtil.isNegative(property);
 	}
 	
+	@Override
 	protected InputType getInputType() {
 		return InputType.NUMBER;
 	}
