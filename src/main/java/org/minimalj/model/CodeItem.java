@@ -3,6 +3,10 @@ package org.minimalj.model;
 import java.util.Locale;
 
 
+/**
+ * Internal framework class. Don't use it directly!
+ * 
+ */
 public class CodeItem<E> implements Rendering {
 
 	private final E key;
