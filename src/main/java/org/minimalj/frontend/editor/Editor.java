@@ -2,7 +2,6 @@ package org.minimalj.frontend.editor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.frontend.Frontend;
@@ -19,8 +18,6 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.mock.Mocking;
 
 public abstract class Editor<T, RESULT> extends Action {
-
-	private static final Logger logger = Logger.getLogger(Editor.class.getName());
 
 	private T object;
 	private boolean userEdited;
@@ -115,6 +112,7 @@ public abstract class Editor<T, RESULT> extends Action {
 
 	private class EditorChangeListener implements Form.FormChangeListener<T> {
 
+		@Override
 		public void changed(PropertyInterface property, Object newValue) {
 			userEdited = true;
 			validate(object);
@@ -177,12 +175,16 @@ public abstract class Editor<T, RESULT> extends Action {
 			DialogListener listener = new DialogListener() {
 				@Override
 				public void close(ConfirmDialogResult answer) {
-					if (answer == ConfirmDialogResult.YES) {
-						// finish will be called at the end of save
+					switch (answer) {
+					case YES:
 						save();
-					} else if (answer == ConfirmDialogResult.NO) {
+						break;
+					case NO:
 						dialog.closeDialog();
-					} // else do nothing (dialog will not close)
+						break;
+					default:
+						// else do nothing (dialog will not close)
+					}
 				}
 			};
 			Frontend.getBrowser().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
@@ -192,14 +194,15 @@ public abstract class Editor<T, RESULT> extends Action {
 			DialogListener listener = new DialogListener() {
 				@Override
 				public void close(ConfirmDialogResult answer) {
-					if (answer == ConfirmDialogResult.YES) {
+					switch (answer) {
+					case YES:
 						dialog.closeDialog();
-					} else { // No or Close
+						break;
+					default:
 						// do nothing
 					}
 				}
 			};
-			
 			Frontend.getBrowser().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
 					"Schliessen", ConfirmDialogType.YES_NO, listener);
 		}
