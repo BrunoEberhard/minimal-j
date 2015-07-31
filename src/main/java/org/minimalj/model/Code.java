@@ -10,7 +10,9 @@ package org.minimalj.model;
  * or updates at all you better use enums.<p>
  * 
  * A code is always a view. Meaning if a code is referenced in an
- * entity the code is not updated when persisting that entity.
+ * entity the code is not updated when persisting that entity.<p>
+ * 
+ * As speciality codes can have a String or an Integer id field. 
  * 
  */
 @SuppressWarnings("rawtypes")
