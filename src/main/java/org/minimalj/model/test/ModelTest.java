@@ -50,15 +50,15 @@ public class ModelTest {
 	private final List<String> problems = new ArrayList<String>();
 	private final SortedSet<String> missingResources = new TreeSet<String>();
 	
-	public ModelTest(Class<?>... mainModelClasses) {
-		this(Arrays.asList(mainModelClasses));
+	public ModelTest(Class<?>... modelClasses) {
+		this(Arrays.asList(modelClasses));
 	}
 	
-	public ModelTest(Collection<Class<?>> mainModelClasses) {
-		for (Class<?> clazz : mainModelClasses) {
-			modelClassTypes.put(clazz, ModelClassType.MAIN);
+	public ModelTest(Collection<Class<?>> modelClasses) {
+		for (Class<?> clazz : modelClasses) {
+			modelClassTypes.put(clazz, Codes.isCode(clazz) ? ModelClassType.CODE : ModelClassType.MAIN);
 		}
-		for (Class<?> clazz : mainModelClasses) {
+		for (Class<?> clazz : modelClasses) {
 			testClass(clazz);
 		}
 	}
