@@ -74,15 +74,13 @@ public class SwingFrame extends JFrame {
 		return tabbedPane;
 	}
 
-	public SwingTab addTab() {
+	private void addTab() {
 		SwingTab tab = new SwingTab(this);
 		
 		tabbedPane.addTab("", tab);
 		tabbedPane.setSelectedComponent(tab);
 
 		tab.show(Application.getApplication().createDefaultPage());
-
-		return tab;
 	}
 	
 	public void closeTabActionPerformed() {
