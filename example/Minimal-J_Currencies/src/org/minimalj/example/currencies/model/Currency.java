@@ -1,15 +1,32 @@
 package org.minimalj.example.currencies.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Size;
 
-public class Currency {
+/**
+ * The iso currencies list is not normalized.
+ * Currencies are repeated for every country that
+ * uses a currency.
+ */
+public class Currency implements Code {
 	public static final Currency $ = Keys.of(Currency.class);
 	
+	@Size(3)
+	public String id;
+	
+	@Size(140)
 	public String name;
-	public BigDecimal value;
-	public LocalDate date;
 
+	public Boolean fund;
+	
+	@Size(3)
+	public Integer number;
+	
+	@Size(1)
+	public Integer minorUnits;
+	
+	public LocalDate withdrawalDate;
 }
