@@ -69,7 +69,7 @@ It may seem harsh to reduce the allowed types in such way. On the other side it 
 database mapping much more readable. And the JavaScript guys can live even with more restrictions
 they only have String and double!
 
-IMPORTANT: String, Integer, Long and BigDecimal must have a size annotation.
+IMPORTANT: String fields must have a size annotation. For Integer, Long and BigDecimal it's optional.
 
 === Set of enum
 
