@@ -36,6 +36,10 @@ public class AnnotationUtil {
 		
 		if (property.getClazz() == BigDecimal.class) {
 			return 10;
+		} else if (property.getClazz() == Integer.class) {
+			return Size.INTEGER;
+		} else if (property.getClazz() == Long.class) {
+			return Size.LONG;
 		}
 		
 		logger.fine("You must annotate the fields with a @size or the entire class with @sizes");

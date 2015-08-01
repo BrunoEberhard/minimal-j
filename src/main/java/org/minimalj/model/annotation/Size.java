@@ -36,5 +36,16 @@ public @interface Size {
 	 * Constant to annotate the precision of LocalDate fields to milliseconds
 	 */
 	public static final int TIME_WITH_MILLIS = 9;
-		
+	
+
+	/**
+	 * Maximum size of an Integer (unsigned)
+	 */
+	public static final int INTEGER = String.valueOf(Integer.MAX_VALUE).length();
+
+	/**
+	 * Maximum size of a Long (unsigned)
+	 */
+	public static final int LONG = String.valueOf(Long.MAX_VALUE).length();
+
 }
