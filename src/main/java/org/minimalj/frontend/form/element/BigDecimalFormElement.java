@@ -18,7 +18,18 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	public BigDecimal parse(String text) {
 		if (text != null) {
 			try {
-				return new BigDecimal(text);
+				BigDecimal value = new BigDecimal(text);
+				if (value.signum() < 0 && !this.negative) {
+					return InvalidValues.createInvalidBigDecimal(text);
+				}
+				value = value.stripTrailingZeros();
+				if (value.precision() > this.size) {
+					return InvalidValues.createInvalidBigDecimal(text);
+				}
+				if (value.scale() > this.decimalPlaces) {
+					return InvalidValues.createInvalidBigDecimal(text);
+				}
+				return value;
 			} catch (NumberFormatException nfe) {
 				return InvalidValues.createInvalidBigDecimal(text);
 			}
@@ -26,7 +37,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 			return null;
 		}
 	}
-
+	
 	@Override
 	public void mock() {
 		// TODO check for valid ranges for size-decimalPlaces

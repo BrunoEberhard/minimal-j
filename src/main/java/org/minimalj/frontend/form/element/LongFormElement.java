@@ -18,6 +18,9 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 		if (text != null) {
 			try {
 				long value = Long.parseLong(text);
+				if (value < 0 && !this.negative) {
+					return InvalidValues.createInvalidLong(text);
+				}
 				int size = value < 0 ? text.length() - 1 : text.length();
 				if (size <= this.size) {
 					return value;

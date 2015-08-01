@@ -18,6 +18,9 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 		if (text != null) {
 			try {
 				int value = Integer.parseInt(text);
+				if (value < 0 && !this.negative) {
+					return InvalidValues.createInvalidInteger(text);
+				}
 				int size = value < 0 ? text.length() - 1 : text.length();
 				if (size <= this.size) {
 					return value;
