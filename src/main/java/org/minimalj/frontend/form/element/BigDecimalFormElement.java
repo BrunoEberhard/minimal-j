@@ -40,14 +40,17 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	
 	@Override
 	public void mock() {
-		// TODO check for valid ranges for size-decimalPlaces
 		Random random = new Random();
-		double value = random.nextDouble() * (10 ^ (size - decimalPlaces));
-		if (!negative || random.nextBoolean()) {
-			setValue(BigDecimal.valueOf(value));
-		} else {
-			setValue(BigDecimal.valueOf(-value));
+		StringBuilder s = new StringBuilder(size);
+		for (int i = 0; i<size; i++) {
+			s.append((char)('0' + random.nextInt(10)));
 		}
+		BigDecimal value = new BigDecimal(s.toString());
+		value = value.movePointLeft(decimalPlaces);
+		if (negative && random.nextBoolean()) {
+			value = value.negate();
+		}
+		setValue(value);
 	}
 
 }

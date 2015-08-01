@@ -2,6 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import java.util.Random;
 
+import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.mock.Mocking;
@@ -38,14 +39,16 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 	@Override
 	public void mock() {
 		Random random = new Random();
-		int max = 10;
-		for (int i = 0; i<size; i++) max *= 10; // is there a exponential operator in Java?
-		int value = random.nextInt(max);
-		if (!negative || random.nextBoolean()) {
-			setValue(value);
-		} else {
-			setValue(-value);
+		int value = random.nextInt();
+		if (size < Size.INTEGER) {
+			int max = 10;
+			for (int i = 1; i<size; i++) max = max * 10;
+			value = value % max;
 		}
+		if (!negative && value < 0) {
+			value = -value;
+		}
+		setValue(value);
 	}
 
 }
