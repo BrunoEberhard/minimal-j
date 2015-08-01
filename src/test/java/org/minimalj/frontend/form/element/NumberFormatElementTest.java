@@ -23,14 +23,14 @@ public class NumberFormatElementTest {
 	}
 	
 	@Test
-	public void testNegativeInteger() {
+	public void testSignedInteger() {
 		IntegerFormElement element = new IntegerFormElement(Keys.getProperty(TestNumbers.$.aSignedInteger), true);
 		Assert.assertEquals((Integer) 123, element.parse("123"));
 		Assert.assertEquals(Integer.valueOf(-3), element.parse("-3"));
 	}
 
 	@Test
-	public void testNegativeIntegerOfSize3() {
+	public void testSignedIntegerOfSize3() {
 		IntegerFormElement element = new IntegerFormElement(Keys.getProperty(TestNumbers.$.aSignedIntegerOfSize3), true);
 		Assert.assertEquals((Integer) 123, element.parse("123"));
 		Assert.assertEquals(Integer.valueOf(-3), element.parse("-3"));
@@ -49,14 +49,14 @@ public class NumberFormatElementTest {
 	}
 	
 	@Test
-	public void testNegativeLong() {
+	public void testSignedLong() {
 		LongFormElement element = new LongFormElement(Keys.getProperty(TestNumbers.$.aSignedLong), true);
 		Assert.assertEquals((Long) 123L, element.parse("123"));
 		Assert.assertEquals(Long.valueOf(-3), element.parse("-3"));
 	}
 
 	@Test
-	public void testNegativeLongOfSize3() {
+	public void testSignedLongOfSize3() {
 		LongFormElement element = new LongFormElement(Keys.getProperty(TestNumbers.$.aSignedLongOfSize3), true);
 		Assert.assertEquals((Long) 123L, element.parse("123"));
 		Assert.assertEquals(Long.valueOf(-3), element.parse("-3"));
@@ -74,14 +74,14 @@ public class NumberFormatElementTest {
 	}
 	
 	@Test
-	public void testNegativeBigDecimal() {
+	public void testSignedBigDecimal() {
 		BigDecimalFormElement element = new BigDecimalFormElement(Keys.getProperty(TestNumbers.$.aSignedBigDecimal), true);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123")) == 0);
 		Assert.assertTrue(BigDecimal.valueOf(-1234567890).compareTo(element.parse("-1234567890")) == 0);
 	}
 
 	@Test
-	public void testNegativeBigDecimalWith2Decimals() {
+	public void testSignedBigDecimalWith2Decimals() {
 		BigDecimalFormElement element = new BigDecimalFormElement(Keys.getProperty(TestNumbers.$.aBigDecimalOfSize3With2Decimals), true);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123")) == 0);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123.")) == 0);
