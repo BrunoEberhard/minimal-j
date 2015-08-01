@@ -15,8 +15,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	}
 
 	@Override
-	public BigDecimal getValue() {
-		String text = textField.getValue();
+	public BigDecimal parse(String text) {
 		if (text != null) {
 			try {
 				return new BigDecimal(text);

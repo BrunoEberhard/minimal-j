@@ -14,11 +14,16 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 	}
 
 	@Override
-	public Integer getValue() {
-		String text = textField.getValue();
+	public Integer parse(String text) {
 		if (text != null) {
 			try {
-				return Integer.parseInt(text);
+				int value = Integer.parseInt(text);
+				int size = value < 0 ? text.length() - 1 : text.length();
+				if (size <= this.size) {
+					return value;
+				} else {
+					return InvalidValues.createInvalidInteger(text);
+				}
 			} catch (NumberFormatException nfe) {
 				return InvalidValues.createInvalidInteger(text);
 			}

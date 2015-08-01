@@ -6,7 +6,6 @@ import java.time.format.DateTimeParseException;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.MockDate;
 
 public class LocalDateFormElement extends FormatFormElement<LocalDate> {
@@ -26,27 +25,22 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 	}
 
 	@Override
-	public LocalDate getValue() {
-		String fieldText = textField.getValue();
+	public LocalDate parse(String string) {
 		try {
-			return DateUtils.parse(fieldText);
+			return DateUtils.parse(string);
 		} catch (DateTimeParseException x) {
-			return InvalidValues.createInvalidLocalDate(fieldText);
+			return InvalidValues.createInvalidLocalDate(string);
 		}
 	}
 	
 	@Override
-	public void setValue(LocalDate value) {
+	public String render(LocalDate value) {
 		if (InvalidValues.isInvalid(value)) {
-			String text = InvalidValues.getInvalidValue(value);
-			textField.setValue(text);
+			return InvalidValues.getInvalidValue(value);
 		} else if (value != null) {
-			String text = DateUtils.format(value);
-			if (!StringUtils.equals(textField.getValue(), text)) {
-				textField.setValue(text);
-			}
+			return DateUtils.format(value);
 		} else {
-			textField.setValue(null);
+			return null;
 		}
 	}
 	

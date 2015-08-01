@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validatable;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 
 public abstract class FormatFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
@@ -48,11 +49,22 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	}
 
 	@Override
-	public abstract T getValue();
+	public final T getValue() {
+		return parse(textField.getValue());
+	}
 
+	protected abstract T parse(String text);
+	
 	@Override
-	public abstract void setValue(T value);
+	public final void setValue(T value) {
+		String newString = render(value);
+		if (!StringUtils.equals(newString, textField.getValue())) {
+			textField.setValue(render(value));
+		}
+	}
 
+	protected abstract String render(T value);
+	
 	private class TextFormatFieldChangeListener implements InputComponentListener {
 		@Override
 		public void changed(IComponent source) {

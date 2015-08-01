@@ -24,16 +24,16 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 	}
 
 	@Override
-	public void setValue(T number) {
-		String text = null;
+	public String render(T number) {
+		String string = null;
 		if (number != null) {
 			if (InvalidValues.isInvalid(number)) {
-				text = InvalidValues.getInvalidValue(number);
+				string = InvalidValues.getInvalidValue(number);
 			} else {
-				text = number.toString();
+				string = number.toString();
 			}
 		}
-		textField.setValue(text);
+		return string;
 	}
 	
 	@Override

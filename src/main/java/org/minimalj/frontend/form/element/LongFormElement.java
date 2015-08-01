@@ -14,11 +14,16 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 	}
 
 	@Override
-	public Long getValue() {
-		String text = textField.getValue();
+	public Long parse(String text) {
 		if (text != null) {
 			try {
-				return Long.parseLong(text);
+				long value = Long.parseLong(text);
+				int size = value < 0 ? text.length() - 1 : text.length();
+				if (size <= this.size) {
+					return value;
+				} else {
+					return InvalidValues.createInvalidLong(text);
+				}
 			} catch (NumberFormatException nfe) {
 				return InvalidValues.createInvalidLong(text);
 			}

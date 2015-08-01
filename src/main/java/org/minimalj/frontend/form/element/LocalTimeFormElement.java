@@ -7,7 +7,6 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.MockDate;
 
 public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
@@ -42,13 +41,12 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	}
 
 	@Override
-	public LocalTime getValue() {
-		String text = textField.getValue();
-		if (text != null) {
+	public LocalTime parse(String string) {
+		if (string != null) {
 			try {
-				return LocalTime.parse(text, formatter);
+				return LocalTime.parse(string, formatter);
 			} catch (IllegalArgumentException iae) {
-				return InvalidValues.createInvalidLocalTime(text);
+				return InvalidValues.createInvalidLocalTime(string);
 			}
 		} else {
 			return null;
@@ -56,17 +54,13 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	}
 	
 	@Override
-	public void setValue(LocalTime value) {
+	public String render(LocalTime value) {
 		if (InvalidValues.isInvalid(value)) {
-			String text = InvalidValues.getInvalidValue(value);
-			textField.setValue(text);
+			return InvalidValues.getInvalidValue(value);
 		} else if (value != null) {
-			String text = formatter.format(value);
-			if (!StringUtils.equals(textField.getValue(), text)) {
-				textField.setValue(text);
-			}
+			return formatter.format(value);
 		} else {
-			textField.setValue(null);
+			return null;
 		}
 	}
 
