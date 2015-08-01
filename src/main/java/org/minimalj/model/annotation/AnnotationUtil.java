@@ -60,8 +60,8 @@ public class AnnotationUtil {
 		return property.getAnnotation(annotationClass);
 	}
 		
-	public static boolean isNegative(PropertyInterface property) {
-		return property.getAnnotation(Negative.class) != null;
+	public static boolean isSigned(PropertyInterface property) {
+		return property.getAnnotation(Signed.class) != null;
 	}
 	
 }

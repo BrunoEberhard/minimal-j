@@ -19,7 +19,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 		if (text != null) {
 			try {
 				BigDecimal value = new BigDecimal(text);
-				if (value.signum() < 0 && !this.negative) {
+				if (value.signum() < 0 && !this.signed) {
 					return InvalidValues.createInvalidBigDecimal(text);
 				}
 				value = value.stripTrailingZeros();
@@ -47,7 +47,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 		}
 		BigDecimal value = new BigDecimal(s.toString());
 		value = value.movePointLeft(decimalPlaces);
-		if (negative && random.nextBoolean()) {
+		if (signed && random.nextBoolean()) {
 			value = value.negate();
 		}
 		setValue(value);

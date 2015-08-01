@@ -19,7 +19,7 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 		if (text != null) {
 			try {
 				long value = Long.parseLong(text);
-				if (value < 0 && !this.negative) {
+				if (value < 0 && !this.signed) {
 					return InvalidValues.createInvalidLong(text);
 				}
 				int size = value < 0 ? text.length() - 1 : text.length();
@@ -45,7 +45,7 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 			for (int i = 1; i<size; i++) max = max * 10;
 			value = value % max;
 		}
-		if (!negative && value < 0) {
+		if (!signed && value < 0) {
 			value = -value;
 		}
 		setValue(value);

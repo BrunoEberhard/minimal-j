@@ -8,14 +8,14 @@ import org.minimalj.model.validation.InvalidValues;
 
 public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 
-	protected final boolean negative;
+	protected final boolean signed;
 	protected final int size, decimalPlaces;
 	
 	protected NumberFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
 		size = AnnotationUtil.getSize(property);
 		decimalPlaces = AnnotationUtil.getDecimal(property);
-		negative = AnnotationUtil.isNegative(property);
+		signed = AnnotationUtil.isSigned(property);
 	}
 	
 	@Override
@@ -39,15 +39,15 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 	@Override
 	protected String getAllowedCharacters(PropertyInterface property) {
 		if (decimalPlaces > 0) {
-			return negative ? "-0123456789." : "0123456789.";
+			return signed ? "-0123456789." : "0123456789.";
 		} else {
-			return negative ? "-0123456789" : "0123456789";
+			return signed ? "-0123456789" : "0123456789";
 		}
 	}
 	
 	@Override
 	protected int getAllowedSize(PropertyInterface property) {
-		return size + (negative ? 1 : 0) + (decimalPlaces > 0 ? 1 : 0);
+		return size + (signed ? 1 : 0) + (decimalPlaces > 0 ? 1 : 0);
 	}
 
 }
