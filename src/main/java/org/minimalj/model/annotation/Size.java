@@ -47,5 +47,12 @@ public @interface Size {
 	 * Maximum size of a Long (unsigned)
 	 */
 	public static final int LONG = String.valueOf(Long.MAX_VALUE).length();
+	
+	
+	/**
+	 * The default size (number of digits) for BigDecimals.
+	 * Note: 10 is als the default used in MariaDB.
+	 */
+	public static final int BIG_DECIMAL_DEFAULT = 10;
 
 }
