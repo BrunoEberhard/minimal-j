@@ -14,7 +14,7 @@ the _minimal_ way.
 === Example
 
 You find the examples on https://github.com/BrunoEberhard/minimal-j/tree/master/example[github]
-in the exmaple directory. For an easy starts it's best to grab the empty application and
+in the example directory. For an easy starts it's best to grab the empty application and
 try the stuff explained here and then fill it with your own ideas.
 
 === Maven
@@ -46,7 +46,7 @@ libraries. For example:
 The apache derby db is used if you want to store your data only in the JVM memory. Have you
 noted the scope _compile_? This means that this dependency is not passed to projects with
 a dependency to Minimal-J. If you want to use the in memory feature you have to add the
-dependency to your your project! On the other side if you don't use the feature you don't have
+dependency to your project! On the other side if you don't use the feature you don't have
 to bother about anything from derby db.
 
 At the moment there a few dependencies you can copy from den Minimal-J pom.xml. Of course
@@ -67,26 +67,26 @@ mvn clean install
 
 === Start
 
-Then you can start your application with a Frontend of your choice. But for some Frontend
+Then you can start your application with a frontend of your choice. But for some frontend
 some preparations must be done. If you want to use Vaadin your project needs the dependency
 to Vaadin and a WEB-INF directory with a properly configured web.xml. Only the Swing and
-the WebSocket Frontend work out of the box. This is the reason why a like to start with
-the Swing Frontend so much. You don't need a tomcat and/or all the JEE stuff.
+the WebSocket frontend work out of the box. This is the reason why a like to start with
+the Swing frontend so much. You don't need a tomcat and/or all the JEE stuff.
 
 You can put together a correct classpath by yourself or you can delegate this to maven
 by using the exec plugin
 
 ----
-mvn exec:java -Dexec.mainClass="org.minimalj.frontend.swing.SwingFrontend" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
+mvn exec:java -Dexec.mainClass="org.minimalj.frontend.swing.SwingApplication" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
 ----
 
 The WebSocket Frontend is started the same way.
 
 ----
-mvn exec:java -Dexec.mainClass="org.minimalj.frontend.websocket.WebSocketFrontend" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
+mvn exec:java -Dexec.mainClass="org.minimalj.frontend.websocket.WebSocketApplicationServer" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
 ----
 
-Most of the frontends are started like this. Of course not the Vaadin Frontend which needs a
+Most of the frontends are started like this. Of course not the Vaadin frontend which needs a
 Tomcat or some other container to run. There you have to deploy the application to the server
 and start the server.
 
