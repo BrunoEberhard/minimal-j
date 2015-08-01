@@ -63,13 +63,14 @@ that can be used in models. I say base classes because no primitve types can be 
 
 IMPORTANT: The allowed base attribute classes are: String, Integer, Long, Boolean, BigDecimal,
 LocalDate, LocalTime, LocalDateTime. The primitives int, long, boolean are not allowed in
-model classes and will always cause the model classes to fail to 'model-check'.
+model classes and will always cause the model classes to fail at the 'model-check'.
 
 It may seem harsh to reduce the allowed types in such way. On the other side it makes the
 database mapping much more readable. And the JavaScript guys can live even with more restrictions
 they only have String and double!
 
-IMPORTANT: String fields must have a size annotation. For Integer, Long and BigDecimal it's optional.
+IMPORTANT: String fields must have a size annotation. For Integer, Long and BigDecimal the size
+annotation is optional.
 
 === Set of enum
 
