@@ -6,12 +6,11 @@ image::doc/frontends.png[title="Minimal-J"]
 
 Minimal-J is an opinionated java framework. The focus is:
 
-* Small
-* Easy to use
-* Easy to specify
-* No dependencies
-* Works with Html / Vaadin / Swing / Terminal
-* DB persistence
+* Small: The minimalj.jar is still < 1MB
+* Easy to specify: Minimal-J reduces the choices an implentation has to make
+* No required dependencies. Only the ones an application needs by itself
+* Works with different UI technologies: Html / Vaadin / Swing / Terminal
+* DB persistence: A very minimalized ORM
 
 == Status
 
@@ -30,4 +29,5 @@ link:doc/setup.adoc[Setup]
 * link:example/004_Library/doc/004.adoc[Library]
 * link:example/005_Numbers/doc/005.adoc[Numbers]
 
-NOTE: The screenshots and version numbers in the documentation pages may become outdated.
+=== Real application
+* https://github.com/BrunoEberhard/open-ech[Open-eCH]
