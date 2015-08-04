@@ -1,6 +1,8 @@
 package org.minimalj.model.test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -9,10 +11,8 @@ import java.util.TreeSet;
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.View;
-import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.Reference;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import org.minimalj.model.annotation.Size;
 
 /**
  * This tests don't test models. It tests the tests for the model.
@@ -207,6 +207,30 @@ public class ModelTestTest {
 		public Object id;
 		@SuppressWarnings("rawtypes")
 		public final Set s = new TreeSet();
+	}
+	
+	//
+	
+	@Test public void
+	should_test_not_accept_invalid_field_names() {
+		ModelTest modelTest = new ModelTest(TestClass17.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+	
+	public static class TestClass17 {
+		public Object id;
+		public String a$;
+	}
+
+	@Test public void
+	should_test_not_accept_invalid_class_names() {
+		ModelTest modelTest = new ModelTest(TestClass18$.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+	
+	public static class TestClass18$ {
+		public Object id;
+		public Integer a;
 	}
 
 	//

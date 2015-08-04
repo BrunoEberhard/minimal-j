@@ -74,6 +74,7 @@ public class ModelTest {
 	private void testClass(Class<?> clazz) {
 		if (!testedClasses.contains(clazz)) {
 			testedClasses.add(clazz);
+			testName(clazz);
 			testNoSuperclass(clazz);
 			testId(clazz);
 			testVersion(clazz);
@@ -182,6 +183,7 @@ public class ModelTest {
 
 	private void testField(Field field) {
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !field.getName().equals("id") && !field.getName().equals("version")) {
+			testName(field);
 			testTypeOfField(field);
 			testNoMethodsForPublicField(field);
 			Class<?> fieldType = field.getType();
@@ -197,6 +199,31 @@ public class ModelTest {
 			}
 			
 		}
+	}
+	
+	private void testName(Field field) {
+		String name = field.getName();
+		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
+		testName(name, messagePrefix);
+	}
+
+	private void testName(Class<?> clazz) {
+		String name = clazz.getSimpleName();
+		String messagePrefix = "Class " + clazz.getSimpleName();
+		testName(name, messagePrefix);
+	}
+
+	private void testName(String name, String messagePrefix) {
+		for (int i = 0; i<name.length(); i++) {
+			char c = name.charAt(i);
+			if (isIdentifierChar(c)) continue;
+			problems.add(messagePrefix + " has an invalid name. " + c + " is not allowed");
+			break;
+		}
+	}
+
+	private boolean isIdentifierChar(char c) {
+		return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9';
 	}
 
 	private void testTypeOfField(Field field) {
