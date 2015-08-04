@@ -72,7 +72,7 @@ public abstract class AbstractTable<T> {
 	protected AbstractTable(DbPersistence dbPersistence, String name, Class<T> clazz, PropertyInterface idProperty) {
 		this.dbPersistence = dbPersistence;
 		this.helper = new DbPersistenceHelper(dbPersistence);
-		this.name = name != null ? name : StringUtils.toDbName(clazz.getSimpleName());
+		this.name = buildTableName(dbPersistence, name != null ? name : StringUtils.toSnakeCase(clazz.getSimpleName()));
 		this.clazz = clazz;
 		this.idProperty = idProperty;
 		this.columns = findColumns(clazz);
@@ -86,8 +86,18 @@ public abstract class AbstractTable<T> {
 		findDependables();
 		findIndexes();
 	}
+	
+	public static String buildTableName(DbPersistence persistence, String name) {
+		name = DbPersistenceHelper.buildName(name, persistence.getMaxIdentifierLength(), persistence.getTableNames());
 
-	protected static LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
+		// the persistence adds the table name too late. For subtables it's important
+		// to add the table name here. Note that tableNames is a Set. Multiple
+		// adds don't do any harm.
+		persistence.getTableNames().add(name);
+		return name;
+	}
+	
+	protected LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
 		if (columnsForClass.containsKey(clazz)) {
 			return columnsForClass.get(clazz);
 		}
@@ -95,7 +105,7 @@ public abstract class AbstractTable<T> {
 		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<String, PropertyInterface>();
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
-			String fieldName = StringUtils.toDbName(field.getName());
+			String fieldName = StringUtils.toSnakeCase(field.getName()).toUpperCase();
 			if (StringUtils.equals(fieldName, "ID", "VERSION")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
@@ -106,9 +116,11 @@ public abstract class AbstractTable<T> {
 					if (!hasClassName) {
 						key = fieldName + "_" + inlineKey;
 					}
+					key = DbPersistenceHelper.buildName(key, dbPersistence.getMaxIdentifierLength(), columns.keySet());
 					columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
 				}
 			} else {
+				fieldName = DbPersistenceHelper.buildName(fieldName, dbPersistence.getMaxIdentifierLength(), columns.keySet());
 				columns.put(fieldName, new FieldProperty(field));
 			}
 		}
@@ -194,7 +206,7 @@ public abstract class AbstractTable<T> {
 	
 	protected void addFieldColumns(DbSyntax syntax, StringBuilder s) {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			s.append(",\n ").append(DbPersistenceHelper.columnName(column.getKey())).append(" "); 
+			s.append(",\n ").append(column.getKey()).append(" "); 
 
 			PropertyInterface property = column.getValue();
 			syntax.addColumnDefinition(s, property);

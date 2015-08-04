@@ -7,8 +7,6 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -18,6 +16,7 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.ReservedDbWords;
 
 public class DbPersistenceHelper {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
@@ -137,14 +136,45 @@ public class DbPersistenceHelper {
 		return value;
 	}
 	
-	private static final List<String> SQL_KEYWORDS = Arrays.asList("SELECT", "FROM", "TO", "WHERE");
+	public static String buildName(String name, int maxLength, Set<String> alreadyUsedNames) {
+		name = name.toUpperCase();
+		name = cutToMaxLength(name, maxLength);
+		name = avoidReservedDbWords(name, maxLength);
+		name = resolveNameConflicts(alreadyUsedNames, name);
+		return name;
+	}
 	
-	public static String columnName(String name) {
-		if (SQL_KEYWORDS.contains(name)) {
-			return "'" + name + "'";
-		} else {
-			return name;
+	private static String cutToMaxLength(String fieldName, int maxLength) {
+		if (fieldName.length() > maxLength) {
+			fieldName = fieldName.substring(0, maxLength);
 		}
+		return fieldName;
 	}
 
+	private static String avoidReservedDbWords(String fieldName, int maxLength) {
+		if (ReservedDbWords.reservedDbWords.contains(fieldName)) {
+			if (fieldName.length() == maxLength) {
+				fieldName = fieldName.substring(0, fieldName.length() - 1);
+			}
+			fieldName = fieldName + "_";
+		}
+		return fieldName;
+	}
+
+	private static String resolveNameConflicts(Set<String> set, String fieldName) {
+		if (set.contains(fieldName)) {
+			int i = 1;
+			do {
+				String number = Integer.toString(i);
+				String tryFieldName = fieldName.substring(0,  fieldName.length() - number.length() - 1) + "_" + number;
+				if (!set.contains(tryFieldName)) {
+					fieldName = tryFieldName;
+					break;
+				}
+				i++;
+			} while (true);
+		}
+		return fieldName;
+	}
+	
 }

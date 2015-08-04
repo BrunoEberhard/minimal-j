@@ -1,6 +1,5 @@
 package org.minimalj.util;
 
-
 public class StringUtils {
 
 	public static boolean equals(String s1, String s2) {
@@ -114,7 +113,8 @@ public class StringUtils {
 	public static String toConstant(String string) {
 		if (string == null) throw new NullPointerException();
 		if (string.length() == 0) throw new IllegalArgumentException("String must have a least one character");
-		StringBuffer s = new StringBuffer();
+		StringBuilder s = new StringBuilder();
+		string = string.replace("_", "__");
 		for (int i = 0; i<string.length(); i++) {
 			if (Character.isUpperCase(string.charAt(i))) {
 				s.append('_');
@@ -124,20 +124,20 @@ public class StringUtils {
 		return s.toString();
 	}
 	
-	public static String toDbName(String string) {
-		if (string == null) throw new NullPointerException();
-		if (string.length() == 0) throw new IllegalArgumentException("String must have a least one character");
-		StringBuffer s = new StringBuffer();
-		s.append(Character.toUpperCase(string.charAt(0)));
-		for (int i = 1; i<string.length(); i++) {
+	public static String toSnakeCase(String string) {
+		if (StringUtils.isEmpty(string)) {
+			return string;
+		}
+		StringBuilder s = new StringBuilder();
+		s.append(string.charAt(0));
+		for (int i = 1; i < string.length(); i++) {
 			if (Character.isUpperCase(string.charAt(i))) {
 				s.append('_');
 			}
-			s.append(Character.toUpperCase(string.charAt(i)));
+			s.append(string.charAt(i));
 		}
-		if (s.toString().equalsIgnoreCase("foreign")) return "FORIGN";
 		return s.toString();
-	}
+	}	
 	
 	public static String escapeHTML(String s) {
 		StringBuilder out = new StringBuilder(Math.max(16, s.length()));

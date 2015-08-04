@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,7 @@ public class DbPersistence {
 	private final DbSyntax syntax;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
+	private final Set<String> tableNames = new HashSet<>();
 	
 	private final DataSource dataSource;
 	
@@ -381,6 +384,7 @@ public class DbPersistence {
 			boolean historized = FieldUtils.hasValidVersionfield(clazz);
 			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
 			tables.put(table.getClazz(), table);
+			tableNames.add(table.getTableName());
 		}
 		return (AbstractTable<U>) tables.get(clazz);
 	}
@@ -506,6 +510,14 @@ public class DbPersistence {
 
 	public void invalidateCodeCache(Class<?> clazz) {
 		codeCache.remove(clazz);
+	}
+
+	public int getMaxIdentifierLength() {
+		return syntax.getMaxIdentifierLength();
+	}
+	
+	public Set<String> getTableNames() {
+		return tableNames;
 	}
 
 }

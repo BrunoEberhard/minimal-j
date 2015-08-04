@@ -17,6 +17,8 @@ import org.minimalj.util.IdUtils;
  */
 public abstract class DbSyntax {
 
+	public abstract int getMaxIdentifierLength();
+
 	protected void addCreateStatementBegin(StringBuilder s, String tableName) {
 		s.append("CREATE TABLE "); s.append(tableName); s.append(" (\n");
 	} 
@@ -155,6 +157,11 @@ public abstract class DbSyntax {
 		protected void addCreateStatementEnd(StringBuilder s) {
 			s.append("\n) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED\n");
 		}
+
+		@Override
+		public int getMaxIdentifierLength() {
+			return 64;
+		}
 	}
 	
 	public static class DerbyDbSyntax extends DbSyntax {
@@ -206,6 +213,11 @@ public abstract class DbSyntax {
 			s.append(column);
 			s.append(")");
 			return s.toString();
+		}
+
+		@Override
+		public int getMaxIdentifierLength() {
+			return 128;
 		}
 	}
 	

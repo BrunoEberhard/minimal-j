@@ -1,9 +1,8 @@
 package org.minimalj.util;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
-import org.minimalj.util.StringUtils;
+
+import junit.framework.Assert;
 
 
 public class StringUtilsTest {
@@ -67,6 +66,8 @@ public class StringUtilsTest {
 		Assert.assertEquals("_D_ER", StringUtils.toConstant("DEr"));
 		Assert.assertEquals("D_ER", StringUtils.toConstant("dEr"));
 		Assert.assertEquals("D_E_ER", StringUtils.toConstant("dEEr"));
+		Assert.assertEquals("D__ER", StringUtils.toConstant("d_er"));
+		Assert.assertEquals("D___ER", StringUtils.toConstant("d_Er"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)

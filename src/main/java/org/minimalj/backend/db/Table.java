@@ -24,7 +24,6 @@ import org.minimalj.transaction.criteria.Criteria.SimpleCriteria;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
 
 @SuppressWarnings("rawtypes")
 public class Table<T> extends AbstractTable<T> {
@@ -133,11 +132,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	protected String buildSubTableName(PropertyInterface property) {
-		StringBuilder b = new StringBuilder();
-		b.append(getTableName());
-		String fieldName = StringUtils.upperFirstChar(property.getName());
-		b.append('_'); b.append(fieldName); 
-		return b.toString();
+		return getTableName() + "__" + property.getName();
 	}
 	
 	public void update(T object) {
