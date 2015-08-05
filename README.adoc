@@ -2,7 +2,9 @@
 
 Minimal-J is an opinionated java framework. It covers client and server technologies. 
 
-image::doc/frontends.png[title="Minimal-J"]
+image::doc/frontends.png[title="Minimal-J Clients"]
+
+== Idea
 
 * Small: The minimalj.jar is still < 1MB
 * Makes applications easy to specify: Minimal-J reduces the choices an implentation has to make
