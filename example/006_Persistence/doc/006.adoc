@@ -1,0 +1,120 @@
+== Persistence
+
+Minimal-J doesn't provide a 'complete' Object-relational mapping as you may know it from tools like hibernate.
+It's function is reduced to only work with entities following the rules of the Minimal-J models. The
+complexity is still high enough. Here a basic example:
+
+[source,java,title="PersistenceExample.java"]
+----
+package org.minimalj.example.persistence;
+
+import [..]
+
+public class PersistenceExample {
+
+	public static void main(String[] args) {
+		AbstractTable.sqlLogger.setLevel(Level.FINEST);
+		AbstractTable.sqlLogger.getParent().getHandlers()[0].setLevel(Level.FINEST);
+		
+		DbPersistence persistence = new DbPersistence(DbPersistence.embeddedDataSource(), ExamplePerson.class);
+
+		ExamplePerson person = new ExamplePerson();
+		person.firstName = "Peter";
+		person.lastName = "Muster";
+		
+		persistence.insert(person);
+	}
+	
+	public static class ExamplePerson {
+		public static final ExamplePerson $ = Keys.of(ExamplePerson.class);
+		public Object id;
+		
+		@Size(255)
+		public String firstName, lastName;
+	}
+}
+----
+
+This example is not a complete Minimal-J application. The persistence layer can be created independently. This
+is not the recommanded way to use it but it's quite usefull for test or example classes.
+
+The first two lines configure the java logging to print out all the execute sql statements. Normally you will
+do this with a logging.properties file.
+
+Then the persistence layer is created. It's a persistence layer over a database. As input parameter a DataSource
+is needed. DataSource is a JDK class. It is not as popular as the basic JDBC classes and mostly known to be
+a tricky configuration point when deploying to a web server. Actually it's not that bad. Read more about it at
+oracle https://docs.oracle.com/javase/tutorial/jdbc/basics/sqldatasources.html . 
+
+There are even some helper
+methods in Minimal-J that save you all the trouble at the start. In the example an embedded Java DB is used.
+You need the derby.jar and derbyclient.jar for that in your classpath. Otherwise you get an exception when
+starting the application.
+
+As second argument the DbPersistence constructor needs an Array of the model entities. Or at least of the main
+entities. If these main entities reference some list or inline entities that don't need to be listed.
+
+Then an ExamplePerson is constructed and filled and inserted. Here the log from these actions.
+
+[log,txt,title="Log of PersistenceExample"]
+----
+Aug 05, 2015 9:04:11 AM org.minimalj.backend.db.LoggingPreparedStatement log
+FEIN:    34ms CREATE TABLE EXAMPLE_PERSON (
+ id CHAR(36) NOT NULL,
+ FIRST_NAME VARCHAR (255) DEFAULT NULL,
+ LAST_NAME VARCHAR (255) DEFAULT NULL,
+ PRIMARY KEY (id)
+)
+Aug 05, 2015 9:04:11 AM org.minimalj.backend.db.LoggingPreparedStatement log
+FEIN:    15ms INSERT INTO EXAMPLE_PERSON (FIRST_NAME, LAST_NAME, id) VALUES ('Peter', 'Muster', 'e415162a-4a2e-4df4-a9bc-7ef2638dbe89')
+----
+
+=== Field names
+Field names in Minimal-J are restricted to the characters a-z, A-Z and 0-9. And here you see why. In the database
+the field names are translated to snakeCase (there is a method for it in StringUtils). This means that before every
+upper case a underscore is inserted (except for the first letter).
+
+NOTE: There is no consensus in the world of databases what is a valid identifier. Some database allow special characters.
+Other do not or require quotation. Most projects take care of that by simply ommit special characters. That's exactly
+what Minimal-J is doing. I have never seen a project using umlauts in field names.
+
+=== Very long field names
+In databases the length of field names is restricted. Not so much in Java DB or Maria DB. But in Oracle DB the
+maximum length of identifiers is 30 characters. In Java there is no such restriction (or at least no noticable one).
+
+Minimal-J could restrict field names according to the databases. But this would make the project more dependend on
+the used database. Also the field names grow when translating them to database identifiers (by inserting underscores
+before upper case letters and some times by concatinating field names).
+
+Minimal-J chose a different approach. If the field name is too long it is simply cut a the maximum length.
+Now what if two field names become equal when cutting them? Then the equal field names are numbered at the end.
+
+You will probably never see this case. If you are interested of how it works have a look at the 
+test class DbLongFieldNameTest.
+
+=== Insert values
+The second log entry shows the insert of the values. There is only one part that may surprise you. This is that you
+actually see the values. Normally PreparedStatment is used an when logging those you only see something like
+(?, ?, ?). Of course Minimal-J does use PreparedStatement (you have to - if you only construct statements out of
+a String you have security problems). But the LoggingPreparedStatement does insert the values in the log line.
+This can be quite helpfull.
+
+Note that the LoggingPreparedStatement is only implemented as much as Minimal-J needs it. For projects not using
+Minimal-J you may have to implement some more overriden methods.
+
+=== Create table
+Normally when starting an application the database for it already exists. The application should not create the tables
+every time it is started. For this example is was actually helpfull that the table was created because otherwise the
+example would have failed. How does the persistence layer know if the tables have to be created?
+
+Answer: there is a third parameter in den DbPersistence constructor. It's named createTablesOnInitialize . It's default
+is calculated in the method createTablesOnInitialize(DataSource). There you see that the default is exactly made to be
+working for examples but in real word applications the tables will not be created.
+
+There is a special main class named TableCreator. This class you will use to initially create a database.
+
+WARNING: There is no check if the used database is a match of the java entities. If you don't newly create the database after
+changing a java entity the persistence layer will probably fail with its operations. For small changes (like name
+changes) you could manually update the database. For structural changes it's recommanded to export the data, delete
+the database, and import after the new creation. At the point where this procedure is too expensive you may be
+enough experienced that you can manually update the database even for structural changes.
