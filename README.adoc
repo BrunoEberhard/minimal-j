@@ -4,13 +4,13 @@ image::doc/frontends.png[title="Minimal-J"]
 
 == Idea
 
-Minimal-J is an opinionated java framework. The focus is:
+Minimal-J is an opinionated java framework. It covers client and server technologies. 
 
 * Small: The minimalj.jar is still < 1MB
-* Easy to specify: Minimal-J reduces the choices an implentation has to make
+* Makes applications easy to specify: Minimal-J reduces the choices an implentation has to make
 * No required dependencies. Only the ones an application needs by itself
 * Works with different UI technologies: Html / Vaadin / Swing / Terminal
-* DB persistence: A very minimalized ORM
+* DB persistence, transactions and authorization
 
 == Status
 
