@@ -3,8 +3,7 @@ package org.minimalj.util;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 public class CsvReaderTest {

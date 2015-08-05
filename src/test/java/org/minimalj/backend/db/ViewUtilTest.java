@@ -1,7 +1,6 @@
 package org.minimalj.backend.db;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;

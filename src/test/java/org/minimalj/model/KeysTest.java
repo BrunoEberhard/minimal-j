@@ -3,10 +3,8 @@ package org.minimalj.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
-import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class KeysTest {

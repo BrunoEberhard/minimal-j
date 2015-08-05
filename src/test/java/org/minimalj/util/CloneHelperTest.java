@@ -3,10 +3,8 @@ package org.minimalj.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
-import org.minimalj.util.CloneHelper;
 
 public class CloneHelperTest {
 

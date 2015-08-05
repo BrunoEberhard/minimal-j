@@ -3,9 +3,8 @@ package org.minimalj.backend.db;
 import java.sql.SQLException;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.transaction.criteria.Criteria;

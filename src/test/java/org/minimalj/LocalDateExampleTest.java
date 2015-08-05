@@ -1,14 +1,13 @@
 package org.minimalj;
-import java.util.Locale;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 
 public class LocalDateExampleTest {
