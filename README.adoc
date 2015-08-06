@@ -29,6 +29,7 @@ link:doc/setup.adoc[Setup]
 * link:example/004_Library/doc/004.adoc[Library] Shows some more features of the framework
 * link:example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used
 * link:example/006_Persistence/doc/006.adoc[Persistence] Introduction to the O/R mapping
+* link:doc/arch.adoc[Architecture] Explains the difference between client/server and frontend/backend
 
 === Real application
 * https://github.com/BrunoEberhard/open-ech[Open-eCH]
