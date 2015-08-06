@@ -10,15 +10,20 @@ You can switch between all these setups at every time as long as you stay in fra
 
 === Frontend / Backend
 
-Minimal-J uses these two terms in a special way. The frontend is the part that handles user specific stuff like
+image::frontend_backend.png[title="Frontend and backend"]
+
+image::frontend_backend_components.png[title="Components of frontend and backend"]
+
+Minimal-J uses these two terms in a specific way. The frontend is the part that handles user specific stuff like
 build the UI. There could be run more than on instances of a frontend and even different classes of frontends
 at the same time.
 
-But there is only one backend for all the existing frontend. All frontends can send transactions to their
+But there is only one backend for all the existing frontends. All frontends can send transactions to their
 backend. Normally frontends only know one backend. The backend executes the transactions and gives back the
 result to the frontend.
 
-NOTE: (A part of the) frontend and backend can be on the same hardware. Even in the same VM.
+NOTE: Frontend and backend share a
+common data model. There are no such things like DTO (data transfer object) or VB (visual beans).
 
 === Client / Server
 
