@@ -13,10 +13,6 @@ body {
 	overflow: auto;
 }
 
-#header {
-	height: 5ex;
-}
-
 #content {
 	width: 100%;
 	height: calc(100% - 5ex);
