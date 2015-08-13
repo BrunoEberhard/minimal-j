@@ -27,10 +27,10 @@ import org.minimalj.util.resources.Resources;
 public class JsonClientSession implements PageBrowser {
 
 	private static final Map<String, JsonClientSession> sessions = new HashMap<>();
-	private Page visiblePage;
-	private String visiblePageId;
+	private String focusPageId;
 	private Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private Map<String, Page> pageById = new HashMap<>();
+	private Map<Page, String> idByPage = new HashMap<>();
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
@@ -52,6 +52,12 @@ public class JsonClientSession implements PageBrowser {
 		Frontend.setBrowser(this);
 		output = new JsonOutput();
 
+		if (input.containsObject("focusPageId")) {
+			focusPageId = (String) input.getObject("focusPageId"); 
+		} else {
+			focusPageId = null;
+		}
+		
 		if (input.containsObject(JsonInput.SHOW_PAGE)) {
 			String pageId = (String) input.getObject(JsonInput.SHOW_PAGE);
 			Page page;
@@ -60,7 +66,7 @@ public class JsonClientSession implements PageBrowser {
 			} else {
 				page = Application.getApplication().createDefaultPage();
 			}
-			show(page, pageId);
+			show(page, pageId, null);
 		}
 		
 		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
@@ -85,6 +91,14 @@ public class JsonClientSession implements PageBrowser {
 			table.action(row);
 		}
 		
+		Map<String, Object> tableSelection = input.get("tableSelection");
+		if (tableSelection != null && !tableSelection.isEmpty()) {
+			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSelection.get("table"));
+			int row = ((Long) tableSelection.get("row")).intValue();
+			List<Number> rows = ((List<Number>) tableSelection.get("rows"));
+			table.selection(row, rows);
+		}
+		
 		String search = (String) input.getObject("search");
 		if (search != null) {
 			Page searchPage = Application.getApplication().createSearchPage(search);
@@ -97,32 +111,57 @@ public class JsonClientSession implements PageBrowser {
 
 	@Override
 	public void show(Page page) {
-		show(page, UUID.randomUUID().toString());
+		show(page, UUID.randomUUID().toString(), null);
 	}
 	
-	public void show(Page page, String pageId) {
-		componentById.clear();
+	@Override
+	public void showDetail(Page page) {
+		show(page, UUID.randomUUID().toString(), focusPageId);
+	}
+	
+	private void show(Page page, String pageId, String masterPageId) {
+		if (masterPageId == null) {
+			componentById.clear();
+		}
 		
 		JsonComponent content = (JsonComponent) page.getContent();
 		register(content);
 		output.add("content", content);
 		output.add("title", page.getTitle());
-
-		List<Object> menuBar = createMenuBar(page);
-		register(menuBar);
-		output.add("menu", menuBar);
+		output.add("masterPageId", masterPageId);
+		
+		// TODO move this to none page specific
+		List<Object> navigation = createNavigation();
+		register(navigation);
+		output.add("navigation", navigation);
+		
+		List<Object> actionMenu = createActionMenu(page);
+		register(actionMenu);
+		output.add("actionMenu", actionMenu);
 		
 		pageById.put(pageId, page);
+		idByPage.put(page, pageId);
 		output.add("pageId", pageId);
-		
-		this.visiblePage = page;
-		this.visiblePageId = pageId;
-
+	}
+	
+	@Override
+	public void hideDetail(Page page) {
+		if (idByPage.containsKey(page)) {
+			String pageId = idByPage.get(page);
+			output.add("hideDetail", pageId);
+		}
+	}
+	
+	@Override
+	public boolean isDetailShown(Page page) {
+		// TODO handling of open details in JSON client
+		return true;
 	}
 	
 	@Override
 	public void refresh() {
-		show(visiblePage, visiblePageId);
+		// TODO remove refresh from PageBrowser interface
+		// show(visiblePage, visiblePageId, false);
 	}
 
 	@Override
@@ -163,31 +202,16 @@ public class JsonClientSession implements PageBrowser {
 		return null;
 	}	
 	
-	private List<Object> createMenuBar(Page page) {
-		List<Object> items = new ArrayList<>();
-		items.add(createMenu());
-		Object objectMenu = createActionMenu(page);
-		if (objectMenu != null) {
-			items.add(objectMenu);
-		}
-		return items;
-	}
-	
-	private Map<String, Object> createMenu() {
-		Map<String, Object> menu = createMenu("application");
+	private List<Object> createNavigation() {
 		List<Action> menuActions = Application.getApplication().getMenu();
 		List<Object> menuItems = createActions(menuActions);
-		menu.put("items", menuItems);
-		
-		return menu;
+		return menuItems;
 	}
 	
-	private Map<String, Object> createActionMenu(Page page) {
+	private List<Object> createActionMenu(Page page) {
 		List<Action> actions = page.getActions();
 		if (actions != null && actions.size() > 0) {
-			Map<String, Object> actionMenu = createMenu("page");
-			actionMenu.put("items", createActions(actions));
-			return actionMenu;
+			return createActions(actions);
 		}
 		return null;
 	}

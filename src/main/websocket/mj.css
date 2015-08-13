@@ -4,6 +4,7 @@ html {
 
 body {
 	font-family: sans-serif;
+	font-size: 11px;
 	margin: 0px;
 	height: 100%;
 }
@@ -13,59 +14,185 @@ body {
 	overflow: auto;
 }
 
-#content {
+/* header with search */
+
+#header {
+	position: fixed;
+	margin: 0px;
 	width: 100%;
-	height: calc(100% - 5ex);
-	overflow: auto;
-	background: #ebebeb;
+	height: calc(2.2em - 1px);
+	line-height: 2.1em;
+	text-align: left;
+	background: rgb(224,224,224);
+	border-bottom: 1px rgb(160,160,160) solid;
+	padding-left: 0ex;
+}
+
+#navigationButton {
+	position: absolute;
+	top: 0.4em;
+	left: 1em;
+}
+
+#search {
+	position: absolute;
+	top: 0;
+	right: 1em;
+	overflow: none;
+}
+
+#search input {
+	display: inline-block;
+	font-size: 11px;
+	height: 1.5em;
+	vertical-align: middle;
+}
+
+#search input:focus {
+	outline: none;
+}
+
+#search input[type=text] {
+	border: solid 1px #666;
+	padding-right: 0.5em;
+}
+
+/* content */
+
+#container {
+	position: fixed;
+	top: 2.2em;
+	bottom: 0;
+	margin: 0px;
+}
+
+#navigationContainer {
+	position: absolute;
+	left: 0px;
+	width: calc(15em - 1px);
+	top: 0px;
+	bottom: 0px;
+	margin: 0px;
 	color: black;
+	border-right: 1px rgb(160,160,160) solid;
 }
 
-.nopadding {
-	padding: 0px;
+#navigation {
+	margin-top: 0em;	
 }
 
-#dialog {
-	display: block;
+.navigationHeader {
+	position: absolute;
+	top: 0;
+	height: calc(1.8em - 1px);
+	line-height: 1.9em;
+	padding-left: 1em;
+	width: calc(100% - 1em);
+	background: rgb(240,240,240);
+	border-bottom: 1px rgb(160,160,160) solid;
+}
+
+#navigationContent {
+	position: absolute;
+	width: calc(15em - 1px);
+	top: 1.8em;
+	bottom: 0;
+	overflow: auto;
+	background: white;
+}
+
+ul {
+	padding: 1ex 0ex 1ex 1ex;
+}
+
+li {
+	list-style: none;
+	padding-top: 0.2em;
+	padding-bottom: 0.2em;
+}
+
+a {
+	color: blue;
+}
+
+/* pages */
+
+#pageContainer {
+	position: fixed;
+	top: 2.2em;
+	left: 15em;
+	right: 0em;
+	height: calc(100% - 2.2em);
+	overflow: scroll;
+	background: white;
+}
+
+.page {
+	position: relative;
+	border-bottom: 1px rgb(160,160,160) solid;
+}
+
+.pageHeader {
+	position: relative;
+	height: calc(1.8em - 1px);
+	line-height: 1.9em;
+	padding-left: 1em;
+	width: calc(100% - 1em);
+	background: rgb(240,240,240);
+	border-bottom: 1px rgb(160,160,160) solid;
+}
+
+.pageContent {
+	padding-left: 1em;
+	width: calc(100% - 1em);
+}
+
+.actionMenu {
+	position: absolute; left: 1em; top: 2em;
+}
+
+/* dialog */
+
+dialog {
+	border: 1px rgb(160,160,160) solid;
+	padding: 0em;
+	right: auto;
 }
 
 #dialogHeader {
 	height: 2em;
 	line-height: 2em;
 	padding-left: 1em;
-	background: linear-gradient(#ddd, #999);
+	border-bottom: 1px rgb(160,160,160) solid;
+	background: rgb(240,240,240);
 }
 
 #dialogContent {
-	padding: 0.5ex 0.5ex 0.5ex 0ex;
+	padding-right: 2em;
+	overflow: auto;
 }
 
 #dialogFooter {
 	height: 2em;
 	text-align: right;
-	background: #ccc;
+	background: rgb(240,240,240);
+	border-top: 1px rgb(160,160,160) solid;
 	padding-top: 1ex;
 	padding-right: 1ex;
 }
 
 #dialogFooter button {
 	margin-right: 0.5ex;
+	height: 1.5em;
 }
 
-.caption {
-	font-size: x-small;
-	font-weight: bolder;
-	margin-bottom: 0.5ex;
-}
-
-.hide {
-	visibility: hidden;
-}
+/* table */
 
 table {
 	width: 100%;
 	table-layout: fixed;
-	font-size: 80%
+	font-size: inherit;
+	border-spacing: 0px;
 }
 
 th {
@@ -74,12 +201,24 @@ th {
 	overflow: hidden;
 }
 
+.selected {
+	background: blue;
+}
+
 table tr:nth-child(even) {
 	background: #f8f8f8;
 }
 
 table tr:nth-child(odd) {
 	background: white;
+}
+
+table tr:nth-child(even).selected {
+	background: #99f;
+}
+
+table tr:nth-child(odd).selected {
+	background: #99f;
 }
 
 table.formContainer {
@@ -101,20 +240,11 @@ table.form tr {
 }
 
 td {
-	padding: 0.5ex 1ex;
+	padding: 1ex 1.5ex;
 	color: black;
 	white-space: nowrap;
 	vertical-align: top;
 	overflow: hidden;
-}
-
-.action {
-	font-size: small;
-	color: blue;
-}
-
-.action:hover {
-	text-decoration: underline;
 }
 
 table.form input[type="text"], table.form select {
@@ -136,100 +266,31 @@ table.group tr {
 	height: auto;
 }
 
-#search {
-	position: absolute;
-	top: 0;
-	right: 1em;
+/* various elements */
+
+input {
+	height: 1.5em
 }
 
-#search p {
-	display: inline-block;
-	margin: 0;
+select {
+	height: 1.5em
 }
 
-#search input {
-	display: inline-block;
-	vertical-align: middle;
+.caption {
+	font-size: x-small;
+	font-weight: bolder;
+	margin-bottom: 0.5ex;
 }
 
-#search input:focus {
-	outline: none;
-}
-
-#search input[type=text] {
-	border: solid 1px #666;
-	padding: 2px 5px;
-	background: linear-gradient(top, #f2f2f2 0, #fff 100%);
-}
-
-#header {
-	margin: 0px;
-	top: 0px;
-	width: 100%;
-	height: 4.2ex;
-	line-height: 4.2ex;
-	text-align: left;
-	background: #8b8b8b;
-	padding-left: 0ex;
-}
-
-#menu li {
-	color: white;
-	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-	margin-left: 1em;
-	padding: 0ex;
-	float: left;
-	position: relative;
-	list-style: none;
-}
-
-#menu ul {
-	font-size: small;
-	background: #ddd;
-	display: none;
-	margin: 0px;
-	padding: 0px;
-	min-width: 12em;
-	position: absolute;
-	top: 2.5em;
-	left: 0;
-	border: solid 1px #b4b4b4;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
-}
-
-#menu ul ul {
-	left: 10em;
-	top: -3px;
-	line-height: 180%;
-}
-
-#menu ul li {
-	margin: 0.5ex;
-	color: black;
-	float: none;
-	line-height: 180%;
-	white-space: nowrap;
-}
-
-#menu ul a:hover, #menu ul li:hover {
-	background: #acf !important;
-	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-}
-
-li[disabled=true] {
-	color: #999 !important;
-}
-
-#menu li:hover>ul {
-	display: block;
-}
-
-/* clearfix */
-#menu:after {
-	content: ".";
-	display: block;
-	clear: both;
+.hide {
 	visibility: hidden;
-	line-height: 0;
-	height: 0;
+}
+
+.action {
+	font-size: small;
+	color: blue;
+}
+
+.action:hover {
+	text-decoration: underline;
 }

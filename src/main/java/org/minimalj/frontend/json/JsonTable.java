@@ -83,5 +83,14 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		T object = objects.get(row);
 		listener.action(object);
 	}
+	
+	public void selection(int selectedRow, List<Number> selectedRows) {
+		T selectedObject = objects.get(selectedRow);
+		List<T> selectedObjects = new ArrayList<>(selectedRows.size());
+		for (Number r : selectedRows) {
+			selectedObjects.add(objects.get(r.intValue()));
+		}
+		listener.selectionChanged(selectedObject, selectedObjects);
+	}
 
 }

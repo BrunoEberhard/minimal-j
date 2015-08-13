@@ -6,6 +6,8 @@
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 
 <link rel="stylesheet" type="text/css" href="mj.css" />
+<link rel="stylesheet" type="text/css" href="menu.css" />
+
 <script type="text/javascript">
 	"use strict";
 	var websocket;
@@ -19,6 +21,8 @@
 		if (dataObject["content"] != undefined) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
+			var masterPageId = dataObject.masterPageId;
+			var actionMenu = dataObject.actionMenu;
 			if (history.state != pageId) {
 				if (pageId.indexOf("default") == 0) {
 					history.replaceState(pageId, title);
@@ -26,11 +30,15 @@
 					history.pushState(pageId, title);
 				}
 			}
-			showContent(dataObject["content"]);
+			showContent(pageId, title, dataObject["content"], actionMenu, masterPageId);
 			titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);
 		}
-		if (dataObject["menu"] != undefined) {
-			showMenuBar(dataObject["menu"]);
+		if (dataObject["hideDetail"] != undefined) {
+			var pageId = dataObject["hideDetail"];
+			hideDetail(pageId);
+		}		
+		if (dataObject["navigation"] != undefined) {
+			createNavigation(dataObject["navigation"]);
 		}
 		if (dataObject["dialog"] != undefined) {
 			showDialog(dataObject["dialog"]);
@@ -61,6 +69,8 @@
 							} else {
 								element.setAttribute("disabled", "true");
 							}
+						} else if (property == "value" && element.tagName == "DIV") {
+							element.innerHTML = value;
 						} else {
 							element[property] = value;
 						}
@@ -91,42 +101,169 @@
 	function onError(evt) {
 	}
 
-	function showContent(content) {
-		var contentElement = document.getElementById("content");
-		while (contentElement.firstChild) {
-			contentElement.removeChild(contentElement.firstChild);
+	function showContent(pageId, title, content, actionMenu, detail) {
+		var pageContainerElement = document.getElementById("pageContainer");
+		while (pageContainerElement.lastChild && pageContainerElement.lastChild.id != detail) {
+			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
+		
+		var pageElement = document.createElement("div");
+		pageElement.className = "page";
+		pageElement.id = pageId;
 
-		var element = createContent(content);
-		if (content.type == "Form" && !isMobile) {
-			var p = document.createElement("table");
-			p.className = "formContainer";
-
-			var paddingLeft = document.createElement("td");
-			paddingLeft.className = "nopadding";
-			paddingLeft.width = "10%";
-			p.appendChild(paddingLeft);
-
-			var formContent = document.createElement("td");
-			p.appendChild(element);
-
-			var paddingRight = document.createElement("td");
-			paddingRight.className = "nopadding";
-			paddingRight.width = "20%";
-			p.appendChild(paddingRight);
-
-			contentElement.appendChild(p);
+		var headerElement = createPageHeader(title);
+		pageElement.appendChild(headerElement);
+		
+		var actionMenuButton = headerElement.querySelector(".actionMenuButton");
+		
+		var contentElement = createContent(content);
+		contentElement.classList.add("pageContent");
+		pageElement.appendChild(contentElement);
+		
+		if (actionMenu != null) {
+			var actionMenuElement = createActionMenu(actionMenu);
+			actionMenuElement.style.display = "none";
+			pageElement.appendChild(actionMenuElement);
+			actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
 		} else {
-			contentElement.appendChild(element);
+			actionMenuButton.style.display = "none";
+		}
+		
+		pageContainerElement.appendChild(pageElement);
+		pageElement.scrollIntoView();
+	}
+	
+	function toggleActionMenu(event) {
+		var element = event.srcElement;
+		while ((element = element.parentElement) && element.className != "page");
+		var actionMenuElement = element.querySelector(".actionMenu");
+		if (actionMenuElement.style.display == "block") {
+			actionMenuElement.style.display = "none";
+		} else {
+			actionMenuElement.style.display = "block";
+		}
+		event.preventDefault();
+	}
+	
+	function toggleSubMenu(event) {
+		var element = event.srcElement;
+		var actionSubMenuElement = element.querySelector("ul");
+		if (actionSubMenuElement.style.display == "block") {
+			actionSubMenuElement.style.display = "none";
+		} else {
+			actionSubMenuElement.style.display = "block";
+		}
+		event.preventDefault();
+	}
+	
+	function togglePage(event) {
+		var element = event.srcElement;
+		while ((element = element.parentElement) && element.className != "page");
+		var pageContentElement = element.querySelector(".pageContent");
+		if (pageContentElement.style.display == "none") {
+			pageContentElement.style.display = "table";
+			pageContentElement.scrollIntoView();
+		} else {
+			pageContentElement.style.display = "none";
+		}
+		/* deactivated at the moment, doesn't work yet: updatePageHeights(); */
+	}
+	
+	function updatePageHeights() {
+		/* TODO */
+		var pageContainerElement = document.getElementById("pageContainer");
+		var childCount = pageContainerElement.childNodes.lenth;
+		if (childCount == 0) {
+			return;
+		} else if (childCount == 1) {
+			var pageContentElement = pageContainerElement.querySelector(".pageContent");
+			pageContentElement.style.height = undefined;
+		} else {
+			for (var i = 0; i<childCount; i++) {
+				var pageElement = pageContainerElement.childNodes[i];
+				var pageContentElement = element.querySelector(".pageContent");
+				if (pageContentElement.classList.contains("table")) {
+					pageContentElement.style.height = "50%";
+				}
+			}
 		}
 	}
 
+	function createPageHeader(title) {
+		var element = document.createElement("div");
+		element.className = "pageHeader";
+		element.innerHTML = title;
+		
+		var b = document.getElementById("pageHeaderButtons");
+		var button = b.cloneNode(true);
+		button.id = "menu";
+		button.setAttribute("style", "position: absolute; right: 1em; top: 0.2em;"); 
+		
+		element.appendChild(button);
+		return element;
+	}
+	
+	function showMenuBar(menus) {
+		var ul = document.getElementById("menu");
+		while (ul.firstChild) {
+			ul.removeChild(ul.firstChild);
+		}
+
+		for (var i = 0; i < menus.length; i++) {
+			var menu = menus[i];
+			var li = document.createElement("li");
+			ul.appendChild(li);
+			li.appendChild(document.createTextNode(menu.name));
+			li.appendChild(createMenu(menu));
+		}
+
+		function createMenu(menu) {
+			var ul = document.createElement("ul");
+
+			var items = menu.items;
+			for (var i = 0; i < items.length; i++) {
+				var item = items[i];
+				var li = document.createElement("li");
+				ul.appendChild(li);
+				if (item.name != undefined) {
+					if (item.items != undefined) {
+						li.appendChild(document.createTextNode(item.name));
+						li.appendChild(createMenu(item));
+					} else if (item.id != undefined) {
+						li.id = item.id;
+						var a = document.createElement("a");
+						if (!item.enabled) {
+							li.setAttribute("disabled", "true");
+						} else {
+							li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
+									+ "\");");
+						}
+						li.appendChild(a);
+						a.appendChild(document.createTextNode(item.name));
+					}
+				} else {
+					li.appendChild(document.createElement("hr"));
+				}
+			}
+			return ul;
+		}
+	}
+	
+	function hideDetail(pageId) {
+		var contentElement = document.getElementById(pageId);
+		if (!detail) {
+			while (contentElement.firstChild) {
+				contentElement.removeChild(contentElement.firstChild);
+			}
+		}
+	}
+	
 	function createContent(content) {
 		var type = content.type;
 		var element;
 		if (type == "Form") {
 			element = document.createElement("table");
-			element.className = "form";
+			element.classList.add("form")
 			element.columns = content.columns;
 			if (!isMobile) {
 				element.setAttribute("style", "width: " + (content.columns * content.columnWidth / 4) + "ex;");
@@ -137,6 +274,8 @@
 			element.appendChild(createFormRows(rows));
 		} else if (type == "Table") {
 			element = document.createElement("table");
+			element.name = content.id;
+			element.classList.add("table")		
 			element.appendChild(createTableHeaders(content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 		} else if (type == "ReadOnlyTextField") {
@@ -302,7 +441,8 @@
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
-			rowElement.setAttribute("onclick", "tableAction(\"" + tableId + "\", " + i + " );");
+			rowElement.setAttribute("onmousedown", "tableSelection(event, this, " + i + ");");
+			rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", " + i + " );");
 			element.appendChild(rowElement);
 		}
 		return element;
@@ -322,8 +462,8 @@
 		return td;
 	}
 
-	function showMenuBar(menus) {
-		var ul = document.getElementById("menu");
+	function createNavigation(menus) {
+		var ul = document.getElementById("navigation");
 		while (ul.firstChild) {
 			ul.removeChild(ul.firstChild);
 		}
@@ -335,7 +475,7 @@
 			li.appendChild(document.createTextNode(menu.name));
 			li.appendChild(createMenu(menu));
 		}
-
+		
 		function createMenu(menu) {
 			var ul = document.createElement("ul");
 
@@ -368,11 +508,63 @@
 		}
 	}
 
+	function toggleNavigation() {
+		var navigationElement = document.getElementById("navigationContainer");
+		var pageElement = document.getElementById("pageContainer");
+		if (navigationElement.style.display == "none") {
+			navigationElement.style.display = "block";
+			pageElement.style.left = "15em";
+		} else {
+			navigationElement.style.display = "none";
+			pageElement.style.left = "0";
+		}
+	}
+	
+	function createActionMenu(actionMenu) {
+		var ul = createMenu(actionMenu);
+		ul.className = "actionMenu";
+		
+		return ul;
+
+		function createMenu(items) {
+			var ul = document.createElement("ul");
+
+			for (var i = 0; i < items.length; i++) {
+				var item = items[i];
+				var li = document.createElement("li");
+				ul.appendChild(li);
+				if (item.name != undefined) {
+					if (item.items != undefined) {
+						var textNode = document.createTextNode(item.name);
+						li.appendChild(textNode);
+						li.setAttribute("onclick", "toggleSubMenu(event);");
+						var ul2 = createMenu(item.items);
+						ul2.className = "actionMenu";
+						ul2.style.left = "12em";
+						ul2.style.display = "none";
+						li.appendChild(ul2);
+					} else if (item.id != undefined) {
+						li.id = item.id;
+						var a = document.createElement("a");
+						if (!item.enabled) {
+							li.setAttribute("disabled", "true");
+						} else {
+							li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
+									+ "\");");
+						}
+						li.appendChild(a);
+						a.appendChild(document.createTextNode(item.name));
+					}
+				} else {
+					li.appendChild(document.createElement("hr"));
+				}
+			}
+			return ul;
+		}
+	}
+	
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
-		if (dialog.show == undefined) {
-			dialogPolyfill.registerDialog(dialog);
-		}
 		dialog.id = json.id;
 		dialog.setAttribute("type", json.type);
 
@@ -405,7 +597,11 @@
 			dialog.appendChild(footer);
 		}
 
-		document.getElementById("all").appendChild(dialog);
+		document.querySelector("body").appendChild(dialog);
+		if (dialog.show == undefined) {
+			dialogPolyfill.registerDialog(dialog);
+		}
+		
 		dialog.showModal();
 		updateDialogSizes();
 
@@ -444,12 +640,38 @@
 		send(data);
 	}
 
+	function tableSelection(event, rowElement, row) {
+		var tableElement = rowElement;
+		while ((tableElement = tableElement.parentElement) && tableElement.tagName.toUpperCase() != "TABLE");
+
+		var pageElement = tableElement;
+		while ((pageElement = pageElement.parentElement) && pageElement.className != "page");
+		
+		var rows = [];
+		for (var i = 0; i < tableElement.rows.length; i++) {
+			if (tableElement.rows[i].classList.contains("selected")) {
+				if (!event.ctrlKey) {
+					tableElement.rows[i].classList.remove("selected");
+				} else {
+					rows.push(i);
+				}
+			}
+		}
+		rows.push(row);
+		tableElement.rows[row].classList.add("selected");
+
+		var tableAction = {"table" : tableElement.id, "row" : row, "rows" : rows};
+		var data = {"tableSelection" : tableAction, "focusPageId" : pageElement.id};
+		send(data);
+	}
+
 	function tableAction(tableId, row) {
-		var tableAction = {};
-		tableAction.table = tableId;
-		tableAction.row = row;
-		var data = {};
-		data.tableAction = tableAction;
+		var tableElement = document.getElementById(tableId);
+		var pageElement = tableElement;
+		while ((pageElement = pageElement.parentElement) && pageElement.className != "page");
+		
+		var tableAction = {"table" : tableId, "row" : row};
+		var data = {"tableAction" : tableAction, "focusPageId" : pageElement.id};
 		send(data);
 	}
 
@@ -479,19 +701,19 @@
 		if (dialogElements != undefined) {
 			for (var i = 0; i < dialogElements.length; i++) {
 				var dialogElement = dialogElements[i];
-				var style = "top: " + (i + 3) + "em; left: " + (i + 3) + "em;";
-				dialogElement.setAttribute("style", style);
-
-				var contentElement = dialogElement.children[1];
+				dialogElement.style.top = (i+3) + "em";
+				dialogElement.style.left = (i+18) + "em";
+				
+				var contentElement = dialogElement.querySelector("#dialogContent");
 				var type = dialogElement.getAttribute("type");
-				var height = Math.max(100, height = window.innerHeight - 220);
-				style = "max-height: " + height + "px;";
+				var height = Math.max(100, height = window.innerHeight - 140);
+				
+				contentElement.style.maxHeight = height + "px";
+				
 				if (type == "SearchDialog") {
-					style = style + "height: " + height + "px;";
-					style = style + "width: 80%;";
+					contentElement.style.height = height + "px";
+					contentElement.style.width = "80%";
 				}
-				style = style + "overflow: auto;";
-				contentElement.setAttribute("style", style);
 			}
 		}
 	}
@@ -516,13 +738,68 @@
 <body onload="init();">
 	<div id="all">
 		<div id="header">
-			<div id="menu"></div>
+			<span title="Show or hide navigation">
+				<svg width="1.5em" height="1.5em" id="navigationButton" onclick="toggleNavigation()">
+				  <rect x="0" y="5%" width="100%" height="20%" fill="#444" />
+				  <rect x="0" y="40%" width="100%" height="20%" fill="#444" />
+				  <rect x="0" y="75%" width="100%" height="20%" fill="#444" />
+				</svg>
+			</span>
 			<div id="search">
 				<input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit"
 					value="Search" onclick="search();" />
 			</div>
 		</div>
-		<div id="content"></div>
+		<div id="container">
+			<div id="navigationContainer">
+				<div class="navigationHeader">
+					<svg width="1.0em" height="1.0em" class="closePageButton" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
+					  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke:#444;stroke-width:20%" />
+					  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
+					</svg>
+				</div>
+				<div id="navigationContent">
+					<ul id="navigation"></ul>
+				</div>
+			</div>
+			<div id="pageContainer">
+				
+			</div>
+		</div>
+	</div>
+
+	<div id="templates" style="display: none">
+
+		<div id="menuTemplate">
+			v
+			<ul>
+				<li>Item1
+					<ul>
+						<li>Subitem1</li>
+						<li>Subitem2</li>
+					</ul>
+				</li>
+				<li>Item2</li>
+			</ul>
+		</div>
+
+
+		<span id="pageHeaderButtons">
+			<svg width="1.0em" height="1.0em" class="actionMenuButton">
+			  <rect x="0" y="5%" width="100%" height="20%" fill="#444" />
+			  <rect x="0" y="40%" width="100%" height="20%" fill="#444" />
+			  <rect x="0" y="75%" width="100%" height="20%" fill="#444" />
+			</svg>
+			&nbsp;
+			<svg width="1.0em" height="1.0em" class="minimizePageButton" onclick="togglePage(event)">
+			  <rect x="20%" y="75%" width="100%" height="20%" fill="#444" />
+			</svg>
+			&nbsp;
+			<svg width="1.0em" height="1.0em" class="closePageButton">
+			  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke:#444;stroke-width:20%" />
+			  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
+			</svg>
+		</span>
 	</div>
 </body>
 </html>
