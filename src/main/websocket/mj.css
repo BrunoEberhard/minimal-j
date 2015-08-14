@@ -148,7 +148,14 @@ a {
 }
 
 .actionMenu {
-	position: absolute; left: 1em; top: 2em;
+	position: absolute; right: 0em; top: 1.8em; bottom: 0em;
+	border-left: 1px rgb(160,160,160) solid;
+	background: white;
+	overflow: auto;
+}
+
+ul.actionMenu {
+	margin: 0em;
 }
 
 /* dialog */
@@ -274,6 +281,12 @@ input {
 
 select {
 	height: 1.5em
+}
+
+hr {
+	margin: 0px;
+	border: 0px;
+	border-top: 1px rgb(160,160,160) solid;
 }
 
 .caption {

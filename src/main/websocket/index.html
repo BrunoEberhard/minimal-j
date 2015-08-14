@@ -6,7 +6,6 @@
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 
 <link rel="stylesheet" type="text/css" href="mj.css" />
-<link rel="stylesheet" type="text/css" href="menu.css" />
 
 <script type="text/javascript">
 	"use strict";
@@ -128,6 +127,10 @@
 			actionMenuElement.style.display = "none";
 			pageElement.appendChild(actionMenuElement);
 			actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
+			pageElement.addEventListener( "contextmenu", function(e) {
+				e.preventDefault();
+			    console.log(e);
+			  });
 		} else {
 			actionMenuButton.style.display = "none";
 		}
@@ -138,7 +141,7 @@
 	
 	function toggleActionMenu(event) {
 		var element = event.srcElement;
-		while ((element = element.parentElement) && element.className != "page");
+		while ((element = element.parentNode) && element.className != "page");
 		var actionMenuElement = element.querySelector(".actionMenu");
 		if (actionMenuElement.style.display == "block") {
 			actionMenuElement.style.display = "none";
@@ -161,7 +164,7 @@
 	
 	function togglePage(event) {
 		var element = event.srcElement;
-		while ((element = element.parentElement) && element.className != "page");
+		while ((element = element.parentNode) && element.className != "page");
 		var pageContentElement = element.querySelector(".pageContent");
 		if (pageContentElement.style.display == "none") {
 			pageContentElement.style.display = "table";
@@ -194,7 +197,7 @@
 	
 	function closePage(event) {
 		var element = event.srcElement;
-		while ((element = element.parentElement) && element.className != "page");
+		while ((element = element.parentNode) && element.className != "page");
 		
 		var pageContainerElement = document.getElementById("pageContainer");
 		var index = Array.prototype.indexOf.call(pageContainerElement.childNodes, element);
@@ -555,11 +558,7 @@
 					if (item.items != undefined) {
 						var textNode = document.createTextNode(item.name);
 						li.appendChild(textNode);
-						li.setAttribute("onclick", "toggleSubMenu(event);");
 						var ul2 = createMenu(item.items);
-						ul2.className = "actionMenu";
-						ul2.style.left = "12em";
-						ul2.style.display = "none";
 						li.appendChild(ul2);
 					} else if (item.id != undefined) {
 						li.id = item.id;
@@ -661,10 +660,10 @@
 
 	function tableSelection(event, rowElement, row) {
 		var tableElement = rowElement;
-		while ((tableElement = tableElement.parentElement) && tableElement.tagName.toUpperCase() != "TABLE");
+		while ((tableElement = tableElement.parentNode) && tableElement.tagName.toUpperCase() != "TABLE");
 
 		var pageElement = tableElement;
-		while ((pageElement = pageElement.parentElement) && pageElement.className != "page");
+		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 		
 		var rows = [];
 		for (var i = 0; i < tableElement.rows.length; i++) {
@@ -687,7 +686,7 @@
 	function tableAction(tableId, row) {
 		var tableElement = document.getElementById(tableId);
 		var pageElement = tableElement;
-		while ((pageElement = pageElement.parentElement) && pageElement.className != "page");
+		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 		
 		var tableAction = {"table" : tableId, "row" : row};
 		var data = {"tableAction" : tableAction, "focusPageId" : pageElement.id};
