@@ -28,9 +28,9 @@ public class JsonClientSession implements PageBrowser {
 
 	private static final Map<String, JsonClientSession> sessions = new HashMap<>();
 	private String focusPageId;
-	private Map<String, JsonComponent> componentById = new HashMap<>(100);
-	private Map<String, Page> pageById = new HashMap<>();
-	private Map<Page, String> idByPage = new HashMap<>();
+	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
+	private List<String> pageIds = new ArrayList<>();
+	private List<Page> pages = new ArrayList<>();
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
@@ -58,15 +58,18 @@ public class JsonClientSession implements PageBrowser {
 			focusPageId = null;
 		}
 		
-		if (input.containsObject(JsonInput.SHOW_PAGE)) {
-			String pageId = (String) input.getObject(JsonInput.SHOW_PAGE);
-			Page page;
-			if (pageById.containsKey(pageId)) {
-				page = pageById.get(pageId);
-			} else {
-				page = Application.getApplication().createDefaultPage();
-			}
+		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
+			Page page = Application.getApplication().createDefaultPage();
+			String pageId = UUID.randomUUID().toString();
 			show(page, pageId, null);
+		}
+		
+		if (input.containsObject("closePage")) {
+			String pageId = (String) input.getObject("closePage");
+			int pagePos = pageIds.indexOf(pageId);
+			if (pagePos < 0) throw new IllegalStateException(pageId + " not a visible page");
+			pageIds = pageIds.subList(0, pagePos);
+			pages = pages.subList(0, pagePos);
 		}
 		
 		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
@@ -139,23 +142,22 @@ public class JsonClientSession implements PageBrowser {
 		register(actionMenu);
 		output.add("actionMenu", actionMenu);
 		
-		pageById.put(pageId, page);
-		idByPage.put(page, pageId);
+		pages.add(page);
+		pageIds.add(pageId);
 		output.add("pageId", pageId);
 	}
 	
 	@Override
 	public void hideDetail(Page page) {
-		if (idByPage.containsKey(page)) {
-			String pageId = idByPage.get(page);
-			output.add("hideDetail", pageId);
-		}
+		int index = pages.indexOf(page);
+		if (index < 0) throw new IllegalStateException();
+		pages.remove(index);
+		pageIds.remove(index);
 	}
 	
 	@Override
 	public boolean isDetailShown(Page page) {
-		// TODO handling of open details in JSON client
-		return true;
+		return pages.contains(page);
 	}
 	
 	@Override

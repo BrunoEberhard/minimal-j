@@ -54,6 +54,9 @@
 					for ( var property in propertyChanges[id]) {
 						var value = propertyChanges[id][property];
 						if (property == "tableContent") {
+							while (element.firstChild) {
+								element.removeChild(element.firstChild);
+							}
 							element.appendChild(createTableRows(id, value));
 						} else if (property == "validationMessage") {
 							element = document.getElementById(id + "-validation");
@@ -121,7 +124,7 @@
 		pageElement.appendChild(contentElement);
 		
 		if (actionMenu != null) {
-			var actionMenuElement = createActionMenu(actionMenu);
+			var actionMenuElement = createActionMenu(actionMenu, pageId);
 			actionMenuElement.style.display = "none";
 			pageElement.appendChild(actionMenuElement);
 			actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
@@ -172,7 +175,7 @@
 	function updatePageHeights() {
 		/* TODO */
 		var pageContainerElement = document.getElementById("pageContainer");
-		var childCount = pageContainerElement.childNodes.lenth;
+		var childCount = pageContainerElement.childNodes.length;
 		if (childCount == 0) {
 			return;
 		} else if (childCount == 1) {
@@ -187,6 +190,21 @@
 				}
 			}
 		}
+	}
+	
+	function closePage(event) {
+		var element = event.srcElement;
+		while ((element = element.parentElement) && element.className != "page");
+		
+		var pageContainerElement = document.getElementById("pageContainer");
+		var index = Array.prototype.indexOf.call(pageContainerElement.childNodes, element);
+		for (var i = pageContainerElement.childNodes.length - 1; i>= index; i--) {
+			var e = pageContainerElement.childNodes[i];
+			pageContainerElement.removeChild(e);
+		}
+		
+		var data = {closePage : element.id};
+		send(data);
 	}
 
 	function createPageHeader(title) {
@@ -520,7 +538,7 @@
 		}
 	}
 	
-	function createActionMenu(actionMenu) {
+	function createActionMenu(actionMenu, pageId) {
 		var ul = createMenu(actionMenu);
 		ul.className = "actionMenu";
 		
@@ -550,7 +568,7 @@
 							li.setAttribute("disabled", "true");
 						} else {
 							li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
-									+ "\");");
+									+ "\",\"" + pageId +"\");");
 						}
 						li.appendChild(a);
 						a.appendChild(document.createTextNode(item.name));
@@ -620,23 +638,24 @@
 		send(data);
 	}
 
-	function showPage() {
-		var data = {};
-		data.showPage = "default-" + (new Date().getTime());
+	function showDefaultPage() {
+		var data = {"showDefaultPage" : "default-" + (new Date().getTime())};
 		send(data);
 	}
 
 	function action(actionId) {
-		var data = {};
-		data["activatedAction"] = actionId;
+		var data = {"activatedAction" : actionId};
 		send(data);
 	}
 
+	function action(actionId, pageId) {
+		var data = {"activatedAction" : actionId, "focusPageId" : pageId };
+		send(data);
+	}
+	
 	function search(searchId) {
-		var data = {};
-		data["search"] = searchId;
-		var searchTextElement = document.getElementById(searchId)
-		data["searchText"] = searchTextElement.value;
+		var searchTextElement = document.getElementById(searchId);
+		var data = {"search" : searchId, "searchText" : searchTextElement.value};
 		send(data);
 	}
 
@@ -724,7 +743,7 @@
 			onMessage(evt)
 		};
 		websocket.onopen = function(evt) {
-			showPage();
+			showDefaultPage();
 		};
 		window.onpopstate = function(event) {
 			var data = {};
@@ -795,7 +814,7 @@
 			  <rect x="20%" y="75%" width="100%" height="20%" fill="#444" />
 			</svg>
 			&nbsp;
-			<svg width="1.0em" height="1.0em" class="closePageButton">
+			<svg width="1.0em" height="1.0em" class="closePageButton" onclick="closePage(event)">
 			  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke:#444;stroke-width:20%" />
 			  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
 			</svg>
