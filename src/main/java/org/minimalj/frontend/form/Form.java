@@ -98,10 +98,6 @@ public class Form<T> {
 		return 100;
 	}
 
-	protected int getAreaHeightPercentage() {
-		return 100;
-	}
-	
 	// Methods to create the form
 
 	public FormContent getContent() {
