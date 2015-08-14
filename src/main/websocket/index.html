@@ -287,9 +287,9 @@
 			element.classList.add("form")
 			element.columns = content.columns;
 			if (!isMobile) {
-				element.setAttribute("style", "width: " + (content.columns * content.columnWidth / 4) + "ex;");
+				element.style.width = (content.columns * content.columnWidth / 6) + "em";
 			} else {
-				element.setAttribute("style", "width: 100%;");
+				element.style.width = "100%";
 			}
 			var rows = content.rows;
 			element.appendChild(createFormRows(rows));
