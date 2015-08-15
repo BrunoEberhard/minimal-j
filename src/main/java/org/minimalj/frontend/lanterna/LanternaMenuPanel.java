@@ -118,17 +118,6 @@ public class LanternaMenuPanel extends Panel {
 		return panel;
 	}
 
-	// private static class SearchCellRenderer extends DefaultListCellRenderer {
-	// @Override
-	// public Component getListCellRendererComponent(JList list, Object value,
-	// int index, boolean isSelected, boolean cellHasFocus) {
-	// Class<?> searchClass = (Class<?>) value;
-	// value = Resources.getString("Search." + searchClass.getSimpleName());
-	// return super.getListCellRendererComponent(list, value, index, isSelected,
-	// cellHasFocus);
-	// }
-	// }
-
 	protected class SearchAction extends Action {
 		@Override
 		public void action() {
