@@ -48,8 +48,8 @@ import org.minimalj.frontend.swing.component.EditablePanel;
 import org.minimalj.frontend.swing.component.History;
 import org.minimalj.frontend.swing.component.History.HistoryListener;
 import org.minimalj.frontend.swing.component.SwingDecoration;
-import org.minimalj.frontend.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.swing.toolkit.SwingEditorPanel;
+import org.minimalj.frontend.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.swing.toolkit.SwingInternalFrame;
 import org.minimalj.frontend.swing.toolkit.SwingProgressInternalFrame;
 import org.minimalj.frontend.swing.toolkit.SwingSearchPanel;
@@ -191,15 +191,10 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			refresh();
+			replace(getVisiblePage());
 		}
 	}
 	
-	@Override
-	public void refresh() {
-		replace(getVisiblePage());
-	}
-
 	private class CloseTabAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 

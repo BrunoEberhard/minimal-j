@@ -159,12 +159,6 @@ public class JsonClientSession implements PageBrowser {
 	public boolean isDetailShown(Page page) {
 		return pages.contains(page);
 	}
-	
-	@Override
-	public void refresh() {
-		// TODO remove refresh from PageBrowser interface
-		// show(visiblePage, visiblePageId, false);
-	}
 
 	@Override
 	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {

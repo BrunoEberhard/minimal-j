@@ -29,8 +29,6 @@ public interface PageBrowser {
 	public default boolean isDetailShown(Page page) {
 		return false;
 	}
-	
-	public abstract void refresh();
 
 	//
 

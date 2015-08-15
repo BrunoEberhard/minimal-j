@@ -123,14 +123,13 @@ public class VaadinWindow extends Window implements PageBrowser {
 	
 	@Override
 	public void show(Page page) {
-		updateContent(page);
+		Frontend.setBrowser(VaadinWindow.this);
+		visiblePage = page;
+		Component component = (Component) visiblePage.getContent();
+		updateContent(component);
+		Frontend.setBrowser(null);
 	}
-	
-	@Override
-	public void refresh() {
-		updateContent(getVisiblePage());
-	}
-	
+		
 	Page getVisiblePage() {
 		return visiblePage;
 	}
@@ -201,14 +200,6 @@ public class VaadinWindow extends Window implements PageBrowser {
 	}
 	
 	//
-	
-	private void updateContent(Page page) {
-		Frontend.setBrowser(VaadinWindow.this);
-		visiblePage = page;
-		Component component = (Component) visiblePage.getContent();
-		updateContent(component);
-		Frontend.setBrowser(null);
-	}
 	
 	private void updateContent(Component content) {
 		if (this.content != null) {

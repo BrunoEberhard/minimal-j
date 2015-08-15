@@ -104,12 +104,7 @@ public class LanternaGUIScreen extends GUIScreen implements PageBrowser {
 		// TODO use saveAction (Enter in TextFields should save the dialog)
 		return new LanternaDialog(this, content, title, closeAction, actions);
 	}
-	
-	@Override
-	public void refresh() {
-		throw new RuntimeException("refresh on lanterna not yet implemented");
-	}
-	
+
 	@Override
 	public OutputStream store(String buttonText) {
 		// TODO Auto-generated method stub
