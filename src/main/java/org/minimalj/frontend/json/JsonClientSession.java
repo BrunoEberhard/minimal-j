@@ -173,12 +173,12 @@ public class JsonClientSession implements PageBrowser {
 
 	@Override
 	public void showMessage(String text) {
-		// TODO Auto-generated method stub
+		output.add("message", text);
 	}
 
 	@Override
 	public void showError(String text) {
-		// TODO Auto-generated method stub
+		output.add("error", text);
 	}
 	
 	@Override

@@ -37,7 +37,7 @@
 			hideDetail(pageId);
 		}		
 		if (dataObject["navigation"] != undefined) {
-			createNavigation(dataObject["navigation"]);
+			updateNavigation(dataObject["navigation"]);
 		}
 		if (dataObject["dialog"] != undefined) {
 			showDialog(dataObject["dialog"]);
@@ -98,7 +98,12 @@
 				}
 			}
 		}
-
+		if (dataObject["message"] != undefined) {
+			alert(dataObject["message"]);
+		}
+		if (dataObject["error"] != undefined) {
+			alert(dataObject["error"]);
+		}
 	}
 	function onError(evt) {
 	}
@@ -123,14 +128,11 @@
 		pageElement.appendChild(contentElement);
 		
 		if (actionMenu != null) {
-			var actionMenuElement = createActionMenu(actionMenu, pageId);
+			var actionMenuElement = createMenu(actionMenu, pageId);
+			actionMenuElement.classList.add("actionMenu");
 			actionMenuElement.style.display = "none";
 			pageElement.appendChild(actionMenuElement);
 			actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
-			pageElement.addEventListener( "contextmenu", function(e) {
-				e.preventDefault();
-			    console.log(e);
-			  });
 		} else {
 			actionMenuButton.style.display = "none";
 		}
@@ -138,17 +140,21 @@
 		pageContainerElement.appendChild(pageElement);
 		pageElement.scrollIntoView();
 	}
-	
+
 	function toggleActionMenu(event) {
 		var element = event.srcElement;
-		while ((element = element.parentNode) && element.className != "page");
-		var actionMenuElement = element.querySelector(".actionMenu");
-		if (actionMenuElement.style.display == "block") {
-			actionMenuElement.style.display = "none";
-		} else {
-			actionMenuElement.style.display = "block";
+		while ((element = element.parentNode) && element.classList != null && !element.classList.contains("page"));
+		if (element != null) {
+			var actionMenuElement = element.querySelector(".actionMenu");
+			if (actionMenuElement != null) {
+				if (actionMenuElement.style.display == "block") {
+					actionMenuElement.style.display = "none";
+				} else {
+					actionMenuElement.style.display = "block";
+				}
+				event.preventDefault();
+			}
 		}
-		event.preventDefault();
 	}
 	
 	function toggleSubMenu(event) {
@@ -488,50 +494,45 @@
 		return td;
 	}
 
-	function createNavigation(menus) {
-		var ul = document.getElementById("navigation");
-		while (ul.firstChild) {
-			ul.removeChild(ul.firstChild);
+	function updateNavigation(menus) {
+		var navigation = document.getElementById("navigation");
+		while (navigation.firstChild) {
+			navigation.removeChild(navigation.firstChild);
 		}
 
-		for (var i = 0; i < menus.length; i++) {
-			var menu = menus[i];
+		var menuElement = createMenu(menus);
+		menuElement.style.marginTop = "0px";
+		navigation.appendChild(menuElement);		
+	}
+
+	function createMenu(items, pageId) {
+		var ul = document.createElement("ul");
+
+		for (var i = 0; i < items.length; i++) {
+			var item = items[i];
 			var li = document.createElement("li");
 			ul.appendChild(li);
-			li.appendChild(document.createTextNode(menu.name));
-			li.appendChild(createMenu(menu));
-		}
-		
-		function createMenu(menu) {
-			var ul = document.createElement("ul");
-
-			var items = menu.items;
-			for (var i = 0; i < items.length; i++) {
-				var item = items[i];
-				var li = document.createElement("li");
-				ul.appendChild(li);
-				if (item.name != undefined) {
-					if (item.items != undefined) {
-						li.appendChild(document.createTextNode(item.name));
-						li.appendChild(createMenu(item));
-					} else if (item.id != undefined) {
-						li.id = item.id;
-						var a = document.createElement("a");
-						if (!item.enabled) {
-							li.setAttribute("disabled", "true");
-						} else {
-							li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
-									+ "\");");
-						}
-						li.appendChild(a);
-						a.appendChild(document.createTextNode(item.name));
+			if (item.name != undefined) {
+				if (item.items != undefined) {
+					li.appendChild(document.createTextNode(item.name));
+					li.appendChild(createMenu(item.items));
+				} else if (item.id != undefined) {
+					li.id = item.id;
+					var a = document.createElement("a");
+					if (!item.enabled) {
+						li.setAttribute("disabled", "true");
+					} else {
+						li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
+								+ (pageId != undefined ? "\",\"" + pageId +"\");" : "\");"));
 					}
-				} else {
-					li.appendChild(document.createElement("hr"));
+					li.appendChild(a);
+					a.appendChild(document.createTextNode(item.name));
 				}
+			} else {
+				li.appendChild(document.createElement("hr"));
 			}
-			return ul;
 		}
+		return ul;
 	}
 
 	function toggleNavigation() {
@@ -546,44 +547,6 @@
 		}
 	}
 	
-	function createActionMenu(actionMenu, pageId) {
-		var ul = createMenu(actionMenu);
-		ul.className = "actionMenu";
-		
-		return ul;
-
-		function createMenu(items) {
-			var ul = document.createElement("ul");
-
-			for (var i = 0; i < items.length; i++) {
-				var item = items[i];
-				var li = document.createElement("li");
-				ul.appendChild(li);
-				if (item.name != undefined) {
-					if (item.items != undefined) {
-						var textNode = document.createTextNode(item.name);
-						li.appendChild(textNode);
-						var ul2 = createMenu(item.items);
-						li.appendChild(ul2);
-					} else if (item.id != undefined) {
-						li.id = item.id;
-						var a = document.createElement("a");
-						if (!item.enabled) {
-							li.setAttribute("disabled", "true");
-						} else {
-							li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
-									+ "\",\"" + pageId +"\");");
-						}
-						li.appendChild(a);
-						a.appendChild(document.createTextNode(item.name));
-					}
-				} else {
-					li.appendChild(document.createElement("hr"));
-				}
-			}
-			return ul;
-		}
-	}
 	
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
@@ -781,11 +744,10 @@
 					  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
 					</svg>
 				</div>
-				<div id="navigationContent">
-					<ul id="navigation"></ul>
+				<div id="navigation">
 				</div>
 			</div>
-			<div id="pageContainer">
+			<div id="pageContainer" onContextmenu="toggleActionMenu(event);">
 				
 			</div>
 		</div>

@@ -78,27 +78,22 @@ body {
 }
 
 #navigation {
-	margin-top: 0em;	
-}
-
-.navigationHeader {
-	position: absolute;
-	top: 0;
-	height: calc(1.8em - 1px);
-	line-height: 1.9em;
-	padding-left: 1em;
-	width: calc(100% - 1em);
-	background: rgb(240,240,240);
-	border-bottom: 1px rgb(160,160,160) solid;
-}
-
-#navigationContent {
 	position: absolute;
 	width: calc(15em - 1px);
 	top: 1.8em;
 	bottom: 0;
 	overflow: auto;
 	background: white;
+}
+
+.navigationHeader {
+	position: absolute;
+	height: calc(1.8em - 1px);
+	line-height: 1.9em;
+	padding-left: 1em;
+	width: calc(100% - 1em);
+	background: rgb(240,240,240);
+	border-bottom: 1px rgb(160,160,160) solid;
 }
 
 ul {
