@@ -107,12 +107,6 @@ public class JsonClientSession implements PageBrowser {
 			Page searchPage = Application.getApplication().createSearchPage(search);
 			show(searchPage);
 		}
-		
-		Boolean confirmed = (Boolean) input.getObject("confirmed");
-		if (confirmed != null) {
-			JsonConfirmDialog dialog = (JsonConfirmDialog) componentById.get(input.getObject("confirmDialog"));
-			dialog.confirmed(confirmed);
-		}
 
 		Frontend.setBrowser(null);
 		return output;
@@ -185,11 +179,6 @@ public class JsonClientSession implements PageBrowser {
 	@Override
 	public void showError(String text) {
 		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void showConfirmDialog(String message, String title, ConfirmDialogType type, DialogListener listener) {
-		new JsonConfirmDialog(title, message, listener);
 	}
 	
 	@Override
@@ -295,12 +284,7 @@ public class JsonClientSession implements PageBrowser {
 		register(content);
 		output.addContent(elementId, content);
 	}
-	
-	public void openConfirmDialog(JsonConfirmDialog jsonConfirmDialog) {
-		register(jsonConfirmDialog);
-		output.add("confirmDialog", jsonConfirmDialog);
-	}
-	
+
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {
 		
 		@Override

@@ -417,15 +417,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		int index = pageAndDetails.indexOf(detail);
 		removeDetails(index);
 	}
-	
-	@Override
-	public void showConfirmDialog(String message, String title, ConfirmDialogType type,
-			DialogListener listener) {
-		int optionType = type.ordinal();
-		int result = JOptionPane.showConfirmDialog(this, message, title, optionType);
-		listener.close(ConfirmDialogResult.values()[result]);
-	}
-	
+
 	@Override
 	public void showError(String text) {
 		Window window = findWindow();

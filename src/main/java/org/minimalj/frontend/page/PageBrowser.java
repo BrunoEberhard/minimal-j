@@ -42,17 +42,6 @@ public interface PageBrowser {
 	
 	public abstract void showError(String text);
 	
-	// Don't change enum orders. Needed by SwingFrontend
-	public static enum ConfirmDialogType { YES_NO, YES_NO_CANCEL }
-	public static enum ConfirmDialogResult { YES, NO, CANCEL }
-	
-	public abstract void showConfirmDialog(String message, String title, PageBrowser.ConfirmDialogType type, PageBrowser.DialogListener listener);
-	
-	public static interface DialogListener {
-		
-		void close(PageBrowser.ConfirmDialogResult result);
-	}
-
 	// Up / Dowload
 	
 	/**

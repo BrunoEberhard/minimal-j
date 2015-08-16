@@ -8,9 +8,6 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.frontend.page.PageBrowser.ConfirmDialogResult;
-import org.minimalj.frontend.page.PageBrowser.ConfirmDialogType;
-import org.minimalj.frontend.page.PageBrowser.DialogListener;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
@@ -169,46 +166,9 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
 	
 	public void cancel() {
-		if (!userEdited) {
-			dialog.closeDialog();
-		} else if (isSaveable()) {
-			DialogListener listener = new DialogListener() {
-				@Override
-				public void close(ConfirmDialogResult answer) {
-					switch (answer) {
-					case YES:
-						save();
-						break;
-					case NO:
-						dialog.closeDialog();
-						break;
-					default:
-						// else do nothing (dialog will not close)
-					}
-				}
-			};
-			Frontend.getBrowser().showConfirmDialog("Sollen die aktuellen Eingaben gespeichert werden?", "Schliessen",
-					ConfirmDialogType.YES_NO_CANCEL, listener);
-
-		} else {
-			DialogListener listener = new DialogListener() {
-				@Override
-				public void close(ConfirmDialogResult answer) {
-					switch (answer) {
-					case YES:
-						dialog.closeDialog();
-						break;
-					default:
-						// do nothing
-					}
-				}
-			};
-			Frontend.getBrowser().showConfirmDialog("Die momentanen Eingaben sind nicht gültig\nund können daher nicht gespeichert werden.\n\nSollen sie verworfen werden?",
-					"Schliessen", ConfirmDialogType.YES_NO, listener);
-		}
+		dialog.closeDialog();
 	}
 
-	
 	private class FillWithDemoDataAction extends Action {
 		@Override
 		public void action() {

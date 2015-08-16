@@ -17,7 +17,6 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.frontend.page.ProgressListener;
-import org.minimalj.frontend.vaadin.toolkit.VaadinConfirmDialog;
 import org.minimalj.frontend.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.vaadin.toolkit.VaadinEditorLayout;
 import org.minimalj.frontend.vaadin.toolkit.VaadinExportDialog;
@@ -144,15 +143,6 @@ public class VaadinWindow extends Window implements PageBrowser {
 	public void showError(String text) {
 		// TODO Vaadin zeigt Notifikationen statt Informationsdialog
 		showNotification("Fehler", text, Notification.TYPE_ERROR_MESSAGE);
-	}
-	
-	@Override
-	public void showConfirmDialog(String message, String title, ConfirmDialogType type, DialogListener listener) {
-		Window window = this;
-		while (window.getParent() != null) {
-			window = window.getParent();
-		}
-		new VaadinConfirmDialog(window, message, title, type, listener);
 	}
 	
 	@Override

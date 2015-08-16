@@ -75,12 +75,6 @@ public class LanternaGUIScreen extends GUIScreen implements PageBrowser {
 	public void show(Page page) {
 		history.add(page);
 	}
-	
-	@Override
-	public void showConfirmDialog(String message,
-			String title, ConfirmDialogType type, DialogListener listener) {
-		// TODO Auto-generated method stub
-	}
 
 	@Override
 	public void showError(String text) {

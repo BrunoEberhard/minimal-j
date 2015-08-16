@@ -10,9 +10,6 @@ import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.frontend.page.PageBrowser.ConfirmDialogResult;
-import org.minimalj.frontend.page.PageBrowser.ConfirmDialogType;
-import org.minimalj.frontend.page.PageBrowser.DialogListener;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
@@ -225,19 +222,9 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 	
 	public void cancel() {
-		DialogListener listener = new DialogListener() {
-			@Override
-			public void close(ConfirmDialogResult answer) {
-				if (answer == ConfirmDialogResult.YES) {
-					dialog.closeDialog();
-				} 
-			}
-		};
-		Frontend.getBrowser().showConfirmDialog("Soll der Wizard abgebrochen und alle Eingaben verworfen werden?", "Schliessen",
-				ConfirmDialogType.YES_NO, listener);
+		dialog.closeDialog();
 	}
 
-	
 	private class FillWithDemoDataAction extends Action {
 		@Override
 		public void action() {
