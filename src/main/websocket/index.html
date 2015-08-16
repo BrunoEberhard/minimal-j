@@ -296,7 +296,7 @@
 		} else if (type == "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
-			element.classList.add("table")		
+			element.classList.add("table");		
 			element.appendChild(createTableHeaders(content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 		} else if (type == "ReadOnlyTextField") {
@@ -306,7 +306,7 @@
 			} else {
 				element.innerHTML = "&nbsp;";
 			}
-		} else if (type == "Label" || type == "Gap") {
+		} else if (type == "Label" || type == "Gap" || type == "Title") {
 			element = document.createElement("div");
 			if (content.value != undefined) {
 				element.innerHTML = content.value;
@@ -428,23 +428,28 @@
 	}
 	function createFormCell(cell) {
 		var td = document.createElement("td");
-		if (cell.span != undefined && !isMobile) {
+		var isTitle = cell.type == "Title";
+		if (cell.span != undefined && !isMobile || isTitle) {
 			td.colSpan = cell.span;
 		}
-		var caption = document.createElement("div");
-		caption.className = "caption";
-		caption.appendChild(document.createTextNode(cell.caption));
-		var tooltip = document.createElement("img");
-		tooltip.id = cell.id + "-validation";
-		tooltip.setAttribute("src", "field_error.png");
-		tooltip.setAttribute("style", "margin-left: 0.3ex;");
-		if (cell.validationMessage != undefined && cell.validationMessage.length > 0) {
-			tooltip.setAttribute("title", cell.validationMessage);
+		if (!isTitle) {
+			var caption = document.createElement("div");
+			caption.className = "caption";
+			caption.appendChild(document.createTextNode(cell.caption));
+			var tooltip = document.createElement("img");
+			tooltip.id = cell.id + "-validation";
+			tooltip.setAttribute("src", "field_error.png");
+			tooltip.setAttribute("style", "margin-left: 0.3ex;");
+			if (cell.validationMessage != undefined && cell.validationMessage.length > 0) {
+				tooltip.setAttribute("title", cell.validationMessage);
+			} else {
+				tooltip.className = "hide";
+			}
+			caption.appendChild(tooltip);
+			td.appendChild(caption);
 		} else {
-			tooltip.className = "hide";
+			td.style.verticalAlign = "bottom";
 		}
-		caption.appendChild(tooltip);
-		td.appendChild(caption);
 		td.appendChild(createContent(cell));
 		return td;
 	}
