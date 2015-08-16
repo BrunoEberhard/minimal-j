@@ -45,6 +45,9 @@
 		if (dataObject["closeDialog"] != undefined) {
 			document.getElementById(dataObject["closeDialog"]).close();
 		}
+		if (dataObject["confirmDialog"] != undefined) {
+			showConfirmDialog(dataObject["confirmDialog"]);
+		}
 		if (dataObject["propertyChanges"] != undefined) {
 			var propertyChanges = dataObject["propertyChanges"];
 			for ( var id in propertyChanges) {
@@ -624,6 +627,12 @@
 
 	}
 
+	function showConfirmDialog(json) {
+		var confirmed = confirm(json.message);
+		var data = {"confirmDialog" : json.id, "confirmed" : confirmed};
+		send(data);
+	}
+	
 	function sendchange(source) {
 		var data = {};
 		var changedValue = {};
