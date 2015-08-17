@@ -230,52 +230,6 @@
 		return element;
 	}
 	
-	function showMenuBar(menus) {
-		var ul = document.getElementById("menu");
-		while (ul.firstChild) {
-			ul.removeChild(ul.firstChild);
-		}
-
-		for (var i = 0; i < menus.length; i++) {
-			var menu = menus[i];
-			var li = document.createElement("li");
-			ul.appendChild(li);
-			li.appendChild(document.createTextNode(menu.name));
-			li.appendChild(createMenu(menu));
-		}
-
-		function createMenu(menu) {
-			var ul = document.createElement("ul");
-
-			var items = menu.items;
-			for (var i = 0; i < items.length; i++) {
-				var item = items[i];
-				var li = document.createElement("li");
-				ul.appendChild(li);
-				if (item.name != undefined) {
-					if (item.items != undefined) {
-						li.appendChild(document.createTextNode(item.name));
-						li.appendChild(createMenu(item));
-					} else if (item.id != undefined) {
-						li.id = item.id;
-						var a = document.createElement("a");
-						if (!item.enabled) {
-							li.setAttribute("disabled", "true");
-						} else {
-							li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
-									+ "\");");
-						}
-						li.appendChild(a);
-						a.appendChild(document.createTextNode(item.name));
-					}
-				} else {
-					li.appendChild(document.createElement("hr"));
-				}
-			}
-			return ul;
-		}
-	}
-	
 	function hideDetail(pageId) {
 		var contentElement = document.getElementById(pageId);
 		if (!detail) {
@@ -517,16 +471,17 @@
 					li.appendChild(document.createTextNode(item.name));
 					li.appendChild(createMenu(item.items));
 				} else if (item.id != undefined) {
-					li.id = item.id;
-					var a = document.createElement("a");
 					if (!item.enabled) {
-						li.setAttribute("disabled", "true");
+						li.appendChild(document.createTextNode(item.name));
+						li.classList.add("disabled");
 					} else {
+						li.id = item.id;
+						var a = document.createElement("a");
 						li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
 								+ (pageId != undefined ? "\",\"" + pageId +"\");" : "\");"));
+						li.appendChild(a);
+						a.appendChild(document.createTextNode(item.name));
 					}
-					li.appendChild(a);
-					a.appendChild(document.createTextNode(item.name));
 				}
 			} else {
 				li.appendChild(document.createElement("hr"));
