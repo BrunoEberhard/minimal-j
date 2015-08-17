@@ -21,17 +21,17 @@ import javax.swing.JPanel;
 public class SwingDecoration extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
-	private final String title;
 	private final Component content;
 	private final ActionListener closeListener;
 	
+	private JLabel titleLabel;
+	
 	public SwingDecoration(String title, Component content, ActionListener closeListener) {
 		super(new BorderLayout());
-		this.title = title;;
 		this.content = content;
 		this.closeListener = closeListener;
 		
-		add(createBar(), BorderLayout.NORTH);
+		add(createBar(title), BorderLayout.NORTH);
 		
 		content.setVisible(true);
 		add(content, BorderLayout.CENTER);
@@ -43,12 +43,16 @@ public class SwingDecoration extends JPanel {
 		content.getParent().repaint();
 	}
 	
-	private Component createBar() {
+	public void setTitle(String title) {
+		titleLabel.setText(title);
+	}
+	
+	private Component createBar(String title) {
 		JMenuBar bar = new JMenuBar();
 		
-		JLabel label = new JLabel(title);
-		label.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 0));
-		bar.add(label);
+		titleLabel = new JLabel(title);
+		titleLabel.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 0));
+		bar.add(titleLabel);
 
 			
 		bar.add(Box.createHorizontalGlue());

@@ -355,6 +355,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		int index = pageAndDetails.indexOf(detail);
 		if (index > -1) {
 			SwingDecoration decoration = (SwingDecoration) verticalPanel.getComponents()[index];
+			decoration.setTitle(detail.getTitle());
 			decoration.setContentVisible();
 			return;
 		}

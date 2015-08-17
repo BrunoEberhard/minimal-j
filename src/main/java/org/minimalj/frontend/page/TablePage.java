@@ -67,6 +67,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 				DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
 				if (selectedDetailObject != null) {
 					detailPage.setObject(selectedDetailObject);
+					Frontend.getBrowser().showDetail(detailPage);
 				} else {
 					Frontend.getBrowser().hideDetail(detailPage);
 				}

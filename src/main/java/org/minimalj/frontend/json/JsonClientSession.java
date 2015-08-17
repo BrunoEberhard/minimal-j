@@ -119,7 +119,14 @@ public class JsonClientSession implements PageBrowser {
 	
 	@Override
 	public void showDetail(Page page) {
-		show(page, UUID.randomUUID().toString(), focusPageId);
+		int pageIndex = pages.indexOf(page);
+		if (pageIndex < 0) {
+			show(page, UUID.randomUUID().toString(), focusPageId);
+		} else {
+			String pageId = pageIds.get(pageIndex);
+			output.add("pageId", pageId);
+			output.add("title", page.getTitle());
+		}
 	}
 	
 	private void show(Page page, String pageId, String masterPageId) {

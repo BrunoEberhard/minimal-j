@@ -31,6 +31,14 @@
 			}
 			showContent(pageId, title, dataObject["content"], actionMenu, masterPageId);
 			titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);
+		} else if (dataObject["pageId"] != undefined) {
+			var title = dataObject.title;
+			var pageId = dataObject.pageId;
+			var pageElement = document.getElementById(pageId);
+			if (pageElement != null) {
+				var pageHeaderElement = pageElement.querySelector(".pageHeader");
+				pageHeaderElement.innerHTML = title;
+			}
 		}
 		if (dataObject["hideDetail"] != undefined) {
 			var pageId = dataObject["hideDetail"];
