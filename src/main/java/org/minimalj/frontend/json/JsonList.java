@@ -40,4 +40,7 @@ public class JsonList extends JsonComponent implements IList {
 		}
 	}
 
+	public void addComponent(JsonComponent c) {
+		JsonFrontend.getClientSession().addContent(getId(), c);
+	}
 }

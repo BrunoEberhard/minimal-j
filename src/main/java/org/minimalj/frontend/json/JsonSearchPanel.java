@@ -13,9 +13,9 @@ public class JsonSearchPanel<T> extends JsonList {
 	public JsonSearchPanel(Search<T> search, Object[] keys, TableActionListener<T> listener) {
 		super();
 		this.search = search;
-		add(new JsonTextField("SearchTextField", new JsonSearchInputListener()));
+		addComponent(new JsonTextField("SearchTextField", new JsonSearchInputListener()));
 		table = new JsonTable<T>(keys, listener);
-		add(table);
+		addComponent(table);
 	}
 
 	private class JsonSearchInputListener implements InputComponentListener {
