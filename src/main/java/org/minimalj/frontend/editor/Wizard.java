@@ -78,14 +78,14 @@ public abstract class Wizard<RESULT> extends Action {
 	
 	protected abstract WizardStep<?> getFirstStep();
 	
-	private void validate(Object object) {
+	private void validate(Object stepObject) {
 		validationMessages.clear();
-		if (object instanceof Validation) {
-			((Validation) object).validate(validationMessages);
+		if (stepObject instanceof Validation) {
+			((Validation) stepObject).validate(validationMessages);
 		}
-		ObjectValidator.validateForEmpty(object, validationMessages, form.getProperties());
-		ObjectValidator.validateForInvalid(object, validationMessages, form.getProperties());
-		ObjectValidator.validatePropertyValues(object, validationMessages, form.getProperties());
+		ObjectValidator.validateForEmpty(stepObject, validationMessages, form.getProperties());
+		ObjectValidator.validateForInvalid(stepObject, validationMessages, form.getProperties());
+		ObjectValidator.validatePropertyValues(stepObject, validationMessages, form.getProperties());
 		if (step instanceof Validatable) {
 			((Validatable) step).validate();
 		}
@@ -229,14 +229,13 @@ public abstract class Wizard<RESULT> extends Action {
 		@Override
 		public void action() {
 			fillWithDemoData();
+			validate(stepObject);
 		}
 	}
 	
 	protected void fillWithDemoData() {
 		if (stepObject instanceof Mocking) {
 			((Mocking) stepObject).mock();
-			// re-set the object to update the FormFields
-			form.setObject(stepObject);
 		} else {
 			form.mock();
 		}
