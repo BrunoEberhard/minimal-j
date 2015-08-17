@@ -62,6 +62,10 @@ public class JsonClientSession implements PageBrowser {
 			Page page = Application.getApplication().createDefaultPage();
 			String pageId = UUID.randomUUID().toString();
 			show(page, pageId, null);
+
+			List<Object> navigation = createNavigation();
+			register(navigation);
+			output.add("navigation", navigation);
 		}
 		
 		if (input.containsObject("closePage")) {
@@ -139,11 +143,6 @@ public class JsonClientSession implements PageBrowser {
 		output.add("content", content);
 		output.add("title", page.getTitle());
 		output.add("masterPageId", masterPageId);
-		
-		// TODO move this to none page specific
-		List<Object> navigation = createNavigation();
-		register(navigation);
-		output.add("navigation", navigation);
 		
 		List<Object> actionMenu = createActionMenu(page);
 		register(actionMenu);
