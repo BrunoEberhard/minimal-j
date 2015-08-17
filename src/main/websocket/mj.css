@@ -183,12 +183,11 @@ dialog {
 	text-align: right;
 	background: rgb(240,240,240);
 	border-top: 1px rgb(160,160,160) solid;
-	padding-top: 1ex;
-	padding-right: 1ex;
+	padding-top: 0.2em;
 }
 
 #dialogFooter button {
-	margin-right: 0.5ex;
+	margin-right: 0.2em;
 	height: 1.5em;
 }
 
