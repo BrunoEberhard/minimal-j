@@ -66,12 +66,12 @@
 							}
 							element.appendChild(createTableRows(id, value));
 						} else if (property == "validationMessage") {
-							element = document.getElementById(id + "-validation");
+							var validationElement = document.getElementById(id + "-validation");
 							if (value == undefined || value == "") {
-								element.className = "hide";
+								validationElement.className = "hide";
 							} else {
-								element.className = "";
-								element.title = value;
+								validationElement.className = "";
+								validationElement.title = value;
 							}
 						} else if (property == "editable" || property == "enabled") {
 							if (value) {
