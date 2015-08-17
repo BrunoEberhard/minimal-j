@@ -647,7 +647,10 @@
 		tableElement.rows[row].classList.add("selected");
 
 		var tableAction = {"table" : tableElement.id, "row" : row, "rows" : rows};
-		var data = {"tableSelection" : tableAction, "focusPageId" : pageElement.id};
+		var data = {"tableSelection" : tableAction};
+		if (pageElement != undefined) {
+			data.focusPageId = pageElement.id;
+		}
 		send(data);
 	}
 
@@ -657,7 +660,10 @@
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 		
 		var tableAction = {"table" : tableId, "row" : row};
-		var data = {"tableAction" : tableAction, "focusPageId" : pageElement.id};
+		var data = {"tableAction" : tableAction};
+		if (pageElement != undefined) {
+			data.focusPageId = pageElement.id;
+		}
 		send(data);
 	}
 
