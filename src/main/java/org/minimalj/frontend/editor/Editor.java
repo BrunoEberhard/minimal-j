@@ -17,7 +17,6 @@ import org.minimalj.util.mock.Mocking;
 public abstract class Editor<T, RESULT> extends Action {
 
 	private T object;
-	private boolean userEdited;
 	private Form<T> form;
 	private final List<ValidationMessage> validationMessages = new ArrayList<>();
 	private SaveAction saveAction;
@@ -42,7 +41,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		
 		saveAction = new SaveAction();
 		
-		validate(object);
+		validate();
 
 		form.setChangeListener(new EditorChangeListener());
 		form.setObject(object);
@@ -78,7 +77,7 @@ public abstract class Editor<T, RESULT> extends Action {
 	
 	protected abstract Form<T> createForm();
 	
-	private void validate(T object) {
+	private void validate() {
 		validationMessages.clear();
 		if (object instanceof Validation) {
 			((Validation) object).validate(validationMessages);
@@ -111,9 +110,7 @@ public abstract class Editor<T, RESULT> extends Action {
 
 		@Override
 		public void changed(PropertyInterface property, Object newValue) {
-			userEdited = true;
-			validate(object);
-			saveAction.setValidationMessages(validationMessages);
+			validate();
 		}
 
 		@Override
@@ -173,14 +170,13 @@ public abstract class Editor<T, RESULT> extends Action {
 		@Override
 		public void action() {
 			fillWithDemoData();
+			validate();
 		}
 	}
 	
 	protected void fillWithDemoData() {
 		if (object instanceof Mocking) {
 			((Mocking) object).mock();
-			// re-set the object to update the FormFields
-			form.setObject(object);
 		} else {
 			form.mock();
 		}
