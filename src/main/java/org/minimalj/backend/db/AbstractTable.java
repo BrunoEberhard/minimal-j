@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
+import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Required;
 import org.minimalj.model.properties.ChainedProperty;
@@ -283,7 +284,11 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (DbPersistenceHelper.isDependable(property) && fieldClazz != clazz) {
-				dbPersistence.addClass(fieldClazz);
+				if (!View.class.isAssignableFrom(property.getClazz())) {
+					dbPersistence.addClass(fieldClazz);
+				} else {
+					dbPersistence.addClass(ViewUtil.getViewedClass(fieldClazz));
+				}
 			}
 		}
 	}
