@@ -286,8 +286,6 @@ public abstract class AbstractTable<T> {
 			if (DbPersistenceHelper.isDependable(property) && fieldClazz != clazz) {
 				if (!View.class.isAssignableFrom(property.getClazz())) {
 					dbPersistence.addClass(fieldClazz);
-				} else {
-					dbPersistence.addClass(ViewUtil.getViewedClass(fieldClazz));
 				}
 			}
 		}
