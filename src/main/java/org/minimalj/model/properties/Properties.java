@@ -44,8 +44,6 @@ public class Properties {
 		Map<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
 		
 		for (Field field : clazz.getFields()) {
-			if (FieldUtils.isTransient(field)) continue;
-
 			if (!FieldUtils.isStatic(field)) {
 				properties.put(field.getName(), new FieldProperty(field));
 			} 
