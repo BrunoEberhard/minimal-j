@@ -108,6 +108,18 @@ public class IdUtils {
 	}
 
 	/**
+	 * Get the value of the <code>id</code> field as String.
+	 * Leaves out all 'filler' characters. For an UUID this would
+	 * be the '-' characters
+	 * 
+	 * @param object object containing the id. Must not be <code>null</code>
+	 * @return the value of the <code>id</code> field as String
+	 */
+	public static String getCompactIdString(Object object) {
+		return getIdString(object).replace("-", "");
+	}
+	
+	/**
 	 * Note: Do not depend on the class of the returned id. It
 	 * could be changed. 
 	 * 
