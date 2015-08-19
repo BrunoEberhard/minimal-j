@@ -1,7 +1,6 @@
 package org.minimalj.frontend.websocket;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,14 +12,23 @@ import org.minimalj.frontend.json.JsonReader;
 import org.minimalj.frontend.websocket.nanoserver.NanoHTTPD.Response.Status;
 import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer;
 import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer.WebSocketFrame.CloseCode;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class MjWebSocketServer extends NanoWebSocketServer {
 	private static final Logger logger = Logger.getLogger(MjWebSocketServer.class.getName());
 
-	public MjWebSocketServer(int port) {
+	public MjWebSocketServer(int port, boolean secure) {
 		super(port);
+		if (secure) {
+			try {
+				// keytool.exe -keystore mjdevkeystore.jks -keyalg RSA -keysize 3072 -genkeypair -dname "cn=localhost, ou=MJ, o=Minimal-J, c=CH" -storepass mjdev1 -keypass mjdev1
+				// keytool.exe -keystore mjdevkeystore.jks -storepass mjdev1 -keypass mjdev1 -export -file mj.cer
+				
+				makeSecure(makeSSLSocketFactory("/mjdevkeystore.jks", "mjdev1".toCharArray()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -39,6 +47,7 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 
 		} else if (uri.equals("/field_error.png")) {
 			return newChunkedResponse(Status.OK, "image/png", Resources.class.getResourceAsStream("icons/field_error.png"));
+			
 		} else {
 			return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
 		}
