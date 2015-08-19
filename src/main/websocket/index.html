@@ -36,8 +36,8 @@
 			var pageId = dataObject.pageId;
 			var pageElement = document.getElementById(pageId);
 			if (pageElement != null) {
-				var pageHeaderElement = pageElement.querySelector(".pageHeader");
-				pageHeaderElement.innerHTML = title;
+				var pageTitleElement = pageElement.querySelector(".pageTitle");
+				pageTitleElement.innerHTML = title;
 			}
 		}
 		if (dataObject["hideDetail"] != undefined) {
@@ -227,7 +227,11 @@
 	function createPageHeader(title) {
 		var element = document.createElement("div");
 		element.className = "pageHeader";
-		element.innerHTML = title;
+		
+		var titleElement = document.createElement("span");
+		titleElement.className = "pageTitle";
+		titleElement.innerHTML = title;
+		element.appendChild(titleElement);
 		
 		var b = document.getElementById("pageHeaderButtons");
 		var button = b.cloneNode(true);
@@ -479,16 +483,13 @@
 					li.appendChild(document.createTextNode(item.name));
 					li.appendChild(createMenu(item.items));
 				} else if (item.id != undefined) {
+					li.id = item.id;
+					li.classList.add("actionLink");
+					li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
+							+ (pageId != undefined ? "\",\"" + pageId +"\");" : "\");"));
+					li.appendChild(document.createTextNode(item.name));
 					if (!item.enabled) {
-						li.appendChild(document.createTextNode(item.name));
-						li.classList.add("disabled");
-					} else {
-						li.id = item.id;
-						var a = document.createElement("a");
-						li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
-								+ (pageId != undefined ? "\",\"" + pageId +"\");" : "\");"));
-						li.appendChild(a);
-						a.appendChild(document.createTextNode(item.name));
+						li.setAttribute("disabled", "true");
 					}
 				}
 			} else {
@@ -568,11 +569,6 @@
 		send(data);
 	}
 
-	function showDefaultPage() {
-		var data = {"showDefaultPage" : "default-" + (new Date().getTime())};
-		send(data);
-	}
-
 	function action(actionId) {
 		var data = {"activatedAction" : actionId};
 		send(data);
@@ -632,13 +628,14 @@
 
 	function search() {
 		var data = {};
-		data["search"] = document.getElementsByName("query")[0].value;
+		data.search = document.getElementsByName("query")[0].value;
 		send(data);
 	}
 
 	function send(data) {
-		if (websocket.readyState > 1) {
-			websocket = new WebSocket("ws://" + location.host + "/");
+		if (websocket == null || websocket.readyState > 1) {
+			var wsProtocol = window.location.protocol == "https:" ? "wss" : "ws";
+			websocket = new WebSocket(wsProtocol + "://" + location.host + "/");
 			websocket.onmessage = function(evt) {
 				onMessage(evt)
 			};
@@ -646,7 +643,7 @@
 				send(data);
 			}
 		} else {
-			data["session"] = session;
+			data.session = session;
 			websocket.send(JSON.stringify(data));
 		}
 	}
@@ -674,34 +671,43 @@
 			}
 		}
 	}
-
-	function init() {
-		websocket = new WebSocket("ws://" + location.host + "/");
-		websocket.onmessage = function(evt) {
-			onMessage(evt)
-		};
-		websocket.onopen = function(evt) {
-			showDefaultPage();
-		};
-		window.onpopstate = function(event) {
-			var data = {};
-			data.showPage = event.state;
-			send(data);
+	
+	function changeLogin() {
+		document.getElementById("secure").src="secure.gif";
+		/*
+		if (websocket.readyState == 1) {
+			websocket.onclose = changeLogin();
+			websocket.close();
+		} else {
+			
 		}
-		window.addEventListener("resize", updateDialogSizes);
+		*/
 	}
+	
+	function init() {
+		window.addEventListener("resize", updateDialogSizes);
+		send({"showDefaultPage" : "default-" + (new Date().getTime())});
+	}
+	
 </script>
 </head>
 <body onload="init();">
 	<div id="all">
 		<div id="header">
 			<span title="Show or hide navigation">
-				<svg width="1.5em" height="1.5em" id="navigationButton" onclick="toggleNavigation()">
+				<svg width="1.5em" height="1.5em" class="headerButton" onclick="toggleNavigation()">
 				  <rect x="0" y="5%" width="100%" height="20%" fill="#444" />
 				  <rect x="0" y="40%" width="100%" height="20%" fill="#444" />
 				  <rect x="0" y="75%" width="100%" height="20%" fill="#444" />
 				</svg>
 			</span>
+			<span title="Login / Logout">
+				<svg width="1.5em" height="1.5em" id="loginButton" class="headerButton" onclick="changeLogin()">
+				  <rect x="0" y="5%" width="100%" height="20%" fill="#444" />
+				  <rect x="0" y="75%" width="100%" height="20%" fill="#444" />
+				</svg>
+			</span>	
+			<img src="unsecure.gif" width="0" height="0" id="secure" style="visibility: hidden">	
 			<div id="search">
 				<input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit"
 					value="Search" onclick="search();" />

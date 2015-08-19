@@ -28,10 +28,9 @@ body {
 	padding-left: 0ex;
 }
 
-#navigationButton {
-	position: absolute;
-	top: 0.4em;
-	left: 1em;
+.headerButton {
+	margin-top: 0.4em;
+	margin-left: 1em;
 }
 
 #search {
@@ -106,12 +105,13 @@ li {
 	padding-bottom: 0.2em;
 }
 
-li.disabled {
-	color: gray;
+li.actionLink {
+	color: blue;
+	color: -moz-hyperlinktext;
 }
 
-a {
-	color: blue;
+li.actionLink[disabled] {
+	color: gray;
 }
 
 /* pages */
@@ -226,13 +226,6 @@ table tr:nth-child(odd).selected {
 	background: #99f;
 }
 
-table.formContainer {
-	table-layout: auto;
-	border-spacing: 0px;
-	width: 100%;
-	height: 100%;
-}
-
 table.form {
 	border-spacing: 0px;
 	width: 100%;
@@ -254,21 +247,6 @@ td {
 
 table.form input[type="text"], table.form select {
 	width: 100%;
-}
-
-table.group, table.group td {
-	background: transparent;
-	table-layout: fixed;
-	width: 100%;
-	height: auto;
-	margin: 0px;
-	padding: 0px 0px 0px 0px;
-	border: 0px;
-	border-spacing: 0px;
-}
-
-table.group tr {
-	height: auto;
 }
 
 /* various elements */
