@@ -29,6 +29,7 @@ public class JsonClientSession implements PageBrowser {
 	private static final Map<String, JsonClientSession> sessions = new HashMap<>();
 	private String focusPageId;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
+	private List<Object> navigation;
 	private List<String> pageIds = new ArrayList<>();
 	private List<Page> pages = new ArrayList<>();
 	private JsonOutput output;
@@ -63,7 +64,7 @@ public class JsonClientSession implements PageBrowser {
 			String pageId = UUID.randomUUID().toString();
 			show(page, pageId, null);
 
-			List<Object> navigation = createNavigation();
+			navigation = createNavigation();
 			register(navigation);
 			output.add("navigation", navigation);
 		}
@@ -136,6 +137,7 @@ public class JsonClientSession implements PageBrowser {
 	private void show(Page page, String pageId, String masterPageId) {
 		if (masterPageId == null) {
 			componentById.clear();
+			register(navigation);
 		}
 		
 		JsonComponent content = (JsonComponent) page.getContent();
