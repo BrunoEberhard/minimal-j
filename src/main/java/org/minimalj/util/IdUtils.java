@@ -104,6 +104,9 @@ public class IdUtils {
 	 * @return the value of the <code>id</code> field as String
 	 */
 	public static String getIdString(Object object) {
+		if (object == null) {
+			throw new NullPointerException();
+		}
 		return String.valueOf(getId(object));
 	}
 
