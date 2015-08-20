@@ -30,7 +30,6 @@ public class SwingHeavyActionButton extends JButton {
 		SwingWorker<Object, Object> worker = new SwingWorker<Object, Object>() {
 			@Override
 			protected Object doInBackground() throws Exception {
-				SwingFrontend.updateEventTab(SwingHeavyActionButton.this);
 				SwingHeavyActionButton.super.fireActionPerformed(event);
 				setProgress(100);
 				return null;
