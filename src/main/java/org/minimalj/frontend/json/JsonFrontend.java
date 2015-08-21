@@ -43,6 +43,11 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
+	public PasswordField createPasswordField(InputComponentListener changeListener, int maxLength) {
+		return new JsonPasswordField(maxLength, changeListener);
+	}
+	
+	@Override
 	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new JsonTextField("AreaField", maxLength, allowedCharacters, null, null, changeListener);
 	}

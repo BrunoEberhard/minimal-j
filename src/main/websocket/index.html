@@ -303,9 +303,9 @@
 			element.className = "action";
 			element.innerHTML = content.name;
 			element.setAttribute("onclick", "action(\"" + content.id + "\");");
-		} else if (type == "TextField") {
+		} else if (type == "TextField" || type == "PasswordField") {
 			element = document.createElement("input");
-			element.type = "text";
+			element.type = type == "PasswordField" ? "password" : "text";
 			element.setAttribute("onchange", "sendchange(this);");
 			if (content.value != undefined) {
 				element.appendChild(document.createTextNode(content.value));
@@ -673,15 +673,7 @@
 	}
 	
 	function changeLogin() {
-		document.getElementById("secure").src="secure.gif";
-		/*
-		if (websocket.readyState == 1) {
-			websocket.onclose = changeLogin();
-			websocket.close();
-		} else {
-			
-		}
-		*/
+		send({"login" : "login-" + (new Date().getTime())});
 	}
 	
 	function init() {

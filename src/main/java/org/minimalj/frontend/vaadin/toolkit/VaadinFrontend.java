@@ -9,6 +9,8 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.vaadin.VaadinWindow;
+import org.minimalj.frontend.vaadin.toolkit.VaadinPasswordField.VaadinPasswordDelegate;
+import org.minimalj.frontend.vaadin.toolkit.VaadinPasswordField.VaadinPasswordDelegate;
 import org.minimalj.frontend.vaadin.toolkit.VaadinTextAreaField.VaadinTextAreaDelegate;
 import org.minimalj.frontend.vaadin.toolkit.VaadinTextField.VaadinTextDelegate;
 import org.minimalj.frontend.vaadin.toolkit.VaadinTextFieldAutocomplete.VaadinTextAutocompleteDelegate;
@@ -67,8 +69,6 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinReadOnlyTextField();
 	}
 
-	
-	
 	@Override
 	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice,
 			InputComponentListener changeListener) {
@@ -79,6 +79,11 @@ public class VaadinFrontend extends Frontend {
 		}
 	}
 
+	@Override
+	public PasswordField createPasswordField(InputComponentListener changeListener, int maxLength) {
+		return new VaadinPasswordDelegate(changeListener, maxLength);
+	}
+	
 	@Override
 	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new VaadinTextAreaDelegate(changeListener, maxLength, allowedCharacters);

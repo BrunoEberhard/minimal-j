@@ -13,8 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Authentication;
-import org.minimalj.application.Subject;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
@@ -68,20 +66,20 @@ public class SocketBackendServer {
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 
-				String user = (String) ois.readObject();
+				String userName = (String) ois.readObject();
 				Serializable authentication = null;
-				if (user != null) {
+				if (userName != null) {
 					authentication = (Serializable) ois.readObject();
-					Subject.set(Authentication.getInstance().login(user, authentication));
+//					MjUser.set(Authentication.getInstance().login(userName, authentication));
 				} else {
-					Subject.set(null);
+//					MjUser.set(null);
 				}
 
 				Object input = ois.readObject();
 
 				Role role = input.getClass().getAnnotation(Role.class);
 				if (role != null) {
-					Authentication.checkPermission(role.value());
+//					Authentication.checkPermission(role.value());
 				}
 				
 				Object result = null;

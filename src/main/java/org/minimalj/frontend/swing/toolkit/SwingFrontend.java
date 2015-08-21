@@ -125,6 +125,11 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
+	public PasswordField createPasswordField(InputComponentListener changeListener, int maxLength) {
+		return new SwingPasswordField(changeListener, maxLength);
+	}
+	
+	@Override
 	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
 		return new SwingTextAreaField(changeListener, maxLength, null);
 	}

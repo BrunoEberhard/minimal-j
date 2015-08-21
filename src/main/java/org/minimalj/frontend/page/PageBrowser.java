@@ -2,18 +2,35 @@ package org.minimalj.frontend.page;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 
-import org.minimalj.application.Subject;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.security.MjUser;
 
 public interface PageBrowser {
 	
-	public default Subject getSubject() {
+	public default MjUser getUser() {
 		// TODO remove this default value, every PageBrowser should somehow implement getSubject()
 		return null;
+	}
+
+	public default void setUser(MjUser user) {
+		// TODO remove this default
+	}
+	
+	public default boolean hasPermission(String... accessRoles) {
+		MjUser user = getUser();
+		List<String> roles = user != null ? user.getRoles() : Collections.emptyList();
+		for (String accessRole : accessRoles) {
+			if (roles.contains(accessRole)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public abstract void show(Page page);

@@ -53,6 +53,7 @@ import org.minimalj.frontend.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.swing.toolkit.SwingInternalFrame;
 import org.minimalj.frontend.swing.toolkit.SwingProgressInternalFrame;
 import org.minimalj.frontend.swing.toolkit.SwingSearchPanel;
+import org.minimalj.security.MjUser;
 
 public class SwingTab extends EditablePanel implements PageBrowser {
 	private static final long serialVersionUID = 1L;
@@ -68,6 +69,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	private final SwingDecoration decoratedMenuPane;
 	private final JScrollPane contentScrollPane;
 	private final JPanel verticalPanel;
+	private final JScrollPane menuScrollPane;
 	
 	private final History<Page> history;
 	private final SwingPageContextHistoryListener historyListener;
@@ -123,7 +125,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		});
 		
 		MenuTree menuTree = new MenuTree(Application.getApplication().getMenu());
-		JScrollPane menuScrollPane = new JScrollPane(menuTree);
+		menuScrollPane = new JScrollPane(menuTree);
 		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		ActionListener menuClosedListener = new ActionListener() {
 			@Override
@@ -136,6 +138,20 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		splitPane.setLeftComponent(decoratedMenuPane);
 		
 		splitPane.setDividerLocation(200);
+	}
+	
+	@Override
+	public void setUser(MjUser user) {
+		frame.setUser(user);
+	}
+	
+	@Override
+	public MjUser getUser() {
+		return frame.getUser();
+	}
+	
+	public void updateToUser(MjUser user) {
+		menuScrollPane.setViewportView(new MenuTree(Application.getApplication().getMenu()));
 	}
 	
 	public static SwingTab getActiveTab() {

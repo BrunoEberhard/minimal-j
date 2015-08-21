@@ -1,6 +1,7 @@
 package org.minimalj.frontend.websocket;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +13,7 @@ import org.minimalj.frontend.json.JsonReader;
 import org.minimalj.frontend.websocket.nanoserver.NanoHTTPD.Response.Status;
 import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer;
 import org.minimalj.frontend.websocket.nanoserver.NanoWebSocketServer.WebSocketFrame.CloseCode;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class MjWebSocketServer extends NanoWebSocketServer {
@@ -47,6 +49,17 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 
 		} else if (uri.equals("/field_error.png")) {
 			return newChunkedResponse(Status.OK, "image/png", Resources.class.getResourceAsStream("icons/field_error.png"));
+			
+		} else if (uri.equals("/secure.gif")) {
+			String authorizationBase64 = headers.get("authorization");
+			if (StringUtils.isBlank(authorizationBase64)) {
+				Response response = newFixedLengthResponse(Status.UNAUTHORIZED, null, (String) null);
+				response.addHeader("WWW-Authenticate", "Basic realm=\"My Server\"");
+				return response;			
+			} else {
+				String authorization = new String(Base64.getDecoder().decode(authorizationBase64.substring(authorizationBase64.lastIndexOf(" ")+1)));
+				return newFixedLengthResponse(Status.OK, "text/html", "authorization: " + authorization);
+			}
 			
 		} else {
 			return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");

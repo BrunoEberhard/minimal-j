@@ -107,6 +107,11 @@ public class LanternaFrontend extends Frontend {
 			InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}
+	
+	@Override
+	public PasswordField createPasswordField(InputComponentListener changeListener, int maxLength) {
+		return new LanternaPasswordField(changeListener);
+	}
 
 	@Override
 	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {

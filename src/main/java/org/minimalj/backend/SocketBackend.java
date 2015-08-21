@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 
-import org.minimalj.application.Subject;
+import org.minimalj.security.MjUser;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
@@ -39,9 +39,9 @@ public class SocketBackend extends Backend {
 	}
 	
 	private void authenticate(ObjectOutputStream oos) throws IOException {
-		Subject subject = Subject.get();
+		MjUser subject = null; // TODO
 		if (subject != null) {
-			oos.writeObject(subject.getUser());
+			oos.writeObject(subject.getName());
 			oos.writeObject(subject.getAuthentication());
 		} else {
 			oos.writeObject(null);

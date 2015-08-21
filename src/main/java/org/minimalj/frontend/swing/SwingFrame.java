@@ -15,19 +15,25 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.swing.component.HideableTabbedPane;
-import org.minimalj.util.StringUtils;
+import org.minimalj.security.LoginAction;
+import org.minimalj.security.MjUser;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private HideableTabbedPane tabbedPane;
-	final Action closeWindowAction, exitAction, newWindowAction, newTabAction;
+	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction;
+	
+	private MjUser user;
 	
 	public SwingFrame() {
-		super();
-
+		updateWindowTitle();
+		
+		loginAction = new SwingLoginAction();
+		logoutAction = new SwingLogoutAction();
 		closeWindowAction = new CloseWindowAction();
 		exitAction = new ExitAction();
 		newWindowAction = new NewWindowAction();
@@ -74,6 +80,17 @@ public class SwingFrame extends JFrame {
 		return tabbedPane;
 	}
 
+	public void setUser(MjUser user) {
+		this.user = user;
+		closeAllTabs();
+		addTab();
+		updateWindowTitle();
+	}
+	
+	public MjUser getUser() {
+		return user;
+	}
+	
 	private void addTab() {
 		SwingTab tab = new SwingTab(this);
 		
@@ -112,12 +129,12 @@ public class SwingFrame extends JFrame {
 		tabbedPane.removeTab(tab);
 	}
 	
+	private void closeAllTabs() {
+		tabbedPane.removeAllTabs();
+	}
+	
 	public void closeWindow() {
-		for (int i = tabbedPane.getTabCount()-1; i>=0; i--) {
-			SwingTab tab = (SwingTab)tabbedPane.getTab(i);
-			closeTab(tab);
-		}
-		
+		closeAllTabs();
 		setVisible(false);
 	}
 
@@ -155,18 +172,13 @@ public class SwingFrame extends JFrame {
 	}
 	
 	void onHistoryChanged() {
-		updateWindowTitle();
 		updateTitle();
 	}
 	
 	protected void updateWindowTitle() {
-		Page visiblePage = getVisiblePage();
 		String title = Application.getApplication().getName();
-		if (visiblePage != null) {
-			String pageTitle = visiblePage.getTitle();
-			if (!StringUtils.isBlank(pageTitle)) {
-				title = title + " - " + pageTitle;
-			}
+		if (user != null) {
+			title = title + " - " + user.getName();
 		}
 		setTitle(title);
 	}
@@ -180,6 +192,26 @@ public class SwingFrame extends JFrame {
 				throw new RuntimeException("Page null");
 			}
 			tabbedPane.setTitleAt(index, page.getTitle());
+		}
+	}
+	
+	private class SwingLoginAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Frontend.setBrowser(getVisibleTab());
+			new LoginAction().action();
+			Frontend.setBrowser(null);
+		}
+	}
+	
+	private class SwingLogoutAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			getVisibleTab().setUser(null);
 		}
 	}
 	
@@ -209,7 +241,7 @@ public class SwingFrame extends JFrame {
 			FrameManager.getInstance().openNavigationFrame();
 		}
 	}
-
+	
 	private class NewTabAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 

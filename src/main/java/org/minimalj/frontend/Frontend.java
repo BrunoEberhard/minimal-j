@@ -3,7 +3,6 @@ package org.minimalj.frontend;
 import java.util.Collections;
 import java.util.List;
 
-import org.minimalj.application.Subject;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.PageBrowser;
 
@@ -56,6 +55,10 @@ public abstract class Frontend {
 		public void setEditable(boolean editable);
 	}
 
+	public interface PasswordField extends Input<Object> {
+
+	}
+	
 	 // http://www.w3schools.com/html/html_form_input_types.asp 
 	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
 
@@ -65,6 +68,7 @@ public abstract class Frontend {
 	public abstract Input<String> createReadOnlyTextField();
 	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
+	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
 	public abstract IList createList(Action... actions);
 	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
@@ -137,7 +141,6 @@ public abstract class Frontend {
 	
 	public static void setBrowser(PageBrowser pageBrowser) {
 		pageBrowserByThread.set(pageBrowser);
-		Subject.set(pageBrowser != null ? pageBrowser.getSubject() : null);
 	}
 	
 	public static PageBrowser getBrowser() {
