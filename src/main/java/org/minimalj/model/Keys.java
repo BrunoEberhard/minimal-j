@@ -95,7 +95,7 @@ public class Keys {
 				property = new ChainedProperty(enclosingProperty, property);
 			}
 
-			boolean fill = !type.getName().startsWith("java");
+			boolean fill = !type.getName().startsWith("java") && !type.isArray();
 			if (fill && depth < 6) {
 				fillFields(value, property, depth + 1);
 			}
