@@ -1,17 +1,16 @@
 package org.minimalj.example.helloworld2;
 
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.editor.Editor.NewObjectEditor;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 
-public class UserNameEditor extends NewObjectEditor<User> {
+public class UserNameEditor extends SimpleEditor<User> {
 
 	public UserNameEditor() {
 		super("Greet");
 	}
 
 	@Override
-	// this method could left out
 	protected User createObject() {
 		return new User();
 	}
