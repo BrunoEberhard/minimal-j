@@ -1,11 +1,11 @@
 package org.minimalj.transaction.persistence;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.SerializationContainer;
 
 @SuppressWarnings("unchecked")
-public class InsertTransaction<T> implements Transaction<T> {
+public class InsertTransaction<T> implements Transaction<Object> {
 	private static final long serialVersionUID = 1L;
 
 	private final T object;
@@ -15,8 +15,8 @@ public class InsertTransaction<T> implements Transaction<T> {
 	}
 
 	@Override
-	public T execute(Backend backend) {
-		return (T) backend.insert(SerializationContainer.unwrap(object));
+	public Object execute(Persistence persistence) {
+		return persistence.insert(SerializationContainer.unwrap(object));
 	}
 
 }

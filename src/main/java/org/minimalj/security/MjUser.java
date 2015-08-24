@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MjUser {
-
+public class MjUser implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String name;
 	private Serializable authentication;
 	

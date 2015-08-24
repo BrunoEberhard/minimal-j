@@ -3,10 +3,10 @@ package org.minimalj.transaction;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 
 public interface StreamProducer<T extends Serializable> extends Serializable {
 
-	public T produce(Backend backend, OutputStream stream);
+	public T produce(Persistence persistence, OutputStream stream);
 	
 }

@@ -192,7 +192,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		}
 	}
 
-	public static abstract class NewObjectEditor<T> extends SimpleEditor<T> {
+	public static abstract class NewObjectEditor<T> extends Editor<T, Object> {
 
 		public NewObjectEditor() {
 		}

@@ -15,10 +15,12 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.swing.component.HideableTabbedPane;
 import org.minimalj.security.LoginAction;
+import org.minimalj.security.LogoutTransaction;
 import org.minimalj.security.MjUser;
 
 public class SwingFrame extends JFrame {
@@ -211,7 +213,11 @@ public class SwingFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			Frontend.setBrowser(getVisibleTab());
+			Backend.getInstance().execute(new LogoutTransaction(getVisibleTab().getUser()));
 			getVisibleTab().setUser(null);
+			Frontend.setBrowser(null);
+
 		}
 	}
 	

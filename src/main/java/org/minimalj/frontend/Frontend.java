@@ -39,6 +39,10 @@ public abstract class Frontend {
 		Frontend.frontend = frontend;
 	}
 
+	public static boolean isAvailable() {
+		return Frontend.frontend != null;
+	}
+	
 	/**
 	 * Components are the smallest part of the gui. Things like textfields
 	 * and comboboxes. A form is filled with components.

@@ -1,6 +1,6 @@
 package org.minimalj.transaction.persistence;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.IdUtils;
 
@@ -20,8 +20,8 @@ public class DeleteTransaction implements Transaction<Void> {
 	}
 
 	@Override
-	public Void execute(Backend backend) {
-		backend.delete(clazz, id);
+	public Void execute(Persistence persistence) {
+		persistence.delete(clazz, id);
 		return null;
 	}
 

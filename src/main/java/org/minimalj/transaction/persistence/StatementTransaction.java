@@ -2,7 +2,7 @@ package org.minimalj.transaction.persistence;
 
 import java.io.Serializable;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 
 public class StatementTransaction<T> implements Transaction<T> {
@@ -26,12 +26,12 @@ public class StatementTransaction<T> implements Transaction<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T execute(Backend backend) {
+	public T execute(Persistence persistence) {
 		T result;
 		if (maxResults > 0) {
-			result = (T) backend.executeStatement(clazz, queryName, maxResults, parameters);
+			result = (T) persistence.executeStatement(clazz, queryName, maxResults, parameters);
 		} else {
-			result = backend.executeStatement(clazz, queryName, parameters);
+			result = persistence.executeStatement(clazz, queryName, parameters);
 		}
 		return result;
 	}

@@ -31,7 +31,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 
 		@Override
 		public List<T> search(String searchText) {
-			return (List<T>) Backend.getInstance().read(fieldClazz, Criteria.search(searchText, searchColumns), 100);
+			return (List<T>) Backend.persistence().read(fieldClazz, Criteria.search(searchText, searchColumns), 100);
 		}
 	}
 	

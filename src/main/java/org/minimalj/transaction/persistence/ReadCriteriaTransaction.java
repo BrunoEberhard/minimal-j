@@ -2,7 +2,7 @@ package org.minimalj.transaction.persistence;
 
 import java.util.List;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
 
@@ -20,8 +20,8 @@ public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
 	}
 
 	@Override
-	public List<T> execute(Backend backend) {
-		List<T>	result = backend.read(clazz, criteria, maxResults);
+	public List<T> execute(Persistence persistence) {
+		List<T>	result = persistence.read(clazz, criteria, maxResults);
 		return result;
 	}
 

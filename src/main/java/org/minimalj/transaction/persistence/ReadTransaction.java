@@ -1,7 +1,8 @@
 package org.minimalj.transaction.persistence;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.backend.db.DbBackend;
+import org.minimalj.backend.db.DbPersistence;
 import org.minimalj.transaction.Transaction;
 
 public class ReadTransaction<T> implements Transaction<T> {
@@ -22,14 +23,14 @@ public class ReadTransaction<T> implements Transaction<T> {
 	}
 
 	@Override
-	public T execute(Backend backend) {
+	public T execute(Persistence persistence) {
 		T result;
 		if (time == null) {
-			result = backend.read(clazz, id);
+			result = persistence.read(clazz, id);
 		} else {
-			if (backend instanceof DbBackend) {
-				DbBackend dbBackend = (DbBackend) backend;
-				result = dbBackend.read(clazz, id, time);
+			if (persistence instanceof DbPersistence) {
+				DbPersistence dbPersistence = (DbPersistence) persistence;
+				result = dbPersistence.read(clazz, id, time);
 			} else {
 				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + DbBackend.class.getSimpleName());
 			}

@@ -7,48 +7,60 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
+import java.net.SocketException;
 
-import org.minimalj.security.MjUser;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.persistence.DelegatePersistence;
 import org.minimalj.util.SerializationContainer;
+import org.minimalj.util.UnclosingInputStream;
+import org.minimalj.util.UnclosingOutputStream;
 
 public class SocketBackend extends Backend {
 	private final String url;
 	private final int port;
+	
+	private Socket socket;
+	
+	private final DelegatePersistence persistence;
 
 	public SocketBackend(String url, int port) {
 		this.url = url;
 		this.port = port;
+		this.persistence = new DelegatePersistence(this);
+	}
+	
+	@Override
+	public Persistence getPersistence() {
+		return persistence;
 	}
 
 	@Override
 	public <T> T execute(Transaction<T> transaction) {
-		try (Socket socket = new Socket(url, port)) {
-			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-				authenticate(oos);
+		try {
+			if (socket == null || !socket.isConnected()) {
+				socket = new Socket(url, port);	
+			}
+			try (ObjectOutputStream oos = new ObjectOutputStream(new UnclosingOutputStream(socket.getOutputStream()))) {
 				oos.writeObject(transaction);
-				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+				try (ObjectInputStream ois = new ObjectInputStream(new UnclosingInputStream(socket.getInputStream()))) {
 					return readResult(ois);
 				}
+			} catch (SocketException se) {
+				socket = new Socket(url, port);	
+				try (ObjectOutputStream oos = new ObjectOutputStream(new UnclosingOutputStream(socket.getOutputStream()))) {
+					oos.writeObject(transaction);
+					try (ObjectInputStream ois = new ObjectInputStream(new UnclosingInputStream(socket.getInputStream()))) {
+						return readResult(ois);
+					}
+				}	
 			}
 		} catch (Exception c) {
-			throw new RuntimeException("Couldn't connect to " + url + ":" + port);
+			throw new RuntimeException("Failed to execute " + transaction + " on " + url + ":" + port, c);
 		}
 	}
 	
-	private void authenticate(ObjectOutputStream oos) throws IOException {
-		MjUser subject = null; // TODO
-		if (subject != null) {
-			oos.writeObject(subject.getName());
-			oos.writeObject(subject.getAuthentication());
-		} else {
-			oos.writeObject(null);
-		}
-	}
-	
-
 	protected <T> T readResult(ObjectInputStream ois) throws IOException, ClassNotFoundException {
 		Object wrappedResult = ois.readObject();
 		@SuppressWarnings("unchecked")
@@ -61,7 +73,6 @@ public class SocketBackend extends Backend {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				oos.writeObject(streamConsumer);
-				authenticate(oos);
 				sendStream(oos, inputStream);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					return readResult(ois);
@@ -85,7 +96,6 @@ public class SocketBackend extends Backend {
 	public <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-				authenticate(oos);
 				oos.writeObject(streamProducer);
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					receiveStream(ois, outputStream);

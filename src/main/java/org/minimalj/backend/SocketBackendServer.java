@@ -3,7 +3,6 @@ package org.minimalj.backend;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -13,12 +12,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.transaction.Role;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
+import org.minimalj.util.UnclosingInputStream;
 import org.minimalj.util.UnclosingOutputStream;
 
 public class SocketBackendServer {
@@ -64,24 +63,10 @@ public class SocketBackendServer {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public void run() {
-			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-
-				String userName = (String) ois.readObject();
-				Serializable authentication = null;
-				if (userName != null) {
-					authentication = (Serializable) ois.readObject();
-//					MjUser.set(Authentication.getInstance().login(userName, authentication));
-				} else {
-//					MjUser.set(null);
-				}
-
+			do {
+			try (ObjectInputStream ois = new ObjectInputStream(new UnclosingInputStream(socket.getInputStream()))) {
 				Object input = ois.readObject();
 
-				Role role = input.getClass().getAnnotation(Role.class);
-				if (role != null) {
-//					Authentication.checkPermission(role.value());
-				}
-				
 				Object result = null;
 				if (input instanceof Transaction) {
 					Transaction transaction = (Transaction) input;
@@ -91,7 +76,7 @@ public class SocketBackendServer {
 					result = Backend.getInstance().execute(streamConsumer, ois);
 				} 
 				
-				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+				try (ObjectOutputStream oos = new ObjectOutputStream(new UnclosingOutputStream(socket.getOutputStream()))) {
 					if (input instanceof StreamProducer) {
 						StreamProducer streamProducer = (StreamProducer) input;
 						result = Backend.getInstance().execute(streamProducer, new UnclosingOutputStream(oos));
@@ -99,13 +84,20 @@ public class SocketBackendServer {
 					Object wrappedResult = SerializationContainer.wrap(result);
 					oos.writeObject(wrappedResult);
 				}
+
+				while (socket.getInputStream().available() == 0) {
+					Thread.sleep(100);
+				}
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);
 				e.printStackTrace();
+				return;
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "SocketRunnable failed", e);
 				e.printStackTrace();
+				return;
 			}
+		} while (true);
 		}
 	}
 	

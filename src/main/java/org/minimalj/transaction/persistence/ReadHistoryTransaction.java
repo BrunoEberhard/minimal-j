@@ -2,8 +2,9 @@ package org.minimalj.transaction.persistence;
 
 import java.util.List;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.backend.db.DbBackend;
+import org.minimalj.backend.db.DbPersistence;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.IdUtils;
 
@@ -32,10 +33,10 @@ public class ReadHistoryTransaction<T> implements Transaction<List<T>> {
 	}
 
 	@Override
-	public List<T> execute(Backend backend) {
-		if (backend instanceof DbBackend) {
-			DbBackend dbBackend = (DbBackend) backend;
-			List<T>	result = dbBackend.loadHistory(clazz, id, maxResults);
+	public List<T> execute(Persistence persistence) {
+		if (persistence instanceof DbBackend) {
+			DbPersistence dbPersistence = (DbPersistence) persistence;
+			List<T>	result = dbPersistence.loadHistory(clazz, id, maxResults);
 			return result;
 		} else {
 			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + DbBackend.class.getSimpleName());

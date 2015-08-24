@@ -3,21 +3,16 @@ package org.minimalj.backend;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.db.DbBackend;
 import org.minimalj.backend.db.DbPersistence;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.security.Authorization;
+import org.minimalj.security.AuthorizationBackend;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.persistence.DeleteTransaction;
-import org.minimalj.transaction.persistence.InsertTransaction;
-import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
-import org.minimalj.transaction.persistence.ReadTransaction;
-import org.minimalj.transaction.persistence.StatementTransaction;
-import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
@@ -58,7 +53,7 @@ public abstract class Backend {
 		} 
 
 		String database = System.getProperty("MjBackendDatabase");
-		String user= System.getProperty("MjBackendDatabaseUser", "APP");
+		String user = System.getProperty("MjBackendDatabaseUser", "APP");
 		String password = System.getProperty("MjBackendDatabasePassword", "APP");
 		if (!StringUtils.isBlank(database)) {
 			return new DbBackend(database, user, password);
@@ -78,61 +73,28 @@ public abstract class Backend {
 		
 		return new DbBackend();
 	}
-	
-	public static synchronized void setInstance(Backend backend) {
-		if (Backend.instance != null) {
-			throw new IllegalStateException("Backend cannot be changed");
-		}		
-		if (backend == null) {
-			throw new IllegalArgumentException("Backend cannot be null");
-		}
-		instance = backend;
-	}
-	
+
 	public static Backend getInstance() {
 		if (instance == null) {
 			instance = createBackend();
+			if (Frontend.isAvailable()) {
+				instance = new AuthenticationBackend(instance);
+			} 
+			if (Authorization.isAvailable()) {
+				instance = new AuthorizationBackend(instance);
+			}
 		}
 		return instance;
 	}
 
+	public abstract Persistence getPersistence();
+	
+	public static Persistence persistence() {
+		return getInstance().getPersistence();
+	}
+	
 	public abstract <T> T execute(Transaction<T> transaction);
 	public abstract <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream);
 	public abstract <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream);
-
-	// persistence shortcuts
-	
-	public <T> T read(Class<T> clazz, Object id) {
-		return execute(new ReadTransaction<T>(clazz, id, null));
-	}
-	
-	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
-		return result;
-	}
-	
-	public <T> T insert(T object) {
-		return execute(new InsertTransaction<T>(object));
-	}
-
-	public <T> T update(T object) {
-		return execute(new UpdateTransaction<T>(object));
-	}
-
-	public <T> void delete(Class<T> clazz, Object id) {
-		execute(new DeleteTransaction(clazz, id));
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
-		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, parameter);
-		return (T) getInstance().execute(statementTransaction);
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter) {
-		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, maxResults, parameter);
-		return (List<T>) getInstance().execute(statementTransaction);
-	}
 	
 }

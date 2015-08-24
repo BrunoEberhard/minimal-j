@@ -1,6 +1,6 @@
 package org.minimalj.transaction.persistence;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.SerializationContainer;
 
@@ -15,8 +15,8 @@ public class UpdateTransaction<T> implements Transaction<T> {
 	}
 
 	@Override
-	public T execute(Backend backend) {
-		return (T) backend.update(SerializationContainer.unwrap(object));
+	public T execute(Persistence persistence) {
+		return (T) persistence.update(SerializationContainer.unwrap(object));
 	}
 
 }

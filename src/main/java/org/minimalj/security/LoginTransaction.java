@@ -1,6 +1,6 @@
 package org.minimalj.security;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 
 public class LoginTransaction implements Transaction<MjUser> {
@@ -12,19 +12,13 @@ public class LoginTransaction implements Transaction<MjUser> {
 		this.login = login;
 	}
 	
+	public Login getLogin() {
+		return login;
+	}
+	
 	@Override
-	public MjUser execute(Backend backend) {
-		MjUser user = new MjUser();
-		user.setName(login.user);
-		user.getRoles().add("normal");
-		if ("su".equals(login.user)) {
-			user.getRoles().add("su");
-		}
-		if (login.password instanceof char[]) {
-			System.out.println("chars: " + String.valueOf((char[])login.password));
-		} else if (login.password instanceof String) {
-			System.out.println("String: " + login.password);
-		}
-		return user;
+	public MjUser execute(Persistence persistence) {
+		// should be handled on Backend
+		throw new IllegalStateException();
 	}
 }

@@ -1,6 +1,7 @@
 package org.minimalj.backend.db;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +28,10 @@ import javax.sql.DataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
 import org.minimalj.application.DevMode;
+import org.minimalj.backend.Persistence;
 import org.minimalj.model.Code;
+import org.minimalj.model.View;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.Codes;
@@ -42,7 +46,7 @@ import org.minimalj.util.StringUtils;
  * The Mapper to a relationale Database
  * 
  */
-public class DbPersistence {
+public class DbPersistence implements Persistence {
 	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
@@ -54,11 +58,13 @@ public class DbPersistence {
 	private final DataSource dataSource;
 	
 	private Connection autoCommitConnection;
-	private BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
-	private ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
+	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
+	private final ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
 
-	private HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
+	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
+	private final Map<String, String> queries = new HashMap<>();
+
 	public DbPersistence(DataSource dataSource, Class<?>... classes) {
 		this(dataSource, createTablesOnInitialize(dataSource), classes);
 	}
@@ -88,6 +94,7 @@ public class DbPersistence {
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
 		}
+		// this.queries = Application.getApplication().getQueries();
 	}
 	
 	/**
@@ -261,6 +268,7 @@ public class DbPersistence {
 		return dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
 	}
 	
+	@Override
 	public <T> T read(Class<T> clazz, Object id) {
 		Table<T> table = getTable(clazz);
 		return table.read(id);
@@ -276,14 +284,27 @@ public class DbPersistence {
 		return table.readVersions(id);
 	}
 
+	@Override
+	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
+		if (View.class.isAssignableFrom(resultClass)) {
+			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
+			Table<?> table = getTable(viewedClass);
+			return table.readView(resultClass, criteria, maxResults);
+		} else {
+			Table<T> table = getTable(resultClass);
+			return table.read(criteria, maxResults);
+		}
+	}
+
 	public <T> Object insert(T object) {
 		if (object == null) throw new NullPointerException();
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
-		return table.insert(object);
+		return (T) table.insert(object);
 	}
 
-	public <T> void update(T object) {
+	@Override
+	public <T> T update(T object) {
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
 		if (isTransactionActive()) {
@@ -298,18 +319,53 @@ public class DbPersistence {
 				endTransaction(runThrough);
 			}
 		}
+		// re read result
+		return table.read(IdUtils.getId(object));
 	}
 
 	public <T> void delete(T object) {
 		delete(object.getClass(), IdUtils.getId(object));
 	}
 
+	@Override
 	public <T> void delete(Class<T> clazz, Object id) {
 		Table<T> table = getTable(clazz);
 		table.delete(id);
 	}
 	
-	public <T> T execute(Class<T> clazz, String query, Object... parameters) {
+	public <T> void deleteAll(Class<T> clazz) {
+		Table<T> table = getTable(clazz);
+		table.clear();
+	}
+
+//	public <T> T read(Class<T> clazz, Object id, Integer time) {
+//		AbstractTable<T> abstractTable = persistence.table(clazz);
+//		if (abstractTable instanceof HistorizedTable) {
+//			return ((HistorizedTable<T>) abstractTable).read(id, time);
+//		} else {
+//			throw new IllegalArgumentException(clazz + " is not historized");
+//		}
+//	}
+
+	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
+		// TODO maxResults is ignored in loadHistory
+		@SuppressWarnings("unchecked")
+		AbstractTable<T> abstractTable = (AbstractTable<T>) table(clazz);
+		if (abstractTable instanceof HistorizedTable) {
+			List<Integer> times = ((HistorizedTable<T>) abstractTable).readVersions(id);
+			List<T> result = new ArrayList<>();
+			for (int time : times) {	
+				result.add(((HistorizedTable<T>) abstractTable).read(id, time));
+			}
+			return result;
+		} else {
+			throw new IllegalArgumentException(clazz.getSimpleName() + " is not historized");
+		}
+	}
+	
+	@Override
+	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameters) {
+		String query = getQuery(queryName);
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				T result = null;
@@ -323,7 +379,9 @@ public class DbPersistence {
 		}
 	}
 	
-	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Object... parameters) {
+	@Override
+	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameters) {
+		String query = getQuery(queryName);
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				List<T> result = new ArrayList<>();
@@ -335,6 +393,15 @@ public class DbPersistence {
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
 		}
+	}
+	
+	private String getQuery(String queryName) {
+		if (queries == null) {
+			throw new RuntimeException("No queries available: " + queryName);
+		} else if (!queries.containsKey(queryName)) {
+			throw new RuntimeException("Query not available: " + queryName);
+		}
+		return queries.get(queryName);
 	}
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {

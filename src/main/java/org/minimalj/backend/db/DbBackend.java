@@ -4,46 +4,42 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
-import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.util.IdUtils;
 
 public class DbBackend extends Backend {
 
 	private final DbPersistence persistence;
-	private final Map<String, String> queries;
 
 	public DbBackend() {
 		String databaseFile = System.getProperty("MjBackendDatabaseFile", null);
 		boolean createTables = databaseFile == null || !new File(databaseFile).exists();
 		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(databaseFile), createTables, Application.getApplication().getEntityClasses());
-		this.queries = Application.getApplication().getQueries();
 	}
 	
 	public DbBackend(String database, String user, String password) {
 		this.persistence = new DbPersistence(DbPersistence.mariaDbDataSource(database, user, password), Application.getApplication().getEntityClasses());
-		this.queries = Application.getApplication().getQueries();
+	}
+	
+	@Override
+	public Persistence getPersistence() {
+		return persistence;
 	}
 	
 	//
-	
+
 	@Override
 	public <T> T execute(Transaction<T> transaction) {
 		boolean runThrough = false;
 		T result;
 		try {
 			persistence.startTransaction();
-			result = transaction.execute(this);
+			result = transaction.execute(persistence);
 			runThrough = true;
 		} finally {
 			persistence.endTransaction(runThrough);
@@ -57,7 +53,7 @@ public class DbBackend extends Backend {
 		T result;
 		try {
 			persistence.startTransaction();
-			result = streamConsumer.consume(this, inputStream);
+			result = streamConsumer.consume(persistence, inputStream);
 			runThrough = true;
 		} finally {
 			persistence.endTransaction(runThrough);
@@ -71,101 +67,12 @@ public class DbBackend extends Backend {
 		T result;
 		try {
 			persistence.startTransaction();
-			result = streamProducer.produce(this, outputStream);
+			result = streamProducer.produce(persistence, outputStream);
 			runThrough = true;
 		} finally {
 			persistence.endTransaction(runThrough);
 		}
 		return result;
 	}
-
-	@Override
-	public <T> T read(Class<T> clazz, Object id) {
-		Table<T> table = persistence.getTable(clazz);
-		return table.read(id);
-	}
-
-	@Override
-	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
-		if (View.class.isAssignableFrom(resultClass)) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
-			Table<?> table = persistence.getTable(viewedClass);
-			return table.readView(resultClass, criteria, maxResults);
-		} else {
-			Table<T> table = persistence.getTable(resultClass);
-			return table.read(criteria, maxResults);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T insert(T object) {
-		persistence.insert(object);
-		return (T) read(object.getClass(), IdUtils.getId(object));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T update(T object) {
-		persistence.update(object);
-		return (T) read(object.getClass(), IdUtils.getId(object));
-	}
 	
-	@Override
-	public <T> void delete(Class<T> clazz, Object id) {
-		persistence.delete(clazz, id);
-	}
-
-	public <T> void deleteAll(Class<T> clazz) {
-		Table<T> table = persistence.getTable(clazz);
-		table.clear();
-	}
-
-	public <T> T read(Class<T> clazz, Object id, Integer time) {
-		AbstractTable<T> abstractTable = persistence.table(clazz);
-		if (abstractTable instanceof HistorizedTable) {
-			return ((HistorizedTable<T>) abstractTable).read(id, time);
-		} else {
-			throw new IllegalArgumentException(clazz + " is not historized");
-		}
-	}
-
-	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
-		// TODO maxResults is ignored in loadHistory
-		@SuppressWarnings("unchecked")
-		AbstractTable<T> abstractTable = (AbstractTable<T>) persistence.table(clazz);
-		if (abstractTable instanceof HistorizedTable) {
-			List<Integer> times = ((HistorizedTable<T>) abstractTable).readVersions(id);
-			List<T> result = new ArrayList<>();
-			for (int time : times) {	
-				result.add(((HistorizedTable<T>) abstractTable).read(id, time));
-			}
-			return result;
-		} else {
-			throw new IllegalArgumentException(clazz.getSimpleName() + " is not historized");
-		}
-	}
-	
-	@Override
-	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameters) {
-		String query = getQuery(queryName);
-		T result = persistence.execute(clazz, query, (Object[]) parameters);
-		return result;
-	}
-	
-	@Override
-	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameters) {
-		String query = getQuery(queryName);
-		return persistence.execute(clazz, query, maxResults, (Object[]) parameters);
-	}
-	
-	private String getQuery(String queryName) {
-		if (queries == null) {
-			throw new RuntimeException("No queries available: " + queryName);
-		} else if (!queries.containsKey(queryName)) {
-			throw new RuntimeException("Query not available: " + queryName);
-		}
-		return queries.get(queryName);
-	}
-
 }

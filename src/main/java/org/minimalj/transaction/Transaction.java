@@ -2,7 +2,7 @@ package org.minimalj.transaction;
 
 import java.io.Serializable;
 
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.Persistence;
 
 /**
  * The transaction is the action the frontend passes to the backend for
@@ -26,6 +26,6 @@ public interface Transaction<T> extends Serializable {
 	 * provides the access.
 	 * @return the return value from the transaction
 	 */
-	public T execute(Backend backend);
+	public T execute(Persistence persistence);
 	
 }
