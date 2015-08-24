@@ -107,7 +107,7 @@ action. Its definition is:
 package org.minimalj.example.helloworld2;
 
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.editor.Editor.NewObjectEditor;
+import org.minimalj.frontend.editor.Editor.UserNameEditor;
 import org.minimalj.frontend.form.Form;
 
 public class UserNameEditor extends SimpleEditor<User> {
