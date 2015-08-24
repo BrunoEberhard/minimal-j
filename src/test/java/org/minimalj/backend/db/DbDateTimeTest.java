@@ -1,6 +1,5 @@
 package org.minimalj.backend.db;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,16 +14,16 @@ public class DbDateTimeTest {
 	private static DbPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() throws SQLException {
+	public static void setupDb() {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), D.class);
 	}
 	
 	@AfterClass
-	public static void shutdownDb() throws SQLException {
+	public static void shutdownDb() {
 	}
 	
 	@Test
-	public void testCrudDates() throws SQLException {
+	public void testCrudDates() {
 		D d = new D();
 		d.localDate = LocalDate.of(2000, 01, 02);
 		d.localTime = LocalTime.of(12, 34, 56);

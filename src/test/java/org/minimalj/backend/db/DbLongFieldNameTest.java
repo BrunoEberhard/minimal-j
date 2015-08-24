@@ -1,7 +1,5 @@
 package org.minimalj.backend.db;
 
-import java.sql.SQLException;
-
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -12,16 +10,16 @@ public class DbLongFieldNameTest {
 	private static DbPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() throws SQLException {
+	public static void setupDb() {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), L.class);
 	}
 	
 	@AfterClass
-	public static void shutdownDb() throws SQLException {
+	public static void shutdownDb() {
 	}
 	
 	@Test
-	public void testInsertAndDelete() throws SQLException {
+	public void testInsertAndDelete() {
 		L l = new L();
 		Object id = persistence.insert(l);
 		

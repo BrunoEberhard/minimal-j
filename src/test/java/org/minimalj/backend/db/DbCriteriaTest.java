@@ -1,6 +1,5 @@
 package org.minimalj.backend.db;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -14,16 +13,16 @@ public class DbCriteriaTest {
 	private static DbPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() throws SQLException {
+	public static void setupDb() {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class);
 	}
 	
 	@AfterClass
-	public static void shutdownDb() throws SQLException {
+	public static void shutdownDb() {
 	}
 	
 	@Test // if fields of class reference are correctly written and read
-	public void testReferenceField() throws SQLException {
+	public void testReferenceField() {
 		G g = new G("g1");
 		Object id = persistence.insert(g);
 		g = persistence.read(G.class, id);
@@ -38,7 +37,7 @@ public class DbCriteriaTest {
 	}
 
 	@Test // if read by a reference works correctly
-	public void testSimpleCriteria() throws SQLException {
+	public void testSimpleCriteria() {
 		G g = new G("g2");
 		Object id = persistence.insert(g);
 		g = persistence.read(G.class, id);
@@ -62,7 +61,7 @@ public class DbCriteriaTest {
 	}
 
 	@Test // if read by a foreign key works correctly if the reference is in a dependable
-	public void testForeignKeyCriteriaInDependable() throws SQLException {
+	public void testForeignKeyCriteriaInDependable() {
 		G g = new G("g3");
 		Object id = persistence.insert(g);
 		g = persistence.read(G.class, id);

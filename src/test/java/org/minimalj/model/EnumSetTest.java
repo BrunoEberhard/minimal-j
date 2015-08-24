@@ -1,6 +1,5 @@
 package org.minimalj.model;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,7 +15,7 @@ public class EnumSetTest {
 	private static DbPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() throws SQLException {
+	public static void setupDb() {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), ObjectWithE.class);
 	}
 

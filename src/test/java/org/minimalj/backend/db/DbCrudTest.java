@@ -1,6 +1,5 @@
 package org.minimalj.backend.db;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -13,16 +12,16 @@ public class DbCrudTest {
 	private static DbPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() throws SQLException {
+	public static void setupDb() {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class);
 	}
 	
 	@AfterClass
-	public static void shutdownDb() throws SQLException {
+	public static void shutdownDb() {
 	}
 	
 	@Test
-	public void testInsertAndDelete() throws SQLException {
+	public void testInsertAndDelete() {
 		G g = new G("testName1");
 		Object id = persistence.insert(g);
 		
@@ -36,7 +35,7 @@ public class DbCrudTest {
 	}
 	
 	@Test
-	public void testInsertAndDeleteHistorized() throws SQLException {
+	public void testInsertAndDeleteHistorized() {
 		A a = new A("testName1");
 		Object id = persistence.insert(a);
 		
@@ -53,7 +52,7 @@ public class DbCrudTest {
 	}
 	
 	@Test
-	public void testCrudWithSubtable() throws SQLException {
+	public void testCrudWithSubtable() {
 		A a = new A("testName1");
 		
 		a.b.add(new B("testNameB1"));
@@ -75,7 +74,7 @@ public class DbCrudTest {
 	}
 	
 	@Test
-	public void testSubtableVersion() throws SQLException {
+	public void testSubtableVersion() {
 		Object id = writeSimpleA();
 		readTheAandAddBandE(id);
 		
@@ -126,14 +125,14 @@ public class DbCrudTest {
 		Assert.assertNull("Dependable should be removed", h.k);
 	}
 
-	private Object writeSimpleA() throws SQLException {
+	private Object writeSimpleA() {
 		A a = new A("testName1");
 
 		Object id = persistence.insert(a);
 		return id;
 	}
 
-	private void readTheAandAddBandE(Object id) throws SQLException {
+	private void readTheAandAddBandE(Object id) {
 		A a2 = persistence.read(A.class, id);
 		a2.b.add(new B("testNameB1"));
 		a2.e = new E();
@@ -142,12 +141,12 @@ public class DbCrudTest {
 		persistence.update(a2);
 	}
 
-	private void addAnotherB(final A a4) throws SQLException {
+	private void addAnotherB(final A a4) {
 		a4.b.add(new B("testNameB2"));
 		persistence.update(a4);
 	}
 
-	private void removeFirstB(final Object id) throws SQLException {
+	private void removeFirstB(final Object id) {
 		A a5 = persistence.read(A.class, id);
 		a5.b.remove(0);
 		persistence.update(a5);

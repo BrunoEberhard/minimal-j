@@ -1,6 +1,5 @@
 package org.minimalj.backend.db;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -15,7 +14,7 @@ public class DbSimpleCriteriaTest {
 	private static DbPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() throws SQLException {
+	public static void setupDb() {
 		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class);
 		
 		insertA(5);
@@ -30,11 +29,11 @@ public class DbSimpleCriteriaTest {
 	}
 	
 	@AfterClass
-	public static void shutdownDb() throws SQLException {
+	public static void shutdownDb() {
 	}
 	
 	@Test 
-	public void testFindByIntegerField() throws SQLException {
+	public void testFindByIntegerField() {
 		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.int1, 5), 2);
 		Assert.assertEquals(1, list.size());
 		A a = list.get(0);
@@ -43,13 +42,13 @@ public class DbSimpleCriteriaTest {
 	}
 	
 	@Test 
-	public void testMinimumForField() throws SQLException {
+	public void testMinimumForField() {
 		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.int1, CriteriaOperator.greaterOrEqual, 7), 3);
 		Assert.assertEquals(2, list.size());
 	}
 	
 	@Test(expected = IllegalArgumentException.class) 
-	public void testOperatorCheck() throws SQLException {
+	public void testOperatorCheck() {
 		persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.e, CriteriaOperator.greaterOrEqual, 7), 1);
 	}
 
