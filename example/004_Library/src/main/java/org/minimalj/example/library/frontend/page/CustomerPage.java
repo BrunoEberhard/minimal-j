@@ -16,6 +16,10 @@ public class CustomerPage extends ObjectPage<Customer> {
 		super(customer);
 	}
 	
+	public CustomerPage(Object id) {
+		super(Customer.class, id);
+	}
+	
 	@Override
 	protected Form<Customer> createForm() {
 		return new CustomerForm(false);

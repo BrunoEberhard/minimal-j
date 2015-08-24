@@ -11,6 +11,10 @@ public class BookPage extends ObjectPage<Book> {
 		super(book);
 	}
 	
+	public BookPage(Object id) {
+		super(Book.class, id);
+	}
+	
 	@Override
 	protected Form<Book> createForm() {
 		return new BookForm(false);

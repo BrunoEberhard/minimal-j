@@ -16,8 +16,8 @@ public class AddBookEditor extends NewObjectEditor<Book> {
 	}
 	
 	@Override
-	public Book save(Book book) {
-		return Backend.getInstance().insert(book);
+	public Object save(Book book) {
+		return Backend.persistence().insert(book);
 	}
 
 	@Override
@@ -26,8 +26,8 @@ public class AddBookEditor extends NewObjectEditor<Book> {
 	}
 	
 	@Override
-	protected void finished(Book book) {
-		Frontend.getBrowser().show(new BookPage(book));
+	protected void finished(Object newId) {
+		Frontend.getBrowser().show(new BookPage(newId));
 	}
 
 }

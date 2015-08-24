@@ -32,8 +32,8 @@ public class AddLendAction extends NewObjectEditor<Lend> {
 	}
 
 	@Override
-	public Lend save(Lend lend) {
-		return Backend.getInstance().insert(lend);
+	public Object save(Lend lend) {
+		return Backend.persistence().insert(lend);
 	}
 
 	@Override

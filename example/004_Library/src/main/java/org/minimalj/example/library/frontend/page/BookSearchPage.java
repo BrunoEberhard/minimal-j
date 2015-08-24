@@ -28,7 +28,7 @@ public class BookSearchPage extends SimpleSearchPage<Book> {
 	
 	@Override
 	protected List<Book> load(String query) {
-		return Backend.getInstance().read(Book.class, Criteria.search(query), 100);
+		return Backend.persistence().read(Book.class, Criteria.search(query), 100);
 	}
 
 	@Override

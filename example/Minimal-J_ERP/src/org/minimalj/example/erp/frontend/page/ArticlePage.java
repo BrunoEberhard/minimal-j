@@ -17,6 +17,10 @@ public class ArticlePage extends ObjectPage<Article> {
 		super(article);
 	}
 	
+	public ArticlePage(Object id) {
+		super(Article.class, id);
+	}
+	
 	@Override
 	public List<Action> getActions() {
 		return Arrays.asList(new ActionGroup("Article"));
@@ -36,7 +40,7 @@ public class ArticlePage extends ObjectPage<Article> {
 
 		@Override
 		protected Article save(Article article) {
-			return Backend.getInstance().update(article);
+			return Backend.persistence().update(article);
 		}
 	}
 }

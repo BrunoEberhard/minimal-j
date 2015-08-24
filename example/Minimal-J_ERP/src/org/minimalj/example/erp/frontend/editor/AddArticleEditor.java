@@ -16,12 +16,12 @@ public class AddArticleEditor extends NewObjectEditor<Article> {
 	}
 
 	@Override
-	protected Article save(Article article) {
-		return Backend.getInstance().insert(article);
+	protected Object save(Article article) {
+		return Backend.persistence().insert(article);
 	}
 
 	@Override
-	protected void finished(Article result) {
-		Frontend.getBrowser().show(new ArticlePage(result));
+	protected void finished(Object newId) {
+		Frontend.getBrowser().show(new ArticlePage(newId));
 	}
 }

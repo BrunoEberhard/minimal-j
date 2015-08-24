@@ -25,7 +25,7 @@ public class ArticleSearchPage extends SimpleSearchPage<Article> {
 	
 	@Override
 	protected List<Article> load(String query) {
-		return Backend.getInstance().read(Article.class, Criteria.search(query), 100);
+		return Backend.persistence().read(Article.class, Criteria.search(query), 100);
 	}
 
 	@Override

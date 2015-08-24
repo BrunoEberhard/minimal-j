@@ -34,7 +34,7 @@ public class LendTablePage extends TablePage<Lend> {
 
 	@Override
 	protected List<Lend> load() {
-		return Backend.getInstance().read(Lend.class, Criteria.equals(Lend.$.customer, customer), 100);
+		return Backend.persistence().read(Lend.class, Criteria.equals(Lend.$.customer, customer), 100);
 	}
 
 	@Override

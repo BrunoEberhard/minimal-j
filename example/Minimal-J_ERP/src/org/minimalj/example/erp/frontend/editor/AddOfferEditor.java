@@ -36,7 +36,7 @@ public class AddOfferEditor extends Editor<Offer, Void> {
 
 	@Override
 	public Void save(Offer offer) {
-		Backend.getInstance().insert(offer);
+		Backend.persistence().insert(offer);
 		return null;
 	}
 

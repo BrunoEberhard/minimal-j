@@ -33,7 +33,7 @@ public class CustomerSearchPage extends SimpleSearchPage<Customer> {
 	
 	@Override
 	protected List<Customer> load(String query) {
-		return Backend.getInstance().read(Customer.class, Criteria.search(query), 100);
+		return Backend.persistence().read(Customer.class, Criteria.search(query), 100);
 	}
 
 	@Override

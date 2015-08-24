@@ -21,6 +21,10 @@ public class CustomerPage extends ObjectPage<Customer> {
 		super(customer);
 	}
 	
+	public CustomerPage(Object id) {
+		super(Customer.class, id);
+	}
+
 	@Override
 	public void setObject(Customer customer) {
 		super.setObject(customer);
@@ -76,7 +80,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 
 		@Override
 		protected Customer save(Customer customer) {
-			return Backend.getInstance().update(customer);
+			return Backend.persistence().update(customer);
 		}
 	}
 

@@ -16,6 +16,6 @@ public class NoteTablePage extends TablePage<Note> {
 
 	@Override
 	protected List<Note> load() {
-		return Backend.getInstance().read(Note.class, Criteria.all(), Integer.MAX_VALUE);
+		return Backend.persistence().read(Note.class, Criteria.all(), Integer.MAX_VALUE);
 	}
 }

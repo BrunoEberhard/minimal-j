@@ -11,7 +11,7 @@ public class ImportIsoCurrencyInformation implements Transaction<Integer> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Integer execute(Backend backend) {
+	public Integer execute(Persistence persistence) {
 		IsoCurrencyInformationReader reader = new IsoCurrencyInformationReader();
 		List<Currency> currencies = reader.getCurrencies();
 		int inserts = 0;

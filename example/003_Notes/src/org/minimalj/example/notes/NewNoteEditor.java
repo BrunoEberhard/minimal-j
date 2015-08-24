@@ -13,12 +13,12 @@ public class NewNoteEditor extends NewObjectEditor<Note> {
 	}
 
 	@Override
-	protected Note save(Note object) {
-		return Backend.getInstance().insert(object);
+	protected Object save(Note object) {
+		return Backend.persistence().insert(object);
 	}
 	
 	@Override
-	protected void finished(Note result) {
+	protected void finished(Object newId) {
 		Frontend.getBrowser().show(new NoteTablePage());
 	}
 

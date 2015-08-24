@@ -41,7 +41,7 @@ public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 	
 	@Override
 	protected List<Offer> load() {
-		return Backend.getInstance().read(Offer.class, Criteria.equals(Offer.$.customer, customer), 100);
+		return Backend.persistence().read(Offer.class, Criteria.equals(Offer.$.customer, customer), 100);
 	}
 
 	@Override
