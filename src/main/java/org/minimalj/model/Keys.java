@@ -1,6 +1,7 @@
 package org.minimalj.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -124,6 +125,8 @@ public class Keys {
 			return LocalDateTime.now();	
 		} else if (type == LocalTime.class) {
 			return LocalTime.now();				
+		} else if (type.isArray()) {
+			return Array.newInstance(type.getComponentType(), 0);
 		} else {
 			// note: LocalDate, LocaleDateTime etc have an empty constructor
 			// so they are constructed in the else branch
