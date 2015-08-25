@@ -7,21 +7,16 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-import java.net.SocketException;
 
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.persistence.DelegatePersistence;
 import org.minimalj.util.SerializationContainer;
-import org.minimalj.util.UnclosingInputStream;
-import org.minimalj.util.UnclosingOutputStream;
 
 public class SocketBackend extends Backend {
 	private final String url;
 	private final int port;
-	
-	private Socket socket;
 	
 	private final DelegatePersistence persistence;
 
@@ -38,26 +33,15 @@ public class SocketBackend extends Backend {
 
 	@Override
 	public <T> T execute(Transaction<T> transaction) {
-		try {
-			if (socket == null || !socket.isConnected()) {
-				socket = new Socket(url, port);	
-			}
-			try (ObjectOutputStream oos = new ObjectOutputStream(new UnclosingOutputStream(socket.getOutputStream()))) {
+		try (Socket socket = new Socket(url, port)) {
+			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				oos.writeObject(transaction);
-				try (ObjectInputStream ois = new ObjectInputStream(new UnclosingInputStream(socket.getInputStream()))) {
+				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					return readResult(ois);
 				}
-			} catch (SocketException se) {
-				socket = new Socket(url, port);	
-				try (ObjectOutputStream oos = new ObjectOutputStream(new UnclosingOutputStream(socket.getOutputStream()))) {
-					oos.writeObject(transaction);
-					try (ObjectInputStream ois = new ObjectInputStream(new UnclosingInputStream(socket.getInputStream()))) {
-						return readResult(ois);
-					}
-				}	
 			}
 		} catch (Exception c) {
-			throw new RuntimeException("Failed to execute " + transaction + " on " + url + ":" + port, c);
+			throw new RuntimeException("Couldn't connect to " + url + ":" + port);
 		}
 	}
 	

@@ -17,7 +17,6 @@ import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
-import org.minimalj.util.UnclosingInputStream;
 import org.minimalj.util.UnclosingOutputStream;
 
 public class SocketBackendServer {
@@ -53,7 +52,7 @@ public class SocketBackendServer {
 		}
 	}
 	
-	private class SocketBackendRunnable implements Runnable {
+	private static class SocketBackendRunnable implements Runnable {
 		private final Socket socket;
 
 		public SocketBackendRunnable(Socket socket) {
@@ -63,8 +62,7 @@ public class SocketBackendServer {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public void run() {
-			do {
-			try (ObjectInputStream ois = new ObjectInputStream(new UnclosingInputStream(socket.getInputStream()))) {
+			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 				Object input = ois.readObject();
 
 				Object result = null;
@@ -76,7 +74,7 @@ public class SocketBackendServer {
 					result = Backend.getInstance().execute(streamConsumer, ois);
 				} 
 				
-				try (ObjectOutputStream oos = new ObjectOutputStream(new UnclosingOutputStream(socket.getOutputStream()))) {
+				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 					if (input instanceof StreamProducer) {
 						StreamProducer streamProducer = (StreamProducer) input;
 						result = Backend.getInstance().execute(streamProducer, new UnclosingOutputStream(oos));
@@ -84,20 +82,13 @@ public class SocketBackendServer {
 					Object wrappedResult = SerializationContainer.wrap(result);
 					oos.writeObject(wrappedResult);
 				}
-
-				while (socket.getInputStream().available() == 0) {
-					Thread.sleep(100);
-				}
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);
 				e.printStackTrace();
-				return;
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "SocketRunnable failed", e);
 				e.printStackTrace();
-				return;
 			}
-		} while (true);
 		}
 	}
 	
