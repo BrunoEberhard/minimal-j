@@ -26,7 +26,7 @@ public class PasswordFormElement extends AbstractFormElement<char[]> {
 
 	@Override
 	public void setValue(char[] value) {
-		if (value.length > maxLength) {
+		if (value != null && value.length > maxLength) {
 			value = Arrays.copyOfRange(value, 0, maxLength);
 		}
 		textField.setValue(value);
