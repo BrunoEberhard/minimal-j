@@ -11,20 +11,20 @@ import org.minimalj.transaction.Transaction;
 
 public interface Authenticated extends Serializable {
 
-	public Serializable getAuthentication();
+	public Serializable getToken();
 
 	public static abstract class AbstractAuthenticated implements Authenticated {
 		private static final long serialVersionUID = 1L;
 
-		private final Serializable authentication;
+		private final Serializable token;
 
-		public AbstractAuthenticated(Serializable authentication) {
-			this.authentication = authentication;
+		public AbstractAuthenticated(Subject subject) {
+			this.token = subject.getToken();
 		}
 
 		@Override
-		public Serializable getAuthentication() {
-			return authentication;
+		public Serializable getToken() {
+			return token;
 		}
 	}
 
@@ -33,8 +33,8 @@ public interface Authenticated extends Serializable {
 
 		private final Transaction<T> delegate;
 
-		public AuthenticatedTransaction(Transaction<T> delegate, Serializable authentication) {
-			super(authentication);
+		public AuthenticatedTransaction(Transaction<T> delegate, Subject subject) {
+			super(subject);
 			this.delegate = delegate;
 		}
 
@@ -49,8 +49,8 @@ public interface Authenticated extends Serializable {
 
 		private final StreamConsumer<T> delegate;
 
-		public AuthenticatedStreamConsumer(StreamConsumer<T> delegate, Serializable authentication) {
-			super(authentication);
+		public AuthenticatedStreamConsumer(StreamConsumer<T> delegate, Subject subject) {
+			super(subject);
 			this.delegate = delegate;
 		}
 
@@ -65,8 +65,8 @@ public interface Authenticated extends Serializable {
 
 		private final StreamProducer<T> delegate;
 
-		public AuthenticatedStreamProducer(StreamProducer<T> delegate, Serializable authentication) {
-			super(authentication);
+		public AuthenticatedStreamProducer(StreamProducer<T> delegate, Subject subject) {
+			super(subject);
 			this.delegate = delegate;
 		}
 

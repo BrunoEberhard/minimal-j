@@ -22,14 +22,14 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.security.LoginAction;
-import org.minimalj.security.MjUser;
+import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class JsonClientSession implements PageBrowser {
 
 	private static final Map<String, JsonClientSession> sessions = new HashMap<>();
-	private MjUser user;
+	private Subject subject;
 	private String focusPageId;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
@@ -53,8 +53,8 @@ public class JsonClientSession implements PageBrowser {
 	}
 	
 	@Override
-	public void setUser(MjUser user) {
-		this.user = user;
+	public void setSubject(Subject subject) {
+		this.subject = subject;
 		
 		componentById.clear();
 		navigation = createNavigation();
@@ -63,8 +63,8 @@ public class JsonClientSession implements PageBrowser {
 	}
 	
 	@Override
-	public MjUser getUser() {
-		return user;
+	public Subject getSubject() {
+		return subject;
 	}
 	
 	public JsonOutput handle(JsonInput input) {

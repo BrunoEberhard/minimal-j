@@ -53,7 +53,7 @@ import org.minimalj.frontend.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.swing.toolkit.SwingInternalFrame;
 import org.minimalj.frontend.swing.toolkit.SwingProgressInternalFrame;
 import org.minimalj.frontend.swing.toolkit.SwingSearchPanel;
-import org.minimalj.security.MjUser;
+import org.minimalj.security.Subject;
 
 public class SwingTab extends EditablePanel implements PageBrowser {
 	private static final long serialVersionUID = 1L;
@@ -141,16 +141,16 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	}
 	
 	@Override
-	public void setUser(MjUser user) {
-		frame.setUser(user);
+	public void setSubject(Subject subject) {
+		frame.setSubject(subject);
 	}
 	
 	@Override
-	public MjUser getUser() {
-		return frame.getUser();
+	public Subject getSubject() {
+		return frame.getSubject();
 	}
 	
-	public void updateToUser(MjUser user) {
+	public void updateToUser(Subject user) {
 		menuScrollPane.setViewportView(new MenuTree(Application.getApplication().getMenu()));
 	}
 	

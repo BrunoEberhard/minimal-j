@@ -7,7 +7,6 @@ import java.io.Serializable;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Authenticated;
 import org.minimalj.security.LoginTransaction;
-import org.minimalj.security.LogoutTransaction;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
@@ -27,8 +26,8 @@ public class AuthenticationBackend extends Backend {
 
 	@Override
 	public <T> T execute(Transaction<T> transaction) {
-		if (!(transaction instanceof LoginTransaction || transaction instanceof LogoutTransaction)) {
-			return backend.execute(new Authenticated.AuthenticatedTransaction<T>(transaction, Frontend.getBrowser().getUser()));
+		if (!(transaction instanceof LoginTransaction)) {
+			return backend.execute(new Authenticated.AuthenticatedTransaction<T>(transaction, Frontend.getBrowser().getSubject()));
 		} else {
 			return backend.execute(transaction);
 		}
@@ -36,12 +35,12 @@ public class AuthenticationBackend extends Backend {
 
 	@Override
 	public <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream) {
-		return backend.execute(new Authenticated.AuthenticatedStreamConsumer<T>(streamConsumer, Frontend.getBrowser().getUser()), inputStream);
+		return backend.execute(new Authenticated.AuthenticatedStreamConsumer<T>(streamConsumer, Frontend.getBrowser().getSubject()), inputStream);
 	}
 
 	@Override
 	public <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream) {
-		return backend.execute(new Authenticated.AuthenticatedStreamProducer<T>(streamProducer, Frontend.getBrowser().getUser()), outputStream);
+		return backend.execute(new Authenticated.AuthenticatedStreamProducer<T>(streamProducer, Frontend.getBrowser().getSubject()), outputStream);
 	}
 
 }

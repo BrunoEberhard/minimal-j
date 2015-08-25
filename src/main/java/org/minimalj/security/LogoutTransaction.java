@@ -7,8 +7,8 @@ import org.minimalj.transaction.Transaction;
 public class LogoutTransaction extends AbstractAuthenticated implements Transaction<Void> {
 	private static final long serialVersionUID = 1L;
 
-	public LogoutTransaction(MjUser user) {
-		super(user.getAuthentication());
+	public LogoutTransaction(Subject subject) {
+		super(subject);
 	}
 
 	@Override

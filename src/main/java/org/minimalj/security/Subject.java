@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MjUser implements Serializable {
+public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String name;
-	private Serializable authentication;
+	private Serializable token;
 	
 	private List<String> roles = new ArrayList<>();
 
@@ -20,12 +20,12 @@ public class MjUser implements Serializable {
 		this.name = name;
 	}
 
-	public Serializable getAuthentication() {
-		return authentication;
+	public Serializable getToken() {
+		return token;
 	}
 	
-	public void setAuthentication(Serializable authentication) {
-		this.authentication = authentication;
+	public void setToken(Serializable token) {
+		this.token = token;
 	}
 	
 	public void setRoles(List<String> roles) {

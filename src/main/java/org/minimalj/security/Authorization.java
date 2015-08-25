@@ -12,7 +12,7 @@ import org.minimalj.util.StringUtils;
 public abstract class Authorization {
 	private static final Logger logger = Logger.getLogger(Authorization.class.getName());
 
-	private Map<UUID, MjUser> userByAuthentication = new HashMap<>();
+	private Map<UUID, Subject> userByToken = new HashMap<>();
 
 	public Authorization() {
 	}
@@ -56,26 +56,26 @@ public abstract class Authorization {
 		return available;
 	}
 
-	protected abstract boolean checkLogin(Login login);
+	protected abstract boolean checkLogin(UserPassword login);
 
-	public MjUser login(Login login) {
+	public Subject login(UserPassword login) {
 		if (checkLogin(login)) {
-			MjUser user = new MjUser();
+			Subject user = new Subject();
 			user.setName(login.user);
-			UUID authentication = UUID.randomUUID();
-			user.setAuthentication(authentication);
-			userByAuthentication.put(authentication, user);
+			UUID token = UUID.randomUUID();
+			user.setToken(token);
+			userByToken.put(token, user);
 			return user;
 		} else {
 			return null;
 		}
 	}
 
-	public void logout(Serializable authentication) {
-		userByAuthentication.remove(authentication);
+	public void logout(Serializable token) {
+		userByToken.remove(token);
 	}
 
-	public MjUser getUserByAuthentication(Serializable authentication) {
-		return userByAuthentication.get(authentication);
+	public Subject getUserByToken(Serializable token) {
+		return userByToken.get(token);
 	}
 }

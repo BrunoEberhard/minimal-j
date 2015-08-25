@@ -21,7 +21,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.swing.component.HideableTabbedPane;
 import org.minimalj.security.LoginAction;
 import org.minimalj.security.LogoutTransaction;
-import org.minimalj.security.MjUser;
+import org.minimalj.security.Subject;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -29,7 +29,7 @@ public class SwingFrame extends JFrame {
 	private HideableTabbedPane tabbedPane;
 	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction;
 	
-	private MjUser user;
+	private Subject subject;
 	
 	public SwingFrame() {
 		updateWindowTitle();
@@ -82,15 +82,15 @@ public class SwingFrame extends JFrame {
 		return tabbedPane;
 	}
 
-	public void setUser(MjUser user) {
-		this.user = user;
+	public void setSubject(Subject subject) {
+		this.subject = subject;
 		closeAllTabs();
 		addTab();
 		updateWindowTitle();
 	}
 	
-	public MjUser getUser() {
-		return user;
+	public Subject getSubject() {
+		return subject;
 	}
 	
 	private void addTab() {
@@ -179,8 +179,8 @@ public class SwingFrame extends JFrame {
 	
 	protected void updateWindowTitle() {
 		String title = Application.getApplication().getName();
-		if (user != null) {
-			title = title + " - " + user.getName();
+		if (subject != null) {
+			title = title + " - " + subject.getName();
 		}
 		setTitle(title);
 	}
@@ -214,8 +214,8 @@ public class SwingFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Frontend.setBrowser(getVisibleTab());
-			Backend.getInstance().execute(new LogoutTransaction(getVisibleTab().getUser()));
-			getVisibleTab().setUser(null);
+			Backend.getInstance().execute(new LogoutTransaction(getVisibleTab().getSubject()));
+			getVisibleTab().setSubject(null);
 			Frontend.setBrowser(null);
 
 		}

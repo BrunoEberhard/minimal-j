@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class PropertiesAuthorization extends Authorization {
 
-	private Map<String, MjUser> userByName = new HashMap<>();
+	private Map<String, Subject> userByName = new HashMap<>();
 	private Map<String, String> passwordByName = new HashMap<>();
 
 	public PropertiesAuthorization(String loginConfiguration) {
@@ -31,7 +31,7 @@ public class PropertiesAuthorization extends Authorization {
 			String passwordAndRoles = p.getProperty(name);
 			String[] split = passwordAndRoles.split(",");
 
-			MjUser user = new MjUser();
+			Subject user = new Subject();
 			user.setName(name);
 			if (split.length > 1) {
 				user.setRoles(Arrays.asList(split).subList(1, split.length));
@@ -43,7 +43,7 @@ public class PropertiesAuthorization extends Authorization {
 	}
 
 	@Override
-	protected boolean checkLogin(Login login) {
+	protected boolean checkLogin(UserPassword login) {
 		if (passwordByName.containsKey(login.user)) {
 			char[] p = passwordByName.get(login.user).toCharArray();
 			return Arrays.equals(p, login.password);

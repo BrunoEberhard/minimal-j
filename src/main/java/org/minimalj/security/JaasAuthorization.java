@@ -25,7 +25,7 @@ public class JaasAuthorization extends Authorization {
 	}
 
 	@Override
-	protected synchronized boolean checkLogin(Login login) {
+	protected synchronized boolean checkLogin(UserPassword login) {
 		minimalCallbackHandler.setUser(login.user);
 		minimalCallbackHandler.setPassword(login.password);
 		try {

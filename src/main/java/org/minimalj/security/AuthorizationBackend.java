@@ -21,7 +21,7 @@ public class AuthorizationBackend extends Backend {
 	}
 
 	private void execute(LogoutTransaction transaction) {
-		Serializable authentication = transaction.getAuthentication();
+		Serializable authentication = transaction.getToken();
 		Authorization.getInstance().logout(authentication);
 	}
 
@@ -60,9 +60,9 @@ public class AuthorizationBackend extends Backend {
 		if (role != null) {
 			if (input instanceof Authenticated) {
 				Authenticated authenticated = (Authenticated) input;
-				if (authenticated.getAuthentication() instanceof UUID) {
-					Serializable authentication = authenticated.getAuthentication();
-					MjUser user = Authorization.getInstance().getUserByAuthentication(authentication);
+				if (authenticated.getToken() instanceof UUID) {
+					Serializable token = authenticated.getToken();
+					Subject user = Authorization.getInstance().getUserByToken(token);
 					if (user != null) {
 						for (String roleName : role.value()) {
 							if (user.getRoles().contains(roleName)) {

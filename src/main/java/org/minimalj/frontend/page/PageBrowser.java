@@ -9,21 +9,21 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.security.MjUser;
+import org.minimalj.security.Subject;
 
 public interface PageBrowser {
 	
-	public default MjUser getUser() {
+	public default Subject getSubject() {
 		// TODO remove this default value, every PageBrowser should somehow implement getSubject()
 		return null;
 	}
 
-	public default void setUser(MjUser user) {
+	public default void setSubject(Subject subject) {
 		// TODO remove this default
 	}
 	
 	public default boolean hasPermission(String... accessRoles) {
-		MjUser user = getUser();
+		Subject user = getSubject();
 		List<String> roles = user != null ? user.getRoles() : Collections.emptyList();
 		for (String accessRole : accessRoles) {
 			if (roles.contains(accessRole)) {

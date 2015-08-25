@@ -6,32 +6,32 @@ import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.PasswordFormElement;
 
-public class LoginAction extends Editor<Login, MjUser> {
+public class LoginAction extends Editor<UserPassword, Subject> {
 
 	private PasswordFormElement passwordField;
 	
 	@Override
-	protected Login createObject() {
-		return new Login();
+	protected UserPassword createObject() {
+		return new UserPassword();
 	}
 
 	@Override
-	protected Form<Login> createForm() {
-		Form<Login> form = new Form<>();
-		form.line(Login.$.user);
-		passwordField = new PasswordFormElement(Login.$.password); 
+	protected Form<UserPassword> createForm() {
+		Form<UserPassword> form = new Form<>();
+		form.line(UserPassword.$.user);
+		passwordField = new PasswordFormElement(UserPassword.$.password); 
 		form.line(passwordField);
 		return form;
 	}
 
 	@Override
-	protected MjUser save(Login login) {
+	protected Subject save(UserPassword login) {
 		LoginTransaction loginTransaction = new LoginTransaction(login);
 		return Backend.getInstance().execute(loginTransaction);
 	}
 	
 	@Override
-	protected void finished(MjUser user) {
-		Frontend.getBrowser().setUser(user);
+	protected void finished(Subject user) {
+		Frontend.getBrowser().setSubject(user);
 	}
 }
