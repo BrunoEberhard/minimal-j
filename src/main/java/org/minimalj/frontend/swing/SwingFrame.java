@@ -36,6 +36,8 @@ public class SwingFrame extends JFrame {
 		
 		loginAction = new SwingLoginAction();
 		logoutAction = new SwingLogoutAction();
+		updateLoginAction();
+		
 		closeWindowAction = new CloseWindowAction();
 		exitAction = new ExitAction();
 		newWindowAction = new NewWindowAction();
@@ -87,6 +89,7 @@ public class SwingFrame extends JFrame {
 		closeAllTabs();
 		addTab();
 		updateWindowTitle();
+		updateLoginAction();
 	}
 	
 	public Subject getSubject() {
@@ -197,9 +200,18 @@ public class SwingFrame extends JFrame {
 		}
 	}
 	
+	private void updateLoginAction() {
+		loginAction.setEnabled(subject == null);
+		logoutAction.setEnabled(subject != null);
+	}
+	
 	private class SwingLoginAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
+		public SwingLoginAction() {
+			super("LoginAction");
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Frontend.setBrowser(getVisibleTab());
@@ -210,6 +222,10 @@ public class SwingFrame extends JFrame {
 	
 	private class SwingLogoutAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
+
+		public SwingLogoutAction() {
+			super("LogoutAction");
+		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
