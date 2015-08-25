@@ -27,7 +27,7 @@ public class AuthorizationBackend extends Backend {
 
 	@Override
 	public Persistence getPersistence() {
-		return null;
+		return backend.getPersistence();
 	}
 
 	@Override
