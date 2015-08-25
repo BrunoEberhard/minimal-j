@@ -76,12 +76,12 @@ public class SwingPasswordField extends JPasswordField implements PasswordField 
 //	}
 	
 	@Override
-	public void setValue(Object value) {
+	public void setValue(char[] value) {
 		// ignored
 	}
 
 	@Override
-	public Object getValue() {
+	public char[] getValue() {
 		return getPassword();
 	}
 

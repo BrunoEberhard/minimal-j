@@ -26,24 +26,18 @@ public class LanternaPasswordField extends PasswordBox implements PasswordField 
 	}
 
 	@Override
-	public String getValue() {
+	public char[] getValue() {
 		String text = super.getText();
 		if (text.length() == 0) return null;
-		return text;
+		return text.toCharArray();
 	}
 
 	@Override
-	public void setValue(Object value) {
-		if (value == null) {
-			value = "";
-		}
-		if (value instanceof String) {
-			textOnFocusLost = (String) value;
-			if (!hasFocus()) {
-				super.setText((String) value);
-			}
-		} else {
-			throw new IllegalStateException(value.toString());
+	public void setValue(char[] value) {
+		String text = value != null ? new String(value) : "";
+		textOnFocusLost = text;
+		if (!hasFocus()) {
+			super.setText(text);
 		}
 	}
 		

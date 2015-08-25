@@ -77,17 +77,15 @@ public class VaadinPasswordField extends PasswordField implements IComponent {
 		}
 
 		@Override
-		public void setValue(Object value) {
-			if (value == null || value instanceof String) {
-				delegate.setValue(value);
-			} else {
-				throw new IllegalStateException(value.toString());
-			}
+		public void setValue(char[] value) {
+			String text = value != null ? new String(value) : null;
+			delegate.setValue(text);
 		}
 
 		@Override
-		public Object getValue() {
-			return delegate.getValue();
+		public char[] getValue() {
+			String text = delegate.getValue();
+			return text != null ? text.toCharArray() : null;
 		}
 
 		@Override

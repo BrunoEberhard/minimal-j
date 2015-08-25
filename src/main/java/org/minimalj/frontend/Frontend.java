@@ -59,7 +59,7 @@ public abstract class Frontend {
 		public void setEditable(boolean editable);
 	}
 
-	public interface PasswordField extends Input<Object> {
+	public interface PasswordField extends Input<char[]> {
 
 	}
 	

@@ -8,7 +8,7 @@ import org.minimalj.frontend.Frontend.PasswordField;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.AnnotationUtil;
 
-public class PasswordFormElement extends AbstractFormElement<Object> {
+public class PasswordFormElement extends AbstractFormElement<char[]> {
 
 	private final int maxLength;
 	private final PasswordField textField;
@@ -25,24 +25,15 @@ public class PasswordFormElement extends AbstractFormElement<Object> {
 	}
 
 	@Override
-	public void setValue(Object value) {
-		if (value instanceof String) {
-			String string = (String) value;
-			if (maxLength > 0 && string.length() > maxLength) {
-				string = string.substring(0, maxLength);
-			}
-			textField.setValue(string);
-		} else if (value instanceof char[]) {
-			char[] chars = (char[]) value;
-			if (chars.length > maxLength) {
-				chars = Arrays.copyOfRange(chars, 0, maxLength);
-			}
-			textField.setValue(chars);
+	public void setValue(char[] value) {
+		if (value.length > maxLength) {
+			value = Arrays.copyOfRange(value, 0, maxLength);
 		}
+		textField.setValue(value);
 	}
 
 	@Override
-	public Object getValue() {
+	public char[] getValue() {
 		return textField.getValue();
 	}
 	
