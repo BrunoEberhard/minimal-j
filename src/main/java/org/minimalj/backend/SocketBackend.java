@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.Socket;
 
 import org.minimalj.transaction.StreamConsumer;
@@ -36,7 +35,13 @@ public class SocketBackend extends Backend {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				oos.writeObject(transaction);
+				if (transaction instanceof StreamConsumer) {
+					sendStream(oos, ((StreamConsumer<?>) transaction).getStream());
+				}
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+					if (transaction instanceof StreamProducer) {
+						receiveStream(ois, ((StreamProducer<?>) transaction).getStream());
+					}
 					return readResult(ois);
 				}
 			}
@@ -52,21 +57,6 @@ public class SocketBackend extends Backend {
 		return result;
 	}
 	
-	@Override
-	public <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream) {
-		try (Socket socket = new Socket(url, port)) {
-			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-				oos.writeObject(streamConsumer);
-				sendStream(oos, inputStream);
-				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-					return readResult(ois);
-				}
-			}
-		} catch (Exception c) {
-			throw new RuntimeException("Couldn't connect to " + url + ":" + port);
-		}
-	}
-	
 	// send data from frontend to backend (import of data)
 	private void sendStream(ObjectOutputStream oos, InputStream inputStream) throws IOException {
 		int b;
@@ -74,21 +64,6 @@ public class SocketBackend extends Backend {
 			oos.write(b);
 		}
 		oos.flush();
-	}
-
-	@Override
-	public <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream) {
-		try (Socket socket = new Socket(url, port)) {
-			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-				oos.writeObject(streamProducer);
-				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-					receiveStream(ois, outputStream);
-					return readResult(ois);
-				}
-			}
-		} catch (Exception c) {
-			throw new RuntimeException("Couldn't connect to " + url + ":" + port);
-		}
 	}
 
 	// send data from backend to frontend (export data)

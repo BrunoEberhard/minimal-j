@@ -1,8 +1,5 @@
 package org.minimalj.backend;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.db.DbBackend;
@@ -10,8 +7,6 @@ import org.minimalj.backend.db.DbPersistence;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.AuthorizationBackend;
-import org.minimalj.transaction.StreamConsumer;
-import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -94,7 +89,5 @@ public abstract class Backend {
 	}
 	
 	public abstract <T> T execute(Transaction<T> transaction);
-	public abstract <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream);
-	public abstract <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream);
 	
 }

@@ -66,19 +66,20 @@ public class SocketBackendServer {
 				Object input = ois.readObject();
 
 				Object result = null;
-				if (input instanceof Transaction) {
-					Transaction transaction = (Transaction) input;
-					result = Backend.getInstance().execute(transaction);
-				} else if (input instanceof StreamConsumer) {
+				if (input instanceof StreamConsumer) {
 					StreamConsumer streamConsumer = (StreamConsumer) input;
-					result = Backend.getInstance().execute(streamConsumer, ois);
+					streamConsumer.setStream(ois);
 				} 
 				
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 					if (input instanceof StreamProducer) {
 						StreamProducer streamProducer = (StreamProducer) input;
-						result = Backend.getInstance().execute(streamProducer, new UnclosingOutputStream(oos));
+						streamProducer.setStream(new UnclosingOutputStream(oos));
 					}
+					if (input instanceof Transaction) {
+						Transaction transaction = (Transaction) input;
+						result = Backend.getInstance().execute(transaction);
+					} 
 					Object wrappedResult = SerializationContainer.wrap(result);
 					oos.writeObject(wrappedResult);
 				}

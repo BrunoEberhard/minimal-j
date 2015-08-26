@@ -1,14 +1,10 @@
 package org.minimalj.security;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Role;
-import org.minimalj.transaction.StreamConsumer;
-import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
 
 public class AuthorizationBackend extends Backend {
@@ -40,18 +36,6 @@ public class AuthorizationBackend extends Backend {
 		}
 		hasPermission(transaction);
 		return backend.execute(transaction);
-	}
-
-	@Override
-	public <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream) {
-		hasPermission(streamConsumer);
-		return backend.execute(streamConsumer, inputStream);
-	}
-
-	@Override
-	public <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream) {
-		hasPermission(streamProducer);
-		return backend.execute(streamProducer, outputStream);
 	}
 
 	private boolean hasPermission(Object input) {
