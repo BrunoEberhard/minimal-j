@@ -13,6 +13,8 @@ public interface Authenticated extends Serializable {
 
 	public Serializable getToken();
 
+	public Class<?> getClazz();
+	
 	public static abstract class AbstractAuthenticated implements Authenticated {
 		private static final long serialVersionUID = 1L;
 
@@ -42,6 +44,11 @@ public interface Authenticated extends Serializable {
 		public T execute(Persistence persistence) {
 			return delegate.execute(persistence);
 		}
+		
+		@Override
+		public Class<?> getClazz() {
+			return delegate.getClass();
+		}
 	}
 
 	public static class AuthenticatedStreamConsumer<T extends Serializable> extends AbstractAuthenticated implements StreamConsumer<T> {
@@ -58,6 +65,11 @@ public interface Authenticated extends Serializable {
 		public T consume(Persistence persistence, InputStream stream) {
 			return delegate.consume(persistence, stream);
 		}
+		
+		@Override
+		public Class<?> getClazz() {
+			return delegate.getClass();
+		}
 	}
 
 	public static class AuthenticatedStreamProducer<T extends Serializable> extends AbstractAuthenticated implements StreamProducer<T> {
@@ -73,6 +85,11 @@ public interface Authenticated extends Serializable {
 		@Override
 		public T produce(Persistence persistence, OutputStream stream) {
 			return delegate.produce(persistence, stream);
+		}
+
+		@Override
+		public Class<?> getClazz() {
+			return delegate.getClass();
 		}
 	}
 

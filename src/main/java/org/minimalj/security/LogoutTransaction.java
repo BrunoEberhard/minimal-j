@@ -16,4 +16,9 @@ public class LogoutTransaction extends AbstractAuthenticated implements Transact
 		// should be handled on Backend
 		throw new IllegalStateException();
 	}
+
+	@Override
+	public Class<?> getClazz() {
+		return getClass();
+	}
 }

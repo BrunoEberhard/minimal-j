@@ -3,7 +3,6 @@ package org.minimalj.security;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.UUID;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.backend.Persistence;
@@ -39,41 +38,36 @@ public class AuthorizationBackend extends Backend {
 			execute((LogoutTransaction) transaction);
 			return null;
 		}
-		checkPermission(transaction);
+		hasPermission(transaction);
 		return backend.execute(transaction);
 	}
 
 	@Override
 	public <T extends Serializable> T execute(StreamConsumer<T> streamConsumer, InputStream inputStream) {
-		checkPermission(streamConsumer);
+		hasPermission(streamConsumer);
 		return backend.execute(streamConsumer, inputStream);
 	}
 
 	@Override
 	public <T extends Serializable> T execute(StreamProducer<T> streamProducer, OutputStream outputStream) {
-		checkPermission(streamProducer);
+		hasPermission(streamProducer);
 		return backend.execute(streamProducer, outputStream);
 	}
 
-	private void checkPermission(Object input) {
-		Role role = input.getClass().getAnnotation(Role.class);
+	private boolean hasPermission(Object input) {
+		Class<?> clazz = input instanceof Authenticated ? ((Authenticated) input).getClazz() : input.getClass();
+		Role role = clazz.getAnnotation(Role.class);
 		if (role != null) {
 			if (input instanceof Authenticated) {
 				Authenticated authenticated = (Authenticated) input;
-				if (authenticated.getToken() instanceof UUID) {
-					Serializable token = authenticated.getToken();
-					Subject user = Authorization.getInstance().getUserByToken(token);
-					if (user != null) {
-						for (String roleName : role.value()) {
-							if (user.getRoles().contains(roleName)) {
-								return;
-							}
-						}
-					}
+				Subject subject = Authorization.getInstance().getUserByToken(authenticated.getToken());
+				if (subject != null) {
+					return subject.hasPermission(role.value());
 				}
 			}
-			throw new IllegalStateException("Authorization failed for " + input.getClass().getSimpleName());
+			return false;
 		}
+		return true;
 	}
 
 }
