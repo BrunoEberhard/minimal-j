@@ -36,4 +36,13 @@ public class Subject implements Serializable {
 		return roles;
 	}
 
+	public boolean hasPermission(String... accessRoles) {
+		for (String accessRole : accessRoles) {
+			if (roles.contains(accessRole)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
