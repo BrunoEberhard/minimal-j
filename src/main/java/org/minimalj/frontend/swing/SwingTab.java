@@ -134,7 +134,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 				toggleMenuAction.actionPerformed(e);
 			}
 		};
-		decoratedMenuPane = new SwingDecoration(Application.getApplication().getName(), menuScrollPane, menuClosedListener);
+		decoratedMenuPane = new SwingDecoration(Application.getApplication().getName(), menuScrollPane, SwingDecoration.HIDE_MINIMIZE, menuClosedListener);
 		splitPane.setLeftComponent(decoratedMenuPane);
 		
 		splitPane.setDividerLocation(200);
@@ -405,7 +405,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		}
 		content.putClientProperty("page", page);
 
-		verticalPanel.add(new SwingDecoration(page.getTitle(), content, closeListener));
+		verticalPanel.add(new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener));
 		verticalPanel.revalidate();
 		verticalPanel.repaint();
 	}

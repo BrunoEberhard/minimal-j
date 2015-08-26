@@ -20,18 +20,21 @@ import javax.swing.JPanel;
 
 public class SwingDecoration extends JPanel {
 	private static final long serialVersionUID = 1L;
+
+	public static final boolean SHOW_MINIMIZE = true;
+	public static final boolean HIDE_MINIMIZE = false;
 	
 	private final Component content;
 	private final ActionListener closeListener;
 	
 	private JLabel titleLabel;
 	
-	public SwingDecoration(String title, Component content, ActionListener closeListener) {
+	public SwingDecoration(String title, Component content, boolean minimize, ActionListener closeListener) {
 		super(new BorderLayout());
 		this.content = content;
 		this.closeListener = closeListener;
 		
-		add(createBar(title), BorderLayout.NORTH);
+		add(createBar(title, minimize), BorderLayout.NORTH);
 		
 		content.setVisible(true);
 		add(content, BorderLayout.CENTER);
@@ -47,7 +50,7 @@ public class SwingDecoration extends JPanel {
 		titleLabel.setText(title);
 	}
 	
-	private Component createBar(String title) {
+	private Component createBar(String title, boolean minimize) {
 		JMenuBar bar = new JMenuBar();
 		
 		titleLabel = new JLabel(title);
@@ -56,26 +59,28 @@ public class SwingDecoration extends JPanel {
 
 			
 		bar.add(Box.createHorizontalGlue());
+		
+		if (minimize) {
+			JButton button = new JButton();
+			button.setFocusPainted(false);
+			button.setMargin(new Insets(0,0,0,0));
+			button.setIcon(new FrameButtonIcon(Part.WP_MINBUTTON));
+			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+			bar.add(button);
 			
-		JButton button = new JButton();
-		button.setFocusPainted(false);
-		button.setMargin(new Insets(0,0,0,0));
-		button.setIcon(new FrameButtonIcon(Part.WP_MINBUTTON));
-		button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-		bar.add(button);
-			
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				content.setVisible(!content.isShowing());
-				content.getParent().revalidate();
-				content.getParent().repaint();
-			}
-		});
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					content.setVisible(!content.isShowing());
+					content.getParent().revalidate();
+					content.getParent().repaint();
+				}
+			});
+		}
 		
 		if (closeListener != null) {
-			button = new JButton();
+			JButton button = new JButton();
 			button.setFocusPainted(false);
 			button.setMargin(new Insets(0, 0, 0, 0));
 			button.setIcon(new FrameButtonIcon(Part.WP_CLOSEBUTTON));
