@@ -25,13 +25,13 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 	}
 
 	@Override
-	protected Subject save(UserPassword login) {
-		LoginTransaction loginTransaction = new LoginTransaction(login);
+	protected Subject save(UserPassword userPassword) {
+		LoginTransaction loginTransaction = new LoginTransaction(userPassword);
 		return Backend.getInstance().execute(loginTransaction);
 	}
 	
 	@Override
-	protected void finished(Subject user) {
-		Frontend.getBrowser().setSubject(user);
+	protected void finished(Subject subject) {
+		Frontend.getBrowser().setSubject(subject);
 	}
 }

@@ -4,9 +4,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.backend.db.DbBackend;
 import org.minimalj.backend.db.DbPersistence;
-import org.minimalj.frontend.Frontend;
-import org.minimalj.security.Authorization;
-import org.minimalj.security.AuthorizationBackend;
+import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -72,12 +70,6 @@ public abstract class Backend {
 	public static Backend getInstance() {
 		if (instance == null) {
 			instance = createBackend();
-			if (Frontend.isAvailable()) {
-				instance = new AuthenticationBackend(instance);
-			} 
-			if (Authorization.isAvailable()) {
-				instance = new AuthorizationBackend(instance);
-			}
 		}
 		return instance;
 	}
@@ -87,7 +79,15 @@ public abstract class Backend {
 	public static Persistence persistence() {
 		return getInstance().getPersistence();
 	}
+
+	public final <T> T execute(Transaction<T> transaction) {
+		if (Subject.hasPermission(transaction)) {
+			return doExecute(transaction);
+		} else {
+			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
+		}
+	}
 	
-	public abstract <T> T execute(Transaction<T> transaction);
+	public abstract <T> T doExecute(Transaction<T> transaction);
 	
 }

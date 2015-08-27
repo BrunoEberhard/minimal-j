@@ -1,6 +1,8 @@
 package org.minimalj.security;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -25,14 +27,14 @@ public class JaasAuthorization extends Authorization {
 	}
 
 	@Override
-	protected synchronized boolean checkLogin(UserPassword login) {
+	protected synchronized List<String> retrieveRoles(UserPassword login) {
 		minimalCallbackHandler.setUser(login.user);
 		minimalCallbackHandler.setPassword(login.password);
 		try {
 			loginContext.login();
-			return true;
+			return Collections.emptyList(); // TODO retrieve actual roles
 		} catch (LoginException le) {
-			return false;
+			return null;
 		}
 	}
 

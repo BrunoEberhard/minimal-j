@@ -29,7 +29,7 @@ public class DbBackend extends Backend {
 	//
 
 	@Override
-	public <T> T execute(Transaction<T> transaction) {
+	public <T> T doExecute(Transaction<T> transaction) {
 		boolean runThrough = false;
 		T result;
 		try {

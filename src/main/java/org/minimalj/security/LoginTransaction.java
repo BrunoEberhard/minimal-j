@@ -6,19 +6,18 @@ import org.minimalj.transaction.Transaction;
 public class LoginTransaction implements Transaction<Subject> {
 	private static final long serialVersionUID = 1L;
 	
-	private final UserPassword login;
+	private final UserPassword userPassword;
 	
-	public LoginTransaction(UserPassword login) {
-		this.login = login;
+	public LoginTransaction(UserPassword userPassword) {
+		this.userPassword = userPassword;
 	}
 	
 	public UserPassword getLogin() {
-		return login;
+		return userPassword;
 	}
 	
 	@Override
 	public Subject execute(Persistence persistence) {
-		// should be handled on Backend
-		throw new IllegalStateException();
+		return Authorization.getInstance().login(userPassword);
 	}
 }

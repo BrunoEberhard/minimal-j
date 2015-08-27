@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,25 +32,26 @@ public class PropertiesAuthorization extends Authorization {
 			String passwordAndRoles = p.getProperty(name);
 			String[] split = passwordAndRoles.split(",");
 
+			passwordByName.put(name, split[0]);
+
 			Subject user = new Subject();
 			user.setName(name);
-			if (split.length > 1) {
-				user.setRoles(Arrays.asList(split).subList(1, split.length));
+			for (int i = 1; i<split.length; i++) {
+				user.getRoles().add(split[i].trim());
 			}
 			userByName.put(name, user);
-
-			passwordByName.put(name, split[0]);
 		}
 	}
 
 	@Override
-	protected boolean checkLogin(UserPassword login) {
+	protected List<String> retrieveRoles(UserPassword login) {
 		if (passwordByName.containsKey(login.user)) {
 			char[] p = passwordByName.get(login.user).toCharArray();
-			return Arrays.equals(p, login.password);
-		} else {
-			return false;
+			if (Arrays.equals(p, login.password)) {
+				return userByName.get(login.user).getRoles();
+			}
 		}
+		return null;
 	}
 
 }

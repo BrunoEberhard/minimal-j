@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import org.minimalj.security.Subject;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
@@ -31,9 +32,12 @@ public class SocketBackend extends Backend {
 	}
 
 	@Override
-	public <T> T execute(Transaction<T> transaction) {
+	public <T> T doExecute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+				Subject subject = Subject.getSubject();
+				oos.writeObject(subject != null ? subject.getToken() : null);
+				
 				oos.writeObject(transaction);
 				if (transaction instanceof StreamConsumer) {
 					sendStream(oos, ((StreamConsumer<?>) transaction).getStream());

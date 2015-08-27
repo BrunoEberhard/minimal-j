@@ -230,7 +230,7 @@ public class SwingFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Frontend.setBrowser(getVisibleTab());
-			Backend.getInstance().execute(new LogoutTransaction(getVisibleTab().getSubject()));
+			Backend.getInstance().execute(new LogoutTransaction());
 			getVisibleTab().setSubject(null);
 			Frontend.setBrowser(null);
 

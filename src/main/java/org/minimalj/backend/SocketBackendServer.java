@@ -3,6 +3,7 @@ package org.minimalj.backend;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.security.Authorization;
 import org.minimalj.transaction.StreamConsumer;
 import org.minimalj.transaction.StreamProducer;
 import org.minimalj.transaction.Transaction;
@@ -63,8 +65,11 @@ public class SocketBackendServer {
 		@Override
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+				Serializable securityToken = (Serializable) ois.readObject();
+				Authorization.getInstance().setSecurityToken(securityToken);
+				
 				Object input = ois.readObject();
-
+				
 				Object result = null;
 				if (input instanceof StreamConsumer) {
 					StreamConsumer streamConsumer = (StreamConsumer) input;
@@ -89,6 +94,8 @@ public class SocketBackendServer {
 			} catch (Exception e) {
 				logger.log(Level.SEVERE, "SocketRunnable failed", e);
 				e.printStackTrace();
+			} finally {
+				Authorization.getInstance().setSecurityToken(null);
 			}
 		}
 	}
