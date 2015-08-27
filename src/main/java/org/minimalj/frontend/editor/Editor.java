@@ -2,6 +2,7 @@ package org.minimalj.frontend.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.frontend.Frontend;
@@ -12,9 +13,11 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
 
 public abstract class Editor<T, RESULT> extends Action {
+	private static final Logger logger = Logger.getLogger(Editor.class.getName());
 
 	private T object;
 	private Form<T> form;
@@ -95,9 +98,15 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
 	
 	private void save() {
-		RESULT result = save(object);
-		dialog.closeDialog();
-		finished(result);
+		try {
+			RESULT result = save(object);
+			dialog.closeDialog();
+			finished(result);
+		} catch (Exception x) {
+			ExceptionUtils.logReducedStackTrace(logger, x);
+			Frontend.getBrowser().showError(x.getLocalizedMessage());
+			return;
+		}
 	}
 	
 	protected abstract RESULT save(T object);
