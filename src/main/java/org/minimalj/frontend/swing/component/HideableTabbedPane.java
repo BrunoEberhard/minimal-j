@@ -86,6 +86,7 @@ public class HideableTabbedPane extends JPanel {
 		titles.clear();
 		icons.clear();
 		tooltips.clear();
+		tabbedPane = null;
 		
 		removeAll();
 		revalidate();
