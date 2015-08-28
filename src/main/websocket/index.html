@@ -284,6 +284,7 @@
 			}
 		} else if (type == "Label" || type == "Gap" || type == "Title") {
 			element = document.createElement("div");
+			element.classList.add(type);
 			if (content.value != undefined) {
 				element.innerHTML = content.value;
 			} else {

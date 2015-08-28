@@ -266,6 +266,11 @@ hr {
 	margin-bottom: 0.5ex;
 }
 
+.title {
+	font-size: larger;
+	font-weight: bolder;
+}
+
 .hide {
 	visibility: hidden;
 }
