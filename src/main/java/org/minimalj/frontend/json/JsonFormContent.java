@@ -41,7 +41,9 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	@Override
 	public void add(IComponent component) {
 		JsonComponent jsonComponent = (JsonComponent) component;
-		createNewRow();
+		if (actualColumn > 0) {
+			createNewRow();
+		}
 		if (columns > 1) {
 			jsonComponent.put(SPAN, columns);
 		}
