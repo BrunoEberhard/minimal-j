@@ -2,6 +2,7 @@ package org.minimalj.frontend.websocket;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,22 +77,38 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 	@Override
 	protected void onMessage(WebSocket webSocket, WebSocketFrame messageFrame) {
 		Map<String, Object> data = (Map<String, Object>) new JsonReader().read(messageFrame.getTextPayload());
+
 		String sessionId = (String) data.get("session");
-		if (sessionId == null) {
+		boolean invalidSession = sessionId != null && JsonClientSession.getSession(sessionId) == null;
+		JsonClientSession session;
+		if (sessionId != null && !invalidSession) {
+			session = JsonClientSession.getSession(sessionId);
+		} else {
 			sessionId = JsonClientSession.createSession();
+			session = JsonClientSession.getSession(sessionId);
 		}
-		JsonClientSession session = JsonClientSession.getSession(sessionId);
-		JsonInput input = new JsonInput(data);
+		
 		JsonOutput output;
+		if (invalidSession) {
+			data = new HashMap<>();
+			data.put(JsonInput.SHOW_DEFAULT_PAGE, "");
+		}
+		
 		try {
+			JsonInput input = new JsonInput(data);
 			output = session.handle(input);
 		} catch (Exception x) {
 			output = new JsonOutput();
-			output.add("exception", x.getMessage());
+			output.add("error", x.getMessage());
 			logger.log(Level.SEVERE, "Internal Error", x);
 			// why does logger not work here?
 			x.printStackTrace();
 		}
+
+		if (invalidSession) {
+			output.add("error", "Invalid session");
+		}
+		
 		output.add("session", sessionId);
 		
 		try {
