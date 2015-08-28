@@ -200,12 +200,6 @@ table {
 	border-spacing: 0px;
 }
 
-th {
-	text-align: left;
-	white-space: nowrap;
-	overflow: hidden;
-}
-
 .selected {
 	background: blue;
 }
@@ -237,8 +231,9 @@ table.form tr {
 	height: 3em;
 }
 
-td {
+td, th {
 	padding: 1ex 1.5ex;
+	text-align: left;
 	color: black;
 	white-space: nowrap;
 	vertical-align: top;
