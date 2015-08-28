@@ -14,6 +14,7 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
 
 public abstract class Wizard<RESULT> extends Action {
@@ -111,9 +112,15 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 	
 	private void finish() {
-		RESULT result = save();
-		dialog.closeDialog();
-		finished(result);
+		try {
+			RESULT result = save();
+			dialog.closeDialog();
+			finished(result);
+		} catch (Exception x) {
+			ExceptionUtils.logReducedStackTrace(logger, x);
+			Frontend.getBrowser().showError(x.getLocalizedMessage());
+			return;
+		}
 	}
 	
 	protected abstract RESULT save();
