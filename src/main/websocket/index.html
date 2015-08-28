@@ -408,7 +408,7 @@
 		if (cell.span != undefined && !isMobile || isTitle) {
 			td.colSpan = cell.span;
 		}
-		if (!isTitle) {
+		if (!isTitle && cell.caption != undefined) {
 			var caption = document.createElement("div");
 			caption.className = "caption";
 			caption.appendChild(document.createTextNode(cell.caption));
