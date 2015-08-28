@@ -22,7 +22,7 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.Required;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
@@ -211,8 +211,8 @@ public abstract class AbstractTable<T> {
 
 			PropertyInterface property = column.getValue();
 			syntax.addColumnDefinition(s, property);
-			boolean isRequired = property.getAnnotation(Required.class) != null;
-			s.append(isRequired ? " NOT NULL" : " DEFAULT NULL");
+			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
+			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
 		}
 	}
 

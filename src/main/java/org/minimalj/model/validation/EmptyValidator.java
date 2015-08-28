@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 import org.minimalj.backend.db.EmptyObjects;
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.Required;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.StringUtils;
@@ -19,7 +19,7 @@ public class EmptyValidator {
 	
 	public static void validate(Object object, List<ValidationMessage> resultList, ResourceBundle resourceBundle) {
 		for (PropertyInterface property : Properties.getProperties(object.getClass()).values()) {
-			boolean required = property.getAnnotation(Required.class) != null;
+			boolean required = property.getAnnotation(NotEmpty.class) != null;
 			if (required) {
 				validate(resultList, object, property, resourceBundle);
 			}

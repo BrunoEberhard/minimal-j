@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.minimalj.model.annotation.Required;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.EmptyValidator;
 import org.minimalj.model.validation.InvalidValues;
@@ -19,7 +19,7 @@ public class ObjectValidator {
 	
 	public static void validateForEmpty(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
 		for (PropertyInterface property : properties) {
-			if (property.getAnnotation(Required.class) != null) {
+			if (property.getAnnotation(NotEmpty.class) != null) {
 				EmptyValidator.validate(validationMessages, object, property);
 			}
 		}

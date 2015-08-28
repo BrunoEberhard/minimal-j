@@ -9,7 +9,7 @@ import java.util.Set;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.Decimal;
-import org.minimalj.model.annotation.Required;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.util.mock.Mocking;
@@ -20,7 +20,7 @@ public class Book implements Rendering, Mocking {
 
 	public Object id;
 	
-	@Required @Size(ExampleFormats.NAME) @Searched
+	@NotEmpty @Size(ExampleFormats.NAME) @Searched
 	public String title;
 
 	@Size(ExampleFormats.NAME) @Searched

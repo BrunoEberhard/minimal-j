@@ -3,7 +3,7 @@ package org.minimalj.example.erp.model;
 import java.math.BigDecimal;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.Required;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 
@@ -19,7 +19,7 @@ public class Article {
 	@Size(50) @Searched
 	public String article;
 	
-	@Size(2000) @Required
+	@Size(2000) @NotEmpty
 	public String description;
 	
 	public ArticleCategory articleCategory;

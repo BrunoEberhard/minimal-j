@@ -15,7 +15,7 @@ public class Book implements Rendering, Mocking {
 
 	public Object id;
 	
-	@Required @Size(ExampleFormats.NAME) @Searched
+	@NotEmpty @Size(ExampleFormats.NAME) @Searched
 	public String title;
 
 	@Size(ExampleFormats.NAME) @Searched
