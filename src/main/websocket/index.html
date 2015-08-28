@@ -17,7 +17,7 @@
 	function onMessage(evt) {
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
-		if (dataObject["content"] != undefined) {
+		if ("content" in dataObject) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
 			var masterPageId = dataObject.masterPageId;
@@ -131,9 +131,13 @@
 		
 		var actionMenuButton = headerElement.querySelector(".actionMenuButton");
 		
-		var contentElement = createContent(content);
-		contentElement.classList.add("pageContent");
-		pageElement.appendChild(contentElement);
+		if (content != null) {
+			var contentElement = createContent(content);
+			contentElement.classList.add("pageContent");
+			pageElement.appendChild(contentElement);
+		} else {
+			pageElement.style.borderBottom = "none";
+		}
 		
 		if (actionMenu != null) {
 			var actionMenuElement = createMenu(actionMenu, pageId);
