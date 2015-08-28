@@ -688,15 +688,24 @@
 		<div id="header">
 			<span title="Show or hide navigation">
 				<svg width="1.5em" height="1.5em" class="headerButton" onclick="toggleNavigation()">
-				  <rect x="0" y="5%" width="100%" height="20%" fill="#444" />
-				  <rect x="0" y="40%" width="100%" height="20%" fill="#444" />
-				  <rect x="0" y="75%" width="100%" height="20%" fill="#444" />
+					<g fill="#444"> 		
+						<rect x="0" y="5%" width="100%" height="20%"/>
+						<rect x="0" y="40%" width="100%" height="20%"/>
+						<rect x="0" y="75%" width="100%" height="20%"/>
+					</g>
 				</svg>
 			</span>
 			<span title="Login / Logout">
 				<svg width="1.5em" height="1.5em" id="loginButton" class="headerButton" onclick="changeLogin()">
-				  <rect x="0" y="5%" width="100%" height="20%" fill="#444" />
-				  <rect x="0" y="75%" width="100%" height="20%" fill="#444" />
+					<g style="stroke:#444;stroke-width:16%;stroke-linecap:square"> 		
+						<line x1="70%" y1="8%" x2="91%" y2="8%" />
+						<line x1="70%" y1="91%" x2="91%" y2="91%" />
+						<line x1="91%" y1="8%" x2="91%" y2="91%" />
+						
+						<line x1="0%" y1="50%" x2="55%" y2="50%" />
+						<line x1="40%" y1="30%" x2="60%" y2="50%" />
+						<line x1="40%" y1="70%" x2="60%" y2="50%" />
+					</g>
 				</svg>
 			</span>	
 			<img src="unsecure.gif" width="0" height="0" id="secure" style="visibility: hidden">	
