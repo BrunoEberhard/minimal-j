@@ -47,6 +47,9 @@ import org.minimalj.util.resources.Resources;
 public class Form<T> {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
 
+	public static final boolean EDITABLE = true;
+	public static final boolean READ_ONLY = false;
+	
 	protected final boolean editable;
 	private final ResourceBundle resourceBundle;
 	
@@ -68,7 +71,7 @@ public class Form<T> {
 	private T object;
 
 	public Form() {
-		this(true);
+		this(EDITABLE);
 	}
 
 	public Form(boolean editable) {
@@ -76,7 +79,7 @@ public class Form<T> {
 	}
 
 	public Form(int columns) {
-		this(true, columns);
+		this(EDITABLE, columns);
 	}
 
 	public Form(boolean editable, int columns) {
