@@ -82,7 +82,11 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			} else {
 				detailPage = createDetailPage(selectedDetailObject);
 			}
-			Frontend.getBrowser().showDetail(detailPage);
+			if (detailPage != null) {
+				Frontend.getBrowser().showDetail(detailPage);
+			} else {
+				// This table page doesn't use a detail. Do nothing.
+			}
 		}
 	}
 	
