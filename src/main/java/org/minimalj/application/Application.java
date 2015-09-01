@@ -15,7 +15,6 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.swing.SwingApplication;
-import org.minimalj.frontend.vaadin.VaadinApplication;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -32,7 +31,6 @@ import org.minimalj.util.resources.Resources;
  * of the application.
  * 
  * @see SwingApplication
- * @see VaadinApplication
  * @see SocketBackendServer
  * @see DbBackend
  */
