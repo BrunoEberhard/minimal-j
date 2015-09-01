@@ -8,14 +8,13 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.frontend.editor.Editor;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.MultiResourceBundle;
-
-import com.vaadin.data.Container.Editor;
 
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
