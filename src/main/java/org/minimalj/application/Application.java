@@ -46,6 +46,13 @@ public abstract class Application {
 		return application;
 	}
 	
+	public Application() {
+		ResourceBundle resourceBundle = getResourceBundle();
+		if (resourceBundle != null) {
+			Resources.addResourceBundle(resourceBundle);
+		}
+	}
+	
 	/**
 	 * Sets the application of this vm. Can only be called once.
 	 * This method should only be called by a frontend or a backend main class.
@@ -60,9 +67,6 @@ public abstract class Application {
 			throw new IllegalArgumentException("Application cannot be null");
 		}
 		Application.application = application;
-		
-		ResourceBundle resourceBundle = application.getResourceBundle();
-		if (resourceBundle != null) Resources.addResourceBundle(resourceBundle);
 	}
 	
 	/**
