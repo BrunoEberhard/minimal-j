@@ -1,16 +1,21 @@
 = Minimal-J
 
-Minimal-J is an opinionated java framework. It covers client and server technologies. 
+Minimal-J is an opinionated java framework for business applications. It covers the complete stack of client and server technologies. 
 
 image::doc/frontends.png[title="Minimal-J Clients"]
 
 == Idea
 
+Business applications tend to get complex and complicated. Minimal-J tries to prevent this by setting clear rules how an application should behave and how it should be implemented.
+
+Minimal applications always look the same. They are fast. They work. And there are no surprises for the user.
+
+=== Features
+
+* Independed to the used UI technology. Implementations for Html / Swing / Terminal.
+* ORM persistence layer for Maria DB or in memory DB. Transactions and Authorization supported.
 * Small: The minimalj.jar is still < 1MB
-* Makes applications easy to specify: Minimal-J reduces the choices an implentation has to make
-* No required dependencies. Only the ones an application needs by itself
-* Works with different UI technologies: Html / Vaadin / Swing / Terminal
-* DB persistence, transactions and authorization
+* Applications run standalone or in a servlet container.
 
 == Status
 
