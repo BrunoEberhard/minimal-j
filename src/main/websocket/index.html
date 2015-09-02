@@ -640,7 +640,8 @@
 	function send(data) {
 		if (websocket == null || websocket.readyState > 1) {
 			var wsProtocol = window.location.protocol == "https:" ? "wss" : "ws";
-			websocket = new WebSocket(wsProtocol + "://" + location.host + "/");
+			var socketUrl = wsProtocol + "://" + location.host + location.pathname + "ws";
+			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
 				onMessage(evt)
 			};

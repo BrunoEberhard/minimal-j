@@ -17,7 +17,7 @@ import org.minimalj.example.library.MjExampleApplication;
 import org.minimalj.example.notes.NotesApplication;
 import org.minimalj.example.numbers.NumbersApplication;
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.json.JsonFrontend;
+import org.minimalj.frontend.impl.json.JsonFrontend;
 
 public class DemoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -54,11 +54,13 @@ public class DemoServlet extends HttpServlet {
 		String requestURI = request.getRequestURI();
 		String uri = requestURI.substring(contextPath.length());
 
+		// differs from MjServlet here
 		InputStream inputStream = null;
 		if (uri.endsWith("/") || uri.endsWith(".html")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream("index.html");
+			inputStream = DemoServlet.class.getResourceAsStream("indexDemo.html");
 			response.setContentType("text/html");
-
+		// end change
+			
 		} else if (uri.endsWith("css")) {
 			inputStream = this.getClass().getClassLoader().getResourceAsStream(uri.substring(uri.lastIndexOf("/") + 1));
 			response.setContentType("text/css");
