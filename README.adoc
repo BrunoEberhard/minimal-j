@@ -8,7 +8,7 @@ image::doc/frontends.png[title="Minimal-J Clients"]
 
 Business applications tend to get complex and complicated. Minimal-J tries to prevent this by setting clear rules how an application should behave and how it should be implemented.
 
-Minimal applications always look the same. They are fast. They work. And there are no surprises for the user.
+Minimal applications always look the same. There are no surprises for the user.
 
 === Features
 
@@ -29,7 +29,7 @@ link:doc/setup.adoc[Setup]
 
 === Topics and examples
 
-The small examples are currently deployed on CloudFoundry as online demo.
+The small examples are currently deployed on CloudFoundry as online demo. Please note that some features are still incomplete in the html frontend.
 
 * link:example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:http://minimalj-examples.cfapps.io/empty.html[(online demo)]
 * link:example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:http://minimalj-examples.cfapps.io/greeting.html[(online demo)]
