@@ -32,7 +32,7 @@ This diagram shows where the split is between client and server in the various s
 image::client_server_split.png[title="Client/Server"]
 
 In the standalone setup there is only one machine handling everything from frontend
-to backend. When rich clients are used at least two (virual) machines are involved.
+to backend. When rich clients are used at least two (virtual) machines are involved.
 The responsibilities are as expected: The client does the frontend and the server the
 backend.
 
