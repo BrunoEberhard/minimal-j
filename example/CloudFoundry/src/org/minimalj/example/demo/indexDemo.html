@@ -258,6 +258,7 @@
 	function createContent(content) {
 		var type = content.type;
 		var element;
+		var enabled = content.editable == undefined || content.editable;
 		if (type == "Form") {
 			element = document.createElement("table");
 			element.classList.add("form")
@@ -349,7 +350,11 @@
 		} else if (type == "CheckBox") {
 			element = document.createElement("input");
 			element.type = "checkbox";
-			element.setAttribute("onchange", "sendchange(this);");
+			if (enabled) {
+				element.setAttribute("onchange", "sendchange(this);");
+			} else {
+				element.setAttribute("disabled", "true");
+			}
 			element.id = content.id;
 			var label = document.createElement("label");
 			label.appendChild(element);
@@ -372,7 +377,7 @@
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
 		}
-		if (!(content.editable == undefined) && !content.editable) {
+		if (!enabled) {
 			element.setAttribute("disabled", "true");
 		}
 		if (content.id != undefined) {
