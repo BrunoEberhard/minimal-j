@@ -1,0 +1,44 @@
+== Pet Clinic
+
+The pet clinic demo application was invented by the spring framework. It is probably meant to be
+a distant relative to Sun's pet store. The pet store was abonded by Sun and Oracle long ago but the
+pet clinic demo ist still active. I have to admit that the pet clinic also fits the capabilities of
+Minimial-J much better. The pet store heavily uses things like uploads and images. Things that aren't
+implemented at the moment where I write this documentation.
+
+The original pet clinic can be found link: https://github.com/spring-projects/spring-petclinic .
+It can be downloaded and started very easely. Two command lines and the server runs (as long as you
+have maven and java previously installed). Kind of the minimal way ;) On the other hand the single
+maven command downloads quite a bunch of jars. My local maven repository grew around 30MB.
+
+Let's minimize this application!
+
+=== The model
+
+The data model is always a good point to understand how an application 'ticks'. There are 10
+classes in the package org.springframework.samples.petclinic .
+
+Two classes will not exist in Minimal-J: BaseEntity simply defines the id field. In Minimal-J every
+persisted entity class must have an id field. No need for a BaseEntity. 
+
+Then there is the NamedEntity. It defines a single field called name. No surprise here. What
+I wouldn't have guessed that only three entity classes extend from NamedEntity: Pet, PetType and
+Speciality. The Owner entity doesn't extend from NamedEntity. Although you might think an Owner
+has a name too! This shows again how rarly a class hierarchy is usefull in a real world application.
+Of course the owners will have a name. But for humans there are other 'names' than for pets.
+
+In Minimal-J an entity class must not extend another class. That's not so bad here. It's only
+about one field. Not much code duplication here.
+
+But there is a second extension: Both Owner and Vet extend from Person. Again: no extension of entity
+classes in Minimal-J. Still we don't need to duplicate all the fields of Person. We simply use
+the Person class as inline field in Owner and in Vet:
+
+[source,java,title="Owner.java"]
+----
+
+
+----
+
+
+
