@@ -246,12 +246,15 @@ table.form input[type="text"], table.form select {
 
 /* various elements */
 
-input {
+input, .checkBoxContainer, select {
 	height: 1.5em
 }
 
-select {
-	height: 1.5em
+input[type="checkbox"] {
+	height: inherit;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	vertical-align: bottom;
 }
 
 hr {
