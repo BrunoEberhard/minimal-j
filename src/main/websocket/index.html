@@ -313,6 +313,7 @@
 			element = document.createElement("input");
 			element.type = type == "PasswordField" ? "password" : "text";
 			element.setAttribute("onchange", "sendchange(this);");
+			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.appendChild(document.createTextNode(content.value));
 			}
