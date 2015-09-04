@@ -56,7 +56,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		if (value instanceof LocalTime) {
 			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
 		} else if (value instanceof LocalDate) {
-			return DateUtils.DATE_FORMATTER.format((LocalDate) value); 
+			return DateUtils.format((LocalDate) value); 
 		}
 		return value != null ? value.toString() : null;
 	}

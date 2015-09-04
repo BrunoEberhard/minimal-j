@@ -65,7 +65,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		if (value instanceof LocalTime) {
 			return DateUtils.getTimeFormatter((PropertyInterface) colId).format((LocalTime) value); 
 		} else if (value instanceof LocalDate) {
-			return DateUtils.DATE_FORMATTER.format((LocalDate) value); 
+			return DateUtils.format((LocalDate) value); 
 		}
 		return super.formatPropertyValue(rowId, colId, property);
 	}

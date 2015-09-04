@@ -151,7 +151,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 			PropertyInterface property = properties.get(column);
 			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
 		} else if (value instanceof LocalDate) {
-			return DateUtils.DATE_FORMATTER.format((LocalDate) value); 
+			return DateUtils.format((LocalDate) value); 
 		}
 		return "" + value;
 	}
