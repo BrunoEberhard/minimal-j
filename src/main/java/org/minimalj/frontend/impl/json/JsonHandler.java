@@ -1,10 +1,13 @@
 package org.minimalj.frontend.impl.json;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.minimalj.util.LocaleContext;
 
 public class JsonHandler {
 	private static final Logger logger = Logger.getLogger(JsonHandler.class.getName());
@@ -22,12 +25,19 @@ public class JsonHandler {
 		return sessionId;
 	}
 	
+	@Deprecated // should be done outside -> setLocale should not be done in this class
 	public String handle(String json) {
 		Map<String, Object> data = (Map<String, Object>) new JsonReader().read(json);
 		return handle(data);
 	}
 
 	public String handle(Map<String, Object> data) {
+		// TODO move this
+		String locale = (String) data.get("locale");
+		if (locale != null) {
+			LocaleContext.setLocale(Locale.forLanguageTag(locale));
+		}
+		
 		String sessionId = (String) data.get("session");
 		boolean invalidSession = sessionId != null && getSession(sessionId) == null;
 		JsonClientSession session;

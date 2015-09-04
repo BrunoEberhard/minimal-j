@@ -4,9 +4,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.model.annotation.Size;
@@ -17,12 +21,21 @@ import org.minimalj.model.validation.InvalidValues;
 public class DateUtils {
 	private static final Logger logger = Logger.getLogger(DateUtils.class.getName());
 	
-	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+	private static final Map<Locale, DateTimeFormatter> dateFormatByLocale = new HashMap<>();
 
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
+	public static DateTimeFormatter getDateTimeFormatter() {
+		Locale locale = LocaleContext.getLocale();
+		if (!dateFormatByLocale.containsKey(locale)) {
+			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
+			dateFormatByLocale.put(locale, formatter);
+		}
+		return dateFormatByLocale.get(locale);
+	}
+	
 	public static class TrippleString {
 		public String s1, s2, s3;
 		
@@ -162,7 +175,7 @@ public class DateUtils {
 	 */
 	public static String format(LocalDate date) {
 		if (date == null) return null;
-		return DATE_FORMATTER.format(date);
+		return getDateTimeFormatter().format(date);
 	}
 
 	/**
@@ -179,7 +192,7 @@ public class DateUtils {
 			date = parseCH(date, false);
 			return LocalDate.parse(date);
 		} else {
-			return LocalDate.parse(date, DATE_FORMATTER);
+			return LocalDate.parse(date, getDateTimeFormatter());
 		}
 	}
 	

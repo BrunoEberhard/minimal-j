@@ -217,7 +217,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				int column) {
 			
 			if (value != null) {
-				value = DateUtils.DATE_FORMATTER.format((TemporalAccessor) value); 
+				value = DateUtils.getDateTimeFormatter().format((TemporalAccessor) value); 
 			}
 
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
