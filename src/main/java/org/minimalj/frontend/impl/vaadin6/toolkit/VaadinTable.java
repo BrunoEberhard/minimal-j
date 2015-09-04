@@ -40,7 +40,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		for (Object key : keys) {
 			PropertyInterface property = Keys.getProperty(key);
 			properties.add(property);
-			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+			String header = Resources.getObjectFieldName(property);
 			setColumnHeader(property, header);
 		}
 		

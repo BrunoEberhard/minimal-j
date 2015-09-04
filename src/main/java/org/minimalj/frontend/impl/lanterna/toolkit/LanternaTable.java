@@ -43,7 +43,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		columnTitleArray = new String[keys.length];
 		for (int i = 0; i<properties.size(); i++) {
 			PropertyInterface property = properties.get(i);
-			columnTitleArray[i] = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+			columnTitleArray[i] = Resources.getObjectFieldName(property);
 
 		}
 		columnWidthArray = new int[keys.length];
@@ -68,7 +68,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 //		for (int i = 0; i<properties.size(); i++) {
 //			PropertyInterface property = properties.get(i);
 //			columnWidthArray[i] = Math.max(AnnotationUtil.getSize(property), 5);
-//			columnTitleArray[i] = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+//			columnTitleArray[i] = Resources.getObjectFieldName(property);
 //		}
 //		return new LanternaTable<T>(properties, columnWidthArray, columnTitleArray);
 //	}

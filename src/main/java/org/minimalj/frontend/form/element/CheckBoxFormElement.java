@@ -10,7 +10,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> {
 	private final Input<Boolean> checkBox;
 	
 	public CheckBoxFormElement(PropertyInterface property, boolean editable) {
-		 this(property, Resources.getObjectFieldName(Resources.getResourceBundle(), property, ".checkBoxText"), editable);
+		 this(property, Resources.getObjectFieldName(property, ".checkBoxText"), editable);
 	}
 	 
 	public CheckBoxFormElement(PropertyInterface property, String text, boolean editable) {

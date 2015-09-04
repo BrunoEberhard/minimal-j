@@ -29,7 +29,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 		List<String> headers = new ArrayList<>();
 		for (PropertyInterface property : properties) {
-			String header = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+			String header = Resources.getObjectFieldName(property);
 			headers.add(header);
 		}
 		put("headers", headers);
