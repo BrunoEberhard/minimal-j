@@ -39,13 +39,11 @@ public class DemoWebSocketServlet {
     public void incoming(String message) {
     	Map<String, Object> data = (Map<String, Object>) new JsonReader().read(message);
 
-		String pathname = (String) data.get("context");
-		if (pathname.endsWith("/")) {
-			pathname = pathname.substring(0, pathname.length() - 1);
+		String pagename = (String) data.get("pagename");
+		if (pagename.endsWith(".html")) {
+			pagename = pagename.substring(0, pagename.length() - 5);
 		}
-    	int start = pathname.lastIndexOf("/");
-    	String context = pathname.substring(start+1);
-    	DemoContext.setContext(context);
+    	DemoContext.setContext(pagename);
     	
     	String result = handler.handle(data);
     	

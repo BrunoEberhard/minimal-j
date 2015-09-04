@@ -1,13 +1,6 @@
 package org.minimalj.example.demo;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
 
 import org.minimalj.application.Application;
 import org.minimalj.example.empty.EmptyApplication;
@@ -18,13 +11,15 @@ import org.minimalj.example.notes.NotesApplication;
 import org.minimalj.example.numbers.NumbersApplication;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.impl.servlet.MjServlet;
 
-public class DemoServlet extends HttpServlet {
+public class DemoServlet extends MjServlet {
 	private static final long serialVersionUID = 1L;
 
 	private static boolean applicationInitialized;
 	
-	private synchronized void initializeApplication() {
+	@Override
+	protected void initializeApplication() {
 		if (!applicationInitialized) {
 			Frontend.setInstance(new JsonFrontend());
 
@@ -44,47 +39,17 @@ public class DemoServlet extends HttpServlet {
 	}
 	
 	@Override
-	public void init() throws ServletException {
-		initializeApplication();
-	}
-
-	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		String contextPath = request.getContextPath();
-		String requestURI = request.getRequestURI();
-		String uri = requestURI.substring(contextPath.length());
-
-		// differs from MjServlet here
-		InputStream inputStream = null;
-		if (uri.endsWith("/") || uri.endsWith(".html")) {
-			inputStream = DemoServlet.class.getResourceAsStream("indexDemo.html");
-			response.setContentType("text/html");
-		// end change
-			
-		} else if (uri.endsWith("css")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream(uri.substring(uri.lastIndexOf("/") + 1));
-			response.setContentType("text/css");
-			
-		} else if (uri.endsWith("js")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream(uri.substring(uri.lastIndexOf("/") + 1));
-			response.setContentType("application/javascript");
-			
-		} else if (uri.endsWith("/field_error.png")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream("org/minimalj/util/resources/icons/field_error.png");
-			response.setContentType("image/png");
-			
-		} 
-		if (inputStream == null) {
-			System.out.println("uri: " + uri);
-			response.setStatus(403);
-			return;
+	protected String fillPlaceHolder(String htmlTemplate, Locale locale, String url) {
+		String result = htmlTemplate.replace("$LOCALE", locale.toString());
+		if (url.indexOf("pivotal") > -1 || url.indexOf("cfapps.io") > -1) {
+			// http://support.run.pivotal.io/entries/80621715-Does-cloudfoundry-allows-the-websocket-requests-on-port-other-than-4443-
+			result = result.replace("$FORCE_WSS", "true");
+			result = result.replace("$PORT", ":4443");
+		} else {
+			result = result.replace("$FORCE_WSS", "false");
+			result = result.replace("$PORT", "");
 		}
-		
-		OutputStream outputStream = response.getOutputStream();
-		byte[] buffer = new byte[1024];
-        int length;
-        while ((length = inputStream.read(buffer)) > 0) {
-            outputStream.write(buffer, 0, length);
-        }
+		result = result.replace("$WS", "wsDemo");
+		return result;
 	}
 }

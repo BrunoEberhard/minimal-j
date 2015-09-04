@@ -1,9 +1,14 @@
 package org.minimalj.frontend.impl.servlet;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,7 +23,9 @@ public class MjServlet extends HttpServlet {
 
 	private static boolean applicationInitialized;
 	
-	private synchronized void initializeApplication() {
+	private static String htmlTemplate;
+	
+	protected void initializeApplication() {
 		if (!applicationInitialized) {
 			String applicationName = getServletContext().getInitParameter("Application");
 			if (StringUtils.isBlank(applicationName)) {
@@ -38,7 +45,18 @@ public class MjServlet extends HttpServlet {
 			System.setProperty(propertyName, getServletContext().getInitParameter(propertyName));
 		}
 	}	
-
+	
+	static {
+		htmlTemplate = readStream(MjServlet.class.getClassLoader().getResourceAsStream("index.html"));
+	}
+	
+	// http://stackoverflow.com/questions/309424/read-convert-an-inputstream-to-a-string
+	// There is a better solution in Java 9 ;)
+	private static String readStream(InputStream inputStream) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		return reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
+	}
+	
 	@Override
 	public void init() throws ServletException {
 		initializeApplication();
@@ -52,9 +70,11 @@ public class MjServlet extends HttpServlet {
 
 		InputStream inputStream = null;
 		if (uri.endsWith("/") || uri.endsWith(".html")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream("index.html");
+			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
+			response.getWriter().write(html);
 			response.setContentType("text/html");
-
+			return; // !
+			
 		} else if (uri.endsWith("css")) {
 			inputStream = this.getClass().getClassLoader().getResourceAsStream(uri.substring(uri.lastIndexOf("/") + 1));
 			response.setContentType("text/css");
@@ -80,5 +100,13 @@ public class MjServlet extends HttpServlet {
         while ((length = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, length);
         }
+	}
+	
+	protected String fillPlaceHolder(String htmlTemplate, Locale locale, String url) {
+		String result = htmlTemplate.replace("$LOCALE", locale.toString());
+		result = result.replace("$FORCE_WSS", "false");
+		result = result.replace("$PORT", "");
+		result = result.replace("$WS", "wsDemo");
+		return result;
 	}
 }

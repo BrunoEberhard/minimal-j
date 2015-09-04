@@ -644,9 +644,17 @@
 	}
 
 	function send(data) {
+		data.locale = "$LOCALE";
+		
+		var pathname = location.pathname;
+		var index = pathname.lastIndexOf("/");
+		data.pagename = pathname.substring(index + 1);
+
+		var pathname = pathname.substring(0, index + 1);		
 		if (websocket == null || websocket.readyState > 1) {
-			var wsProtocol = window.location.protocol == "https:" ? "wss" : "ws";
-			var socketUrl = wsProtocol + "://" + location.host + location.pathname + "ws";
+			var wsProtocol = (window.location.protocol == "https:" || $FORCE_WSS) ? "wss" : "ws";
+			var hostAndPort = location.host + "$PORT";
+			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
 				onMessage(evt)
