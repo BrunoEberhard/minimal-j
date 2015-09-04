@@ -2,14 +2,12 @@ package org.minimalj.frontend.impl.vaadin6;
 
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.vaadin6.toolkit.VaadinFrontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 /**
  * TODO VaadinApplication should make Preferences persistent
@@ -56,6 +54,5 @@ public class VaadinApplication extends com.vaadin.Application {
 	static {
 		Locale.setDefault(Locale.GERMAN); // TODO correct setting of Locale
 		Frontend.setInstance(new VaadinFrontend());
-		Resources.addResourceBundle(ResourceBundle.getBundle("org.minimalj.util.resources.MinimalJ"));
 	}
 }
