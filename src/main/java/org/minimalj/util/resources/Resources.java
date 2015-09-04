@@ -1,7 +1,13 @@
 package org.minimalj.util.resources;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
@@ -14,14 +20,14 @@ import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.LocaleContext;
 import org.minimalj.util.MultiResourceBundle;
 
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
 	private static final String ICONS_DIRECTORY = "icons";
 
-	private static final ResourceBundle defaultResourcebundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ");
-	private static ResourceBundle resourceBundle = defaultResourcebundle;
+	private static Set<String> resourceBundleNames = new HashSet<>();
 	
 	public static final boolean OPTIONAL = false;
 	
@@ -29,17 +35,28 @@ public class Resources {
 	public static final String APPLICATION_VENDOR = "Application.vendor";
 	public static final String APPLICATION_HOMEPAGE = "Application.homepage";
 	public static final String APPLICATION_VERSION = "Application.version";
+
+	private static final Map<Locale, Resources> resourcesByLocale = new HashMap<>();
+	
+	private ResourceBundle resourceBundle;
+	
+	private Resources(Locale locale) {
+		resourceBundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale);
+		for (String resourceBundleName : resourceBundleNames) {
+			resourceBundle = new MultiResourceBundle(resourceBundle, ResourceBundle.getBundle(resourceBundleName, locale));
+		}
+	}
 	
 	public static ResourceBundle getResourceBundle() {
-		return resourceBundle;
+		Locale locale = LocaleContext.getLocale();
+		if (!resourcesByLocale.containsKey(locale)) {
+			resourcesByLocale.put(locale, new Resources(locale));
+		}
+		return resourcesByLocale.get(locale).resourceBundle;
 	}
-	
-	public static void setResourceBundle(ResourceBundle resourceBundle) {
-		Resources.resourceBundle = resourceBundle;
-	}
-	
-	public static void addResourceBundle(ResourceBundle resourceBundle) {
-		Resources.resourceBundle = new MultiResourceBundle(resourceBundle, defaultResourcebundle);
+
+	public static void addResourceBundleName(String resourceBundleName) {
+		resourceBundleNames.add(resourceBundleName);
 	}
 
 	public static boolean isAvailable(String resourceName) {
@@ -99,8 +116,11 @@ public class Resources {
 		}
 	}
 	
+	private static final Set<String> reported = new TreeSet<>();
+	
 	public static void reportMissing(String resourceName, boolean reportIfMissing) {
-		if (reportIfMissing && DevMode.isActive()) {
+		if (reportIfMissing && DevMode.isActive() && !reported.contains(resourceName)) {
+			reported.add(resourceName);
 			System.out.println(resourceName + "=");
 		}
 	}
@@ -128,6 +148,16 @@ public class Resources {
 		return null;
 	}
 
+	//
+	
+	public static String getObjectFieldName(PropertyInterface property) {
+		return getObjectFieldName(getResourceBundle(), property);
+	}
+
+	public static String getObjectFieldName(PropertyInterface property, String postfix) {
+		return getObjectFieldName(getResourceBundle(), property, postfix);
+	}
+	
 	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property) {
 		return getObjectFieldName(resourceBundle, property, null);
 	}

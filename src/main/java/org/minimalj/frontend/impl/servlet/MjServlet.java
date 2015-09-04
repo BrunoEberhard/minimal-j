@@ -103,7 +103,7 @@ public class MjServlet extends HttpServlet {
 	}
 	
 	protected String fillPlaceHolder(String htmlTemplate, Locale locale, String url) {
-		String result = htmlTemplate.replace("$LOCALE", locale.toString());
+		String result = htmlTemplate.replace("$LOCALE", locale.toLanguageTag());
 		result = result.replace("$FORCE_WSS", "false");
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "wsDemo");

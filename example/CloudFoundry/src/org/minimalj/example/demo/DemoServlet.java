@@ -40,7 +40,7 @@ public class DemoServlet extends MjServlet {
 	
 	@Override
 	protected String fillPlaceHolder(String htmlTemplate, Locale locale, String url) {
-		String result = htmlTemplate.replace("$LOCALE", locale.toString());
+		String result = htmlTemplate.replace("$LOCALE", locale.toLanguageTag());
 		if (url.indexOf("pivotal") > -1 || url.indexOf("cfapps.io") > -1) {
 			// http://support.run.pivotal.io/entries/80621715-Does-cloudfoundry-allows-the-websocket-requests-on-port-other-than-4443-
 			result = result.replace("$FORCE_WSS", "true");

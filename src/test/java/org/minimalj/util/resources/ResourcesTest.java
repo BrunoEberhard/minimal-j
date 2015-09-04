@@ -1,7 +1,5 @@
 package org.minimalj.util.resources;
 
-import java.util.ResourceBundle;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.Keys;
@@ -21,7 +19,7 @@ public class ResourcesTest {
 	public String byFieldName;
 
 	static {
-		Resources.addResourceBundle(ResourceBundle.getBundle(ResourcesTest.class.getName()));
+		Resources.addResourceBundleName(ResourcesTest.class.getName());
 	}
 	
 	@Test
@@ -73,7 +71,7 @@ public class ResourcesTest {
 	
 	private String getFieldName(Object key) throws Exception {
 		PropertyInterface property = Keys.getProperty(key);
-		String name = Resources.getObjectFieldName(Resources.getResourceBundle(), property);
+		String name = Resources.getObjectFieldName(property);
 		return name;
 	}
 	

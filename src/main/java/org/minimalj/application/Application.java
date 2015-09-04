@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.SocketBackendServer;
@@ -45,9 +46,8 @@ public abstract class Application {
 	}
 	
 	public Application() {
-		ResourceBundle resourceBundle = getResourceBundle();
-		if (resourceBundle != null) {
-			Resources.addResourceBundle(resourceBundle);
+		for (String resourceBundleName : getResourceBundleNames()) {
+			Resources.addResourceBundleName(resourceBundleName);
 		}
 	}
 	
@@ -129,19 +129,19 @@ public abstract class Application {
 	}
 	
 	/**
-	 * note: Use MultiResourceBundle if more than one ResourceBundle
-	 * should be loaded.
-	 * @return The application specific ResourceBundle.
+	 * @return The application specific ResourceBundle names
 	 */
-	protected ResourceBundle getResourceBundle() {
+	protected Set<String> getResourceBundleNames() {
 		try {
-			return ResourceBundle.getBundle(this.getClass().getName());
+			// try to load the bundle to provoke the exception if resource bundle is missing
+			ResourceBundle.getBundle(this.getClass().getName());
+			return Collections.singleton(this.getClass().getName());
 		} catch (MissingResourceException x) {
 			Logger logger = Logger.getLogger(Application.class.getName());
 			logger.warning("Missing the default ResourceBundle for " + this.getClass().getName());
 			logger.fine("The default ResourceBundle has the same name as the Application that is launched.");
 			logger.fine("See the MjExampleApplication.java and MjExampleApplication.properties");
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
