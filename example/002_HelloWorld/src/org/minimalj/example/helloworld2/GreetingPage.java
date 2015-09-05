@@ -1,12 +1,8 @@
 package org.minimalj.example.helloworld2;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
 
 public class GreetingPage extends Page {
@@ -29,9 +25,4 @@ public class GreetingPage extends Page {
 		return form;
 	}
 	
-	@Override
-	public List<Action> getActions() {
-		return Collections.singletonList(new UserNameEditor());
-	}
-
 }
