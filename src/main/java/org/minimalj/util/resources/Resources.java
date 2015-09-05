@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
@@ -41,9 +42,9 @@ public class Resources {
 	private ResourceBundle resourceBundle;
 	
 	private Resources(Locale locale) {
-		resourceBundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale);
+		resourceBundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
 		for (String resourceBundleName : resourceBundleNames) {
-			resourceBundle = new MultiResourceBundle(resourceBundle, ResourceBundle.getBundle(resourceBundleName, locale));
+			resourceBundle = new MultiResourceBundle(resourceBundle, ResourceBundle.getBundle(resourceBundleName, locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
 		}
 	}
 	
