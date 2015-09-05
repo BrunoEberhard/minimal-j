@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.minimalj.application.Application;
 import org.minimalj.example.petclinic.frontend.AddOwnerEditor;
-import org.minimalj.example.petclinic.frontend.AddPetEditor;
 import org.minimalj.example.petclinic.frontend.OwnerSearchPage;
 import org.minimalj.example.petclinic.model.Owner;
 import org.minimalj.example.petclinic.model.Pet;
@@ -19,7 +18,6 @@ public class PetClinicApplication extends Application {
 	public List<Action> getMenu() {
 		List<Action> menu = new ArrayList<>();
 		menu.add(new AddOwnerEditor());
-		menu.add(new AddPetEditor());
 		return menu;
 	}
 	

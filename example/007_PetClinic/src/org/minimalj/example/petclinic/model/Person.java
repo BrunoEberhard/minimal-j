@@ -4,8 +4,11 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.util.mock.MockName;
+import org.minimalj.util.mock.MockPrename;
+import org.minimalj.util.mock.Mocking;
 
-public class Person {
+public class Person implements Mocking {
 
 	@NotEmpty @Size(30) @Searched
     public String firstName, lastName;
@@ -14,6 +17,12 @@ public class Person {
 		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "name", String.class);
 		
 		return firstName + " " + lastName;
+	}
+	
+	@Override
+	public void mock() {
+		firstName = MockPrename.getFirstName(Math.random() < .5);
+		lastName = MockName.officialName();
 	}
 	
 }
