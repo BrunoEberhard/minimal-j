@@ -107,7 +107,7 @@ public class MjServlet extends HttpServlet {
 		String result = htmlTemplate.replace("$LOCALE", locale.toLanguageTag());
 		result = result.replace("$FORCE_WSS", "false");
 		result = result.replace("$PORT", "");
-		result = result.replace("$WS", "wsDemo");
+		result = result.replace("$WS", "ws");
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		return result;
 	}
