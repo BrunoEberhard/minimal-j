@@ -357,6 +357,9 @@
 				element.setAttribute("disabled", "true");
 			}
 			element.id = content.id;
+			if (content.value == "true") {
+				element.setAttribute("checked", "checked");
+			}
 			var label = document.createElement("label");
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
