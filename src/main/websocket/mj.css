@@ -240,7 +240,7 @@ td, th {
 	overflow: hidden;
 }
 
-table.form input[type="text"], table.form select {
+table.form input[type="text"], table.form select, table.form textarea {
 	width: 100%;
 }
 
@@ -258,7 +258,6 @@ input[type="checkbox"] {
 }
 
 textarea {
-	width: 100%;
 	font-family: inherit;
 }
 
