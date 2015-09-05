@@ -150,7 +150,7 @@ public class Form<T> {
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
 			return editable ? new EnumFormElement(property) : new TextFormElement(property);
 		} else if (fieldClass == Set.class) {
-			return new EnumSetFormElement(property, editable);
+			return new EnumSetFormElement(property, this.editable); // 'this.editable' instead 'editable': the set field is always final. That doesn't mean its read only.
 		}	
 		logger.severe("No FormElement could be created for: " + property.getName() + " of class " + fieldClass.getName());
 		return new TypeUnknownFormElement(property);
