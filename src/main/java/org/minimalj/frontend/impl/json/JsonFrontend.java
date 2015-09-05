@@ -116,11 +116,14 @@ public class JsonFrontend extends Frontend {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		return reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
 	}
+
+	public static String getHtmlTemplate() {
+		return htmlTemplate;
+	}
 	
-	public static String getIndex(String locale) {
-		LocaleContext.setLocale(Locale.forLanguageTag(locale));
-		
-		String result = htmlTemplate.replace("$LOCALE", locale);
+	public static String fillPlaceHolder(String html, Locale locale) {
+		LocaleContext.setLocale(locale);
+		String result = html.replace("$LOCALE", locale.getLanguage());
 		result = result.replace("$AUTHORIZATION", Boolean.toString(Authorization.isAvailable()));
 		result = result.replace("$FORCE_WSS", "false");
 		result = result.replace("$PORT", "");

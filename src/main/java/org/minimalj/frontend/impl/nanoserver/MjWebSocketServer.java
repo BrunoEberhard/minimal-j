@@ -34,13 +34,13 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 		}
 	}
 	
-	private static String getLanguage(String userLocale) {
+	private static Locale getLocale(String userLocale) {
         final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
         if (ranges != null) {
         	for (LanguageRange languageRange : ranges) {
                 final String localeString = languageRange.getRange();
                 final Locale locale = Locale.forLanguageTag(localeString);
-                return locale.getLanguage();
+                return locale;
             }
         }
         return null;
@@ -50,8 +50,9 @@ public class MjWebSocketServer extends NanoWebSocketServer {
     public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
             Map<String, String> files) {
 		if (uri.equals("/")) {
-			String language = getLanguage(headers.get("accept-language"));
-			String html = JsonFrontend.getIndex(language); // 
+			String htmlTemplate = JsonFrontend.getHtmlTemplate();
+			Locale locale = getLocale(headers.get("accept-language"));
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		} else if (uri.equals("/mj.css")) {
 			return newChunkedResponse(Status.OK, "text/css", this.getClass().getClassLoader().getResourceAsStream("mj.css"));

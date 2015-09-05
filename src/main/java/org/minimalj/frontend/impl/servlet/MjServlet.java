@@ -64,8 +64,8 @@ public class MjServlet extends HttpServlet {
 
 		InputStream inputStream = null;
 		if (uri.endsWith("/") || uri.endsWith(".html")) {
-			String html = JsonFrontend.getIndex(request.getLocale().getLanguage());
-			html = fillPlaceHolder(html, request.getLocale(), request.getRequestURL().toString());
+			String htmlTemplate = JsonFrontend.getHtmlTemplate();
+			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
 			response.getWriter().write(html);
 			response.setContentType("text/html");
 			return; // !
@@ -99,6 +99,6 @@ public class MjServlet extends HttpServlet {
 	
 	protected String fillPlaceHolder(String html, Locale locale, String url) {
 		// gives a subclass to replace some texts in the index.html
-		return html;
+		return JsonFrontend.fillPlaceHolder(html, locale);
 	}
 }
