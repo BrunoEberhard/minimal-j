@@ -15,16 +15,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
-import org.minimalj.security.Authorization;
+import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 public class MjServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private static boolean applicationInitialized;
-	
-	private static String htmlTemplate;
 	
 	protected void initializeApplication() {
 		if (!applicationInitialized) {
@@ -47,10 +44,6 @@ public class MjServlet extends HttpServlet {
 		}
 	}	
 	
-	static {
-		htmlTemplate = readStream(MjServlet.class.getClassLoader().getResourceAsStream("index.html"));
-	}
-	
 	// http://stackoverflow.com/questions/309424/read-convert-an-inputstream-to-a-string
 	// There is a better solution in Java 9 ;)
 	private static String readStream(InputStream inputStream) {
@@ -71,7 +64,8 @@ public class MjServlet extends HttpServlet {
 
 		InputStream inputStream = null;
 		if (uri.endsWith("/") || uri.endsWith(".html")) {
-			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
+			String html = JsonFrontend.getIndex(request.getLocale().getLanguage());
+			html = fillPlaceHolder(html, request.getLocale(), request.getRequestURL().toString());
 			response.getWriter().write(html);
 			response.setContentType("text/html");
 			return; // !
@@ -103,13 +97,8 @@ public class MjServlet extends HttpServlet {
         }
 	}
 	
-	protected String fillPlaceHolder(String htmlTemplate, Locale locale, String url) {
-		String result = htmlTemplate.replace("$LOCALE", locale.toLanguageTag());
-		result = result.replace("$AUTHORIZATION", Boolean.toString(Authorization.isAvailable()));
-		result = result.replace("$FORCE_WSS", "false");
-		result = result.replace("$PORT", "");
-		result = result.replace("$WS", "ws");
-		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
-		return result;
+	protected String fillPlaceHolder(String html, Locale locale, String url) {
+		// gives a subclass to replace some texts in the index.html
+		return html;
 	}
 }

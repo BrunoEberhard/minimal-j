@@ -1,13 +1,24 @@
 package org.minimalj.frontend.impl.json;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.servlet.MjServlet;
+import org.minimalj.security.Authorization;
+import org.minimalj.util.LocaleContext;
+import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
 
+	private static String htmlTemplate;
+	
 	public static JsonClientSession getClientSession() {
 		return (JsonClientSession) Frontend.getBrowser();
 	}
@@ -95,4 +106,26 @@ public class JsonFrontend extends Frontend {
 		return new JsonSwitchContent();
 	}
 
+	//
+	
+	static {
+		htmlTemplate = readStream(MjServlet.class.getClassLoader().getResourceAsStream("index.html"));
+	}
+	
+	public static String readStream(InputStream inputStream) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		return reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
+	}
+	
+	public static String getIndex(String locale) {
+		LocaleContext.setLocale(Locale.forLanguageTag(locale));
+		
+		String result = htmlTemplate.replace("$LOCALE", locale);
+		result = result.replace("$AUTHORIZATION", Boolean.toString(Authorization.isAvailable()));
+		result = result.replace("$FORCE_WSS", "false");
+		result = result.replace("$PORT", "");
+		result = result.replace("$WS", "ws");
+		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
+		return result;
+	}
 }
