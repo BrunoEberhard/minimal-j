@@ -21,6 +21,11 @@ public class OwnerPage extends ObjectPage<Owner> {
 		super(object);
 		petTablePage = new PetTablePage(this);
 	}
+	
+	public OwnerPage(Object objectId) {
+		super(Owner.class, objectId);
+		petTablePage = new PetTablePage(this);
+	}
 
 	@Override
 	protected Form<Owner> createForm() {
