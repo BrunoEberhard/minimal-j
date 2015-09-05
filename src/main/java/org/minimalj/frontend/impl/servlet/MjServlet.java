@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public class MjServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -107,6 +108,7 @@ public class MjServlet extends HttpServlet {
 		result = result.replace("$FORCE_WSS", "false");
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "wsDemo");
+		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		return result;
 	}
 }

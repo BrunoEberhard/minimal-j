@@ -325,7 +325,7 @@
 			element.setAttribute("onkeydown", "if (event.keyCode == 13) sendchange(this);");
 
 			var button = document.createElement("button");
-			button.appendChild(document.createTextNode("Search"));
+			button.appendChild(document.createTextNode("$SEARCH"));
 			button.setAttribute("onclick", "sendchange(this.previousSibling);");
 			button.setAttribute("style", "width: 10em");
 
@@ -731,7 +731,7 @@
 			</span>	
 			<div id="search">
 				<input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit"
-					value="Search" onclick="search();" />
+					value="$SEARCH" onclick="search();" />
 			</div>
 		</div>
 		<div id="container">
