@@ -317,6 +317,13 @@
 			if (content.value != undefined) {
 				element.appendChild(document.createTextNode(content.value));
 			}
+		} else if (type == "AreaField") {
+			element = document.createElement("textarea");
+			element.setAttribute("onchange", "sendchange(this);");
+			element.setAttribute("maxlength", content.maxLength);
+			if (content.value != undefined) {
+				element.appendChild(document.createTextNode(content.value));
+			}
 		} else if (type == "SearchTextField") {
 			element = document.createElement("input");
 			element.type = "text";
