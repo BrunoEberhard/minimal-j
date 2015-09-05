@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -16,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
+import org.minimalj.security.Authorization;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -105,6 +105,7 @@ public class MjServlet extends HttpServlet {
 	
 	protected String fillPlaceHolder(String htmlTemplate, Locale locale, String url) {
 		String result = htmlTemplate.replace("$LOCALE", locale.toLanguageTag());
+		result = result.replace("$AUTHORIZATION", Boolean.toString(Authorization.isAvailable()));
 		result = result.replace("$FORCE_WSS", "false");
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");

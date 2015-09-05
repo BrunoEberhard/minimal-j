@@ -709,6 +709,9 @@
 	function init() {
 		window.addEventListener("resize", updateDialogSizes);
 		send({"showDefaultPage" : "default-" + (new Date().getTime())});
+		if (!$AUTHORIZATION) {
+			document.getElementById("loginSpan").classList.add("hide");
+		}
 	}
 	
 </script>
@@ -726,7 +729,7 @@
 					</g>
 				</svg>
 			</span>
-			<span title="Login / Logout">
+			<span title="Login / Logout" id="loginSpan">
 				<svg width="1.5em" height="1.5em" id="loginButton" class="headerButton" onclick="changeLogin()">
 					<g style="stroke:#444;stroke-width:16%;stroke-linecap:square"> 		
 						<line x1="70%" y1="8%" x2="91%" y2="8%" />

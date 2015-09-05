@@ -14,6 +14,7 @@ import org.minimalj.frontend.impl.nanoserver.httpd.NanoHTTPD.Response.Status;
 import org.minimalj.frontend.impl.nanoserver.httpd.NanoWebSocketServer;
 import org.minimalj.frontend.impl.nanoserver.httpd.NanoWebSocketServer.WebSocketFrame.CloseCode;
 import org.minimalj.frontend.impl.servlet.MjServlet;
+import org.minimalj.security.Authorization;
 import org.minimalj.util.resources.Resources;
 
 public class MjWebSocketServer extends NanoWebSocketServer {
@@ -99,6 +100,7 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 	// TODO merge with MjServlet
 	protected String fillPlaceHolder(String htmlTemplate, String locale) {
 		String result = htmlTemplate.replace("$LOCALE", locale);
+		result = result.replace("$AUTHORIZATION", Boolean.toString(Authorization.isAvailable()));
 		result = result.replace("$FORCE_WSS", "false");
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");

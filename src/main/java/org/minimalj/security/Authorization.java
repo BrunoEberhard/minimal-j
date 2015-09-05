@@ -20,8 +20,13 @@ public abstract class Authorization {
 	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
 	private Map<UUID, Subject> userByToken = new HashMap<>();
 
-
+	private static boolean available = true;
+	
 	public static Authorization createAuthorization() {
+		if (!available) {
+			return null;
+		}
+		
 		String userFile = System.getProperty("MjUserFile");
 		if (userFile != null) {
 			return new PropertiesAuthorization(userFile);
@@ -38,6 +43,8 @@ public abstract class Authorization {
 				throw new LoggingRuntimeException(x, logger, "Set authorization failed");
 			}
 		}
+
+		available = false;
 
 		if (DevMode.isActive()) {
 			return new Authorization() {
@@ -57,6 +64,11 @@ public abstract class Authorization {
 			instance = createAuthorization();
 		}
 		return instance;
+	}
+	
+	public static boolean isAvailable() {
+		getInstance();
+		return available;
 	}
 	
 	protected abstract List<String> retrieveRoles(UserPassword login);
