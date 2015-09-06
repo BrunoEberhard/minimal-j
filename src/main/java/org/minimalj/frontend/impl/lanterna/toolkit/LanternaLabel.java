@@ -17,7 +17,7 @@ public class LanternaLabel extends Label implements IComponent {
 	public LanternaLabel(Object object) {
 		if (object instanceof Rendering) {
 			Rendering rendering = (Rendering) object;
-			String s = rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault());
+			String s = rendering.render(RenderType.PLAIN_TEXT);
 			setText(s);
 		} else if (object != null) {
 			setText(object.toString());

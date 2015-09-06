@@ -29,12 +29,12 @@ public class CodeItem<E> implements Rendering {
 	}
 
 	@Override
-	public String render(RenderType renderType, Locale locale) {
+	public String render(RenderType renderType) {
 		return text;
 	}
 
 	@Override
-	public String renderTooltip(RenderType renderType, Locale locale) {
+	public String renderTooltip(RenderType renderType) {
 		return description;
 	}
 

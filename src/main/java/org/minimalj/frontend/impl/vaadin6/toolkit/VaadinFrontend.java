@@ -192,7 +192,7 @@ public class VaadinFrontend extends Frontend {
 		protected void display() {
 			if (selectedObject instanceof Rendering) {
 				Rendering rendering = (Rendering) selectedObject;
-				actionLabel.setValue(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));
+				actionLabel.setValue(rendering.render(RenderType.PLAIN_TEXT));
 			} else if (selectedObject != null) {
 				actionLabel.setValue(selectedObject.toString());
 			} else {

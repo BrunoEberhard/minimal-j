@@ -51,7 +51,7 @@ public class TextFormElement implements FormElement<Object> {
 	public void setValue(Object object) {
 		if (object instanceof Rendering) {
 			Rendering rendering = (Rendering) object;
-			textField.setValue(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));
+			textField.setValue(rendering.render(RenderType.PLAIN_TEXT));
 		} else if (object instanceof Enum) {
 			textField.setValue(EnumUtils.getText((Enum) object));
 		} else if (object != null) {

@@ -236,7 +236,7 @@ public class SwingFrontend extends Frontend {
 		protected void display() {
 			if (selectedObject instanceof Rendering) {
 				Rendering rendering = (Rendering) selectedObject;
-				actionLabel.setText(rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault()));
+				actionLabel.setText(rendering.render(RenderType.PLAIN_TEXT));
 			} else if (selectedObject != null) {
 				actionLabel.setText(selectedObject.toString());
 			} else {

@@ -1,7 +1,5 @@
 package org.minimalj.model;
 
-import java.util.Locale;
-
 public interface Rendering {
 
 	public static enum RenderType {
@@ -9,15 +7,11 @@ public interface Rendering {
 	}
 	
 	/**
-	 * Note: it's ok to ignore the render type or the locale.
-	 * If asked for HTML the answer can be a plain text. If the
-	 * application doesn't care about different languages you
-	 * can ignore the locale parameter completly.
-	 * 
+	 * Note: If asked for HTML the answer can be a plain text. 
 	 */
-	public String render(RenderType renderType, Locale locale);
+	public String render(RenderType renderType);
 	
-	public default String renderTooltip(RenderType renderType, Locale locale) {
+	public default String renderTooltip(RenderType renderType) {
 		return null;
 	}
 	
@@ -25,9 +19,9 @@ public interface Rendering {
 		return firstType;
 	}
 	
-	public static String render(Object o, RenderType renderType, Locale locale) {
+	public static String render(Object o, RenderType renderType) {
 		if (o instanceof Rendering) {
-			return ((Rendering) o).render(renderType, locale);
+			return ((Rendering) o).render(renderType);
 		} else if (o != null) {
 			return o.toString();
 		} else {

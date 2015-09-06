@@ -23,7 +23,7 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 			String id = UUID.randomUUID().toString();
 			if (object instanceof Rendering) {
 				Rendering rendering = (Rendering) object;
-				String text = rendering.render(RenderType.PLAIN_TEXT, Locale.getDefault());
+				String text = rendering.render(RenderType.PLAIN_TEXT);
 				options.put(id, text);
 			}
 			objectById.put(id, object);

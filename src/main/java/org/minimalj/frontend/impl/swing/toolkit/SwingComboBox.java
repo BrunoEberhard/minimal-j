@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractListModel;
@@ -164,9 +163,9 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 			if (value instanceof Rendering) {
 				Rendering renderingValue = (Rendering) value;
 				if (component instanceof JLabel) {
-					String text = renderingValue.render(RenderType.PLAIN_TEXT, Locale.getDefault());
+					String text = renderingValue.render(RenderType.PLAIN_TEXT);
 					((JLabel) component).setText(text);
-					String tooltip = renderingValue.renderTooltip(RenderType.PLAIN_TEXT, Locale.getDefault());
+					String tooltip = renderingValue.renderTooltip(RenderType.PLAIN_TEXT);
 					if (tooltip != null) {
 						((JComponent) component).setToolTipText(tooltip);
 					}

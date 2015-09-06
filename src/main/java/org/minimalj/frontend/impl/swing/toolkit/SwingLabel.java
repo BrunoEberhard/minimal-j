@@ -19,7 +19,7 @@ public class SwingLabel extends JLabel implements IComponent {
 		if (object instanceof Rendering) {
 			Rendering rendering = (Rendering) object;
 			RenderType renderType = rendering.getPreferredRenderType(RenderType.HMTL, RenderType.PLAIN_TEXT);
-			String s = rendering.render(renderType, Locale.getDefault());
+			String s = rendering.render(renderType);
 			if (renderType == RenderType.HMTL) {
 				setText("<html><body>" + s + "</body></html>");
 			} else {

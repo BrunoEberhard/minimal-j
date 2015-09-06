@@ -20,7 +20,7 @@ public class VaadinLabel extends Label implements IComponent {
 		if (object instanceof Rendering) {
 			Rendering rendering = (Rendering) object;
 			RenderType renderType = rendering.getPreferredRenderType(RenderType.HMTL, RenderType.PLAIN_TEXT);
-			String s = rendering.render(renderType, Locale.getDefault());
+			String s = rendering.render(renderType);
 			if (renderType == RenderType.HMTL) {
 				setContentMode(Label.CONTENT_XHTML);
 			} else {
