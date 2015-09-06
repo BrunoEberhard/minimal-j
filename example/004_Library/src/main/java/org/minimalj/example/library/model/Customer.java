@@ -27,7 +27,7 @@ public class Customer implements Rendering {
 	public Cancellation subscriptionCancellation;
 	
 	@Override
-	public String render(RenderType renderType, Locale locale) {
+	public String render(RenderType renderType) {
 		return firstName + " " + name;
 	}
 }

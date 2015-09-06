@@ -1,7 +1,5 @@
 package org.minimalj.example.library.model;
 
-import java.util.Locale;
-
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.Size;
@@ -13,7 +11,7 @@ public class Address implements Rendering {
 	public String street, city;
 	
 	@Override
-	public String render(RenderType renderType, Locale locale) {
+	public String render(RenderType renderType) {
 		return street + " " + city;
 	}
 }

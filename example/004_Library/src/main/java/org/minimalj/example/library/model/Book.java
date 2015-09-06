@@ -45,7 +45,7 @@ public class Book implements Rendering, Mocking {
 	}
 
 	@Override
-	public String render(RenderType renderType, Locale locale) {
+	public String render(RenderType renderType) {
 		return author + ": " + title;
 	}
 }
