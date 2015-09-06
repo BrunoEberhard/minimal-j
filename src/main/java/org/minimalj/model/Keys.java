@@ -127,6 +127,8 @@ public class Keys {
 			return LocalTime.now();				
 		} else if (type.isArray()) {
 			return Array.newInstance(type.getComponentType(), 0);
+		} else if (type == List.class) {
+			return new ArrayList<>();			
 		} else {
 			// note: LocalDate, LocaleDateTime etc have an empty constructor
 			// so they are constructed in the else branch
