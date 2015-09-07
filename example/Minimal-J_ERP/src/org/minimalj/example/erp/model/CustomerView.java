@@ -16,7 +16,7 @@ public class CustomerView implements View<Customer>, Rendering {
 	public String firstname, surname;
 	
 	@Override
-	public String render(RenderType renderType, Locale locale) {
+	public String render(RenderType renderType) {
 		if (!StringUtils.isBlank(firstname)) {
 			return firstname + " " + surname;
 		} else {

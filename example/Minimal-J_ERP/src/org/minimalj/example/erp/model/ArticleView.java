@@ -19,7 +19,7 @@ public class ArticleView implements View<Article>, Rendering {
 	public String description;
 	
 	@Override
-	public String render(RenderType renderType, Locale locale) {
+	public String render(RenderType renderType) {
 		return article;
 	}
 }

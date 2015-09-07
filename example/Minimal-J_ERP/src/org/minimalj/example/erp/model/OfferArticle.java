@@ -19,7 +19,7 @@ public class OfferArticle implements Rendering {
 	public BigDecimal price;
 
 	@Override
-	public String render(RenderType renderType, Locale locale) {
+	public String render(RenderType renderType) {
 		StringBuilder s = new StringBuilder();
 		s.append(article.article);
 		if (numberof != null) {
