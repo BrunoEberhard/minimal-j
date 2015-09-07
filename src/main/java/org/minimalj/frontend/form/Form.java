@@ -353,7 +353,7 @@ public class Form<T> {
 		public void valueChanged(FormElement<?> changedField) {
 			if (changeFromOutsite) return;
 			if (changeListener == null) {
-				logger.severe("Editable Form must have a listener");
+				if (editable) logger.severe("Editable Form must have a listener");
 				return;
 			}
 			
