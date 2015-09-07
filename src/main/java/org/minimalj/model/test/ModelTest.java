@@ -61,6 +61,9 @@ public class ModelTest {
 		for (Class<?> clazz : modelClasses) {
 			testClass(clazz);
 		}
+		if (DevMode.isActive()) {
+			reportMissingResources();
+		}
 	}
 	
 	public List<String> getProblems() {
@@ -383,9 +386,9 @@ public class ModelTest {
 		}
 	}
 	
-	public void printMissingResources() {
+	public void reportMissingResources() {
 		for (String key : missingResources) {
-			System.out.println(key + " = ");
+			Resources.reportMissing(key, true);
 		}
 	}
 

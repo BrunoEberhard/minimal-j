@@ -122,7 +122,7 @@ public class Resources {
 	public static void reportMissing(String resourceName, boolean reportIfMissing) {
 		if (reportIfMissing && DevMode.isActive() && !reported.contains(resourceName)) {
 			reported.add(resourceName);
-			System.out.println(resourceName + "=");
+			System.out.println(resourceName + " = ");
 		}
 	}
 	
@@ -204,6 +204,7 @@ public class Resources {
 			return resourceBundle.getString(fieldName);
 		}
 		
+		reportMissing(qualifiedKey, true);
 		return "'" + qualifiedKey + "'";
 	}
 	
