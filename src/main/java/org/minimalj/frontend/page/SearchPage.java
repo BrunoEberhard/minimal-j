@@ -83,7 +83,7 @@ public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAI
 				Object singleSearchResult = searchPage.load().get(0);
 				Object singleDetail = searchPage.load(singleSearchResult);
 				Page detailPage = searchPage.createDetailPage(singleDetail);
-				return detailPage;
+				return detailPage != null ? detailPage : searchPage;
 			} else {
 				return searchPage;
 			}
