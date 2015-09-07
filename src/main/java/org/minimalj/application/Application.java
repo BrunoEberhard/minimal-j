@@ -178,6 +178,11 @@ public abstract class Application {
 		}
 	}
 	
+	
+	/**
+	 * If more than one class of entities should be search have a look at
+	 * SearchPage.handle(SearchPage...)
+	 */
 	public Page createSearchPage(String query) {
 		return new EmptyPage();
 	}
