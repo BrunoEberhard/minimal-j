@@ -186,6 +186,7 @@ public abstract class Editor<T, RESULT> extends Action {
 	protected void fillWithDemoData() {
 		if (object instanceof Mocking) {
 			((Mocking) object).mock();
+			form.setObject(object);
 		} else {
 			form.mock();
 		}
