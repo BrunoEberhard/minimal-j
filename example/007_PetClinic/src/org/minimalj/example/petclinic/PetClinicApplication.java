@@ -5,12 +5,17 @@ import java.util.List;
 
 import org.minimalj.application.Application;
 import org.minimalj.example.petclinic.frontend.AddOwnerEditor;
+import org.minimalj.example.petclinic.frontend.AddVetEditor;
 import org.minimalj.example.petclinic.frontend.OwnerSearchPage;
+import org.minimalj.example.petclinic.frontend.VetSearchPage;
+import org.minimalj.example.petclinic.frontend.VetTablePage;
 import org.minimalj.example.petclinic.model.Owner;
 import org.minimalj.example.petclinic.model.Pet;
 import org.minimalj.example.petclinic.model.Vet;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageAction;
+import org.minimalj.frontend.page.SearchPage;
 
 public class PetClinicApplication extends Application {
 
@@ -18,12 +23,14 @@ public class PetClinicApplication extends Application {
 	public List<Action> getMenu() {
 		List<Action> menu = new ArrayList<>();
 		menu.add(new AddOwnerEditor());
+		menu.add(new PageAction(new VetTablePage()));
+		menu.add(new AddVetEditor());
 		return menu;
 	}
 	
 	@Override
 	public Page createSearchPage(String query) {
-		return new OwnerSearchPage(query);
+		return SearchPage.handle(new OwnerSearchPage(query), new VetSearchPage(query));
 	}
 	
 	@Override

@@ -59,11 +59,6 @@ public class PetListFormElement extends ListFormElement<Pet> {
 		@Override
 		protected void finished(Pet pet) {
 			PetListFormElement.this.handleChange();
-//			List<Pet> pets = PetListFormElement.this.getValue();
-//			int index = pets.indexOf(AddVisitEditor.this.pet);
-//			pets.remove(index);
-//			pets.add(index, pet);
-//			PetListFormElement.this.setValue(pets);
 		}
 	}
 }
