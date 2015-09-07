@@ -29,8 +29,8 @@ public class OwnerFormElement extends ObjectFormElement<Owner> {
 	}
 
 	@Override
-	protected void show(Owner placeOfOrigin) {
-		add(placeOfOrigin, new RemoveObjectAction());
+	protected void show(Owner owner) {
+		add(owner, new RemoveObjectAction());
 	}
 
 	@Override
