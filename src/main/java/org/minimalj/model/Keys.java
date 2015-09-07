@@ -57,22 +57,23 @@ public class Keys {
 	public static <T> T methodOf(Object keyObject, String methodName, Class<T> returnType) {
 		String qualifiedMethodName = null;
 		
-		if (keyObjects.contains(keyObject)) {
-			qualifiedMethodName = keyObject.getClass().getName() + "." + methodName;
+		PropertyInterface enclosingProperty = null;
+		if (properties.containsKey(keyObject)) {
+			enclosingProperty = properties.get(keyObject);
+			qualifiedMethodName = enclosingProperty.getDeclaringClass().getName() + "." + enclosingProperty.getPath() + "." + methodName;
 		} else {
-			PropertyInterface property = properties.get(keyObject);
-			qualifiedMethodName = property.getPath() + "." + methodName;
+			qualifiedMethodName = keyObject.getClass().getName() + "." + methodName;
 		}
 		
 		if (methodKeyByName.containsKey(qualifiedMethodName)) {
 			return (T) methodKeyByName.get(qualifiedMethodName);
 		}
-		T t = (T)createKey(returnType, methodName, null);
+		T t = (T)createKey(returnType, qualifiedMethodName, null);
 		methodKeyByName.put(qualifiedMethodName, t);
 		
 		PropertyInterface property = getMethodProperty(keyObject.getClass(), methodName);
-		if (!keyObjects.contains(keyObject)) {
-			property = new ChainedProperty(properties.get(keyObject), property);
+		if (enclosingProperty != null) {
+			property = new ChainedProperty(enclosingProperty, property);
 		}
 		properties.put(t, property);
 		
@@ -130,10 +131,10 @@ public class Keys {
 		} else if (type == List.class) {
 			return new ArrayList<>();			
 		} else {
-			// note: LocalDate, LocaleDateTime etc have an empty constructor
-			// so they are constructed in the else branch
 			try {
-				return type.newInstance();
+				Object keyObject = type.newInstance();
+				keyObjects.add(keyObject);
+				return keyObject;
 			} catch (Exception x) {
 				if (declaringClass != null) {
 					logger.severe("Could not instantiat " + fieldName + " in class " + declaringClass);

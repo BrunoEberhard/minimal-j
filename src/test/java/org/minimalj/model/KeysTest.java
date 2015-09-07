@@ -4,11 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class KeysTest {
 
+	@BeforeClass
+	public static void initializeAllClasses() {
+		new TestClass1();
+		new TestClass2();
+		new TestClass3();
+		new TestClass4();
+	}
+	
 	@Test
 	public void accessString() {
 		TestClass1 object1 = new TestClass1();
@@ -89,6 +98,17 @@ public class KeysTest {
 		Assert.assertEquals("Update of final list field with new values failed", list2.size(), testClass3.list.size());
 	}
 	
+	@Test
+	public void methodFieldOfInlineInTwoClasses() {
+		TestClass2 testClass2 = new TestClass2();
+		TestClass4 testClass4 = new TestClass4();
+		
+		Keys.getProperty(TestClass2.$.tc1.getB2()).getValue(testClass2);
+		Keys.getProperty(TestClass4.$.testClass1.getB2()).getValue(testClass4);
+	}
+	
+	//
+	
 	public static class TestClass1 {
 		public static final TestClass1 $ = Keys.of(TestClass1.class);
 		
@@ -147,6 +167,12 @@ public class KeysTest {
 		public static final TestClass3 $ = Keys.of(TestClass3.class);
 		
 		public final List<TestClass1> list = new ArrayList<>();
+	}
+	
+	public static class TestClass4 {
+		public static final TestClass4 $ = Keys.of(TestClass4.class);
+		
+		public final TestClass1 testClass1 = new TestClass1();
 	}
 	
 }
