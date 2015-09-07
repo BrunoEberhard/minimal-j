@@ -27,7 +27,6 @@ import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
-import org.minimalj.application.DevMode;
 import org.minimalj.backend.Persistence;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
@@ -526,9 +525,6 @@ public class DbPersistence implements Persistence {
 	
 	private void testModel(Class<?>[] classes) {
 		ModelTest test = new ModelTest(classes);
-		if (DevMode.isActive()) {
-			test.printMissingResources();
-		}
 		if (!test.getProblems().isEmpty()) {
 			for (String s : test.getProblems()) {
 				logger.severe(s);
