@@ -20,7 +20,7 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 	public StringFormElement(PropertyInterface property, Boolean multiLine) {
 		super(property);
 		this.maxLength = AnnotationUtil.getSize(property);
-		if (maxLength < 256 && !multiLine) {
+		if (maxLength < 256 && !Boolean.TRUE.equals(multiLine)) {
 			this.textField = Frontend.getInstance().createTextField(maxLength, null, InputType.FREE, null, listener());
 		} else {
 			this.textField = Frontend.getInstance().createAreaField(maxLength, null, listener());
