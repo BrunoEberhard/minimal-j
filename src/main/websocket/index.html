@@ -114,7 +114,11 @@
 		if (dataObject["error"] != undefined) {
 			alert(dataObject["error"]);
 		}
+		
+		var block = document.getElementById('block');
+		block.classList.remove("is-blocked"); 
 	}
+	
 	function onError(evt) {
 	}
 
@@ -227,7 +231,7 @@
 		}
 		
 		var data = {closePage : element.id};
-		send(data);
+		send(data, true);
 	}
 
 	function createPageHeader(title) {
@@ -589,23 +593,23 @@
 			changedValue[source.id] = source.value;
 		}
 		data.changedValue = changedValue;
-		send(data);
+		send(data, false);
 	}
 
 	function action(actionId) {
 		var data = {"activatedAction" : actionId};
-		send(data);
+		send(data, true);
 	}
 
 	function action(actionId, pageId) {
 		var data = {"activatedAction" : actionId, "focusPageId" : pageId };
-		send(data);
+		send(data, true);
 	}
 	
 	function search(searchId) {
 		var searchTextElement = document.getElementById(searchId);
 		var data = {"search" : searchId, "searchText" : searchTextElement.value};
-		send(data);
+		send(data, true);
 	}
 
 	function tableSelection(event, rowElement, row) {
@@ -633,7 +637,7 @@
 		if (pageElement != undefined) {
 			data.focusPageId = pageElement.id;
 		}
-		send(data);
+		send(data, false);
 	}
 
 	function tableAction(tableId, row) {
@@ -646,16 +650,16 @@
 		if (pageElement != undefined) {
 			data.focusPageId = pageElement.id;
 		}
-		send(data);
+		send(data, true);
 	}
 
 	function search() {
 		var data = {};
 		data.search = document.getElementsByName("query")[0].value;
-		send(data);
+		send(data, true);
 	}
 
-	function send(data) {
+	function send(data, block) {
 		data.locale = "$LOCALE";
 		
 		var pathname = location.pathname;
@@ -672,9 +676,14 @@
 				onMessage(evt)
 			};
 			websocket.onopen = function(evt) {
-				send(data);
+				send(data, block);
 			}
 		} else {
+			if (block) {
+				var block = document.getElementById("block");
+				block.classList.add("is-blocked"); 
+			}
+			      
 			data.session = session;
 			websocket.send(JSON.stringify(data));
 		}
@@ -705,7 +714,7 @@
 	}
 	
 	function changeLogin() {
-		send({"login" : "login-" + (new Date().getTime())});
+		send({"login" : "login-" + (new Date().getTime())}, true);
 	}
 	
 	function init() {
@@ -783,6 +792,10 @@
 			  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
 			</svg>
 		</span>
+	</div>
+
+	<div id="block">
+		
 	</div>
 </body>
 </html>
