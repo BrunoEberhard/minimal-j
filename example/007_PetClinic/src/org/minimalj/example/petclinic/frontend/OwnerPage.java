@@ -10,6 +10,8 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.ObjectPage;
+import org.minimalj.model.Rendering.RenderType;
+import org.minimalj.util.resources.Resources;
 
 public class OwnerPage extends ObjectPage<Owner> {
 
@@ -20,6 +22,11 @@ public class OwnerPage extends ObjectPage<Owner> {
 	
 	public OwnerPage(Object objectId) {
 		super(Owner.class, objectId);
+	}
+	
+	@Override
+	public String getTitle() {
+		return Resources.getString(Owner.class) + ": " + getObject().render(RenderType.PLAIN_TEXT);
 	}
 	
 	@Override

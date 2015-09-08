@@ -5,13 +5,14 @@ import java.util.Random;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.mock.MockName;
 import org.minimalj.util.mock.Mocking;
 
-public class Owner implements Mocking {
+public class Owner implements Rendering, Mocking {
 	public static final Owner $ = Keys.of(Owner.class);
 	
 	public Object id;
@@ -38,6 +39,11 @@ public class Owner implements Mocking {
 //		return pets;
     	return Backend.persistence().read(Pet.class, Criteria.equals(Pet.$.owner, this), 100);
 	}
+    
+    @Override
+    public String render(RenderType renderType) {
+    	return person.render(renderType);
+    }
     
     @Override
     public void mock() {
