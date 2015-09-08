@@ -426,8 +426,8 @@
 			td.colSpan = cell.span;
 		}
 		if (!isTitle && cell.caption != undefined) {
-			var caption = document.createElement("div");
-			caption.className = "caption";
+			var caption = document.createElement("label");
+			caption.setAttribute("for", cell.id);
 			caption.appendChild(document.createTextNode(cell.caption));
 			var tooltip = document.createElement("img");
 			tooltip.id = cell.id + "-validation";

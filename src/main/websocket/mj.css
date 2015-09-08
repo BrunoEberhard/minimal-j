@@ -267,7 +267,8 @@ hr {
 	border-top: 1px rgb(160,160,160) solid;
 }
 
-.caption {
+label {
+	display: block;
 	font-size: x-small;
 	font-weight: bolder;
 	margin-bottom: 0.5ex;
