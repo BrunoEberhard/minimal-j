@@ -51,7 +51,9 @@
 			showDialog(dataObject["dialog"]);
 		}
 		if (dataObject["closeDialog"] != undefined) {
-			document.getElementById(dataObject["closeDialog"]).close();
+			var dialog = document.getElementById(dataObject["closeDialog"]);
+			dialog.close();
+			document.querySelector("body").removeChild(dialog);
 		}
 		if (dataObject["propertyChanges"] != undefined) {
 			var propertyChanges = dataObject["propertyChanges"];
