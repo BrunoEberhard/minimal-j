@@ -52,7 +52,9 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
 		SwingCaption swingCaption = captionByComponent.get(component);
-		swingCaption.setValidationMessages(validationMessages);
+		if (swingCaption != null) {
+			swingCaption.setValidationMessages(validationMessages);
+		}
 	}
 
 	private static class GridFormLayoutConstraint {
