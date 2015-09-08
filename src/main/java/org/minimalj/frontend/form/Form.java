@@ -51,7 +51,6 @@ public class Form<T> {
 	public static final boolean READ_ONLY = false;
 	
 	protected final boolean editable;
-	private final ResourceBundle resourceBundle;
 	
 	private final int columns;
 	private final FormContent formContent;
@@ -86,12 +85,7 @@ public class Form<T> {
 		this(null, editable, columns);
 	}
 	
-	public Form(ResourceBundle resourceBundle, boolean editable) {
-		this(resourceBundle, editable, 1);
-	}
-
 	public Form(ResourceBundle resourceBundle, boolean editable, int columns) {
-		this.resourceBundle = resourceBundle != null ? resourceBundle : Resources.getResourceBundle();
 		this.editable = editable;
 		this.columns = columns;
 		this.formContent = Frontend.getInstance().createFormContent(columns, getColumnWidthPercentage());
@@ -173,6 +167,17 @@ public class Form<T> {
 			add(element, i < keys.length - 1 ? span : rest);
 			rest = rest - span;
 		}
+	}
+	
+	/**
+	 * Use with care. Validation messages cannot be displayed without caption.
+	 * At the moment this method is only meant to be used for the selection
+	 * of elements in a Set of Enum.
+	 */
+	public void lineWithoutCaption(Object key) {
+		FormElement<?> element = createElement(key);
+		formContent.add(element.getComponent());
+		registerNamedElement(element);
 	}
 	
 	private void add(FormElement<?> element, int span) {
@@ -283,8 +288,8 @@ public class Form<T> {
 	
 	//
 
-	private String caption(FormElement<?> field) {
-		return Resources.getObjectFieldName(resourceBundle, field.getProperty());
+	protected String caption(FormElement<?> field) {
+		return Resources.getObjectFieldName(field.getProperty());
 	}
 
 	//

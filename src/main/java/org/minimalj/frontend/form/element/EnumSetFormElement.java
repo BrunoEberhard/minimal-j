@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.minimalj.frontend.action.Action;
@@ -48,12 +47,10 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 
 	@Override
 	protected Form<E> createFormPanel() {
-		String bundleName = enumClass.getName();
-		ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName);
-		Form<E> form = new Form<E>(resourceBundle, true);
+		Form<E> form = new Form<E>(true);
 		for (Object object : allowedValues) {
 			Enum<?> value = (Enum<?>) object;
-			form.line(new CheckBoxFormElement(new EnumSetFieldEditorPropertyInterface(value), EnumUtils.getText((Enum) object), true));
+			form.lineWithoutCaption(new CheckBoxFormElement(new EnumSetFieldEditorPropertyInterface(value), EnumUtils.getText((Enum) object), true));
 		}
 		return form;
 	}
