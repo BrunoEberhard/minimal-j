@@ -240,6 +240,18 @@ td, th {
 	overflow: hidden;
 }
 
+table.form td, th {
+	padding: 1ex 1.5ex;
+}
+
+table.group td:first-child {
+	padding-left: 0ex;
+}
+
+table.group td:last-child {
+	padding-right: 0ex;
+}
+
 table.form input[type="text"], table.form select, table.form textarea {
 	width: 100%;
 }
