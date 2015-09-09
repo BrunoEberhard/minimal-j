@@ -91,7 +91,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public IComponent createComponentGroup(IComponent... components) {
-		JsonComponent group = new JsonComponent("Group", false);
+		JsonComponent group = new JsonComponent("Group", true);
 		group.put("components", Arrays.asList(components));
 		return group;
 	}
