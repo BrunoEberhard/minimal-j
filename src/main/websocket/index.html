@@ -299,7 +299,7 @@
 			}
 		} else if (type == "Group") {
 			element = document.createElement("table");
-			element.className = "group";
+			element.classList.add("group");
 			var tr = document.createElement("tr");
 			element.appendChild(tr);
 			var components = content.components;
