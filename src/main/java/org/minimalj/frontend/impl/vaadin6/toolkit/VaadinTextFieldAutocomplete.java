@@ -8,6 +8,7 @@ import java.util.Map;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.ui.ComboBox;
@@ -17,12 +18,12 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 	private static final long serialVersionUID = 1L;
 
 	private final InputComponentListener listener;
-	private final List<String> choice;
+	private final Search<String> suggestionSearch;
 	private String filterstring;
 	
-	public VaadinTextFieldAutocomplete(List<String> choice, InputComponentListener listener) {
+	public VaadinTextFieldAutocomplete(Search<String> suggestionSearch, InputComponentListener listener) {
 		this.listener = listener;
-		this.choice = choice;
+		this.suggestionSearch = suggestionSearch;
 		addListener(new ComboBoxChangeListener());
 
 		setImmediate(true);
@@ -38,12 +39,7 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 	@Override
 	protected List<?> getFilteredOptions() {
 		if (!StringUtils.isBlank(filterstring)) {
-			List<String> items = new ArrayList<>();
-			for (String i : choice) {
-				if (i != null && i.startsWith(filterstring)) {
-					items.add(i);
-				}
-			}
+			List<String> items = suggestionSearch.search(filterstring);
 			if (items.isEmpty()) {
 				return Collections.singletonList(filterstring);
 			} else if (items.contains(filterstring)) {
@@ -73,8 +69,8 @@ public class VaadinTextFieldAutocomplete extends ComboBox implements IComponent 
 		
 		private final VaadinTextFieldAutocomplete delegate;
 		
-		public VaadinTextAutocompleteDelegate(List<String> choice, InputComponentListener listener) {
-			this.delegate = new VaadinTextFieldAutocomplete(choice, listener);
+		public VaadinTextAutocompleteDelegate(Search<String> suggestionSearch, InputComponentListener listener) {
+			this.delegate = new VaadinTextFieldAutocomplete(suggestionSearch, listener);
 		}
 
 		@Override

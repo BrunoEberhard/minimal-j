@@ -70,7 +70,7 @@ public abstract class Frontend {
 	public abstract IComponent createLabel(Action action);
 	public abstract IComponent createTitle(String string);
 	public abstract Input<String> createReadOnlyTextField();
-	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice, InputComponentListener changeListener);
+	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
 	public abstract IList createList(Action... actions);

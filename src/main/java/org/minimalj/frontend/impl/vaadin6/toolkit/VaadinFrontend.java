@@ -3,7 +3,6 @@ package org.minimalj.frontend.impl.vaadin6.toolkit;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -69,12 +68,12 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch,
 			InputComponentListener changeListener) {
-		if (choice == null) {
+		if (suggestionSearch == null) {
 			return new VaadinTextDelegate(changeListener, maxLength, allowedCharacters);
 		} else {
-			return new VaadinTextAutocompleteDelegate(choice, changeListener);
+			return new VaadinTextAutocompleteDelegate(suggestionSearch, changeListener);
 		}
 	}
 

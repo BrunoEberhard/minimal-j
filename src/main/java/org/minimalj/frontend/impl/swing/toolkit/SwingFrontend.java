@@ -12,7 +12,6 @@ import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.FocusManager;
@@ -115,12 +114,12 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, List<String> choice,
+	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch,
 			InputComponentListener changeListener) {
-		if (choice == null) {
+		if (suggestionSearch == null) {
 			return new SwingTextField(changeListener, maxLength, allowedCharacters);
 		} else {
-			return new SwingTextFieldAutocomplete(changeListener, choice);
+			return new SwingTextFieldAutocomplete(changeListener, suggestionSearch);
 		}
 	}
 

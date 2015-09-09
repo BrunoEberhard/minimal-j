@@ -114,6 +114,11 @@
 		if (dataObject["error"] != undefined) {
 			alert(dataObject["error"]);
 		}
+		if (dataObject["loadSuggestions"] != undefined) {
+			var id = dataObject["loadSuggestions"];
+			var suggestions = dataObject["suggestions"];
+			createSuggestions(id, suggestions);
+		}
 		
 		var block = document.getElementById('block');
 		block.classList.remove("is-blocked"); 
@@ -322,6 +327,11 @@
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.appendChild(document.createTextNode(content.value));
+			}
+			if (content.suggestions != undefined) {
+				element.setAttribute("autocomplete", "off");
+				element.setAttribute("list", content.id + "-list");
+				element.setAttribute("onkeydown", "if (event.keyCode == 40) loadSuggestions(this);");
 			}
 		} else if (type == "AreaField") {
 			element = document.createElement("textarea");
@@ -596,6 +606,27 @@
 		send(data, false);
 	}
 
+	function loadSuggestions(source) {
+		var data = {"loadSuggestions" : source.id, "searchText" : source.value};
+		send(data, false);
+	}
+	
+	function createSuggestions(id, suggestions) {
+		var datalist = document.createElement("datalist");
+		datalist.id = id + "-list";
+		for (var i = 0; i < suggestions.length; i++) {
+			var option = document.createElement("option");
+			option.setAttribute("value", suggestions[i]);
+			datalist.appendChild(option);
+		}
+		
+		var input = document.getElementById(id);
+		while (input.firstChild) {
+			input.removeChild(input.firstChild);
+		}
+		input.appendChild(datalist);
+	}
+	
 	function action(actionId) {
 		var data = {"activatedAction" : actionId};
 		send(data, true);
@@ -603,12 +634,6 @@
 
 	function action(actionId, pageId) {
 		var data = {"activatedAction" : actionId, "focusPageId" : pageId };
-		send(data, true);
-	}
-	
-	function search(searchId) {
-		var searchTextElement = document.getElementById(searchId);
-		var data = {"search" : searchId, "searchText" : searchTextElement.value};
 		send(data, true);
 	}
 

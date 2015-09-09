@@ -118,6 +118,15 @@ public class JsonClientSession implements PageBrowser {
 			Page searchPage = Application.getApplication().createSearchPage(search);
 			show(searchPage);
 		}
+		
+		String loadSuggestions = (String) input.getObject("loadSuggestions");
+		if (loadSuggestions != null) {
+			JsonTextField textField = (JsonTextField) componentById.get(loadSuggestions);
+			String searchText = (String) input.getObject("searchText");
+			List<String> suggestions = textField.getSuggestions().search(searchText);
+			output.add("suggestions", suggestions);
+			output.add("loadSuggestions", loadSuggestions);
+		}
 
 		String login = (String) input.getObject("login");
 		if (login != null) {
