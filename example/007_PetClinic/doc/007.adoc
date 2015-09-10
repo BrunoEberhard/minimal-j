@@ -2,16 +2,19 @@
 
 (This text is not yet complete)
 
-The pet clinic demo application was invented by the spring framework. It is probably meant to be
+The pet clinic demo application was published by the spring framework. It is probably meant to be
 a distant relative to Sun's pet store. The pet store was abonded by Sun and Oracle long ago but the
 pet clinic demo ist still active. I have to admit that the pet clinic also fits the capabilities of
 Minimial-J much better. The pet store heavily uses things like uploads and images. Things that aren't
 implemented at the moment where I write this documentation.
 
-The original pet clinic can be found link: https://github.com/spring-projects/spring-petclinic .
+The source of the original pet clinic can be found https://github.com/spring-projects/spring-petclinic[on github] .
 It can be downloaded and started very easely. Two command lines and the server runs (as long as you
 have maven and java previously installed). Kind of the minimal way ;) On the other hand the single
 maven command downloads quite a bunch of jars. My local maven repository grew around 30MB.
+
+If you don't want to install the original demo: I have found a running instance
+at http://petclinic.cloudapp.net/ .
 
 Let's minimize this application!
 
