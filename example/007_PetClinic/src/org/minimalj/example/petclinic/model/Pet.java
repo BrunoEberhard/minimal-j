@@ -9,6 +9,7 @@ import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Reference;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.util.DateUtils;
 
 public class Pet implements Rendering {
 	public static final Pet $ = Keys.of(Pet.class);
@@ -21,15 +22,17 @@ public class Pet implements Rendering {
 	@NotEmpty @Reference
 	public Owner owner;
 	
+	@NotEmpty
     public LocalDate birthDate;
 
-    public PetType type;
+	@NotEmpty
+	public PetType type;
     
     public final List<Visit> visits = new ArrayList<>();
         
     @Override
     public String render(RenderType renderType) {
-    	return name + ", " + birthDate + ", " + type;
+    	return name + ", " + DateUtils.format(birthDate) + ", " + type.render(renderType);
     }
 
 }

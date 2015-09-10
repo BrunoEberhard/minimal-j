@@ -88,5 +88,10 @@ public class OwnerPage extends ObjectPage<Owner> {
 		protected Object save(Pet pet) {
 			return Backend.persistence().insert(pet);
 		}
+		
+		@Override
+		protected void finished(Object result) {
+			OwnerPage.this.refresh();
+		}
 	}
 }
