@@ -2,7 +2,6 @@ package org.minimalj.frontend.impl.json;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -21,11 +20,14 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 		
 		for (T object : objects) {
 			String id = UUID.randomUUID().toString();
+			String text;
 			if (object instanceof Rendering) {
 				Rendering rendering = (Rendering) object;
-				String text = rendering.render(RenderType.PLAIN_TEXT);
-				options.put(id, text);
+				text = rendering.render(RenderType.PLAIN_TEXT);
+			} else {
+				text = "" + object;
 			}
+			options.put(id, text);
 			objectById.put(id, object);
 		}
 		put("options", options);
