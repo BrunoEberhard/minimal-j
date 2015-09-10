@@ -74,6 +74,10 @@ public abstract class ObjectPage<T> extends Page {
 		object = null;
 	}
 	
+	public void refresh() {
+		setObject(load());
+	}
+	
 	public abstract class ObjectEditor extends Editor<T, T> {
 		
 		@Override
