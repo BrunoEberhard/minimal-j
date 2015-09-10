@@ -26,17 +26,10 @@ public class Owner implements Rendering, Mocking {
     public String city;
 
     @NotEmpty @Size(20)
-    // @Digits(fraction = 0, integer = 10)
     public String telephone;
-    
-//    private transient List<Pet> pets;
     
     public List<Pet> getPets() {
     	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets", List.class);
-//    	if (pets == null) {
-//    		pets = Backend.persistence().read(Pet.class, Criteria.equals(Pet.$.owner, this), 100);
-//    	}
-//		return pets;
     	return Backend.persistence().read(Pet.class, Criteria.equals(Pet.$.owner, this), 100);
 	}
     
