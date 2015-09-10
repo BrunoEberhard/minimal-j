@@ -200,7 +200,15 @@ table {
 	border-spacing: 0px;
 }
 
-.selected {
+td, th {
+	text-align: left;
+	color: black;
+	white-space: nowrap;
+	vertical-align: top;
+	overflow: hidden;
+}
+
+table.selected {
 	background: blue;
 }
 
@@ -231,29 +239,30 @@ table.form tr {
 	height: 3em;
 }
 
-td, th {
-	padding: 1ex 1.5ex;
-	text-align: left;
-	color: black;
-	white-space: nowrap;
-	vertical-align: top;
-	overflow: hidden;
+table.form input[type="text"], table.form input[type="password"], table.form select, table.form textarea {
+	width: 100%;
 }
 
-table.form td, th {
+table.form td, table.form th {
 	padding: 1ex 1.5ex;
 }
 
+/* group (of form elements) must not double the paddings and keep background pattern */
+
+table.group tr {
+	height: auto;
+	background: none;
+}
+
+table.group td {
+	padding: 0ex 1.5ex;
+}
 table.group td:first-child {
 	padding-left: 0ex;
 }
 
 table.group td:last-child {
 	padding-right: 0ex;
-}
-
-table.form input[type="text"], table.form select, table.form textarea {
-	width: 100%;
 }
 
 /* various elements */
