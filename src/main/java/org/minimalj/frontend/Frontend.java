@@ -141,6 +141,8 @@ public abstract class Frontend {
 	
 	public abstract <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener);
 	
+	public abstract IContent createHtmlContent(String htmlOrUrl);
+	
 	//
 	
 	public static void setBrowser(PageBrowser pageBrowser) {

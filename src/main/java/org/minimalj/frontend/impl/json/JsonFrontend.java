@@ -106,6 +106,11 @@ public class JsonFrontend extends Frontend {
 		return new JsonSwitchContent();
 	}
 
+	@Override
+	public IContent createHtmlContent(String htmlOrUrl) {
+		return new JsonHtmlContent(htmlOrUrl);
+	}
+	
 	//
 	
 	static {

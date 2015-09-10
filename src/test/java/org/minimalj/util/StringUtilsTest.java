@@ -79,4 +79,15 @@ public class StringUtilsTest {
 		Assert.assertEquals(null, StringUtils.toConstant(null));
 	}
 	
+	@Test
+	public void isUrl() {
+		Assert.assertTrue(StringUtils.isUrl("http://www.notrealaddress.com/"));
+		Assert.assertTrue(StringUtils.isUrl("https://www.notrealaddress.com/"));
+	}
+
+	@Test
+	public void isHtml() {
+		Assert.assertFalse(StringUtils.isUrl("<html><body>hi</body></html>"));
+		Assert.assertFalse(StringUtils.isUrl("Hi"));
+	}
 }

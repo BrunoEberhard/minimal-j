@@ -400,6 +400,9 @@
 				elementWithActions.appendChild(actionElement);
 				return elementWithActions;
 			}
+		} else if (type == "Url") {
+			element = document.createElement("iframe");
+			element.setAttribute("src", content.htmlOrUrl);
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));

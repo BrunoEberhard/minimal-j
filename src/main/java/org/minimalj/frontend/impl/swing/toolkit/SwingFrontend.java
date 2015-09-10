@@ -28,6 +28,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.impl.swing.SwingTab;
+import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Rendering;
@@ -196,7 +197,12 @@ public class SwingFrontend extends Frontend {
 	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
 		return new SwingTable<T>(keys, listener);
 	}
-		
+	
+	@Override
+	public IContent createHtmlContent(String htmlOrUrl) {
+		return new SwingHtmlContent(htmlOrUrl);
+	}
+	
 	@Override
 	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
 		return new SwingLookup<T>(changeListener, index, keys);

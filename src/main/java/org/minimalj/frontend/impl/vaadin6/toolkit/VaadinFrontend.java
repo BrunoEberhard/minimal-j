@@ -140,10 +140,11 @@ public class VaadinFrontend extends Frontend {
 		return null;
 	}
 	
-
-	
-
-
+	@Override
+	public IContent createHtmlContent(String htmlOrUrl) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
