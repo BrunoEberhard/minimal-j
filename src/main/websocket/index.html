@@ -326,7 +326,7 @@
 			element.setAttribute("onchange", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
-				element.appendChild(document.createTextNode(content.value));
+				element.setAttribute("value", content.value);
 			}
 			if (content.suggestions != undefined) {
 				element.setAttribute("autocomplete", "off");
@@ -338,7 +338,7 @@
 			element.setAttribute("onchange", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
-				element.appendChild(document.createTextNode(content.value));
+				element.setAttribute("value", content.value);
 			}
 		} else if (type == "SearchTextField") {
 			element = document.createElement("input");
