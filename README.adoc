@@ -38,6 +38,7 @@ The small examples are currently deployed on CloudFoundry as online demo. Please
 * link:example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used
 link:http://minimalj-examples.cfapps.io/numbers.html[(online demo)]
 * link:example/006_Persistence/doc/006.adoc[Persistence] Introduction to the O/R mapping
+* link:example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:http://minimalj-examples.cfapps.io/petClinic.html[(online demo)]
 * link:doc/arch.adoc[Architecture] Explains the difference between client/server and frontend/backend
 
 === Real application

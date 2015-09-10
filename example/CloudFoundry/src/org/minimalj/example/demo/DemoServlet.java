@@ -9,6 +9,7 @@ import org.minimalj.example.helloworld2.GreetingApplication;
 import org.minimalj.example.library.MjExampleApplication;
 import org.minimalj.example.notes.NotesApplication;
 import org.minimalj.example.numbers.NumbersApplication;
+import org.minimalj.example.petclinic.PetClinicApplication;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.servlet.MjServlet;
@@ -32,6 +33,7 @@ public class DemoServlet extends MjServlet {
 			application.addApplication("greeting", new GreetingApplication());
 			application.addApplication("numbers", new NumbersApplication());
 			application.addApplication("library", new MjExampleApplication());
+			application.addApplication("petClinic", new PetClinicApplication());
 			
 			Application.setApplication(application);
 			applicationInitialized = true;

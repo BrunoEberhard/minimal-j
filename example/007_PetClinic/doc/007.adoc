@@ -1,5 +1,7 @@
 == Pet Clinic
 
+(This text is not yet complete)
+
 The pet clinic demo application was invented by the spring framework. It is probably meant to be
 a distant relative to Sun's pet store. The pet store was abonded by Sun and Oracle long ago but the
 pet clinic demo ist still active. I have to admit that the pet clinic also fits the capabilities of
@@ -36,9 +38,96 @@ the Person class as inline field in Owner and in Vet:
 
 [source,java,title="Owner.java"]
 ----
+package org.minimalj.example.petclinic.model;
 
+import [..]
 
+public class Owner implements Rendering, Mocking {
+    public static final Owner $ = Keys.of(Owner.class);
+	
+    public Object id;
+	
+    public final Person person = new Person();
+	
+    @NotEmpty @Size(255)
+    public String address;
+
+    @NotEmpty @Size(80)
+    public String city;
+
+    @NotEmpty @Size(20)
+    public String telephone;
+    
+    public List<Pet> getPets() {
+    	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets", List.class);
+    	return Backend.persistence().read(Pet.class, Criteria.equals(Pet.$.owner, this), 100);
+	}
+    
+    @Override
+    public String render(RenderType renderType) {
+    	return person.render(renderType);
+    }
+    
+    @Override
+    public void mock() {
+    	[..]
+    }
+}
 ----
 
+The first lines are maybe to one to be explaind. First the declaration of the
+$ constant. This constant is used to specificy the Form layout and some other places
+were a field can be referenced. It's important to declare this constant final and
+static. The persistence layer checks this at startup and throws an exception if a
+model entity doesn't follow all the rules by Minimal-J.
 
+The id field is as always of class Object. This means the persistence layer is free to use what
+it likes as id class. Most probably it will be a UUID.
 
+The person field is declared final and must be initiallized. This means the Person is
+used as inline field. Inline fields don't get a DB table of their one. Their fields are
+added to the entity where the inline is used. The owner table looks like this:
+
+[source,sql,title="Log of table creation"]
+----
+CREATE TABLE OWNER (
+ id CHAR(36) NOT NULL,
+ FIRST_NAME VARCHAR (30) NOT NULL,
+ LAST_NAME VARCHAR (30) NOT NULL,
+ ADDRESS VARCHAR (255) NOT NULL,
+ CITY VARCHAR (80) NOT NULL,
+ TELEPHONE VARCHAR (20) NOT NULL,
+ PRIMARY KEY (id)
+) 
+----
+
+As the field person has the same name as its class the names don't have a prefix (in case you
+wonder what will happen if an inline Class is used twice). Inlines are good replacement
+for inheritence ('has a' instead of 'is a'). Even better you can inline more than one
+inline and you get kind of multiple inheritence. Maybe it's more like 'traits' in Scala.
+
+The String fields are easy. All of them are required. Their maximum size must be specified
+or the persistence layer will complain.
+
+Then there is the getPets method. Basically it should declare a kind of a virtual field. This
+field is not persisted directly. But a persistence operation is execute if the method is called.
+This explanins the second line.
+
+The first line exists only for the Minimal-J framework. It is necessary for the magic in the
+$ constant. It makes it possible to write Owner.$.getPets() as a reference to a virtual
+field. You don't have do unterstand exactly how this works. But it's important that you
+use the line correctly. The pattern is:
+
+----
+ if (Keys.isKeyObject(this)) return Keys.methodOf(this, NAME_OF_METHOD, RETURN_TYPE.class);
+----
+
+The owner class in the spring version can be found https://github.com/spring-projects/spring-petclinic/blob/master/src/main/java/org/springframework/samples/petclinic/model/Owner.java[here].
+
+=== The pages and editors
+
+To be written
+
+=== Comparison Spring vs. Minimal-J
+
+To be written
