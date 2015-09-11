@@ -28,7 +28,7 @@ public class DbPersistenceHelper {
 	}
 	
 	/**
-	 * @param property
+	 * @param property the property to check
 	 * @return true if property isn't a base object like String, Integer, Date, enum but a dependable
 	 */
 	public static boolean isDependable(PropertyInterface property) {

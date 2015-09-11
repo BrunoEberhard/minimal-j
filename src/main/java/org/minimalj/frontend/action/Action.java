@@ -42,10 +42,8 @@ public abstract class Action {
 	}
 	
 	/**
-	 * Note: this is not supported if the action was used to create
+	 * @param enabled Note: this is not supported if the action was used to create
 	 * a label by the Frontend
-	 * 
-	 * @param enabled
 	 */
 	public void setEnabled(boolean enabled) {
 		if (this.enabled != enabled) {

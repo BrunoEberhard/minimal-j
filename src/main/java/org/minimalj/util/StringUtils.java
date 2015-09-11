@@ -16,9 +16,9 @@ public class StringUtils {
 	/**
 	 * Returns true if one of the strings is equal to the first argument
 	 * 
-	 * @param string
-	 * @param strings
-	 * @return
+	 * @param string the String the other should be compared to
+	 * @param strings one ore more Strings to compare with the first parameter
+	 * @return true if one of the second parameter String is equal
 	 */
 	public static boolean equals(String string, String... strings) {
 		if (string == null) {

@@ -105,8 +105,9 @@ public class Resources {
 	}
 	
 	/**
-	 * Use the constant OPTIONAL if its not an application error when the resource
-	 * is not available.
+	 * @param resourceName the name of the resource. No further prefixes or postfixes are applied
+	 * @param reportIfMissing Use the constant OPTIONAL if its not an application error when the resource is not available
+	 * @return the String or 'resourceName' if the resourceName does not exist
 	 */
 	public static String getString(String resourceName, boolean reportIfMissing) {
 		if (isAvailable(resourceName)) {

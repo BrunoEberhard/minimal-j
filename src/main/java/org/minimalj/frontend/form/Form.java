@@ -206,8 +206,8 @@ public class Form<T> {
 	 * if the to property is a getter that calculates something that
 	 * depends on the fromKey in a simple way.
 	 * 
-	 * @param fromKey
-	 * @param toKey
+	 * @param fromKey the key of the field triggering the update
+	 * @param toKey the field possible changed its value implicitly
 	 */
 	public void addDependecy(Object fromKey, Object... toKey) {
 		PropertyInterface fromProperty = Keys.getProperty(fromKey);
@@ -227,9 +227,9 @@ public class Form<T> {
 	 * 
 	 * This is used if there is a more complex relation between two properities.
 	 * 
-	 * @param fromKey
-	 * @param updater
-	 * @param toKey
+	 * @param fromKey the key of the field triggering the update
+	 * @param updater the updater doing the change of the to field
+	 * @param toKey the changed field by the udpater
 	 */
 	@SuppressWarnings("rawtypes")
 	public <FROM, TO> void addDependecy(FROM fromKey, PropertyUpdater<FROM, TO, T> updater, TO toKey) {

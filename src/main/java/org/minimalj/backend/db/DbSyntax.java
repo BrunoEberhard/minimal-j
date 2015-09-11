@@ -53,7 +53,7 @@ public abstract class DbSyntax {
 //		s.append(" AUTO_INCREMENT");
 //	}
 	
-	/**
+	/*
 	 * Only public for tests. If this method doesnt throw an IllegalArgumentException
 	 * then a property is valid
 	 */
