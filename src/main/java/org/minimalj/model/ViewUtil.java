@@ -28,7 +28,7 @@ public class ViewUtil {
 	
 	/**
 	 * 
-	 * @param field
+	 * @param field field to be checked
 	 * @return true if property or class of property is annotated as View
 	 */
 	public static boolean isView(Field field) {
@@ -40,7 +40,7 @@ public class ViewUtil {
 	
 	/**
 	 * 
-	 * @param property
+	 * @param property property to be checked
 	 * @return true if property or class of property is marked as reference
 	 */
 	public static boolean isReference(PropertyInterface property) {

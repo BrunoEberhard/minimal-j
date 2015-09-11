@@ -173,6 +173,8 @@ public class Form<T> {
 	 * Use with care. Validation messages cannot be displayed without caption.
 	 * At the moment this method is only meant to be used for the selection
 	 * of elements in a Set of Enum.
+	 * 
+	 * @param key field that should be in the form without caption
 	 */
 	public void lineWithoutCaption(Object key) {
 		FormElement<?> element = createElement(key);
@@ -227,6 +229,8 @@ public class Form<T> {
 	 * 
 	 * This is used if there is a more complex relation between two properities.
 	 * 
+	 * @param <FROM> the type (class) of the fromKey / field
+	 * @param <TO> the type (class) of the toKey / field
 	 * @param fromKey the key of the field triggering the update
 	 * @param updater the updater doing the change of the to field
 	 * @param toKey the changed field by the udpater

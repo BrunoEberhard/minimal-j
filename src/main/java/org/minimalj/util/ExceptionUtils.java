@@ -17,8 +17,8 @@ public class ExceptionUtils {
 	 * if a getter fails it's irrelevant if the getter is called
 	 * by a swing class or something else
 	 * 
-	 * @param logger
-	 * @param exception
+	 * @param logger the logger where the ouput should go
+	 * @param exception the exception to be printed
 	 */
 	public static void logReducedStackTrace(Logger logger, Exception exception) {
 		Exception here = new Exception();

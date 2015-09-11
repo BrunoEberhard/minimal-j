@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.HashMap;
@@ -183,10 +182,9 @@ public class DateUtils {
 	 * parsing. Accept dates like 1.2.2013 or 010214
 	 * 
 	 * @param date date as a String or <code>null</code>
-	 * @return LocalDate
-	 * @throws DateTimeParseException
+	 * @return LocalDate date object or <code>null</code>
 	 */
-	public static LocalDate parse(String date) throws DateTimeParseException {
+	public static LocalDate parse(String date) {
 		if (date == null) return null;
 		if (date.contains(".")) {
 			date = parseCH(date, false);

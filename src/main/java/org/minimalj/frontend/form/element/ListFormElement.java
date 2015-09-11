@@ -15,7 +15,6 @@ import org.minimalj.util.CloneHelper;
  * <li>fireChange: The object has to be updated according the widgets</li>
  * </ul>
  *
- * @param <T>
  */
 public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<T>> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());

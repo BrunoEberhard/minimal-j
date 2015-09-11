@@ -22,8 +22,7 @@ public interface Transaction<T> extends Serializable {
 	 * The invocation method for the backend. Application code should not need
 	 * to call this method directly.
 	 * 
-	 * @param backend if the transcation needs things from the Backend this
-	 * provides the access.
+	 * @param persistence the persistence this transaction should use
 	 * @return the return value from the transaction
 	 */
 	public T execute(Persistence persistence);

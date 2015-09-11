@@ -20,8 +20,7 @@ import org.minimalj.util.GenericUtils;
  * <li>display: The widgets have to be updated according to the object</li>
  * <li>fireChange: The object has to be updated according the widgets</li>
  * </ul>
- *
- * @param <T>
+ * 
  */
 public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T> implements Enable {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());

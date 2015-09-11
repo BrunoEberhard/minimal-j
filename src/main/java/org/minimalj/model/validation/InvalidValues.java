@@ -22,7 +22,7 @@ import org.minimalj.model.EnumUtils;
  * value can be stored in the Integer field. All validators should check for
  * invalid values when validating. And when a form field displays a value
  * it should check with the 'isInvalid' method if the value represents an
- * invalid value.<p>
+ * invalid value.
  *
  */
 public class InvalidValues {
@@ -34,6 +34,7 @@ public class InvalidValues {
 	private static LocalDateTime MIN_DATETIME = LocalDateTime.of(0, 1, 1, 0, 0, 0);
 	
 	/**
+	 * @param value to be checked
 	 * @return true if the value is an object created previously with one of the
 	 * createInvalid methods
 	 */

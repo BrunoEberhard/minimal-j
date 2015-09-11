@@ -6,7 +6,7 @@ public interface Rendering {
 		PLAIN_TEXT, HMTL;
 	}
 	
-	/**
+	/*
 	 * Note: If asked for HTML the answer can be a plain text. 
 	 */
 	public String render(RenderType renderType);

@@ -24,7 +24,8 @@ public class PreferencesHelper {
 	/**
 	 * loads a (Minimal-J) Object from a (java.util) Preferences node.
 	 * 
-	 * @param data
+	 * @param preferences the user preferences
+	 * @param data the object to be filled
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void load(Preferences preferences, Object data) {

@@ -20,6 +20,9 @@ public class CloneHelper {
 	 * note: clone works only with special classes validatable through
 	 * ModelTest . 
 	 * 
+	 * @param object the original object
+	 * @param <T> Type of clazz itself (caller of this method doesn't need to care about this)
+	 * @return a (deep) clone of th original object
 	 */
 	public static <T> T clone(T object) {
 		if (object == null) return null;
@@ -39,6 +42,8 @@ public class CloneHelper {
 	 * note: deepCopy works only with special classes validatable through
 	 * ModelTest . 
 	 * 
+	 * @param from the original object
+	 * @param to an empty object to be filled
 	 */
 	public static void deepCopy(Object from, Object to) {
 		if (from == null) throw new IllegalArgumentException("from must not be null");

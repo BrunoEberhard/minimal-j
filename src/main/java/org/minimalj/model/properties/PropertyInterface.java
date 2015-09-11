@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
  * Some properties can be chained. You can as the Keys class for a Property "propertyA.propertyB".
  * This means you get the propertyB of the class used for propertyA. This chains are the
  * reason for the getPath method in this interface. For all other method the last part
- * of the chain is used for ChainedProperties.<p>
+ * of the chain is used for ChainedProperties.
  * 
  */
 public interface PropertyInterface {

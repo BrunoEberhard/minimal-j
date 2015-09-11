@@ -32,8 +32,9 @@ public class Keys {
 	/**
 	 * Warning: Should only be call once per class
 	 * 
-	 * @param clazz
-	 * @return
+	 * @param clazz The class the $ constant should be created and filled
+	 * @param <T> Type of clazz itself (caller of this method doesn't need to care about this)
+	 * @return the $ constant to be declared in business entities
 	 */
 	public static <T> T of (Class<T> clazz) {
 		T object;
