@@ -12,8 +12,13 @@ import org.minimalj.util.FieldUtils;
 public class AnnotationUtil {
 	private static final Logger logger = Logger.getLogger(AnnotationUtil.class.getName());
 	
+	public static final boolean OPTIONAL = true;
+	
 	public static int getSize(PropertyInterface property) {
-
+		return getSize(property, !OPTIONAL);
+	}
+	
+	public static int getSize(PropertyInterface property, boolean optional) {
 		Size size = property.getAnnotation(Size.class);
 		if (size != null) {
 			return size.value();
@@ -42,8 +47,12 @@ public class AnnotationUtil {
 			return Size.LONG;
 		}
 		
-		logger.fine("You must annotate the fields with a @size or the entire class with @sizes");
-		throw new IllegalArgumentException("Size not specified for " + property.getName() + " on " + property.getDeclaringClass());
+		if (optional) {
+			return -1;
+		} else {
+			logger.fine("You must annotate the fields with a @size or the entire class with @sizes");
+			throw new IllegalArgumentException("Size not specified for " + property.getName() + " on " + property.getDeclaringClass());
+		}
 	}
 		
 	public static int getDecimal(PropertyInterface property) {

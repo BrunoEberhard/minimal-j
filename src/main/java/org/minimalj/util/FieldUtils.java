@@ -106,6 +106,7 @@ public class FieldUtils {
 		if (LocalDate.class == fieldType) return true;
 		if (LocalTime.class == fieldType) return true;
 		if (LocalDateTime.class == fieldType) return true;
+		if (fieldType.isArray() && fieldType.getComponentType() == Byte.TYPE) return true;
 		return false;
 	}
 

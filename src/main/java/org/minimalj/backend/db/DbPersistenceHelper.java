@@ -35,6 +35,7 @@ public class DbPersistenceHelper {
 		if (property.getClazz().getName().startsWith("java")) return false;
 		if (Enum.class.isAssignableFrom(property.getClazz())) return false;
 		if (property.isFinal()) return false;
+		if (property.getClazz().isArray()) return false;
 		return true;
 	}
 	
@@ -89,6 +90,8 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.DATE);
 		} else if (ViewUtil.isReference(property)) {
 			preparedStatement.setNull(param, Types.INTEGER);
+		} else if (property.getClazz().isArray()) {
+			preparedStatement.setNull(param, Types.BLOB);			
 		} else if (dbPersistence.table(clazz) != null) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else {

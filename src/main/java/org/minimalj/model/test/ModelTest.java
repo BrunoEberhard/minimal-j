@@ -299,7 +299,7 @@ public class ModelTest {
 			problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
 		}
 		if (fieldType.isArray()) {
-			problems.add(messagePrefix + " is an array which is not allowed");
+			problems.add(messagePrefix + " is an array which is not allowed (except for byte[])");
 		}
 		if (Codes.isCode(fieldType)) {
 			if (!modelClassTypes.containsKey(fieldType)) {

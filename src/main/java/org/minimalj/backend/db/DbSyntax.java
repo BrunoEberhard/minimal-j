@@ -67,7 +67,7 @@ public abstract class DbSyntax {
 		} else if (clazz == String.class) {
 			s.append("VARCHAR");
 			int size = AnnotationUtil.getSize(property);
-			s.append(" ("); s.append(size); s.append(")");
+			s.append(" (").append(size).append(")");
 		} else if (clazz == LocalDate.class) {
 			s.append("DATE");
 		} else if (clazz == LocalTime.class) {
@@ -79,9 +79,9 @@ public abstract class DbSyntax {
 			int size = AnnotationUtil.getSize(property);
 			int decimal = AnnotationUtil.getDecimal(property);
 			if (decimal == 0) {
-				s.append(" (" + size + ")");
+				s.append(" (").append(size).append(")");
 			} else {
-				s.append(" (" + size + ", " + decimal + ")");
+				s.append(" (").append(size).append(" ").append(decimal).append(")");
 			}
 		} else if (clazz == Boolean.class) {
 			s.append("BIT"); // MariaDB. DerbyDB is different
@@ -89,6 +89,12 @@ public abstract class DbSyntax {
 			s.append("INTEGER");
 		} else if (clazz == Set.class) {
 			s.append("INTEGER");
+		} else if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
+			s.append("BLOB");		
+			int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
+			if (size > 0) {
+				s.append(" (").append(size).append(")");
+			}
 		} else {
 			if (IdUtils.hasId(clazz)) {
 				PropertyInterface idProperty = Properties.getProperty(clazz, "id");
@@ -158,6 +164,27 @@ public abstract class DbSyntax {
 			s.append("\n) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED\n");
 		}
 
+		@Override
+		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+			Class<?> clazz = property.getClazz();
+			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
+				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
+				if (size < 0) {
+					s.append("LONGBLOB");	
+				} else if (size < 256) {
+					s.append("TINYBLOB");		
+				} else if (size < 65536) {
+					s.append("BLOB");		
+				} else if (size < 16777215) {
+					s.append("MEDIUMBLOB");		
+				} else {
+					s.append("LONGBLOB");		
+				}
+			} else  {
+				super.addColumnDefinition(s, property);
+			}
+		}
+		
 		@Override
 		public int getMaxIdentifierLength() {
 			return 64;

@@ -13,7 +13,7 @@ public class DbCrudTest {
 	
 	@BeforeClass
 	public static void setupDb() {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class);
+		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class);
 	}
 	
 	@AfterClass
@@ -123,6 +123,22 @@ public class DbCrudTest {
 
 		h = persistence.read(H.class, id);
 		Assert.assertNull("Dependable should be removed", h.k);
+	}
+	
+	@Test
+	public void testByteArray() throws Exception {
+		M m = new M();
+		Object id = persistence.insert(m);
+
+		m = persistence.read(M.class, id);
+		m.bytes = new byte[]{1,2,3};
+		persistence.update(m);
+
+		m = persistence.read(M.class, id);
+		Assert.assertNotNull("Byte array should be available", m.bytes);
+		Assert.assertEquals("Content of byte array should be stored", 3, m.bytes.length);
+		
+		persistence.delete(m);
 	}
 
 	private Object writeSimpleA() {

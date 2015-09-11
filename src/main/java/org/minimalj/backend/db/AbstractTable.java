@@ -386,7 +386,10 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = columns.get(columnName);
 			if (property == null) continue;
 			
-			Object value = resultSet.getObject(columnIndex);
+			Class<?> fieldClass = property.getClazz();
+			boolean isByteArray = fieldClass.isArray() && fieldClass.getComponentType() == Byte.TYPE;
+
+			Object value = isByteArray ? resultSet.getBytes(columnIndex) : resultSet.getObject(columnIndex);
 			if (value == null) continue;
 			values.put(property, value);
 		}
