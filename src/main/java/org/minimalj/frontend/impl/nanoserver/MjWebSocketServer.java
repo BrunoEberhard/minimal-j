@@ -10,10 +10,11 @@ import java.util.logging.Logger;
 
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonHandler;
-import org.minimalj.frontend.impl.nanoserver.httpd.NanoHTTPD.Response.Status;
-import org.minimalj.frontend.impl.nanoserver.httpd.NanoWebSocketServer;
-import org.minimalj.frontend.impl.nanoserver.httpd.NanoWebSocketServer.WebSocketFrame.CloseCode;
 import org.minimalj.util.resources.Resources;
+
+import fi.iki.elonen.NanoHTTPD.Response.Status;
+import fi.iki.elonen.NanoWebSocketServer;
+import fi.iki.elonen.NanoWebSocketServer.WebSocketFrame.CloseCode;
 
 public class MjWebSocketServer extends NanoWebSocketServer {
 	private static final Logger logger = Logger.getLogger(MjWebSocketServer.class.getName());

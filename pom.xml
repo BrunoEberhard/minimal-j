@@ -132,6 +132,16 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+	        <groupId>org.nanohttpd</groupId>
+	        <artifactId>nanohttpd</artifactId>
+	        <version>2.2.0-SNAPSHOT</version>
+	    </dependency>
+		<dependency>
+	        <groupId>org.nanohttpd</groupId>
+	        <artifactId>nanohttpd-websocket</artifactId>
+	        <version>2.2.0-SNAPSHOT</version>
+	    </dependency>
+		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<version>10.11.1.1</version>
@@ -168,6 +178,16 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+	<!-- remove this after release of nanoHttpd -->
+	<repositories>
+		<repository>
+			<id>sonatype-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
