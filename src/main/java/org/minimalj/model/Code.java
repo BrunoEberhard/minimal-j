@@ -6,7 +6,7 @@ package org.minimalj.model;
  * time to time. Typically there is an initial load after the
  * persistence (database) is created.<p>
  * 
- * This is for things like 'YES'/'NO' where there is no chance of change
+ * For things like 'YES'/'NO' where there is no chance of change
  * or updates at all you better use enums.<p>
  * 
  * A code is always a view. Meaning if a code is referenced in an
