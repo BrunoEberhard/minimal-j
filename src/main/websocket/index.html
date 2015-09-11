@@ -403,6 +403,12 @@
 		} else if (type == "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);
+			element.className = "urlpage";
+			// element.setAttribute("onload", "iframeLoaded()"); iframe.height = iFrameID.contentWindow.document.body.scrollHeight + "px";
+		} else if (type == "Html") {
+			element = document.createElement("div");
+			element.className = "htmlpage";
+			element.innerHTML = content.htmlOrUrl;
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
