@@ -85,7 +85,8 @@ static. The persistence layer checks this at startup and throws an exception if 
 model entity doesn't follow all the rules by Minimal-J.
 
 The id field is as always of class Object. This means the persistence layer is free to use what
-it likes as id class. Most probably it will be a UUID.
+it likes as id class. Most probably it will be a UUID but that's up to the persistence
+layer.
 
 The person field is declared final and must be initiallized. This means the Person is
 used as inline field. Inline fields don't get a DB table of their one. Their fields are
@@ -118,14 +119,149 @@ This explanins the second line.
 
 The first line exists only for the Minimal-J framework. It is necessary for the magic in the
 $ constant. It makes it possible to write Owner.$.getPets() as a reference to a virtual
-field. You don't have do unterstand exactly how this works. But it's important that you
+field. You don't have to unterstand exactly how this works. But it's important that you
 use the line correctly. The pattern is:
-
+[source,java]
 ----
  if (Keys.isKeyObject(this)) return Keys.methodOf(this, NAME_OF_METHOD, RETURN_TYPE.class);
 ----
 
-The owner class in the spring version can be found https://github.com/spring-projects/spring-petclinic/blob/master/src/main/java/org/springframework/samples/petclinic/model/Owner.java[here].
+[source,java,title="Vet.java"]
+----
+package org.minimalj.example.petclinic.model;
+
+import [..]
+
+public class Vet {
+	public static final Vet $ = Keys.of(Vet.class);
+	
+	public Object id;
+	
+	public final Person person = new Person();
+	
+    public final Set<Specialty> specialties = new HashSet<>();
+}
+----
+
+The $ constant and the id of class Object are getting familiar. Then again the Vet class makes
+use of a Person as a inline Object.  Only the last field is somehow new. It's a (final) Set of
+an enum class. In the framework this Set is mapped to an Integer. This is way the enum class
+can have at most 32 values.
+
+[source,java,title="Speciality.java"]
+----
+package org.minimalj.example.petclinic.model;
+
+public enum Specialty {
+	radiology, surgery, dentistry;
+}
+----
+
+Speciality is declared as an enum in this example. In a real world application it might be rather
+be declared as a Code. Enum values can only be changed by changing the class. Codes can be
+added at runtime. But as codes cannot be used as elements of a 'final Set' the model gets more
+complicate.
+
+To explain this: what if vets could only treat certain types of pets? You would need an additional
+class:
+[source,java]
+----
+public class TreatablePet {
+	public PetType petType;
+}
+----
+Note that there is no id field in TreatablePet. TreatablePet is a completly depended on the Vet class.
+The field would be declared as 
+[source,java]
+----
+    public final List<TreatablePet> treatablePet = new ArrayList<>();
+----
+Such a list is only allowed because TreatablePet doesn't contain an id field. Entities cannot contain
+other entities directly. This is to avoid slow loading operations and logical problems when
+updating entities.
+
+Now for the PetType entity. This is an example for a Code:
+[source,java,title="PetType.java"]
+----
+package org.minimalj.example.petclinic.model;
+
+import [..]
+
+public class PetType implements Code, Rendering {
+	public Object id;
+
+	@NotEmpty @Size(80)
+	public String name;
+	
+	@Override
+	public String render(RenderType renderType) {
+		return name;
+	}
+}
+----
+An entity is declared to be a Code by implementing the Code interface. The Code interface is an
+extension of the View interface. But both interfaces are marker interface. They declare not
+methods or constants at all. So why bother? Because of how codes are treated by the persistence
+layer.
+
+When an entity is inserted or updated and this entity contains a Code then this Code itself is
+not touched by this operation. Meaning the frontend could have changed the name of the PetType
+before setting it to the pet. Then send it to the backend for persisting. The pet would still
+referered as the original type.
+
+NOTE: This behavior is always important to remember. It stands for codes but also for views. Actually it's
+the main behavior of views. Views are normally are parts of normal entities (selected non-list fields). Codes are like 
+'views on themself' (this is also the reason why the Code interface overrides the generic of the
+View interface).
+
+Codes have another speciality. Their initial values can be specified. This can happen in two ways.
+The first one is to have a csv - file with the same name in the same package as the Code class
+itself. For the PetClinic example I use this method. The csv file has this content:
+----
+name
+Cat
+Dog
+Lizard
+Snake
+Bird
+Hamster
+----
+The first line declares the field names to be filled. Than simply the instances are listed.
+
+Then there is a second way to declare fields. That way is to prefered when the values of the codes
+are used in the application code itself. In the PetClinic we don't need this. For example we don't
+have a restricition that a visit can only be entered for a specific PetType.
+
+Still here the example of such a Code declaration:
+[source,java]
+----
+package org.minimalj.example.petclinic.model;
+
+import [..]
+
+public class PetType implements Code, Rendering {
+
+	public Object id;
+
+	public static final PetType mouse = new PetType("Mouse");
+	
+	public PetType() {
+	}
+	
+	public PetType(String name) {
+		this.name = name;
+	}
+	
+	[..]
+}
+----
+The declaration is only one line but because now there is a constuctor with an argument the constructor
+without arguments has to be declared too to stay public accessible. The framework looks in the Code
+classes for public static final declarations of objects of the right class. These are recognized as
+needed constants.
+
+Both types of initial values are created when the database table is created. The two types of
+initival values declaration can also be mixed.
 
 === The pages and editors
 
@@ -134,3 +270,5 @@ To be written
 === Comparison Spring vs. Minimal-J
 
 To be written
+
+The owner class in the spring version can be found https://github.com/spring-projects/spring-petclinic/blob/master/src/main/java/org/springframework/samples/petclinic/model/Owner.java[here].
