@@ -26,7 +26,7 @@ import org.minimalj.util.resources.Resources;
  * 
  * Set the first argument of the JVM if the application
  * is started with SwingFrontend as main class or set the <code>init-param</code> in the servlet
- * element in the <code>web.xml</code> if the VaadinFrontend is used.<p>
+ * element in the <code>web.xml</code> if a web server is used.<p>
  *
  * All non static methods can be overridden to define the behavior
  * of the application.
