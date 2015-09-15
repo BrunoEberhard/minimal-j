@@ -54,7 +54,7 @@ you can remove the compile scope when doing this.
 
 * Derby DB (with driver)
 * The Maria DB JDBC driver
-* Vaadin (Web UI)
+* NanoHttpd (Web UI)
 * Lanterna (Terminal UI)
 
 === Build
@@ -68,10 +68,9 @@ mvn clean install
 === Start
 
 Then you can start your application with a frontend of your choice. But for some frontend
-some preparations must be done. If you want to use Vaadin your project needs the dependency
-to Vaadin and a WEB-INF directory with a properly configured web.xml. Only the Swing and
-the WebSocket frontend work out of the box. This is the reason why a like to start with
-the Swing frontend so much. You don't need a tomcat and/or all the JEE stuff.
+some preparations must be done. If you want to start a standalone web application your project needs the dependency
+to nanohttpd. To deploy on web server a WEB-INF directory with a proper web.xml must be configured. Only the Swing frontend works out of the box.
+This is the reason why a like to start with the Swing frontend so much. You don't need a tomcat and/or all the JEE stuff.
 
 You can put together a correct classpath by yourself or you can delegate this to maven
 by using the exec plugin
@@ -86,7 +85,5 @@ The WebSocket Frontend is started the same way.
 mvn exec:java -Dexec.mainClass="org.minimalj.frontend.websocket.WebSocketApplicationServer" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
 ----
 
-Most of the frontends are started like this. Of course not the Vaadin frontend which needs a
-Tomcat or some other container to run. There you have to deploy the application to the server
-and start the server.
+Most of the frontends are started like this.
 
