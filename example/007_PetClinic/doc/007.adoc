@@ -265,7 +265,59 @@ initival values declaration can also be mixed.
 
 === The pages and editors
 
-To be written
+All the frontend stuff is in the package org.minimalj.example.petclinic.frontend . In a larger project you
+could hold separate packages for editors and pages. Or you could do the packaging more according to the
+business areas. It's up to you.
+
+=== Owner search page
+
+The OwnerSearchPage is a SimpleSearchPage. Why simple? Because the objects displayed are not a reduced version
+but the business entities itself. For complex entities with lots of depending objects it's a good idea to
+have a search entitiy (a view) of the complex entitiy. So you load only a small part of the data. Then when
+the user wants to display a single entity in its full beauty you have to reload the entity with all depending
+objects. Obviously for that you have to have two classes and the SearchPage needs exactly these two classes
+as generic types.
+
+But as said the owner search page is simple and doesn't separate the type of the displayed object from the type
+of a possible detail.
+[source,java,title="OwnerSearchPage.java"]
+----
+package org.minimalj.example.petclinic.frontend;
+
+import [..];
+
+public class OwnerSearchPage extends SimpleSearchPage<Owner> {
+	private static final Object[] keys = {Owner.$.person.getName(), Owner.$.address, Owner.$.city, Owner.$.telephone};
+	
+	public OwnerSearchPage(String query) {
+		super(query, keys);
+	}
+
+	@Override
+	protected List<Owner> load(String query) {
+		return Backend.persistence().read(Owner.class, Criteria.search(query), 100);
+	}
+
+	@Override
+	public ObjectPage<Owner> createDetailPage(Owner owner) {
+		return new OwnerPage(owner);
+	}
+}
+----
+In the constructor the query entered by the user is passed to the super class together with the key used for the
+columns in the table. The load method needs as its name says load the entities displayed in the result table.
+Maybe this method could be provided by the abstract search page. But then the OwnerSearchPage would not be very
+readable. It wouldn't be clear what exactly this page does. There is still enough magic here. Because how does
+the backend know in which fields it has to search for the given String? This is specified by the @Search
+annotation in the Person class:
+[source,java]
+----
+	@NotEmpty @Size(30) @Searched
+	public String firstName, lastName;
+----
+The last method of OwnerSearchPage returns the page to be displayed when the user activates a single result. In
+most frontends this means the user has double clicked on a row.
+
 
 === Comparison Spring vs. Minimal-J
 
