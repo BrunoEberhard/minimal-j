@@ -3,20 +3,10 @@
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	id="WebApp_ID" version="2.5">
-	<display-name>Minimal-J_Example</display-name>
-	<context-param>
-		<description>Vaadin production mode</description>
-		<param-name>productionMode</param-name>
-		<param-value>true</param-value>
-	</context-param>
+	<display-name>Library example</display-name>
 	<servlet>
-		<servlet-name>Minimal-J_Example</servlet-name>
-		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
-		<init-param>
-			<description>Vaadin application class to start</description>
-			<param-name>application</param-name>
-			<param-value>org.minimalj.frontend.vaadin.VaadinApplication</param-value>
-		</init-param>
+		<servlet-name>Library</servlet-name>
+		<servlet-class>org.minimalj.frontend.impl.servlet.MjServlet</servlet-class>
 		<init-param>
 			<description>Minimal-J application class to start</description>
 			<param-name>Application</param-name>
@@ -24,15 +14,7 @@
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Minimal-J_Example</servlet-name>
+		<servlet-name>Library</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.htm</welcome-file>
-		<welcome-file>index.jsp</welcome-file>
-		<welcome-file>default.html</welcome-file>
-		<welcome-file>default.htm</welcome-file>
-		<welcome-file>default.jsp</welcome-file>
-	</welcome-file-list>
 </web-app>

@@ -19,11 +19,4 @@
 		</plugins>
 		<sourceDirectory>src</sourceDirectory>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>org.minimalj</groupId>
-			<artifactId>minimalj</artifactId>
-			<version>0.5.0.0</version>
-		</dependency>
-	</dependencies>
 </project>
