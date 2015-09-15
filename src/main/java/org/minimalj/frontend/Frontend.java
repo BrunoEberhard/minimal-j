@@ -11,7 +11,7 @@ import org.minimalj.frontend.page.PageBrowser;
  * <OL>
  * <LI>This class, like XyFrontend</LI>
  * <LI>Some kind of XyApplication with a main. The XyApplication should take an instance of Application and 
- * start the client. Take a look at the existing SwingFrontend, VaadinFrontend or LanternaFrontend. The trickiest part will be to implement
+ * start the client. Take a look at the existing SwingFrontend, JsonFrontend or LanternaFrontend. The trickiest part will be to implement
  * the PageBrowser.</LI>
  * </OL>
  *
