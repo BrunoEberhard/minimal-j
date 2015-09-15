@@ -10,7 +10,7 @@
 		<init-param>
 			<description>Minimal-J application class to start</description>
 			<param-name>Application</param-name>
-			<param-value>org.minimalj.example.notes2.NotesApplication</param-value>
+			<param-value>org.minimalj.example.notes.NotesApplication</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
