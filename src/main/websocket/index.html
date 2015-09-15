@@ -21,7 +21,10 @@
 	var isLarge = !isSmall && !isMedium;
 
 	var titleElement = document.getElementsByTagName("title")[0];
-
+	
+	var shownPagesSinceLastSearch = 0;
+	var searchNumber = 0;
+	
 	function onMessage(evt) {
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
@@ -30,14 +33,10 @@
 			var pageId = dataObject.pageId;
 			var masterPageId = dataObject.masterPageId;
 			var actionMenu = dataObject.actionMenu;
-			if (history.state != pageId) {
-				if (pageId.indexOf("default") == 0) {
-					history.replaceState(pageId, title);
-				} else {
-					history.pushState(pageId, title);
-				}
-			}
 			showContent(pageId, title, dataObject["content"], actionMenu, masterPageId);
+			if (masterPageId == undefined) {
+				shownPagesSinceLastSearch = shownPagesSinceLastSearch + 1;
+			}
 			titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);
 		} else if (dataObject["pageId"] != undefined) {
 			var title = dataObject.title;
@@ -730,6 +729,10 @@
 			var search = searchElement.value;
 			if (search != undefined && search.length > 0) {
 				var data = {"search" : search};
+				shownPagesSinceLastSearch = 0;
+				searchNumber = searchNumber + 1;
+				var state = {"nr" : searchNumber, "s": search};
+				history.pushState(state, "Search '" + search + "''");
 				send(data, true);
 			} else {
 				searchElement.style.display = "none";
@@ -737,14 +740,35 @@
 		}
 	}
 	
+
+	function popState(event) {
+		if (event.state) {
+			var inDetail = shownPagesSinceLastSearch > 1;
+			var directionIsBackward = searchNumber - 1 == event.state.nr;
+			if (inDetail && directionIsBackward) {
+				history.forward(); // redo the same search
+			} else {
+				var data = {
+					"search" : event.state.s
+				};
+				shownPagesSinceLastSearch = 0;
+				send(data, true);
+			}
+		} else {
+			send({
+				"showDefaultPage" : "default-" + (new Date().getTime())
+			});
+		}
+	}
+
 	function send(data, block) {
 		data.locale = "$LOCALE";
-		
+
 		var pathname = location.pathname;
 		var index = pathname.lastIndexOf("/");
 		data.pagename = pathname.substring(index + 1);
 
-		var pathname = pathname.substring(0, index + 1);		
+		var pathname = pathname.substring(0, index + 1);
 		if (websocket == null || websocket.readyState > 1) {
 			var wsProtocol = (window.location.protocol == "https:" || $FORCE_WSS) ? "wss" : "ws";
 			var hostAndPort = location.host + "$PORT";
@@ -759,9 +783,9 @@
 		} else {
 			if (block) {
 				var block = document.getElementById("block");
-				block.classList.add("is-blocked"); 
+				block.classList.add("is-blocked");
 			}
-			      
+
 			data.session = session;
 			websocket.send(JSON.stringify(data));
 		}
@@ -773,15 +797,15 @@
 			if (isLarge) {
 				for (var i = 0; i < dialogElements.length; i++) {
 					var dialogElement = dialogElements[i];
-					dialogElement.style.top = (i+3) + "em";
-					dialogElement.style.left = (i+18) + "em";
-					
+					dialogElement.style.top = (i + 3) + "em";
+					dialogElement.style.left = (i + 18) + "em";
+
 					var contentElement = dialogElement.querySelector("#dialogContent");
 					var type = dialogElement.getAttribute("type");
 					var height = Math.max(100, height = window.innerHeight - 140);
-					
+
 					contentElement.style.maxHeight = height + "px";
-					
+
 					if (type == "SearchDialog") {
 						contentElement.style.height = height + "px";
 						dialogElement.style.width = "auto";
@@ -790,11 +814,11 @@
 					}
 				}
 			} else {
-				for (var i = 0; i < dialogElements.length-1; i++) {
+				for (var i = 0; i < dialogElements.length - 1; i++) {
 					var dialogElement = dialogElements[i];
 					dialogElement.style.display = "none";
 				}
-				
+
 				var dialogElement = dialogElements[dialogElements.length - 1];
 				dialogElement.style.display = "block";
 				dialogElement.classList.add("phone");
@@ -803,16 +827,18 @@
 			}
 		}
 	}
-	
+
 	function changeLogin() {
-		send({"login" : "login-" + (new Date().getTime())}, true);
+		send({
+			"login" : "login-" + (new Date().getTime())
+		}, true);
 	}
-	
+
 	function reduceForMobile() {
 		document.getElementById("search").style.display = "none";
 		document.getElementById("navigationHeader").style.display = "none";
 	}
-	
+
 	function installHammer() {
 		var container = document.getElementById("container");
 		var mc = new Hammer(container);
@@ -823,9 +849,9 @@
 		mc.on("pinchin", pinchin);
 		mc.on("pinchout", pinchout);
 	}
-	
+
 	function panright(event) {
-		if (event.isFinal)	{
+		if (event.isFinal) {
 			var actionMenus = document.getElementsByClassName("actionMenu");
 			if (actionMenus != undefined && actionMenus.length > 0) {
 				if (actionMenus[0].style.display != "none") {
@@ -839,7 +865,8 @@
 
 	function panleft(event) {
 		if (event.isFinal) {
-			if (toggleNavigation("close")) return;
+			if (toggleNavigation("close"))
+				return;
 			var actionMenus = document.getElementsByClassName("actionMenu");
 			if (actionMenus != undefined && actionMenus.length > 0) {
 				if (actionMenus[0].style.display != "block") {
@@ -848,7 +875,7 @@
 			}
 		}
 	}
-	
+
 	function doubletaps() {
 		document.getElementById("all").style.fontSize = "20px";
 		var actionMenus = document.getElementsByClassName("actionMenu");
@@ -860,26 +887,24 @@
 			}
 		}
 	}
-	
+
 	function pinchin() {
 		document.getElementById("all").style.fontSize = "20px";
 	}
-	
+
 	function pinchout() {
 		document.getElementById("all").style.fontSize = "11px";
 	}
-	
+
 	function init() {
-		window.addEventListener("resize", updateDialogSizes);
-		send({"showDefaultPage" : "default-" + (new Date().getTime())});
 		if (!$AUTHORIZATION) {
 			document.getElementById("loginSpan").classList.add("hide");
 		}
-		
+
 		if (!isLarge) {
-			reduceForMobile();		
+			reduceForMobile();
 			installHammer();
-			
+
 			var styleElement = document.getElementById("dynamicStyle");
 			var styleSheet = styleElement.sheet;
 			styleSheet.insertRule(".minimizePageButton, .closePageButton { display: none; }", 0);
@@ -893,8 +918,14 @@
 		} else {
 			toggleNavigation("open");
 		}
+
+		window.addEventListener("resize", updateDialogSizes);
+		window.onpopstate = popState;
+
+		send({
+			"showDefaultPage" : "default-" + (new Date().getTime())
+		});
 	}
-	
 </script>
 <style id="dynamicStyle"></style>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
