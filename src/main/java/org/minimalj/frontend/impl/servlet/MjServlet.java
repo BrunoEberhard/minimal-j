@@ -1,13 +1,10 @@
 package org.minimalj.frontend.impl.servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.util.StringUtils;
 
@@ -25,31 +23,25 @@ public class MjServlet extends HttpServlet {
 	
 	protected void initializeApplication() {
 		if (!applicationInitialized) {
-			String applicationName = getServletContext().getInitParameter("Application");
+			Frontend.setInstance(new JsonFrontend());
+			String applicationName = getServletConfig().getInitParameter("Application");
 			if (StringUtils.isBlank(applicationName)) {
 				throw new IllegalArgumentException("Missing Application parameter");
 			}
+			copyPropertiesFromServletConfigToSystem();
 			Application application = Application.createApplication(applicationName);
 			Application.setApplication(application);
-			copyPropertiesFromServletContextToSystem();
 			applicationInitialized = true;
 		}
 	}
 	
-	private void copyPropertiesFromServletContextToSystem() {
-		Enumeration<?> propertyNames = getServletContext().getInitParameterNames();
+	private void copyPropertiesFromServletConfigToSystem() {
+		Enumeration<?> propertyNames = getServletConfig().getInitParameterNames();
 		while (propertyNames.hasMoreElements()) {
 			String propertyName = (String) propertyNames.nextElement();
 			System.setProperty(propertyName, getServletContext().getInitParameter(propertyName));
 		}
 	}	
-	
-	// http://stackoverflow.com/questions/309424/read-convert-an-inputstream-to-a-string
-	// There is a better solution in Java 9 ;)
-	private static String readStream(InputStream inputStream) {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		return reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
-	}
 	
 	@Override
 	public void init() throws ServletException {
