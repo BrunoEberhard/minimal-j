@@ -3,15 +3,23 @@
 <title>Loading</title>
 
 <script src="dialog-polyfill.js"></script>
+<script src="hammer.min.js"></script>
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 
 <link rel="stylesheet" type="text/css" href="mj.css" />
 
 <script type="text/javascript">
 	"use strict";
+
 	var websocket;
 	var session;
-	var isMobile = false // window.outerWidth <= 480; //navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/); 
+	
+	var isMobile = location.search == "?mobile"; 
+
+	var isSmall = location.search == "?small" || isMobile; 
+	var isMedium = location.search == "?medium"; 
+	var isLarge = !isSmall && !isMedium;
+
 	var titleElement = document.getElementsByTagName("title")[0];
 
 	function onMessage(evt) {
@@ -54,6 +62,7 @@
 			var dialog = document.getElementById(dataObject["closeDialog"]);
 			dialog.close();
 			document.querySelector("body").removeChild(dialog);
+			updateDialogSizes();
 		}
 		if (dataObject["propertyChanges"] != undefined) {
 			var propertyChanges = dataObject["propertyChanges"];
@@ -120,6 +129,10 @@
 			createSuggestions(id, suggestions);
 		}
 		
+		if (!isLarge) {
+			document.getElementById("search").style.display = "none";
+		}
+		
 		var block = document.getElementById('block');
 		block.classList.remove("is-blocked"); 
 	}
@@ -127,9 +140,10 @@
 	function onError(evt) {
 	}
 
-	function showContent(pageId, title, content, actionMenu, detail) {
+	function showContent(pageId, title, content, actionMenu, masterPageId) {
 		var pageContainerElement = document.getElementById("pageContainer");
-		while (pageContainerElement.lastChild && pageContainerElement.lastChild.id != detail) {
+		// only on large devices more than one page is displayed at a time
+		while (pageContainerElement.lastChild && (!isLarge || pageContainerElement.lastChild.id != masterPageId)) {
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
 		
@@ -137,10 +151,29 @@
 		pageElement.className = "page";
 		pageElement.id = pageId;
 
-		var headerElement = createPageHeader(title);
-		pageElement.appendChild(headerElement);
+		if (actionMenu != null) {
+			var actionMenuElement = createMenu(actionMenu, pageId);
+			actionMenuElement.classList.add("actionMenu");
+			actionMenuElement.style.display = "none";
+			pageElement.appendChild(actionMenuElement);
+		}
 		
-		var actionMenuButton = headerElement.querySelector(".actionMenuButton");
+		if (isLarge) {
+			var headerElement = createPageHeader(title);
+			pageElement.appendChild(headerElement);
+			var actionMenuButton = headerElement.querySelector(".actionMenuButton");
+			if (actionMenu != null) {
+				actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
+			} else {
+				actionMenuButton.style.display = "none";
+			}
+		} else {
+			var pageHeaderElement = document.getElementById("pageTitle");
+			while (pageHeaderElement.firstChild) {
+				pageHeaderElement.removeChild(pageHeaderElement.firstChild);
+			}
+			pageHeaderElement.appendChild(document.createTextNode(title));
+		}
 		
 		if (content != null) {
 			var contentElement = createContent(content);
@@ -149,18 +182,9 @@
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
-		
-		if (actionMenu != null) {
-			var actionMenuElement = createMenu(actionMenu, pageId);
-			actionMenuElement.classList.add("actionMenu");
-			actionMenuElement.style.display = "none";
-			pageElement.appendChild(actionMenuElement);
-			actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
-		} else {
-			actionMenuButton.style.display = "none";
-		}
-		
 		pageContainerElement.appendChild(pageElement);
+		
+		
 		pageElement.scrollIntoView();
 	}
 
@@ -178,17 +202,6 @@
 				event.preventDefault();
 			}
 		}
-	}
-	
-	function toggleSubMenu(event) {
-		var element = event.srcElement;
-		var actionSubMenuElement = element.querySelector("ul");
-		if (actionSubMenuElement.style.display == "block") {
-			actionSubMenuElement.style.display = "none";
-		} else {
-			actionSubMenuElement.style.display = "block";
-		}
-		event.preventDefault();
 	}
 	
 	function togglePage(event) {
@@ -252,8 +265,8 @@
 		var button = b.cloneNode(true);
 		button.id = "menu";
 		button.setAttribute("style", "position: absolute; right: 1em; top: 0.2em;"); 
-		
 		element.appendChild(button);
+
 		return element;
 	}
 	
@@ -272,15 +285,16 @@
 		var enabled = content.editable == undefined || content.editable;
 		if (type == "Form") {
 			element = document.createElement("table");
-			element.classList.add("form")
-			element.columns = content.columns;
-			if (!isMobile) {
+			element.classList.add("form")			
+			if (isLarge) {
+				element.columns = content.columns;
 				element.style.width = (content.columns * content.columnWidth / 6) + "em";
 			} else {
+				element.columns = isSmall ? 1 : 2;
 				element.style.width = "100%";
 			}
 			var rows = content.rows;
-			element.appendChild(createFormRows(rows));
+			element.appendChild(createFormRows(rows, element.columns));
 		} else if (type == "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -305,13 +319,23 @@
 		} else if (type == "Group") {
 			element = document.createElement("table");
 			element.classList.add("group");
-			var tr = document.createElement("tr");
-			element.appendChild(tr);
 			var components = content.components;
-			for (var i = 0; i < components.length; i++) {
-				var td = document.createElement("td");
-				td.appendChild(createContent(components[i]));
-				tr.appendChild(td);
+			if (!isSmall) {
+				var tr = document.createElement("tr");
+				element.appendChild(tr);
+				for (var i = 0; i < components.length; i++) {
+					var td = document.createElement("td");
+					td.appendChild(createContent(components[i]));
+					tr.appendChild(td);
+				}
+			} else {
+				for (var i = 0; i < components.length; i++) {
+					var tr = document.createElement("tr");
+					element.appendChild(tr);
+					var td = document.createElement("td");
+					td.appendChild(createContent(components[i]));
+					tr.appendChild(td);
+				}
 			}
 		} else if (type == "Switch") {
 			element = document.createElement("div");
@@ -422,17 +446,23 @@
 		return element;
 	}
 
-	function createFormRows(rows) {
+	function createFormRows(rows, columnCount) {
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
-			if (!isMobile) {
-				element.appendChild(createFormRow(rows[i]));
-			} else {
+			if (columnCount == 1) {
 				var row = rows[i];
 				for (var j = 0; j < row.length; j++) {
 					var singleRow = [ row[j] ];
 					element.appendChild(createFormRow(singleRow));
 				}
+			} else if (columnCount == 2) {
+				var row = rows[i];
+				for (var j = 0; j < row.length; j = j + 2) {
+					var doubleRow = j < row.length - 1 && !(row[j].span > 1) ? [ row[j], row[j+1] ] : [ row[j] ];
+					element.appendChild(createFormRow(doubleRow));
+				}
+			} else {
+				element.appendChild(createFormRow(rows[i]));
 			}
 		}
 		return element;
@@ -447,19 +477,19 @@
 	function createFormCell(cell) {
 		var td = document.createElement("td");
 		var isTitle = cell.type == "Title";
-		if (cell.span != undefined && !isMobile || isTitle) {
-			td.colSpan = cell.span;
+		if (cell.span != undefined && !isSmall || isTitle) {
+			td.colSpan = isMedium ? Math.min(cell.span, 2) : cell.span;
 		}
 		if (!isTitle && cell.caption != undefined) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.id);
 			caption.appendChild(document.createTextNode(cell.caption));
-			var tooltip = document.createElement("img");
+			var tooltipTemplate = document.getElementById("tooltip");
+			var tooltip = tooltipTemplate.cloneNode(true);
 			tooltip.id = cell.id + "-validation";
-			tooltip.setAttribute("src", "field_error.png");
-			tooltip.setAttribute("style", "margin-left: 0.3ex;");
 			if (cell.validationMessage != undefined && cell.validationMessage.length > 0) {
 				tooltip.setAttribute("title", cell.validationMessage);
+				caption.setAttribute("title", cell.validationMessage);
 			} else {
 				tooltip.className = "hide";
 			}
@@ -545,18 +575,21 @@
 		return ul;
 	}
 
-	function toggleNavigation() {
+	function toggleNavigation(openOrClose) {
 		var navigationElement = document.getElementById("navigationContainer");
 		var pageElement = document.getElementById("pageContainer");
-		if (navigationElement.style.display == "none") {
+		var isClosed = navigationElement.style.display == "none";
+		if (isClosed && (openOrClose == undefined || openOrClose == "open")) {
 			navigationElement.style.display = "block";
 			pageElement.style.left = "15em";
-		} else {
+			return true;
+		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
 			navigationElement.style.display = "none";
 			pageElement.style.left = "0";
+			return true;
 		}
+		return false;
 	}
-	
 	
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
@@ -688,11 +721,22 @@
 	}
 
 	function search() {
-		var data = {};
-		data.search = document.getElementsByName("query")[0].value;
-		send(data, true);
+		var searchElement = document.getElementById("search");
+		if (searchElement.style.display == "none") {
+			searchElement.style.display = "";
+			searchElement.value = "";
+			searchElement.focus();
+		} else {
+			var search = searchElement.value;
+			if (search != undefined && search.length > 0) {
+				var data = {"search" : search};
+				send(data, true);
+			} else {
+				searchElement.style.display = "none";
+			}
+		}
 	}
-
+	
 	function send(data, block) {
 		data.locale = "$LOCALE";
 		
@@ -725,24 +769,37 @@
 
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
-		if (dialogElements != undefined) {
-			for (var i = 0; i < dialogElements.length; i++) {
-				var dialogElement = dialogElements[i];
-				dialogElement.style.top = (i+3) + "em";
-				dialogElement.style.left = (i+18) + "em";
-				
-				var contentElement = dialogElement.querySelector("#dialogContent");
-				var type = dialogElement.getAttribute("type");
-				var height = Math.max(100, height = window.innerHeight - 140);
-				
-				contentElement.style.maxHeight = height + "px";
-				
-				if (type == "SearchDialog") {
-					contentElement.style.height = height + "px";
-					dialogElement.style.width = "auto";
-					dialogElement.style.right = "3em";
-					contentElement.style.paddingRight = "0em";
+		if (dialogElements != undefined && dialogElements.length > 0) {
+			if (isLarge) {
+				for (var i = 0; i < dialogElements.length; i++) {
+					var dialogElement = dialogElements[i];
+					dialogElement.style.top = (i+3) + "em";
+					dialogElement.style.left = (i+18) + "em";
+					
+					var contentElement = dialogElement.querySelector("#dialogContent");
+					var type = dialogElement.getAttribute("type");
+					var height = Math.max(100, height = window.innerHeight - 140);
+					
+					contentElement.style.maxHeight = height + "px";
+					
+					if (type == "SearchDialog") {
+						contentElement.style.height = height + "px";
+						dialogElement.style.width = "auto";
+						dialogElement.style.right = "3em";
+						contentElement.style.paddingRight = "0em";
+					}
 				}
+			} else {
+				for (var i = 0; i < dialogElements.length-1; i++) {
+					var dialogElement = dialogElements[i];
+					dialogElement.style.display = "none";
+				}
+				
+				var dialogElement = dialogElements[dialogElements.length - 1];
+				dialogElement.style.display = "block";
+				dialogElement.classList.add("phone");
+				dialogElement.childNodes[1].classList.add("phone");
+				dialogElement.width = "100%";
 			}
 		}
 	}
@@ -751,16 +808,96 @@
 		send({"login" : "login-" + (new Date().getTime())}, true);
 	}
 	
+	function reduceForMobile() {
+		document.getElementById("search").style.display = "none";
+		document.getElementById("navigationHeader").style.display = "none";
+	}
+	
+	function installHammer() {
+		var container = document.getElementById("container");
+		var mc = new Hammer(container);
+		mc.on("panright", panright);
+		mc.on("panleft", panleft);
+		mc.on("doubletap", doubletaps);
+		// doesn't work: why?
+		mc.on("pinchin", pinchin);
+		mc.on("pinchout", pinchout);
+	}
+	
+	function panright(event) {
+		if (event.isFinal)	{
+			var actionMenus = document.getElementsByClassName("actionMenu");
+			if (actionMenus != undefined && actionMenus.length > 0) {
+				if (actionMenus[0].style.display != "none") {
+					actionMenus[0].style.display = "none";
+					return;
+				}
+			}
+			toggleNavigation("open");
+		}
+	}
+
+	function panleft(event) {
+		if (event.isFinal) {
+			if (toggleNavigation("close")) return;
+			var actionMenus = document.getElementsByClassName("actionMenu");
+			if (actionMenus != undefined && actionMenus.length > 0) {
+				if (actionMenus[0].style.display != "block") {
+					actionMenus[0].style.display = "block";
+				}
+			}
+		}
+	}
+	
+	function doubletaps() {
+		document.getElementById("all").style.fontSize = "20px";
+		var actionMenus = document.getElementsByClassName("actionMenu");
+		if (actionMenus != undefined && actionMenus.length > 0) {
+			if (actionMenus[0].style.display != "block") {
+				actionMenus[0].style.display = "block";
+			} else {
+				actionMenus[0].style.display = "none";
+			}
+		}
+	}
+	
+	function pinchin() {
+		document.getElementById("all").style.fontSize = "20px";
+	}
+	
+	function pinchout() {
+		document.getElementById("all").style.fontSize = "11px";
+	}
+	
 	function init() {
 		window.addEventListener("resize", updateDialogSizes);
 		send({"showDefaultPage" : "default-" + (new Date().getTime())});
 		if (!$AUTHORIZATION) {
 			document.getElementById("loginSpan").classList.add("hide");
 		}
+		
+		if (!isLarge) {
+			reduceForMobile();		
+			installHammer();
+			
+			var styleElement = document.getElementById("dynamicStyle");
+			var styleSheet = styleElement.sheet;
+			styleSheet.insertRule(".minimizePageButton, .closePageButton { display: none; }", 0);
+			styleSheet.insertRule("table.form td, table.form th { padding: 1ex 0px; }", 0);
+			styleSheet.insertRule("table.form input { margin: 0px; }", 0);
+			styleSheet.insertRule("table.form { margin: 0px; }", 0);
+			// styleSheet.insertRule("#dialogFooter button { padding : 0px; }", 0);
+			styleSheet.insertRule("#dialogFooter button { font-size : inherit; }", 0);
+			styleSheet.insertRule("#dialogFooter { height: 1.7em; }", 0);
+			styleSheet.insertRule("#dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}", 0);
+		} else {
+			toggleNavigation("open");
+		}
 	}
 	
 </script>
-<meta name="viewport" content="width=device-width" />
+<style id="dynamicStyle"></style>
+<meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
 <body onload="init();">
 	<div id="all">
@@ -787,14 +924,20 @@
 					</g>
 				</svg>
 			</span>	
-			<div id="search">
-				<input type="text" name="query" value="" onkeydown="if (event.keyCode == 13) search();" /> <input type="submit"
-					value="$SEARCH" onclick="search();" />
-			</div>
+			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
+			<span id="searchSpan">
+				<input type="search" id="search" value="" onkeydown="if (event.keyCode == 13) search();" />
+				<svg width="1.5em" height="1.5em" class="headerButton" onclick="search();">
+					<g style="stroke:#444;stroke-width:16%;stroke-linecap:square"> 		
+						<line x1="59%" y1="59%" x2="91%" y2="91%" />
+						<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
+					</g>
+				</svg>
+			</span>			
 		</div>
 		<div id="container">
-			<div id="navigationContainer">
-				<div class="navigationHeader">
+			<div id="navigationContainer" style="display: none;">
+				<div class="navigationHeader" id="navigationHeader">
 					<svg width="1.0em" height="1.0em" class="closePageButton" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
 					  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke:#444;stroke-width:20%" />
 					  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
@@ -808,6 +951,8 @@
 			</div>
 		</div>
 	</div>
+
+
 
 	<div id="templates" style="display: none">
 		<span id="pageHeaderButtons">
@@ -826,7 +971,15 @@
 			  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
 			</svg>
 		</span>
+		<span id="tooltip">
+			<svg width="0.75em" height="0.75em">
+	  		  <circle cx="50%" cy="50%" r="49%" stroke-width="1%" fill="red" />
+	  		  <rect x="38%" y="15%" width="24%" height="37%" style="fill:white;" />
+	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
+			</svg>		
+		</span>
 	</div>
+			
 
 	<div id="block">
 		

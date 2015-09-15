@@ -33,27 +33,26 @@ body {
 	margin-left: 1em;
 }
 
-#search {
+#searchSpan {
 	position: absolute;
 	top: 0;
 	right: 1em;
 	overflow: none;
 }
 
-#search input {
-	display: inline-block;
-	font-size: 11px;
+#search {
+	position: absolute;
+	right: 3em;
 	height: 1.5em;
 	vertical-align: middle;
+	font-size: 11px;
+	border: solid 1px #666;
+	margin-top: 0.35em;
+	padding-right: 0.5em;
 }
 
 #search input:focus {
 	outline: none;
-}
-
-#search input[type=text] {
-	border: solid 1px #666;
-	padding-right: 0.5em;
 }
 
 /* content */
@@ -62,6 +61,8 @@ body {
 	position: fixed;
 	top: 2.2em;
 	bottom: 0;
+	left: 0;
+	right: 0;
 	margin: 0px;
 }
 
@@ -117,11 +118,12 @@ li.actionLink[disabled] {
 /* pages */
 
 #pageContainer {
-	position: fixed;
-	top: 2.2em;
-	left: 15em;
+	position: absolute;
+	left: 0em;
 	right: 0em;
-	height: calc(100% - 2.2em);
+	top: 0px;
+	bottom: 0px;
+	margin: 0px;
 	overflow: scroll;
 	background: white;
 }
@@ -166,6 +168,11 @@ dialog {
 	right: auto;
 }
 
+dialog.phone {
+	position: absolute;
+	top: 0px; left: 0px; right 0px;
+}
+
 #dialogHeader {
 	height: 2em;
 	line-height: 2em;
@@ -174,9 +181,9 @@ dialog {
 	background: rgb(240,240,240);
 }
 
-#dialogContent {
+#dialogContent.large {
 	padding-right: 2em;
-	overflow: auto;
+	overflow: scroll;
 }
 
 #dialogFooter {
