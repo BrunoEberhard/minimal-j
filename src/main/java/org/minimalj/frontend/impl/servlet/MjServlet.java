@@ -39,7 +39,7 @@ public class MjServlet extends HttpServlet {
 		Enumeration<?> propertyNames = getServletConfig().getInitParameterNames();
 		while (propertyNames.hasMoreElements()) {
 			String propertyName = (String) propertyNames.nextElement();
-			System.setProperty(propertyName, getServletContext().getInitParameter(propertyName));
+			System.setProperty(propertyName, getServletConfig().getInitParameter(propertyName));
 		}
 	}	
 	
