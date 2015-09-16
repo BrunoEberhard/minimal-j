@@ -26,9 +26,9 @@
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
 		if ("showPage" in dataObject) {
-			updateStateInHistory();
+			addNewStateToHistory();
 			showPage(dataObject.showPage);
-			pushStateToHistory();
+			saveStateInHistory();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
 			for (var i = 0; i<pages.length; i++) {
@@ -44,10 +44,10 @@
 			}
 		}
 		if (dataObject["hideDetail"] != undefined) {
-			updateStateInHistory();
+			addNewStateToHistory();
 			var pageId = dataObject["hideDetail"];
 			hideDetail(pageId);
-			pushStateToHistory();
+			saveStateInHistory();
 		}		
 		if (dataObject["navigation"] != undefined) {
 			updateNavigation(dataObject["navigation"]);
@@ -134,7 +134,7 @@
 		block.classList.remove("is-blocked"); 
 	}
 	
-	function updateStateInHistory() {
+	function addNewStateToHistory() {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
 			// console.log("push empty state. title: " + titleElement.innerText);
@@ -142,7 +142,7 @@
 		}
 	}
 	
-	function pushStateToHistory() {
+	function saveStateInHistory() {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
 			var state = [];
@@ -266,7 +266,7 @@
 	}
 	
 	function closePage(event) {
-		updateStateInHistory();
+		addNewStateToHistory();
 		
 		var element = event.srcElement;
 		while ((element = element.parentNode) && element.className != "page");
@@ -278,7 +278,7 @@
 			pageContainerElement.removeChild(e);
 		}
 		
-		pushStateToHistory();
+		saveStateInHistory();
 		
 		var data = {closePage : element.id};
 		send(data, true);
