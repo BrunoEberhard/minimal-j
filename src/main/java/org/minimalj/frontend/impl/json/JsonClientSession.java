@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,13 +17,13 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
+import org.minimalj.frontend.impl.util.PageList;
+import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.security.LoginAction;
 import org.minimalj.security.Subject;
-import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 public class JsonClientSession implements PageBrowser {
 
@@ -32,11 +31,12 @@ public class JsonClientSession implements PageBrowser {
 	private String focusPageId;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
-	private List<String> pageIds = new ArrayList<>();
-	private List<Page> pages = new ArrayList<>();
+	private PageList visiblePageAndDetailsList;
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
+	private final PageStore pageStore = new PageStore();
+	
 	public JsonClientSession() {
 	}
 	
@@ -77,10 +77,7 @@ public class JsonClientSession implements PageBrowser {
 		
 		if (input.containsObject("closePage")) {
 			String pageId = (String) input.getObject("closePage");
-			int pagePos = pageIds.indexOf(pageId);
-			if (pagePos < 0) throw new IllegalStateException(pageId + " not a visible page");
-			pageIds = pageIds.subList(0, pagePos);
-			pages = pages.subList(0, pagePos);
+			visiblePageAndDetailsList.removeAllFrom(pageId);
 		}
 		
 		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
@@ -89,7 +86,7 @@ public class JsonClientSession implements PageBrowser {
 			String newValue = (String) entry.getValue();
 			
 			JsonComponent component = componentById.get(componentId);
-			((JsonInputComponent) component).changedValue(newValue); 
+			((JsonInputComponent<?>) component).changedValue(newValue); 
 		}
 		
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
@@ -133,6 +130,11 @@ public class JsonClientSession implements PageBrowser {
 			new LoginAction().action();
 		}
 		
+		List<String> pageIds = (List<String>) input.getObject("showPages");
+		if (pageIds != null) {
+			show(pageIds);
+		}
+		
 		Frontend.setBrowser(null);
 		return output;
 	}
@@ -144,11 +146,11 @@ public class JsonClientSession implements PageBrowser {
 	
 	@Override
 	public void showDetail(Page page) {
-		int pageIndex = pages.indexOf(page);
+		int pageIndex = visiblePageAndDetailsList.indexOf(page);
 		if (pageIndex < 0) {
 			show(page, UUID.randomUUID().toString(), focusPageId);
 		} else {
-			String pageId = pageIds.get(pageIndex);
+			String pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);
 			output.add("title", page.getTitle());
 		}
@@ -160,32 +162,49 @@ public class JsonClientSession implements PageBrowser {
 			register(navigation);
 		}
 		
+		output.add("showPage", createJson(page, pageId, masterPageId));
+		pageStore.put(pageId, page);
+	}
+	
+	private void show(List<String> pageIds) {
+		List<JsonComponent> jsonList = new ArrayList<>();
+		visiblePageAndDetailsList.clear();
+		String previousId = null;
+		for (String pageId : pageIds) {
+			Page page = pageStore.get(pageId);
+			visiblePageAndDetailsList.put(pageId, page);
+			jsonList.add(createJson(page, pageId, previousId));
+			previousId = pageId;
+		}
+		output.add("showPages", jsonList);
+	}
+	
+	private JsonComponent createJson(Page page, String pageId, String masterPageId) {
+		JsonComponent json = new JsonComponent("page");
+		
+		json.put("masterPageId", masterPageId);
+		json.put("pageId", pageId);
+		json.put("title", page.getTitle());
+		
 		JsonComponent content = (JsonComponent) page.getContent();
 		register(content);
-		output.add("content", content);
-		output.add("title", page.getTitle());
-		output.add("masterPageId", masterPageId);
+		json.put("content", content);
 		
 		List<Object> actionMenu = createActionMenu(page);
 		register(actionMenu);
-		output.add("actionMenu", actionMenu);
+		json.put("actionMenu", actionMenu);
 		
-		pages.add(page);
-		pageIds.add(pageId);
-		output.add("pageId", pageId);
+		return json;
 	}
 	
 	@Override
 	public void hideDetail(Page page) {
-		int index = pages.indexOf(page);
-		if (index < 0) throw new IllegalStateException();
-		pages.remove(index);
-		pageIds.remove(index);
+		visiblePageAndDetailsList.removeAllFrom(page);
 	}
 	
 	@Override
 	public boolean isDetailShown(Page page) {
-		return pages.contains(page);
+		return visiblePageAndDetailsList.contains(page);
 	}
 
 	@Override
@@ -283,16 +302,6 @@ public class JsonClientSession implements PageBrowser {
 				register(o2);
 			}
 		}
-	}
-
-	private Map<String, Object> createMenu(String resourceName) {
-		Map<String, Object> menu = new LinkedHashMap<>();
-		menu.put("name", Resources.getString("Menu." + resourceName));
-		String description = Resources.getString("Menu." + resourceName + ".description", Resources.OPTIONAL);
-		if (!StringUtils.isEmpty(description)) {
-			menu.put("description", description);
-		}
-		return menu;
 	}
 
 	public void openDialog(JsonDialog jsonDialog) {

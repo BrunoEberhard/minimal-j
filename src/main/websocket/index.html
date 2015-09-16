@@ -21,23 +21,21 @@
 	var isLarge = !isSmall && !isMedium;
 
 	var titleElement = document.getElementsByTagName("title")[0];
-	
-	var shownPagesSinceLastSearch = 0;
-	var searchNumber = 0;
+	var initial = true;
 	
 	function onMessage(evt) {
+		var newState = false;
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
-		if ("content" in dataObject) {
-			var title = dataObject.title;
-			var pageId = dataObject.pageId;
-			var masterPageId = dataObject.masterPageId;
-			var actionMenu = dataObject.actionMenu;
-			showContent(pageId, title, dataObject["content"], actionMenu, masterPageId);
-			if (masterPageId == undefined) {
-				shownPagesSinceLastSearch = shownPagesSinceLastSearch + 1;
+		if ("showPage" in dataObject) {
+			showPage(dataObject.showPage);
+			newState = true;
+		} else if ("showPages" in dataObject) {
+			var pages = dataObject.showPages;
+			for (var i = 0; i<pages.length; i++) {
+				showPage(pages[i]);
 			}
-			titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);
+			// titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);
 		} else if (dataObject["pageId"] != undefined) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
@@ -50,6 +48,7 @@
 		if (dataObject["hideDetail"] != undefined) {
 			var pageId = dataObject["hideDetail"];
 			hideDetail(pageId);
+			newState = true;
 		}		
 		if (dataObject["navigation"] != undefined) {
 			updateNavigation(dataObject["navigation"]);
@@ -132,36 +131,53 @@
 			document.getElementById("search").style.display = "none";
 		}
 		
-		var block = document.getElementById('block');
+		if (newState) {
+			pushStateToHistory();
+		}
+		
+		var block = document.getElementById('block');d
 		block.classList.remove("is-blocked"); 
+	}
+	
+	function pushStateToHistory() {
+		var state = [];
+		var pages = document.getElementsByClassName("page");
+		for (var i = 0; i<pages.length; i++) {
+			state.push(pages[i].id);
+		}
+		if (initial) {
+			history.replaceState(null, "Exit")
+			initial = false;
+		}
+		history.pushState(state, "");
 	}
 	
 	function onError(evt) {
 	}
 
-	function showContent(pageId, title, content, actionMenu, masterPageId) {
+	function showPage(page) {
 		var pageContainerElement = document.getElementById("pageContainer");
 		// only on large devices more than one page is displayed at a time
-		while (pageContainerElement.lastChild && (!isLarge || pageContainerElement.lastChild.id != masterPageId)) {
+		while (pageContainerElement.lastChild && (!isLarge || pageContainerElement.lastChild.id != page.masterPageId)) {
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
 		
 		var pageElement = document.createElement("div");
 		pageElement.className = "page";
-		pageElement.id = pageId;
+		pageElement.id = page.pageId;
 
-		if (actionMenu != null) {
-			var actionMenuElement = createMenu(actionMenu, pageId);
+		if (page.actionMenu != null) {
+			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.classList.add("actionMenu");
 			actionMenuElement.style.display = "none";
 			pageElement.appendChild(actionMenuElement);
 		}
 		
 		if (isLarge) {
-			var headerElement = createPageHeader(title);
+			var headerElement = createPageHeader(page.title);
 			pageElement.appendChild(headerElement);
 			var actionMenuButton = headerElement.querySelector(".actionMenuButton");
-			if (actionMenu != null) {
+			if (page.actionMenu != null) {
 				actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
 			} else {
 				actionMenuButton.style.display = "none";
@@ -171,11 +187,11 @@
 			while (pageHeaderElement.firstChild) {
 				pageHeaderElement.removeChild(pageHeaderElement.firstChild);
 			}
-			pageHeaderElement.appendChild(document.createTextNode(title));
+			pageHeaderElement.appendChild(document.createTextNode(page.title));
 		}
 		
-		if (content != null) {
-			var contentElement = createContent(content);
+		if (page.content != null) {
+			var contentElement = createContent(page.content);
 			contentElement.classList.add("pageContent");
 			pageElement.appendChild(contentElement);
 		} else {
@@ -246,6 +262,8 @@
 			var e = pageContainerElement.childNodes[i];
 			pageContainerElement.removeChild(e);
 		}
+		
+		pushStateToHistory();
 		
 		var data = {closePage : element.id};
 		send(data, true);
@@ -729,10 +747,6 @@
 			var search = searchElement.value;
 			if (search != undefined && search.length > 0) {
 				var data = {"search" : search};
-				shownPagesSinceLastSearch = 0;
-				searchNumber = searchNumber + 1;
-				var state = {"nr" : searchNumber, "s": search};
-				history.pushState(state, "Search '" + search + "''");
 				send(data, true);
 			} else {
 				searchElement.style.display = "none";
@@ -740,24 +754,12 @@
 		}
 	}
 	
-
 	function popState(event) {
 		if (event.state) {
-			var inDetail = shownPagesSinceLastSearch > 1;
-			var directionIsBackward = searchNumber - 1 == event.state.nr;
-			if (inDetail && directionIsBackward) {
-				history.forward(); // redo the same search
-			} else {
-				var data = {
-					"search" : event.state.s
-				};
-				shownPagesSinceLastSearch = 0;
-				send(data, true);
-			}
-		} else {
-			send({
-				"showDefaultPage" : "default-" + (new Date().getTime())
-			});
+			var data = {"showPages" : event.state};
+			send(data, true);
+		} else if (!initial) {
+			history.back();
 		}
 	}
 
