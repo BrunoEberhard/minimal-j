@@ -135,6 +135,8 @@
 			<version>1.1</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- not possible to do a release with a SNAPSHOT depencendy
+		     for the moment included the two classes directly
 		<dependency>
 	        <groupId>org.nanohttpd</groupId>
 	        <artifactId>nanohttpd</artifactId>
@@ -145,6 +147,7 @@
 	        <artifactId>nanohttpd-websocket</artifactId>
 	        <version>2.2.0-SNAPSHOT</version>
 	    </dependency>
+	    -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
@@ -176,7 +179,7 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-	<!-- remove this after release of nanoHttpd -->
+	<!-- not possible to do a release with a SNAPSHOT depencendy
 	<repositories>
 		<repository>
 			<id>sonatype-snapshots</id>
@@ -186,6 +189,7 @@
 			</snapshots>
 		</repository>
 	</repositories>	
+	-->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
