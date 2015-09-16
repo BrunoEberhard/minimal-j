@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.swing.component;
+package org.minimalj.frontend.impl.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,14 @@ public class History<T> {
 	}
 	
 	public void add(T page) {
+		add(page, false);
+	}
+
+	public void addQuiet(T page) {
+		add(page, true);
+	}
+	
+	private void add(T page, boolean quiet) {
 		if (!page.equals(present)) {
 			int indexToRemove = history.size() - 1;
 			while (indexToRemove > presentIndex) {
@@ -25,9 +33,11 @@ public class History<T> {
 			history.add(page);
 			presentIndex = history.size() - 1;
 		}
-		fireHistoryChanged();
+		if (!quiet) {
+			fireHistoryChanged();
+		}
 	}
-
+	
 	private void fireHistoryChanged() {
 		historyListener.onHistoryChanged();
 	}

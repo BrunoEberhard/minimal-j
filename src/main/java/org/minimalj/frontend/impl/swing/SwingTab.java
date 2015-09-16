@@ -41,14 +41,14 @@ import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
-import org.minimalj.frontend.impl.swing.component.History;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
-import org.minimalj.frontend.impl.swing.component.History.HistoryListener;
 import org.minimalj.frontend.impl.swing.toolkit.SwingEditorPanel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingInternalFrame;
 import org.minimalj.frontend.impl.swing.toolkit.SwingProgressInternalFrame;
 import org.minimalj.frontend.impl.swing.toolkit.SwingSearchPanel;
+import org.minimalj.frontend.impl.util.History;
+import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageBrowser;
@@ -71,10 +71,10 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	private final JPanel verticalPanel;
 	private final JScrollPane menuScrollPane;
 	
-	private final History<Page> history;
-	private final SwingPageContextHistoryListener historyListener;
+	private final History<List<Page>> history;
+	private final SwingTabHistoryListener historyListener;
 
-	private final List<Page> pageAndDetails;
+	private final List<Page> visiblePageAndDetailsList;
 
 	private Page focusedPage;
 	
@@ -82,10 +82,10 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		super();
 		this.frame = frame;
 
-		historyListener = new SwingPageContextHistoryListener();
+		historyListener = new SwingTabHistoryListener();
 		history = new History<>(historyListener);
 
-		pageAndDetails = new ArrayList<Page>();
+		visiblePageAndDetailsList = new ArrayList<Page>();
 		
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
@@ -163,7 +163,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	}
 
 	public Page getVisiblePage() {
-		return pageAndDetails.get(0);
+		return visiblePageAndDetailsList.get(0);
 	}
 	
 	void onHistoryChanged() {
@@ -207,7 +207,8 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			replace(getVisiblePage());
+			// not implemented at the moment
+			// replace(getVisiblePage());
 		}
 	}
 	
@@ -245,15 +246,16 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	
 	// PageContext
 	
-	private class SwingPageContextHistoryListener implements HistoryListener {
-
+	private class SwingTabHistoryListener implements HistoryListener {
+		
 		@Override
 		public void onHistoryChanged() {
-			pageAndDetails.clear();
+			visiblePageAndDetailsList.clear();
 			verticalPanel.removeAll();
-
-			Page page = history.getPresent();
-			addPageOrDetail(page);
+			
+			for (Page page : history.getPresent()) {
+				addPageOrDetail(page);
+			}
 			
 			SwingTab.this.onHistoryChanged();
 		}
@@ -333,18 +335,6 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		}
 	}
 
-	public void add(Page page) {
-		history.add(page);
-	}
-
-	public void replace(Page page) {
-		history.replace(page);
-	}
-
-	public Page getPresent() {
-		return history.getPresent();
-	}
-
 	public boolean hasFuture() {
 		return history.hasFuture();
 	}
@@ -363,12 +353,14 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 
 	@Override
 	public void show(Page page) {
-		history.add(page);
+		List<Page> pages = new ArrayList<>();
+		pages.add(page);
+		history.add(pages);
 	}
 
 	@Override
 	public void showDetail(Page detail) {
-		int index = pageAndDetails.indexOf(detail);
+		int index = visiblePageAndDetailsList.indexOf(detail);
 		if (index > -1) {
 			SwingDecoration decoration = (SwingDecoration) verticalPanel.getComponents()[index];
 			decoration.setTitle(detail.getTitle());
@@ -377,6 +369,11 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		}
 		removeDetailsOf(focusedPage);
 		addPageOrDetail(detail);
+
+		List<Page> pages = new ArrayList<>();
+		pages.addAll(history.getPresent());
+		pages.add(detail);
+		history.addQuiet(pages);
 	}
 	
 	public void setFocusedPage(Page focusedPage) {
@@ -384,9 +381,9 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	}
 	
 	private void addPageOrDetail(Page page) {
-		pageAndDetails.add(page);
+		visiblePageAndDetailsList.add(page);
 		ActionListener closeListener = null;
-		if (pageAndDetails.size() > 1) {
+		if (visiblePageAndDetailsList.size() > 1) {
 			closeListener = new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -411,13 +408,13 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	}
 
 	private void removeDetailsOf(Page page) {
-		int index = pageAndDetails.indexOf(page);
+		int index = visiblePageAndDetailsList.indexOf(page);
 		removeDetails(index + 1);
 	}
 
 	private void removeDetails(int index) {
-		for (int index2 = pageAndDetails.size() - 1; index2 >= index; index2--) {
-			pageAndDetails.remove(index2);
+		for (int index2 = visiblePageAndDetailsList.size() - 1; index2 >= index; index2--) {
+			visiblePageAndDetailsList.remove(index2);
 			verticalPanel.remove(verticalPanel.getComponentCount()-1);
 		}
 		verticalPanel.revalidate();
@@ -426,12 +423,12 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 
 	@Override
 	public boolean isDetailShown(Page detail) {
-		return pageAndDetails.contains(detail);
+		return visiblePageAndDetailsList.contains(detail);
 	}
 	
 	@Override
 	public void hideDetail(Page detail) {
-		int index = pageAndDetails.indexOf(detail);
+		int index = visiblePageAndDetailsList.indexOf(detail);
 		removeDetails(index);
 	}
 
