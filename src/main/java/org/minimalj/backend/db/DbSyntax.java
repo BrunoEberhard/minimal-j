@@ -81,7 +81,7 @@ public abstract class DbSyntax {
 			if (decimal == 0) {
 				s.append(" (").append(size).append(")");
 			} else {
-				s.append(" (").append(size).append(" ").append(decimal).append(")");
+				s.append(" (").append(size).append(", ").append(decimal).append(")");
 			}
 		} else if (clazz == Boolean.class) {
 			s.append("BIT"); // MariaDB. DerbyDB is different
