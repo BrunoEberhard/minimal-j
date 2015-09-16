@@ -15,3 +15,5 @@ examples/Minimal-J_Library/.project
 /.idea/
 *.iml
 /.settings/
+*.cer
+*.jks
