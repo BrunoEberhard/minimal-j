@@ -31,7 +31,7 @@ public class JsonClientSession implements PageBrowser {
 	private String focusPageId;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
-	private PageList visiblePageAndDetailsList;
+	private final PageList visiblePageAndDetailsList = new PageList();
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
