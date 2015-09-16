@@ -63,7 +63,7 @@ public class PageList {
 	}
 	
 	/**
-	 * @param pageId this page and all following are removed
+	 * @param page this page and all following are removed
 	 */
 	public void removeAllFrom(Page page) {
 		int pagePos = pages.indexOf(page);
