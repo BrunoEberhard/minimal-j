@@ -25,9 +25,22 @@
 		<url>https://github.com/BrunoEberhard/minimal-j</url>
 		<connection>scm:git:git://github.com/BrunoEberhard/minimal-j.git</connection>
 		<developerConnection>scm:git:git@github.com:BrunoEberhard/minimal-j.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
+	<distributionManagement>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name>Minimal-J sonytype Maven 2 repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<id>sonatype-nexus-staging</id>
+			<name>Minimal-J sonytype Snapshot Maven 2 repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 	<build>
 		<plugins>
 			<plugin>
