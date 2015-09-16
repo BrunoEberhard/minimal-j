@@ -21,21 +21,19 @@
 	var isLarge = !isSmall && !isMedium;
 
 	var titleElement = document.getElementsByTagName("title")[0];
-	var initial = true;
 	
 	function onMessage(evt) {
-		var newState = false;
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
 		if ("showPage" in dataObject) {
+			updateStateInHistory();
 			showPage(dataObject.showPage);
-			newState = true;
+			pushStateToHistory();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
 			for (var i = 0; i<pages.length; i++) {
 				showPage(pages[i]);
 			}
-			// titleElement.replaceChild(document.createTextNode(title), titleElement.firstChild);
 		} else if (dataObject["pageId"] != undefined) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
@@ -46,9 +44,10 @@
 			}
 		}
 		if (dataObject["hideDetail"] != undefined) {
+			updateStateInHistory();
 			var pageId = dataObject["hideDetail"];
 			hideDetail(pageId);
-			newState = true;
+			pushStateToHistory();
 		}		
 		if (dataObject["navigation"] != undefined) {
 			updateNavigation(dataObject["navigation"]);
@@ -131,25 +130,38 @@
 			document.getElementById("search").style.display = "none";
 		}
 		
-		if (newState) {
-			pushStateToHistory();
-		}
-		
 		var block = document.getElementById('block');
 		block.classList.remove("is-blocked"); 
 	}
 	
-	function pushStateToHistory() {
-		var state = [];
+	function updateStateInHistory() {
 		var pages = document.getElementsByClassName("page");
-		for (var i = 0; i<pages.length; i++) {
-			state.push(pages[i].id);
+		if (pages.length > 0) {
+			// console.log("push empty state. title: " + titleElement.innerText);
+			history.pushState(null, titleElement.innerText); // second argument is ignored by browsers (!)
 		}
-		if (initial) {
-			history.replaceState(null, "Exit")
-			initial = false;
+	}
+	
+	function pushStateToHistory() {
+		var pages = document.getElementsByClassName("page");
+		if (pages.length > 0) {
+			var state = [];
+			for (var i = 0; i<pages.length; i++) {
+				state.push(pages[i].id);
+			}
+			// console.log("replace state: " + state + " title: " + titleElement.innerText);
+			history.replaceState(state, titleElement.innerText);
 		}
-		history.pushState(state, "");
+	}
+	
+	function popState(event) {
+		if (event.state) {
+			// console.log("pop state: " + event.state);
+			var data = {"showPages" : event.state};
+			send(data, true);
+		} else {
+			alert("pop state without state");
+		}
 	}
 	
 	function onError(evt) {
@@ -166,6 +178,8 @@
 		pageElement.className = "page";
 		pageElement.id = page.pageId;
 
+		titleElement.replaceChild(document.createTextNode(page.title), titleElement.firstChild);
+		
 		if (page.actionMenu != null) {
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.classList.add("actionMenu");
@@ -198,7 +212,6 @@
 			pageElement.style.borderBottom = "none";
 		}
 		pageContainerElement.appendChild(pageElement);
-		
 		
 		pageElement.scrollIntoView();
 	}
@@ -253,6 +266,8 @@
 	}
 	
 	function closePage(event) {
+		updateStateInHistory();
+		
 		var element = event.srcElement;
 		while ((element = element.parentNode) && element.className != "page");
 		
@@ -751,15 +766,6 @@
 			} else {
 				searchElement.style.display = "none";
 			}
-		}
-	}
-	
-	function popState(event) {
-		if (event.state) {
-			var data = {"showPages" : event.state};
-			send(data, true);
-		} else if (!initial) {
-			history.back();
 		}
 	}
 
