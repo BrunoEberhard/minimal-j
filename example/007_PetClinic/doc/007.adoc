@@ -1,7 +1,5 @@
 == Pet Clinic
 
-(This text is not yet complete)
-
 The pet clinic demo application was published by the spring framework. It is probably meant to be
 a distant relative to Sun's pet store. The pet store was abonded by Sun and Oracle long ago but the
 pet clinic demo ist still active. I have to admit that the pet clinic also fits the capabilities of
@@ -318,6 +316,69 @@ annotation in the Person class:
 The last method of OwnerSearchPage returns the page to be displayed when the user activates a single result. In
 most frontends this means the user has double clicked on a row.
 
+=== Owner editor
+
+To add a new potential owner there is the AddOwnerEditor.
+[source,java,title="AddOwnerEditor.java"]
+----
+package org.minimalj.example.petclinic.frontend;
+
+import [..];
+
+public class AddOwnerEditor extends NewObjectEditor<Owner> {
+
+	@Override
+	protected Form<Owner> createForm() {
+		return new OwnerForm(true, !OwnerForm.SHOW_PETS);
+	}
+
+	@Override
+	protected Object save(Owner owner) {
+		return Backend.persistence().insert(owner);
+	}
+	
+	@Override
+	protected void finished(Object newId) {
+		Frontend.getBrowser().show(new OwnerPage(newId));
+	}
+}
+----
+This editor extends from NewObjectEditor. This is a small convenience class. It implements the createObject method and
+tries to create the new object from the generic type of the class.
+
+The Editor implementation must provide the form in which the new object is edited and a save method. Here special Form class
+is used. That is not always necessary. In the AddVetEditor the form is put together in a method. But when you want to reuse
+a form for several business cases it's a good idea to create a Form class (but it is _not_ a good idea to always create
+a Form class as there would produce many classes).
+[source,java,title="OwnerForm.java"]
+----
+package org.minimalj.example.petclinic.frontend;
+
+import [..];
+
+public class OwnerForm extends Form<Owner> {
+
+	public static final boolean SHOW_PETS = true;
+	
+	public OwnerForm(boolean editable, boolean showPets) {
+		super(editable);
+		
+		line(Owner.$.person.firstName);
+		line(Owner.$.person.lastName);
+		line(Owner.$.address);
+		line(Owner.$.city);
+		line(Owner.$.telephone);
+		
+		if (showPets) {
+			line(new PetListFormElement(Owner.$.getPets()));
+		}
+	}
+}
+----
+Forms always need to know if they are for editing or for read only. This is the first argument in the constructor. Then the
+Form is filled line by line. You can add 'field names' or FormElements. If you add field names the Form class tries to figure
+out the needed FormElement. For example if the field is an Integer then a IntegerFormElement is used. For most of the simple
+fields this works well. For the more complex fields you have to provide special FormElements.
 
 === Comparison Spring vs. Minimal-J
 
