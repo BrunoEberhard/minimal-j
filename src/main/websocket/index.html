@@ -199,6 +199,7 @@
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.classList.add("actionMenu");
 			actionMenuElement.style.display = "none";
+			if (!isLarge) actionMenuElement.style.top = "0px";
 			pageElement.appendChild(actionMenuElement);
 		}
 		
