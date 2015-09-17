@@ -59,7 +59,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	public final void setValue(T value) {
 		String newString = render(value);
 		if (!StringUtils.equals(newString, textField.getValue())) {
-			textField.setValue(render(value));
+			textField.setValue(newString);
 		}
 	}
 
