@@ -17,7 +17,6 @@ import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.frontend.page.SearchPage;
-import org.minimalj.util.resources.Resources;
 
 public class PetClinicApplication extends Application {
 
@@ -32,7 +31,7 @@ public class PetClinicApplication extends Application {
 	
 	@Override
 	public Page createDefaultPage() {
-		return new HtmlPage(Resources.getInputStream("intro.html"), "Pet Clinic");
+		return new HtmlPage(getClass().getClassLoader().getResourceAsStream("intro.html"), "Pet Clinic");
 	}
 	
 	@Override
