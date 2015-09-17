@@ -563,8 +563,12 @@
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
-			rowElement.setAttribute("onmousedown", "tableSelection(event, this, " + i + ");");
-			rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", " + i + " );");
+			if (isLarge) {
+				rowElement.setAttribute("onmousedown", "tableSelection(event, this, " + i + ");");
+				rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", " + i + " );");
+			} else {
+				rowElement.setAttribute("onmousedown", "tableAction(\"" + tableId + "\", " + i + " );");
+			}
 			element.appendChild(rowElement);
 		}
 		return element;
