@@ -12,13 +12,20 @@ import org.minimalj.frontend.Frontend.IContent;
 public class HtmlPage extends Page {
 
 	private final String htmlOrUrl;
+	private final String title;
 	
-	public HtmlPage(String htmlOrUrl) {
+	public HtmlPage(String htmlOrUrl, String title) {
 		this.htmlOrUrl = htmlOrUrl;
+		this.title = title;
 	}
 	
-	public HtmlPage(InputStream inputStream) {
-		this(readStream(inputStream));
+	public HtmlPage(InputStream inputStream, String title) {
+		this(readStream(inputStream), title);
+	}
+	
+	@Override
+	public String getTitle() {
+		return title;
 	}
 	
 	@Override

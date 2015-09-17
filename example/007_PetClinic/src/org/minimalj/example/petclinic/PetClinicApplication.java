@@ -13,9 +13,11 @@ import org.minimalj.example.petclinic.model.Owner;
 import org.minimalj.example.petclinic.model.Pet;
 import org.minimalj.example.petclinic.model.Vet;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.frontend.page.SearchPage;
+import org.minimalj.util.resources.Resources;
 
 public class PetClinicApplication extends Application {
 
@@ -26,6 +28,11 @@ public class PetClinicApplication extends Application {
 		menu.add(new PageAction(new VetTablePage()));
 		menu.add(new AddVetEditor());
 		return menu;
+	}
+	
+	@Override
+	public Page createDefaultPage() {
+		return new HtmlPage(Resources.getInputStream("intro.html"), "Pet Clinic");
 	}
 	
 	@Override
