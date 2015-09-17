@@ -379,7 +379,7 @@
 		} else if (type == "TextField" || type == "PasswordField") {
 			element = document.createElement("input");
 			element.type = type == "PasswordField" ? "password" : "text";
-			element.setAttribute("onchange", "sendchange(this);");
+			element.setAttribute("onkeyup", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.setAttribute("value", content.value);
@@ -656,6 +656,15 @@
 			}
 			dialog.appendChild(footer);
 		}
+		
+		var saveAction = json.saveAction;
+		if (saveAction != null) {
+			var inputs = content.getElementsByTagName("input");
+			var lastInput = inputs[inputs.length - 1]; 
+			if (lastInput != undefined && (lastInput.type == "text" || lastInput.type == "password")) {
+				lastInput.setAttribute("onkeyup", "sendchange(this, event.keyCode == 13  ? \"" + saveAction.id + "\" : undefined);");
+			}
+		}
 
 		document.querySelector("body").appendChild(dialog);
 		if (dialog.show == undefined) {
@@ -664,10 +673,9 @@
 		
 		dialog.showModal();
 		updateDialogSizes();
-
 	}
 
-	function sendchange(source) {
+	function sendchange(source, saveAction) {
 		var data = {};
 		var changedValue = {};
 		if (source.type == "checkbox") {
@@ -677,7 +685,12 @@
 			changedValue[source.id] = source.value;
 		}
 		data.changedValue = changedValue;
-		send(data, false);
+		if (saveAction != undefined) {
+			data.activatedAction = saveAction;
+			send(data, true);
+		} else {
+			send(data, false);
+		}
 	}
 
 	function loadSuggestions(source) {

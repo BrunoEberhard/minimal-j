@@ -1,5 +1,8 @@
 package org.minimalj.frontend.impl.json;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -8,20 +11,26 @@ import org.minimalj.frontend.page.IDialog;
 
 public class JsonDialog extends JsonComponent implements IDialog {
 
-	private final Action closeAction;
-	
-	public JsonDialog(String title, IContent content, Action closeAction, Action[] actions) {
+	public JsonDialog(String title, IContent content, Action saveAction, Action[] actions) {
 		super("Dialog");
-		this.closeAction = closeAction;
 		put("title", title);
 		put("content", (content));
-		put("actions", JsonFrontend.getClientSession().createActions(actions));
+		
+		List<Object> jsonActions = JsonFrontend.getClientSession().createActions(actions);
+		put("actions", jsonActions);
+		
+		// if saveAction is one of the 'normal' actions the json adapter has to be reused
+		// (there can be only one listener on the Minimal-J action, if there were two
+		// one would not get the notifications for enable / disable)
+		int saveActionIndex = Arrays.asList(actions).indexOf(saveAction);
+		Object jsonSaveAction = saveActionIndex > -1 ? jsonActions.get(saveActionIndex) : JsonFrontend.getClientSession().createAction(saveAction);
+		put("saveAction", jsonSaveAction);
+		
 		JsonFrontend.getClientSession().openDialog(this);
 	}
 
 	private JsonDialog(String type, JsonComponent content) {
 		super(type);
-		this.closeAction = null;
 		put("title", "Search");
 		put("content", content);
 		JsonFrontend.getClientSession().openDialog(this);

@@ -209,8 +209,7 @@ public class JsonClientSession implements PageBrowser {
 
 	@Override
 	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		// TODO use saveAction (Enter in TextFields should save the dialog)
-		return new JsonDialog(title, content, closeAction, actions);
+		return new JsonDialog(title, content, saveAction, actions);
 	}
 
 	@Override
