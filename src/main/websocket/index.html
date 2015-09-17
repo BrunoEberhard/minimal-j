@@ -25,6 +25,7 @@
 	function onMessage(evt) {
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
+		// document.cookie = session;
 		if ("showPage" in dataObject) {
 			addNewStateToHistory();
 			showPage(dataObject.showPage);
@@ -89,6 +90,8 @@
 							}
 						} else if (property == "value" && element.tagName == "DIV") {
 							element.innerHTML = value;
+						} else if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
+							element.value = value.join("");
 						} else {
 							element[property] = value;
 						}
@@ -681,6 +684,8 @@
 		if (source.type == "checkbox") {
 			/* for checkboxes value is always true */
 			changedValue[source.id] = source.checked.toString();
+		} else if (source.type == "password") {
+			changedValue[source.id] = source.value.split("");		
 		} else {
 			changedValue[source.id] = source.value;
 		}

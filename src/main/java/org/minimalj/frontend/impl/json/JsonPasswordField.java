@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.minimalj.frontend.Frontend.InputComponentListener;
@@ -29,8 +30,15 @@ public class JsonPasswordField extends JsonInputComponent<char[]> implements Pas
 	}
 	
 	@Override
-	public void changedValue(String value) {
-		char[] chars = value != null ? value.toCharArray() : null;
+	public void changedValue(Object value) {
+		char[] chars = null;
+		if (value instanceof List) {
+			List<String> charList = (List<String>) value;
+			chars = new char[charList.size()];
+			for (int i = 0; i<charList.size(); i++) {
+				chars[i] = charList.get(i).charAt(0);
+			}
+		} 
 		Object oldValue = super.put(VALUE, chars);
 		if (!Objects.equals(oldValue, chars)) {
 			changeListener.changed(this);

@@ -23,7 +23,7 @@ public abstract class JsonInputComponent<T> extends JsonComponent implements Inp
 		put(EDITABLE, editable);
 	}
 
-	public void changedValue(String value) {
+	public void changedValue(Object value) {
 		Object oldValue = super.put(VALUE, value);
 		if (!Objects.equals(oldValue, value)) {
 			changeListener.changed(this);

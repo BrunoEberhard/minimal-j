@@ -83,7 +83,7 @@ public class JsonClientSession implements PageBrowser {
 		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
 		for (Map.Entry<String, Object> entry : changedValue.entrySet()) {
 			String componentId = entry.getKey();
-			String newValue = (String) entry.getValue();
+			Object newValue = entry.getValue(); // most of the time a String, but not for password
 			
 			JsonComponent component = componentById.get(componentId);
 			((JsonInputComponent<?>) component).changedValue(newValue); 
