@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,10 +16,12 @@ import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public class MjServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
+	private static final Logger logger = Logger.getLogger(MjServlet.class.getName());
+	
 	private static boolean applicationInitialized;
 	
 	protected void initializeApplication() {
@@ -61,22 +64,19 @@ public class MjServlet extends HttpServlet {
 			response.getWriter().write(html);
 			response.setContentType("text/html");
 			return; // !
-			
-		} else if (uri.endsWith("css")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream(uri.substring(uri.lastIndexOf("/") + 1));
-			response.setContentType("text/css");
-			
-		} else if (uri.endsWith("js")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream(uri.substring(uri.lastIndexOf("/") + 1));
-			response.setContentType("application/javascript");
-			
-		} else if (uri.endsWith("/field_error.png")) {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream("org/minimalj/util/resources/icons/field_error.png");
-			response.setContentType("image/png");
-			
-		} 
+		} else {
+			int index = uri.lastIndexOf('.');
+			if (index > -1 && index < uri.length()-1) {
+				String postfix = uri.substring(index+1);
+				String mimeType = Resources.getMimeType(postfix);
+				if (mimeType != null) {
+					response.setContentType(mimeType);
+					inputStream = Resources.getInputStream(uri.substring(1));
+				}
+			}
+		}
 		if (inputStream == null) {
-			System.out.println("uri: " + uri);
+			logger.warning("Could not serve: " + uri);
 			response.setStatus(403);
 			return;
 		}

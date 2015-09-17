@@ -1,5 +1,6 @@
 package org.minimalj.util.resources;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -237,4 +238,25 @@ public class Resources {
 		return clazz.getSimpleName();
 	}
 	
+	private static Map<String, String> mimeTypeByPostfix = new HashMap<>();
+	
+	static {
+		mimeTypeByPostfix.put("html", "text/html");
+		mimeTypeByPostfix.put("css", "text/css");
+		mimeTypeByPostfix.put("js", "application/javascript");
+		mimeTypeByPostfix.put("jpg", "image/jpg");
+		mimeTypeByPostfix.put("png", "image/png");
+	}
+	
+	public static void addMimeType(String postfix, String contentType) {
+		mimeTypeByPostfix.put(postfix, contentType);
+	}
+	
+	public static String getMimeType(String postfix) {
+		return mimeTypeByPostfix.get(postfix);
+	}
+	
+	public static InputStream getInputStream(String resourceName) {
+		return Resources.class.getClassLoader().getResourceAsStream(resourceName);
+	}
 }

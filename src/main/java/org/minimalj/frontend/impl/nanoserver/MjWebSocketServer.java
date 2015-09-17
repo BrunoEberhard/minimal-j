@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.nanoserver;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
@@ -55,23 +56,20 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 			Locale locale = getLocale(headers.get("accept-language"));
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
-		} else if (uri.equals("/mj.css")) {
-			return newChunkedResponse(Status.OK, "text/css", this.getClass().getClassLoader().getResourceAsStream("mj.css"));
-
-		} else if (uri.startsWith("/") && uri.endsWith("css")) {
-			return newChunkedResponse(Status.OK, "text/css", this.getClass().getClassLoader().getResourceAsStream(uri.substring(1)));
-
-		} else if (uri.startsWith("/") && uri.endsWith("js")) {
-			return newChunkedResponse(Status.OK, "application/javascript", this.getClass().getClassLoader().getResourceAsStream(uri.substring(1)));
-
-		} else if (uri.equals("/field_error.png")) {
-			return newChunkedResponse(Status.OK, "image/png", Resources.class.getResourceAsStream("icons/field_error.png"));
-			
 		} else {
-			return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
+			int index = uri.lastIndexOf('.');
+			if (index > -1 && index < uri.length()-1) {
+				String postfix = uri.substring(index+1);
+				String mimeType = Resources.getMimeType(postfix);
+				if (mimeType != null) {
+					InputStream inputStream = Resources.getInputStream(uri.substring(1));
+					return newChunkedResponse(Status.OK, mimeType, inputStream);
+				}
+			}
 		}
+		logger.warning("Could not serve: " + uri);
+		return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
 	}
-
 
 	@Override
 	protected void onPong(WebSocket webSocket, WebSocketFrame pongFrame) {
@@ -90,7 +88,7 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 
 	@Override
 	protected void onClose(WebSocket webSocket, CloseCode code, String reason, boolean initiatedByRemote) {
-		System.out.println("Close " + reason + " / " + initiatedByRemote);
+		logger.fine("Close " + reason + " / " + initiatedByRemote);
 	}
 
 	@Override
