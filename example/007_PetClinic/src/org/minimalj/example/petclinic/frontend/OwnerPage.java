@@ -31,14 +31,7 @@ public class OwnerPage extends ObjectPage<Owner> {
 	
 	@Override
 	protected Form<Owner> createForm() {
-		Form<Owner> form = new Form<>(Form.READ_ONLY);
-		form.line(Owner.$.person.firstName);
-		form.line(Owner.$.person.lastName);
-		form.line(Owner.$.address);
-		form.line(Owner.$.city);
-		form.line(Owner.$.telephone);
-		form.line(new PetListFormElement(Owner.$.getPets()));
-		return form;
+		return new OwnerForm(Form.READ_ONLY, OwnerForm.SHOW_PETS);
 	}
 
 	@Override
@@ -50,13 +43,7 @@ public class OwnerPage extends ObjectPage<Owner> {
 
 		@Override
 		protected Form<Owner> createForm() {
-			Form<Owner> form = new Form<>(Form.EDITABLE);
-			form.line(Owner.$.person.firstName);
-			form.line(Owner.$.person.lastName);
-			form.line(Owner.$.address);
-			form.line(Owner.$.city);
-			form.line(Owner.$.telephone);
-			return form;
+			return new OwnerForm(Form.EDITABLE, !OwnerForm.SHOW_PETS);
 		}
 
 		@Override

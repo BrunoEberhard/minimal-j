@@ -10,13 +10,7 @@ public class AddOwnerEditor extends NewObjectEditor<Owner> {
 
 	@Override
 	protected Form<Owner> createForm() {
-		Form<Owner> form = new Form<>();
-		form.line(Owner.$.person.firstName);
-		form.line(Owner.$.person.lastName);
-		form.line(Owner.$.address);
-		form.line(Owner.$.city);
-		form.line(Owner.$.telephone);
-		return form;
+		return new OwnerForm(true, !OwnerForm.SHOW_PETS);
 	}
 
 	@Override
