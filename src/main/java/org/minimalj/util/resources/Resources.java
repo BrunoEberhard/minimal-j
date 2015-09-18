@@ -59,6 +59,9 @@ public class Resources {
 
 	public static void addResourceBundleName(String resourceBundleName) {
 		resourceBundleNames.add(resourceBundleName);
+		// normally resource bundles are only added at startup. But for tests the
+		// cache has to be cleared.
+		resourcesByLocale.clear();
 	}
 
 	public static boolean isAvailable(String resourceName) {
