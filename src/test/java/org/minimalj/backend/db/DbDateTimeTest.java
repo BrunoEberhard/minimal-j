@@ -25,9 +25,9 @@ public class DbDateTimeTest {
 	@Test
 	public void testCrudDates() {
 		D d = new D();
-		d.localDate = LocalDate.of(2000, 01, 02);
+		d.localDate = LocalDate.of(2000, 1, 2);
 		d.localTime = LocalTime.of(12, 34, 56);
-		d.localDateTime = LocalDateTime.of(2001, 02, 03, 10, 20, 30);
+		d.localDateTime = LocalDateTime.of(2001, 2, 3, 10, 20, 30);
 		
 		Object id = persistence.insert(d);
 

@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.impl.swing.toolkit.SwingLabel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionLabel;
+import org.minimalj.frontend.impl.swing.toolkit.SwingLabel;
 
 
 public class MenuTree extends JPanel {

@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
-import java.util.Locale;
-
 import javax.swing.JLabel;
 
 import org.minimalj.frontend.Frontend.IComponent;

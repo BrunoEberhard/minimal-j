@@ -1,7 +1,5 @@
 package org.minimalj.frontend.form.element;
 
-import java.util.Locale;
-
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;

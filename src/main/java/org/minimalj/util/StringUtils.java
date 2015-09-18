@@ -79,7 +79,7 @@ public class StringUtils {
 		boolean first = true;
 		for (String string : strings) {
 			if (isEmpty(string)) continue;
-			if (!first) stringBuilder.append(" "); else first = false;
+			if (!first) stringBuilder.append(' '); else first = false;
 			stringBuilder.append(string);
 		}
 		if (!first) stringBuilder.append("<br>");

@@ -36,7 +36,7 @@ public abstract class DbSyntax {
 		} else if (idClass == String.class) {
 			s.append("VARCHAR(");
 			s.append(size);
-			s.append(")");
+			s.append(')');
 		} else if (idClass == Object.class) {
 			s.append("CHAR(36)");
 		} else {
@@ -59,7 +59,7 @@ public abstract class DbSyntax {
 		} else if (clazz == String.class) {
 			s.append("VARCHAR");
 			int size = AnnotationUtil.getSize(property);
-			s.append(" (").append(size).append(")");
+			s.append(" (").append(size).append(')');
 		} else if (clazz == LocalDate.class) {
 			s.append("DATE");
 		} else if (clazz == LocalTime.class) {
@@ -71,9 +71,9 @@ public abstract class DbSyntax {
 			int size = AnnotationUtil.getSize(property);
 			int decimal = AnnotationUtil.getDecimal(property);
 			if (decimal == 0) {
-				s.append(" (").append(size).append(")");
+				s.append(" (").append(size).append(')');
 			} else {
-				s.append(" (").append(size).append(", ").append(decimal).append(")");
+				s.append(" (").append(size).append(", ").append(decimal).append(')');
 			}
 		} else if (clazz == Boolean.class) {
 			s.append("BIT"); // MariaDB. DerbyDB is different
@@ -85,7 +85,7 @@ public abstract class DbSyntax {
 			s.append("BLOB");		
 			int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
 			if (size > 0) {
-				s.append(" (").append(size).append(")");
+				s.append(" (").append(size).append(')');
 			}
 		} else {
 			if (IdUtils.hasId(clazz)) {
@@ -100,7 +100,7 @@ public abstract class DbSyntax {
 	protected void addPrimaryKey(StringBuilder s, String keys) {
 		s.append(",\n PRIMARY KEY (");
 		s.append(keys);
-		s.append(")");
+		s.append(')');
 	}
 
 	protected void addCreateStatementEnd(StringBuilder s) {
@@ -111,7 +111,7 @@ public abstract class DbSyntax {
 		StringBuilder s = new StringBuilder();
 		s.append("ALTER TABLE "); s.append(tableName);
 		s.append(" ADD CONSTRAINT FK_");
-		s.append(tableName); s.append("_"); s.append(column);
+		s.append(tableName); s.append('_'); s.append(column);
 		s.append(" FOREIGN KEY (");
 		s.append(column);
 		s.append(") REFERENCES ");
@@ -128,12 +128,12 @@ public abstract class DbSyntax {
 		s.append(column);
 		s.append(" ON ");
 		s.append(tableName);
-		s.append("(");
+		s.append('(');
 		s.append(column);
 		if (withVersion) {
 			s.append(", version");
 		}
-		s.append(")");
+		s.append(')');
 		return s.toString();
 	}
 	
@@ -145,7 +145,7 @@ public abstract class DbSyntax {
 		s.append(column);
 		s.append(" (");
 		s.append(column);
-		s.append(")");
+		s.append(')');
 		return s.toString();
 	}
 	
@@ -225,7 +225,7 @@ public abstract class DbSyntax {
 			s.append(column);
 			s.append("_UNIQUE UNIQUE (");
 			s.append(column);
-			s.append(")");
+			s.append(')');
 			return s.toString();
 		}
 

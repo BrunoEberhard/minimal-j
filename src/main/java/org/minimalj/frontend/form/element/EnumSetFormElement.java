@@ -113,7 +113,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		@Override
 		public void setValue(Object object, Object newValue) {
 			Set set = (Set) object;
-			if (Boolean.TRUE.equals(newValue) == true) {
+			if (Boolean.TRUE.equals(newValue)) {
 				set.add(value);
 			} else {
 				set.remove(value);

@@ -5,8 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.minimalj.util.DateUtils;
-
 import junit.framework.TestCase;
 
 public class DateUtilsXsdTest  extends TestCase {

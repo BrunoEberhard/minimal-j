@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
-import java.util.Locale;
-
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;

@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.json;
 
-import java.util.Locale;
-
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 

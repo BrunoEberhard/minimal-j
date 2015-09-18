@@ -1,8 +1,5 @@
 package org.minimalj.model;
 
-import java.util.Locale;
-
-
 /**
  * Internal framework class. Don't use it directly!
  * 
@@ -50,7 +47,9 @@ public class CodeItem<E> implements Rendering {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null || !(obj instanceof CodeItem)) {
+		if (obj == this) {
+			return true;
+		} else if (obj == null || !(obj instanceof CodeItem)) {
 			return false;
 		}
 		CodeItem other = (CodeItem) obj;
