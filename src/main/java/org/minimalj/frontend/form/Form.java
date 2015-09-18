@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,10 +81,6 @@ public class Form<T> {
 	}
 
 	public Form(boolean editable, int columns) {
-		this(null, editable, columns);
-	}
-	
-	public Form(ResourceBundle resourceBundle, boolean editable, int columns) {
 		this.editable = editable;
 		this.columns = columns;
 		this.formContent = Frontend.getInstance().createFormContent(columns, getColumnWidthPercentage());
