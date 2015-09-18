@@ -27,7 +27,7 @@ the dependency in the pom.xml of your project.
 <dependency>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>0.4.0.1</version>
+	<version>0.6.0.4</version>
 </dependency>
 ----
 
@@ -76,13 +76,13 @@ You can put together a correct classpath by yourself or you can delegate this to
 by using the exec plugin
 
 ----
-mvn exec:java -Dexec.mainClass="org.minimalj.frontend.swing.SwingApplication" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
+mvn exec:java -Dexec.mainClass="org.minimalj.frontend.impl.swing.SwingApplication" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
 ----
 
 The WebSocket Frontend is started the same way.
 
 ----
-mvn exec:java -Dexec.mainClass="org.minimalj.frontend.websocket.WebSocketApplicationServer" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
+mvn exec:java -Dexec.mainClass="org.minimalj.frontend.impl.nanoserver.NanoHttpdApplication" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
 ----
 
 Most of the frontends are started like this.
