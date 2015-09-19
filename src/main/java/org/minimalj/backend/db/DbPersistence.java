@@ -295,11 +295,12 @@ public class DbPersistence implements Persistence {
 		}
 	}
 
+	@Override
 	public <T> Object insert(T object) {
 		if (object == null) throw new NullPointerException();
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
-		return (T) table.insert(object);
+		return table.insert(object);
 	}
 
 	@Override
