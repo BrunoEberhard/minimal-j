@@ -237,9 +237,9 @@ public class Table<T> extends AbstractTable<T> {
 				for (int i = 0; i<searchColumns.size(); i++) {
 					statement.setString(i+1, convertUserSearch(searchCriteria.getQuery()));
 				}
-				return executeSelectAll(statement);
+				return executeSelectAll(statement, maxResults);
 			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+				throw new LoggingRuntimeException(e, sqlLogger, "read with SearchCriteria failed");
 			}
 		} else if (criteria instanceof AllCriteria) {
 			try {
@@ -295,7 +295,7 @@ public class Table<T> extends AbstractTable<T> {
 				}
 				return executeSelectViewAll(resultClass, statement, maxResults);
 			} catch (Exception e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
+				throw new LoggingRuntimeException(e, sqlLogger, "read with SearchCriteria failed");
 			}
 		} else if (criteria instanceof AllCriteria) {
 			try {
