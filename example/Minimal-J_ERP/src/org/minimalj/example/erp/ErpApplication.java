@@ -17,7 +17,6 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
-import org.minimalj.model.test.ModelTest;
 
 public class ErpApplication extends Application {
 
@@ -51,14 +50,5 @@ public class ErpApplication extends Application {
 	@Override
 	public Class<?>[] getEntityClasses() {
 		return new Class<?>[]{Customer.class, Article.class, Offer.class};
-	}
-
-	public static void main(String[] args) {
-		ModelTest test = new ModelTest(new ErpApplication().getEntityClasses());
-		if (!test.getProblems().isEmpty()) {
-			for (String s : test.getProblems()) {
-				System.err.println(s);
-			}
-		}
 	}
 }
