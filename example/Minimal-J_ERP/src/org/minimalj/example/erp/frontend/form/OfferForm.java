@@ -1,9 +1,8 @@
 package org.minimalj.example.erp.frontend.form;
 
-import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.form.element.ReferenceFormElement;
+import org.minimalj.frontend.form.element.TextFormElement;
 
 public class OfferForm extends Form<Offer> {
 
@@ -12,7 +11,7 @@ public class OfferForm extends Form<Offer> {
 		
 		line(Offer.$.offerNr);
 		line(Offer.$.title);
-		line(new ReferenceFormElement<>(Offer.$.customer, Customer.$.surname, Customer.$.customerNr));
+		line(new TextFormElement(Offer.$.customer));
 		line(Offer.$.creationdate);
 		line(Offer.$.validuntil);
 		line(Offer.$.fixprice);
