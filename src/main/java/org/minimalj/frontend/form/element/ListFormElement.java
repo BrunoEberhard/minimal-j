@@ -48,7 +48,7 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		@Override
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(this.getClass());
+			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(ListFormElement.this.getClass());
 			T newInstance = CloneHelper.newInstance(clazz);
 			return newInstance;
 		}
