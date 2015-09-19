@@ -299,8 +299,21 @@ public class DbPersistence implements Persistence {
 	public <T> Object insert(T object) {
 		if (object == null) throw new NullPointerException();
 		@SuppressWarnings("unchecked")
+		// TODO merge this with update
 		Table<T> table = getTable((Class<T>) object.getClass());
-		return table.insert(object);
+		if (isTransactionActive()) {
+			return table.insert(object);
+		} else {
+			boolean runThrough = false;
+			try {
+				startTransaction();
+				Object result = table.insert(object);
+				runThrough = true;
+				return result;
+			} finally {
+				endTransaction(runThrough);
+			}
+		}
 	}
 
 	@Override
@@ -330,6 +343,7 @@ public class DbPersistence implements Persistence {
 	@Override
 	public <T> void delete(Class<T> clazz, Object id) {
 		Table<T> table = getTable(clazz);
+		// TODO do in transaction and merge with insert/update
 		table.delete(id);
 	}
 	
