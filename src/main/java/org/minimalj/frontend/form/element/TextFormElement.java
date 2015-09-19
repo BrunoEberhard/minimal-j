@@ -4,6 +4,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.EnumUtils;
+import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
@@ -20,6 +21,10 @@ public class TextFormElement implements FormElement<Object> {
 
 	protected final Input<String> textField;
 
+	public TextFormElement(Object key) {
+		this(Keys.getProperty(key));
+	}
+	
 	public TextFormElement(PropertyInterface property) {
 		this.property = property;
 		this.textField = Frontend.getInstance().createReadOnlyTextField();
@@ -45,6 +50,7 @@ public class TextFormElement implements FormElement<Object> {
 		// ignored
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void setValue(Object object) {
 		if (object instanceof Rendering) {
