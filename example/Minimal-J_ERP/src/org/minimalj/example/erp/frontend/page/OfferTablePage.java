@@ -22,8 +22,8 @@ public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 		$.validuntil, //
 		$.customer.surname, //
 		$.totalPrice, //
-		$.tax_in_percent, //
-		$.discount_in_percent, //
+		$.taxInPercent, //
+		$.discountInPercent, //
 		$.grosstotalprice, //
 		$.fixprice, //
 		$.isordered, //

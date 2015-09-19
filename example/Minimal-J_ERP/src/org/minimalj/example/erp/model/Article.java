@@ -14,7 +14,7 @@ public class Article {
 	public Object id;
 	
 	@Size(32) @Searched
-	public String article_nr;
+	public String articleNr;
 	
 	@Size(50) @Searched
 	public String article;

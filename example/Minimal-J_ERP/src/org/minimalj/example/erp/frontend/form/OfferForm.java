@@ -18,7 +18,7 @@ public class OfferForm extends Form<Offer> {
 		line(Offer.$.fixprice);
 		line(new OfferArticleFormElement(Offer.$.articles, editable));
 		line(Offer.$.totalPrice);
-		line(Offer.$.discount_in_percent);
-		line(Offer.$.tax_in_percent);
+		line(Offer.$.discountInPercent);
+		line(Offer.$.taxInPercent);
 	}
 }

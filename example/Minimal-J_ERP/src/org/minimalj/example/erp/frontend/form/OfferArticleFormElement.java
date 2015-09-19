@@ -35,7 +35,7 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 		@Override
 		public Form<OfferArticle> createForm() {
 			Form<OfferArticle> form = new Form<>();
-			form.line(new ReferenceFormElement<Article>(OfferArticle.$.article, Article.$.article, Article.$.article_nr));
+			form.line(new ReferenceFormElement<Article>(OfferArticle.$.article, Article.$.article, Article.$.articleNr));
 			form.line(OfferArticle.$.numberof);
 			form.line(OfferArticle.$.price);
 			return form;

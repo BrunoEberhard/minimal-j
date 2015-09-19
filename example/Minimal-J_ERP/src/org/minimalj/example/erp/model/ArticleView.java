@@ -10,7 +10,7 @@ public class ArticleView implements View<Article>, Rendering {
 
 	public Object id;
 
-	public String article_nr;
+	public String articleNr;
 	
 	public String article;
 	

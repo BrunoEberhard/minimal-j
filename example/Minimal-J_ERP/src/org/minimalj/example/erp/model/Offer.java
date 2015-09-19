@@ -30,7 +30,7 @@ public class Offer {
 	public BigDecimal totalPrice, grosstotalprice;
 	
 	@Size(4)
-	public BigDecimal tax_in_percent, discount_in_percent;
+	public BigDecimal taxInPercent, discountInPercent;
 
 	public Boolean fixprice;
 	

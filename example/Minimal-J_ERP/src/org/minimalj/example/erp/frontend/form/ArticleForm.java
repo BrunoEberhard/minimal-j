@@ -10,7 +10,7 @@ public class ArticleForm extends Form<Article> {
 	public ArticleForm(boolean editable) {
 		super(editable);
 		
-		line($.article_nr);
+		line($.articleNr);
 		line($.article);
 		line($.articleCategory);
 		line($.description);

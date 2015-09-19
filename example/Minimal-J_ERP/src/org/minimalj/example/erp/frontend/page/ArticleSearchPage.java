@@ -14,7 +14,7 @@ import org.minimalj.transaction.criteria.Criteria;
 public class ArticleSearchPage extends SimpleSearchPage<Article> {
 
 	public static final Object[] FIELDS = {
-		$.article_nr, //
+		$.articleNr, //
 		$.article, //
 		$.price, //
 	};
