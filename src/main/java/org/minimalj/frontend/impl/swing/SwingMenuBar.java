@@ -15,6 +15,7 @@ import org.minimalj.frontend.impl.swing.lookAndFeel.PrintLookAndFeel;
 import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLookAndFeel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.security.Authorization;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -40,9 +41,11 @@ public class SwingMenuBar extends JMenuBar {
 		menu.addSeparator();		
 		menu.add(new JMenuItem(tab.frame.newTabAction));
 		menu.add(new JMenuItem(tab.closeTabAction));
-		menu.addSeparator();
-		menu.add(new JMenuItem(tab.frame.loginAction));
-		menu.add(new JMenuItem(tab.frame.logoutAction));
+		if (Authorization.isAvailable()) {
+			menu.addSeparator();
+			menu.add(new JMenuItem(tab.frame.loginAction));
+			menu.add(new JMenuItem(tab.frame.logoutAction));
+		}
 		menu.addSeparator();
 		menu.add(new JMenuItem(tab.frame.exitAction));
 		return menu;
