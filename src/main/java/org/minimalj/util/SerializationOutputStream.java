@@ -197,9 +197,4 @@ public class SerializationOutputStream {
 			dos.write(0);
 		}
 	}
-	
-	private static void writeTemporal(Object temporal) {
-		
-	}
-
 }
