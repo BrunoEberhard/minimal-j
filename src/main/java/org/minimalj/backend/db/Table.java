@@ -237,7 +237,7 @@ public class Table<T> extends AbstractTable<T> {
 			try {
 				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
 				for (int i = 0; i<searchColumns.size(); i++) {
-					statement.setString(i+1, searchCriteria.getQuery());
+					statement.setString(i+1, convertUserSearch(searchCriteria.getQuery()));
 				}
 				return executeSelectAll(statement);
 			} catch (SQLException e) {
@@ -293,7 +293,7 @@ public class Table<T> extends AbstractTable<T> {
 
 			try (PreparedStatement statement = createStatement(dbPersistence.getConnection(), query, false)) {
 				for (int i = 0; i<searchColumns.size(); i++) {
-					statement.setString(i+1, searchCriteria.getQuery());
+					statement.setString(i+1, convertUserSearch(searchCriteria.getQuery()));
 				}
 				return executeSelectViewAll(resultClass, statement, maxResults);
 			} catch (Exception e) {
@@ -343,6 +343,11 @@ public class Table<T> extends AbstractTable<T> {
 			}
 		}
 		return result;
+	}
+	
+	public String convertUserSearch(String s) {
+		s = s.replace('*', '%');
+		return s;
 	}
 	
 	public List<T> search(String query, int maxResults) {
