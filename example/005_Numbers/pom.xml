@@ -2,12 +2,22 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
-	<artifactId>emptyApplication</artifactId>
+	<artifactId>numbers</artifactId>
 	<version>1.0</version>
-	<name>Example_001_EmptyApplication</name>
-	<description>The empty application shows how to set up a Minimal-J application</description>
+	<name>Example_005_Numbers</name>
+	<description>Demo for the use of numbers in Minimal-J</description>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
@@ -15,5 +25,5 @@
 			<artifactId>minimalj</artifactId>
 			<version>0.6.0.4-SNAPSHOT</version>
 		</dependency>
-	</dependencies>
+	</dependencies>	
 </project>

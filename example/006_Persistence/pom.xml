@@ -2,12 +2,22 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
-	<artifactId>emptyApplication</artifactId>
+	<artifactId>persistence</artifactId>
 	<version>1.0</version>
-	<name>Example_001_EmptyApplication</name>
-	<description>The empty application shows how to set up a Minimal-J application</description>
+	<name>Example_006_Persistence</name>
+	<description>How to use the persistence layer in Minimal-J</description>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source />
+					<target />
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
