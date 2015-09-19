@@ -1,7 +1,5 @@
 package org.minimalj.example.erp.model;
 
-import java.util.Locale;
-
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.View;

@@ -1,7 +1,6 @@
 package org.minimalj.example.erp.model;
 
 import java.math.BigDecimal;
-import java.util.Locale;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;

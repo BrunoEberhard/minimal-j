@@ -1,6 +1,7 @@
 package org.minimalj.example.erp.model;
 
 import java.time.LocalDate;
+
 import org.minimalj.model.annotation.Size;
 
 public class Order {
