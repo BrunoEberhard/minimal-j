@@ -7,6 +7,7 @@ import org.minimalj.application.Application;
 import org.minimalj.example.erp.frontend.editor.AddArticleEditor;
 import org.minimalj.example.erp.frontend.editor.AddCustomerEditor;
 import org.minimalj.example.erp.frontend.page.ArticleSearchPage;
+import org.minimalj.example.erp.frontend.page.ArticleTablePage;
 import org.minimalj.example.erp.frontend.page.CustomerSearchPage;
 import org.minimalj.example.erp.frontend.page.CustomerTablePage;
 import org.minimalj.example.erp.model.Article;
@@ -29,11 +30,12 @@ public class ErpApplication extends Application {
 		
 		ActionGroup customerActions = new ActionGroup("Kunden");
 		actions.add(customerActions);
-		customerActions.add(new AddCustomerEditor());
 		customerActions.add(new CustomerTablePage());
+		customerActions.add(new AddCustomerEditor());
 		
 		ActionGroup articleActions = new ActionGroup("Artikel");
 		actions.add(articleActions);
+		articleActions.add(new ArticleTablePage());
 		articleActions.add(new AddArticleEditor());
 		
 		return actions;
