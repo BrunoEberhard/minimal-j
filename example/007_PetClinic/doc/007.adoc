@@ -382,6 +382,19 @@ fields this works well. For the more complex fields you have to provide special 
 
 === Comparison Spring vs. Minimal-J
 
-To be written
+The analytiX eclipse plugin can provide some simple metrics to a Java project. The results for spring-petclinic versus
+the Minimal-J implementation:
+
+Lines of code: 1602 / 441
+
+Number of Types: 48 / 20
+
+Number of Methods: 153 / 42
+
+What I find even more impressive is the number of referenced libraries. For the Minimal-J implementation there are 7 jar files
+attached. 4 if you don't count the unused lanterna, mariadb and junit jar. The spring implementation lists an impressive
+list of 90 jars in the 'Referenced Libraries' folder.
+
+== Links
 
 The owner class in the spring version can be found https://github.com/spring-projects/spring-petclinic/blob/master/src/main/java/org/springframework/samples/petclinic/model/Owner.java[here].
