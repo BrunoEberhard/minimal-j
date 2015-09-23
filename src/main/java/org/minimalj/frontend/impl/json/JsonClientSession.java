@@ -163,6 +163,7 @@ public class JsonClientSession implements PageBrowser {
 		}
 		
 		output.add("showPage", createJson(page, pageId, masterPageId));
+		visiblePageAndDetailsList.put(pageId, page);
 		pageStore.put(pageId, page);
 	}
 	
