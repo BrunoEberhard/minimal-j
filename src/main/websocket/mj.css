@@ -131,6 +131,7 @@ li.actionLink[disabled] {
 .page {
 	position: relative;
 	border-bottom: 1px rgb(160,160,160) solid;
+	min-height: 10em;
 }
 
 .pageHeader {
@@ -146,6 +147,14 @@ li.actionLink[disabled] {
 .pageContent {
 	padding-left: 1em;
 	width: calc(100% - 1em);
+}
+
+table.table {
+	margin-top: 1ex;
+}
+
+table.table tr {
+	line-height: 1.5em;
 }
 
 .actionMenu {
@@ -239,8 +248,7 @@ table tr:nth-child(odd).selected {
 table.form {
 	border-spacing: 0px;
 	width: 100%;
-	margin: 0.5ex;
-	font-size: 100%
+	margin-top: 1ex;
 }
 
 table.form tr {
@@ -252,7 +260,8 @@ table.form input[type="text"], table.form input[type="password"], table.form sel
 }
 
 table.form td, table.form th {
-	padding: 1ex 1.5ex;
+	padding-top: 1ex;
+	padding-bottom: 1ex;
 }
 
 /* group (of form elements) must not double the paddings and keep background pattern */

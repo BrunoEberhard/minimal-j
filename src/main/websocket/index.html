@@ -253,31 +253,12 @@
 		while ((element = element.parentNode) && element.className != "page");
 		var pageContentElement = element.querySelector(".pageContent");
 		if (pageContentElement.style.display == "none") {
+			element.style.minHeight = "10em";
 			pageContentElement.style.display = "table";
 			pageContentElement.scrollIntoView();
 		} else {
+			element.style.minHeight = "0em";
 			pageContentElement.style.display = "none";
-		}
-		/* deactivated at the moment, doesn't work yet: updatePageHeights(); */
-	}
-	
-	function updatePageHeights() {
-		/* TODO */
-		var pageContainerElement = document.getElementById("pageContainer");
-		var childCount = pageContainerElement.childNodes.length;
-		if (childCount == 0) {
-			return;
-		} else if (childCount == 1) {
-			var pageContentElement = pageContainerElement.querySelector(".pageContent");
-			pageContentElement.style.height = undefined;
-		} else {
-			for (var i = 0; i<childCount; i++) {
-				var pageElement = pageContainerElement.childNodes[i];
-				var pageContentElement = element.querySelector(".pageContent");
-				if (pageContentElement.classList.contains("table")) {
-					pageContentElement.style.height = "50%";
-				}
-			}
 		}
 	}
 	
