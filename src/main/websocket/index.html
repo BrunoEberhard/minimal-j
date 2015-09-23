@@ -631,21 +631,21 @@
 		dialog.setAttribute("type", json.type);
 
 		var header = document.createElement("div");
-		header.id = "dialogHeader";
+		header.classList.add("dialogHeader");
 		var headerDiv = document.createElement("div");
 		headerDiv.appendChild(document.createTextNode(json.title));
 		header.appendChild(headerDiv);
 		dialog.appendChild(header);
 
 		var content = document.createElement("div");
-		content.id = "dialogContent";
+		content.classList.add("dialogContent");
 		content.appendChild(createContent(json["content"]));
 		dialog.appendChild(content);
 
 		var actions = json["actions"];
 		if (actions != undefined) {
 			var footer = document.createElement("div");
-			footer.id = "dialogFooter";
+			footer.classList.add("dialogFooter");
 			for (var i = 0; i < actions.length; i++) {
 				var action = actions[i];
 				var button = document.createElement("button");
@@ -825,7 +825,7 @@
 					dialogElement.style.top = (i + 3) + "em";
 					dialogElement.style.left = (i + 18) + "em";
 
-					var contentElement = dialogElement.querySelector("#dialogContent");
+					var contentElement = dialogElement.querySelector(".dialogContent");
 					var type = dialogElement.getAttribute("type");
 					var height = Math.max(100, height = window.innerHeight - 140);
 
@@ -936,9 +936,9 @@
 			styleSheet.insertRule("table.form input { margin: 0px; }", 0);
 			styleSheet.insertRule("table.form { margin: 0px; }", 0);
 			// styleSheet.insertRule("#dialogFooter button { padding : 0px; }", 0);
-			styleSheet.insertRule("#dialogFooter button { font-size : inherit; }", 0);
-			styleSheet.insertRule("#dialogFooter { height: 1.7em; }", 0);
-			styleSheet.insertRule("#dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}", 0);
+			styleSheet.insertRule(".dialogFooter button { font-size : inherit; }", 0);
+			styleSheet.insertRule(".dialogFooter { height: 1.7em; }", 0);
+			styleSheet.insertRule(".dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}", 0);
 		} else {
 			toggleNavigation("open");
 		}
