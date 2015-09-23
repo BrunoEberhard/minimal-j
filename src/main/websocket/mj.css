@@ -146,11 +146,8 @@ li.actionLink[disabled] {
 
 .pageContent {
 	padding-left: 1em;
+	padding-top: 0.5ex;
 	width: calc(100% - 1em);
-}
-
-table.table {
-	margin-top: 1ex;
 }
 
 table.table tr {
@@ -182,7 +179,7 @@ dialog.phone {
 	top: 0px; left: 0px; right 0px;
 }
 
-#dialogHeader {
+.dialogHeader {
 	height: 2em;
 	line-height: 2em;
 	padding-left: 1em;
@@ -190,12 +187,16 @@ dialog.phone {
 	background: rgb(240,240,240);
 }
 
+.dialogContent {
+	padding-left: 1ex;
+}
+
 #dialogContent.large {
 	padding-right: 2em;
 	overflow: scroll;
 }
 
-#dialogFooter {
+.dialogFooter {
 	height: 2em;
 	text-align: right;
 	background: rgb(240,240,240);
@@ -203,7 +204,7 @@ dialog.phone {
 	padding-top: 0.2em;
 }
 
-#dialogFooter button {
+.dialogFooter button {
 	margin-right: 0.2em;
 	height: 1.5em;
 }
@@ -248,7 +249,7 @@ table tr:nth-child(odd).selected {
 table.form {
 	border-spacing: 0px;
 	width: 100%;
-	margin-top: 1ex;
+	margin-top: 0.5ex;
 }
 
 table.form tr {
