@@ -59,7 +59,7 @@ public class JsonHandler {
 			output = session.handle(input);
 		} catch (Exception x) {
 			output = new JsonOutput();
-			output.add("error", x.getMessage());
+			output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
 			logger.log(Level.SEVERE, "Internal Error", x);
 			// why does logger not work here?
 			x.printStackTrace();
