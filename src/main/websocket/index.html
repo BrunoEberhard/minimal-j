@@ -729,6 +729,7 @@
 	}
 
 	function tableSelection(event, rowElement, row) {
+		if (event.button != 0) return; // only 'left' mouse button should select
 		var tableElement = rowElement;
 		while ((tableElement = tableElement.parentNode) && tableElement.tagName.toUpperCase() != "TABLE");
 
