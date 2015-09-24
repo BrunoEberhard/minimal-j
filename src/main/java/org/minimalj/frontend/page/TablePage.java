@@ -19,6 +19,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	private transient ITable<T> table;
 	private transient List<T> objects;
 	
+	/*
+	 * this flag indicates if the next call of getContent should trigger a new loading
+	 * of the data. A second call of getContent probably means that the user revisits
+	 * the page and doesn't want to see the old data. 
+	 */
+	private transient boolean reloadFlag;
+	
 	public TablePage(Object[] keys) {
 		this.keys = keys;
 	}
@@ -28,8 +35,9 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	@Override
 	public IContent getContent() {
 		table = Frontend.getInstance().createTable(keys, this);
-		if (objects == null) {
+		if (objects == null || reloadFlag) {
 			objects = load();
+			reloadFlag = true;
 		}
 		table.setObjects(objects);
 		return table;
@@ -38,6 +46,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	public int getResultCount() {
 		if (objects == null) {
 			objects = load();
+			reloadFlag = false;
 		}
 		return objects.size();
 	}
@@ -46,6 +55,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		if (table != null) {
 			objects = load();
 			table.setObjects(objects);
+			reloadFlag = false;
 		}
 	}
 	
