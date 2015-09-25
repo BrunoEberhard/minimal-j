@@ -143,7 +143,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private class SwingTableSelectionListener implements ListSelectionListener {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
-			if (!e.getValueIsAdjusting()) {
+			if (!e.getValueIsAdjusting() && table.isShowing()) {
 				SwingFrontend.updateEventTab(table);
 				listener.selectionChanged(getSelectedObject(), getSelectedObjects());
 				Frontend.setBrowser(null);
