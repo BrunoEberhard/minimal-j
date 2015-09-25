@@ -9,7 +9,7 @@ import org.minimalj.frontend.page.TablePage.TablePageWithDetail;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
-public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAIL> implements TableActionListener<T> {
+public abstract class SearchPage<T, DETAIL_PAGE extends Page> extends TablePageWithDetail<T, DETAIL_PAGE> implements TableActionListener<T> {
 
 	private final String query;
 	
@@ -41,9 +41,6 @@ public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAI
 	protected abstract List<T> load(String query);
 
 	@Override
-	public abstract ObjectPage<DETAIL> createDetailPage(DETAIL initialObject);
-	
-	@Override
 	public String getTitle() {
 		return getName() + " / " + query;
 	}
@@ -57,15 +54,19 @@ public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAI
 		return Resources.getString(genericClass);
 	}
 	
-	public static abstract class SimpleSearchPage<T> extends SearchPage<T, T> {
+	public static abstract class SimpleSearchPage<T> extends SearchPage<T, ObjectPage<T>> {
 
 		public SimpleSearchPage(String query, Object[] keys) {
 			super(query, keys);
 		}
 		
 		@Override
-		protected T load(T searchObject) {
-			return searchObject;
+		public abstract ObjectPage<T> createDetailPage(T mainObject);
+
+		@Override
+		protected ObjectPage<T> updateDetailPage(ObjectPage<T> detailPage, T mainObject) {
+			detailPage.setObject(mainObject);
+			return detailPage;
 		}
 	}
 
@@ -81,8 +82,7 @@ public abstract class SearchPage<T, DETAIL> extends TablePageWithDetail<T, DETAI
 			SearchPage searchPage = searchPagesWithResult.get(0);
 			if (searchPage.getResultCount() == 1) {
 				Object singleSearchResult = searchPage.load().get(0);
-				Object singleDetail = searchPage.load(singleSearchResult);
-				Page detailPage = searchPage.createDetailPage(singleDetail);
+				Page detailPage = searchPage.createDetailPage(singleSearchResult);
 				return detailPage != null ? detailPage : searchPage;
 			} else {
 				return searchPage;

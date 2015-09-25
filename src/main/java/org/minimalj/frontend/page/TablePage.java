@@ -59,58 +59,62 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
-	public static abstract class TablePageWithDetail<T, DETAIL> extends TablePage<T> {
+	public static abstract class TablePageWithDetail<T, DETAIL_PAGE extends Page> extends TablePage<T> {
 		
+		private DETAIL_PAGE detailPage;
+
 		public TablePageWithDetail(Object[] keys) {
 			super(keys);
 		}
 
-		private ObjectPage<DETAIL> detailPage;
-		
-		protected abstract DETAIL load(T searchObject);
-		
-		protected abstract ObjectPage<DETAIL> createDetailPage(DETAIL initialObject);
-	
+		protected abstract DETAIL_PAGE createDetailPage(T mainObject);
+
+		protected abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject);
+
 		@Override
-		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
-			if (detailPage != null && Frontend.getBrowser().isDetailShown(detailPage)) {
-				DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
-				if (selectedDetailObject != null) {
-					detailPage.setObject(selectedDetailObject);
+		public void action(T selectedObject) {
+			if (detailPage != null) {
+				updateDetailPage(selectedObject);
+			} else {
+				detailPage = createDetailPage(selectedObject);
+				if (detailPage != null) {
 					Frontend.getBrowser().showDetail(detailPage);
-				} else {
-					Frontend.getBrowser().hideDetail(detailPage);
 				}
 			}
 		}
-		
+
 		@Override
-		public void action(T selectedObject) {
-			DETAIL selectedDetailObject = selectedObject != null ? load(selectedObject) : null;
-			if (detailPage != null) {
-				detailPage.setObject(selectedDetailObject);
-			} else {
-				detailPage = createDetailPage(selectedDetailObject);
+		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
+			if (detailPage != null && Frontend.getBrowser().isDetailShown(detailPage)) {
+				updateDetailPage(selectedObject);
 			}
-			if (detailPage != null) {
-				Frontend.getBrowser().showDetail(detailPage);
-			} else {
-				// This table page doesn't use a detail. Do nothing.
+		}
+		
+		private void updateDetailPage(T selectedObject) {
+			DETAIL_PAGE updatedDetailPage = updateDetailPage(detailPage, selectedObject);
+			if (Frontend.getBrowser().isDetailShown(detailPage)) {
+				if (updatedDetailPage == null || updatedDetailPage != detailPage) {
+					Frontend.getBrowser().hideDetail(detailPage);
+				}
+			}
+			if (updatedDetailPage != null) {
+				Frontend.getBrowser().showDetail(updatedDetailPage);
+				detailPage = updatedDetailPage;
 			}
 		}
 	}
 	
-	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, T> {
+	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, ObjectPage<T>> {
 
 		public SimpleTablePageWithDetail(Object[] keys) {
 			super(keys);
 		}
 		
 		@Override
-		protected T load(T searchObject) {
-			return searchObject;
+		protected ObjectPage<T> updateDetailPage(ObjectPage<T> detailPage, T mainObject) {
+			detailPage.setObject(mainObject);
+			return detailPage;
 		}
 	}
-
 	
 }
