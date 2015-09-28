@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 
 
@@ -16,7 +17,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 
 	@Override
 	public BigDecimal parse(String text) {
-		if (text != null) {
+		if (!StringUtils.isEmpty(text)) {
 			try {
 				BigDecimal value = new BigDecimal(text);
 				if (value.signum() < 0 && !this.signed) {
