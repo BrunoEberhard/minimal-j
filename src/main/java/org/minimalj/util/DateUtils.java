@@ -185,7 +185,7 @@ public class DateUtils {
 	 * @return LocalDate date object or <code>null</code>
 	 */
 	public static LocalDate parse(String date) {
-		if (date == null) return null;
+		if (StringUtils.isEmpty(date)) return null;
 		if (date.contains(".")) {
 			date = parseCH(date, false);
 			return LocalDate.parse(date);
