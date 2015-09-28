@@ -61,7 +61,7 @@ public class Owner implements Rendering, Mocking {
     
     public List<Pet> getPets() {
     	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets", List.class);
-    	return Backend.persistence().read(Pet.class, Criteria.equals(Pet.$.owner, this), 100);
+    	return Backend.persistence().read(Pet.class, By.field(Pet.$.owner, this), 100);
 	}
     
     @Override
@@ -293,7 +293,7 @@ public class OwnerSearchPage extends SimpleSearchPage<Owner> {
 
 	@Override
 	protected List<Owner> load(String query) {
-		return Backend.persistence().read(Owner.class, Criteria.search(query), 100);
+		return Backend.persistence().read(Owner.class, By.search(query), 100);
 	}
 
 	@Override

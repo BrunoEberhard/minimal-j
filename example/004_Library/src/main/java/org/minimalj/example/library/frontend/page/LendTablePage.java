@@ -9,7 +9,7 @@ import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 
 public class LendTablePage extends TablePage<Lend> {
@@ -34,7 +34,7 @@ public class LendTablePage extends TablePage<Lend> {
 
 	@Override
 	protected List<Lend> load() {
-		return Backend.persistence().read(Lend.class, Criteria.equals(Lend.$.customer, customer), 100);
+		return Backend.persistence().read(Lend.class, By.field(Lend.$.customer, customer), 100);
 	}
 
 	@Override

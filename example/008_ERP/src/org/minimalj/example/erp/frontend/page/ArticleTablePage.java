@@ -6,7 +6,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 
 public class ArticleTablePage extends SimpleTablePageWithDetail<Article> {
@@ -17,7 +17,7 @@ public class ArticleTablePage extends SimpleTablePageWithDetail<Article> {
 	
 	@Override
 	protected List<Article> load() {
-		return Backend.persistence().read(Article.class, Criteria.all(), 100);
+		return Backend.persistence().read(Article.class, By.all(), 100);
 	}
 
 	@Override

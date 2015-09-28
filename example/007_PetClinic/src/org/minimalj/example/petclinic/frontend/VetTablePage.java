@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.petclinic.model.Vet;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 public class VetTablePage extends TablePage<Vet> {
 
@@ -17,7 +17,7 @@ public class VetTablePage extends TablePage<Vet> {
 
 	@Override
 	protected List<Vet> load() {
-		return Backend.persistence().read(Vet.class, Criteria.all(), 100);
+		return Backend.persistence().read(Vet.class, By.all(), 100);
 	}
 
 }

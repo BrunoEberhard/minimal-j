@@ -8,7 +8,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 import org.minimalj.util.mock.MockName;
 import org.minimalj.util.mock.Mocking;
 
@@ -30,7 +30,7 @@ public class Owner implements Rendering, Mocking {
     
     public List<Pet> getPets() {
     	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets", List.class);
-    	return Backend.persistence().read(Pet.class, Criteria.equals(Pet.$.owner, this), 100);
+    	return Backend.persistence().read(Pet.class, By.field(Pet.$.owner, this), 100);
 	}
     
     @Override

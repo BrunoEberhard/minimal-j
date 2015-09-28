@@ -10,7 +10,7 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.SearchPredicate;
 import org.minimalj.util.CloneHelper;
 
 public class ReferenceFormElement<T> extends AbstractFormElement<T> {
@@ -31,7 +31,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 
 		@Override
 		public List<T> search(String searchText) {
-			return (List<T>) Backend.persistence().read(fieldClazz, Criteria.search(searchText, searchColumns), 100);
+			return (List<T>) Backend.persistence().read(fieldClazz, new SearchPredicate<>(searchText, searchColumns), 100);
 		}
 	}
 	

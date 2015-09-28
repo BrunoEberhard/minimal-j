@@ -6,7 +6,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.petclinic.model.Owner;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 public class OwnerSearchPage extends SimpleSearchPage<Owner> {
 
@@ -18,12 +18,11 @@ public class OwnerSearchPage extends SimpleSearchPage<Owner> {
 
 	@Override
 	protected List<Owner> load(String query) {
-		return Backend.persistence().read(Owner.class, Criteria.search(query), 100);
+		return Backend.persistence().read(Owner.class, By.search(query), 100);
 	}
 
 	@Override
 	public ObjectPage<Owner> createDetailPage(Owner owner) {
 		return new OwnerPage(owner);
 	}
-
 }

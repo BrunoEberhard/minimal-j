@@ -8,7 +8,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 
 public class CustomerSearchPage extends SimpleSearchPage<Customer> {
@@ -33,7 +33,7 @@ public class CustomerSearchPage extends SimpleSearchPage<Customer> {
 	
 	@Override
 	protected List<Customer> load(String query) {
-		return Backend.persistence().read(Customer.class, Criteria.search(query), 100);
+		return Backend.persistence().read(Customer.class, By.search(query), 100);
 	}
 
 	@Override

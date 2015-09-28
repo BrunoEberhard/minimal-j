@@ -9,7 +9,7 @@ import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 
@@ -41,7 +41,7 @@ public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 	
 	@Override
 	protected List<Offer> load() {
-		return Backend.persistence().read(Offer.class, Criteria.equals(Offer.$.customer, customer), 100);
+		return Backend.persistence().read(Offer.class, By.field(Offer.$.customer, customer), 100);
 	}
 
 	@Override

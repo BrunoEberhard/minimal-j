@@ -6,8 +6,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.criteria.CriteriaOperator;
+import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.predicate.FieldOperator;
 
 public class DbSimpleCriteriaTest {
 	
@@ -34,7 +34,7 @@ public class DbSimpleCriteriaTest {
 	
 	@Test 
 	public void testFindByIntegerField() {
-		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.int1, 5), 2);
+		List<A> list = persistence.getTable(A.class).read(By.field(A.$.int1, 5), 2);
 		Assert.assertEquals(1, list.size());
 		A a = list.get(0);
 		Assert.assertNotNull(a.int1);
@@ -43,13 +43,13 @@ public class DbSimpleCriteriaTest {
 	
 	@Test 
 	public void testMinimumForField() {
-		List<A> list = persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.int1, CriteriaOperator.greaterOrEqual, 7), 3);
+		List<A> list = persistence.getTable(A.class).read(By.field(A.$.int1, FieldOperator.greaterOrEqual, 7), 3);
 		Assert.assertEquals(2, list.size());
 	}
 	
 	@Test(expected = IllegalArgumentException.class) 
 	public void testOperatorCheck() {
-		persistence.getTable(A.class).read(new Criteria.SimpleCriteria(A.$.e, CriteriaOperator.greaterOrEqual, 7), 1);
+		persistence.getTable(A.class).read(By.field(A.$.e, FieldOperator.greaterOrEqual, 7), 1);
 	}
 
 }

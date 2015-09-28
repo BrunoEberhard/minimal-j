@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +33,7 @@ import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.test.ModelTest;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
 import org.minimalj.util.CsvReader;
@@ -284,14 +285,14 @@ public class DbPersistence implements Persistence {
 	}
 
 	@Override
-	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
+	public <T> List<T> read(Class<T> resultClass, Predicate<T> predicate, int maxResults) {
 		if (View.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
 			Table<?> table = getTable(viewedClass);
-			return table.readView(resultClass, criteria, maxResults);
+			return table.readView(resultClass, predicate, maxResults);
 		} else {
 			Table<T> table = getTable(resultClass);
-			return table.read(criteria, maxResults);
+			return table.read(predicate, maxResults);
 		}
 	}
 
@@ -583,7 +584,7 @@ public class DbPersistence implements Persistence {
 	private <T extends Code> void updateCode(Class<T> clazz) {
 		CodeCacheItem<T> codeCacheItem = new CodeCacheItem<T>();
 		codeCache.put(clazz, codeCacheItem);
-		List<T> codes = getTable(clazz).read(Criteria.all(), Integer.MAX_VALUE);
+		List<T> codes = getTable(clazz).read(By.all(), Integer.MAX_VALUE);
 		codeCacheItem.setCodes(codes);
 	}
 

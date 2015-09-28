@@ -8,7 +8,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 public class Codes {
 
@@ -55,7 +55,7 @@ public class Codes {
 	private static <T> void updateCode(Class<T> clazz) {
 		CodeCacheItem<T> codeItem = new CodeCacheItem<T>();
 		cache.put(clazz, codeItem);
-		List<T> codes = Backend.persistence().read(clazz, Criteria.all(), Integer.MAX_VALUE);
+		List<T> codes = Backend.persistence().read(clazz, By.all(), Integer.MAX_VALUE);
 		codeItem.setCodes(codes);
 	}
 	

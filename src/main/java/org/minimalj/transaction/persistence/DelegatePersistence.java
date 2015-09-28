@@ -2,10 +2,10 @@ package org.minimalj.transaction.persistence;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.backend.Persistence;
-import org.minimalj.transaction.criteria.Criteria;
 
 public class DelegatePersistence implements Persistence {
 
@@ -21,8 +21,8 @@ public class DelegatePersistence implements Persistence {
 	}
 
 	@Override
-	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = backend.execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+	public <T> List<T> read(Class<T> clazz, Predicate<T> predicate, int maxResults) {
+		List<T> result = backend.execute(new ReadCriteriaTransaction<T>(clazz, predicate, maxResults));
 		return result;
 	}
 

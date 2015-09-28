@@ -2,14 +2,13 @@ package org.minimalj.backend;
 
 import java.io.Serializable;
 import java.util.List;
-
-import org.minimalj.transaction.criteria.Criteria;
+import java.util.function.Predicate;
 
 public interface Persistence {
 
 	public <T> T read(Class<T> clazz, Object id);
 
-	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
+	public <T> List<T> read(Class<T> clazz, Predicate<T> predicate, int maxResults);
 
 	public <T> Object insert(T object);
 

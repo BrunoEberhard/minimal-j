@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 public class NoteTablePage extends TablePage<Note> {
 
@@ -16,6 +16,6 @@ public class NoteTablePage extends TablePage<Note> {
 
 	@Override
 	protected List<Note> load() {
-		return Backend.persistence().read(Note.class, Criteria.all(), Integer.MAX_VALUE);
+		return Backend.persistence().read(Note.class, By.all(), Integer.MAX_VALUE);
 	}
 }

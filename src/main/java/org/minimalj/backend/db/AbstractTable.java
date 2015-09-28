@@ -26,7 +26,7 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.transaction.criteria.CriteriaOperator;
+import org.minimalj.transaction.predicate.FieldOperator;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.EqualsHelper;
@@ -300,7 +300,7 @@ public abstract class AbstractTable<T> {
 		}
 	}
 	
-	protected String whereStatement(final String wholeFieldPath, CriteriaOperator criteriaOperator) {
+	protected String whereStatement(final String wholeFieldPath, FieldOperator criteriaOperator) {
 		String fieldPath = wholeFieldPath;
 		String column;
 		while (true) {
@@ -332,8 +332,9 @@ public abstract class AbstractTable<T> {
 	
 	protected T executeSelect(PreparedStatement preparedStatement, Integer time) throws SQLException {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			if (resultSet.next()) {
-				return readResultSetRow(resultSet, time);
+				return readResultSetRow(resultSet, time, loadedReferences);
 			} else {
 				return null;
 			}
@@ -347,8 +348,9 @@ public abstract class AbstractTable<T> {
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) throws SQLException {
 		List<T> result = new ArrayList<T>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				T object = readResultSetRow(resultSet, null);
+				T object = readResultSetRow(resultSet, null, loadedReferences);
 				if (this instanceof Table) {
 					Object id = IdUtils.getId(object);
 					((Table<T>) this).loadRelations(object, id);
@@ -359,11 +361,11 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected T readResultSetRow(ResultSet resultSet, Integer time) throws SQLException {
-		return readResultSetRow(dbPersistence, clazz,  resultSet, time);
+	protected T readResultSetRow(ResultSet resultSet, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+		return readResultSetRow(clazz,  resultSet, time, loadedReferences);
 	}
 	
-	protected <R> R readResultSetRow(DbPersistence dbPersistence, Class<R> clazz, ResultSet resultSet, Integer time) throws SQLException {
+	protected <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		R result = CloneHelper.newInstance(clazz);
 		
 		DbPersistenceHelper helper = new DbPersistenceHelper(dbPersistence);
@@ -405,11 +407,20 @@ public abstract class AbstractTable<T> {
 					value = dbPersistence.getCode(codeClass, value, false);
 				} else if (ViewUtil.isReference(property)) {
 					Class<?> viewedClass = ViewUtil.getReferencedClass(property);
-					Table<?> referenceTable = dbPersistence.getTable(viewedClass);
-					Object referenceObject = referenceTable.read(value, false); // false -> subEntities not loaded
-					
-					value = CloneHelper.newInstance(fieldClass);
-					ViewUtil.view(referenceObject, value);
+					if (!loadedReferences.containsKey(viewedClass)) {
+						loadedReferences.put(viewedClass, new HashMap<>());
+					}
+					if (loadedReferences.get(viewedClass).containsKey(value)) {
+						value = loadedReferences.get(viewedClass).get(value);
+					} else {
+						Object reference = value;
+						Table<?> referenceTable = dbPersistence.getTable(viewedClass);
+						Object referenceObject = referenceTable.read(value, false); // false -> subEntities not loaded
+						
+						value = CloneHelper.newInstance(fieldClass);
+						ViewUtil.view(referenceObject, value);
+						loadedReferences.get(viewedClass).put(reference, value);
+					}
 				} else if (DbPersistenceHelper.isDependable(property)) {
 					value = dbPersistence.getTable(fieldClass).read(value);
 				} else if (fieldClass == Set.class) {

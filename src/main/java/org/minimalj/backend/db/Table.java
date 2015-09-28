@@ -4,11 +4,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
@@ -16,10 +18,11 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.criteria.Criteria.AllCriteria;
-import org.minimalj.transaction.criteria.Criteria.SearchCriteria;
-import org.minimalj.transaction.criteria.Criteria.SimpleCriteria;
+import org.minimalj.transaction.predicate.AndPredicate;
+import org.minimalj.transaction.predicate.FieldPredicate;
+import org.minimalj.transaction.predicate.SearchPredicate;
+import org.minimalj.util.Codes;
+import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -195,119 +198,93 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 
-	public List<T> read(Criteria criteria, int maxResults) {
-		String query = "select * from " + getTableName();
-		if (criteria instanceof SimpleCriteria) {
-			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
-			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
-			query += " where " + whereStatement(propertyInterface.getPath(), simpleCriteria.getOperator());
-			try {
-				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
-				Object value = simpleCriteria.getValue();
-				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isReference(propertyInterface)) {
+	public List<Object> whereClause(Predicate<?> predicate) {
+		List<Object> result;
+		if (predicate instanceof AndPredicate) {
+			AndPredicate andPredicate = (AndPredicate) predicate;
+			result = combine(andPredicate.getPredicate1(), andPredicate.getPredicate2(), "AND");
+		} else if (predicate instanceof FieldPredicate) {
+			FieldPredicate fieldPredicate = (FieldPredicate) predicate;
+			result = new ArrayList<>();
+			PropertyInterface propertyInterface = Keys.getProperty(fieldPredicate.getKey());
+			Object value = fieldPredicate.getValue();
+			String term = whereStatement(propertyInterface.getPath(), fieldPredicate.getOperator());
+			if (ViewUtil.isReference(propertyInterface)) {
+				if (!Codes.isCode(propertyInterface.getClazz()) || value == null || FieldUtils.isAllowedCodeId(value.getClass())) {
 					value = IdUtils.getId(value);
 				}
-				statement.setObject(1, value);
-				return executeSelectAll(statement, maxResults);
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 			}
-		} else if (criteria instanceof SearchCriteria) {
-			SearchCriteria searchCriteria = (SearchCriteria) criteria;
-
-			query += " where (";
-			List<String> searchColumns = searchCriteria.getKeys() != null ? getColumns(searchCriteria.getKeys()) : findSearchColumns(clazz);
+			result.add(term);
+			result.add(value);
+		} else if (predicate instanceof SearchPredicate) {
+			SearchPredicate searchPredicate = (SearchPredicate) predicate;
+			result = new ArrayList<>();
+			String search = convertUserSearch(searchPredicate.getQuery());
+			String clause = "(";
+			List<String> searchColumns = searchPredicate.getKeys() != null ? getColumns(searchPredicate.getKeys()) : findSearchColumns(clazz);
 			boolean first = true;
 			for (String column : searchColumns) {
 				if (!first) {
-					query += " OR ";
+					clause += " OR ";
 				} else {
 					first = false;
 				}
-				query += column + " like ?";
+				clause += column + " like ?";
+				result.add(search);
 			}
 			if (this instanceof HistorizedTable) {
-				query += ") and version = 0";
+				clause += ") and version = 0";
 			} else {
-				query += ")";
+				clause += ")";
 			}
-
-			try {
-				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
-				for (int i = 0; i<searchColumns.size(); i++) {
-					statement.setString(i+1, convertUserSearch(searchCriteria.getQuery()));
-				}
-				return executeSelectAll(statement, maxResults);
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with SearchCriteria failed");
-			}
-		} else if (criteria instanceof AllCriteria) {
-			try {
-				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
-				return executeSelectAll(statement, maxResults);
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
-			}
+			result.add(0, clause); // insert at beginning
+		} else if (predicate == null) {
+			result = Collections.singletonList("1=1");
+		} else {
+			throw new IllegalArgumentException("Unknown predicate: " + predicate);
 		}
-		throw new IllegalArgumentException(criteria + " not yet implemented");
+		return result;
+	}
+	
+	private List<Object> combine(Predicate<?> predicate1, Predicate<?> predicate2, String operator) {
+		List<Object> result = whereClause(predicate1);
+		List<Object> result2 = whereClause(predicate2);
+		String clause = result.get(0) + " " + operator + " " + result2.get(0);
+		result.set(0, clause); // replace
+		if (result2.size() > 1) {
+			result.addAll(result2.subList(1, result2.size()));
+		}
+		return result;
+	}
+	
+	public List<T> read(Predicate<?> predicate, int maxResults) {
+		List<Object> whereClause = whereClause(predicate);
+		String query = "SELECT * FROM " + getTableName() + " WHERE " + whereClause.get(0);
+		try {
+			PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+			for (int i = 1; i<whereClause.size(); i++) {
+				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
+			}
+			return executeSelectAll(statement, maxResults);
+		} catch (SQLException e) {
+			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+		}
 	}
 
-	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
-		String query = select(resultClass);
-		if (criteria instanceof SimpleCriteria) {
-			SimpleCriteria simpleCriteria = (SimpleCriteria) criteria;
-			PropertyInterface propertyInterface = Keys.getProperty(simpleCriteria.getKey());
-			query += " where " + whereStatement(propertyInterface.getPath(), simpleCriteria.getOperator());
-			try {
-				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
-				Object value = simpleCriteria.getValue();
-				if (!(value instanceof Integer || value instanceof Long) && ViewUtil.isReference(propertyInterface)) {
-					value = IdUtils.getId(value);
-				}
-				statement.setObject(1, value);
-				return executeSelectViewAll(resultClass, statement, maxResults);
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+	public <S> List<S> readView(Class<S> resultClass, Predicate<?> predicate, int maxResults) {
+		List<Object> whereClause = whereClause(predicate);
+		String query = select(resultClass) + " WHERE " + whereClause.get(0);
+		try {
+			PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+			for (int i = 1; i<whereClause.size(); i++) {
+				statement.setObject(i, whereClause.get(i));
 			}
-		} else if (criteria instanceof SearchCriteria) {
-			SearchCriteria searchCriteria = (SearchCriteria) criteria;
-
-			query += " where (";
-			List<String> searchColumns = searchCriteria.getKeys() != null ? getColumns(searchCriteria.getKeys()) : findSearchColumns(clazz);
-			boolean first = true;
-			for (String column : searchColumns) {
-				if (!first) {
-					query += " OR ";
-				} else {
-					first = false;
-				}
-				query += column + " like ?";
-			}
-			if (this instanceof HistorizedTable) {
-				query += ") and version = 0";
-			} else {
-				query += ")";
-			}
-
-			try (PreparedStatement statement = createStatement(dbPersistence.getConnection(), query, false)) {
-				for (int i = 0; i<searchColumns.size(); i++) {
-					statement.setString(i+1, convertUserSearch(searchCriteria.getQuery()));
-				}
-				return executeSelectViewAll(resultClass, statement, maxResults);
-			} catch (Exception e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with SearchCriteria failed");
-			}
-		} else if (criteria instanceof AllCriteria) {
-			try {
-				PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
-				return executeSelectViewAll(resultClass, statement, maxResults);
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "read with MaxResultsCriteria failed");
-			}
+			return executeSelectViewAll(resultClass, statement, maxResults);
+		} catch (SQLException e) {
+			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}
-		throw new IllegalArgumentException(criteria + " not yet implemented");
 	}
-
+	
 	private String select(Class<?> resultClass) {
 		String querySql = "select ID";
 		Map<String, PropertyInterface> propertiesByColumns = findColumns(resultClass);
@@ -322,8 +299,9 @@ public class Table<T> extends AbstractTable<T> {
 	protected <S> List<S> executeSelectViewAll(Class<S> resultClass, PreparedStatement preparedStatement, long maxResults) throws SQLException {
 		List<S> result = new ArrayList<>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				S resultObject = readResultSetRow(dbPersistence, resultClass, resultSet, 0);
+				S resultObject = readResultSetRow(resultClass, resultSet, 0, loadedReferences);
 				result.add(resultObject);
 
 				Object id = IdUtils.getId(resultObject);
@@ -356,6 +334,9 @@ public class Table<T> extends AbstractTable<T> {
 			if (searchable != null) {
 				searchColumns.add(entry.getKey());
 			}
+		}
+		if (searchColumns.isEmpty()) {
+			throw new IllegalArgumentException("No fields are annotated as 'Searched' in " + clazz.getName());
 		}
 		return searchColumns;
 	}

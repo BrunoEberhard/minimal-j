@@ -8,7 +8,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.By;
 
 
 public class BookSearchPage extends SimpleSearchPage<Book> {
@@ -28,7 +28,7 @@ public class BookSearchPage extends SimpleSearchPage<Book> {
 	
 	@Override
 	protected List<Book> load(String query) {
-		return Backend.persistence().read(Book.class, Criteria.search(query), 100);
+		return Backend.persistence().read(Book.class, By.search(query), 100);
 	}
 
 	@Override
