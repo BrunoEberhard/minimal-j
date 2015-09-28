@@ -1,7 +1,5 @@
 package org.minimalj.frontend.form.element;
 
-import java.util.Objects;
-
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -58,14 +56,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	protected abstract T parse(String text);
 	
 	@Override
-	public final void setValue(T newValue) {
-		T oldValue = parse(textField.getValue());
-		if (!Objects.equals(oldValue, newValue)) {
-			String oldString = render(oldValue);
-			String newString = render(newValue);
-			if (!StringUtils.equals(oldString, newString)) {
-				textField.setValue(newString);
-			}
+	public final void setValue(T value) {
+		String newString = render(value);
+		if (!StringUtils.equals(newString, textField.getValue())) {
+			textField.setValue(newString);
 		}
 	}
 
