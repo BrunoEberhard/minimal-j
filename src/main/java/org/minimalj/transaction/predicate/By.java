@@ -25,4 +25,11 @@ public class By {
 		return null;
 	}
 
+	public static interface PersistenceFilter<T> {
+		public Predicate<T> predicate();
+	}
+	
+	public static <T> Predicate<T> filter(PersistenceFilter<T> filter) {
+		return filter.predicate();
+	}
 }
