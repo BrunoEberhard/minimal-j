@@ -334,7 +334,7 @@ public abstract class AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			if (resultSet.next()) {
-				return readResultSetRow(resultSet, time, loadedReferences);
+				return readResultSetRow(resultSet, loadedReferences);
 			} else {
 				return null;
 			}
@@ -350,7 +350,7 @@ public abstract class AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				T object = readResultSetRow(resultSet, null, loadedReferences);
+				T object = readResultSetRow(resultSet, loadedReferences);
 				if (this instanceof Table) {
 					Object id = IdUtils.getId(object);
 					((Table<T>) this).loadRelations(object, id);
@@ -361,11 +361,11 @@ public abstract class AbstractTable<T> {
 		return result;
 	}
 	
-	protected T readResultSetRow(ResultSet resultSet, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
-		return readResultSetRow(clazz,  resultSet, time, loadedReferences);
+	protected T readResultSetRow(ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+		return readResultSetRow(clazz,  resultSet, loadedReferences);
 	}
 	
-	protected <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+	protected <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		R result = CloneHelper.newInstance(clazz);
 		
 		DbPersistenceHelper helper = new DbPersistenceHelper(dbPersistence);

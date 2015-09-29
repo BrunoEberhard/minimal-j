@@ -301,7 +301,7 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				S resultObject = readResultSetRow(resultClass, resultSet, 0, loadedReferences);
+				S resultObject = readResultSetRow(resultClass, resultSet, loadedReferences);
 				result.add(resultObject);
 
 				Object id = IdUtils.getId(resultObject);
