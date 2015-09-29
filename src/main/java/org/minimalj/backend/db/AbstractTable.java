@@ -327,10 +327,6 @@ public abstract class AbstractTable<T> {
 	// execution helpers
 
 	protected T executeSelect(PreparedStatement preparedStatement) throws SQLException {
-		return executeSelect(preparedStatement, null);
-	}
-	
-	protected T executeSelect(PreparedStatement preparedStatement, Integer time) throws SQLException {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			if (resultSet.next()) {
