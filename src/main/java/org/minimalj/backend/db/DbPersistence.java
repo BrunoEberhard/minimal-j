@@ -2,6 +2,7 @@ package org.minimalj.backend.db;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,14 +31,21 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
 import org.minimalj.backend.Persistence;
 import org.minimalj.model.Code;
+import org.minimalj.model.EnumUtils;
+import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.properties.ChainedProperty;
+import org.minimalj.model.properties.FieldProperty;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.transaction.predicate.By;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
 import org.minimalj.util.CsvReader;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -54,6 +62,7 @@ public class DbPersistence implements Persistence {
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	private final Set<String> tableNames = new HashSet<>();
+	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
 	
 	private final DataSource dataSource;
 	
@@ -63,8 +72,6 @@ public class DbPersistence implements Persistence {
 
 	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
-	private final Map<String, String> queries = new HashMap<>();
-
 	public DbPersistence(DataSource dataSource, Class<?>... classes) {
 		this(dataSource, createTablesOnInitialize(dataSource), classes);
 	}
@@ -275,12 +282,12 @@ public class DbPersistence implements Persistence {
 	}
 	
 	public <T> T read(Class<T> clazz, Object id, Integer time) {
-		HistorizedTable<T> table = (HistorizedTable<T>) table(clazz);
+		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
 		return table.read(id, time);
 	}
 
 	public List<Integer> readVersions(Class<?> clazz, Object id) {
-		HistorizedTable<?> table = (HistorizedTable<?>) table(clazz);
+		HistorizedTable<?> table = (HistorizedTable<?>) getTable(clazz);
 		return table.readVersions(id);
 	}
 
@@ -353,70 +360,20 @@ public class DbPersistence implements Persistence {
 		table.clear();
 	}
 
-//	public <T> T read(Class<T> clazz, Object id, Integer time) {
-//		AbstractTable<T> abstractTable = persistence.table(clazz);
-//		if (abstractTable instanceof HistorizedTable) {
-//			return ((HistorizedTable<T>) abstractTable).read(id, time);
-//		} else {
-//			throw new IllegalArgumentException(clazz + " is not historized");
-//		}
-//	}
-
 	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
 		// TODO maxResults is ignored in loadHistory
 		@SuppressWarnings("unchecked")
-		AbstractTable<T> abstractTable = (AbstractTable<T>) table(clazz);
-		if (abstractTable instanceof HistorizedTable) {
-			List<Integer> times = ((HistorizedTable<T>) abstractTable).readVersions(id);
+		Table<T> table = (Table<T>) getTable(clazz);
+		if (table instanceof HistorizedTable) {
+			List<Integer> times = ((HistorizedTable<T>) table).readVersions(id);
 			List<T> result = new ArrayList<>();
 			for (int time : times) {	
-				result.add(((HistorizedTable<T>) abstractTable).read(id, time));
+				result.add(((HistorizedTable<T>) table).read(id, time));
 			}
 			return result;
 		} else {
 			throw new IllegalArgumentException(clazz.getSimpleName() + " is not historized");
 		}
-	}
-	
-	@Override
-	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameters) {
-		String query = getQuery(queryName);
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				T result = null;
-				if (resultSet.next()) {
-					result = readResultRow(resultSet, clazz);
-				}
-				return result;
-			}
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
-		}
-	}
-	
-	@Override
-	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameters) {
-		String query = getQuery(queryName);
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				List<T> result = new ArrayList<>();
-				while (resultSet.next() && result.size() < maxResults) {
-					result.add(readResultRow(resultSet, clazz));
-				}
-				return result;
-			}
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
-		}
-	}
-	
-	private String getQuery(String queryName) {
-		if (queries == null) {
-			throw new RuntimeException("No queries available: " + queryName);
-		} else if (!queries.containsKey(queryName)) {
-			throw new RuntimeException("Query not available: " + queryName);
-		}
-		return queries.get(queryName);
 	}
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {
@@ -428,19 +385,37 @@ public class DbPersistence implements Persistence {
 		return preparedStatement;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> T readResultRow(ResultSet resultSet, Class<T> clazz) throws SQLException {
-		if (clazz == Integer.class) {
-			return (T) Integer.valueOf(resultSet.getInt(1));
-		} else if (clazz == BigDecimal.class) {
-			return (T) resultSet.getBigDecimal(1);
-		} else if (clazz == String.class) {
-			return (T) resultSet.getString(1);
-		} else {
-			throw new IllegalArgumentException(clazz.getName());
+	public LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
+		if (columnsForClass.containsKey(clazz)) {
+			return columnsForClass.get(clazz);
 		}
-	}
-
+		
+		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<String, PropertyInterface>();
+		for (Field field : clazz.getFields()) {
+			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
+			String fieldName = StringUtils.toSnakeCase(field.getName()).toUpperCase();
+			if (StringUtils.equals(fieldName, "ID", "VERSION")) continue;
+			if (FieldUtils.isList(field)) continue;
+			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
+				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
+				boolean hasClassName = FieldUtils.hasClassName(field);
+				for (String inlineKey : inlinePropertys.keySet()) {
+					String key = inlineKey;
+					if (!hasClassName) {
+						key = fieldName + "_" + inlineKey;
+					}
+					key = DbPersistenceHelper.buildName(key, getMaxIdentifierLength(), columns.keySet());
+					columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
+				}
+			} else {
+				fieldName = DbPersistenceHelper.buildName(fieldName, getMaxIdentifierLength(), columns.keySet());
+				columns.put(fieldName, new FieldProperty(field));
+			}
+		}
+		columnsForClass.put(clazz, columns);
+		return columns;
+	}	
+	
 	/*
 	 * TODO: should be merged with the setParameter in AbstractTable.
 	 */
@@ -456,6 +431,121 @@ public class DbPersistence implements Persistence {
 			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
 		}
 		preparedStatement.setObject(param, value);
+	}
+	
+	@Override
+	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameters) {
+		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				List<T> result = new ArrayList<>();
+				while (resultSet.next() && result.size() < maxResults) {
+					result.add(readResultSetRow(clazz, resultSet));
+				}
+				return result;
+			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
+		}
+	}
+	
+	@Override
+	public <T> T execute(Class<T> clazz, String query, Serializable... parameters) {
+		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				T result = null;
+				if (resultSet.next()) {
+					result = readResultSetRow(clazz, resultSet, null);
+				}
+				return result;
+			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
+		}
+	}
+	
+	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet) throws SQLException {
+		Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
+		return readResultSetRow(clazz, resultSet, loadedReferences);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+		if (clazz == Integer.class) {
+			return (R) Integer.valueOf(resultSet.getInt(1));
+		} else if (clazz == BigDecimal.class) {
+			return (R) resultSet.getBigDecimal(1);
+		} else if (clazz == String.class) {
+			return (R) resultSet.getString(1);
+		}
+		
+		R result = CloneHelper.newInstance(clazz);
+		
+		DbPersistenceHelper helper = new DbPersistenceHelper(this);
+		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
+		
+		// first read the resultSet completly then resolve references
+		// derby db mixes closing of resultSets.
+		
+		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
+		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
+			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
+			if ("ID".equalsIgnoreCase(columnName)) {
+				IdUtils.setId(result, resultSet.getObject(columnIndex));
+				continue;
+			} else if ("VERSION".equalsIgnoreCase(columnName)) {
+				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
+				continue;
+			}
+			
+			PropertyInterface property = columns.get(columnName);
+			if (property == null) continue;
+			
+			Class<?> fieldClass = property.getClazz();
+			boolean isByteArray = fieldClass.isArray() && fieldClass.getComponentType() == Byte.TYPE;
+
+			Object value = isByteArray ? resultSet.getBytes(columnIndex) : resultSet.getObject(columnIndex);
+			if (value == null) continue;
+			values.put(property, value);
+		}
+		
+		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
+			Object value = entry.getValue();
+			PropertyInterface property = entry.getKey();
+			if (value != null) {
+				Class<?> fieldClass = property.getClazz();
+				if (Code.class.isAssignableFrom(fieldClass)) {
+					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
+					value = getCode(codeClass, value, false);
+				} else if (ViewUtil.isReference(property)) {
+					Class<?> viewedClass = ViewUtil.getReferencedClass(property);
+					if (!loadedReferences.containsKey(viewedClass)) {
+						loadedReferences.put(viewedClass, new HashMap<>());
+					}
+					if (loadedReferences.get(viewedClass).containsKey(value)) {
+						value = loadedReferences.get(viewedClass).get(value);
+					} else {
+						Object reference = value;
+						Table<?> referenceTable = getTable(viewedClass);
+						Object referenceObject = referenceTable.read(value, false); // false -> subEntities not loaded
+						
+						value = CloneHelper.newInstance(fieldClass);
+						ViewUtil.view(referenceObject, value);
+						loadedReferences.get(viewedClass).put(reference, value);
+					}
+				} else if (DbPersistenceHelper.isDependable(property)) {
+					value = getTable(fieldClass).read(value);
+				} else if (fieldClass == Set.class) {
+					Set<?> set = (Set<?>) property.getValue(result);
+					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
+					EnumUtils.fillSet((int) value, enumClass, set);
+					continue; // skip setValue, it's final
+				} else {
+					value = helper.convertToFieldClass(fieldClass, value);
+				}
+				property.setValue(result, value);
+			}
+		}
+		return result;
 	}
 	
 	//
@@ -522,7 +612,7 @@ public class DbPersistence implements Persistence {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <U> AbstractTable<U> table(Class<U> clazz) {
+	public <U> AbstractTable<U> getAbstractTable(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
 			throw new IllegalArgumentException(clazz.getName());
 		}
@@ -530,11 +620,31 @@ public class DbPersistence implements Persistence {
 	}
 
 	public <U> Table<U> getTable(Class<U> clazz) {
-		AbstractTable<U> table = table(clazz);
+		AbstractTable<U> table = getAbstractTable(clazz);
 		if (!(table instanceof Table)) throw new IllegalArgumentException(clazz.getName());
 		return (Table<U>) table;
 	}
+	
+	public String name(Object classOrKey) {
+		if (classOrKey instanceof Class) {
+			return table((Class<?>) classOrKey);
+		} else {
+			return column(classOrKey);
+		}
+	}
 
+	public String table(Class<?> clazz) {
+		AbstractTable<?> table = getAbstractTable(clazz);
+		return table.getTableName();
+	}
+	
+	public String column(Object key) {
+		PropertyInterface property = Keys.getProperty(key);
+		Class<?> declaringClass = property.getDeclaringClass();
+		AbstractTable<?> table = getAbstractTable(declaringClass);
+		return table.column(property);
+	}
+	
 	public boolean tableExists(Class<?> clazz) {
 		return tables.containsKey(clazz);
 	}

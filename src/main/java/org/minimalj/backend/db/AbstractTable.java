@@ -13,12 +13,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
-import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
@@ -27,11 +25,8 @@ import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.transaction.predicate.FieldOperator;
-import org.minimalj.util.CloneHelper;
-import org.minimalj.util.Codes;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -46,8 +41,6 @@ import org.minimalj.util.StringUtils;
  */
 public abstract class AbstractTable<T> {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
-	
-	private static final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
 	
 	protected final DbPersistence dbPersistence;
 	protected final DbPersistenceHelper helper;
@@ -76,7 +69,7 @@ public abstract class AbstractTable<T> {
 		this.name = buildTableName(dbPersistence, name != null ? name : StringUtils.toSnakeCase(clazz.getSimpleName()));
 		this.clazz = clazz;
 		this.idProperty = idProperty;
-		this.columns = findColumns(clazz);
+		this.columns = dbPersistence.findColumns(clazz);
 		this.lists = findLists(clazz);
 		
 		this.selectByIdQuery = selectByIdQuery();
@@ -97,37 +90,6 @@ public abstract class AbstractTable<T> {
 		persistence.getTableNames().add(name);
 		return name;
 	}
-	
-	protected LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
-		if (columnsForClass.containsKey(clazz)) {
-			return columnsForClass.get(clazz);
-		}
-		
-		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<String, PropertyInterface>();
-		for (Field field : clazz.getFields()) {
-			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
-			String fieldName = StringUtils.toSnakeCase(field.getName()).toUpperCase();
-			if (StringUtils.equals(fieldName, "ID", "VERSION")) continue;
-			if (FieldUtils.isList(field)) continue;
-			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
-				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
-				boolean hasClassName = FieldUtils.hasClassName(field);
-				for (String inlineKey : inlinePropertys.keySet()) {
-					String key = inlineKey;
-					if (!hasClassName) {
-						key = fieldName + "_" + inlineKey;
-					}
-					key = DbPersistenceHelper.buildName(key, dbPersistence.getMaxIdentifierLength(), columns.keySet());
-					columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
-				}
-			} else {
-				fieldName = DbPersistenceHelper.buildName(fieldName, dbPersistence.getMaxIdentifierLength(), columns.keySet());
-				columns.put(fieldName, new FieldProperty(field));
-			}
-		}
-		columnsForClass.put(clazz, columns);
-		return columns;
-	}	
 	
 	protected static LinkedHashMap<String, PropertyInterface> findLists(Class<?> clazz) {
 		LinkedHashMap<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
@@ -233,7 +195,7 @@ public abstract class AbstractTable<T> {
 			
 			if (DbPersistenceHelper.isDependable(property) || ViewUtil.isReference(property)) {
 				Class<?> fieldClass = ViewUtil.resolve(property.getClazz());
-				AbstractTable<?> referencedTable = dbPersistence.table(fieldClass);
+				AbstractTable<?> referencedTable = dbPersistence.getAbstractTable(fieldClass);
 
 				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
 				if (s != null) {
@@ -259,6 +221,14 @@ public abstract class AbstractTable<T> {
 			}
 		}
 		return null;
+	}
+
+	public String column(PropertyInterface property) {
+		return findColumn(property.getPath());
+	}
+	
+	public String column(Object key) {
+		return column(Keys.getProperty(key));
 	}
 
 	protected String getTableName() {
@@ -316,7 +286,7 @@ public abstract class AbstractTable<T> {
 				return column + " " + criteriaOperator.getOperatorAsString() + " ?";
 			} else {
 				PropertyInterface subProperty = columns.get(column);
-				AbstractTable<?> subTable = dbPersistence.table(ViewUtil.resolve(subProperty.getClazz()));
+				AbstractTable<?> subTable = dbPersistence.getAbstractTable(ViewUtil.resolve(subProperty.getClazz()));
 				return column + " = (select ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
 			}
 		} else {
@@ -328,9 +298,8 @@ public abstract class AbstractTable<T> {
 
 	protected T executeSelect(PreparedStatement preparedStatement) throws SQLException {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			if (resultSet.next()) {
-				return readResultSetRow(resultSet, loadedReferences);
+				return dbPersistence.readResultSetRow(clazz,  resultSet);
 			} else {
 				return null;
 			}
@@ -346,7 +315,7 @@ public abstract class AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				T object = readResultSetRow(resultSet, loadedReferences);
+				T object = dbPersistence.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
 					Object id = IdUtils.getId(object);
 					((Table<T>) this).loadRelations(object, id);
@@ -356,83 +325,7 @@ public abstract class AbstractTable<T> {
 		}
 		return result;
 	}
-	
-	protected T readResultSetRow(ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
-		return readResultSetRow(clazz,  resultSet, loadedReferences);
-	}
-	
-	protected <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
-		R result = CloneHelper.newInstance(clazz);
-		
-		DbPersistenceHelper helper = new DbPersistenceHelper(dbPersistence);
-		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
-		
-		// first read the resultSet completly then resolve references
-		// derby db mixes closing of resultSets.
-		
-		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
-		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			if ("ID".equalsIgnoreCase(columnName)) {
-				IdUtils.setId(result, resultSet.getObject(columnIndex));
-				continue;
-			} else if ("VERSION".equalsIgnoreCase(columnName)) {
-				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
-				continue;
-			}
-			
-			PropertyInterface property = columns.get(columnName);
-			if (property == null) continue;
-			
-			Class<?> fieldClass = property.getClazz();
-			boolean isByteArray = fieldClass.isArray() && fieldClass.getComponentType() == Byte.TYPE;
 
-			Object value = isByteArray ? resultSet.getBytes(columnIndex) : resultSet.getObject(columnIndex);
-			if (value == null) continue;
-			values.put(property, value);
-		}
-		
-		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
-			Object value = entry.getValue();
-			PropertyInterface property = entry.getKey();
-			if (value != null) {
-				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass)) {
-					@SuppressWarnings("unchecked")
-					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = dbPersistence.getCode(codeClass, value, false);
-				} else if (ViewUtil.isReference(property)) {
-					Class<?> viewedClass = ViewUtil.getReferencedClass(property);
-					if (!loadedReferences.containsKey(viewedClass)) {
-						loadedReferences.put(viewedClass, new HashMap<>());
-					}
-					if (loadedReferences.get(viewedClass).containsKey(value)) {
-						value = loadedReferences.get(viewedClass).get(value);
-					} else {
-						Object reference = value;
-						Table<?> referenceTable = dbPersistence.getTable(viewedClass);
-						Object referenceObject = referenceTable.read(value, false); // false -> subEntities not loaded
-						
-						value = CloneHelper.newInstance(fieldClass);
-						ViewUtil.view(referenceObject, value);
-						loadedReferences.get(viewedClass).put(reference, value);
-					}
-				} else if (DbPersistenceHelper.isDependable(property)) {
-					value = dbPersistence.getTable(fieldClass).read(value);
-				} else if (fieldClass == Set.class) {
-					Set<?> set = (Set<?>) property.getValue(result);
-					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
-					EnumUtils.fillSet((int) value, enumClass, set);
-					continue; // skip setValue, it's final
-				} else {
-					value = helper.convertToFieldClass(fieldClass, value);
-				}
-				property.setValue(result, value);
-			}
-		}
-		return result;
-	}
-	
 	protected enum ParameterMode {
 		INSERT, UPDATE, HISTORIZE;
 	}
@@ -562,7 +455,7 @@ public abstract class AbstractTable<T> {
 		String myFieldPath = entry.getValue().getPath();
 		if (fieldPath.length() > myFieldPath.length()) {
 			String rest = fieldPath.substring(myFieldPath.length() + 1);
-			AbstractTable<?> innerTable = dbPersistence.table(entry.getValue().getClazz());
+			AbstractTable<?> innerTable = dbPersistence.getAbstractTable(entry.getValue().getClazz());
 			innerTable.createIndex(property, rest);
 		}
 		indexes.add(entry.getKey());

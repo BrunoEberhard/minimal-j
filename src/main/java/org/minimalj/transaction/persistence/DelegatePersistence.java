@@ -42,17 +42,16 @@ public class DelegatePersistence implements Persistence {
 	}
 
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter) {
-		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, parameter);
-		return (T) backend.execute(statementTransaction);
+	public <T> T execute(Class<T> clazz, String query, Serializable... parameter) {
+		ExecuteTransaction<T> executeTransaction = new ExecuteTransaction<T>(clazz, query, parameter);
+		return backend.execute(executeTransaction);
 	}
 
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter) {
-		StatementTransaction statementTransaction = new StatementTransaction(clazz, queryName, maxResults, parameter);
-		return (List<T>) backend.execute(statementTransaction);
+	@SuppressWarnings({ "unchecked" })
+	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameter) {
+		ExecuteTransaction<T> executeTransaction = new ExecuteTransaction<T>(clazz, query, maxResults, parameter);
+		return (List<T>) backend.execute(executeTransaction);
 	}
 
 }

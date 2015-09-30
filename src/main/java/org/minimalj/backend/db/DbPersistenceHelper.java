@@ -92,7 +92,7 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (property.getClazz().isArray()) {
 			preparedStatement.setNull(param, Types.BLOB);			
-		} else if (dbPersistence.table(clazz) != null) {
+		} else if (dbPersistence.tableExists(clazz)) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else {
 			throw new IllegalArgumentException(clazz.getSimpleName());

@@ -32,11 +32,6 @@ public class MultiApplication extends Application {
 	}
 	
 	@Override
-	public Map<String, String> getQueries() {
-		return getCurrentApplication().getQueries();
-	}
-	
-	@Override
 	public Page createDefaultPage() {
 		return getCurrentApplication().createDefaultPage();
 	}

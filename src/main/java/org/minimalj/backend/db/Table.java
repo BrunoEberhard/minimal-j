@@ -287,7 +287,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	private String select(Class<?> resultClass) {
 		String querySql = "select ID";
-		Map<String, PropertyInterface> propertiesByColumns = findColumns(resultClass);
+		Map<String, PropertyInterface> propertiesByColumns = dbPersistence.findColumns(resultClass);
 		for (String column : propertiesByColumns.keySet()) {
 			querySql += ", ";
 			querySql += column;
@@ -301,7 +301,7 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				S resultObject = readResultSetRow(resultClass, resultSet, loadedReferences);
+				S resultObject = dbPersistence.readResultSetRow(resultClass, resultSet, loadedReferences);
 				result.add(resultObject);
 
 				Object id = IdUtils.getId(resultObject);

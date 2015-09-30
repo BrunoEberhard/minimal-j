@@ -16,8 +16,8 @@ public interface Persistence {
 
 	public <T> void delete(Class<T> clazz, Object id);
 
-	public <T> T executeStatement(Class<T> clazz, String queryName, Serializable... parameter);
+	public <T> T execute(Class<T> clazz, String query, Serializable... parameter);
 
-	public <T> List<T> executeStatement(Class<T> clazz, String queryName, int maxResults, Serializable... parameter);
-
+	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameter);
+	
 }
