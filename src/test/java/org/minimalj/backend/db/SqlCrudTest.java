@@ -6,18 +6,20 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.backend.sql.EmptyObjects;
+import org.minimalj.backend.sql.SqlPersistence;
 
-public class DbCrudTest {
+public class SqlCrudTest {
 	
-	private static DbPersistence persistence;
+	private static SqlPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class);
+	public static void setupPersistence() {
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class);
 	}
 	
 	@AfterClass
-	public static void shutdownDb() {
+	public static void shutdownPersistence() {
 	}
 	
 	@Test

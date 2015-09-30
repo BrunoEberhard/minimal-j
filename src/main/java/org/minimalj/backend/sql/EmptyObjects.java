@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.util.HashMap;
 import java.util.Map;

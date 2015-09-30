@@ -2,8 +2,8 @@ package org.minimalj.example.persistence;
 
 import java.util.logging.Level;
 
-import org.minimalj.backend.db.AbstractTable;
-import org.minimalj.backend.db.DbPersistence;
+import org.minimalj.backend.sql.AbstractTable;
+import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
@@ -13,7 +13,7 @@ public class PersistenceExample {
 		AbstractTable.sqlLogger.setLevel(Level.FINEST);
 		AbstractTable.sqlLogger.getParent().getHandlers()[0].setLevel(Level.FINEST);
 		
-		DbPersistence persistence = new DbPersistence(DbPersistence.embeddedDataSource(), ExamplePerson.class);
+		SqlPersistence persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), ExamplePerson.class);
 
 		ExamplePerson person = new ExamplePerson();
 		person.firstName = "Peter";

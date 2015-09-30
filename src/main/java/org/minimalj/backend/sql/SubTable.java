@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -17,8 +17,8 @@ public class SubTable extends AbstractTable {
 	private final String updateQuery;
 	private final String deleteQuery;
 	
-	public SubTable(DbPersistence dbPersistence, String prefix, Class clazz, PropertyInterface idProperty) {
-		super(dbPersistence, prefix, clazz, idProperty);
+	public SubTable(SqlPersistence sqlPersistence, String prefix, Class clazz, PropertyInterface idProperty) {
+		super(sqlPersistence, prefix, clazz, idProperty);
 		
 		selectByIdQuery = selectByIdQuery();
 		updateQuery = updateQuery();
@@ -26,7 +26,7 @@ public class SubTable extends AbstractTable {
 	}
 	
 	public void insert(Object parentId, List objects) throws SQLException {
-		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
+		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
@@ -53,7 +53,7 @@ public class SubTable extends AbstractTable {
 	}
 
 	private void update(Object parentId, int position, Object object) throws SQLException {
-		PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
+		PreparedStatement updateStatement = getStatement(sqlPersistence.getConnection(), updateQuery, false);
 
 		int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
 		updateStatement.setInt(parameterPos++, position);
@@ -61,7 +61,7 @@ public class SubTable extends AbstractTable {
 	}
 
 	private void insert(Object parentId, int position, Object object) throws SQLException {
-		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
+		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
 
 		int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
 		insertStatement.setInt(parameterPos++, position);
@@ -69,7 +69,7 @@ public class SubTable extends AbstractTable {
 	}
 	
 	private void delete(Object parentId, int position) throws SQLException {
-		PreparedStatement deleteStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
+		PreparedStatement deleteStatement = getStatement(sqlPersistence.getConnection(), deleteQuery, false);
 
 		deleteStatement.setObject(1, parentId);
 		deleteStatement.setInt(2, position);
@@ -77,7 +77,7 @@ public class SubTable extends AbstractTable {
 	}
 
 	public List read(Object parentId) throws SQLException {
-		PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+		PreparedStatement selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
 
 		selectByIdStatement.setObject(1, parentId);
 		return executeSelectAll(selectByIdStatement);
@@ -131,14 +131,14 @@ public class SubTable extends AbstractTable {
 	}
 	
 	@Override
-	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		s.append(" id ");
 		syntax.addColumnDefinition(s, idProperty);
 		s.append(",\n position INTEGER NOT NULL");
 	}
 	
 	@Override
-	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id, position");
 	}
 }

@@ -2,7 +2,7 @@ package org.minimalj.model.validation;
 
 import java.util.List;
 
-import org.minimalj.backend.db.EmptyObjects;
+import org.minimalj.backend.sql.EmptyObjects;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Properties;

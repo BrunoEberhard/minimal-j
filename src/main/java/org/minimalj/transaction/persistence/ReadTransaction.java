@@ -1,8 +1,8 @@
 package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Persistence;
-import org.minimalj.backend.db.DbBackend;
-import org.minimalj.backend.db.DbPersistence;
+import org.minimalj.backend.sql.SqlBackend;
+import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.Transaction;
 
 public class ReadTransaction<T> implements Transaction<T> {
@@ -28,11 +28,11 @@ public class ReadTransaction<T> implements Transaction<T> {
 		if (time == null) {
 			result = persistence.read(clazz, id);
 		} else {
-			if (persistence instanceof DbPersistence) {
-				DbPersistence dbPersistence = (DbPersistence) persistence;
-				result = dbPersistence.readVersion(clazz, id, time);
+			if (persistence instanceof SqlPersistence) {
+				SqlPersistence sqlPersistence = (SqlPersistence) persistence;
+				result = sqlPersistence.readVersion(clazz, id, time);
 			} else {
-				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + DbBackend.class.getSimpleName());
+				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlBackend.class.getSimpleName());
 			}
 		}
 		return result;

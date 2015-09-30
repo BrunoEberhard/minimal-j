@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -16,15 +16,15 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.GenericUtils;
-import org.minimalj.util.ReservedDbWords;
+import org.minimalj.util.ReservedSqlWords;
 
-public class DbPersistenceHelper {
+public class SqlHelper {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
 
-	private final DbPersistence dbPersistence;
+	private final SqlPersistence sqlPersistence;
 	
-	public DbPersistenceHelper(DbPersistence dbPersistence) {
-		this.dbPersistence = dbPersistence;
+	public SqlHelper(SqlPersistence sqlPersistence) {
+		this.sqlPersistence = sqlPersistence;
 	}
 	
 	/**
@@ -92,7 +92,7 @@ public class DbPersistenceHelper {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (property.getClazz().isArray()) {
 			preparedStatement.setNull(param, Types.BLOB);			
-		} else if (dbPersistence.tableExists(clazz)) {
+		} else if (sqlPersistence.tableExists(clazz)) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else {
 			throw new IllegalArgumentException(clazz.getSimpleName());
@@ -142,7 +142,7 @@ public class DbPersistenceHelper {
 	public static String buildName(String name, int maxLength, Set<String> alreadyUsedNames) {
 		name = name.toUpperCase();
 		name = cutToMaxLength(name, maxLength);
-		name = avoidReservedDbWords(name, maxLength);
+		name = avoidReservedSqlWords(name, maxLength);
 		name = resolveNameConflicts(alreadyUsedNames, name);
 		return name;
 	}
@@ -154,8 +154,8 @@ public class DbPersistenceHelper {
 		return fieldName;
 	}
 
-	private static String avoidReservedDbWords(String fieldName, int maxLength) {
-		if (ReservedDbWords.reservedDbWords.contains(fieldName)) {
+	private static String avoidReservedSqlWords(String fieldName, int maxLength) {
+		if (ReservedSqlWords.reservedSqlWords.contains(fieldName)) {
 			if (fieldName.length() == maxLength) {
 				fieldName = fieldName.substring(0, fieldName.length() - 1);
 			}

@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,8 +29,8 @@ public class HistorizedTable<T> extends Table<T> {
 	private final String selectMaxVersionQuery;
 	private final String readVersionsQuery;
 	
-	public HistorizedTable(DbPersistence dbPersistence, Class<T> clazz) {
-		super(dbPersistence, clazz);
+	public HistorizedTable(SqlPersistence sqlPersistence, Class<T> clazz) {
+		super(sqlPersistence, clazz);
 
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
@@ -42,7 +42,7 @@ public class HistorizedTable<T> extends Table<T> {
 	@Override
 	public Object insert(T object) {
 		try {
-			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
+			PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, true);
 			Object id = IdUtils.getId(object);
 			if (id == null) {
 				id = IdUtils.createId();
@@ -70,7 +70,7 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
-		return new HistorizedSubTable(dbPersistence, buildSubTableName(property), clazz, idProperty);
+		return new HistorizedSubTable(sqlPersistence, buildSubTableName(property), clazz, idProperty);
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public class HistorizedTable<T> extends Table<T> {
 		try {
 			int version = findMaxVersion(id) + 1;
 			
-			PreparedStatement endStatement = getStatement(dbPersistence.getConnection(), endQuery, false);
+			PreparedStatement endStatement = getStatement(sqlPersistence.getConnection(), endQuery, false);
 			endStatement.setInt(1, version);
 			endStatement.setObject(2, id);
 			endStatement.execute();	
@@ -91,7 +91,7 @@ public class HistorizedTable<T> extends Table<T> {
 			boolean doDelete = object == null;
 			if (doDelete) return;
 			
-			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
+			PreparedStatement updateStatement = getStatement(sqlPersistence.getConnection(), updateQuery, false);
 			setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
 			updateStatement.execute();
 			
@@ -112,7 +112,7 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	private int findMaxVersion(Object id) throws SQLException {
 		int result = 0;
-		PreparedStatement selectMaxVersionStatement = getStatement(dbPersistence.getConnection(), selectMaxVersionQuery, false);
+		PreparedStatement selectMaxVersionStatement = getStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false);
 		selectMaxVersionStatement.setObject(1, id);
 		try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
 			if (resultSet.next()) {
@@ -127,9 +127,9 @@ public class HistorizedTable<T> extends Table<T> {
 		try {
 			PreparedStatement selectByIdStatement;
 			if (complete) {
-				selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+				selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
 			} else {
-				selectByIdStatement = createStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+				selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
 			}
 					
 			selectByIdStatement.setObject(1, id);
@@ -149,7 +149,7 @@ public class HistorizedTable<T> extends Table<T> {
 	public T read(Object id, Integer time) {
 		if (time != null) {
 			try {
-				PreparedStatement selectByIdAndTimeStatement = getStatement(dbPersistence.getConnection(), selectByIdAndTimeQuery, false);
+				PreparedStatement selectByIdAndTimeStatement = getStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false);
 
 				selectByIdAndTimeStatement.setObject(1, id);
 				selectByIdAndTimeStatement.setInt(2, time);
@@ -188,7 +188,7 @@ public class HistorizedTable<T> extends Table<T> {
 		try {
 			List<Integer> result = new ArrayList<Integer>();
 			
-			PreparedStatement readVersionsStatement = getStatement(dbPersistence.getConnection(), readVersionsQuery, false);
+			PreparedStatement readVersionsStatement = getStatement(sqlPersistence.getConnection(), readVersionsQuery, false);
 			readVersionsStatement.setObject(1, id);
 			ResultSet resultSet = readVersionsStatement.executeQuery();
 			while (resultSet.next()) {
@@ -297,13 +297,13 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 	
 	@Override
-	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		super.addSpecialColumns(syntax, s);
 		s.append(",\n version INTEGER NOT NULL");
 	}
 	
 	@Override
-	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id, version");
 	}
 

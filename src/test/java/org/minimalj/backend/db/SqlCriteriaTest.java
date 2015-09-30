@@ -6,19 +6,20 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.predicate.By;
 
-public class DbCriteriaTest {
+public class SqlCriteriaTest {
 	
-	private static DbPersistence persistence;
+	private static SqlPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class);
+	public static void setupPersistence() {
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class);
 	}
 	
 	@AfterClass
-	public static void shutdownDb() {
+	public static void shutdownPersistence() {
 	}
 	
 	@Test // if fields of class reference are correctly written and read

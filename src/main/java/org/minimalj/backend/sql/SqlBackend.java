@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.io.File;
 
@@ -7,18 +7,18 @@ import org.minimalj.backend.Backend;
 import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 
-public class DbBackend extends Backend {
+public class SqlBackend extends Backend {
 
-	private final DbPersistence persistence;
+	private final SqlPersistence persistence;
 
-	public DbBackend() {
+	public SqlBackend() {
 		String databaseFile = System.getProperty("MjBackendDatabaseFile", null);
 		boolean createTables = databaseFile == null || !new File(databaseFile).exists();
-		this.persistence = new DbPersistence(DbPersistence.embeddedDataSource(databaseFile), createTables, Application.getApplication().getEntityClasses());
+		this.persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(databaseFile), createTables, Application.getApplication().getEntityClasses());
 	}
 	
-	public DbBackend(String database, String user, String password) {
-		this.persistence = new DbPersistence(DbPersistence.mariaDbDataSource(database, user, password), Application.getApplication().getEntityClasses());
+	public SqlBackend(String database, String user, String password) {
+		this.persistence = new SqlPersistence(SqlPersistence.mariaDbDataSource(database, user, password), Application.getApplication().getEntityClasses());
 	}
 	
 	@Override

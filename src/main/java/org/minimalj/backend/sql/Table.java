@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,8 +37,8 @@ public class Table<T> extends AbstractTable<T> {
 	protected final String deleteQuery;
 	protected final Map<String, AbstractTable<?>> subTables;
 	
-	public Table(DbPersistence dbPersistence, Class<T> clazz) {
-		super(dbPersistence, null, clazz, FlatProperties.getProperty(clazz, "id", true));
+	public Table(SqlPersistence sqlPersistence, Class<T> clazz) {
+		super(sqlPersistence, null, clazz, FlatProperties.getProperty(clazz, "id", true));
 		
 		this.subTables = findSubTables();
 		
@@ -49,7 +49,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	public void createTable(DbSyntax syntax) {
+	public void createTable(SqlSyntax syntax) {
 		super.createTable(syntax);
 		for (AbstractTable<?> subTable : subTables.values()) {
 			subTable.createTable(syntax);
@@ -57,7 +57,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	@Override
-	public void createIndexes(DbSyntax syntax) {
+	public void createIndexes(SqlSyntax syntax) {
 		super.createIndexes(syntax);
 		for (AbstractTable<?> subTable : subTables.values()) {
 			subTable.createIndexes(syntax);
@@ -65,7 +65,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	@Override
-	public void createConstraints(DbSyntax syntax) {
+	public void createConstraints(SqlSyntax syntax) {
 		super.createConstraints(syntax);
 		for (AbstractTable<?> subTable : subTables.values()) {
 			subTable.createConstraints(syntax);
@@ -74,7 +74,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	public Object insert(T object) {
 		try {
-			PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, true);
+			PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, true);
 			Object id;
 			if (IdUtils.hasId(object.getClass())) {
 				id = IdUtils.getId(object);
@@ -100,7 +100,7 @@ public class Table<T> extends AbstractTable<T> {
 				}
 			}
 			if (object instanceof Code) {
-				dbPersistence.invalidateCodeCache(object.getClass());
+				sqlPersistence.invalidateCodeCache(object.getClass());
 			}
 			return id;
 		} catch (SQLException x) {
@@ -111,7 +111,7 @@ public class Table<T> extends AbstractTable<T> {
 	public void delete(Object id) {
 		PreparedStatement updateStatement;
 		try {
-			updateStatement = getStatement(dbPersistence.getConnection(), deleteQuery, false);
+			updateStatement = getStatement(sqlPersistence.getConnection(), deleteQuery, false);
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
 		} catch (SQLException x) {
@@ -130,7 +130,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
-		return new SubTable(dbPersistence, buildSubTableName(property), clazz, idProperty);
+		return new SubTable(sqlPersistence, buildSubTableName(property), clazz, idProperty);
 	}
 
 	protected String buildSubTableName(PropertyInterface property) {
@@ -144,7 +144,7 @@ public class Table<T> extends AbstractTable<T> {
 
 	protected void update(Object id, T object) {
 		try {
-			PreparedStatement updateStatement = getStatement(dbPersistence.getConnection(), updateQuery, false);
+			PreparedStatement updateStatement = getStatement(sqlPersistence.getConnection(), updateQuery, false);
 			setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
 			updateStatement.execute();
 			
@@ -160,7 +160,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			
 			if (object instanceof Code) {
-				dbPersistence.invalidateCodeCache(object.getClass());
+				sqlPersistence.invalidateCodeCache(object.getClass());
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
@@ -173,7 +173,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	protected T read(Object id, boolean complete) {
 		try {
-			PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+			PreparedStatement selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (complete && object != null) {
@@ -265,7 +265,7 @@ public class Table<T> extends AbstractTable<T> {
 		List<Object> whereClause = whereClause(predicate);
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + whereClause.get(0);
 		try {
-			PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), query, false);
 			for (int i = 1; i<whereClause.size(); i++) {
 				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
@@ -279,7 +279,7 @@ public class Table<T> extends AbstractTable<T> {
 		List<Object> whereClause = whereClause(predicate);
 		String query = select(resultClass) + " WHERE " + whereClause.get(0);
 		try {
-			PreparedStatement statement = getStatement(dbPersistence.getConnection(), query, false);
+			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), query, false);
 			for (int i = 1; i<whereClause.size(); i++) {
 				statement.setObject(i, whereClause.get(i));
 			}
@@ -291,7 +291,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	private String select(Class<?> resultClass) {
 		String querySql = "select ID";
-		Map<String, PropertyInterface> propertiesByColumns = dbPersistence.findColumns(resultClass);
+		Map<String, PropertyInterface> propertiesByColumns = sqlPersistence.findColumns(resultClass);
 		for (String column : propertiesByColumns.keySet()) {
 			querySql += ", ";
 			querySql += column;
@@ -305,7 +305,7 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				S resultObject = dbPersistence.readResultSetRow(resultClass, resultSet, loadedReferences);
+				S resultObject = sqlPersistence.readResultSetRow(resultClass, resultSet, loadedReferences);
 				result.add(resultObject);
 
 				Object id = IdUtils.getId(resultObject);
@@ -409,7 +409,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		if (idProperty != null) {
 			syntax.addIdColumn(s, idProperty);
 		} else {
@@ -418,7 +418,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id");
 	}	
 }

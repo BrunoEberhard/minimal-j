@@ -2,8 +2,8 @@ package org.minimalj.backend;
 
 import java.util.logging.Logger;
 
-import org.minimalj.backend.db.DbBackend;
-import org.minimalj.backend.db.DbPersistence;
+import org.minimalj.backend.sql.SqlBackend;
+import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
@@ -11,7 +11,7 @@ import org.minimalj.util.StringUtils;
 
 /**
  * A backend is reponsible for executing the transactions.
- * It can do this by keeping a database (DbBackend) or by
+ * It can do this by keeping a database (SqlBackend) or by
  * delegating everything to an other backend (SocketBackend).<p>
  * 
  * Every frontend needs a backend. But a backend can serve more
@@ -34,7 +34,7 @@ import org.minimalj.util.StringUtils;
  * </UL>
  */
 public abstract class Backend {
-	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
+	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 
 	private static Backend instance;
 	
@@ -49,7 +49,7 @@ public abstract class Backend {
 		String user = System.getProperty("MjBackendDatabaseUser", "APP");
 		String password = System.getProperty("MjBackendDatabasePassword", "APP");
 		if (!StringUtils.isBlank(database)) {
-			return new DbBackend(database, user, password);
+			return new SqlBackend(database, user, password);
 		}
 		
 		String backendClassName = System.getProperty("MjBackend");
@@ -64,7 +64,7 @@ public abstract class Backend {
 			}
 		} 
 		
-		return new DbBackend();
+		return new SqlBackend();
 	}
 
 	public static Backend getInstance() {

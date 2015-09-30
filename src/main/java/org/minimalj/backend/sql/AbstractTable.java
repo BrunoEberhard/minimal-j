@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -36,14 +36,14 @@ import org.minimalj.util.StringUtils;
  *
  * Base class of all table representing classes in this persistence layer.
  * Normally you should not need to extend from this class directly. Use
- * the existing subclasses or only the methods in DbPersistence.
+ * the existing subclasses or only the methods in SqlPersistence.
  * 
  */
 public abstract class AbstractTable<T> {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
 	
-	protected final DbPersistence dbPersistence;
-	protected final DbPersistenceHelper helper;
+	protected final SqlPersistence sqlPersistence;
+	protected final SqlHelper helper;
 	protected final Class<T> clazz;
 	protected final LinkedHashMap<String, PropertyInterface> columns;
 	protected final LinkedHashMap<String, PropertyInterface> lists;
@@ -63,13 +63,13 @@ public abstract class AbstractTable<T> {
 	// TODO: its a little bit strange to pass the idProperty here. Also because the property
 	// is not allways a property of clazz. idProperty is only necessary because the clazz AND the
 	// size of the idProperty is needed
-	protected AbstractTable(DbPersistence dbPersistence, String name, Class<T> clazz, PropertyInterface idProperty) {
-		this.dbPersistence = dbPersistence;
-		this.helper = new DbPersistenceHelper(dbPersistence);
-		this.name = buildTableName(dbPersistence, name != null ? name : StringUtils.toSnakeCase(clazz.getSimpleName()));
+	protected AbstractTable(SqlPersistence sqlPersistence, String name, Class<T> clazz, PropertyInterface idProperty) {
+		this.sqlPersistence = sqlPersistence;
+		this.helper = new SqlHelper(sqlPersistence);
+		this.name = buildTableName(sqlPersistence, name != null ? name : StringUtils.toSnakeCase(clazz.getSimpleName()));
 		this.clazz = clazz;
 		this.idProperty = idProperty;
-		this.columns = dbPersistence.findColumns(clazz);
+		this.columns = sqlPersistence.findColumns(clazz);
 		this.lists = findLists(clazz);
 		
 		this.selectByIdQuery = selectByIdQuery();
@@ -81,8 +81,8 @@ public abstract class AbstractTable<T> {
 		findIndexes();
 	}
 	
-	public static String buildTableName(DbPersistence persistence, String name) {
-		name = DbPersistenceHelper.buildName(name, persistence.getMaxIdentifierLength(), persistence.getTableNames());
+	public static String buildTableName(SqlPersistence persistence, String name) {
+		name = SqlHelper.buildName(name, persistence.getMaxIdentifierLength(), persistence.getTableNames());
 
 		// the persistence adds the table name too late. For subtables it's important
 		// to add the table name here. Note that tableNames is a Set. Multiple
@@ -147,14 +147,14 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void execute(String s) {
-		try (PreparedStatement statement = createStatement(dbPersistence.getConnection(), s.toString(), false)) {
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), s.toString(), false)) {
 			statement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Statement failed: \n" + s.toString());
 		}
 	}
 
-	protected void createTable(DbSyntax syntax) {
+	protected void createTable(SqlSyntax syntax) {
 		StringBuilder s = new StringBuilder();
 		syntax.addCreateStatementBegin(s, getTableName());
 		addSpecialColumns(syntax, s);
@@ -165,9 +165,9 @@ public abstract class AbstractTable<T> {
 		execute(s.toString());
 	}
 	
-	protected abstract void addSpecialColumns(DbSyntax syntax, StringBuilder s);
+	protected abstract void addSpecialColumns(SqlSyntax syntax, StringBuilder s);
 	
-	protected void addFieldColumns(DbSyntax syntax, StringBuilder s) {
+	protected void addFieldColumns(SqlSyntax syntax, StringBuilder s) {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			s.append(",\n ").append(column.getKey()).append(' '); 
 
@@ -178,24 +178,24 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "ID");
 	}
 	
-	protected void createIndexes(DbSyntax syntax) {
+	protected void createIndexes(SqlSyntax syntax) {
 		for (String index : indexes) {
 			String s = syntax.createIndex(getTableName(), index, this instanceof HistorizedTable);
 			execute(s.toString());
 		}
 	}
 	
-	protected void createConstraints(DbSyntax syntax) {
+	protected void createConstraints(SqlSyntax syntax) {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			
-			if (DbPersistenceHelper.isDependable(property) || ViewUtil.isReference(property)) {
+			if (SqlHelper.isDependable(property) || ViewUtil.isReference(property)) {
 				Class<?> fieldClass = ViewUtil.resolve(property.getClazz());
-				AbstractTable<?> referencedTable = dbPersistence.getAbstractTable(fieldClass);
+				AbstractTable<?> referencedTable = sqlPersistence.getAbstractTable(fieldClass);
 
 				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
 				if (s != null) {
@@ -207,7 +207,7 @@ public abstract class AbstractTable<T> {
 	
 	public void clear() {
 		try {
-			PreparedStatement statement = getStatement(dbPersistence.getConnection(), clearQuery, false);
+			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), clearQuery, false);
 			statement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Clear of Table " + getTableName() + " failed");
@@ -244,7 +244,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (Code.class.isAssignableFrom(fieldClazz) && fieldClazz != clazz) {
-				dbPersistence.addClass(fieldClazz);
+				sqlPersistence.addClass(fieldClazz);
 			}
 		}
 	}
@@ -253,9 +253,9 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
-			if (DbPersistenceHelper.isDependable(property) && fieldClazz != clazz) {
+			if (SqlHelper.isDependable(property) && fieldClazz != clazz) {
 				if (!View.class.isAssignableFrom(property.getClazz())) {
-					dbPersistence.addClass(fieldClazz);
+					sqlPersistence.addClass(fieldClazz);
 				}
 			}
 		}
@@ -286,7 +286,7 @@ public abstract class AbstractTable<T> {
 				return column + " " + criteriaOperator.getOperatorAsString() + " ?";
 			} else {
 				PropertyInterface subProperty = columns.get(column);
-				AbstractTable<?> subTable = dbPersistence.getAbstractTable(ViewUtil.resolve(subProperty.getClazz()));
+				AbstractTable<?> subTable = sqlPersistence.getAbstractTable(ViewUtil.resolve(subProperty.getClazz()));
 				return column + " = (select ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
 			}
 		} else {
@@ -299,7 +299,7 @@ public abstract class AbstractTable<T> {
 	protected T executeSelect(PreparedStatement preparedStatement) throws SQLException {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
-				return dbPersistence.readResultSetRow(clazz,  resultSet);
+				return sqlPersistence.readResultSetRow(clazz,  resultSet);
 			} else {
 				return null;
 			}
@@ -315,7 +315,7 @@ public abstract class AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				T object = dbPersistence.readResultSetRow(clazz,  resultSet, loadedReferences);
+				T object = sqlPersistence.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
 					Object id = IdUtils.getId(object);
 					((Table<T>) this).loadRelations(object, id);
@@ -341,8 +341,8 @@ public abstract class AbstractTable<T> {
 				if (value != null) {
 					value = IdUtils.getId(value);
 				}
-			} else if (DbPersistenceHelper.isDependable(property)) {
-				Table dependableTable = dbPersistence.getTable(property.getClazz());
+			} else if (SqlHelper.isDependable(property)) {
+				Table dependableTable = sqlPersistence.getTable(property.getClazz());
 				if (mode == ParameterMode.INSERT) {
 					if (value != null) {
 						value = dependableTable.insert(value);
@@ -396,7 +396,7 @@ public abstract class AbstractTable<T> {
 		if (this instanceof HistorizedTable) {
 			query += " AND VERSION = 0";
 		}
-		PreparedStatement preparedStatement = getStatement(dbPersistence.getConnection(), query, false);
+		PreparedStatement preparedStatement = getStatement(sqlPersistence.getConnection(), query, false);
 		preparedStatement.setObject(1, id);
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
@@ -409,7 +409,7 @@ public abstract class AbstractTable<T> {
 
 	private void setColumnToNull(Object id, String column) throws SQLException {
 		String update = "UPDATE " + getTableName() + " SET " + column + " = NULL WHERE ID = ?";
-		PreparedStatement preparedStatement = getStatement(dbPersistence.getConnection(), update, false);
+		PreparedStatement preparedStatement = getStatement(sqlPersistence.getConnection(), update, false);
 		preparedStatement.setObject(1, id);
 		preparedStatement.execute();
 	}
@@ -419,7 +419,7 @@ public abstract class AbstractTable<T> {
 		if (id != null) {
 			return id;
 		}
-		List<?> codes = dbPersistence.getCodes(code.getClass());
+		List<?> codes = sqlPersistence.getCodes(code.getClass());
 		for (Object c : codes) {
 			if (code.equals(c)) {
 				return IdUtils.getId(c);
@@ -455,7 +455,7 @@ public abstract class AbstractTable<T> {
 		String myFieldPath = entry.getValue().getPath();
 		if (fieldPath.length() > myFieldPath.length()) {
 			String rest = fieldPath.substring(myFieldPath.length() + 1);
-			AbstractTable<?> innerTable = dbPersistence.getAbstractTable(entry.getValue().getClazz());
+			AbstractTable<?> innerTable = sqlPersistence.getAbstractTable(entry.getValue().getClazz());
 			innerTable.createIndex(property, rest);
 		}
 		indexes.add(entry.getKey());

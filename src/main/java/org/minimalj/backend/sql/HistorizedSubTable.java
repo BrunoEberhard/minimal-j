@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,8 +28,8 @@ public class HistorizedSubTable extends AbstractTable {
 	private final String endQuery;
 	private final String readVersionsQuery;
 	
-	public HistorizedSubTable(DbPersistence dbPersistence, String prefix, Class clazz, PropertyInterface idProperty) {
-		super(dbPersistence, prefix, clazz, idProperty);
+	public HistorizedSubTable(SqlPersistence sqlPersistence, String prefix, Class clazz, PropertyInterface idProperty) {
+		super(sqlPersistence, prefix, clazz, idProperty);
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
@@ -37,7 +37,7 @@ public class HistorizedSubTable extends AbstractTable {
 	}
 	
 	public void insert(Object parentId, List objects, Integer version) throws SQLException {
-		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
+		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
 		for (int position = 0; position<objects.size(); position++) {
 			Object object = objects.get(position);
 			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
@@ -50,8 +50,8 @@ public class HistorizedSubTable extends AbstractTable {
 	public void update(Object parentId, List objects, int version) throws SQLException {
 		List objectsInDb = read(parentId, version);
 		int position = 0;
-		PreparedStatement endStatement = getStatement(dbPersistence.getConnection(), endQuery, false);
-		PreparedStatement insertStatement = getStatement(dbPersistence.getConnection(), insertQuery, false);
+		PreparedStatement endStatement = getStatement(sqlPersistence.getConnection(), endQuery, false);
+		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			boolean end = false;
 			boolean insert = false;
@@ -86,7 +86,7 @@ public class HistorizedSubTable extends AbstractTable {
 		if (time == null) {
 			return read(parentId);
 		}
-		PreparedStatement selectByIdAndTimeStatement = getStatement(dbPersistence.getConnection(), selectByIdAndTimeQuery, false);
+		PreparedStatement selectByIdAndTimeStatement = getStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false);
 		selectByIdAndTimeStatement.setObject(1, parentId);
 		selectByIdAndTimeStatement.setInt(2, time);
 		selectByIdAndTimeStatement.setInt(3, time);
@@ -94,13 +94,13 @@ public class HistorizedSubTable extends AbstractTable {
 	}
 
 	private List read(Object id) throws SQLException {
-		PreparedStatement selectByIdStatement = getStatement(dbPersistence.getConnection(), selectByIdQuery, false);
+		PreparedStatement selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
 		selectByIdStatement.setObject(1, id);
 		return executeSelectAll(selectByIdStatement);
 	}
 	
 	public void readVersions(Object parentId, List<Integer> result) throws SQLException {
-		PreparedStatement readVersionsStatement = getStatement(dbPersistence.getConnection(), readVersionsQuery, false);
+		PreparedStatement readVersionsStatement = getStatement(sqlPersistence.getConnection(), readVersionsQuery, false);
 		readVersionsStatement.setObject(1, parentId);
 		try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
 			while (resultSet.next()) {
@@ -165,7 +165,7 @@ public class HistorizedSubTable extends AbstractTable {
 	}
 	
 	@Override
-	protected void addSpecialColumns(DbSyntax syntax, StringBuilder s) {
+	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		s.append(" id ");
 		syntax.addColumnDefinition(s, idProperty);
 		s.append(",\n startVersion INTEGER NOT NULL");
@@ -174,7 +174,7 @@ public class HistorizedSubTable extends AbstractTable {
 	}
 	
 	@Override
-	protected void addPrimaryKey(DbSyntax syntax, StringBuilder s) {
+	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
 		syntax.addPrimaryKey(s, "id, startVersion, position");
 	}	
 

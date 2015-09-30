@@ -16,7 +16,7 @@ public class PersistenceExample {
 		AbstractTable.sqlLogger.setLevel(Level.FINEST);
 		AbstractTable.sqlLogger.getParent().getHandlers()[0].setLevel(Level.FINEST);
 		
-		DbPersistence persistence = new DbPersistence(DbPersistence.embeddedDataSource(), ExamplePerson.class);
+		SqlPersistence persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), ExamplePerson.class);
 
 		ExamplePerson person = new ExamplePerson();
 		person.firstName = "Peter";
@@ -51,21 +51,21 @@ methods in Minimal-J that save you all the trouble at the start. In the example 
 You need the derby.jar and derbyclient.jar for that in your classpath. Otherwise you get an exception when
 starting the application.
 
-As second argument the DbPersistence constructor needs an Array of the model entities. Or at least of the main
+As second argument the SqlPersistence constructor needs an Array of the model entities. Or at least of the main
 entities. If these main entities reference some list or inline entities that don't need to be listed.
 
 Then an ExamplePerson is constructed and filled and inserted. Here the log from these actions.
 
 [log,txt,title="Log of PersistenceExample"]
 ----
-Aug 05, 2015 9:04:11 AM org.minimalj.backend.db.LoggingPreparedStatement log
+Aug 05, 2015 9:04:11 AM org.minimalj.backend.sql.LoggingPreparedStatement log
 FEIN:    34ms CREATE TABLE EXAMPLE_PERSON (
  id CHAR(36) NOT NULL,
  FIRST_NAME VARCHAR (255) DEFAULT NULL,
  LAST_NAME VARCHAR (255) DEFAULT NULL,
  PRIMARY KEY (id)
 )
-Aug 05, 2015 9:04:11 AM org.minimalj.backend.db.LoggingPreparedStatement log
+Aug 05, 2015 9:04:11 AM org.minimalj.backend.sql.LoggingPreparedStatement log
 FEIN:    15ms INSERT INTO EXAMPLE_PERSON (FIRST_NAME, LAST_NAME, id) VALUES ('Peter', 'Muster', 'e415162a-4a2e-4df4-a9bc-7ef2638dbe89')
 ----
 
@@ -90,7 +90,7 @@ Minimal-J chose a different approach. If the field name is too long it is simply
 Now what if two field names become equal when cutting them? Then the equal field names are numbered at the end.
 
 You will probably never see this case. If you are interested of how it works have a look at the 
-test class DbLongFieldNameTest.
+test class SqlLongFieldNameTest.
 
 === Insert objects
 The second log entry shows how the object is added to the table. There is only one part that may surprise you. This is that you
@@ -250,7 +250,7 @@ Normally when starting an application the database for it already exists. The ap
 every time it is started. For examples it is actually helpfull that the tables are created because otherwise the
 examples would fail or get complicated. But how does the persistence layer know if the tables have to be created?
 
-Answer: there is a third parameter in den DbPersistence constructor. It's named createTablesOnInitialize . It's default
+Answer: there is a third parameter in den SqlPersistence constructor. It's named createTablesOnInitialize . It's default
 is calculated in the method createTablesOnInitialize(DataSource). There you see that the default is exactly made to be
 working for examples but in real word applications the tables will not be created.
 

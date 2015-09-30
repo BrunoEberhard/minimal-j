@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ import org.minimalj.util.IdUtils;
  * The db product specifics
  * 
  */
-public abstract class DbSyntax {
+public abstract class SqlSyntax {
 
 	public abstract int getMaxIdentifierLength();
 
@@ -149,7 +149,7 @@ public abstract class DbSyntax {
 		return s.toString();
 	}
 	
-	public static class MariaDbSyntax extends DbSyntax {
+	public static class MariaSqlSyntax extends SqlSyntax {
 		
 		@Override
 		protected void addCreateStatementEnd(StringBuilder s) {
@@ -183,7 +183,7 @@ public abstract class DbSyntax {
 		}
 	}
 	
-	public static class DerbyDbSyntax extends DbSyntax {
+	public static class DerbySqlSyntax extends SqlSyntax {
 
 		@Override
 		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {

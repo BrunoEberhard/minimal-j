@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import javax.sql.DataSource;
 
@@ -14,8 +14,8 @@ public class TableCreator {
 		String user= System.getProperty("MjBackendDataBaseUser", "APP");
 		String password = System.getProperty("MjBackendDataBasePassword", "APP");
 		
-		DataSource dataSource = DbPersistence.mariaDbDataSource(database, user, password);
-		new DbPersistence(dataSource, DbPersistence.CREATE_TABLES, application.getEntityClasses());
+		DataSource dataSource = SqlPersistence.mariaDbDataSource(database, user, password);
+		new SqlPersistence(dataSource, SqlPersistence.CREATE_TABLES, application.getEntityClasses());
 	}
 
 }

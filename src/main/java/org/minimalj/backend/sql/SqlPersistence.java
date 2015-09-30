@@ -1,4 +1,4 @@
-package org.minimalj.backend.db;
+package org.minimalj.backend.sql;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -54,11 +54,11 @@ import org.minimalj.util.StringUtils;
  * The Mapper to a relationale Database
  * 
  */
-public class DbPersistence implements Persistence {
-	private static final Logger logger = Logger.getLogger(DbPersistence.class.getName());
+public class SqlPersistence implements Persistence {
+	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
-	private final DbSyntax syntax;
+	private final SqlSyntax syntax;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	private final Set<String> tableNames = new HashSet<>();
@@ -72,11 +72,11 @@ public class DbPersistence implements Persistence {
 
 	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
-	public DbPersistence(DataSource dataSource, Class<?>... classes) {
+	public SqlPersistence(DataSource dataSource, Class<?>... classes) {
 		this(dataSource, createTablesOnInitialize(dataSource), classes);
 	}
 
-	public DbPersistence(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
+	public SqlPersistence(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
 		this.dataSource = dataSource;
 		Connection connection = getAutoCommitConnection();
 		try {
@@ -84,9 +84,9 @@ public class DbPersistence implements Persistence {
 			boolean isMySqlDb = StringUtils.equals(databaseProductName, "MySQL");
 			boolean isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
 			if (isMySqlDb) {
-				syntax = new DbSyntax.MariaDbSyntax();
+				syntax = new SqlSyntax.MariaSqlSyntax();
 			} else if (isDerbyDb) {
-				syntax = new DbSyntax.DerbyDbSyntax();
+				syntax = new SqlSyntax.DerbySqlSyntax();
 			} else {
 				throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
 			}
@@ -404,11 +404,11 @@ public class DbPersistence implements Persistence {
 					if (!hasClassName) {
 						key = fieldName + "_" + inlineKey;
 					}
-					key = DbPersistenceHelper.buildName(key, getMaxIdentifierLength(), columns.keySet());
+					key = SqlHelper.buildName(key, getMaxIdentifierLength(), columns.keySet());
 					columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
 				}
 			} else {
-				fieldName = DbPersistenceHelper.buildName(fieldName, getMaxIdentifierLength(), columns.keySet());
+				fieldName = SqlHelper.buildName(fieldName, getMaxIdentifierLength(), columns.keySet());
 				columns.put(fieldName, new FieldProperty(field));
 			}
 		}
@@ -478,7 +478,7 @@ public class DbPersistence implements Persistence {
 		
 		R result = CloneHelper.newInstance(clazz);
 		
-		DbPersistenceHelper helper = new DbPersistenceHelper(this);
+		SqlHelper helper = new SqlHelper(this);
 		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
 		
 		// first read the resultSet completly then resolve references
@@ -530,7 +530,7 @@ public class DbPersistence implements Persistence {
 						ViewUtil.view(referenceObject, value);
 						loadedReferences.get(viewedClass).put(reference, value);
 					}
-				} else if (DbPersistenceHelper.isDependable(property)) {
+				} else if (SqlHelper.isDependable(property)) {
 					value = getTable(fieldClass).read(value);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);

@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 /**
  * The common interface of all types of persistences. Note that specific implementations
- * can have more methods. See for example the <code>execute</code> methods in DbPersistence
+ * can have more methods. See for example the <code>execute</code> methods in SqlPersistence
  *
  */
 public interface Persistence {

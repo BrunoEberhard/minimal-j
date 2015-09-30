@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.SocketBackendServer;
-import org.minimalj.backend.db.DbBackend;
+import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.SwingApplication;
 import org.minimalj.frontend.page.EmptyPage;
@@ -30,7 +30,7 @@ import org.minimalj.util.resources.Resources;
  * 
  * @see SwingApplication
  * @see SocketBackendServer
- * @see DbBackend
+ * @see SqlBackend
  */
 public abstract class Application {
 	private static Application application;

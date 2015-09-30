@@ -6,16 +6,17 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.predicate.By;
 import org.minimalj.transaction.predicate.FieldOperator;
 
-public class DbSimpleCriteriaTest {
+public class SqlSimpleCriteriaTest {
 	
-	private static DbPersistence persistence;
+	private static SqlPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), A.class, G.class, H.class);
+	public static void setupPersistence() {
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class);
 		
 		insertA(5);
 		insertA(7);
@@ -29,7 +30,7 @@ public class DbSimpleCriteriaTest {
 	}
 	
 	@AfterClass
-	public static void shutdownDb() {
+	public static void shutdownPersistence() {
 	}
 	
 	@Test 

@@ -8,26 +8,26 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.backend.db.DbPersistence;
+import org.minimalj.backend.sql.SqlPersistence;
 
 public class EnumSetTest {
 
-	private static DbPersistence persistence;
+	private static SqlPersistence persistence;
 	
 	@BeforeClass
-	public static void setupDb() {
-		persistence = new DbPersistence(DbPersistence.embeddedDataSource(), ObjectWithE.class);
+	public static void setupPersistence() {
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), ObjectWithE.class);
 	}
 
 	@Test
 	public void testEnumToIntFirstElement() {
 		Set<E> set = Collections.singleton(E.e0);
-		testConversionAndDb(set);
+		testConversionAndPersistence(set);
 	}
 
-	void testConversionAndDb(Set<E> set) {
+	void testConversionAndPersistence(Set<E> set) {
 		Assert.assertTrue(test(set));
-		Assert.assertTrue(testWithDb(set));
+		Assert.assertTrue(testWithPersistence(set));
 	}
 
 	@Test
@@ -36,26 +36,26 @@ public class EnumSetTest {
 		set.add(E.e1);
 		set.add(E.e5);
 		set.add(E.e14);
-		testConversionAndDb(set);
+		testConversionAndPersistence(set);
 	}
 	
 	@Test
 	public void testEnumToIntAllElements() {
 		Set<E> set = new HashSet<E>();
 		set.addAll(Arrays.asList(E.values()));
-		testConversionAndDb(set);
+		testConversionAndPersistence(set);
 	}
 
 	@Test
 	public void testEnumToIntNoElements() {
 		Set<E> set = Collections.emptySet();
-		testConversionAndDb(set);
+		testConversionAndPersistence(set);
 	}
 
 	@Test
 	public void testEnumToIntLastElement() {
 		Set<E> set = Collections.singleton(E.e31);
-		testConversionAndDb(set);
+		testConversionAndPersistence(set);
 	}
 	
 	private boolean test(Set<E> testSet) {
@@ -65,7 +65,7 @@ public class EnumSetTest {
 		return compareSets(testSet, resultSet);
 	}
 
-	private boolean testWithDb(Set<E> testSet) {
+	private boolean testWithPersistence(Set<E> testSet) {
 		ObjectWithE object = new ObjectWithE();
 		object.setOfE.addAll(testSet);
 		Object id = persistence.insert(object);

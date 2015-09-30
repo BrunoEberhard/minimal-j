@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.backend.Persistence;
-import org.minimalj.backend.db.DbBackend;
+import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.transaction.Transaction;
 
 public class MultiBackend extends Backend {
@@ -25,7 +25,7 @@ public class MultiBackend extends Backend {
 	private Backend getBackend() {
 		String context = DemoContext.getContext();
 		if (!backends.containsKey(context)) {
-			backends.put(context, new DbBackend());
+			backends.put(context, new SqlBackend());
 		}
 		return backends.get(context);
 	}
