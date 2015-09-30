@@ -30,7 +30,7 @@ public class ReadTransaction<T> implements Transaction<T> {
 		} else {
 			if (persistence instanceof DbPersistence) {
 				DbPersistence dbPersistence = (DbPersistence) persistence;
-				result = dbPersistence.read(clazz, id, time);
+				result = dbPersistence.readVersion(clazz, id, time);
 			} else {
 				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + DbBackend.class.getSimpleName());
 			}

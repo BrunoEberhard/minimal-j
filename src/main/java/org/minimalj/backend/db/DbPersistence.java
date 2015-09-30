@@ -281,7 +281,7 @@ public class DbPersistence implements Persistence {
 		return table.read(id);
 	}
 	
-	public <T> T read(Class<T> clazz, Object id, Integer time) {
+	public <T> T readVersion(Class<T> clazz, Object id, Integer time) {
 		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
 		return table.read(id, time);
 	}
