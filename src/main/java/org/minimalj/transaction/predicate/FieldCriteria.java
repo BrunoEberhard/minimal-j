@@ -3,12 +3,11 @@ package org.minimalj.transaction.predicate;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.temporal.Temporal;
-import java.util.function.Predicate;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
-public class FieldPredicate<T> extends PersistencePredicate<T> implements Serializable {
+public class FieldCriteria<T> extends Criteria<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final FieldOperator operator;
@@ -16,11 +15,11 @@ public class FieldPredicate<T> extends PersistencePredicate<T> implements Serial
 	private final PropertyInterface property;
 	private final Object value;
 	
-	public FieldPredicate(Object key, Object value) {
+	public FieldCriteria(Object key, Object value) {
 		this(key, FieldOperator.equal, value);
 	}
 
-	public FieldPredicate(Object key, FieldOperator operator, Object value) {
+	public FieldCriteria(Object key, FieldOperator operator, Object value) {
 		this.key = key;
 		this.operator = operator;
 		this.value = value;
@@ -61,20 +60,7 @@ public class FieldPredicate<T> extends PersistencePredicate<T> implements Serial
 		return value;
 	}
 
-	@Override
-	public Predicate<T> negate() {
-		return new FieldPredicate<>(key, operator.negate(), value);
-	}
-	
-	@Override
-	public boolean test(T t) {
-		Object value = property.getValue(t);
-		if (value == null) {
-			return this.value != null ^ operator.includesEqual();
-		}
-		if (value instanceof Number && this.value instanceof Number) {
-			// TODO ...
-		}
-		return true; 
+	public Criteria<T> negate() {
+		return new FieldCriteria<>(key, operator.negate(), value);
 	}
 }

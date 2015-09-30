@@ -1,7 +1,8 @@
 package org.minimalj.backend;
 
 import java.util.List;
-import java.util.function.Predicate;
+
+import org.minimalj.transaction.predicate.Criteria;
 
 /**
  * The common interface of all types of persistences. Note that specific implementations
@@ -12,7 +13,7 @@ public interface Persistence {
 
 	public <T> T read(Class<T> clazz, Object id);
 
-	public <T> List<T> read(Class<T> clazz, Predicate<T> predicate, int maxResults);
+	public <T> List<T> read(Class<T> clazz, Criteria<T> criteria, int maxResults);
 
 	public <T> Object insert(T object);
 

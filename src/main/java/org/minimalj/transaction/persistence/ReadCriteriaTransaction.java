@@ -1,27 +1,27 @@
 package org.minimalj.transaction.persistence;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.predicate.Criteria;
 
 public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
 	private static final long serialVersionUID = 1L;
 
 	private final Class<T> clazz;
-	private final Predicate<T> predicate;
+	private final Criteria<T> criteria;
 	private final int maxResults;
 	
-	public ReadCriteriaTransaction(Class<T> clazz, Predicate<T> predicate, int maxResults) {
+	public ReadCriteriaTransaction(Class<T> clazz, Criteria<T> criteria, int maxResults) {
 		this.clazz = clazz;
-		this.predicate = predicate;
+		this.criteria = criteria;
 		this.maxResults = maxResults;
 	}
 
 	@Override
 	public List<T> execute(Persistence persistence) {
-		List<T>	result = persistence.read(clazz, predicate, maxResults);
+		List<T>	result = persistence.read(clazz, criteria, maxResults);
 		return result;
 	}
 

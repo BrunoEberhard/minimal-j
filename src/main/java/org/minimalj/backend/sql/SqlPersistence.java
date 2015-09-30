@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +39,7 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.predicate.Criteria;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -292,14 +292,14 @@ public class SqlPersistence implements Persistence {
 	}
 
 	@Override
-	public <T> List<T> read(Class<T> resultClass, Predicate<T> predicate, int maxResults) {
+	public <T> List<T> read(Class<T> resultClass, Criteria<T> criteria, int maxResults) {
 		if (View.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
 			Table<?> table = getTable(viewedClass);
-			return table.readView(resultClass, predicate, maxResults);
+			return table.readView(resultClass, criteria, maxResults);
 		} else {
 			Table<T> table = getTable(resultClass);
-			return table.read(predicate, maxResults);
+			return table.read(criteria, maxResults);
 		}
 	}
 

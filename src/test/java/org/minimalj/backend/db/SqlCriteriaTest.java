@@ -8,76 +8,51 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.predicate.Criteria;
+import org.minimalj.transaction.predicate.SearchCriteria;
 
 public class SqlCriteriaTest {
-	
+
 	private static SqlPersistence persistence;
-	
+
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class);
 	}
-	
+
 	@AfterClass
 	public static void shutdownPersistence() {
 	}
-	
-	@Test // if fields of class reference are correctly written and read
-	public void testReferenceField() {
-		G g = new G("g1");
-		Object id = persistence.insert(g);
-		g = persistence.read(G.class, id);
-		
-		H h = new H();
-		h.g = g;
-		Object idH = persistence.insert(h);
 
-		h = persistence.read(H.class, idH);
+	@Test
+	public void testQuery() {
+		persistence.insert(new G("abc"));
+		persistence.insert(new G("abcd"));
+		persistence.insert(new G("abcxyz"));
+
+		Criteria<G> s1 = By.search("%abc%");
+		Criteria<G> s2 = By.search("%xyz%");
+		List<G> g = persistence.read(G.class, s1.and(s2), 100);
+		Assert.assertEquals(1, g.size());
 		
-		Assert.assertEquals(id, h.g.id);
+		s1 = By.search("%d%");
+		s2 = By.search("%x%");
+		g = persistence.read(G.class, s1.or(s2), 100);
+		Assert.assertEquals(2, g.size());
+		
+		g = persistence.read(G.class, s1.and(s2), 100);
+		Assert.assertEquals(0, g.size());
+
+		s1 = By.search("%y%");
+		s2 = By.search("%x%");
+		g = persistence.read(G.class, s1.and(s2), 100);
+		Assert.assertEquals(1, g.size());
+
+		s1 = By.search("%y%");
+		s2 = By.search("%z%");
+		Criteria<G> s3 = By.search("%d%");
+		SearchCriteria<G> s4 = By.search("%y%");
+		g = persistence.read(G.class, s1.and(s2).or(s3.and(s4.negate())), 100);
+		Assert.assertEquals(2, g.size());
 	}
-
-	@Test // if read by a reference works correctly
-	public void testSimpleCriteria() {
-		G g = new G("g2");
-		Object id = persistence.insert(g);
-		g = persistence.read(G.class, id);
-		
-		H h = new H();
-		h.g = g;
-		persistence.insert(h);
-
-		h = new H();
-		h.g = g;
-		persistence.insert(h);
-		
-		List<H> hList = persistence.getTable(H.class).read(By.field(H.$.g, g), 3);
-		Assert.assertEquals("Read by reference", 2, hList.size());
-
-		hList = persistence.getTable(H.class).read(By.field(H.$.g.id, g.id), 3);
-		Assert.assertEquals("Read by references id", 2, hList.size());
-
-		hList = persistence.getTable(H.class).read(By.field(H.$.g.g, "g2"), 3);
-		Assert.assertEquals("Read by references field", 2, hList.size());
-	}
-
-	@Test // if read by a foreign key works correctly if the reference is in a dependable
-	public void testForeignKeyCriteriaInDependable() {
-		G g = new G("g3");
-		Object id = persistence.insert(g);
-		g = persistence.read(G.class, id);
-		
-		H h = new H();
-		h.i.rG = g;
-		persistence.insert(h);
-
-		h = new H();
-		h.i.rG = g;
-		persistence.insert(h);
-		
-		List<H> hList = persistence.getTable(H.class).read(By.field(H.$.i.rG, g), 3);
-		
-		Assert.assertEquals(2, hList.size());
-	}
-
 }

@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
@@ -18,10 +17,11 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.transaction.predicate.FieldPredicate;
-import org.minimalj.transaction.predicate.PersistencePredicate.AndPredicate;
-import org.minimalj.transaction.predicate.PersistencePredicate.OrPredicate;
-import org.minimalj.transaction.predicate.SearchPredicate;
+import org.minimalj.transaction.predicate.Criteria;
+import org.minimalj.transaction.predicate.Criteria.AndCriteria;
+import org.minimalj.transaction.predicate.Criteria.OrCriteria;
+import org.minimalj.transaction.predicate.FieldCriteria;
+import org.minimalj.transaction.predicate.SearchCriteria;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
@@ -199,20 +199,20 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 
-	public List<Object> whereClause(Predicate<?> predicate) {
+	public List<Object> whereClause(Criteria<?> criteria) {
 		List<Object> result;
-		if (predicate instanceof AndPredicate) {
-			AndPredicate andPredicate = (AndPredicate) predicate;
-			result = combine(andPredicate.getPredicate1(), andPredicate.getPredicate2(), "AND");
-		} else if (predicate instanceof OrPredicate) {
-			OrPredicate orPredicate = (OrPredicate) predicate;
-			result = combine(orPredicate.getPredicate1(), orPredicate.getPredicate2(), "OR");
-		} else if (predicate instanceof FieldPredicate) {
-			FieldPredicate fieldPredicate = (FieldPredicate) predicate;
+		if (criteria instanceof AndCriteria) {
+			AndCriteria andCriteria = (AndCriteria) criteria;
+			result = combine(andCriteria.getCriteria1(), andCriteria.getCriteria2(), "AND");
+		} else if (criteria instanceof OrCriteria) {
+			OrCriteria orCriteria = (OrCriteria) criteria;
+			result = combine(orCriteria.getCriteria1(), orCriteria.getCriteria2(), "OR");
+		} else if (criteria instanceof FieldCriteria) {
+			FieldCriteria fieldCriteria = (FieldCriteria) criteria;
 			result = new ArrayList<>();
-			PropertyInterface propertyInterface = Keys.getProperty(fieldPredicate.getKey());
-			Object value = fieldPredicate.getValue();
-			String term = whereStatement(propertyInterface.getPath(), fieldPredicate.getOperator());
+			PropertyInterface propertyInterface = Keys.getProperty(fieldCriteria.getKey());
+			Object value = fieldCriteria.getValue();
+			String term = whereStatement(propertyInterface.getPath(), fieldCriteria.getOperator());
 			if (ViewUtil.isReference(propertyInterface)) {
 				if (!Codes.isCode(propertyInterface.getClazz()) || value == null || FieldUtils.isAllowedCodeId(value.getClass())) {
 					value = IdUtils.getId(value);
@@ -220,12 +220,12 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			result.add(term);
 			result.add(value);
-		} else if (predicate instanceof SearchPredicate) {
-			SearchPredicate searchPredicate = (SearchPredicate) predicate;
+		} else if (criteria instanceof SearchCriteria) {
+			SearchCriteria searchCriteria = (SearchCriteria) criteria;
 			result = new ArrayList<>();
-			String search = convertUserSearch(searchPredicate.getQuery());
+			String search = convertUserSearch(searchCriteria.getQuery());
 			String clause = "(";
-			List<String> searchColumns = searchPredicate.getKeys() != null ? getColumns(searchPredicate.getKeys()) : findSearchColumns(clazz);
+			List<String> searchColumns = searchCriteria.getKeys() != null ? getColumns(searchCriteria.getKeys()) : findSearchColumns(clazz);
 			boolean first = true;
 			for (String column : searchColumns) {
 				if (!first) {
@@ -233,7 +233,7 @@ public class Table<T> extends AbstractTable<T> {
 				} else {
 					first = false;
 				}
-				clause += column + (searchPredicate.isNotEqual() ? " not" : "") + " like ?";
+				clause += column + (searchCriteria.isNotEqual() ? " not" : "") + " like ?";
 				result.add(search);
 			}
 			if (this instanceof HistorizedTable) {
@@ -242,17 +242,17 @@ public class Table<T> extends AbstractTable<T> {
 				clause += ")";
 			}
 			result.add(0, clause); // insert at beginning
-		} else if (predicate == null) {
+		} else if (criteria == null) {
 			result = Collections.singletonList("1=1");
 		} else {
-			throw new IllegalArgumentException("Unknown predicate: " + predicate);
+			throw new IllegalArgumentException("Unknown criteria: " + criteria);
 		}
 		return result;
 	}
 	
-	private List<Object> combine(Predicate<?> predicate1, Predicate<?> predicate2, String operator) {
-		List<Object> result = whereClause(predicate1);
-		List<Object> result2 = whereClause(predicate2);
+	private List<Object> combine(Criteria<?> criteria1, Criteria<?> criteria2, String operator) {
+		List<Object> result = whereClause(criteria1);
+		List<Object> result2 = whereClause(criteria2);
 		String clause = "(" + result.get(0) + " " + operator + " " + result2.get(0) + ")";
 		result.set(0, clause); // replace
 		if (result2.size() > 1) {
@@ -261,8 +261,8 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 	
-	public List<T> read(Predicate<?> predicate, int maxResults) {
-		List<Object> whereClause = whereClause(predicate);
+	public List<T> read(Criteria<?> criteria, int maxResults) {
+		List<Object> whereClause = whereClause(criteria);
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + whereClause.get(0);
 		try {
 			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), query, false);
@@ -275,8 +275,8 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public <S> List<S> readView(Class<S> resultClass, Predicate<?> predicate, int maxResults) {
-		List<Object> whereClause = whereClause(predicate);
+	public <S> List<S> readView(Class<S> resultClass, Criteria<?> criteria, int maxResults) {
+		List<Object> whereClause = whereClause(criteria);
 		String query = select(resultClass) + " WHERE " + whereClause.get(0);
 		try {
 			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), query, false);

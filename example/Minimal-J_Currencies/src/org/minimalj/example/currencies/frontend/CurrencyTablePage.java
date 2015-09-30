@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.currencies.model.Currency;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.predicate.Criteria;
 
 public class CurrencyTablePage extends TablePage<Currency> {
 	

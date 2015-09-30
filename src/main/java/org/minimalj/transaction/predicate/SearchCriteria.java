@@ -1,24 +1,23 @@
 package org.minimalj.transaction.predicate;
 
 import java.io.Serializable;
-import java.util.function.Predicate;
 
-public class SearchPredicate<T> extends PersistencePredicate<T> implements Serializable {
+public class SearchCriteria<T> extends Criteria<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final String query;
 	private final Object[] keys;
 	private final boolean notEqual;
 	
-	public SearchPredicate(String query) {
+	public SearchCriteria(String query) {
 		this(query, null);
 	}
 
-	public SearchPredicate(String query, Object[] keys) {
+	public SearchCriteria(String query, Object[] keys) {
 		this(query, keys, false);
 	}
 	
-	public SearchPredicate(String query, Object[] keys, boolean notEqual) {
+	public SearchCriteria(String query, Object[] keys, boolean notEqual) {
 		this.keys = keys;
 		this.query = query;
 		this.notEqual = notEqual;
@@ -41,14 +40,7 @@ public class SearchPredicate<T> extends PersistencePredicate<T> implements Seria
 		return notEqual;
 	}
 	
-	@Override
-	public Predicate<T> negate() {
-		return new SearchPredicate<>(query, keys, !notEqual);
-	}
-	
-	@Override
-	public boolean test(T t) {
-		return true;
-		// todo
+	public Criteria<T> negate() {
+		return new SearchCriteria<>(query, keys, !notEqual);
 	}
 }
