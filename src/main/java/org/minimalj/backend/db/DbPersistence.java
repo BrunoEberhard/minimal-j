@@ -433,7 +433,6 @@ public class DbPersistence implements Persistence {
 		preparedStatement.setObject(param, value);
 	}
 	
-	@Override
 	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -448,7 +447,6 @@ public class DbPersistence implements Persistence {
 		}
 	}
 	
-	@Override
 	public <T> T execute(Class<T> clazz, String query, Serializable... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {

@@ -1,9 +1,13 @@
 package org.minimalj.backend;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * The common interface of all types of persistences. Note that specific implementations
+ * can have more methods. See for example the <code>execute</code> methods in DbPersistence
+ *
+ */
 public interface Persistence {
 
 	public <T> T read(Class<T> clazz, Object id);
@@ -15,9 +19,5 @@ public interface Persistence {
 	public <T> T update(T object);
 
 	public <T> void delete(Class<T> clazz, Object id);
-
-	public <T> T execute(Class<T> clazz, String query, Serializable... parameter);
-
-	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameter);
 	
 }

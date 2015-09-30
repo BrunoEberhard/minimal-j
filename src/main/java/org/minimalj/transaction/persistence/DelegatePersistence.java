@@ -1,6 +1,5 @@
 package org.minimalj.transaction.persistence;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -39,19 +38,6 @@ public class DelegatePersistence implements Persistence {
 	@Override
 	public <T> void delete(Class<T> clazz, Object id) {
 		backend.execute(new DeleteTransaction(clazz, id));
-	}
-
-	@Override
-	public <T> T execute(Class<T> clazz, String query, Serializable... parameter) {
-		ExecuteTransaction<T> executeTransaction = new ExecuteTransaction<T>(clazz, query, parameter);
-		return backend.execute(executeTransaction);
-	}
-
-	@Override
-	@SuppressWarnings({ "unchecked" })
-	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameter) {
-		ExecuteTransaction<T> executeTransaction = new ExecuteTransaction<T>(clazz, query, maxResults, parameter);
-		return (List<T>) backend.execute(executeTransaction);
 	}
 
 }
