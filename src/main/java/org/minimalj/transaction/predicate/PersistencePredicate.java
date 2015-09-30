@@ -43,6 +43,11 @@ public abstract class PersistencePredicate<T> implements Predicate<T> {
 		public Predicate<? super T> getPredicate2() {
 			return predicate2;
 		}
+		
+		@Override
+		public Predicate<T> negate() {
+			throw new IllegalArgumentException("negate not supported for " + this.getClass().getSimpleName());
+		}
 	}
 	
 	public static class OrPredicate<T> extends CombinedPredicate<T> implements Serializable {

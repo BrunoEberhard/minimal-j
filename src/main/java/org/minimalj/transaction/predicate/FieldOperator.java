@@ -1,7 +1,7 @@
 package org.minimalj.transaction.predicate;
 
 public enum FieldOperator {
-	less("<"), lessOrEqual("<="), equal("="), greaterOrEqual(">="), greater(">"), notEqual("<>");
+	less("<"), greaterOrEqual(">="), lessOrEqual("<="), greater(">"), equal("="), notEqual("<>");
 	
 	private final String operatorAsString;
 
@@ -17,4 +17,7 @@ public enum FieldOperator {
 		return this == equal || this == lessOrEqual || this == greaterOrEqual;
 	}
 	
+	public FieldOperator negate() {
+		return FieldOperator.values()[this.ordinal() ^ 1];
+	}
 }

@@ -233,7 +233,7 @@ public class Table<T> extends AbstractTable<T> {
 				} else {
 					first = false;
 				}
-				clause += column + " like ?";
+				clause += column + (searchPredicate.isNotEqual() ? " not" : "") + " like ?";
 				result.add(search);
 			}
 			if (this instanceof HistorizedTable) {

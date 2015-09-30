@@ -48,9 +48,9 @@ public class DbPredicateTest {
 
 		s1 = By.search("%y%");
 		s2 = By.search("%z%");
-		Predicate<G> s3 = By.search("%c%");
-		Predicate<G> s4 = By.search("%d%");
-		g = persistence.read(G.class, s1.and(s2).or(s3.and(s4)), 100);
+		Predicate<G> s3 = By.search("%d%");
+		Predicate<G> s4 = By.search("%y%");
+		g = persistence.read(G.class, s1.and(s2).or(s3.and(s4.negate())), 100);
 		Assert.assertEquals(2, g.size());
 	}
 }

@@ -3,6 +3,7 @@ package org.minimalj.transaction.predicate;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.temporal.Temporal;
+import java.util.function.Predicate;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
@@ -60,6 +61,11 @@ public class FieldPredicate<T> extends PersistencePredicate<T> implements Serial
 		return value;
 	}
 
+	@Override
+	public Predicate<T> negate() {
+		return new FieldPredicate<>(key, operator.negate(), value);
+	}
+	
 	@Override
 	public boolean test(T t) {
 		Object value = property.getValue(t);
