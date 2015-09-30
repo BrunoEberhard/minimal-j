@@ -92,8 +92,8 @@ Now what if two field names become equal when cutting them? Then the equal field
 You will probably never see this case. If you are interested of how it works have a look at the 
 test class DbLongFieldNameTest.
 
-=== Insert values
-The second log entry shows the insert of the values. There is only one part that may surprise you. This is that you
+=== Insert objects
+The second log entry shows how the object is added to the table. There is only one part that may surprise you. This is that you
 actually see the values. Normally PreparedStatment is used an when logging those you only see something like
 (?, ?, ?). Of course Minimal-J does use PreparedStatement (you have to - if you only construct statements out of
 a String you have security problems). But the LoggingPreparedStatement does insert the values in the log line.
@@ -102,10 +102,153 @@ This can be quite helpfull.
 Note that the LoggingPreparedStatement is only implemented as much as Minimal-J needs it. For projects not using
 Minimal-J you may have to implement some more overriden methods.
 
-=== Create table
+
+=== Read objects
+Minimal-J distinguishes three types of read cases:
+
+1. Read an object by its class and its Id
+
+2. Read one or many objects by more or less complex condition based on its fields
+
+3. Read objects by a database specific query
+
+The first two types are independend by the used persistence layer. The third is not. You also see this in the 
+persistence interface
+
+[source,java,title="Persistence.java"]
+----
+package org.minimalj.backend;
+
+import [..]
+
+public interface Persistence {
+	public <T> T read(Class<T> clazz, Object id);
+	public <T> List<T> read(Class<T> clazz, Predicate<T> predicate, int maxResults);
+	public <T> Object insert(T object);
+	public <T> T update(T object);
+	public <T> void delete(Class<T> clazz, Object id);
+}
+----
+
+The first two method correspond to the first to types of read cases.
+
+==== Read objects by Id
+This is the most simple case. You have the Id of a business entity and know its class. The persistence layer will
+find your object:
+[source,java]
+----
+	Person person = persistence.read(Person.class, id);
+----
+The returned person object will be completly filled with all depending objects and views. If the person contains a
+List of addresses this List will be filled. There is no lazy loading in Minimal-J. If you only want a part of the
+Person to be loaded you need a View of the Person class.
+
+Where do you get the Persistence object? In the example above we created it ourself. But normally the Backend holds
+the single instanceof of the persistence:
+[source,java]
+----
+    Persistence persistence = Backend.getInstance().getPersistence();
+	Person person = persistence.read(Person.class, id);
+----
+or with the shortcut:
+[source,java]
+----
+    Persistence persistence = Backend.persistence();
+	Person person = persistence.read(Person.class, id);
+----
+or in one line:
+[source,java]
+----
+	Person person = Backend.persistence().read(Person.class, id);
+----
+All 3 versions do exactly the same. The first should not be used. You can decide wether you use the second or the
+third version. There is really no reason to have two Persistence objects in your application. If you still feel uneasy
+to call static methods you can pass around the Persistence object. 
+
+==== Read by Predicate
+(TODO complete after decide if Predicates are renamed to Criteria (again))
+
+This is the best way to read objects depending on thier fields. The most frequent use of this is probably when you want
+to implement a filter for a table. The user may see one or more FormElement to enter values the object he is looking
+for should match.
+
+[..]
+
+[source,java]
+----
+	@Override
+	protected List<AccountPosition> load() {
+		return Backend.persistence().read(AccountPosition.class, By.<AccountPosition>field(AccountPosition.$.account, account).and(By.filter(filter)), 1000);
+	}
+----
+	
+==== Read by query
+As nice as the predicates are they have their limits. The query language of a relation database is far mighter than some
+simple 'and' and 'or'. Now maybe SQL queries could to translated in their glories to a java expressions. There are projects that do this
+(or at least try). I have great respect for them. If you are interested have a look at http://www.jooq.org/ or http://www.querydsl.com/ .
+The great appeal of this approach is that you would have static name checks and even some type safety! Why does Minimal-J not go
+this way?
+
+* For a great part of your queries it does! Only a small fraction of your reads may need complex queries. For most of them the two read types
+we've already seen above will do the trick. And in these two type we have static name checks.
+
+* Personally I like pure SQL more than some fancy DSL. And I think I am not the only developer that doesn't want to learn another concept just
+to retrieve some simple data.
+
+* The magic of do everything in java requires some complex transformation classes. This would be against the idea of Minimal-J.
+
+* And yes, I have simply not resources to do something like jOOQ.
+
+I hope you don't think Minimal-J will leave you to work with plain JDBC. Far from that. You will get quite some support for your complex queries. Let's look
+at some code from a test class:
+[source,java]
+----	
+	@Test
+	public void testQuery() {
+		G g = new G("testName1");
+		persistence.insert(g);
+
+		g = persistence.execute(G.class, "SELECT * FROM G WHERE g LIKE '%N%'");
+		Assert.assertNotNull(g);
+
+		g = persistence.execute(G.class, "SELECT * FROM " + persistence.name(G.class) + " WHERE g LIKE '%am%'");
+		Assert.assertNotNull(g);
+
+		g = persistence.execute(G.class,
+				"SELECT * FROM " + persistence.name(G.class) + " WHERE " + persistence.name(G.$.g) + " LIKE '%est%'");
+		Assert.assertNotNull(g);
+
+		g = persistence.execute(G.class,
+				"SELECT * FROM " + $(G.class) + " WHERE " + $(G.$.g) + " LIKE '%est%'");
+		Assert.assertNotNull(g);
+	}
+	
+	private String $(Object classOrKey) {
+		return persistence.name(classOrKey);
+	}
+----
+The test method insert a simple test Object to the database. Then it will be read four times. Everytime the same SQL statement will be
+executed.
+
+The first read uses really plain SQL. You can copy the String and paste it in your favorite database explorer tool. I like that. It makes my
+life easy. And it's not half as dangerous as you might think. Of course when the name of the class changes the code will break. But
+maybe some classes are quite old and will really not be changed anytime soon. Then why bother to write perfect but unhandy code? Discuss
+this with your team (and your architect). You should agree when it's allowed to use this type of query definition. And at least all code
+that use direct queries should be tested with a unit test!
+
+Now the second definition uses a method on the persistence to get the name of the table corresponding to the class. Quite easy to guess how
+this works isn't it? In the same way the column name for a field can be looked up. The name method contains some magic that checks if
+the argument is a class. If yes the name of the table is returned. Else the name of the field.
+
+The fourth definition uses a trick to further reduce the length of the query definition. It may be too much for you or your
+project. Again, discuss this with your team how would like to handle such things. You also may use an other method name for this trick.
+
+TODO: describe handle of Integer.class
+
+=== Create tables
 Normally when starting an application the database for it already exists. The application should not create the tables
-every time it is started. For this example is was actually helpfull that the table was created because otherwise the
-example would have failed. How does the persistence layer know if the tables have to be created?
+every time it is started. For examples it is actually helpfull that the tables are created because otherwise the
+examples would fail or get complicated. But how does the persistence layer know if the tables have to be created?
 
 Answer: there is a third parameter in den DbPersistence constructor. It's named createTablesOnInitialize . It's default
 is calculated in the method createTablesOnInitialize(DataSource). There you see that the default is exactly made to be
