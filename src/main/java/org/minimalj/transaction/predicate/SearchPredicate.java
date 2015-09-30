@@ -1,9 +1,8 @@
 package org.minimalj.transaction.predicate;
 
 import java.io.Serializable;
-import java.util.function.Predicate;
 
-public class SearchPredicate<T> implements Predicate<T>, Serializable {
+public class SearchPredicate<T> extends PersistencePredicate<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final String query;
@@ -16,6 +15,11 @@ public class SearchPredicate<T> implements Predicate<T>, Serializable {
 	public SearchPredicate(String query, Object[] keys) {
 		this.keys = keys;
 		this.query = query;
+	}
+	
+	@Override
+	public int getLevel() {
+		return 0;
 	}
 
 	public Object[] getKeys() {
@@ -31,10 +35,4 @@ public class SearchPredicate<T> implements Predicate<T>, Serializable {
 		return true;
 		// todo
 	}
-	
-	@Override
-	public Predicate<T> and(Predicate<? super T> other) {
-		return new AndPredicate<T>(this, other);
-	}
-
 }

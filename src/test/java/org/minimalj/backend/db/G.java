@@ -1,6 +1,7 @@
 package org.minimalj.backend.db;
 
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 
 public class G {
@@ -16,6 +17,6 @@ public class G {
 
 	public Object id;
 
-	@Size(20)
+	@Size(20) @Searched
 	public String g;
 }

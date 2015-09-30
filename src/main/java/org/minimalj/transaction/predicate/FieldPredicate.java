@@ -3,12 +3,11 @@ package org.minimalj.transaction.predicate;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.temporal.Temporal;
-import java.util.function.Predicate;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
-public class FieldPredicate<T> implements Predicate<T>, Serializable {
+public class FieldPredicate<T> extends PersistencePredicate<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final FieldOperator operator;
@@ -44,6 +43,11 @@ public class FieldPredicate<T> implements Predicate<T>, Serializable {
 		}
 	}
 	
+	@Override
+	public int getLevel() {
+		return 0;
+	}
+	
 	public FieldOperator getOperator() {
 		return operator;
 	}
@@ -66,14 +70,5 @@ public class FieldPredicate<T> implements Predicate<T>, Serializable {
 			// TODO ...
 		}
 		return true; 
-	}
-	
-	@Override
-	public Predicate<T> and(Predicate<? super T> other) {
-		if (other != null) {
-			return new AndPredicate<T>(this, other);
-		} else {
-			return this;
-		}
 	}
 }

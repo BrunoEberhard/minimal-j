@@ -18,8 +18,9 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.transaction.predicate.AndPredicate;
 import org.minimalj.transaction.predicate.FieldPredicate;
+import org.minimalj.transaction.predicate.PersistencePredicate.AndPredicate;
+import org.minimalj.transaction.predicate.PersistencePredicate.OrPredicate;
 import org.minimalj.transaction.predicate.SearchPredicate;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
@@ -203,6 +204,9 @@ public class Table<T> extends AbstractTable<T> {
 		if (predicate instanceof AndPredicate) {
 			AndPredicate andPredicate = (AndPredicate) predicate;
 			result = combine(andPredicate.getPredicate1(), andPredicate.getPredicate2(), "AND");
+		} else if (predicate instanceof OrPredicate) {
+			OrPredicate orPredicate = (OrPredicate) predicate;
+			result = combine(orPredicate.getPredicate1(), orPredicate.getPredicate2(), "OR");
 		} else if (predicate instanceof FieldPredicate) {
 			FieldPredicate fieldPredicate = (FieldPredicate) predicate;
 			result = new ArrayList<>();
@@ -249,7 +253,7 @@ public class Table<T> extends AbstractTable<T> {
 	private List<Object> combine(Predicate<?> predicate1, Predicate<?> predicate2, String operator) {
 		List<Object> result = whereClause(predicate1);
 		List<Object> result2 = whereClause(predicate2);
-		String clause = result.get(0) + " " + operator + " " + result2.get(0);
+		String clause = "(" + result.get(0) + " " + operator + " " + result2.get(0) + ")";
 		result.set(0, clause); // replace
 		if (result2.size() > 1) {
 			result.addAll(result2.subList(1, result2.size()));

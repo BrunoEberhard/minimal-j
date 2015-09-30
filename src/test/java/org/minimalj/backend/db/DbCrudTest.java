@@ -81,7 +81,7 @@ public class DbCrudTest {
 		List<Integer> versions = persistence.readVersions(A.class, id);
 		Assert.assertEquals("A should now have 1 historized version", 1, versions.size());
 		
-		A a3 = persistence.read(A.class, id, versions.get(0));
+		A a3 = persistence.readVersion(A.class, id, versions.get(0));
 		Assert.assertEquals("The historized (first) version of A should not have any B attached", 0, a3.b.size());
 		Assert.assertTrue("The historized (first) version of A should not have a E attached", EmptyObjects.isEmpty(a3.e));
 		
@@ -99,10 +99,10 @@ public class DbCrudTest {
 		Assert.assertEquals("Every B should be removed from the A now", 0, persistence.read(A.class, id).b.size());
 		
 		// now check for the right amount of B's attached to A in every version
-		Assert.assertEquals(1, persistence.read(A.class, id, versions.get(3)).b.size());
-		Assert.assertEquals(2, persistence.read(A.class, id, versions.get(2)).b.size());
-		Assert.assertEquals(1, persistence.read(A.class, id, versions.get(1)).b.size());
-		Assert.assertEquals(0, persistence.read(A.class, id, versions.get(0)).b.size());
+		Assert.assertEquals(1, persistence.readVersion(A.class, id, versions.get(3)).b.size());
+		Assert.assertEquals(2, persistence.readVersion(A.class, id, versions.get(2)).b.size());
+		Assert.assertEquals(1, persistence.readVersion(A.class, id, versions.get(1)).b.size());
+		Assert.assertEquals(0, persistence.readVersion(A.class, id, versions.get(0)).b.size());
 	}
 	
 	@Test
