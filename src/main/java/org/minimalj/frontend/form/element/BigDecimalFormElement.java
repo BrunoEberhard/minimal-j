@@ -1,6 +1,8 @@
 package org.minimalj.frontend.form.element;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Random;
 
 import org.minimalj.model.properties.PropertyInterface;
@@ -11,10 +13,25 @@ import org.minimalj.util.mock.Mocking;
 
 public class BigDecimalFormElement extends NumberFormElement<BigDecimal> implements Mocking {
 
+	private final NumberFormat format;
+	
 	public BigDecimalFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
+		format = createFormat(property);
 	}
 
+	protected NumberFormat createFormat(PropertyInterface property) {
+		NumberFormat format = new DecimalFormat();
+		if (decimalPlaces > 0) {
+			format.setMaximumFractionDigits(decimalPlaces);
+		} else {
+			format.setMaximumFractionDigits(0);
+		}
+		format.setMinimumFractionDigits(0);
+		format.setGroupingUsed(false);
+		return format;
+	}
+	
 	@Override
 	public BigDecimal parse(String text) {
 		if (!StringUtils.isEmpty(text)) {
@@ -38,6 +55,21 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 			return null;
 		}
 	}
+	
+	@Override
+	public String render(BigDecimal number) {
+		String string = null;
+		if (number != null) {
+			if (InvalidValues.isInvalid(number)) {
+				string = InvalidValues.getInvalidValue(number);
+			} else {
+				BigDecimal correctScale = number.setScale(format.getMaximumFractionDigits(), BigDecimal.ROUND_DOWN);
+				return format.format(correctScale);
+			}
+		}
+		return string;
+	}
+
 	
 	@Override
 	public void mock() {
