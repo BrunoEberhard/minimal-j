@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.criteria.By;
 
 public class NoteTablePage extends TablePage<Note> {
 

@@ -1,4 +1,4 @@
-package org.minimalj.transaction.predicate;
+package org.minimalj.transaction.criteria;
 
 public enum FieldOperator {
 	less("<"), greaterOrEqual(">="), lessOrEqual("<="), greater(">"), equal("="), notEqual("<>");

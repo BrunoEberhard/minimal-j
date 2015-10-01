@@ -8,7 +8,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.criteria.By;
 
 
 public class ArticleSearchPage extends SimpleSearchPage<Article> {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.predicate.Criteria;
+import org.minimalj.transaction.criteria.Criteria;
 
 public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
 	private static final long serialVersionUID = 1L;

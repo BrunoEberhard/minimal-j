@@ -1,6 +1,6 @@
-package org.minimalj.transaction.predicate;
+package org.minimalj.transaction.criteria;
 
-import org.minimalj.transaction.predicate.Criteria.Filter;
+import org.minimalj.transaction.criteria.Criteria.Filter;
 
 public class By {
 

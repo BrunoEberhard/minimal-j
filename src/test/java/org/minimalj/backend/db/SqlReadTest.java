@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.criteria.By;
 
 public class SqlReadTest {
 	

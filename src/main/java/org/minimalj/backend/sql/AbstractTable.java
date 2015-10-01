@@ -24,7 +24,7 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.transaction.predicate.FieldOperator;
+import org.minimalj.transaction.criteria.FieldOperator;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;

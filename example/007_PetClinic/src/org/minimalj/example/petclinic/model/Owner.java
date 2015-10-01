@@ -8,7 +8,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.criteria.By;
 import org.minimalj.util.mock.MockName;
 import org.minimalj.util.mock.Mocking;
 

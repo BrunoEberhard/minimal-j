@@ -174,7 +174,7 @@ for should match.
 ----
 	@Override
 	protected List<AccountPosition> load() {
-		return Backend.persistence().read(AccountPosition.class, By.<AccountPosition>field(AccountPosition.$.account, account).and(By.filter(filter)), 1000);
+		return Backend.persistence().read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(By.filter(filter)), 1000);
 	}
 ----
 	

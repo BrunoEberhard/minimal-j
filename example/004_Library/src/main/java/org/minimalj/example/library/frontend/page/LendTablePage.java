@@ -9,7 +9,7 @@ import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.criteria.By;
 
 
 public class LendTablePage extends TablePage<Lend> {

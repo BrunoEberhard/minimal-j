@@ -9,7 +9,7 @@ import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
-import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.criteria.By;
 
 public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 

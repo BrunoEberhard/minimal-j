@@ -10,7 +10,7 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.transaction.predicate.SearchCriteria;
+import org.minimalj.transaction.criteria.SearchCriteria;
 import org.minimalj.util.CloneHelper;
 
 public class ReferenceFormElement<T> extends AbstractFormElement<T> {

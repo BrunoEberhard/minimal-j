@@ -1,4 +1,4 @@
-package org.minimalj.transaction.predicate;
+package org.minimalj.transaction.criteria;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

@@ -2,7 +2,7 @@ package org.minimalj.backend;
 
 import java.util.List;
 
-import org.minimalj.transaction.predicate.Criteria;
+import org.minimalj.transaction.criteria.Criteria;
 
 /**
  * The common interface of all types of persistences. Note that specific implementations

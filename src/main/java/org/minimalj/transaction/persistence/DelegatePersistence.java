@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.backend.Persistence;
-import org.minimalj.transaction.predicate.Criteria;
+import org.minimalj.transaction.criteria.Criteria;
 
 public class DelegatePersistence implements Persistence {
 

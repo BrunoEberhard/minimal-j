@@ -8,7 +8,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
-import org.minimalj.transaction.predicate.By;
+import org.minimalj.transaction.criteria.By;
 
 public class Codes {
 
