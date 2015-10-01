@@ -2,7 +2,7 @@ package org.minimalj.transaction.predicate;
 
 import java.io.Serializable;
 
-public class SearchCriteria<T> extends Criteria<T> implements Serializable {
+public class SearchCriteria extends Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final String query;
@@ -40,7 +40,7 @@ public class SearchCriteria<T> extends Criteria<T> implements Serializable {
 		return notEqual;
 	}
 	
-	public Criteria<T> negate() {
-		return new SearchCriteria<>(query, keys, !notEqual);
+	public Criteria negate() {
+		return new SearchCriteria(query, keys, !notEqual);
 	}
 }

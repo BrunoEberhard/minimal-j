@@ -292,7 +292,7 @@ public class SqlPersistence implements Persistence {
 	}
 
 	@Override
-	public <T> List<T> read(Class<T> resultClass, Criteria<T> criteria, int maxResults) {
+	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
 		if (View.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
 			Table<?> table = getTable(viewedClass);

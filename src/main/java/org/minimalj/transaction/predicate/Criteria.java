@@ -4,34 +4,34 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Criteria<T> {
+public class Criteria {
 
 	// TODO: check for recursion?
-	public Criteria<T> and(Criteria<T> other) {
+	public Criteria and(Criteria other) {
 		if (other != null) {
 			if (other instanceof AndCriteria) {
-				((AndCriteria<T>) other).getCriterias().add(0, this);
+				((AndCriteria) other).getCriterias().add(0, this);
 				return other;
 			} else {
-				return new AndCriteria<T>(this, other);
+				return new AndCriteria(this, other);
 			}
 		} else {
 			return this;
 		}
 	}
 
-	public Criteria<T> and(Filter<T> filter) {
-		Criteria<T> other = filter.getCriteria();
+	public Criteria and(Filter filter) {
+		Criteria other = filter.getCriteria();
 		return and(other);
 	}
 	
-	public Criteria<T> or(Criteria<T> other) {
+	public Criteria or(Criteria other) {
 		if (other != null) {
 			if (other instanceof OrCriteria) {
-				((OrCriteria<T>) other).getCriterias().add(0, this);
+				((OrCriteria) other).getCriterias().add(0, this);
 				return other;
 			} else {
-				return new OrCriteria<T>(this, other);
+				return new OrCriteria(this, other);
 			}
 		} else {
 			return this;
@@ -42,35 +42,35 @@ public class Criteria<T> {
 		return 0;
 	}
 	
-	public static abstract class CombinedCriteria<T> extends Criteria<T> implements Serializable {
+	public static abstract class CombinedCriteria extends Criteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		private final List<Criteria<T>> criterias;
+		private final List<Criteria> criterias;
 
-		public CombinedCriteria(Criteria<T> criteria1, Criteria<T> criteria2) {
+		public CombinedCriteria(Criteria criteria1, Criteria criteria2) {
 			// don't use Arrays.asList as Array might change later
 			criterias = new ArrayList<>();
 			criterias.add(criteria1);
 			criterias.add(criteria2);
 		}
 		
-		public CombinedCriteria(List<Criteria<T>> criterias) {
+		public CombinedCriteria(List<Criteria> criterias) {
 			this.criterias = criterias;
 		}
 
-		public List<Criteria<T>> getCriterias() {
+		public List<Criteria> getCriterias() {
 			return criterias;
 		}
 	}
 	
-	public static class OrCriteria<T> extends CombinedCriteria<T> implements Serializable {
+	public static class OrCriteria extends CombinedCriteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		public OrCriteria(Criteria<T> criteria1, Criteria<T> criteria2) {
+		public OrCriteria(Criteria criteria1, Criteria criteria2) {
 			super(criteria1, criteria2);
 		}
 
-		public OrCriteria(List<Criteria<T>> criterias) {
+		public OrCriteria(List<Criteria> criterias) {
 			super(criterias);
 		}
 
@@ -80,7 +80,7 @@ public class Criteria<T> {
 		}
 		
 		@Override
-		public Criteria<T> or(Criteria<T> other) {
+		public Criteria or(Criteria other) {
 			if (other != null && !getCriterias().contains(other)) {
 				getCriterias().add(other);
 			}
@@ -88,19 +88,19 @@ public class Criteria<T> {
 		}
 	}	
 	
-	public static class AndCriteria<T> extends CombinedCriteria<T> implements Serializable {
+	public static class AndCriteria extends CombinedCriteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		public AndCriteria(Criteria<T> criteria1, Criteria<T> criteria2) {
+		public AndCriteria(Criteria criteria1, Criteria criteria2) {
 			super(criteria1, criteria2);
 		}
 
-		public AndCriteria(List<Criteria<T>> criterias) {
+		public AndCriteria(List<Criteria> criterias) {
 			super(criterias);
 		}
 
 		@Override
-		public Criteria<T> and(Criteria<T> other) {
+		public Criteria and(Criteria other) {
 			if (other != null && !getCriterias().contains(other)) {
 				getCriterias().add(other);
 			}
@@ -113,7 +113,7 @@ public class Criteria<T> {
 		}
 	}
 	
-	public static interface Filter<T> {
-		public Criteria<T> getCriteria();
+	public static interface Filter {
+		public Criteria getCriteria();
 	}
 }

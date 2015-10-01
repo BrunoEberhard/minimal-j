@@ -199,7 +199,7 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 
-	public List<Object> whereClause(Criteria<?> criteria) {
+	public List<Object> whereClause(Criteria criteria) {
 		List<Object> result;
 		if (criteria instanceof AndCriteria) {
 			AndCriteria andCriteria = (AndCriteria) criteria;
@@ -250,7 +250,7 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 	
-	private List<Object> combine(List<Criteria<?>> criterias, String operator) {
+	private List<Object> combine(List<Criteria> criterias, String operator) {
 		if (criterias.isEmpty()) {
 			return null;
 		} else if (criterias.size() == 1) {
@@ -271,7 +271,7 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	public List<T> read(Criteria<?> criteria, int maxResults) {
+	public List<T> read(Criteria criteria, int maxResults) {
 		List<Object> whereClause = whereClause(criteria);
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + whereClause.get(0);
 		try {
@@ -285,7 +285,7 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public <S> List<S> readView(Class<S> resultClass, Criteria<?> criteria, int maxResults) {
+	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
 		List<Object> whereClause = whereClause(criteria);
 		String query = select(resultClass) + " WHERE " + whereClause.get(0);
 		try {

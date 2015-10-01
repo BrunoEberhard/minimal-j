@@ -13,7 +13,7 @@ public interface Persistence {
 
 	public <T> T read(Class<T> clazz, Object id);
 
-	public <T> List<T> read(Class<T> clazz, Criteria<T> criteria, int maxResults);
+	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
 
 	public <T> Object insert(T object);
 

@@ -10,10 +10,10 @@ public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
 	private static final long serialVersionUID = 1L;
 
 	private final Class<T> clazz;
-	private final Criteria<T> criteria;
+	private final Criteria criteria;
 	private final int maxResults;
 	
-	public ReadCriteriaTransaction(Class<T> clazz, Criteria<T> criteria, int maxResults) {
+	public ReadCriteriaTransaction(Class<T> clazz, Criteria criteria, int maxResults) {
 		this.clazz = clazz;
 		this.criteria = criteria;
 		this.maxResults = maxResults;

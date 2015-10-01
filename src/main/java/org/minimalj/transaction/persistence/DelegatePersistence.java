@@ -20,7 +20,7 @@ public class DelegatePersistence implements Persistence {
 	}
 
 	@Override
-	public <T> List<T> read(Class<T> clazz, Criteria<T> criteria, int maxResults) {
+	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
 		List<T> result = backend.execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
 		return result;
 	}

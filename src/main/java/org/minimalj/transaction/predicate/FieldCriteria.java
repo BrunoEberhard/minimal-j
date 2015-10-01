@@ -7,7 +7,7 @@ import java.time.temporal.Temporal;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
-public class FieldCriteria<T> extends Criteria<T> implements Serializable {
+public class FieldCriteria extends Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final FieldOperator operator;
@@ -60,7 +60,7 @@ public class FieldCriteria<T> extends Criteria<T> implements Serializable {
 		return value;
 	}
 
-	public Criteria<T> negate() {
-		return new FieldCriteria<>(key, operator.negate(), value);
+	public Criteria negate() {
+		return new FieldCriteria(key, operator.negate(), value);
 	}
 }

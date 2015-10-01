@@ -4,28 +4,29 @@ import org.minimalj.transaction.predicate.Criteria.Filter;
 
 public class By {
 
-	public static <T> SearchCriteria<T> search(String query) {
-		return new SearchCriteria<T>(query);
+	public static final Criteria ALL = new Criteria();
+	
+	public static SearchCriteria search(String query) {
+		return new SearchCriteria(query);
 	}
 	
-	public static <T> SearchCriteria<T> search(String query, Object[] keys) {
-		return new SearchCriteria<T>(query, keys);
+	public static SearchCriteria search(String query, Object[] keys) {
+		return new SearchCriteria(query, keys);
 	}
 
-	public static <T> FieldCriteria<T> field(Object key, Object value) {
-		return new FieldCriteria<>(key, value);
+	public static FieldCriteria field(Object key, Object value) {
+		return new FieldCriteria(key, value);
 	}
 
-	public static <T> FieldCriteria<T> field(Object key, FieldOperator operator, Object value) {
-		return new FieldCriteria<>(key, operator, value);
+	public static FieldCriteria field(Object key, FieldOperator operator, Object value) {
+		return new FieldCriteria(key, operator, value);
 	}
 
-	public static <T> Criteria<T> all() {
-		// the null criteria accepts by convention every object
-		return null;
+	public static Criteria all() {
+		return ALL;
 	}
 
-	public static <T> Criteria<T> filter(Filter<T> filter) {
+	public static Criteria filter(Filter filter) {
 		return filter.getCriteria();
 	}
 }
