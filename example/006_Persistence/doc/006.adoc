@@ -165,14 +165,10 @@ All 3 versions do exactly the same. The first should not be used. You can decide
 third version. There is really no reason to have two Persistence objects in your application. If you still feel uneasy
 to call static methods you can pass around the Persistence object. 
 
-==== Read by Predicate
-(TODO complete after decide if Predicates are renamed to Criteria (again))
-
-This is the best way to read objects depending on thier fields. The most frequent use of this is probably when you want
+==== Read by Criteria
+This is the best way to read objects depending on thier fields. The most common use of this is probably when you want
 to implement a filter for a table. The user may see one or more FormElement to enter values the object he is looking
 for should match.
-
-[..]
 
 [source,java]
 ----
