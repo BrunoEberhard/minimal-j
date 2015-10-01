@@ -203,10 +203,10 @@ public class Table<T> extends AbstractTable<T> {
 		List<Object> result;
 		if (criteria instanceof AndCriteria) {
 			AndCriteria andCriteria = (AndCriteria) criteria;
-			result = combine(andCriteria.getCriteria1(), andCriteria.getCriteria2(), "AND");
+			result = combine(andCriteria.getCriterias(), "AND");
 		} else if (criteria instanceof OrCriteria) {
 			OrCriteria orCriteria = (OrCriteria) criteria;
-			result = combine(orCriteria.getCriteria1(), orCriteria.getCriteria2(), "OR");
+			result = combine(orCriteria.getCriterias(), "OR");
 		} else if (criteria instanceof FieldCriteria) {
 			FieldCriteria fieldCriteria = (FieldCriteria) criteria;
 			result = new ArrayList<>();
@@ -233,7 +233,7 @@ public class Table<T> extends AbstractTable<T> {
 				} else {
 					first = false;
 				}
-				clause += column + (searchCriteria.isNotEqual() ? " not" : "") + " like ?";
+				clause += column + (searchCriteria.isNotEqual() ? " NOT" : "") + " LIKE ?";
 				result.add(search);
 			}
 			if (this instanceof HistorizedTable) {
@@ -242,7 +242,7 @@ public class Table<T> extends AbstractTable<T> {
 				clause += ")";
 			}
 			result.add(0, clause); // insert at beginning
-		} else if (criteria == null) {
+		} else if (criteria == null || criteria.getClass() == Criteria.class) {
 			result = Collections.singletonList("1=1");
 		} else {
 			throw new IllegalArgumentException("Unknown criteria: " + criteria);
@@ -250,15 +250,25 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 	
-	private List<Object> combine(Criteria<?> criteria1, Criteria<?> criteria2, String operator) {
-		List<Object> result = whereClause(criteria1);
-		List<Object> result2 = whereClause(criteria2);
-		String clause = "(" + result.get(0) + " " + operator + " " + result2.get(0) + ")";
-		result.set(0, clause); // replace
-		if (result2.size() > 1) {
-			result.addAll(result2.subList(1, result2.size()));
+	private List<Object> combine(List<Criteria<?>> criterias, String operator) {
+		if (criterias.isEmpty()) {
+			return null;
+		} else if (criterias.size() == 1) {
+			return whereClause(criterias.get(0));
+		} else {
+			List<Object> whereClause = whereClause(criterias.get(0));
+			String clause = "(" + whereClause.get(0);
+			for (int i = 1; i<criterias.size(); i++) {
+				List<Object> whereClause2 = whereClause(criterias.get(i));
+				clause += " " + operator + " " + whereClause2.get(0);
+				if (whereClause2.size() > 1) {
+					whereClause.addAll(whereClause2.subList(1, whereClause2.size()));
+				}
+			}
+			clause += ")";
+			whereClause.set(0, clause); // replace
+			return whereClause;
 		}
-		return result;
 	}
 	
 	public List<T> read(Criteria<?> criteria, int maxResults) {

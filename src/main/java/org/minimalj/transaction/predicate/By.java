@@ -1,5 +1,7 @@
 package org.minimalj.transaction.predicate;
 
+import org.minimalj.transaction.predicate.Criteria.Filter;
+
 public class By {
 
 	public static <T> SearchCriteria<T> search(String query) {
@@ -23,11 +25,7 @@ public class By {
 		return null;
 	}
 
-	public static interface PersistenceFilter<T> {
-		public Criteria<T> criteria();
-	}
-	
-	public static <T> Criteria<T> filter(PersistenceFilter<T> filter) {
-		return filter.criteria();
+	public static <T> Criteria<T> filter(Filter<T> filter) {
+		return filter.getCriteria();
 	}
 }
