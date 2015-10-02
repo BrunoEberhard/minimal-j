@@ -1,0 +1,21 @@
+=== Why not JavaScript?
+
+To use JavaScript for business entities would have one main advantage: the validation could be done on the client side (in the web browser).
+This would made the transmission of every key stroke to the server obsolete. This gain may seem huge but it is really
+not. With WebSockets the cost for a transmission is much lower than a normal (http) ajax call to the server. If the
+server gets a problem by too many WebSocket message incomings it could be easly scaled as there could be as many (frontend)
+servers as needed.
+
+On the other side there are many points against JavaScript as base for the business entities. First static type checking
+would be lost. JavaScript provides only Strings and Doubles as types. Practically all fiels would need to be a String.
+(The funny thing is I tried this idea when I started with Minimal-J. Not in JavaScript but in Java. When I presented this
+idea to my colleagues they rejected this idea completly. With the raise of JavaScript everybody gets along with
+such a concept) Now for some parts it would be nice if everything would be a String. The whole $ magic would not be
+necessary. Invalid dates could easily be stored. But then for every validation there must be done a _lot_ of
+convertion between String and Date or other classes.
+
+And it also would not be enough to have the business entites in JavaScript. The Form / FormElement layer would also
+need to be in JavaScript. This layer cannot be omitted. I tried but as long as the UI should be exchangable it is
+needed to extend die Frontends component class. This form layer contains a lot of business logic and should really be able to
+rely on a static type checking.
+

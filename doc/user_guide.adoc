@@ -1,0 +1,22 @@
+== User guide
+
+This guide should show you how to use a Minimal-J application. It's also a good start point to see what can be done with Minimal-J (and what cannot be done).
+
+=== At start
+
+image::frontends.png[title="Frontend and backend"]
+
+=== Main navigation
+
+=== Login
+
+=== Search
+
+=== Pages and Details
+
+=== Actions
+
+=== Dialogs 
+
+=== Form elements
+
