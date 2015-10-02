@@ -450,10 +450,12 @@
 				}
 				element.id = content.id;
 				var elementWithActions = document.createElement("div");
+				elementWithActions.className = "list";
 				elementWithActions.appendChild(element);
 				elementWithActions.appendChild(actionElement);
 				return elementWithActions;
 			}
+			element.className = "list";
 		} else if (type == "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);

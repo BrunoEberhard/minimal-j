@@ -189,11 +189,8 @@ dialog.phone {
 
 .dialogContent {
 	padding-left: 1ex;
-}
-
-#dialogContent.large {
-	padding-right: 2em;
-	overflow: scroll;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .dialogFooter {
@@ -256,8 +253,10 @@ table.form tr {
 	height: 3em;
 }
 
-table.form input[type="text"], table.form input[type="password"], table.form select, table.form textarea {
-	width: 100%;
+table.form input[type="text"], table.form input[type="password"], table.form select, table.form textarea, table.form label, div.list {
+	width: calc(100% - 0.4rem);
+	margin-left: 0.2rem;
+	margin-right: 0.2rem;
 }
 
 table.form td, table.form th {
