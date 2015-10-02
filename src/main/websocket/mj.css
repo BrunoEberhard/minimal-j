@@ -253,7 +253,7 @@ table.form tr {
 	height: 3em;
 }
 
-table.form input[type="text"], table.form input[type="password"], table.form select, table.form textarea, table.form label, div.list {
+table.form input[type="text"], table.form input[type="password"], table.form select, table.form textarea, dialog table.form label, dialog div.list {
 	width: calc(100% - 0.4rem);
 	margin-left: 0.2rem;
 	margin-right: 0.2rem;
