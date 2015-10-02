@@ -92,7 +92,7 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 		@Override
 		public void run() {
 			invokeSet = false;
-			textOnFocusLost = getText();
+			textOnFocusLost = null;
 			changeListener.changed(SwingTextField.this);
 		}
 	}
@@ -150,12 +150,14 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 
 	@Override
 	public void focusGained(FocusEvent e) {
-		textOnFocusLost = getText();
+		//	textOnFocusLost = getText();
 	}
 
 	@Override
 	public void focusLost(FocusEvent e) {
-		super.setText(textOnFocusLost);
+		if (textOnFocusLost != null) {
+			super.setText(textOnFocusLost);
+		}
 	}
 	
 	@Override
