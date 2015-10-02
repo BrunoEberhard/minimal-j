@@ -108,7 +108,7 @@ Minimal-J distinguishes three types of read cases:
 
 1. Read an object by its class and its Id
 
-2. Read one or many objects by more or less complex condition based on its fields
+2. Read one or many objects by more or less complex criteria based on its fields
 
 3. Read objects by a database specific query
 
@@ -123,7 +123,7 @@ import [..]
 
 public interface Persistence {
 	public <T> T read(Class<T> clazz, Object id);
-	public <T> List<T> read(Class<T> clazz, Predicate<T> predicate, int maxResults);
+	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
 	public <T> Object insert(T object);
 	public <T> T update(T object);
 	public <T> void delete(Class<T> clazz, Object id);
@@ -168,18 +168,70 @@ to call static methods you can pass around the Persistence object.
 ==== Read by Criteria
 This is the best way to read objects depending on thier fields. The most common use of this is probably when you want
 to implement a filter for a table. The user may see one or more FormElement to enter values the object he is looking
-for should match.
+for should match. This is a code snippet from AccountPositionTablePage:
 
 [source,java]
 ----
 	@Override
 	protected List<AccountPosition> load() {
-		return Backend.persistence().read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(By.filter(filter)), 1000);
+		return Backend.persistence().read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter), 1000);
+	}
+----
+
+The second read method in the Persistence interface takes as second argument a Criteria object. The first one is as for the
+other method the class of the read objects. Maybe with some (dirty) magic tricks the class could be retrieved from the criteria
+but this wouldn't save much typing and would make the construction of the Criterias much more complex.
+
+At the moment there are two basic criterias. One is FieldCriteria the other SearchCriteria. With FieldCriteria you can limit
+the result to objects containing a specific value in one of its field. FieldCriteria has two constructors. The reduced one guesses
+you want to be the field to be the exact value. With the extended version you can specify a FieldOperator:
+
+[source,java]
+----
+	public FieldCriteria(Object key, Object value) {
+		this(key, FieldOperator.equal, value);
+	}
+
+	public FieldCriteria(Object key, FieldOperator operator, Object value) {
+		[..]
+	}
+----
+Normally you will use the factory methods in the By class as you have seen it in the first example about AccountPositions.
+This makes the your code shorter and nicer to read.
+[source,java]
+----
+	public static FieldCriteria field(Object key, Object value) {
+		return new FieldCriteria(key, value);
+	}
+
+	public static FieldCriteria field(Object key, FieldOperator operator, Object value) {
+		return new FieldCriteria(key, operator, value);
+	}
+----
+
+Now the SearchCriteria lets you perform a more fuzzy search. It looks in all fields that have a @Search annotation. If one of the values
+is /like/ the specified value than the object is given back as result.
+
+These two basic Criterias can be combined with or and and operators. Just look again at the first example about AccountPositions. There
+is another trick. The interface Filter. It's basically a Criteria provider.
+
+At last there is a nice helper method in the By class called range. It can save you a lot of typing:
+[source,java]
+----
+	public static Criteria range(Object key, Object minIncluding, Object maxIncluding) {
+		Criteria c = null;
+		if (minIncluding != null) {
+			c = new FieldCriteria(key, FieldOperator.greaterOrEqual, minIncluding);
+		}
+		if (maxIncluding != null) {
+			c = new FieldCriteria(key, FieldOperator.lessOrEqual, maxIncluding).and(c);
+		}
+		return c;
 	}
 ----
 	
 ==== Read by query
-As nice as the predicates are they have their limits. The query language of a relation database is far mighter than some
+As nice as the criterias are they have their limits. The query language of a relation database is far mighter than some
 simple 'and' and 'or'. Now maybe SQL queries could to translated in their glories to a java expressions. There are projects that do this
 (or at least try). I have great respect for them. If you are interested have a look at http://www.jooq.org/ or http://www.querydsl.com/ .
 The great appeal of this approach is that you would have static name checks and even some type safety! Why does Minimal-J not go
