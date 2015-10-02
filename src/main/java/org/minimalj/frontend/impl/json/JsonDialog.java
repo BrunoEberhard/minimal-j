@@ -19,12 +19,14 @@ public class JsonDialog extends JsonComponent implements IDialog {
 		List<Object> jsonActions = JsonFrontend.getClientSession().createActions(actions);
 		put("actions", jsonActions);
 		
-		// if saveAction is one of the 'normal' actions the json adapter has to be reused
-		// (there can be only one listener on the Minimal-J action, if there were two
-		// one would not get the notifications for enable / disable)
-		int saveActionIndex = Arrays.asList(actions).indexOf(saveAction);
-		Object jsonSaveAction = saveActionIndex > -1 ? jsonActions.get(saveActionIndex) : JsonFrontend.getClientSession().createAction(saveAction);
-		put("saveAction", jsonSaveAction);
+		if (saveAction != null) {
+			// if saveAction is one of the 'normal' actions the json adapter has to be reused
+			// (there can be only one listener on the Minimal-J action, if there were two
+			// one would not get the notifications for enable / disable)
+			int saveActionIndex = Arrays.asList(actions).indexOf(saveAction);
+			Object jsonSaveAction = saveActionIndex > -1 ? jsonActions.get(saveActionIndex) : JsonFrontend.getClientSession().createAction(saveAction);
+			put("saveAction", jsonSaveAction);
+		}
 		
 		JsonFrontend.getClientSession().openDialog(this);
 	}
