@@ -19,7 +19,7 @@
    */
   function findNearestDialog(el) {
     while (el) {
-      if (/dialog/i.test(el.nodeName)) {
+      if (el.nodeName.toUpperCase() == 'DIALOG') {
         return /** @type {HTMLDialogElement} */ (el);
       }
       el = el.parentElement;
@@ -42,7 +42,7 @@
   }
 
   /**
-   * @param {!Element} dialog to upgrade
+   * @param {!HTMLDialogElement} dialog to upgrade
    * @constructor
    */
   function dialogPolyfillInfo(dialog) {
@@ -54,11 +54,17 @@
     dialog.showModal = this.showModal.bind(this);
     dialog.close = this.close.bind(this);
 
+    if (!('returnValue' in dialog)) {
+      dialog.returnValue = '';
+    }
+
+    this.maybeHideModal = this.maybeHideModal.bind(this);
     if ('MutationObserver' in window) {
-      var mo = new MutationObserver(this.maybeHideModal.bind(this));
+      // IE11+, most other browsers.
+      var mo = new MutationObserver(this.maybeHideModal);
       mo.observe(dialog, { attributes: true, attributeFilter: ['open'] });
     } else {
-      // TODO: Support for IE9-10.
+      dialog.addEventListener('DOMAttrModified', this.maybeHideModal);
     }
     // Note that the DOM is observed inside DialogManager while any dialog
     // is being displayed as a modal, to catch modal removal from the DOM.
@@ -192,7 +198,7 @@
         }).join(', ');
         target = this.dialog_.querySelector(query);
       }
-      document.activeElement && document.activeElement.blur();
+      document.activeElement && document.activeElement.blur && document.activeElement.blur();
       target && target.focus();
     },
 
@@ -200,7 +206,7 @@
      * Closes this HTMLDialogElement. This is optional vs clearing the open
      * attribute, however this fires a 'close' event.
      *
-     * @param {*=} opt_returnValue to use as the returnValue
+     * @param {string=} opt_returnValue to use as the returnValue
      */
     close: function(opt_returnValue) {
       if (!this.dialog_.hasAttribute('open')) {
@@ -228,7 +234,7 @@
   dialogPolyfill.reposition = function(element) {
     var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
     var topValue = scrollTop + (window.innerHeight - element.offsetHeight) / 2;
-    element.style.top = Math.max(0, topValue) + 'px';
+    element.style.top = Math.max(scrollTop, topValue) + 'px';
   };
 
   dialogPolyfill.isInlinePositionSetByStylesheet = function(element) {
@@ -276,14 +282,28 @@
   };
 
   /**
+   * @param {!Element} element to force upgrade
+   */
+  dialogPolyfill.forceRegisterDialog = function(element) {
+    if (element.showModal) {
+      console.warn('This browser already supports <dialog>, the polyfill ' +
+          'may not work correctly', element);
+    }
+    if (element.nodeName.toUpperCase() != 'DIALOG') {
+      throw 'Failed to register dialog: The element is not a dialog.';
+    }
+    new dialogPolyfillInfo(/** @type {!HTMLDialogElement} */ (element));
+  };
+
+  /**
    * @param {!Element} element to upgrade
    */
   dialogPolyfill.registerDialog = function(element) {
-    if (element.show) {
-      console.warn("This browser already supports <dialog>, the polyfill " +
-          "may not work correctly.");
+    if (element.showModal) {
+      console.warn('Can\'t upgrade <dialog>: already supported', element);
+    } else {
+      dialogPolyfill.forceRegisterDialog(element);
     }
-    new dialogPolyfillInfo(element);
   };
 
   /**
@@ -384,7 +404,7 @@
   };
 
   dialogPolyfill.DialogManager.prototype.handleRemove_ = function(event) {
-    if (!/dialog/i.test(event.target.nodeName)) { return; }
+    if (event.target.nodeName.toUpperCase() != 'DIALOG') { return; }
 
     var dialog = /** @type {HTMLDialogElement} */ (event.target);
     if (!dialog.open) { return; }
@@ -438,19 +458,21 @@
    * and possibly sets its return value.
    */
   document.addEventListener('submit', function(ev) {
-    var method = ev.target.getAttribute('method').toLowerCase();
-    if (method != 'dialog') { return; }
+    var target = ev.target;
+    if (!target || !target.hasAttribute('method')) { return; }
+    if (target.getAttribute('method').toLowerCase() != 'dialog') { return; }
     ev.preventDefault();
 
     var dialog = findNearestDialog(/** @type {Element} */ (ev.target));
     if (!dialog) { return; }
 
-    // FIXME: The original event doesn't contain the INPUT element used to
-    // submit the form (if any). Look in some possible places.
+    // FIXME: The original event doesn't contain the element used to submit the
+    // form (if any). Look in some possible places.
     var returnValue;
     var cands = [document.activeElement, ev.explicitOriginalTarget];
+    var els = ['BUTTON', 'INPUT'];
     cands.some(function(cand) {
-      if (cand && cand.nodeName == 'INPUT' && cand.form == ev.target) {
+      if (cand && cand.form == ev.target && els.indexOf(cand.nodeName.toUpperCase()) != -1) {
         returnValue = cand.value;
         return true;
       }
@@ -459,5 +481,6 @@
   }, true);
 
   window['dialogPolyfill'] = dialogPolyfill;
+  dialogPolyfill['forceRegisterDialog'] = dialogPolyfill.forceRegisterDialog;
   dialogPolyfill['registerDialog'] = dialogPolyfill.registerDialog;
 })();
