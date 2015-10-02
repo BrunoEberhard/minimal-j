@@ -13,7 +13,7 @@ import org.minimalj.util.resources.Resources;
  * 
  * A page can have a title and a content. Pages are meant to be ContentProvider. Pages are
  * allocated a lot. They should be lightweight! The heavy stuff should be done when calling
- * getContent().
+ * getContent(). 
  *
  */
 public abstract class Page {
