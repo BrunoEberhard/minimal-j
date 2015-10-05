@@ -1,0 +1,88 @@
+== Authorization
+The authorization decides if a user is allowed to do something. Do something means in Minimal-J execute a
+Transaction. Transactions are the communication between the frontend and the backend. This means the
+authorization happens when the frontend sends the backend a Transaction to execute. Or in Java: 
+
+[source,java,title="Backend.java"]
+----
+	[..]
+	
+	public final <T> T execute(Transaction<T> transaction) {
+		if (Subject.hasPermission(transaction)) {
+			return doExecute(transaction);
+		} else {
+			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
+		}
+	} 
+----
+
+This seems readable not only for the compiler. The Subject class knows who is logged in (in respect of
+the current Thread). It also provides the method to check if a Transaction is allowed.
+
+NOTE: There are two quite similar classes called Subject and User. Subject has more to do with who is
+currently logged in and what roles are available. The User class is the model class for the database of
+all users and their roles. Minimal-J doesn't depend on the link:http://shiro.apache.org/[Shiro] project but
+tries to use more or less the same terminology.
+
+=== Restrict Transactions
+A Transcation can restrict execution to one or more roles by the Role Annotation:
+[source,java]
+----
+@Role("Developer")
+public class GenerateDemoDataTransaction implements Transaction<Serializable> {
+	[..]
+}
+----
+The Role annotation allows to list more than one role. Execution of the Transaction is granted as long
+as the current Subject has *at least one* of the given roles.
+
+=== Restrict entity classes
+Not every read or insert needs a specialized Transaction. If you call read or insert on the Persistence
+interface a generic Transaction is instantiated:
+[source,java,title="DelegatePersistence.java"]
+----
+	[..]
+	
+	@Override
+	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
+		List<T> result = backend.execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		return result;
+	}
+----
+
+To restrict access on entities their classes can be annotated (TODO better example):
+[source,java]
+----
+@Role("RoleB")
+public class B {
+
+	public B() {
+	}
+}
+----
+If the role name is specified then this role is need for all types of Transactions. For read, insert, update
+and delete. But sometimes you may want to restrict only the write acess for some user. You can do this by annotate
+different roles for the different types of Transactions (TODO better example):
+[source,java]
+----
+@Role(value = "ReadRole")
+@Role(transaction = TransactionType.UPDATE, value = {"UpdateRole"})
+public class C {
+
+	public C() {
+	}
+
+}
+----
+
+=== Package wide roles
+TODO. For the moment please look a the test class SubjectTest
+
+== Authorization configuration
+As for things this configuration is done via application properties. If the property MjUserFile is defined a
+TextFileAuthorizaion is installed.
+
+If no MjUserFile property is specified Minimal-J is look for the property MjAuthorization. It should provide a
+class name of an Authorization implementation. A good candidate may be JaasAuthorization.
+
+TODO further explanation and examples. For the moment please look at the Authorization class for more implementation details.

@@ -12,7 +12,7 @@ Minimal applications always look the same. There are no surprises for the user.
 
 === Features
 
-* Independed to the used UI technology. Implementations for Html / Swing / Terminal.
+* Independed to the used UI technology. Implementations for Html / Mobile / Swing / Terminal.
 * ORM persistence layer for Maria DB or in memory DB. Transactions and Authorization supported.
 * Small: The minimalj.jar is still < 1MB
 * Applications run standalone or in a servlet container.
@@ -40,6 +40,7 @@ link:http://minimalj-examples.cfapps.io/numbers.html[(online demo)]
 * link:example/006_Persistence/doc/006.adoc[Persistence] Introduction to the O/R mapping
 * link:example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:http://minimalj-examples.cfapps.io/petClinic.html[(online demo)]
 * link:doc/arch.adoc[Architecture] Explains the difference between client/server and frontend/backend
+* link:doc/authorization.adoc[Authorization] Security concepts and configuration
 
 === Real application
 * https://github.com/BrunoEberhard/open-ech[Open-eCH]
