@@ -21,6 +21,16 @@ public class ReadTransaction<T> implements Transaction<T> {
 		this.id = id;
 		this.time = time;
 	}
+	
+	@Override
+	public TransactionType getType() {
+		return TransactionType.READ;
+	}
+	
+	@Override
+	public Class<?> getClazz() {
+		return clazz;
+	}
 
 	@Override
 	public T execute(Persistence persistence) {

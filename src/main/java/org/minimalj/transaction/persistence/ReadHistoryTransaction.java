@@ -32,6 +32,16 @@ public class ReadHistoryTransaction<T> implements Transaction<List<T>> {
 	}
 
 	@Override
+	public TransactionType getType() {
+		return TransactionType.READ;
+	}
+	
+	@Override
+	public Class<?> getClazz() {
+		return clazz;
+	}
+
+	@Override
 	public List<T> execute(Persistence persistence) {
 		if (persistence instanceof SqlPersistence) {
 			SqlPersistence sqlPersistence = (SqlPersistence) persistence;

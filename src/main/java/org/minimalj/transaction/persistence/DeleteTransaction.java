@@ -18,7 +18,17 @@ public class DeleteTransaction implements Transaction<Void> {
 		this.clazz = clazz;
 		this.id = id;
 	}
+	
+	@Override
+	public TransactionType getType() {
+		return TransactionType.DELETE;
+	}
 
+	@Override
+	public Class<?> getClazz() {
+		return clazz;
+	}
+	
 	@Override
 	public Void execute(Persistence persistence) {
 		persistence.delete(clazz, id);

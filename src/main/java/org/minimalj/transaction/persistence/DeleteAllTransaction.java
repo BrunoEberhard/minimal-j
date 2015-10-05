@@ -15,6 +15,16 @@ public class DeleteAllTransaction implements Transaction<Void> {
 	}
 
 	@Override
+	public TransactionType getType() {
+		return TransactionType.DELETE_ALL;
+	}
+	
+	@Override
+	public Class<?> getClazz() {
+		return clazz;
+	}
+
+	@Override
 	public Void execute(Persistence persistence) {
 		if (persistence instanceof SqlPersistence) {
 			SqlPersistence sqlPersistence = (SqlPersistence) persistence;

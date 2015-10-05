@@ -20,9 +20,18 @@ public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
 	}
 
 	@Override
+	public TransactionType getType() {
+		return TransactionType.READ;
+	}
+	
+	@Override
+	public Class<?> getClazz() {
+		return clazz;
+	}
+	
+	@Override
 	public List<T> execute(Persistence persistence) {
 		List<T>	result = persistence.read(clazz, criteria, maxResults);
 		return result;
 	}
-
 }

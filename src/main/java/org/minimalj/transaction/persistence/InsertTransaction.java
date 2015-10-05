@@ -13,7 +13,17 @@ public class InsertTransaction<T> implements Transaction<Object> {
 	public InsertTransaction(Object object) {
 		this.object = (T) SerializationContainer.wrap(object);
 	}
+	
+	@Override
+	public TransactionType getType() {
+		return TransactionType.INSERT;
+	}
 
+	@Override
+	public Class<?> getClazz() {
+		return SerializationContainer.unwrap(object).getClass();
+	}
+	
 	@Override
 	public Object execute(Persistence persistence) {
 		return persistence.insert(SerializationContainer.unwrap(object));
