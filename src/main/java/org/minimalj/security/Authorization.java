@@ -104,4 +104,9 @@ public abstract class Authorization {
 		return userByToken.get(securityToken.get());
 	}
 	
+	public static class LoginFailedException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+		
+	}
+	
 }
