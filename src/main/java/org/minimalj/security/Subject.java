@@ -49,6 +49,15 @@ public class Subject implements Serializable {
 	
 	public static boolean hasPermission(Transaction<?> transaction) {
 		Role role = getRole(transaction);
+		return hasPermission(role);
+	}
+
+	public static boolean hasPermission(Class<?> clazz, TransactionType transactionType) {
+		Role role = findRoleByType(clazz, transactionType);
+		return hasPermission(role);
+	}
+
+	private static boolean hasPermission(Role role) {
 		if (role != null) {
 			Subject subject = getSubject();
 			if (subject != null) {
@@ -58,7 +67,7 @@ public class Subject implements Serializable {
 		}
 		return true;
 	}
-
+	
 	public static Role getRole(Transaction<?> transaction) {
 		TransactionType transactionType = transaction.getType();
 		boolean isPersistenceTransaction = transactionType != null;
