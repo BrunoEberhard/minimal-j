@@ -29,7 +29,7 @@ public abstract class Authorization {
 		
 		String userFile = System.getProperty("MjUserFile");
 		if (userFile != null) {
-			return new PropertiesAuthorization(userFile);
+			return new TextFileAuthorization(userFile);
 		}
 		
 		String authorizationClassName = System.getProperty("MjAuthorization");
@@ -107,6 +107,9 @@ public abstract class Authorization {
 	public static class LoginFailedException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 		
+		public LoginFailedException() {
+			super("Login failed");
+		}
 	}
 	
 }

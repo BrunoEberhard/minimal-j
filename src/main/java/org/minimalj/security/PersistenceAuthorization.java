@@ -6,6 +6,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,9 +32,13 @@ public class PersistenceAuthorization extends Authorization {
 		this.authorizationPersistence = new SqlPersistence(dataSource, User.class);
 	}
 
+	protected PersistenceAuthorization() {
+		this.authorizationPersistence = null;
+	}
+	
 	@Override
 	protected List<String> retrieveRoles(UserPassword userPassword) {
-		List<User> userList = authorizationPersistence.read(User.class, By.field(User.$.name, userPassword.user), 1);
+		List<User> userList = retrieveUsers(userPassword.user);
 		if (userList.isEmpty()) {
 			return null;
 		}
@@ -43,6 +48,10 @@ public class PersistenceAuthorization extends Authorization {
 		}
 		List<String> roleNames = user.roles.stream().map((role) -> role.name).collect(Collectors.toList());
 		return roleNames;
+	}
+
+	protected List<User> retrieveUsers(String userName) {
+		return authorizationPersistence.read(User.class, By.field(User.$.name, userName), 1);
 	}
 
 	public static class User implements Serializable {
@@ -92,10 +101,29 @@ public class PersistenceAuthorization extends Authorization {
 				throw new RuntimeException("Password cannot be stored", e);
 			}
 		}
+		
+		public String format() {
+			StringBuilder s = new StringBuilder();
+			s.append(name).append(" = ");
+			s.append(Base64.getEncoder().encodeToString(hash)).append(", ");
+			s.append(Base64.getEncoder().encodeToString(salt));
+			for (UserRole role : roles) {
+				s.append(", ").append(role.name);
+			}
+			return s.toString();
+		}
 	}
 
 	public static class UserRole implements Serializable {
 		private static final long serialVersionUID = 1L;
+		
+		public UserRole() {
+			//
+		}
+		
+		public UserRole(String roleName) {
+			this.name = roleName;
+		}
 		
 		@Size(255)
 		public String name;
