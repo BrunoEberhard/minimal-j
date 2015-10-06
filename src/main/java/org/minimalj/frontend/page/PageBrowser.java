@@ -2,6 +2,7 @@ package org.minimalj.frontend.page;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Consumer;
 
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
@@ -55,21 +56,9 @@ public interface PageBrowser {
 	
 	public abstract void showError(String text);
 	
-	// Up / Dowload
+	// 
 	
-	/**
-	 * Store the output of a stream locally on a place to select
-	 * 
-	 * @param buttonText the text displayed probably in a file browser
-	 * @return the stream provided through which the local resource can be filled
-	 */
-	public abstract OutputStream store(String buttonText);
+	public abstract void showOutputDialog(String title, Consumer<OutputStream> outputStreamer);
 
-	/**
-	 * Select a stream from a locally source
-	 * 
-	 * @param buttonText the text displayed probably in a file browser
-	 * @return the stream provided by the selected local source
-	 */
-	public abstract InputStream load(String buttonText);
+	public abstract void showInputDialog(String title, Consumer<InputStream> inputStreamer);
 }

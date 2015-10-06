@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.lanterna;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Consumer;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend.IContent;
@@ -100,15 +101,13 @@ public class LanternaGUIScreen extends GUIScreen implements PageBrowser {
 	}
 
 	@Override
-	public OutputStream store(String buttonText) {
+	public void showInputDialog(String title, Consumer<InputStream> inputStreamer) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
-	public InputStream load(String buttonText) {
+	public void showOutputDialog(String title, Consumer<OutputStream> outputStreamer) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 	
 	/* as showWindow is blocking the call has to be deferred on actionComplete */

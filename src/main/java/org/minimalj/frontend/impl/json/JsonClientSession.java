@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
@@ -229,16 +230,14 @@ public class JsonClientSession implements PageBrowser {
 	}
 	
 	@Override
-	public OutputStream store(String buttonText) {
+	public void showInputDialog(String title, Consumer<InputStream> inputStreamer) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
-	public InputStream load(String buttonText) {
+	public void showOutputDialog(String title, Consumer<OutputStream> outputStreamer) {
 		// TODO Auto-generated method stub
-		return null;
-	}	
+	}
 	
 	private List<Object> createNavigation() {
 		List<Action> menuActions = Application.getApplication().getMenu();

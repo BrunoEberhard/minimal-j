@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -473,37 +474,34 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	}
 	
 	@Override
-	public OutputStream store(String buttonText) {
+	public void showOutputDialog(String title, Consumer<OutputStream> outputStreamer) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, buttonText)) {
+		chooser.setDialogTitle(title);
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, null)) {
 			File outputFile = chooser.getSelectedFile();
 			try {
-				return new FileOutputStream(outputFile);
+				outputStreamer.accept(new FileOutputStream(outputFile));
 			} catch (FileNotFoundException e) {
 				throw new RuntimeException(e);
 			}
-		} else {
-			return null;
 		}
 	}
 
 	@Override
-	public InputStream load(String buttonText) {
+	public void showInputDialog(String title, Consumer<InputStream> inputStreamer) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, buttonText)) {
+		chooser.setDialogTitle(title);
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, null)) {
 			File inputFile = chooser.getSelectedFile();
 			try {
-				return new FileInputStream(inputFile);
+				inputStreamer.accept(new FileInputStream(inputFile));
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				return null;
+				throw new RuntimeException(e);
 			}
-		} else {
-			return null;
 		}
 	}
 	
