@@ -76,7 +76,25 @@ public class C {
 ----
 
 === Package wide roles
-TODO. For the moment please look a the test class SubjectTest
+The needed roles for a Transaction or a business entity can also be specified on a package level. You can
+specifiy these roles in the package-info.java file. If you don't know about this file you may have a look at
+the link:https://docs.oracle.com/javase/specs/jls/se8/html/jls-7.html[Oracle documentation]. The package-info.java
+makes it possible to annotate the package.
+
+The package Annotation only is used if there is no annotation on a class itself. In this way you can specify
+the permission for most of your entities on a package level and only annotate the exception in the classes. This
+is also a good idea so that you don't forget the permission of new classes.
+[source,java,title="package-info.java"]
+----
+@Role("pkgRole")
+@Role(transaction = TransactionType.READ, value = {"ReadPkgRole"})
+@Role(transaction = TransactionType.UPDATE, value = {"UpdatePkgRole"})
+package org.minimalj.security.permissiontest.pkgrole;
+
+import org.minimalj.transaction.Role;
+import org.minimalj.transaction.Transaction.TransactionType;
+----
+Note that packages don't inherit there roles from their parent. This would lead to a error-prone complexity.
 
 == Authorization configuration
 As for things this configuration is done via application properties. If the property MjUserFile is defined a
