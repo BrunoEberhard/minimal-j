@@ -3,12 +3,12 @@ package org.minimalj.transaction;
 import java.io.InputStream;
 import java.io.Serializable;
 
-public abstract class StreamConsumer<T extends Serializable> implements Transaction<T> {
+public abstract class InputStreamTransaction<T extends Serializable> implements Transaction<T> {
 	private static final long serialVersionUID = 1L;
 	
 	private transient InputStream stream;
 	
-	public StreamConsumer(InputStream inputStream) {
+	public InputStreamTransaction(InputStream inputStream) {
 		this.stream = inputStream;
 	}
 

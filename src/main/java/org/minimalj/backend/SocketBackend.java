@@ -8,8 +8,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import org.minimalj.security.Subject;
-import org.minimalj.transaction.StreamConsumer;
-import org.minimalj.transaction.StreamProducer;
+import org.minimalj.transaction.InputStreamTransaction;
+import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.persistence.DelegatePersistence;
 import org.minimalj.util.SerializationContainer;
@@ -39,12 +39,12 @@ public class SocketBackend extends Backend {
 				oos.writeObject(subject != null ? subject.getToken() : null);
 				
 				oos.writeObject(transaction);
-				if (transaction instanceof StreamConsumer) {
-					sendStream(oos, ((StreamConsumer<?>) transaction).getStream());
+				if (transaction instanceof InputStreamTransaction) {
+					sendStream(oos, ((InputStreamTransaction<?>) transaction).getStream());
 				}
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-					if (transaction instanceof StreamProducer) {
-						receiveStream(ois, ((StreamProducer<?>) transaction).getStream());
+					if (transaction instanceof OutputStreamTransaction) {
+						receiveStream(ois, ((OutputStreamTransaction<?>) transaction).getStream());
 					}
 					return readResult(ois);
 				}

@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.security.Authorization;
-import org.minimalj.transaction.StreamConsumer;
-import org.minimalj.transaction.StreamProducer;
+import org.minimalj.transaction.InputStreamTransaction;
+import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
@@ -71,15 +71,15 @@ public class SocketBackendServer {
 				Object input = ois.readObject();
 				
 				Object result = null;
-				if (input instanceof StreamConsumer) {
-					StreamConsumer streamConsumer = (StreamConsumer) input;
-					streamConsumer.setStream(ois);
+				if (input instanceof InputStreamTransaction) {
+					InputStreamTransaction inputStreamTransaction = (InputStreamTransaction) input;
+					inputStreamTransaction.setStream(ois);
 				} 
 				
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-					if (input instanceof StreamProducer) {
-						StreamProducer streamProducer = (StreamProducer) input;
-						streamProducer.setStream(new UnclosingOutputStream(oos));
+					if (input instanceof OutputStreamTransaction) {
+						OutputStreamTransaction outputStreamTransaction = (OutputStreamTransaction) input;
+						outputStreamTransaction.setStream(new UnclosingOutputStream(oos));
 					}
 					if (input instanceof Transaction) {
 						Transaction transaction = (Transaction) input;
