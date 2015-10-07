@@ -25,6 +25,8 @@ feel free to change major points. There is no 1.0 version yet.
 
 == Documentation
 
+link:doc/user_guide.adoc[Minimal user guide] Good start point for user and programmer.
+
 link:doc/setup.adoc[Setup]
 
 === Topics and examples
