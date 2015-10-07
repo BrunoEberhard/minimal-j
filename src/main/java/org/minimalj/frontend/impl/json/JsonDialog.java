@@ -14,7 +14,7 @@ public class JsonDialog extends JsonComponent implements IDialog {
 	public JsonDialog(String title, IContent content, Action saveAction, Action[] actions) {
 		super("Dialog");
 		put("title", title);
-		put("content", (content));
+		put("content", content);
 		
 		List<Object> jsonActions = JsonFrontend.getClientSession().createActions(actions);
 		put("actions", jsonActions);
