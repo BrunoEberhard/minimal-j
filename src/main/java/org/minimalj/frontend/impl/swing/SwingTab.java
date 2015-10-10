@@ -10,23 +10,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -472,39 +464,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
 		return createDialog(null, panel, null, null);
 	}
-	
-	@Override
-	public void showOutputDialog(String title, Consumer<OutputStream> outputStreamer) {
-		JFileChooser chooser = new JFileChooser();
-		chooser.setMultiSelectionEnabled(false);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setDialogTitle(title);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, null)) {
-			File outputFile = chooser.getSelectedFile();
-			try {
-				outputStreamer.accept(new FileOutputStream(outputFile));
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
 
-	@Override
-	public void showInputDialog(String title, Consumer<InputStream> inputStreamer) {
-		JFileChooser chooser = new JFileChooser();
-		chooser.setMultiSelectionEnabled(false);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setDialogTitle(title);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(this, null)) {
-			File inputFile = chooser.getSelectedFile();
-			try {
-				inputStreamer.accept(new FileInputStream(inputFile));
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
-	
 	@Deprecated
 	public ProgressListener showProgress(String text) {
 		SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);

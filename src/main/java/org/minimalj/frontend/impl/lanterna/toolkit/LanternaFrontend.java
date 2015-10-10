@@ -7,6 +7,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.model.Rendering;
 
 import com.googlecode.lanterna.gui.component.Button;
 
@@ -84,9 +85,14 @@ public class LanternaFrontend extends Frontend {
 	
 	@Override
 	public IComponent createLabel(String text) {
-		return new LanternaLabel(text);
+		return new LanternaText(text);
 	}
 
+	@Override
+	public IComponent createText(Rendering rendering) {
+		return new LanternaText(rendering);
+	}
+	
 	@Override
 	public Input<String> createReadOnlyTextField() {
 		return new LanternaReadOnlyTextField();
@@ -126,7 +132,7 @@ public class LanternaFrontend extends Frontend {
 
 	@Override
 	public IComponent createTitle(String text) {
-		return new LanternaLabel(text);
+		return new LanternaText(text);
 	}
 
 	@Override

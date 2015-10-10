@@ -10,6 +10,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
@@ -58,7 +59,11 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 	@Override
 	protected void show(E objects) {
 		for (Object object : objects) {
-			add(object);
+			if (object instanceof Rendering) {
+				add((Rendering) object);
+			} else {
+				add(object.toString());
+			}
 		}
 	}
 

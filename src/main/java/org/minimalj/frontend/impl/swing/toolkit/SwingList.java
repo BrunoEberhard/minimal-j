@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionLabel;
@@ -56,9 +57,8 @@ public class SwingList extends JPanel implements IList {
 	}
 
 	@Override
-	public void add(Object object, Action... actions) {
-		JComponent label = (object instanceof Action) ? new SwingActionLabel((Action) object) : new SwingLabel(object);
-		super.add(label, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
+	public void add(IComponent component, Action... actions) {
+		super.add((Component) component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
 		for (Action action : actions) {
 			super.add(new SwingActionLabel(action), "", getComponentCount() - actionCount);
 		}

@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionLabel;
-import org.minimalj.frontend.impl.swing.toolkit.SwingLabel;
+import org.minimalj.frontend.impl.swing.toolkit.SwingText;
 
 
 public class MenuTree extends JPanel {
@@ -22,7 +22,7 @@ public class MenuTree extends JPanel {
 		
 		for (Action action : actions) {
 			if (action instanceof ActionGroup) {
-				add(new SwingLabel(action.getName()));
+				add(new SwingText(action.getName()));
 				ActionGroup actionGroup = (ActionGroup) action;
 				add(new MenuTree(actionGroup.getItems()));
 			} else {

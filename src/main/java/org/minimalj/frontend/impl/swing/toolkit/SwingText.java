@@ -6,16 +6,15 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
-public class SwingLabel extends JLabel implements IComponent {
+public class SwingText extends JLabel implements IComponent {
 	private static final long serialVersionUID = 1L;
 
-	public SwingLabel(String string) {
+	public SwingText(String string) {
 		super(string);
 	}
 
-	public SwingLabel(Object object) {
-		if (object instanceof Rendering) {
-			Rendering rendering = (Rendering) object;
+	public SwingText(Rendering rendering) {
+		if (rendering != null) {
 			RenderType renderType = rendering.getPreferredRenderType(RenderType.HMTL, RenderType.PLAIN_TEXT);
 			String s = rendering.render(renderType);
 			if (renderType == RenderType.HMTL) {
@@ -23,8 +22,6 @@ public class SwingLabel extends JLabel implements IComponent {
 			} else {
 				setText(s);
 			}
-		} else if (object != null) {
-			setText(object.toString());
 		}
 	}
 }

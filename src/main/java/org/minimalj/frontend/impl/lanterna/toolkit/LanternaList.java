@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
 
@@ -38,10 +39,8 @@ public class LanternaList extends Panel implements IList {
 	}
 
 	@Override
-	public void add(Object object, Action... actions) {
-		Component label = object instanceof Action ? (Component) Frontend.getInstance().createLabel((Action) object) : new LanternaLabel(object);
-		super.addComponent(label);
-		
+	public void add(IComponent component, Action... actions) {
+		super.addComponent((Component) component);
 		// TODO actions
 	}
 

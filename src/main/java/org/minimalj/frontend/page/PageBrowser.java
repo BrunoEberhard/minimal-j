@@ -1,9 +1,5 @@
 package org.minimalj.frontend.page;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.function.Consumer;
-
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -54,11 +50,5 @@ public interface PageBrowser {
 	
 	public abstract void showMessage(String text);
 	
-	public abstract void showError(String text);
-	
-	// 
-	
-	public abstract void showOutputDialog(String title, Consumer<OutputStream> outputStreamer);
-
-	public abstract void showInputDialog(String title, Consumer<InputStream> inputStreamer);
+	public abstract void showError(String text);	
 }

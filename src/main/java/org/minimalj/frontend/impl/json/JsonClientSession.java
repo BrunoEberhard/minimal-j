@@ -1,14 +1,11 @@
 package org.minimalj.frontend.impl.json;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
@@ -227,16 +224,6 @@ public class JsonClientSession implements PageBrowser {
 	@Override
 	public void showError(String text) {
 		output.add("error", text);
-	}
-	
-	@Override
-	public void showInputDialog(String title, Consumer<InputStream> inputStreamer) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void showOutputDialog(String title, Consumer<OutputStream> outputStreamer) {
-		// TODO Auto-generated method stub
 	}
 	
 	private List<Object> createNavigation() {

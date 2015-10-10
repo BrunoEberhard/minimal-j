@@ -11,6 +11,7 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -18,6 +19,7 @@ import javax.swing.FocusManager;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -38,7 +40,7 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public IComponent createLabel(String string) {
-		return new SwingLabel(string);
+		return new SwingText(string);
 	}
 	
 	@Override
@@ -46,6 +48,11 @@ public class SwingFrontend extends Frontend {
 		return new SwingActionLabel(action);
 	}
 
+	@Override
+	public IComponent createText(Rendering rendering) {
+		return new SwingText(rendering);
+	}
+	
 	public static class SwingActionLabel extends JLabel implements IComponent {
 		private static final long serialVersionUID = 1L;
 
@@ -206,6 +213,18 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
 		return new SwingLookup<T>(changeListener, index, keys);
+	}
+	
+	public File showFileDialog(String title, String approveButtonText) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(false);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setDialogTitle(title);
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog((Component) getBrowser(), approveButtonText)) {
+			return chooser.getSelectedFile();
+		} else {
+			return null;
+		}
 	}
 	
 	private static class SwingLookup<T> extends JPanel implements Input<T> {

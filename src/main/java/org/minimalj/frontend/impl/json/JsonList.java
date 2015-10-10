@@ -31,9 +31,8 @@ public class JsonList extends JsonComponent implements IList {
 	}
 
 	@Override
-	public void add(Object object, Action... actions) {
-		IComponent label = (object instanceof Action) ? new JsonAction((Action) object) : new JsonLabel(object);
-		JsonFrontend.getClientSession().addContent(getId(), (JsonComponent) label);
+	public void add(IComponent component, Action... actions) {
+		JsonFrontend.getClientSession().addContent(getId(), (JsonComponent) component);
 		
 		for (Action action : actions) {
 			JsonFrontend.getClientSession().addContent(getId(), new JsonAction(action));

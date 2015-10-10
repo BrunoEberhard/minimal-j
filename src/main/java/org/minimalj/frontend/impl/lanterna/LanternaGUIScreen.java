@@ -1,9 +1,5 @@
 package org.minimalj.frontend.impl.lanterna;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.function.Consumer;
-
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
@@ -100,16 +96,6 @@ public class LanternaGUIScreen extends GUIScreen implements PageBrowser {
 		return new LanternaDialog(this, content, title, closeAction, actions);
 	}
 
-	@Override
-	public void showInputDialog(String title, Consumer<InputStream> inputStreamer) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void showOutputDialog(String title, Consumer<OutputStream> outputStreamer) {
-		// TODO Auto-generated method stub
-	}
-	
 	/* as showWindow is blocking the call has to be deferred on actionComplete */
 	public void show(Window window) {
 		windowToOpen = window;

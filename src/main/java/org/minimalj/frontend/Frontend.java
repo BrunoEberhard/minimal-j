@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.model.Rendering;
 
 /**
  * To provide a new kind (Xy) of client you have to implement two things:
@@ -66,8 +67,9 @@ public abstract class Frontend {
 	 // http://www.w3schools.com/html/html_form_input_types.asp 
 	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
 
-	public abstract IComponent createLabel(String string);
-	public abstract IComponent createLabel(Action action);
+	public abstract IComponent createLabel(String string); // TODO -> createText
+	public abstract IComponent createLabel(Action action); // TODO -> createText
+	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createTitle(String string);
 	public abstract Input<String> createReadOnlyTextField();
 	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch, InputComponentListener changeListener);
@@ -77,6 +79,9 @@ public abstract class Frontend {
 	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
+	// public enum Size { SMALL, MEDIUM, LARGE };
+	// public abstract Input<byte[]> createImage(Size size);
+	
 	public interface IList extends IComponent {
 		/**
 		 * @param enabled if false no content should be shown (or
@@ -86,8 +91,7 @@ public abstract class Frontend {
 		
 		public void clear();
 		
-		public void add(Object object, Action... actions);
-		
+		public void add(IComponent component, Action... actions);
 	}
 	
 	public interface InputComponentListener {

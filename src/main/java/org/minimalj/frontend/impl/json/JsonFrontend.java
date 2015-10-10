@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.model.Rendering;
 import org.minimalj.security.Authorization;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
@@ -23,14 +24,17 @@ public class JsonFrontend extends Frontend {
 	
 	@Override
 	public IComponent createLabel(String string) {
-		JsonTextField component = new JsonTextField("Label");
-		component.setValue(string);
-		return component;
+		return new JsonText(string);
 	}
 	
 	@Override
 	public IComponent createLabel(Action action) {
 		return new JsonAction(action);
+	}
+	
+	@Override
+	public IComponent createText(Rendering rendering) {
+		return new JsonText(rendering);
 	}
 
 	@Override

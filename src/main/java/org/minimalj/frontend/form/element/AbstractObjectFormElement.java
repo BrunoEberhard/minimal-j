@@ -8,6 +8,7 @@ import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
@@ -125,20 +126,38 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 
 	protected abstract void show(T object);
 	
-	protected void add(Object object, Action... actions) {
+	protected void add(Rendering rendering, Action... actions) {
 		if (isEditable()) {
-			list.add(object, actions);
+			list.add(Frontend.getInstance().createText(rendering), actions);
 		} else if (!(object instanceof Action)) {
-			list.add(object);
+			list.add(Frontend.getInstance().createText(rendering));
 		}
 	}
 
-	protected void add(String text, Page linkedPage) {
-		list.add(new PageAction(linkedPage, text));
+	protected void add(Object object, Action... actions) {
+		add(object.toString(), actions);
+	}
+	
+	protected void add(String text, Action... actions) {
+		if (isEditable()) {
+			list.add(Frontend.getInstance().createLabel(text), actions);
+		} else if (!(object instanceof Action)) {
+			list.add(Frontend.getInstance().createLabel(text));
+		}
 	}
 
-	protected void add(Object object, Page linkedPage) {
-		list.add(object, new PageAction(linkedPage));
+	protected void add(Action action) {
+		if (isEditable()) {
+			list.add(Frontend.getInstance().createLabel(action));
+		}
+	}
+	
+	protected void add(String text, Page linkedPage) {
+		list.add(Frontend.getInstance().createLabel(new PageAction(linkedPage, text)));
+	}
+
+	protected void add(Rendering rendering, Page linkedPage) {
+		list.add(Frontend.getInstance().createText(rendering), new PageAction(linkedPage));
 	}
 	
 	/**

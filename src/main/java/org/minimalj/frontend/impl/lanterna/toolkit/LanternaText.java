@@ -6,19 +6,16 @@ import org.minimalj.model.Rendering.RenderType;
 
 import com.googlecode.lanterna.gui.component.Label;
 
-public class LanternaLabel extends Label implements IComponent {
+public class LanternaText extends Label implements IComponent {
 
-	public LanternaLabel(String text) {
+	public LanternaText(String text) {
 		super(text);
 	}
 
-	public LanternaLabel(Object object) {
-		if (object instanceof Rendering) {
-			Rendering rendering = (Rendering) object;
+	public LanternaText(Rendering rendering) {
+		if (rendering != null) {
 			String s = rendering.render(RenderType.PLAIN_TEXT);
 			setText(s);
-		} else if (object != null) {
-			setText(object.toString());
 		}
 	}
 
@@ -26,5 +23,5 @@ public class LanternaLabel extends Label implements IComponent {
 	public void setText(String text) {
 		super.setText(text != null ? text : "");
 	}
-	
+
 }

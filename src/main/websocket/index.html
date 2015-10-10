@@ -337,7 +337,7 @@
 			} else {
 				element.innerHTML = "&nbsp;";
 			}
-		} else if (type == "Label" || type == "Gap" || type == "Title") {
+		} else if (type == "Text" || type == "Gap" || type == "Title") {
 			element = document.createElement("div");
 			element.classList.add(type);
 			if (content.value != undefined) {
