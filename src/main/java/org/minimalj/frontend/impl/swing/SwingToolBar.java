@@ -1,12 +1,12 @@
 package org.minimalj.frontend.impl.swing;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
@@ -33,6 +33,7 @@ public class SwingToolBar extends JToolBar {
 	protected void fillToolBar() {
 		fillToolBarNavigation();
 		fillToolBarRefresh();
+		add(Box.createHorizontalGlue());
 		fillToolBarSearch();
 	}
 	
@@ -46,26 +47,18 @@ public class SwingToolBar extends JToolBar {
 	}
 	
 	protected void fillToolBarSearch() {
-		add(createSearchField());
-	}
-
-	protected JPanel createSearchField() {
-		FlowLayout flowLayout = new FlowLayout(FlowLayout.TRAILING);
-		flowLayout.setAlignOnBaseline(true);
-		JPanel panel = new JPanel(flowLayout);
 		textFieldSearch = new JTextField();
 		textFieldSearch.setPreferredSize(new Dimension(200, textFieldSearch.getPreferredSize().height));
-		panel.add(textFieldSearch);
-		final JButton button = new JButton(searchAction);
-		button.setHideActionText(true);
-		panel.add(button);
+		textFieldSearch.setMaximumSize(textFieldSearch.getPreferredSize());
+		add(textFieldSearch);
+		JButton button = add(searchAction);
+		button.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 		textFieldSearch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				button.doClick();
 			}
 		});
-		return panel;
 	}
 	
 	protected class SearchAction extends SwingResourceAction {
