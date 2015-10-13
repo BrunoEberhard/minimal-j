@@ -142,6 +142,11 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
+	public Input<byte[]> createImage(Size size, InputComponentListener changeListener) {
+		return new SwingImage(size, changeListener);
+	}
+	
+	@Override
 	public IList createList(Action... actions) {
 		return new SwingList(actions);
 	}
@@ -322,7 +327,7 @@ public class SwingFrontend extends Frontend {
 	}
 
 	public static boolean verticallyGrowing(Component component) {
-		if (component instanceof SwingList || component instanceof JTable || component instanceof SwingTextAreaField) {
+		if (component instanceof SwingList || component instanceof JTable || component instanceof SwingTextAreaField || component instanceof SwingImage) {
 			return true;
 		}
 		if (component instanceof Container) {

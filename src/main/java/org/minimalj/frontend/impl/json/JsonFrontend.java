@@ -66,6 +66,11 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
+	public Input<byte[]> createImage(Size size, InputComponentListener changeListener) {
+		throw new RuntimeException("Image not yet implemented in JsonFrontend");
+	};
+	
+	@Override
 	public IList createList(Action... actions) {
 		return new JsonList(actions);
 	}

@@ -79,9 +79,9 @@ public abstract class Frontend {
 	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
-	// public enum Size { SMALL, MEDIUM, LARGE };
-	// public abstract Input<byte[]> createImage(Size size);
-	
+	public enum Size { SMALL, MEDIUM, LARGE	};
+	public abstract Input<byte[]> createImage(Size size, InputComponentListener changeListener);
+
 	public interface IList extends IComponent {
 		/**
 		 * @param enabled if false no content should be shown (or
