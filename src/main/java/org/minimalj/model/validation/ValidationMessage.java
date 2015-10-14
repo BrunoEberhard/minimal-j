@@ -66,7 +66,7 @@ public class ValidationMessage {
 
 	
 	public static String formatHtml(List<ValidationMessage> validationMessages) {
-		if (validationMessages.size() > 0) {
+		if (validationMessages != null && validationMessages.size() > 0) {
 			StringBuilder s = new StringBuilder();
 			s.append("<html>");
 			for (int i = 0; i<validationMessages.size(); i++) {
