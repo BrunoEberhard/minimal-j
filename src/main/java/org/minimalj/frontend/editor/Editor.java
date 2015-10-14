@@ -144,6 +144,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		}
 		
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
+			valid = validationMessages == null || validationMessages.isEmpty();
 			description = ValidationMessage.formatHtml(validationMessages);
 			fireChange();
 		}
