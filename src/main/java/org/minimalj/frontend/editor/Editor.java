@@ -144,12 +144,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		}
 		
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
-			valid = validationMessages == null || validationMessages.isEmpty();
-			if (valid) {
-				description = "Eingaben speichern";
-			} else {
-				description = ValidationMessage.formatHtml(validationMessages);
-			}
+			description = ValidationMessage.formatHtml(validationMessages);
 			fireChange();
 		}
 
@@ -160,7 +155,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		
 		@Override
 		public String getDescription() {
-			return description;
+			return description != null ? description : super.getDescription();
 		}
 	}
 	
