@@ -13,6 +13,8 @@ import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
@@ -68,20 +70,36 @@ public class EditablePanel extends JDesktopPane {
     
 	@Override
 	public void paint(Graphics g) {
-		if (!openFrames.isEmpty()) {
+		if (content.getParent() == null) {
 			RepaintManager.currentManager(content).setDoubleBufferingEnabled(false);
+			notifySpecialComponents(g, content);
 			content.paint(g);
 			RepaintManager.currentManager(content).setDoubleBufferingEnabled(true);
-			for (int i = 0; i<openFrames.size()-1; i++) {
-				JComponent component = openFrames.get(i);
-				RepaintManager.currentManager(component).setDoubleBufferingEnabled(false);
-				g.translate(component.getX(), component.getY());
-				component.paint(g);
-				g.translate(-component.getX(), -component.getY());
-				RepaintManager.currentManager(component).setDoubleBufferingEnabled(true);
+		}
+		for (JInternalFrame frame : openFrames) {
+			if (frame.getParent() == null) {
+				RepaintManager.currentManager(frame).setDoubleBufferingEnabled(false);
+				g.translate(frame.getX(), frame.getY());
+				frame.paint(g);
+				g.translate(-frame.getX(), -frame.getY());
+				RepaintManager.currentManager(frame).setDoubleBufferingEnabled(true);
 			}
 		}
 		super.paint(g);
+	}
+
+	// this is needed otherwise table would loose header when looked and divider disappears
+	private void notifySpecialComponents(Graphics g, Component content) {
+		if (content instanceof JTable || content instanceof JSplitPane) {
+			JComponent component = (JComponent) content;
+			component.addNotify();
+		}
+		if (content instanceof Container) {
+			Container container = (Container) content;
+			for (Component c : container.getComponents()) {
+				notifySpecialComponents(g, c);
+			}
+		}
 	}
 
 	public void openModalDialog(JInternalFrame internalFrame) {
@@ -103,6 +121,11 @@ public class EditablePanel extends JDesktopPane {
 		repaintLater();
 	}
 	
+	public void lock() {
+		removeAll();
+		repaintLater();
+	}
+	
 	public boolean tryToCloseDialogs() {
 		for (int i = openFrames.size()-1; i>= 0; i--) {
 			JInternalFrame frame = openFrames.get(i);
@@ -116,9 +139,11 @@ public class EditablePanel extends JDesktopPane {
 		if (!openFrames.contains(internalFrame)) {
 			throw new IllegalArgumentException("Dialog to close not open");
 		}
-		
 		openFrames.remove(internalFrame);
-		
+		unlock();
+	}
+
+	public void unlock() {
 		removeAll();
 		if (openFrames.isEmpty()) {
 			add(content);
