@@ -14,7 +14,7 @@ public class NewNoteEditor extends NewObjectEditor<Note> {
 
 	@Override
 	protected Object save(Note object) {
-		return Backend.persistence().insert(object);
+		return Backend.insert(object);
 	}
 	
 	@Override

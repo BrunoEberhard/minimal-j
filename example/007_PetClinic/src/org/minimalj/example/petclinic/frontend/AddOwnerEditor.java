@@ -15,7 +15,7 @@ public class AddOwnerEditor extends NewObjectEditor<Owner> {
 
 	@Override
 	protected Object save(Owner owner) {
-		return Backend.persistence().insert(owner);
+		return Backend.insert(owner);
 	}
 	
 	@Override

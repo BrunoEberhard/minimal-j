@@ -18,7 +18,7 @@ public class VetSearchPage extends SimpleSearchPage<Vet> {
 
 	@Override
 	protected List<Vet> load(String query) {
-		return Backend.persistence().read(Vet.class, By.search(query), 100);
+		return Backend.read(Vet.class, By.search(query), 100);
 	}
 
 	@Override

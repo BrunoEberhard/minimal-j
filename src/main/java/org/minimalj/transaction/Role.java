@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.minimalj.transaction.Role.Roles;
-import org.minimalj.transaction.Transaction.TransactionType;
 
 @Repeatable(Roles.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,8 +15,8 @@ public @interface Role {
 
 	String[] value();
 
-	TransactionType transaction() default TransactionType.ALL;
-
+	@SuppressWarnings("rawtypes")
+	Class<? extends Transaction> transaction() default Transaction.class;
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.TYPE, ElementType.PACKAGE})

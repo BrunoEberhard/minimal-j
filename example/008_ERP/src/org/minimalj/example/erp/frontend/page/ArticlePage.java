@@ -38,7 +38,7 @@ public class ArticlePage extends ObjectPage<Article> {
 
 		@Override
 		protected Article save(Article article) {
-			return Backend.persistence().update(article);
+			return Backend.update(article);
 		}
 	}
 }

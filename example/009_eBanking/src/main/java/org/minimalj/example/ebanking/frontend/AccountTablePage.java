@@ -43,7 +43,7 @@ public class AccountTablePage extends TablePageWithDetail<Account, AccountPositi
 	
 	@Override
 	protected List<Account> load() {
-		List<Account> accounts = Backend.persistence().read(Account.class, By.filter(accountFilter), 100);
+		List<Account> accounts = Backend.read(Account.class, By.filter(accountFilter), 100);
 		return accounts;
 	}
 

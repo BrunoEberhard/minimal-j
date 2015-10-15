@@ -17,7 +17,7 @@ public class ArticleTablePage extends SimpleTablePageWithDetail<Article> {
 	
 	@Override
 	protected List<Article> load() {
-		return Backend.persistence().read(Article.class, By.all(), 100);
+		return Backend.read(Article.class, By.all(), 100);
 	}
 
 	@Override

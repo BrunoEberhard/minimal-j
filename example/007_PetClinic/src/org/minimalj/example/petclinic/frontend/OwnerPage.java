@@ -48,7 +48,7 @@ public class OwnerPage extends ObjectPage<Owner> {
 
 		@Override
 		protected Owner save(Owner owner) {
-			return Backend.persistence().update(owner);
+			return Backend.update(owner);
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class OwnerPage extends ObjectPage<Owner> {
 
 		@Override
 		protected Object save(Pet pet) {
-			return Backend.persistence().insert(pet);
+			return Backend.insert(pet);
 		}
 		
 		@Override

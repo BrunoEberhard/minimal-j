@@ -3,9 +3,9 @@ package org.minimalj.example.library.transaction;
 import java.io.Serializable;
 
 import org.minimalj.backend.Persistence;
-import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.PersistenceTransaction;
 
-public class ProlongTransaction implements Transaction<Serializable> {
+public class ProlongTransaction implements PersistenceTransaction<Serializable> {
 	private static final long serialVersionUID = 1L;
 
 	@Override

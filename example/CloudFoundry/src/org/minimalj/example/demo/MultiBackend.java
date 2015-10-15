@@ -4,18 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.backend.Persistence;
 import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.transaction.Transaction;
 
 public class MultiBackend extends Backend {
 
 	private final Map<String, Backend> backends = new HashMap<>();
-	
-	@Override
-	public Persistence getPersistence() {
-		return getBackend().getPersistence();
-	}
 
 	@Override
 	public <T> T doExecute(Transaction<T> transaction) {

@@ -15,10 +15,10 @@ public class DemoDataAction extends Action {
 	public void action() {
 		for (int i = 0; i<5; i++) {
 			Account account = account();
-			Backend.persistence().insert(account);
+			Backend.insert(account);
 			for (int j = 0; j<100; j++) {
 				AccountPosition position = accountPosition(account);
-				Backend.persistence().insert(position);
+				Backend.insert(position);
 			}
 		}
 	}

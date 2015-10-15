@@ -30,7 +30,7 @@ public class Owner implements Rendering, Mocking {
     
     public List<Pet> getPets() {
     	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets", List.class);
-    	return Backend.persistence().read(Pet.class, By.field(Pet.$.owner, this), 100);
+    	return Backend.read(Pet.class, By.field(Pet.$.owner, this), 100);
 	}
     
     @Override

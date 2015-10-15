@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.backend.Persistence;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
@@ -50,9 +49,9 @@ public abstract class Preferences {
 		}
 		
 		@Override
-		public T execute(Persistence persistence) {
+		public T execute() {
 			// String subject = Subject.get().getUser();	
-			// TODO Backend.persistence().read(clazz, criteria, maxResults)
+			// TODO Backend.read(clazz, criteria, maxResults)
 			return CloneHelper.newInstance(clazz);
 		}
 	}

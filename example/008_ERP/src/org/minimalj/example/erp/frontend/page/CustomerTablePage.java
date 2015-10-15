@@ -17,7 +17,7 @@ public class CustomerTablePage extends SimpleTablePageWithDetail<Customer> {
 	
 	@Override
 	protected List<Customer> load() {
-		return Backend.persistence().read(Customer.class, By.all(), 100);
+		return Backend.read(Customer.class, By.all(), 100);
 	}
 
 	@Override

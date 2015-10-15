@@ -1,6 +1,5 @@
 package org.minimalj.security;
 
-import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 
 public class LoginTransaction implements Transaction<Subject> {
@@ -17,7 +16,7 @@ public class LoginTransaction implements Transaction<Subject> {
 	}
 	
 	@Override
-	public Subject execute(Persistence persistence) {
+	public Subject execute() {
 		return Authorization.getInstance().login(userPassword);
 	}
 }

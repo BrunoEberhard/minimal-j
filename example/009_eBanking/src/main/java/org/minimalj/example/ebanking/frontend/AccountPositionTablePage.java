@@ -38,7 +38,7 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 
 	@Override
 	protected List<AccountPosition> load() {
-		return Backend.persistence().read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter), 1000);
+		return Backend.read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter), 1000);
 	}
 
 	public void setAccount(Account account) {

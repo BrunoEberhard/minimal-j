@@ -38,8 +38,6 @@ import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
-import org.minimalj.security.Subject;
-import org.minimalj.transaction.Transaction.TransactionType;
 import org.minimalj.transaction.criteria.By;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
@@ -278,32 +276,22 @@ public class SqlPersistence implements Persistence {
 	
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
-		checkPermission(clazz, TransactionType.READ);
 		Table<T> table = getTable(clazz);
 		return table.read(id);
 	}
 
-	private <T> void checkPermission(Class<T> clazz, TransactionType transactionType) {
-		if (!Subject.hasPermission(clazz, transactionType)) {
-			throw new IllegalStateException(clazz.getSimpleName() + " forbidden");
-		}
-	}
-	
 	public <T> T readVersion(Class<T> clazz, Object id, Integer time) {
-		checkPermission(clazz, TransactionType.READ);
 		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
 		return table.read(id, time);
 	}
 
 	public List<Integer> readVersions(Class<?> clazz, Object id) {
-		checkPermission(clazz, TransactionType.READ);
 		HistorizedTable<?> table = (HistorizedTable<?>) getTable(clazz);
 		return table.readVersions(id);
 	}
 
 	@Override
 	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
-		checkPermission(resultClass, TransactionType.READ);
 		if (View.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
 			Table<?> table = getTable(viewedClass);
@@ -317,43 +305,17 @@ public class SqlPersistence implements Persistence {
 	@Override
 	public <T> Object insert(T object) {
 		if (object == null) throw new NullPointerException();
-		checkPermission(object.getClass(), TransactionType.INSERT);
 		@SuppressWarnings("unchecked")
-		// TODO merge this with update
 		Table<T> table = getTable((Class<T>) object.getClass());
-		if (isTransactionActive()) {
-			return table.insert(object);
-		} else {
-			boolean runThrough = false;
-			try {
-				startTransaction();
-				Object result = table.insert(object);
-				runThrough = true;
-				return result;
-			} finally {
-				endTransaction(runThrough);
-			}
-		}
+		return table.insert(object);
 	}
 
 	@Override
 	public <T> T update(T object) {
 		if (object == null) throw new NullPointerException();
-		checkPermission(object.getClass(), TransactionType.UPDATE);		
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
-		if (isTransactionActive()) {
-			table.update(object);
-		} else {
-			boolean runThrough = false;
-			try {
-				startTransaction();
-				table.update(object);
-				runThrough = true;
-			} finally {
-				endTransaction(runThrough);
-			}
-		}
+		table.update(object);
 		// re read result
 		return table.read(IdUtils.getId(object));
 	}
@@ -364,20 +326,17 @@ public class SqlPersistence implements Persistence {
 
 	@Override
 	public <T> void delete(Class<T> clazz, Object id) {
-		checkPermission(clazz, TransactionType.DELETE);			
 		Table<T> table = getTable(clazz);
 		// TODO do in transaction and merge with insert/update
 		table.delete(id);
 	}
 	
 	public <T> void deleteAll(Class<T> clazz) {
-		checkPermission(clazz, TransactionType.DELETE_ALL);			
 		Table<T> table = getTable(clazz);
 		table.clear();
 	}
 
 	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
-		checkPermission(clazz, TransactionType.READ);
 		// TODO maxResults is ignored in loadHistory
 		@SuppressWarnings("unchecked")
 		Table<T> table = (Table<T>) getTable(clazz);

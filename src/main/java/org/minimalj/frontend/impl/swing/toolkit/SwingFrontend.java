@@ -5,7 +5,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
@@ -13,6 +16,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
+import java.util.function.Function;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.FocusManager;
@@ -37,7 +42,8 @@ import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
 public class SwingFrontend extends Frontend {
-
+	private static final Logger logger = Logger.getLogger(SwingFrontend.class.getName());
+	
 	@Override
 	public IComponent createLabel(String string) {
 		return new SwingText(string);
@@ -375,6 +381,66 @@ public class SwingFrontend extends Frontend {
 			}
 		});
 		return swingAction;
+	}
+	
+	@Override
+	public <INPUT, RESULT> RESULT executeSync(Function<INPUT, RESULT> function, INPUT input) {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		EventQueue eq = tk.getSystemEventQueue();
+		SecondaryLoop loop = eq.createSecondaryLoop();
+
+		ExecuteSyncThread<INPUT, RESULT> worker = new ExecuteSyncThread<>(loop, function, input);
+		SwingTab pageBrowser = (SwingTab) Frontend.getBrowser();
+		try {
+			pageBrowser.lock();
+			worker.start();
+			if (!loop.enter()) {
+				logger.warning("Could not execute background in second thread");
+				return function.apply(input);
+			}
+			if (worker.getException() != null) {
+				throw new RuntimeException(worker.getException());
+			}
+			return worker.getResult();
+		} finally {
+			// user could have changed tab since start of action
+			Frontend.setBrowser(pageBrowser);
+			pageBrowser.unlock();
+		}
+	}
+
+	private static class ExecuteSyncThread<INPUT, RESULT> extends Thread {
+		private final SecondaryLoop loop;
+		private final Function<INPUT, RESULT> function;
+		private final INPUT input;
+		private RESULT result;
+		private Exception exception;
+
+		public ExecuteSyncThread(SecondaryLoop loop, Function<INPUT, RESULT> function, INPUT input) {
+			this.loop = loop;
+			this.function = function;
+			this.input = input;
+		}
+
+		@Override
+		public void run() {
+			try {
+				result = function.apply(input);
+				Thread.sleep(5000);
+			} catch (Exception x) {
+				exception = x;
+			} finally {
+				loop.exit();
+			}
+		}
+
+		public RESULT getResult() {
+			return result;
+		}
+
+		public Exception getException() {
+			return exception;
+		}
 	}
 	
 }

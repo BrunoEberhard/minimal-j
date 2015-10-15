@@ -3,10 +3,10 @@ package org.minimalj.transaction.persistence;
 import java.util.List;
 
 import org.minimalj.backend.Persistence;
-import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.criteria.Criteria;
 
-public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
+public class ReadCriteriaTransaction<T> implements PersistenceTransaction<List<T>> {
 	private static final long serialVersionUID = 1L;
 
 	private final Class<T> clazz;
@@ -20,12 +20,7 @@ public class ReadCriteriaTransaction<T> implements Transaction<List<T>> {
 	}
 
 	@Override
-	public TransactionType getType() {
-		return TransactionType.READ;
-	}
-	
-	@Override
-	public Class<?> getClazz() {
+	public Class<?> getEntityClazz() {
 		return clazz;
 	}
 	

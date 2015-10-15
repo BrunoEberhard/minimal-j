@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
-import org.minimalj.backend.Persistence;
+import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.Transaction;
 
 public class SqlBackend extends Backend {
@@ -21,23 +21,25 @@ public class SqlBackend extends Backend {
 		this.persistence = new SqlPersistence(SqlPersistence.mariaDbDataSource(database, user, password), Application.getApplication().getEntityClasses());
 	}
 	
-	@Override
-	public Persistence getPersistence() {
-		return persistence;
-	}
-	
 	//
 
 	@Override
 	public <T> T doExecute(Transaction<T> transaction) {
 		boolean runThrough = false;
 		T result;
-		try {
-			persistence.startTransaction();
-			result = transaction.execute(persistence);
-			runThrough = true;
-		} finally {
-			persistence.endTransaction(runThrough);
+		if (transaction instanceof PersistenceTransaction) {
+			if (persistence.isTransactionActive()) {
+				throw new RuntimeException("Not allowed to nest PersistenceTransaction");
+			}
+			try {
+				persistence.startTransaction();
+				result = ((PersistenceTransaction<T>) transaction).execute(persistence);
+				runThrough = true;
+			} finally {
+				persistence.endTransaction(runThrough);
+			}
+		} else {
+			result = transaction.execute();
 		}
 		return result;
 	}

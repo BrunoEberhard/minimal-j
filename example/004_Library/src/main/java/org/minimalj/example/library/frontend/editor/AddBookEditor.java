@@ -17,7 +17,7 @@ public class AddBookEditor extends NewObjectEditor<Book> {
 	
 	@Override
 	public Object save(Book book) {
-		return Backend.persistence().insert(book);
+		return Backend.insert(book);
 	}
 
 	@Override

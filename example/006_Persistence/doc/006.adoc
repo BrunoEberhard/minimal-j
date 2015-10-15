@@ -159,7 +159,7 @@ or with the shortcut:
 or in one line:
 [source,java]
 ----
-	Person person = Backend.persistence().read(Person.class, id);
+	Person person = Backend.read(Person.class, id);
 ----
 All 3 versions do exactly the same. The first should not be used. You can decide wether you use the second or the
 third version. There is really no reason to have two Persistence objects in your application. If you still feel uneasy
@@ -174,7 +174,7 @@ for should match. This is a code snippet from AccountPositionTablePage:
 ----
 	@Override
 	protected List<AccountPosition> load() {
-		return Backend.persistence().read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter), 1000);
+		return Backend.read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter), 1000);
 	}
 ----
 

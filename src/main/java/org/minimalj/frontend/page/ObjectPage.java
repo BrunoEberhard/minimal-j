@@ -67,7 +67,7 @@ public abstract class ObjectPage<T> extends Page {
 	}
 
 	public T load() {
-		return Backend.persistence().read(objectClass, objectId);
+		return Backend.read(objectClass, objectId);
 	}
 	
 	public void unload() {

@@ -3,9 +3,9 @@ package org.minimalj.transaction.persistence;
 import org.minimalj.backend.Persistence;
 import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.PersistenceTransaction;
 
-public class ReadTransaction<T> implements Transaction<T> {
+public class ReadTransaction<T> implements PersistenceTransaction<T> {
 	private static final long serialVersionUID = 1L;
 
 	private final Class<T> clazz;
@@ -23,12 +23,7 @@ public class ReadTransaction<T> implements Transaction<T> {
 	}
 	
 	@Override
-	public TransactionType getType() {
-		return TransactionType.READ;
-	}
-	
-	@Override
-	public Class<?> getClazz() {
+	public Class<?> getEntityClazz() {
 		return clazz;
 	}
 

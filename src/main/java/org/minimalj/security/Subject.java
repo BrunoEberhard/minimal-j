@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.Transaction.TransactionType;
 
 public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -52,11 +52,6 @@ public class Subject implements Serializable {
 		return hasPermission(role);
 	}
 
-	public static boolean hasPermission(Class<?> clazz, TransactionType transactionType) {
-		Role role = findRoleByType(clazz, transactionType);
-		return hasPermission(role);
-	}
-
 	private static boolean hasPermission(Role role) {
 		if (role != null) {
 			Subject subject = getSubject();
@@ -69,41 +64,50 @@ public class Subject implements Serializable {
 	}
 	
 	public static Role getRole(Transaction<?> transaction) {
-		TransactionType transactionType = transaction.getType();
-		boolean isPersistenceTransaction = transactionType != null;
+		boolean isPersistenceTransaction = transaction instanceof PersistenceTransaction;
 		if (isPersistenceTransaction) {
-			Role role = findRoleByType(transaction.getClass(), transactionType);
+			PersistenceTransaction<?> persistenceTransaction = (PersistenceTransaction<?>) transaction;
+			Role role = findRoleByType(transaction.getClass(), persistenceTransaction.getClass());
 			if (role == null) {
-				role = findRoleByType(transaction.getClazz(), transactionType);
+				role = findRoleByType(persistenceTransaction.getEntityClazz(), persistenceTransaction.getClass());
 			}
 			return role;
 		} else {
-			return findRoleByType(transaction.getClass(), TransactionType.ALL);
+			return findRoleByType(transaction.getClass(), Transaction.class);
 		}
 	}
 	
-	private static Role findRoleByType(Class<?> clazz, TransactionType type) {
+	private static Role findRoleByType(Class<?> clazz, Class<? extends Transaction> transactionClass) {
 		Role[] roles = clazz.getAnnotationsByType(Role.class);
-		Role role = findRoleByType(roles, type);
+		Role role = findRoleByType(roles, transactionClass);
 		if (role != null) {
 			return role;
 		}
 		roles = clazz.getPackage().getAnnotationsByType(Role.class);
-		role = findRoleByType(roles, type);
+		role = findRoleByType(roles, transactionClass);
 		return role;
 	}
 	
-	private static Role findRoleByType(Role[] roles, TransactionType type) {
+	private static Role findRoleByType(Role[] roles, Class<? extends Transaction> transactionClass) {
 		for (Role role : roles) {
-			if (role.transaction() == type) {
+			if (role.transaction() == transactionClass) {
 				return role;
 			}
 		}
+		// TODO respect class hierachy when retrieving needed role for a transaction
+		// the following lines only go by order of the roles not by the hierachy
+//		for (Role role : roles) {
+//			if (role.transactionClass().isAssignableFrom(transactionClass)) {
+//				return role;
+//			}
+//		}
+		
+		// check for the Transaction.class as this is the default in the annotation
 		for (Role role : roles) {
-			if (role.transaction() == TransactionType.ALL) {
+			if (role.transaction() == Transaction.class) {
 				return role;
 			}
-		}
+		}		
 		return null;
 	}
 	

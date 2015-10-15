@@ -19,7 +19,7 @@ public class AddVetEditor extends NewObjectEditor<Vet> {
 
 	@Override
 	protected Object save(Vet owner) {
-		return Backend.persistence().insert(owner);
+		return Backend.insert(owner);
 	}
 	
 	@Override

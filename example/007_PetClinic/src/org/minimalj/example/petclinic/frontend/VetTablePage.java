@@ -17,7 +17,7 @@ public class VetTablePage extends TablePage<Vet> {
 
 	@Override
 	protected List<Vet> load() {
-		return Backend.persistence().read(Vet.class, By.all(), 100);
+		return Backend.read(Vet.class, By.all(), 100);
 	}
 
 }

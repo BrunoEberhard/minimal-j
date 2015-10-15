@@ -2,6 +2,7 @@ package org.minimalj.frontend;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.PageBrowser;
@@ -155,6 +156,10 @@ public abstract class Frontend {
 	
 	public static PageBrowser getBrowser() {
 		return pageBrowserByThread.get();
+	}
+
+	public <INPUT, RESULT> RESULT executeSync(Function<INPUT, RESULT> function, INPUT input) {
+		return function.apply(input);
 	}
 	
 }

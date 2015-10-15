@@ -25,7 +25,7 @@ public class CustomerSearchPage extends SimpleSearchPage<Customer> {
 	
 	@Override
 	protected List<Customer> load(String query) {
-		return Backend.persistence().read(Customer.class, By.search(query), 100);
+		return Backend.read(Customer.class, By.search(query), 100);
 	}
 
 	@Override

@@ -1,11 +1,20 @@
 package org.minimalj.backend;
 
+import java.util.List;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.transaction.persistence.DeleteTransaction;
+import org.minimalj.transaction.persistence.InsertTransaction;
+import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
+import org.minimalj.transaction.persistence.ReadTransaction;
+import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
@@ -74,15 +83,35 @@ public abstract class Backend {
 		return instance;
 	}
 
-	public abstract Persistence getPersistence();
-	
-	public static Persistence persistence() {
-		return getInstance().getPersistence();
+	public static <T> T read(Class<T> clazz, Object id) {
+		return getInstance().execute(new ReadTransaction<T>(clazz, id, null));
 	}
 
+	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
+		List<T> result = getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		return result;
+	}
+
+	public static <T> Object insert(T object) {
+		return getInstance().execute(new InsertTransaction<T>(object));
+	}
+
+	public static <T> T update(T object) {
+		return getInstance().execute(new UpdateTransaction<T>(object));
+	}
+
+	public static <T> void delete(Class<T> clazz, Object id) {
+		getInstance().execute(new DeleteTransaction(clazz, id));
+	}
+	
 	public final <T> T execute(Transaction<T> transaction) {
 		if (Subject.hasPermission(transaction)) {
-			return doExecute(transaction);
+			if (Frontend.isAvailable()) {
+				Function<Transaction<T>, T> f = (Transaction<T> t) -> (doExecute(t));
+				return Frontend.getInstance().executeSync(f, transaction);
+			} else {
+				return doExecute(transaction);
+			}
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
 		}

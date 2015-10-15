@@ -17,7 +17,7 @@ public class AddArticleEditor extends NewObjectEditor<Article> {
 
 	@Override
 	protected Object save(Article article) {
-		return Backend.persistence().insert(article);
+		return Backend.insert(article);
 	}
 
 	@Override

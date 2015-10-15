@@ -18,7 +18,7 @@ public class OwnerSearchPage extends SimpleSearchPage<Owner> {
 
 	@Override
 	protected List<Owner> load(String query) {
-		return Backend.persistence().read(Owner.class, By.search(query), 100);
+		return Backend.read(Owner.class, By.search(query), 100);
 	}
 
 	@Override

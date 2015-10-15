@@ -1,10 +1,10 @@
 package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Persistence;
-import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.util.IdUtils;
 
-public class DeleteTransaction implements Transaction<Void> {
+public class DeleteTransaction implements PersistenceTransaction<Void> {
 	private static final long serialVersionUID = 1L;
 
 	private final Class<?> clazz;
@@ -20,12 +20,7 @@ public class DeleteTransaction implements Transaction<Void> {
 	}
 	
 	@Override
-	public TransactionType getType() {
-		return TransactionType.DELETE;
-	}
-
-	@Override
-	public Class<?> getClazz() {
+	public Class<?> getEntityClazz() {
 		return clazz;
 	}
 	

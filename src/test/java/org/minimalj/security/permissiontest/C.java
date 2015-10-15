@@ -1,10 +1,10 @@
 package org.minimalj.security.permissiontest;
 
 import org.minimalj.transaction.Role;
-import org.minimalj.transaction.Transaction.TransactionType;
+import org.minimalj.transaction.persistence.UpdateTransaction;
 
 @Role(value = "ReadRole")
-@Role(transaction = TransactionType.UPDATE, value = {"UpdateRole"})
+@Role(transaction = UpdateTransaction.class, value = "UpdateRole")
 public class C {
 
 	public C() {

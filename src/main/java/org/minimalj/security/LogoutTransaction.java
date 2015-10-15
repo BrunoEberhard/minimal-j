@@ -1,6 +1,5 @@
 package org.minimalj.security;
 
-import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.Transaction;
 
 public class LogoutTransaction implements Transaction<Void> {
@@ -10,7 +9,7 @@ public class LogoutTransaction implements Transaction<Void> {
 	}
 
 	@Override
-	public Void execute(Persistence persistence) {
+	public Void execute() {
 		Authorization.getInstance().logout();
 		return null;
 	}

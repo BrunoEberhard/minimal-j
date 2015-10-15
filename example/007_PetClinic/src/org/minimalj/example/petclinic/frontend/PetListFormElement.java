@@ -53,7 +53,7 @@ public class PetListFormElement extends ListFormElement<Pet> {
 		@Override
 		protected Pet save(Visit visit) {
 			pet.visits.add(visit);
-			return Backend.persistence().update(pet);
+			return Backend.update(pet);
 		}
 		
 		@Override

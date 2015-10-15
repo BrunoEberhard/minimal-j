@@ -1,10 +1,10 @@
 package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Persistence;
-import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.util.SerializationContainer;
 
-public class UpdateTransaction<T> implements Transaction<T> {
+public class UpdateTransaction<T> implements PersistenceTransaction<T> {
 	private static final long serialVersionUID = 1L;
 
 	private final Object object;
@@ -14,12 +14,7 @@ public class UpdateTransaction<T> implements Transaction<T> {
 	}
 
 	@Override
-	public TransactionType getType() {
-		return TransactionType.UPDATE;
-	}
-	
-	@Override
-	public Class<?> getClazz() {
+	public Class<?> getEntityClazz() {
 		return SerializationContainer.unwrap(object).getClass();
 	}
 	

@@ -17,7 +17,7 @@ public class AddCustomerEditor extends NewObjectEditor<Customer> {
 	
 	@Override
 	protected Object save(Customer customer) {
-		return Backend.persistence().insert(customer);
+		return Backend.insert(customer);
 	}
 
 	@Override

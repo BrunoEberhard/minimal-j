@@ -11,26 +11,17 @@ import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.persistence.DelegatePersistence;
 import org.minimalj.util.SerializationContainer;
 
 public class SocketBackend extends Backend {
 	private final String url;
 	private final int port;
 	
-	private final DelegatePersistence persistence;
-
 	public SocketBackend(String url, int port) {
 		this.url = url;
 		this.port = port;
-		this.persistence = new DelegatePersistence(this);
 	}
 	
-	@Override
-	public Persistence getPersistence() {
-		return persistence;
-	}
-
 	@Override
 	public <T> T doExecute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {

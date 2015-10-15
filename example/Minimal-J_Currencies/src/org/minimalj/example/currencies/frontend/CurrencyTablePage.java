@@ -15,7 +15,7 @@ public class CurrencyTablePage extends TablePage<Currency> {
 
 	@Override
 	protected List<Currency> load() {
-		return Backend.persistence().read(Currency.class, Criteria.all(), 1000);
+		return Backend.read(Currency.class, Criteria.all(), 1000);
 	}
 
 }

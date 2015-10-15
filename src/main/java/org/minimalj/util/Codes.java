@@ -55,7 +55,7 @@ public class Codes {
 	private static <T> void updateCode(Class<T> clazz) {
 		CodeCacheItem<T> codeItem = new CodeCacheItem<T>();
 		cache.put(clazz, codeItem);
-		List<T> codes = Backend.persistence().read(clazz, By.all(), Integer.MAX_VALUE);
+		List<T> codes = Backend.read(clazz, By.all(), Integer.MAX_VALUE);
 		codeItem.setCodes(codes);
 	}
 	
