@@ -426,7 +426,6 @@ public class SwingFrontend extends Frontend {
 		public void run() {
 			try {
 				result = function.apply(input);
-				Thread.sleep(5000);
 			} catch (Exception x) {
 				exception = x;
 			} finally {
