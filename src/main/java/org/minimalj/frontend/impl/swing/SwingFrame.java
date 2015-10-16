@@ -16,8 +16,8 @@ import javax.swing.JFrame;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.component.HideableTabbedPane;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.LoginAction;
 import org.minimalj.security.LogoutTransaction;
@@ -88,6 +88,7 @@ public class SwingFrame extends JFrame {
 		this.subject = subject;
 		closeAllTabs();
 		addTab();
+		revalidate();
 		updateWindowTitle();
 		updateLoginAction();
 	}
@@ -103,6 +104,8 @@ public class SwingFrame extends JFrame {
 		tabbedPane.setSelectedComponent(tab);
 
 		tab.show(Application.getApplication().createDefaultPage());
+
+		SwingFrontend.setFocus(tab);
 	}
 	
 	public void closeTabActionPerformed() {
@@ -214,9 +217,7 @@ public class SwingFrame extends JFrame {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Frontend.setBrowser(getVisibleTab());
 			new LoginAction().action();
-			Frontend.setBrowser(null);
 		}
 	}
 	
@@ -229,10 +230,8 @@ public class SwingFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Frontend.setBrowser(getVisibleTab());
 			Backend.getInstance().execute(new LogoutTransaction());
 			getVisibleTab().setSubject(null);
-			Frontend.setBrowser(null);
 
 		}
 	}

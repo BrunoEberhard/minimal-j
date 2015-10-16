@@ -21,7 +21,6 @@ public class SwingPasswordField extends JPasswordField implements PasswordField 
 			public void actionPerformed(ActionEvent e) {
 				SwingInternalFrame frame = findFrame();
 				if (frame != null) {
-					SwingFrontend.updateEventTab((Component) e.getSource());
 					Action saveAction = frame.getSaveAction();
 					saveAction.action();
 				}

@@ -25,7 +25,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
@@ -128,14 +127,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() >= 2 && listener != null) {
-				try {
-					SwingFrontend.updateEventTab(table);
-					listener.action(getSelectedObject());
-				} catch (Exception x) {
-					x.printStackTrace();
-				} finally {
-					Frontend.setBrowser(null);
-				}
+				listener.action(getSelectedObject());
 			}
 		}
 	}
@@ -144,9 +136,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (!e.getValueIsAdjusting() && table.isShowing()) {
-				SwingFrontend.updateEventTab(table);
 				listener.selectionChanged(getSelectedObject(), getSelectedObjects());
-				Frontend.setBrowser(null);
 			}
 		}
 	}

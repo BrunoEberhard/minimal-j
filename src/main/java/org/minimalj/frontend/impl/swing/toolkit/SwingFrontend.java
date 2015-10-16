@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -9,7 +10,10 @@ import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
@@ -44,6 +48,18 @@ import org.minimalj.model.Rendering.RenderType;
 public class SwingFrontend extends Frontend {
 	private static final Logger logger = Logger.getLogger(SwingFrontend.class.getName());
 	
+	public SwingFrontend() {
+		AWTEventListener listener = new AWTEventListener() {
+			@Override
+			public void eventDispatched(AWTEvent event) {
+				if (event.getID() == FocusEvent.FOCUS_GAINED && event.getSource() instanceof Component) {
+					setFocus((Component) event.getSource());
+				}
+			}
+		};	
+		Toolkit.getDefaultToolkit().addAWTEventListener(listener, AWTEvent.FOCUS_EVENT_MASK);
+	}
+	
 	@Override
 	public IComponent createLabel(String string) {
 		return new SwingText(string);
@@ -71,14 +87,13 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					updateEventTab((Component) e.getSource());
 					action.action();
 				}
 			});
 		}
 	}
 	
-	public static SwingTab findSwingTab(Component c) {
+	public static SwingTab getSwingTabAncestor(Component c) {
 		while (c != null && !(c instanceof SwingTab)) {
 			if (c instanceof JPopupMenu) {
 				c = ((JPopupMenu) c).getInvoker();
@@ -109,11 +124,13 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 	
-	public static void updateEventTab(Component c) {
-		SwingTab swingTab = findSwingTab(c);
-		Frontend.setBrowser(swingTab);
-		Page focusedPage = findPage(c);
-		swingTab.setFocusedPage(focusedPage);
+	public static void setFocus(Component c) {
+		SwingTab swingTab = getSwingTabAncestor(c);
+		if (swingTab != null) {
+			Frontend.setBrowser(swingTab);
+			Page focusedPage = findPage(c);
+			swingTab.setFocusedPage(focusedPage);
+		}
 	}
 
 	@Override
@@ -361,7 +378,6 @@ public class SwingFrontend extends Frontend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SwingFrontend.updateEventTab((Component) e.getSource());
 				action.action();
 			}
 		};
