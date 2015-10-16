@@ -29,14 +29,15 @@ public class SqlBackend extends Backend {
 		T result;
 		if (transaction instanceof PersistenceTransaction) {
 			if (persistence.isTransactionActive()) {
-				throw new RuntimeException("Not allowed to nest PersistenceTransaction");
-			}
-			try {
-				persistence.startTransaction();
 				result = ((PersistenceTransaction<T>) transaction).execute(persistence);
-				runThrough = true;
-			} finally {
-				persistence.endTransaction(runThrough);
+			} else {
+				try {
+					persistence.startTransaction();
+					result = ((PersistenceTransaction<T>) transaction).execute(persistence);
+					runThrough = true;
+				} finally {
+					persistence.endTransaction(runThrough);
+				}
 			}
 		} else {
 			result = transaction.execute();
