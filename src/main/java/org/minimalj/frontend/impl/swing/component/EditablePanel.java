@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Window;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,6 @@ import javax.swing.JInternalFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.RepaintManager;
-import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
@@ -118,12 +116,12 @@ public class EditablePanel extends JDesktopPane {
 		arrangeFrames();
 		internalFrame.setVisible(true);
 		
-		repaintLater();
+		repaint();
 	}
 	
 	public void lock() {
 		removeAll();
-		repaintLater();
+		repaint();
 	}
 	
 	public boolean tryToCloseDialogs() {
@@ -151,26 +149,7 @@ public class EditablePanel extends JDesktopPane {
 			add(openFrames.get(openFrames.size()-1));
 		}
 		
-		repaintLater();
-	}
-	
-	private void repaintLater() {
-		// Offene Frage: Aus welchem Grunde muss nochmals "later" ein repaint
-		// ausgelöst werden? Wenn es nicht gemacht wird, wird beim ersten
-		// öffenen eines Dialogs der Dialog nicht gezeichnet (Windows XP)
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				// Offene Frage: Wenn nicht das ganze Window neu gezeichnet wird bleibt nach dem
-				// Oeffnen des ersten JInternalFrame das JMenu "hängen".
-				Window window = SwingUtilities.windowForComponent(EditablePanel.this);
-				if (window != null) {
-					window.repaint();
-				} else {
-					repaint();
-				}
-			}
-		});
+		repaint();
 	}
 
 	private void arrangeFrames() {
