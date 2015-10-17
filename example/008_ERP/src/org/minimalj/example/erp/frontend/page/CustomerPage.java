@@ -56,7 +56,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 			} else {
 				offerTablePage.setCustomer(getObject());
 			}
-			Frontend.getBrowser().showDetail(offerTablePage);
+			Frontend.showDetail(CustomerPage.this, offerTablePage);
 		}
 	}
 

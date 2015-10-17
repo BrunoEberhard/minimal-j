@@ -1,6 +1,5 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
-import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -10,16 +9,14 @@ import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
+import java.util.Stack;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -31,34 +28,21 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
+import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
 public class SwingFrontend extends Frontend {
 	private static final Logger logger = Logger.getLogger(SwingFrontend.class.getName());
-	
-	public SwingFrontend() {
-		AWTEventListener listener = new AWTEventListener() {
-			@Override
-			public void eventDispatched(AWTEvent event) {
-				if (event.getID() == FocusEvent.FOCUS_GAINED && event.getSource() instanceof Component) {
-					setFocus((Component) event.getSource());
-				}
-			}
-		};	
-		Toolkit.getDefaultToolkit().addAWTEventListener(listener, AWTEvent.FOCUS_EVENT_MASK);
-	}
 	
 	@Override
 	public IComponent createLabel(String string) {
@@ -87,52 +71,19 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					action.action();
+					try {
+						SwingFrontend.pushContext();
+						action.action();
+					} finally {
+						SwingFrontend.popContext();
+					}
 				}
 			});
 		}
 	}
 	
-	public static SwingTab getSwingTabAncestor(Component c) {
-		while (c != null && !(c instanceof SwingTab)) {
-			if (c instanceof JPopupMenu) {
-				c = ((JPopupMenu) c).getInvoker();
-			} else {
-				c = c.getParent();
-			}
-		}
-		return (SwingTab) c;
-	}
+	private static Stack<SwingTab> browserStack = new Stack<>();
 	
-	public static Page findPage(Component c) {
-		while (c != null && getPageProperty(c) == null) {
-			if (c instanceof JPopupMenu) {
-				c = ((JPopupMenu) c).getInvoker();
-			} else {
-				c = c.getParent();
-			}
-		}
-		return getPageProperty(c);
-	}
-	
-	private static Page getPageProperty(Component c) {
-		if (c instanceof JComponent) {
-			JComponent jcomponent = (JComponent) c;
-			return (Page) jcomponent.getClientProperty("page");
-		} else {
-			return null;
-		}
-	}
-	
-	public static void setFocus(Component c) {
-		SwingTab swingTab = getSwingTabAncestor(c);
-		if (swingTab != null) {
-			Frontend.setBrowser(swingTab);
-			Page focusedPage = findPage(c);
-			swingTab.setFocusedPage(focusedPage);
-		}
-	}
-
 	@Override
 	public IComponent createTitle(String string) {
 		return new SwingTitle(string);
@@ -248,7 +199,7 @@ public class SwingFrontend extends Frontend {
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setDialogTitle(title);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog((Component) getBrowser(), approveButtonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(getBrowser(), approveButtonText)) {
 			return chooser.getSelectedFile();
 		} else {
 			return null;
@@ -316,7 +267,7 @@ public class SwingFrontend extends Frontend {
 				addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						dialog = Frontend.getBrowser().showSearchDialog(search, keys, new LookupClickListener());
+						dialog = Frontend.showSearchDialog(search, keys, new LookupClickListener());
 					}
 				});
 			}
@@ -378,7 +329,12 @@ public class SwingFrontend extends Frontend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				action.action();
+				try {
+					pushContext();
+					action.action();
+				} finally {
+					popContext();
+				}
 			}
 		};
 		swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());
@@ -399,28 +355,53 @@ public class SwingFrontend extends Frontend {
 		return swingAction;
 	}
 	
+	public static void pushContext() {
+		browserStack.push(SwingFrame.getActiveWindow().getVisibleTab());
+	}
+	
+	public static void popContext() {
+		browserStack.pop();
+	}
+	
+	public static boolean hasContext() {
+		return !browserStack.isEmpty() && browserStack.peek() != null;
+	}
+	
+	@Override
+	public SwingTab getBrowser() {
+		if (hasContext()) {
+			return browserStack.peek();
+		} else {
+			return SwingFrame.getActiveWindow().getVisibleTab();
+		}
+	}
+
 	@Override
 	public <INPUT, RESULT> RESULT executeSync(Function<INPUT, RESULT> function, INPUT input) {
+		if (!hasContext()) {
+			return function.apply(input);
+		}
+		
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		EventQueue eq = tk.getSystemEventQueue();
 		SecondaryLoop loop = eq.createSecondaryLoop();
 
-		ExecuteSyncThread<INPUT, RESULT> worker = new ExecuteSyncThread<>(loop, function, input);
-		SwingTab pageBrowser = (SwingTab) Frontend.getBrowser();
+		ExecuteSyncThread<INPUT, RESULT> thread = new ExecuteSyncThread<>(loop, function, input);
+		SwingTab pageBrowser = getBrowser();
 		try {
+			browserStack.push(null);
 			pageBrowser.lock();
-			worker.start();
+			thread.start();
 			if (!loop.enter()) {
 				logger.warning("Could not execute background in second thread");
 				return function.apply(input);
 			}
-			if (worker.getException() != null) {
-				throw new RuntimeException(worker.getException());
+			if (thread.getException() != null) {
+				throw new RuntimeException(thread.getException());
 			}
-			return worker.getResult();
+			return thread.getResult();
 		} finally {
-			// user could have changed tab since start of action
-			Frontend.setBrowser(pageBrowser);
+			browserStack.pop();
 			pageBrowser.unlock();
 		}
 	}
@@ -442,6 +423,7 @@ public class SwingFrontend extends Frontend {
 		public void run() {
 			try {
 				result = function.apply(input);
+				Thread.sleep(2000);
 			} catch (Exception x) {
 				exception = x;
 			} finally {

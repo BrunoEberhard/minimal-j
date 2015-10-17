@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.model.Rendering;
+import org.minimalj.security.Subject;
 
 /**
  * To provide a new kind (Xy) of client you have to implement two things:
@@ -21,28 +24,27 @@ import org.minimalj.model.Rendering;
 
 public abstract class Frontend {
 
-	private static Frontend frontend;
-	private static ThreadLocal<PageBrowser> pageBrowserByThread = new ThreadLocal<PageBrowser>();
+	private static Frontend instance;
 	
 	public static Frontend getInstance() {
-		if (frontend == null) {
+		if (instance == null) {
 			throw new IllegalStateException("Frontend has to be initialized");
 		}
-		return frontend;
+		return instance;
 	}
 
 	public static synchronized void setInstance(Frontend frontend) {
-		if (Frontend.frontend != null) {
+		if (Frontend.instance != null) {
 			throw new IllegalStateException("Frontend cannot be changed");
 		}		
 		if (frontend == null) {
 			throw new IllegalArgumentException("Frontend cannot be null");
 		}
-		Frontend.frontend = frontend;
+		Frontend.instance = frontend;
 	}
 
 	public static boolean isAvailable() {
-		return Frontend.frontend != null;
+		return Frontend.instance != null;
 	}
 	
 	/**
@@ -150,16 +152,55 @@ public abstract class Frontend {
 	
 	//
 	
-	public static void setBrowser(PageBrowser pageBrowser) {
-		pageBrowserByThread.set(pageBrowser);
-	}
-	
-	public static PageBrowser getBrowser() {
-		return pageBrowserByThread.get();
+	public Subject getSubject() {
+		return getBrowser() != null ? getBrowser().getSubject() : null;
 	}
 
+	public void setSubject(Subject subject) {
+		getBrowser().setSubject(subject);
+	}
+	
+	//
+	
+	public abstract PageBrowser getBrowser();
+	
+	//
+	
 	public <INPUT, RESULT> RESULT executeSync(Function<INPUT, RESULT> function, INPUT input) {
 		return function.apply(input);
 	}
+
+	// delegating shortcuts
 	
+	public static void show(Page page) {
+		getInstance().getBrowser().show(page);
+	}
+
+	public static void showDetail(Page mainPage, Page detail) {
+		getInstance().getBrowser().showDetail(mainPage, detail);
+	}
+	
+	public static void hideDetail(Page page) {
+		getInstance().getBrowser().hideDetail(page);
+	}
+	
+	public static boolean isDetailShown(Page page) {
+		return getInstance().getBrowser().isDetailShown(page);
+	}
+
+	public static IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
+		return getInstance().getBrowser().showDialog(title, content, saveAction, closeAction, actions);
+	}
+
+	public static <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
+		return getInstance().getBrowser().showSearchDialog(index, keys, listener);
+	}
+
+	public static void showMessage(String text) {
+		getInstance().getBrowser().showMessage(text);
+	}
+	
+	public static void showError(String text) {
+		getInstance().getBrowser().showError(text);
+	}
 }

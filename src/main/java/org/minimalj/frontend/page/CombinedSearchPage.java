@@ -27,7 +27,7 @@ public class CombinedSearchPage extends TablePage<SearchResult> {
 
 	@Override
 	public void action(SearchResult selectedObject) {
-		Frontend.getBrowser().show(selectedObject.searchPage);
+		Frontend.show(selectedObject.searchPage);
 	}
 	
 	@SuppressWarnings("rawtypes")

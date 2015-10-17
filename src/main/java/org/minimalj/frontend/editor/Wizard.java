@@ -59,9 +59,9 @@ public abstract class Wizard<RESULT> extends Action {
 		
 		if (DevMode.isActive()) {
 			FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
-			dialog = Frontend.getBrowser().showDialog(getTitle(), switchContent, nextAction, cancelAction, demoAction, cancelAction, previousAction, nextAction, finishAction);
+			dialog = Frontend.showDialog(getTitle(), switchContent, nextAction, cancelAction, demoAction, cancelAction, previousAction, nextAction, finishAction);
 		} else {
-			dialog = Frontend.getBrowser().showDialog(getTitle(), switchContent, nextAction, cancelAction, cancelAction, previousAction, nextAction, finishAction);
+			dialog = Frontend.showDialog(getTitle(), switchContent, nextAction, cancelAction, cancelAction, previousAction, nextAction, finishAction);
 		}
 	}
 
@@ -118,7 +118,7 @@ public abstract class Wizard<RESULT> extends Action {
 			finished(result);
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
-			Frontend.getBrowser().showError(x.getLocalizedMessage());
+			Frontend.showError(x.getLocalizedMessage());
 			return;
 		}
 	}

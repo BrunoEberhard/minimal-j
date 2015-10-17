@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -54,7 +53,7 @@ public class JsonClientSession implements PageBrowser {
 	}
 	
 	public JsonOutput handle(JsonInput input) {
-		Frontend.setBrowser(this);
+		JsonFrontend.setSession(this);
 		output = new JsonOutput();
 
 		if (input.containsObject("focusPageId")) {
@@ -133,24 +132,24 @@ public class JsonClientSession implements PageBrowser {
 			show(pageIds);
 		}
 		
-		Frontend.setBrowser(null);
+		JsonFrontend.setSession(null);
 		return output;
 	}
-
+	
 	@Override
 	public void show(Page page) {
 		show(page, UUID.randomUUID().toString(), null);
 	}
 	
 	@Override
-	public void showDetail(Page page) {
-		int pageIndex = visiblePageAndDetailsList.indexOf(page);
+	public void showDetail(Page mainPage, Page detail) {
+		int pageIndex = visiblePageAndDetailsList.indexOf(detail);
 		if (pageIndex < 0) {
-			show(page, UUID.randomUUID().toString(), focusPageId);
+			show(detail, UUID.randomUUID().toString(), focusPageId);
 		} else {
 			String pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);
-			output.add("title", page.getTitle());
+			output.add("title", detail.getTitle());
 		}
 	}
 	

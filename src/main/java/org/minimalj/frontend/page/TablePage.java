@@ -78,27 +78,27 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			} else {
 				detailPage = createDetailPage(selectedObject);
 				if (detailPage != null) {
-					Frontend.getBrowser().showDetail(detailPage);
+					Frontend.showDetail(TablePageWithDetail.this, detailPage);
 				}
 			}
 		}
 
 		@Override
 		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
-			if (detailPage != null && Frontend.getBrowser().isDetailShown(detailPage)) {
+			if (detailPage != null && Frontend.isDetailShown(detailPage)) {
 				updateDetailPage(selectedObject);
 			}
 		}
 		
 		private void updateDetailPage(T selectedObject) {
 			DETAIL_PAGE updatedDetailPage = updateDetailPage(detailPage, selectedObject);
-			if (Frontend.getBrowser().isDetailShown(detailPage)) {
+			if (Frontend.isDetailShown(detailPage)) {
 				if (updatedDetailPage == null || updatedDetailPage != detailPage) {
-					Frontend.getBrowser().hideDetail(detailPage);
+					Frontend.hideDetail(detailPage);
 				}
 			}
 			if (updatedDetailPage != null) {
-				Frontend.getBrowser().showDetail(updatedDetailPage);
+				Frontend.showDetail(TablePageWithDetail.this, updatedDetailPage);
 				detailPage = updatedDetailPage;
 			}
 		}

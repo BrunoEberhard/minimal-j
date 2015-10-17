@@ -30,7 +30,7 @@ public class LanternaDialog implements IDialog {
 			}
 		});
 		
-		((LanternaGUIScreen) Frontend.getBrowser()).show(window);
+		((LanternaGUIScreen) Frontend.getInstance().getBrowser()).show(window);
 	}
 	
 	@Override

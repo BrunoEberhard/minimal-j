@@ -29,6 +29,7 @@ import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -46,6 +47,8 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.frontend.page.ProgressListener;
+import org.minimalj.security.LoginAction;
+import org.minimalj.security.LogoutTransaction;
 import org.minimalj.security.Subject;
 
 public class SwingTab extends EditablePanel implements PageBrowser {
@@ -55,7 +58,8 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	final Action previousAction, nextAction, refreshAction;
 	final Action closeTabAction;
 	final Action toggleMenuAction;
-
+	final Action loginAction, logoutAction;
+	
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
 	private final JSplitPane splitPane;
@@ -69,7 +73,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 
 	private final List<Page> visiblePageAndDetailsList;
 
-	private Page focusedPage;
+	private Subject subject;
 	
 	public SwingTab(SwingFrame frame) {
 		super();
@@ -87,6 +91,10 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		closeTabAction = new CloseTabAction();
 		
 		toggleMenuAction = new ToggleMenuAction();
+		
+		loginAction = new SwingLoginAction();
+		logoutAction = new SwingLogoutAction();
+		updateLoginAction();
 		
 		JPanel outerPanel = new JPanel(new BorderLayout());
 		
@@ -135,24 +143,18 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	
 	@Override
 	public void setSubject(Subject subject) {
-		frame.setSubject(subject);
+		this.subject = subject;
+		updateNavigation();
+		updateLoginAction();
+	}
+
+	private void updateNavigation() {
+		menuScrollPane.setViewportView(new MenuTree(Application.getApplication().getMenu()));
 	}
 	
 	@Override
 	public Subject getSubject() {
-		return frame.getSubject();
-	}
-	
-	public void updateToUser(Subject user) {
-		menuScrollPane.setViewportView(new MenuTree(Application.getApplication().getMenu()));
-	}
-	
-	public static SwingTab getActiveTab() {
-		Window w = SwingFrame.getActiveWindow();
-		if (w instanceof SwingFrame) {
-			return ((SwingFrame) w).getVisibleTab();
-		}
-		return null;
+		return subject;
 	}
 
 	public Page getVisiblePage() {
@@ -352,7 +354,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	}
 
 	@Override
-	public void showDetail(Page detail) {
+	public void showDetail(Page mainPage, Page detail) {
 		int index = visiblePageAndDetailsList.indexOf(detail);
 		if (index > -1) {
 			SwingDecoration decoration = (SwingDecoration) verticalPanel.getComponents()[index];
@@ -360,17 +362,13 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 			decoration.setContentVisible();
 			return;
 		}
-		removeDetailsOf(focusedPage);
+		removeDetailsOf(mainPage);
 		addPageOrDetail(detail);
 
 		List<Page> pages = new ArrayList<>();
 		pages.addAll(history.getPresent());
 		pages.add(detail);
 		history.addQuiet(pages);
-	}
-	
-	public void setFocusedPage(Page focusedPage) {
-		this.focusedPage = focusedPage;
 	}
 	
 	private void addPageOrDetail(Page page) {
@@ -507,6 +505,38 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	
 	public boolean tryToClose() {
 		return tryToCloseDialogs();
+	}
+	
+	private void updateLoginAction() {
+		loginAction.setEnabled(subject == null);
+		logoutAction.setEnabled(subject != null);
+	}
+	
+	private class SwingLoginAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		public SwingLoginAction() {
+			super("LoginAction");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			new LoginAction().action();
+		}
+	}
+	
+	private class SwingLogoutAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		public SwingLogoutAction() {
+			super("LogoutAction");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Backend.getInstance().execute(new LogoutTransaction());
+			setSubject(null);
+		}
 	}
 
 }

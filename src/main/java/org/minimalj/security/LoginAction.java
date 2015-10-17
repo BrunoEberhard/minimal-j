@@ -32,6 +32,6 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 	
 	@Override
 	protected void finished(Subject subject) {
-		Frontend.getBrowser().setSubject(subject);
+		Frontend.getInstance().setSubject(subject);
 	}
 }

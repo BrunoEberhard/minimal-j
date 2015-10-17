@@ -21,7 +21,7 @@ public abstract class Preferences {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T getPreferences(Class<T> clazz) {
-		Subject subject = Frontend.getBrowser().getSubject();
+		Subject subject = Frontend.getInstance().getSubject();
 		Map<Subject, Object> preferencesCache = getPreferencesCache(clazz);
 		if (!preferencesCache.containsKey(subject)) {
 			Object preferences = loadPreferences(clazz);
@@ -37,7 +37,7 @@ public abstract class Preferences {
 	public static void savePreferences(Object preferences) {
 		// TODO return Backend.getInstance().execute(new SavePreferencesTransaction(preferences));
 		// clear cache to force reload on next access
-		getPreferencesCache(preferences.getClass()).remove(Frontend.getBrowser().getSubject());
+		getPreferencesCache(preferences.getClass()).remove(Frontend.getInstance().getSubject());
 	}
 
 	private static class LoadPreferencesTransaction<T> implements Transaction<T> {

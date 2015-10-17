@@ -28,8 +28,8 @@ public class ActionGroup extends Action {
 		items.add(new PageAction(page));
 	}
 
-	public void addDetail(Page page) {
-		items.add(new DetailPageAction(page));
+	public void addDetail(Page mainPage, Page detail) {
+		items.add(new DetailPageAction(mainPage, detail));
 	}
 
 	public void add(Page page, String name) {

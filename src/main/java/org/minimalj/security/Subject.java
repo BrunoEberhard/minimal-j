@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
@@ -113,8 +112,7 @@ public class Subject implements Serializable {
 	
 	public static Subject getSubject() {
 		if (Frontend.isAvailable()) {
-			PageBrowser pageBrowser = Frontend.getBrowser();
-			return pageBrowser != null ? pageBrowser.getSubject() : null;
+			return Frontend.getInstance().getSubject();
 		} else {
 			return Authorization.getInstance().getSubject();
 		}

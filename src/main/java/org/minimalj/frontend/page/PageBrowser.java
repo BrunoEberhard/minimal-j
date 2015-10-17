@@ -17,19 +17,10 @@ public interface PageBrowser {
 		// TODO remove this default
 	}
 	
-	public default boolean hasPermission(String... accessRoles) {
-		Subject subject = getSubject();
-		if (subject != null) {
-			return subject.hasPermission(accessRoles);
-		} else {
-			return false;
-		}
-	}
-	
 	public abstract void show(Page page);
 
-	public default void showDetail(Page page) {
-		show(page);
+	public default void showDetail(Page mainPage, Page detail) {
+		show(detail);
 	}
 	
 	public default void hideDetail(Page page) {

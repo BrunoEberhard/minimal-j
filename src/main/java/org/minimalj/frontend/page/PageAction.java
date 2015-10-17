@@ -24,7 +24,7 @@ public class PageAction extends Action {
 
 	@Override
 	public void action() {
-		Frontend.getBrowser().show(page);
+		Frontend.show(page);
 	}
 	
 }

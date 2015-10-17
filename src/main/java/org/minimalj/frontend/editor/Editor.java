@@ -49,7 +49,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		form.setChangeListener(new EditorChangeListener());
 		form.setObject(object);
 		
-		dialog = Frontend.getBrowser().showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
+		dialog = Frontend.showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
 	}
 	
 	private Action[] createActions() {
@@ -104,7 +104,7 @@ public abstract class Editor<T, RESULT> extends Action {
 			finished(result);
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
-			Frontend.getBrowser().showError(x.getLocalizedMessage());
+			Frontend.showError(x.getLocalizedMessage());
 			return;
 		}
 	}

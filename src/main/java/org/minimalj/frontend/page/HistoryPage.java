@@ -32,7 +32,7 @@ public abstract class HistoryPage<T> extends Page {
 				@Override
 				public void action(HistoryVersion<T> selectedObject) {
 					Page page = HistoryPage.this.click(selectedObject.object, selectedObject.version);
-					Frontend.getBrowser().show(page);
+					Frontend.show(page);
 				}
 			};
 			table = Frontend.getInstance().createTable(new Object[]{HistoryVersion.$.version, HistoryVersion.$.time, HistoryVersion.$.description}, listener);

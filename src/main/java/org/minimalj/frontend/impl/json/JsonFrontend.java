@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.PageBrowser;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Authorization;
 import org.minimalj.util.LocaleContext;
@@ -18,8 +19,19 @@ import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
 
+	private static ThreadLocal<JsonClientSession> sessionByThread = new ThreadLocal<>();
+
+	public static void setSession(JsonClientSession session) {
+		sessionByThread.set(session);
+	}
+
 	public static JsonClientSession getClientSession() {
-		return (JsonClientSession) Frontend.getBrowser();
+		return sessionByThread.get();
+	}
+	
+	@Override
+	public PageBrowser getBrowser() {
+		return getClientSession();
 	}
 	
 	@Override
@@ -142,4 +154,5 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		return result;
 	}
+
 }

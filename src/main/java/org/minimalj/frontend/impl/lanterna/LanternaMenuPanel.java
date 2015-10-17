@@ -124,7 +124,7 @@ public class LanternaMenuPanel extends Panel {
 			LanternaFrontend.setGui(guiScreen);
 			String query = textFieldSearch.getText();
 			Page searchPage = Application.getApplication().createSearchPage(query);
-			Frontend.getBrowser().show(searchPage);
+			Frontend.show(searchPage);
 			LanternaFrontend.setGui(null);
 		}
 	}

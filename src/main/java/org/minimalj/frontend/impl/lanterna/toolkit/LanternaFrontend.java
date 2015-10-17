@@ -13,14 +13,16 @@ import com.googlecode.lanterna.gui.component.Button;
 
 public class LanternaFrontend extends Frontend {
 	
+	private static ThreadLocal<LanternaGUIScreen> screenByThread = new ThreadLocal<>();
+
 	public LanternaFrontend() {
 	}
 	
 	public static void setGui(LanternaGUIScreen value) {
-		if (value == null && Frontend.getBrowser() != null) {
-			((LanternaGUIScreen) Frontend.getBrowser()).actionComplete();
+		if (value == null && screenByThread.get() != null) {
+			screenByThread.get().actionComplete();
 		}
-		Frontend.setBrowser(value);
+		screenByThread.set(value);
 	}
 	
 	@Override
@@ -67,20 +69,25 @@ public class LanternaFrontend extends Frontend {
 	 * the action method.
 	 */
 	private static class LanternaActionAdapter implements com.googlecode.lanterna.gui.Action {
-		private final PageBrowser browser;
+		private final LanternaGUIScreen browser;
 		private final Action action;
 		
 		public LanternaActionAdapter(Action action) {
 			this.action = action;
-			this.browser = Frontend.getBrowser();
+			this.browser = screenByThread.get();
 		}
 		
 		@Override
 		public void doAction() {
-			Frontend.setBrowser(browser);
+			screenByThread.set(browser);
 			action.action();
-			Frontend.setBrowser(null);
+			screenByThread.set(null);
 		}
+	}
+	
+	@Override
+	public PageBrowser getBrowser() {
+		return screenByThread.get();
 	}
 	
 	@Override

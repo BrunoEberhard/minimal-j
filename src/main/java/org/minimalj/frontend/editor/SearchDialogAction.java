@@ -18,7 +18,7 @@ public abstract class SearchDialogAction<T> extends Action implements Search<T> 
 	
 	@Override
 	public void action() {
-		dialog = Frontend.getBrowser().showSearchDialog(this, keys, new SearchClickListener());
+		dialog = Frontend.showSearchDialog(this, keys, new SearchClickListener());
 	}
 
 	protected int getColumnWidthPercentage() {
