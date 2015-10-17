@@ -350,6 +350,7 @@ public class SwingFrontend extends Frontend {
 
 			protected void update() {
 				swingAction.setEnabled(action.isEnabled());
+				swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());
 			}
 		});
 		return swingAction;
