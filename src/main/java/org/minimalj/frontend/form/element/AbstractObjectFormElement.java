@@ -3,6 +3,7 @@ package org.minimalj.frontend.form.element;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
@@ -158,6 +159,17 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 
 	protected void add(Rendering rendering, Page linkedPage) {
 		list.add(Frontend.getInstance().createText(rendering), new PageAction(linkedPage));
+	}
+	
+	protected void addTextArea(String text, Action... actions) {
+		Input<String> textArea = Frontend.getInstance().createAreaField(text.length(), null, listener());
+		textArea.setValue(text);
+		textArea.setEditable(false);
+		if (isEditable()) {
+			list.add(textArea, actions);
+		} else {
+			list.add(textArea);
+		}
 	}
 	
 	/**
