@@ -39,7 +39,7 @@ public class PersistenceAuthorization extends Authorization {
 	@Override
 	protected List<String> retrieveRoles(UserPassword userPassword) {
 		List<User> userList = retrieveUsers(userPassword.user);
-		if (userList.isEmpty()) {
+		if (userList == null || userList.isEmpty()) {
 			return null;
 		}
 		User user = userList.get(0);
