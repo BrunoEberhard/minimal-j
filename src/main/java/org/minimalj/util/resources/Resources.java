@@ -161,14 +161,19 @@ public class Resources {
 	}
 
 	public static String getObjectFieldName(PropertyInterface property, String postfix) {
-		return getObjectFieldName(getResourceBundle(), property, postfix);
+		String result = getObjectFieldName(getResourceBundle(), property, postfix);
+		if (result == null) {
+			// if no resource with postfix try without (need for checkboxes)
+			result = getObjectFieldName(getResourceBundle(), property);
+		}
+		return result;
 	}
 	
-	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property) {
+	private static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property) {
 		return getObjectFieldName(resourceBundle, property, null);
 	}
 	
-	public static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property, String postfix) {
+	private static String getObjectFieldName(ResourceBundle resourceBundle, PropertyInterface property, String postfix) {
 		String fieldName = property.getName();
 		if (postfix != null) {
 			fieldName += postfix;
@@ -176,10 +181,10 @@ public class Resources {
 		Class<?> declaringClass = property.getDeclaringClass();
 		Class<?> fieldClass = property.getClazz();
 		
-		return getObjectFieldName(resourceBundle, fieldName, declaringClass, fieldClass);
+		return getObjectFieldName(resourceBundle, fieldName, declaringClass, fieldClass, postfix != null);
 	}
 
-	private static String getObjectFieldName(ResourceBundle resourceBundle, String fieldName, Class<?> declaringClass, Class<?> fieldClass) {
+	private static String getObjectFieldName(ResourceBundle resourceBundle, String fieldName, Class<?> declaringClass, Class<?> fieldClass, boolean optional) {
 		// completeQualifiedKey example: "ch.openech.model.Person.nationality"
 		String completeQualifiedKey = declaringClass.getName() + "." + fieldName;
 		if (resourceBundle.containsKey(completeQualifiedKey)) {
@@ -195,7 +200,7 @@ public class Resources {
 		// if declaring class is a view check to viewed class
 		if (View.class.isAssignableFrom(declaringClass) && !Code.class.isAssignableFrom(declaringClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
-			return getObjectFieldName(resourceBundle, fieldName, viewedClass, fieldClass);
+			return getObjectFieldName(resourceBundle, fieldName, viewedClass, fieldClass, optional);
 		}
 		
 		// class of field
@@ -209,8 +214,12 @@ public class Resources {
 			return resourceBundle.getString(fieldName);
 		}
 		
-		reportMissing(qualifiedKey, true);
-		return "'" + qualifiedKey + "'";
+		if (!optional) {
+			reportMissing(qualifiedKey, true);
+			return "'" + qualifiedKey + "'";
+		} else {
+			return null;
+		}
 	}
 	
 	public static String getActionResourceName(Class<?> clazz) {
