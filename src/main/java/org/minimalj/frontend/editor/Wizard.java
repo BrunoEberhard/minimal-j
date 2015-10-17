@@ -28,6 +28,7 @@ public abstract class Wizard<RESULT> extends Action {
 	private final List<ValidationMessage> validationMessages = new ArrayList<>();
 	private FinishAction finishAction;
 	private NextWizardStepAction nextAction;
+	private PreviousWizardStepAction previousAction;
 	private IDialog dialog;
 	private SwitchContent switchContent;
 	private int stepIndex;
@@ -49,7 +50,7 @@ public abstract class Wizard<RESULT> extends Action {
 		switchContent = Frontend.getInstance().createSwitchContent();
 
 		CancelAction cancelAction = new CancelAction();
-		PreviousWizardStepAction previousAction = new PreviousWizardStepAction();
+		previousAction = new PreviousWizardStepAction();
 		nextAction = new NextWizardStepAction();
 		finishAction = new FinishAction();
 
@@ -75,6 +76,7 @@ public abstract class Wizard<RESULT> extends Action {
 		validate(stepObject);
 		
 		switchContent.show(form.getContent());
+		previousAction.setEnabled(stepIndex > 0);
 	}
 	
 	protected abstract WizardStep<?> getFirstStep();
