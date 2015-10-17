@@ -7,6 +7,12 @@ public class LoginTransaction implements Transaction<Subject> {
 	
 	private final UserPassword userPassword;
 	
+	public LoginTransaction() {
+		this.userPassword = new UserPassword();
+		userPassword.user = "Anonymous";
+		userPassword.password = new char[0];
+	}
+	
 	public LoginTransaction(UserPassword userPassword) {
 		this.userPassword = userPassword;
 	}
@@ -17,6 +23,10 @@ public class LoginTransaction implements Transaction<Subject> {
 	
 	@Override
 	public Subject execute() {
-		return Authorization.getInstance().login(userPassword);
+		if (Authorization.isAvailable()) {
+			return Authorization.getInstance().login(userPassword);
+		} else {
+			return null;
+		}
 	}
 }

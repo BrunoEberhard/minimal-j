@@ -15,25 +15,30 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.swing.component.HideableTabbedPane;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.security.LoginTransaction;
+import org.minimalj.security.Subject;
+import org.minimalj.util.StringUtils;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
-	private static SwingFrame swingFrameInConstruction = null;
+	private Subject subject;
+	
+	public static SwingFrame activeFrameOverride = null;
 	
 	private HideableTabbedPane tabbedPane;
-	final Action closeWindowAction, exitAction, newWindowAction, newTabAction;
+	final Action closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction;
 	
-	public SwingFrame() {
-		swingFrameInConstruction = this;
-		
+	public SwingFrame(boolean authorizationAvailable) {
 		updateWindowTitle();
 		
 		closeWindowAction = new CloseWindowAction();
 		exitAction = new ExitAction();
 		newWindowAction = new NewWindowAction();
+		newWindowWithLoginAction = authorizationAvailable ? new NewWindowWithLoginAction() : null;
 		newTabAction = new NewTabAction();
 		
 		setDefaultSize();
@@ -42,7 +47,6 @@ public class SwingFrame extends JFrame {
 		createContent();
 		
 		getRootPane().putClientProperty(SwingFrame.class.getSimpleName(), this);
-		swingFrameInConstruction = null;
 	}
 	
 	protected void setDefaultSize() {
@@ -80,11 +84,7 @@ public class SwingFrame extends JFrame {
 	}
 
 	private void addTab() {
-		SwingTab tab = new SwingTab(this);
-		if (getVisibleTab() != null) {
-			tab.setSubject(getVisibleTab().getSubject());
-		}
-		
+		SwingTab tab = new SwingTab(this);	
 		tabbedPane.addTab("", tab);
 		tabbedPane.setSelectedComponent(tab);
 
@@ -130,8 +130,8 @@ public class SwingFrame extends JFrame {
 	}
 
 	public static SwingFrame getActiveWindow() {
-		if (swingFrameInConstruction != null) {
-			return swingFrameInConstruction;
+		if (activeFrameOverride != null) {
+			return activeFrameOverride;
 		}
 		for (Window w : Window.getWindows()) {
 			if (w.isActive()) {
@@ -142,7 +142,8 @@ public class SwingFrame extends JFrame {
 	}
 
 	public SwingTab getVisibleTab() {
-		return (SwingTab) tabbedPane.getSelectedComponent();
+		SwingTab tab = (SwingTab) tabbedPane.getSelectedComponent();
+		return tab;
 	}
 	
 	public void closeTab() {
@@ -169,11 +170,21 @@ public class SwingFrame extends JFrame {
 		updateTitle();
 	}
 	
+	public void setSubject(Subject subject) {
+		this.subject = subject;
+		getVisibleTab().updateNavigation();
+		updateWindowTitle();
+	}
+
+	public Subject getSubject() {
+		return subject;
+	}
+	
 	protected void updateWindowTitle() {
 		String title = Application.getApplication().getName();
-//		if (subject != null) {
-//			title = title + " - " + subject.getName();
-//		}
+		if (subject != null && !StringUtils.isEmpty(subject.getName())) {
+			title = title + " - " + subject.getName();
+		}
 		setTitle(title);
 	}
 	
@@ -207,15 +218,25 @@ public class SwingFrame extends JFrame {
 		}
 	}
 
-	private static class NewWindowAction extends SwingResourceAction {
+	private class NewWindowAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			FrameManager.getInstance().openNavigationFrame();
+			FrameManager.getInstance().openNavigationFrame(subject);
 		}
 	}
-	
+
+	private class NewWindowWithLoginAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Subject anonymousSubject = Backend.getInstance().execute(new LoginTransaction());
+			FrameManager.getInstance().openNavigationFrame(anonymousSubject);
+		}
+	}
+
 	private class NewTabAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 

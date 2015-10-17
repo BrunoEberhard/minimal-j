@@ -371,8 +371,10 @@ public class SwingFrontend extends Frontend {
 	public SwingTab getBrowser() {
 		if (hasContext()) {
 			return browserStack.peek();
-		} else {
+		} else if (SwingFrame.getActiveWindow() != null) {
 			return SwingFrame.getActiveWindow().getVisibleTab();
+		} else {
+			return null;
 		}
 	}
 

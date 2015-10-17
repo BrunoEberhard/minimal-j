@@ -1,14 +1,12 @@
 package org.minimalj.security;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.minimalj.application.DevMode;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
@@ -45,17 +43,6 @@ public abstract class Authorization {
 		}
 
 		available = false;
-
-		if (DevMode.isActive()) {
-			return new Authorization() {
-				@Override
-				protected List<String> retrieveRoles(UserPassword login) {
-					logger.warning("Authentication disabled. Let pass " + login.user + " without security check");
-					return Collections.emptyList();
-				}
-			};
-		}
-		
 		return null;
 	}
 	
@@ -75,17 +62,15 @@ public abstract class Authorization {
 
 	public Subject login(UserPassword login) {
 		List<String> roles = retrieveRoles(login);
+		Subject user = new Subject();
 		if (roles != null) {
-			Subject user = new Subject();
 			user.setName(login.user);
 			user.getRoles().addAll(roles);
 			UUID token = UUID.randomUUID();
 			user.setToken(token);
 			userByToken.put(token, user);
-			return user;
-		} else {
-			return null;
 		}
+		return user;
 	}
 
 	public void logout() {

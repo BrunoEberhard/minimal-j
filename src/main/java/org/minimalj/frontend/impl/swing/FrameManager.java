@@ -11,6 +11,8 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.security.LoginAction;
+import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -55,10 +57,10 @@ public class FrameManager {
 		return instance;
 	}
 
-	public void openNavigationFrame() {
-		final SwingFrame frame = new SwingFrame();
+	public void openNavigationFrame(Subject subject) {
+		boolean authorizationAvailable = subject != null;
+		final SwingFrame frame = new SwingFrame(authorizationAvailable);
 		frame.setVisible(true);
-		
 		navigationFrames.add(frame);
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -66,11 +68,14 @@ public class FrameManager {
 				navigationFrames.remove(frame);
 			}
 		});
+		if (subject != null && !subject.isValid()) {
+			SwingFrame.activeFrameOverride = frame;
+			new LoginAction(subject).action();
+			SwingFrame.activeFrameOverride = null;
+		} else {
+			frame.setSubject(subject);
+		}
 	}
-//	
-//	protected SwingFrame createInitialFrame() {
-//		return new SwingFrame();
-//	}
 	
 	public List<SwingFrame> getNavigationFrames() {
 		return navigationFrames;

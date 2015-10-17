@@ -36,6 +36,10 @@ public class Subject implements Serializable {
 	public List<String> getRoles() {
 		return roles;
 	}
+	
+	public boolean isValid() {
+		return token != null;
+	}
 
 	public boolean hasPermission(String... accessRoles) {
 		for (String accessRole : accessRoles) {
