@@ -58,12 +58,20 @@ public class SwingList extends JPanel implements IList {
 
 	@Override
 	public void add(IComponent component, Action... actions) {
+		int existingComponents = getComponentCount();
 		super.add((Component) component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
 		for (Action action : actions) {
 			super.add(new SwingActionLabel(action), "", getComponentCount() - actionCount);
 		}
-		JComponent lastLabel = (JComponent) super.getComponent(super.getComponentCount()-1);
-		lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+		if (actionCount > 0) {
+			// if global actions exist: create border at the end of this component+actions
+			JComponent lastLabel = (JComponent) super.getComponent(super.getComponentCount() - actionCount - 1);
+			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+		} else if (existingComponents > 0) {
+			// no global actions, but not the first add: create border at the end of the previous component+actions 
+			JComponent lastLabel = (JComponent) super.getComponent(existingComponents - 1);
+			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+		}
 		
 		repaint();
 		revalidate();
