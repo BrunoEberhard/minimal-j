@@ -112,7 +112,6 @@ public class EditablePanel extends JDesktopPane {
 
 		internalFrame.addInternalFrameListener(listener);
 
-		internalFrame.pack();
 		arrangeFrames();
 		internalFrame.setVisible(true);
 		
