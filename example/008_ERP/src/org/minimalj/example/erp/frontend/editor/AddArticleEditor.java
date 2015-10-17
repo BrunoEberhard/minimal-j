@@ -22,6 +22,6 @@ public class AddArticleEditor extends NewObjectEditor<Article> {
 
 	@Override
 	protected void finished(Object newId) {
-		Frontend.getBrowser().show(new ArticlePage(newId));
+		Frontend.show(new ArticlePage(newId));
 	}
 }

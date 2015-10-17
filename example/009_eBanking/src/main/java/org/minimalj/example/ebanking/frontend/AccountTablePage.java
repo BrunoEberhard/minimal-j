@@ -70,7 +70,7 @@ public class AccountTablePage extends TablePageWithDetail<Account, AccountPositi
 		
 		@Override
 		protected void finished(AccountFilter filter) {
-			Frontend.getBrowser().show(new AccountTablePage(filter));
+			Frontend.show(new AccountTablePage(filter));
 		}
 	}
 

@@ -69,7 +69,7 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 		
 		@Override
 		protected void finished(AccountPositionFilter filter) {
-			Frontend.getBrowser().show(new AccountPositionTablePage(account, filter));
+			Frontend.show(new AccountPositionTablePage(account, filter));
 		}
 	}
 

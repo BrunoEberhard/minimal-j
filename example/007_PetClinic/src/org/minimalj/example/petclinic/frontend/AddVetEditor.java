@@ -24,7 +24,7 @@ public class AddVetEditor extends NewObjectEditor<Vet> {
 	
 	@Override
 	protected void finished(Object newId) {
-		Frontend.getBrowser().show(new VetTablePage());
+		Frontend.show(new VetTablePage());
 	}
 
 }

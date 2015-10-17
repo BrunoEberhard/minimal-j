@@ -39,7 +39,7 @@ public class LendTablePage extends TablePage<Lend> {
 
 	@Override
 	public void action(Lend selectedObject) {
-		Frontend.getBrowser().show(new BookPage(selectedObject.book));
+		Frontend.show(new BookPage(selectedObject.book));
 	}
 	
 }

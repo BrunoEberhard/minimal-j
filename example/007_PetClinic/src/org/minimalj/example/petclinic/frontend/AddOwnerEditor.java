@@ -20,7 +20,7 @@ public class AddOwnerEditor extends NewObjectEditor<Owner> {
 	
 	@Override
 	protected void finished(Object newId) {
-		Frontend.getBrowser().show(new OwnerPage(newId));
+		Frontend.show(new OwnerPage(newId));
 	}
 
 }

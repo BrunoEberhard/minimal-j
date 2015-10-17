@@ -27,7 +27,7 @@ public class AddBookEditor extends NewObjectEditor<Book> {
 	
 	@Override
 	protected void finished(Object newId) {
-		Frontend.getBrowser().show(new BookPage(newId));
+		Frontend.show(new BookPage(newId));
 	}
 
 }

@@ -27,7 +27,7 @@ public class AddCustomerEditor extends NewObjectEditor<Customer> {
 	
 	@Override
 	protected void finished(Object newId) {
-		Frontend.getBrowser().show(new CustomerPage(newId));
+		Frontend.show(new CustomerPage(newId));
 	}
 
 }

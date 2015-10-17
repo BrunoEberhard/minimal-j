@@ -32,7 +32,7 @@ public class UserNameEditor extends SimpleEditor<User> {
 	
 	@Override
 	protected void finished(User user) {
-		Frontend.getBrowser().show(new GreetingPage(user));
+		Frontend.show(new GreetingPage(user));
 	}
 
 }

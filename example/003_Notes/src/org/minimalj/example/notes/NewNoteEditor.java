@@ -19,7 +19,7 @@ public class NewNoteEditor extends NewObjectEditor<Note> {
 	
 	@Override
 	protected void finished(Object newId) {
-		Frontend.getBrowser().show(new NoteTablePage());
+		Frontend.show(new NoteTablePage());
 	}
 
 	private static class NoteForm extends Form<Note> {
