@@ -142,8 +142,12 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
 				int componentWidth = constraint.isCompleteRow() ? width : constraint.getSpan() * width / columns;
-				x += componentWidth; 
-				component.setSize(componentWidth, height);
+				x += componentWidth;
+				if (constraint.isVerticallyGrowing()) {
+					component.setSize(componentWidth, height);
+				} else {
+					component.setSize(componentWidth, component.getPreferredSize().height);
+				}
 			}
 		}
 		
