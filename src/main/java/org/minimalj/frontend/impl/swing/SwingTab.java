@@ -8,8 +8,6 @@ import java.awt.LayoutManager;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -107,13 +105,6 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		contentScrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		contentScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		splitPane.setRightComponent(contentScrollPane);
-		
-		contentScrollPane.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				verticalPanel.revalidate();
-			}
-		});
 		
 		menuScrollPane = new JScrollPane();
 		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -370,9 +361,8 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		}
 		content.putClientProperty("page", page);
 
-		verticalPanel.add(new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener));
+		verticalPanel.add(new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener), "");
 		verticalPanel.revalidate();
-		verticalPanel.repaint();
 	}
 
 	private void removeDetailsOf(Page page) {
@@ -386,7 +376,6 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 			verticalPanel.remove(verticalPanel.getComponentCount()-1);
 		}
 		verticalPanel.revalidate();
-		verticalPanel.repaint();
 	}
 
 	@Override
