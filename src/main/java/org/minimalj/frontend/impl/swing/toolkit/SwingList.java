@@ -102,8 +102,8 @@ public class SwingList extends JPanel implements IList {
 			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds())) return;
 			lastParentBounds = parent.getBounds();
 			
-			int y = 4;
-			int x = 1;
+			int y = 0;
+			int x = 0;
 			int width = parent.getWidth();
 			int widthWithoutIns = width - x;
 			for (Component component : getComponents()) {
