@@ -8,8 +8,6 @@ import org.minimalj.frontend.form.element.PasswordFormElement;
 
 public class LoginAction extends Editor<UserPassword, Subject> {
 
-	private PasswordFormElement passwordField;
-	
 	@Override
 	protected UserPassword createObject() {
 		return new UserPassword();
@@ -19,8 +17,7 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 	protected Form<UserPassword> createForm() {
 		Form<UserPassword> form = new Form<>();
 		form.line(UserPassword.$.user);
-		passwordField = new PasswordFormElement(UserPassword.$.password); 
-		form.line(passwordField);
+		form.line(new PasswordFormElement(UserPassword.$.password));
 		return form;
 	}
 
