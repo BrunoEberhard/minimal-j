@@ -26,9 +26,10 @@ public abstract class Wizard<RESULT> extends Action {
 	private Form form;
 	private final EditorChangeListener changeListener = new EditorChangeListener();
 	private final List<ValidationMessage> validationMessages = new ArrayList<>();
-	private FinishAction finishAction;
-	private NextWizardStepAction nextAction;
-	private PreviousWizardStepAction previousAction;
+	private final FinishAction finishAction = new FinishAction();
+	private final NextWizardStepAction nextAction = new NextWizardStepAction();
+	private final PreviousWizardStepAction previousAction = new PreviousWizardStepAction();
+	private final CancelAction cancelAction = new CancelAction();
 	private IDialog dialog;
 	private SwitchContent switchContent;
 	private int stepIndex;
@@ -49,23 +50,35 @@ public abstract class Wizard<RESULT> extends Action {
 	public void action() {
 		switchContent = Frontend.getInstance().createSwitchContent();
 
-		CancelAction cancelAction = new CancelAction();
-		previousAction = new PreviousWizardStepAction();
-		nextAction = new NextWizardStepAction();
-		finishAction = new FinishAction();
-
 		stepIndex = 0;
 		step = getFirstStep();
 		switchStep();
 		
-		if (DevMode.isActive()) {
-			FillWithDemoDataAction demoAction = new FillWithDemoDataAction();
-			dialog = Frontend.showDialog(getTitle(), switchContent, nextAction, cancelAction, demoAction, cancelAction, previousAction, nextAction, finishAction);
-		} else {
-			dialog = Frontend.showDialog(getTitle(), switchContent, nextAction, cancelAction, cancelAction, previousAction, nextAction, finishAction);
-		}
+		dialog = Frontend.showDialog(getTitle(), switchContent, nextAction, cancelAction, createActions());
 	}
 
+	private Action[] createActions() {
+		List<Action> additionalActions = createAdditionalActions();
+		Action[] actions = new Action[additionalActions.size() + 4];
+		int index;
+		for (index = 0; index<additionalActions.size(); index++) {
+			actions[index] = additionalActions.get(index);
+		}
+		actions[index++] = cancelAction;
+		actions[index++] = previousAction;
+		actions[index++] = nextAction;
+		actions[index++] = finishAction;
+		return actions;
+	}
+		
+	protected List<Action> createAdditionalActions() {
+		List<Action> actions = new ArrayList<Action>();
+		if (DevMode.isActive()) {
+			actions.add(new FillWithDemoDataAction());
+		}
+		return actions;
+	}
+	
 	private void switchStep() {
 		stepObject = step.createObject();
 
