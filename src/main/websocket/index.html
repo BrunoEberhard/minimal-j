@@ -880,9 +880,6 @@
 		mc.on("panright", panright);
 		mc.on("panleft", panleft);
 		mc.on("doubletap", doubletaps);
-		// doesn't work: why?
-		mc.on("pinchin", pinchin);
-		mc.on("pinchout", pinchout);
 	}
 
 	function panright(event) {
@@ -920,14 +917,6 @@
 				actionMenus[0].style.display = "none";
 			}
 		}
-	}
-
-	function pinchin() {
-		document.getElementById("all").style.fontSize = "20px";
-	}
-
-	function pinchout() {
-		document.getElementById("all").style.fontSize = "11px";
 	}
 
 	function init() {
