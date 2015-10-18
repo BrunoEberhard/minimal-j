@@ -21,6 +21,8 @@ public class SwingList extends JPanel implements IList {
 	private static final long serialVersionUID = 1L;
 	
 	private final int actionCount;
+
+	private Component[] disabledChildren;
 	
 	public SwingList(Action... actions) {
 		super(null, true);
@@ -44,20 +46,36 @@ public class SwingList extends JPanel implements IList {
 
 	@Override
 	public void setEnabled(boolean enabled) {
+		if (isEnabled() && !enabled) {
+			disabledChildren = getComponents();
+			removeAll();
+			revalidate();
+		} else if (!isEnabled() && enabled) {
+			for (Component c: disabledChildren) {
+				add(c, "");
+			}
+			revalidate();
+		}
 		super.setEnabled(enabled);
 	}
 
 	@Override
 	public void clear() {
-		for (int i = getComponentCount() - actionCount - 1; i>=0; i--) {
-			remove(i);
+		if (isEnabled()) {
+			for (int i = getComponentCount() - actionCount - 1; i>=0; i--) {
+				remove(i);
+			}
+		} else {
+			throw new IllegalStateException("Not allowed to clear components while disabled");
 		}
-		repaint();
 		revalidate();
 	}
 
 	@Override
 	public void add(IComponent component, Action... actions) {
+		if (!isEnabled()) {
+			throw new IllegalStateException("Not allowed to add component while disabled");
+		}
 		int existingComponents = getComponentCount();
 		super.add((Component) component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
 		for (Action action : actions) {
