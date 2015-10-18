@@ -27,7 +27,7 @@ public class JsonList extends JsonComponent implements IList {
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		put("editable", enabled);
+		put("enabled", enabled);
 	}
 
 	@Override

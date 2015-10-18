@@ -82,6 +82,10 @@
 								validationElement.className = "";
 								validationElement.title = value;
 							}
+						} else if (property == "enabled" && element.className == "list") {
+							element.style.display = value ? "block" : "none";						
+						} else if (property == "enabled" && element.className == "listContent") {
+							element.parentElement.style.display = value ? "block" : "none";		
 						} else if (property == "editable" || property == "enabled") {
 							if (value) {
 								element.removeAttribute("disabled");
@@ -311,7 +315,7 @@
 	function createContent(content) {
 		var type = content.type;
 		var element;
-		var enabled = content.editable == undefined || content.editable;
+		var editable = content.editable == undefined || content.editable;
 		if (type == "Form") {
 			element = document.createElement("table");
 			element.classList.add("form")			
@@ -428,7 +432,7 @@
 		} else if (type == "CheckBox") {
 			element = document.createElement("input");
 			element.type = "checkbox";
-			if (enabled) {
+			if (editable) {
 				element.setAttribute("onchange", "sendchange(this);");
 			} else {
 				element.setAttribute("disabled", "true");
@@ -443,19 +447,22 @@
 			return label; /* ! */
 		} else if (type == "List") {
 			element = document.createElement("div");
+			element.id = content.id;
 			if (content.actions != undefined) {
+				element.className = "listContent";
 				var actionElement = document.createElement("div");
 				for (var i = 0; i < content.actions.length; i++) {
 					actionElement.appendChild(createContent(content.actions[i]));
 				}
-				element.id = content.id;
 				var elementWithActions = document.createElement("div");
-				elementWithActions.className = "list";
 				elementWithActions.appendChild(element);
 				elementWithActions.appendChild(actionElement);
-				return elementWithActions;
+				element = elementWithActions;
 			}
 			element.className = "list";
+			var enabled = content.enabled == undefined || content.enabled;
+			element.style.display = enabled ? "block" : "none";
+			return element;
 		} else if (type == "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);
@@ -469,7 +476,7 @@
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
 		}
-		if (!enabled) {
+		if (!editable) {
 			element.setAttribute("disabled", "true");
 		}
 		if (content.id != undefined) {
