@@ -79,7 +79,7 @@ public class SwingList extends JPanel implements IList {
 
 	private class VerticalLayoutManager implements LayoutManager {
 
-		private Dimension size;
+		private Dimension preferredSize;
 		private Rectangle lastParentBounds = null;
 		
 		public VerticalLayoutManager() {
@@ -88,22 +88,29 @@ public class SwingList extends JPanel implements IList {
 		@Override
 		public Dimension preferredLayoutSize(Container parent) {
 			layoutContainer(parent);
-			return size;
+			return preferredSize;
 		}
 
 		@Override
 		public Dimension minimumLayoutSize(Container parent) {
 			layoutContainer(parent);
-			return size;
+			return preferredSize;
 		}
 
 		@Override
 		public void layoutContainer(Container parent) {
 			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds())) return;
 			lastParentBounds = parent.getBounds();
-			
-			int y = 0;
-			int x = 0;
+
+			int preferredHeight = 0;
+			for (Component component : getComponents()) {
+				int height = component.getPreferredSize().height;
+				preferredHeight += height;
+			}
+			int verticalRest = parent.getHeight() - preferredHeight;
+			int verticalInset = verticalRest > 8 ? 4 : verticalRest / 2;
+			int y = verticalInset;
+			int x = verticalInset > 0 ? 1 : 0;
 			int width = parent.getWidth();
 			int widthWithoutIns = width - x;
 			for (Component component : getComponents()) {
@@ -111,7 +118,7 @@ public class SwingList extends JPanel implements IList {
 				component.setBounds(x, y, widthWithoutIns, height);
 				y += height;
 			}
-			size = new Dimension(width, y);
+			preferredSize = new Dimension(width, preferredHeight);
 		}
 
 		@Override
