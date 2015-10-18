@@ -1,5 +1,8 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.logging.Logger;
+
+import org.minimalj.application.DevMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
@@ -15,7 +18,8 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 
 /**
- * The state of an ObjectField is saved in the object variable.<p>
+ * The state of an ObjectField is saved in the object variable.
+ * <p>
  * 
  * You have to implement for an ObjectField:
  * <ul>
@@ -24,15 +28,15 @@ import org.minimalj.util.GenericUtils;
  * </ul>
  * 
  */
-public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T> implements Enable {
-	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
-	
+public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T>implements Enable {
+	private static final Logger logger = Logger.getLogger(AbstractObjectFormElement.class.getName());
+
 	private final boolean editable;
 
 	private final IList list;
 
 	private T object;
-	
+
 	public AbstractObjectFormElement(PropertyInterface property, boolean editable) {
 		super(property);
 		this.editable = editable;
@@ -42,7 +46,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	protected final boolean isEditable() {
 		return editable;
 	}
-	
+
 	@Override
 	public T getValue() {
 		return object;
@@ -58,7 +62,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	public IComponent getComponent() {
 		return list;
 	}
-	
+
 	protected abstract Form<T> createFormPanel();
 
 	protected T createObject() {
@@ -69,12 +73,26 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		}
 	}
 
+	protected void assertEditable(Object object) {
+		if (!isEditable()) {
+			String msg = object.getClass().getSimpleName() + " should not be used if " + AbstractObjectFormElement.class.getSimpleName()
+					+ " is not editable";
+			if (DevMode.isActive()) {
+				throw new IllegalArgumentException(msg);
+			} else {
+				logger.warning(msg);
+			}
+		}
+	}
+
 	public class ObjectFormElementEditor extends Editor<T, Void> {
 		public ObjectFormElementEditor() {
+			assertEditable(this);
 		}
 
 		public ObjectFormElementEditor(String name) {
 			super(name);
+			assertEditable(this);
 		}
 
 		@Override
@@ -92,17 +110,17 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 			AbstractObjectFormElement.this.setValue(edited);
 			return null;
 		}
-		
+
 		@Override
 		protected void finished(Void result) {
 			handleChange();
 		}
 	}
-	
+
 	protected Action getEditorAction() {
 		return new ObjectFormElementEditor();
 	}
-	
+
 	/*
 	 * Only to be used in ObjectFieldEditor
 	 */
@@ -112,7 +130,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		T newInstance = CloneHelper.newInstance(clazz);
 		return newInstance;
 	}
-	
+
 	protected void handleChange() {
 		display();
 		super.fireChange();
@@ -126,33 +144,23 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	}
 
 	protected abstract void show(T object);
-	
+
 	protected void add(Rendering rendering, Action... actions) {
-		if (isEditable()) {
-			list.add(Frontend.getInstance().createText(rendering), actions);
-		} else if (!(object instanceof Action)) {
-			list.add(Frontend.getInstance().createText(rendering));
-		}
+		list.add(Frontend.getInstance().createText(rendering), actions);
 	}
 
 	protected void add(Object object, Action... actions) {
 		add(object.toString(), actions);
 	}
-	
+
 	protected void add(String text, Action... actions) {
-		if (isEditable()) {
-			list.add(Frontend.getInstance().createLabel(text), actions);
-		} else if (!(object instanceof Action)) {
-			list.add(Frontend.getInstance().createLabel(text));
-		}
+		list.add(Frontend.getInstance().createLabel(text), actions);
 	}
 
 	protected void add(Action action) {
-		if (isEditable()) {
-			list.add(Frontend.getInstance().createLabel(action));
-		}
+		list.add(Frontend.getInstance().createLabel(action));
 	}
-	
+
 	protected void add(String text, Page linkedPage) {
 		list.add(Frontend.getInstance().createLabel(new PageAction(linkedPage, text)));
 	}
@@ -160,28 +168,24 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	protected void add(Rendering rendering, Page linkedPage) {
 		list.add(Frontend.getInstance().createText(rendering), new PageAction(linkedPage));
 	}
-	
+
 	protected void addTextArea(String text, Action... actions) {
 		Input<String> textArea = Frontend.getInstance().createAreaField(text.length(), null, listener());
 		textArea.setValue(text);
 		textArea.setEditable(false);
-		if (isEditable()) {
-			list.add(textArea, actions);
-		} else {
-			list.add(textArea);
-		}
+		list.add(textArea, actions);
 	}
-	
+
 	/**
-	 * Null as return is ok, but mostly an 'Add'-Action is returned.
-	 * The actions are only shown if the Form(Element) is editable
+	 * Null as return is ok, but mostly an 'Add'-Action is returned. The actions
+	 * are only shown if the Form(Element) is editable
 	 * 
 	 * @return the actions that apply for all (and the 'empty') entries
 	 */
 	protected Action[] getActions() {
 		return null;
 	}
-	
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		list.setEnabled(enabled);

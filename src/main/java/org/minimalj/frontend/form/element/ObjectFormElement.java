@@ -4,8 +4,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.model.properties.PropertyInterface;
 
 public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> {
-	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
-	
+
 	public ObjectFormElement(PropertyInterface property) {
 		this(property, true);
 	}
@@ -15,6 +14,11 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 	}
 
 	public class RemoveObjectAction extends Action {
+
+		public RemoveObjectAction() {
+			assertEditable(this);
+		}
+
 		@Override
 		public void action() {
 			ObjectFormElement.this.setValue(null);

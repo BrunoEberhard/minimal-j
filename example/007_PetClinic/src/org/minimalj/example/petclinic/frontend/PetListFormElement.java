@@ -18,7 +18,11 @@ public class PetListFormElement extends ListFormElement<Pet> {
 
 	@Override
 	protected void showEntry(Pet pet) {
-		add(pet, new AddVisitEditor(pet));
+		if (isEditable()) {
+			add(pet, new AddVisitEditor(pet));
+		} else {
+			add(pet);
+		}
 		for (Visit visit : pet.visits) {
 			add(visit);
 		}

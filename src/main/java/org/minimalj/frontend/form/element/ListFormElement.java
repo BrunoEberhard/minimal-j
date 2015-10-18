@@ -39,10 +39,12 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 	public abstract class AddListEntryEditor extends Editor<T, Void> {
 		
 		public AddListEntryEditor() {
+			assertEditable(this);
 		}
 
 		public AddListEntryEditor(String name) {
 			super(name);
+			assertEditable(this);
 		}
 		
 		@Override
@@ -71,6 +73,7 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		private final T originalEntry;
 		
 		public EditListEntryAction(T originalEntry) {
+			assertEditable(this);
 			this.originalEntry = originalEntry;
 		}
 
