@@ -2,7 +2,7 @@
 
 Minimal-J simplifies applications
 
-image::doc/frontends.png[title="Minimal-J Clients"]
+image::doc/frontends.png
 
 Minimal-J applications are
 
