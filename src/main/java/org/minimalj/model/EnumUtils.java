@@ -12,6 +12,8 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.minimalj.model.Rendering.RenderType;
+
 
 public class EnumUtils {
 
@@ -74,6 +76,13 @@ public class EnumUtils {
 	public static <T extends Enum<T>> String getText(T enumElement) {
 		if (enumElement == null) {
 			return null;
+		}
+		
+		if (enumElement instanceof Rendering) {
+			String text = ((Rendering) enumElement).render(RenderType.PLAIN_TEXT);
+			if (text != null) {
+				return text;
+			}
 		}
 		
 		String bundleName = enumElement.getClass().getName();
