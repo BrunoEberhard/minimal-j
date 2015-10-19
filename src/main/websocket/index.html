@@ -12,7 +12,7 @@
 	"use strict";
 
 	var websocket;
-	var session; //  = document.cookie;
+	var session = sessionStorage.sessionId;
 	
 	var isMobile = location.search == "?mobile"; 
 
@@ -25,7 +25,7 @@
 	function onMessage(evt) {
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
-		document.cookie = session;
+		sessionStorage.sessionId = session;
 		if ("showPage" in dataObject) {
 			addNewStateToHistory();
 			showPage(dataObject.showPage);
