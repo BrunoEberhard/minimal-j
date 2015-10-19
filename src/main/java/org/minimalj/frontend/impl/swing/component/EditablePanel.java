@@ -166,6 +166,9 @@ public class EditablePanel extends JDesktopPane {
 		} else {
 			JInternalFrame lastFrame = openFrames.get(openFrames.size() - 2);
 			newFrame.setLocation(lastFrame.getX() + 50, lastFrame.getY() + 40);
+			if (newFrame.getX() + newFrame.getWidth() > getWidth()) {
+				newFrame.setSize(getWidth() - newFrame.getX(), newFrame.getHeight());
+			}
 		}
 	}
 	
