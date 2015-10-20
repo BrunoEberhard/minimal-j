@@ -6,7 +6,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
-import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 
 import com.googlecode.lanterna.gui.component.Button;
@@ -86,7 +86,7 @@ public class LanternaFrontend extends Frontend {
 	}
 	
 	@Override
-	public PageBrowser getBrowser() {
+	public PageManager getPageManager() {
 		return screenByThread.get();
 	}
 	

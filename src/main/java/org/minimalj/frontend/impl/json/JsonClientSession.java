@@ -18,11 +18,11 @@ import org.minimalj.frontend.impl.util.PageList;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.security.LoginAction;
 import org.minimalj.security.Subject;
 
-public class JsonClientSession implements PageBrowser {
+public class JsonClientSession implements PageManager {
 
 	private Subject subject;
 	private String focusPageId;

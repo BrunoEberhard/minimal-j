@@ -7,7 +7,7 @@ import java.util.function.Function;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
 
@@ -17,7 +17,7 @@ import org.minimalj.security.Subject;
  * <LI>This class, like XyFrontend</LI>
  * <LI>Some kind of XyApplication with a main. The XyApplication should take an instance of Application and 
  * start the client. Take a look at the existing SwingFrontend, JsonFrontend or LanternaFrontend. The trickiest part will be to implement
- * the PageBrowser.</LI>
+ * the PageManager.</LI>
  * </OL>
  *
  */
@@ -153,16 +153,16 @@ public abstract class Frontend {
 	//
 	
 	public Subject getSubject() {
-		return getBrowser() != null ? getBrowser().getSubject() : null;
+		return getPageManager() != null ? getPageManager().getSubject() : null;
 	}
 
 	public void setSubject(Subject subject) {
-		getBrowser().setSubject(subject);
+		getPageManager().setSubject(subject);
 	}
 	
 	//
 	
-	public abstract PageBrowser getBrowser();
+	public abstract PageManager getPageManager();
 	
 	//
 	
@@ -173,34 +173,34 @@ public abstract class Frontend {
 	// delegating shortcuts
 	
 	public static void show(Page page) {
-		getInstance().getBrowser().show(page);
+		getInstance().getPageManager().show(page);
 	}
 
 	public static void showDetail(Page mainPage, Page detail) {
-		getInstance().getBrowser().showDetail(mainPage, detail);
+		getInstance().getPageManager().showDetail(mainPage, detail);
 	}
 	
 	public static void hideDetail(Page page) {
-		getInstance().getBrowser().hideDetail(page);
+		getInstance().getPageManager().hideDetail(page);
 	}
 	
 	public static boolean isDetailShown(Page page) {
-		return getInstance().getBrowser().isDetailShown(page);
+		return getInstance().getPageManager().isDetailShown(page);
 	}
 
 	public static IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		return getInstance().getBrowser().showDialog(title, content, saveAction, closeAction, actions);
+		return getInstance().getPageManager().showDialog(title, content, saveAction, closeAction, actions);
 	}
 
 	public static <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
-		return getInstance().getBrowser().showSearchDialog(index, keys, listener);
+		return getInstance().getPageManager().showSearchDialog(index, keys, listener);
 	}
 
 	public static void showMessage(String text) {
-		getInstance().getBrowser().showMessage(text);
+		getInstance().getPageManager().showMessage(text);
 	}
 	
 	public static void showError(String text) {
-		getInstance().getBrowser().showError(text);
+		getInstance().getPageManager().showError(text);
 	}
 }

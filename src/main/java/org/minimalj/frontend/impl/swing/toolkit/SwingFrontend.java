@@ -199,7 +199,7 @@ public class SwingFrontend extends Frontend {
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setDialogTitle(title);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(getBrowser(), approveButtonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(getPageManager(), approveButtonText)) {
 			return chooser.getSelectedFile();
 		} else {
 			return null;
@@ -369,7 +369,7 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public SwingTab getBrowser() {
+	public SwingTab getPageManager() {
 		if (hasContext()) {
 			return browserStack.peek();
 		} else if (SwingFrame.getActiveWindow() != null) {
@@ -390,7 +390,7 @@ public class SwingFrontend extends Frontend {
 		SecondaryLoop loop = eq.createSecondaryLoop();
 
 		ExecuteSyncThread<INPUT, RESULT> thread = new ExecuteSyncThread<>(loop, function, input);
-		SwingTab pageBrowser = getBrowser();
+		SwingTab pageBrowser = getPageManager();
 		try {
 			browserStack.push(null);
 			pageBrowser.lock();

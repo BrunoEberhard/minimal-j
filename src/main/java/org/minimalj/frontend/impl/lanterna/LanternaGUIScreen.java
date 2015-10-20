@@ -11,7 +11,7 @@ import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.PageManager;
 
 import com.googlecode.lanterna.gui.Border;
 import com.googlecode.lanterna.gui.Component;
@@ -21,7 +21,7 @@ import com.googlecode.lanterna.gui.dialog.MessageBox;
 import com.googlecode.lanterna.gui.layout.BorderLayout;
 import com.googlecode.lanterna.screen.Screen;
 
-public class LanternaGUIScreen extends GUIScreen implements PageBrowser {
+public class LanternaGUIScreen extends GUIScreen implements PageManager {
 
 	private LanternaMenuPanel menuPanel;
 	private LanternaSwitchContent switchLayout;

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Authorization;
 import org.minimalj.util.LocaleContext;
@@ -30,7 +30,7 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public PageBrowser getBrowser() {
+	public PageManager getPageManager() {
 		return getClientSession();
 	}
 	

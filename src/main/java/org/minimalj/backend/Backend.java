@@ -106,7 +106,7 @@ public abstract class Backend {
 	
 	public final <T> T execute(Transaction<T> transaction) {
 		if (Subject.hasPermission(transaction)) {
-			if (Frontend.isAvailable() && Frontend.getInstance().getBrowser() != null) {
+			if (Frontend.isAvailable() && Frontend.getInstance().getPageManager() != null) {
 				Function<Transaction<T>, T> f = (Transaction<T> t) -> (doExecute(t));
 				return Frontend.getInstance().executeSync(f, transaction);
 			} else {

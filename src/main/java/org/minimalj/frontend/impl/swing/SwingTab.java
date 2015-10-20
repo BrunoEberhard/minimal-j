@@ -42,11 +42,11 @@ import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.PageBrowser;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.security.Subject;
 
-public class SwingTab extends EditablePanel implements PageBrowser {
+public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
 	
 	final SwingFrame frame;
