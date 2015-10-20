@@ -35,12 +35,12 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public IComponent createLabel(String string) {
+	public IComponent createText(String string) {
 		return new JsonText(string);
 	}
 	
 	@Override
-	public IComponent createLabel(Action action) {
+	public IComponent createText(Action action) {
 		return new JsonAction(action);
 	}
 	

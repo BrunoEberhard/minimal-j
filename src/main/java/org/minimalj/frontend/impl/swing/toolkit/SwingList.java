@@ -14,7 +14,7 @@ import javax.swing.UIManager;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionLabel;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
 
 
 public class SwingList extends JPanel implements IList {
@@ -29,7 +29,7 @@ public class SwingList extends JPanel implements IList {
 		setLayout(new VerticalLayoutManager());
 		if (actions != null) {
 			for (Action action : actions) {
-				add(new SwingActionLabel(action), "");
+				add(new SwingActionText(action), "");
 			}
 			actionCount = actions.length;
 		} else {
@@ -79,7 +79,7 @@ public class SwingList extends JPanel implements IList {
 		int existingComponents = getComponentCount();
 		super.add((Component) component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
 		for (Action action : actions) {
-			super.add(new SwingActionLabel(action), "", getComponentCount() - actionCount);
+			super.add(new SwingActionText(action), "", getComponentCount() - actionCount);
 		}
 		if (actionCount > 0) {
 			// if global actions exist: create border at the end of this component+actions

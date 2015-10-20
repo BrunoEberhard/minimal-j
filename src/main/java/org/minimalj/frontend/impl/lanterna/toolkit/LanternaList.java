@@ -17,7 +17,7 @@ public class LanternaList extends Panel implements IList {
 		setLayoutManager(new VerticalLayout());
 		if (actions != null) {
 			for (Action action : actions) {
-				addComponent((Component) Frontend.getInstance().createLabel(action));
+				addComponent((Component) Frontend.getInstance().createText(action));
 			}
 			actionCount = actions.length;
 		} else {

@@ -39,7 +39,7 @@ public class HelloWorldPage extends Page {
 	@Override
 	public IContent getContent() {
 		FormContent form = Frontend.getInstance().createFormContent(1, 100);
-		form.add(Frontend.getInstance().createLabel("Hello World"));
+		form.add(Frontend.getInstance().createText("Hello World"));
 		return form;
 	}
 
@@ -48,8 +48,8 @@ public class HelloWorldPage extends Page {
 
 The page defines its title and its content. Later a page can also define its actions.
 
-There are only two classes of IContent: Forms and Tables. A Label is not a IContent but a IComponent. 
-That is the reason why the 'Hello World' Label must be put in a form and cannot be
+There are only two classes of IContent: Forms and Tables. A Text is not a IContent but a IComponent. 
+That is the reason why the 'Hello World' Text must be put in a form and cannot be
 returned as result for the getContent method.
 
 Note that the getContent method does construct the return value but doesn't save it for

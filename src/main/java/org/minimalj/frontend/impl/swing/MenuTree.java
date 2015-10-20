@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionLabel;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
 import org.minimalj.frontend.impl.swing.toolkit.SwingText;
 
 
@@ -26,7 +26,7 @@ public class MenuTree extends JPanel {
 				ActionGroup actionGroup = (ActionGroup) action;
 				add(new MenuTree(actionGroup.getItems()));
 			} else {
-				add(new SwingActionLabel(action));
+				add(new SwingActionText(action));
 			}
 		}
 	}		

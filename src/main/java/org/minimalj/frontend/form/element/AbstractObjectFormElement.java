@@ -154,15 +154,15 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	}
 
 	protected void add(String text, Action... actions) {
-		list.add(Frontend.getInstance().createLabel(text), actions);
+		list.add(Frontend.getInstance().createText(text), actions);
 	}
 
 	protected void add(Action action) {
-		list.add(Frontend.getInstance().createLabel(action));
+		list.add(Frontend.getInstance().createText(action));
 	}
 
 	protected void add(String text, Page linkedPage) {
-		list.add(Frontend.getInstance().createLabel(new PageAction(linkedPage, text)));
+		list.add(Frontend.getInstance().createText(new PageAction(linkedPage, text)));
 	}
 
 	protected void add(Rendering rendering, Page linkedPage) {

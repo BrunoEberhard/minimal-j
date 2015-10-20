@@ -70,8 +70,8 @@ public abstract class Frontend {
 	 // http://www.w3schools.com/html/html_form_input_types.asp 
 	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
 
-	public abstract IComponent createLabel(String string); // TODO -> createText
-	public abstract IComponent createLabel(Action action); // TODO -> createText
+	public abstract IComponent createText(String string);
+	public abstract IComponent createText(Action action);
 	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createTitle(String string);
 	public abstract Input<String> createReadOnlyTextField();

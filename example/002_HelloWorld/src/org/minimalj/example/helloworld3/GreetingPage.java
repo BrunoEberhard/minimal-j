@@ -23,7 +23,7 @@ public class GreetingPage extends Page {
 	@Override
 	public IContent getContent() {
 		FormContent form = Frontend.getInstance().createFormContent(1, 100);
-		form.add(Frontend.getInstance().createLabel("Hello " + user.name));
+		form.add(Frontend.getInstance().createText("Hello " + user.name));
 		if (user.image != null) {
 			Input<byte[]> image = Frontend.getInstance().createImage(Size.LARGE, null);
 			image.setValue(user.image);

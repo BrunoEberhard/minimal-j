@@ -186,7 +186,7 @@ public class Form<T> {
 	// 
 
 	public void text(String text) {
-		IComponent label = Frontend.getInstance().createLabel(text);
+		IComponent label = Frontend.getInstance().createText(text);
 		formContent.add(label);
 	}
 

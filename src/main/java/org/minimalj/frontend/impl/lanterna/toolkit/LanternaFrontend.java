@@ -51,14 +51,14 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public IComponent createLabel(final Action action) {
+	public IComponent createText(final Action action) {
 		LanternaActionAdapter lanternaAction = new LanternaActionAdapter(action);
-		LanternaActionLabel button = new LanternaActionLabel(action.getName(), lanternaAction);
+		LanternaActionText button = new LanternaActionText(action.getName(), lanternaAction);
 		return button;
 	}
 
-	public static class LanternaActionLabel extends Button implements IComponent {
-		public LanternaActionLabel(String name, com.googlecode.lanterna.gui.Action action) {
+	public static class LanternaActionText extends Button implements IComponent {
+		public LanternaActionText(String name, com.googlecode.lanterna.gui.Action action) {
 			super(name, action);
 		}
 	}
@@ -91,7 +91,7 @@ public class LanternaFrontend extends Frontend {
 	}
 	
 	@Override
-	public IComponent createLabel(String text) {
+	public IComponent createText(String text) {
 		return new LanternaText(text);
 	}
 

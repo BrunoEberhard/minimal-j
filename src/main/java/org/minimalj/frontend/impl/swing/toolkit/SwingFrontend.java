@@ -45,13 +45,13 @@ public class SwingFrontend extends Frontend {
 	private static final Logger logger = Logger.getLogger(SwingFrontend.class.getName());
 	
 	@Override
-	public IComponent createLabel(String string) {
+	public IComponent createText(String string) {
 		return new SwingText(string);
 	}
 	
 	@Override
-	public IComponent createLabel(Action action) {
-		return new SwingActionLabel(action);
+	public IComponent createText(Action action) {
+		return new SwingActionText(action);
 	}
 
 	@Override
@@ -59,10 +59,10 @@ public class SwingFrontend extends Frontend {
 		return new SwingText(rendering);
 	}
 	
-	public static class SwingActionLabel extends JLabel implements IComponent {
+	public static class SwingActionText extends JLabel implements IComponent {
 		private static final long serialVersionUID = 1L;
 
-		public SwingActionLabel(final Action action) {
+		public SwingActionText(final Action action) {
 			setText(action.getName());
 //			label.setToolTipText(Resources.getResourceBundle().getString(runnable.getClass().getSimpleName() + ".description"));
 			
