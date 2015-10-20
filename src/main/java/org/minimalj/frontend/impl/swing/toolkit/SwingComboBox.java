@@ -145,7 +145,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		}
 		
 		private void updateSetObjectInObjects() {
-			setObjectInObjects = (setObject == null || objects.contains(setObject));
+			setObjectInObjects = setObject == null || objects.contains(setObject);
 		}
 	}
 	
