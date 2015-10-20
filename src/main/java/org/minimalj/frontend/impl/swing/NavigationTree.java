@@ -14,17 +14,17 @@ import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
 import org.minimalj.frontend.impl.swing.toolkit.SwingText;
 
 
-public class MenuTree extends JPanel {
+public class NavigationTree extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	public MenuTree(List<Action> actions) {
+	public NavigationTree(List<Action> actions) {
 		super(new VerticalLayoutManager());
 		
 		for (Action action : actions) {
 			if (action instanceof ActionGroup) {
 				add(new SwingText(action.getName()));
 				ActionGroup actionGroup = (ActionGroup) action;
-				add(new MenuTree(actionGroup.getItems()));
+				add(new NavigationTree(actionGroup.getItems()));
 			} else {
 				add(new SwingActionText(action));
 			}

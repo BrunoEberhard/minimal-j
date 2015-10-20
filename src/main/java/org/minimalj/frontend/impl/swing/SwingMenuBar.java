@@ -62,7 +62,7 @@ public class SwingMenuBar extends JMenuBar {
 		menu.add(new JMenuItem(tab.nextAction));
 		menu.add(new JMenuItem(tab.refreshAction));
 		menu.addSeparator();
-		menu.add(new JCheckBoxMenuItem(tab.toggleMenuAction));
+		menu.add(new JCheckBoxMenuItem(tab.navigationAction));
 		menu.addSeparator();
 		menu.add(createLookAndFeeldMenu());
 		return menu;

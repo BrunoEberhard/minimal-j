@@ -52,15 +52,15 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 	final SwingFrame frame;
 	final Action previousAction, nextAction, refreshAction;
 	final Action closeTabAction;
-	final Action toggleMenuAction;
+	final Action navigationAction;
 	
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
 	private final JSplitPane splitPane;
-	private final SwingDecoration decoratedMenuPane;
+	private final SwingDecoration decoratedNavigationPane;
 	private final JScrollPane contentScrollPane;
 	private final JPanel verticalPanel;
-	private final JScrollPane menuScrollPane;
+	private final JScrollPane navigationScrollPane;
 	
 	private final History<List<Page>> history;
 	private final SwingTabHistoryListener historyListener;
@@ -82,7 +82,7 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 
 		closeTabAction = new CloseTabAction();
 		
-		toggleMenuAction = new ToggleMenuAction();
+		navigationAction = new NavigationAction();
 		
 		JPanel outerPanel = new JPanel(new BorderLayout());
 		
@@ -106,23 +106,23 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		contentScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		splitPane.setRightComponent(contentScrollPane);
 		
-		menuScrollPane = new JScrollPane();
-		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		ActionListener menuClosedListener = new ActionListener() {
+		navigationScrollPane = new JScrollPane();
+		navigationScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		ActionListener navigationClosedListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				toggleMenuAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
-				toggleMenuAction.actionPerformed(e);
+				navigationAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
+				navigationAction.actionPerformed(e);
 			}
 		};
-		decoratedMenuPane = new SwingDecoration(Application.getApplication().getName(), menuScrollPane, SwingDecoration.HIDE_MINIMIZE, menuClosedListener);
-		splitPane.setLeftComponent(decoratedMenuPane);
+		decoratedNavigationPane = new SwingDecoration(Application.getApplication().getName(), navigationScrollPane, SwingDecoration.HIDE_MINIMIZE, navigationClosedListener);
+		splitPane.setLeftComponent(decoratedNavigationPane);
 		
 		splitPane.setDividerLocation(200);
 	}
 	
 	public void updateNavigation() {
-		menuScrollPane.setViewportView(new MenuTree(Application.getApplication().getMenu()));
+		navigationScrollPane.setViewportView(new NavigationTree(Application.getApplication().getMenu()));
 	}
 
 	public Page getVisiblePage() {
@@ -184,19 +184,19 @@ public class SwingTab extends EditablePanel implements PageBrowser {
 		}
 	}
 	
-	private class ToggleMenuAction extends SwingResourceAction {
+	private class NavigationAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
 		private int lastDividerLocation;
 		
-		public ToggleMenuAction() {
+		public NavigationAction() {
 			putValue(Action.SELECTED_KEY, Boolean.TRUE);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (Boolean.TRUE.equals(getValue(Action.SELECTED_KEY))) {
-				splitPane.setLeftComponent(decoratedMenuPane);
+				splitPane.setLeftComponent(decoratedNavigationPane);
 				splitPane.setDividerSize((Integer) UIManager.get("SplitPane.dividerSize"));
 				splitPane.setDividerLocation(lastDividerLocation);
 			} else {
