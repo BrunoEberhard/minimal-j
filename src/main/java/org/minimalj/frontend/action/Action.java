@@ -22,7 +22,10 @@ public abstract class Action {
 	protected Action() {
 		String resourceName = Resources.getActionResourceName(getClass());
 		this.name = Resources.getString(resourceName);
-		this.description = Resources.getString(resourceName + ".description", Resources.OPTIONAL);
+		String descriptionResourceName = resourceName + ".description";
+		if (Resources.isAvailable(descriptionResourceName)) {
+			this.description = Resources.getString(descriptionResourceName);
+		}
 	}
 	
 	protected Action(String name) {
