@@ -57,6 +57,15 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 	}
 
 	@Override
+	public void cancel() {
+		if (!Frontend.getInstance().getSubject().isValid()) {
+			// some frontends cannot close their PageManager. They have to show an error page.
+			Frontend.show(new AuthenticationFailedPage());
+		}
+		super.cancel();
+	}
+	
+	@Override
 	protected void finished(Subject subject) {
 		Frontend.getInstance().setSubject(subject);
 	}

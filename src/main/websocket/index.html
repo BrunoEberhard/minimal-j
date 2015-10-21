@@ -35,7 +35,7 @@
 			for (var i = 0; i<pages.length; i++) {
 				showPage(pages[i]);
 			}
-		} else if (dataObject["pageId"] != undefined) {
+		} else if (dataObject.pageId) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
 			var pageElement = document.getElementById(pageId);
@@ -44,26 +44,26 @@
 				pageTitleElement.innerHTML = title;
 			}
 		}
-		if (dataObject["hideDetail"] != undefined) {
+		if (dataObject.hideDetail != undefined) {
 			addNewStateToHistory();
-			var pageId = dataObject["hideDetail"];
+			var pageId = dataObject.hideDetail;
 			hideDetail(pageId);
 			saveStateInHistory();
 		}		
-		if (dataObject["navigation"] != undefined) {
-			updateNavigation(dataObject["navigation"]);
+		if (dataObject.navigation != undefined) {
+			updateNavigation(dataObject.navigation);
 		}
-		if (dataObject["dialog"] != undefined) {
-			showDialog(dataObject["dialog"]);
+		if (dataObject.dialog != undefined) {
+			showDialog(dataObject.dialog);
 		}
-		if (dataObject["closeDialog"] != undefined) {
-			var dialog = document.getElementById(dataObject["closeDialog"]);
+		if (dataObject.closeDialog != undefined) {
+			var dialog = document.getElementById(dataObject.closeDialog);
 			dialog.close();
 			document.querySelector("body").removeChild(dialog);
 			updateDialogSizes();
 		}
-		if (dataObject["propertyChanges"] != undefined) {
-			var propertyChanges = dataObject["propertyChanges"];
+		if (dataObject.propertyChanges != undefined) {
+			var propertyChanges = dataObject.propertyChanges;
 			for ( var id in propertyChanges) {
 				var element = document.getElementById(id);
 				if (element != undefined) {
@@ -108,8 +108,8 @@
 				}
 			}
 		}
-		if (dataObject["contentChanges"] != undefined) {
-			var contentChanges = dataObject["contentChanges"];
+		if (dataObject.contentChanges != undefined) {
+			var contentChanges = dataObject.contentChanges;
 			for ( var id in contentChanges) {
 				var element = document.getElementById(id);
 				if (element != undefined) {
@@ -126,16 +126,15 @@
 				}
 			}
 		}
-		if (dataObject["message"] != undefined) {
-			alert(dataObject["message"]);
+		if (dataObject.message != undefined) {
+			alert(dataObject.message);
 		}
-		if (dataObject["error"] != undefined) {
-			alert(dataObject["error"]);
+		if (dataObject.error != undefined) {
+			alert(dataObject.error);
 		}
-		if (dataObject["loadSuggestions"] != undefined) {
-			var id = dataObject["loadSuggestions"];
-			var suggestions = dataObject["suggestions"];
-			createSuggestions(id, suggestions);
+		if (dataObject.loadSuggestions != undefined) {
+			var id = dataObject.loadSuggestions;
+			createSuggestions(id, dataObject.suggestions);
 		}
 		
 		if (!isLarge) {
@@ -799,6 +798,9 @@
 	function send(data, block) {
 		data.locale = "$LOCALE";
 
+		var dialogElements = document.getElementsByTagName("dialog");
+		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
+			
 		var pathname = location.pathname;
 		var index = pathname.lastIndexOf("/");
 		data.pagename = pathname.substring(index + 1);

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -20,6 +21,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.security.LoginAction;
+import org.minimalj.security.LoginTransaction;
 import org.minimalj.security.Subject;
 
 public class JsonClientSession implements PageManager {
@@ -35,6 +37,7 @@ public class JsonClientSession implements PageManager {
 	private final PageStore pageStore = new PageStore();
 	
 	public JsonClientSession() {
+		subject = Backend.getInstance().execute(new LoginTransaction());	
 	}
 	
 	@Override
@@ -123,7 +126,7 @@ public class JsonClientSession implements PageManager {
 		}
 
 		String login = (String) input.getObject("login");
-		if (login != null) {
+		if (login != null || subject != null && !subject.isValid() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
 			new LoginAction().action();
 		}
 		

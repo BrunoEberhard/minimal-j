@@ -70,7 +70,16 @@ public class FrameManager {
 		});
 		if (subject != null && !subject.isValid()) {
 			SwingFrame.activeFrameOverride = frame;
-			new LoginAction(subject).action();
+			new LoginAction(subject) {
+				@Override
+				public void cancel() {
+					frame.closeWindow();
+				};
+				@Override
+				public String getName() {
+					return Resources.getString(Resources.getActionResourceName(LoginAction.class));
+				};
+			}.action();
 			SwingFrame.activeFrameOverride = null;
 		} else {
 			frame.setSubject(subject);

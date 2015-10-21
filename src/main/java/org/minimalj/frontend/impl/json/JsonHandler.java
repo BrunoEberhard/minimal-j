@@ -65,9 +65,9 @@ public class JsonHandler {
 			x.printStackTrace();
 		}
 
-		if (invalidSession) {
-			output.add("error", "Invalid session");
-		}
+//		if (invalidSession) {
+//			output.add("error", "Invalid session");
+//		}
 		
 		output.add("session", sessionId);
 		
