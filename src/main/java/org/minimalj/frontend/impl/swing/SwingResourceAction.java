@@ -58,9 +58,7 @@ public abstract class SwingResourceAction extends AbstractAction {
 			action.putValue(Action.LARGE_ICON_KEY, largeIcon);
 		}
 		
-		addValue(action, Action.SHORT_DESCRIPTION, baseName + ".shortDescription");
-		addValue(action, Action.LONG_DESCRIPTION, baseName + ".longDescription");
-		
+		addValue(action, Action.SHORT_DESCRIPTION, baseName + ".description");
 		return action;
 	}
 	
