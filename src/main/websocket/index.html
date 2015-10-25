@@ -155,7 +155,6 @@
 	function addNewStateToHistory() {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			// console.log("push empty state. title: " + titleElement.innerText);
 			history.pushState(null, titleElement.innerText); // second argument is ignored by browsers (!)
 		}
 	}
@@ -167,14 +166,12 @@
 			for (var i = 0; i<pages.length; i++) {
 				state.push(pages[i].id);
 			}
-			// console.log("replace state: " + state + " title: " + titleElement.innerText);
 			history.replaceState(state, titleElement.innerText);
 		}
 	}
 	
 	function popState(event) {
 		if (event.state) {
-			// console.log("pop state: " + event.state);
 			var data = {"showPages" : event.state};
 			send(data, true);
 		} else {

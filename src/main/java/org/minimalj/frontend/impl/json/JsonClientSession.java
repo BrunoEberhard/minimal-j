@@ -152,7 +152,7 @@ public class JsonClientSession implements PageManager {
 		} else {
 			String pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);
-			output.add("title", detail.getTitle());
+			output.add("title", Application.getApplication().getName() + " - " + detail.getTitle());
 		}
 	}
 	
@@ -185,7 +185,7 @@ public class JsonClientSession implements PageManager {
 		
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
-		json.put("title", page.getTitle());
+		json.put("title", Application.getApplication().getName() + " - " + page.getTitle());
 		
 		JsonComponent content = (JsonComponent) page.getContent();
 		register(content);
