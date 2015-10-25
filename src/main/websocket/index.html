@@ -26,6 +26,9 @@
 		var dataObject = JSON.parse(evt.data);
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
+		if (dataObject.applicationName != undefined) {
+			titleElement.replaceChild(document.createTextNode(dataObject.applicationName), titleElement.firstChild);
+		}
 		if ("showPage" in dataObject) {
 			addNewStateToHistory();
 			showPage(dataObject.showPage);
@@ -193,8 +196,6 @@
 		pageElement.className = "page";
 		pageElement.id = page.pageId;
 
-		titleElement.replaceChild(document.createTextNode(page.title), titleElement.firstChild);
-		
 		if (page.actionMenu != null) {
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.classList.add("actionMenu");

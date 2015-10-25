@@ -73,6 +73,7 @@ public class JsonClientSession implements PageManager {
 			navigation = createNavigation();
 			register(navigation);
 			output.add("navigation", navigation);
+			output.add("applicationName", Application.getApplication().getName());
 		}
 		
 		if (input.containsObject("closePage")) {
@@ -152,7 +153,7 @@ public class JsonClientSession implements PageManager {
 		} else {
 			String pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);
-			output.add("title", Application.getApplication().getName() + " - " + detail.getTitle());
+			output.add("title", detail.getTitle());
 		}
 	}
 	
@@ -185,7 +186,7 @@ public class JsonClientSession implements PageManager {
 		
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
-		json.put("title", Application.getApplication().getName() + " - " + page.getTitle());
+		json.put("title", page.getTitle());
 		
 		JsonComponent content = (JsonComponent) page.getContent();
 		register(content);
