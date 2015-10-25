@@ -84,20 +84,6 @@ public class Codes {
 		}
 	}
 
-	public static Object findId(Code value) {
-		Object id = IdUtils.getId(value);
-		if (id != null) {
-			return id;
-		}
-		List<?> codes = get(value.getClass());
-		for (Object code : codes) {
-			if (value.equals(code)) {
-				return IdUtils.getId(code);
-			}
-		}
-		return null;
-	}
-
 	public static <T extends Code> List<T> getConstants(Class<T> clazz) {
 		List<T> constants = new ArrayList<T>();
 		for (Field field : clazz.getDeclaredFields()) {
