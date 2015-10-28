@@ -41,29 +41,22 @@ public class Subject implements Serializable {
 		return token != null;
 	}
 
-	public boolean hasPermission(String... accessRoles) {
-		for (String accessRole : accessRoles) {
-			if (roles.contains(accessRole)) {
-				return true;
+	public static boolean hasRoleFor(Transaction<?> transaction) {
+		Role role = getRole(transaction);
+		boolean noRoleNeeded = role == null;
+		return noRoleNeeded || hasRole(role.value());
+	}
+	
+	public static boolean hasRole(String... roleNames) {
+		Subject subject = getSubject();
+		if (subject != null) {
+			for (String roleName : roleNames) {
+				if (subject.roles.contains(roleName)) {
+					return true;
+				}
 			}
 		}
 		return false;
-	}
-	
-	public static boolean hasPermission(Transaction<?> transaction) {
-		Role role = getRole(transaction);
-		return hasPermission(role);
-	}
-
-	private static boolean hasPermission(Role role) {
-		if (role != null) {
-			Subject subject = getSubject();
-			if (subject != null) {
-				return subject.hasPermission(role.value());
-			}
-			return false;
-		}
-		return true;
 	}
 	
 	public static Role getRole(Transaction<?> transaction) {
