@@ -45,6 +45,13 @@ public abstract class Authorization {
 		available = false;
 		return null;
 	}
+
+	public static void setInstance(Authorization instance) {
+		if (Authorization.instance != null) {
+			throw new IllegalStateException("Cannot change authorization instance");
+		}
+		Authorization.instance = instance;
+	}
 	
 	public static Authorization getInstance() {
 		if (instance == null) {
