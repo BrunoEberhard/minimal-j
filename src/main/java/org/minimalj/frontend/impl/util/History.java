@@ -82,6 +82,10 @@ public class History<T> {
 		return present != null && presentIndex > 0; 
 	}
 	
+	public void clear() {
+		history.clear();
+	}
+	
 	public interface HistoryListener {
 		public void onHistoryChanged();
 	}
