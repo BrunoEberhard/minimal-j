@@ -16,11 +16,14 @@ import javax.swing.JFrame;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.component.HideableTabbedPane;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.security.LoginAction;
 import org.minimalj.security.LoginTransaction;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -30,10 +33,12 @@ public class SwingFrame extends JFrame {
 	public static SwingFrame activeFrameOverride = null;
 	
 	private HideableTabbedPane tabbedPane;
-	final Action closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction;
+	final Action loginAction, closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction;
 	
 	public SwingFrame(boolean authorizationAvailable) {
 		updateWindowTitle();
+		
+		loginAction = authorizationAvailable ? new SwingLoginAction() : null;
 		
 		closeWindowAction = new CloseWindowAction();
 		exitAction = new ExitAction();
@@ -172,7 +177,6 @@ public class SwingFrame extends JFrame {
 	
 	public void setSubject(Subject subject) {
 		this.subject = subject;
-		getVisibleTab().updateNavigation();
 		updateWindowTitle();
 	}
 
@@ -197,6 +201,23 @@ public class SwingFrame extends JFrame {
 				throw new RuntimeException("Page null");
 			}
 			tabbedPane.setTitleAt(index, page.getTitle());
+		}
+	}
+	
+	private class SwingLoginAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		public SwingLoginAction() {
+			super("LoginAction");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (tabbedPane.getTabCount() > 1) {
+				Frontend.showMessage(Resources.getString("Login.moreThanOneTab"));
+				return;
+			}
+			new LoginAction().action();
 		}
 	}
 	
