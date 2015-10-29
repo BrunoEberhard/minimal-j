@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Application;
 import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.frontend.Frontend;
@@ -48,32 +49,37 @@ public abstract class Backend {
 	private static Backend instance;
 	
 	public static Backend createBackend() {
-		String backendAddress = System.getProperty("MjBackendAddress");
-		String backendPort = System.getProperty("MjBackendPort", "8020");
-		if (backendAddress != null) {
-			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
-		} 
-
-		String database = System.getProperty("MjBackendDatabase");
-		String user = System.getProperty("MjBackendDatabaseUser", "APP");
-		String password = System.getProperty("MjBackendDatabasePassword", "APP");
-		if (!StringUtils.isBlank(database)) {
-			return new SqlBackend(database, user, password);
-		}
-		
-		String backendClassName = System.getProperty("MjBackend");
-		if (!StringUtils.isBlank(backendClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
-				Backend backend = backendClass.newInstance();
-				return backend;
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set backend failed");
+		Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
+		if (entityClasses != null && entityClasses.length > 0) {
+			String backendAddress = System.getProperty("MjBackendAddress");
+			String backendPort = System.getProperty("MjBackendPort", "8020");
+			if (backendAddress != null) {
+				return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
+			} 
+			
+			String database = System.getProperty("MjBackendDatabase");
+			String user = System.getProperty("MjBackendDatabaseUser", "APP");
+			String password = System.getProperty("MjBackendDatabasePassword", "APP");
+			if (!StringUtils.isBlank(database)) {
+				return new SqlBackend(database, user, password);
 			}
-		} 
-		
-		return new SqlBackend();
+			
+			String backendClassName = System.getProperty("MjBackend");
+			if (!StringUtils.isBlank(backendClassName)) {
+				try {
+					@SuppressWarnings("unchecked")
+					Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
+					Backend backend = backendClass.newInstance();
+					return backend;
+				} catch (Exception x) {
+					throw new LoggingRuntimeException(x, logger, "Set backend failed");
+				}
+			} 
+			
+			return new SqlBackend();
+		} else {
+			return new BackendWithoutPersistence();
+		}
 	}
 
 	public static Backend getInstance() {
@@ -119,4 +125,11 @@ public abstract class Backend {
 	
 	public abstract <T> T doExecute(Transaction<T> transaction);
 	
+	private static class BackendWithoutPersistence extends Backend {
+
+		@Override
+		public <T> T doExecute(Transaction<T> transaction) {
+			return transaction.execute();
+		}
+	}
 }
