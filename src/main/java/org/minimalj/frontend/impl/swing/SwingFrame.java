@@ -177,6 +177,9 @@ public class SwingFrame extends JFrame {
 	
 	public void setSubject(Subject subject) {
 		this.subject = subject;
+		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
+			((SwingTab) tabbedPane.getTab(i)).updateNavigation();
+		}
 		updateWindowTitle();
 	}
 

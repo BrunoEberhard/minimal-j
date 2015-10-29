@@ -481,7 +481,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 	@Override
 	public void setSubject(Subject subject) {
 		frame.setSubject(subject);
-		updateNavigation();
 		history.clear();
 		show(Application.getApplication().createDefaultPage());
 	}
