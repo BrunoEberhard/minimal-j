@@ -31,7 +31,7 @@ public class PetClinicApplication extends Application {
 	
 	@Override
 	public Page createDefaultPage() {
-		return new HtmlPage(getClass().getClassLoader().getResourceAsStream("intro.html"), "Pet Clinic");
+		return new HtmlPage("intro.html", "Pet Clinic");
 	}
 	
 	@Override
