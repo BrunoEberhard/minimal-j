@@ -26,12 +26,13 @@ public class SubTable extends AbstractTable {
 	}
 	
 	public void insert(Object parentId, List objects) throws SQLException {
-		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
-		for (int position = 0; position<objects.size(); position++) {
-			Object object = objects.get(position);
-			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
-			insertStatement.setInt(parameterPos++, position);
-			insertStatement.execute();
+		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+			for (int position = 0; position<objects.size(); position++) {
+				Object object = objects.get(position);
+				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
+				insertStatement.setInt(parameterPos++, position);
+				insertStatement.execute();
+			}
 		}
 	}
 
@@ -53,34 +54,34 @@ public class SubTable extends AbstractTable {
 	}
 
 	private void update(Object parentId, int position, Object object) throws SQLException {
-		PreparedStatement updateStatement = getStatement(sqlPersistence.getConnection(), updateQuery, false);
-
-		int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
-		updateStatement.setInt(parameterPos++, position);
-		updateStatement.execute();
+		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
+			int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
+			updateStatement.setInt(parameterPos++, position);
+			updateStatement.execute();
+		}
 	}
 
 	private void insert(Object parentId, int position, Object object) throws SQLException {
-		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
-
-		int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
-		insertStatement.setInt(parameterPos++, position);
-		insertStatement.execute();
+		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
+			insertStatement.setInt(parameterPos++, position);
+			insertStatement.execute();
+		}
 	}
 	
 	private void delete(Object parentId, int position) throws SQLException {
-		PreparedStatement deleteStatement = getStatement(sqlPersistence.getConnection(), deleteQuery, false);
-
-		deleteStatement.setObject(1, parentId);
-		deleteStatement.setInt(2, position);
-		deleteStatement.execute();
+		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
+			deleteStatement.setObject(1, parentId);
+			deleteStatement.setInt(2, position);
+			deleteStatement.execute();
+		}
 	}
 
 	public List read(Object parentId) throws SQLException {
-		PreparedStatement selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
-
-		selectByIdStatement.setObject(1, parentId);
-		return executeSelectAll(selectByIdStatement);
+		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+			selectByIdStatement.setObject(1, parentId);
+			return executeSelectAll(selectByIdStatement);
+		}
 	}
 
 	// Queries

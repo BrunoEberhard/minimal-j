@@ -41,8 +41,7 @@ public class HistorizedTable<T> extends Table<T> {
 
 	@Override
 	public Object insert(T object) {
-		try {
-			PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, true);
+		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
 			Object id = IdUtils.getId(object);
 			if (id == null) {
 				id = IdUtils.createId();
@@ -64,7 +63,7 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			return id;
 		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert object into " + getTableName() + " / Object: " + object);
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert object into " + getTableName() + " / Object: " + object + " ex: " + x);
 		}
 	}
 	
@@ -83,17 +82,19 @@ public class HistorizedTable<T> extends Table<T> {
 		try {
 			int version = findMaxVersion(id) + 1;
 			
-			PreparedStatement endStatement = getStatement(sqlPersistence.getConnection(), endQuery, false);
-			endStatement.setInt(1, version);
-			endStatement.setObject(2, id);
-			endStatement.execute();	
+			try (PreparedStatement endStatement = createStatement(sqlPersistence.getConnection(), endQuery, false)) {
+				endStatement.setInt(1, version);
+				endStatement.setObject(2, id);
+				endStatement.execute();	
+			}
 			
 			boolean doDelete = object == null;
 			if (doDelete) return;
 			
-			PreparedStatement updateStatement = getStatement(sqlPersistence.getConnection(), updateQuery, false);
-			setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
-			updateStatement.execute();
+			try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
+				setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
+				updateStatement.execute();
+			}
 			
 			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
 				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTable.getValue();
@@ -112,26 +113,20 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	private int findMaxVersion(Object id) throws SQLException {
 		int result = 0;
-		PreparedStatement selectMaxVersionStatement = getStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false);
-		selectMaxVersionStatement.setObject(1, id);
-		try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
-			if (resultSet.next()) {
-				result = resultSet.getInt(1);
-			} 
-			return result;
+		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false)) {
+			selectMaxVersionStatement.setObject(1, id);
+			try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
+				if (resultSet.next()) {
+					result = resultSet.getInt(1);
+				} 
+				return result;
+			}
 		}
 	}
 
 	@Override
 	public T read(Object id, boolean complete) {
-		try {
-			PreparedStatement selectByIdStatement;
-			if (complete) {
-				selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
-			} else {
-				selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
-			}
-					
+		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (complete && object != null) {
@@ -148,9 +143,7 @@ public class HistorizedTable<T> extends Table<T> {
 
 	public T read(Object id, Integer time) {
 		if (time != null) {
-			try {
-				PreparedStatement selectByIdAndTimeStatement = getStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false);
-
+			try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
 				selectByIdAndTimeStatement.setObject(1, id);
 				selectByIdAndTimeStatement.setInt(2, time);
 				T object = executeSelect(selectByIdAndTimeStatement);
@@ -185,10 +178,8 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 
 	public List<Integer> readVersions(Object id) {
-		try {
+		try (PreparedStatement readVersionsStatement = createStatement(sqlPersistence.getConnection(), readVersionsQuery, false)) {
 			List<Integer> result = new ArrayList<Integer>();
-			
-			PreparedStatement readVersionsStatement = getStatement(sqlPersistence.getConnection(), readVersionsQuery, false);
 			readVersionsStatement.setObject(1, id);
 			ResultSet resultSet = readVersionsStatement.executeQuery();
 			while (resultSet.next()) {

@@ -18,10 +18,10 @@ import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.criteria.FieldCriteria;
-import org.minimalj.transaction.criteria.SearchCriteria;
 import org.minimalj.transaction.criteria.Criteria.AndCriteria;
 import org.minimalj.transaction.criteria.Criteria.OrCriteria;
+import org.minimalj.transaction.criteria.FieldCriteria;
+import org.minimalj.transaction.criteria.SearchCriteria;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
@@ -73,8 +73,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public Object insert(T object) {
-		try {
-			PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, true);
+		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
 			Object id;
 			if (IdUtils.hasId(object.getClass())) {
 				id = IdUtils.getId(object);
@@ -109,9 +108,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void delete(Object id) {
-		PreparedStatement updateStatement;
-		try {
-			updateStatement = getStatement(sqlPersistence.getConnection(), deleteQuery, false);
+		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
 		} catch (SQLException x) {
@@ -143,8 +140,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	protected void update(Object id, T object) {
-		try {
-			PreparedStatement updateStatement = getStatement(sqlPersistence.getConnection(), updateQuery, false);
+		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
 			updateStatement.execute();
 			
@@ -172,8 +168,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	protected T read(Object id, boolean complete) {
-		try {
-			PreparedStatement selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
+		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (complete && object != null) {
@@ -274,8 +269,7 @@ public class Table<T> extends AbstractTable<T> {
 	public List<T> read(Criteria criteria, int maxResults) {
 		List<Object> whereClause = whereClause(criteria);
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + whereClause.get(0);
-		try {
-			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), query, false);
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
@@ -288,8 +282,7 @@ public class Table<T> extends AbstractTable<T> {
 	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
 		List<Object> whereClause = whereClause(criteria);
 		String query = select(resultClass) + " WHERE " + whereClause.get(0);
-		try {
-			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), query, false);
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				statement.setObject(i, whereClause.get(i));
 			}

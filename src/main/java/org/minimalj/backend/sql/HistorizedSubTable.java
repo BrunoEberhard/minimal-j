@@ -37,21 +37,20 @@ public class HistorizedSubTable extends AbstractTable {
 	}
 	
 	public void insert(Object parentId, List objects, Integer version) throws SQLException {
-		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
-		for (int position = 0; position<objects.size(); position++) {
-			Object object = objects.get(position);
-			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
-			insertStatement.setInt(parameterPos++, position);
-			insertStatement.setInt(parameterPos++, version);
-			insertStatement.execute();
+		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+			for (int position = 0; position<objects.size(); position++) {
+				Object object = objects.get(position);
+				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
+				insertStatement.setInt(parameterPos++, position);
+				insertStatement.setInt(parameterPos++, version);
+				insertStatement.execute();
+			}
 		}
 	}
 
 	public void update(Object parentId, List objects, int version) throws SQLException {
 		List objectsInDb = read(parentId, version);
 		int position = 0;
-		PreparedStatement endStatement = getStatement(sqlPersistence.getConnection(), endQuery, false);
-		PreparedStatement insertStatement = getStatement(sqlPersistence.getConnection(), insertQuery, false);
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			boolean end = false;
 			boolean insert = false;
@@ -66,17 +65,21 @@ public class HistorizedSubTable extends AbstractTable {
 			}
 			
 			if (end) {
-				endStatement.setInt(1, version);
-				endStatement.setObject(2, parentId);
-				endStatement.setInt(3, position);
-				endStatement.execute();	
+				try (PreparedStatement endStatement = createStatement(sqlPersistence.getConnection(), endQuery, false)) {
+					endStatement.setInt(1, version);
+					endStatement.setObject(2, parentId);
+					endStatement.setInt(3, position);
+					endStatement.execute();	
+				}
 			}
 			
 			if (insert) {
-				int parameterPos = setParameters(insertStatement, objects.get(position), false, ParameterMode.HISTORIZE, parentId);
-				insertStatement.setInt(parameterPos++, position);
-				insertStatement.setInt(parameterPos++, version);
-				insertStatement.execute();
+				try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+					int parameterPos = setParameters(insertStatement, objects.get(position), false, ParameterMode.HISTORIZE, parentId);
+					insertStatement.setInt(parameterPos++, position);
+					insertStatement.setInt(parameterPos++, version);
+					insertStatement.execute();
+				}
 			}
 			position++;
 		}
@@ -86,28 +89,31 @@ public class HistorizedSubTable extends AbstractTable {
 		if (time == null) {
 			return read(parentId);
 		}
-		PreparedStatement selectByIdAndTimeStatement = getStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false);
-		selectByIdAndTimeStatement.setObject(1, parentId);
-		selectByIdAndTimeStatement.setInt(2, time);
-		selectByIdAndTimeStatement.setInt(3, time);
-		return executeSelectAll(selectByIdAndTimeStatement);
+		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
+			selectByIdAndTimeStatement.setObject(1, parentId);
+			selectByIdAndTimeStatement.setInt(2, time);
+			selectByIdAndTimeStatement.setInt(3, time);
+			return executeSelectAll(selectByIdAndTimeStatement);
+		}
 	}
 
 	private List read(Object id) throws SQLException {
-		PreparedStatement selectByIdStatement = getStatement(sqlPersistence.getConnection(), selectByIdQuery, false);
-		selectByIdStatement.setObject(1, id);
-		return executeSelectAll(selectByIdStatement);
+		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+			selectByIdStatement.setObject(1, id);
+			return executeSelectAll(selectByIdStatement);
+		}
 	}
 	
 	public void readVersions(Object parentId, List<Integer> result) throws SQLException {
-		PreparedStatement readVersionsStatement = getStatement(sqlPersistence.getConnection(), readVersionsQuery, false);
-		readVersionsStatement.setObject(1, parentId);
-		try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
-			while (resultSet.next()) {
-				int version = resultSet.getInt(1);
-				if (!result.contains(version)) result.add(version);
-				int endVersion = resultSet.getInt(2);
-				if (!result.contains(version)) result.add(endVersion);
+		try (PreparedStatement readVersionsStatement = createStatement(sqlPersistence.getConnection(), readVersionsQuery, false)) {
+			readVersionsStatement.setObject(1, parentId);
+			try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
+				while (resultSet.next()) {
+					int version = resultSet.getInt(1);
+					if (!result.contains(version)) result.add(version);
+					int endVersion = resultSet.getInt(2);
+					if (!result.contains(version)) result.add(endVersion);
+				}
 			}
 		}
 	}

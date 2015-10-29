@@ -54,8 +54,6 @@ public abstract class AbstractTable<T> {
 
 	protected final List<String> indexes = new ArrayList<>();
 	
-	protected final Map<Connection, Map<String, PreparedStatement>> statements = new HashMap<>();
-
 	protected final String selectByIdQuery;
 	protected final String insertQuery;
 	protected final String clearQuery;
@@ -124,17 +122,6 @@ public abstract class AbstractTable<T> {
 	
 	protected Collection<String> getIndexes() {
 		return indexes;
-	}
-	
-	protected PreparedStatement getStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
-		if (!statements.containsKey(connection)) {
-			statements.put(connection, new HashMap<String, PreparedStatement>());
-		}
-		Map<String, PreparedStatement> statementsForConnection = statements.get(connection);
-		if (!statementsForConnection.containsKey(query)) {
-			statementsForConnection.put(query, createStatement(connection, query, returnGeneratedKeys));
-		}
-		return statementsForConnection.get(query);
 	}
 	
 	static PreparedStatement createStatement(Connection connection, String query, boolean returnGeneratedKeys) throws SQLException {
@@ -206,8 +193,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	public void clear() {
-		try {
-			PreparedStatement statement = getStatement(sqlPersistence.getConnection(), clearQuery, false);
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), clearQuery, false)) {
 			statement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Clear of Table " + getTableName() + " failed");
@@ -396,22 +382,24 @@ public abstract class AbstractTable<T> {
 		if (this instanceof HistorizedTable) {
 			query += " AND VERSION = 0";
 		}
-		PreparedStatement preparedStatement = getStatement(sqlPersistence.getConnection(), query, false);
-		preparedStatement.setObject(1, id);
-		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			if (resultSet.next()) {
-				return resultSet.getObject(1);
-			} else {
-				return null;
+		try (PreparedStatement preparedStatement = createStatement(sqlPersistence.getConnection(), query, false)) {
+			preparedStatement.setObject(1, id);
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getObject(1);
+				} else {
+					return null;
+				}
 			}
 		}
 	}
 
 	private void setColumnToNull(Object id, String column) throws SQLException {
 		String update = "UPDATE " + getTableName() + " SET " + column + " = NULL WHERE ID = ?";
-		PreparedStatement preparedStatement = getStatement(sqlPersistence.getConnection(), update, false);
-		preparedStatement.setObject(1, id);
-		preparedStatement.execute();
+		try (PreparedStatement preparedStatement = createStatement(sqlPersistence.getConnection(), update, false)) {
+			preparedStatement.setObject(1, id);
+			preparedStatement.execute();
+		}
 	}
 
 	private Object findId(Code code) {
