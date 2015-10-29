@@ -49,34 +49,34 @@ public abstract class Backend {
 	private static Backend instance;
 	
 	public static Backend createBackend() {
+		String backendAddress = System.getProperty("MjBackendAddress");
+		String backendPort = System.getProperty("MjBackendPort", "8020");
+		if (backendAddress != null) {
+			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
+		} 
+
+		String backendClassName = System.getProperty("MjBackend");
+		if (!StringUtils.isBlank(backendClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
+				Backend backend = backendClass.newInstance();
+				return backend;
+			} catch (Exception x) {
+				throw new LoggingRuntimeException(x, logger, "Set backend failed");
+			}
+		} 
+		
 		Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
 		if (entityClasses != null && entityClasses.length > 0) {
-			String backendAddress = System.getProperty("MjBackendAddress");
-			String backendPort = System.getProperty("MjBackendPort", "8020");
-			if (backendAddress != null) {
-				return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
-			} 
-			
 			String database = System.getProperty("MjBackendDatabase");
 			String user = System.getProperty("MjBackendDatabaseUser", "APP");
 			String password = System.getProperty("MjBackendDatabasePassword", "APP");
 			if (!StringUtils.isBlank(database)) {
 				return new SqlBackend(database, user, password);
+			} else {
+				return new SqlBackend();
 			}
-			
-			String backendClassName = System.getProperty("MjBackend");
-			if (!StringUtils.isBlank(backendClassName)) {
-				try {
-					@SuppressWarnings("unchecked")
-					Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
-					Backend backend = backendClass.newInstance();
-					return backend;
-				} catch (Exception x) {
-					throw new LoggingRuntimeException(x, logger, "Set backend failed");
-				}
-			} 
-			
-			return new SqlBackend();
 		} else {
 			return new BackendWithoutPersistence();
 		}
