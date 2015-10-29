@@ -150,6 +150,11 @@ li.actionLink[disabled] {
 	width: calc(100% - 1em);
 }
 
+iframe.pageContent {
+	padding: 0em;
+	width: 100%;
+}
+
 table.table tr {
 	line-height: 1.5em;
 }
