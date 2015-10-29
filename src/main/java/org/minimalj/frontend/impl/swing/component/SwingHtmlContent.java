@@ -32,10 +32,12 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 
 				Scene scene = new Scene(anchorPane);
 				WebEngine webEngine = webBrowser.getEngine();
-				if (StringUtils.isUrl(htmlOrUrl)) {
+				if (htmlOrUrl.startsWith("<")) {
+					webEngine.loadContent(htmlOrUrl);
+				} else if (StringUtils.isUrl(htmlOrUrl)) {
 					webEngine.load(htmlOrUrl);
 				} else {
-					webEngine.loadContent(htmlOrUrl);
+					webEngine.load(getClass().getClassLoader().getResource(htmlOrUrl).toExternalForm());
 				}
 				setScene(scene);
 			}
