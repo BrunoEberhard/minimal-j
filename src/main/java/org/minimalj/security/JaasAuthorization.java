@@ -17,10 +17,10 @@ public class JaasAuthorization extends Authorization {
 	private final MinimalCallbackHandler minimalCallbackHandler;
 	private final LoginContext loginContext;
 
-	public JaasAuthorization(String loginConfiguration) {
+	public JaasAuthorization(String jaasConfiguration) {
 		try {
 			this.minimalCallbackHandler = new MinimalCallbackHandler();
-			this.loginContext = new LoginContext(loginConfiguration, minimalCallbackHandler);
+			this.loginContext = new LoginContext(jaasConfiguration, minimalCallbackHandler);
 		} catch (LoginException e) {
 			throw new RuntimeException(e);
 		}
