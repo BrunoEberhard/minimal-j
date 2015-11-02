@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
-
 public abstract class Authorization {
 	private static final Logger logger = Logger.getLogger(Authorization.class.getName());
 
@@ -29,17 +26,10 @@ public abstract class Authorization {
 		if (userFile != null) {
 			return new TextFileAuthorization(userFile);
 		}
-		
-		String authorizationClassName = System.getProperty("MjAuthorization");
-		if (!StringUtils.isBlank(authorizationClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Authorization> authorizationClass = (Class<? extends Authorization>) Class.forName(authorizationClassName);
-				Authorization authorization = authorizationClass.newInstance();
-				return authorization;
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set authorization failed");
-			}
+
+		String jaasConfiguration = System.getProperty("MjJaasConfiguration");
+		if (jaasConfiguration != null) {
+			return new JaasAuthorization(jaasConfiguration);
 		}
 
 		available = false;
