@@ -311,13 +311,11 @@ public class SqlPersistence implements Persistence {
 	}
 
 	@Override
-	public <T> T update(T object) {
+	public <T> void update(T object) {
 		if (object == null) throw new NullPointerException();
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
 		table.update(object);
-		// re read result
-		return table.read(IdUtils.getId(object));
 	}
 
 	public <T> void delete(T object) {

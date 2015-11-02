@@ -14,13 +14,13 @@ public class AddOwnerEditor extends NewObjectEditor<Owner> {
 	}
 
 	@Override
-	protected Object save(Owner owner) {
-		return Backend.insert(owner);
+	protected Owner save(Owner owner) {
+		return Backend.save(owner);
 	}
 	
 	@Override
-	protected void finished(Object newId) {
-		Frontend.show(new OwnerPage(newId));
+	protected void finished(Owner newOwner) {
+		Frontend.show(new OwnerPage(newOwner));
 	}
 
 }

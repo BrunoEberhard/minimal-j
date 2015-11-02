@@ -18,12 +18,12 @@ public class AddVetEditor extends NewObjectEditor<Vet> {
 	}
 
 	@Override
-	protected Object save(Vet owner) {
-		return Backend.insert(owner);
+	protected Vet save(Vet owner) {
+		return Backend.save(owner);
 	}
 	
 	@Override
-	protected void finished(Object newId) {
+	protected void finished(Vet newVet) {
 		Frontend.show(new VetTablePage());
 	}
 

@@ -17,7 +17,7 @@ public interface Persistence {
 
 	public <T> Object insert(T object);
 
-	public <T> T update(T object);
+	public <T> void update(T object);
 
 	public <T> void delete(Class<T> clazz, Object id);
 	

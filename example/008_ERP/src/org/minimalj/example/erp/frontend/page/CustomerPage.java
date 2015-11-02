@@ -69,7 +69,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 
 		@Override
 		protected Customer save(Customer customer) {
-			return Backend.update(customer);
+			return Backend.save(customer);
 		}
 	}
 

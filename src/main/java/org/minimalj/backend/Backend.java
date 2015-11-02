@@ -15,6 +15,7 @@ import org.minimalj.transaction.persistence.DeleteTransaction;
 import org.minimalj.transaction.persistence.InsertTransaction;
 import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
 import org.minimalj.transaction.persistence.ReadTransaction;
+import org.minimalj.transaction.persistence.SaveTransaction;
 import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -102,8 +103,12 @@ public abstract class Backend {
 		return getInstance().execute(new InsertTransaction<T>(object));
 	}
 
-	public static <T> T update(T object) {
-		return getInstance().execute(new UpdateTransaction<T>(object));
+	public static <T> void update(T object) {
+		getInstance().execute(new UpdateTransaction<T>(object));
+	}
+
+	public static <T> T save(T object) {
+		return getInstance().execute(new SaveTransaction<T>(object));
 	}
 
 	public static <T> void delete(Class<T> clazz, Object id) {

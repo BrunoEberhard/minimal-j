@@ -16,8 +16,8 @@ public class AddCustomerEditor extends NewObjectEditor<Customer> {
 	}
 	
 	@Override
-	protected Object save(Customer customer) {
-		return Backend.insert(customer);
+	protected Customer save(Customer customer) {
+		return Backend.save(customer);
 	}
 
 	@Override
@@ -26,8 +26,8 @@ public class AddCustomerEditor extends NewObjectEditor<Customer> {
 	}
 	
 	@Override
-	protected void finished(Object newId) {
-		Frontend.show(new CustomerPage(newId));
+	protected void finished(Customer newCustomer) {
+		Frontend.show(new CustomerPage(newCustomer));
 	}
 
 }

@@ -14,20 +14,20 @@ public class AddBookEditor extends NewObjectEditor<Book> {
 	public Form<Book> createForm() {
 		return new BookForm(true);
 	}
-	
+
 	@Override
-	public Object save(Book book) {
-		return Backend.insert(book);
+	public Book save(Book book) {
+		return Backend.save(book);
 	}
 
 	@Override
 	public String getTitle() {
 		return "Buch hinzufügen";
 	}
-	
+
 	@Override
-	protected void finished(Object newId) {
-		Frontend.show(new BookPage(newId));
+	protected void finished(Book newBook) {
+		Frontend.show(new BookPage(newBook));
 	}
 
 }

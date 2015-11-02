@@ -333,8 +333,8 @@ public class AddOwnerEditor extends NewObjectEditor<Owner> {
 	}
 
 	@Override
-	protected Object save(Owner owner) {
-		return Backend.insert(owner);
+	protected Owner save(Owner owner) {
+		return Backend.save(owner);
 	}
 	
 	@Override
