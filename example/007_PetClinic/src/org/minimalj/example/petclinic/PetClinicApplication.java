@@ -21,7 +21,7 @@ import org.minimalj.frontend.page.SearchPage;
 public class PetClinicApplication extends Application {
 
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		List<Action> menu = new ArrayList<>();
 		menu.add(new AddOwnerEditor());
 		menu.add(new PageAction(new VetTablePage()));

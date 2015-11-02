@@ -230,9 +230,9 @@ public class JsonClientSession implements PageManager {
 	}
 	
 	private List<Object> createNavigation() {
-		List<Action> menuActions = Application.getApplication().getMenu();
-		List<Object> menuItems = createActions(menuActions);
-		return menuItems;
+		List<Action> navigationActions = Application.getApplication().getNavigation();
+		List<Object> navigationItems = createActions(navigationActions);
+		return navigationItems;
 	}
 	
 	private List<Object> createActionMenu(Page page) {

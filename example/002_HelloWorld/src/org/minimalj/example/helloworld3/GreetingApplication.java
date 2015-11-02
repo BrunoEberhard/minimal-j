@@ -11,7 +11,7 @@ public class GreetingApplication extends Application {
 	static User user = new User();
 	
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		return Collections.singletonList(new UserNameEditor());
 	}
 	

@@ -24,7 +24,7 @@ public class ErpApplication extends Application {
 	}
 
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		List<Action> actions = new ArrayList<>();
 		
 		ActionGroup customerActions = new ActionGroup("Kunden");

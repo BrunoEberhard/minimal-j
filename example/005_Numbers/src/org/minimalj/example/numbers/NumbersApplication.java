@@ -12,7 +12,7 @@ public class NumbersApplication extends Application {
 	}
 
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		List<Action> items = new ArrayList<>();
 		items.add(new NumbersEditor());
 		return items;

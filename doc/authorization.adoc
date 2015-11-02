@@ -27,13 +27,13 @@ tries to use more or less the same terminology.
 === Navigation
 As you see above the Backend would throw an exception if the logged in user is not allowed to execute a transaction. Of course this should stay an exception. Normally a Frontend should not come to that point.
 
-The application should present a specialized navigation based on the granted roles. This is done with conditions in the Application.getMenu() method:
+The application should present a specialized navigation based on the granted roles. This is done with conditions in the Application.getNavigation() method:
 [source,java,title="XyApplication.java"]
 ----
     [..]
     
     @Override
-    public List<Action> getMenu() {
+    public List<Action> getNavigation() {
         List<Action> actions = new ArrayList<>();
 
         if (Subject.hasRole(RosenStaedterAuthorization.ROLE_XY)) {

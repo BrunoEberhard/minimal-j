@@ -9,7 +9,7 @@ import org.minimalj.frontend.action.Action;
 public class GreetingApplication extends Application {
 
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		return Collections.singletonList(new UserNameEditor());
 	}
 	

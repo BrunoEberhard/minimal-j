@@ -188,7 +188,7 @@ public abstract class Application {
 		return new EmptyPage();
 	}
 	
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		return Collections.emptyList();
 	}
 	

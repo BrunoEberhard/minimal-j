@@ -18,7 +18,7 @@ public class CurrenciesApplication extends Application {
 	}
 	
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		List<Action> actions = new ArrayList<>();
 		
 		actions.add(new ImportIsoCurrencyInformationAction());

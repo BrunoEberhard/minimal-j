@@ -16,7 +16,7 @@ import org.minimalj.frontend.page.PageAction;
 public class EBanking extends Application {
 
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		List<Action> actions = new ArrayList<>();
 
 		ActionGroup customerActions = new ActionGroup("Konto");

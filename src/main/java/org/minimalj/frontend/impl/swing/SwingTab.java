@@ -122,7 +122,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 	}
 	
 	public void updateNavigation() {
-		navigationScrollPane.setViewportView(new NavigationTree(Application.getApplication().getMenu()));
+		navigationScrollPane.setViewportView(new NavigationTree(Application.getApplication().getNavigation()));
 	}
 
 	public Page getVisiblePage() {

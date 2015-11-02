@@ -17,8 +17,8 @@ public class MultiApplication extends Application {
 	}
 
 	@Override
-	public List<Action> getMenu() {
-		return getCurrentApplication().getMenu();
+	public List<Action> getNavigation() {
+		return getCurrentApplication().getNavigation();
 	}
 	
 	@Override

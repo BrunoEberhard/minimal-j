@@ -86,14 +86,14 @@ import org.minimalj.frontend.action.Action;
 public class GreetingApplication extends Application {
 
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		return Collections.singletonList(new UserNameEditor());
 	}
 	
 }
 ----
 
-Now only the getMenu method is defined. getMenu can return a tree structure of actions. The actions
+Now only the getNavigation method is defined. getNavigation can return a tree structure of actions. The actions
 are listed in the left part of the main window (most frontends will do this but the frontends
 are free to display the menu elsewhere or not at all).
 

@@ -46,7 +46,7 @@ public class LanternaMenuPanel extends Panel {
 	public void updateMenu(Page page) {
 		bar.removeAllComponents();
 
-		createMenu("application", Application.getApplication().getMenu());
+		createMenu("application", Application.getApplication().getNavigation());
 
 		if (page != null && page.getActions() != null) {
 			createMenu("page", page.getActions());

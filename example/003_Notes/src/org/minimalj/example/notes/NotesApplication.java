@@ -10,7 +10,7 @@ import org.minimalj.frontend.page.Page;
 public class NotesApplication extends Application {
 
 	@Override
-	public List<Action> getMenu() {
+	public List<Action> getNavigation() {
 		ActionGroup menu = new ActionGroup(null);
 		menu.add(new NewNoteEditor());
 		return menu.getItems();
