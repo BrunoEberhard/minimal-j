@@ -98,7 +98,7 @@ public class PersistenceAuthorization extends Authorization {
 				SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(HASH_ALGORITHM);
 				return secretKeyFactory.generateSecret(keySpec).getEncoded();
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-				throw new RuntimeException("Password cannot be stored", e);
+				throw new RuntimeException("Hashing not possible", e);
 			}
 		}
 		
