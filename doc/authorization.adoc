@@ -37,20 +37,18 @@ The Role annotation allows to list more than one role. Execution of the Transact
 as the current Subject has *at least one* of the given roles.
 
 === Restrict entity classes
-Not every read or insert needs a specialized Transaction. If you call read or insert on the Persistence
-interface a generic Transaction is instantiated:
-[source,java,title="DelegatePersistence.java"]
+Not every read or insert needs a specialized Transaction. If you call read or insert on the Backend a generic Transaction is instantiated:
+[source,java,title="Backend.java"]
 ----
 	[..]
 	
-	@Override
-	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = backend.execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
+		List<T> result = getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
 		return result;
 	}
 ----
 
-To restrict access on entities their classes can be annotated (TODO better example):
+To restrict access on entities their classes can be annotated
 [source,java]
 ----
 @Role("RoleB")
@@ -61,8 +59,8 @@ public class B {
 }
 ----
 If the role name is specified then this role is need for all types of Transactions. For read, insert, update
-and delete. But sometimes you may want to restrict only the write acess for some user. You can do this by annotate
-different roles for the different types of Transactions (TODO better example):
+and delete. But sometimes you may want to restrict only the write access for some user. You can do this by annotate
+different roles for the different types of Transactions:
 [source,java]
 ----
 @Role(value = "ReadRole")
@@ -97,10 +95,37 @@ import org.minimalj.transaction.Transaction.TransactionType;
 Note that packages don't inherit there roles from their parent. This would lead to a error-prone complexity.
 
 == Authorization configuration
-As for things this configuration is done via application properties. If the property MjUserFile is defined a
-TextFileAuthorizaion is installed.
+The Authorization class defines the available users and their roles. There are several specializations to this class:
 
-If no MjUserFile property is specified Minimal-J is look for the property MjAuthorization. It should provide a
-class name of an Authorization implementation. A good candidate may be JaasAuthorization.
+- The TextFileAuthorization takes a file as input for the users and their passwords. The format of this file is described below.
+- The PersistenceAuthorization uses a Persistence instance for that. The Persistence instance can be the one used for all other business entites or a special one.
+- The JaasAuthorization connects Minimal-J to the authorization provided by Java itself.
 
-TODO further explanation and examples. For the moment please look at the Authorization class for more implementation details.
+Which one of this specializations is activated is defined via application properties or the application can set the
+Authorization instance. This method has also the highest priority:
+
+ 1. The application sets the Authorization object with the static method setInstance at startup. Note that the Authorization
+ object cannot be replaced once it is set. 
+
+ 2. The property MjUserFile is set to a file.
+ 
+ 3. The property MjJaasConfiguration is set.
+ 
+ 4. If nothing from above the Authorization is disabled. The user will not see the login buttons.
+
+=== The user file format
+The file defining the users has a special format. The format is very similar to the one used by Shiro.
+
+Every user is defined by a line in the file:
+[source,text]
+----
+MrExample = 2t06hlbF/o+DNhIPmXp2LlZ9B2nre4Mn, j4aSh9OyEfcNNMKZDwJmwRSI/mdwb4yV, Role1, Role2, Role3
+----
+
+First there is the name of the user. Followed by '='. The rest of the line is a comma separated list. The first two values are
+special. They contain the hashed password and the used salt for the user (encoded with base64). At the end all roles 
+granted to this user are listed.
+
+If you wonder how to get the hashed passwords: The TextFileAuthorization class has a main method. Start this class as java
+application together with at least two arguments (user and password) and it prints out a line for your user/password file.
+
