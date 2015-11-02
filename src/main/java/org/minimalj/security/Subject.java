@@ -73,7 +73,7 @@ public class Subject implements Serializable {
 		}
 	}
 	
-	private static Role findRoleByType(Class<?> clazz, Class<? extends Transaction> transactionClass) {
+	private static Role findRoleByType(Class<?> clazz, @SuppressWarnings("rawtypes") Class<? extends Transaction> transactionClass) {
 		Role[] roles = clazz.getAnnotationsByType(Role.class);
 		Role role = findRoleByType(roles, transactionClass);
 		if (role != null) {
@@ -84,7 +84,7 @@ public class Subject implements Serializable {
 		return role;
 	}
 	
-	private static Role findRoleByType(Role[] roles, Class<? extends Transaction> transactionClass) {
+	private static Role findRoleByType(Role[] roles, @SuppressWarnings("rawtypes") Class<? extends Transaction> transactionClass) {
 		for (Role role : roles) {
 			if (role.transaction() == transactionClass) {
 				return role;
