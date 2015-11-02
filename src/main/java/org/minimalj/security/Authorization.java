@@ -5,11 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public abstract class Authorization {
-	private static final Logger logger = Logger.getLogger(Authorization.class.getName());
-
 	private static Authorization instance;
 
 	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
