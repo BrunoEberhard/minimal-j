@@ -8,14 +8,23 @@ import org.minimalj.transaction.PersistenceTransaction;
 public class DeleteAllTransaction implements PersistenceTransaction<Void> {
 	private static final long serialVersionUID = 1L;
 
-	private final Class<?> clazz;
+	private final String className;
+	private transient Class<?> clazz;
 
 	public DeleteAllTransaction(final Class<?> clazz) {
+		this.className = clazz.getName();
 		this.clazz = clazz;
 	}
 	
 	@Override
 	public Class<?> getEntityClazz() {
+		if (clazz == null) {
+			try {
+				clazz = Class.forName(className);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return clazz;
 	}
 
@@ -23,7 +32,7 @@ public class DeleteAllTransaction implements PersistenceTransaction<Void> {
 	public Void execute(Persistence persistence) {
 		if (persistence instanceof SqlPersistence) {
 			SqlPersistence sqlPersistence = (SqlPersistence) persistence;
-			sqlPersistence.deleteAll(clazz);
+			sqlPersistence.deleteAll(getEntityClazz());
 			return null;
 		} else {
 			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlBackend.class.getSimpleName());
