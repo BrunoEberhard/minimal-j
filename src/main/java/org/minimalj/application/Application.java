@@ -126,23 +126,7 @@ public abstract class Application {
 		
 		return (Application) application;
 	}
-	
-	/**
-	 * 
-	 * @param simplePackageName for example "editor".
-	 * @return the package name of this type of package for this application. For example "org.minimalj.example.frontend.editor"
-	 */
-	public static String getCompletePackageName(String simplePackageName) {
-		Application application = Application.getApplication();
-		String applicationClassName = application.getClass().getName();
-		int pos = applicationClassName.lastIndexOf(".");
-		if (pos  >= 0) {
-			return applicationClassName.substring(0, pos + 1) + simplePackageName;
-		} else {
-			return applicationClassName + "." + simplePackageName;
-		}
-	}
-	
+
 	/**
 	 * @return The application specific ResourceBundle names
 	 */
