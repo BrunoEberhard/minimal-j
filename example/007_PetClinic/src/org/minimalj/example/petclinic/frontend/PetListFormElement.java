@@ -12,7 +12,7 @@ import org.minimalj.model.Keys;
 
 public class PetListFormElement extends ListFormElement<Pet> {
 
-	public PetListFormElement(Object key) {
+	public PetListFormElement(List<Pet> key) {
 		super(Keys.getProperty(key));
 	}
 
