@@ -51,7 +51,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		Form<E> form = new Form<E>(true);
 		for (Object object : allowedValues) {
 			Enum<?> value = (Enum<?>) object;
-			form.lineWithoutCaption(new CheckBoxFormElement(new EnumSetFieldEditorPropertyInterface(value), EnumUtils.getText((Enum) object), true));
+			form.lineWithoutCaption(new CheckBoxFormElement(new EnumSetFormElementProperty(value), EnumUtils.getText((Enum) object), true));
 		}
 		return form;
 	}
@@ -72,10 +72,10 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		return new Action[] { new ObjectFormElementEditor() };
 	}
 	
-	private class EnumSetFieldEditorPropertyInterface implements PropertyInterface {
+	private class EnumSetFormElementProperty implements PropertyInterface {
 		private final Enum<?> value;
 
-		public EnumSetFieldEditorPropertyInterface(Enum<?> value) {
+		public EnumSetFormElementProperty(Enum<?> value) {
 			this.value = value;
 		}
 
