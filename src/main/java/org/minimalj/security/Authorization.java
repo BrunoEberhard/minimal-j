@@ -56,15 +56,15 @@ public abstract class Authorization {
 
 	public Subject login(UserPassword login) {
 		List<String> roles = retrieveRoles(login);
-		Subject user = new Subject();
+		Subject subject = new Subject();
 		if (roles != null) {
-			user.setName(login.user);
-			user.getRoles().addAll(roles);
+			subject.setName(login.user);
+			subject.getRoles().addAll(roles);
 			UUID token = UUID.randomUUID();
-			user.setToken(token);
-			userByToken.put(token, user);
+			subject.setToken(token);
+			userByToken.put(token, subject);
 		}
-		return user;
+		return subject;
 	}
 
 	public void logout() {
