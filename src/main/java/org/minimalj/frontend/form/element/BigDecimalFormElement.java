@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
 
+import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.StringUtils;
@@ -14,6 +15,10 @@ import org.minimalj.util.mock.Mocking;
 public class BigDecimalFormElement extends NumberFormElement<BigDecimal> implements Mocking {
 
 	private final NumberFormat format;
+	
+	public BigDecimalFormElement(Object key, boolean editable) {
+		this(Keys.getProperty(key), editable);
+	}
 	
 	public BigDecimalFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);

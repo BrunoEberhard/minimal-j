@@ -2,6 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import java.util.Random;
 
+import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
@@ -10,6 +11,10 @@ import org.minimalj.util.mock.Mocking;
 
 public class IntegerFormElement extends NumberFormElement<Integer> implements Mocking {
 
+	public IntegerFormElement(Object key, boolean editable) {
+		this(Keys.getProperty(key), editable);
+	}
+	
 	public IntegerFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
 	}
