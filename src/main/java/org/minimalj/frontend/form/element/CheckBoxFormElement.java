@@ -1,5 +1,8 @@
 package org.minimalj.frontend.form.element;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -34,4 +37,47 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> {
 		checkBox.setValue(Boolean.TRUE.equals(value));
 	}
 
+	public static abstract class CheckBoxProperty implements PropertyInterface {
+
+		@Override
+		public Class<?> getDeclaringClass() {
+			return Object.class;
+		}
+
+		@Override
+		public Class<?> getClazz() {
+			return Boolean.class;
+		}
+
+		@Override
+		public Type getType() {
+			return null; // should not be used
+		}
+		
+		@Override
+		public String getName() {
+			return null; // should not be used
+		}
+		
+		@Override
+		public String getPath() {
+			return null; // should not be used
+		}
+		
+		@Override
+		public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
+			return null; // should not be used
+		}
+		
+		@Override
+		public abstract Boolean getValue(Object object);
+
+		@Override
+		public abstract void setValue(Object object, Object newValue);
+
+		@Override
+		public boolean isFinal() {
+			return false;
+		}
+	}
 }
