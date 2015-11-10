@@ -22,7 +22,11 @@ public class ChainedProperty implements PropertyInterface {
 	public Object getValue(Object object) {
 		try {
 			object = field.get(object);
-			return next.getValue(object);
+			if (object != null) {
+				return next.getValue(object);
+			} else {
+				return null;
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

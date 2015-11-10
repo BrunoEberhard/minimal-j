@@ -185,8 +185,11 @@ public class Keys {
 		@Override
 		public Object getValue(Object object) {
 			Object value1 = property1.getValue(object);
-			Object value2 = property2.getValue(value1);
-			return value2;
+			if (value1 != null) {
+				return property2.getValue(value1);
+			} else {
+				return null;
+			}
 		}
 
 		@Override
