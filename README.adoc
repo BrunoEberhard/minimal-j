@@ -1,5 +1,7 @@
 = Minimal-J
 
+Java - but small.
+
 image::doc/frontends.png[]
 
 Minimal-J applications are
@@ -19,6 +21,7 @@ Minimal applications may not always look the same. But the UI concepts never cha
 * Independed to the used UI technology. Implementations for Web / Mobile / Desktop.
 * ORM persistence layer for Maria DB or in memory DB. Transactions and Authorization supported.
 * Small: The minimalj.jar is still < 1MB
+* Very few dependencies
 * Applications run standalone or in a servlet container.
 
 == Status
