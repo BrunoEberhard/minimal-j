@@ -57,7 +57,6 @@ public class Form<T> {
 	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<PropertyInterface, FormElement<?>>();
 	
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
-	private final FormPanelActionListener formPanelActionListener = new FormPanelActionListener();
 	
 	private FormChangeListener<T> changeListener;
 	private boolean changeFromOutsite;
@@ -115,6 +114,7 @@ public class Form<T> {
 		return element;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	protected FormElement<?> createElement(PropertyInterface property) {
 		Class<?> fieldClass = property.getClazz();
 		
