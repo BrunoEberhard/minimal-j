@@ -123,20 +123,29 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 			}
 			lastParentBounds = parent.getBounds();
 			
-			int fixHeight = calcFixHeight();
+			int fixHeight = calcFixHeight(true);
+			int fixHeightWithoutCaption = calcFixHeight(false);
+			
 			int y = ins;
 			int width = parent.getWidth();
 			int widthWithoutIns = width - 2 * ins;
+			
 			for (List<Component> row : rows) {
-				int height = isRowVerticallyGrowing(row) ? Math.max(getHeight(row), fixHeight) : fixHeight;
-				layoutRow(widthWithoutIns, row, y, height, fixHeight);
+				int height;
+				boolean hasCaption = hasCaption(row);
+				if (isRowVerticallyGrowing(row)) {
+					height = Math.max(getHeight(row), fixHeight);
+				} else {
+					height = hasCaption ? fixHeight : fixHeightWithoutCaption;
+				}
+				layoutRow(widthWithoutIns, row, y, height, hasCaption ? fixHeight : fixHeightWithoutCaption);
 				y += height;
 			}
 			y+= ins;
 			size = new Dimension(Math.max(minColumnWidth * columns, width), y);
 		}
 
-		private void layoutRow(int width, List<Component> row, int y, int height, int fixHeight) {
+		private void layoutRow(int width, List<Component> row, int y, int height, int minimalHeight) {
 			int x = ins;
 			for (Component component : row) {
 				component.setLocation(x, y);
@@ -147,7 +156,7 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 					component.setSize(componentWidth, height);
 				} else {
 					// even non growing components are stretched to fixHeight (they should no collapse to 0 height)
-					component.setSize(componentWidth, Math.max(component.getPreferredSize().height, fixHeight));
+					component.setSize(componentWidth, Math.max(component.getPreferredSize().height, minimalHeight));
 				}
 			}
 		}
@@ -169,13 +178,25 @@ public class SwingGridFormLayout extends JPanel implements FormContent {
 			}
 			return false;
 		}
+
+		private boolean hasCaption(List<Component> row) {
+			for (Component component : row) {
+				if (component instanceof SwingCaption) {
+					return true;
+				}
+			}
+			return false;
+		}
 		
-		private int calcFixHeight() {
+		private int calcFixHeight(boolean caption) {
 			int height = 0;
 			for (List<Component> row : rows) {
 				for (Component component : row) {
 					if (!SwingFrontend.verticallyGrowing(component)) {
-						height = Math.max(height, component.getPreferredSize().height);
+						boolean hasCaption = component instanceof SwingCaption;
+						if (hasCaption == caption) {
+							height = Math.max(height, component.getPreferredSize().height);
+						}
 					}
 				}
 			}
