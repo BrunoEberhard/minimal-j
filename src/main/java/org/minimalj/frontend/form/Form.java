@@ -368,9 +368,12 @@ public class Form<T> {
 
 			// Call updaters before set the new value  (so they also can read the old value)
 			executeUpdater(property, newValue);
-			refreshDependendFields(property);
 			
+			// now set the new value. method - properties can use it as base
 			property.setValue(object, newValue);
+			
+			// propagate all possible changed values to the form elements
+			refreshDependendFields(property);
 			
 			// update enable/disable fields
 			updateEnable();
