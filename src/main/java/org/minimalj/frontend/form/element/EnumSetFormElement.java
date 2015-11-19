@@ -1,13 +1,12 @@
 package org.minimalj.frontend.form.element;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.frontend.form.element.CheckBoxFormElement.CheckBoxProperty;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
@@ -15,7 +14,7 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
 
-// TODO: Typisierung bringt hier so was von nichts
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElement<E> implements Enable, Mocking {
 	private final Class enumClass;
 	private final Collection allowedValues;
@@ -72,7 +71,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		return new Action[] { new ObjectFormElementEditor() };
 	}
 	
-	private class EnumSetFormElementProperty implements PropertyInterface {
+	private class EnumSetFormElementProperty extends CheckBoxProperty {
 		private final Enum<?> value;
 
 		public EnumSetFormElementProperty(Enum<?> value) {
@@ -100,17 +99,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		}
 
 		@Override
-		public Type getType() {
-			return null;
-		}
-
-		@Override
-		public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-			return null;
-		}
-
-		@Override
-		public Object getValue(Object object) {
+		public Boolean getValue(Object object) {
 			Set set = (Set) object;
 			return set.contains(value);
 		}
@@ -123,11 +112,6 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 			} else {
 				set.remove(value);
 			}
-		}
-
-		@Override
-		public boolean isFinal() {
-			return false;
 		}
 	}
 
