@@ -148,7 +148,11 @@ public class Keys {
 	}
 	
 	public static PropertyInterface getProperty(Object key) {
-		return properties.get(key);
+		if (key instanceof PropertyInterface) {
+			return (PropertyInterface) key;
+		} else {
+			return properties.get(key);
+		}
 	}
 	
 	public static Class<?> getRootDeclaringClass(Object key) {
