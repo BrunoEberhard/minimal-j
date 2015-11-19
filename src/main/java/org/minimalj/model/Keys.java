@@ -163,15 +163,6 @@ public class Keys {
 		return property.getDeclaringClass();
 	}
 	
-	public static boolean isFieldProperty(PropertyInterface property) {
-		if (property instanceof MethodProperty) return false;
-		if (property instanceof ChainedProperty) {
-			ChainedProperty chainedProperty = (ChainedProperty) property;
-			return isFieldProperty(chainedProperty.property1) && isFieldProperty(chainedProperty.property2);
-		}
-		return true;
-	}
-	
 	static class ChainedProperty implements PropertyInterface {
 		private final PropertyInterface property1;
 		private final PropertyInterface property2;
