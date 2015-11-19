@@ -198,47 +198,47 @@ public class Form<T> {
 	//
 
 	/**
-	 * Declares that if the property with fromKey changes all
-	 * the properties with toKey could change. This is normally used
-	 * if the to property is a getter that calculates something that
-	 * depends on the fromKey in a simple way.
+	 * Declares that if the <i>from</i> property changes all
+	 * the properties with <i>to</i> could change. This is normally used
+	 * if the to <i>to</i> property is a getter that calculates something that
+	 * depends on the <i>from</i> in some way.
 	 * 
-	 * @param fromKey the key of the field triggering the update
-	 * @param toKey the field possible changed its value implicitly
+	 * @param from the key or property of the field triggering the update
+	 * @param to the field possible changed its value implicitly
 	 */
-	public void addDependecy(Object fromKey, Object... toKey) {
-		PropertyInterface fromProperty = Keys.getProperty(fromKey);
+	public void addDependecy(Object from, Object... to) {
+		PropertyInterface fromProperty = Keys.getProperty(from);
 		if (!dependencies.containsKey(fromProperty)) {
 			dependencies.put(fromProperty, new ArrayList<PropertyInterface>());
 		}
 		List<PropertyInterface> list = dependencies.get(fromProperty);
-		for (Object key : toKey) {
+		for (Object key : to) {
 			list.add(Keys.getProperty(key));
 		}
 	}
 
 	/**
-	 * Declares that if the property with fromKey changes the specified
-	 * updater should be called and after its return the toKey property
+	 * Declares that if the key or property <i>from</i> changes the specified
+	 * updater should be called and after its return the <i>to</i> key or property
 	 * could have changed.<p>
 	 * 
-	 * This is used if there is a more complex relation between two properities.
+	 * This is used if there is a more complex relation between two fields.
 	 * 
 	 * @param <FROM> the type (class) of the fromKey / field
 	 * @param <TO> the type (class) of the toKey / field
-	 * @param fromKey the key of the field triggering the update
+	 * @param from the field triggering the update
 	 * @param updater the updater doing the change of the to field
-	 * @param toKey the changed field by the udpater
+	 * @param to the changed field by the udpater
 	 */
 	@SuppressWarnings("rawtypes")
-	public <FROM, TO> void addDependecy(FROM fromKey, PropertyUpdater<FROM, TO, T> updater, TO toKey) {
-		PropertyInterface fromProperty = Keys.getProperty(fromKey);
+	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
+		PropertyInterface fromProperty = Keys.getProperty(from);
 		if (!propertyUpdater.containsKey(fromProperty)) {
 			propertyUpdater.put(fromProperty, new HashMap<PropertyInterface, PropertyUpdater>());
 		}
-		PropertyInterface toProperty = Keys.getProperty(toKey);
+		PropertyInterface toProperty = Keys.getProperty(to);
 		propertyUpdater.get(fromProperty).put(toProperty, updater);
-		addDependecy(fromKey, toKey);
+		addDependecy(from, to);
 	}
 
 	public interface PropertyUpdater<FROM, TO, EDIT_OBJECT> {
