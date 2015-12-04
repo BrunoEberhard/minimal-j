@@ -61,7 +61,6 @@ public class CloneHelper {
 	private static void _deepCopy(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
 		for (Field field : from.getClass().getDeclaredFields()) {
 			if (FieldUtils.isStatic(field)) continue;
-			field.setAccessible(true);
 			Object fromValue = field.get(from);
 			Object toValue = field.get(to);
 			if (fromValue instanceof List) {
@@ -74,21 +73,32 @@ public class CloneHelper {
 			} else if (fromValue instanceof Set) {
 				Set fromSet = (Set)field.get(from);
 				Set toSet = (Set)toValue;
+				// Set can only contain enums. No need for cloning the elements.
 				toSet.clear();
 				toSet.addAll(fromSet);
-			} else if (isPrimitive(field) || FieldUtils.isTransient(field) || fromValue == null) {
-				// note: transient fields are not cloned
-				field.set(to, fromValue);
-			} else if (fromValue != null && toValue == null) {
-				toValue = CloneHelper.clone(fromValue);
+			} else if (isPrimitive(field)) {
+				if (!FieldUtils.isFinal(field)) {
+					field.set(to, fromValue);
+				}
+			} else if (FieldUtils.isFinal(field)) {
+				if (fromValue != null) {
+					if (toValue != null) {
+						deepCopy(fromValue, toValue);
+					} else {
+						throw new IllegalStateException("final field is not null in from object but null in to object. Field: " + field);
+					}
+				}
+			} else if (FieldUtils.isTransient(field) || fromValue == null) {
+				// note: transient fields are copied but not cloned!
 				field.set(to, toValue);
 			} else {
-				deepCopy(fromValue, toValue);
+				toValue = CloneHelper.clone(fromValue);
+				field.set(to, toValue);
 			}
 		}
 	}
 
-	public static boolean isPrimitive(Field field) {
+	private static boolean isPrimitive(Field field) {
 		String fieldTypeName = field.getType().getName();
 		if (field.getType().isPrimitive() || fieldTypeName.startsWith("java")) return true;
 		if (Enum.class.isAssignableFrom(field.getType())) return true;
