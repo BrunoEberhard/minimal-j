@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class CsvReader {
     	List<PropertyInterface> properties = new ArrayList<PropertyInterface>(fields.size());
 		for (String field : fields) {
 			try {
-			properties.add(FlatProperties.getProperty(clazz, field));
+				properties.add(FlatProperties.getProperty(clazz, field.trim()));
 			} catch (IllegalArgumentException x) {
 				throw new RuntimeException("No field " + field + " in " + clazz.getSimpleName() + ". Please check csv - file for missing or invalid header line");
 			}
@@ -45,19 +44,9 @@ public class CsvReader {
     	while (values != null) {
     		T object = CloneHelper.newInstance(clazz);
         	for (int i = 0; i<fields.size(); i++) {
-        		Object value = values.get(i);
+        		String stringValue = values.get(i);
         		PropertyInterface property = properties.get(i);
-        		if (property.getClazz() == Integer.class) {
-        			value = Integer.valueOf(values.get(i));
-        		} else if (property.getClazz() == Long.class) {
-        			value = Long.valueOf(values.get(i));
-        		} else if (property.getClazz() == Boolean.class) {
-        			value = Boolean.valueOf(values.get(i));
-        		} else if (property.getClazz() == BigDecimal.class) {
-        			value = new BigDecimal(values.get(i));
-        		} else {
-        			value = values.get(i);
-        		}
+        		Object value = FieldUtils.parse(stringValue.trim(), property.getClazz());
         		property.setValue(object, value);
         	}
         	objects.add(object);
