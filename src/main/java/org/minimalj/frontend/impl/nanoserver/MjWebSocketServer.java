@@ -14,26 +14,28 @@ import org.minimalj.frontend.impl.json.JsonHandler;
 import org.minimalj.util.resources.Resources;
 
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.NanoWebSocketServer;
-import fi.iki.elonen.NanoWebSocketServer.WebSocketFrame.CloseCode;
+import fi.iki.elonen.NanoWSD;
+import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 
-public class MjWebSocketServer extends NanoWebSocketServer {
+public class MjWebSocketServer extends NanoWSD {
 	private static final Logger logger = Logger.getLogger(MjWebSocketServer.class.getName());
 
-	private JsonHandler handler = new JsonHandler();
-	
 	public MjWebSocketServer(int port, boolean secure) {
 		super(port);
 		if (secure) {
 			try {
 				// keytool.exe -keystore mjdevkeystore.jks -keyalg RSA -keysize 3072 -genkeypair -dname "cn=localhost, ou=MJ, o=Minimal-J, c=CH" -storepass mjdev1 -keypass mjdev1
 				// keytool.exe -keystore mjdevkeystore.jks -storepass mjdev1 -keypass mjdev1 -export -file mj.cer
-				
-				makeSecure(makeSSLSocketFactory("/mjdevkeystore.jks", "mjdev1".toCharArray()));
+				makeSecure(makeSSLSocketFactory("/mjdevkeystore.jks", "mjdev1".toCharArray()), null);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@Override
+	protected WebSocket openWebSocket(IHTTPSession handshake) {
+		return new MjWebSocket(handshake);
 	}
 	
 	private static Locale getLocale(String userLocale) {
@@ -71,29 +73,43 @@ public class MjWebSocketServer extends NanoWebSocketServer {
 		return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
 	}
 
-	@Override
-	protected void onPong(WebSocket webSocket, WebSocketFrame pongFrame) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	protected void onMessage(WebSocket webSocket, WebSocketFrame messageFrame) {
-		String result = handler.handle(messageFrame.getTextPayload());
-		try {
-			webSocket.send(result);
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Send response failed", e);
+	public class MjWebSocket extends WebSocket {
+		
+		public MjWebSocket(IHTTPSession handshakeRequest) {
+			super(handshakeRequest);
 		}
-	}
 
-	@Override
-	protected void onClose(WebSocket webSocket, CloseCode code, String reason, boolean initiatedByRemote) {
-		logger.fine("Close " + reason + " / " + initiatedByRemote);
-	}
+		private JsonHandler handler = new JsonHandler();
+		
+		@Override
+		protected void onOpen() {
+			// nothing to do
+		}
 
-	@Override
-	protected void onException(WebSocket webSocket, IOException e) {
-		// TODO Auto-generated method stub
+		@Override
+		protected void onMessage(WebSocketFrame message) {
+			String result = handler.handle(message.getTextPayload());
+			try {
+				send(result);
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Send response failed", e);
+			}
+		}
+		
+		@Override
+		protected void onPong(WebSocketFrame pong) {
+			// nothing to do
+		}
+
+		@Override
+		protected void onClose(CloseCode code, String reason, boolean initiatedByRemote) {
+			logger.fine("Close " + reason + " / " + initiatedByRemote);
+		}
+
+		@Override
+		protected void onException(IOException exception) {
+			// nothing to do
+		}
 	}
 	
 }
