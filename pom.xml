@@ -190,17 +190,6 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-	<!-- not possible to do a release with a SNAPSHOT depencendy
-	<repositories>
-		<repository>
-			<id>sonatype-snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>	
-	-->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
