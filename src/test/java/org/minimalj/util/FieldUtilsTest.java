@@ -26,7 +26,7 @@ public class FieldUtilsTest {
 	@Test
 	public void parse() {
 		Assert.assertEquals((Long) 123456789012L, FieldUtils.parse("123456789012", Long.class));
-		Assert.assertEquals(123456, FieldUtils.parse("123456", Integer.class));
+		Assert.assertEquals(Integer.valueOf(123456), FieldUtils.parse("123456", Integer.class));
 		Assert.assertEquals(Boolean.TRUE, FieldUtils.parse("true", Boolean.class));
 		Assert.assertEquals(null, FieldUtils.parse("", Boolean.class));
 		Assert.assertEquals(Boolean.FALSE, FieldUtils.parse("false", Boolean.class));
