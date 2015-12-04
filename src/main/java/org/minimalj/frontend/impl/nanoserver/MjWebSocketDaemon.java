@@ -17,10 +17,10 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.NanoWSD;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 
-public class MjWebSocketServer extends NanoWSD {
-	private static final Logger logger = Logger.getLogger(MjWebSocketServer.class.getName());
+public class MjWebSocketDaemon extends NanoWSD {
+	private static final Logger logger = Logger.getLogger(MjWebSocketDaemon.class.getName());
 
-	public MjWebSocketServer(int port, boolean secure) {
+	public MjWebSocketDaemon(int port, boolean secure) {
 		super(port);
 		if (secure) {
 			try {
