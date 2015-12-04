@@ -144,5 +144,27 @@ public class FieldUtils {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public static <T> T parse(String s, Class<T> clazz) {
+		Object value = null;
+		if (clazz == String.class) {
+			value = s;
+		} else if (!StringUtils.isEmpty(s)) {
+			if (clazz == Integer.class) {
+				value = Integer.valueOf(s);
+			} else if (clazz == Long.class) {
+				value = Long.valueOf(s);
+			} else if (clazz == Boolean.class) {
+				value = Boolean.valueOf(s);
+			} else if (clazz == BigDecimal.class) {
+				value = new BigDecimal(s);
+			} else if (clazz == LocalDate.class) {
+				value = DateUtils.parse(s);
+			} else {
+				throw new IllegalArgumentException(s);
+			}
+		}
+		return (T) value;
+	}
 
 }
