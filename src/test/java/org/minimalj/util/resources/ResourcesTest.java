@@ -71,7 +71,7 @@ public class ResourcesTest {
 	
 	private String getFieldName(Object key) throws Exception {
 		PropertyInterface property = Keys.getProperty(key);
-		String name = Resources.getObjectFieldName(property);
+		String name = Resources.getPropertyName(property);
 		return name;
 	}
 	

@@ -29,7 +29,7 @@ public class EmptyValidator {
 	public static void validate(List<ValidationMessage> resultList, Object object, PropertyInterface property) {
 		Object value = property.getValue(object);
 		if (EmptyObjects.isEmpty(value)) {
-			String caption = Resources.getObjectFieldName(property);
+			String caption = Resources.getPropertyName(property);
 			if (StringUtils.isEmpty(caption)) {
 				caption = "Eingabe";
 			}

@@ -288,7 +288,7 @@ public class Form<T> {
 	//
 
 	protected String caption(FormElement<?> field) {
-		return Resources.getObjectFieldName(field.getProperty());
+		return Resources.getPropertyName(field.getProperty());
 	}
 
 	//

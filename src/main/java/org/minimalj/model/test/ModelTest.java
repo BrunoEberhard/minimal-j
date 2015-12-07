@@ -379,7 +379,7 @@ public class ModelTest {
 	private void testResources(Class<?> clazz) {
 		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
 			if (StringUtils.equals(property.getName(), "id", "version")) continue;
-			String resourceText = Resources.getObjectFieldName(property);
+			String resourceText = Resources.getPropertyName(property);
 			if (resourceText.startsWith("'") && resourceText.endsWith("'")) {
 				missingResources.add(resourceText.substring(1, resourceText.length()-1));
 			}

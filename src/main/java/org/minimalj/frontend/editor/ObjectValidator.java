@@ -29,7 +29,7 @@ public class ObjectValidator {
 		for (PropertyInterface property : properties) {
 			Object value = property.getValue(object);
 			if (InvalidValues.isInvalid(value)) {
-				String caption = Resources.getObjectFieldName(property);
+				String caption = Resources.getPropertyName(property);
 				validationMessages.add(new ValidationMessage(property, caption + " ungültig"));
 			}
 		}
