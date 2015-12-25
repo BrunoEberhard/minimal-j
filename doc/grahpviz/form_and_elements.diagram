@@ -1,0 +1,30 @@
+@startuml doc-files/form_diagram.png
+
+Form : line()
+Form : -columns
+
+Form o-- FormElement
+
+FormElement : +value
+FormElement : getComponent()
+FormElement : getProperty()
+
+abstract FormElement <|-- abstract AbstractFormElement
+
+AbstractFormElement <|-- abstract FormatFormElement
+AbstractFormElement <|-- CodeFormElement
+AbstractFormElement <|-- CheckboxFormElement
+AbstractFormElement <|-- StringFormElement
+
+FormatFormElement : {abstract} getAllowedSize()
+FormatFormElement : {abstract} getAllowedCharacters()
+FormatFormElement : {abstract} parse(String)
+FormatFormElement : {abstract} render()
+
+FormatFormElement <|-- LocalDateFormElement
+FormatFormElement <|-- abstract NumberFormElement
+
+NumberFormElement <|-- IntegerFormElement
+NumberFormElement <|-- BigDecimalFormElement
+
+@enduml

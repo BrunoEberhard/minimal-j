@@ -1,0 +1,51 @@
+ @startuml application_diagram.png
+
+Application : {static} instance
+Application : getName()
+Application : getNavigation()
+Application : createDefaultPage()
+Application : createSearchPage(String)
+Application : getEntityClasses()
+
+abstract Application <|-- YourApplication
+
+
+Action : {abstract} action()
+
+Editor : {abstract} createObject()
+Editor : {abstract} createForm()
+Editor : validate()
+Editor : {abstract} save()
+Editor : finished()
+
+Wizard : {abstract} getFirstStep()
+Wizard : {abstract} save()
+Wizard : finished()
+
+PageAction : -Page
+
+abstract Action <|-- ActionGroup
+abstract Action <|-- abstract Editor
+abstract Action <|-- abstract Wizard
+abstract Action <|-- PageAction
+
+abstract Editor <|-- abstract SimpleEditor
+abstract Editor <|-- abstract NewObjectEditor
+
+
+Page : {abstract} getContent()
+Page : getTitle()
+Page : getActions()
+
+ObjectPage : createForm()
+ObjectPage : +object
+
+TablePage : {abstract} load()
+TablePage : refresh()
+
+abstract Page <|-- abstract ObjectPage
+abstract Page <|-- abstract TablePage
+abstract Page <|-- HtmlPage
+
+
+@enduml
