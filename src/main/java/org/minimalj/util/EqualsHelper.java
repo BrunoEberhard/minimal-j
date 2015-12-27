@@ -45,7 +45,9 @@ public class EqualsHelper {
 					if (!itemEqual) return false;
 				}
 			} else if (field.getAnnotation(Reference.class) != null || Codes.isCode(field.getType())) {
-				return IdUtils.getId(fromValue).equals(IdUtils.getId(toValue));
+				if (!IdUtils.getId(fromValue).equals(IdUtils.getId(toValue))) {
+					return false;
+				}
 			} else {
 				if (!fromValue.equals(toValue)) {
 					return false;
