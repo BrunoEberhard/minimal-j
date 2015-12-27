@@ -33,7 +33,7 @@ public class ViewUtil {
 	 */
 	public static boolean isView(Field field) {
 		Class<?> clazz = field.getType();
-		if (ViewReference.class.isAssignableFrom(clazz)) return true;
+		if (View.class.isAssignableFrom(clazz)) return true;
 		if (field.getAnnotation(ViewReference.class) != null) return true;
 		return false;
 	}
@@ -45,7 +45,7 @@ public class ViewUtil {
 	 */
 	public static boolean isReference(PropertyInterface property) {
 		Class<?> clazz = property.getClazz();
-		if (ViewReference.class.isAssignableFrom(clazz)) return true;
+		if (View.class.isAssignableFrom(clazz)) return true;
 		if (property.getAnnotation(ViewReference.class) != null) return true;
 		return false;
 	}
@@ -67,7 +67,7 @@ public class ViewUtil {
 			if (type instanceof ParameterizedType) {
 				ParameterizedType parameterizedType = (ParameterizedType) type;
 				Type rawType = parameterizedType.getRawType();
-				if (rawType.equals(ViewReference.class)) {
+				if (rawType.equals(View.class)) {
 					return GenericUtils.getGenericClass(parameterizedType);
 				}
 			}
@@ -78,7 +78,7 @@ public class ViewUtil {
 	public static Class<?> resolve(Class<?> clazz) {
 		if (Code.class.isAssignableFrom(clazz)) {
 			return clazz;
-		} else if (ViewReference.class.isAssignableFrom(clazz)) {
+		} else if (View.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = getViewedClass(clazz);
 			return viewedClass;
 		} else {
