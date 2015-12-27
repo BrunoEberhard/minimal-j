@@ -84,7 +84,6 @@ public class ModelTest {
 			testVersion(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
-			problems.addAll(FlatProperties.testProperties(clazz));
 			if (DevMode.isActive()) {
 				testResources(clazz);
 			}

@@ -1,10 +1,8 @@
 package org.minimalj.model.properties;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -79,7 +77,7 @@ public class FlatProperties {
 				properties.put(field.getName(), new FieldProperty(field));
 			} else if (!FieldUtils.isList(field)) {
 				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
-				boolean hasClassName = FieldUtils.hasClassName(field);
+				boolean hasClassName = FieldUtils.hasClassName(field) && !hasCollidingFields(clazz, field.getType(), field.getName());
 				for (String inlineKey : inlinePropertys.keySet()) {
 					String key = inlineKey;
 					if (!hasClassName) {
@@ -92,40 +90,21 @@ public class FlatProperties {
 		return properties; 
 	}
 	
-	public static List<String> testProperties(Class<?> clazz) {
-		List<String> problems = new ArrayList<>();
-		Map<String, String> properties = new HashMap<String, String>();
-		
+	public static boolean hasCollidingFields(Class<?> clazz, Class<?> clazz2, String ignore) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
-
-			if (!FieldUtils.isFinal(field)) {
-				String fieldPath = new FieldProperty(field).getPath();
-				if (!properties.containsKey(field.getName())) {
-					properties.put(field.getName(), fieldPath);
-				} else {
-					problems.add(field.getName() + " collides with " + properties.get(field.getName()));
-				}
-			} else if (!FieldUtils.isList(field)) {
-				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
-				boolean hasClassName = FieldUtils.hasClassName(field);
-				for (String inlineKey : inlinePropertys.keySet()) {
-					String key = inlineKey;
-					if (!hasClassName) {
-						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
-					}
-					if (!properties.containsKey(key)) {
-						properties.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)).getPath());
-					} else {
-						problems.add(key + " collides with " + properties.get(key));
-					}
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field) || field.getName().equals(ignore)) continue;
+			Field[] fields2 = clazz2.getFields();
+			for (Field field2 : fields2) {
+				if (FieldUtils.isTransient(field2) || FieldUtils.isStatic(field2)) continue;
+				if (field.getName().equals(field2.getName())) {
+					return true;
 				}
 			}
 		}
-		return problems; 
+		return false;
 	}
-	
+
 	public static class FieldComparator implements Comparator<Field> {
 
 		@Override

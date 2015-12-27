@@ -36,6 +36,7 @@ import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.transaction.criteria.By;
@@ -372,7 +373,7 @@ public class SqlPersistence implements Persistence {
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
-				boolean hasClassName = FieldUtils.hasClassName(field);
+				boolean hasClassName = FieldUtils.hasClassName(field) && !FlatProperties.hasCollidingFields(clazz, field.getType(), field.getName());
 				for (String inlineKey : inlinePropertys.keySet()) {
 					String key = inlineKey;
 					if (!hasClassName) {
