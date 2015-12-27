@@ -11,7 +11,6 @@ import java.util.TreeSet;
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.View;
-import org.minimalj.model.annotation.Reference;
 import org.minimalj.model.annotation.Size;
 
 /**
@@ -113,7 +112,7 @@ public class ModelTestTest {
 
 	public static class TestClass7 {
 		public Object id;
-		@Reference
+		@org.minimalj.model.annotation.ViewReference
 		public TestClass2 ref;
 	}
 
@@ -131,7 +130,7 @@ public class ModelTestTest {
 
 	public static class TestClass9 {
 		public Object id;
-		@Reference
+		@org.minimalj.model.annotation.ViewReference
 		public TestClass2 ref;
 	}
 

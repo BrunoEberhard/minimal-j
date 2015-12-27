@@ -3,7 +3,7 @@ package org.minimalj.example.library.model;
 import java.time.LocalDate;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.Reference;
+import org.minimalj.model.annotation.ViewReference;
 
 public class Lend {
 
@@ -11,10 +11,10 @@ public class Lend {
 	
 	public Object id;
 	
-	@Reference
+	@ViewReference
 	public Book book;
 
-	@Reference
+	@ViewReference
 	public Customer customer;
 	
 	public LocalDate till;

@@ -15,8 +15,8 @@ import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.Reference;
 import org.minimalj.model.annotation.Searched;
+import org.minimalj.model.annotation.ViewReference;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.transaction.criteria.Criteria;
@@ -123,7 +123,7 @@ public class Table<T> extends AbstractTable<T> {
 		Map<String, PropertyInterface> properties = getLists();
 		for (PropertyInterface property : properties.values()) {
 			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
-			if (View.class.isAssignableFrom(clazz) || property.getAnnotation(Reference.class) != null) {
+			if (View.class.isAssignableFrom(clazz) || property.getAnnotation(ViewReference.class) != null) {
 				subTables.put(property.getName(), createViewSubTable(property, clazz));
 			} else {
 				subTables.put(property.getName(), createSubTable(property, clazz));

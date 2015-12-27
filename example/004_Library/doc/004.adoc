@@ -111,10 +111,10 @@ public class Lend {
 	
 	public Object id;
 	
-	@Reference
+	@ViewReference
 	public Book book;
 
-	@Reference
+	@ViewReference
 	public Customer customer;
 	
 	public LocalDate till;

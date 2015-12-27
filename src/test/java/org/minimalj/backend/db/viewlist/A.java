@@ -3,7 +3,7 @@ package org.minimalj.backend.db.viewlist;
 import java.util.List;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.Reference;
+import org.minimalj.model.annotation.ViewReference;
 import org.minimalj.model.annotation.Size;
 
 public class A {
@@ -23,7 +23,7 @@ public class A {
 	@Size(30)
 	public String aName;
 
-	@Reference
+	@ViewReference
 	public List<B> b;
 
 }

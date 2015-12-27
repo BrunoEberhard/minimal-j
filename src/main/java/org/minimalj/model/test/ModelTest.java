@@ -19,7 +19,7 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.annotation.Reference;
+import org.minimalj.model.annotation.ViewReference;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -235,7 +235,7 @@ public class ModelTest {
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
 		if (fieldType == List.class) {
-			boolean isView = field.getAnnotation(Reference.class) != null;
+			boolean isView = field.getAnnotation(ViewReference.class) != null;
 			if (!isView && !FieldUtils.isFinal(field)) {
 				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
 			}

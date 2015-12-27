@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.model.annotation.Reference;
+import org.minimalj.model.annotation.ViewReference;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 
@@ -16,7 +16,7 @@ public class AccountPosition {
 	
 	public Object id;
 	
-	@Reference @NotEmpty
+	@ViewReference @NotEmpty
 	public Account account;
 	
 	@NotEmpty @Decimal(2)
