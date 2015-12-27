@@ -161,7 +161,7 @@ public class Customer {
 Here a customer can have one or more addresses. These addresses belong completly to one customer
 and are not shared among other customers.
 
-This also clearly visible when we look at the generated tables:
+This is also clearly visible when we look at the generated tables:
 
 ----
 CREATE TABLE CUSTOMER_Addresses (
