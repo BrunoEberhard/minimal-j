@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.minimalj.model.UnloadedList;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.IdUtils;
@@ -20,6 +21,17 @@ public class ViewSubTable extends SubTable {
 		super(sqlPersistence, prefix, viewClass, idProperty);
 	}
 	
+	@Override
+	protected void createConstraints(SqlSyntax syntax) {
+		Class<?> referencedClass = ViewUtil.resolve(getClazz());
+		AbstractTable<?> referencedTable = sqlPersistence.getAbstractTable(referencedClass);
+
+		String s = syntax.createConstraint(getTableName(), "elementId", referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
+		if (s != null) {
+			execute(s.toString());
+		}
+	}
+
 	@Override
 	public void insert(Object parentId, List objects) throws SQLException {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
