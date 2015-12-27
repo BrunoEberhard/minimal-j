@@ -13,9 +13,9 @@ import org.minimalj.model.properties.PropertyInterface;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SubTable extends AbstractTable {
 
-	private final String selectByIdQuery;
-	private final String updateQuery;
-	private final String deleteQuery;
+	protected final String selectByIdQuery;
+	protected final String updateQuery;
+	protected final String deleteQuery;
 	
 	public SubTable(SqlPersistence sqlPersistence, String prefix, Class clazz, PropertyInterface idProperty) {
 		super(sqlPersistence, prefix, clazz, idProperty);

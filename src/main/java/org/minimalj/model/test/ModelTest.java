@@ -19,6 +19,7 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Reference;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -233,21 +234,23 @@ public class ModelTest {
 		Class<?> fieldType = field.getType();
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
-		if (fieldType == List.class || fieldType == Set.class) {
+		if (fieldType == List.class) {
+			boolean isView = field.getAnnotation(Reference.class) != null;
+			if (!isView && !FieldUtils.isFinal(field)) {
+				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
+			}
+			testTypeOfListField(field, isView, messagePrefix);
+		} else if (fieldType == Set.class) {
 			if (!FieldUtils.isFinal(field)) {
 				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
 			}
-			if (fieldType == List.class) {
-				testTypeOfListField(field, messagePrefix);
-			} else if (fieldType == Set.class) {
-				testTypeOfSetField(field, messagePrefix);
-			}
+			testTypeOfSetField(field, messagePrefix);
 		} else {
 			testTypeOfField(field, messagePrefix);
 		}
 	}
 
-	private void testTypeOfListField(Field field, String messagePrefix) {
+	private void testTypeOfListField(Field field, boolean isView, String messagePrefix) {
 		Class<?> listType = null;
 		try {
 			listType = GenericUtils.getGenericClass(field);
@@ -256,7 +259,7 @@ public class ModelTest {
 		}
 		if (listType != null) {
 			messagePrefix = "Generic of " + messagePrefix;
-			testTypeOfListField(listType, messagePrefix);
+			testTypeOfListField(listType, isView, messagePrefix);
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}
@@ -321,7 +324,7 @@ public class ModelTest {
 		}
 	}
 
-	private void testTypeOfListField(Class<?> fieldType, String messagePrefix) {
+	private void testTypeOfListField(Class<?> fieldType, boolean isView, String messagePrefix) {
 		if (fieldType.isPrimitive()) {
 			problems.add(messagePrefix + " has invalid Type");
 			return;
@@ -343,16 +346,21 @@ public class ModelTest {
 		// report problem
 		switch (type) {
 		case MAIN:
-		case VIEW:	
-			problems.add(messagePrefix + " is a list of other main objects or views which is not allowed");
+			if (!isView) {
+				problems.add(messagePrefix + " is a list of other main entities which is not allowed. Use a View class or a View annotation");
+			}
 			break;
 		case CODE:
 			problems.add(messagePrefix + " is a list of codes which is not allowed");
 			break;
 		case SIMPLE:
 		case LIST_ELEMENT:
+		case VIEW:	
 			// no problem
 			break;
+		}
+		if (type != ModelClassType.MAIN && isView) {
+			problems.add(messagePrefix + " is a annotated as view. This is only allowed if the element type is a main entity");
 		}
 	}
 	

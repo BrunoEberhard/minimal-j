@@ -13,7 +13,9 @@ import java.util.Map.Entry;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Reference;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -121,13 +123,21 @@ public class Table<T> extends AbstractTable<T> {
 		Map<String, PropertyInterface> properties = getLists();
 		for (PropertyInterface property : properties.values()) {
 			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
-			subTables.put(property.getName(), createSubTable(property, clazz));
+			if (View.class.isAssignableFrom(clazz) || property.getAnnotation(Reference.class) != null) {
+				subTables.put(property.getName(), createViewSubTable(property, clazz));
+			} else {
+				subTables.put(property.getName(), createSubTable(property, clazz));
+			}
 		}
 		return subTables;
 	}
 
 	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
 		return new SubTable(sqlPersistence, buildSubTableName(property), clazz, idProperty);
+	}
+	
+	AbstractTable createViewSubTable(PropertyInterface property, Class<?> viewClass) {
+		return new ViewSubTable(sqlPersistence, buildSubTableName(property), viewClass, idProperty);
 	}
 
 	protected String buildSubTableName(PropertyInterface property) {
@@ -352,8 +362,13 @@ public class Table<T> extends AbstractTable<T> {
 	protected void loadRelations(T object, Object id) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			SubTable subTable = (SubTable) subTableEntry.getValue();
-			List list = (List) getLists().get(subTableEntry.getKey()).getValue(object);
-			list.addAll(subTable.read(id));
+			PropertyInterface listProperty = getLists().get(subTableEntry.getKey());
+			if (listProperty.isFinal()) {
+				List list = (List) listProperty.getValue(object);
+				list.addAll(subTable.read(id));
+			} else {
+				listProperty.setValue(object, subTable.read(id));
+			}
 		}
 	}
 	
