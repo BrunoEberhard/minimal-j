@@ -198,14 +198,6 @@ public abstract class SqlSyntax {
 			}
 		}
 		
-		@Override
-		public void addPrimaryKey(StringBuilder s, String keys) {
-			if (keys.indexOf(",") < 0) {
-				super.addPrimaryKey(s, keys);
-			} else {
-				// no multi column primary keys possible
-			}
-		}
 		
 		@Override
 		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
