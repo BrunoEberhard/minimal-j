@@ -44,7 +44,7 @@ import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
 public class Form<T> {
-	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
+	private static Logger logger = Logger.getLogger(Form.class.getSimpleName().toUpperCase());
 
 	public static final boolean EDITABLE = true;
 	public static final boolean READ_ONLY = false;
