@@ -2,6 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import java.util.List;
 
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
@@ -67,6 +68,11 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		protected void finished(Void result) {
 			handleChange();
 		}
+	}
+
+	@Override
+	protected Action getEditorAction() {
+		throw new RuntimeException(getClass().getSimpleName() + " must not use getEditorAction. Please use an extension of EditListEntryAction");
 	}
 
 	public abstract class EditListEntryAction extends Editor<T, Void> {
