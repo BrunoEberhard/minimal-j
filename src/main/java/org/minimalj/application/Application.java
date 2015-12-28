@@ -181,7 +181,7 @@ public abstract class Application {
 		// note: the default handler streams to System.err . This is why the output in eclipse is red.
 		// I haven't figured out yet how this can be changed easily. 
 		if (StringUtils.isEmpty(System.getProperty("java.util.logging.SimpleFormatter.format"))) {
-			System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT:%1$tL %4$-11s %2$-60s %5$s %6$s%n");
+			System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT:%1$tL %4$-13s %3$-4s %5$s %6$s%n");
 		}
 	}
 	
