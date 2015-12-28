@@ -17,7 +17,7 @@ public class OwnerFormElement extends ObjectFormElement<Owner> {
 	}
 	
 	@Override
-	public Form<Owner> createFormPanel() {
+	public Form<Owner> createForm() {
 		// not used
 		return null;
 	}

@@ -63,7 +63,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		return list;
 	}
 
-	protected abstract Form<T> createFormPanel();
+	protected abstract Form<T> createForm();
 
 	protected T createObject() {
 		if (AbstractObjectFormElement.this.getValue() != null) {
@@ -97,7 +97,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 
 		@Override
 		public Form<T> createForm() {
-			return AbstractObjectFormElement.this.createFormPanel();
+			return AbstractObjectFormElement.this.createForm();
 		}
 
 		@Override

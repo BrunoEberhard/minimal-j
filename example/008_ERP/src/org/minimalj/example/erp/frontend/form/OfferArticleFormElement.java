@@ -17,7 +17,7 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 	}
 
 	@Override
-	protected Form<List<OfferArticle>> createFormPanel() {
+	protected Form<List<OfferArticle>> createForm() {
 		return null;
 	}
 

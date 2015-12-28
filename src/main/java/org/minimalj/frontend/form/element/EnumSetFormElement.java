@@ -46,7 +46,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 	}
 
 	@Override
-	protected Form<E> createFormPanel() {
+	protected Form<E> createForm() {
 		Form<E> form = new Form<E>(true);
 		for (Object object : allowedValues) {
 			Enum<?> value = (Enum<?>) object;

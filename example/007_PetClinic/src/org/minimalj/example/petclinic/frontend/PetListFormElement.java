@@ -29,7 +29,7 @@ public class PetListFormElement extends ListFormElement<Pet> {
 	}
 
 	@Override
-	protected Form<List<Pet>> createFormPanel() {
+	protected Form<List<Pet>> createForm() {
 		return null;
 	}
 
