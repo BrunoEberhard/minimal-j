@@ -122,7 +122,7 @@ public class HistorizedSubTable extends AbstractTable {
 	
 	protected String selectByIdAndTimeQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); 
+		query.append("SELECT * FROM ").append(getTableName()); 
 		query.append(" WHERE id = ? AND (startVersion = 0 OR startVersion < ?) AND (endVersion = 0 OR endVersion >= ?) ORDER BY position");
 		return query.toString();
 	}
@@ -130,7 +130,7 @@ public class HistorizedSubTable extends AbstractTable {
 	@Override
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); query.append(" WHERE id = ?");
+		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE id = ?");
 		query.append(" AND endVersion = 0 ORDER BY position");
 		return query.toString();
 	}
@@ -139,12 +139,11 @@ public class HistorizedSubTable extends AbstractTable {
 	protected String insertQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
+		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (Object columnNameObject : getColumns().keySet()) {
 			// myst, direkt auf columnNames zugreiffen funktionert hier nicht
 			String columnName = (String) columnNameObject;
-			s.append(columnName);
-			s.append(", ");
+			s.append(columnName).append(", ");
 		}
 		s.append("id, position, startVersion, endVersion) VALUES (");
 		for (int i = 0; i<getColumns().keySet().size(); i++) {
@@ -157,16 +156,13 @@ public class HistorizedSubTable extends AbstractTable {
 	
 	private String endQuery() {
 		StringBuilder s = new StringBuilder();
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion = 0");
+		s.append("UPDATE ").append(getTableName()).append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion = 0");
 		return s.toString();
 	}
 	
 	private String readVersionsQuery() {
 		StringBuilder s = new StringBuilder();
-		
-		s.append("SELECT startVersion, endVersion FROM "); s.append(getTableName()); 
-		s.append(" WHERE id = ?");
-
+		s.append("SELECT startVersion, endVersion FROM ").append(getTableName()).append(" WHERE id = ?");
 		return s.toString();
 	}
 	
