@@ -73,6 +73,11 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 	
 	@Override
+	AbstractTable createViewSubTable(PropertyInterface property, Class<?> viewClass) {
+		return new HistorizedViewSubTable(sqlPersistence, buildSubTableName(property), viewClass, idProperty);
+	}
+	
+	@Override
 	protected void update(Object id, T object) {
 		// TODO Update sollte erst mal prüfen, ob update nötig ist.
 		// T oldObject = read(id);
@@ -172,8 +177,13 @@ public class HistorizedTable<T> extends Table<T> {
 	private void loadRelations(T object, Object id, Integer time) throws SQLException {
 		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
 			HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTableEntry.getValue();
-			List list = (List)getLists().get(subTableEntry.getKey()).getValue(object);
-			list.addAll(historizedSubTable.read(id, time));
+			PropertyInterface listProperty = getLists().get(subTableEntry.getKey());
+			if (listProperty.isFinal()) {
+				List list = (List) listProperty.getValue(object);
+				list.addAll(historizedSubTable.read(id, time));
+			} else {
+				listProperty.setValue(object, historizedSubTable.read(id, time));
+			}
 		}
 	}
 

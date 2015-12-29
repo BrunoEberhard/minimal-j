@@ -426,6 +426,19 @@ public abstract class AbstractTable<T> {
 		return query.toString();
 	}
 	
+	protected final Object getOrCreateId(Object object) {
+		Object elementId = IdUtils.getId(object);
+		if (elementId == null) {
+			if (getClazz().isInstance(object)) {
+				elementId = sqlPersistence.insert(object);
+			}
+		} else if (getClazz().isInstance(elementId)) {
+			// Special case: if id is the object itself, then insert that object
+			elementId = sqlPersistence.insert(elementId);
+		}
+		return elementId;
+	}
+	
 	//
 
 	public void createIndex(Object key) {

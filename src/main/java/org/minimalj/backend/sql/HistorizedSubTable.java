@@ -24,7 +24,7 @@ import org.minimalj.util.EqualsHelper;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class HistorizedSubTable extends AbstractTable {
 
-	private final String selectByIdAndTimeQuery;
+	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
 	private final String readVersionsQuery;
 	
@@ -97,7 +97,7 @@ public class HistorizedSubTable extends AbstractTable {
 		}
 	}
 
-	private List read(Object id) throws SQLException {
+	protected List read(Object id) throws SQLException {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			return executeSelectAll(selectByIdStatement);
