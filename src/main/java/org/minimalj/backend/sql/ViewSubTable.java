@@ -111,27 +111,23 @@ public class ViewSubTable extends SubTable {
 	@Override
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT elementId FROM "); query.append(getTableName()); query.append(" WHERE id = ? ORDER BY position");
+		query.append("SELECT elementId FROM ").append(getTableName()).append(" WHERE id = ? ORDER BY position");
 		return query.toString();
 	}
 	
 	@Override
 	protected String insertQuery() {
 		StringBuilder s = new StringBuilder();
-		
-		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
+		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		s.append("id, position, elementId) VALUES (?, ?, ?)");
-
 		return s.toString();
 	}
 
 	@Override
 	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
-		
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET ");
+		s.append("UPDATE ").append(getTableName()).append(" SET ");
 		s.append("elementId = ? WHERE id = ? AND position = ?");
-
 		return s.toString();
 	}
 	
