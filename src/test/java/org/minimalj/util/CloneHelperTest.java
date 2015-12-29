@@ -75,6 +75,7 @@ public class CloneHelperTest {
 		c.c = "Test";
 		c.d = new CloneHelperTestD();
 		c.d.d = 23;
+		a.c = new ArrayList<CloneHelperTestC>();
 		a.c.add(c);
 		
 		CloneHelperTestA clone = CloneHelper.clone(a);
@@ -94,7 +95,7 @@ public class CloneHelperTest {
 	public static class CloneHelperTestA {
 		public String a;
 		public final List<CloneHelperTestB> b = new ArrayList<CloneHelperTestB>();
-		public List<CloneHelperTestC> c = new ArrayList<CloneHelperTestC>();
+		public List<CloneHelperTestC> c;
 		public List<CloneHelperTestC> empty;
 		public transient String t;
 		public final CloneHelperTestB b_inline = new CloneHelperTestB();

@@ -3,6 +3,7 @@ package org.minimalj.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +67,18 @@ public class CloneHelper {
 			if (fromValue instanceof List) {
 				List fromList = (List)field.get(from);
 				List toList = (List)toValue;
-				toList.clear();
-				for (Object element : fromList) {
-					toList.add(clone(element));
+				if (fromList != null) {
+					if (FieldUtils.isFinal(field)) {
+						toList.clear();
+					} else {
+						toList = new ArrayList<>();
+						field.set(to, toList);
+					}
+					for (Object element : fromList) {
+						toList.add(clone(element));
+					}
+				} else if (toList != null) {
+					field.set(to, null);
 				}
 			} else if (fromValue instanceof Set) {
 				Set fromSet = (Set)field.get(from);
