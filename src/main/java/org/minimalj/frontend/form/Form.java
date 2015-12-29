@@ -153,7 +153,11 @@ public class Form<T> {
 	}
 	
 	public void line(Object... keys) {
-		if (keys.length > columns) throw new IllegalArgumentException("More keys than specified in the constructor");
+		if (keys.length > columns) {
+			logger.severe("This form was constructed for " + columns + " column(s) but should be filled with " + keys.length + " form elements");
+			logger.fine("The solution is most probably to add/set the correct number of columns when calling the Form constructor");
+			throw new IllegalArgumentException("Not enough columns (" + columns + ") for form elements (" + keys.length + ")");
+		}
 		int span = columns / keys.length;
 		int rest = columns;
 		for (int i = 0; i<keys.length; i++) {
