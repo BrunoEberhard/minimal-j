@@ -14,7 +14,7 @@ public class ChainedProperty implements PropertyInterface {
 	
 	public boolean isAvailableFor(Object object) {
 		if (property1 instanceof ChainedProperty) {
-			if (((ChainedProperty) property1).isAvailableFor(object)) {
+			if (!((ChainedProperty) property1).isAvailableFor(object)) {
 				return false;
 			}
 		} 
