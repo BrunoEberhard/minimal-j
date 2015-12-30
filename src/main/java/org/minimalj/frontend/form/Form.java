@@ -3,6 +3,7 @@ package org.minimalj.frontend.form;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +28,7 @@ import org.minimalj.frontend.form.element.FormElement;
 import org.minimalj.frontend.form.element.FormElement.FormElementListener;
 import org.minimalj.frontend.form.element.IntegerFormElement;
 import org.minimalj.frontend.form.element.LocalDateFormElement;
+import org.minimalj.frontend.form.element.LocalDateTimeFormElement;
 import org.minimalj.frontend.form.element.LocalTimeFormElement;
 import org.minimalj.frontend.form.element.LongFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
@@ -134,6 +136,8 @@ public class Form<T> {
 			return new LocalDateFormElement(property, editable);
 		} else if (fieldClass == LocalTime.class) {
 			return new LocalTimeFormElement(property, editable);
+		} else if (fieldClass == LocalDateTime.class) {
+			return new LocalDateTimeFormElement(property, editable);			
 		} else if (Code.class.isAssignableFrom(fieldClass)) {
 			return editable ? new CodeFormElement(property) : new TextFormElement(property);
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
