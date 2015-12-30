@@ -121,16 +121,6 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		return new ObjectFormElementEditor();
 	}
 
-	/*
-	 * Only to be used in ObjectFieldEditor
-	 */
-	protected T newInstance() {
-		@SuppressWarnings("unchecked")
-		Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(AbstractObjectFormElement.this.getClass());
-		T newInstance = CloneHelper.newInstance(clazz);
-		return newInstance;
-	}
-
 	protected void handleChange() {
 		display();
 		super.fireChange();
