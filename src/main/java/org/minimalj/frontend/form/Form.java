@@ -37,6 +37,7 @@ import org.minimalj.frontend.form.element.TypeUnknownFormElement;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Enabled;
+import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
@@ -395,8 +396,14 @@ public class Form<T> {
 			if (dependencies.containsKey(property)) {
 				List<PropertyInterface> dependendProperties = dependencies.get(property);
 				for (PropertyInterface dependendProperty : dependendProperties) {
-					Object newDependedValue = dependendProperty.getValue(object);
-					((FormElement) elements.get(dependendProperty)).setValue(newDependedValue);
+					for (FormElement formElement : elements.values()) {
+						String formElementPath = formElement.getProperty().getPath();
+						String dependedPath = dependendProperty.getPath();
+						if (formElementPath.equals(dependedPath) || formElementPath.startsWith(dependedPath) && formElementPath.charAt(dependedPath.length()) == '.') {
+							Object newDependedValue = formElement.getProperty().getValue(object);
+							formElement.setValue(newDependedValue);
+						}
+					}
 				}
 			}
 		}
@@ -416,31 +423,39 @@ public class Form<T> {
 	private void updateEnable() {
 		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
 			PropertyInterface property = element.getKey();
-			Enabled enabled = property.getAnnotation(Enabled.class);
-			if (enabled != null) {
-				String methodName = enabled.value();
-				boolean invert = methodName.startsWith("!");
-				if (invert) methodName = methodName.substring(1);
-				try {
-					Object o = findParentObject(property);
-					Class<?> clazz = o.getClass();
-					Method method = clazz.getMethod(methodName);
-					boolean e = (Boolean) method.invoke(o);
-					if (element.getValue() instanceof Enable) {
-						((Enable) element.getValue()).setEnabled(e ^ invert);
-					} else {
-						if (editable) {
-							logger.severe("element " + property.getPath() + " should implement Enable");
-						} else {
-							logger.fine("element " + property.getPath() + " should maybe implement Enable");
+
+			Enabled enabledAnnotation = property.getAnnotation(Enabled.class);
+			if (element.getValue() instanceof Enable) {
+				boolean enabled = true;
+				
+				if (property instanceof ChainedProperty) {
+					enabled = ((ChainedProperty) property).isAvailableFor(object);
+				}
+
+				if (enabled && enabledAnnotation != null) {
+					String methodName = enabledAnnotation.value();
+					boolean invert = methodName.startsWith("!");
+					if (invert) methodName = methodName.substring(1);
+					try {
+						Object o = findParentObject(property);
+						Class<?> clazz = o.getClass();
+						Method method = clazz.getMethod(methodName);
+						enabled = ((Boolean) method.invoke(o) ^ invert);
+					} catch (Exception x) {
+						String fieldName = property.getName();
+						if (!fieldName.equals(property.getPath())) {
+							fieldName += " (" + property.getPath() + ")";
 						}
+						logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed" , x);
 					}
-				} catch (Exception x) {
-					String fieldName = property.getName();
-					if (!fieldName.equals(property.getPath())) {
-						fieldName += " (" + property.getPath() + ")";
-					}
-					logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed" , x);
+				}	
+	
+				((Enable) element.getValue()).setEnabled(enabled);
+			} else if (enabledAnnotation != null) {
+				if (editable) {
+					logger.severe("element " + property.getPath() + " should implement Enable");
+				} else {
+					logger.fine("element " + property.getPath() + " should maybe implement Enable");
 				}
 			}
 		}
