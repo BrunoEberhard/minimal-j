@@ -103,7 +103,7 @@ public abstract class AbstractTable<T> {
 					if (!hasClassName) {
 						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
 					}
-					properties.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
+					properties.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
 				}
 			} else if (FieldUtils.isList(field)) {
 				properties.put(field.getName(), new FieldProperty(field));

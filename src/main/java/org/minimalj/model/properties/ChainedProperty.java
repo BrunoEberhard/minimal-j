@@ -1,74 +1,76 @@
 package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 public class ChainedProperty implements PropertyInterface {
-	private PropertyInterface next;
-	private Field field;
+	private final PropertyInterface property1;
+	private final PropertyInterface property2;
 
-	public ChainedProperty(Class<?> clazz, Field field, PropertyInterface next) {
-		this.field = field;
-		this.next = next;
+	public ChainedProperty(PropertyInterface property1, PropertyInterface property2) {
+		this.property1 = property1;
+		this.property2 = property2;
 	}
-
+	
+	public boolean isAvailableFor(Object object) {
+		if (property1 instanceof ChainedProperty) {
+			if (((ChainedProperty) property1).isAvailableFor(object)) {
+				return false;
+			}
+		} 
+		return property1.getValue(object) != null;
+	}
+	
 	@Override
 	public Class<?> getDeclaringClass() {
-		return next.getDeclaringClass();
+		return property2.getDeclaringClass();
 	}
 
 	@Override
 	public Object getValue(Object object) {
-		try {
-			object = field.get(object);
-			if (object != null) {
-				return next.getValue(object);
-			} else {
-				return null;
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		Object value1 = property1.getValue(object);
+		if (value1 != null) {
+			return property2.getValue(value1);
+		} else {
+			return null;
 		}
 	}
 
 	@Override
 	public void setValue(Object object, Object value) {
-		try {
-			object = field.get(object);
-			next.setValue(object, value);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		Object value1 = property1.getValue(object);
+		if (value1 != null) {
+			property2.setValue(value1, value);
 		}
 	}
 
 	@Override
 	public String getName() {
-		return next.getName();
+		return property2.getName();
 	}
-
+	
 	@Override
 	public String getPath() {
-		return field.getName() + "." + next.getPath();
+		return property1.getPath() + "." + property2.getPath();
 	}
-
+	
 	@Override
 	public Type getType() {
-		return next.getType();
+		return property2.getType();
 	}
 	
 	@Override
 	public Class<?> getClazz() {
-		return next.getClazz();
+		return property2.getClazz();
 	}
 
 	@Override
 	public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-		return next.getAnnotation(annotationClass);
+		return property2.getAnnotation(annotationClass);
 	}
 
 	@Override
 	public boolean isFinal() {
-		return next.isFinal();
+		return property2.isFinal();
 	}
 }

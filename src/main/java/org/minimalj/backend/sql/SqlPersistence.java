@@ -380,7 +380,7 @@ public class SqlPersistence implements Persistence {
 						key = fieldName + "_" + inlineKey;
 					}
 					key = SqlHelper.buildName(key, getMaxIdentifierLength(), columns.keySet());
-					columns.put(key, new ChainedProperty(clazz, field, inlinePropertys.get(inlineKey)));
+					columns.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
 				}
 			} else {
 				fieldName = SqlHelper.buildName(fieldName, getMaxIdentifierLength(), columns.keySet());
