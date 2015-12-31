@@ -21,6 +21,11 @@ public class HistorizedViewSubTable extends HistorizedSubTable {
 	}
 
 	@Override
+	protected void findIndexes() {
+		// no one is pointing to a ViewSubTable
+	}
+	
+	@Override
 	protected int setParameters(PreparedStatement statement, Object object, boolean doubleValues, ParameterMode mode, Object parentId) throws SQLException {
 		int parameterPos = 1;
 		Object elementId = getOrCreateId(object);

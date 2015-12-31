@@ -34,6 +34,11 @@ public class ViewSubTable extends SubTable {
 	}
 
 	@Override
+	protected void findIndexes() {
+		// no one is pointing to a ViewSubTable
+	}
+	
+	@Override
 	public void insert(Object parentId, List objects) throws SQLException {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
