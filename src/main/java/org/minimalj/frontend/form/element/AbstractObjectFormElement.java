@@ -8,8 +8,6 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.editor.Editor;
-import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.model.Rendering;
@@ -63,8 +61,6 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		return list;
 	}
 
-	protected abstract Form<T> createForm();
-
 	protected T createObject() {
 		if (AbstractObjectFormElement.this.getValue() != null) {
 			return CloneHelper.clone(AbstractObjectFormElement.this.getValue());
@@ -83,42 +79,6 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 				logger.warning(msg);
 			}
 		}
-	}
-
-	public class ObjectFormElementEditor extends Editor<T, Void> {
-		public ObjectFormElementEditor() {
-			assertEditable(this);
-		}
-
-		public ObjectFormElementEditor(String name) {
-			super(name);
-			assertEditable(this);
-		}
-
-		@Override
-		public Form<T> createForm() {
-			return AbstractObjectFormElement.this.createForm();
-		}
-
-		@Override
-		public T createObject() {
-			return AbstractObjectFormElement.this.createObject();
-		}
-
-		@Override
-		public Void save(T edited) {
-			AbstractObjectFormElement.this.setValue(edited);
-			return null;
-		}
-
-		@Override
-		protected void finished(Void result) {
-			handleChange();
-		}
-	}
-
-	protected Action getEditorAction() {
-		return new ObjectFormElementEditor();
 	}
 
 	protected void handleChange() {

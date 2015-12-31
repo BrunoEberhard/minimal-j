@@ -4,19 +4,10 @@ import java.util.List;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 
-/**
- * The state of an ObjectField is saved in the object variable.<p>
- * 
- * You have to implement for an ObjectField:
- * <ul>
- * <li>display: The widgets have to be updated according to the object</li>
- * <li>fireChange: The object has to be updated according the widgets</li>
- * </ul>
- *
- */
 public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<T>> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
 	
@@ -36,8 +27,10 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 	}
 
 	protected abstract void showEntry(T entry);
-
-	public abstract class AddListEntryEditor extends Editor<T, Void> {
+	
+	protected abstract Form<T> createForm(boolean edit);
+	
+	public class AddListEntryEditor extends Editor<T, Void> {
 		
 		public AddListEntryEditor() {
 			assertEditable(this);
@@ -57,12 +50,19 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		}
 		
 		@Override
+		protected Form<T> createForm() {
+			return ListFormElement.this.createForm(false);
+		}
+		
+		@Override
 		public Void save(T entry) {
 			addEntry(entry);
 			return null;
 		}
 
-		protected abstract void addEntry(T entry);
+		protected void addEntry(T entry) {
+			getValue().add(entry);
+		}
 
 		@Override
 		protected void finished(Void result) {
@@ -70,12 +70,11 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		}
 	}
 
-	@Override
 	protected Action getEditorAction() {
 		throw new RuntimeException(getClass().getSimpleName() + " must not use getEditorAction. Please use an extension of EditListEntryAction");
 	}
 
-	public abstract class ListEntryEditor extends Editor<T, Void> {
+	public class ListEntryEditor extends Editor<T, Void> {
 		private final T originalEntry;
 		
 		public ListEntryEditor(T originalEntry) {
@@ -87,6 +86,11 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		protected T createObject() {
 			return CloneHelper.clone(originalEntry);
 		}
+		
+		@Override
+		protected Form<T> createForm() {
+			return ListFormElement.this.createForm(true);
+		}
 
 		@Override
 		public Void save(T entry) {
@@ -94,12 +98,14 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 			return null;
 		}
 
-		protected abstract void editEntry(T originalEntry, T entry);
+		protected void editEntry(T originalEntry, T entry) {
+			CloneHelper.deepCopy(entry, originalEntry);
+		}
 
 		@Override
 		protected void finished(Void result) {
 			handleChange();
 		}
 	}
-	
+
 }
