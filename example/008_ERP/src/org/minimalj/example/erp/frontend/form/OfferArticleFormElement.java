@@ -17,36 +17,23 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 	}
 
 	@Override
-	protected Form<List<OfferArticle>> createForm() {
-		return null;
-	}
-
-	@Override
 	protected void showEntry(OfferArticle offerArticle) {
 		add(offerArticle);
 	}
 	
 	@Override
+	protected Form<OfferArticle> createForm(boolean edit) {
+		Form<OfferArticle> form = new Form<>();
+		form.line(new ReferenceFormElement<Article>(OfferArticle.$.article, Article.$.article, Article.$.articleNr));
+		form.line(OfferArticle.$.numberof);
+		form.line(OfferArticle.$.price);
+		return form;
+	}
+	
+	@Override
 	protected Action[] getActions() {
-		return new Action[] { new AddOfferArticleEditor(), new RemoveOfferArticlesAction() };
+		return new Action[] { new AddListEntryEditor(), new RemoveOfferArticlesAction() };
 	}
-
-	public class AddOfferArticleEditor extends AddListEntryEditor {
-		@Override
-		public Form<OfferArticle> createForm() {
-			Form<OfferArticle> form = new Form<>();
-			form.line(new ReferenceFormElement<Article>(OfferArticle.$.article, Article.$.article, Article.$.articleNr));
-			form.line(OfferArticle.$.numberof);
-			form.line(OfferArticle.$.price);
-			return form;
-		}
-
-		@Override
-		protected void addEntry(OfferArticle offerArticle) {
-			getValue().add(offerArticle);
-		}
-	}
-
 
 	public class RemoveOfferArticlesAction extends Action {
 
