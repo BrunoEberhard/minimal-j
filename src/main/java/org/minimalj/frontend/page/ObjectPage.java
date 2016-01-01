@@ -7,6 +7,30 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 
+/**
+ * This page requires the object to be persistet. Meaning the object has to have
+ * its id. If you want to display an object without involving a backend use a
+ * normal page with this pattern:
+ * 
+ * <pre>
+ * public class TeaCup extends Page {
+ * 
+ * 	private final TaxStatement teaCup;
+ * 
+ * 	public TeaCup(TaxStatement teaCup) {
+ * 		this.teaCup = teaCup;
+ * 	}
+ * 
+ * 	public IContent getContent() {
+ * 		TaxStatementForm form = new TaxStatementForm(Form.READ_ONLY);
+ * 		form.setObject(teaCup);
+ * 		return form.getContent();
+ * 	}
+ * }
+ * </pre>
+ *
+ * But be carefull as this pattern keeps the complete object in the memory.
+ */
 public abstract class ObjectPage<T> extends Page {
 
 	private final Class<T> objectClass;
