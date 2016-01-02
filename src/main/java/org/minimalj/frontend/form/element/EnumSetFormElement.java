@@ -13,6 +13,7 @@ import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
+import org.minimalj.util.resources.Resources;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElement<E> implements Enable, Mocking {
@@ -68,7 +69,26 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 
 	@Override
 	protected Action[] getActions() {
-		return new Action[] { new ObjectFormElementEditor() };
+		return new Action[] { new EnumSetFormElementEditor() };
+	}
+	
+	// EnumSetFormElementEditor is needed because the CloneHelper doesn't clone / copy Set<Enum> 
+	public class EnumSetFormElementEditor extends ObjectFormElementEditor {
+		public EnumSetFormElementEditor() {
+			super(Resources.getActionResourceName(ObjectFormElementEditor.class));
+		}
+
+		@Override
+		public E createObject() {
+			return (E) new HashSet(getValue());
+		}
+
+		@Override
+		public Void save(E edited) {
+			getValue().clear();
+			getValue().addAll(edited);
+			return null;
+		}
 	}
 	
 	private class EnumSetFormElementProperty extends CheckBoxProperty {
