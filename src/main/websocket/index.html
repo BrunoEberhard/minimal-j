@@ -14,9 +14,9 @@
 	var websocket;
 	var session = sessionStorage.sessionId;
 	
-	var isMobile = location.search == "?mobile"; 
+	var isTouch = "ontouchstart" in document.documentElement;
 
-	var isSmall = location.search == "?small" || isMobile; 
+	var isSmall = location.search == "?small" || location.search == "?mobile"; 
 	var isMedium = location.search == "?medium"; 
 	var isLarge = !isSmall && !isMedium;
 
@@ -551,7 +551,7 @@
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
-			if (isLarge) {
+			if (!isTouch) {
 				rowElement.setAttribute("onmousedown", "tableSelection(event, this, " + i + ");");
 				rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", " + i + " );");
 			} else {
