@@ -1,7 +1,9 @@
 package org.minimalj.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,6 +16,15 @@ public class CloneHelperTest {
 		a.a = "Hallo";
 		CloneHelperTestA clone = CloneHelper.clone(a);
 		Assert.assertEquals(a.a, clone.a);
+	}
+	
+	@Test public void 
+	should_copy_enum_attribute() throws Exception {
+		CloneHelperTestE e = new CloneHelperTestE();
+		e.f.add(CloneHelperTestF.B);
+		CloneHelperTestE clone = CloneHelper.clone(e);
+		Assert.assertTrue(clone.f.size() == 1);
+		Assert.assertTrue(clone.f.iterator().next() == CloneHelperTestF.B);
 	}
 	
 	@Test public void 
@@ -114,4 +125,12 @@ public class CloneHelperTest {
 		public Integer d;
 	}
 
+	public static class CloneHelperTestE {
+		public final Set<CloneHelperTestF> f = new HashSet<>();
+	}
+	
+	public static enum CloneHelperTestF {
+		A, B, C;
+	}
+	
 }
