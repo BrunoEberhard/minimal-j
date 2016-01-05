@@ -15,7 +15,7 @@ import org.minimalj.util.IdUtils;
  * Minimal-J internal
  * 
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ViewSubTable extends SubTable {
 
 	public ViewSubTable(SqlPersistence sqlPersistence, String prefix, Class viewClass, PropertyInterface idProperty) {
