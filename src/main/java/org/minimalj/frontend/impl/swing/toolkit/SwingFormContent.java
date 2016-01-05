@@ -18,13 +18,13 @@ import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.impl.swing.component.SwingCaption;
 
-public class SwingGridFormLayout extends JPanel implements FormContent {
+public class SwingFormContent extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
 	
 	private final int columnWidth;
 	private final Map<IComponent, SwingCaption> captionByComponent = new HashMap<>();
 	
-	public SwingGridFormLayout(int columns, int columnWidthPercentage) {
+	public SwingFormContent(int columns, int columnWidthPercentage) {
 		columnWidth = getColumnWidth() * columnWidthPercentage / 100;
 		setLayout(new GridFormLayoutManager(columns, columnWidth, 5));
 		setBorder(null);

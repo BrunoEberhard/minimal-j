@@ -147,7 +147,7 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public FormContent createFormContent(int columns, int columnWidthPercentage) {
-		return new SwingGridFormLayout(columns, columnWidthPercentage);
+		return new SwingFormContent(columns, columnWidthPercentage);
 	}
 
 	public static void focusFirstComponent(JComponent jComponent) {
