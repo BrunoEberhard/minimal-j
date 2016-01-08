@@ -99,9 +99,7 @@ public abstract class Wizard<RESULT> extends Action {
 		if (stepObject instanceof Validation) {
 			((Validation) stepObject).validate(validationMessages);
 		}
-		ObjectValidator.validateForEmpty(stepObject, validationMessages, form.getProperties());
-		ObjectValidator.validateForInvalid(stepObject, validationMessages, form.getProperties());
-		ObjectValidator.validatePropertyValues(stepObject, validationMessages, form.getProperties());
+		ObjectValidator.validate(stepObject, validationMessages, form.getProperties());
 		if (step instanceof Validatable) {
 			((Validatable) step).validate();
 		}

@@ -85,9 +85,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		if (object instanceof Validation) {
 			((Validation) object).validate(validationMessages);
 		}
-		ObjectValidator.validateForEmpty(object, validationMessages, form.getProperties());
-		ObjectValidator.validateForInvalid(object, validationMessages, form.getProperties());
-		ObjectValidator.validatePropertyValues(object, validationMessages, form.getProperties());
+		ObjectValidator.validate(object, validationMessages, form.getProperties());
 		validate(object, validationMessages);
 		form.indicate(validationMessages);
 		saveAction.setValidationMessages(validationMessages);
