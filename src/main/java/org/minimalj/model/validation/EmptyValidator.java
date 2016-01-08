@@ -1,5 +1,6 @@
 package org.minimalj.model.validation;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.minimalj.backend.sql.EmptyObjects;
@@ -29,11 +30,16 @@ public class EmptyValidator {
 	public static void validate(List<ValidationMessage> resultList, Object object, PropertyInterface property) {
 		Object value = property.getValue(object);
 		if (EmptyObjects.isEmpty(value)) {
-			String caption = Resources.getPropertyName(property);
-			if (StringUtils.isEmpty(caption)) {
-				caption = "Eingabe";
-			}
-			resultList.add(new ValidationMessage(property, caption + " erforderlich"));
+			resultList.add(new ValidationMessage(property, createMessage(property)));
+		}
+	}
+	
+	public static String createMessage(PropertyInterface property) {
+		String caption = Resources.getPropertyName(property);
+		if (StringUtils.isEmpty(caption)) {
+			return Resources.getString("EmptyValidator.messageNoCaption");
+		} else {
+			return MessageFormat.format(Resources.getString("EmptyValidator.message"), caption);
 		}
 	}
 }
