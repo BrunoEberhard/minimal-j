@@ -1,15 +1,22 @@
 package org.minimalj.util.resources;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
@@ -270,5 +277,38 @@ public class Resources {
 	
 	public static InputStream getInputStream(String resourceName) {
 		return Resources.class.getClassLoader().getResourceAsStream(resourceName);
+	}
+	
+	// combination of NoFallbackControl and EncodingResourceBundleControl (all final)
+	private static class NoFallbackUTF8Control extends Control {
+
+		@Override
+		public List<String> getFormats(String baseName) {
+			Objects.requireNonNull(baseName);
+			return Control.FORMAT_PROPERTIES;
+		}
+
+		@Override
+		public Locale getFallbackLocale(String baseName, Locale locale) {
+			Objects.requireNonNull(baseName);
+			Objects.requireNonNull(locale);
+			return null;
+		}
+
+		@Override
+		public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
+				throws IllegalAccessException, InstantiationException, IOException {
+			String bundleName = toBundleName(baseName, locale);
+			String resourceName = toResourceName(bundleName, "properties");
+			URL resourceURL = loader.getResource(resourceName);
+			if (resourceURL != null) {
+				try {
+					return new PropertyResourceBundle(new InputStreamReader(resourceURL.openStream(), Charset.forName("UTF-8")));
+				} catch (Exception z) {
+					logger.log(Level.FINE, "exception thrown during bundle initialization", z);
+				}
+			}
+			return super.newBundle(baseName, locale, format, loader, reload);
+		}
 	}
 }
