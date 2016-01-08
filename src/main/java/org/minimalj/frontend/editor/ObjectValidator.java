@@ -1,5 +1,6 @@
 package org.minimalj.frontend.editor;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -47,7 +48,7 @@ public class ObjectValidator {
 			Object value = property.getValue(object);
 			if (InvalidValues.isInvalid(value)) {
 				String caption = Resources.getPropertyName(property);
-				validationMessages.add(new ValidationMessage(property, caption + " ungültig"));
+				validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
 			}
 		}
 	}
