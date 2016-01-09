@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.security.permissiontest.pkgrole.T;
 
 /**
  * Minimal-J internal
@@ -48,7 +47,7 @@ public class HistorizedViewSubTable extends HistorizedSubTable {
 			selectByIdAndTimeStatement.setInt(3, time);
 
 			List result = new ArrayList();
-			Table<T> table = sqlPersistence.getTable(clazz);
+			Table table = sqlPersistence.getTable(clazz);
 			try (ResultSet resultSet = selectByIdAndTimeStatement.executeQuery()) {
 				while (resultSet.next()) {
 					Object elementid = resultSet.getObject(1);
