@@ -249,6 +249,7 @@ public abstract class Wizard<RESULT> extends Action {
 	protected void fillWithDemoData() {
 		if (stepObject instanceof Mocking) {
 			((Mocking) stepObject).mock();
+			form.setObject(stepObject);
 		} else {
 			form.mock();
 		}
