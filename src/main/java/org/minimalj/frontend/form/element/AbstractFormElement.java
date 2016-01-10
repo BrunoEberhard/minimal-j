@@ -4,13 +4,14 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.ChangeListener;
 
 public abstract class AbstractFormElement<T> implements FormElement<T> {
 
 	private final PropertyInterface property;
 	
 	private InputComponentListener forwardingChangeListener;
-	private FormElementListener changeListener;
+	private ChangeListener<FormElement<?>> changeListener;
 
 	protected AbstractFormElement(Object key) {
 		this(Keys.getProperty(key));
@@ -37,7 +38,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 	
 	@Override
-	public void setChangeListener(FormElementListener changeListener) {
+	public void setChangeListener(ChangeListener<FormElement<?>> changeListener) {
 		if (changeListener == null) {
 			throw new IllegalArgumentException("ChangeListener must not be null");
 		}
@@ -49,7 +50,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	
 	protected void fireChange() {
 		if (changeListener != null) {
-			changeListener.valueChanged(AbstractFormElement.this);
+			changeListener.changed(AbstractFormElement.this);
 		}
 	}
 	

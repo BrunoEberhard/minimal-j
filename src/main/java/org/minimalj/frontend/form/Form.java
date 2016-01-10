@@ -25,7 +25,6 @@ import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
 import org.minimalj.frontend.form.element.FormElement;
-import org.minimalj.frontend.form.element.FormElement.FormElementListener;
 import org.minimalj.frontend.form.element.IntegerFormElement;
 import org.minimalj.frontend.form.element.LocalDateFormElement;
 import org.minimalj.frontend.form.element.LocalDateTimeFormElement;
@@ -41,6 +40,7 @@ import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
@@ -61,7 +61,7 @@ public class Form<T> {
 	
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	
-	private FormChangeListener<T> changeListener;
+	private ChangeListener<Form<?>> changeListener;
 	private boolean changeFromOutsite;
 
 	private final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
@@ -346,24 +346,16 @@ public class Form<T> {
 		return property.getName();
 	}
 	
-	public void setChangeListener(FormChangeListener<T> changeListener) {
+	public void setChangeListener(ChangeListener<Form<?>> changeListener) {
 		if (changeListener == null) throw new IllegalArgumentException("Listener on Form must not be null");
 		if (this.changeListener != null) throw new IllegalStateException("Listener on Form cannot be changed");
 		this.changeListener = changeListener;
 	}
-	
-	public interface FormChangeListener<S> {
 
-		public void changed(PropertyInterface property, Object newValue);
-
-		public void commit();
-
-	}
-
-	private class FormPanelChangeListener implements FormElementListener {
+	private class FormPanelChangeListener implements ChangeListener<FormElement<?>> {
 
 		@Override
-		public void valueChanged(FormElement<?> changedField) {
+		public void changed(FormElement<?> changedField) {
 			if (changeFromOutsite) return;
 			if (changeListener == null) {
 				if (editable) logger.severe("Editable Form must have a listener");
@@ -387,7 +379,7 @@ public class Form<T> {
 			// update enable/disable fields
 			updateEnable();
 			
-			changeListener.changed(property, newValue);
+			changeListener.changed(Form.this);
 		}
 
 
@@ -479,17 +471,5 @@ public class Form<T> {
 		}
 		return result;
 	}
-
-	public class FormPanelActionListener implements Runnable {
-		
-		@Override
-		public void run() {
-			if (changeListener != null) {
-				changeListener.commit();
-			}
-		}
-
-	}
-
 
 }

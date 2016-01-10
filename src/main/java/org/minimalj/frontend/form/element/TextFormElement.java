@@ -8,6 +8,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.ChangeListener;
 
 /**
  * Read only FormElement. This element is used as a complement
@@ -46,7 +47,7 @@ public class TextFormElement implements FormElement<Object> {
 	}
 
 	@Override
-	public void setChangeListener(FormElementListener changeListener) {
+	public void setChangeListener(ChangeListener<FormElement<?>> changeListener) {
 		// ignored
 	}
 

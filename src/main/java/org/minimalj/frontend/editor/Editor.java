@@ -9,9 +9,9 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
@@ -113,24 +113,13 @@ public abstract class Editor<T, RESULT> extends Action {
 		//
 	}
 
-	private class EditorChangeListener implements Form.FormChangeListener<T> {
+	private class EditorChangeListener implements ChangeListener<Form<?>> {
 
 		@Override
-		public void changed(PropertyInterface property, Object newValue) {
+		public void changed(Form<?> form) {
 			validate();
 		}
-
-		@Override
-		public void commit() {
-			if (isSaveable()) {
-				save();
-			}
-		}
 	}	
-
-	private boolean isSaveable() {
-		return validationMessages.isEmpty();
-	}
 
 	protected final class SaveAction extends Action {
 		private String description;

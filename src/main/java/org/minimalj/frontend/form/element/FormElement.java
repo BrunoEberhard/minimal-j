@@ -2,6 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.ChangeListener;
 
 /**
  * A FormElement is not a component but provides a component
@@ -20,13 +21,8 @@ public interface FormElement<T> {
 
 	public T getValue();
 
-	public void setChangeListener(FormElementListener listener);
+	public void setChangeListener(ChangeListener<FormElement<?>> listener);
 
-	public interface FormElementListener {
-		
-	    void valueChanged(FormElement<?> source);
-	}
-	
 	public IComponent getComponent();
 	
 	public PropertyInterface getProperty();

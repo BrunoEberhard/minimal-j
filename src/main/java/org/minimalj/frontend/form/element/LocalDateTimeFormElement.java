@@ -9,6 +9,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.properties.VirtualProperty;
+import org.minimalj.util.ChangeListener;
 
 public class LocalDateTimeFormElement extends AbstractFormElement<LocalDateTime> {
 
@@ -36,7 +37,7 @@ public class LocalDateTimeFormElement extends AbstractFormElement<LocalDateTime>
 	}
 
 	@Override
-	public void setChangeListener(FormElement.FormElementListener changeListener) {
+	public void setChangeListener(ChangeListener<FormElement<?>> changeListener) {
 		dateFormElement.setChangeListener(changeListener);
 		timeFormElement.setChangeListener(changeListener);
 	}
