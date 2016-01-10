@@ -10,10 +10,10 @@ import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.util.ChangeListener;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
 
@@ -142,19 +142,12 @@ public abstract class Wizard<RESULT> extends Action {
 		//
 	}
 
-	private class EditorChangeListener implements Form.FormChangeListener {
+	private class EditorChangeListener implements ChangeListener<Form<?>> {
 
 		@Override
-		public void changed(PropertyInterface property, Object newValue) {
+		public void changed(Form<?> form) {
 			validate(stepObject);
 			finishAction.setValidationMessages(validationMessages);
-		}
-
-		@Override
-		public void commit() {
-			if (validationMessages.isEmpty()) {
-				next(stepObject);
-			}
 		}
 	}	
 
