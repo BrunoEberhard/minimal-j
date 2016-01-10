@@ -22,7 +22,9 @@ public class SwingPasswordField extends JPasswordField implements PasswordField 
 				SwingInternalFrame frame = findFrame();
 				if (frame != null) {
 					Action saveAction = frame.getSaveAction();
-					saveAction.action();
+					if (saveAction.isEnabled()) {
+						saveAction.action();
+					}
 				}
 			}
 		});
