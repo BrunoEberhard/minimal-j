@@ -10,8 +10,6 @@ public interface WizardStep<T> {
 
 	public String getTitle();
 
-	public String getDescription();
-
 	public T createObject();
 
 	public Form<T> createForm();
