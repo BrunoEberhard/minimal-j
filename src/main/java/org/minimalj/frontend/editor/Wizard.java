@@ -8,12 +8,9 @@ import org.minimalj.application.DevMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.validation.Validatable;
-import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.util.ChangeListener;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
 
@@ -22,10 +19,8 @@ public abstract class Wizard<RESULT> extends Action {
 	private static final Logger logger = Logger.getLogger(Wizard.class.getName());
 
 	private Object stepObject;
-	private WizardStep step;
-	private Form form;
-	private final EditorChangeListener changeListener = new EditorChangeListener();
-	private final List<ValidationMessage> validationMessages = new ArrayList<>();
+	private WizardStep<?> step;
+	private final StepChangeListener changeListener = new StepChangeListener();
 	private final FinishAction finishAction = new FinishAction();
 	private final NextWizardStepAction nextAction = new NextWizardStepAction();
 	private final PreviousWizardStepAction previousAction = new PreviousWizardStepAction();
@@ -80,43 +75,23 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 	
 	private void switchStep() {
-		stepObject = step.createObject();
-
-		form = step.createForm();
-		form.setChangeListener(changeListener);
-		form.setObject(stepObject);
+		step.setChangeListener(changeListener);
 		
-		validate(stepObject);
-		
-		switchContent.show(form.getContent());
+		switchContent.show(step.getContent());
 		previousAction.setEnabled(stepIndex > 0);
 	}
 	
 	protected abstract WizardStep<?> getFirstStep();
 	
-	private void validate(Object stepObject) {
-		validationMessages.clear();
-		if (stepObject instanceof Validation) {
-			((Validation) stepObject).validate(validationMessages);
-		}
-		ObjectValidator.validate(stepObject, validationMessages, form.getProperties());
-		if (step instanceof Validatable) {
-			((Validatable) step).validate();
-		}
-		form.indicate(validationMessages);
-		nextAction.setValidationMessages(validationMessages);
-		finishAction.setValidationMessages(validationMessages);
-	}
-	
 	private void next(Object object) {
 		stepIndex++;
-		step = step.getNextStep();
+		step = step.createNextStep();
 		switchStep();
 	}
 
 	private void previous() {
 		stepIndex--;
-		step = step.getPreviousStep();
+		step = step.createPreviousStep();
 		switchStep();
 	}
 	
@@ -142,19 +117,13 @@ public abstract class Wizard<RESULT> extends Action {
 		//
 	}
 
-	private class EditorChangeListener implements Form.FormChangeListener {
+	private class StepChangeListener implements ChangeListener<WizardStep<?>> {
 
 		@Override
-		public void changed(PropertyInterface property, Object newValue) {
-			validate(stepObject);
+		public void changed(WizardStep<?> wizardStep) {
+			List<ValidationMessage> validationMessages = wizardStep.getValidationMessages();
+			nextAction.setValidationMessages(validationMessages);
 			finishAction.setValidationMessages(validationMessages);
-		}
-
-		@Override
-		public void commit() {
-			if (validationMessages.isEmpty()) {
-				next(stepObject);
-			}
 		}
 	}	
 
@@ -195,7 +164,7 @@ public abstract class Wizard<RESULT> extends Action {
 		}
 	}
 	
-	protected WizardStep getStep() {
+	protected WizardStep<?> getStep() {
 		return step;
 	}
 	
@@ -248,16 +217,9 @@ public abstract class Wizard<RESULT> extends Action {
 	private class FillWithDemoDataAction extends Action {
 		@Override
 		public void action() {
-			fillWithDemoData();
-			validate(stepObject);
-		}
-	}
-	
-	protected void fillWithDemoData() {
-		if (stepObject instanceof Mocking) {
-			((Mocking) stepObject).mock();
-		} else {
-			form.mock();
+			if (step instanceof Mocking) {
+				((Mocking) step).mock();
+			}
 		}
 	}
 
