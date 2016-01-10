@@ -7,8 +7,13 @@ public class DetailPageAction extends Action {
 
 	private final Page mainPage;
 	private final Page detailPage;
-	
+
 	public DetailPageAction(Page mainPage, Page detailPage) {
+		this(mainPage, detailPage, detailPage.getTitle());
+	}
+	
+	public DetailPageAction(Page mainPage, Page detailPage, String name) {
+		super(name);
 		this.mainPage = mainPage;
 		this.detailPage = detailPage;
 	}
