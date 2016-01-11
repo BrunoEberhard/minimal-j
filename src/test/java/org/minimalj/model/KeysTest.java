@@ -107,6 +107,15 @@ public class KeysTest {
 		Keys.getProperty(TestClass4.$.testClass1.getB2()).getValue(testClass4);
 	}
 	
+	@Test
+	public void fieldsOfGetterReturnType() {
+		Assert.assertNotNull(TestClass2.$.getTestClass1b().s1);
+
+		Assert.assertEquals("testClass1b", Keys.getProperty(TestClass2.$.getTestClass1b()).getPath());
+		Assert.assertEquals("testClass1b.s1", Keys.getProperty(TestClass2.$.getTestClass1b().s1).getPath());
+		Assert.assertEquals("testClass1b.testClass3.list", Keys.getProperty(TestClass2.$.getTestClass1b().getTestClass3().list).getPath());
+	}
+	
 	//
 	
 	public static class TestClass1 {
@@ -123,6 +132,11 @@ public class KeysTest {
 		
 		public void setB2(Boolean b2) {
 			this.b2 = b2;
+		}
+		
+		public TestClass3 getTestClass3() {
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass3", TestClass3.class);
+			return null;
 		}
 	}
 

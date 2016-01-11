@@ -77,12 +77,13 @@ public class Keys {
 		if (enclosingProperty != null) {
 			property = new ChainedProperty(enclosingProperty, property);
 		}
+		fillFields(t, property, 0);
 		properties.put(t, property);
 		
 		return t;
 	}
 	
-	private static <T> void fillFields(T object, PropertyInterface enclosingProperty, int depth) throws IllegalAccessException, InstantiationException {
+	private static <T> void fillFields(T object, PropertyInterface enclosingProperty, int depth) {
 		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (PropertyInterface property : propertiesOfObject.values()) {
 			Object value = null;
