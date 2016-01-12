@@ -101,19 +101,23 @@ public class KeysTest {
 	@Test
 	public void methodFieldOfInlineInTwoClasses() {
 		TestClass2 testClass2 = new TestClass2();
+		testClass2.tc1.setB2(true);
 		TestClass4 testClass4 = new TestClass4();
+		testClass4.testClass1.setB2(false);
 		
-		Keys.getProperty(TestClass2.$.tc1.getB2()).getValue(testClass2);
-		Keys.getProperty(TestClass4.$.testClass1.getB2()).getValue(testClass4);
+		String message = "Method property should return correct value even if it is contained in two inner classes";
+		Assert.assertEquals(message,  Boolean.TRUE, Keys.getProperty(TestClass2.$.tc1.getB2()).getValue(testClass2));
+		Assert.assertEquals(message,  Boolean.FALSE, Keys.getProperty(TestClass4.$.testClass1.getB2()).getValue(testClass4));
 	}
 	
 	@Test
 	public void fieldsOfGetterReturnType() {
 		Assert.assertNotNull(TestClass2.$.getTestClass1b().s1);
 
-		Assert.assertEquals("testClass1b", Keys.getProperty(TestClass2.$.getTestClass1b()).getPath());
-		Assert.assertEquals("testClass1b.s1", Keys.getProperty(TestClass2.$.getTestClass1b().s1).getPath());
-		Assert.assertEquals("testClass1b.testClass3.list", Keys.getProperty(TestClass2.$.getTestClass1b().getTestClass3().list).getPath());
+		String message = "Chained properties should have correct path even if they contain a method property";
+		Assert.assertEquals(message, "testClass1b", Keys.getProperty(TestClass2.$.getTestClass1b()).getPath());
+		Assert.assertEquals(message, "testClass1b.s1", Keys.getProperty(TestClass2.$.getTestClass1b().s1).getPath());
+		Assert.assertEquals(message, "testClass1b.testClass3.list", Keys.getProperty(TestClass2.$.getTestClass1b().getTestClass3().list).getPath());
 	}
 	
 	//
