@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.minimalj.application.Application;
@@ -361,8 +362,13 @@ public class SwingTab extends EditablePanel implements PageManager {
 		}
 		content.putClientProperty("page", page);
 
-		verticalPanel.add(new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener), "");
+		SwingDecoration decoratedPage = new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
+		verticalPanel.add(decoratedPage, "");
 		verticalPanel.revalidate();
+
+		SwingUtilities.invokeLater(() -> {
+			contentScrollPane.getVerticalScrollBar().setValue(contentScrollPane.getVerticalScrollBar().getMaximum() - decoratedPage.getHeight());
+		});
 	}
 
 	private void removeDetailsOf(Page page) {
