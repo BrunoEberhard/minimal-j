@@ -145,6 +145,11 @@ public class FieldUtils {
 		}
 	}
 	
+	/**
+	 * @param s input string (may be null or empty)
+	 * @param clazz the target class
+	 * @return null or the parsed input. If class is a time class the iso format is used (not the locale format)
+	 */
 	public static <T> T parse(String s, Class<T> clazz) {
 		Object value = null;
 		if (clazz == String.class) {
@@ -159,7 +164,11 @@ public class FieldUtils {
 			} else if (clazz == BigDecimal.class) {
 				value = new BigDecimal(s);
 			} else if (clazz == LocalDate.class) {
-				value = DateUtils.parse(s);
+				value = LocalDate.parse(s);
+			} else if (clazz == LocalTime.class) {
+				value = LocalTime.parse(s);
+			} else if (clazz == LocalDateTime.class) {
+				value = LocalDateTime.parse(s);
 			} else {
 				throw new IllegalArgumentException(s);
 			}
