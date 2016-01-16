@@ -124,6 +124,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (PropertyInterface property : properties.values()) {
 			Class<?> clazz = GenericUtils.getGenericClass(property.getType());
 			if (View.class.isAssignableFrom(clazz) || property.getAnnotation(ViewReference.class) != null) {
+				sqlPersistence.addClass(ViewUtil.getReferencedClass(property));
 				subTables.put(property.getName(), createViewSubTable(property, clazz));
 			} else {
 				subTables.put(property.getName(), createSubTable(property, clazz));

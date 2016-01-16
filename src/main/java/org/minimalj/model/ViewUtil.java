@@ -3,6 +3,7 @@ package org.minimalj.model;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 import org.minimalj.model.annotation.ViewReference;
@@ -42,21 +43,33 @@ public class ViewUtil {
 	 * 
 	 * @param property property to be checked
 	 * @return true if property or class of property is marked as reference
+	 * or the property clazz implements view or the type of a list property
+	 * implements view interface.
 	 */
 	public static boolean isReference(PropertyInterface property) {
-		Class<?> clazz = property.getClazz();
-		if (View.class.isAssignableFrom(clazz)) return true;
 		if (property.getAnnotation(ViewReference.class) != null) return true;
-		return false;
+		Class<?> clazz = property.getClazz();
+		if (clazz == List.class) {
+			clazz = GenericUtils.getGenericClass(property.getType());
+		}
+		return View.class.isAssignableFrom(clazz);
 	}
 	
 	public static Class<?> getReferencedClass(PropertyInterface property) {
-		if (!isReference(property)) throw new IllegalArgumentException(property.getPath());
-		ViewReference view = property.getAnnotation(ViewReference.class);
-		if (view != null) return property.getClazz();
-		
 		Class<?> clazz = property.getClazz();
-		return getViewedClass(clazz);
+		if (clazz == List.class) {
+			clazz = GenericUtils.getGenericClass(property.getType());
+		}
+		if (property.getAnnotation(ViewReference.class) != null) {
+			return clazz;
+		} else {
+			clazz = getViewedClass(clazz);
+			if (clazz != null) {
+				return clazz;
+			} else {
+				throw new IllegalArgumentException(property.getPath());	
+			}
+		}
 	}
 	
 	public static Class<?> getViewedClass(Class<?> clazz) {
