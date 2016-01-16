@@ -523,16 +523,14 @@ public class SqlPersistence implements Persistence {
 	
 	//
 	
-	@SuppressWarnings("unchecked")
-	<U> AbstractTable<U> addClass(Class<U> clazz) {
+	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
 			boolean historized = FieldUtils.hasValidVersionfield(clazz);
-			tables.put(clazz, null); // break recursion. at some point it is check if a clazz is alread in the tables map.
+			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is alread in the tables map.
 			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
 			tables.put(table.getClazz(), table);
 			tableNames.add(table.getTableName());
 		}
-		return (AbstractTable<U>) tables.get(clazz);
 	}
 
 	private void createTables() {
