@@ -83,7 +83,7 @@ public class CsvReaderTest {
 	
 	@Test
 	public void testReadFields() throws Exception {
-		CsvReader reader = reader("i,l,bd,s, ld\n142, 123456789012345, 2.1, s, " + DateUtils.format(LocalDate.of(2012, 3, 4)));
+		CsvReader reader = reader("i,l,bd,s, ld\n142, 123456789012345, 2.1, s, " + LocalDate.of(2012, 3, 4));
 		List<CsvReaderTestA> result = reader.readValues(CsvReaderTestA.class);
 		Assert.assertEquals(1, result.size());
 		Assert.assertEquals((long)142, (long) result.get(0).i);
