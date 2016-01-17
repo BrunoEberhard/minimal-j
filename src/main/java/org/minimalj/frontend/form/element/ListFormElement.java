@@ -32,13 +32,12 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 	
 	protected abstract Form<T> createForm(boolean edit);
 	
-	public class AddListEntryEditor extends Editor<T, Void> {
-		
-		public AddListEntryEditor() {
+	private abstract class ListFormElementEditor extends Editor<T, Void> {
+		public ListFormElementEditor() {
 			assertEditable(this);
 		}
 
-		public AddListEntryEditor(String name) {
+		public ListFormElementEditor(String name) {
 			super(name);
 			assertEditable(this);
 		}
@@ -52,6 +51,16 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 			} else {
 				return null;
 			}
+		}
+	}
+	
+	public class AddListEntryEditor extends ListFormElementEditor {
+		
+		public AddListEntryEditor() {
+		}
+
+		public AddListEntryEditor(String name) {
+			super(name);
 		}
 		
 		@Override
@@ -87,25 +96,13 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		throw new RuntimeException(getClass().getSimpleName() + " must not use getEditorAction. Please use an extension of EditListEntryAction");
 	}
 
-	public class ListEntryEditor extends Editor<T, Void> {
+	public class ListEntryEditor extends ListFormElementEditor {
 		private final T originalEntry;
 		
 		public ListEntryEditor(T originalEntry) {
-			assertEditable(this);
 			this.originalEntry = originalEntry;
 		}
 		
-		@Override
-		protected Object[] getNameArguments() {
-			Class<?> editedClass = GenericUtils.getGenericClass(ListFormElement.this.getClass());
-			if (editedClass != null) {
-				String resourceName = Resources.getResourceName(editedClass);
-				return new Object[] { Resources.getString(resourceName) };
-			} else {
-				return null;
-			}
-		}
-
 		@Override
 		protected T createObject() {
 			return CloneHelper.clone(originalEntry);

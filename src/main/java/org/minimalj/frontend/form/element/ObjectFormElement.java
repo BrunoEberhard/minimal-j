@@ -73,6 +73,17 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		}
 
 		@Override
+		protected Object[] getNameArguments() {
+			Class<?> editedClass = GenericUtils.getGenericClass(ObjectFormElement.this.getClass());
+			if (editedClass != null) {
+				String resourceName = Resources.getResourceName(editedClass);
+				return new Object[] { Resources.getString(resourceName) };
+			} else {
+				return null;
+			}
+		}
+		
+		@Override
 		public void action() {
 			ObjectFormElement.this.setValue(null);
 		}
