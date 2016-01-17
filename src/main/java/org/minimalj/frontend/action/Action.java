@@ -1,5 +1,7 @@
 package org.minimalj.frontend.action;
 
+import java.text.MessageFormat;
+
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -20,19 +22,25 @@ public abstract class Action {
 	 * class name.
 	 */
 	protected Action() {
-		String resourceName = Resources.getActionResourceName(getClass());
-		this.name = Resources.getString(resourceName);
+		String resourceName = Resources.getResourceName(getClass());
+		Object[] nameArguments = getNameArguments();
+		this.name = nameArguments != null ?  MessageFormat.format(Resources.getString(resourceName), nameArguments) : Resources.getString(resourceName);
+		
 		String descriptionResourceName = resourceName + ".description";
 		if (Resources.isAvailable(descriptionResourceName)) {
 			this.description = Resources.getString(descriptionResourceName);
 		}
 	}
 	
+	protected Object[] getNameArguments() {
+		return null;
+	}
+	
 	protected Action(String name) {
 		this.name = name;
 	}
 	
-	public String getName() {
+	public final String getName() {
 		return name;
 	}
 	

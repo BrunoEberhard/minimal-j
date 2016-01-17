@@ -75,10 +75,6 @@ public class FrameManager {
 				public void cancel() {
 					frame.closeWindow();
 				};
-				@Override
-				public String getName() {
-					return Resources.getString(Resources.getActionResourceName(LoginAction.class));
-				};
 			}.action();
 			SwingFrame.activeFrameOverride = null;
 		} else {

@@ -14,7 +14,9 @@ import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
+import org.minimalj.util.resources.Resources;
 
 public abstract class Editor<T, RESULT> extends Action {
 	private static final Logger logger = Logger.getLogger(Editor.class.getName());
@@ -31,6 +33,17 @@ public abstract class Editor<T, RESULT> extends Action {
 
 	public Editor(String actionName) {
 		super(actionName);
+	}
+	
+	@Override
+	protected Object[] getNameArguments() {
+		Class<?> editedClass = GenericUtils.getGenericClass(getClass());
+		if (editedClass != null) {
+			String resourceName = Resources.getResourceName(editedClass);
+			return new Object[]{Resources.getString(resourceName)};
+		} else {
+			return null;
+		}
 	}
 
 	public String getTitle() {
@@ -202,7 +215,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		@Override
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(NewObjectEditor.this.getClass());
+			Class<T> clazz = (Class<T>) GenericUtils.getGenericClass(NewObjectEditor.this.getClass());
 			T newInstance = CloneHelper.newInstance(clazz);
 			return newInstance;
 		}

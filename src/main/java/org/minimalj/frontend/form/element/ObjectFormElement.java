@@ -4,6 +4,8 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.GenericUtils;
+import org.minimalj.util.resources.Resources;
 
 public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> {
 
@@ -25,6 +27,17 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		public ObjectFormElementEditor(String name) {
 			super(name);
 			assertEditable(this);
+		}
+		
+		@Override
+		protected Object[] getNameArguments() {
+			Class<?> editedClass = GenericUtils.getGenericClass(ObjectFormElement.this.getClass());
+			if (editedClass != null) {
+				String resourceName = Resources.getResourceName(editedClass);
+				return new Object[] { Resources.getString(resourceName) };
+			} else {
+				return null;
+			}
 		}
 
 		@Override

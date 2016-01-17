@@ -7,6 +7,8 @@ import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.GenericUtils;
+import org.minimalj.util.resources.Resources;
 
 public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<T>> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
@@ -39,6 +41,17 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		public AddListEntryEditor(String name) {
 			super(name);
 			assertEditable(this);
+		}
+		
+		@Override
+		protected Object[] getNameArguments() {
+			Class<?> editedClass = GenericUtils.getGenericClass(ListFormElement.this.getClass());
+			if (editedClass != null) {
+				String resourceName = Resources.getResourceName(editedClass);
+				return new Object[] { Resources.getString(resourceName) };
+			} else {
+				return null;
+			}
 		}
 		
 		@Override
@@ -80,6 +93,17 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		public ListEntryEditor(T originalEntry) {
 			assertEditable(this);
 			this.originalEntry = originalEntry;
+		}
+		
+		@Override
+		protected Object[] getNameArguments() {
+			Class<?> editedClass = GenericUtils.getGenericClass(ListFormElement.this.getClass());
+			if (editedClass != null) {
+				String resourceName = Resources.getResourceName(editedClass);
+				return new Object[] { Resources.getString(resourceName) };
+			} else {
+				return null;
+			}
 		}
 
 		@Override

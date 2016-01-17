@@ -23,12 +23,10 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import org.minimalj.application.DevMode;
-import org.minimalj.frontend.editor.Editor;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.MultiResourceBundle;
 
@@ -229,34 +227,26 @@ public class Resources {
 		}
 	}
 	
-	public static String getActionResourceName(Class<?> clazz) {
-		// qualified name of action
-		if (Resources.isAvailable(clazz.getName())) {
-			return clazz.getName();
-		} 
-
-		// qualified name of edited class
-		Class<?> clazz2 = null;
-		if (Editor.class.isAssignableFrom(clazz)) {
-			clazz2 = GenericUtils.getGenericClass(clazz);
-		}
-		if (clazz2 != null && Resources.isAvailable(clazz2.getName())) {
-			return clazz2.getName();
+	public static String getResourceName(Class<?> clazz) {
+		if (clazz.isAnonymousClass()) {
+			clazz = clazz.getSuperclass();
 		}
 		
-		// simple name of action
-		if (Resources.isAvailable(clazz.getSimpleName())) {
-			return clazz.getSimpleName();
-		}
-		
-		// simple name of edited class
-		if (clazz2 != null && Resources.isAvailable(clazz2.getSimpleName())) {
-			return clazz2.getSimpleName();
+		Class<?> c = clazz;
+		while (c != Object.class) {
+			if (Resources.isAvailable(c.getName())) {
+				return c.getName();
+			} 
+			
+			if (Resources.isAvailable(c.getSimpleName())) {
+				return c.getSimpleName();
+			}
+			c = c.getSuperclass();
 		}
 		
 		return clazz.getSimpleName();
 	}
-	
+
 	private static Map<String, String> mimeTypeByPostfix = new HashMap<>();
 	
 	static {
