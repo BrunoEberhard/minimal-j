@@ -85,8 +85,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 
 		@Override
 		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
-			if (detailPage != null && Frontend.isDetailShown(detailPage)) {
-				updateDetailPage(selectedObject);
+			boolean detailVisible = detailPage != null && Frontend.isDetailShown(detailPage); 
+			if (detailVisible) {
+				if (selectedObject != null) {
+					updateDetailPage(selectedObject);
+				} else {
+					Frontend.hideDetail(detailPage);
+				}
 			}
 		}
 		
