@@ -334,10 +334,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		removeDetailsOf(mainPage);
 		addPageOrDetail(detail);
 
-		List<Page> pages = new ArrayList<>();
-		pages.addAll(history.getPresent());
-		pages.add(detail);
-		history.addQuiet(pages);
+		history.addQuiet(new ArrayList<>(visiblePageAndDetailsList));
 	}
 	
 	private void addPageOrDetail(Page page) {
