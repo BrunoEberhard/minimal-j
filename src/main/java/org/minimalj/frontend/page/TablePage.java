@@ -6,7 +6,9 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
-
+import org.minimalj.frontend.editor.Editor;
+import org.minimalj.util.CloneHelper;
+import org.minimalj.util.GenericUtils;
 
 /**
  * Shows a table of objects of one class. 
@@ -105,6 +107,25 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			if (updatedDetailPage != null) {
 				Frontend.showDetail(TablePageWithDetail.this, updatedDetailPage);
 				detailPage = updatedDetailPage;
+			}
+		}
+		
+		public abstract class NewDetailEditor<DETAIL> extends Editor<DETAIL, T> {
+			
+			@Override
+			protected DETAIL createObject() {
+				@SuppressWarnings("unchecked")
+				Class<DETAIL> clazz = (Class<DETAIL>) GenericUtils.getGenericClass(getClass());
+				DETAIL newInstance = CloneHelper.newInstance(clazz);
+				return newInstance;
+			}
+			
+			@Override
+			protected void finished(T result) {
+				TablePageWithDetail.this.refresh();
+				// after closing the editor the user expects the new object
+				// to be displayed as the detail. This call provides that
+				TablePageWithDetail.this.action(result);
 			}
 		}
 	}
