@@ -1,8 +1,10 @@
 package org.minimalj.model.properties;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -84,6 +86,25 @@ public class FlatProperties {
 						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
 					}
 					properties.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
+				}
+			}
+		}
+		return properties; 
+	}
+	
+	public static List<PropertyInterface> getListProperties(Class<?> clazz) {
+		List<PropertyInterface> properties = new ArrayList<>();
+		
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
+
+			if (FieldUtils.isList(field)) {
+				properties.add(new FieldProperty(field));
+			} else if (FieldUtils.isFinal(field)) {
+				List<PropertyInterface> inlineProperties = getListProperties(field.getType());
+				for (PropertyInterface inlineProperty : inlineProperties) {
+					properties.add(new ChainedProperty(new FieldProperty(field), inlineProperty));
 				}
 			}
 		}
