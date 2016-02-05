@@ -8,7 +8,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.annotation.ViewReference;
 import org.minimalj.util.DateUtils;
 
 public class Pet implements Rendering {
@@ -19,7 +18,7 @@ public class Pet implements Rendering {
 	@NotEmpty @Size(30)
 	public String name;
 	
-	@NotEmpty @ViewReference
+	@NotEmpty
 	public Owner owner;
 	
 	@NotEmpty

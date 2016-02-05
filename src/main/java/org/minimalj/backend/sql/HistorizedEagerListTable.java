@@ -5,8 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.minimalj.backend.sql.ListTable.HistorizedListTable;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.IdUtils;
 
 /**
  * Minimal-J internal<p>
@@ -17,39 +19,46 @@ import org.minimalj.util.EqualsHelper;
  * For a new Entry there is startVersion and endVersion = 0.<p>
  * 
  * After an update endVersion contains the version from which the
- * entry is <i>not</i> valid anymore. The startVersion of the new
- * row contains the version from which the entry is valid.
+ * entry is <i>not</i> active anymore. The startVersion of the new
+ * row contains the version from which the entry is active.
  * 
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class HistorizedSubTable extends AbstractTable {
+public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements HistorizedListTable<PARENT, ELEMENT> {
 
 	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
 	private final String readVersionsQuery;
 	
-	public HistorizedSubTable(SqlPersistence sqlPersistence, String prefix, Class clazz, PropertyInterface idProperty) {
-		super(sqlPersistence, prefix, clazz, idProperty);
+	protected final PropertyInterface parentIdProperty;
+	
+	public HistorizedEagerListTable(SqlPersistence sqlPersistence, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+		super(sqlPersistence, prefix, clazz);
+		this.parentIdProperty = parentIdProperty;
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
 		readVersionsQuery = readVersionsQuery();
 	}
 	
-	public void insert(Object parentId, List objects, Integer version) throws SQLException {
+	@Override
+	public void insert(PARENT parent, List<ELEMENT> objects, Integer version) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
-				Object object = objects.get(position);
-				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
+				ELEMENT object = objects.get(position);
+				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, IdUtils.getId(parent));
 				insertStatement.setInt(parameterPos++, position);
 				insertStatement.setInt(parameterPos++, version);
 				insertStatement.execute();
 			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 
-	public void update(Object parentId, List objects, int version) throws SQLException {
-		List objectsInDb = read(parentId, version);
+	@Override
+	public void update(PARENT parent, List<ELEMENT> objects, int version) {
+		List<ELEMENT> objectsInDb = read(parent, version);
+		Object parentId = IdUtils.getId(parent);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			boolean end = false;
@@ -70,6 +79,8 @@ public class HistorizedSubTable extends AbstractTable {
 					endStatement.setObject(2, parentId);
 					endStatement.setInt(3, position);
 					endStatement.execute();	
+				} catch (SQLException x) {
+					throw new RuntimeException(x.getMessage());
 				}
 			}
 			
@@ -79,34 +90,43 @@ public class HistorizedSubTable extends AbstractTable {
 					insertStatement.setInt(parameterPos++, position);
 					insertStatement.setInt(parameterPos++, version);
 					insertStatement.execute();
+				} catch (SQLException x) {
+					throw new RuntimeException(x.getMessage());
 				}
 			}
 			position++;
 		}
 	}
 
-	public List read(Object parentId, Integer time) throws SQLException {
+	@Override
+	public List<ELEMENT> read(PARENT parent, Integer time) {
 		if (time == null) {
-			return read(parentId);
+			return read(parent);
 		}
 		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
-			selectByIdAndTimeStatement.setObject(1, parentId);
+			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
 			selectByIdAndTimeStatement.setInt(2, time);
 			selectByIdAndTimeStatement.setInt(3, time);
 			return executeSelectAll(selectByIdAndTimeStatement);
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 
-	protected List read(Object id) throws SQLException {
+	@Override
+	public List<ELEMENT> read(PARENT parent) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, id);
+			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 	
-	public void readVersions(Object parentId, List<Integer> result) throws SQLException {
+	@Override
+	public void readVersions(Object id, List<Integer> result) {
 		try (PreparedStatement readVersionsStatement = createStatement(sqlPersistence.getConnection(), readVersionsQuery, false)) {
-			readVersionsStatement.setObject(1, parentId);
+			readVersionsStatement.setObject(1, id);
 			try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
 				while (resultSet.next()) {
 					int version = resultSet.getInt(1);
@@ -115,6 +135,8 @@ public class HistorizedSubTable extends AbstractTable {
 					if (!result.contains(version)) result.add(endVersion);
 				}
 			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 	
@@ -169,7 +191,7 @@ public class HistorizedSubTable extends AbstractTable {
 	@Override
 	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		s.append(" id ");
-		syntax.addColumnDefinition(s, idProperty);
+		syntax.addColumnDefinition(s, parentIdProperty);
 		s.append(",\n startVersion INTEGER NOT NULL");
 		s.append(",\n endVersion INTEGER NOT NULL");
 		s.append(",\n position INTEGER NOT NULL");

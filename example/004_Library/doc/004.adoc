@@ -111,10 +111,8 @@ public class Lend {
 	
 	public Object id;
 	
-	@ViewReference
 	public Book book;
 
-	@ViewReference
 	public Customer customer;
 	
 	public LocalDate till;
@@ -177,7 +175,3 @@ second attribute or hav it in other entity than customer then additional tables 
 
 The id in CUSTOMER_ADDRESSES is the id of the customer! Also note the position column. The
 persistence layer keeps depending objects in the given order.
-
-
-
- 

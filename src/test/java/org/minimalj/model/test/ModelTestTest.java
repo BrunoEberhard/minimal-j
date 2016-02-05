@@ -92,9 +92,9 @@ public class ModelTestTest {
 	//
 	
 	@Test public void 
-	should_test_not_accept_reference_to_other_entity() {
+	should_test_accept_reference_to_other_entity() {
 		ModelTest modelTest = new ModelTest(TestClass6.class, TestClass2.class);
-		Assert.assertFalse(modelTest.isValid());
+		Assert.assertTrue(modelTest.isValid());
 	}
 
 	public static class TestClass6 {
@@ -112,7 +112,6 @@ public class ModelTestTest {
 
 	public static class TestClass7 {
 		public Object id;
-		@org.minimalj.model.annotation.ViewReference
 		public TestClass2 ref;
 	}
 
@@ -130,14 +129,13 @@ public class ModelTestTest {
 
 	public static class TestClass9 {
 		public Object id;
-		@org.minimalj.model.annotation.ViewReference
 		public TestClass2 ref;
 	}
 
 	//
 	
 	@Test public void 
-	should_test_not_accept_list_in_list() {
+	should_test_not_accept_eager_list_in_eager_list() {
 		ModelTest modelTest = new ModelTest(TestClass10.class);
 		Assert.assertFalse(modelTest.isValid());
 	}
@@ -156,11 +154,41 @@ public class ModelTestTest {
 	}
 
 	//
+	
+	@Test public void 
+	should_test_accept_eager_list_in_lazy_list() {
+		ModelTest modelTest = new ModelTest(TestClass10b.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass10b {
+		public Object id;
+		public List<TestClass11> list = new ArrayList<>();
+	}
+
+	//
+	
+	@Test public void 
+	should_test_accept_lazy_list_in_eager_list() {
+		ModelTest modelTest = new ModelTest(TestClass10c.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass10c {
+		public Object id;
+		public final List<TestClass11c> list = new ArrayList<>();
+	}
+	
+	public static class TestClass11c {
+		public List<TestClass12> list = new ArrayList<>();
+	}
+	
+	//
 
 	@Test public void 
-	should_test_not_accept_list_without_final() {
+	should_test_accept_list_without_final() {
 		ModelTest modelTest = new ModelTest(TestClass13.class);
-		Assert.assertFalse(modelTest.isValid());
+		Assert.assertTrue(modelTest.isValid());
 	}
 
 	public static class TestClass13 {

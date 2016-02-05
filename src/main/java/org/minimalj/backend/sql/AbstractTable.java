@@ -1,6 +1,5 @@
 package org.minimalj.backend.sql;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,14 +18,10 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.model.properties.ChainedProperty;
-import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.transaction.criteria.FieldOperator;
 import org.minimalj.util.EqualsHelper;
-import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -46,11 +41,8 @@ public abstract class AbstractTable<T> {
 	protected final SqlHelper helper;
 	protected final Class<T> clazz;
 	protected final LinkedHashMap<String, PropertyInterface> columns;
-	protected final LinkedHashMap<String, PropertyInterface> lists;
 	
 	protected final String name;
-
-	protected final PropertyInterface idProperty;
 
 	protected final List<String> indexes = new ArrayList<>();
 	
@@ -61,14 +53,12 @@ public abstract class AbstractTable<T> {
 	// TODO: its a little bit strange to pass the idProperty here. Also because the property
 	// is not allways a property of clazz. idProperty is only necessary because the clazz AND the
 	// size of the idProperty is needed
-	protected AbstractTable(SqlPersistence sqlPersistence, String name, Class<T> clazz, PropertyInterface idProperty) {
+	protected AbstractTable(SqlPersistence sqlPersistence, String name, Class<T> clazz) {
 		this.sqlPersistence = sqlPersistence;
 		this.helper = new SqlHelper(sqlPersistence);
 		this.name = buildTableName(sqlPersistence, name != null ? name : StringUtils.toSnakeCase(clazz.getSimpleName()));
 		this.clazz = clazz;
-		this.idProperty = idProperty;
 		this.columns = sqlPersistence.findColumns(clazz);
-		this.lists = findLists(clazz);
 		
 		this.selectByIdQuery = selectByIdQuery();
 		this.insertQuery = insertQuery();
@@ -79,47 +69,18 @@ public abstract class AbstractTable<T> {
 		findIndexes();
 	}
 	
-	public static String buildTableName(SqlPersistence persistence, String name) {
-		name = SqlHelper.buildName(name, persistence.getMaxIdentifierLength(), persistence.getTableNames());
+	public String buildTableName(SqlPersistence persistence, String name) {
+		name = SqlHelper.buildName(name, persistence.getMaxIdentifierLength(), persistence.getTableByName().keySet());
 
-		// the persistence adds the table name too late. For subtables it's important
-		// to add the table name here. Note that tableNames is a Set. Multiple
-		// adds don't do any harm.
-		persistence.getTableNames().add(name);
+		// the persistence adds the table name too late. For subtables it's important to add the table name here.
+		persistence.getTableByName().put(name, this);
 		return name;
-	}
-	
-	protected static LinkedHashMap<String, PropertyInterface> findLists(Class<?> clazz) {
-		LinkedHashMap<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
-		
-		for (Field field : clazz.getFields()) {
-			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
-			if (FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
-				// This is needed to check if an inline Property contains a List
-				Map<String, PropertyInterface> inlinePropertys = findLists(field.getType());
-				boolean hasClassName = FieldUtils.hasClassName(field);
-				for (String inlineKey : inlinePropertys.keySet()) {
-					String key = inlineKey;
-					if (!hasClassName) {
-						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
-					}
-					properties.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
-				}
-			} else if (FieldUtils.isList(field)) {
-				properties.put(field.getName(), new FieldProperty(field));
-			}
-		}
-		return properties; 
 	}
 	
 	protected LinkedHashMap<String, PropertyInterface> getColumns() {
 		return columns;
 	}
 
-	protected LinkedHashMap<String, PropertyInterface> getLists() {
-		return lists;
-	}
-	
 	protected Collection<String> getIndexes() {
 		return indexes;
 	}
@@ -180,8 +141,8 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			
-			if (SqlHelper.isDependable(property) || ViewUtil.isReference(property)) {
-				Class<?> fieldClass = ViewUtil.resolve(property.getClazz());
+			if (IdUtils.hasId(property.getClazz())) {
+				Class<?> fieldClass = property.getClazz();
 				AbstractTable<?> referencedTable = sqlPersistence.getAbstractTable(fieldClass);
 
 				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
@@ -250,7 +211,7 @@ public abstract class AbstractTable<T> {
 	protected void findIndexes() {
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
-			if (ViewUtil.isReference(property)) {
+			if (IdUtils.hasId(property.getClazz())) {
 				createIndex(property, property.getPath());
 			}
 		}
@@ -272,7 +233,7 @@ public abstract class AbstractTable<T> {
 				return column + " " + criteriaOperator.getOperatorAsString() + " ?";
 			} else {
 				PropertyInterface subProperty = columns.get(column);
-				AbstractTable<?> subTable = sqlPersistence.getAbstractTable(ViewUtil.resolve(subProperty.getClazz()));
+				AbstractTable<?> subTable = sqlPersistence.getAbstractTable(subProperty.getClazz());
 				return column + " = (select ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
 			}
 		} else {
@@ -282,32 +243,35 @@ public abstract class AbstractTable<T> {
 
 	// execution helpers
 
-	protected T executeSelect(PreparedStatement preparedStatement) throws SQLException {
+	protected T executeSelect(PreparedStatement preparedStatement) {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
 				return sqlPersistence.readResultSetRow(clazz,  resultSet);
 			} else {
 				return null;
 			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 
-	protected List<T> executeSelectAll(PreparedStatement preparedStatement) throws SQLException {
+	protected List<T> executeSelectAll(PreparedStatement preparedStatement) {
 		return executeSelectAll(preparedStatement, Long.MAX_VALUE);
 	}
 	
-	protected List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) throws SQLException {
+	protected List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) {
 		List<T> result = new ArrayList<T>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
 				T object = sqlPersistence.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
-					Object id = IdUtils.getId(object);
-					((Table<T>) this).loadRelations(object, id);
+					((Table<T>) this).loadLists(object);
 				}
 				result.add(object);
 			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 		return result;
 	}
@@ -323,7 +287,7 @@ public abstract class AbstractTable<T> {
 			Object value = property.getValue(object);
 			if (value instanceof Code) {
 				value = findId((Code) value);
-			} else if (ViewUtil.isReference(property)) {
+			} else if (IdUtils.hasId(property.getClazz())) {
 				if (value != null) {
 					value = IdUtils.getId(value);
 				}
@@ -367,7 +331,7 @@ public abstract class AbstractTable<T> {
 					IdUtils.setId(dependableObject, null);
 					dependableObject = dependableTable.insert(dependableObject);
 				} else {
-					dependableTable.update(dependableId, dependableObject);
+					dependableTable.update(dependableObject);
 				}
 			}
 		} else {
@@ -377,7 +341,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	// TODO multiple dependables could be get with one (prepared) statement
-	private Object getDependableId(Object id, String column) throws SQLException {
+	private Object getDependableId(Object id, String column) {
 		String query = "SELECT " + column + " FROM " + getTableName() + " WHERE ID = ?";
 		if (this instanceof HistorizedTable) {
 			query += " AND VERSION = 0";
@@ -391,14 +355,18 @@ public abstract class AbstractTable<T> {
 					return null;
 				}
 			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 
-	private void setColumnToNull(Object id, String column) throws SQLException {
+	private void setColumnToNull(Object id, String column) {
 		String update = "UPDATE " + getTableName() + " SET " + column + " = NULL WHERE ID = ?";
 		try (PreparedStatement preparedStatement = createStatement(sqlPersistence.getConnection(), update, false)) {
 			preparedStatement.setObject(1, id);
 			preparedStatement.execute();
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 
@@ -429,6 +397,7 @@ public abstract class AbstractTable<T> {
 	protected final Object getOrCreateId(Object object) {
 		Object elementId = IdUtils.getId(object);
 		if (elementId == null) {
+			// TODO: warum diese inInstance - Prüfung?
 			if (getClazz().isInstance(object)) {
 				elementId = sqlPersistence.insert(object);
 			}

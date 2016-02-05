@@ -8,7 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.minimalj.backend.sql.ListTable.HistorizedListTable;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -49,36 +51,30 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
 			insertStatement.execute();
-			for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
-				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTableEntry.getValue();
-				List list;
-				try {
-					list = (List)getLists().get(subTableEntry.getKey()).getValue(object);
-					if (list != null && !list.isEmpty()) {
-						historizedSubTable.insert(id, list, Integer.valueOf(0));
-					}
-				} catch (IllegalArgumentException e) {
-					throw new RuntimeException(e);
-				}
-			}
+			insertLists(object);
 			return id;
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert object into " + getTableName() + " / Object: " + object + " ex: " + x);
 		}
 	}
-	
+
 	@Override
-	AbstractTable createSubTable(PropertyInterface property, Class<?> clazz) {
-		return new HistorizedSubTable(sqlPersistence, buildSubTableName(property), clazz, idProperty);
+	ListTable createListTable(PropertyInterface property) {
+		Class<?> clazz = GenericUtils.getGenericClass(property.getType());
+		if (IdUtils.hasId(clazz)) {
+			throw new RuntimeException("Not yet implemented");
+		} else {
+			return new HistorizedEagerListTable(sqlPersistence, buildSubTableName(property), clazz, idProperty);
+		}
 	}
 	
 	@Override
-	AbstractTable createViewSubTable(PropertyInterface property, Class<?> viewClass) {
-		return new HistorizedViewSubTable(sqlPersistence, buildSubTableName(property), viewClass, idProperty);
+	public void update(T object) {
+		Object id = IdUtils.getId(object);
+		update(id, object);
 	}
 	
-	@Override
-	protected void update(Object id, T object) {
+	private void update(Object id, T object) {
 		// TODO Update sollte erst mal prüfen, ob update nötig ist.
 		// T oldObject = read(id);
 		// na, ob dann das mit allen subTables noch stimmt??
@@ -101,22 +97,16 @@ public class HistorizedTable<T> extends Table<T> {
 				updateStatement.execute();
 			}
 			
-			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTable.getValue();
-				List list;
-				try {
-					list = (List) getLists().get(subTable.getKey()).getValue(object);
-				} catch (IllegalArgumentException e) {
-					throw new RuntimeException(e);
-				}
-				historizedSubTable.update(id, list, version);
+			for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
+				List list  = (List) listTableEntry.getKey().getValue(object);
+				((HistorizedListTable) listTableEntry.getValue()).update(object, list, version);
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
 		}
 	}
 	
-	private int findMaxVersion(Object id) throws SQLException {
+	private int findMaxVersion(Object id) {
 		int result = 0;
 		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false)) {
 			selectMaxVersionStatement.setObject(1, id);
@@ -126,19 +116,18 @@ public class HistorizedTable<T> extends Table<T> {
 				} 
 				return result;
 			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 
 	@Override
-	public T read(Object id, boolean complete) {
+	public T read(Object id) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
-			if (complete && object != null) {
-				loadRelations(object, id, null);
-			}
-			if (!complete) {
-				selectByIdStatement.close();
+			if (object != null) {
+				loadLists(object, null);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -152,7 +141,7 @@ public class HistorizedTable<T> extends Table<T> {
 				selectByIdAndTimeStatement.setObject(1, id);
 				selectByIdAndTimeStatement.setInt(2, time);
 				T object = executeSelect(selectByIdAndTimeStatement);
-				loadRelations(object, id, time);
+				loadLists(object, time);
 				return object;
 			} catch (SQLException x) {
 				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id + " on time " +  time);
@@ -169,23 +158,24 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	protected void loadRelations(T object, Object id) throws SQLException {
-		loadRelations(object, id, null);
+	protected void loadLists(T object) {
+		loadLists(object, null);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void loadRelations(T object, Object id, Integer time) throws SQLException {
-		for (Entry<String, AbstractTable<?>> subTableEntry : subTables.entrySet()) {
-			HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTableEntry.getValue();
-			PropertyInterface listProperty = getLists().get(subTableEntry.getKey());
+	private void loadLists(T object, Integer time) {
+		for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
+			List values = ((HistorizedListTable) listTableEntry.getValue()).read(object, time);
+			PropertyInterface listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
 				List list = (List) listProperty.getValue(object);
-				list.addAll(historizedSubTable.read(id, time));
+				list.clear();
+				list.addAll(values);
 			} else {
-				listProperty.setValue(object, historizedSubTable.read(id, time));
+				listProperty.setValue(object, values);
 			}
 		}
-	}
+	}		
 
 	public List<Integer> readVersions(Object id) {
 		try (PreparedStatement readVersionsStatement = createStatement(sqlPersistence.getConnection(), readVersionsQuery, false)) {
@@ -198,8 +188,8 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			resultSet.close();
 			
-			for (Entry<String, AbstractTable<?>> subTable : subTables.entrySet()) {
-				HistorizedSubTable historizedSubTable = (HistorizedSubTable) subTable.getValue();
+			for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
+				HistorizedListTable historizedSubTable = (HistorizedListTable) listTableEntry.getValue();
 				historizedSubTable.readVersions(id, result);
 			}
 			

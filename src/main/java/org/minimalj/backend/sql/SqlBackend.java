@@ -25,24 +25,11 @@ public class SqlBackend extends Backend {
 
 	@Override
 	public <T> T doExecute(Transaction<T> transaction) {
-		boolean runThrough = false;
-		T result;
 		if (transaction instanceof PersistenceTransaction) {
-			if (persistence.isTransactionActive()) {
-				result = ((PersistenceTransaction<T>) transaction).execute(persistence);
-			} else {
-				try {
-					persistence.startTransaction();
-					result = ((PersistenceTransaction<T>) transaction).execute(persistence);
-					runThrough = true;
-				} finally {
-					persistence.endTransaction(runThrough);
-				}
-			}
+			return persistence.execute((PersistenceTransaction<T>) transaction);
 		} else {
-			result = transaction.execute();
+			return transaction.execute();
 		}
-		return result;
 	}
 	
 }

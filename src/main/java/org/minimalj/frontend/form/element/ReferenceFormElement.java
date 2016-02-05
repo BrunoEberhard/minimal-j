@@ -22,7 +22,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 	
 	public ReferenceFormElement(Object key, Object... searchColumns) {
 		super(Keys.getProperty(key));
-		fieldClazz = ViewUtil.resolve(getProperty().getClazz());
+		fieldClazz = getProperty().getClazz();
 		this.searchColumns = searchColumns;
 		lookup = Frontend.getInstance().createLookup(new ReferenceFieldChangeListener(), new ReferenceFieldSearch(), searchColumns);
 	}

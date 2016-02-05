@@ -15,7 +15,6 @@ package org.minimalj.model;
  * As speciality codes can have a String or an Integer id field. 
  * 
  */
-@SuppressWarnings("rawtypes")
-public interface Code extends View {
+public interface Code {
 	
 }

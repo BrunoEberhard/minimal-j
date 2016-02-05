@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +39,7 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.criteria.By;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
@@ -61,8 +62,9 @@ public class SqlPersistence implements Persistence {
 	
 	private final SqlSyntax syntax;
 	
+	private final List<Class<?>> mainClasses;
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
-	private final Set<String> tableNames = new HashSet<>();
+	private final Map<String, AbstractTable<?>> tableByName = new HashMap<String, AbstractTable<?>>();
 	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
 	
 	private final DataSource dataSource;
@@ -79,6 +81,7 @@ public class SqlPersistence implements Persistence {
 
 	public SqlPersistence(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
 		this.dataSource = dataSource;
+		this.mainClasses = Arrays.asList(classes);
 		Connection connection = getAutoCommitConnection();
 		try {
 			String databaseProductName = connection.getMetaData().getDatabaseProductName();
@@ -183,6 +186,10 @@ public class SqlPersistence implements Persistence {
 		}
 	}
 
+	public boolean isMainClasses(Class<?> clazz) {
+		return mainClasses.contains(clazz);
+	}
+	
 	public synchronized void startTransaction() {
 		if (threadLocalTransactionConnection.get() != null) return;
 		
@@ -257,7 +264,24 @@ public class SqlPersistence implements Persistence {
 		}
 	}
 
-	public boolean isTransactionActive() {
+	public <T> T execute(PersistenceTransaction<T> transaction) {
+		T result;
+		if (isTransactionActive()) {
+			result = transaction.execute(this);
+		} else {
+			boolean runThrough = false;
+			try {
+				startTransaction();
+				result = transaction.execute(this);
+				runThrough = true;
+			} finally {
+				endTransaction(runThrough);
+			}
+		}
+		return result;
+	}
+	
+	private boolean isTransactionActive() {
 		Connection connection = threadLocalTransactionConnection.get();
 		return connection != null;
 	}
@@ -350,6 +374,8 @@ public class SqlPersistence implements Persistence {
 			throw new IllegalArgumentException(clazz.getSimpleName() + " is not historized");
 		}
 	}
+
+	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {
 		PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false);
@@ -489,21 +515,17 @@ public class SqlPersistence implements Persistence {
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value, false);
-				} else if (ViewUtil.isReference(property)) {
-					Class<?> viewedClass = ViewUtil.getReferencedClass(property);
-					if (!loadedReferences.containsKey(viewedClass)) {
-						loadedReferences.put(viewedClass, new HashMap<>());
+				} else if (IdUtils.hasId(fieldClass)) {
+					if (!loadedReferences.containsKey(fieldClass)) {
+						loadedReferences.put(fieldClass, new HashMap<>());
 					}
-					if (loadedReferences.get(viewedClass).containsKey(value)) {
-						value = loadedReferences.get(viewedClass).get(value);
+					if (loadedReferences.get(fieldClass).containsKey(value)) {
+						value = loadedReferences.get(fieldClass).get(value);
 					} else {
-						Object reference = value;
-						Table<?> referenceTable = getTable(viewedClass);
-						Object referenceObject = referenceTable.read(value, false); // false -> subEntities not loaded
-						
-						value = CloneHelper.newInstance(fieldClass);
-						ViewUtil.view(referenceObject, value);
-						loadedReferences.get(viewedClass).put(reference, value);
+						Table<?> referenceTable = getTable(fieldClass);
+						Object reference = referenceTable.read(value, false);
+						loadedReferences.get(fieldClass).put(value, reference);
+						value = reference;
 					}
 				} else if (SqlHelper.isDependable(property)) {
 					value = getTable(fieldClass).read(value);
@@ -529,7 +551,7 @@ public class SqlPersistence implements Persistence {
 			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is alread in the tables map.
 			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
 			tables.put(table.getClazz(), table);
-			tableNames.add(table.getTableName());
+			tableByName.put(table.getTableName(), table);
 		}
 	}
 
@@ -677,8 +699,8 @@ public class SqlPersistence implements Persistence {
 		return syntax.getMaxIdentifierLength();
 	}
 	
-	public Set<String> getTableNames() {
-		return tableNames;
+	public Map<String, AbstractTable<?>> getTableByName() {
+		return tableByName;
 	}
 
 }

@@ -6,6 +6,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.backend.sql.ReadOnlyId;
 import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.criteria.By;
 
@@ -34,7 +35,7 @@ public class SqlReadTest {
 
 		h = persistence.read(H.class, idH);
 		
-		Assert.assertEquals(id, h.g.id);
+		Assert.assertEquals(id, ((ReadOnlyId) h.g.id).getId());
 	}
 
 	@Test // if read by a reference works correctly

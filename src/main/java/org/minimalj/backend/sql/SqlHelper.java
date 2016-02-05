@@ -12,10 +12,10 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
-import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.ReservedSqlWords;
 
 public class SqlHelper {
@@ -88,7 +88,7 @@ public class SqlHelper {
 			preparedStatement.setNull(param, Types.TIME);
 		} else if (clazz == LocalDateTime.class) {
 			preparedStatement.setNull(param, Types.DATE);
-		} else if (ViewUtil.isReference(property)) {
+		} else if (IdUtils.hasId(clazz)) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (property.getClazz().isArray()) {
 			preparedStatement.setNull(param, Types.BLOB);			
@@ -169,7 +169,7 @@ public class SqlHelper {
 			int i = 1;
 			do {
 				String number = Integer.toString(i);
-				String tryFieldName = fieldName.substring(0,  fieldName.length() - number.length() - 1) + "_" + number;
+				String tryFieldName = fieldName.substring(0, Math.max(fieldName.length() - number.length() - 1, 1)) + "_" + number;
 				if (!set.contains(tryFieldName)) {
 					fieldName = tryFieldName;
 					break;

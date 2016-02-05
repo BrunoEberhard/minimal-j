@@ -1,14 +1,16 @@
-package org.minimalj.backend.db.viewlist;
+package org.minimalj.backend.db.viewlisthist;
 
 import java.util.Collections;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.minimalj.backend.sql.SqlPersistence;
 
 import junit.framework.Assert;
 
-public class SqlViewListTest {
+@Ignore // HistorizedLazyListTable not yet implemented
+public class SqlHistorizedListTest {
 	
 	private static SqlPersistence persistence;
 	

@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.minimalj.model.annotation.ViewReference;
-
 public class EqualsHelper {
 
 	public static boolean equals(Object from, Object to) {
@@ -44,8 +42,8 @@ public class EqualsHelper {
 					boolean itemEqual = _equals(fromObject, toIterator.next());
 					if (!itemEqual) return false;
 				}
-			} else if (field.getAnnotation(ViewReference.class) != null || Codes.isCode(field.getType())) {
-				if (!IdUtils.getId(fromValue).equals(IdUtils.getId(toValue))) {
+			} else if (IdUtils.hasId(fromValue.getClass())) {
+				if (!IdUtils.equals(fromValue, toValue)) {
 					return false;
 				}
 			} else {

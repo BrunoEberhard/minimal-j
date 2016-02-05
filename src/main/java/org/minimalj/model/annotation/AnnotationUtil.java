@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.sql.LazyListAdapter;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.FieldUtils;
@@ -49,6 +50,9 @@ public class AnnotationUtil {
 		
 		if (optional) {
 			return -1;
+		} else if (LazyListAdapter.DISCRIMINATOR.equals(property.getName())) {
+			// das ist eine etwas harte Querverbindung zwischen Klassen, die sich eigentlich nicht kennen sollten
+			return 255;
 		} else {
 			logger.fine("You must annotate the fields with a @size or the entire class with @sizes");
 			throw new IllegalArgumentException("Size not specified for " + property.getName() + " on " + property.getDeclaringClass());

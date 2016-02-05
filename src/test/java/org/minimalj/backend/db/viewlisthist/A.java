@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.annotation.ViewReference;
 
 public class A {
 
@@ -24,7 +23,6 @@ public class A {
 	@Size(30)
 	public String aName;
 
-	@ViewReference
 	public List<B> b;
 
 }

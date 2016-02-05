@@ -6,26 +6,24 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.backend.sql.LazyListAdapter;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.annotation.ViewReference;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -37,15 +35,7 @@ import org.minimalj.util.resources.Resources;
  */
 public class ModelTest {
 
-	private static enum ModelClassType {
-		MAIN, // a main class can have fields of a simple class, lists of list_elements
-		SIMPLE, // as simple class can have fields of simple classes but no lists
-		LIST_ELEMENT, // list element class cannot have a reference to simple classes or contain lists itself
-		VIEW,
-		CODE; 
-	}
-	
-	private final Map<Class<?>, ModelClassType> modelClassTypes = new HashMap<>();
+	private final Collection<Class<?>> mainClasses;
 	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
 	
 	private final List<String> problems = new ArrayList<String>();
@@ -56,9 +46,8 @@ public class ModelTest {
 	}
 	
 	public ModelTest(Collection<Class<?>> modelClasses) {
-		for (Class<?> clazz : modelClasses) {
-			modelClassTypes.put(clazz, Codes.isCode(clazz) ? ModelClassType.CODE : ModelClassType.MAIN);
-		}
+		this.mainClasses = modelClasses;
+
 		for (Class<?> clazz : modelClasses) {
 			testClass(clazz);
 		}
@@ -84,10 +73,20 @@ public class ModelTest {
 			testVersion(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
+			if (!IdUtils.hasId(clazz)) {
+				testNoListFields(clazz);
+			}
 			if (DevMode.isActive()) {
 				testResources(clazz);
 			}
 		}
+	}
+
+	private void testInlineClass(Class<?> clazz) {
+		testName(clazz);
+		testNoSuperclass(clazz);
+		testFields(clazz);
+		// TODO testNoInlineRecursion(clazz);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -111,7 +110,7 @@ public class ModelTest {
 	}
 
 	private boolean isMain(Class<?> clazz) {
-		return modelClassTypes.get(clazz) == ModelClassType.MAIN;
+		return mainClasses.contains(clazz);
 	}
 	
 	private void testNoSuperclass(Class<?> clazz) {
@@ -121,38 +120,22 @@ public class ModelTest {
 	}
 				
 	private void testId(Class<?> clazz) {
-		ModelClassType modelClassType = modelClassTypes.get(clazz);
 		try {
 			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
-			switch (modelClassType) {
-			case CODE:
+			if (Codes.isCode(clazz)) {
 				if (!FieldUtils.isAllowedCodeId(property.getClazz())) {
 					problems.add(clazz.getName() + ": Code id must be of Integer, String or Object");
 				}
-				break;
-			case MAIN:
-			case VIEW:
+			} else {
 				if (property.getClazz() != Object.class) {
 					problems.add(clazz.getName() + ": Id must be Object");
 				}				
-				break;
-			default:
-				problems.add(clazz.getName() + ": is not allowed to have an id field");
-				break;
 			}
 		} catch (IllegalArgumentException e) {
-			switch (modelClassType) {
-			case CODE:
+			if (Codes.isCode(clazz)) {
 				problems.add(clazz.getName() + ": Code classes must have an id field of Integer, String or Object");
-				break;
-			case MAIN:
+			} else if (isMain(clazz)) {
 				problems.add(clazz.getName() + ": Domain classes must have an id field of type object");
-				break;
-			case VIEW:
-				problems.add(clazz.getName() + ": View classes must have an id field of type object");			
-				break;
-			default:
-				break;
 			}
 		}
 	}
@@ -160,7 +143,7 @@ public class ModelTest {
 	private void testVersion(Class<?> clazz) {
 		try {
 			Field fieldVersion = clazz.getField("version");
-			if (isMain(clazz)) {
+			if (isMain(clazz) && !Codes.isCode(clazz)) {
 				if (fieldVersion.getType() == Integer.class) {
 					problems.add(clazz.getName() + ": Domain classes version must be of primitiv type int");
 				}
@@ -168,7 +151,7 @@ public class ModelTest {
 					problems.add(clazz.getName() + ": field version must be public");
 				}
 			} else {
-				problems.add(clazz.getName() + ": Only domain classes are allowed to have an version field");
+				problems.add(clazz.getName() + ": Only main entities are allowed to have an version field");
 			}
 		} catch (NoSuchFieldException e) {
 			// thats ok, version is not mandatory
@@ -185,22 +168,31 @@ public class ModelTest {
 	}
 
 	private void testField(Field field) {
-		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !field.getName().equals("id") && !field.getName().equals("version")) {
+		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", LazyListAdapter.PARENT, LazyListAdapter.POSITION)) {
 			testName(field);
 			testTypeOfField(field);
 			testNoMethodsForPublicField(field);
 			Class<?> fieldType = field.getType();
 			if (fieldType == String.class) {
-				if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
+				if (!View.class.isAssignableFrom(field.getDeclaringClass()) && !LazyListAdapter.DISCRIMINATOR.equals(field.getName())) {
 					testSize(field);
 				}
-			} else if (List.class.equals(fieldType)) {
-				if (!isMain(field.getDeclaringClass())) {
-					String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
-					problems.add(messagePrefix + ": not allowed. Only main model class or inline fields in these classes may contain lists");
+			} 
+		}
+	}
+	
+	private void testNoListFields(Class<?> clazz) {
+		FlatProperties.getProperties(clazz).values();
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
+				Class<?> fieldType = field.getType();
+				if (List.class.equals(fieldType)) {
+					problems.add("List in " + clazz.getName()  + ": not allowed. Only classes with id (or inlines of classes with id) may contain lists");
+				} else if (FieldUtils.isFinal(field) && !FieldUtils.isAllowedPrimitive(fieldType)) {
+					testNoListFields(fieldType);
 				}
 			}
-			
 		}
 	}
 	
@@ -234,11 +226,7 @@ public class ModelTest {
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
 		if (fieldType == List.class) {
-			boolean isView = field.getAnnotation(ViewReference.class) != null;
-			if (!isView && !FieldUtils.isFinal(field)) {
-				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
-			}
-			testTypeOfListField(field, isView, messagePrefix);
+			testTypeOfListField(field, messagePrefix);
 		} else if (fieldType == Set.class) {
 			if (!FieldUtils.isFinal(field)) {
 				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
@@ -249,7 +237,7 @@ public class ModelTest {
 		}
 	}
 
-	private void testTypeOfListField(Field field, boolean isView, String messagePrefix) {
+	private void testTypeOfListField(Field field, String messagePrefix) {
 		Class<?> listType = null;
 		try {
 			listType = GenericUtils.getGenericClass(field);
@@ -258,7 +246,7 @@ public class ModelTest {
 		}
 		if (listType != null) {
 			messagePrefix = "Generic of " + messagePrefix;
-			testTypeOfListField(listType, isView, messagePrefix);
+			testTypeOfListField(listType, messagePrefix);
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}
@@ -297,33 +285,17 @@ public class ModelTest {
 		if (Modifier.isAbstract(fieldType.getModifiers())) {
 			problems.add(messagePrefix + " must not be of an abstract Type");
 		}
-		if (isMain(fieldType) && !ViewUtil.isView(field)) {
-			problems.add(messagePrefix + " may not reference the other main model class " + fieldType.getSimpleName());
-		}
 		if (fieldType.isArray()) {
 			problems.add(messagePrefix + " is an array which is not allowed (except for byte[])");
 		}
-		if (Codes.isCode(fieldType)) {
-			if (!modelClassTypes.containsKey(fieldType)) {
-				modelClassTypes.put(fieldType, ModelClassType.CODE);
-				testClass(fieldType);
-			}
-		}
-		if (ViewUtil.isView(field)) {
-			if (!modelClassTypes.containsKey(fieldType)) {
-				modelClassTypes.put(fieldType, ModelClassType.VIEW);
-				testClass(fieldType);
-			}
-		}
-		if (!FieldUtils.isFinal(field)) {
-			if (!modelClassTypes.containsKey(fieldType)) {
-				modelClassTypes.put(fieldType, ModelClassType.SIMPLE);
-				testClass(fieldType);
-			}
+		if (FieldUtils.isFinal(field)) {
+			testInlineClass(fieldType);
+		} else {
+			testClass(fieldType);
 		}
 	}
 
-	private void testTypeOfListField(Class<?> fieldType, boolean isView, String messagePrefix) {
+	private void testTypeOfListField(Class<?> fieldType, String messagePrefix) {
 		if (fieldType.isPrimitive()) {
 			problems.add(messagePrefix + " has invalid Type");
 			return;
@@ -336,31 +308,11 @@ public class ModelTest {
 			problems.add(messagePrefix + " is an array which is not allowed");
 			return;
 		}
-		ModelClassType type = modelClassTypes.get(fieldType);
-		if (type == null) {
-			modelClassTypes.put(fieldType, ModelClassType.LIST_ELEMENT);
-			testClass(fieldType);
+		if (Codes.isCode(fieldType)) {
+			problems.add(messagePrefix + " is a list of codes which is not allowed");
 			return;
 		}
-		// report problem
-		switch (type) {
-		case MAIN:
-			if (!isView) {
-				problems.add(messagePrefix + " is a list of other main entities which is not allowed. Use a View class or a View annotation");
-			}
-			break;
-		case CODE:
-			problems.add(messagePrefix + " is a list of codes which is not allowed");
-			break;
-		case SIMPLE:
-		case LIST_ELEMENT:
-		case VIEW:	
-			// no problem
-			break;
-		}
-		if (type != ModelClassType.MAIN && isView) {
-			problems.add(messagePrefix + " is a annotated as view. This is only allowed if the element type is a main entity");
-		}
+		testClass(fieldType);
 	}
 	
 	private void testSize(Field field) {

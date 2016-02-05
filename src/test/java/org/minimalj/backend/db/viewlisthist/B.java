@@ -3,7 +3,6 @@ package org.minimalj.backend.db.viewlisthist;
 import java.util.List;
 
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.annotation.ViewReference;
 
 
 public class B {
@@ -19,7 +18,6 @@ public class B {
 	public Object id;
 	public int version;
 	
-	@ViewReference
 	public List<C> c;
 	
 	@Size(30)
