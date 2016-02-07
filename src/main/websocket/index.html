@@ -22,8 +22,8 @@
 
 	var titleElement = document.getElementsByTagName("title")[0];
 	
-	function onMessage(evt) {
-		var dataObject = JSON.parse(evt.data);
+	function onMessage(data) {
+		var dataObject = JSON.parse(data);
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
 		if (dataObject.applicationName != undefined) {
@@ -793,6 +793,40 @@
 		}
 	}
 
+	function sendAjax(data, block) {
+		data.locale = "$LOCALE";
+		data.session = session;
+
+		var dialogElements = document.getElementsByTagName("dialog");
+		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
+			
+		var pathname = location.pathname;
+		var index = pathname.lastIndexOf("/");
+		data.pagename = pathname.substring(index + 1);
+
+		var pathname = pathname.substring(0, index + 1);
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", "ajax_request.xml", !block);
+		
+		if (block) {
+			xmlhttp.send(JSON.stringify(data));
+			if (xmlhttp.readyState == 4) {
+				if (xmlhttp.status == 200) {
+					onMessage(xmlhttp.responseText);
+				} else {
+					alert('Something is wrong !!');
+				}
+			}
+		} else {
+			xmlhttp.onreadystatechange = function() {
+				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+					onMessage(xmlhttp.responseText);
+				}
+			}
+			xmlhttp.send(JSON.stringify(data));
+		}
+	}
+	
 	function send(data, block) {
 		data.locale = "$LOCALE";
 
@@ -810,7 +844,7 @@
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
-				onMessage(evt)
+				onMessage(evt.data)
 			};
 			websocket.onopen = function(evt) {
 				send(data, block);
@@ -825,7 +859,7 @@
 			websocket.send(JSON.stringify(data));
 		}
 	}
-
+		
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
 		if (dialogElements != undefined && dialogElements.length > 0) {

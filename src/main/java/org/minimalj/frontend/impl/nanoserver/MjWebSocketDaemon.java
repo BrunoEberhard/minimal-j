@@ -20,6 +20,8 @@ import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 public class MjWebSocketDaemon extends NanoWSD {
 	private static final Logger logger = Logger.getLogger(MjWebSocketDaemon.class.getName());
 
+	private JsonHandler handler = new JsonHandler();
+	
 	public MjWebSocketDaemon(int port, boolean secure) {
 		super(port);
 		if (secure) {
@@ -58,6 +60,10 @@ public class MjWebSocketDaemon extends NanoWSD {
 			Locale locale = getLocale(headers.get("accept-language"));
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
+		} else if ("/ajax_request.xml".equals(uri)) {
+			String data = files.get("postData");
+			String result = handler.handle(data);
+			return newFixedLengthResponse(Status.OK, "text/xml", result);
 		} else {
 			int index = uri.lastIndexOf('.');
 			if (index > -1 && index < uri.length()-1) {
@@ -79,8 +85,6 @@ public class MjWebSocketDaemon extends NanoWSD {
 			super(handshakeRequest);
 		}
 
-		private JsonHandler handler = new JsonHandler();
-		
 		@Override
 		protected void onOpen() {
 			// nothing to do
