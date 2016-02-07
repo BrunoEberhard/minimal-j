@@ -3,12 +3,16 @@ package org.minimalj.backend.sql;
 import java.util.List;
 
 public interface ListTable<PARENT, ELEMENT> {
+	
+	public default int size(PARENT parent) {
+		return read(parent).size();
+	}
 
 	public List<ELEMENT> read(PARENT parent);
 	
-	public void insert(PARENT parent, List<ELEMENT> objects);
+	public void addAll(PARENT parent, List<ELEMENT> objects);
 
-	public void update(PARENT parent, List<ELEMENT> objects);
+	public void replaceAll(PARENT parent, List<ELEMENT> objects);
 	
 	//
 	
@@ -19,18 +23,18 @@ public interface ListTable<PARENT, ELEMENT> {
 		public void readVersions(Object parentId, List<Integer> result);
 
 		@Override
-		default void insert(PARENT parent, List<ELEMENT> objects) {
-			insert(parent, objects, 0);
+		default void addAll(PARENT parent, List<ELEMENT> objects) {
+			addAll(parent, objects, 0);
 		}
 
 		@Override
-		default void update(PARENT parent, List<ELEMENT> objects) {
+		default void replaceAll(PARENT parent, List<ELEMENT> objects) {
 			throw new IllegalArgumentException();
 		}
 
-		public void insert(PARENT parent, List<ELEMENT> objects, Integer version);
+		public void addAll(PARENT parent, List<ELEMENT> objects, Integer version);
 
-		public void update(PARENT parent, List<ELEMENT> objects, int version);
+		public void replaceAll(PARENT parent, List<ELEMENT> objects, int version);
 	}
 	
 }

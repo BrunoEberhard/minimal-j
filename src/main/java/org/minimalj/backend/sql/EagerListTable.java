@@ -30,7 +30,7 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 	}
 	
 	@Override
-	public void insert(PARENT parent, List<ELEMENT> objects) {
+	public void addAll(PARENT parent, List<ELEMENT> objects) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
@@ -44,7 +44,7 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 	}
 
 	@Override
-	public void update(PARENT parent, List<ELEMENT> objects) {
+	public void replaceAll(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
 		List<ELEMENT> objectsInDb = read(parent);
 		int position = 0;

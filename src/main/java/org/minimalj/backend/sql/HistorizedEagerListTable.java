@@ -41,7 +41,7 @@ public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELE
 	}
 	
 	@Override
-	public void insert(PARENT parent, List<ELEMENT> objects, Integer version) {
+	public void addAll(PARENT parent, List<ELEMENT> objects, Integer version) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
@@ -56,7 +56,7 @@ public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELE
 	}
 
 	@Override
-	public void update(PARENT parent, List<ELEMENT> objects, int version) {
+	public void replaceAll(PARENT parent, List<ELEMENT> objects, int version) {
 		List<ELEMENT> objectsInDb = read(parent, version);
 		Object parentId = IdUtils.getId(parent);
 		int position = 0;

@@ -1,5 +1,6 @@
 package org.minimalj.transaction.persistence;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.backend.Persistence;
@@ -65,9 +66,7 @@ public abstract class ListTransaction<T> implements PersistenceTransaction<T> {
 			T unwrapped = (T) SerializationContainer.unwrap(element);
 			Table<?> parentTable = ((SqlPersistence) persistence).getTable(lazyList.getParent().getClass());
 			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-			List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
-			list.add(unwrapped);
-			listTable.update(lazyList.getParent(), list);
+			listTable.addAll(lazyList.getParent(), Collections.singletonList(unwrapped));
 			return null;
 		}
 	}
@@ -88,7 +87,7 @@ public abstract class ListTransaction<T> implements PersistenceTransaction<T> {
 			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
 			List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
 			list.set(position, unwrapped);
-			listTable.update(lazyList.getParent(), list);
+			listTable.replaceAll(lazyList.getParent(), list);
 			return null;
 		}
 	}
@@ -108,7 +107,7 @@ public abstract class ListTransaction<T> implements PersistenceTransaction<T> {
 			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
 			List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
 			list.remove(position);
-			listTable.update(lazyList.getParent(), list);
+			listTable.replaceAll(lazyList.getParent(), list);
 			return null;
 		}
 	}
@@ -124,8 +123,7 @@ public abstract class ListTransaction<T> implements PersistenceTransaction<T> {
 		public Integer execute(Persistence persistence) {
 			Table<?> parentTable = ((SqlPersistence) persistence).getTable(lazyList.getParent().getClass());
 			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-			List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
-			return list.size();
+			return listTable.size(lazyList.getParent());
 		}
 	}
 

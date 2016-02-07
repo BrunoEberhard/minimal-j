@@ -46,6 +46,15 @@ public class LazyListAdapter<PARENT, ELEMENT> implements ListTable<PARENT, ELEME
 	}
 	
 	@Override
+	public int size(PARENT parent) {
+		Criteria criteria = By.field(parentProperty, parent);
+		if (discriminatorProperty != null) {
+			criteria.and(By.field(discriminatorProperty, discriminator));
+		}
+		return table.count(criteria);
+	}
+	
+	@Override
 	public List<ELEMENT> read(PARENT parent) {
 		return new LazyList<PARENT, ELEMENT>(sqlPersistence, clazz, parent, discriminator);
 	}
@@ -63,8 +72,9 @@ public class LazyListAdapter<PARENT, ELEMENT> implements ListTable<PARENT, ELEME
 	}
 
 	@Override
-	public void insert(PARENT parent, List<ELEMENT> objects) {
-		updateElements(parent, objects, discriminator);
+	public void addAll(PARENT parent, List<ELEMENT> objects) {
+		int existingElements = size(parent);
+		prepareElements(parent, objects, discriminator, existingElements);
 		for (ELEMENT object : objects) {
 			table.insert(object);
 		}
@@ -72,8 +82,8 @@ public class LazyListAdapter<PARENT, ELEMENT> implements ListTable<PARENT, ELEME
 
 	@Override
 	// TODO more efficient implementation. For the add - Transaction this is extremly bad implementation
-	public void update(PARENT parent, List<ELEMENT> objects) {
-		updateElements(parent, objects, discriminator);
+	public void replaceAll(PARENT parent, List<ELEMENT> objects) {
+		prepareElements(parent, objects, discriminator, 0);
 		Criteria criteria = By.field(parentProperty, parent);
 		if (discriminatorProperty != null) {
 			criteria.and(By.field(discriminatorProperty, discriminator));
@@ -82,19 +92,19 @@ public class LazyListAdapter<PARENT, ELEMENT> implements ListTable<PARENT, ELEME
 		for (Object existingObject : existingObjects) {
 			table.delete(IdUtils.getId(existingObject));
 		}
-		insert(parent, objects);
+		addAll(parent, objects);
 	}
 	
 	// helper
 	
-	public void updateElements(PARENT parent, List<ELEMENT> objects, String discriminator) {
-		int position = 0;
+	private void prepareElements(PARENT parent, List<ELEMENT> objects, String discriminator, int startAt) {
+		int position = startAt;
 		for (ELEMENT object : objects) {
-			updateElement(parent, object, discriminator, position++);
+			prepareElement(parent, object, discriminator, position++);
 		}
 	}
 
-	public void updateElement(PARENT parent, ELEMENT object, String discriminator, int position) {
+	private void prepareElement(PARENT parent, ELEMENT object, String discriminator, int position) {
 		parentProperty.setValue(object, parent);
 		if (discriminatorProperty != null) {
 			discriminatorProperty.setValue(object, discriminator);

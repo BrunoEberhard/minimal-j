@@ -106,7 +106,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (Entry<PropertyInterface, ListTable> listEntry : listTables.entrySet()) {
 			List list = (List) listEntry.getKey().getValue(object);
 			if (list != null && !list.isEmpty()) {
-				listEntry.getValue().insert(object, list);
+				listEntry.getValue().addAll(object, list);
 			}
 		}
 	}
@@ -153,7 +153,7 @@ public class Table<T> extends AbstractTable<T> {
 			
 			for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
-				listTableEntry.getValue().update(object, list);
+				listTableEntry.getValue().replaceAll(object, list);
 			}
 			
 			if (object instanceof Code) {
@@ -286,6 +286,22 @@ public class Table<T> extends AbstractTable<T> {
 				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
 			return executeSelectAll(statement, maxResults);
+		} catch (SQLException e) {
+			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+		}
+	}
+	
+	public int count(Criteria criteria) {
+		List<Object> whereClause = whereClause(criteria);
+		String query = "SELECT COUNT(*) FROM " + getTableName() + " WHERE " + whereClause.get(0);
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
+			for (int i = 1; i<whereClause.size(); i++) {
+				helper.setParameter(statement, i, whereClause.get(i), null);
+			}
+			try (ResultSet resultSet = statement.executeQuery()) {
+				resultSet.next();
+				return resultSet.getInt(1);
+			}
 		} catch (SQLException e) {
 			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}

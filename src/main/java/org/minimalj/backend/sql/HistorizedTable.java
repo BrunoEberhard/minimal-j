@@ -99,7 +99,7 @@ public class HistorizedTable<T> extends Table<T> {
 			
 			for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
-				((HistorizedListTable) listTableEntry.getValue()).update(object, list, version);
+				((HistorizedListTable) listTableEntry.getValue()).replaceAll(object, list, version);
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
