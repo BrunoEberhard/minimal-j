@@ -1,4 +1,4 @@
-package org.minimalj.backend.db.viewlist;
+package org.minimalj.backend.db.lazylist;
 
 import org.minimalj.model.annotation.Size;
 

@@ -36,8 +36,7 @@ public class Table<T> extends AbstractTable<T> {
 	protected final String updateQuery;
 	protected final String deleteQuery;
 
-	protected final LinkedHashMap<PropertyInterface, ListTable> listTables;
-	protected final List<AbstractTable> subTables = new ArrayList<>();
+	protected final HashMap<PropertyInterface, SubTable> subTables;
 	
 	public Table(SqlPersistence sqlPersistence, Class<T> clazz) {
 		super(sqlPersistence, null, clazz);
@@ -46,7 +45,7 @@ public class Table<T> extends AbstractTable<T> {
 		Objects.nonNull(idProperty);
 
 		List<PropertyInterface> lists = FlatProperties.getListProperties(clazz);
-		this.listTables = createListTables(lists);
+		this.subTables = createSubTables(lists);
 		
 		this.selectByIdQuery = selectByIdQuery();
 		this.selectAllQuery = selectAllQuery();
@@ -57,7 +56,7 @@ public class Table<T> extends AbstractTable<T> {
 	@Override
 	public void createTable(SqlSyntax syntax) {
 		super.createTable(syntax);
-		for (AbstractTable subTable : subTables) {
+		for (AbstractTable subTable : subTables.values()) {
 			subTable.createTable(syntax);
 		}
 	}
@@ -65,7 +64,7 @@ public class Table<T> extends AbstractTable<T> {
 	@Override
 	public void createIndexes(SqlSyntax syntax) {
 		super.createIndexes(syntax);
-		for (AbstractTable subTable : subTables) {
+		for (AbstractTable subTable : subTables.values()) {
 			subTable.createIndexes(syntax);
 		}
 	}
@@ -73,7 +72,7 @@ public class Table<T> extends AbstractTable<T> {
 	@Override
 	public void createConstraints(SqlSyntax syntax) {
 		super.createConstraints(syntax);
-		for (AbstractTable subTable : subTables) {
+		for (AbstractTable subTable : subTables.values()) {
 			subTable.createConstraints(syntax);
 		}
 	}
@@ -103,7 +102,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	protected void insertLists(T object) {
-		for (Entry<PropertyInterface, ListTable> listEntry : listTables.entrySet()) {
+		for (Entry<PropertyInterface, SubTable> listEntry : subTables.entrySet()) {
 			List list = (List) listEntry.getKey().getValue(object);
 			if (list != null && !list.isEmpty()) {
 				listEntry.getValue().addAll(object, list);
@@ -120,25 +119,29 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	private LinkedHashMap<PropertyInterface, ListTable> createListTables(List<PropertyInterface> listProperties) {
-		LinkedHashMap<PropertyInterface, ListTable> listTables = new LinkedHashMap<>();
+	private LinkedHashMap<PropertyInterface, SubTable> createSubTables(List<PropertyInterface> listProperties) {
+		LinkedHashMap<PropertyInterface, SubTable> subTables = new LinkedHashMap<>();
 		for (PropertyInterface listProperty : listProperties) {
-			ListTable listTable = createListTable(listProperty);
-			listTables.put(listProperty, listTable);
-			if (listTable instanceof AbstractTable) {
-				subTables.add((AbstractTable) listTable);
-			}
+			SubTable tableList = createSubTable(listProperty);
+			subTables.put(listProperty, tableList);
 		}
-		return listTables;
+		return subTables;
 	}
 
-	ListTable createListTable(PropertyInterface property) {
+	SubTable createSubTable(PropertyInterface property) {
 		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
+		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
-			sqlPersistence.addClass(elementClass);
-			return new LazyListAdapter(sqlPersistence, sqlPersistence.getTable(elementClass), property.getPath());
+			boolean hasParent = FlatProperties.getProperties(elementClass).containsKey("parent");
+			String fieldPath = property.getPath();
+			if (hasParent) {
+				return new ContainingSubTable<>(sqlPersistence, subTableName, elementClass, clazz, idProperty, fieldPath);
+			} else {
+				sqlPersistence.addClass(elementClass);
+				return new CrossTable<>(sqlPersistence, subTableName, elementClass, clazz, idProperty, fieldPath);
+			}
 		} else {
-			return new EagerListTable(sqlPersistence, buildSubTableName(property), elementClass, idProperty);
+			return new SubTable(sqlPersistence, subTableName, elementClass, idProperty);
 		}
 	}
 	
@@ -146,12 +149,21 @@ public class Table<T> extends AbstractTable<T> {
 		return getTableName() + "__" + property.getName();
 	}
 	
+	public SubTable getSubTable(String fieldPath) {
+		for (Map.Entry<PropertyInterface, SubTable> entry : subTables.entrySet()) {
+			if (entry.getKey().getPath().equals(fieldPath)) {
+				return entry.getValue();
+			}
+		}
+		return null;
+	}
+	
 	public void update(T object) {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			setParameters(updateStatement, object, false, ParameterMode.UPDATE, IdUtils.getId(object));
 			updateStatement.execute();
 			
-			for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
+			for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				listTableEntry.getValue().replaceAll(object, list);
 			}
@@ -164,15 +176,6 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public ListTable getListTable(String discriminator) {
-		for (Map.Entry<PropertyInterface, ListTable> entry : listTables.entrySet()) {
-			if (entry.getKey().getPath().equals(discriminator)) {
-				return entry.getValue();
-			}
-		}
-		return null;
-	}
-	
 	public T read(Object id) {
 		return read(id, true);
 	}
@@ -380,7 +383,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@SuppressWarnings("unchecked")
 	protected void loadLists(T object) throws SQLException {
-		for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
+		for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
 			List values = listTableEntry.getValue().read(object);
 			PropertyInterface listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {

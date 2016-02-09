@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.minimalj.backend.sql.ListTable.HistorizedListTable;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -59,12 +58,13 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	ListTable createListTable(PropertyInterface property) {
-		Class<?> clazz = GenericUtils.getGenericClass(property.getType());
-		if (IdUtils.hasId(clazz)) {
+	SubTable createSubTable(PropertyInterface property) {
+		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
+		String subTableName = buildSubTableName(property);
+		if (IdUtils.hasId(elementClass)) {
 			throw new RuntimeException("Not yet implemented");
 		} else {
-			return new HistorizedEagerListTable(sqlPersistence, buildSubTableName(property), clazz, idProperty);
+			return new HistorizedSubTable(sqlPersistence, buildSubTableName(property), elementClass, idProperty);
 		}
 	}
 	
@@ -97,9 +97,9 @@ public class HistorizedTable<T> extends Table<T> {
 				updateStatement.execute();
 			}
 			
-			for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
+			for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
-				((HistorizedListTable) listTableEntry.getValue()).replaceAll(object, list, version);
+				((HistorizedSubTable) listTableEntry.getValue()).replaceAll(object, list, version);
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
@@ -164,8 +164,8 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@SuppressWarnings("unchecked")
 	private void loadLists(T object, Integer time) {
-		for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
-			List values = ((HistorizedListTable) listTableEntry.getValue()).read(object, time);
+		for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
+			List values = ((HistorizedSubTable) listTableEntry.getValue()).read(object, time);
 			PropertyInterface listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
 				List list = (List) listProperty.getValue(object);
@@ -188,8 +188,8 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			resultSet.close();
 			
-			for (Entry<PropertyInterface, ListTable> listTableEntry : listTables.entrySet()) {
-				HistorizedListTable historizedSubTable = (HistorizedListTable) listTableEntry.getValue();
+			for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
+				HistorizedSubTable historizedSubTable = (HistorizedSubTable) listTableEntry.getValue();
 				historizedSubTable.readVersions(id, result);
 			}
 			
@@ -231,10 +231,9 @@ public class HistorizedTable<T> extends Table<T> {
 	protected String insertQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
+		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (String columnName : getColumns().keySet()) {
-			s.append(columnName);
-			s.append(", ");
+			s.append(columnName).append(", ");
 		}
 		s.append("id, version) VALUES (");
 		for (int i = 0; i<getColumns().size(); i++) {

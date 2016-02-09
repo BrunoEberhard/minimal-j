@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.minimalj.backend.sql.ListTable.HistorizedListTable;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
@@ -23,7 +22,7 @@ import org.minimalj.util.IdUtils;
  * row contains the version from which the entry is active.
  * 
  */
-public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements HistorizedListTable<PARENT, ELEMENT> {
+public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> {
 
 	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
@@ -31,8 +30,8 @@ public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELE
 	
 	protected final PropertyInterface parentIdProperty;
 	
-	public HistorizedEagerListTable(SqlPersistence sqlPersistence, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
-		super(sqlPersistence, prefix, clazz);
+	public HistorizedSubTable(SqlPersistence sqlPersistence, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+		super(sqlPersistence, prefix, clazz, parentIdProperty);
 		this.parentIdProperty = parentIdProperty;
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
@@ -40,8 +39,10 @@ public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELE
 		readVersionsQuery = readVersionsQuery();
 	}
 	
+//	public void addAll(PARENT parent, List<ELEMENT> objects, Integer version) {
 	@Override
-	public void addAll(PARENT parent, List<ELEMENT> objects, Integer version) {
+	public void addAll(PARENT parent, List<ELEMENT> objects) {
+		int version = 0;
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
@@ -55,7 +56,6 @@ public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELE
 		}
 	}
 
-	@Override
 	public void replaceAll(PARENT parent, List<ELEMENT> objects, int version) {
 		List<ELEMENT> objectsInDb = read(parent, version);
 		Object parentId = IdUtils.getId(parent);
@@ -98,7 +98,6 @@ public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELE
 		}
 	}
 
-	@Override
 	public List<ELEMENT> read(PARENT parent, Integer time) {
 		if (time == null) {
 			return read(parent);
@@ -123,7 +122,6 @@ public class HistorizedEagerListTable<PARENT, ELEMENT> extends AbstractTable<ELE
 		}
 	}
 	
-	@Override
 	public void readVersions(Object id, List<Integer> result) {
 		try (PreparedStatement readVersionsStatement = createStatement(sqlPersistence.getConnection(), readVersionsQuery, false)) {
 			readVersionsStatement.setObject(1, id);

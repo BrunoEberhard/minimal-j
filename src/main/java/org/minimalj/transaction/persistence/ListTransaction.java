@@ -1,23 +1,17 @@
 package org.minimalj.transaction.persistence;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.minimalj.backend.Persistence;
-import org.minimalj.backend.sql.LazyListAdapter;
-import org.minimalj.backend.sql.LazyListAdapter.LazyList;
-import org.minimalj.backend.sql.ListTable;
+import org.minimalj.backend.sql.LazyList;
 import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.backend.sql.Table;
 import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.util.SerializationContainer;
 
-public abstract class ListTransaction<T> implements PersistenceTransaction<T> {
+public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements PersistenceTransaction<RETURN> {
 	private static final long serialVersionUID = 1L;
 	
-	protected final LazyList lazyList;
+	protected final LazyList<PARENT, ELEMENT> lazyList;
 
-	protected ListTransaction(LazyList lazyList) {
+	protected ListTransaction(LazyList<PARENT, ELEMENT> lazyList) {
 		this.lazyList = lazyList;
 	}
 
@@ -26,104 +20,66 @@ public abstract class ListTransaction<T> implements PersistenceTransaction<T> {
 		return lazyList.getElementClass();
 	}
 	
-	// TODO replace with specific implementations
-	protected List readAll(SqlPersistence sqlPersistence) {
-		Table<?> parentTable = sqlPersistence.getTable(lazyList.getParent().getClass());
-		ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-		List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
-		return list;
-	}
-	
-	public static class ReadElementTransaction extends ListTransaction<Object> {
+	public static class ReadElementTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, ELEMENT> {
 		private static final long serialVersionUID = 1L;
 		private final int position;
 		
-		public ReadElementTransaction(LazyList lazyList, int position) {
+		public ReadElementTransaction(LazyList<PARENT, ELEMENT> lazyList, int position) {
 			super(lazyList);
 			this.position = position;
 		}
 
 		@Override
-		public Object execute(Persistence persistence) {
-			Table<?> parentTable = ((SqlPersistence) persistence).getTable(lazyList.getParent().getClass());
-			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-			List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
-			return list.get(position);
+		public ELEMENT execute(Persistence persistence) {
+			lazyList.setPersistence((SqlPersistence) persistence);
+			return lazyList.get(position);
 		}
 	}
 	
-	public static class AddTransaction<T> extends ListTransaction<T> {
+	public static class AddTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, Boolean> {
 		private static final long serialVersionUID = 1L;
-		protected final Object element;
+		protected final Object elementWrapped;
 
-		public AddTransaction(LazyList lazyList, T element) {
+		public AddTransaction(LazyList<PARENT, ELEMENT> lazyList, ELEMENT element) {
 			super(lazyList);
-			this.element = SerializationContainer.wrap(element);
+			this.elementWrapped = SerializationContainer.wrap(element);
 		}
 
 		@Override
-		public T execute(Persistence persistence) {
-			T unwrapped = (T) SerializationContainer.unwrap(element);
-			Table<?> parentTable = ((SqlPersistence) persistence).getTable(lazyList.getParent().getClass());
-			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-			listTable.addAll(lazyList.getParent(), Collections.singletonList(unwrapped));
-			return null;
-		}
-	}
-	
-	public static class SetTransaction<T> extends AddTransaction<T> {
-		private static final long serialVersionUID = 1L;
-		private final int position;
-
-		public SetTransaction(LazyList lazyList, T element, int position) {
-			super(lazyList, element);
-			this.position = position;
-		}
-
-		@Override
-		public T execute(Persistence persistence) {
-			T unwrapped = (T) SerializationContainer.unwrap(element);
-			Table<?> parentTable = ((SqlPersistence) persistence).getTable(lazyList.getParent().getClass());
-			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-			List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
-			list.set(position, unwrapped);
-			listTable.replaceAll(lazyList.getParent(), list);
-			return null;
+		public Boolean execute(Persistence persistence) {
+			ELEMENT element = (ELEMENT) SerializationContainer.unwrap(elementWrapped);
+			lazyList.setPersistence((SqlPersistence) persistence);
+			return lazyList.add(element);
 		}
 	}
 
-	public static class RemoveTransaction extends ListTransaction<Integer> {
+	public static class RemoveTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, ELEMENT> {
 		private static final long serialVersionUID = 1L;
 		private final int position;
 		
-		public RemoveTransaction(LazyList lazyList, int position) {
+		public RemoveTransaction(LazyList<PARENT, ELEMENT> lazyList, int position) {
 			super(lazyList);
 			this.position = position;
 		}
 
 		@Override
-		public Integer execute(Persistence persistence) {
-			Table<?> parentTable = ((SqlPersistence) persistence).getTable(lazyList.getParent().getClass());
-			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-			List list = ((LazyListAdapter) listTable).readAll(lazyList.getParent());
-			list.remove(position);
-			listTable.replaceAll(lazyList.getParent(), list);
-			return null;
+		public ELEMENT execute(Persistence persistence) {
+			lazyList.setPersistence((SqlPersistence) persistence);
+			return lazyList.remove(position);
 		}
 	}
 
-	public static class SizeTransaction extends ListTransaction<Integer> {
+	public static class SizeTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, Integer> {
 		private static final long serialVersionUID = 1L;
 		
-		public SizeTransaction(LazyList lazyList) {
+		public SizeTransaction(LazyList<PARENT, ELEMENT> lazyList) {
 			super(lazyList);
 		}
 
 		@Override
 		public Integer execute(Persistence persistence) {
-			Table<?> parentTable = ((SqlPersistence) persistence).getTable(lazyList.getParent().getClass());
-			ListTable listTable = parentTable.getListTable(lazyList.getDiscriminator());
-			return listTable.size(lazyList.getParent());
+			lazyList.setPersistence((SqlPersistence) persistence);
+			return lazyList.size();
 		}
 	}
 

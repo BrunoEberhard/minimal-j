@@ -13,7 +13,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.minimalj.application.DevMode;
-import org.minimalj.backend.sql.LazyListAdapter;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
@@ -168,13 +167,13 @@ public class ModelTest {
 	}
 
 	private void testField(Field field) {
-		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", LazyListAdapter.PARENT, LazyListAdapter.POSITION)) {
+		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "parent", "position")) {
 			testName(field);
 			testTypeOfField(field);
 			testNoMethodsForPublicField(field);
 			Class<?> fieldType = field.getType();
 			if (fieldType == String.class) {
-				if (!View.class.isAssignableFrom(field.getDeclaringClass()) && !LazyListAdapter.DISCRIMINATOR.equals(field.getName())) {
+				if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
 					testSize(field);
 				}
 			} 

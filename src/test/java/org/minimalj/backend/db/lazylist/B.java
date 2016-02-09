@@ -1,4 +1,4 @@
-package org.minimalj.backend.db.viewlist;
+package org.minimalj.backend.db.lazylist;
 
 import java.util.List;
 
@@ -16,6 +16,8 @@ public class B {
 	}
 	
 	public Object id;
+	public A parent;
+	public Integer position;
 	
 	public List<C> c;
 	

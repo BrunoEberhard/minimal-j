@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -338,9 +339,17 @@ public class SqlPersistence implements Persistence {
 	@Override
 	public <T> void update(T object) {
 		if (object == null) throw new NullPointerException();
-		@SuppressWarnings("unchecked")
-		Table<T> table = getTable((Class<T>) object.getClass());
-		table.update(object);
+		Object id = IdUtils.getId(object);
+		if (id instanceof ElementId) {
+			ElementId elementId = (ElementId) id;
+			Table<T> table = getTable(elementId.getParentClassName());
+			ContainingSubTable subTable = (ContainingSubTable) table.getSubTable(elementId.getFieldPath());
+			subTable.update(elementId, object);
+		} else {
+			@SuppressWarnings("unchecked")
+			Table<T> table = getTable((Class<T>) object.getClass());
+			table.update(object);
+		}
 	}
 
 	public <T> void delete(T object) {
@@ -616,6 +625,15 @@ public class SqlPersistence implements Persistence {
 		AbstractTable<U> table = getAbstractTable(clazz);
 		if (!(table instanceof Table)) throw new IllegalArgumentException(clazz.getName());
 		return (Table<U>) table;
+	}
+
+	public <U> Table<U> getTable(String className) {
+		for (Entry<Class<?>, AbstractTable<?>> entry : tables.entrySet()) {
+			if (entry.getKey().getName().equals(className)) {
+				return (Table) entry.getValue();
+			}
+		}
+		return null;
 	}
 	
 	public String name(Object classOrKey) {

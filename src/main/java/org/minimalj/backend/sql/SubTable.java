@@ -10,17 +10,18 @@ import org.minimalj.util.IdUtils;
 /**
  * Minimal-J internal
  * 
- * In this tables the parentId is used as id
+ * - In this tables the parentId is used as id
+ * - An additional column named position
  */
-public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements ListTable<PARENT, ELEMENT> {
+public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 
 	protected final String selectByIdQuery;
 	protected final String updateQuery;
 	protected final String deleteQuery;
 	protected final PropertyInterface parentIdProperty;
 	
-	public EagerListTable(SqlPersistence sqlPersistence, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
-		super(sqlPersistence, prefix, clazz);
+	public SubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+		super(sqlPersistence, name, clazz);
 		
 		this.parentIdProperty = parentIdProperty;
 		
@@ -29,7 +30,6 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 		deleteQuery = deleteQuery();
 	}
 	
-	@Override
 	public void addAll(PARENT parent, List<ELEMENT> objects) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
@@ -43,7 +43,6 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 		}
 	}
 
-	@Override
 	public void replaceAll(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
 		List<ELEMENT> objectsInDb = read(parent);
@@ -62,7 +61,7 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 		}
 	}
 	
-	protected void update(Object parentId, int position, ELEMENT object) {
+	private void update(Object parentId, int position, ELEMENT object) {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
 			updateStatement.setInt(parameterPos++, position);
@@ -72,7 +71,7 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 		}
 	}
 
-	protected void insert(Object parentId, int position, ELEMENT object) {
+	private void insert(Object parentId, int position, ELEMENT object) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos++, position);
@@ -82,7 +81,7 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 		}
 	}
 	
-	protected void delete(Object parentId, int position) {
+	private void delete(Object parentId, int position) {
 		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.setInt(2, position);
@@ -92,7 +91,6 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 		}
 	}
 
-	@Override
 	public List<ELEMENT> read(PARENT parent) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
@@ -115,12 +113,11 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 	protected String insertQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
+		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (Object columnNameObject : getColumns().keySet()) {
 			// myst, direkt auf columnNames zugreiffen funktionert hier nicht
 			String columnName = (String) columnNameObject;
-			s.append(columnName);
-			s.append(", ");
+			s.append(columnName).append(", ");
 		}
 		s.append("id, position) VALUES (");
 		for (int i = 0; i<getColumns().size(); i++) {
@@ -134,10 +131,9 @@ public class EagerListTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> impl
 	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET ");
+		s.append("UPDATE ").append(getTableName()).append(" SET ");
 		for (Object columnNameObject : getColumns().keySet()) {
-			s.append((String) columnNameObject);
-			s.append("= ?, ");
+			s.append((String) columnNameObject).append("= ?, ");
 		}
 		s.delete(s.length()-2, s.length());
 		s.append(" WHERE id = ? AND position = ?");

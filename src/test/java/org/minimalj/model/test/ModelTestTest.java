@@ -103,19 +103,6 @@ public class ModelTestTest {
 	}
 
 	//
-	
-	@Test public void 
-	should_test_accept_reference_to_other_entity_with_View_Annotation() {
-		ModelTest modelTest = new ModelTest(TestClass7.class, TestClass2.class);
-		assertValid(modelTest);
-	}
-
-	public static class TestClass7 {
-		public Object id;
-		public TestClass2 ref;
-	}
-
-	//
 
 	@Test public void 
 	should_test_accept_reference_to_View() {
