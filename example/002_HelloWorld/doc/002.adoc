@@ -67,7 +67,7 @@ image::002_HelloWorld.png[title="The hello world application"]
 
 == Greeting
 
-Maybe you would like to be called by name from the appliction. For that of course you have to
+Maybe you would like to be called by name from the application. For that of course you have to
 enter your name first. A Minimal-J application always starts in the same way. You cannot skip the
 main window at startup and only display a dialog (well of course you can by working around
 the framework but please spare that for later). The user has to trigger an action to see
