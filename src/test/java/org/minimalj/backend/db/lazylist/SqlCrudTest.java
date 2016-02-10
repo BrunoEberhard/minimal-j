@@ -7,6 +7,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.backend.sql.SqlPersistence;
 
+import junit.framework.Assert;
+
 public class SqlCrudTest {
 	
 	private static SqlPersistence persistence;
@@ -34,6 +36,9 @@ public class SqlCrudTest {
 		Object id = persistence.insert(a);
 
 		a = persistence.read(A.class, id);
+		
+		Assert.assertEquals(1, a.b.size());
+		Assert.assertEquals(1, a.b.get(0).c.size());
 	}
 	
 }

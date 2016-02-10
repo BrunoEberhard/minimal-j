@@ -48,11 +48,10 @@ public abstract class AbstractTable<T> {
 	
 	protected final String selectByIdQuery;
 	protected final String insertQuery;
+	protected final String updateQuery;
+	protected final String deleteQuery;
 	protected final String clearQuery;
 	
-	// TODO: its a little bit strange to pass the idProperty here. Also because the property
-	// is not allways a property of clazz. idProperty is only necessary because the clazz AND the
-	// size of the idProperty is needed
 	protected AbstractTable(SqlPersistence sqlPersistence, String name, Class<T> clazz) {
 		this.sqlPersistence = sqlPersistence;
 		this.helper = new SqlHelper(sqlPersistence);
@@ -60,8 +59,12 @@ public abstract class AbstractTable<T> {
 		this.clazz = clazz;
 		this.columns = sqlPersistence.findColumns(clazz);
 		
+		sqlPersistence.getTableByName().put(name, this);
+		
 		this.selectByIdQuery = selectByIdQuery();
 		this.insertQuery = insertQuery();
+		this.updateQuery = updateQuery();
+		this.deleteQuery = deleteQuery();
 		this.clearQuery = clearQuery();
 		
 		findCodes();
@@ -386,6 +389,10 @@ public abstract class AbstractTable<T> {
 			
 	protected abstract String insertQuery();
 
+	protected abstract String updateQuery();
+
+	protected abstract String deleteQuery();
+	
 	protected abstract String selectByIdQuery();
 
 	protected String clearQuery() {

@@ -3,24 +3,18 @@ package org.minimalj.backend.sql;
 public class ElementId {
 
 	private final Object id;
-	private final String parentClassName;
-	private final String fieldPath;
+	private final String tableName;
 	
-	public ElementId(Object id, String parentClassName, String fieldPath) {
+	public ElementId(Object id, String tableName) {
 		this.id = id;
-		this.parentClassName = parentClassName;
-		this.fieldPath = fieldPath;
+		this.tableName = tableName;
 	}
 	
 	public Object getId() {
 		return id;
 	}
 	
-	public String getParentClassName() {
-		return parentClassName;
-	}
-	
-	public String getFieldPath() {
-		return fieldPath;
+	public String getTableName() {
+		return tableName;
 	}
 }

@@ -19,19 +19,14 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	private transient Class<ELEMENT> elementClass;
 	private final String elementClassName;
 	
-//	private transient PARENT parent;
-	private transient Class<PARENT> parentClass;
-	private final String parentClassName;
 	private final Object parentId;
 	
-	private final String fieldPath;
+	private final String tableName;
 	
-	public LazyList(SqlPersistence persistence, Class<ELEMENT> elementClass, PARENT parent, String fieldPath) {
+	public LazyList(SqlPersistence persistence, Class<ELEMENT> elementClass, PARENT parent, String tableName) {
 		this.persistence = persistence;
-		this.parentClass = (Class<PARENT>) parent.getClass();
-		this.parentClassName = parent.getClass().getName();
 		this.parentId = IdUtils.getId(parent);
-		this.fieldPath = fieldPath;
+		this.tableName = tableName;
 		this.elementClass = elementClass;
 		this.elementClassName = elementClass.getName();
 	}
@@ -55,21 +50,6 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		return parentId;
 	}
 	
-	public String getFieldPath() {
-		return fieldPath;
-	}
-	
-	public Class<PARENT> getParentClass() {
-		if (parentClass == null) {
-			try {
-				parentClass = (Class<PARENT>) Class.forName(parentClassName);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return parentClass;
-	}
-	
 	private <T> T execute(PersistenceTransaction<T> transaction) {
 		if (persistence != null) {
 			return persistence.execute(transaction);
@@ -81,8 +61,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	@Override
 	public ELEMENT get(int index) {
 		if (persistence != null) {
-			Table<PARENT> parentTable = persistence.getTable(getParentClass());
-			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable) parentTable.getSubTable(fieldPath);
+			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
 			return subTable.read(parentId, index);
 		} else {
 			return Backend.getInstance().execute(new ReadElementTransaction<PARENT, ELEMENT>(this, index));
@@ -92,8 +71,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	@Override
 	public int size() {
 		if (persistence != null) {
-			Table<PARENT> parentTable = persistence.getTable(getParentClass());
-			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable) parentTable.getSubTable(fieldPath);
+			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
 			return subTable.size(getParentId());
 		} else {
 			return Backend.getInstance().execute(new SizeTransaction<PARENT, ELEMENT>(this));
@@ -103,8 +81,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	@Override
 	public boolean add(ELEMENT element) {
 		if (persistence != null) {
-			Table<PARENT> parentTable = persistence.getTable(getParentClass());
-			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable) parentTable.getSubTable(fieldPath);
+			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
 			return subTable.add(getParentId(), element);
 		} else {
 			return execute(new AddTransaction<PARENT, ELEMENT>(this, element));

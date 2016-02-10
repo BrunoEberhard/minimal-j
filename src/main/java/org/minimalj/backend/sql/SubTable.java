@@ -12,24 +12,19 @@ import org.minimalj.util.IdUtils;
  * 
  * - In this tables the parentId is used as id
  * - An additional column named position
+ * - has no sub tables
  */
-public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
+public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
-	protected final String selectByIdQuery;
-	protected final String updateQuery;
-	protected final String deleteQuery;
 	protected final PropertyInterface parentIdProperty;
 	
 	public SubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
 		super(sqlPersistence, name, clazz);
 		
 		this.parentIdProperty = parentIdProperty;
-		
-		selectByIdQuery = selectByIdQuery();
-		updateQuery = updateQuery();
-		deleteQuery = deleteQuery();
 	}
 	
+	@Override
 	public void addAll(PARENT parent, List<ELEMENT> objects) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
@@ -43,9 +38,10 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		}
 	}
 
+	@Override
 	public void replaceAll(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
-		List<ELEMENT> objectsInDb = read(parent);
+		List<ELEMENT> objectsInDb = readAll(parent);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			if (position < objectsInDb.size() && position < objects.size()) {
@@ -91,7 +87,8 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		}
 	}
 
-	public List<ELEMENT> read(PARENT parent) {
+	@Override
+	public List<ELEMENT> readAll(PARENT parent) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);
@@ -128,6 +125,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		return s.toString();
 	}
 
+	@Override
 	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
@@ -141,6 +139,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		return s.toString();
 	}
 	
+	@Override
 	protected String deleteQuery() {
 		return "DELETE FROM " + getTableName() + " WHERE id = ? AND position >= ?";
 	}

@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.sql.ElementId;
 import org.minimalj.backend.sql.ReadOnlyId;
 
 /**
@@ -60,6 +61,8 @@ public class IdUtils {
 				Object id = idField.get(object);
 				if (id instanceof ReadOnlyId) {
 					id = ((ReadOnlyId) id).getId();
+				} else if (id instanceof ElementId) {
+					id = ((ElementId) id).getId();
 				}
 				return id;
 			} catch (SecurityException | IllegalAccessException e) {

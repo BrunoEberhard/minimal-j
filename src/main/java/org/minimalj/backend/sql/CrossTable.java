@@ -19,8 +19,11 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class CrossTable<PARENT, ELEMENT> extends ContainingSubTable<PARENT, ELEMENT> {
 
-	public CrossTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass, Class<PARENT> parentClass, PropertyInterface parentIdProperty, String fieldPath) {
-		super(sqlPersistence, name, elementClass, parentClass, parentIdProperty, fieldPath);
+	private final PropertyInterface parentIdProperty;
+	
+	public CrossTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass, Class<PARENT> parentClass, PropertyInterface parentIdProperty) {
+		super(sqlPersistence, name, elementClass, parentClass);
+		this.parentIdProperty = parentIdProperty;
 	}
 	
 	@Override
@@ -60,9 +63,13 @@ public class CrossTable<PARENT, ELEMENT> extends ContainingSubTable<PARENT, ELEM
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT element = objects.get(position);
+				Object elementId = IdUtils.getId(element);
+				if (elementId == null) {
+					elementId = sqlPersistence.getTable((Class<ELEMENT>) element.getClass()).insert(element);
+				}
 				statement.setObject(1, IdUtils.getId(parent));
 				statement.setInt(2, position);
-				statement.setObject(3, IdUtils.getId(element));
+				statement.setObject(3, elementId);
 				statement.execute();
 			}
 		} catch (SQLException x) {

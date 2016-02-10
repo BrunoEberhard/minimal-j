@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -16,37 +17,34 @@ import org.minimalj.util.LoggingRuntimeException;
  * - elements have own id
  * - Additional columns named parent and position
  */
-public class ContainingSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> {
+public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 	public static final String PARENT = "parent";
 	public static final String POSITION = "position";
 
 	protected final Class<PARENT> parentClass;
-	protected final String fieldPath;
 	
 	protected final String selectByParentAndPositionQuery;
 	protected final String countQuery;
 	protected final String maxQuery;
 	
-	protected final PropertyInterface parentProperty;
-	protected final PropertyInterface positionProperty;
+	private final PropertyInterface parentProperty;
+	private final PropertyInterface positionProperty;
 	
-	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass, Class<PARENT> parentClass, PropertyInterface parentIdProperty, String fieldPath) {
-		super(sqlPersistence, name, elementClass, parentIdProperty);
+	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass, Class<PARENT> parentClass) {
+		super(sqlPersistence, name, elementClass);
 		selectByParentAndPositionQuery = selectByParentAndPositionQuery();
 		countQuery = countQuery();
 		maxQuery = maxQuery();
 		
 		this.parentClass = parentClass;
 		
-		this.parentProperty = FlatProperties.getProperty(elementClass, PARENT);
-		this.positionProperty = FlatProperties.getProperty(elementClass, POSITION);
-		
-		this.fieldPath = fieldPath;
+		this.parentProperty = FlatProperties.getProperties(elementClass).get(PARENT);
+		this.positionProperty = FlatProperties.getProperties(elementClass).get(POSITION);
 	}
 	
 	@Override
-	public List<ELEMENT> read(PARENT parent) {
-		return new LazyList<PARENT, ELEMENT>(sqlPersistence, clazz, parent, fieldPath);
+	public List<ELEMENT> readAll(PARENT parent) {
+		return new LazyList<PARENT, ELEMENT>(sqlPersistence, clazz, parent, getTableName());
 	}
 	
 	public int size(Object parentId) {
@@ -78,10 +76,10 @@ public class ContainingSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 			statement.setObject(1, parentId);
 			statement.setInt(2, position);
 			ELEMENT object = executeSelect(statement);
-			IdUtils.setId(object, new ElementId(IdUtils.getId(object), parentClass.getName(), fieldPath));
-//			if (object != null) {
-//				loadLists(object);
-//			}
+			IdUtils.setId(object, new ElementId(IdUtils.getId(object), getTableName()));
+			if (object != null) {
+				loadLists(object);
+			}
 			return object;
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with parent " + parentId + " on position " + position);
@@ -107,10 +105,16 @@ public class ContainingSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (position = 0; position<objects.size(); position++) {
 				ELEMENT element = objects.get(position);
+				Object elementId = IdUtils.getId(element);
+				if (elementId == null) {
+					elementId = IdUtils.createId();
+					IdUtils.setId(element, elementId);
+				}
 				parentProperty.setValue(element, parent);
 				positionProperty.setValue(element, position++);
-				setParameters(insertStatement, element, false, ParameterMode.INSERT, IdUtils.createId());
+				setParameters(insertStatement, element, false, ParameterMode.INSERT, elementId);
 				insertStatement.execute();
+				insertLists(element);
 			}
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
@@ -121,11 +125,10 @@ public class ContainingSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			setParameters(updateStatement, object, false, ParameterMode.UPDATE, id.getId());
 			updateStatement.execute();
-			
-//			for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
-//				List list  = (List) listTableEntry.getKey().getValue(object);
-//				listTableEntry.getValue().replaceAll(object, list);
-//			}
+			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+				List list  = (List) listTableEntry.getKey().getValue(object);
+				listTableEntry.getValue().replaceAll(object, list);
+			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
 		}

@@ -28,11 +28,8 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 	private final String endQuery;
 	private final String readVersionsQuery;
 	
-	protected final PropertyInterface parentIdProperty;
-	
 	public HistorizedSubTable(SqlPersistence sqlPersistence, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
 		super(sqlPersistence, prefix, clazz, parentIdProperty);
-		this.parentIdProperty = parentIdProperty;
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
@@ -100,7 +97,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 
 	public List<ELEMENT> read(PARENT parent, Integer time) {
 		if (time == null) {
-			return read(parent);
+			return readAll(parent);
 		}
 		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
@@ -113,7 +110,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 	}
 
 	@Override
-	public List<ELEMENT> read(PARENT parent) {
+	public List<ELEMENT> readAll(PARENT parent) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);

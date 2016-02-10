@@ -25,7 +25,6 @@ import org.minimalj.util.LoggingRuntimeException;
 public class HistorizedTable<T> extends Table<T> {
 
 	private final String selectByIdAndTimeQuery;
-	private final String updateQuery;
 	private final String endQuery;
 	private final String selectMaxVersionQuery;
 	private final String readVersionsQuery;
@@ -35,7 +34,6 @@ public class HistorizedTable<T> extends Table<T> {
 
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
-		updateQuery = updateQuery();
 		selectMaxVersionQuery = selectMaxVersionQuery();
 		readVersionsQuery = readVersionsQuery();
 	}
@@ -58,7 +56,7 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	SubTable createSubTable(PropertyInterface property) {
+	SubTable createListTable(PropertyInterface property) {
 		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
@@ -97,7 +95,7 @@ public class HistorizedTable<T> extends Table<T> {
 				updateStatement.execute();
 			}
 			
-			for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
+			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				((HistorizedSubTable) listTableEntry.getValue()).replaceAll(object, list, version);
 			}
@@ -164,7 +162,7 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@SuppressWarnings("unchecked")
 	private void loadLists(T object, Integer time) {
-		for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
+		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 			List values = ((HistorizedSubTable) listTableEntry.getValue()).read(object, time);
 			PropertyInterface listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
@@ -188,7 +186,7 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			resultSet.close();
 			
-			for (Entry<PropertyInterface, SubTable> listTableEntry : subTables.entrySet()) {
+			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				HistorizedSubTable historizedSubTable = (HistorizedSubTable) listTableEntry.getValue();
 				historizedSubTable.readVersions(id, result);
 			}

@@ -342,8 +342,7 @@ public class SqlPersistence implements Persistence {
 		Object id = IdUtils.getId(object);
 		if (id instanceof ElementId) {
 			ElementId elementId = (ElementId) id;
-			Table<T> table = getTable(elementId.getParentClassName());
-			ContainingSubTable subTable = (ContainingSubTable) table.getSubTable(elementId.getFieldPath());
+			ContainingSubTable subTable = (ContainingSubTable) tableByName.get(elementId.getTableName());
 			subTable.update(elementId, object);
 		} else {
 			@SuppressWarnings("unchecked")
@@ -557,10 +556,9 @@ public class SqlPersistence implements Persistence {
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
 			boolean historized = FieldUtils.hasValidVersionfield(clazz);
-			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is alread in the tables map.
+			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
 			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
 			tables.put(table.getClazz(), table);
-			tableByName.put(table.getTableName(), table);
 		}
 	}
 
