@@ -90,7 +90,10 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 
 	@Override
 	public ELEMENT remove(int index) {
-		execute(new RemoveTransaction(this, index));
-		return null;
+		if (persistence != null) {
+			throw new RuntimeException("Not yet implemented");
+		} else {
+			return execute(new RemoveTransaction<PARENT, ELEMENT>(this, index));
+		}
 	}
 }
