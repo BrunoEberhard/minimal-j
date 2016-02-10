@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -25,7 +26,7 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 	
 	protected final String selectByParentAndPositionQuery;
 	protected final String countQuery;
-	protected final String maxQuery;
+	protected final String nextPositionQuery;
 	
 	private final PropertyInterface parentProperty;
 	private final PropertyInterface positionProperty;
@@ -34,7 +35,7 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		super(sqlPersistence, name, elementClass);
 		selectByParentAndPositionQuery = selectByParentAndPositionQuery();
 		countQuery = countQuery();
-		maxQuery = maxQuery();
+		nextPositionQuery = nextPositionQuery();
 		
 		this.parentClass = parentClass;
 		
@@ -59,8 +60,8 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		}
 	}
 
-	protected int maxPosition(Object parentId) {
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), maxQuery, false)) {
+	protected int nextPosition(Object parentId) {
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), nextPositionQuery, false)) {
 			statement.setObject(1, parentId);
 			try (ResultSet resultSet = statement.executeQuery()) {
 				resultSet.next();
@@ -87,34 +88,36 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 	}
 
 	public boolean add(Object parentId, ELEMENT element) {
-		int position = maxPosition(parentId) + 1;
+		int position = nextPosition(parentId);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
-			int parameterPos = setParameters(statement, element, false, ParameterMode.INSERT, IdUtils.createId());
-			statement.setObject(parameterPos++, parentId);
-			statement.setInt(parameterPos++, position);
-			statement.execute();
+			PARENT parent = (PARENT) CloneHelper.newInstance(parentProperty.getClazz());
+			IdUtils.setId(parent, parentId);
+			insertElement(statement, element, parent, position);
 			return true;
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
 		}
 	}
 
+	private void insertElement(PreparedStatement statement, ELEMENT element, PARENT parent, int position) throws SQLException {
+		Object elementId = IdUtils.getId(element);
+		if (elementId == null) {
+			elementId = IdUtils.createId();
+			IdUtils.setId(element, elementId);
+		}
+		parentProperty.setValue(element, parent);
+		positionProperty.setValue(element, position++);
+		setParameters(statement, element, false, ParameterMode.INSERT, elementId);
+		statement.execute();
+		insertLists(element);
+	}
+
 	@Override
-	public void addAll(PARENT parent, List<ELEMENT> objects) {
-		int position = maxPosition(IdUtils.getId(parent)) + 1;
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
-			for (position = 0; position<objects.size(); position++) {
-				ELEMENT element = objects.get(position);
-				Object elementId = IdUtils.getId(element);
-				if (elementId == null) {
-					elementId = IdUtils.createId();
-					IdUtils.setId(element, elementId);
-				}
-				parentProperty.setValue(element, parent);
-				positionProperty.setValue(element, position++);
-				setParameters(insertStatement, element, false, ParameterMode.INSERT, elementId);
-				insertStatement.execute();
-				insertLists(element);
+	public void addAll(PARENT parent, List<ELEMENT> elements) {
+		int position = nextPosition(IdUtils.getId(parent));
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+			for (ELEMENT element : elements) {
+				insertElement(statement, element, parent, position++);
 			}
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
@@ -149,9 +152,9 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		return query.toString();
 	}
 
-	protected String maxQuery() {
+	protected String nextPositionQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT MAX(position) FROM ").append(getTableName()).append(" WHERE parent = ?");
+		query.append("SELECT MAX(position + 1) FROM ").append(getTableName()).append(" WHERE parent = ?");
 		return query.toString();
 	}
 

@@ -23,7 +23,7 @@ public class SqlCrudTest {
 	}
 	
 	@Test
-	public void testInsertAndDelete() {
+	public void testInsertAndRead() {
 		A a = new A();
 		a.aName = "aName";
 		B b = new B();
@@ -40,5 +40,28 @@ public class SqlCrudTest {
 		Assert.assertEquals(1, a.b.size());
 		Assert.assertEquals(1, a.b.get(0).c.size());
 	}
-	
+
+	@Test
+	public void testAddElement() {
+		A a = new A();
+		a.aName = "aName";
+		B b = new B();
+		b.bName = "bName";
+		a.b = Collections.singletonList(b);
+		C c = new C();
+		c.cName = "cName";
+		b.c = Collections.singletonList(c);
+		
+		Object id = persistence.insert(a);
+		a = persistence.read(A.class, id);
+		
+		B b2 = new B();
+		b2.bName = "bName2";
+		a.b.add(b2);
+
+		a = persistence.read(A.class, id);
+
+		Assert.assertEquals(2, a.b.size());
+	}
+
 }

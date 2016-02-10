@@ -49,7 +49,7 @@ public class CrossTable<PARENT, ELEMENT> extends ContainingSubTable<PARENT, ELEM
 		}
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			statement.setObject(1, parentId);
-			statement.setInt(2, maxPosition(parentId));
+			statement.setInt(2, nextPosition(parentId));
 			statement.setObject(3, elementId);
 			statement.execute();
 			return true;
@@ -61,14 +61,14 @@ public class CrossTable<PARENT, ELEMENT> extends ContainingSubTable<PARENT, ELEM
 	@Override
 	public void addAll(PARENT parent, List<ELEMENT> objects) {
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
-			for (int position = 0; position<objects.size(); position++) {
-				ELEMENT element = objects.get(position);
+			int position = nextPosition(IdUtils.getId(parent));
+			for (ELEMENT element : objects) {
 				Object elementId = IdUtils.getId(element);
 				if (elementId == null) {
 					elementId = sqlPersistence.getTable((Class<ELEMENT>) element.getClass()).insert(element);
 				}
 				statement.setObject(1, IdUtils.getId(parent));
-				statement.setInt(2, position);
+				statement.setInt(2, position++);
 				statement.setObject(3, elementId);
 				statement.execute();
 			}
