@@ -1,5 +1,7 @@
 == Library
 
+WARNING: With version 0.10.0.0 some model restrictions changed. This documentation still needs an update!
+
 The model classes are quite restricted. They cannot have all kinds of classes for their
 attributes. But a few more than we have seen so far are possible. The book class in this
 example shows most of the available attribute classes.
@@ -123,12 +125,6 @@ A Lend object references a book and a customer. And it _only references_ them. I
 _contain_ them. If you insert or update a Lend with a backend it is only saved which book or
 customer you reference. The attributes of the book and customer are ignored (except of course
 the id).
-
-IMPORTANT: A model class with an id (a main entity) cannot contain another class with
-an id attribute.
-
-With this principle (and one more of the same type) it is ensured that every database action
-is execute in reasonable time.
 
 === Containment
 

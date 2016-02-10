@@ -1,5 +1,7 @@
 == Pet Clinic
 
+WARNING: With version 0.10.0.0 some model restrictions changed. This documentation still needs an update!
+
 The pet clinic demo application was published by the spring framework. It is probably meant to be
 a distant relative to Sun's pet store. The pet store was abonded by Sun and Oracle long ago but the
 pet clinic demo ist still active. I have to admit that the pet clinic also fits the capabilities of

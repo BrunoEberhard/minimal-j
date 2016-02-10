@@ -254,9 +254,6 @@ the class. But as I said this doesn't exist yet so the fancy $ is still needed.
 WARNING: Do *never* change the content of the $ object. Not even temporary. You'll see other possibilities
 to change the created form fields.
 
-
-//// move this to the $ section
-
 Note2: The $ trick works quite well. There is only one point where it gets ugly: enum. Don't be
 afraid the framework does everything for you. The problem is that the framework needs to be able
 to differentiate between to attributes of the same enum class. For this a arbitrary (?willkürlich) number of
