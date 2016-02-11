@@ -28,6 +28,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
@@ -59,6 +61,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		setBorder(BorderFactory.createEmptyBorder());
 		
 //		setDefaultRenderer(BooleanFormat.class, new BooleanTableCellRenderer());
+		table.setDefaultRenderer(Rendering.class, new TableCellRenderer());
 		table.setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
 		table.setDefaultRenderer(LocalTime.class, new TimeTableCellRenderer());
 		table.setDefaultRenderer(LocalDateTime.class, new DateTableCellRenderer()); // TODO
@@ -203,7 +206,12 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
-			return properties.get(columnIndex).getClazz();
+			Class<?> clazz = properties.get(columnIndex).getClazz();
+			if (Rendering.class.isAssignableFrom(clazz)) {
+				return Rendering.class;
+			} else {
+				return clazz;
+			}
 		}
 	}
 	
@@ -236,6 +244,23 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			if (value != null) {
 				PropertyInterface property = properties.get(column);
 				value = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value); 
+			}
+
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		}
+	}
+
+	private class TableCellRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			
+			if (value instanceof Rendering) {
+				value = ((Rendering) value).render(RenderType.PLAIN_TEXT);
 			}
 
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
