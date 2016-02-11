@@ -45,6 +45,11 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 	public T getValue() {
 		return model.getSelectedObject();
 	}
+
+	@Override
+	public void setEditable(boolean enabled) {
+		super.setEnabled(enabled);
+	}
 	
 	//
 
