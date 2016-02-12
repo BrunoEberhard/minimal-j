@@ -344,7 +344,7 @@ public class SqlPersistence implements Persistence {
 	@Override
 	public <T> void update(T object) {
 		if (object == null) throw new NullPointerException();
-		Object id = IdUtils.getId(object);
+		Object id = IdUtils.getId(object, !IdUtils.PLAIN);
 		if (id instanceof ElementId) {
 			ElementId elementId = (ElementId) id;
 			ContainingSubTable subTable = (ContainingSubTable) tableByName.get(elementId.getTableName());
