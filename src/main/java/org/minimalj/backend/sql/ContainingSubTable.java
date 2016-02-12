@@ -18,19 +18,15 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
-	protected final Class<PARENT> parentClass;
-	
 	protected final String selectByParentAndPositionQuery;
 	protected final String countQuery;
 	protected final String nextPositionQuery;
 	
-	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass, Class<PARENT> parentClass) {
+	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass) {
 		super(sqlPersistence, name, elementClass);
 		selectByParentAndPositionQuery = selectByParentAndPositionQuery();
 		countQuery = countQuery();
 		nextPositionQuery = nextPositionQuery();
-		
-		this.parentClass = parentClass;
 	}	
 	
 	@Override
