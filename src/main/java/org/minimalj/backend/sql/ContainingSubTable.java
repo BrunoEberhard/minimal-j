@@ -21,12 +21,14 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 	protected final String selectByParentAndPositionQuery;
 	protected final String countQuery;
 	protected final String nextPositionQuery;
+	protected final String deleteByParentQuery;
 	
 	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass) {
 		super(sqlPersistence, name, elementClass);
 		selectByParentAndPositionQuery = selectByParentAndPositionQuery();
 		countQuery = countQuery();
 		nextPositionQuery = nextPositionQuery();
+		deleteByParentQuery = deleteByParentQuery();
 	}	
 	
 	@Override
@@ -136,9 +138,16 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 
 	
 	@Override
-	// TODO more efficient implementation. For the add - Transaction this is extremly bad implementation
-	public void replaceAll(PARENT parent, List<ELEMENT> objects) {
-		// TODO
+	// TODO more efficient implementation.
+	public void replaceAll(PARENT parent, List<ELEMENT> elements) {
+		Object parentId = IdUtils.getId(parent);
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), deleteByParentQuery, false)) {
+			statement.setObject(1, parentId);
+			statement.execute();
+			addAll(parent, elements);
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
+		}
 	}
 	
 	// Queries
@@ -194,9 +203,8 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		return s.toString();
 	}
 	
-	@Override
-	protected String deleteQuery() {
-		return "DELETE FROM " + getTableName() + " WHERE id = ?";
+	protected String deleteByParentQuery() {
+		return "DELETE FROM " + getTableName() + " WHERE parent = ?";
 	}
 
 	@Override
