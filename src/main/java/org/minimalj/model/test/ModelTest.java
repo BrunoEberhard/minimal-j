@@ -167,7 +167,7 @@ public class ModelTest {
 	}
 
 	private void testField(Field field) {
-		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "parent")) {
+		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version")) {
 			testName(field);
 			testTypeOfField(field);
 			testNoMethodsForPublicField(field);
