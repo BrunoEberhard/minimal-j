@@ -63,8 +63,8 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 			statement.setObject(1, parentId);
 			statement.setInt(2, position);
 			ELEMENT object = executeSelect(statement);
-			IdUtils.setId(object, new ElementId(IdUtils.getId(object), getTableName(), position));
 			if (object != null) {
+				IdUtils.setId(object, new ElementId(IdUtils.getId(object), getTableName(), position));
 				loadLists(object);
 			}
 			return object;
