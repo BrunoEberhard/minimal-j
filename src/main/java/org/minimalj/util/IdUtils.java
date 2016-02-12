@@ -46,30 +46,36 @@ public class IdUtils {
 	public static boolean hasId(Class<?> clazz) {
 		return getIdField(clazz) != null;
 	}
+
+	public static final boolean PLAIN = true;
 	
 	/**
-	 * Get the value of the <code>id</code> field
+	 * Get the value of the <code>id</code> field. The id is converted to
+	 * 'plain' if it is something like ElementId or ReadOnly id
 	 * 
 	 * @param object object containing the id. Must not be <code>null</code>
 	 * @return the value of the <code>id</code> field
 	 */
 	public static Object getId(Object object) {
-		if (object != null) {
-			try {
-				Field idField = getIdField(object.getClass());
-				if (idField == null) throw new IllegalArgumentException(object.getClass().getName() + " has no id field to get");
-				Object id = idField.get(object);
+		return getId(object, PLAIN);
+	}
+	
+	public static Object getId(Object object, boolean plain) {
+		Objects.nonNull(object);
+		try {
+			Field idField = getIdField(object.getClass());
+			if (idField == null) throw new IllegalArgumentException(object.getClass().getName() + " has no id field to get");
+			Object id = idField.get(object);
+			if (plain) {
 				if (id instanceof ReadOnlyId) {
 					id = ((ReadOnlyId) id).getId();
 				} else if (id instanceof ElementId) {
 					id = ((ElementId) id).getId();
 				}
-				return id;
-			} catch (SecurityException | IllegalAccessException e) {
-				throw new LoggingRuntimeException(e, logger, "getting Id failed");
 			}
-		} else {
-			throw new IllegalArgumentException("object must not be null");
+			return id;
+		} catch (SecurityException | IllegalAccessException e) {
+			throw new LoggingRuntimeException(e, logger, "getting Id failed");
 		}
 	}
 	
