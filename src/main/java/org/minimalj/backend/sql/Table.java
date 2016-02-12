@@ -422,6 +422,7 @@ public class Table<T> extends AbstractTable<T> {
 		return s.toString();
 	}
 	
+	@Override
 	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
@@ -435,6 +436,7 @@ public class Table<T> extends AbstractTable<T> {
 		return s.toString();
 	}
 	
+	@Override
 	protected String deleteQuery() {
 		StringBuilder s = new StringBuilder();
 		s.append("DELETE FROM ").append(getTableName()).append(" WHERE id = ?");
