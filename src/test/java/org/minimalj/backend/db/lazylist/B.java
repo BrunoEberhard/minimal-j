@@ -16,8 +16,7 @@ public class B {
 	}
 	
 	public Object id;
-	public A parent;
-	public Integer position;
+//	public A parent;
 	
 	public List<C> c;
 	

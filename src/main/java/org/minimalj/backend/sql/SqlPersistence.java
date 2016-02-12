@@ -302,7 +302,12 @@ public class SqlPersistence implements Persistence {
 	
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
-		Table<T> table = getTable(clazz);
+		Table<T> table;
+		if (id instanceof ElementId) {
+			table = (Table<T>) getTableByName().get(((ElementId) id).getTableName());
+		} else {
+			table = getTable(clazz);
+		}
 		return table.read(id);
 	}
 

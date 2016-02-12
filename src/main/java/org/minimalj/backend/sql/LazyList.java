@@ -9,6 +9,7 @@ import org.minimalj.transaction.persistence.ListTransaction.AddTransaction;
 import org.minimalj.transaction.persistence.ListTransaction.ReadElementTransaction;
 import org.minimalj.transaction.persistence.ListTransaction.RemoveTransaction;
 import org.minimalj.transaction.persistence.ListTransaction.SizeTransaction;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 
 public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements Serializable {
@@ -82,7 +83,18 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	public boolean add(ELEMENT element) {
 		if (persistence != null) {
 			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			return subTable.add(getParentId(), element);
+			subTable.add(getParentId(), element);
+		} else {
+			ELEMENT result = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
+			CloneHelper.deepCopy(result, element);
+		}
+		return true;
+	}
+
+	public ELEMENT addElement(ELEMENT element) {
+		if (persistence != null) {
+			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
+			return subTable.addElement(getParentId(), element);
 		} else {
 			return execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}

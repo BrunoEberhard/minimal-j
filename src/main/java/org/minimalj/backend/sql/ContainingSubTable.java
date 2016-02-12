@@ -6,9 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -19,17 +17,12 @@ import org.minimalj.util.LoggingRuntimeException;
  * - Additional columns named parent and position
  */
 public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implements ListTable<PARENT, ELEMENT> {
-	public static final String PARENT = "parent";
-	public static final String POSITION = "position";
 
 	protected final Class<PARENT> parentClass;
 	
 	protected final String selectByParentAndPositionQuery;
 	protected final String countQuery;
 	protected final String nextPositionQuery;
-	
-	private final PropertyInterface parentProperty;
-	private final PropertyInterface positionProperty;
 	
 	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass, Class<PARENT> parentClass) {
 		super(sqlPersistence, name, elementClass);
@@ -38,10 +31,7 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		nextPositionQuery = nextPositionQuery();
 		
 		this.parentClass = parentClass;
-		
-		this.parentProperty = FlatProperties.getProperties(elementClass).get(PARENT);
-		this.positionProperty = FlatProperties.getProperties(elementClass).get(POSITION);
-	}
+	}	
 	
 	@Override
 	public List<ELEMENT> readAll(PARENT parent) {
@@ -77,7 +67,7 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 			statement.setObject(1, parentId);
 			statement.setInt(2, position);
 			ELEMENT object = executeSelect(statement);
-			IdUtils.setId(object, new ElementId(IdUtils.getId(object), getTableName()));
+			IdUtils.setId(object, new ElementId(IdUtils.getId(object), getTableName(), position));
 			if (object != null) {
 				loadLists(object);
 			}
@@ -87,37 +77,48 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		}
 	}
 
-	public boolean add(Object parentId, ELEMENT element) {
-		int position = nextPosition(parentId);
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
-			PARENT parent = (PARENT) CloneHelper.newInstance(parentProperty.getClazz());
-			IdUtils.setId(parent, parentId);
-			insertElement(statement, element, parent, position);
-			return true;
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
-		}
-	}
-
-	private void insertElement(PreparedStatement statement, ELEMENT element, PARENT parent, int position) throws SQLException {
+	private Object insertElement(PreparedStatement statement, ELEMENT element, Object parentId, int position) throws SQLException {
 		Object elementId = IdUtils.getId(element);
 		if (elementId == null) {
 			elementId = IdUtils.createId();
 			IdUtils.setId(element, elementId);
 		}
-		parentProperty.setValue(element, parent);
-		positionProperty.setValue(element, position++);
-		setParameters(statement, element, false, ParameterMode.INSERT, elementId);
+		int parameterPos = setParameters(statement, element, false, ParameterMode.INSERT, elementId);
+		statement.setObject(parameterPos++, parentId);
+		statement.setInt(parameterPos, position);
 		statement.execute();
 		insertLists(element);
+		return elementId;
+	}
+	
+	public void add(Object parentId, ELEMENT element) {
+		int position = nextPosition(parentId);
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+			insertElement(statement, element, parentId, position);
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
+		}
+	}
+
+	public ELEMENT addElement(Object parentId, ELEMENT element) {
+		int position = nextPosition(parentId);
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+			Object elementId = insertElement(statement, element, parentId, position);
+			element = read(elementId);
+			IdUtils.setId(element, new ElementId(elementId, getTableName(), position));
+			return element;
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
+		}
 	}
 
 	@Override
 	public void addAll(PARENT parent, List<ELEMENT> elements) {
-		int position = nextPosition(IdUtils.getId(parent));
+		Object parentId = IdUtils.getId(parent);
+		int position = nextPosition(parentId);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (ELEMENT element : elements) {
-				insertElement(statement, element, parent, position++);
+				insertElement(statement, element, parentId, position++);
 			}
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
@@ -174,11 +175,11 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 			String columnName = (String) columnNameObject;
 			s.append(columnName).append(", ");
 		}
-		s.append("id) VALUES (");
+		s.append("id, parent, position) VALUES (");
 		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?)");
+		s.append("?, ?, ?)");
 
 		return s.toString();
 	}
@@ -205,7 +206,8 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 	@Override
 	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		syntax.addIdColumn(s, Object.class, 36);
-//		s.append(",\n position INTEGER NOT NULL");
+		s.append(",\n parent CHAR(36) NOT NULL");
+		s.append(",\n position INTEGER NOT NULL");
 	}
 	
 	@Override

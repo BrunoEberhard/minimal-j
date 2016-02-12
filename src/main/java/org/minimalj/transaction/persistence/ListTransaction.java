@@ -36,7 +36,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements Persis
 		}
 	}
 	
-	public static class AddTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, Boolean> {
+	public static class AddTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, ELEMENT> {
 		private static final long serialVersionUID = 1L;
 		protected final Object elementWrapped;
 
@@ -46,10 +46,10 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements Persis
 		}
 
 		@Override
-		public Boolean execute(Persistence persistence) {
+		public ELEMENT execute(Persistence persistence) {
 			ELEMENT element = (ELEMENT) SerializationContainer.unwrap(elementWrapped);
 			lazyList.setPersistence((SqlPersistence) persistence);
-			return lazyList.add(element);
+			return lazyList.addElement(element);
 		}
 	}
 

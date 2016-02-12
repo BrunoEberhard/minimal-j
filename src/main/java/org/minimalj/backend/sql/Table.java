@@ -133,13 +133,7 @@ public class Table<T> extends AbstractTable<T> {
 		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
-			boolean hasParent = FlatProperties.getProperties(elementClass).containsKey("parent");
-			if (hasParent) {
-				return new ContainingSubTable<>(sqlPersistence, subTableName, elementClass, clazz);
-			} else {
-				sqlPersistence.addClass(elementClass);
-				return new CrossTable<>(sqlPersistence, subTableName, elementClass, clazz, idProperty);
-			}
+			return new ContainingSubTable<>(sqlPersistence, subTableName, elementClass, clazz);
 		} else {
 			return new SubTable(sqlPersistence, subTableName, elementClass, idProperty);
 		}
