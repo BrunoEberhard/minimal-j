@@ -304,11 +304,13 @@ public class SqlPersistence implements Persistence {
 	public <T> T read(Class<T> clazz, Object id) {
 		Table<T> table;
 		if (id instanceof ElementId) {
-			table = (Table<T>) getTableByName().get(((ElementId) id).getTableName());
+			ElementId elementId = (ElementId) id;
+			table = (Table<T>) getTableByName().get(elementId.getTableName());
+			return table.read(elementId.getId());
 		} else {
 			table = getTable(clazz);
+			return table.read(id);
 		}
-		return table.read(id);
 	}
 
 	public <T> T readVersion(Class<T> clazz, Object id, Integer time) {
