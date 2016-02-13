@@ -1,0 +1,42 @@
+== Lists in the data model
+
+The proper handling of lists in the database layer is quite important. Many application have performance
+problems because they load too many objects from the database at the wrong time. For example a search by the
+user may be slow only because for every found result all the depending objects are load too. Even if they
+are not displayed on the result page.
+
+Minimal-J separates two kind of list fields very strictly. The difference in the class definitions may
+look small but the behavior is very different and should be know to developers.
+
+IMPORTANT: It's very crucial if the elements of a list contain an id field or not. If they contain no id
+they are closely tied to the object holding the list. Elements (objects) without id field cannot be changed, saved or
+deleted directly or independently.
+
+IMPORTANT: If the elements contain an id field the list is loaded lazy. This means every access to the
+list causes a persistence action. This can be very expensive. Also the implemented lazy list don't support
+all the methods an normal list does.
+
+=== Elements with or without id
+
+How can you decide if elements should have their own id? This depends on the business needs.
+
+Elements should _not_ have their own id if
+
+* the elements cannot exists without the containing object
+* it makes on sense to display or edit the elements without displaying or editing the containing object
+* the content of the list should be displayed nearly every time the simple fields should be displayed. This
+can also mean the content is displayed on the same page as the containing object. For example in a ListFormElement
+* there will be not too many (about 5 to 10) elements for one containing object
+
+Elements should _have_ their own id if
+
+* elements can be created before creating a containing object or without creating one
+* changing an element doesn't bother the containing object
+* the elements of list will be listed in a DetailPage
+* there will be many (even thousends) of elements for one containing object
+
+NOTE: There is no easy solution like 'we use an id everywhere'. It really depends on many things if you want to
+have an id. Probably there will be more elements with an id. But in some cases the costs for that are simply to
+high and the user will also have to use a unnecessary compilcated UI.
+
+WARNING: At the moment elements with an id of a _historized_ list are not yet implemented. 
