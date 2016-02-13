@@ -256,6 +256,6 @@ to change the created form fields.
 
 Note2: The $ trick works quite well. There is only one point where it gets ugly: enum. Don't be
 afraid the framework does everything for you. The problem is that the framework needs to be able
-to differentiate between to attributes of the same enum class. For this a arbitrary (?willkürlich) number of
+to differentiate between to attributes of the same enum class. For this a arbitrary number of
 enum elements must be created at runtime. This is done in the EnumUtils class. This class works
 with java 8 and android but later jdk implementations could break the implementation.
