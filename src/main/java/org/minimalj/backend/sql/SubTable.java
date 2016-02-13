@@ -102,7 +102,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	@Override
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); query.append(" WHERE id = ? ORDER BY position");
+		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE id = ? ORDER BY position");
 		return query.toString();
 	}
 	

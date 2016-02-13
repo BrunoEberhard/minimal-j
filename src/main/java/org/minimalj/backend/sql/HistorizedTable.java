@@ -205,7 +205,7 @@ public class HistorizedTable<T> extends Table<T> {
 	@Override
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); 
+		query.append("SELECT * FROM ").append(getTableName()); 
 		query.append(" WHERE id = ? AND version = 0");
 		return query.toString();
 	}
@@ -213,14 +213,14 @@ public class HistorizedTable<T> extends Table<T> {
 	@Override
 	protected String selectAllQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); 
+		query.append("SELECT * FROM ").append(getTableName()); 
 		query.append(" WHERE version = 0");
 		return query.toString();
 	}
 	
 	protected String selectByIdAndTimeQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM "); query.append(getTableName()); 
+		query.append("SELECT * FROM ").append(getTableName()); 
 		query.append(" WHERE id = ? AND version = ?");
 		return query.toString();
 	}
@@ -246,7 +246,7 @@ public class HistorizedTable<T> extends Table<T> {
 	protected String updateQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("INSERT INTO "); s.append(getTableName()); s.append(" (");
+		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (String name : getColumns().keySet()) {
 			s.append(name);
 			s.append(", ");
@@ -263,7 +263,7 @@ public class HistorizedTable<T> extends Table<T> {
 	private String selectMaxVersionQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("SELECT MAX(version) FROM "); s.append(getTableName()); 
+		s.append("SELECT MAX(version) FROM ").append(getTableName()); 
 		s.append(" WHERE id = ?");
 
 		return s.toString();
@@ -271,14 +271,14 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	private String endQuery() {
 		StringBuilder s = new StringBuilder();
-		s.append("UPDATE "); s.append(getTableName()); s.append(" SET version = ? WHERE id = ? AND version = 0");
+		s.append("UPDATE ").append(getTableName()).append(" SET version = ? WHERE id = ? AND version = 0");
 		return s.toString();
 	}
 	
 	private String readVersionsQuery() {
 		StringBuilder s = new StringBuilder();
 		
-		s.append("SELECT version FROM "); s.append(getTableName()); 
+		s.append("SELECT version FROM ").append(getTableName()); 
 		s.append(" WHERE id = ?");
 
 		return s.toString();

@@ -20,7 +20,7 @@ public abstract class SqlSyntax {
 	public abstract int getMaxIdentifierLength();
 
 	protected void addCreateStatementBegin(StringBuilder s, String tableName) {
-		s.append("CREATE TABLE "); s.append(tableName); s.append(" (\n");
+		s.append("CREATE TABLE ").append(tableName).append(" (\n");
 	} 
 
 	protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
@@ -109,9 +109,9 @@ public abstract class SqlSyntax {
 	
 	public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
 		StringBuilder s = new StringBuilder();
-		s.append("ALTER TABLE "); s.append(tableName);
+		s.append("ALTER TABLE ").append(tableName);
 		s.append(" ADD CONSTRAINT FK_");
-		s.append(tableName); s.append('_'); s.append(column);
+		s.append(tableName).append('_').append(column);
 		s.append(" FOREIGN KEY (");
 		s.append(column);
 		s.append(") REFERENCES ");

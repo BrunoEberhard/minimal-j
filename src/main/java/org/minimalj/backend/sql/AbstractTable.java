@@ -397,7 +397,7 @@ public abstract class AbstractTable<T> {
 
 	protected String clearQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("DELETE FROM "); query.append(getTableName()); 
+		query.append("DELETE FROM ").append(getTableName()); 
 		return query.toString();
 	}
 	
