@@ -1,7 +1,5 @@
 == Library
 
-WARNING: With version 0.10.0.0 some model restrictions changed. This documentation still needs an update!
-
 The model classes are quite restricted. They cannot have all kinds of classes for their
 attributes. But a few more than we have seen so far are possible. The book class in this
 example shows most of the available attribute classes.
@@ -167,7 +165,7 @@ CREATE TABLE CUSTOMER_Addresses (
 ----
 
 The table name is put together from main entity plus attribute name. If you would use Address for a
-second attribute or hav it in other entity than customer then additional tables would be created.
+second attribute or have it in other entity than customer then additional tables would be created.
 
 The id in CUSTOMER_ADDRESSES is the id of the customer! Also note the position column. The
 persistence layer keeps depending objects in the given order.
