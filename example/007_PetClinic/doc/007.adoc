@@ -1,7 +1,5 @@
 == Pet Clinic
 
-WARNING: With version 0.10.0.0 some model restrictions changed. This documentation still needs an update!
-
 The pet clinic demo application was published by the spring framework. It is probably meant to be
 a distant relative to Sun's pet store. The pet store was abonded by Sun and Oracle long ago but the
 pet clinic demo ist still active. I have to admit that the pet clinic also fits the capabilities of
@@ -89,7 +87,7 @@ it likes as id class. Most probably it will be a UUID but that's up to the persi
 layer.
 
 The person field is declared final and must be initiallized. This means the Person is
-used as inline field. Inline fields don't get a DB table of their one. Their fields are
+used as inline field. Inline fields don't get a DB table of their own. Their fields are
 added to the entity where the inline is used. The owner table looks like this:
 
 [source,sql,title="Log of table creation"]
@@ -176,9 +174,8 @@ The field would be declared as
 ----
     public final List<TreatablePet> treatablePet = new ArrayList<>();
 ----
-Such a list is only allowed because TreatablePet doesn't contain an id field. Entities cannot contain
-other entities directly. This is to avoid slow loading operations and logical problems when
-updating entities.
+And a list of objects without id is always loaded, updated and inserted together with the 'parent'
+object. A invocation of a insert call with a TreatablePet on the backend will cause a IllegalArgumentException.
 
 Now for the PetType entity. This is an example for a Code:
 [source,java,title="PetType.java"]
@@ -199,8 +196,8 @@ public class PetType implements Code, Rendering {
 	}
 }
 ----
-An entity is declared to be a Code by implementing the Code interface. The Code interface is an
-extension of the View interface. But both interfaces are marker interface. They declare not
+An entity is declared to be a Code by implementing the Code interface. The Code interface is a
+marker interface. It declares no
 methods or constants at all. So why bother? Because of how codes are treated by the persistence
 layer.
 
@@ -209,10 +206,7 @@ not touched by this operation. Meaning the frontend could have changed the name 
 before setting it to the pet. Then send it to the backend for persisting. The pet would still
 referered as the original type.
 
-NOTE: This behavior is always important to remember. It stands for codes but also for views. Actually it's
-the main behavior of views. Views are normally are parts of normal entities (selected non-list fields). Codes are like 
-'views on themself' (this is also the reason why the Code interface overrides the generic of the
-View interface).
+NOTE: This behavior is always important to remember. It stands for codes but also for references to other entities.
 
 Codes have another speciality. Their initial values can be specified. This can happen in two ways.
 The first one is to have a csv - file with the same name in the same package as the Code class
@@ -272,7 +266,7 @@ business areas. It's up to you.
 === Owner search page
 
 The OwnerSearchPage is a SimpleSearchPage. Why simple? Because the objects displayed are not a reduced version
-but the business entities itself. For complex entities with lots of depending objects it's a good idea to
+but the business entities itself. For complex entities with lots of depending or rerferenced objects it's a good idea to
 have a search entitiy (a view) of the complex entitiy. So you load only a small part of the data. Then when
 the user wants to display a single entity in its full beauty you have to reload the entity with all depending
 objects. Obviously for that you have to have two classes and the SearchPage needs exactly these two classes
