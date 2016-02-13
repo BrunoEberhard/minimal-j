@@ -276,7 +276,7 @@ at some code from a test class:
 	}
 ----
 The test method insert a simple test Object to the database. Then it will be read four times. Everytime the same SQL statement will be
-executed.
+executed (except for the searched String).
 
 The first read uses really plain SQL. You can copy the String and paste it in your favorite database explorer tool. I like that. It makes my
 life easy. And it's not half as dangerous as you might think. Of course when the name of the class changes the code will break. But
@@ -290,8 +290,6 @@ the argument is a class. If yes the name of the table is returned. Else the name
 
 The fourth definition uses a trick to further reduce the length of the query definition. It may be too much for you or your
 project. Again, discuss this with your team how would like to handle such things. You also may use an other method name for this trick.
-
-TODO: describe handle of Integer.class
 
 === Create tables
 Normally when starting an application the database for it already exists. The application should not create the tables
@@ -308,4 +306,4 @@ WARNING: There is no check if the used database is a match of the java entities.
 changing a java entity the persistence layer will probably fail with its operations. For small changes (like name
 changes) you could manually update the database. For structural changes it's recommanded to export the data, delete
 the database, and import after the new creation. At the point where this procedure is too expensive you may be
-enough experienced that you can manually update the database even for structural changes.
+experienced enough to manually update the database even for structural changes.
