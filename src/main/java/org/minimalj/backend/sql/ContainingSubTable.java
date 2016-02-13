@@ -75,16 +75,13 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		}
 	}
 
-	private Object insertElement(PreparedStatement statement, ELEMENT element, Object parentId, int position) throws SQLException {
-		Object elementId = IdUtils.getId(element);
-		if (elementId == null) {
-			elementId = IdUtils.createId();
-			IdUtils.setId(element, elementId);
-		}
-		int parameterPos = setParameters(statement, element, false, ParameterMode.INSERT, elementId);
+	private ElementId insertElement(PreparedStatement statement, ELEMENT element, Object parentId, int position) throws SQLException {
+		ElementId elementId = new ElementId(IdUtils.createId(), getTableName(), position);
+		int parameterPos = setParameters(statement, element, false, ParameterMode.INSERT, elementId.getId());
 		statement.setObject(parameterPos++, parentId);
 		statement.setInt(parameterPos, position);
 		statement.execute();
+		IdUtils.setId(element, elementId);
 		insertLists(element);
 		return elementId;
 	}
@@ -102,9 +99,7 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		int position = nextPosition(parentId);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			Object elementId = insertElement(statement, element, parentId, position);
-			element = read(elementId);
-			IdUtils.setId(element, new ElementId(elementId, getTableName(), position));
-			return element;
+			return read(elementId);
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
 		}

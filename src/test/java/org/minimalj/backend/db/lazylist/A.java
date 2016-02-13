@@ -8,20 +8,19 @@ import org.minimalj.model.annotation.Size;
 public class A {
 
 	public static final A $ = Keys.of(A.class);
-	
+
 	public A() {
 		// needed for reflection constructor
 	}
-	
+
 	public A(String aName) {
 		this.aName = aName;
 	}
-	
+
 	public Object id;
-	
+
 	@Size(30)
 	public String aName;
 
-	public List<B> b;
-
+	public List<B> bList;
 }

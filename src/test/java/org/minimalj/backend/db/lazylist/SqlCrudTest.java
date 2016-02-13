@@ -2,10 +2,10 @@ package org.minimalj.backend.db.lazylist;
 
 import java.util.Collections;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.util.IdUtils;
 
 import junit.framework.Assert;
 
@@ -18,78 +18,68 @@ public class SqlCrudTest {
 		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class);
 	}
 	
-	@AfterClass
-	public static void shutdownPersistence() {
-	}
-	
-	@Test
-	public void testInsertAndRead() {
-		A a = new A();
-		a.aName = "aName";
-		B b = new B();
-		b.bName = "bName";
-		a.b = Collections.singletonList(b);
-		C c = new C();
-		c.cName = "cName";
-		b.c = Collections.singletonList(c);
+	/*
+	 * Prepares a simple A containing a B containing a C
+	 */
+	private A insertAndRead() {
+		A a = new A("aName");
+		
+		B b = new B("bName");
+		a.bList = Collections.singletonList(b);
+		
+		C c = new C("cName");
+		b.cList = Collections.singletonList(c);
 		
 		Object id = persistence.insert(a);
+		return persistence.read(A.class, id);
+	}
 
-		a = persistence.read(A.class, id);
-		
-		Assert.assertEquals(1, a.b.size());
-		Assert.assertEquals(1, a.b.get(0).c.size());
+	@Test
+	public void testInsertAndRead() {
+		A a = insertAndRead();
+		Assert.assertEquals("Element with id should be inserted and read", 1, a.bList.size());
+		Assert.assertEquals("Element of element should be inserted and read", 1, a.bList.get(0).cList.size());
 	}
 
 	@Test
 	public void testAddElement() {
-		A a = new A();
-		a.aName = "aName";
-		B b = new B();
-		b.bName = "bName";
-		a.b = Collections.singletonList(b);
-		C c = new C();
-		c.cName = "cName";
-		b.c = Collections.singletonList(c);
+		A a = insertAndRead();
 		
-		Object id = persistence.insert(a);
-		a = persistence.read(A.class, id);
-		
-		B b2 = new B();
-		b2.bName = "bName2";
-		a.b.add(b2);
+		a.bList.add(new B("bName2"));
 
-		a = persistence.read(A.class, id);
+		a = persistence.read(A.class, IdUtils.getId(a));
 
-		Assert.assertEquals(2, a.b.size());
+		Assert.assertEquals("An additional element with id should be persisted when calling add method", 2, a.bList.size());
 	}
 	
 	@Test
 	public void testUpdateParent() {
-		A a = new A();
-		a.aName = "aName";
-		B b = new B();
-		b.bName = "bName";
-		a.b = Collections.singletonList(b);
-		C c = new C();
-		c.cName = "cName";
-		b.c = Collections.singletonList(c);
+		A a = insertAndRead();
+		B b = a.bList.get(0);
 		
-		Object id = persistence.insert(a);
-		a = persistence.read(A.class, id);
-		b = a.b.get(0);
-		
-		C c2 = new C();
-		c2.cName = "cName2";
-		b.c = Collections.singletonList(c2);
+		C c2 = new C("cName2");
+		b.cList = Collections.singletonList(c2);
 
 		persistence.update(b);
-		a = persistence.read(A.class, id);
+		a = persistence.read(A.class, IdUtils.getId(a));
 
-		Assert.assertEquals(1, a.b.size());
-		Assert.assertEquals(1, a.b.get(0).c.size());
-		Assert.assertEquals("cName2", a.b.get(0).c.get(0).cName);
+		Assert.assertEquals("Update an element should not remove it from its list", 1, a.bList.size());
+		Assert.assertEquals("Update of an element should replace its lists", 1, a.bList.get(0).cList.size());
+		Assert.assertEquals("Update of an element should replace its lists", "cName2", a.bList.get(0).cList.get(0).cName);
 	}
 
+	@Test
+	public void testUseElementTwice() {
+		A a1 = insertAndRead();
+		A a2 = insertAndRead();
+
+		a1.bList.add(a2.bList.get(0));
+		
+		a1 = persistence.read(A.class, IdUtils.getId(a1));
+		Assert.assertEquals("Add of an element should be possible even if it was used before", 2, a1.bList.size());
+
+		a2 = persistence.read(A.class, IdUtils.getId(a2));
+		Assert.assertEquals("The new usage of the element should not change the existing one", 1, a2.bList.size());
+	}
 
 }
