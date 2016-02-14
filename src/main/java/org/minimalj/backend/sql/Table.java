@@ -106,7 +106,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (Entry<PropertyInterface, ListTable> listEntry : lists.entrySet()) {
 			List list = (List) listEntry.getKey().getValue(object);
 			if (list != null && !list.isEmpty()) {
-				listEntry.getValue().addAll(object, list);
+				listEntry.getValue().addList(object, list);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ public class Table<T> extends AbstractTable<T> {
 			
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
-				listTableEntry.getValue().replaceAll(object, list);
+				listTableEntry.getValue().replaceList(object, list);
 			}
 			
 			if (object instanceof Code) {
@@ -378,7 +378,7 @@ public class Table<T> extends AbstractTable<T> {
 	@SuppressWarnings("unchecked")
 	protected void loadLists(T object) throws SQLException {
 		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
-			List values = listTableEntry.getValue().readAll(object);
+			List values = listTableEntry.getValue().getList(object);
 			PropertyInterface listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
 				List list = (List) listProperty.getValue(object);

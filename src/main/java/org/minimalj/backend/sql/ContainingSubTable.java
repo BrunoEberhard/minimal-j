@@ -18,36 +18,31 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
-	protected final String selectByParentAndPositionQuery;
-	protected final String countQuery;
+	protected final String selectByParentQuery;
 	protected final String nextPositionQuery;
 	protected final String deleteByParentQuery;
 	
 	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass) {
 		super(sqlPersistence, name, elementClass);
-		selectByParentAndPositionQuery = selectByParentAndPositionQuery();
-		countQuery = countQuery();
+		selectByParentQuery = selectByParentQuery();
 		nextPositionQuery = nextPositionQuery();
 		deleteByParentQuery = deleteByParentQuery();
 	}	
 	
 	@Override
-	public List<ELEMENT> readAll(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent) {
 		return new LazyList<PARENT, ELEMENT>(sqlPersistence, clazz, parent, getTableName());
 	}
 	
-	public int size(Object parentId) {
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), countQuery, false)) {
-			statement.setObject(1, parentId);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				resultSet.next();
-				return resultSet.getInt(1);
-			}
+	public List<ELEMENT> readAll(Object parentId) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByParentQuery, false)) {
+			selectByIdStatement.setObject(1, parentId);
+			return executeSelectAll(selectByIdStatement);
 		} catch (SQLException x) {
-			throw new RuntimeException(x);
+			throw new RuntimeException(x.getMessage());
 		}
 	}
-
+	
 	protected int nextPosition(Object parentId) {
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), nextPositionQuery, false)) {
 			statement.setObject(1, parentId);
@@ -67,21 +62,6 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		return element;
 	}
 	
-	public ELEMENT read(Object parentId, int position) {
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), selectByParentAndPositionQuery, false)) {
-			statement.setObject(1, parentId);
-			statement.setInt(2, position);
-			ELEMENT object = executeSelect(statement);
-			if (object != null) {
-				IdUtils.setId(object, new ElementId(IdUtils.getId(object), getTableName()));
-				loadLists(object);
-			}
-			return object;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with parent " + parentId + " on position " + position);
-		}
-	}
-
 	private ElementId insertElement(PreparedStatement statement, ELEMENT element, Object parentId, int position) throws SQLException {
 		ElementId elementId = new ElementId(IdUtils.createId(), getTableName());
 		int parameterPos = setParameters(statement, element, false, ParameterMode.INSERT, elementId.getId());
@@ -113,7 +93,7 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 	}
 
 	@Override
-	public void addAll(PARENT parent, List<ELEMENT> elements) {
+	public void addList(PARENT parent, List<ELEMENT> elements) {
 		Object parentId = IdUtils.getId(parent);
 		int position = nextPosition(parentId);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
@@ -129,46 +109,40 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			setParameters(updateStatement, object, false, ParameterMode.UPDATE, id.getId());
 			updateStatement.execute();
-			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
-				List list  = (List) listTableEntry.getKey().getValue(object);
-				listTableEntry.getValue().replaceAll(object, list);
-			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
+		}
+		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+			List list  = (List) listTableEntry.getKey().getValue(object);
+			listTableEntry.getValue().replaceList(object, list);
 		}
 	}
 
 	
 	@Override
 	// TODO more efficient implementation.
-	public void replaceAll(PARENT parent, List<ELEMENT> elements) {
+	public void replaceList(PARENT parent, List<ELEMENT> elements) {
 		Object parentId = IdUtils.getId(parent);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), deleteByParentQuery, false)) {
 			statement.setObject(1, parentId);
 			statement.execute();
-			addAll(parent, elements);
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
 		}
+		addList(parent, elements);
 	}
 	
 	// Queries
 
-	protected String countQuery() {
+	protected String selectByParentQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT COUNT(*) FROM ").append(getTableName()).append(" WHERE parent = ?");
+		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE parent = ? ORDER BY position");
 		return query.toString();
 	}
 
 	protected String nextPositionQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT MAX(position + 1) FROM ").append(getTableName()).append(" WHERE parent = ?");
-		return query.toString();
-	}
-
-	protected String selectByParentAndPositionQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE parent = ? AND position = ?");
 		return query.toString();
 	}
 

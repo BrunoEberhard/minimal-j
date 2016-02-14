@@ -25,7 +25,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 	
 	@Override
-	public void addAll(PARENT parent, List<ELEMENT> objects) {
+	public void addList(PARENT parent, List<ELEMENT> objects) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
@@ -39,9 +39,9 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 
 	@Override
-	public void replaceAll(PARENT parent, List<ELEMENT> objects) {
+	public void replaceList(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
-		List<ELEMENT> objectsInDb = readAll(parent);
+		List<ELEMENT> objectsInDb = getList(parent);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
 			if (position < objectsInDb.size() && position < objects.size()) {
@@ -88,7 +88,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 
 	@Override
-	public List<ELEMENT> readAll(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);

@@ -38,7 +38,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 	
 //	public void addAll(PARENT parent, List<ELEMENT> objects, Integer version) {
 	@Override
-	public void addAll(PARENT parent, List<ELEMENT> objects) {
+	public void addList(PARENT parent, List<ELEMENT> objects) {
 		int version = 0;
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
@@ -97,7 +97,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 
 	public List<ELEMENT> read(PARENT parent, Integer time) {
 		if (time == null) {
-			return readAll(parent);
+			return getList(parent);
 		}
 		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
@@ -110,7 +110,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 	}
 
 	@Override
-	public List<ELEMENT> readAll(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);

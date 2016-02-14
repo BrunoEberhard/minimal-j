@@ -1,5 +1,7 @@
 package org.minimalj.transaction.persistence;
 
+import java.util.List;
+
 import org.minimalj.backend.Persistence;
 import org.minimalj.backend.sql.LazyList;
 import org.minimalj.backend.sql.SqlPersistence;
@@ -18,6 +20,20 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements Persis
 	@Override
 	public Class<?> getEntityClazz() {
 		return lazyList.getElementClass();
+	}
+
+	public static class ReadAllElementsTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, List<ELEMENT>> {
+		private static final long serialVersionUID = 1L;
+		
+		public ReadAllElementsTransaction(LazyList<PARENT, ELEMENT> lazyList) {
+			super(lazyList);
+		}
+
+		@Override
+		public List<ELEMENT> execute(Persistence persistence) {
+			lazyList.setPersistence((SqlPersistence) persistence);
+			return lazyList.getList();
+		}
 	}
 	
 	public static class ReadElementTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, ELEMENT> {
@@ -66,20 +82,6 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements Persis
 		public ELEMENT execute(Persistence persistence) {
 			lazyList.setPersistence((SqlPersistence) persistence);
 			return lazyList.remove(position);
-		}
-	}
-
-	public static class SizeTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, Integer> {
-		private static final long serialVersionUID = 1L;
-		
-		public SizeTransaction(LazyList<PARENT, ELEMENT> lazyList) {
-			super(lazyList);
-		}
-
-		@Override
-		public Integer execute(Persistence persistence) {
-			lazyList.setPersistence((SqlPersistence) persistence);
-			return lazyList.size();
 		}
 	}
 

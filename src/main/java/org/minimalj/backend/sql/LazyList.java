@@ -2,18 +2,20 @@ package org.minimalj.backend.sql;
 
 import java.io.Serializable;
 import java.util.AbstractList;
+import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.persistence.ListTransaction.AddTransaction;
-import org.minimalj.transaction.persistence.ListTransaction.ReadElementTransaction;
+import org.minimalj.transaction.persistence.ListTransaction.ReadAllElementsTransaction;
 import org.minimalj.transaction.persistence.ListTransaction.RemoveTransaction;
-import org.minimalj.transaction.persistence.ListTransaction.SizeTransaction;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 
 public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements Serializable {
 	private static final long serialVersionUID = 1L;
+	
+	private transient List<ELEMENT> list;
 	
 	private transient SqlPersistence persistence;
 
@@ -59,24 +61,29 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		}
 	}
 	
-	@Override
-	public ELEMENT get(int index) {
-		if (persistence != null) {
-			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			return subTable.read(parentId, index);
-		} else {
-			return Backend.getInstance().execute(new ReadElementTransaction<PARENT, ELEMENT>(this, index));
+	public List<ELEMENT> getList() {
+		if (list == null) {
+			if (persistence != null) {
+				ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
+				list = subTable.readAll(parentId);
+			} else {
+				list = Backend.getInstance().execute(new ReadAllElementsTransaction<PARENT, ELEMENT>(this));
+			}
+			for (ELEMENT element : list) {
+				IdUtils.setId(element, new ElementId(IdUtils.getId(element), tableName));
+			}
 		}
+		return list;
 	}
-
+	
 	@Override
 	public int size() {
-		if (persistence != null) {
-			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			return subTable.size(getParentId());
-		} else {
-			return Backend.getInstance().execute(new SizeTransaction<PARENT, ELEMENT>(this));
-		}
+		return getList().size();
+	}
+	
+	@Override
+	public ELEMENT get(int index) {
+		return getList().get(index);
 	}
 	
 	@Override
@@ -88,16 +95,23 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 			ELEMENT result = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 			CloneHelper.deepCopy(result, element);
 		}
+		if (list != null) {
+			list.add(element);
+		}
 		return true;
 	}
 
 	public ELEMENT addElement(ELEMENT element) {
 		if (persistence != null) {
 			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			return subTable.addElement(getParentId(), element);
+			element = subTable.addElement(getParentId(), element);
 		} else {
-			return execute(new AddTransaction<PARENT, ELEMENT>(this, element));
+			element = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}
+		if (list != null) {
+			list.add(element);
+		}
+		return element;
 	}
 
 	@Override
