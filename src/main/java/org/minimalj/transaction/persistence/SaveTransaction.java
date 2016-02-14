@@ -13,7 +13,7 @@ public class SaveTransaction<T> extends BasePersistenceTransaction<T> {
 	@Override
 	public T execute(Persistence persistence) {
 		T unwrapped = getUnwrapped();
-		Object id = IdUtils.getId(unwrapped); 
+		Object id = IdUtils.getId(unwrapped, !IdUtils.PLAIN); 
 		if (id == null) {
 			id = persistence.insert(unwrapped);
 		} else {
