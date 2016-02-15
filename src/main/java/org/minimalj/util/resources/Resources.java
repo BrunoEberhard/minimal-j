@@ -144,7 +144,7 @@ public class Resources {
 		return getString(clazz.getSimpleName());
 	}
 
-	private static String getStringOrNull(Class<?> clazz) {
+	public static String getStringOrNull(Class<?> clazz) {
 		if (isAvailable(clazz.getName())) {
 			return getString(clazz.getName());
 		} else if (isAvailable(clazz.getSimpleName())) {

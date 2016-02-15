@@ -1,5 +1,6 @@
 package org.minimalj.frontend.page;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend;
@@ -9,6 +10,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.resources.Resources;
 
 /**
  * Shows a table of objects of one class. 
@@ -34,6 +36,18 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 
 	protected abstract List<T> load();
 
+	@Override
+	public String getTitle() {
+		String title = Resources.getStringOrNull(getClass());
+		if (title != null) {
+			return title;
+		} else {
+			Class<?> tableClazz = GenericUtils.getGenericClass(getClass());
+			String className = Resources.getString(tableClazz);
+			return MessageFormat.format(Resources.getString(TablePage.class.getSimpleName() + ".title"), className);
+		}
+	}
+	
 	@Override
 	public IContent getContent() {
 		table = Frontend.getInstance().createTable(keys, this);
