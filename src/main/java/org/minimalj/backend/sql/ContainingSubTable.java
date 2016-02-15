@@ -62,26 +62,17 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		return element;
 	}
 	
-	private ElementId insertElement(PreparedStatement statement, ELEMENT element, Object parentId, int position) throws SQLException {
-		ElementId elementId = new ElementId(IdUtils.createId(), getTableName());
-		int parameterPos = setParameters(statement, element, false, ParameterMode.INSERT, elementId.getId());
+	private Object insertElement(PreparedStatement statement, ELEMENT element, Object parentId, int position) throws SQLException {
+		Object objectId = IdUtils.createId();
+		int parameterPos = setParameters(statement, element, false, ParameterMode.INSERT, objectId);
 		statement.setObject(parameterPos++, parentId);
 		statement.setInt(parameterPos, position);
 		statement.execute();
-		IdUtils.setId(element, elementId);
+		IdUtils.setId(element, objectId);
 		insertLists(element);
-		return elementId;
+		return objectId;
 	}
 	
-	public void add(Object parentId, ELEMENT element) {
-		int position = nextPosition(parentId);
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
-			insertElement(statement, element, parentId, position);
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
-		}
-	}
-
 	public ELEMENT addElement(Object parentId, ELEMENT element) {
 		int position = nextPosition(parentId);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
@@ -98,7 +89,8 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		int position = nextPosition(parentId);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			for (ELEMENT element : elements) {
-				insertElement(statement, element, parentId, position++);
+				Object objectId = insertElement(statement, element, parentId, position++);
+				IdUtils.setId(element, new ElementId(objectId, getTableName()));
 			}
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
