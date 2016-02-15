@@ -88,13 +88,14 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	
 	@Override
 	public boolean add(ELEMENT element) {
+		ELEMENT savedElement;
 		if (persistence != null) {
 			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			subTable.add(getParentId(), element);
+			savedElement = subTable.addElement(getParentId(), element);
 		} else {
-			ELEMENT result = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
-			CloneHelper.deepCopy(result, element);
+			savedElement = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}
+		CloneHelper.deepCopy(savedElement, element);
 		if (list != null) {
 			list.add(element);
 		}
