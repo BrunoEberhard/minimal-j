@@ -50,10 +50,14 @@ import org.minimalj.security.Subject;
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
 	
+	public static final int MAX_PAGES_UNLIMITED = 0;
+	public static final int MAX_PAGES_ADPATIV = -1;
+	
 	final SwingFrame frame;
 	final Action previousAction, nextAction, refreshAction;
 	final Action closeTabAction;
 	final Action navigationAction;
+	final ScrollToNewPageAction scrollToNewPageAction;
 	
 	private final SwingToolBar toolBar;
 	private final SwingMenuBar menuBar;
@@ -67,7 +71,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 	private final SwingTabHistoryListener historyListener;
 
 	private final List<Page> visiblePageAndDetailsList;
-
+	
+	private int maxPages;
+	
 	public SwingTab(SwingFrame frame) {
 		super();
 		this.frame = frame;
@@ -84,6 +90,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		closeTabAction = new CloseTabAction();
 		
 		navigationAction = new NavigationAction();
+		scrollToNewPageAction = new ScrollToNewPageAction();
 		
 		JPanel outerPanel = new JPanel(new BorderLayout());
 		
@@ -144,6 +151,10 @@ public class SwingTab extends EditablePanel implements PageManager {
 			previousAction.setEnabled(false);
 			nextAction.setEnabled(false);
 		}
+	}
+	
+	public void setMaxPages(int maxPages) {
+		this.maxPages = maxPages;
 	}
  
 	//
@@ -207,6 +218,24 @@ public class SwingTab extends EditablePanel implements PageManager {
 			}
 		}
 	}
+
+	private class ScrollToNewPageAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		public ScrollToNewPageAction() {
+			putValue(Action.SELECTED_KEY, Boolean.TRUE);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// don't do anything. Next a detail page is opened the state of this action is checked
+		}
+		
+		public boolean isSelected() {
+			return Boolean.TRUE.equals(getValue(Action.SELECTED_KEY));
+		}
+	}
+	
 	
 	// PageContext
 	
@@ -359,13 +388,32 @@ public class SwingTab extends EditablePanel implements PageManager {
 		}
 		content.putClientProperty("page", page);
 
-		SwingDecoration decoratedPage = new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
-		verticalPanel.add(decoratedPage, "");
+		SwingDecoration newPage = new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
+		verticalPanel.add(newPage, "");
 		verticalPanel.revalidate();
 
-		SwingUtilities.invokeLater(() -> {
-			contentScrollPane.getVerticalScrollBar().setValue(contentScrollPane.getVerticalScrollBar().getMaximum() - decoratedPage.getHeight());
-		});
+		SwingUtilities.invokeLater(() -> limitOpenPages(newPage));
+	}
+	
+	private void limitOpenPages(SwingDecoration newPage) {
+		if (maxPages > 0) {
+			for (int i = 0; i<verticalPanel.getComponentCount() - maxPages; i++) {
+				SwingDecoration pageDecoration = (SwingDecoration) verticalPanel.getComponent(i);
+				pageDecoration.minimize();
+			}
+		} else if (maxPages == MAX_PAGES_ADPATIV) {
+			int available = contentScrollPane.getHeight() - (int) newPage.getMinimumSize().getHeight();
+			for (int i = verticalPanel.getComponentCount() - 2; i >= 0; i--) {
+				SwingDecoration pageDecoration = (SwingDecoration) verticalPanel.getComponent(i);
+				available -= pageDecoration.getMinimumSize().getHeight();
+				if (available < 0) {
+					pageDecoration.minimize();	
+				}
+			}
+		}
+		if (scrollToNewPageAction.isSelected()) {
+			contentScrollPane.getVerticalScrollBar().setValue(contentScrollPane.getVerticalScrollBar().getMaximum() - newPage.getHeight());
+		}
 	}
 
 	private void removeDetailsOf(Page page) {

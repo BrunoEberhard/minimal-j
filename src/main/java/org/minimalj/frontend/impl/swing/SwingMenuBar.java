@@ -1,11 +1,15 @@
 package org.minimalj.frontend.impl.swing;
 
+import java.awt.event.ActionEvent;
+import java.util.Collections;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
 import org.minimalj.frontend.action.Action;
@@ -68,6 +72,8 @@ public class SwingMenuBar extends JMenuBar {
 		menu.addSeparator();
 		menu.add(new JCheckBoxMenuItem(tab.navigationAction));
 		menu.addSeparator();
+		menu.add(createPagesMenu());		
+		menu.addSeparator();
 		menu.add(createLookAndFeeldMenu());
 		return menu;
 	}
@@ -81,6 +87,34 @@ public class SwingMenuBar extends JMenuBar {
 		return menu;
 	}
 
+	private JMenu createPagesMenu() {
+		JMenu menu = menu("pages");
+		ButtonGroup group = new ButtonGroup();
+		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(1)));
+		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(2)));
+		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_UNLIMITED)));
+		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_ADPATIV)));
+		Collections.list(group.getElements()).forEach((abstractButton) -> menu.add(abstractButton));
+		menu.addSeparator();
+		menu.add(new JCheckBoxMenuItem(Resources.getString("ScrollToNewPageAction")));
+		return menu;
+	}
+	
+	private class MaxVisiblePagesAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+		private final int maxPages;
+		
+		public MaxVisiblePagesAction(int maxPages) {
+			super(MaxVisiblePagesAction.class.getSimpleName() + "." + maxPages);
+			this.maxPages = maxPages;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			tab.setMaxPages(maxPages);
+		}
+	}
+	
 	//
 	
 	private JMenu menu(String resourceName) {

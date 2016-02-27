@@ -95,6 +95,14 @@ public class SwingDecoration extends JPanel {
 		return bar;
 	}
 	
+	public void minimize() {
+		if (content.isVisible()) {
+			content.setVisible(false);
+			content.getParent().revalidate();
+			content.getParent().repaint();
+		}
+	}
+	
 	
 	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, WP_MAXBUTTON, WP_RESTOREBUTTON };
 
