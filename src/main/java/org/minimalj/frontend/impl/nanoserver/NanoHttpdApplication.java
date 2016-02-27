@@ -19,7 +19,7 @@ public class NanoHttpdApplication {
 	private static MjWebSocketDaemon start(boolean secure) throws IOException {
 		int port = getPort(secure);
 		if (port > 0) {
-			System.out.println("Start web frontend on " + port + (secure ? "(Secure)" : ""));
+			System.out.println("Start web frontend on " + port + (secure ? " (Secure)" : ""));
 			MjWebSocketDaemon daemon = new MjWebSocketDaemon(port, secure);
 			daemon.start(TIME_OUT);
 			return daemon;
