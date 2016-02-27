@@ -1,4 +1,4 @@
-== Frontends
+== Frontend details
 
 There are two UI layers in the frontend
 
