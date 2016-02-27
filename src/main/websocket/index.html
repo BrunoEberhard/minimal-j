@@ -73,8 +73,8 @@
 					for ( var property in propertyChanges[id]) {
 						var value = propertyChanges[id][property];
 						if (property == "tableContent") {
-							while (element.firstChild) {
-								element.removeChild(element.firstChild);
+							while (element.getElementsByTagName("tbody").length > 0) {
+								element.removeChild(element.getElementsByTagName("tbody")[0]);
 							}
 							element.appendChild(createTableRows(id, value));
 						} else if (property == "validationMessage") {
@@ -99,6 +99,8 @@
 							element.innerHTML = value;
 						} else if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
 							element.value = value.join("");
+						} else if (property == "lookupText") {
+							updateLookup(element, value);
 						} else {
 							if (document.activeElement != element) {
 								element[property] = value;
@@ -442,6 +444,18 @@
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
+		} else if (type == "Lookup") {
+			element = document.createElement("div");
+			element.className = "lookup";
+			var objectElement = document.createElement("span");
+			objectElement.className = "action";
+			objectElement.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
+			element.appendChild(objectElement);
+			var removeElement = document.createElement("span");
+			removeElement.className = "action";
+			removeElement.setAttribute("onclick", "removeReference(\"" + content.id + "\");");
+			element.appendChild(removeElement);
+			updateLookup(element, content.value);
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;
@@ -775,7 +789,25 @@
 		}
 		send(data, true);
 	}
-
+	
+	function openLookupDialog(lookup) {
+		send({"openLookupDialog" : lookup}, true);
+	}	
+	
+	function removeReference(lookup) {
+		send({"removeReference" : lookup}, true);
+	}	
+	
+	function updateLookup(lookup, value) {
+		if (value != null) {
+			lookup.childNodes[0].innerHTML = value;
+			lookup.childNodes[1].innerHTML = "[x]";
+		} else {
+			lookup.childNodes[0].innerHTML = "[+]";
+			lookup.childNodes[1].innerHTML = "";
+		}
+	}
+	
 	function search() {
 		var searchElement = document.getElementById("search");
 		if (searchElement.style.display == "none") {

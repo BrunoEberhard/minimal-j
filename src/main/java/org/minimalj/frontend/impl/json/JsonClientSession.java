@@ -126,6 +126,18 @@ public class JsonClientSession implements PageManager {
 			output.add("loadSuggestions", loadSuggestions);
 		}
 
+		String openLookupDialog = (String) input.getObject("openLookupDialog");
+		if (openLookupDialog != null) {
+			JsonLookup lookup = (JsonLookup) componentById.get(openLookupDialog);
+			lookup.showLookupDialog();
+		}
+
+		String removeReference = (String) input.getObject("removeReference");
+		if (removeReference != null) {
+			JsonLookup lookup = (JsonLookup) componentById.get(removeReference);
+			lookup.setValue(null);
+		}
+		
 		String login = (String) input.getObject("login");
 		if (login != null || subject != null && !subject.isValid() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
 			new LoginAction().action();

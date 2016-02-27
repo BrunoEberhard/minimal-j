@@ -104,8 +104,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
-		// TODO Auto-generated method stub
-		return null;
+		return new JsonLookup<T>(changeListener, index, keys);
 	}
 
 	@Override
