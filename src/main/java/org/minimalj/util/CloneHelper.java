@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.minimalj.backend.sql.LazyList;
+
 public class CloneHelper {
 
 	/*
@@ -65,9 +67,12 @@ public class CloneHelper {
 			Object fromValue = field.get(from);
 			Object toValue = field.get(to);
 			if (fromValue instanceof List) {
-				List fromList = (List)field.get(from);
+				List fromList = (List)fromValue;
 				List toList = (List)toValue;
-				if (fromList != null) {
+				if (fromList instanceof LazyList) {
+					// LazyList doesn't need to be cloned
+					field.set(to, fromList);
+				} else if (fromList != null) {
 					if (FieldUtils.isFinal(field)) {
 						toList.clear();
 					} else {
@@ -77,8 +82,6 @@ public class CloneHelper {
 					for (Object element : fromList) {
 						toList.add(clone(element));
 					}
-				} else if (toList != null) {
-					field.set(to, null);
 				}
 			} else if (fromValue instanceof Set) {
 				Set fromSet = (Set)field.get(from);
