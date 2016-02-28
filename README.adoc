@@ -36,6 +36,8 @@ link:doc/user_guide.adoc[Minimal user guide] Good start point for user and progr
 
 link:doc/setup.adoc[Setup]
 
+link:doc/release_notes.adoc[Release Notes]
+
 === Topics and examples
 
 The small examples are currently deployed on CloudFoundry as online demo. Please note that some features are still incomplete in the html frontend.

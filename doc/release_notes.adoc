@@ -1,0 +1,8 @@
+== Release notes
+
+=== 0.10.0.11
+
+* The rules for the model changed: 'if a business entity has an id field it can have lists'
+* Added ajax protocol for json frontend. WebSockets make problems with some firewalls - bad for demos.
+* Make servlet more configurable
+* Lot of small changes
