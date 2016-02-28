@@ -146,6 +146,7 @@ public class FieldUtils {
 	}
 	
 	/**
+	 * @param T type (class) of result
 	 * @param s input string (may be null or empty)
 	 * @param clazz the target class
 	 * @return null or the parsed input. If class is a time class the iso format is used (not the locale format)
