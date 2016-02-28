@@ -275,6 +275,9 @@ public class SqlPersistence implements Persistence {
 				startTransaction();
 				result = transaction.execute(this);
 				runThrough = true;
+			} catch (Exception x) {
+				x.printStackTrace();
+				return null;
 			} finally {
 				endTransaction(runThrough);
 			}
@@ -307,6 +310,10 @@ public class SqlPersistence implements Persistence {
 			ElementId elementId = (ElementId) id;
 			table = (Table<T>) getTableByName().get(elementId.getTableName());
 			return table.read(elementId.getId());
+		} else if (id instanceof ReadOnlyId) {
+			ReadOnlyId readOnlyId = (ReadOnlyId) id;
+			table = getTable(clazz);
+			return table.read(readOnlyId.getId());
 		} else {
 			table = getTable(clazz);
 			return table.read(id);
