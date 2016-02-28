@@ -62,11 +62,14 @@ public class MjServlet extends HttpServlet {
 		String requestURI = request.getRequestURI();
 		String uri = requestURI.substring(contextPath.length());
 
-		InputStream inputStream = null;
 		if (uri.equals("")) {
 			response.sendRedirect("./");
 			return;
-		} else if (uri.equals("/")) {
+		}
+		
+		InputStream inputStream = null;
+		uri = uri.substring(uri.lastIndexOf('/'), uri.length());
+		if (uri.equals("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
 			response.getWriter().write(html);

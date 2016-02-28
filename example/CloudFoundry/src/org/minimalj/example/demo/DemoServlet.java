@@ -1,6 +1,10 @@
 package org.minimalj.example.demo;
 
-import java.util.Locale;
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
 import org.minimalj.example.empty.EmptyApplication;
@@ -39,4 +43,18 @@ public class DemoServlet extends MjServlet {
 			applicationInitialized = true;
 		}
 	}
+	
+	@Override
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		String contextPath = request.getContextPath();
+		String requestURI = request.getRequestURI();
+		String uri = requestURI.substring(contextPath.length());
+		
+		String uriWithoutfile = uri.substring(0, uri.lastIndexOf('/'));
+		String applicationName = uriWithoutfile.substring(uriWithoutfile.lastIndexOf('/') + 1);
+		DemoContext.setContext(applicationName);
+		
+		super.service(request, response);
+	}
+	
 }
