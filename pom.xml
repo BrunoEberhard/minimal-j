@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>0.10.0.10</version>
+	<version>0.10.0.11-SNAPSHOT</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -23,8 +23,8 @@
 
 	<scm>
 		<url>https://github.com/BrunoEberhard/minimal-j</url>
-		<connection>scm:git:https://github.com/BrunoEberhard/minimal-j.git</connection>
-		<developerConnection>scm:git:https://github.com/BrunoEberhard/minimal-j.git</developerConnection>
+		<connection>scm:git:git://github.com/BrunoEberhard/minimal-j.git</connection>
+		<developerConnection>scm:git:git@github.com:BrunoEberhard/minimal-j.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
