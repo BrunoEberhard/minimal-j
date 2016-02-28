@@ -825,6 +825,10 @@
 		}
 	}
 
+	function send(data, block) {
+		$WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
+	}
+		
 	function sendAjax(data, block) {
 		data.locale = "$LOCALE";
 		data.session = session;
@@ -859,7 +863,7 @@
 		}
 	}
 	
-	function send(data, block) {
+	function sendWebSocket(data, block) {
 		data.locale = "$LOCALE";
 
 		var dialogElements = document.getElementsByTagName("dialog");
@@ -871,7 +875,7 @@
 
 		var pathname = pathname.substring(0, index + 1);
 		if (websocket == null || websocket.readyState > 1) {
-			var wsProtocol = (window.location.protocol == "https:" || $FORCE_WSS) ? "wss" : "ws";
+			var wsProtocol = window.location.protocol == "https:" ? "wss" : "ws";
 			var hostAndPort = location.host + "$PORT";
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);

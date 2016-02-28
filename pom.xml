@@ -114,9 +114,6 @@
 			<resource>
 				<directory>src/main/webapp</directory>
 			</resource>
-			<resource>
-				<directory>src/main/websocket</directory>
-			</resource>
 		</resources>
 		<testResources>
 			<testResource>
