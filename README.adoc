@@ -40,14 +40,14 @@ link:doc/setup.adoc[Setup]
 
 The small examples are currently deployed on CloudFoundry as online demo. Please note that some features are still incomplete in the html frontend.
 
-* link:example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:http://minimalj-examples.cfapps.io/empty.html[(online demo)]
-* link:example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:http://minimalj-examples.cfapps.io/greeting.html[(online demo)]
-* link:example/003_Notes/doc/003.adoc[Notes] This application manages some notes link:http://minimalj-examples.cfapps.io/notes.html[(online demo)]
-* link:example/004_Library/doc/004.adoc[Library] Shows some more features of the framework link:http://minimalj-examples.cfapps.io/library.html[(online demo)]
+* link:example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:http://minimalj-examples.cfapps.io/empty/[(online demo)]
+* link:example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:http://minimalj-examples.cfapps.io/greeting/[(online demo)]
+* link:example/003_Notes/doc/003.adoc[Notes] This application manages some notes link:http://minimalj-examples.cfapps.io/notes/[(online demo)]
+* link:example/004_Library/doc/004.adoc[Library] Shows some more features of the framework link:http://minimalj-examples.cfapps.io/library/[(online demo)]
 * link:example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used
-link:http://minimalj-examples.cfapps.io/numbers.html[(online demo)]
+link:http://minimalj-examples.cfapps.io/numbers/[(online demo)]
 * link:example/006_Persistence/doc/006.adoc[Persistence] Introduction to the O/R mapping
-* link:example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:http://minimalj-examples.cfapps.io/petClinic.html[(online demo)]
+* link:example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:http://minimalj-examples.cfapps.io/petClinic/[(online demo)]
 * link:doc/arch.adoc[Architecture] Explains the difference between client/server and frontend/backend
 * link:doc/lists.adoc[Lists] How to use one to many relations in the data model
 * link:doc/ui_content_and_components.adoc[UI details] Content, components and forms
