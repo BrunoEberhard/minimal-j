@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.impl.json.JsonHandler;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -23,6 +25,8 @@ public class MjServlet extends HttpServlet {
 	private static final Logger logger = Logger.getLogger(MjServlet.class.getName());
 	
 	private static boolean applicationInitialized;
+	
+	private JsonHandler handler = new JsonHandler();
 	
 	protected void initializeApplication() {
 		if (!applicationInitialized) {
@@ -66,7 +70,13 @@ public class MjServlet extends HttpServlet {
 			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
 			response.getWriter().write(html);
 			response.setContentType("text/html");
-			return; // !
+			return;
+		} else if ("/ajax_request.xml".equals(uri)) {
+			String postData = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+			String result = handler.handle(postData);
+			response.getWriter().write(result);
+			response.setContentType("text/xml");
+			return;	
 		} else {
 			int index = uri.lastIndexOf('.');
 			if (index > -1 && index < uri.length()-1) {
