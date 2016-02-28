@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -90,7 +91,7 @@ public class MjServlet extends HttpServlet {
 		}
 		if (inputStream == null) {
 			logger.warning("Could not serve: " + uri);
-			response.setStatus(403);
+			response.setStatus(HttpURLConnection.HTTP_INTERNAL_ERROR);
 			return;
 		}
 		
