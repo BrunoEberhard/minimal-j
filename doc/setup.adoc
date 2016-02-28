@@ -79,7 +79,7 @@ by using the exec plugin
 mvn exec:java -Dexec.mainClass="org.minimalj.frontend.impl.swing.SwingApplication" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
 ----
 
-The WebSocket Frontend is started the same way.
+The web frontend is started the same way.
 
 ----
 mvn exec:java -Dexec.mainClass="org.minimalj.frontend.impl.nanoserver.NanoHttpdApplication" -Dexec.args="org.minimalj.example.empty.EmptyApplication"
