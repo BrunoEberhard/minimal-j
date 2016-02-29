@@ -153,8 +153,12 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public void update(T object) {
+		updateWithId(object, IdUtils.getId(object));
+	}
+	
+	void updateWithId(T object, Object id) {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
-			setParameters(updateStatement, object, false, ParameterMode.UPDATE, IdUtils.getId(object));
+			setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
 			updateStatement.execute();
 			
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {

@@ -305,7 +305,8 @@ public abstract class AbstractTable<T> {
 					String dependableColumnName = column.getKey();
 					Object dependableId = getDependableId(id, dependableColumnName);
 					if (value != null) {
-						value = updateDependable(dependableTable, dependableId, value, mode);
+						updateDependable(dependableTable, dependableId, value, mode);
+						value = dependableId;
 					} else {
 						if (mode == ParameterMode.UPDATE) {
 							// to delete a dependable the value where its used has to be set
@@ -334,7 +335,7 @@ public abstract class AbstractTable<T> {
 					IdUtils.setId(dependableObject, null);
 					dependableObject = dependableTable.insert(dependableObject);
 				} else {
-					dependableTable.update(dependableObject);
+					dependableTable.updateWithId(dependableObject, dependableId);
 				}
 			}
 		} else {
