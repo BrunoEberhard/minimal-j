@@ -87,28 +87,35 @@ mvn exec:java -Dexec.mainClass="org.minimalj.frontend.impl.nanoserver.NanoHttpdA
 
 Most of the frontends are started like this.
 
-If you want to stay in your ide it might be useful to use the exec-maven-plugin like this
+=== Start configuration in pom.xml
+
+The command shell parameters above could also be specified in the pom.xml of your project. This saves you typos and makes it more clear how the application should be
+started. You do it by adding the exec maven plugin to the build:
+
 ----
-<build>
-	<plugins>
-		<plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>exec-maven-plugin</artifactId>
-			<version>1.2.1</version>
-			<executions>
-				<execution>
-					<goals>
-						<goal>java</goal>
-					</goals>
-				</execution>
-			</executions>
-			<configuration>
-				<mainClass>org.minimalj.frontend.impl.swing.SwingApplication</mainClass>
-				<arguments>
-					<argument>helloMinimalJ.EmptyApplication</argument>
-				</arguments>
-			</configuration>
-		</plugin>
-	</plugins>
-</build>
+<project ...>
+	[..]
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<configuration>
+					<mainClass>org.minimalj.frontend.impl.swing.SwingApplication</mainClass>
+					<arguments>
+						<argument>org.minimalj.example.empty.EmptyApplication</argument>
+					</arguments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		[..]
+	</dependencies>
+</project>
 ----
+
+Now you also can start the application from your ide without further configuration.
+link:http://stackoverflow.com/questions/6079253/running-maven-exec-plugin-inside-eclipse[Stackoverflow] explains how to do this.
