@@ -1,5 +1,8 @@
 == Release notes
 
+=== next
+* SqlPersistence: fix update of dependables
+
 === 0.10.0.11
 
 * The rules for the model changed: 'if a business entity has an id field it can have lists'
