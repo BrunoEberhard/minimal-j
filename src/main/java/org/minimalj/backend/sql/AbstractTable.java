@@ -305,8 +305,7 @@ public abstract class AbstractTable<T> {
 					String dependableColumnName = column.getKey();
 					Object dependableId = getDependableId(id, dependableColumnName);
 					if (value != null) {
-						updateDependable(dependableTable, dependableId, value, mode);
-						value = dependableId;
+						value = updateDependable(dependableTable, dependableId, value, mode);
 					} else {
 						if (mode == ParameterMode.UPDATE) {
 							// to delete a dependable the value where its used has to be set
@@ -333,15 +332,15 @@ public abstract class AbstractTable<T> {
 			if (!EqualsHelper.equals(dependableObject, objectInDb)) {
 				if (mode == ParameterMode.HISTORIZE) {
 					IdUtils.setId(dependableObject, null);
-					dependableObject = dependableTable.insert(dependableObject);
+					dependableId = dependableTable.insert(dependableObject);
 				} else {
 					dependableTable.updateWithId(dependableObject, dependableId);
 				}
 			}
 		} else {
-			dependableObject = dependableTable.insert(dependableObject);
+			dependableId = dependableTable.insert(dependableObject);
 		}
-		return dependableObject;
+		return dependableId;
 	}
 	
 	// TODO multiple dependables could be get with one (prepared) statement
