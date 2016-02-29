@@ -5,7 +5,9 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.resources.Resources;
 
 /**
  * This page requires the object to be persistet. Meaning the object has to have
@@ -59,6 +61,17 @@ public abstract class ObjectPage<T> extends Page {
 			if (form != null) {
 				form.setObject(object);
 			}
+		}
+	}
+	
+	@Override
+	public String getTitle() {
+		String title = Resources.getStringOrNull(getClass());
+		if (title != null) {
+			return title;
+		} else {
+			Class<?> clazz = GenericUtils.getGenericClass(getClass());
+			return Resources.getString(clazz);
 		}
 	}
 	
