@@ -119,3 +119,41 @@ started. You do it by adding the exec maven plugin to the build:
 
 Now you also can start the application from your ide without further configuration.
 link:http://stackoverflow.com/questions/6079253/running-maven-exec-plugin-inside-eclipse[Stackoverflow] explains how to do this.
+
+=== Run as servlet
+
+You really don't need a complete application server to run Minimal-J applications. Still you can do it by configuring the
+web.xml for your project like this:
+
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<display-name>Hello World</display-name>
+	<servlet>
+		<servlet-name>HelloWorld</servlet-name>
+		<servlet-class>org.minimalj.frontend.impl.servlet.MjServlet</servlet-class>
+		<init-param>
+			<description>Minimal-J application class to start</description>
+			<param-name>Application</param-name>
+			<param-value>org.minimalj.example.helloworld.HelloWorldApplication</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>HelloWorld</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+</web-app>
+----
+
+All the things that you can with the parameters when you start the application directly you can do by adding the
+parameters as init-param. The MjServlet will simply copy all the init-param to system properties (see copyPropertiesFromServletConfigToSystem in MjServlet).
+
+==== MjWebSocketServlet
+
+There is also a class named MjWebSocketServlet in Minimal-J. This provides the WebSocket server if you want to run the web front end not
+with the ajax protocol but with WebSockets. As you see in the class the configuration of the WebSocket server is done by annotation. You don't
+need to add another servlet in the web.xml. But you need some additional libraries. Remember: this applies only if you want to run your application
+with WebSocket. The ajax protocol will runt out of the box.
