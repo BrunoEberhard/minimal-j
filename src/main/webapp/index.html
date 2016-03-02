@@ -262,6 +262,10 @@
 		} else {
 			element.style.minHeight = "0em";
 			pageContentElement.style.display = "none";
+			var actionMenuElement = element.querySelector(".actionMenu");
+			if (actionMenuElement != null) {
+				actionMenuElement.style.display = "none";
+			}
 		}
 	}
 	
