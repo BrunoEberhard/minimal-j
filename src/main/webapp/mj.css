@@ -162,6 +162,7 @@ table.table tr {
 .actionMenu {
 	position: absolute; right: 0em; top: 1.8em; bottom: 0em;
 	border-left: 1px rgb(160,160,160) solid;
+	min-width: 15em;
 	background: white;
 	overflow: auto;
 }
