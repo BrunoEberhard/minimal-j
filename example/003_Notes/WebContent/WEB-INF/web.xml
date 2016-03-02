@@ -12,6 +12,11 @@
 			<param-name>Application</param-name>
 			<param-value>org.minimalj.example.notes.NotesApplication</param-value>
 		</init-param>
+		<init-param>
+			<description>The web front end should us WebSocket for communication</description>
+			<param-name>MjUseWebSocket</param-name>
+			<param-value>true</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Notes</servlet-name>
