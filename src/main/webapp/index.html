@@ -209,10 +209,9 @@
 		if (isLarge) {
 			var headerElement = createPageHeader(page.title);
 			pageElement.appendChild(headerElement);
-			var actionMenuButton = headerElement.querySelector(".actionMenuButton");
-			if (page.actionMenu != null) {
-				actionMenuButton.setAttribute("onclick", "toggleActionMenu(event)");
-			} else {
+			if (page.actionMenu == null) {
+				var actionMenuButton = headerElement.querySelector(".actionMenuButton");
+				actionMenuButton.removeAttribute("onclick");
 				actionMenuButton.style.display = "none";
 			}
 		} else {
@@ -237,7 +236,7 @@
 
 	function toggleActionMenu(event) {
 		var element = event.srcElement;
-		while (element.classList != null && !element.classList.contains("page") && (element = element.parentNode));
+		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
 		if (element != null) {
 			var actionMenuElement = element.querySelector(".actionMenu");
 			if (actionMenuElement != null) {
@@ -1084,7 +1083,7 @@
 
 	<div id="templates" style="display: none">
 		<span id="pageHeaderButtons">
-			<svg width="1.0em" height="1.0em" class="actionMenuButton">
+			<svg width="1.0em" height="1.0em" class="actionMenuButton" onclick="toggleActionMenu(event)">
 			  <rect x="0" y="5%" width="100%" height="20%" fill="#444" />
 			  <rect x="0" y="40%" width="100%" height="20%" fill="#444" />
 			  <rect x="0" y="75%" width="100%" height="20%" fill="#444" />
