@@ -480,8 +480,9 @@
 		} else if (type == "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);
+			element.setAttribute("scrolling", "no");
 			element.className = "urlpage";
-			// element.setAttribute("onload", "iframeLoaded()"); iframe.height = iFrameID.contentWindow.document.body.scrollHeight + "px";
+			element.setAttribute("onload", "this.height = this.contentWindow.document.body.scrollHeight + \"px\"");
 		} else if (type == "Html") {
 			element = document.createElement("div");
 			element.className = "htmlpage";
@@ -498,7 +499,7 @@
 		}
 		return element;
 	}
-
+	
 	function createFormRows(rows, columnCount) {
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
