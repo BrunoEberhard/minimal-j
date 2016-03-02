@@ -2,6 +2,7 @@
 
 === next
 * SqlPersistence: fix update of dependables
+* Web Frontend: fix right mouse click in detail pages
 
 === 0.10.0.11
 

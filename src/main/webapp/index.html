@@ -237,7 +237,7 @@
 
 	function toggleActionMenu(event) {
 		var element = event.srcElement;
-		while ((element = element.parentNode) && element.classList != null && !element.classList.contains("page"));
+		while (element.classList != null && !element.classList.contains("page") && (element = element.parentNode));
 		if (element != null) {
 			var actionMenuElement = element.querySelector(".actionMenu");
 			if (actionMenuElement != null) {
