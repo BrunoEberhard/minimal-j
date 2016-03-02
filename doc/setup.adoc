@@ -154,6 +154,22 @@ parameters as init-param. The MjServlet will simply copy all the init-param to s
 ==== MjWebSocketServlet
 
 There is also a class named MjWebSocketServlet in Minimal-J. This provides the WebSocket server if you want to run the web front end not
-with the ajax protocol but with WebSockets. As you see in the class the configuration of the WebSocket server is done by annotation. You don't
-need to add another servlet in the web.xml. But you need some additional libraries. Remember: this applies only if you want to run your application
-with WebSocket. The ajax protocol will runt out of the box.
+with the ajax protocol but with WebSockets. Put these lines in your web.xml to activate WebSocket:
+
+----
+		<init-param>
+			<description>The web front end should us WebSocket for communication</description>
+			<param-name>MjUseWebSocket</param-name>
+			<param-value>true</param-value>
+		</init-param>
+----
+
+As you see in the class MjWebSocketServlet the configuration of the WebSocket server is done by annotation. So you don't
+need to add another servlet in the web.xml.
+
+Note that the MjWebSocketServlet is not started if there is the 'javax.websocket-api.jar' deployed with your web app see 
+http://stackoverflow.com/questions/21852459/tomcat-7-0-50-java-webscoket-implementation-gives-404-error[stackoverflow].
+In my workspace the websocket-api jar is deployed even as I set the dependency to provided. In this case you have to set
+the included jar for the web application manually.
+
+This applies only for the WebSocket protocol. The ajax protocol will run out of the box.
