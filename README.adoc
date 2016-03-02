@@ -24,19 +24,11 @@ Minimal applications may not always look the same. But the UI concepts never cha
 * Very few dependencies
 * Applications run standalone or in a servlet container.
 
-== Status
-
-Sometimes when I look at other frameworks I think Minimal-J is quite mature.
-But at the moment it is still more of a personal research project. I still
-feel free to change major points. There is no 1.0 version yet.
-
 == Documentation
 
-link:doc/user_guide.adoc[Minimal user guide] Good start point for user and programmer.
-
-link:doc/setup.adoc[Setup]
-
-link:doc/release_notes.adoc[Release Notes]
+* link:doc/user_guide.adoc[Minimal user guide] Good start point for user and programmer.
+* link:doc/setup.adoc[Setup]
+* link:doc/release_notes.adoc[Release Notes]
 
 === Topics and examples
 
