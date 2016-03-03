@@ -123,6 +123,17 @@ public abstract class ObjectPage<T> extends Page {
 		}
 		
 		@Override
+		protected Object[] getNameArguments() {
+			Class<?> editedClass = GenericUtils.getGenericClass(ObjectPage.this.getClass());
+			if (editedClass != null) {
+				String resourceName = Resources.getResourceName(editedClass);
+				return new Object[] { Resources.getString(resourceName) };
+			} else {
+				return null;
+			}
+		}
+		
+		@Override
 		protected void finished(T result) {
 			setObject(result);
 		}
