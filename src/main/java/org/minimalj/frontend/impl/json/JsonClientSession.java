@@ -27,7 +27,6 @@ import org.minimalj.security.Subject;
 public class JsonClientSession implements PageManager {
 
 	private Subject subject;
-	private String focusPageId;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
 	private final PageList visiblePageAndDetailsList = new PageList();
@@ -58,12 +57,6 @@ public class JsonClientSession implements PageManager {
 	public JsonOutput handle(JsonInput input) {
 		JsonFrontend.setSession(this);
 		output = new JsonOutput();
-
-		if (input.containsObject("focusPageId")) {
-			focusPageId = (String) input.getObject("focusPageId"); 
-		} else {
-			focusPageId = null;
-		}
 		
 		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
 			Page page = Application.getApplication().createDefaultPage();
@@ -161,7 +154,8 @@ public class JsonClientSession implements PageManager {
 	public void showDetail(Page mainPage, Page detail) {
 		int pageIndex = visiblePageAndDetailsList.indexOf(detail);
 		if (pageIndex < 0) {
-			show(detail, UUID.randomUUID().toString(), focusPageId);
+			String mainPageId = visiblePageAndDetailsList.getId(mainPage);
+			show(detail, UUID.randomUUID().toString(), mainPageId);
 		} else {
 			String pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);

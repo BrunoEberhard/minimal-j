@@ -28,6 +28,15 @@ public class PageList {
 	public String getId(int index) {
 		return pageIds.get(index);
 	}
+	
+	/**
+	 * @param page Page
+	 * @return id of page
+	 */
+	public String getId(Page page) {
+		int index = indexOf(page);
+		return getId(index);
+	}
 
 	/**
 	 * @param page Page

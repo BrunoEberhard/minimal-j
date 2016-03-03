@@ -619,8 +619,7 @@
 				} else if (item.id != undefined) {
 					li.id = item.id;
 					li.classList.add("actionLink");
-					li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id
-							+ (pageId != undefined ? "\",\"" + pageId +"\");" : "\");"));
+					li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id + "\");");
 					li.appendChild(document.createTextNode(item.name));
 					if (!item.enabled) {
 						li.setAttribute("disabled", "true");
@@ -744,11 +743,6 @@
 	
 	function action(actionId) {
 		var data = {"activatedAction" : actionId};
-		send(data, true);
-	}
-
-	function action(actionId, pageId) {
-		var data = {"activatedAction" : actionId, "focusPageId" : pageId };
 		send(data, true);
 	}
 
