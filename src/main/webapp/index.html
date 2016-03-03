@@ -395,7 +395,8 @@
 			}
 		} else if (type == "AreaField") {
 			element = document.createElement("textarea");
-			element.setAttribute("onchange", "sendchange(this);");
+			element.setAttribute("onkeyup", "sendchange(this);");
+			// element.setAttribute("onchange", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.value = content.value;
