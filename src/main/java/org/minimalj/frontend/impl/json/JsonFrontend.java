@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.nanoserver.NanoHttpdApplication;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Authorization;
@@ -147,7 +148,7 @@ public class JsonFrontend extends Frontend {
 		LocaleContext.setLocale(locale);
 		String result = html.replace("$LOCALE", locale.getLanguage());
 		result = result.replace("$AUTHORIZATION", Boolean.toString(Authorization.isAvailable()));
-		result = result.replace("$WEB_SOCKET", System.getProperty("MjUseWebSocket", "false"));
+		result = result.replace("$WEB_SOCKET", Boolean.toString(NanoHttpdApplication.useWebSocket()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
