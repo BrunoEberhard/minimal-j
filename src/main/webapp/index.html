@@ -235,7 +235,7 @@
 	}
 
 	function toggleActionMenu(event) {
-		var element = event.srcElement;
+		var element = event.target;
 		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
 		if (element != null) {
 			var actionMenuElement = element.querySelector(".actionMenu");
@@ -251,7 +251,7 @@
 	}
 	
 	function togglePage(event) {
-		var element = event.srcElement;
+		var element = event.target;
 		while ((element = element.parentNode) && element.className != "page");
 		var pageContentElement = element.querySelector(".pageContent");
 		if (pageContentElement.style.display == "none") {
@@ -271,7 +271,7 @@
 	function closePage(event) {
 		addNewStateToHistory();
 		
-		var element = event.srcElement;
+		var element = event.target;
 		while ((element = element.parentNode) && element.className != "page");
 		
 		var pageContainerElement = document.getElementById("pageContainer");
@@ -1079,17 +1079,17 @@
 
 	<div id="templates" style="display: none">
 		<span id="pageHeaderButtons">
-			<svg width="15px" height="15px" class="actionMenuButton" onclick="toggleActionMenu(event)">
+			<svg width="15px" height="15px" class="actionMenuButton" onclick="toggleActionMenu(evt);">
 			  <rect x="0" y="2px" width="100%" height="2.5px" fill="#444" />
 			  <rect x="0" y="7px" width="100%" height="2.5px" fill="#444" />
 			  <rect x="0" y="12px" width="100%" height="2.5px" fill="#444" />
 			</svg>
 			&nbsp;
-			<svg width="15px" height="15px" class="minimizePageButton" onclick="togglePage(event)">
+			<svg width="15px" height="15px" class="minimizePageButton" onclick="togglePage(evt);">
 			  <rect x="20%" y="12px" width="100%" height="2.5px" fill="#444" />
 			</svg>
 			&nbsp;
-			<svg width="15px" height="15px" class="closePageButton" onclick="closePage(event)">
+			<svg width="15px" height="15px" class="closePageButton" onclick="closePage(evt);">
 			  <line x1="2px" y1="3px" x2="13px" y2="14px" style="stroke:#444;stroke-width:2.5px" />
 			  <line x1="2px" y1="14px" x2="13px" y2="3px" style="stroke:#444;stroke-width:2.5px" />
 			</svg>

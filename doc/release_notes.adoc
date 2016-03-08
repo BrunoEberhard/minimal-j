@@ -1,6 +1,9 @@
 == Release notes
 
 === next
+* Web Frontend: fixes for FireFox
+
+=== 0.10.1.0
 * SqlPersistence: fix update of dependables
 * Web Frontend: fix right mouse click in detail pages
 
