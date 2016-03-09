@@ -2,6 +2,8 @@
 
 === next
 * Web Frontend: fixes for FireFox
+* Web Frontend: show context actions when open a page
+* Web Frontend: No initial alert in Safari
 
 === 0.10.1.0
 * SqlPersistence: fix update of dependables
