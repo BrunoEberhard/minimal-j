@@ -1,6 +1,7 @@
 == Release notes
 
 === next
+* Web Frontend: Make dialog button row look better in firefox
 * Web Frontend: fixes for FireFox
 * Web Frontend: show context actions when open a page
 * Web Frontend: No initial alert in Safari
