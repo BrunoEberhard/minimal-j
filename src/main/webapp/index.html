@@ -199,7 +199,7 @@
 		if (page.actionMenu != null) {
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.classList.add("actionMenu");
-			actionMenuElement.style.display = "none";
+			actionMenuElement.style.display = "block";
 			if (!isLarge) actionMenuElement.style.top = "0px";
 			pageElement.appendChild(actionMenuElement);
 		}
@@ -223,6 +223,7 @@
 		if (page.content != null) {
 			var contentElement = createContent(page.content);
 			contentElement.classList.add("pageContent");
+			contentElement.classList.add("pageContentSmall");
 			pageElement.appendChild(contentElement);
 		} else {
 			pageElement.style.borderBottom = "none";
@@ -237,11 +238,16 @@
 		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
 		if (element != null) {
 			var actionMenuElement = element.querySelector(".actionMenu");
+			var pageContentElement = element.querySelector(".pageContent");
 			if (actionMenuElement != null) {
 				if (actionMenuElement.style.display == "block") {
 					actionMenuElement.style.display = "none";
+					pageContentElement.classList.remove("pageContentSmall");
+					pageContentElement.classList.add("pageContentExpend");
 				} else {
 					actionMenuElement.style.display = "block";
+					pageContentElement.classList.remove("pageContentExpend");
+					pageContentElement.classList.add("pageContentSmall");
 				}
 				event.preventDefault();
 			}

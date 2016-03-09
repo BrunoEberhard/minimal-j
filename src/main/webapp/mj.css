@@ -147,6 +147,13 @@ li.actionLink[disabled] {
 .pageContent {
 	padding-left: 1em;
 	padding-top: 0.5ex;
+}
+
+.pageContentSmall {
+	width: calc(100% - 16em);
+}
+
+.pageContentExpend {
 	width: calc(100% - 1em);
 }
 
