@@ -20,13 +20,15 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 
 	protected final String selectByParentQuery;
 	protected final String nextPositionQuery;
-	protected final String deleteByParentQuery;
+	protected final String deleteByParentAndPositionQuery;
+	protected final String readIdByParentQuery;
 	
 	public ContainingSubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> elementClass) {
 		super(sqlPersistence, name, elementClass);
 		selectByParentQuery = selectByParentQuery();
 		nextPositionQuery = nextPositionQuery();
-		deleteByParentQuery = deleteByParentQuery();
+		deleteByParentAndPositionQuery = deleteByParentAndPositionQuery();
+		readIdByParentQuery = readIdByParentQuery();
 	}	
 	
 	@Override
@@ -112,16 +114,45 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 
 	
 	@Override
-	// TODO more efficient implementation.
 	public void replaceList(PARENT parent, List<ELEMENT> elements) {
 		Object parentId = IdUtils.getId(parent);
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), deleteByParentQuery, false)) {
+		// delete all elements from db with have a position that not exists anymore in the new list
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), deleteByParentAndPositionQuery, false)) {
 			statement.setObject(1, parentId);
+			statement.setInt(2, elements.size());
 			statement.execute();
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
 		}
-		addList(parent, elements);
+		// for each existing id check if it is the same as in the new list
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), readIdByParentQuery, false)) {
+			statement.setObject(1, parentId);
+			int position = 0;
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					Object oldId = resultSet.getObject(1);
+					ELEMENT element = elements.get(position);
+					Object newId = IdUtils.getId(element);
+					if (!oldId.equals(newId)) {
+						delete(oldId);
+						try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+							Object objectId = insertElement(statement, element, parentId, position);
+							IdUtils.setId(element, new ElementId(objectId, getTableName()));
+						}
+					}
+					position++;
+				}
+				while (position < elements.size()) {
+					ELEMENT element = elements.get(position);
+					try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+						Object objectId = insertElement(statement, element, parentId, position);
+						IdUtils.setId(element, new ElementId(objectId, getTableName()));
+					}
+				}
+			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
+		}
 	}
 	
 	// Queries
@@ -171,10 +202,14 @@ public class ContainingSubTable<PARENT, ELEMENT> extends Table<ELEMENT> implemen
 		return s.toString();
 	}
 	
-	protected String deleteByParentQuery() {
-		return "DELETE FROM " + getTableName() + " WHERE parent = ?";
+	protected String deleteByParentAndPositionQuery() {
+		return "DELETE FROM " + getTableName() + " WHERE parent = ? AND position >= ?";
 	}
 
+	protected String readIdByParentQuery() {
+		return "SELECT id FROM " + getTableName() + " WHERE parent = ? ORDER BY position";
+	}
+	
 	@Override
 	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		syntax.addIdColumn(s, Object.class, 36);
