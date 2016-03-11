@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.LoggingRuntimeException;
 
 /**
  * Minimal-J internal
@@ -34,7 +35,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 				insertStatement.execute();
 			}
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new LoggingRuntimeException(x, sqlLogger, "addList failed");
 		}
 	}
 
@@ -43,47 +44,45 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		Object parentId = IdUtils.getId(parent);
 		List<ELEMENT> objectsInDb = getList(parent);
 		int position = 0;
-		while (position < Math.max(objects.size(), objectsInDb.size())) {
-			if (position < objectsInDb.size() && position < objects.size()) {
-				update(parentId, position, objects.get(position));
-			} else if (position < objectsInDb.size()) {
-				// delete all beginning from this position with one delete statement
-				delete(parentId, position);
-				break; 
-			} else /* if (position < objects.size()) */ {
-				insert(parentId, position, objects.get(position));
+		try {
+			while (position < Math.max(objects.size(), objectsInDb.size())) {
+				if (position < objectsInDb.size() && position < objects.size()) {
+					update(parentId, position, objects.get(position));
+				} else if (position < objectsInDb.size()) {
+					// delete all beginning from this position with one delete statement
+					delete(parentId, position);
+					break; 
+				} else /* if (position < objects.size()) */ {
+					insert(parentId, position, objects.get(position));
+				}
+				position++;
 			}
-			position++;
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "replaceList failed");
 		}
 	}
 	
-	protected void update(Object parentId, int position, ELEMENT object) {
+	protected void update(Object parentId, int position, ELEMENT object) throws SQLException {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
 			updateStatement.setInt(parameterPos++, position);
 			updateStatement.execute();
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
 		}
 	}
 
-	protected void insert(Object parentId, int position, ELEMENT object) {
+	protected void insert(Object parentId, int position, ELEMENT object) throws SQLException {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos++, position);
 			insertStatement.execute();
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
 		}
 	}
 	
-	protected void delete(Object parentId, int position) {
+	protected void delete(Object parentId, int position) throws SQLException {
 		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.setInt(2, position);
 			deleteStatement.execute();
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
 		}
 	}
 
@@ -93,7 +92,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new LoggingRuntimeException(x, sqlLogger, "getList failed");
 		}
 	}
 

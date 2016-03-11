@@ -10,18 +10,18 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.LoggingRuntimeException;
 
 /**
  * Minimal-J internal
  * 
  * note: the id column in this table is the parentId. The id of the elements is called elementId.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
 	private final String maxPositionQuery;
 	
-	public CrossTable(SqlPersistence sqlPersistence, String name, Class clazz, PropertyInterface idProperty) {
+	public CrossTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> clazz, PropertyInterface idProperty) {
 		super(sqlPersistence, name, clazz, idProperty);
 		maxPositionQuery = maxPositionQuery();
 	}
@@ -55,20 +55,18 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 				insertStatement.execute();
 			}
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new LoggingRuntimeException(x, sqlLogger, "addList failed");
 		}
 	}
 	
 	@Override
-	protected void update(Object parentId, int position, Object element) {
+	protected void update(Object parentId, int position, Object element) throws SQLException {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			Object elementId = getOrCreateId(element);
 			updateStatement.setObject(1, elementId);
 			updateStatement.setObject(2, parentId);
 			updateStatement.setInt(3, position);
 			updateStatement.execute();
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
 		}
 	}
 	
@@ -86,37 +84,33 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 			insert(parentId, nextPosition, element);
 			return element;
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new LoggingRuntimeException(x, sqlLogger, "addElement failed");
 		}
 	}
 
 	
 	@Override
-	protected void insert(Object parentId, int position, Object object) {
+	protected void insert(Object parentId, int position, Object object) throws SQLException {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			Object element = IdUtils.getId(object);
 			insertStatement.setObject(1, element);
 			insertStatement.setObject(2, parentId);
 			insertStatement.setInt(3, position);
 			insertStatement.execute();
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
 		}
 	}
 	
 	@Override
-	protected void delete(Object parentId, int position) {
+	protected void delete(Object parentId, int position) throws SQLException {
 		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.setInt(2, position);
 			deleteStatement.execute();
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
 		}
 	}
 
 	@Override
-	public List getList(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent) {
 		return new LazyList<PARENT, ELEMENT>(sqlPersistence, getClazz(), parent, getTableName());
 	}
 	
@@ -133,16 +127,15 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 			}
 			return result;
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new LoggingRuntimeException(x, sqlLogger, "readAll failed");
 		}
 	}
 
-	
-	public List read(Object parentId, int index, int maxResults) throws SQLException {
+	public List<ELEMENT> read(Object parentId, int index, int maxResults) throws SQLException {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, parentId);
-			List result = new ArrayList();
-			Table table = sqlPersistence.getTable(clazz);
+			List<ELEMENT> result = new ArrayList<>();
+			Table<ELEMENT> table = sqlPersistence.getTable(clazz);
 			try (ResultSet resultSet = selectByIdStatement.executeQuery()) {
 				while (resultSet.next() && index > 0) {
 					index = index - 1;
