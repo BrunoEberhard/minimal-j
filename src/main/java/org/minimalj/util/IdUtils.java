@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.minimalj.backend.sql.ElementId;
 import org.minimalj.backend.sql.ReadOnlyId;
 
 /**
@@ -51,7 +50,7 @@ public class IdUtils {
 	
 	/**
 	 * Get the value of the <code>id</code> field. The id is converted to
-	 * 'plain' if it is something like ElementId or ReadOnly id
+	 * 'plain' if it is a ReadOnly id
 	 * 
 	 * @param object object containing the id. Must not be <code>null</code>
 	 * @return the value of the <code>id</code> field
@@ -66,12 +65,8 @@ public class IdUtils {
 			Field idField = getIdField(object.getClass());
 			if (idField == null) throw new IllegalArgumentException(object.getClass().getName() + " has no id field to get");
 			Object id = idField.get(object);
-			if (plain) {
-				if (id instanceof ReadOnlyId) {
-					id = ((ReadOnlyId) id).getId();
-				} else if (id instanceof ElementId) {
-					id = ((ElementId) id).getId();
-				}
+			if (plain && id instanceof ReadOnlyId) {
+				id = ((ReadOnlyId) id).getId();
 			}
 			return id;
 		} catch (SecurityException | IllegalAccessException e) {

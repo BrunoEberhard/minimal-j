@@ -57,7 +57,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		}
 	}
 	
-	private void update(Object parentId, int position, ELEMENT object) {
+	protected void update(Object parentId, int position, ELEMENT object) {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
 			updateStatement.setInt(parameterPos++, position);
@@ -67,7 +67,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		}
 	}
 
-	private void insert(Object parentId, int position, ELEMENT object) {
+	protected void insert(Object parentId, int position, ELEMENT object) {
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
 			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos++, position);
@@ -77,7 +77,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		}
 	}
 	
-	private void delete(Object parentId, int position) {
+	protected void delete(Object parentId, int position) {
 		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.setInt(2, position);

@@ -19,9 +19,11 @@ import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.NotEmpty;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.transaction.criteria.FieldOperator;
 import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -209,6 +211,12 @@ public abstract class AbstractTable<T> {
 				}
 			}
 		}
+		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
+			Class<?> listType = GenericUtils.getGenericClass(property.getType());
+			if (IdUtils.hasId(listType) && !View.class.isAssignableFrom(listType)) {
+				sqlPersistence.addClass(listType);
+			}
+		}
 	}
 
 	protected void findIndexes() {
@@ -292,7 +300,13 @@ public abstract class AbstractTable<T> {
 				value = findId((Code) value);
 			} else if (IdUtils.hasId(property.getClazz())) {
 				if (value != null) {
-					value = IdUtils.getId(value);
+					Object referencedId = IdUtils.getId(value);
+					if (referencedId != null) {
+						value = referencedId;
+					} else {
+						Table referencedTable  = sqlPersistence.getTable(property.getClazz());
+						value = referencedTable.insert(value);
+					}
 				}
 			} else if (SqlHelper.isDependable(property)) {
 				Table dependableTable = sqlPersistence.getTable(property.getClazz());
@@ -402,17 +416,11 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected final Object getOrCreateId(Object object) {
-		Object elementId = IdUtils.getId(object);
-		if (elementId == null) {
-			// TODO: warum diese inInstance - Prüfung?
-			if (getClazz().isInstance(object)) {
-				elementId = sqlPersistence.insert(object);
-			}
-		} else if (getClazz().isInstance(elementId)) {
-			// Special case: if id is the object itself, then insert that object
-			elementId = sqlPersistence.insert(elementId);
+		Object id = IdUtils.getId(object);
+		if (id == null) {
+			id = sqlPersistence.insert(object);
 		}
-		return elementId;
+		return id;
 	}
 	
 	//

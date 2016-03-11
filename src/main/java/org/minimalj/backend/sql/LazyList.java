@@ -64,13 +64,10 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	public List<ELEMENT> getList() {
 		if (list == null) {
 			if (persistence != null) {
-				ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
+				CrossTable<PARENT, ELEMENT> subTable = (CrossTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
 				list = subTable.readAll(parentId);
 			} else {
 				list = Backend.getInstance().execute(new ReadAllElementsTransaction<PARENT, ELEMENT>(this));
-			}
-			for (ELEMENT element : list) {
-				IdUtils.setId(element, new ElementId(IdUtils.getId(element), tableName));
 			}
 		}
 		return list;
@@ -90,8 +87,8 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	public boolean add(ELEMENT element) {
 		ELEMENT savedElement;
 		if (persistence != null) {
-			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			savedElement = subTable.addElement(getParentId(), element);
+			CrossTable<PARENT, ELEMENT> crossTable = (CrossTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
+			savedElement = crossTable.addElement(getParentId(), element);
 		} else {
 			savedElement = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}
@@ -104,8 +101,8 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 
 	public ELEMENT addElement(ELEMENT element) {
 		if (persistence != null) {
-			ContainingSubTable<PARENT, ELEMENT> subTable = (ContainingSubTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			element = subTable.addElement(getParentId(), element);
+			CrossTable<PARENT, ELEMENT> crossTable = (CrossTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
+			element = crossTable.addElement(getParentId(), element);
 		} else {
 			element = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}

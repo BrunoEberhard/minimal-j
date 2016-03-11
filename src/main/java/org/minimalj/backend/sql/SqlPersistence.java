@@ -306,11 +306,7 @@ public class SqlPersistence implements Persistence {
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
 		Table<T> table;
-		if (id instanceof ElementId) {
-			ElementId elementId = (ElementId) id;
-			table = (Table<T>) getTableByName().get(elementId.getTableName());
-			return table.read(elementId.getId());
-		} else if (id instanceof ReadOnlyId) {
+		if (id instanceof ReadOnlyId) {
 			ReadOnlyId readOnlyId = (ReadOnlyId) id;
 			table = getTable(clazz);
 			return table.read(readOnlyId.getId());
@@ -353,16 +349,9 @@ public class SqlPersistence implements Persistence {
 	@Override
 	public <T> void update(T object) {
 		if (object == null) throw new NullPointerException();
-		Object id = IdUtils.getId(object, !IdUtils.PLAIN);
-		if (id instanceof ElementId) {
-			ElementId elementId = (ElementId) id;
-			ContainingSubTable subTable = (ContainingSubTable) tableByName.get(elementId.getTableName());
-			subTable.update(elementId, object);
-		} else {
-			@SuppressWarnings("unchecked")
-			Table<T> table = getTable((Class<T>) object.getClass());
-			table.update(object);
-		}
+		@SuppressWarnings("unchecked")
+		Table<T> table = getTable((Class<T>) object.getClass());
+		table.update(object);
 	}
 
 	public <T> void delete(T object) {

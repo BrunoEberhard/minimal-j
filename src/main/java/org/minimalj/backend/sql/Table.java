@@ -133,7 +133,7 @@ public class Table<T> extends AbstractTable<T> {
 		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
-			return new ContainingSubTable<>(sqlPersistence, subTableName, elementClass);
+			return new CrossTable<>(sqlPersistence, subTableName, elementClass, idProperty);
 		} else {
 			return new SubTable(sqlPersistence, subTableName, elementClass, idProperty);
 		}
@@ -141,15 +141,6 @@ public class Table<T> extends AbstractTable<T> {
 	
 	protected String buildSubTableName(PropertyInterface property) {
 		return getTableName() + "__" + property.getName();
-	}
-	
-	public ContainingSubTable getSubTable(String fieldPath) {
-		for (Map.Entry<PropertyInterface, ListTable> entry : lists.entrySet()) {
-			if (entry.getKey().getPath().equals(fieldPath)) {
-				return (ContainingSubTable) entry.getValue();
-			}
-		}
-		return null;
 	}
 	
 	public void update(T object) {
