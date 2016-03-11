@@ -40,17 +40,12 @@ public class SqlHelper {
 	}
 	
 	public void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
-		if (value == null) {
+		if (value == null || InvalidValues.isInvalid(value)) {
 			setParameterNull(preparedStatement, param, property);
 		} else {
 			if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
-				if (!InvalidValues.isInvalid(e)) {
-					value = e.ordinal();
-				} else {
-					setParameterNull(preparedStatement, param, property);
-					return;
-				}
+				value = e.ordinal();
 			} else if (value instanceof LocalDate) {
 				value = java.sql.Date.valueOf((LocalDate) value);
 			} else if (value instanceof LocalTime) {
@@ -99,7 +94,6 @@ public class SqlHelper {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
 		if (value == null) return null;
 		
