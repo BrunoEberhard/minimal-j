@@ -1,6 +1,9 @@
 == Release notes
 
 === next
+* SQL persistence: changed semantic of List of identifiables. No containing any more. Update or delete of elements change.
+
+=== 0.10.2.0
 * Web Frontend: Make dialog button row look better in firefox
 * Web Frontend: fixes for FireFox
 * Web Frontend: show context actions when open a page
