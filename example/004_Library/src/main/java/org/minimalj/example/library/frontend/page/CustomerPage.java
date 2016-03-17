@@ -26,11 +26,6 @@ public class CustomerPage extends ObjectPage<Customer> {
 	}
 
 	@Override
-	public String getTitle() {
-		return getObject().toString();
-	}
-
-	@Override
 	public List<Action> getActions() {
 		Customer customer = getObject();
 		ActionGroup menu = new ActionGroup("Customer");

@@ -28,11 +28,6 @@ public class LendTablePage extends TablePage<Lend> {
 	}
 
 	@Override
-	public String getTitle() {
-		return "Ausleihen";
-	}
-
-	@Override
 	protected List<Lend> load() {
 		return Backend.read(Lend.class, By.field(Lend.$.customer, customer), 100);
 	}

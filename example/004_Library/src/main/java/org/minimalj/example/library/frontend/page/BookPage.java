@@ -19,9 +19,4 @@ public class BookPage extends ObjectPage<Book> {
 	protected Form<Book> createForm() {
 		return new BookForm(false);
 	}
-
-	@Override
-	public String getTitle() {
-		return "Buch " + getObject().title;
-	}
 }
