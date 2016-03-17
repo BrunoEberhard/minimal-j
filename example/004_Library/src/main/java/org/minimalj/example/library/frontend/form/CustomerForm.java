@@ -2,10 +2,9 @@ package org.minimalj.example.library.frontend.form;
 
 import static org.minimalj.example.library.model.Customer.*;
 
+import org.fluttercode.datafactory.impl.DataFactory;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.util.mock.MockPrename;
-import org.minimalj.util.mock.MockName;
 
 public class CustomerForm extends Form<Customer> {
 
@@ -22,8 +21,9 @@ public class CustomerForm extends Form<Customer> {
 	@Override
 	protected void fillWithDemoData(Customer customer) {
 		super.fillWithDemoData(customer);
-		customer.name = MockName.officialName();
-		customer.firstName = MockPrename.getFirstName(Math.random() < 0.5);
+		DataFactory df = new DataFactory();
+		customer.name = df.getLastName();
+		customer.firstName = df.getFirstName();
 	}
 	
 }

@@ -3,11 +3,11 @@ package org.minimalj.example.ebanking.frontend;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.fluttercode.datafactory.impl.DataFactory;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.ebanking.model.Account;
 import org.minimalj.example.ebanking.model.AccountPosition;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.util.mock.MockPrename;
 
 public class DemoDataAction extends Action {
 
@@ -26,7 +26,8 @@ public class DemoDataAction extends Action {
 	private Account account() {
 		Account account = new Account();
 		account.accountNr = "" + (Math.random() * 9000000 + 1000000);
-		account.description = MockPrename.getFirstName(Math.random() < 0.5);
+		DataFactory df = new DataFactory();
+		account.description = df.getRandomText(20);
 		return account;
 	}
 
@@ -37,7 +38,8 @@ public class DemoDataAction extends Action {
 		if (Math.random() < 0.4) {
 			accountPosition.amount = accountPosition.amount.negate();
 		}
-		accountPosition.description = MockPrename.getFirstName(Math.random() < 0.5);
+		DataFactory df = new DataFactory();
+		accountPosition.description = df.getRandomText(20);
 		accountPosition.valueDate = LocalDate.now().minusDays((int)(Math.random() * 1000));
 		return accountPosition;
 	}

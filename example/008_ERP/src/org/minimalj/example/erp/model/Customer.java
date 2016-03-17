@@ -2,11 +2,10 @@ package org.minimalj.example.erp.model;
 
 import java.time.LocalDate;
 
+import org.fluttercode.datafactory.impl.DataFactory;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.util.mock.MockName;
-import org.minimalj.util.mock.MockPrename;
 import org.minimalj.util.mock.Mocking;
 
 public class Customer implements Mocking {	
@@ -37,9 +36,10 @@ public class Customer implements Mocking {
 	@Override
 	public void mock() {
 		customerNr = "CN - " + (int)(Math.random() * 9000 + 1000);
+		DataFactory df = new DataFactory();
+		surname = df.getLastName();
+		firstname = df.getFirstName();
 		boolean male = Math.random() < 0.5;
-		firstname = MockPrename.getFirstName(male);
-		surname = MockName.officialName();
 		email = firstname.toLowerCase() + "." + surname.toLowerCase() + "@loremipsum.com";
 		company = surname + " " + (Math.random() < 0.5 ? "AG" : "GmbH");
 		salutation = male ? Salutation.Male : Salutation.Female;
