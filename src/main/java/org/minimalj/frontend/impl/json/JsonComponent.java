@@ -33,7 +33,11 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 		}
 		return oldValue;
 	}
-	
+
+	Object putSilent(String property, Object value) {
+		return super.put(property, value);
+	}
+
 	public String getId() {
 		return (String) get(ID);
 	}

@@ -1,6 +1,7 @@
 == Release notes
 
-=== next
+=== 0.10.3.0
+* Web Frontend: no type lag if user fills text field faster than server can respond
 * SQL persistence: changed semantic of List of identifiables. No containing any more. Update or delete of elements change.
 * removed sample names. The examples now use a 3rd party library for that.
 

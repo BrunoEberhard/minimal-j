@@ -23,8 +23,13 @@ public abstract class JsonInputComponent<T> extends JsonComponent implements Inp
 		put(EDITABLE, editable);
 	}
 
-	public void changedValue(Object value) {
-		Object oldValue = super.put(VALUE, value);
+	/*
+	 * Should only be called if user has changed the value. The putSilent avoids
+	 * the send back. Send back could conflict with the next user change (for example
+	 * if user types very fast in a text field or password field)
+	 */
+	void changedValue(Object value) {
+		Object oldValue = super.putSilent(VALUE, value);
 		if (!Objects.equals(oldValue, value)) {
 			changeListener.changed(this);
 		}
