@@ -74,8 +74,8 @@ public class JsonClientSession implements PageManager {
 			visiblePageAndDetailsList.removeAllFrom(pageId);
 		}
 		
-		Map<String, Object> changedValue = input.get(JsonInput.CHANGED_VALUE);
-		for (Map.Entry<String, Object> entry : changedValue.entrySet()) {
+		Map<String, Object> changedValues = input.get(JsonInput.CHANGED_VALUE);
+		for (Map.Entry<String, Object> entry : changedValues.entrySet()) {
 			String componentId = entry.getKey();
 			Object newValue = entry.getValue(); // most of the time a String, but not for password
 			
