@@ -39,7 +39,7 @@ public class JsonPasswordField extends JsonInputComponent<char[]> implements Pas
 				chars[i] = charList.get(i).charAt(0);
 			}
 		} 
-		Object oldValue = super.put(VALUE, chars);
+		Object oldValue = super.putSilent(VALUE, chars);
 		if (!Objects.equals(oldValue, chars)) {
 			changeListener.changed(this);
 		}
