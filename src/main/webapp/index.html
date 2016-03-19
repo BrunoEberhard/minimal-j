@@ -463,7 +463,7 @@
 			removeElement.className = "action";
 			removeElement.setAttribute("onclick", "removeReference(\"" + content.id + "\");");
 			element.appendChild(removeElement);
-			updateLookup(element, content.value);
+			updateLookup(element, content.lookupText);
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;
