@@ -95,12 +95,12 @@
 							} else {
 								element.setAttribute("disabled", "true");
 							}
+						} else if (property == "value" && element.className == "lookup") {
+							updateLookup(element, value);
 						} else if (property == "value" && element.tagName == "DIV") {
 							element.innerHTML = value;
 						} else if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
 							element.value = value.join("");
-						} else if (property == "lookupText") {
-							updateLookup(element, value);
 						} else {
 							if (document.activeElement != element) {
 								element[property] = value;
@@ -463,7 +463,7 @@
 			removeElement.className = "action";
 			removeElement.setAttribute("onclick", "removeReference(\"" + content.id + "\");");
 			element.appendChild(removeElement);
-			updateLookup(element, content.lookupText);
+			updateLookup(element, content.value);
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;

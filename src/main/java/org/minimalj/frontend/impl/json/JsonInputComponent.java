@@ -31,7 +31,11 @@ public abstract class JsonInputComponent<T> extends JsonComponent implements Inp
 	void changedValue(Object value) {
 		Object oldValue = super.putSilent(VALUE, value);
 		if (!Objects.equals(oldValue, value)) {
-			changeListener.changed(this);
+			fireChange();
 		}
+	}
+
+	void fireChange() {
+		changeListener.changed(this);
 	}
 }

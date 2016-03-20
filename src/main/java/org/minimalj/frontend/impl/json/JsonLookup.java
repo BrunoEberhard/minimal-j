@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
+import org.minimalj.util.EqualsHelper;
 
 public class JsonLookup<T> extends JsonInputComponent<T> implements Input<T> {
 	private static final Logger logger = Logger.getLogger(JsonLookup.class.getName());
@@ -40,20 +41,23 @@ public class JsonLookup<T> extends JsonInputComponent<T> implements Input<T> {
 	}
 	
 	@Override
-	public void setValue(T value) {
-		this.selectedObject = value;
-		display();
+	public void setValue(T object) {
+		if (!EqualsHelper.equals(selectedObject, object)) {
+			this.selectedObject = object;
+			put(VALUE, render(selectedObject));
+			fireChange();
+		}
 	}
 
-	protected void display() {
-		String text = null;
-		if (selectedObject instanceof Rendering) {
-			Rendering rendering = (Rendering) selectedObject;
-			text = rendering.render(RenderType.PLAIN_TEXT);
-		} else if (selectedObject != null) {
-			text = selectedObject.toString();
+	protected String render(T object) {
+		if (object instanceof Rendering) {
+			Rendering rendering = (Rendering) object;
+			return rendering.render(RenderType.PLAIN_TEXT);
+		} else if (object != null) {
+			return object.toString();
+		} else {
+			return null;
 		}
-		put("lookupText", text);
 	}
 
 	@Override

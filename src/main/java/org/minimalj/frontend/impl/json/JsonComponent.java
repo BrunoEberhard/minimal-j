@@ -28,10 +28,14 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 	@Override
 	public Object put(String property, Object value) {
 		Object oldValue = super.put(property, value);
+		fireChange(property, value, oldValue);
+		return oldValue;
+	}
+
+	protected void fireChange(String property, Object value, Object oldValue) {
 		if (!Objects.equals(oldValue, value) && propertyListener != null) {
 			propertyListener.propertyChange(getId(), property, value);
 		}
-		return oldValue;
 	}
 
 	Object putSilent(String property, Object value) {
