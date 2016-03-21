@@ -1,12 +1,11 @@
 package org.minimalj.example.minimalclinic.model;
 
+import org.fluttercode.datafactory.impl.DataFactory;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.util.mock.MockName;
-import org.minimalj.util.mock.MockPrename;
 import org.minimalj.util.mock.Mocking;
 
 public class Person implements Rendering, Mocking {
@@ -26,9 +25,10 @@ public class Person implements Rendering, Mocking {
 	}
 	
 	@Override
-	public void mock() {
-		firstName = MockPrename.getFirstName(Math.random() < .5);
-		lastName = MockName.officialName();
+	public void mock() {		
+		DataFactory df = new DataFactory();
+		firstName = df.getFirstName();
+		lastName = df.getLastName();
 	}
 	
 }

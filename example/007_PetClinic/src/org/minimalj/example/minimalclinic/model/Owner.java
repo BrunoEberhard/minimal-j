@@ -2,11 +2,11 @@ package org.minimalj.example.minimalclinic.model;
 
 import java.util.Random;
 
+import org.fluttercode.datafactory.impl.DataFactory;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.util.mock.MockName;
 import org.minimalj.util.mock.Mocking;
 
 public class Owner implements Rendering, Mocking {
@@ -33,8 +33,9 @@ public class Owner implements Rendering, Mocking {
     @Override
     public void mock() {
     	person.mock();
-    	address = MockName.street();
-    	city = MockName.officialName() + "city";
+		DataFactory df = new DataFactory();
+		address = df.getAddress();
+		city = df.getCity();
     	telephone = String.valueOf(100000 + new Random().nextInt(900000));
     }
 
