@@ -75,9 +75,15 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 	// EnumSetFormElementEditor is needed because the CloneHelper doesn't clone / copy Set<Enum> 
 	public class EnumSetFormElementEditor extends ObjectFormElementEditor {
 		public EnumSetFormElementEditor() {
-			super(Resources.getResourceName(ObjectFormElementEditor.class));
+			super();
 		}
 
+		@Override
+		protected Object[] getNameArguments() {
+			// enumClass is not yet available when this method is called
+			return new Object[] { Resources.getString(GenericUtils.getGenericClass(getProperty().getType())) };
+		}
+		
 		@Override
 		public E createObject() {
 			return (E) new HashSet(getValue());
