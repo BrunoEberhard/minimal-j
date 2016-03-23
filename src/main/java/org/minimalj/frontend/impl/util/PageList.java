@@ -70,6 +70,15 @@ public class PageList {
 		if (pagePos < 0) throw new IllegalArgumentException(pageId + " not a visible page");
 		removeAllFrom(pagePos);
 	}
+
+	/**
+	 * @param pageId all following are removed (not the page itself)
+	 */
+	public void removeAllAfter(String pageId) {
+		int pagePos = pageIds.indexOf(pageId);
+		if (pagePos < 0) throw new IllegalArgumentException(pageId + " not a visible page");
+		removeAllFrom(pagePos+1);
+	}
 	
 	/**
 	 * @param page this page and all following are removed

@@ -165,8 +165,11 @@ public class JsonClientSession implements PageManager {
 	
 	private void show(Page page, String pageId, String masterPageId) {
 		if (masterPageId == null) {
+			visiblePageAndDetailsList.clear();
 			componentById.clear();
 			register(navigation);
+		} else {
+			visiblePageAndDetailsList.removeAllAfter(masterPageId);
 		}
 		
 		output.add("showPage", createJson(page, pageId, masterPageId));
