@@ -151,4 +151,26 @@ granted to this user are listed.
 
 If you wonder how to get the hashed passwords: The TextFileAuthorization class has a main method. Start this class as java
 application together with at least two arguments (user and password) and it prints out a line for your user/password file.
+
+=== Login Dialog
+If the application is started without authentication then the frontend will not show the user the menu entry (or icon)
+to log in. If the authentication is active the frontend must decide if it should confront the user with a login dialog
+right on the start or if it is possible to look around without any authentication.
+
+When a new user comes to the application a LoginTransaction is executed with the username 'Anonymous' and without any
+password. If the active authentication accepts such a User then no login dialog is shown and the user can do whatever can
+be done as anonymous user. If the user 'Anonymous' is not accepted by the current authentication then automatically a
+login dialog is shown and the user has to enter his credentials.
+
+With the TextFileAuthorization you will have a file for example 'users.txt' and activate the authentication by setting a property when
+starting the application: '-DMjUserFile=users.txt'. If you don't want a login dialog to be shown at startup you can
+insert in users.txt this line:
+
+----
+Anonymous = 0xv0Or6tn7IQ8eCZifWHnDU6K4gA8pUx, aft8F/B9IIQoopVzzqz/CAo8vUnSE2iM
+----
+
+This declares the 'Anonymous' user with the empty password (and without any given role). 
+
+
 s
