@@ -223,7 +223,9 @@
 		if (page.content != null) {
 			var contentElement = createContent(page.content);
 			contentElement.classList.add("pageContent");
-			contentElement.classList.add("pageContentSmall");
+			if (page.actionMenu != null) {
+				contentElement.classList.add("pageContentSmall");
+			}
 			pageElement.appendChild(contentElement);
 		} else {
 			pageElement.style.borderBottom = "none";

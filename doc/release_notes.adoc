@@ -1,5 +1,8 @@
 == Release notes
 
+=== next
+* Web frontend: reserve space on the right only if there is a menu
+
 === 0.10.4.0
 * Web Frontend: no type lag if user fills text field faster than server can respond
 * SQL persistence: changed semantic of List of identifiables. No containing any more. Update or delete of elements change.
