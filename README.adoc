@@ -48,4 +48,4 @@ link:http://minimalj-examples.cfapps.io/numbers/[(online demo)]
 * link:doc/authorization.adoc[Authorization] Security concepts and configuration
 
 === Real application
-* https://github.com/BrunoEberhard/open-ech[Open-eCH]
+* http://openech-register.herokuapp.com/[Open-eCH]. Source Code auf https://github.com/BrunoEberhard/open-ech[github].
