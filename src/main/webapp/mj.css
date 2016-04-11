@@ -162,8 +162,9 @@ iframe.pageContent {
 	width: 100%;
 }
 
-table.table tr {
-	line-height: 1.5em;
+table.table tr td {
+	height: 1.7em;
+	line-height: 1.6em;
 }
 
 .actionMenu {
