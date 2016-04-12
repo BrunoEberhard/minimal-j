@@ -106,12 +106,20 @@ li {
 	padding-bottom: 0.2em;
 }
 
-li.actionLink {
+.action {
 	color: blue;
 	color: -moz-hyperlinktext;
+	cursor: pointer;
+	text-decoration: none;
 }
 
-li.actionLink[disabled] {
+.action:hover {
+	text-decoration: underline;
+}
+
+.action[disabled] {
+	cursor: default;
+	text-decoration: none;
 	color: gray;
 }
 
@@ -332,14 +340,6 @@ label {
 
 .hide {
 	visibility: hidden;
-}
-
-.action {
-	color: blue;
-}
-
-.action:hover {
-	text-decoration: underline;
 }
 
 iframe {

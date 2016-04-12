@@ -625,7 +625,7 @@
 					li.appendChild(createMenu(item.items));
 				} else if (item.id != undefined) {
 					li.id = item.id;
-					li.classList.add("actionLink");
+					li.classList.add("action");
 					li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id + "\");");
 					li.appendChild(document.createTextNode(item.name));
 					if (!item.enabled) {
