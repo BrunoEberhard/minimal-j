@@ -1,33 +1,15 @@
 package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Persistence;
-import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.transaction.PersistenceTransaction;
 
-public class DeleteAllTransaction implements PersistenceTransaction<Void> {
+public class DeleteAllTransaction<ENTITY> extends ClassPersistenceTransaction<ENTITY, Void> {
 	private static final long serialVersionUID = 1L;
 
-	private final String className;
-	private transient Class<?> clazz;
-
-	public DeleteAllTransaction(final Class<?> clazz) {
-		this.className = clazz.getName();
-		this.clazz = clazz;
+	public DeleteAllTransaction(final Class<ENTITY> clazz) {
+		super(clazz);
 	}
 	
-	@Override
-	public Class<?> getEntityClazz() {
-		if (clazz == null) {
-			try {
-				clazz = Class.forName(className);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return clazz;
-	}
-
 	@Override
 	public Void execute(Persistence persistence) {
 		if (persistence instanceof SqlPersistence) {
@@ -35,7 +17,7 @@ public class DeleteAllTransaction implements PersistenceTransaction<Void> {
 			sqlPersistence.deleteAll(getEntityClazz());
 			return null;
 		} else {
-			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlBackend.class.getSimpleName());
+			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlPersistence.class.getSimpleName());
 		}
 	}
 

@@ -1,31 +1,62 @@
 package org.minimalj.transaction;
 
 import org.minimalj.backend.Persistence;
+import org.minimalj.security.Subject;
 
-public interface PersistenceTransaction<T> extends Transaction<T> {
+public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transaction<RETURN> {
+	private static final long serialVersionUID = 1L;
 
 	@Override
-	public default T execute() {
-		throw new RuntimeException(this.getClass().getSimpleName() + " must be executed with persistence argument");
+	public RETURN execute() {
+		checkPermissions();
+		
+		Persistence persistence = Persistence.getInstance();
+		return execute(persistence);
 	}
 	
-	/**
-	 * Caution: Normally you don't need to override this method
-	 * 
-	 * @return The returned class is used to find the needed roles for this
-	 * transaction to pass permission check.
-	 */
-	public default Class<?> getEntityClazz() {
+	private void checkPermissions() {
+		Role role = findRoleByType(getEntityClazz(), getClass());
+		if (role != null && !Subject.hasRole(role.value())) {
+			throw new NotAuthorizedException();
+		}
+	}
+
+	private static Role findRoleByType(Class<?> clazz, @SuppressWarnings("rawtypes") Class<? extends Transaction> transactionClass) {
+		Role[] roles = clazz.getAnnotationsByType(Role.class);
+		Role role = findRoleByType(roles, transactionClass);
+		if (role != null) {
+			return role;
+		}
+		roles = clazz.getPackage().getAnnotationsByType(Role.class);
+		role = findRoleByType(roles, transactionClass);
+		return role;
+	}
+	
+	private static Role findRoleByType(Role[] roles, @SuppressWarnings("rawtypes") Class<? extends Transaction> transactionClass) {
+		for (Role role : roles) {
+			if (role.transaction() == transactionClass) {
+				return role;
+			}
+		}
+		// TODO respect class hierachy when retrieving needed role for a transaction
+		// the following lines only go by order of the roles not by the hierachy
+//		for (Role role : roles) {
+//			if (role.transactionClass().isAssignableFrom(transactionClass)) {
+//				return role;
+//			}
+//		}
+		
+		// check for the Transaction.class as this is the default in the annotation
+		for (Role role : roles) {
+			if (role.transaction() == Transaction.class) {
+				return role;
+			}
+		}		
 		return null;
 	}
 	
-	/**
-	 * The invocation method for the backend. Application code should not need
-	 * to call this method directly.
-	 * 
-	 * @param persistence the persistence this transaction should use
-	 * @return the return value from the transaction
-	 */
-	public T execute(Persistence persistence);
+	protected abstract Class<ENTITY> getEntityClazz();
+	
+	protected abstract RETURN execute(Persistence persistence);
 	
 }

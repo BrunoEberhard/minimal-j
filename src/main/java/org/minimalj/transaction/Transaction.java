@@ -21,7 +21,8 @@ public interface Transaction<T> extends Serializable {
 	 * to call this method directly.
 	 * 
 	 * @return the return value from the transaction
+	 * @throws NotAuthorizedException if logged in Subject has not needed role for this transaction to execute
 	 */
-	public T execute();
+	public T execute() throws NotAuthorizedException;
 	
 }

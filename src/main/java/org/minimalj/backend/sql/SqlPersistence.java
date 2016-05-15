@@ -57,7 +57,7 @@ import org.minimalj.util.StringUtils;
  * The Mapper to a relationale Database
  * 
  */
-public class SqlPersistence implements Persistence {
+public class SqlPersistence extends Persistence {
 	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
@@ -265,15 +265,15 @@ public class SqlPersistence implements Persistence {
 		}
 	}
 
-	public <T> T execute(PersistenceTransaction<T> transaction) {
-		T result;
+	public <ENTITY, RETURN> RETURN execute(PersistenceTransaction<ENTITY, RETURN> transaction) {
+		RETURN result;
 		if (isTransactionActive()) {
-			result = transaction.execute(this);
+			result = transaction.execute();
 		} else {
 			boolean runThrough = false;
 			try {
 				startTransaction();
-				result = transaction.execute(this);
+				result = transaction.execute();
 				runThrough = true;
 			} catch (Exception x) {
 				x.printStackTrace();
@@ -386,6 +386,23 @@ public class SqlPersistence implements Persistence {
 		}
 	}
 
+	@Override
+	public <ELEMENT> List<ELEMENT> getList(String listName, Object parentId) {
+		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(listName);
+		return subTable.readAll(parentId);
+	}
+	
+	@Override
+	public <ELEMENT> ELEMENT add(String listName, Object parentId, ELEMENT element) {
+		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(listName);
+		return subTable.addElement(parentId, element);
+	}
+	
+	@Override
+	public void remove(String listName, Object parentId, int position) {
+		throw new RuntimeException("Not yet implemented");
+	}
+	
 	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {

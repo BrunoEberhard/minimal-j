@@ -8,7 +8,7 @@ import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.util.SerializationContainer;
 
-public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements PersistenceTransaction<RETURN> {
+public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends PersistenceTransaction<ELEMENT, RETURN> {
 	private static final long serialVersionUID = 1L;
 	
 	protected final LazyList<PARENT, ELEMENT> lazyList;
@@ -18,7 +18,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements Persis
 	}
 
 	@Override
-	public Class<?> getEntityClazz() {
+	public Class<ELEMENT> getEntityClazz() {
 		return lazyList.getElementClass();
 	}
 

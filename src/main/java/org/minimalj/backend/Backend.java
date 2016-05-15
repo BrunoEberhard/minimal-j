@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-import org.minimalj.application.Application;
-import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Subject;
@@ -44,7 +42,7 @@ import org.minimalj.util.StringUtils;
  * the classname of the backend.</LI>
  * </UL>
  */
-public abstract class Backend {
+public class Backend {
 	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 
 	private static Backend instance;
@@ -67,20 +65,8 @@ public abstract class Backend {
 				throw new LoggingRuntimeException(x, logger, "Set backend failed");
 			}
 		} 
-		
-		Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
-		if (entityClasses != null && entityClasses.length > 0) {
-			String database = System.getProperty("MjBackendDatabase");
-			String user = System.getProperty("MjBackendDatabaseUser", "APP");
-			String password = System.getProperty("MjBackendDatabasePassword", "APP");
-			if (!StringUtils.isBlank(database)) {
-				return new SqlBackend(database, user, password);
-			} else {
-				return new SqlBackend();
-			}
-		} else {
-			return new BackendWithoutPersistence();
-		}
+
+		return new Backend();
 	}
 
 	public static Backend getInstance() {
@@ -112,7 +98,7 @@ public abstract class Backend {
 	}
 
 	public static <T> void delete(Class<T> clazz, Object id) {
-		getInstance().execute(new DeleteTransaction(clazz, id));
+		getInstance().execute(new DeleteTransaction<T>(clazz, id));
 	}
 	
 	public final <T> T execute(Transaction<T> transaction) {
@@ -128,13 +114,8 @@ public abstract class Backend {
 		}
 	}
 	
-	public abstract <T> T doExecute(Transaction<T> transaction);
-	
-	private static class BackendWithoutPersistence extends Backend {
-
-		@Override
-		public <T> T doExecute(Transaction<T> transaction) {
-			return transaction.execute();
-		}
+	public <T> T doExecute(Transaction<T> transaction) {
+		return transaction.execute();
 	}
+	
 }

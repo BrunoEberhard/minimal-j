@@ -1,43 +1,35 @@
 package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Persistence;
-import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.transaction.PersistenceTransaction;
 
-public class ReadTransaction<T> implements PersistenceTransaction<T> {
+public class ReadTransaction<ENTITY> extends ClassPersistenceTransaction<ENTITY, ENTITY> {
 	private static final long serialVersionUID = 1L;
 
-	private final Class<T> clazz;
 	private final Object id;
 	private final Integer time;
 
-	public ReadTransaction(Class<T> clazz, Object id) {
+	public ReadTransaction(Class<ENTITY> clazz, Object id) {
 		this(clazz, id, null);
 	}
 	
-	public ReadTransaction(Class<T> clazz, Object id, Integer time) {
-		this.clazz = clazz;
+	public ReadTransaction(Class<ENTITY> clazz, Object id, Integer time) {
+		super(clazz);
 		this.id = id;
 		this.time = time;
 	}
-	
-	@Override
-	public Class<?> getEntityClazz() {
-		return clazz;
-	}
 
 	@Override
-	public T execute(Persistence persistence) {
-		T result;
+	protected ENTITY execute(Persistence persistence) {
+		ENTITY result;
 		if (time == null) {
-			result = persistence.read(clazz, id);
+			result = persistence.read(getEntityClazz(), id);
 		} else {
 			if (persistence instanceof SqlPersistence) {
 				SqlPersistence sqlPersistence = (SqlPersistence) persistence;
-				result = sqlPersistence.readVersion(clazz, id, time);
+				result = sqlPersistence.readVersion(getEntityClazz(), id, time);
 			} else {
-				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlBackend.class.getSimpleName());
+				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlPersistence.class.getSimpleName());
 			}
 		}
 		return result;
