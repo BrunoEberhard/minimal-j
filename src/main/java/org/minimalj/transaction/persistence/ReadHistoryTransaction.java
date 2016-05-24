@@ -6,7 +6,7 @@ import org.minimalj.backend.Persistence;
 import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.util.IdUtils;
 
-public class ReadHistoryTransaction<ENTITY> extends ClassPersistenceTransaction<ENTITY, List<ENTITY>> {
+public class ReadHistoryTransaction<ENTITY> extends ReadTransaction<ENTITY, List<ENTITY>> {
 	private static final long serialVersionUID = 1L;
 
 	private final Object id;

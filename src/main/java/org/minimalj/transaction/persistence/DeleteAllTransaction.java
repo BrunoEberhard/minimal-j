@@ -3,7 +3,7 @@ package org.minimalj.transaction.persistence;
 import org.minimalj.backend.Persistence;
 import org.minimalj.backend.sql.SqlPersistence;
 
-public class DeleteAllTransaction<ENTITY> extends ClassPersistenceTransaction<ENTITY, Void> {
+public class DeleteAllTransaction<ENTITY> extends DeleteEntityTransaction<ENTITY> {
 	private static final long serialVersionUID = 1L;
 
 	public DeleteAllTransaction(final Class<ENTITY> clazz) {

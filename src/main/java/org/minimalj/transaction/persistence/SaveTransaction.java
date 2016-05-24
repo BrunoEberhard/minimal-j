@@ -3,7 +3,7 @@ package org.minimalj.transaction.persistence;
 import org.minimalj.backend.Persistence;
 import org.minimalj.util.IdUtils;
 
-public class SaveTransaction<ENTITY> extends ObjectPersistenceTransaction<ENTITY, ENTITY> {
+public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 	private static final long serialVersionUID = 1L;
 
 	public SaveTransaction(ENTITY object) {

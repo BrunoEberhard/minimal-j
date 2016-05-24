@@ -9,10 +9,10 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.persistence.DeleteTransaction;
+import org.minimalj.transaction.persistence.DeleteEntityTransaction;
 import org.minimalj.transaction.persistence.InsertTransaction;
 import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
-import org.minimalj.transaction.persistence.ReadTransaction;
+import org.minimalj.transaction.persistence.ReadEntityTransaction;
 import org.minimalj.transaction.persistence.SaveTransaction;
 import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.LoggingRuntimeException;
@@ -77,7 +77,7 @@ public class Backend {
 	}
 
 	public static <T> T read(Class<T> clazz, Object id) {
-		return getInstance().execute(new ReadTransaction<T>(clazz, id, null));
+		return getInstance().execute(new ReadEntityTransaction<T>(clazz, id, null));
 	}
 
 	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
@@ -98,7 +98,7 @@ public class Backend {
 	}
 
 	public static <T> void delete(Class<T> clazz, Object id) {
-		getInstance().execute(new DeleteTransaction<T>(clazz, id));
+		getInstance().execute(new DeleteEntityTransaction<T>(clazz, id));
 	}
 	
 	public final <T> T execute(Transaction<T> transaction) {

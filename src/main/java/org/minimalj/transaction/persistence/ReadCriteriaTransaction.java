@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.criteria.Criteria;
 
-public class ReadCriteriaTransaction<ENTITY> extends ClassPersistenceTransaction<ENTITY, List<ENTITY>> {
+public class ReadCriteriaTransaction<ENTITY> extends ReadTransaction<ENTITY, List<ENTITY>> {
 	private static final long serialVersionUID = 1L;
 
 	private final Criteria criteria;
