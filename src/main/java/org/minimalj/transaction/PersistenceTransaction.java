@@ -1,5 +1,7 @@
 package org.minimalj.transaction;
 
+import java.sql.Connection;
+
 import org.minimalj.backend.Persistence;
 
 public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transaction<RETURN> {
@@ -7,8 +9,17 @@ public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transact
 
 	@Override
 	public final RETURN execute() {
+		RETURN result;
+		boolean commit = false;
 		Persistence persistence = Persistence.getInstance();
-		return execute(persistence);
+		try {
+			persistence.startTransaction(Connection.TRANSACTION_SERIALIZABLE);
+			result = execute(persistence);
+			commit = true;
+		} finally {
+			persistence.endTransaction(commit);
+		}
+		return result;
 	}
 
 //	public List<String> getRoles() {
@@ -30,8 +41,6 @@ public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transact
 //		}
 //	}
 //	
-	
-	protected abstract Class<ENTITY> getEntityClazz();
 	
 	protected abstract RETURN execute(Persistence persistence);
 	

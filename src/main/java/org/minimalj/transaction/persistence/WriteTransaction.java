@@ -13,11 +13,6 @@ public abstract class WriteTransaction<ENTITY, RETURN> extends PersistenceTransa
 		this.object = SerializationContainer.wrap(object);
 	}
 
-	@Override
-	public Class<ENTITY> getEntityClazz() {
-		return (Class<ENTITY>) getUnwrapped().getClass();
-	}
-	
 	@SuppressWarnings("unchecked")
 	protected ENTITY getUnwrapped() {
 		if (unwrapped == null) {

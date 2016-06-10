@@ -13,7 +13,6 @@ public class DeleteEntityTransaction<ENTITY> extends PersistenceTransaction<ENTI
 	private final ClassHolder<ENTITY> classHolder;
 	private final Object id;
 
-	@Override
 	protected Class<ENTITY> getEntityClazz() {
 		return classHolder.getClazz();
 	}

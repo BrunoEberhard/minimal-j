@@ -45,7 +45,6 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
-import org.minimalj.security.Subject;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -524,15 +523,4 @@ public class SwingTab extends EditablePanel implements PageManager {
 		return tryToCloseDialogs();
 	}
 	
-	@Override
-	public Subject getSubject() {
-		return frame.getSubject();
-	}
-
-	@Override
-	public void setSubject(Subject subject) {
-		frame.setSubject(subject);
-		history.clear();
-		show(Application.getApplication().createDefaultPage());
-	}
 }

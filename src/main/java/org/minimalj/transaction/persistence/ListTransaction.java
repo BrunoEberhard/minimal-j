@@ -17,11 +17,6 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 		this.lazyList = lazyList;
 	}
 
-	@Override
-	public Class<ELEMENT> getEntityClazz() {
-		return lazyList.getElementClass();
-	}
-
 	public static class ReadAllElementsTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, List<ELEMENT>> {
 		private static final long serialVersionUID = 1L;
 		

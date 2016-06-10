@@ -2,14 +2,12 @@ package org.minimalj.frontend;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.security.Subject;
 
 /**
  * To provide a new kind (Xy) of client you have to implement two things:
@@ -149,27 +147,11 @@ public abstract class Frontend {
 	public abstract <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener);
 	
 	public abstract IContent createHtmlContent(String htmlOrUrl);
-	
-	//
-	
-	public Subject getSubject() {
-		return getPageManager() != null ? getPageManager().getSubject() : null;
-	}
-
-	public void setSubject(Subject subject) {
-		getPageManager().setSubject(subject);
-	}
-	
+		
 	//
 	
 	public abstract PageManager getPageManager();
 	
-	//
-	
-	public <INPUT, RESULT> RESULT executeSync(Function<INPUT, RESULT> function, INPUT input) {
-		return function.apply(input);
-	}
-
 	// delegating shortcuts
 	
 	public static void show(Page page) {

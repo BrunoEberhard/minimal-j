@@ -20,11 +20,13 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.LoginAction;
+import org.minimalj.security.LoginAction.LoginListener;
 import org.minimalj.security.LoginTransaction;
 import org.minimalj.security.Subject;
 
-public class JsonClientSession implements PageManager {
+public class JsonClientSession implements PageManager, LoginListener {
 
 	private Subject subject;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
@@ -40,7 +42,7 @@ public class JsonClientSession implements PageManager {
 	}
 	
 	@Override
-	public void setSubject(Subject subject) {
+	public void loginSucceded(Subject subject) {
 		this.subject = subject;
 		
 		componentById.clear();
@@ -50,12 +52,13 @@ public class JsonClientSession implements PageManager {
 	}
 	
 	@Override
-	public Subject getSubject() {
-		return subject;
-	}
+	public void loginCancelled() {
+		show(new AuthenticationFailedPage());
+	};
 	
 	public JsonOutput handle(JsonInput input) {
 		JsonFrontend.setSession(this);
+		Subject.setSubject(subject);
 		output = new JsonOutput();
 		
 		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
@@ -133,7 +136,7 @@ public class JsonClientSession implements PageManager {
 		
 		String login = (String) input.getObject("login");
 		if (login != null || subject != null && !subject.isValid() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-			new LoginAction().action();
+			new LoginAction(this).action();
 		}
 		
 		List<String> pageIds = (List<String>) input.getObject("showPages");
@@ -141,6 +144,7 @@ public class JsonClientSession implements PageManager {
 			show(pageIds);
 		}
 		
+		Subject.setSubject(null);
 		JsonFrontend.setSession(null);
 		return output;
 	}

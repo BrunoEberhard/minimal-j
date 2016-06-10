@@ -14,6 +14,7 @@ import java.io.Serializable;
  * because signatures of methods get complicated by that and Void-Transactions
  * would not be possible because Void is not Serializable!)
  */
+@FunctionalInterface
 public interface Transaction<T> extends Serializable {
 
 	/**
@@ -21,8 +22,7 @@ public interface Transaction<T> extends Serializable {
 	 * to call this method directly.
 	 * 
 	 * @return the return value from the transaction
-	 * @throws NotAuthorizedException if logged in Subject has not needed role for this transaction to execute
 	 */
-	public T execute() throws NotAuthorizedException;
+	public T execute();
 	
 }

@@ -38,6 +38,13 @@ public abstract class Persistence {
 		return instance;
 	}
 	
+	// transaction
+
+	public abstract void startTransaction(int transactionIsolationLevel);
+	
+	public abstract void endTransaction(boolean commit);
+	
+	
 	// object handling
 	
 	public abstract <T> T read(Class<T> clazz, Object id);
@@ -50,7 +57,7 @@ public abstract class Persistence {
 
 	public abstract <T> void delete(Class<T> clazz, Object id);
 	
-	// list handling
+	// list handling, list name is the name of the property containing the list
 	
 	public abstract <ELEMENT> List<ELEMENT> getList(String listName, Object parentId);
 

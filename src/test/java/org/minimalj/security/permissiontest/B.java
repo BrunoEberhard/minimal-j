@@ -1,11 +1,10 @@
 package org.minimalj.security.permissiontest;
 
-import org.minimalj.transaction.Role;
+import org.minimalj.model.Grant;
 
-@Role("RoleB")
+@Grant("RoleB")
 public class B {
 
-	public B() {
-	}
+	public Object id;
 
 }

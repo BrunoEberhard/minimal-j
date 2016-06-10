@@ -12,6 +12,7 @@ import javax.swing.UIManager;
 
 import org.minimalj.application.DevMode;
 import org.minimalj.security.LoginAction;
+import org.minimalj.security.LoginAction.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -70,12 +71,18 @@ public class FrameManager {
 		});
 		if (subject != null && !subject.isValid()) {
 			SwingFrame.activeFrameOverride = frame;
-			new LoginAction(subject) {
+			LoginListener listener = new LoginListener() {
 				@Override
-				public void cancel() {
+				public void loginSucceded(Subject subject) {
+					frame.setSubject(subject);
+				}
+				
+				@Override
+				public void loginCancelled() {
 					frame.closeWindow();
-				};
-			}.action();
+				}
+			};
+			new LoginAction(listener, subject).action();
 			SwingFrame.activeFrameOverride = null;
 		} else {
 			frame.setSubject(subject);

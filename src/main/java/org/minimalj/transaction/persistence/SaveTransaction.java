@@ -19,6 +19,6 @@ public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 		} else {
 			persistence.update(unwrapped);
 		}
-		return (ENTITY) persistence.read(getEntityClazz(), id);
+		return (ENTITY) persistence.read(unwrapped.getClass(), id);
 	}
 }

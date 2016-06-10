@@ -1,11 +1,9 @@
 package org.minimalj.backend;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
@@ -68,6 +66,10 @@ public class Backend {
 
 		return new Backend();
 	}
+	
+	public static void setInstance(Backend instance) {
+		Backend.instance = instance;
+	}
 
 	public static Backend getInstance() {
 		if (instance == null) {
@@ -76,6 +78,8 @@ public class Backend {
 		return instance;
 	}
 
+	// TODO move static methods to "PersistenceTransaction"
+	
 	public static <T> T read(Class<T> clazz, Object id) {
 		return getInstance().execute(new ReadEntityTransaction<T>(clazz, id, null));
 	}
@@ -103,12 +107,7 @@ public class Backend {
 	
 	public final <T> T execute(Transaction<T> transaction) {
 		if (Subject.hasRoleFor(transaction)) {
-			if (Frontend.isAvailable() && Frontend.getInstance().getPageManager() != null) {
-				Function<Transaction<T>, T> f = (Transaction<T> t) -> (doExecute(t));
-				return Frontend.getInstance().executeSync(f, transaction);
-			} else {
-				return doExecute(transaction);
-			}
+			return doExecute(transaction);
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
 		}

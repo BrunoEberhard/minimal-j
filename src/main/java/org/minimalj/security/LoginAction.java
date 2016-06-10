@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
@@ -13,13 +12,15 @@ import org.minimalj.frontend.form.element.PasswordFormElement;
 public class LoginAction extends Editor<UserPassword, Subject> {
 
 	private final Subject anonymousSubject;
-
-	public LoginAction() {
-		this(null);
+	private final LoginListener listener;
+	
+	public LoginAction(LoginListener listener) {
+		this(listener, null);
 	}
 	
-	public LoginAction(Subject anonymousSubject) {
+	public LoginAction(LoginListener listener, Subject anonymousSubject) {
 		this.anonymousSubject = anonymousSubject;
+		this.listener = listener;
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 			Action action = new Action() {
 				@Override
 				public void action() {
-					Frontend.getInstance().setSubject(anonymousSubject);
+					listener.loginSucceded(anonymousSubject);
 				}
 			};
 			return Collections.singletonList(action);
@@ -58,15 +59,25 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 
 	@Override
 	public void cancel() {
-		if (!Frontend.getInstance().getSubject().isValid()) {
-			// some frontends cannot close their PageManager. They have to show an error page.
-			Frontend.show(new AuthenticationFailedPage());
-		}
+		listener.loginCancelled();
+//		if (!Frontend.getInstance().getSubject().isValid()) {
+//			// some frontends cannot close their PageManager. They have to show an error page.
+//			Frontend.show(new AuthenticationFailedPage());
+//		}
 		super.cancel();
 	}
 	
 	@Override
 	protected void finished(Subject subject) {
-		Frontend.getInstance().setSubject(subject);
+		listener.loginSucceded(subject);
+//		Frontend.getInstance().setSubject(subject);
+	}
+	
+	public static interface LoginListener {
+		
+		public void loginSucceded(Subject subject);
+
+		public void loginCancelled();
+
 	}
 }

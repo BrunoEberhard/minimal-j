@@ -4,14 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.Frontend;
-import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
 
 public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
+	private static final ThreadLocal<Subject> subject = new ThreadLocal<>();
 	private String name;
 	private Serializable token;
 	
@@ -60,59 +59,20 @@ public class Subject implements Serializable {
 	}
 	
 	public static Role getRole(Transaction<?> transaction) {
-		boolean isPersistenceTransaction = transaction instanceof PersistenceTransaction;
-		if (isPersistenceTransaction) {
-			PersistenceTransaction<?> persistenceTransaction = (PersistenceTransaction<?>) transaction;
-			Role role = findRoleByType(transaction.getClass(), persistenceTransaction.getClass());
-			if (role == null) {
-				role = findRoleByType(persistenceTransaction.getEntityClazz(), persistenceTransaction.getClass());
-			}
-			return role;
-		} else {
-			return findRoleByType(transaction.getClass(), Transaction.class);
-		}
-	}
-	
-	private static Role findRoleByType(Class<?> clazz, @SuppressWarnings("rawtypes") Class<? extends Transaction> transactionClass) {
-		Role[] roles = clazz.getAnnotationsByType(Role.class);
-		Role role = findRoleByType(roles, transactionClass);
+		Role role = transaction.getClass().getAnnotation(Role.class);
 		if (role != null) {
 			return role;
 		}
-		roles = clazz.getPackage().getAnnotationsByType(Role.class);
-		role = findRoleByType(roles, transactionClass);
+		role = transaction.getClass().getPackage().getAnnotation(Role.class);
 		return role;
 	}
 	
-	private static Role findRoleByType(Role[] roles, @SuppressWarnings("rawtypes") Class<? extends Transaction> transactionClass) {
-		for (Role role : roles) {
-			if (role.transaction() == transactionClass) {
-				return role;
-			}
-		}
-		// TODO respect class hierachy when retrieving needed role for a transaction
-		// the following lines only go by order of the roles not by the hierachy
-//		for (Role role : roles) {
-//			if (role.transactionClass().isAssignableFrom(transactionClass)) {
-//				return role;
-//			}
-//		}
-		
-		// check for the Transaction.class as this is the default in the annotation
-		for (Role role : roles) {
-			if (role.transaction() == Transaction.class) {
-				return role;
-			}
-		}		
-		return null;
+	public static void setSubject(Subject subject) {
+		Subject.subject.set(subject);
 	}
 	
 	public static Subject getSubject() {
-		if (Frontend.isAvailable()) {
-			return Frontend.getInstance().getSubject();
-		} else {
-			return Authorization.getInstance().getSubject();
-		}
+		return subject.get();
 	}
 
 }
