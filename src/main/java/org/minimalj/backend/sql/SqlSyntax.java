@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
-import org.minimalj.model.Grant.Privilege;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Grant.Privilege;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.IdUtils;

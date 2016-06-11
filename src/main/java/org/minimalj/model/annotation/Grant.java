@@ -1,4 +1,4 @@
-package org.minimalj.model;
+package org.minimalj.model.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.minimalj.model.Grant.Grants;
+import org.minimalj.model.annotation.Grant.Grants;
 
 @Repeatable(Grants.class)
 @Retention(RetentionPolicy.RUNTIME)

@@ -16,9 +16,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
-import org.minimalj.model.Grant;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
+import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
