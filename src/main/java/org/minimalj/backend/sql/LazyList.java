@@ -5,7 +5,7 @@ import java.util.AbstractList;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.transaction.PersistenceTransaction;
+import org.minimalj.backend.Persistence;
 import org.minimalj.transaction.persistence.ListTransaction.AddTransaction;
 import org.minimalj.transaction.persistence.ListTransaction.ReadAllElementsTransaction;
 import org.minimalj.transaction.persistence.ListTransaction.RemoveTransaction;
@@ -17,24 +17,24 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	
 	private transient List<ELEMENT> list;
 	
-	private transient SqlPersistence persistence;
+	private transient Persistence persistence;
 
 	private transient Class<ELEMENT> elementClass;
 	private final String elementClassName;
 	
 	private final Object parentId;
 	
-	private final String tableName;
+	private final String listName;
 	
-	public LazyList(SqlPersistence persistence, Class<ELEMENT> elementClass, PARENT parent, String tableName) {
+	public LazyList(Persistence persistence, Class<ELEMENT> elementClass, PARENT parent, String listName) {
 		this.persistence = persistence;
 		this.parentId = IdUtils.getId(parent);
-		this.tableName = tableName;
+		this.listName = listName;
 		this.elementClass = elementClass;
 		this.elementClassName = elementClass.getName();
 	}
 	
-	public void setPersistence(SqlPersistence persistence) {
+	public void setPersistence(Persistence persistence) {
 		this.persistence = persistence;
 	}
 	
@@ -53,19 +53,10 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		return parentId;
 	}
 	
-	private <T> T execute(PersistenceTransaction<T> transaction) {
-		if (persistence != null) {
-			return persistence.execute(transaction);
-		} else {
-			return Backend.getInstance().execute(transaction);
-		}
-	}
-	
 	public List<ELEMENT> getList() {
 		if (list == null) {
 			if (persistence != null) {
-				CrossTable<PARENT, ELEMENT> subTable = (CrossTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-				list = subTable.readAll(parentId);
+				return persistence.getList(listName, parentId);
 			} else {
 				list = Backend.getInstance().execute(new ReadAllElementsTransaction<PARENT, ELEMENT>(this));
 			}
@@ -87,13 +78,12 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	public boolean add(ELEMENT element) {
 		ELEMENT savedElement;
 		if (persistence != null) {
-			CrossTable<PARENT, ELEMENT> crossTable = (CrossTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			savedElement = crossTable.addElement(getParentId(), element);
+			savedElement = persistence.add(listName, parentId, element);
 		} else {
-			savedElement = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
+			savedElement = Backend.getInstance().execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}
-		CloneHelper.deepCopy(savedElement, element);
 		if (list != null) {
+			CloneHelper.deepCopy(savedElement, element);
 			list.add(element);
 		}
 		return true;
@@ -101,10 +91,9 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 
 	public ELEMENT addElement(ELEMENT element) {
 		if (persistence != null) {
-			CrossTable<PARENT, ELEMENT> crossTable = (CrossTable<PARENT, ELEMENT>) persistence.getTableByName().get(tableName);
-			element = crossTable.addElement(getParentId(), element);
+			element = persistence.add(listName, parentId, element);
 		} else {
-			element = execute(new AddTransaction<PARENT, ELEMENT>(this, element));
+			element = Backend.getInstance().execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}
 		if (list != null) {
 			list.add(element);
@@ -115,9 +104,10 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	@Override
 	public ELEMENT remove(int index) {
 		if (persistence != null) {
-			throw new RuntimeException("Not yet implemented");
+			persistence.remove(listName, parentId, index);
+			return null; //
 		} else {
-			return execute(new RemoveTransaction<PARENT, ELEMENT>(this, index));
+			return Backend.getInstance().execute(new RemoveTransaction<PARENT, ELEMENT>(this, index));
 		}
 	}
 }

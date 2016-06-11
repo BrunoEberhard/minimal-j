@@ -1,13 +1,12 @@
 package org.minimalj.security.permissiontest;
 
-import org.minimalj.transaction.Role;
-import org.minimalj.transaction.persistence.UpdateTransaction;
+import org.minimalj.model.annotation.Grant;
+import org.minimalj.model.annotation.Grant.Privilege;
 
-@Role(value = "ReadRole")
-@Role(transaction = UpdateTransaction.class, value = "UpdateRole")
+@Grant(value = "ReadRole")
+@Grant(privilege = Privilege.UPDATE, value = "UpdateRole")
 public class C {
 
-	public C() {
-	}
+	public Object id;
 
 }

@@ -8,18 +8,13 @@ import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.util.SerializationContainer;
 
-public abstract class ListTransaction<PARENT, ELEMENT, RETURN> implements PersistenceTransaction<RETURN> {
+public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends PersistenceTransaction<ELEMENT, RETURN> {
 	private static final long serialVersionUID = 1L;
 	
 	protected final LazyList<PARENT, ELEMENT> lazyList;
 
 	protected ListTransaction(LazyList<PARENT, ELEMENT> lazyList) {
 		this.lazyList = lazyList;
-	}
-
-	@Override
-	public Class<?> getEntityClazz() {
-		return lazyList.getElementClass();
 	}
 
 	public static class ReadAllElementsTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, List<ELEMENT>> {

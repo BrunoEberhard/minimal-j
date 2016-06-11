@@ -2,7 +2,7 @@ package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Persistence;
 
-public class InsertTransaction<T> extends BasePersistenceTransaction<Object> {
+public class InsertTransaction<T> extends WriteTransaction<T, Object> {
 	private static final long serialVersionUID = 1L;
 
 	public InsertTransaction(T object) {

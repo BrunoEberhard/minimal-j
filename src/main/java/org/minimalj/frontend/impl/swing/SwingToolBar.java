@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Page;
 
 public class SwingToolBar extends JToolBar {
@@ -55,7 +56,12 @@ public class SwingToolBar extends JToolBar {
 		textFieldSearch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				button.doClick();
+				SwingFrontend.pushContext();
+				try {
+					button.doClick();
+				} finally {
+					SwingFrontend.popContext();
+				}
 			}
 		});
 	}
@@ -65,9 +71,14 @@ public class SwingToolBar extends JToolBar {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String query = textFieldSearch.getText();
-			Page page = Application.getApplication().createSearchPage(query);
-			tab.show(page);
+			SwingFrontend.pushContext();
+			try {
+				String query = textFieldSearch.getText();
+				Page page = Application.getApplication().createSearchPage(query);
+				tab.show(page);
+			} finally {
+				SwingFrontend.popContext();
+			}
 		}
 	}
 	

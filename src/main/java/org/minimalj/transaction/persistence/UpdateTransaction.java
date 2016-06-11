@@ -2,15 +2,15 @@ package org.minimalj.transaction.persistence;
 
 import org.minimalj.backend.Persistence;
 
-public class UpdateTransaction<T> extends BasePersistenceTransaction<T> {
+public class UpdateTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 	private static final long serialVersionUID = 1L;
 
-	public UpdateTransaction(T object) {
+	public UpdateTransaction(ENTITY object) {
 		super(object);
 	}
 
 	@Override
-	public T execute(Persistence persistence) {
+	public ENTITY execute(Persistence persistence) {
 		persistence.update(getUnwrapped());
 		return null;
 	}

@@ -3,25 +3,20 @@ package org.minimalj.transaction.persistence;
 import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.util.SerializationContainer;
 
-public abstract class BasePersistenceTransaction<T> implements PersistenceTransaction<T> {
+public abstract class WriteTransaction<ENTITY, RETURN> extends PersistenceTransaction<ENTITY, RETURN> {
 	private static final long serialVersionUID = 1L;
 
 	private final Object object;
-	private transient T unwrapped;
+	private transient ENTITY unwrapped;
 
-	public BasePersistenceTransaction(T object) {
+	public WriteTransaction(ENTITY object) {
 		this.object = SerializationContainer.wrap(object);
 	}
 
-	@Override
-	public Class<?> getEntityClazz() {
-		return getUnwrapped().getClass();
-	}
-	
 	@SuppressWarnings("unchecked")
-	protected T getUnwrapped() {
+	protected ENTITY getUnwrapped() {
 		if (unwrapped == null) {
-			unwrapped = (T) SerializationContainer.unwrap(object);
+			unwrapped = (ENTITY) SerializationContainer.unwrap(object);
 		}
 		return unwrapped;
 	}

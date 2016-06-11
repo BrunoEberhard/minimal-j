@@ -1,20 +1,16 @@
 package org.minimalj.backend;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
-import org.minimalj.application.Application;
-import org.minimalj.backend.sql.SqlBackend;
 import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.persistence.DeleteTransaction;
+import org.minimalj.transaction.persistence.DeleteEntityTransaction;
 import org.minimalj.transaction.persistence.InsertTransaction;
 import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
-import org.minimalj.transaction.persistence.ReadTransaction;
+import org.minimalj.transaction.persistence.ReadEntityTransaction;
 import org.minimalj.transaction.persistence.SaveTransaction;
 import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.LoggingRuntimeException;
@@ -44,7 +40,7 @@ import org.minimalj.util.StringUtils;
  * the classname of the backend.</LI>
  * </UL>
  */
-public abstract class Backend {
+public class Backend {
 	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 
 	private static Backend instance;
@@ -67,20 +63,12 @@ public abstract class Backend {
 				throw new LoggingRuntimeException(x, logger, "Set backend failed");
 			}
 		} 
-		
-		Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
-		if (entityClasses != null && entityClasses.length > 0) {
-			String database = System.getProperty("MjBackendDatabase");
-			String user = System.getProperty("MjBackendDatabaseUser", "APP");
-			String password = System.getProperty("MjBackendDatabasePassword", "APP");
-			if (!StringUtils.isBlank(database)) {
-				return new SqlBackend(database, user, password);
-			} else {
-				return new SqlBackend();
-			}
-		} else {
-			return new BackendWithoutPersistence();
-		}
+
+		return new Backend();
+	}
+	
+	public static void setInstance(Backend instance) {
+		Backend.instance = instance;
 	}
 
 	public static Backend getInstance() {
@@ -90,8 +78,10 @@ public abstract class Backend {
 		return instance;
 	}
 
+	// TODO move static methods to "PersistenceTransaction"
+	
 	public static <T> T read(Class<T> clazz, Object id) {
-		return getInstance().execute(new ReadTransaction<T>(clazz, id, null));
+		return getInstance().execute(new ReadEntityTransaction<T>(clazz, id, null));
 	}
 
 	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
@@ -112,29 +102,19 @@ public abstract class Backend {
 	}
 
 	public static <T> void delete(Class<T> clazz, Object id) {
-		getInstance().execute(new DeleteTransaction(clazz, id));
+		getInstance().execute(new DeleteEntityTransaction<T>(clazz, id));
 	}
 	
 	public final <T> T execute(Transaction<T> transaction) {
 		if (Subject.hasRoleFor(transaction)) {
-			if (Frontend.isAvailable() && Frontend.getInstance().getPageManager() != null) {
-				Function<Transaction<T>, T> f = (Transaction<T> t) -> (doExecute(t));
-				return Frontend.getInstance().executeSync(f, transaction);
-			} else {
-				return doExecute(transaction);
-			}
+			return doExecute(transaction);
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
 		}
 	}
 	
-	public abstract <T> T doExecute(Transaction<T> transaction);
-	
-	private static class BackendWithoutPersistence extends Backend {
-
-		@Override
-		public <T> T doExecute(Transaction<T> transaction) {
-			return transaction.execute();
-		}
+	public <T> T doExecute(Transaction<T> transaction) {
+		return transaction.execute();
 	}
+	
 }

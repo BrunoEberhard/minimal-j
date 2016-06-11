@@ -20,6 +20,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.component.HideableTabbedPane;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.LoginAction;
+import org.minimalj.security.LoginAction.LoginListener;
 import org.minimalj.security.LoginTransaction;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
@@ -220,7 +221,18 @@ public class SwingFrame extends JFrame {
 				Frontend.showMessage(Resources.getString("Login.moreThanOneTab"));
 				return;
 			}
-			new LoginAction().action();
+			LoginListener listener = new LoginListener() {
+				@Override
+				public void loginSucceded(Subject subject) {
+					setSubject(subject);
+				}
+				
+				@Override
+				public void loginCancelled() {
+					// nothing to do. just go on.
+				}
+			};
+			new LoginAction(listener).action();
 		}
 	}
 	

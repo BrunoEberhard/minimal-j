@@ -14,6 +14,7 @@ import java.io.Serializable;
  * because signatures of methods get complicated by that and Void-Transactions
  * would not be possible because Void is not Serializable!)
  */
+@FunctionalInterface
 public interface Transaction<T> extends Serializable {
 
 	/**

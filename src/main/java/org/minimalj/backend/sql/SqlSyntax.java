@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.util.Set;
 
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Grant.Privilege;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.IdUtils;
@@ -146,6 +147,16 @@ public abstract class SqlSyntax {
 		s.append(" (");
 		s.append(column);
 		s.append(')');
+		return s.toString();
+	}
+	
+	public String createGrant(String tablename, String roleName, Privilege privilege) {
+		StringBuilder s = new StringBuilder();
+		if (privilege != Privilege.ALL) {
+			s.append("GRANT ").append(privilege.name()).append(" ON ").append(tablename).append(" TO ").append(roleName);
+		} else {
+			s.append("GRANT SELECT, INSERT, UPDATE, DELETE ON ").append(tablename).append(" TO ").append(roleName);
+		}
 		return s.toString();
 	}
 	

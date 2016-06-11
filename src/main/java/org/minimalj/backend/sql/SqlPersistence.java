@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +36,12 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
-import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.criteria.By;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
@@ -57,7 +58,7 @@ import org.minimalj.util.StringUtils;
  * The Mapper to a relationale Database
  * 
  */
-public class SqlPersistence implements Persistence {
+public class SqlPersistence extends Persistence {
 	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
@@ -100,6 +101,7 @@ public class SqlPersistence implements Persistence {
 			}
 			testModel(classes);
 			if (createTablesOnInitialize) {
+				createRoles();
 				createTables();
 				createCodes();
 			}
@@ -191,14 +193,34 @@ public class SqlPersistence implements Persistence {
 		return mainClasses.contains(clazz);
 	}
 	
-	public synchronized void startTransaction() {
-		if (threadLocalTransactionConnection.get() != null) return;
+	@Override
+	public void startTransaction(int transactionIsolationLevel) {
+		if (isTransactionActive()) return;
 		
-		Connection transactionConnection = allocateConnection();
+		Connection transactionConnection = allocateConnection(transactionIsolationLevel);
+
+		// TODO role base entity access
+//		if (dbSecurity) {
+//			Subject subject = Subject.getSubject();
+//			if (subject != null) {
+//				StringBuilder s = new StringBuilder("SET ROLE ");
+//				for (String role : subject.getRoles()) {
+//					s.append(role).append(", ");
+//				}
+//				String query = s.substring(0, s.length() - 2);
+//				try (PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false)) {
+//					preparedStatement.execute();
+//				} catch (SQLException x) {
+//					throw new LoggingRuntimeException(x, logger, "Couldn't set role");
+//				}
+//			}
+//		}
+		
 		threadLocalTransactionConnection.set(transactionConnection);
 	}
 
-	public synchronized void endTransaction(boolean commit) {
+	@Override
+	public void endTransaction(boolean commit) {
 		Connection transactionConnection = threadLocalTransactionConnection.get();
 		if (transactionConnection == null) return;
 		
@@ -216,7 +238,7 @@ public class SqlPersistence implements Persistence {
 		threadLocalTransactionConnection.set(null);
 	}
 	
-	private Connection allocateConnection() {
+	private Connection allocateConnection(int transactionIsolationLevel) {
 		Connection connection = connectionDeque.poll();
 		while (true) {
 			boolean valid = false;
@@ -230,7 +252,7 @@ public class SqlPersistence implements Persistence {
 			}
 			try {
 				connection = dataSource.getConnection();
-				connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+				connection.setTransactionIsolation(transactionIsolationLevel);
 				connection.setAutoCommit(false);
 				return connection;
 			} catch (Exception e) {
@@ -265,27 +287,7 @@ public class SqlPersistence implements Persistence {
 		}
 	}
 
-	public <T> T execute(PersistenceTransaction<T> transaction) {
-		T result;
-		if (isTransactionActive()) {
-			result = transaction.execute(this);
-		} else {
-			boolean runThrough = false;
-			try {
-				startTransaction();
-				result = transaction.execute(this);
-				runThrough = true;
-			} catch (Exception x) {
-				x.printStackTrace();
-				return null;
-			} finally {
-				endTransaction(runThrough);
-			}
-		}
-		return result;
-	}
-	
-	private boolean isTransactionActive() {
+	public boolean isTransactionActive() {
 		Connection connection = threadLocalTransactionConnection.get();
 		return connection != null;
 	}
@@ -295,7 +297,8 @@ public class SqlPersistence implements Persistence {
 		if (connection != null) {
 			return connection;
 		} else {
-			return getAutoCommitConnection();
+			connection = getAutoCommitConnection();
+			return connection;
 		}
 	}
 	
@@ -386,6 +389,23 @@ public class SqlPersistence implements Persistence {
 		}
 	}
 
+	@Override
+	public <ELEMENT> List<ELEMENT> getList(String listName, Object parentId) {
+		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(listName);
+		return subTable.readAll(parentId);
+	}
+	
+	@Override
+	public <ELEMENT> ELEMENT add(String listName, Object parentId, ELEMENT element) {
+		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(listName);
+		return subTable.addElement(parentId, element);
+	}
+	
+	@Override
+	public void remove(String listName, Object parentId, int position) {
+		throw new RuntimeException("Not yet implemented");
+	}
+	
 	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {
@@ -565,6 +585,34 @@ public class SqlPersistence implements Persistence {
 		}
 	}
 
+	private void createRoles() {
+		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		Set<String> roles = new HashSet<>();
+		for (AbstractTable<?> table : tableList) {
+			Grant[] grants = table.getClazz().getAnnotationsByType(Grant.class);
+			for (Grant grant : grants) {
+				for (String role : grant.value()) {
+					roles.add(role);
+				}
+			}
+		}
+		if (!roles.isEmpty()) {
+			try (PreparedStatement statement = AbstractTable.createStatement(getConnection(), "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.database.sqlAuthorization','TRUE')", false)) {
+				statement.execute();
+			} catch (SQLException x) {
+				throw new LoggingRuntimeException(x, logger, "Create role statement failed");
+			}
+		}
+		
+		for (String role : roles) {
+			try (PreparedStatement statement = AbstractTable.createStatement(getConnection(), "CREATE ROLE " + role, false)) {
+				statement.execute();
+			} catch (SQLException x) {
+				throw new LoggingRuntimeException(x, logger, "Create role statement failed");
+			}
+		}
+	}
+	
 	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
@@ -575,6 +623,9 @@ public class SqlPersistence implements Persistence {
 		}
 		for (AbstractTable<?> table : tableList) {
 			table.createConstraints(syntax);
+		}
+		for (AbstractTable<?> table : tableList) {
+			table.createGrants(syntax);
 		}
 	}
 

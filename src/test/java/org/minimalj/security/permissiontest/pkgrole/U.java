@@ -5,15 +5,15 @@ import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.transaction.Role;
 
 @Role("transactionRole")
-public class U implements PersistenceTransaction<U> {
+public class U<ENTITY, RETURN> extends PersistenceTransaction<ENTITY, RETURN> {
 	private static final long serialVersionUID = 1L;
 
 	public U() {
 	}
 
 	@Override
-	public U execute(Persistence persistence) {
+	protected RETURN execute(Persistence persistence) {
 		return null;
 	}
-
 }
+
