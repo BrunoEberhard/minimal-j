@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.model.annotation.Grant;
+import org.minimalj.model.annotation.Grant.Privilege;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
 
@@ -66,6 +68,32 @@ public class Subject implements Serializable {
 		role = transaction.getClass().getPackage().getAnnotation(Role.class);
 		return role;
 	}
+	
+	public static void checkPermission(Grant.Privilege privilege, Class<?> clazz) {
+		boolean allowed = false;
+		Grant[] grantsOnClass = clazz.getAnnotationsByType(Grant.class);
+		allowed |= checkPermission(privilege, clazz, grantsOnClass);
+		Grant[] grantsOnPackage = clazz.getPackage().getAnnotationsByType(Grant.class);
+		allowed |= checkPermission(privilege, clazz, grantsOnPackage);
+		allowed |= checkPermission(Privilege.ALL, clazz, grantsOnClass);
+		allowed |= checkPermission(Privilege.ALL, clazz, grantsOnPackage);
+	}
+	
+	private static boolean checkPermission(Grant.Privilege privilege, Class<?> clazz, Grant[] grants) {
+		if (grants != null) {
+			for (Grant grant : grants) {
+				if (grant.privilege() == privilege) {
+					if (hasRole(grant.value())) {
+						return true;
+					} else {
+						throw new IllegalStateException(privilege + " not allowed on " + clazz.getSimpleName());
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
 	
 	public static void setSubject(Subject subject) {
 		Subject.subject.set(subject);

@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
-import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -155,16 +154,6 @@ public abstract class AbstractTable<T> {
 				if (s != null) {
 					execute(s.toString());
 				}
-			}
-		}
-	}
-	
-	protected void createGrants(SqlSyntax syntax) {
-		Grant[] grants = getClazz().getAnnotationsByType(Grant.class);
-		for (Grant grant : grants) {
-			for (String role : grant.value()) {
-				String s = syntax.createGrant(getTableName(), role, grant.privilege());
-				execute(s);
 			}
 		}
 	}

@@ -624,9 +624,6 @@ public class SqlPersistence extends Persistence {
 		for (AbstractTable<?> table : tableList) {
 			table.createConstraints(syntax);
 		}
-		for (AbstractTable<?> table : tableList) {
-			table.createGrants(syntax);
-		}
 	}
 
 	private void createCodes() {
