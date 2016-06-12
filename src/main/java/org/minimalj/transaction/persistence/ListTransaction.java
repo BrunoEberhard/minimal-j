@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.minimalj.backend.Persistence;
 import org.minimalj.backend.sql.LazyList;
-import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.PersistenceTransaction;
 import org.minimalj.util.SerializationContainer;
 
@@ -26,7 +25,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 
 		@Override
 		public List<ELEMENT> execute(Persistence persistence) {
-			lazyList.setPersistence((SqlPersistence) persistence);
+			lazyList.setPersistence(persistence);
 			return lazyList.getList();
 		}
 	}
@@ -42,7 +41,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 
 		@Override
 		public ELEMENT execute(Persistence persistence) {
-			lazyList.setPersistence((SqlPersistence) persistence);
+			lazyList.setPersistence(persistence);
 			return lazyList.get(position);
 		}
 	}
@@ -59,7 +58,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 		@Override
 		public ELEMENT execute(Persistence persistence) {
 			ELEMENT element = (ELEMENT) SerializationContainer.unwrap(elementWrapped);
-			lazyList.setPersistence((SqlPersistence) persistence);
+			lazyList.setPersistence(persistence);
 			return lazyList.addElement(element);
 		}
 	}
@@ -75,7 +74,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 
 		@Override
 		public ELEMENT execute(Persistence persistence) {
-			lazyList.setPersistence((SqlPersistence) persistence);
+			lazyList.setPersistence(persistence);
 			return lazyList.remove(position);
 		}
 	}
