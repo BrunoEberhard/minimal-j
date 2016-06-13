@@ -198,24 +198,6 @@ public class SqlPersistence extends Persistence {
 		if (isTransactionActive()) return;
 		
 		Connection transactionConnection = allocateConnection(transactionIsolationLevel);
-
-		// TODO role base entity access
-//		if (dbSecurity) {
-//			Subject subject = Subject.getSubject();
-//			if (subject != null) {
-//				StringBuilder s = new StringBuilder("SET ROLE ");
-//				for (String role : subject.getRoles()) {
-//					s.append(role).append(", ");
-//				}
-//				String query = s.substring(0, s.length() - 2);
-//				try (PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false)) {
-//					preparedStatement.execute();
-//				} catch (SQLException x) {
-//					throw new LoggingRuntimeException(x, logger, "Couldn't set role");
-//				}
-//			}
-//		}
-		
 		threadLocalTransactionConnection.set(transactionConnection);
 	}
 
