@@ -42,7 +42,7 @@ public abstract class ObjectPage<T> extends Page {
 	
 	@SuppressWarnings("unchecked")
 	public ObjectPage(T object) {
-		this((Class<T>) object.getClass(), IdUtils.getId(object, !IdUtils.PLAIN));
+		this((Class<T>) object.getClass(), IdUtils.getId(object));
 	}
 	
 	public ObjectPage(Class<T> objectClass, Object objectId) {
@@ -56,7 +56,7 @@ public abstract class ObjectPage<T> extends Page {
 		} else if (object.getClass() != objectClass) {
 			throw new IllegalArgumentException("Object is " + object.getClass() + " instead of " + objectClass);
 		} else {
-			objectId = IdUtils.getId(object, !IdUtils.PLAIN);
+			objectId = IdUtils.getId(object);
 			this.object = object;
 			if (form != null) {
 				form.setObject(object);

@@ -7,8 +7,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.minimalj.backend.sql.ReadOnlyId;
-
 /**
  * Every main entity in a minimal-j model must have a public field named <code>id</code>.<p>
  *
@@ -46,8 +44,6 @@ public class IdUtils {
 		return getIdField(clazz) != null;
 	}
 
-	public static final boolean PLAIN = true;
-	
 	/**
 	 * Get the value of the <code>id</code> field. The id is converted to
 	 * 'plain' if it is a ReadOnly id
@@ -56,18 +52,11 @@ public class IdUtils {
 	 * @return the value of the <code>id</code> field
 	 */
 	public static Object getId(Object object) {
-		return getId(object, PLAIN);
-	}
-	
-	public static Object getId(Object object, boolean plain) {
 		Objects.nonNull(object);
 		try {
 			Field idField = getIdField(object.getClass());
 			if (idField == null) throw new IllegalArgumentException(object.getClass().getName() + " has no id field to get");
 			Object id = idField.get(object);
-			if (plain && id instanceof ReadOnlyId) {
-				id = ((ReadOnlyId) id).getId();
-			}
 			return id;
 		} catch (SecurityException | IllegalAccessException e) {
 			throw new LoggingRuntimeException(e, logger, "getting Id failed");

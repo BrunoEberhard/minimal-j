@@ -170,20 +170,12 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(Object id) {
-		return read(id, true);
-	}
-	
-	public T read(Object id, boolean complete) {
 		Subject.checkPermission(Grant.Privilege.SELECT, getClazz());
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (object != null) {
-				if (complete) {
-					loadLists(object);
-				} else {
-					IdUtils.setId(object, new ReadOnlyId(id));
-				}
+				loadLists(object);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -319,7 +311,19 @@ public class Table<T> extends AbstractTable<T> {
 			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}
 	}
-	
+
+	public <S> S readView(Class<S> resultClass, Object id) {
+		Subject.checkPermission(Grant.Privilege.SELECT, getClazz());
+		Subject.checkPermission(Grant.Privilege.SELECT, resultClass);
+		String query = select(resultClass) + " WHERE id = ?";
+		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
+			statement.setObject(1, id);
+			return executeSelectView(resultClass, statement);
+		} catch (SQLException e) {
+			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+		}
+	}
+
 	private String select(Class<?> resultClass) {
 		String querySql = "select ID";
 		Map<String, PropertyInterface> propertiesByColumns = sqlPersistence.findColumns(resultClass);
@@ -357,7 +361,18 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		return result;
 	}
-	
+
+	protected <S> S executeSelectView(Class<S> resultClass, PreparedStatement preparedStatement) throws SQLException {
+		S result = null;
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
+			if (resultSet.next()) {
+				result = sqlPersistence.readResultSetRow(resultClass, resultSet, loadedReferences);
+			}
+		}
+		return result;
+	}
+
 	public String convertUserSearch(String s) {
 		s = s.replace('*', '%');
 		return s;

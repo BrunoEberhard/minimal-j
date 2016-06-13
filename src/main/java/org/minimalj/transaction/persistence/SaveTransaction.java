@@ -13,7 +13,7 @@ public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 	@Override
 	protected ENTITY execute(Persistence persistence) {
 		ENTITY unwrapped = getUnwrapped();
-		Object id = IdUtils.getId(unwrapped, !IdUtils.PLAIN); 
+		Object id = IdUtils.getId(unwrapped); 
 		if (id == null) {
 			id = persistence.insert(unwrapped);
 		} else {

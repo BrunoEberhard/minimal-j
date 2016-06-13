@@ -308,15 +308,8 @@ public class SqlPersistence extends Persistence {
 	
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
-		Table<T> table;
-		if (id instanceof ReadOnlyId) {
-			ReadOnlyId readOnlyId = (ReadOnlyId) id;
-			table = getTable(clazz);
-			return table.read(readOnlyId.getId());
-		} else {
-			table = getTable(clazz);
-			return table.read(id);
-		}
+		Table<T> table = getTable(clazz);
+		return table.read(id);
 	}
 
 	public <T> T readVersion(Class<T> clazz, Object id, Integer time) {
@@ -546,6 +539,10 @@ public class SqlPersistence extends Persistence {
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value, false);
+				} else if (View.class.isAssignableFrom(fieldClass)) {
+					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
+					Table<?> referenceTable = getTable(viewedClass);
+					value = referenceTable.readView(fieldClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
 					if (!loadedReferences.containsKey(fieldClass)) {
 						loadedReferences.put(fieldClass, new HashMap<>());
@@ -554,7 +551,7 @@ public class SqlPersistence extends Persistence {
 						value = loadedReferences.get(fieldClass).get(value);
 					} else {
 						Table<?> referenceTable = getTable(fieldClass);
-						Object reference = referenceTable.read(value, false);
+						Object reference = referenceTable.read(value);
 						loadedReferences.get(fieldClass).put(value, reference);
 						value = reference;
 					}
