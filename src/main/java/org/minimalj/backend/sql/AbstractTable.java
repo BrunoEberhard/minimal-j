@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -148,6 +149,7 @@ public abstract class AbstractTable<T> {
 			
 			if (IdUtils.hasId(property.getClazz())) {
 				Class<?> fieldClass = property.getClazz();
+				fieldClass = ViewUtil.resolve(fieldClass);
 				AbstractTable<?> referencedTable = sqlPersistence.getAbstractTable(fieldClass);
 
 				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
