@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.security.Authorization;
+import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
@@ -66,7 +67,8 @@ public class SocketBackendServer {
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 				Serializable securityToken = (Serializable) ois.readObject();
-				Authorization.getInstance().setSecurityToken(securityToken);
+				Subject subject =  Authorization.getInstance().getUserByToken(securityToken);
+				Subject.setSubject(subject);
 				
 				Object input = ois.readObject();
 				
@@ -95,7 +97,7 @@ public class SocketBackendServer {
 				logger.log(Level.SEVERE, "SocketRunnable failed", e);
 				e.printStackTrace();
 			} finally {
-				Authorization.getInstance().setSecurityToken(null);
+				Subject.setSubject(null);
 			}
 		}
 	}

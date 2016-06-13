@@ -75,14 +75,6 @@ public abstract class Authorization {
 		return userByToken.get(token);
 	}
 	
-	public void setSecurityToken(Serializable securityToken) {
-		Authorization.securityToken.set(securityToken);	
-	}
-	
-	public Subject getSubject() {
-		return userByToken.get(securityToken.get());
-	}
-	
 	public static class LoginFailedException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 		
