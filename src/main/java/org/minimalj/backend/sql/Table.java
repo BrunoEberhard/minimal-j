@@ -343,20 +343,19 @@ public class Table<T> extends AbstractTable<T> {
 				S resultObject = sqlPersistence.readResultSetRow(resultClass, resultSet, loadedReferences);
 				result.add(resultObject);
 
-				// TODO: load lists of view if executeSelectViewAll
-				
-//				Object id = IdUtils.getId(resultObject);
-//				List<PropertyInterface> viewLists = findLists(resultClass);
-//				for (PropertyInterface viewListProperty : viewLists) {
-//					List list = (List) viewLists.get(listProperty).getValue(resultObject);
-//					if (subTables.get(listProperty) instanceof EagerListTable) {
-//						EagerListTable subTable = (EagerListTable) subTables.get(listProperty);
-//						list.addAll(subTable.read(id));
-//					} else if (subTables.get(listProperty) instanceof HistorizedEagerListTable) {
-//						HistorizedEagerListTable subTable = (HistorizedEagerListTable) subTables.get(listProperty);
-//						list.addAll(subTable.read(id, 0));
-//					}
-//				}
+				// this may work, but make it readable
+				List<PropertyInterface> viewLists = FlatProperties.getListProperties(resultClass);
+				for (PropertyInterface viewListProperty : viewLists) {
+					for (Entry<PropertyInterface, ListTable> listPropertyEntry : lists.entrySet()) {
+						if (viewListProperty.getPath().equals(listPropertyEntry.getKey().getPath())) {
+							List values = listPropertyEntry.getValue().getList(resultObject);
+							PropertyInterface listProperty = listPropertyEntry.getKey();
+							listProperty.setValue(resultObject, values);
+
+							break;
+						}
+					}
+				}
 			}
 		}
 		return result;
@@ -398,13 +397,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 			List values = listTableEntry.getValue().getList(object);
 			PropertyInterface listProperty = listTableEntry.getKey();
-			if (listProperty.isFinal()) {
-				List list = (List) listProperty.getValue(object);
-				list.clear();
-				list.addAll(values);
-			} else {
-				listProperty.setValue(object, values);
-			}
+			listProperty.setValue(object, values);
 		}
 	}
 	
