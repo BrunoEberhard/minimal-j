@@ -2,10 +2,12 @@ package org.minimalj.backend;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.transaction.criteria.Criteria;
+import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
@@ -14,16 +16,29 @@ import org.minimalj.util.StringUtils;
  *
  */
 public abstract class Persistence {
+	private static final Logger logger = Logger.getLogger(Persistence.class.getName());
 
 	private static Persistence instance;
 	
 	private static Persistence createPersistence() {
-		String database = System.getProperty("MjBackendDatabase");
-		String user = System.getProperty("MjBackendDatabaseUser", "APP");
-		String password = System.getProperty("MjBackendDatabasePassword", "APP");
+		String persistenceClassName = System.getProperty("MjPersistence");
+		if (!StringUtils.isBlank(persistenceClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends Persistence> persistenceClass = (Class<? extends Persistence>) Class.forName(persistenceClassName);
+				Persistence persistence = persistenceClass.newInstance();
+				return persistence;
+			} catch (Exception x) {
+				throw new LoggingRuntimeException(x, logger, "Set backend failed");
+			}
+		} 
+		
+		String database = System.getProperty("MjSqlDatabase");
+		String user = System.getProperty("MjSqlDatabaseUser", "APP");
+		String password = System.getProperty("MjSqlDatabasePassword", "APP");
 		Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
 		if (StringUtils.isBlank(database)) {
-			String databaseFile = System.getProperty("MjBackendDatabaseFile", null);
+			String databaseFile = System.getProperty("MjSqlDatabaseFile", null);
 			boolean createTables = databaseFile == null || !new File(databaseFile).exists();
 			return new SqlPersistence(SqlPersistence.embeddedDataSource(databaseFile), createTables, entityClasses);
 		} else {
