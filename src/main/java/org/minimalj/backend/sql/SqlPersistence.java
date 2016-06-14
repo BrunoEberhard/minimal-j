@@ -14,7 +14,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
@@ -101,7 +99,6 @@ public class SqlPersistence extends Persistence {
 			}
 			testModel(classes);
 			if (createTablesOnInitialize) {
-				createRoles();
 				createTables();
 				createCodes();
 			}
@@ -561,34 +558,6 @@ public class SqlPersistence extends Persistence {
 			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
 			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
 			tables.put(table.getClazz(), table);
-		}
-	}
-
-	private void createRoles() {
-		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
-		Set<String> roles = new HashSet<>();
-		for (AbstractTable<?> table : tableList) {
-			Grant[] grants = table.getClazz().getAnnotationsByType(Grant.class);
-			for (Grant grant : grants) {
-				for (String role : grant.value()) {
-					roles.add(role);
-				}
-			}
-		}
-		if (!roles.isEmpty()) {
-			try (PreparedStatement statement = AbstractTable.createStatement(getConnection(), "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.database.sqlAuthorization','TRUE')", false)) {
-				statement.execute();
-			} catch (SQLException x) {
-				throw new LoggingRuntimeException(x, logger, "Create role statement failed");
-			}
-		}
-		
-		for (String role : roles) {
-			try (PreparedStatement statement = AbstractTable.createStatement(getConnection(), "CREATE ROLE " + role, false)) {
-				statement.execute();
-			} catch (SQLException x) {
-				throw new LoggingRuntimeException(x, logger, "Create role statement failed");
-			}
 		}
 	}
 	

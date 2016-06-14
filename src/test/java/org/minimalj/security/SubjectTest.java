@@ -17,7 +17,6 @@ public class SubjectTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		System.setProperty("derby.database.sqlAuthorization", "TRUE");
 		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, B.class, C.class, G.class, H.class);
 	}
 	
