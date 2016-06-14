@@ -22,29 +22,26 @@ import org.minimalj.model.Rendering;
 
 public abstract class Frontend {
 
-	private static Frontend instance;
+	private static InheritableThreadLocal<Frontend> current = new InheritableThreadLocal<>();
 	
 	public static Frontend getInstance() {
-		if (instance == null) {
+		Frontend frontend = current.get();
+		if (frontend == null) {
 			throw new IllegalStateException("Frontend has to be initialized");
 		}
-		return instance;
+		return frontend;
 	}
 
-	public static synchronized void setInstance(Frontend frontend) {
-		if (Frontend.instance != null) {
+	public static void setInstance(Frontend frontend) {
+		if (current.get() != null) {
 			throw new IllegalStateException("Frontend cannot be changed");
 		}		
 		if (frontend == null) {
 			throw new IllegalArgumentException("Frontend cannot be null");
 		}
-		Frontend.instance = frontend;
+		current.set(frontend);
 	}
 
-	public static boolean isAvailable() {
-		return Frontend.instance != null;
-	}
-	
 	/**
 	 * Components are the smallest part of the gui. Things like textfields
 	 * and comboboxes. A form is filled with components.

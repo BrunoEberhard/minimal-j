@@ -43,39 +43,37 @@ import org.minimalj.util.StringUtils;
 public class Backend {
 	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 
-	private static Backend instance;
-	
-	public static Backend createBackend() {
-		String backendAddress = System.getProperty("MjBackendAddress");
-		String backendPort = System.getProperty("MjBackendPort", "8020");
-		if (backendAddress != null) {
-			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
-		} 
+	private static InheritableThreadLocal<Backend> current = new InheritableThreadLocal<Backend>() {
+		@Override
+		protected Backend initialValue() {
+			String backendAddress = System.getProperty("MjBackendAddress");
+			String backendPort = System.getProperty("MjBackendPort", "8020");
+			if (backendAddress != null) {
+				return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
+			} 
 
-		String backendClassName = System.getProperty("MjBackend");
-		if (!StringUtils.isBlank(backendClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
-				Backend backend = backendClass.newInstance();
-				return backend;
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set backend failed");
-			}
-		} 
+			String backendClassName = System.getProperty("MjBackend");
+			if (!StringUtils.isBlank(backendClassName)) {
+				try {
+					@SuppressWarnings("unchecked")
+					Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
+					Backend backend = backendClass.newInstance();
+					return backend;
+				} catch (Exception x) {
+					throw new LoggingRuntimeException(x, logger, "Set backend failed");
+				}
+			} 
 
-		return new Backend();
-	}
+			return new Backend();
+		};
+	};
 	
-	public static void setInstance(Backend instance) {
-		Backend.instance = instance;
+	public static void setInstance(Backend backend) {
+		Backend.current.set(backend);
 	}
 
 	public static Backend getInstance() {
-		if (instance == null) {
-			instance = createBackend();
-		}
-		return instance;
+		return current.get();
 	}
 
 	// TODO move static methods to "PersistenceTransaction"

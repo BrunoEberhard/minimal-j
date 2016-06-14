@@ -7,44 +7,42 @@ import java.util.Map;
 import java.util.UUID;
 
 public abstract class Authorization {
-	private static Authorization instance;
-
 	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
 	private Map<UUID, Subject> userByToken = new HashMap<>();
 
 	private static boolean available = true;
+
+	private static InheritableThreadLocal<Authorization> current = new InheritableThreadLocal<Authorization>() {
+		@Override
+		protected Authorization initialValue() {
+			if (!available) {
+				return null;
+			}
+			
+			String userFile = System.getProperty("MjUserFile");
+			if (userFile != null) {
+				return new TextFileAuthorization(userFile);
+			}
 	
-	public static Authorization createAuthorization() {
-		if (!available) {
+			String jaasConfiguration = System.getProperty("MjJaasConfiguration");
+			if (jaasConfiguration != null) {
+				return new JaasAuthorization(jaasConfiguration);
+			}
+	
+			available = false;
 			return null;
 		}
-		
-		String userFile = System.getProperty("MjUserFile");
-		if (userFile != null) {
-			return new TextFileAuthorization(userFile);
-		}
-
-		String jaasConfiguration = System.getProperty("MjJaasConfiguration");
-		if (jaasConfiguration != null) {
-			return new JaasAuthorization(jaasConfiguration);
-		}
-
-		available = false;
-		return null;
-	}
+	};
 
 	public static void setInstance(Authorization instance) {
-		if (Authorization.instance != null) {
+		if (current.get() != null) {
 			throw new IllegalStateException("Cannot change authorization instance");
 		}
-		Authorization.instance = instance;
+		current.set(instance);
 	}
 	
 	public static Authorization getInstance() {
-		if (instance == null) {
-			instance = createAuthorization();
-		}
-		return instance;
+		return current.get();
 	}
 	
 	public static boolean isAvailable() {
