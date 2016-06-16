@@ -76,7 +76,9 @@ public class Backend {
 		return current.get();
 	}
 
-	// TODO move static methods to "PersistenceTransaction"
+	// Could be moved in a class like "Do" but that would seem even more like magic
+	// Backend.read or Backend.execute gives a hint that there is a separation between
+	// the current stuff and the things done in the Transaction
 	
 	public static <T> T read(Class<T> clazz, Object id) {
 		return getInstance().execute(new ReadEntityTransaction<T>(clazz, id, null));
