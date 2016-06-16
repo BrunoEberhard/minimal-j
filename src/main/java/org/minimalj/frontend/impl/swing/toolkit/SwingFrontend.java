@@ -36,6 +36,7 @@ import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
+import org.minimalj.security.Subject;
 
 public class SwingFrontend extends Frontend {
 	private static final Logger logger = Logger.getLogger(SwingFrontend.class.getName());
@@ -354,9 +355,11 @@ public class SwingFrontend extends Frontend {
 	
 	public static void pushContext() {
 		browserStack.push(SwingFrame.getActiveWindow().getVisibleTab());
+		Subject.setSubject(SwingFrame.getActiveWindow().getSubject());
 	}
 	
 	public static void popContext() {
+		Subject.setSubject(null);
 		browserStack.pop();
 	}
 	
