@@ -30,6 +30,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.SwingApplication;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -170,6 +171,12 @@ public abstract class Application {
 		return new EmptyPage();
 	}
 	
+	/**
+	 * If the list of actions depend on the currently logged in user you can
+	 * check if the user has the needed roles by {@link Subject#hasRole(String...)}
+	 * 
+	 * @return this list of action that the current subject is allowed to execute.
+	 */
 	public List<Action> getNavigation() {
 		return Collections.emptyList();
 	}
