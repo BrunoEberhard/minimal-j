@@ -11,21 +11,32 @@ public class FieldCriteria extends Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final FieldOperator operator;
-	private final Object key;
-	private final PropertyInterface property;
 	private final Object value;
 	
+	// The key object is not serializable or later the == operator will not work.
+	// But at the moment the only thing needed
+	// from the FieldCriteria is the property - path. And that string is serializable
+	private final String path;
+
 	public FieldCriteria(Object key, Object value) {
 		this(key, FieldOperator.equal, value);
 	}
 
 	public FieldCriteria(Object key, FieldOperator operator, Object value) {
-		this.key = key;
 		this.operator = operator;
 		this.value = value;
-		this.property = Keys.getProperty(key);
+		
+		PropertyInterface property = Keys.getProperty(key);
 		assertValidOperator(property, operator);
 		assertValidValueClass(property, value);
+
+		this.path = property.getPath();
+	}
+	
+	private FieldCriteria(String path, FieldOperator operator, Object value) {
+		this.path = path;
+		this.operator = operator;
+		this.value = value;
 	}
 
 	private void assertValidOperator(PropertyInterface property, FieldOperator operator) {
@@ -52,8 +63,8 @@ public class FieldCriteria extends Criteria implements Serializable {
 		return operator;
 	}
 
-	public Object getKey() {
-		return key;
+	public String getPath() {
+		return path;
 	}
 
 	public Object getValue() {
@@ -61,6 +72,6 @@ public class FieldCriteria extends Criteria implements Serializable {
 	}
 
 	public Criteria negate() {
-		return new FieldCriteria(key, operator.negate(), value);
+		return new FieldCriteria(path, operator.negate(), value);
 	}
 }

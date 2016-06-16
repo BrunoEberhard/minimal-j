@@ -208,9 +208,8 @@ public class Table<T> extends AbstractTable<T> {
 		} else if (criteria instanceof FieldCriteria) {
 			FieldCriteria fieldCriteria = (FieldCriteria) criteria;
 			result = new ArrayList<>();
-			PropertyInterface propertyInterface = Keys.getProperty(fieldCriteria.getKey());
 			Object value = fieldCriteria.getValue();
-			String term = whereStatement(propertyInterface.getPath(), fieldCriteria.getOperator());
+			String term = whereStatement(fieldCriteria.getPath(), fieldCriteria.getOperator());
 			if (value != null && IdUtils.hasId(value.getClass())) {
 				value = IdUtils.getId(value);
 			}
