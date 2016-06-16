@@ -180,7 +180,7 @@ public class SwingFrame extends JFrame {
 		this.subject = subject;
 		// Maybe getNavigation in Application should be extended by a subject parameter
 		// then next line would not be needed
-		Subject.setSubject(subject);
+		Subject.setCurrent(subject);
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
 			((SwingTab) tabbedPane.getTab(i)).updateNavigation();
 		}

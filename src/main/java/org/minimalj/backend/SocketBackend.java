@@ -30,7 +30,7 @@ public class SocketBackend extends Backend {
 	protected <T> T doExecute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-				Subject subject = Subject.getSubject();
+				Subject subject = Subject.getCurrent();
 				oos.writeObject(subject != null ? subject.getToken() : null);
 				
 				oos.writeObject(transaction);

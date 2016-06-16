@@ -30,7 +30,7 @@ public class SubjectTest {
 	public void testEntityWithSingleRole() throws Exception {
 		Subject subject = new Subject();
 		subject.getRoles().add("RoleA");
-		Subject.setSubject(subject);
+		Subject.setCurrent(subject);
 		B b = new B();
 		try {
 			persistence.insert(b);

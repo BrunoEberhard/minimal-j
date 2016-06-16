@@ -355,11 +355,11 @@ public class SwingFrontend extends Frontend {
 	
 	public static void pushContext() {
 		browserStack.push(SwingFrame.getActiveWindow().getVisibleTab());
-		Subject.setSubject(SwingFrame.getActiveWindow().getSubject());
+		Subject.setCurrent(SwingFrame.getActiveWindow().getSubject());
 	}
 	
 	public static void popContext() {
-		Subject.setSubject(null);
+		Subject.setCurrent(null);
 		browserStack.pop();
 	}
 	

@@ -58,7 +58,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 	
 	public JsonOutput handle(JsonInput input) {
 		JsonFrontend.setSession(this);
-		Subject.setSubject(subject);
+		Subject.setCurrent(subject);
 		output = new JsonOutput();
 		
 		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
@@ -144,7 +144,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 			show(pageIds);
 		}
 		
-		Subject.setSubject(null);
+		Subject.setCurrent(null);
 		JsonFrontend.setSession(null);
 		return output;
 	}

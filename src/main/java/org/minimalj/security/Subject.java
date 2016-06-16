@@ -49,7 +49,7 @@ public class Subject implements Serializable {
 	}
 	
 	public static boolean hasRole(String... roleNames) {
-		Subject subject = getSubject();
+		Subject subject = getCurrent();
 		if (subject != null) {
 			for (String roleName : roleNames) {
 				if (subject.roles.contains(roleName)) {
@@ -95,11 +95,11 @@ public class Subject implements Serializable {
 	}
 	
 	
-	public static void setSubject(Subject subject) {
+	public static void setCurrent(Subject subject) {
 		Subject.subject.set(subject);
 	}
 	
-	public static Subject getSubject() {
+	public static Subject getCurrent() {
 		return subject.get();
 	}
 

@@ -70,7 +70,7 @@ public class SocketBackendServer {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 				Serializable securityToken = (Serializable) ois.readObject();
 				Subject subject =  Authorization.getInstance().getUserByToken(securityToken);
-				Subject.setSubject(subject);
+				Subject.setCurrent(subject);
 				
 				Transaction transaction = (Transaction) ois.readObject();
 				
@@ -106,7 +106,7 @@ public class SocketBackendServer {
 			} catch (ClassNotFoundException e) {
 				LOG.log(Level.SEVERE, "Could not execute transaction", e);
 			} finally {
-				Subject.setSubject(null);
+				Subject.setCurrent(null);
 			}
 		}
 	}
