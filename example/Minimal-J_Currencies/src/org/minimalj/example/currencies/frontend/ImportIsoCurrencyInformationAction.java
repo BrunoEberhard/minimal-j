@@ -9,7 +9,7 @@ public class ImportIsoCurrencyInformationAction extends Action {
 
 	@Override
 	public void action() {
-		int inserts = Backend.getInstance().execute(new ImportIsoCurrencyInformation());
+		int inserts = Backend.execute(new ImportIsoCurrencyInformation());
 		Frontend.showMessage(inserts + " currencies imported");
 	}
 	

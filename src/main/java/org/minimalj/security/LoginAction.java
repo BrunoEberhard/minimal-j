@@ -54,7 +54,7 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 	@Override
 	protected Subject save(UserPassword userPassword) {
 		LoginTransaction loginTransaction = new LoginTransaction(userPassword);
-		return Backend.getInstance().execute(loginTransaction);
+		return Backend.execute(loginTransaction);
 	}
 
 	@Override

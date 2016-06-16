@@ -23,9 +23,9 @@ public class SwingApplication implements Runnable {
 	public void run() {
 		FrameManager.setSystemLookAndFeel();
 		Frontend.setInstance(new SwingFrontend());
-		Backend.setInstance(new SwingBackend(Backend.getInstance()));
+		Backend.setCurrent(new SwingBackend(Backend.getCurrent()));
 		
-		Subject anonymousSubject = Backend.getInstance().execute(new LoginTransaction());
+		Subject anonymousSubject = Backend.execute(new LoginTransaction());
 		FrameManager.getInstance().openNavigationFrame(anonymousSubject);
 	}
 

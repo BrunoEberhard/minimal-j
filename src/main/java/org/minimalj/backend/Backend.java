@@ -68,11 +68,11 @@ public class Backend {
 		};
 	};
 	
-	public static void setInstance(Backend backend) {
+	public static void setCurrent(Backend backend) {
 		Backend.current.set(backend);
 	}
 
-	public static Backend getInstance() {
+	public static Backend getCurrent() {
 		return current.get();
 	}
 
@@ -81,31 +81,35 @@ public class Backend {
 	// the current stuff and the things done in the Transaction
 	
 	public static <T> T read(Class<T> clazz, Object id) {
-		return getInstance().execute(new ReadEntityTransaction<T>(clazz, id, null));
+		return execute(new ReadEntityTransaction<T>(clazz, id, null));
 	}
 
 	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		List<T> result = execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
 		return result;
 	}
 
 	public static <T> Object insert(T object) {
-		return getInstance().execute(new InsertTransaction<T>(object));
+		return execute(new InsertTransaction<T>(object));
 	}
 
 	public static <T> void update(T object) {
-		getInstance().execute(new UpdateTransaction<T>(object));
+		execute(new UpdateTransaction<T>(object));
 	}
 
 	public static <T> T save(T object) {
-		return getInstance().execute(new SaveTransaction<T>(object));
+		return execute(new SaveTransaction<T>(object));
 	}
 
 	public static <T> void delete(Class<T> clazz, Object id) {
-		getInstance().execute(new DeleteEntityTransaction<T>(clazz, id));
+		execute(new DeleteEntityTransaction<T>(clazz, id));
 	}
 	
-	public <T> T execute(Transaction<T> transaction) {
+	public static <T> T execute(Transaction<T> transaction) {
+		return getCurrent().doExecute(transaction);
+	}
+	
+	protected <T> T doExecute(Transaction<T> transaction) {
 		if (Subject.hasRoleFor(transaction)) {
 			return transaction.execute();
 		} else {

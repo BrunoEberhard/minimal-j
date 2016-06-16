@@ -27,7 +27,7 @@ public class SocketBackend extends Backend {
 	}
 	
 	@Override
-	public <T> T execute(Transaction<T> transaction) {
+	protected <T> T doExecute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				Subject subject = Subject.getSubject();

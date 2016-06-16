@@ -19,7 +19,7 @@ public class SwingBackend extends Backend {
 	}
 
 	@Override
-	public <T> T execute(Transaction<T> transaction) {
+	protected <T> T doExecute(Transaction<T> transaction) {
 		if (!SwingFrontend.hasContext()) {
 			return delegate.execute(transaction);
 		}

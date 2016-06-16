@@ -38,7 +38,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 	private final PageStore pageStore = new PageStore();
 	
 	public JsonClientSession() {
-		subject = Backend.getInstance().execute(new LoginTransaction());	
+		subject = Backend.execute(new LoginTransaction());	
 	}
 	
 	@Override

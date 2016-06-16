@@ -58,7 +58,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 			if (persistence != null) {
 				return persistence.getList(listName, parentId);
 			} else {
-				list = Backend.getInstance().execute(new ReadAllElementsTransaction<PARENT, ELEMENT>(this));
+				list = Backend.execute(new ReadAllElementsTransaction<PARENT, ELEMENT>(this));
 			}
 		}
 		return list;
@@ -80,7 +80,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		if (persistence != null) {
 			savedElement = persistence.add(listName, parentId, element);
 		} else {
-			savedElement = Backend.getInstance().execute(new AddTransaction<PARENT, ELEMENT>(this, element));
+			savedElement = Backend.execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}
 		if (list != null) {
 			CloneHelper.deepCopy(savedElement, element);
@@ -93,7 +93,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		if (persistence != null) {
 			element = persistence.add(listName, parentId, element);
 		} else {
-			element = Backend.getInstance().execute(new AddTransaction<PARENT, ELEMENT>(this, element));
+			element = Backend.execute(new AddTransaction<PARENT, ELEMENT>(this, element));
 		}
 		if (list != null) {
 			list.add(element);
@@ -107,7 +107,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 			persistence.remove(listName, parentId, index);
 			return null; //
 		} else {
-			return Backend.getInstance().execute(new RemoveTransaction<PARENT, ELEMENT>(this, index));
+			return Backend.execute(new RemoveTransaction<PARENT, ELEMENT>(this, index));
 		}
 	}
 }

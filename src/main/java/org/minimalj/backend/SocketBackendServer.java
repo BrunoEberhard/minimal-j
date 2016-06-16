@@ -91,7 +91,7 @@ public class SocketBackendServer {
 						outputStreamTransaction.setStream(new UnclosingOutputStream(oos));
 					}
 					try {
-						result = Backend.getInstance().execute(transaction);
+						result = Backend.execute(transaction);
 						wrappedResult = SerializationContainer.wrap(result);
 					} catch (Exception exception) {
 						LOG.log(Level.SEVERE, "Exception in Transaction", exception);

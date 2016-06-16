@@ -271,7 +271,7 @@ public class SwingFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Subject anonymousSubject = Backend.getInstance().execute(new LoginTransaction());
+			Subject anonymousSubject = Backend.execute(new LoginTransaction());
 			FrameManager.getInstance().openNavigationFrame(anonymousSubject);
 		}
 	}
