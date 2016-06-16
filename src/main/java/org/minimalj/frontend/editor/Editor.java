@@ -111,13 +111,19 @@ public abstract class Editor<T, RESULT> extends Action {
 	private void save() {
 		try {
 			RESULT result = save(object);
-			dialog.closeDialog();
-			finished(result);
+			if (closeWith(result)) {
+				dialog.closeDialog();
+				finished(result);
+			}
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
 			Frontend.showError(x.getLocalizedMessage());
 			return;
 		}
+	}
+
+	protected boolean closeWith(RESULT result) {
+		return true;
 	}
 	
 	protected abstract RESULT save(T object);
