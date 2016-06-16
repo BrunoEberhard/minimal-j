@@ -55,7 +55,7 @@ public class Resources {
 	}
 	
 	public static ResourceBundle getResourceBundle() {
-		Locale locale = LocaleContext.getLocale();
+		Locale locale = LocaleContext.getCurrent();
 		if (!resourcesByLocale.containsKey(locale)) {
 			resourcesByLocale.put(locale, new Resources(locale));
 		}

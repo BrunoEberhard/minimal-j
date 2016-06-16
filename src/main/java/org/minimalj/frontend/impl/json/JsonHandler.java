@@ -35,7 +35,7 @@ public class JsonHandler {
 		// TODO move this
 		String locale = (String) data.get("locale");
 		if (locale != null) {
-			LocaleContext.setLocale(Locale.forLanguageTag(locale));
+			LocaleContext.setCurrent(Locale.forLanguageTag(locale));
 		}
 		
 		String sessionId = (String) data.get("session");

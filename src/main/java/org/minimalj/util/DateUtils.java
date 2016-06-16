@@ -27,7 +27,7 @@ public class DateUtils {
 	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
 	public static DateTimeFormatter getDateTimeFormatter() {
-		Locale locale = LocaleContext.getLocale();
+		Locale locale = LocaleContext.getCurrent();
 		if (!dateFormatByLocale.containsKey(locale)) {
 			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
 			dateFormatByLocale.put(locale, formatter);

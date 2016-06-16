@@ -4,22 +4,18 @@ import java.util.Locale;
 
 public class LocaleContext {
 
-	private static final ThreadLocal<LocaleContext> contextByThread = new ThreadLocal<>();
+	private static final InheritableThreadLocal<Locale> locale = new InheritableThreadLocal<>();
 	
-	private Locale locale;
-	
-	public static Locale getLocale() {
-		if (contextByThread.get() != null) {
-			return contextByThread.get().locale;
+	public static Locale getCurrent() {
+		Locale currentLocale = locale.get();
+		if (currentLocale != null) {
+			return currentLocale;
 		} else {
 			return Locale.getDefault();
 		}
 	}
 	
-	public static void setLocale(Locale locale) {
-		if (contextByThread.get() == null) {
-			contextByThread.set(new LocaleContext());
-		}
-		contextByThread.get().locale = locale;
+	public static void setCurrent(Locale locale) {
+		LocaleContext.locale.set(locale);
 	}
 }
