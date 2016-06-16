@@ -38,10 +38,6 @@ public class Subject implements Serializable {
 		return roles;
 	}
 	
-	public boolean isValid() {
-		return token != null;
-	}
-
 	public static boolean hasRoleFor(Transaction<?> transaction) {
 		Role role = getRole(transaction);
 		boolean noRoleNeeded = role == null;

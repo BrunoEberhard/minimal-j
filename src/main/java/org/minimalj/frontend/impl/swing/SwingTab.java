@@ -114,6 +114,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		splitPane.setRightComponent(contentScrollPane);
 		
 		navigationScrollPane = new JScrollPane();
+		updateNavigation();
 		navigationScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		ActionListener navigationClosedListener = new ActionListener() {
 			@Override

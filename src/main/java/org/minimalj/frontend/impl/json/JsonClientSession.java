@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.minimalj.application.Application;
-import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -23,7 +23,6 @@ import org.minimalj.frontend.page.PageManager;
 import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.LoginAction;
 import org.minimalj.security.LoginAction.LoginListener;
-import org.minimalj.security.LoginTransaction;
 import org.minimalj.security.Subject;
 
 public class JsonClientSession implements PageManager, LoginListener {
@@ -38,22 +37,25 @@ public class JsonClientSession implements PageManager, LoginListener {
 	private final PageStore pageStore = new PageStore();
 	
 	public JsonClientSession() {
-		subject = Backend.execute(new LoginTransaction());	
+		//
 	}
 	
 	@Override
 	public void loginSucceded(Subject subject) {
 		this.subject = subject;
+		Subject.setCurrent(subject);
 		
 		componentById.clear();
 		navigation = createNavigation();
 		register(navigation);
 		output.add("navigation", navigation);
 	}
-	
+
 	@Override
 	public void loginCancelled() {
-		show(new AuthenticationFailedPage());
+		if (subject == null && !Frontend.getInstance().allowAnonymousLogin()) {
+			show(new AuthenticationFailedPage());
+		}
 	};
 	
 	public JsonOutput handle(JsonInput input) {
@@ -135,7 +137,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 		}
 		
 		String login = (String) input.getObject("login");
-		if (login != null || subject != null && !subject.isValid() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
+		if (login != null || subject == null && Frontend.getInstance().loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
 			new LoginAction(this).action();
 		}
 		

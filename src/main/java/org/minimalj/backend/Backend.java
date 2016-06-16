@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.security.IsAuthorizationActive;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
@@ -74,6 +75,10 @@ public class Backend {
 
 	public static Backend getCurrent() {
 		return current.get();
+	}
+	
+	public static boolean isAuthorizationActive() {
+		return execute(new IsAuthorizationActive());
 	}
 
 	// Could be moved in a class like "Do" but that would seem even more like magic

@@ -1,5 +1,7 @@
 package org.minimalj.security;
 
+import java.util.Objects;
+
 import org.minimalj.transaction.Transaction;
 
 public class LoginTransaction implements Transaction<Subject> {
@@ -7,13 +9,10 @@ public class LoginTransaction implements Transaction<Subject> {
 	
 	private final UserPassword userPassword;
 	
-	public LoginTransaction() {
-		this.userPassword = new UserPassword();
-		userPassword.user = "Anonymous";
-		userPassword.password = new char[0];
-	}
-	
 	public LoginTransaction(UserPassword userPassword) {
+		Objects.nonNull(userPassword);
+		Objects.nonNull(userPassword.user);
+		
 		this.userPassword = userPassword;
 	}
 	
@@ -23,10 +22,6 @@ public class LoginTransaction implements Transaction<Subject> {
 	
 	@Override
 	public Subject execute() {
-		if (Authorization.isAvailable()) {
-			return Authorization.getCurrent().login(userPassword);
-		} else {
-			return null;
-		}
+		return Authorization.getCurrent().login(userPassword);
 	}
 }

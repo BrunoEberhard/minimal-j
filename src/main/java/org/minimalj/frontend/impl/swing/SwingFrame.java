@@ -21,7 +21,6 @@ import org.minimalj.frontend.impl.swing.component.HideableTabbedPane;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.LoginAction;
 import org.minimalj.security.LoginAction.LoginListener;
-import org.minimalj.security.LoginTransaction;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -36,22 +35,24 @@ public class SwingFrame extends JFrame {
 	private HideableTabbedPane tabbedPane;
 	final Action loginAction, closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction;
 	
-	public SwingFrame(boolean authorizationAvailable) {
-		updateWindowTitle();
-		
-		loginAction = authorizationAvailable ? new SwingLoginAction() : null;
+	public SwingFrame(Subject subject) {
+		boolean authorizationActive = Backend.isAuthorizationActive();
+		loginAction = authorizationActive ? new SwingLoginAction() : null;
 		
 		closeWindowAction = new CloseWindowAction();
 		exitAction = new ExitAction();
 		newWindowAction = new NewWindowAction();
-		newWindowWithLoginAction = authorizationAvailable ? new NewWindowWithLoginAction() : null;
+		newWindowWithLoginAction = authorizationActive ? new NewWindowWithLoginAction() : null;
 		newTabAction = new NewTabAction();
 		
 		setDefaultSize();
 		setLocationRelativeTo(null);
 		addWindowListener();
 		createContent();
-		
+
+		setSubject(subject);
+
+		// TODO still necessary?
 		getRootPane().putClientProperty(SwingFrame.class.getSimpleName(), this);
 	}
 	
@@ -271,8 +272,7 @@ public class SwingFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Subject anonymousSubject = Backend.execute(new LoginTransaction());
-			FrameManager.getInstance().openNavigationFrame(anonymousSubject);
+			FrameManager.getInstance().openNavigationFrame(null);
 		}
 	}
 

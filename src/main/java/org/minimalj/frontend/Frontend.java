@@ -42,6 +42,14 @@ public abstract class Frontend {
 		current.set(frontend);
 	}
 
+	public boolean loginAtStart() {
+		return System.getProperty("MjLoginAtStart", "false").equals("true");
+	}
+	
+	public boolean allowAnonymousLogin() {
+		return System.getProperty("MjAllowAnonymousLogin", "true").equals("true");
+	}
+	
 	/**
 	 * Components are the smallest part of the gui. Things like textfields
 	 * and comboboxes. A form is filled with components.

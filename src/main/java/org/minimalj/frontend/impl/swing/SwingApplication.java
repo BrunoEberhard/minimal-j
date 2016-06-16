@@ -6,8 +6,6 @@ import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
-import org.minimalj.security.LoginTransaction;
-import org.minimalj.security.Subject;
 
 public class SwingApplication implements Runnable {
 
@@ -25,8 +23,7 @@ public class SwingApplication implements Runnable {
 		Frontend.setInstance(new SwingFrontend());
 		Backend.setCurrent(new SwingBackend(Backend.getCurrent()));
 		
-		Subject anonymousSubject = Backend.execute(new LoginTransaction());
-		FrameManager.getInstance().openNavigationFrame(anonymousSubject);
+		FrameManager.getInstance().openNavigationFrame(null);
 	}
 
 	public static void main(final String[] args) throws Exception {

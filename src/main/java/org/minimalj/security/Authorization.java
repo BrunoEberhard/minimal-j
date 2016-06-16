@@ -10,12 +10,12 @@ public abstract class Authorization {
 	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
 	private Map<UUID, Subject> userByToken = new HashMap<>();
 
-	private static boolean available = true;
+	private static boolean active = true;
 
 	private static InheritableThreadLocal<Authorization> current = new InheritableThreadLocal<Authorization>() {
 		@Override
 		protected Authorization initialValue() {
-			if (!available) {
+			if (!active) {
 				return null;
 			}
 			
@@ -29,7 +29,7 @@ public abstract class Authorization {
 				return new JaasAuthorization(jaasConfiguration);
 			}
 	
-			available = false;
+			active = false;
 			return null;
 		}
 	};
@@ -45,24 +45,33 @@ public abstract class Authorization {
 		return current.get();
 	}
 	
-	public static boolean isAvailable() {
+	public static boolean isActive() {
 		getCurrent();
-		return available;
+		return active;
 	}
 	
-	protected abstract List<String> retrieveRoles(UserPassword login);
+	/**
+	 * @return null if login failed, empty list if user has no roles
+	 */
+	protected abstract List<String> retrieveRoles(UserPassword userPassword);
 
-	public Subject login(UserPassword login) {
-		List<String> roles = retrieveRoles(login);
-		Subject subject = new Subject();
+	/**
+	 * 
+	 * @return null if login failed, empty list if user has no roles
+	 */
+	public Subject login(UserPassword userPassword) {
+		List<String> roles = retrieveRoles(userPassword);
 		if (roles != null) {
-			subject.setName(login.user);
+			Subject subject = new Subject();
+			subject.setName(userPassword.user);
 			subject.getRoles().addAll(roles);
 			UUID token = UUID.randomUUID();
 			subject.setToken(token);
 			userByToken.put(token, subject);
+			return subject;
+		} else {
+			return null;
 		}
-		return subject;
 	}
 
 	public void logout() {
@@ -71,14 +80,6 @@ public abstract class Authorization {
 
 	public Subject getUserByToken(Serializable token) {
 		return userByToken.get(token);
-	}
-	
-	public static class LoginFailedException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
-		
-		public LoginFailedException() {
-			super("Login failed");
-		}
 	}
 	
 }

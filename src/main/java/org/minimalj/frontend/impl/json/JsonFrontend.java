@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.nanoserver.NanoHttpdApplication;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.security.Authorization;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
@@ -147,7 +147,7 @@ public class JsonFrontend extends Frontend {
 	public static String fillPlaceHolder(String html, Locale locale) {
 		LocaleContext.setLocale(locale);
 		String result = html.replace("$LOCALE", locale.getLanguage());
-		result = result.replace("$AUTHORIZATION", Boolean.toString(Authorization.isAvailable()));
+		result = result.replace("$AUTHORIZATION", Boolean.toString(Backend.isAuthorizationActive()));
 		result = result.replace("$WEB_SOCKET", Boolean.toString(NanoHttpdApplication.useWebSocket()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");

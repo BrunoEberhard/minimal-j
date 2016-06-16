@@ -81,7 +81,7 @@ public class SocketBackendServer {
 				} 
 				
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-					if (Authorization.isAvailable() && !Subject.hasRoleFor(transaction)) {
+					if (Authorization.isActive() && !Subject.hasRoleFor(transaction)) {
 						oos.writeObject(NOT_AUTHORIZED);
 						return;
 					}

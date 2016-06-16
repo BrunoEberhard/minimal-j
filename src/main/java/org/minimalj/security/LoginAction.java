@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
@@ -11,15 +12,9 @@ import org.minimalj.frontend.form.element.PasswordFormElement;
 
 public class LoginAction extends Editor<UserPassword, Subject> {
 
-	private final Subject anonymousSubject;
 	private final LoginListener listener;
 	
 	public LoginAction(LoginListener listener) {
-		this(listener, null);
-	}
-	
-	public LoginAction(LoginListener listener, Subject anonymousSubject) {
-		this.anonymousSubject = anonymousSubject;
 		this.listener = listener;
 	}
 
@@ -38,16 +33,19 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 
 	@Override
 	protected List<Action> createAdditionalActions() {
-		if (anonymousSubject != null && anonymousSubject.isValid()) {
-			Action action = new Action() {
-				@Override
-				public void action() {
-					listener.loginSucceded(anonymousSubject);
-				}
-			};
+		if (Frontend.getInstance().allowAnonymousLogin()) {
+			Action action = new AnonymousLoginAction();
 			return Collections.singletonList(action);
 		} else {
 			return Collections.emptyList();
+		}
+	}
+	
+	private class AnonymousLoginAction extends Action {
+		@Override
+		public void action() {
+			listener.loginSucceded(null);
+			LoginAction.super.cancel(); // close dialog but don't call loginCancelled
 		}
 	}
 
@@ -58,21 +56,26 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 	}
 
 	@Override
+	protected boolean closeWith(Subject subject) {
+		if (subject != null) {
+			return true;
+		} else {
+			Frontend.showError("Login failed");
+			return false;
+		}
+	}
+	
+	@Override
 	public void cancel() {
 		listener.loginCancelled();
-//		if (!Frontend.getInstance().getSubject().isValid()) {
-//			// some frontends cannot close their PageManager. They have to show an error page.
-//			Frontend.show(new AuthenticationFailedPage());
-//		}
 		super.cancel();
 	}
 	
 	@Override
 	protected void finished(Subject subject) {
 		listener.loginSucceded(subject);
-//		Frontend.getInstance().setSubject(subject);
 	}
-	
+
 	public static interface LoginListener {
 		
 		public void loginSucceded(Subject subject);

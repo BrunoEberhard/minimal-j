@@ -44,7 +44,7 @@ public class PersistenceAuthorization extends Authorization {
 		}
 		User user = userList.get(0);
 		if (!user.validatePassword(userPassword.password)) {
-			throw new LoginFailedException();
+			return null;
 		}
 		List<String> roleNames = user.roles.stream().map((role) -> role.name).collect(Collectors.toList());
 		return roleNames;
