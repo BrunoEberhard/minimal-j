@@ -47,12 +47,12 @@ public abstract class Persistence {
 		}
 	};
 	
-	public static Persistence getInstance() {
+	public static Persistence getCurrent() {
 		return current.get();
 	}
 	
-	public static void setInstance(Persistence instance) {
-		current.set(instance);
+	public static void setCurrent(Persistence persistence) {
+		current.set(persistence);
 	}
 	
 	// transaction
