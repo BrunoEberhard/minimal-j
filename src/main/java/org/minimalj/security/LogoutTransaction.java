@@ -10,7 +10,7 @@ public class LogoutTransaction implements Transaction<Void> {
 
 	@Override
 	public Void execute() {
-		Authorization.getInstance().logout();
+		Authorization.getCurrent().logout();
 		return null;
 	}
 

@@ -24,7 +24,7 @@ public class LoginTransaction implements Transaction<Subject> {
 	@Override
 	public Subject execute() {
 		if (Authorization.isAvailable()) {
-			return Authorization.getInstance().login(userPassword);
+			return Authorization.getCurrent().login(userPassword);
 		} else {
 			return null;
 		}

@@ -34,19 +34,19 @@ public abstract class Authorization {
 		}
 	};
 
-	public static void setInstance(Authorization instance) {
+	public static void setCurrent(Authorization instance) {
 		if (current.get() != null) {
 			throw new IllegalStateException("Cannot change authorization instance");
 		}
 		current.set(instance);
 	}
 	
-	public static Authorization getInstance() {
+	public static Authorization getCurrent() {
 		return current.get();
 	}
 	
 	public static boolean isAvailable() {
-		getInstance();
+		getCurrent();
 		return available;
 	}
 	
