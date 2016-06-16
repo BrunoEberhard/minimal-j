@@ -7,13 +7,13 @@ authorization happens when the frontend sends the backend a Transaction to execu
 ----
 	[..]
 	
-	public final <T> T execute(Transaction<T> transaction) {
-		if (Subject.hasPermission(transaction)) {
-			return doExecute(transaction);
+	public <T> T doExecute(Transaction<T> transaction) {
+		if (Subject.hasRoleFor(transaction)) {
+			return transaction.execute();
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
 		}
-	} 
+	}
 ----
 
 This seems readable not only for the compiler. The Subject class knows who is logged in (in respect of
@@ -66,7 +66,7 @@ Not every read or insert needs a specialized Transaction. If you call read or in
 	[..]
 	
 	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = getInstance().execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		List<T> result = execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
 		return result;
 	}
 ----
@@ -74,11 +74,10 @@ Not every read or insert needs a specialized Transaction. If you call read or in
 To restrict access on entities their classes can be annotated
 [source,java]
 ----
-@Role("RoleB")
-public class B {
+@Grant("RoleX")
+public class Entity {
 
-	public B() {
-	}
+	[..]
 }
 ----
 If the role name is specified then this role is need for all types of Transactions. For read, insert, update
@@ -86,13 +85,11 @@ and delete. But sometimes you may want to restrict only the write access for som
 different roles for the different types of Transactions:
 [source,java]
 ----
-@Role(value = "ReadRole")
-@Role(transaction = TransactionType.UPDATE, value = {"UpdateRole"})
-public class C {
+@Grant("ReadRole")
+@Grant(privilege = Privilege.UPDATE, value = "UpdateRole")
+public class Entity {
 
-	public C() {
-	}
-
+	[..]
 }
 ----
 
@@ -107,15 +104,14 @@ the permission for most of your entities on a package level and only annotate th
 is also a good idea so that you don't forget the permission of new classes.
 [source,java,title="package-info.java"]
 ----
-@Role("pkgRole")
-@Role(transaction = TransactionType.READ, value = {"ReadPkgRole"})
-@Role(transaction = TransactionType.UPDATE, value = {"UpdatePkgRole"})
+@Grant("pkgRole")
+@Grant(privilege = org.minimalj.model.annotation.Grant.Privilege.SELECT, value = "ReadPkgRole")
+@Grant(privilege = org.minimalj.model.annotation.Grant.Privilege.UPDATE, value = "UpdatePkgRole")
 package org.minimalj.security.permissiontest.pkgrole;
 
-import org.minimalj.transaction.Role;
-import org.minimalj.transaction.Transaction.TransactionType;
+import org.minimalj.model.annotation.Grant;
 ----
-Note that packages don't inherit there roles from their parent. This would lead to a error-prone complexity.
+Note that packages don't inherit there roles from their parent package. This would lead to a error-prone complexity.
 
 == Authorization configuration
 The Authorization class defines the available users and their roles. There are several specializations to this class:
@@ -125,7 +121,7 @@ The Authorization class defines the available users and their roles. There are s
 - The JaasAuthorization connects Minimal-J to the authorization provided by Java itself.
 
 Which one of this specializations is activated is defined via application properties or the application can set the
-Authorization instance. This method has also the highest priority:
+current Authorization. This method has also the highest priority:
 
  1. The application sets the Authorization object with the static method setInstance at startup. Note that the Authorization
  object cannot be replaced once it is set. 
@@ -156,21 +152,3 @@ application together with at least two arguments (user and password) and it prin
 If the application is started without authentication then the frontend will not show the user the menu entry (or icon)
 to log in. If the authentication is active the frontend must decide if it should confront the user with a login dialog
 right on the start or if it is possible to look around without any authentication.
-
-When a new user comes to the application a LoginTransaction is executed with the username 'Anonymous' and without any
-password. If the active authentication accepts such a User then no login dialog is shown and the user can do whatever can
-be done as anonymous user. If the user 'Anonymous' is not accepted by the current authentication then automatically a
-login dialog is shown and the user has to enter his credentials.
-
-With the TextFileAuthorization you will have a file for example 'users.txt' and activate the authentication by setting a property when
-starting the application: '-DMjUserFile=users.txt'. If you don't want a login dialog to be shown at startup you can
-insert in users.txt this line:
-
-----
-Anonymous = 0xv0Or6tn7IQ8eCZifWHnDU6K4gA8pUx, aft8F/B9IIQoopVzzqz/CAo8vUnSE2iM
-----
-
-This declares the 'Anonymous' user with the empty password (and without any given role). 
-
-
-s
