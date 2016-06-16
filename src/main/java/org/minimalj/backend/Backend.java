@@ -103,16 +103,12 @@ public class Backend {
 		getInstance().execute(new DeleteEntityTransaction<T>(clazz, id));
 	}
 	
-	public final <T> T execute(Transaction<T> transaction) {
+	public <T> T execute(Transaction<T> transaction) {
 		if (Subject.hasRoleFor(transaction)) {
-			return doExecute(transaction);
+			return transaction.execute();
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
 		}
-	}
-	
-	public <T> T doExecute(Transaction<T> transaction) {
-		return transaction.execute();
 	}
 	
 }

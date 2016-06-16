@@ -23,7 +23,9 @@ import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.UnclosingOutputStream;
 
 public class SocketBackendServer {
-	private static final Logger logger = Logger.getLogger(SocketBackendServer.class.getName());
+	private static final Logger LOG = Logger.getLogger(SocketBackendServer.class.getName());
+	private static final String OK = null;
+	private static final String NOT_AUTHORIZED = "Not authorized";
 	
 	private final int port;
 	private final ThreadPoolExecutor executor;
@@ -38,7 +40,7 @@ public class SocketBackendServer {
 		try (ServerSocket serverSocket = new ServerSocket(port)) {
 			accecptInvocations(serverSocket);
 		} catch (IOException iox) {
-			throw new LoggingRuntimeException(iox, logger, "Could not create server socket");
+			throw new LoggingRuntimeException(iox, LOG, "Could not create server socket");
 		}
 	}
 
@@ -50,7 +52,7 @@ public class SocketBackendServer {
 				SocketBackendRunnable runnable = new SocketBackendRunnable(socket);
 				executor.execute(runnable);
 			} catch (IOException e) {
-				logger.log(Level.SEVERE, "Server socket couldn't accept connection", e);
+				LOG.log(Level.SEVERE, "Server socket couldn't accept connection", e);
 			}
 		}
 	}
@@ -70,32 +72,39 @@ public class SocketBackendServer {
 				Subject subject =  Authorization.getInstance().getUserByToken(securityToken);
 				Subject.setSubject(subject);
 				
-				Object input = ois.readObject();
+				Transaction transaction = (Transaction) ois.readObject();
 				
-				Object result = null;
-				if (input instanceof InputStreamTransaction) {
-					InputStreamTransaction inputStreamTransaction = (InputStreamTransaction) input;
+				Object result, wrappedResult = null;
+				if (transaction instanceof InputStreamTransaction) {
+					InputStreamTransaction inputStreamTransaction = (InputStreamTransaction) transaction;
 					inputStreamTransaction.setStream(ois);
 				} 
 				
 				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-					if (input instanceof OutputStreamTransaction) {
-						OutputStreamTransaction outputStreamTransaction = (OutputStreamTransaction) input;
+					if (Authorization.isAvailable() && !Subject.hasRoleFor(transaction)) {
+						oos.writeObject(NOT_AUTHORIZED);
+						return;
+					}
+					
+					if (transaction instanceof OutputStreamTransaction) {
+						OutputStreamTransaction outputStreamTransaction = (OutputStreamTransaction) transaction;
 						outputStreamTransaction.setStream(new UnclosingOutputStream(oos));
 					}
-					if (input instanceof Transaction) {
-						Transaction transaction = (Transaction) input;
+					try {
 						result = Backend.getInstance().execute(transaction);
-					} 
-					Object wrappedResult = SerializationContainer.wrap(result);
+						wrappedResult = SerializationContainer.wrap(result);
+					} catch (Exception exception) {
+						LOG.log(Level.SEVERE, "Exception in Transaction", exception);
+						oos.writeObject(exception.getMessage());
+						return;
+					}
+					oos.writeObject(OK);
 					oos.writeObject(wrappedResult);
 				}
 			} catch (IOException e) {
-				logger.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);
-				e.printStackTrace();
-			} catch (Exception e) {
-				logger.log(Level.SEVERE, "SocketRunnable failed", e);
-				e.printStackTrace();
+				LOG.log(Level.SEVERE, "Could not create ObjectInputStream from socket", e);
+			} catch (ClassNotFoundException e) {
+				LOG.log(Level.SEVERE, "Could not execute transaction", e);
 			} finally {
 				Subject.setSubject(null);
 			}

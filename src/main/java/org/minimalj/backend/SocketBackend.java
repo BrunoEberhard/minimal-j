@@ -6,14 +6,18 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
 
 public class SocketBackend extends Backend {
+	private static final Logger LOG = Logger.getLogger(SocketBackend.class.getName());
+
 	private final String url;
 	private final int port;
 	
@@ -23,7 +27,7 @@ public class SocketBackend extends Backend {
 	}
 	
 	@Override
-	public <T> T doExecute(Transaction<T> transaction) {
+	public <T> T execute(Transaction<T> transaction) {
 		try (Socket socket = new Socket(url, port)) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
 				Subject subject = Subject.getSubject();
@@ -33,15 +37,22 @@ public class SocketBackend extends Backend {
 				if (transaction instanceof InputStreamTransaction) {
 					sendStream(oos, ((InputStreamTransaction<?>) transaction).getStream());
 				}
+				
 				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 					if (transaction instanceof OutputStreamTransaction) {
 						receiveStream(ois, ((OutputStreamTransaction<?>) transaction).getStream());
 					}
+					
+					String errorMessage = (String) ois.readObject();
+					if (errorMessage != null) throw new RuntimeException(errorMessage);
+					
 					return readResult(ois);
+				} catch (ClassNotFoundException e) {
+					throw new LoggingRuntimeException(e, LOG, "Could not read result from transaction");
 				}
 			}
-		} catch (Exception c) {
-			throw new RuntimeException("Couldn't connect to " + url + ":" + port);
+		} catch (IOException x) {
+			throw new LoggingRuntimeException(x, LOG, "Couldn't execute on " + url + ":" + port);
 		}
 	}
 	
