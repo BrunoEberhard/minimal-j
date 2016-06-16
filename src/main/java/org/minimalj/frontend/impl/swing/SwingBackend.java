@@ -19,9 +19,9 @@ public class SwingBackend extends Backend {
 	}
 
 	@Override
-	protected <T> T doExecute(Transaction<T> transaction) {
+	public <T> T doExecute(Transaction<T> transaction) {
 		if (!SwingFrontend.hasContext()) {
-			return delegate.execute(transaction);
+			return delegate.doExecute(transaction);
 		}
 		
 		Toolkit tk = Toolkit.getDefaultToolkit();

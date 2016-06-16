@@ -109,7 +109,7 @@ public class Backend {
 		return getCurrent().doExecute(transaction);
 	}
 	
-	protected <T> T doExecute(Transaction<T> transaction) {
+	public <T> T doExecute(Transaction<T> transaction) {
 		if (Subject.hasRoleFor(transaction)) {
 			return transaction.execute();
 		} else {
