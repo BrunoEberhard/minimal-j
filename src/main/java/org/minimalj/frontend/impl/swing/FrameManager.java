@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.swing;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -63,12 +61,6 @@ public class FrameManager {
 		final SwingFrame frame = new SwingFrame(subject);
 		frame.setVisible(true);
 		navigationFrames.add(frame);
-		frame.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosed(WindowEvent e) {
-				navigationFrames.remove(frame);
-			}
-		});
 		if (subject == null && Frontend.getInstance().loginAtStart()) {
 			SwingFrame.activeFrameOverride = frame;
 			LoginListener listener = new LoginListener() {
@@ -80,6 +72,7 @@ public class FrameManager {
 				@Override
 				public void loginCancelled() {
 					frame.closeWindow();
+					removeNavigationFrameView(frame);
 				}
 			};
 			new LoginAction(listener).action();
