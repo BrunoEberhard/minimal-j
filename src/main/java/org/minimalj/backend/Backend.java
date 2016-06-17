@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.security.Authorization;
 import org.minimalj.security.IsAuthorizationActive;
-import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.persistence.DeleteEntityTransaction;
@@ -115,7 +115,7 @@ public class Backend {
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (Subject.hasRoleFor(transaction)) {
+		if (Authorization.isAllowed(transaction)) {
 			return transaction.execute();
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");

@@ -18,7 +18,7 @@ import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.security.Subject;
+import org.minimalj.security.Authorization;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.transaction.criteria.Criteria.AndCriteria;
 import org.minimalj.transaction.criteria.Criteria.OrCriteria;
@@ -81,7 +81,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public Object insert(T object) {
-		Subject.checkPermission(Grant.Privilege.INSERT, getClazz());
+		Authorization.checkGrants(Grant.Privilege.INSERT, getClazz());
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
 			Object id;
 			if (IdUtils.hasId(object.getClass())) {
@@ -147,7 +147,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public void update(T object) {
-		Subject.checkPermission(Grant.Privilege.UPDATE, object.getClass());
+		Authorization.checkGrants(Grant.Privilege.UPDATE, object.getClass());
 		updateWithId(object, IdUtils.getId(object));
 	}
 	
@@ -170,7 +170,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(Object id) {
-		Subject.checkPermission(Grant.Privilege.SELECT, getClazz());
+		Authorization.checkGrants(Grant.Privilege.SELECT, getClazz());
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
@@ -267,7 +267,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public List<T> read(Criteria criteria, int maxResults) {
-		Subject.checkPermission(Grant.Privilege.SELECT, getClazz());
+		Authorization.checkGrants(Grant.Privilege.SELECT, getClazz());
 		List<Object> whereClause = whereClause(criteria);
 		String query = "SELECT * FROM " + getTableName() + " WHERE " + whereClause.get(0);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
@@ -297,8 +297,8 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
-		Subject.checkPermission(Grant.Privilege.SELECT, getClazz());
-		Subject.checkPermission(Grant.Privilege.SELECT, resultClass);
+		Authorization.checkGrants(Grant.Privilege.SELECT, getClazz());
+		Authorization.checkGrants(Grant.Privilege.SELECT, resultClass);
 		List<Object> whereClause = whereClause(criteria);
 		String query = select(resultClass) + " WHERE " + whereClause.get(0);
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
@@ -312,8 +312,8 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public <S> S readView(Class<S> resultClass, Object id) {
-		Subject.checkPermission(Grant.Privilege.SELECT, getClazz());
-		Subject.checkPermission(Grant.Privilege.SELECT, resultClass);
+		Authorization.checkGrants(Grant.Privilege.SELECT, getClazz());
+		Authorization.checkGrants(Grant.Privilege.SELECT, resultClass);
 		String query = select(resultClass) + " WHERE id = ?";
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
 			statement.setObject(1, id);

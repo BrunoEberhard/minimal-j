@@ -1,5 +1,8 @@
 package org.minimalj.security;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,11 +26,18 @@ public class SubjectTest {
 	@Test
 	public void testEntityWithoutRole() throws Exception {
 		Assert.assertNull("ReadTransaction without Role annotation to class or package should need no role",
-				Subject.getRole(new ReadEntityTransaction<>(A.class, null)));
+				Authorization.getRole(new ReadEntityTransaction<>(A.class, null)));
 	}
 
 	@Test // roles for entities need to be re implemented
 	public void testEntityWithSingleRole() throws Exception {
+		Authorization authorization = new Authorization() {
+			@Override
+			protected List<String> retrieveRoles(UserPassword userPassword) {
+				return Collections.emptyList();
+			}
+		};
+		Authorization.setCurrent(authorization);
 		Subject subject = new Subject();
 		subject.getRoles().add("RoleA");
 		Subject.setCurrent(subject);
