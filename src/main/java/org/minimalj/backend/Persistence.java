@@ -29,7 +29,7 @@ public abstract class Persistence {
 					Persistence persistence = persistenceClass.newInstance();
 					return persistence;
 				} catch (Exception x) {
-					throw new LoggingRuntimeException(x, logger, "Set backend failed");
+					throw new LoggingRuntimeException(x, logger, "Set persistence failed (" + persistenceClassName + ")");
 				}
 			} 
 			
