@@ -53,7 +53,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 
 	@Override
 	public void loginCancelled() {
-		if (subject == null && !Frontend.getInstance().allowAnonymousLogin()) {
+		if (subject == null && Application.getApplication().isLoginRequired()) {
 			show(new AuthenticationFailedPage());
 		}
 	};

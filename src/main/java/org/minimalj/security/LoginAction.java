@@ -3,6 +3,7 @@ package org.minimalj.security;
 import java.util.Collections;
 import java.util.List;
 
+import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -33,7 +34,7 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 
 	@Override
 	protected List<Action> createAdditionalActions() {
-		if (Frontend.getInstance().allowAnonymousLogin()) {
+		if (!Application.getApplication().isLoginRequired()) {
 			Action action = new AnonymousLoginAction();
 			return Collections.singletonList(action);
 		} else {

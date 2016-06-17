@@ -172,6 +172,14 @@ public abstract class Application {
 	}
 	
 	/**
+	 * 
+	 * @return true if this application cannot be accessed without login
+	 */
+	public boolean isLoginRequired() {
+		return false;
+	}
+	
+	/**
 	 * If the list of actions depend on the currently logged in user you can
 	 * check if the user has the needed roles by {@link Subject#hasRole(String...)}
 	 * 
