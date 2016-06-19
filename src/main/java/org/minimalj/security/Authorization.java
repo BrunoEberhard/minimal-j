@@ -1,6 +1,7 @@
 package org.minimalj.security;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +113,8 @@ public abstract class Authorization {
 	}
 
 	protected List<String> getCurrentRoles() {
-		return Subject.getCurrent().getRoles();
+		Subject subject = Subject.getCurrent();
+		return subject != null ? subject.getRoles() : Collections.emptyList();
 	}
 	
 	/**
