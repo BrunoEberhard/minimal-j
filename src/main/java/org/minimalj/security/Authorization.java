@@ -20,15 +20,9 @@ public abstract class Authorization {
 	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
 	private Map<UUID, Subject> userByToken = new HashMap<>();
 
-	private static boolean active = true;
-
 	private static InheritableThreadLocal<Authorization> current = new InheritableThreadLocal<Authorization>() {
 		@Override
 		protected Authorization initialValue() {
-			if (!active) {
-				return null;
-			}
-			
 			String authorizationClassName = System.getProperty("MjAuthorization");
 			if (!StringUtils.isBlank(authorizationClassName)) {
 				try {
@@ -51,7 +45,6 @@ public abstract class Authorization {
 				return new JaasAuthorization(jaasConfiguration);
 			}
 	
-			active = false;
 			return null;
 		}
 	};
@@ -68,8 +61,7 @@ public abstract class Authorization {
 	}
 	
 	public static boolean isActive() {
-		getCurrent();
-		return active;
+		return getCurrent() != null;
 	}
 	
 	public static boolean isAllowed(Transaction<?> transaction) {
