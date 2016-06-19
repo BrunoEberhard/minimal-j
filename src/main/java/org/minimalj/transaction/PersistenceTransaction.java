@@ -22,26 +22,6 @@ public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transact
 		return result;
 	}
 
-//	public List<String> getRoles() {
-//		List<String> neededRoles = new ArrayList<>();
-//		PersistenceRole[] roles = getEntityClazz().getAnnotationsByType(PersistenceRole.class);
-//		checkPermissions(subject, roles);
-//
-//		roles = getEntityClazz().getPackage().getAnnotationsByType(PersistenceRole.class);
-//		checkPermissions(subject, roles);
-//	}
-//
-//	Das Problem ist, dass mehrere And von Ors Verknüpfungen entstehen.
-//	
-//	private void getRoles(List<String> neededRoles, PersistenceRole[] roles) {
-//		for (PersistenceRole role : roles) {
-//			if (role.type().isAssignableFrom(this.getClass())) {
-//				neededRoles.add(role.)
-//			}
-//		}
-//	}
-//	
-	
 	protected abstract RETURN execute(Persistence persistence);
 	
 }
