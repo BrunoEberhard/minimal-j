@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Criteria {
+public class Criteria implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	// TODO: check for recursion?
 	public Criteria and(Criteria other) {
