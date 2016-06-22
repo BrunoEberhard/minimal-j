@@ -69,12 +69,35 @@ public class Backend {
 		};
 	};
 	
+	private Persistence persistence = null; 
+	private Transaction<?> transaction = null;
+	
 	public static void setCurrent(Backend backend) {
 		Backend.current.set(backend);
 	}
 
 	public static Backend getCurrent() {
 		return current.get();
+	}
+	
+	public static void setPersistence(Persistence persistence) {
+		getCurrent().persistence = persistence;
+	}
+	
+	public static Persistence getPersistence() {
+		if (!isTransaction()) {
+			throw new IllegalStateException("Persistence may only be accessed from within a " + Transaction.class.getSimpleName());
+		}
+		Backend backend = current.get();
+		if (backend.persistence == null) {
+			backend.persistence = Persistence.create();
+		}
+		return backend.persistence;
+	}
+	
+	public static boolean isTransaction() {
+		Backend backend = current.get();
+		return backend != null && backend.transaction != null;
 	}
 	
 	public static boolean isAuthorizationActive() {
@@ -116,7 +139,12 @@ public class Backend {
 	
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (Authorization.isAllowed(transaction)) {
-			return transaction.execute();
+			try {
+				this.transaction = transaction;
+				return transaction.execute();
+			} finally {
+				this.transaction = null;
+			}
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
 		}

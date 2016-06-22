@@ -2,6 +2,7 @@ package org.minimalj.transaction;
 
 import java.sql.Connection;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.backend.Persistence;
 
 public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transaction<RETURN> {
@@ -11,7 +12,7 @@ public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transact
 	public final RETURN execute() {
 		RETURN result;
 		boolean commit = false;
-		Persistence persistence = Persistence.getCurrent();
+		Persistence persistence = Backend.getPersistence();
 		try {
 			persistence.startTransaction(Connection.TRANSACTION_SERIALIZABLE);
 			result = execute(persistence);

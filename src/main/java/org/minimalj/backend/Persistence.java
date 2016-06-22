@@ -18,41 +18,30 @@ import org.minimalj.util.StringUtils;
 public abstract class Persistence {
 	private static final Logger logger = Logger.getLogger(Persistence.class.getName());
 
-	private static InheritableThreadLocal<Persistence> current = new InheritableThreadLocal<Persistence>() {
-		@Override
-		protected Persistence initialValue() {
-			String persistenceClassName = System.getProperty("MjPersistence");
-			if (!StringUtils.isBlank(persistenceClassName)) {
-				try {
-					@SuppressWarnings("unchecked")
-					Class<? extends Persistence> persistenceClass = (Class<? extends Persistence>) Class.forName(persistenceClassName);
-					Persistence persistence = persistenceClass.newInstance();
-					return persistence;
-				} catch (Exception x) {
-					throw new LoggingRuntimeException(x, logger, "Set persistence failed (" + persistenceClassName + ")");
-				}
-			} 
-			
-			String database = System.getProperty("MjSqlDatabase");
-			String user = System.getProperty("MjSqlDatabaseUser", "APP");
-			String password = System.getProperty("MjSqlDatabasePassword", "APP");
-			Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
-			if (StringUtils.isBlank(database)) {
-				String databaseFile = System.getProperty("MjSqlDatabaseFile", null);
-				boolean createTables = databaseFile == null || !new File(databaseFile).exists();
-				return new SqlPersistence(SqlPersistence.embeddedDataSource(databaseFile), createTables, entityClasses);
-			} else {
-				return new SqlPersistence(SqlPersistence.mariaDbDataSource(database, user, password), entityClasses);
+	public static Persistence create() {
+		String persistenceClassName = System.getProperty("MjPersistence");
+		if (!StringUtils.isBlank(persistenceClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends Persistence> persistenceClass = (Class<? extends Persistence>) Class.forName(persistenceClassName);
+				Persistence persistence = persistenceClass.newInstance();
+				return persistence;
+			} catch (Exception x) {
+				throw new LoggingRuntimeException(x, logger, "Set persistence failed (" + persistenceClassName + ")");
 			}
+		} 
+		
+		String database = System.getProperty("MjSqlDatabase");
+		String user = System.getProperty("MjSqlDatabaseUser", "APP");
+		String password = System.getProperty("MjSqlDatabasePassword", "APP");
+		Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
+		if (StringUtils.isBlank(database)) {
+			String databaseFile = System.getProperty("MjSqlDatabaseFile", null);
+			boolean createTables = databaseFile == null || !new File(databaseFile).exists();
+			return new SqlPersistence(SqlPersistence.embeddedDataSource(databaseFile), createTables, entityClasses);
+		} else {
+			return new SqlPersistence(SqlPersistence.mariaDbDataSource(database, user, password), entityClasses);
 		}
-	};
-	
-	public static Persistence getCurrent() {
-		return current.get();
-	}
-	
-	public static void setCurrent(Persistence persistence) {
-		current.set(persistence);
 	}
 	
 	// transaction
