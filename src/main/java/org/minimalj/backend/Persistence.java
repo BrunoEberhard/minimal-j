@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.security.Authorization;
 import org.minimalj.transaction.criteria.Criteria;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -18,6 +19,8 @@ import org.minimalj.util.StringUtils;
 public abstract class Persistence {
 	private static final Logger logger = Logger.getLogger(Persistence.class.getName());
 
+	private Authorization authorization;
+	
 	public static Persistence create() {
 		String persistenceClassName = System.getProperty("MjPersistence");
 		if (!StringUtils.isBlank(persistenceClassName)) {
@@ -42,6 +45,14 @@ public abstract class Persistence {
 		} else {
 			return new SqlPersistence(SqlPersistence.mariaDbDataSource(database, user, password), entityClasses);
 		}
+	}
+	
+	public void setAuthorization(Authorization authorization) {
+		this.authorization = authorization;
+	}
+	
+	public Authorization getAuthorization() {
+		return authorization;
 	}
 	
 	// transaction

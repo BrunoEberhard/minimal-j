@@ -69,19 +69,21 @@ public class Backend {
 		};
 	};
 	
+	private Authorization authorization = Authorization.defaultAuthorization; 
 	private Persistence persistence = null; 
+	
 	private Transaction<?> transaction = null;
 	
-	public static void setCurrent(Backend backend) {
+	public static void setInstance(Backend backend) {
 		Backend.current.set(backend);
 	}
 
-	public static Backend getCurrent() {
+	public static Backend getInstance() {
 		return current.get();
 	}
 	
 	public static void setPersistence(Persistence persistence) {
-		getCurrent().persistence = persistence;
+		getInstance().persistence = persistence;
 	}
 	
 	public static Persistence getPersistence() {
@@ -93,6 +95,14 @@ public class Backend {
 			backend.persistence = Persistence.create();
 		}
 		return backend.persistence;
+	}
+	
+	public static void setAuthorization(Authorization authorization) {
+		getInstance().authorization = authorization;
+	}
+	
+	public static Authorization getAuthorization() {
+		return getInstance().authorization;
 	}
 	
 	public static boolean isTransaction() {
@@ -134,11 +144,11 @@ public class Backend {
 	}
 	
 	public static <T> T execute(Transaction<T> transaction) {
-		return getCurrent().doExecute(transaction);
+		return getInstance().doExecute(transaction);
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (Authorization.isAllowed(transaction)) {
+		if (authorization == null || authorization.isAllowed(transaction)) {
 			try {
 				this.transaction = transaction;
 				return transaction.execute();

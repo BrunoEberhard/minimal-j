@@ -1,5 +1,6 @@
 package org.minimalj.security;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
 
 /**
@@ -13,7 +14,7 @@ public class IsAuthorizationActive implements Transaction<Boolean> {
 
 	@Override
 	public Boolean execute() {
-		return Authorization.isActive();
+		return Backend.getAuthorization() != null;
 	}
 
 }

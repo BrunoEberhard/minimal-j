@@ -15,13 +15,16 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.security.Authorization;
 import org.minimalj.transaction.criteria.FieldOperator;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.GenericUtils;
@@ -461,6 +464,20 @@ public abstract class AbstractTable<T> {
 			int index = fieldPath.lastIndexOf('.');
 			if (index < 0) throw new IllegalArgumentException();
 			fieldPath = fieldPath.substring(0, index);
+		}
+	}
+	
+	//
+	
+	public void checkGrants(Grant.Privilege privilege, Class<?> clazz) {
+		Authorization authorization;
+		if (Backend.isTransaction()) {
+			authorization = Backend.getAuthorization();
+		} else {
+			authorization = sqlPersistence.getAuthorization();
+		}
+		if (authorization != null) {
+			authorization.checkGrants(privilege, clazz);
 		}
 	}
 

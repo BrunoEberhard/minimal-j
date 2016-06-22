@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
@@ -24,8 +23,6 @@ import org.minimalj.util.UnclosingOutputStream;
 
 public class SocketBackendServer {
 	private static final Logger LOG = Logger.getLogger(SocketBackendServer.class.getName());
-	private static final String OK = null;
-	private static final String NOT_AUTHORIZED = "Not authorized";
 	
 	private final int port;
 	private final ThreadPoolExecutor executor;
@@ -69,7 +66,7 @@ public class SocketBackendServer {
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 				Serializable securityToken = (Serializable) ois.readObject();
-				Subject subject =  Authorization.getCurrent().getUserByToken(securityToken);
+				Subject subject =  Backend.getAuthorization().getUserByToken(securityToken);
 				Subject.setCurrent(subject);
 				
 				Transaction transaction = (Transaction) ois.readObject();
@@ -80,12 +77,7 @@ public class SocketBackendServer {
 					inputStreamTransaction.setStream(ois);
 				} 
 				
-				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
-					if (!Authorization.isAllowed(transaction)) {
-						oos.writeObject(NOT_AUTHORIZED);
-						return;
-					}
-					
+				try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {			
 					if (transaction instanceof OutputStreamTransaction) {
 						OutputStreamTransaction outputStreamTransaction = (OutputStreamTransaction) transaction;
 						outputStreamTransaction.setStream(new UnclosingOutputStream(oos));
@@ -98,7 +90,7 @@ public class SocketBackendServer {
 						oos.writeObject(exception.getMessage());
 						return;
 					}
-					oos.writeObject(OK);
+					oos.writeObject(null); // no exception
 					oos.writeObject(wrappedResult);
 				}
 			} catch (IOException e) {

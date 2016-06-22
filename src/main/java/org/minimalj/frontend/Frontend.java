@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
@@ -29,6 +30,9 @@ public abstract class Frontend {
 		Frontend frontend = current.get();
 		if (frontend == null) {
 			throw new IllegalStateException("Frontend has to be initialized");
+		}
+		if (Backend.isTransaction()) {
+			throw new IllegalStateException("Not allowed to access Frontend from within a transaction");
 		}
 		return frontend;
 	}

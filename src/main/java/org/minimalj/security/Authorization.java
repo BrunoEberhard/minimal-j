@@ -21,56 +21,38 @@ public abstract class Authorization {
 	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
 	private Map<UUID, Subject> userByToken = new HashMap<>();
 
-	private static InheritableThreadLocal<Authorization> current = new InheritableThreadLocal<Authorization>() {
-		@Override
-		protected Authorization initialValue() {
-			String authorizationClassName = System.getProperty("MjAuthorization");
-			if (!StringUtils.isBlank(authorizationClassName)) {
-				try {
-					@SuppressWarnings("unchecked")
-					Class<? extends Authorization> authorizationClass = (Class<? extends Authorization>) Class.forName(authorizationClassName);
-					Authorization authorization = authorizationClass.newInstance();
-					return authorization;
-				} catch (Exception x) {
-					throw new LoggingRuntimeException(x, LOG, "Set authorization failed");
-				}
-			} 
-			
-			String userFile = System.getProperty("MjUserFile");
-			if (userFile != null) {
-				return new TextFileAuthorization(userFile);
-			}
+	public static final Authorization defaultAuthorization = createDefault();
 	
-			String jaasConfiguration = System.getProperty("MjJaasConfiguration");
-			if (jaasConfiguration != null) {
-				return new JaasAuthorization(jaasConfiguration);
+	private static Authorization createDefault() {
+		String authorizationClassName = System.getProperty("MjAuthorization");
+		if (!StringUtils.isBlank(authorizationClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends Authorization> authorizationClass = (Class<? extends Authorization>) Class.forName(authorizationClassName);
+				Authorization authorization = authorizationClass.newInstance();
+				return authorization;
+			} catch (Exception x) {
+				throw new LoggingRuntimeException(x, LOG, "Set authorization failed");
 			}
-	
-			return null;
+		} 
+		
+		String userFile = System.getProperty("MjUserFile");
+		if (userFile != null) {
+			return new TextFileAuthorization(userFile);
 		}
-	};
 
-	public static void setCurrent(Authorization instance) {
-		if (current.get() != null) {
-			throw new IllegalStateException("Cannot change authorization instance");
+		String jaasConfiguration = System.getProperty("MjJaasConfiguration");
+		if (jaasConfiguration != null) {
+			return new JaasAuthorization(jaasConfiguration);
 		}
-		current.set(instance);
+
+		return null;
 	}
 	
-	public static Authorization getCurrent() {
-		return current.get();
-	}
-	
-	public static boolean isActive() {
-		return getCurrent() != null;
-	}
-	
-	public static boolean isAllowed(Transaction<?> transaction) {
-		Authorization authorization = getCurrent();
-		if (authorization == null) return true;
+	public boolean isAllowed(Transaction<?> transaction) {
 		Role role = getRole(transaction);
 		boolean noRoleNeeded = role == null;
-		return noRoleNeeded || authorization.getCurrentRoles().contains(role.value());
+		return noRoleNeeded || getCurrentRoles().contains(role.value());
 	}
 	
 	public static Role getRole(Transaction<?> transaction) {
@@ -82,10 +64,8 @@ public abstract class Authorization {
 		return role;
 	}
 	
-	public static void checkGrants(Grant.Privilege privilege, Class<?> clazz) {
-		Authorization authorization = getCurrent();
-		if (authorization == null) return;
-		List<String> currentRoles = authorization.getCurrentRoles();
+	public void checkGrants(Grant.Privilege privilege, Class<?> clazz) {
+		List<String> currentRoles = getCurrentRoles();
 		@SuppressWarnings("unused")
 		boolean allowed = false;
 		Grant[] grantsOnClass = clazz.getAnnotationsByType(Grant.class);

@@ -2,6 +2,7 @@ package org.minimalj.security;
 
 import java.util.Objects;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
 
 public class LoginTransaction implements Transaction<Subject> {
@@ -22,6 +23,6 @@ public class LoginTransaction implements Transaction<Subject> {
 	
 	@Override
 	public Subject execute() {
-		return Authorization.getCurrent().login(userPassword);
+		return Backend.getAuthorization().login(userPassword);
 	}
 }

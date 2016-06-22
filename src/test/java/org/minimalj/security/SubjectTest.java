@@ -37,7 +37,7 @@ public class SubjectTest {
 				return Collections.emptyList();
 			}
 		};
-		Authorization.setCurrent(authorization);
+		persistence.setAuthorization(authorization);
 		Subject subject = new Subject();
 		subject.getRoles().add("RoleA");
 		Subject.setCurrent(subject);
