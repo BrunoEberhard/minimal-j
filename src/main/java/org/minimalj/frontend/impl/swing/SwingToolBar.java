@@ -74,7 +74,7 @@ public class SwingToolBar extends JToolBar {
 			SwingFrontend.pushContext();
 			try {
 				String query = textFieldSearch.getText();
-				Page page = Application.getApplication().createSearchPage(query);
+				Page page = Application.getInstance().createSearchPage(query);
 				tab.show(page);
 			} finally {
 				SwingFrontend.popContext();

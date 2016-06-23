@@ -53,7 +53,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 
 	@Override
 	public void loginCancelled() {
-		if (subject == null && Application.getApplication().isLoginRequired()) {
+		if (subject == null && Application.getInstance().isLoginRequired()) {
 			show(new AuthenticationFailedPage());
 		}
 	};
@@ -64,14 +64,14 @@ public class JsonClientSession implements PageManager, LoginListener {
 		output = new JsonOutput();
 		
 		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
-			Page page = Application.getApplication().createDefaultPage();
+			Page page = Application.getInstance().createDefaultPage();
 			String pageId = UUID.randomUUID().toString();
 			show(page, pageId, null);
 
 			navigation = createNavigation();
 			register(navigation);
 			output.add("navigation", navigation);
-			output.add("applicationName", Application.getApplication().getName());
+			output.add("applicationName", Application.getInstance().getName());
 		}
 		
 		if (input.containsObject("closePage")) {
@@ -111,7 +111,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 		
 		String search = (String) input.getObject("search");
 		if (search != null) {
-			Page searchPage = Application.getApplication().createSearchPage(search);
+			Page searchPage = Application.getInstance().createSearchPage(search);
 			show(searchPage);
 		}
 		
@@ -245,7 +245,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 	}
 	
 	private List<Object> createNavigation() {
-		List<Action> navigationActions = Application.getApplication().getNavigation();
+		List<Action> navigationActions = Application.getInstance().getNavigation();
 		List<Object> navigationItems = createActions(navigationActions);
 		return navigationItems;
 	}

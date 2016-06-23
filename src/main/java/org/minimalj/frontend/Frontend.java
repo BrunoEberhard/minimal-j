@@ -38,17 +38,11 @@ public abstract class Frontend {
 	}
 
 	public static void setInstance(Frontend frontend) {
-		if (current.get() != null) {
-			throw new IllegalStateException("Frontend cannot be changed");
-		}		
-		if (frontend == null) {
-			throw new IllegalArgumentException("Frontend cannot be null");
-		}
 		current.set(frontend);
 	}
 
 	public boolean loginAtStart() {
-		return Application.getApplication().isLoginRequired() || System.getProperty("MjLoginAtStart", "false").equals("true");
+		return Application.getInstance().isLoginRequired() || System.getProperty("MjLoginAtStart", "false").equals("true");
 	}
 	
 	/**

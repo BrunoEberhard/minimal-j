@@ -34,7 +34,7 @@ public class LoginAction extends Editor<UserPassword, Subject> {
 
 	@Override
 	protected List<Action> createAdditionalActions() {
-		if (!Application.getApplication().isLoginRequired()) {
+		if (!Application.getInstance().isLoginRequired()) {
 			Action action = new AnonymousLoginAction();
 			return Collections.singletonList(action);
 		} else {

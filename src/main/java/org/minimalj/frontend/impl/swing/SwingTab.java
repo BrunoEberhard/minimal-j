@@ -123,14 +123,14 @@ public class SwingTab extends EditablePanel implements PageManager {
 				navigationAction.actionPerformed(e);
 			}
 		};
-		decoratedNavigationPane = new SwingDecoration(Application.getApplication().getName(), navigationScrollPane, SwingDecoration.HIDE_MINIMIZE, navigationClosedListener);
+		decoratedNavigationPane = new SwingDecoration(Application.getInstance().getName(), navigationScrollPane, SwingDecoration.HIDE_MINIMIZE, navigationClosedListener);
 		splitPane.setLeftComponent(decoratedNavigationPane);
 		
 		splitPane.setDividerLocation(200);
 	}
 	
 	public void updateNavigation() {
-		navigationScrollPane.setViewportView(new NavigationTree(Application.getApplication().getNavigation()));
+		navigationScrollPane.setViewportView(new NavigationTree(Application.getInstance().getNavigation()));
 	}
 
 	public Page getVisiblePage() {

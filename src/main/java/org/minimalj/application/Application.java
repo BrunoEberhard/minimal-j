@@ -50,14 +50,7 @@ import org.minimalj.util.resources.Resources;
  * @see SocketBackendServer
  */
 public abstract class Application {
-	private static Application application;
-	
-	public static Application getApplication() {
-		if (application == null) {
-			throw new IllegalStateException("Application has to be initialized");
-		}
-		return application;
-	}
+	private static InheritableThreadLocal<Application> current = new InheritableThreadLocal<>();
 	
 	public Application() {
 		for (String resourceBundleName : getResourceBundleNames()) {
@@ -65,20 +58,12 @@ public abstract class Application {
 		}
 	}
 	
-	/**
-	 * Sets the application of this vm. Can only be called once.
-	 * This method should only be called by a frontend or a backend main class.
-	 * 
-	 * @param application normally the created by createApplication method
-	 */
-	public static synchronized void setApplication(Application application) {
-		if (Application.application != null) {
-			throw new IllegalStateException("Application cannot be changed");
-		}		
-		if (application == null) {
-			throw new IllegalArgumentException("Application cannot be null");
-		}
-		Application.application = application;
+	public static Application getInstance() {
+		return current.get();
+	}
+
+	public static void setInstance(Application application) {
+		current.set(application);
 	}
 	
 	/**
@@ -94,7 +79,7 @@ public abstract class Application {
 		
 		String applicationClassName = args[0];
 		Application application = createApplication(applicationClassName);
-		Application.setApplication(application);
+		Application.setInstance(application);
 	}
 	
 	/**

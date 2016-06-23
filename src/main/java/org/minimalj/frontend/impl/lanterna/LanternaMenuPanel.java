@@ -46,7 +46,7 @@ public class LanternaMenuPanel extends Panel {
 	public void updateMenu(Page page) {
 		bar.removeAllComponents();
 
-		createMenu("application", Application.getApplication().getNavigation());
+		createMenu("application", Application.getInstance().getNavigation());
 
 		if (page != null && page.getActions() != null) {
 			createMenu("page", page.getActions());
@@ -123,7 +123,7 @@ public class LanternaMenuPanel extends Panel {
 		public void action() {
 			LanternaFrontend.setGui(guiScreen);
 			String query = textFieldSearch.getText();
-			Page searchPage = Application.getApplication().createSearchPage(query);
+			Page searchPage = Application.getInstance().createSearchPage(query);
 			Frontend.show(searchPage);
 			LanternaFrontend.setGui(null);
 		}

@@ -99,6 +99,7 @@ public class MjWebSocketDaemon extends NanoWSD {
 		
 		public MjWebSocket(IHTTPSession handshakeRequest) {
 			super(handshakeRequest);
+			System.out.println(handshakeRequest.getUri());
 		}
 
 		@Override

@@ -49,7 +49,7 @@ public class LanternaGUIScreen extends GUIScreen implements PageManager {
 		switchLayout = new LanternaSwitchContent();
 		menuPanel.addComponent((Component) switchLayout, BorderLayout.CENTER);
 
-		history.add(Application.getApplication().createDefaultPage());
+		history.add(Application.getInstance().createDefaultPage());
 
 		showWindow(window, Position.FULL_SCREEN);
 	}

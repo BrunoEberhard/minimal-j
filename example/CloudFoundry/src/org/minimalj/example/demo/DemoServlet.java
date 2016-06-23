@@ -1,12 +1,15 @@
 package org.minimalj.example.demo;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.example.empty.EmptyApplication;
 import org.minimalj.example.helloworld.HelloWorldApplication;
 import org.minimalj.example.helloworld2.GreetingApplication;
@@ -22,24 +25,24 @@ public class DemoServlet extends MjServlet {
 	private static final long serialVersionUID = 1L;
 
 	private static boolean applicationInitialized;
+	private static JsonFrontend frontend = new JsonFrontend();
+	
+	private final Map<String, Application> applications = new HashMap<>();
+	private final Map<String, Backend> backends = new HashMap<>();
 	
 	@Override
 	protected void initializeApplication() {
 		if (!applicationInitialized) {
-			Frontend.setInstance(new JsonFrontend());
-
-			System.setProperty("MjBackend", MultiBackend.class.getName());
+			applications.put("empty", new EmptyApplication());
+			applications.put("notes", new NotesApplication());
+			applications.put("helloWorld", new HelloWorldApplication());
+			applications.put("greeting", new GreetingApplication());
+			applications.put("numbers", new NumbersApplication());
+			applications.put("library", new MjExampleApplication());
+			applications.put("petClinic", new PetClinicApplication());
 			
-			MultiApplication application = new MultiApplication();
-			application.addApplication("empty", new EmptyApplication());
-			application.addApplication("notes", new NotesApplication());
-			application.addApplication("helloWorld", new HelloWorldApplication());
-			application.addApplication("greeting", new GreetingApplication());
-			application.addApplication("numbers", new NumbersApplication());
-			application.addApplication("library", new MjExampleApplication());
-			application.addApplication("petClinic", new PetClinicApplication());
+			applications.keySet().forEach((applicationName) -> backends.put(applicationName, new Backend()));
 			
-			Application.setApplication(application);
 			applicationInitialized = true;
 		}
 	}
@@ -52,8 +55,11 @@ public class DemoServlet extends MjServlet {
 		
 		String uriWithoutfile = uri.substring(0, uri.lastIndexOf('/'));
 		String applicationName = uriWithoutfile.substring(uriWithoutfile.lastIndexOf('/') + 1);
-		DemoContext.setContext(applicationName);
 		
+		Frontend.setInstance(frontend);
+		Backend.setInstance(backends.get(applicationName));
+		Application.setInstance(applications.get(applicationName));
+
 		super.service(request, response);
 	}
 	

@@ -37,7 +37,7 @@ public abstract class Persistence {
 		String database = System.getProperty("MjSqlDatabase");
 		String user = System.getProperty("MjSqlDatabaseUser", "APP");
 		String password = System.getProperty("MjSqlDatabasePassword", "APP");
-		Class<?>[] entityClasses = Application.getApplication().getEntityClasses();
+		Class<?>[] entityClasses = Application.getInstance().getEntityClasses();
 		if (StringUtils.isBlank(database)) {
 			String databaseFile = System.getProperty("MjSqlDatabaseFile", null);
 			boolean createTables = databaseFile == null || !new File(databaseFile).exists();

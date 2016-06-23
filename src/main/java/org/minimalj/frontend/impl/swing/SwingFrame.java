@@ -95,7 +95,7 @@ public class SwingFrame extends JFrame {
 		tabbedPane.addTab("", tab);
 		tabbedPane.setSelectedComponent(tab);
 
-		tab.show(Application.getApplication().createDefaultPage());
+		tab.show(Application.getInstance().createDefaultPage());
 	}
 	
 	public void closeTabActionPerformed() {
@@ -193,7 +193,7 @@ public class SwingFrame extends JFrame {
 	}
 	
 	protected void updateWindowTitle() {
-		String title = Application.getApplication().getName();
+		String title = Application.getInstance().getName();
 		if (subject != null && !StringUtils.isEmpty(subject.getName())) {
 			title = title + " - " + subject.getName();
 		}

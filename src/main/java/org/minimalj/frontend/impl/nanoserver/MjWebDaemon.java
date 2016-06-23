@@ -63,6 +63,7 @@ public class MjWebDaemon extends NanoHTTPD {
 	@Override
     public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
             Map<String, String> files) {
+		uri = uri.substring(uri.lastIndexOf('/'), uri.length());
 		if (uri.equals("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			Locale locale = getLocale(headers.get("accept-language"));

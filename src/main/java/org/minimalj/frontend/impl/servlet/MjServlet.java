@@ -38,7 +38,7 @@ public class MjServlet extends HttpServlet {
 			}
 			copyPropertiesFromServletConfigToSystem();
 			Application application = Application.createApplication(applicationName);
-			Application.setApplication(application);
+			Application.setInstance(application);
 			applicationInitialized = true;
 		}
 	}
