@@ -25,8 +25,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.minimalj.backend.SocketBackendServer;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
@@ -47,7 +47,7 @@ import org.minimalj.util.resources.Resources;
  * of the application.
  * 
  * @see Swing
- * @see SocketBackendServer
+ * @see NanoWebServer
  */
 public abstract class Application {
 	private static Application instance;
