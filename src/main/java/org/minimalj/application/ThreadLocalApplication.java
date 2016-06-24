@@ -5,6 +5,16 @@ import java.util.List;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
 
+/**
+ * <p>This class is only for cases where you really need several applications in one JVM.
+ * Normally there is exactly one Application configured at startup and not further
+ * change is made.</p>
+ * 
+ * <p>For tests or demo deployments it may be needed that the application can be replaced.
+ * This is forbidden by the Application class itself. This extends can switch the current
+ * Application.</p>
+ *
+ */
 public class ThreadLocalApplication extends Application {
 
 	private InheritableThreadLocal<Application> current = new InheritableThreadLocal<>();
