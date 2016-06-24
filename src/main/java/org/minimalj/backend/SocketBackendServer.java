@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
@@ -66,8 +67,10 @@ public class SocketBackendServer {
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 				Serializable securityToken = (Serializable) ois.readObject();
-				Subject subject =  Backend.getAuthorization().getUserByToken(securityToken);
-				Subject.setCurrent(subject);
+				if (Authorization.isActive()) {
+					Subject subject = Authorization.getInstance().getUserByToken(securityToken);
+					Subject.setCurrent(subject);
+				}
 				
 				Transaction transaction = (Transaction) ois.readObject();
 				

@@ -13,15 +13,11 @@ public class SwingApplication implements Runnable {
 		// private
 	}
 
-	/**
-	 * Initializes application and opens a new frame
-	 * 
-	 */
 	@Override
 	public void run() {
 		FrameManager.setSystemLookAndFeel();
 		Frontend.setInstance(new SwingFrontend());
-		Backend.setInstance(new SwingBackend(Backend.getInstance()));
+		Backend.setInstance(new SwingBackend(Backend.create()));
 		
 		FrameManager.getInstance().openNavigationFrame(null);
 	}
@@ -31,5 +27,4 @@ public class SwingApplication implements Runnable {
 
 		SwingUtilities.invokeAndWait(new SwingApplication());
 	}
-	
 }

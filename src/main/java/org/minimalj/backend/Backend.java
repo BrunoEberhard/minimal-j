@@ -1,6 +1,7 @@
 package org.minimalj.backend;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.sql.SqlPersistence;
@@ -44,69 +45,65 @@ import org.minimalj.util.StringUtils;
 public class Backend {
 	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
 
-	private static InheritableThreadLocal<Backend> current = new InheritableThreadLocal<Backend>() {
-		@Override
-		protected Backend initialValue() {
-			String backendAddress = System.getProperty("MjBackendAddress");
-			String backendPort = System.getProperty("MjBackendPort", "8020");
-			if (backendAddress != null) {
-				return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
-			} 
+	private static Backend instance;
+	
+	public static Backend create() {
+		String backendAddress = System.getProperty("MjBackendAddress");
+		String backendPort = System.getProperty("MjBackendPort", "8020");
+		if (backendAddress != null) {
+			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
+		} 
 
-			String backendClassName = System.getProperty("MjBackend");
-			if (!StringUtils.isBlank(backendClassName)) {
-				try {
-					@SuppressWarnings("unchecked")
-					Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
-					Backend backend = backendClass.newInstance();
-					return backend;
-				} catch (Exception x) {
-					throw new LoggingRuntimeException(x, logger, "Set backend failed");
-				}
-			} 
+		String backendClassName = System.getProperty("MjBackend");
+		if (!StringUtils.isBlank(backendClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
+				Backend backend = backendClass.newInstance();
+				return backend;
+			} catch (Exception x) {
+				throw new LoggingRuntimeException(x, logger, "Set backend failed");
+			}
+		} 
 
-			return new Backend();
-		};
+		return new Backend();
 	};
 	
-	private Authorization authorization = Authorization.defaultAuthorization; 
 	private Persistence persistence = null; 
 	
 	private Transaction<?> transaction = null;
 	
-	public static void setInstance(Backend backend) {
-		Backend.current.set(backend);
+	public static void setInstance(Backend instance) {
+		Objects.nonNull(instance);
+		if (Backend.instance != null) {
+			throw new IllegalStateException("Not allowed to change instance of " + Backend.class.getSimpleName());
+		}
+		Backend.instance = instance;
 	}
 
 	public static Backend getInstance() {
-		return current.get();
+		if (instance == null) {
+			instance = create();
+		}
+		return instance;
 	}
 	
-	public static void setPersistence(Persistence persistence) {
-		getInstance().persistence = persistence;
+	public void setPersistence(Persistence persistence) {
+		this.persistence = persistence;
 	}
 	
-	public static Persistence getPersistence() {
-		if (!isTransaction()) {
+	public Persistence getPersistence() {
+		if (!isInTransaction()) {
 			throw new IllegalStateException("Persistence may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
-		Backend backend = current.get();
-		if (backend.persistence == null) {
-			backend.persistence = Persistence.create();
+		if (persistence == null) {
+			persistence = Persistence.create();
 		}
-		return backend.persistence;
+		return persistence;
 	}
 	
-	public static void setAuthorization(Authorization authorization) {
-		getInstance().authorization = authorization;
-	}
-	
-	public static Authorization getAuthorization() {
-		return getInstance().authorization;
-	}
-	
-	public static boolean isTransaction() {
-		Backend backend = current.get();
+	public static boolean isInTransaction() {
+		Backend backend = getInstance();
 		return backend != null && backend.transaction != null;
 	}
 	
@@ -148,7 +145,7 @@ public class Backend {
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (authorization == null || authorization.isAllowed(transaction)) {
+		if (!Authorization.isActive() || Authorization.getInstance().isAllowed(transaction)) {
 			try {
 				this.transaction = transaction;
 				return transaction.execute();

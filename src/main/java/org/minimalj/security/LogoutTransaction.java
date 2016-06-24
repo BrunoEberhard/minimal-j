@@ -1,6 +1,5 @@
 package org.minimalj.security;
 
-import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
 
 public class LogoutTransaction implements Transaction<Void> {
@@ -11,7 +10,7 @@ public class LogoutTransaction implements Transaction<Void> {
 
 	@Override
 	public Void execute() {
-		Backend.getAuthorization().logout();
+		Authorization.getInstance().logout();
 		return null;
 	}
 

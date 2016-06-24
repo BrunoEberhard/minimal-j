@@ -18,12 +18,24 @@ import org.minimalj.util.StringUtils;
 
 public abstract class Authorization {
 	private static final Logger LOG = Logger.getLogger(Persistence.class.getName());
+
 	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
 	private Map<UUID, Subject> userByToken = new HashMap<>();
 
-	public static final Authorization defaultAuthorization = createDefault();
+	public static Authorization instance;
 	
-	private static Authorization createDefault() {
+	private static boolean active = true;
+	
+	public static Authorization create() {
+		if (!active) {
+			return null;
+		}
+		
+		String userFile = System.getProperty("MjUserFile");
+		if (userFile != null) {
+			return new TextFileAuthorization(userFile);
+		}
+		
 		String authorizationClassName = System.getProperty("MjAuthorization");
 		if (!StringUtils.isBlank(authorizationClassName)) {
 			try {
@@ -34,19 +46,29 @@ public abstract class Authorization {
 			} catch (Exception x) {
 				throw new LoggingRuntimeException(x, LOG, "Set authorization failed");
 			}
-		} 
-		
-		String userFile = System.getProperty("MjUserFile");
-		if (userFile != null) {
-			return new TextFileAuthorization(userFile);
 		}
 
-		String jaasConfiguration = System.getProperty("MjJaasConfiguration");
-		if (jaasConfiguration != null) {
-			return new JaasAuthorization(jaasConfiguration);
-		}
-
+		active = false;
 		return null;
+	}
+
+	public static void setInstance(Authorization instance) {
+		if (Authorization.instance != null) {
+			throw new IllegalStateException("Cannot change authorization instance");
+		}
+		Authorization.instance = instance;
+	}
+	
+	public static Authorization getInstance() {
+		if (instance == null) {
+			instance = create();
+		}
+		return instance;
+	}
+	
+	public static boolean isActive() {
+		getInstance();
+		return active;
 	}
 	
 	public boolean isAllowed(Transaction<?> transaction) {
@@ -64,7 +86,7 @@ public abstract class Authorization {
 		return role;
 	}
 	
-	public void checkGrants(Grant.Privilege privilege, Class<?> clazz) {
+	public static void checkGrants(Grant.Privilege privilege, Class<?> clazz) {
 		List<String> currentRoles = getCurrentRoles();
 		@SuppressWarnings("unused")
 		boolean allowed = false;
@@ -92,7 +114,7 @@ public abstract class Authorization {
 		return false;
 	}
 
-	protected List<String> getCurrentRoles() {
+	protected static List<String> getCurrentRoles() {
 		Subject subject = Subject.getCurrent();
 		return subject != null ? subject.getRoles() : Collections.emptyList();
 	}

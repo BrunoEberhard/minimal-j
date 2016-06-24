@@ -12,7 +12,7 @@ public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transact
 	public final RETURN execute() {
 		RETURN result;
 		boolean commit = false;
-		Persistence persistence = Backend.getPersistence();
+		Persistence persistence = Backend.getInstance().getPersistence();
 		try {
 			persistence.startTransaction(Connection.TRANSACTION_SERIALIZABLE);
 			result = execute(persistence);

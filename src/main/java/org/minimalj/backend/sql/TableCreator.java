@@ -8,7 +8,7 @@ public class TableCreator {
 
 	public static void main(String[] args) throws Exception {
 		Application.initApplication(args);
-		Application application = Application.getApplication();
+		Application application = Application.getInstance();
 		
 		String database = System.getProperty("MjBackendDatabase");
 		String user= System.getProperty("MjBackendDataBaseUser", "APP");

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
@@ -24,21 +23,27 @@ import org.minimalj.model.Rendering;
 
 public abstract class Frontend {
 
-	private static InheritableThreadLocal<Frontend> current = new InheritableThreadLocal<>();
+	private static Frontend instance;
 	
 	public static Frontend getInstance() {
-		Frontend frontend = current.get();
-		if (frontend == null) {
+		if (instance == null) {
 			throw new IllegalStateException("Frontend has to be initialized");
 		}
-		if (Backend.isTransaction()) {
-			throw new IllegalStateException("Not allowed to access Frontend from within a transaction");
-		}
-		return frontend;
+		return instance;
 	}
 
 	public static void setInstance(Frontend frontend) {
-		current.set(frontend);
+		if (Frontend.instance != null) {
+			throw new IllegalStateException("Frontend cannot be changed");
+		}		
+		if (frontend == null) {
+			throw new IllegalArgumentException("Frontend cannot be null");
+		}
+		Frontend.instance = frontend;
+	}
+
+	public static boolean isAvailable() {
+		return Frontend.instance != null;
 	}
 
 	public boolean loginAtStart() {
