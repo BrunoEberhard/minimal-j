@@ -71,7 +71,7 @@ public class Backend {
 	
 	private Persistence persistence = null; 
 	
-	private Transaction<?> transaction = null;
+	private InheritableThreadLocal<Transaction<?>> currentTrasaction = new InheritableThreadLocal<>();
 	
 	public static void setInstance(Backend instance) {
 		Objects.nonNull(instance);
@@ -104,7 +104,7 @@ public class Backend {
 	
 	public static boolean isInTransaction() {
 		Backend backend = getInstance();
-		return backend != null && backend.transaction != null;
+		return backend != null && backend.currentTrasaction.get() != null;
 	}
 	
 	public static boolean isAuthorizationActive() {
@@ -147,10 +147,10 @@ public class Backend {
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (!Authorization.isActive() || Authorization.getInstance().isAllowed(transaction)) {
 			try {
-				this.transaction = transaction;
+				currentTrasaction.set(transaction);
 				return transaction.execute();
 			} finally {
-				this.transaction = null;
+				currentTrasaction.set(null);
 			}
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
