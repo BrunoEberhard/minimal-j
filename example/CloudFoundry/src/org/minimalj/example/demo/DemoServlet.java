@@ -15,7 +15,7 @@ import org.minimalj.frontend.impl.servlet.MjServlet;
 public class DemoServlet extends MjServlet {
 	private static final long serialVersionUID = 1L;
 
-	private static CombinedApplication examplesApplication;
+	private static ExamplesApplication examplesApplication;
 	
 	@Override
 	protected void initializeApplication() {

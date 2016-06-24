@@ -82,6 +82,21 @@ public abstract class Application {
 	}
 	
 	/**
+	 * In tests it may be needed to have more than one instance of an application.
+	 * Warning: Use with care.
+	 * 
+	 * @param application the application for current thread and all its children
+	 */
+	public static void setThreadInstance(Application application) {
+		if (instance == null) {
+			instance = new ThreadLocalApplication();
+		} else if (!(instance instanceof ThreadLocalApplication)) {
+			throw new IllegalStateException();
+		}
+		((ThreadLocalApplication) instance).setCurrentApplication(application);
+	}
+	
+	/**
 	 * This is just a shortcut for creating the application from jvm arguments.
 	 * Most frontend or backend main classes use this method
 	 * 

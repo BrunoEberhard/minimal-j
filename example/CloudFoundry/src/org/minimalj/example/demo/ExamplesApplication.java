@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.ThreadLocalApplication;
 import org.minimalj.example.empty.EmptyApplication;
 import org.minimalj.example.helloworld.HelloWorldApplication;
 import org.minimalj.example.helloworld2.GreetingApplication;
@@ -12,14 +13,12 @@ import org.minimalj.example.notes.NotesApplication;
 import org.minimalj.example.numbers.NumbersApplication;
 import org.minimalj.example.petclinic.PetClinicApplication;
 
-public class ExamplesApplication extends CombinedApplication {
+public class ExamplesApplication extends ThreadLocalApplication {
 
-	public ExamplesApplication() {
-		super(getApplications());
-	}
+	private final Map<String, Application> applications;
 	
-	private static Map<String, Application> getApplications() {
-		Map<String, Application> applications = new HashMap<>();
+	public ExamplesApplication() {
+		applications = new HashMap<>();
 		applications.put("empty", new EmptyApplication());
 		applications.put("notes", new NotesApplication());
 		applications.put("helloWorld", new HelloWorldApplication());
@@ -27,7 +26,10 @@ public class ExamplesApplication extends CombinedApplication {
 		applications.put("numbers", new NumbersApplication());
 		applications.put("library", new MjExampleApplication());
 		applications.put("petClinic", new PetClinicApplication());
-		return applications;
 	}
-
+	
+	public void setCurrentApplication(String applicationName) {
+		setCurrentApplication(applications.get(applicationName));
+		
+	}
 }
