@@ -35,12 +35,11 @@ import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Extend this class as the start point for your Application.
- * Both frontend and backend get their application
- * specification from this class.<p>
+ * Extend this class to configure your Application.
+ * Both frontend and backend refer to this class.<p>
  * 
- * Set the first argument of the JVM if the application
- * is started with SwingFrontend as main class or set the <code>init-param</code> in the servlet
+ * Set the first argument of the JVM to your extension of this class if the application
+ * is started with Swing or NanoWebServer as main class or set the <code>init-param</code> in the servlet
  * element in the <code>web.xml</code> if a web server is used.<p>
  *
  * All non static methods can be overridden to define the behavior
