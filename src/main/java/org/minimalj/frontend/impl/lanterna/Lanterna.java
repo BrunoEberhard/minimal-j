@@ -8,9 +8,9 @@ import org.minimalj.frontend.impl.lanterna.toolkit.LanternaFrontend;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 
-public class LanternaApplication {
+public class Lanterna {
 
-	private LanternaApplication() {
+	private Lanterna() {
 		// private
 	}
 
@@ -34,6 +34,6 @@ public class LanternaApplication {
 	public static void main(final String[] args) throws Exception {
 		Application.initApplication(args);
 
-		new LanternaApplication().run();
+		new Lanterna().run();
 	}
 }

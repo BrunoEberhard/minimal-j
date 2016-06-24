@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.backend.SocketBackendServer;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.swing.SwingApplication;
+import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Subject;
@@ -46,7 +46,7 @@ import org.minimalj.util.resources.Resources;
  * All non static methods can be overridden to define the behavior
  * of the application.
  * 
- * @see SwingApplication
+ * @see Swing
  * @see SocketBackendServer
  */
 public abstract class Application {
@@ -222,7 +222,7 @@ public abstract class Application {
 		} else if (Application.class.getName().equals(mainClass)) {
 			logger.severe("and starting the Application class doesn't work at all. Nothing started.");
 		} else {
-			SwingApplication.main(new String[]{mainClass});
+			Swing.main(new String[]{mainClass});
 		}
 	}
 	

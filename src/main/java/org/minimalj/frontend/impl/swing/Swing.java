@@ -7,9 +7,9 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 
-public class SwingApplication implements Runnable {
+public class Swing implements Runnable {
 
-	private SwingApplication() {
+	private Swing() {
 		// private
 	}
 
@@ -25,6 +25,6 @@ public class SwingApplication implements Runnable {
 	public static void main(final String[] args) throws Exception {
 		Application.initApplication(args);
 
-		SwingUtilities.invokeAndWait(new SwingApplication());
+		SwingUtilities.invokeAndWait(new Swing());
 	}
 }

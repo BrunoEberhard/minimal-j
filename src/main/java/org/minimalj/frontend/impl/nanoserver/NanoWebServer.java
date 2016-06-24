@@ -9,7 +9,7 @@ import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoHTTPD;
 
-public class NanoHttpdApplication {
+public class NanoWebServer {
 	private static final boolean SECURE = true;
 	private static final int TIME_OUT = 5 * 60 * 1000;
 	

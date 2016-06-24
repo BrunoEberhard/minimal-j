@@ -14,7 +14,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<configuration>
-					<mainClass>org.minimalj.frontend.impl.swing.SwingApplication</mainClass>
+					<mainClass>org.minimalj.frontend.impl.swing.Swing</mainClass>
 					<arguments>
 						<argument>org.minimalj.example.empty.EmptyApplication</argument>
 					</arguments>
