@@ -36,7 +36,7 @@ public class SwingBackend extends Backend {
 			thread.start();
 			if (!loop.enter()) {
 				logger.warning("Could not execute background in second thread");
-				return delegate.execute(transaction);
+				return delegate.doExecute(transaction);
 			}
 			if (thread.getException() != null) {
 				throw new RuntimeException(thread.getException());
@@ -46,6 +46,11 @@ public class SwingBackend extends Backend {
 			SwingFrontend.browserStack.pop();
 			pageBrowser.unlock();
 		}
+	}
+	
+	@Override
+	public boolean isInTransaction() {
+		return delegate.isInTransaction();
 	}
 	
 	private class ExecuteSyncThread<T> extends Thread {
@@ -62,7 +67,7 @@ public class SwingBackend extends Backend {
 		@Override
 		public void run() {
 			try {
-				result = delegate.execute(transaction);
+				result = delegate.doExecute(transaction);
 			} catch (Exception x) {
 				exception = x;
 			} finally {

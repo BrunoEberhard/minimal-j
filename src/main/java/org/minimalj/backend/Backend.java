@@ -102,9 +102,8 @@ public class Backend {
 		return persistence;
 	}
 	
-	public static boolean isInTransaction() {
-		Backend backend = getInstance();
-		return backend != null && backend.currentTransaction.get() != null;
+	public boolean isInTransaction() {
+		return currentTransaction.get() != null;
 	}
 	
 	public static boolean isAuthorizationActive() {
