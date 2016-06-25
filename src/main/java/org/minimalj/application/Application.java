@@ -82,7 +82,7 @@ public abstract class Application {
 	
 	/**
 	 * In tests it may be needed to have more than one instance of an application.
-	 * Warning: Use with care.
+	 * Warning: Use with care. Works only if Frontend and Backend are in the same JVM!
 	 * 
 	 * @param application the application for current thread and all its children
 	 */
