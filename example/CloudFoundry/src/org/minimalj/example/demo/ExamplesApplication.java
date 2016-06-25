@@ -9,6 +9,7 @@ import org.minimalj.example.empty.EmptyApplication;
 import org.minimalj.example.helloworld.HelloWorldApplication;
 import org.minimalj.example.helloworld2.GreetingApplication;
 import org.minimalj.example.library.MjExampleApplication;
+import org.minimalj.example.minimalclinic.MinimalClinicApplication;
 import org.minimalj.example.notes.NotesApplication;
 import org.minimalj.example.numbers.NumbersApplication;
 import org.minimalj.example.petclinic.PetClinicApplication;
@@ -26,6 +27,7 @@ public class ExamplesApplication extends ThreadLocalApplication {
 		applications.put("numbers", new NumbersApplication());
 		applications.put("library", new MjExampleApplication());
 		applications.put("petClinic", new PetClinicApplication());
+		applications.put("minimalClinic", new MinimalClinicApplication());
 	}
 	
 	public void setCurrentApplication(String applicationName) {
