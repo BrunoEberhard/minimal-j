@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.servlet.MjServlet;
@@ -21,7 +20,6 @@ public class DemoServlet extends MjServlet {
 	protected void initializeApplication() {
 		if (examplesApplication == null) {
 			Frontend.setInstance(new JsonFrontend());
-			Backend.setInstance(new Backend());
 			
 			examplesApplication = new ExamplesApplication();
 			Application.setInstance(examplesApplication);
