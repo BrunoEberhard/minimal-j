@@ -1,31 +1,38 @@
 package org.minimalj.frontend.impl.swing.component;
 
+import java.awt.AWTEvent;
+import java.awt.ActiveEvent;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.EventQueue;
+import java.awt.MenuComponent;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 // Must be a JDesktopPane (not only a JPanel) in order to
 // work as a parent of a JInternalFrame or JOptionPane.showInternal
 public class EditablePanel extends JDesktopPane {
 	private static final long serialVersionUID = 1L;
-	private JComponent content;
+    private static final Logger LOG = Logger.getLogger(EditablePanel.class.getName());
 	private List<JInternalFrame> openFrames = new ArrayList<JInternalFrame>();
-
+	
 	public EditablePanel() {
 		setOpaque(false);
 		setLayout(null);
@@ -36,67 +43,18 @@ public class EditablePanel extends JDesktopPane {
 	}
 
 	public void setContent(JComponent content) {
-		removeAll();
-		this.content = content;
-		add(content);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public void layout() {
-		boolean changed = !content.getSize().equals(getSize());
-		if (changed) {
-			content.setSize(getSize());
-			super.layout();
-			if (changed && !openFrames.isEmpty()) {
-				layoutTree(content);
-			} 
-		} else {
-			super.layout();
-		}
-	}
-	
-	private void layoutTree(Component component) {
-		component.doLayout();
-		if (component instanceof Container) {
-			Container container = (Container) component;
-			for (Component child : container.getComponents()) {
-				layoutTree(child);
-			}
-		}
-	}
-    
-	@Override
-	public void paint(Graphics g) {
-		if (content.getParent() == null) {
-			RepaintManager.currentManager(content).setDoubleBufferingEnabled(false);
-			notifySpecialComponents(g, content);
-			content.paint(g);
-			RepaintManager.currentManager(content).setDoubleBufferingEnabled(true);
-		}
-		for (JInternalFrame frame : openFrames) {
-			if (frame.getParent() == null) {
-				RepaintManager.currentManager(frame).setDoubleBufferingEnabled(false);
-				g.translate(frame.getX(), frame.getY());
-				frame.paint(g);
-				g.translate(-frame.getX(), -frame.getY());
-				RepaintManager.currentManager(frame).setDoubleBufferingEnabled(true);
-			}
-		}
-		super.paint(g);
-	}
-
-	// this is needed otherwise table would loose header when looked and divider disappears
-	private void notifySpecialComponents(Graphics g, Component content) {
-		if (content instanceof JTable || content instanceof JSplitPane) {
-			JComponent component = (JComponent) content;
-			component.addNotify();
-		}
-		if (content instanceof Container) {
-			Container container = (Container) content;
-			for (Component c : container.getComponents()) {
-				notifySpecialComponents(g, c);
-			}
+		JInternalFrame frame = new JInternalFrame("");
+		BasicInternalFrameUI bi = (BasicInternalFrameUI) frame.getUI();
+		bi.setNorthPane(null);
+		frame.setBorder(null);
+		frame.setLayout(new BorderLayout());
+		frame.add(content, BorderLayout.CENTER);
+		add(frame);
+		frame.setVisible(true);
+		try {
+			frame.setMaximum(true);
+		} catch (PropertyVetoException e) {
+			LOG.log(Level.WARNING, e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -107,20 +65,54 @@ public class EditablePanel extends JDesktopPane {
 
 		openFrames.add(internalFrame);
 		
-		removeAll();
 		add(internalFrame);
-
+		
 		internalFrame.addInternalFrameListener(listener);
 
 		arrangeFrames();
 		internalFrame.setVisible(true);
-		
-		repaint();
+		internalFrame.requestFocus();
 	}
 	
+	private int lockCount = 0;
+	
 	public void lock() {
-		removeAll();
-		repaint();
+		lockCount++;
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		try {
+			if (SwingUtilities.isEventDispatchThread()) {
+				EventQueue theQueue = getToolkit().getSystemEventQueue();
+				while (lockCount > 0) {
+					AWTEvent event = theQueue.getNextEvent();
+					Object source = event.getSource();
+
+					if (event instanceof MouseEvent) {
+						continue;
+					}
+
+					if (event instanceof ActiveEvent) {
+						((ActiveEvent) event).dispatch();
+					} else if (source instanceof Component) {
+						((Component) source).dispatchEvent(event);
+					} else if (source instanceof MenuComponent) {
+						((MenuComponent) source).dispatchEvent(event);
+					} else {
+						LOG.warning("Not dispatched: " + event);
+					}
+				}
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			} else {
+				while (lockCount > 0) {
+					wait();
+				}
+			}
+		} catch (InterruptedException x) {
+			LOG.warning(x.getLocalizedMessage());
+		}
+	}
+
+	public void unlock() {
+		lockCount--;
 	}
 	
 	public boolean tryToCloseDialogs() {
@@ -137,18 +129,8 @@ public class EditablePanel extends JDesktopPane {
 			throw new IllegalArgumentException("Dialog to close not open");
 		}
 		openFrames.remove(internalFrame);
-		unlock();
-	}
-
-	public void unlock() {
-		removeAll();
-		if (openFrames.isEmpty()) {
-			add(content);
-		} else {
-			add(openFrames.get(openFrames.size()-1));
-		}
-		
-		repaint();
+		internalFrame.setVisible(false);
+		remove(internalFrame);
 	}
 
 	private void arrangeFrames() {

@@ -1,17 +1,10 @@
 package org.minimalj.frontend.impl.swing;
 
-import java.awt.EventQueue;
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
-import java.util.logging.Logger;
-
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.transaction.Transaction;
 
 public class SwingBackend extends Backend {
-	private static final Logger logger = Logger.getLogger(SwingBackend.class.getName());
-
 	private final Backend delegate;
 	
 	public SwingBackend(Backend delegate) {
@@ -24,27 +17,15 @@ public class SwingBackend extends Backend {
 			return delegate.doExecute(transaction);
 		}
 		
-		Toolkit tk = Toolkit.getDefaultToolkit();
-		EventQueue eq = tk.getSystemEventQueue();
-		SecondaryLoop loop = eq.createSecondaryLoop();
-
-		ExecuteSyncThread<T> thread = new ExecuteSyncThread<>(loop, transaction);
 		SwingTab pageBrowser = (SwingTab) SwingFrontend.getInstance().getPageManager();
-		try {
-			SwingFrontend.browserStack.push(null);
-			pageBrowser.lock();
-			thread.start();
-			if (!loop.enter()) {
-				logger.warning("Could not execute background in second thread");
-				return delegate.doExecute(transaction);
-			}
-			if (thread.getException() != null) {
-				throw new RuntimeException(thread.getException());
-			}
+		ExecuteThread<T> thread = new ExecuteThread<>(pageBrowser, transaction);
+		thread.start();
+		pageBrowser.lock(); // blocks (and dispatches swing events)
+
+		if (thread.getException() != null) {
+			throw new RuntimeException(thread.getException());
+		} else {
 			return thread.getResult();
-		} finally {
-			SwingFrontend.browserStack.pop();
-			pageBrowser.unlock();
 		}
 	}
 	
@@ -53,14 +34,14 @@ public class SwingBackend extends Backend {
 		return delegate.isInTransaction();
 	}
 	
-	private class ExecuteSyncThread<T> extends Thread {
-		private final SecondaryLoop loop;
+	private class ExecuteThread<T> extends Thread {
+		private final SwingTab pageBrowser;
 		private final Transaction<T> transaction;
 		private T result;
 		private Exception exception;
 
-		public ExecuteSyncThread(SecondaryLoop loop, Transaction<T> transaction) {
-			this.loop = loop;
+		public ExecuteThread(SwingTab pageBrowser, Transaction<T> transaction) {
+			this.pageBrowser = pageBrowser;
 			this.transaction = transaction;
 		}
 
@@ -71,7 +52,7 @@ public class SwingBackend extends Backend {
 			} catch (Exception x) {
 				exception = x;
 			} finally {
-				loop.exit();
+				pageBrowser.unlock();
 			}
 		}
 

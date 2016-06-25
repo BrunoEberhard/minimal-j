@@ -1,19 +1,26 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.AWTEvent;
+import java.awt.ActiveEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.MenuComponent;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
+import java.util.logging.Logger;
 
 import javax.swing.JInternalFrame;
+import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
 import org.minimalj.frontend.page.IDialog;
 
 public class SwingInternalFrame extends JInternalFrame implements IDialog {
-	// private static final Logger logger = Logger.getLogger(EditorInternalFrameDecorator.class.getName());
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOG = Logger.getLogger(SwingInternalFrame.class.getName());
 	
 	private final EditablePanel editablePanel;
 	private final Component focusAfterClose;
@@ -89,5 +96,51 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 
 	public Action getSaveAction() {
 		return saveAction;
+	}
+	
+	//
+	
+	@Override
+	public void show() {
+		super.show();
+		SwingUtilities.invokeLater(() -> showModal());
+	}
+
+	@Override
+	public void setVisible(boolean value) {
+		super.setVisible(value);
+		if (value) {
+			SwingUtilities.invokeLater(() -> showModal());
+		}
+	}
+
+	private void showModal() {
+		EventQueue theQueue = getToolkit().getSystemEventQueue();
+		try {
+			while (isVisible()) {
+				AWTEvent event = theQueue.getNextEvent();
+				Object source = event.getSource();
+
+				if (event instanceof MouseEvent) {
+					MouseEvent e = (MouseEvent) event;
+					MouseEvent m = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
+					if (!this.contains(m.getPoint()) && e.getID() != MouseEvent.MOUSE_DRAGGED) {
+						continue;
+					}
+				}
+
+				if (event instanceof ActiveEvent) {
+					((ActiveEvent) event).dispatch();
+				} else if (source instanceof Component) {
+					((Component) source).dispatchEvent(event);
+				} else if (source instanceof MenuComponent) {
+					((MenuComponent) source).dispatchEvent(event);
+				} else {
+					LOG.warning("Not dispatched: " + event);
+				}
+			}
+		} catch (InterruptedException x) {
+			LOG.warning(x.getLocalizedMessage());
+		}
 	}
 }
