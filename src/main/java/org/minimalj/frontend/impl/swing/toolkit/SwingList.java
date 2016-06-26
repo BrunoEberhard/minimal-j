@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -49,15 +50,14 @@ public class SwingList extends JPanel implements IList {
 		if (isEnabled() && !enabled) {
 			disabledChildren = getComponents();
 			removeAll();
-			revalidate();
 		} else if (!isEnabled() && enabled) {
 			for (Component c: disabledChildren) {
 				add(c, "");
 			}
-			revalidate();
 		} else {
 			return; // avoid fireChange in super
 		}
+		revalidate();
 		super.setEnabled(enabled);
 	}
 
@@ -66,7 +66,9 @@ public class SwingList extends JPanel implements IList {
 		for (int i = getComponentCount() - actionCount - 1; i >= 0; i--) {
 			remove(i);
 		}
-		disabledChildren = new Component[0];
+		if (disabledChildren != null) {
+			disabledChildren = Arrays.copyOfRange(disabledChildren, disabledChildren.length - actionCount, disabledChildren.length);
+		}
 		revalidate();
 	}
 
@@ -80,7 +82,7 @@ public class SwingList extends JPanel implements IList {
 		for (Action action : actions) {
 			super.add(new SwingActionText(action), "", getComponentCount() - actionCount);
 		}
-		if (actionCount > 0 && getComponentCount() > 0) {
+		if (actionCount > 0) {
 			// if global actions exist: create border at the end of this component+actions
 			JComponent lastLabel = (JComponent) super.getComponent(getComponentCount() - actionCount - 1);
 			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
