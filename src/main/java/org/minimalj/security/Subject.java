@@ -7,7 +7,7 @@ import java.util.List;
 public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	private static final ThreadLocal<Subject> subject = new ThreadLocal<>();
+	private static final InheritableThreadLocal<Subject> subject = new InheritableThreadLocal<>();
 	private String name;
 	private Serializable token;
 	
