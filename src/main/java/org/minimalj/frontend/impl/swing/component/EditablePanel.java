@@ -20,7 +20,6 @@ import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
-import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
@@ -78,39 +77,45 @@ public class EditablePanel extends JDesktopPane {
 	
 	public void lock() {
 		lockCount++;
-		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		try {
-			if (SwingUtilities.isEventDispatchThread()) {
-				EventQueue theQueue = getToolkit().getSystemEventQueue();
-				while (lockCount > 0) {
-					AWTEvent event = theQueue.getNextEvent();
-					Object source = event.getSource();
-
-					if (event instanceof MouseEvent) {
-						continue;
-					}
-
-					if (event instanceof ActiveEvent) {
-						((ActiveEvent) event).dispatch();
-					} else if (source instanceof Component) {
-						((Component) source).dispatchEvent(event);
-					} else if (source instanceof MenuComponent) {
-						((MenuComponent) source).dispatchEvent(event);
-					} else {
-						LOG.warning("Not dispatched: " + event);
-					}
-				}
-				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			} else {
-				while (lockCount > 0) {
-					wait();
-				}
+		setCursorRecursive(this, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		EventQueue theQueue = getToolkit().getSystemEventQueue();
+		while (lockCount > 0) {
+			AWTEvent event = null;
+			try {
+				event = theQueue.getNextEvent();
+			} catch (InterruptedException x) {
+				LOG.warning(x.getLocalizedMessage());
+				continue;
 			}
-		} catch (InterruptedException x) {
-			LOG.warning(x.getLocalizedMessage());
+			Object source = event.getSource();
+
+			if (event instanceof MouseEvent) {
+				continue;
+			}
+
+			if (event instanceof ActiveEvent) {
+				((ActiveEvent) event).dispatch();
+			} else if (source instanceof Component) {
+				((Component) source).dispatchEvent(event);
+			} else if (source instanceof MenuComponent) {
+				((MenuComponent) source).dispatchEvent(event);
+			} else {
+				LOG.warning("Not dispatched: " + event);
+			}
 		}
+		setCursorRecursive(this, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
+	private static void setCursorRecursive(Component component, Cursor cursor) {
+		component.setCursor(cursor);
+		if (component instanceof Container) {
+			Container container = (Container) component;
+			for (Component c : container.getComponents()) {
+				setCursorRecursive(c, cursor);
+			}
+		}
+	}
+	
 	public void unlock() {
 		lockCount--;
 	}
