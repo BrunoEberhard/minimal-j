@@ -73,8 +73,19 @@ public abstract class Authorization {
 	
 	public boolean isAllowed(Transaction<?> transaction) {
 		Role role = getRole(transaction);
-		boolean noRoleNeeded = role == null;
-		return noRoleNeeded || getCurrentRoles().contains(role.value());
+		if (role != null) {
+			List<String> currentRoles = getCurrentRoles();
+			for (String allowingRole : role.value()) {
+				if (currentRoles.contains(allowingRole)) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			// Transaction specifies no needed role. Every user passes
+			return true;
+		}
+		
 	}
 	
 	public static Role getRole(Transaction<?> transaction) {
