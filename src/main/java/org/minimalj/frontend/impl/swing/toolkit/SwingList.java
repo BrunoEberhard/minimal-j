@@ -55,35 +55,34 @@ public class SwingList extends JPanel implements IList {
 				add(c, "");
 			}
 			revalidate();
+		} else {
+			return; // avoid fireChange in super
 		}
 		super.setEnabled(enabled);
 	}
 
 	@Override
 	public void clear() {
-		if (isEnabled()) {
-			for (int i = getComponentCount() - actionCount - 1; i>=0; i--) {
-				remove(i);
-			}
-		} else {
-			throw new IllegalStateException("Not allowed to clear components while disabled");
+		for (int i = getComponentCount() - actionCount - 1; i >= 0; i--) {
+			remove(i);
 		}
+		disabledChildren = new Component[0];
 		revalidate();
 	}
 
 	@Override
 	public void add(IComponent component, Action... actions) {
-		if (!isEnabled()) {
-			throw new IllegalStateException("Not allowed to add component while disabled");
-		}
+		boolean enabled = isEnabled();
+		setEnabled(true);
+		
 		int existingComponents = getComponentCount();
 		super.add((Component) component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
 		for (Action action : actions) {
 			super.add(new SwingActionText(action), "", getComponentCount() - actionCount);
 		}
-		if (actionCount > 0) {
+		if (actionCount > 0 && getComponentCount() > 0) {
 			// if global actions exist: create border at the end of this component+actions
-			JComponent lastLabel = (JComponent) super.getComponent(super.getComponentCount() - actionCount - 1);
+			JComponent lastLabel = (JComponent) super.getComponent(getComponentCount() - actionCount - 1);
 			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 		} else if (existingComponents > 0) {
 			// no global actions, but not the first add: create border at the end of the previous component+actions 
@@ -91,6 +90,7 @@ public class SwingList extends JPanel implements IList {
 			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 		}
 		
+		setEnabled(enabled);
 		repaint();
 		revalidate();
 	}
