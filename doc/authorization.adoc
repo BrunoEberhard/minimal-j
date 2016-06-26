@@ -8,15 +8,20 @@ authorization happens when the frontend sends the backend a Transaction to execu
 	[..]
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (Subject.hasRoleFor(transaction)) {
-			return transaction.execute();
+		if (!Authorization.isActive() || Authorization.getInstance().isAllowed(transaction)) {
+			try {
+				currentTransaction.set(transaction);
+				return transaction.execute();
+			} finally {
+				currentTransaction.set(null);
+			}
 		} else {
 			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
 		}
 	}
 ----
 
-This seems readable not only for the compiler. The Subject class knows who is logged in (in respect of
+This seems readable not only for the compiler. The Authorization class knows who is logged in (in respect of
 the current Thread). It also provides the method to check if a Transaction is allowed.
 
 NOTE: There are two quite similar classes called Subject and User. Subject has more to do with who is
@@ -36,7 +41,7 @@ The application should present a specialized navigation based on the granted rol
     public List<Action> getNavigation() {
         List<Action> actions = new ArrayList<>();
 
-        if (Subject.hasRole(RosenStaedterAuthorization.ROLE_XY)) {
+        if (Subject.hasRole(MyRoles.ROLE_XY)) {
             ActionGroup actionGroup = new ActionGroup("Xy");
             actionGroup.add(new XyzEditor());
             actions.add(actionGroup);
