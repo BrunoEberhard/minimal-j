@@ -116,31 +116,33 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 
 	private void showModal() {
 		EventQueue theQueue = getToolkit().getSystemEventQueue();
-		try {
-			while (isVisible()) {
-				AWTEvent event = theQueue.getNextEvent();
-				Object source = event.getSource();
+		while (isVisible()) {
+			AWTEvent event = null;
+			try {
+				event = theQueue.getNextEvent();
+			} catch (InterruptedException x) {
+				LOG.warning(x.getLocalizedMessage());
+				continue;
+			}
+			Object source = event.getSource();
 
-				if (event instanceof MouseEvent) {
-					MouseEvent e = (MouseEvent) event;
-					MouseEvent m = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
-					if (!this.contains(m.getPoint()) && e.getID() != MouseEvent.MOUSE_DRAGGED) {
-						continue;
-					}
-				}
-
-				if (event instanceof ActiveEvent) {
-					((ActiveEvent) event).dispatch();
-				} else if (source instanceof Component) {
-					((Component) source).dispatchEvent(event);
-				} else if (source instanceof MenuComponent) {
-					((MenuComponent) source).dispatchEvent(event);
-				} else {
-					LOG.warning("Not dispatched: " + event);
+			if (event instanceof MouseEvent) {
+				MouseEvent e = (MouseEvent) event;
+				MouseEvent m = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
+				if (!this.contains(m.getPoint()) && e.getID() != MouseEvent.MOUSE_DRAGGED) {
+					continue;
 				}
 			}
-		} catch (InterruptedException x) {
-			LOG.warning(x.getLocalizedMessage());
+
+			if (event instanceof ActiveEvent) {
+				((ActiveEvent) event).dispatch();
+			} else if (source instanceof Component) {
+				((Component) source).dispatchEvent(event);
+			} else if (source instanceof MenuComponent) {
+				((MenuComponent) source).dispatchEvent(event);
+			} else {
+				LOG.warning("Not dispatched: " + event);
+			}
 		}
 	}
 }
