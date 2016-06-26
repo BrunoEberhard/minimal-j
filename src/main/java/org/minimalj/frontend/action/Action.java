@@ -40,10 +40,18 @@ public abstract class Action {
 		this.name = name;
 	}
 	
+	/**
+	 * 
+	 * @return the text normally displayed in the frontend
+	 */
 	public final String getName() {
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @return this could be used by a frontend for a additional information about this action. For example a tooltip.
+	 */
 	public String getDescription() {
 		return description;
 	}
