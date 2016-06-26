@@ -164,7 +164,12 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			previous();
+			SwingFrontend.pushContext();
+			try {
+				previous();
+			} finally {
+				SwingFrontend.popContext();
+			}
 		}
 	}
 	
@@ -173,7 +178,12 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			next();
+			SwingFrontend.pushContext();
+			try {
+				next();
+			} finally {
+				SwingFrontend.popContext();
+			}
 		}
 	}
 
