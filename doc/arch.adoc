@@ -2,9 +2,9 @@
 
 Minimal-J supports several different setups for an application
 
-* Standalone: Everything is done in the same VM. The UI and the hanlding of the data. Even if this setup is kind of old fashion it can be usefull while developping the application.
+* Standalone: Everything is done in the same VM. The UI and the handling of the data. Even if this setup is kind of old fashion it can be usefull while developping the application.
 * Rich client: In this setup there is a central server but the users still install software on their machines. And this is exactly the reason why newer applications are deployed third way. Not every one wants or can install software on its machine.
-* Web client: Now most of the client software is also handled on a server. The user must not install special software (except for a browser that is somehow not seen as software to be installed). The application can be used from every net connected hardware.
+* Web client: Now most of the client software is also handled on a server. The user doesn't have to not install special software (except for a browser that is somehow not seen as software to be installed). The application can be used from every net connected hardware.
 
 You can switch between all these setups at every time as long as you stay in framework given by Minimal-J.
 
