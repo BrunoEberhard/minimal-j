@@ -133,13 +133,17 @@ But hey - what SQL magic goes on in the backend when inserting and loading entit
 configuring the logging.
 
 [source,title="logging.properties"]
+----
 handlers = java.util.logging.ConsoleHandler
 java.util.logging.ConsoleHandler.level = FINEST
 SQL.level = FINEST
+----
 
 Java must know about this file. You have to add a VM property
 [source,title="logging.properties"]
+----
 -Djava.util.logging.config.file=logging.properties
+----
 
 === The resource bundle
 
