@@ -56,12 +56,7 @@ public class SwingToolBar extends JToolBar {
 		textFieldSearch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SwingFrontend.pushContext();
-				try {
-					button.doClick();
-				} finally {
-					SwingFrontend.popContext();
-				}
+				SwingFrontend.runWithContext(() -> button.doClick());
 			}
 		});
 	}
@@ -71,14 +66,11 @@ public class SwingToolBar extends JToolBar {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			SwingFrontend.pushContext();
-			try {
+			SwingFrontend.runWithContext(() -> {
 				String query = textFieldSearch.getText();
 				Page page = Application.getInstance().createSearchPage(query);
 				tab.show(page);
-			} finally {
-				SwingFrontend.popContext();
-			}
+			});
 		}
 	}
 	

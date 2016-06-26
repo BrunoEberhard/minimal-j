@@ -68,12 +68,7 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					try {
-						SwingFrontend.pushContext();
-						action.action();
-					} finally {
-						SwingFrontend.popContext();
-					}
+					runWithContext(() -> action.action());
 				}
 			});
 		}
@@ -326,12 +321,7 @@ public class SwingFrontend extends Frontend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					pushContext();
-					action.action();
-				} finally {
-					popContext();
-				}
+				runWithContext(() -> action.action());
 			}
 		};
 		swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());
@@ -353,14 +343,21 @@ public class SwingFrontend extends Frontend {
 		return swingAction;
 	}
 	
-	public static void pushContext() {
-		browserStack.push(SwingFrame.getActiveWindow().getVisibleTab());
-		Subject.setCurrent(SwingFrame.getActiveWindow().getSubject());
-	}
-	
-	public static void popContext() {
-		Subject.setCurrent(null);
-		browserStack.pop();
+	/**
+	 * As the current subject can be different for each Swing Window
+	 * this method ensure that no wrong subject stays as current subject
+	 * 
+	 * @param r a runnable (normally a lambda is used)
+	 */
+	public static void runWithContext(Runnable r) {
+		try {
+			browserStack.push(SwingFrame.getActiveWindow().getVisibleTab());
+			Subject.setCurrent(SwingFrame.getActiveWindow().getSubject());
+			r.run();
+		} finally {
+			Subject.setCurrent(null);
+			browserStack.pop();
+		}
 	}
 	
 	public static boolean hasContext() {
