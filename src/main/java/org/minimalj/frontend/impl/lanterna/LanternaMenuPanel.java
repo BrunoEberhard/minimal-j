@@ -38,7 +38,10 @@ public class LanternaMenuPanel extends Panel {
 		updateMenu(null);
 
 		panel.addComponent(bar, BorderLayout.LEFT);
-		panel.addComponent(createSearchField(), BorderLayout.RIGHT);
+		
+		if (Application.getInstance().hasSearchPages()) {
+			panel.addComponent(createSearchField(), BorderLayout.RIGHT);
+		}
 
 		addComponent(panel, BorderLayout.TOP);
 	}

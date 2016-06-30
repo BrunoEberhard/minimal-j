@@ -1054,15 +1054,7 @@
 				</svg>
 			</span>	
 			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
-			<span id="searchSpan">
-				<input type="search" id="search" value="" onkeydown="if (event.keyCode == 13) search();" />
-				<svg width="17px" height="17px" class="headerButton" onclick="search();">
-					<g style="stroke:#444;stroke-width:16%;stroke-linecap:square"> 		
-						<line x1="59%" y1="59%" x2="91%" y2="91%" />
-						<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
-					</g>
-				</svg>
-			</span>			
+			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
 		</div>
 		<div id="container">
 			<div id="navigationContainer" style="display: none;">

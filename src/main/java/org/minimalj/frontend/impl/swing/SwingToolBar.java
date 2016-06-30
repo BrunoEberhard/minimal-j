@@ -4,9 +4,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
@@ -19,13 +17,11 @@ public class SwingToolBar extends JToolBar {
 	
 	private final SwingTab tab;
 	private JTextField textFieldSearch;
-	private SearchAction searchAction;
 
 	public SwingToolBar(SwingTab tab) {
 		super();
 		this.tab = tab;
 		
-		searchAction = new SearchAction();		
 		setFloatable(false);
 		fillToolBar();
 	}
@@ -51,26 +47,21 @@ public class SwingToolBar extends JToolBar {
 		textFieldSearch.setPreferredSize(new Dimension(200, textFieldSearch.getPreferredSize().height));
 		textFieldSearch.setMaximumSize(textFieldSearch.getPreferredSize());
 		add(textFieldSearch);
-		JButton button = add(searchAction);
-		button.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-		textFieldSearch.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingFrontend.runWithContext(() -> button.doClick());
-			}
-		});
-	}
-	
-	protected class SearchAction extends SwingResourceAction {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			SwingFrontend.runWithContext(() -> {
-				String query = textFieldSearch.getText();
-				Page page = Application.getInstance().createSearchPage(query);
-				tab.show(page);
+		Dimension rightFillerDimension = new Dimension(6, 0);
+		add(new Box.Filler(rightFillerDimension, rightFillerDimension, rightFillerDimension));
+		if (Application.getInstance().hasSearchPages()) {
+			textFieldSearch.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					SwingFrontend.runWithContext(() -> {
+						String query = textFieldSearch.getText();
+						Page page = Application.getInstance().createSearchPage(query);
+						tab.show(page);
+					});
+				}
 			});
+		} else {
+			textFieldSearch.setEnabled(false);
 		}
 	}
 	

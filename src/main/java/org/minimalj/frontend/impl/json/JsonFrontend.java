@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -159,6 +160,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$WEB_SOCKET", Boolean.toString(useWebSocket()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
+		result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		return result;
 	}

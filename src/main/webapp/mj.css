@@ -33,16 +33,9 @@ body {
 	margin-left: 1em;
 }
 
-#searchSpan {
-	position: absolute;
-	top: 0;
-	right: 1em;
-	overflow: none;
-}
-
 #search {
 	position: absolute;
-	right: 3em;
+	right: 0.35em;
 	height: 1.5em;
 	vertical-align: middle;
 	font-size: 11px;

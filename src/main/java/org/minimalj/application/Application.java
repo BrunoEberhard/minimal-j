@@ -180,6 +180,20 @@ public abstract class Application {
 	public Page createSearchPage(String query) {
 		return new EmptyPage();
 	}
+	
+	/**
+	 * note: for production you should override this method to avoid continuous use of reflection
+	 * 
+	 * @return true if the application overrides createSearchPage meaning
+	 * the application provides a search page
+	 */
+	public boolean hasSearchPages() {
+		try {
+			return this.getClass().getMethod("createSearchPage", new Class<?>[] { String.class }).getDeclaringClass() != Application.class;
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public Page createDefaultPage() {
 		return new EmptyPage();
