@@ -29,10 +29,7 @@ Minimal applications may not always look the same. But the UI concepts never cha
 * link:doc/user_guide.adoc[Minimal user guide] Good start point for user and programmer.
 * link:doc/setup.adoc[Setup]
 * link:doc/release_notes.adoc[Release Notes]
-* link:doc/topics.adoc[Topics and examples]
-
-=== Real application
-* http://openech-register.herokuapp.com/[Open-eCH]. Source Code auf https://github.com/BrunoEberhard/open-ech[github].
+* link:doc/topics.adoc[Tutorial and examples]
 
 === Contact
 

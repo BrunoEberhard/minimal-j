@@ -1,6 +1,6 @@
 == Topics and examples
 
-The small examples are currently deployed on CloudFoundry as online demo. Please note that some features are still incomplete in the html frontend.
+The small examples are currently deployed on CloudFoundry as online demo.
 
 * link:example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:http://minimalj-examples.cfapps.io/empty/[(online demo)]
 * link:example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:http://minimalj-examples.cfapps.io/greeting/[(online demo)]
@@ -14,3 +14,6 @@ link:http://minimalj-examples.cfapps.io/numbers/[(online demo)]
 * link:doc/lists.adoc[Lists] How to use one to many relations in the data model
 * link:doc/ui_content_and_components.adoc[UI details] Content, components and forms
 * link:doc/authorization.adoc[Authorization] Security concepts and configuration
+
+=== Real application (german)
+* http://openech-register.herokuapp.com/[Open-eCH]. Source Code available on https://github.com/BrunoEberhard/open-ech[github].
