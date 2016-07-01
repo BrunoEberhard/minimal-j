@@ -36,4 +36,4 @@ Minimal applications may not always look the same. But the UI concepts never cha
 
 === Contact
 
-* Bruno Eberhard, link:minimalj@hispeed.ch[minimalj@hispeed.ch] 
+* Bruno Eberhard, mailto:minimalj@hispeed.ch[minimalj@hispeed.ch] 
