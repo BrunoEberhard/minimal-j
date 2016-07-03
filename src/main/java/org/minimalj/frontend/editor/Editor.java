@@ -18,6 +18,13 @@ import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
+/**
+ * 
+ * @param <T> The class of the edited object
+ * @param <RESULT> The class of the object returned by the save method. This can be the same as the one 
+ * of the edited object. Then you could use the {@link SimpleEditor}. In more complex situations the
+ * backend called in the save method will do some business logic resulting in a different output object.
+ */
 public abstract class Editor<T, RESULT> extends Action {
 	private static final Logger logger = Logger.getLogger(Editor.class.getName());
 
