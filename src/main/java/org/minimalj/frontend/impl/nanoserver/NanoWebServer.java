@@ -29,8 +29,18 @@ public class NanoWebServer {
 	}
 	
 	private static int getPort(boolean secure) {
-		String portString = System.getProperty("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
-		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1 ;
+		String portString = System.getProperty("MjFrontendPort" + (secure ? "Ssl" : ""), null);
+		if (!StringUtils.isEmpty(portString) && !Character.isDigit(portString.charAt(0))) {
+			portString = System.getProperty(portString, null);
+		}
+		if (portString == null) {
+			return secure ? -1 : 8080;
+		} else if (portString.length() == 0) {
+			// make it possible to deactive non secure port by add -DMjFrontendPort=""
+			return -1;
+		} else {
+		    return Integer.valueOf(portString);	
+		}
 	}
 	
 	private static NanoHTTPD newMjWebSocketDaemon(int port, boolean secure) {
