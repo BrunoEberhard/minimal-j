@@ -1,6 +1,7 @@
 == Release notes
 
 === next
+* Server: use http session or websocket connection as base for session management
 
 === 0.11.0.1
 * Web frontend: reserve space on the right only if there is a menu
