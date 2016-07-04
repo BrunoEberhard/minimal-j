@@ -13,11 +13,20 @@
 			<param-name>Application</param-name>
 			<param-value>org.minimalj.example.demo.DemoApplication</param-value>
 		</init-param>
+		
+		<init-param>
+			<description>The web front end should us WebSocket for communication</description>
+			<param-name>MjUseWebSocket</param-name>
+			<param-value>false</param-value>
+		</init-param>		
+
+		<init-param>
+			<param-name>MjDemoMode</param-name>
+			<param-value>true</param-value>
+		</init-param>		
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>DemoServlet</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-
-
 </web-app>
