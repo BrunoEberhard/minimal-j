@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,8 +25,9 @@ import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.LoginAction;
 import org.minimalj.security.LoginAction.LoginListener;
 import org.minimalj.security.Subject;
+import org.minimalj.util.LocaleContext;
 
-public class JsonClientSession implements PageManager, LoginListener {
+public class JsonPageManager implements PageManager, LoginListener {
 
 	private Subject subject;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
@@ -36,7 +38,7 @@ public class JsonClientSession implements PageManager, LoginListener {
 
 	private final PageStore pageStore = new PageStore();
 	
-	public JsonClientSession() {
+	public JsonPageManager() {
 		//
 	}
 	
@@ -58,9 +60,20 @@ public class JsonClientSession implements PageManager, LoginListener {
 		}
 	};
 	
+	public String handle(String inputString) {
+		JsonInput input = new JsonInput(inputString);
+		JsonOutput output = handle(input);
+		return output.toString();
+	}
+	
 	public JsonOutput handle(JsonInput input) {
 		JsonFrontend.setSession(this);
 		Subject.setCurrent(subject);
+		String locale = (String) input.getObject("locale");
+		if (locale != null) {
+			LocaleContext.setCurrent(Locale.forLanguageTag(locale));
+		}		
+		
 		output = new JsonOutput();
 		
 		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {

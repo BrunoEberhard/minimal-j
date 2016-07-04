@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.json.JsonHandler;
+import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -27,8 +27,6 @@ public class MjServlet extends HttpServlet {
 	
 	private static boolean applicationInitialized;
 	
-	private JsonHandler handler = new JsonHandler();
-	
 	protected void initializeApplication() {
 		if (!applicationInitialized) {
 			Frontend.setInstance(new JsonFrontend());
@@ -36,7 +34,6 @@ public class MjServlet extends HttpServlet {
 			if (StringUtils.isBlank(applicationName)) {
 				throw new IllegalArgumentException("Missing Application parameter");
 			}
-			copyPropertiesFromServletConfigToSystem();
 			Application application = Application.createApplication(applicationName);
 			Application.setInstance(application);
 			applicationInitialized = true;
@@ -53,6 +50,7 @@ public class MjServlet extends HttpServlet {
 	
 	@Override
 	public void init() throws ServletException {
+		copyPropertiesFromServletConfigToSystem();
 		initializeApplication();
 	}
 
@@ -69,7 +67,9 @@ public class MjServlet extends HttpServlet {
 		
 		InputStream inputStream = null;
 		uri = uri.substring(uri.lastIndexOf('/'), uri.length());
+		javax.servlet.http.HttpSession session = request.getSession(true);
 		if (uri.equals("/")) {
+			session.setAttribute("MjPageManager", new JsonPageManager());
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
 			response.getWriter().write(html);
@@ -77,7 +77,8 @@ public class MjServlet extends HttpServlet {
 			return;
 		} else if ("/ajax_request.xml".equals(uri)) {
 			String postData = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-			String result = handler.handle(postData);
+			JsonPageManager pageManager = (JsonPageManager) session.getAttribute("MjPageManager");
+			String result = pageManager.handle(postData);
 			response.getWriter().write(result);
 			response.setContentType("text/xml");
 			return;	

@@ -1,46 +1,48 @@
 package org.minimalj.frontend.impl.json;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.util.LocaleContext;
+public class JsonSessionManager {
+	private static final Logger logger = Logger.getLogger(JsonSessionManager.class.getName());
+	private static final int MAX_SESSIONS = Integer.valueOf(System.getProperty("MjMaxSessions", "30"));
 
-public class JsonHandler {
-	private static final Logger logger = Logger.getLogger(JsonHandler.class.getName());
+	private final Map<String, JsonPageManager> sessions = new HashMap<>();
+	private final List<String> sessionList = new ArrayList<>();
 	
-	private final Map<String, JsonClientSession> sessions = new HashMap<>();
-	
-	private JsonClientSession getSession(String sessionId) {
+	private JsonPageManager getSession(String sessionId) {
+		// update last access (move it at the end of the list)
+		sessionList.remove(sessionId);
+		sessionList.add(sessionId);
+		
 		return sessions.get(sessionId);
 	}
 	
 	private String createSession() {
+		if (sessionList.size() >= MAX_SESSIONS) {
+			String sessionId = sessionList.get(0);
+			sessions.remove(sessionId);
+			sessionList.remove(sessionId);
+		}
+		
 		String sessionId = UUID.randomUUID().toString();
-		JsonClientSession session = new JsonClientSession();
+		JsonPageManager session = new JsonPageManager();
 		sessions.put(sessionId, session);
+
 		return sessionId;
 	}
 	
-	@Deprecated // should be done outside -> setLocale should not be done in this class
 	public String handle(String json) {
 		Map<String, Object> data = (Map<String, Object>) new JsonReader().read(json);
-		return handle(data);
-	}
 
-	public String handle(Map<String, Object> data) {
-		// TODO move this
-		String locale = (String) data.get("locale");
-		if (locale != null) {
-			LocaleContext.setCurrent(Locale.forLanguageTag(locale));
-		}
-		
 		String sessionId = (String) data.get("session");
-		boolean invalidSession = sessionId != null && getSession(sessionId) == null;
-		JsonClientSession session;
+		boolean invalidSession = sessionId != null && !sessions.containsKey(sessionId);
+		JsonPageManager session;
 		if (sessionId != null && !invalidSession) {
 			session = getSession(sessionId);
 		} else {
@@ -65,9 +67,10 @@ public class JsonHandler {
 			x.printStackTrace();
 		}
 
-//		if (invalidSession) {
-//			output.add("error", "Invalid session");
-//		}
+		if (invalidSession) {
+			// TODO better invalid session management
+			output.add("error", "Invalid session. Please close and reopen tab.");
+		}
 		
 		output.add("session", sessionId);
 		

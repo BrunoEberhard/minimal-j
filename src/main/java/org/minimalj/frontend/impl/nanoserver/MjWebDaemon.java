@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.json.JsonHandler;
+import org.minimalj.frontend.impl.json.JsonSessionManager;
 import org.minimalj.util.resources.Resources;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -18,15 +18,12 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 public class MjWebDaemon extends NanoHTTPD {
 	private static final Logger logger = Logger.getLogger(MjWebDaemon.class.getName());
 
-	private JsonHandler handler = new JsonHandler();
+	private JsonSessionManager sessionManager = new JsonSessionManager();
 	
 	public MjWebDaemon(int port, boolean secure) {
 		super(port);
 		if (secure) {
 			try {
-				// nanohttpd geht davon aus, dass keypass = storepass... ob das so sein darf / kann?
-				// bei storepass dürfte nanohttpd auch null mitgeben um die Überprüfung auszulassen...
-				
 				// note 1: to first read the property MjKeystorePassphrase and then convert it to char[]
 				// makes the whole char[] story senseless. But how to do it else? Maybe specify a filename
 				// and then read it byte by byte.
@@ -48,20 +45,13 @@ public class MjWebDaemon extends NanoHTTPD {
 		}
 	}
 	
-	private static Locale getLocale(String userLocale) {
-        final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
-        if (ranges != null) {
-        	for (LanguageRange languageRange : ranges) {
-                final String localeString = languageRange.getRange();
-                final Locale locale = Locale.forLanguageTag(localeString);
-                return locale;
-            }
-        }
-        return null;
-	}
-	
 	@Override
     public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
+            Map<String, String> files) {
+		return serve(sessionManager, uri, method, headers, parms, files);
+	}
+
+    static Response serve(JsonSessionManager sessionManager, String uri, Method method, Map<String, String> headers, Map<String, String> parms,
             Map<String, String> files) {
 		uri = uri.substring(uri.lastIndexOf('/'), uri.length());
 		if (uri.equals("/")) {
@@ -71,7 +61,7 @@ public class MjWebDaemon extends NanoHTTPD {
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		} else if ("/ajax_request.xml".equals(uri)) {
 			String data = files.get("postData");
-			String result = handler.handle(data);
+			String result = sessionManager.handle(data);
 			return newFixedLengthResponse(Status.OK, "text/xml", result);
 		} else {
 			int index = uri.lastIndexOf('.');
@@ -87,5 +77,17 @@ public class MjWebDaemon extends NanoHTTPD {
 		logger.warning("Could not serve: " + uri);
 		return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
 	}
+    
+    private static Locale getLocale(String userLocale) {
+    	final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
+    	if (ranges != null) {
+    		for (LanguageRange languageRange : ranges) {
+    			final String localeString = languageRange.getRange();
+    			final Locale locale = Locale.forLanguageTag(localeString);
+    			return locale;
+    		}
+    	}
+    	return null;
+    }
 
 }

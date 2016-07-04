@@ -1,6 +1,8 @@
 package org.minimalj.frontend.impl.servlet;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,33 +13,33 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.minimalj.frontend.impl.json.JsonHandler;
+import org.minimalj.frontend.impl.json.JsonPageManager;
 
 @ServerEndpoint(value = "/ws")
 public class MjWebSocketServlet {
 	private static final Logger logger = Logger.getLogger(MjWebSocketServlet.class.getName());
 
-	private static JsonHandler handler = new JsonHandler();
+	private Map<Session, JsonPageManager> pageManagers = new HashMap<>();
 	
-    private Session webSocketSession;
-
     public MjWebSocketServlet() {
     }
 
     @OnOpen
-    public void start(Session webSocketSession) {
-        this.webSocketSession = webSocketSession;
+    public void start(Session session) {
+    	pageManagers.put(session, new JsonPageManager());
     }
 
     @OnClose
-    public void end() {
+    public void end(Session session) {
+    	pageManagers.remove(session);
     }
 
     @OnMessage
-    public void incoming(String message) {
-    	String result = handler.handle(message);
+    public void incoming(String message, Session session) {
+    	JsonPageManager pageManager = pageManagers.get(session);
+    	String result = pageManager.handle(message);
     	try{
-    		MjWebSocketServlet.this.webSocketSession.getBasicRemote().sendText(result);
+    		session.getBasicRemote().sendText(result);
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Send response failed", e);
 		}

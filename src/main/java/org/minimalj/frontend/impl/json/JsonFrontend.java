@@ -22,13 +22,13 @@ public class JsonFrontend extends Frontend {
 
 	private static boolean useWebSocket = Boolean.valueOf(System.getProperty("MjUseWebSocket", "false"));
 	
-	private static ThreadLocal<JsonClientSession> sessionByThread = new ThreadLocal<>();
+	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
 
-	public static void setSession(JsonClientSession session) {
+	public static void setSession(JsonPageManager session) {
 		sessionByThread.set(session);
 	}
 
-	public static JsonClientSession getClientSession() {
+	public static JsonPageManager getClientSession() {
 		return sessionByThread.get();
 	}
 	
