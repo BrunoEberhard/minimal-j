@@ -6,7 +6,6 @@ import java.io.Serializable;
  * Class cannot be serialized only its name. This helper holds the class
  * or at least it's name if the holder is serialized and then deserialized.
  *
- * @param <CLASS>
  */
 public class ClassHolder<CLASS> implements Serializable {
 	private static final long serialVersionUID = 1L;

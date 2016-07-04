@@ -131,12 +131,13 @@ public abstract class Authorization {
 	}
 	
 	/**
+	 * @param userPassword
 	 * @return null if login failed, empty list if user has no roles
 	 */
 	protected abstract List<String> retrieveRoles(UserPassword userPassword);
 
 	/**
-	 * 
+	 * @param userPassword
 	 * @return null if login failed, empty list if user has no roles
 	 */
 	public Subject login(UserPassword userPassword) {
