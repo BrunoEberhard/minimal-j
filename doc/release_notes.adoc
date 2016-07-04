@@ -1,6 +1,8 @@
 == Release notes
 
 === next
+
+=== 0.12.0.0
 * Server: use http session or websocket connection as base for session management
 
 === 0.11.0.1
