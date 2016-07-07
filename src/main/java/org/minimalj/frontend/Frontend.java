@@ -1,6 +1,5 @@
 package org.minimalj.frontend;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.application.Application;
@@ -142,10 +141,6 @@ public abstract class Frontend {
 		}
 		
 		public default void action(U selectedObject) {
-		}
-		
-		public default List<Action> getActions(U selectedObject, List<U> selectedObjects) {
-			return Collections.emptyList();
 		}
 	}
 	
