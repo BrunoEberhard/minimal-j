@@ -1,6 +1,7 @@
 == Release notes
 
 === next
+* Frontend: Support for delete actions
 
 === 0.12.0.0
 * Server: use http session or websocket connection as base for session management
