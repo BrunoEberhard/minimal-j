@@ -21,7 +21,7 @@ public class JsonAction extends JsonComponent {
 
 	public void action() {
 		// The user should not be able to execute action if it is disabled.
-		// Still he could manipulate the DOM to reactive the action. Check here again.
+		// Still he could manipulate the DOM to reactivate the action. Check here again.
 		if (Boolean.TRUE.equals(get("enabled"))) {
 			action.action();
 		}
