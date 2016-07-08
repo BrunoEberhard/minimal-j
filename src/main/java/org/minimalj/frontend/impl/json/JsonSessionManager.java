@@ -40,22 +40,19 @@ public class JsonSessionManager {
 	public String handle(String json) {
 		Map<String, Object> data = (Map<String, Object>) new JsonReader().read(json);
 
+		boolean validSession = true;
 		String sessionId = (String) data.get("session");
-		boolean invalidSession = sessionId != null && !sessions.containsKey(sessionId);
-		JsonPageManager session;
-		if (sessionId != null && !invalidSession) {
-			session = getSession(sessionId);
-		} else {
+		if (!sessions.containsKey(sessionId)) {
+			validSession = data.containsKey(JsonInput.SHOW_DEFAULT_PAGE);
 			sessionId = createSession();
-			session = getSession(sessionId);
+			if (!validSession) {
+				data = new HashMap<>();
+				data.put(JsonInput.SHOW_DEFAULT_PAGE, "");
+			}
 		}
+		JsonPageManager session = getSession(sessionId);
 		
 		JsonOutput output;
-		if (invalidSession) {
-			data = new HashMap<>();
-			data.put(JsonInput.SHOW_DEFAULT_PAGE, "");
-		}
-		
 		try {
 			JsonInput input = new JsonInput(data);
 			output = session.handle(input);
@@ -67,8 +64,7 @@ public class JsonSessionManager {
 			x.printStackTrace();
 		}
 
-		if (invalidSession) {
-			// TODO better invalid session management
+		if (!validSession) {
 			output.add("error", "Invalid session. Please close and reopen tab.");
 		}
 		
