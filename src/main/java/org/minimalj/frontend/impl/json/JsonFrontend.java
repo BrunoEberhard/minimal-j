@@ -112,7 +112,11 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public IComponent createComponentGroup(IComponent... components) {
-		JsonComponent group = new JsonComponent("Group", true);
+		JsonComponent group = new JsonComponent("Group", false);
+		if (components.length > 0) {
+			// click on the caption label should focus first component, not the group
+			group.put("firstId", ((JsonComponent) components[0]).get("id"));
+		}
 		group.put("components", Arrays.asList(components));
 		return group;
 	}

@@ -543,7 +543,7 @@
 		}
 		if (!isTitle && cell.caption != undefined) {
 			var caption = document.createElement("label");
-			caption.setAttribute("for", cell.id);
+			caption.setAttribute("for", cell.firstId != undefined ? cell.firstId : cell.id);
 			caption.appendChild(document.createTextNode(cell.caption));
 			var tooltipTemplate = document.getElementById("tooltip");
 			var tooltip = tooltipTemplate.cloneNode(true);
