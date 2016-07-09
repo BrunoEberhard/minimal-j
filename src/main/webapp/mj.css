@@ -267,7 +267,7 @@ table.form tr {
 	height: 3em;
 }
 
-table.form input[type="text"], table.form input[type="password"], table.form select, table.form textarea, table.form .lookup, dialog table.form label, dialog div.list {
+table input[type="text"], table input[type="password"], table select, table textarea, table .lookup, dialog table label, dialog div.list {
 	width: calc(100% - 0.4rem);
 	margin-left: 0.2rem;
 	margin-right: 0.2rem;
@@ -286,14 +286,16 @@ table.group tr {
 }
 
 table.group td {
-	padding: 0ex 1.5ex;
+	padding-top: 0;
+	padding-bottom: 0;
 }
+
 table.group td:first-child {
-	padding-left: 0ex;
+	padding-left: 0;
 }
 
 table.group td:last-child {
-	padding-right: 0ex;
+	padding-right: 0;
 }
 
 /* various elements */
