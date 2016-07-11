@@ -1,0 +1,30 @@
+== Session management
+
+Session management is a sad topic. And it shouldn't exist at all. But it exists because the only method to reach everyone
+is to communicate with http. With http you have only a connectionless communication. This means you send something and
+maybe get something in return. But you never now if the other side is still there or interested. As server you don't get informed
+if the client has left.
+
+This means the server has to keep a state for all possible active clients. You can implement something like a logout for
+the client. But even after a logout the user could navigate in the appliction without a valid login. There are things in JavaScript to
+get informed about a closing browser window. But this things don't guarantee anything as the user could for example simply
+shut down the browser.
+
+So a server must implement something like a timeout for ervery state it keeps. If a client does nothing for 10 minutes the
+state is thrown away. Of course the user isn't happy about that if he was just away for a coffee and now wants to continue
+his work. He will have to relogin or at least he cannot use the history of the last session.
+
+=== Connection-oriented communication
+
+The really sad thing about all this is that there are better technologies where this is not a problem. If we don't use a
+stateless protocol like http but a statefull protocol like WebSocket the server get informed when the client has left. At this
+moment the server can throw away the information it kept for this connection.
+
+WebSocket is such a wunderful protocol. It was meant to replace the AJAX calls from a browser to a web server. It uses
+less resources. And it could save some troubles with the session management.
+
+So why not use this WebSocket protocol everywhere? Because some companies configure their firewalls to block WebSocket.
+WebSocket are basically a direct connection from client to server and vice versa. This seems more dangerous as the
+permanent AJAX calls that can be inspected call by call.
+
+ 
