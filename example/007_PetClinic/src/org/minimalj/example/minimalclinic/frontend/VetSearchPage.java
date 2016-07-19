@@ -22,8 +22,8 @@ public class VetSearchPage extends SimpleSearchPage<Vet> {
 	}
 
 	@Override
-	public ObjectPage<Vet> createDetailPage(Vet owner) {
-		return null; // no detail
+	public ObjectPage<Vet> createDetailPage(Vet vet) {
+		return new VetPage(vet);
 	}
 
 }
