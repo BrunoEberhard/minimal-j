@@ -3,7 +3,6 @@
 <title>Loading</title>
 
 <script src="dialog-polyfill.js"></script>
-<script src="hammer.min.js"></script>
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 
 <link rel="stylesheet" type="text/css" href="mj.css" />
@@ -15,12 +14,10 @@
 	var session = sessionStorage.sessionId;
 	
 	var isTouch = "ontouchstart" in document.documentElement;
+	var isCompact = location.search == "?mobile" || location.search == "?compact";
 
-	var isSmall = location.search == "?small" || location.search == "?mobile"; 
-	var isMedium = location.search == "?medium"; 
-	var isLarge = !isSmall && !isMedium;
-
-	var titleElement = document.getElementsByTagName("title")[0];
+	var pageContainerElement;
+	var titleElement;
 	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
@@ -142,10 +139,6 @@
 			createSuggestions(id, dataObject.suggestions);
 		}
 		
-		if (!isLarge) {
-			document.getElementById("search").style.display = "none";
-		}
-		
 		var block = document.getElementById('block');
 		block.classList.remove("is-blocked"); 
 	}
@@ -186,38 +179,38 @@
 	}
 
 	function showPage(page) {
-		var pageContainerElement = document.getElementById("pageContainer");
 		// only on large devices more than one page is displayed at a time
-		while (pageContainerElement.lastChild && (!isLarge || pageContainerElement.lastChild.id != page.masterPageId)) {
+		while (pageContainerElement.lastChild && (isCompact || pageContainerElement.lastChild.id != page.masterPageId)) {
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
 		
 		var pageElement = document.createElement("div");
 		pageElement.className = "page";
 		pageElement.id = page.pageId;
-
-		if (page.actionMenu != null) {
+			
+		var hasActionMenu = page.actionMenu != null;
+		if (isCompact) {
+			document.getElementById("actionMenuButton").style.display = hasActionMenu ? "inline" : "none";
+		}
+		if (hasActionMenu) {
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.classList.add("actionMenu");
-			actionMenuElement.style.display = "block";
-			if (!isLarge) actionMenuElement.style.top = "0px";
+			if (isCompact) actionMenuElement.style.display = "none";
 			pageElement.appendChild(actionMenuElement);
 		}
 		
-		if (isLarge) {
+		if (!isCompact) {
 			var headerElement = createPageHeader(page.title);
 			pageElement.appendChild(headerElement);
-			if (page.actionMenu == null) {
+			if (!hasActionMenu) {
 				var actionMenuButton = headerElement.querySelector(".actionMenuButton");
 				actionMenuButton.removeAttribute("onclick");
 				actionMenuButton.style.display = "none";
 			}
 		} else {
-			var pageHeaderElement = document.getElementById("pageTitle");
-			while (pageHeaderElement.firstChild) {
-				pageHeaderElement.removeChild(pageHeaderElement.firstChild);
-			}
-			pageHeaderElement.appendChild(document.createTextNode(page.title));
+			var pageTitleElement = document.getElementById("pageTitle");
+			removeChildren(pageTitleElement);
+			pageTitleElement.appendChild(document.createTextNode(page.title));
 		}
 		
 		if (page.content != null) {
@@ -235,14 +228,14 @@
 		pageElement.scrollIntoView();
 	}
 
-	function toggleActionMenu(event) {
+	function togglePageActionMenu(event) {
 		var element = event.target;
 		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
 		if (element != null) {
 			var actionMenuElement = element.querySelector(".actionMenu");
 			var pageContentElement = element.querySelector(".pageContent");
 			if (actionMenuElement != null) {
-				if (actionMenuElement.style.display == "block") {
+				if (actionMenuElement.style.display != "none") {
 					actionMenuElement.style.display = "none";
 					pageContentElement.classList.remove("pageContentSmall");
 					pageContentElement.classList.add("pageContentExpend");
@@ -253,6 +246,24 @@
 				}
 				event.preventDefault();
 			}
+		}
+	}
+
+	function toggleActionMenu() {
+		var actionMenuElement = document.getElementsByClassName("actionMenu")[0];
+		if (actionMenuElement.style.display == "block") {
+			actionMenuElement.style.display = "none";
+		} else {
+			actionMenuElement.style.display = "block";
+			toggleNavigation("close");
+		}
+		event.preventDefault();
+	}
+	
+	function closeActionMenu() {
+		var actionMenuElement = document.getElementsByClassName("actionMenu")[0];
+		if (actionMenuElement != undefined) {
+			actionMenuElement.style.display = "none";
 		}
 	}
 	
@@ -280,7 +291,6 @@
 		var element = event.target;
 		while ((element = element.parentNode) && element.className != "page");
 		
-		var pageContainerElement = document.getElementById("pageContainer");
 		var index = Array.prototype.indexOf.call(pageContainerElement.childNodes, element);
 		for (var i = pageContainerElement.childNodes.length - 1; i>= index; i--) {
 			var e = pageContainerElement.childNodes[i];
@@ -327,11 +337,11 @@
 		if (type == "Form") {
 			element = document.createElement("table");
 			element.classList.add("form")			
-			if (isLarge) {
+			if (!isCompact) {
 				element.columns = content.columns;
 				element.style.width = (content.columns * content.columnWidth / 6) + "em";
 			} else {
-				element.columns = isSmall ? 1 : 2;
+				element.columns = 1;
 				element.style.width = "100%";
 			}
 			var rows = content.rows;
@@ -361,7 +371,7 @@
 			element = document.createElement("table");
 			element.classList.add("group");
 			var components = content.components;
-			if (!isSmall) {
+			if (!isCompact) {
 				var tr = document.createElement("tr");
 				element.appendChild(tr);
 				for (var i = 0; i < components.length; i++) {
@@ -538,8 +548,8 @@
 	function createFormCell(cell) {
 		var td = document.createElement("td");
 		var isTitle = cell.type == "Title";
-		if (cell.span != undefined && !isSmall || isTitle) {
-			td.colSpan = isMedium ? Math.min(cell.span, 2) : cell.span;
+		if ((cell.span != undefined  || isTitle) && !isCompact) {
+			td.colSpan = cell.span;
 		}
 		if (!isTitle && cell.caption != undefined) {
 			var caption = document.createElement("label");
@@ -601,15 +611,19 @@
 		return td;
 	}
 
-	function updateNavigation(menus) {
-		var navigation = document.getElementById("navigation");
-		while (navigation.firstChild) {
-			navigation.removeChild(navigation.firstChild);
+	function removeChildren(element) {
+		while (element.firstChild) {
+			element.removeChild(element.firstChild);
 		}
+	}
+	
+	function updateNavigation(menus) {
+		var navigationElement = document.getElementById("navigation");
+		removeChildren(navigationElement);
 
 		var menuElement = createMenu(menus);
 		menuElement.style.marginTop = "0px";
-		navigation.appendChild(menuElement);		
+		navigationElement.appendChild(menuElement);		
 	}
 
 	function createMenu(items, pageId) {
@@ -645,11 +659,11 @@
 		var isClosed = navigationElement.style.display == "none";
 		if (isClosed && (openOrClose == undefined || openOrClose == "open")) {
 			navigationElement.style.display = "block";
-			pageElement.style.left = "15em";
+			if (!isCompact) pageElement.style.left = "15em";
 			return true;
 		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
 			navigationElement.style.display = "none";
-			pageElement.style.left = "0";
+			if (!isCompact) pageElement.style.left = "0";
 			return true;
 		}
 		return false;
@@ -749,6 +763,10 @@
 	}
 	
 	function action(actionId) {
+		if (isCompact) {
+			closeActionMenu();
+			toggleNavigation("close");
+		}
 		var data = {"activatedAction" : actionId};
 		send(data, true);
 	}
@@ -830,6 +848,16 @@
 		}
 	}
 
+	function searchButtonAction() {
+		var searchElement = document.getElementById("search");
+		if (searchElement.style.display == "inline") {
+			searchElement.style.display = "none";
+		} else {
+			searchElement.style.display = "inline";
+			searchElement.focus();
+		}
+	}
+	
 	function send(data, block) {
 		data.locale = "$LOCALE";
 
@@ -892,7 +920,7 @@
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
 		if (dialogElements != undefined && dialogElements.length > 0) {
-			if (isLarge) {
+			if (!isCompact) {
 				for (var i = 0; i < dialogElements.length; i++) {
 					var dialogElement = dialogElements[i];
 					dialogElement.style.top = (i + 3) + "em";
@@ -916,12 +944,6 @@
 					var dialogElement = dialogElements[i];
 					dialogElement.style.display = "none";
 				}
-
-				var dialogElement = dialogElements[dialogElements.length - 1];
-				dialogElement.style.display = "block";
-				dialogElement.classList.add("phone");
-				dialogElement.childNodes[1].classList.add("phone");
-				dialogElement.width = "100%";
 			}
 		}
 	}
@@ -932,80 +954,39 @@
 		}, true);
 	}
 
-	function reduceForMobile() {
-		document.getElementById("search").style.display = "none";
-		document.getElementById("navigationHeader").style.display = "none";
-	}
-
-	function installHammer() {
-		var container = document.getElementById("container");
-		var mc = new Hammer(container);
-		mc.on("panright", panright);
-		mc.on("panleft", panleft);
-		mc.on("doubletap", doubletaps);
-	}
-
-	function panright(event) {
-		if (event.isFinal) {
-			var actionMenus = document.getElementsByClassName("actionMenu");
-			if (actionMenus != undefined && actionMenus.length > 0) {
-				if (actionMenus[0].style.display != "none") {
-					actionMenus[0].style.display = "none";
-					return;
-				}
-			}
-			toggleNavigation("open");
-		}
-	}
-
-	function panleft(event) {
-		if (event.isFinal) {
-			if (toggleNavigation("close"))
-				return;
-			var actionMenus = document.getElementsByClassName("actionMenu");
-			if (actionMenus != undefined && actionMenus.length > 0) {
-				if (actionMenus[0].style.display != "block") {
-					actionMenus[0].style.display = "block";
-				}
-			}
-		}
-	}
-
-	function doubletaps() {
-		var actionMenus = document.getElementsByClassName("actionMenu");
-		if (actionMenus != undefined && actionMenus.length > 0) {
-			if (actionMenus[0].style.display != "block") {
-				actionMenus[0].style.display = "block";
-			} else {
-				actionMenus[0].style.display = "none";
-			}
-		}
-	}
-
 	function init() {
 		if (!$AUTHORIZATION) {
 			document.getElementById("loginSpan").classList.add("hide");
 		}
 
-		if (!isLarge) {
-			reduceForMobile();
-			installHammer();
-
-			var styleElement = document.getElementById("dynamicStyle");
-			var styleSheet = styleElement.sheet;
+		pageContainerElement = document.getElementById("pageContainer");
+		titleElement = document.getElementsByTagName("title")[0];
+		
+		var styleElement = document.getElementById("dynamicStyle");
+		var styleSheet = styleElement.sheet;
+		if (isCompact) {
+			styleSheet.insertRule("#search { display: none; }", 0);
+			styleSheet.insertRule("#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border: 1px rgb(160,160,160) solid;}", 0);
+			styleSheet.insertRule("#navigationHeader { display: none; }", 0);
+			styleSheet.insertRule("#navigation { max-height: 100%}", 0);
+			styleSheet.insertRule("#pageContainer { height: 100%}", 0);
+			styleSheet.insertRule(".page { height: 100%; border-bottom: 0;}", 0);
+			styleSheet.insertRule(".actionMenu { z-index:1; right: 1ex; top: 1ex; max-height: calc(100% - 3em); overflow: scroll; margin-top: 0; border: 1px rgb(160,160,160) solid; min-width: 13em;}", 0);
 			styleSheet.insertRule(".minimizePageButton, .closePageButton { display: none; }", 0);
 			styleSheet.insertRule("table.form td, table.form th { padding: 1ex 0px; }", 0);
 			styleSheet.insertRule("table.form input { margin: 0px; }", 0);
 			styleSheet.insertRule("table.form { margin: 0px; }", 0);
-			// styleSheet.insertRule("#dialogFooter button { padding : 0px; }", 0);
+			styleSheet.insertRule("dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }", 0);
 			styleSheet.insertRule(".dialogFooter button { font-size : inherit; }", 0);
 			styleSheet.insertRule(".dialogFooter { height: 1.7em; }", 0);
 			styleSheet.insertRule(".dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}", 0);
 		} else {
+			styleSheet.insertRule("#searchButton { display: none; }", 0);
+			styleSheet.insertRule("#actionMenuButton { display: none; }", 0);
 			toggleNavigation("open");
+			window.addEventListener("resize", updateDialogSizes);
 		}
 
-		window.addEventListener("resize", updateDialogSizes);
 		window.onpopstate = popState;
 
 		send({
@@ -1042,11 +1023,26 @@
 				</svg>
 			</span>	
 			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
-			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
+			<span id="searchSpan">
+				<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
+				<svg id="searchButton" width="17px" height="17px" class="headerButton" onclick="searchButtonAction();">
+					<g style="stroke:#444;stroke-width:16%;stroke-linecap:square"> 		
+						<line x1="59%" y1="59%" x2="91%" y2="91%" />
+						<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
+					</g>
+				</svg>
+				<svg id="actionMenuButton" width="17px" height="17px" class="headerButton" onclick="toggleActionMenu();">
+					<g fill="#444"> 		
+						<rect x="12px" y="5%" width="3px" height="3px"/>
+						<rect x="12px" y="40%" width="3px" height="3px"/>
+						<rect x="12px" y="75%" width="3px" height="3px"/>
+					</g>
+				</svg>
+			</span>			
 		</div>
 		<div id="container">
 			<div id="navigationContainer" style="display: none;">
-				<div class="navigationHeader" id="navigationHeader">
+				<div id="navigationHeader">
 					<svg width="1.0em" height="1.0em" class="closePageButton" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
 					  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke:#444;stroke-width:20%" />
 					  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke:#444;stroke-width:20%" />
@@ -1055,20 +1051,18 @@
 				<div id="navigation">
 				</div>
 			</div>
-			<div id="pageContainer" onContextmenu="toggleActionMenu(event);">
-				
+			<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
 			</div>
 		</div>
 	</div>
 
 
-
 	<div id="templates" style="display: none">
 		<span id="pageHeaderButtons">
-			<svg width="15px" height="15px" class="actionMenuButton" onclick="toggleActionMenu(evt);">
-			  <rect x="0" y="2px" width="100%" height="2.5px" fill="#444" />
-			  <rect x="0" y="7px" width="100%" height="2.5px" fill="#444" />
-			  <rect x="0" y="12px" width="100%" height="2.5px" fill="#444" />
+			<svg width="15px" height="15px" class="actionMenuButton" onclick="togglePageActionMenu(evt);">
+				<rect x="11px" y="2px" width="3px" height="2.5px" fill="#444"/>
+				<rect x="11px" y="7px" width="3px" height="2.5px" fill="#444"/>
+				<rect x="11px" y="12px" width="3px" height="2.5px" fill="#444"/>
 			</svg>
 			&nbsp;
 			<svg width="15px" height="15px" class="minimizePageButton" onclick="togglePage(evt);">

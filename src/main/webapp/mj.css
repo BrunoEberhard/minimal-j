@@ -33,15 +33,18 @@ body {
 	margin-left: 1em;
 }
 
-#search {
+#searchSpan {
 	position: absolute;
-	right: 0.35em;
-	height: 1.5em;
-	vertical-align: middle;
+	top: 0;
+	right: 1em;
+	overflow: none;
+}
+
+#search {
 	font-size: 11px;
+	vertical-align: top;
 	border: solid 1px #666;
 	margin-top: 0.35em;
-	padding-right: 0.5em;
 }
 
 #search input:focus {
@@ -62,7 +65,7 @@ body {
 #navigationContainer {
 	position: absolute;
 	left: 0px;
-	width: calc(15em - 1px);
+	width: auto;
 	top: 0px;
 	bottom: 0px;
 	margin: 0px;
@@ -70,17 +73,8 @@ body {
 	border-right: 1px rgb(160,160,160) solid;
 }
 
-#navigation {
-	position: absolute;
-	width: calc(15em - 1px);
-	top: 1.8em;
-	bottom: 0;
-	overflow: auto;
-	background: white;
-}
-
-.navigationHeader {
-	position: absolute;
+#navigationHeader {
+	position: relative;
 	height: calc(1.8em - 1px);
 	line-height: 1.9em;
 	padding-left: 1em;
@@ -88,6 +82,16 @@ body {
 	background: rgb(240,240,240);
 	border-bottom: 1px rgb(160,160,160) solid;
 }
+
+#navigation {
+	position: relative;
+	width: calc(15em - 1px);
+	max-height: calc(100% - 1.8em);
+	bottom: 0;
+	overflow: auto;
+	background: white;
+}
+
 
 ul {
 	padding: 1ex 0ex 1ex 1ex;
@@ -125,7 +129,7 @@ li {
 	top: 0px;
 	bottom: 0px;
 	margin: 0px;
-	overflow: scroll;
+	overflow: auto;
 	background: white;
 }
 
@@ -187,11 +191,6 @@ dialog {
 	border: 1px rgb(160,160,160) solid;
 	padding: 0em;
 	right: auto;
-}
-
-dialog.phone {
-	position: absolute;
-	top: 0px; left: 0px; right: 0px;
 }
 
 .dialogHeader {
@@ -323,7 +322,7 @@ hr {
 
 label {
 	display: block;
-	font-size: x-small;
+	font-size: x-smaller;
 	font-weight: bolder;
 	margin-bottom: 0.5ex;
 }
