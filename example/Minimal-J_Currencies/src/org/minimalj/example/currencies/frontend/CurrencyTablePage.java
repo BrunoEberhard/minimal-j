@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.currencies.model.Currency;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.predicate.Criteria;
+import org.minimalj.transaction.criteria.By;
 
 public class CurrencyTablePage extends TablePage<Currency> {
 	
@@ -15,7 +15,7 @@ public class CurrencyTablePage extends TablePage<Currency> {
 
 	@Override
 	protected List<Currency> load() {
-		return Backend.read(Currency.class, Criteria.all(), 1000);
+		return Backend.read(Currency.class, By.all(), 1000);
 	}
 
 }

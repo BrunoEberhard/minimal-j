@@ -11,13 +11,13 @@ public class ImportIsoCurrencyInformation implements Transaction<Integer> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Integer execute(Persistence persistence) {
+	public Integer execute() {
 		IsoCurrencyInformationReader reader = new IsoCurrencyInformationReader();
 		List<Currency> currencies = reader.getCurrencies();
 		int inserts = 0;
 		for (Currency currency : currencies) {
-			if (backend.read(Currency.class, currency.id) == null) {
-				backend.insert(currency);
+			if (Backend.read(Currency.class, currency.id) == null) {
+				Backend.insert(currency);
 				inserts++;
 			}
 		}
