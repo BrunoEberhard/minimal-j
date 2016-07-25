@@ -10,9 +10,9 @@ public class TableCreator {
 		Application.initApplication(args);
 		Application application = Application.getInstance();
 		
-		String database = System.getProperty("MjBackendDatabase");
-		String user= System.getProperty("MjBackendDataBaseUser", "APP");
-		String password = System.getProperty("MjBackendDataBasePassword", "APP");
+		String database = System.getProperty("MjSqlDatabase");
+		String user = System.getProperty("MjSqlDatabaseUser", "APP");
+		String password = System.getProperty("MjSqlDatabasePassword", "APP");
 		
 		DataSource dataSource = SqlPersistence.mariaDbDataSource(database, user, password);
 		new SqlPersistence(dataSource, SqlPersistence.CREATE_TABLES, application.getEntityClasses());
