@@ -2,6 +2,7 @@ package org.minimalj.backend;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.sql.SqlPersistence;
@@ -79,11 +80,12 @@ public class Backend {
 			throw new IllegalStateException("Not allowed to change instance of " + Backend.class.getSimpleName());
 		}
 		Backend.instance = instance;
+		instance.init();
 	}
 
 	public static Backend getInstance() {
 		if (instance == null) {
-			instance = create();
+			setInstance(create());
 		}
 		return instance;
 	}
@@ -156,4 +158,24 @@ public class Backend {
 		}
 	}
 	
+	private void init() {
+		String initClassName = System.getProperty("MjInit");
+		if (initClassName != null) {
+			try {
+				Class<?> initClass = Class.forName(initClassName);
+				Object init = initClass.newInstance();
+				if (init instanceof Transaction) {
+					logger.info("Execute initialization: " + initClassName);
+					((Transaction<?>) init).execute();
+				} else {
+					logger.severe("Class " + initClassName + " doesn't extend Transaction");
+				}
+			} catch (ClassNotFoundException e) {
+				logger.severe("Could not found initialization class: " + initClassName);
+			} catch (InstantiationException | IllegalAccessException e) {
+				logger.log(Level.SEVERE, "Could not instantiate initialization class: " + initClassName, e);
+			}
+		}
+	}
+
 }
