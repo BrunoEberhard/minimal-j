@@ -2,6 +2,7 @@
 
 === next
 * Frontend: Support for delete actions
+* WebFrontend: detection of mobile devices
 
 === 0.12.0.0
 * Server: use http session or websocket connection as base for session management
