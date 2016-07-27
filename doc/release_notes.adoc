@@ -2,13 +2,13 @@
 
 === next
 * Frontend: Support for delete actions
-* WebFrontend: detection of mobile devices
+* Web Frontend: Better detection and support for small devices
 
 === 0.12.0.0
 * Server: use http session or websocket connection as base for session management
 
 === 0.11.0.1
-* Web frontend: reserve space on the right only if there is a menu
+* Web Frontend: reserve space on the right only if there is a menu
 * Renamed main classes to Swing and NanoWebServer
 * Search field is disabled if Application doesn't override createSearchPage method
 
