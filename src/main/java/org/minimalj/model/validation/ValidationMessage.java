@@ -36,21 +36,6 @@ public class ValidationMessage {
 	public String toString() {
 		return "ValidationMessage [key=" + key + ", formattedText=" + formattedText + "]";
 	}
-	
-//	public static List<ValidationMessage> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
-//		List<ValidationMessage> filteredMessages = Collections.emptyList();
-//		if (validationMessages != null) {
-//			for (ValidationMessage validationMessage : validationMessages) {
-//				if (validationMessage.getProperty().equals(property)) {
-//					if (filteredMessages.isEmpty()) {
-//						filteredMessages = new ArrayList<ValidationMessage>();
-//					}
-//					filteredMessages.add(validationMessage);
-//				}
-//			}
-//		}
-//		return filteredMessages;
-//	}
 
 	public static List<String> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
 		List<String> filteredMessages = new ArrayList<String>();
