@@ -8,8 +8,10 @@ package org.minimalj.model.validation;
 public interface Validatable {
 
 	/**
+	 * The returned String should already be localized. You get the current Locale
+	 * from the LocaleContext class.
 	 * 
-	 * @return ValidationMessage or <code>null</code> if valid
+	 * @return Localized String or <code>null</code> if valid
 	 */
 	String validate();
 	

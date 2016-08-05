@@ -6,6 +6,11 @@ import java.util.List;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
+/**
+ * The text of this message should already be localized. You get the current Locale
+ * from the LocaleContext class.
+ *
+ */
 public class ValidationMessage {
 
 	private String formattedText;
