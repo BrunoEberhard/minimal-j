@@ -15,7 +15,7 @@ the right FormElements and the FormElements will use the components they need.
 
 First these two layers may seem like one too much. Even more as you see there is a TextFormElement that doesn't do much
 more than delegating everything to a string input. But to display or edit a string is only the most simple business case.
-The more business specific behavior you have to implement the more you will see the difference between the 'dump' technical components
+The more business specific behavior you have to implement the more you will see the difference between the 'dumb' technical components
 and the form elements aware of the business logic.
 
 == Contents
