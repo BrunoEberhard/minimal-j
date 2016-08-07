@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.swing;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.SwingUtilities;
 
 import org.minimalj.application.Application;
@@ -22,9 +24,13 @@ public class Swing implements Runnable {
 		FrameManager.getInstance().openNavigationFrame(null);
 	}
 
-	public static void main(final String[] args) throws Exception {
+	public static void main(final String[] args) {
 		Application.initApplication(args);
 
-		SwingUtilities.invokeAndWait(new Swing());
+		try {
+			SwingUtilities.invokeAndWait(new Swing());
+		} catch (InvocationTargetException | InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
