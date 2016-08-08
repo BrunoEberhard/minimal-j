@@ -1,29 +1,26 @@
 == Frontend details
 
-There are two UI layers in the frontend
+=== Pages
 
-* The 'upper' one handles the business view. It defines the content the pages. The corresponding interface is called IContent.
-There are only a few implementations this interface. Form is the most prominent one.
+Pages are one of the building blocks of an application. On small device they fill up the whole
+display space. On a large display a main page can be accompanied by some depending detail
+pages.
 
-* The 'lower' one provides the components as building blocks. The central interface is IComponent. Implementations are things
-like a text field or a drop down. The specific class for these components is defined in the Frontend implementation.
+image::page_with_detail_large_device.png[title="Page with detail page on large device"]
 
-Be sure not to confuse this two levels. At the beginning you may think 'where do I get a text field for my form?'
-This is for the first step not what you want. You may want to show a form element for a field in the business entity.
-So start first by building simple forms with the 'line' method of the Form class. The Form will create automatically
-the right FormElements and the FormElements will use the components they need.
+image::page_with_detail_small_device.png[title="Page with detail page on small device"]
 
-First these two layers may seem like one too much. Even more as you see there is a TextFormElement that doesn't do much
-more than delegating everything to a string input. But to display or edit a string is only the most simple business case.
-The more business specific behavior you have to implement the more you will see the difference between the 'dumb' technical components
-and the form elements aware of the business logic.
+Most frontends provide back and forward buttons to navigate between pages.
 
-== Contents
+Pages provide a title, content and sometimes actions. The content should be static.
+This means the user cannot make any input on a page. Inputs should be done in a dialog.
 
-For every class implementing IContent there is already a specific Page class. Still you should know what classes of IContent
-exists. There are only a few and its easy to see what they do.
+=== Contents
 
-=== Table
+There are only a few different implementations of IContent. For every class of content there
+exists a corresponding Page class.
+
+==== Table
 
 Tables show a list of Objects of the same class. Minimal-J doesn't support inheritence for business classes so the objects
 will be really of the same class. Tables are meant to be read only. The displayed objects cannot be edited directly in the table.
@@ -31,12 +28,11 @@ But tables can have a context menu with actions. And a row of table can be doubl
 should do it according where it lives).
 
 Table columns have all the same width. If this hurts too much it is possible to merge to fields of the business object in one column.
-The table can be sorted by a column (if the frontend supports this).
 
 The most common way to create a table will be that you create a TablePage. TablePage needs the keys for the columns.
 The keys are the $ constants from the business class.
 
-=== Html
+==== Html
 
 With html content you can break out from the constraints given by Minimal-J. A HtmlPage can display basically every URL or html
 string. The frontends may depend on system funcionality for that. For example the SwingFrontend uses the JavaFX bridge to the system
@@ -46,27 +42,27 @@ Displaying html is meant to be used for start or help pages. Also report engines
 reports. Of course the html pages could contain links and even input forms. But this is _not_ the way to extend the functionality
 of Minimal-J or to circumvent its rules.
 
-=== Form
+==== Form
 
-As said the form is for business stuff. You define with a Form what fields of an entity are shown and in which order.
+Forms in Minimal-J have basically the same funtion as in HTML.
+You define with a Form what fields of an entity are shown and in which order.
 Fields can depend on each other. This could mean if a checkbox is selected some fields get editable.
 
-In the Form class there are no things like 'LayoutManagers'. Of course the order in which you add the fields define somehow
+There are no things like 'LayoutManagers'. Of course the order in which you add the fields define somehow
 the later layout of the form. But you cannot set horizontal weights to a field. This makes all forms look very regular.
 
-Also things like labels for your textfields or validation components are _not_ part of the layer in which the Form
-objects operate.
+===== FormElement
 
-==== FormElement
+FormElement objects represent the business side. Fields of an entity are 'bound' to a FormElement.
+Minimal-J doesn't emphasize much on binding.
 
-The FormElement is somehow the connection between the 'upper' and 'lower' UI layer. It is used by the forms as building blocks
-and provides a IComponent. It's very important to note that a FormElement is _not_ a IComponent but _provides_ one. This
+It's very important to note that a FormElement is _not_ a IComponent but _provides_ one. This
 is necessary as the specifc implementations of the components depend on the chosen Frontend.
 
 The framework provides the basic form elements like the ones for formatted strings, dates, numbers and enumerations. But
 for more complex types you will define your one FormElement classes. Look at the existing examples how to do this!
 
-== Components
+=== Inputs / Components
 
 Minimal-J doesn't try to have as many shiny components as possible. Where other frameworks are proud to present pages of predefined components
 Minimal-J restricts you basically to texts, comboboxes and checkboxes (with some veriations).
