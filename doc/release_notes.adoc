@@ -1,6 +1,9 @@
 == Release notes
 
 === next
+* Next release could probably be 1.0 version
+
+=== 0.14.0.0
 * Frontend: Support for delete actions
 * Web Frontend: Better detection and support for small devices
 
