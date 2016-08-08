@@ -31,7 +31,7 @@ public class Keys {
 	
 	
 	/**
-	 * Warning: Should only be call once per class
+	 * Warning: Should only be called once per class
 	 * 
 	 * @param clazz The class the $ constant should be created and filled
 	 * @param <T> Type of clazz itself (caller of this method doesn't need to care about this)
