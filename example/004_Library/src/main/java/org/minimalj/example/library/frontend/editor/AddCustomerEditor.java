@@ -21,11 +21,6 @@ public class AddCustomerEditor extends NewObjectEditor<Customer> {
 	}
 
 	@Override
-	public String getTitle() {
-		return "Kunde hinzufügen";
-	}
-	
-	@Override
 	protected void finished(Customer newCustomer) {
 		Frontend.show(new CustomerPage(newCustomer));
 	}

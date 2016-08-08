@@ -21,11 +21,6 @@ public class AddBookEditor extends NewObjectEditor<Book> {
 	}
 
 	@Override
-	public String getTitle() {
-		return "Buch hinzufügen";
-	}
-
-	@Override
 	protected void finished(Book newBook) {
 		Frontend.show(new BookPage(newBook));
 	}

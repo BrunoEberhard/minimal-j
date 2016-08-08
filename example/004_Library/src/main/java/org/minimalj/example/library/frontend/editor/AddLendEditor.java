@@ -7,15 +7,15 @@ import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
 
-public class AddLendAction extends NewObjectEditor<Lend> {
+public class AddLendEditor extends NewObjectEditor<Lend> {
 
 	private Customer startWithCustomer;
 	
-	public AddLendAction() {
+	public AddLendEditor() {
 		// empty
 	}
 	
-	public AddLendAction(Customer customer) {
+	public AddLendEditor(Customer customer) {
 		this.startWithCustomer = customer;
 	}
 	
@@ -34,11 +34,6 @@ public class AddLendAction extends NewObjectEditor<Lend> {
 	@Override
 	public Lend save(Lend lend) {
 		return Backend.save(lend);
-	}
-
-	@Override
-	public String getTitle() {
-		return "Ausleihe hinzufügen";
 	}
 
 }

@@ -1,9 +1,6 @@
 package org.minimalj.example.library.model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
@@ -22,10 +19,6 @@ public class Customer implements Rendering {
 	@Size(2000)
 	public String remarks;
 
-	public final List<Address> addresses = new ArrayList<>();
-	
-	public Cancellation subscriptionCancellation;
-	
 	@Override
 	public String render(RenderType renderType) {
 		return firstName + " " + name;
