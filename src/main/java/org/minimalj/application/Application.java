@@ -157,6 +157,12 @@ public abstract class Application {
 		}
 	}
 
+	/**
+	 * Defines the (root) entities of this application. These are the classes the are used
+	 * for persistence. Classes only used as base for an editor should not be listed here.
+	 * 
+	 * @return all the classes used for persistence. These classes will be checked for compliance by the ModelTest .
+	 */
 	public Class<?>[] getEntityClasses() {
 		return new Class<?>[0];
 	}
