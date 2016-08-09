@@ -1,7 +1,6 @@
 package org.minimalj.util.resources;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -264,11 +263,7 @@ public class Resources {
 	public static String getMimeType(String postfix) {
 		return mimeTypeByPostfix.get(postfix);
 	}
-	
-	public static InputStream getInputStream(String resourceName) {
-		return Resources.class.getClassLoader().getResourceAsStream(resourceName);
-	}
-	
+
 	// combination of NoFallbackControl and EncodingResourceBundleControl (all final)
 	private static class NoFallbackUTF8Control extends Control {
 

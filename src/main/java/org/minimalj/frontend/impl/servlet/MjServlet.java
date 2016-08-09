@@ -89,7 +89,7 @@ public class MjServlet extends HttpServlet {
 				String mimeType = Resources.getMimeType(postfix);
 				if (mimeType != null) {
 					response.setContentType(mimeType);
-					inputStream = Resources.getInputStream(uri.substring(1));
+					inputStream = getClass().getResourceAsStream(uri);
 				}
 			}
 		}

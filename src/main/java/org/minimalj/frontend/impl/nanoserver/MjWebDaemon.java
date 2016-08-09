@@ -69,7 +69,7 @@ public class MjWebDaemon extends NanoHTTPD {
 				String postfix = uri.substring(index+1);
 				String mimeType = Resources.getMimeType(postfix);
 				if (mimeType != null) {
-					InputStream inputStream = Resources.getInputStream(uri.substring(1));
+					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uri);
 					return newChunkedResponse(Status.OK, mimeType, inputStream);
 				}
 			}

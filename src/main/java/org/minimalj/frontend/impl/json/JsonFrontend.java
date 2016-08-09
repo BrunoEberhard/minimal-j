@@ -154,7 +154,7 @@ public class JsonFrontend extends Frontend {
 	}
 
 	public static String getHtmlTemplate() {
-		return readStream(Resources.getInputStream("index.html"));
+		return readStream(JsonFrontend.class.getResourceAsStream("/index.html"));
 	}
 	
 	public static String fillPlaceHolder(String html, Locale locale) {
