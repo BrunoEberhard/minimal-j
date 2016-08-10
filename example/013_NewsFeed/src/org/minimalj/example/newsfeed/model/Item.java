@@ -25,5 +25,6 @@ public class Item {
 	@Size(256)
 	public String category;
 	
+	@Size(Size.TIME_HH_MM)
 	public LocalDateTime pubDate;
 }
