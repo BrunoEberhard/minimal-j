@@ -1,7 +1,9 @@
 package org.minimalj.frontend.impl.json;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +59,10 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
 		} else if (value instanceof LocalDate) {
 			return DateUtils.format((LocalDate) value); 
+		} else if (value instanceof LocalDateTime) {
+			String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) value);
+			String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value);
+			return date + " " + time; 
 		}
 		return value != null ? value.toString() : null;
 	}
