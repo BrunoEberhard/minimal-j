@@ -17,20 +17,77 @@ This means the user cannot make any input on a page. Inputs should be done in a 
 
 === Contents
 
-There are only a few different implementations of IContent. For every class of content there
-exists a corresponding Page class.
+IContent is the interface used for contents of Pages or Dialogs.
+
+[source,java,title="Page.java"]
+----
+public abstract class Page {
+	
+	public abstract IContent getContent();
+	
+	[..]
+}
+----
+
+IContent is a marker interface with no methods at all. You normally don't implement your own
+content classes but use one of the three possible contents for pages: tables (list of entities),
+forms (details of an entity) or html (texts, reports).
+
+Note that IContent doesn't extend IComponent. In contrast to other UI frameworks you cannot
+nest components. It's not possible to put a table in a FormElement.
 
 ==== Table
 
-Tables show a list of Objects of the same class. Minimal-J doesn't support inheritence for business classes so the objects
+Tables show a list of entities of the same class. Minimal-J doesn't support inheritence for business classes so the objects
 will be really of the same class. Tables are meant to be read only. The displayed objects cannot be edited directly in the table.
 But tables can have a context menu with actions. And a row of table can be double clicked (or 'started' in the way the frontend
 should do it according where it lives).
 
 Table columns have all the same width. If this hurts too much it is possible to merge to fields of the business object in one column.
 
-The most common way to create a table will be that you create a TablePage. TablePage needs the keys for the columns.
-The keys are the $ constants from the business class.
+===== TablePage
+
+To display a table you can extend from TablePage. TablePage needs the keys for the columns.
+The keys are the $ constants from the entity. And you have to implement the load() method to define what are the entities
+the table should contain.
+
+===== TablePageWithDetail
+
+There is the common pattern that from a list of entities one is selected and from the one the details should be displayed.
+This is sometimes called master/detail pattern.
+
+[source,java,title="TablePageWithDetail.java"]
+----
+public abstract class TablePageWithDetail<T, DETAIL_PAGE extends Page> extends TablePage<T> {
+
+	public TablePageWithDetail(Object[] keys) {
+		super(keys);
+	}
+
+	protected abstract List<T> load();
+
+	protected abstract DETAIL_PAGE createDetailPage(T mainObject);
+
+	protected abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject);
+	
+	[..]	
+}
+----
+
+As this pattern can have different specialities there are some aspects to know about the TablePageWithDetail class.
+
+Even if all the objects in the table must be of the same class the Pages used to display their details can vary.
+The method createDetailPage() should construct a page that can be used to display the details of the object 'mainObject'.
+
+Now if the user selects an other entity the method updateDetailPage() method. This method can decide if the already
+existing page can be reused with new values or of a completly new Page should be constructed. In other words the
+method can return the page it gets as input argument or go the more expensive way and throw away the existing page.
+
+===== SimpleTablePageWithDetail
+
+If TablePageWithDetail is too complicated for your needs maybe SimpleTablePageWithDetail is what fits. If it's for sure
+that the same detail page can be used for every entity in the table then the updateDetailPage() method is not needed.
+SimpleTablePageWithDetail provides a default implementation for that method.
 
 ==== Html
 
@@ -62,31 +119,10 @@ is necessary as the specifc implementations of the components depend on the chos
 The framework provides the basic form elements like the ones for formatted strings, dates, numbers and enumerations. But
 for more complex types you will define your one FormElement classes. Look at the existing examples how to do this!
 
-=== Inputs / Components
+===== Inputs / Components
 
 Minimal-J doesn't try to have as many shiny components as possible. Where other frameworks are proud to present pages of predefined components
 Minimal-J restricts you basically to texts, comboboxes and checkboxes (with some veriations).
 
 The Frontend class acts a factory for all components. This makes sense as for differend frontends (web or rich client) different components have
 to be created.
-
-More documentation to come...
-
-=== Texts
-
-There are quiete a few options how to create a read only text field. It can be based on a simple string or on an action.
-
-=== Editable Texts
-
-* Single line
-* Format
-* Allowed characters
-* Suggestions
-
-=== Password field
-
-=== ComboBox
-
-=== CheckBox
-
-=== Image
