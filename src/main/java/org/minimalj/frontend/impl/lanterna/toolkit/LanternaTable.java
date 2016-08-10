@@ -1,7 +1,9 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -152,6 +154,11 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
 		} else if (value instanceof LocalDate) {
 			return DateUtils.format((LocalDate) value); 
+		} else if (value instanceof LocalDateTime) {
+			PropertyInterface property = properties.get(column);
+			String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) value);
+			String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value);
+			return date + " " + time; 
 		}
 		return "" + value;
 	}
