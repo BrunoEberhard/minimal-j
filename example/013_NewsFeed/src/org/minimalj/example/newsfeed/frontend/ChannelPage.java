@@ -20,12 +20,13 @@ public class ChannelPage extends TablePageWithDetail<Item, HtmlPage> {
 
 	@Override
 	protected HtmlPage createDetailPage(Item mainObject) {
-		return new HtmlPage(mainObject.link, mainObject.title);
+		// return new HtmlPage(mainObject.link, mainObject.title);
+		return new HtmlPage("<html>" + mainObject.description + "</html>", mainObject.title);
 	}
 	
 	@Override
 	protected HtmlPage updateDetailPage(HtmlPage page, Item mainObject) {
-		return new HtmlPage(mainObject.link, mainObject.title);
+		return createDetailPage(mainObject);
 	}
 
 	@Override
