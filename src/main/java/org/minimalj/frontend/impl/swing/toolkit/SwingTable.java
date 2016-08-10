@@ -64,7 +64,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		table.setDefaultRenderer(Rendering.class, new TableCellRenderer());
 		table.setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
 		table.setDefaultRenderer(LocalTime.class, new TimeTableCellRenderer());
-		table.setDefaultRenderer(LocalDateTime.class, new DateTableCellRenderer()); // TODO
+		table.setDefaultRenderer(LocalDateTime.class, new DateTimeTableCellRenderer());
 		
 		table.setAutoCreateRowSorter(true);
 		
@@ -234,6 +234,26 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			if (value != null) {
 				PropertyInterface property = properties.get(column);
 				value = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value); 
+			}
+
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		}
+	}
+	
+	private class DateTimeTableCellRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			
+			if (value != null) {
+				PropertyInterface property = properties.get(column);
+				String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) value);
+				String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value);
+				value = date + " " + time;
 			}
 
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
