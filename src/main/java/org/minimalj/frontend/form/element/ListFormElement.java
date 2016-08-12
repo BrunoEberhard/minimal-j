@@ -73,7 +73,7 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		
 		@Override
 		protected Form<T> createForm() {
-			return ListFormElement.this.createForm(false);
+			return ListFormElement.this.createForm(true);
 		}
 		
 		@Override
