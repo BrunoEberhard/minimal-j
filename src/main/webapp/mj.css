@@ -203,7 +203,6 @@ dialog {
 }
 
 .dialogContent {
-	padding-left: 1ex;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
@@ -265,6 +264,15 @@ table.form {
 
 table.form tr {
 	height: 3em;
+}
+
+table.form > tbody > tr > td:first-child {
+	padding-left: 0.7ex;
+}
+
+/* In chrome/firefox the scrollbar needs space from form on the right */
+table.form > tbody > tr > td:last-child {
+	padding-right: 3ex;
 }
 
 table input[type="text"], table input[type="password"], table select, table textarea, table .lookup, dialog table label, dialog div.list {
