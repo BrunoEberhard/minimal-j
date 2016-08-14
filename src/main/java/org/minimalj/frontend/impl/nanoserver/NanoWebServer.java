@@ -19,12 +19,16 @@ public class NanoWebServer {
 	
 	private static boolean useWebSocket = Boolean.valueOf(System.getProperty("MjUseWebSocket", "false"));
 	
-	private static void start(boolean secure) throws IOException {
+	private static void start(boolean secure) {
 		int port = getPort(secure);
 		if (port > 0) {
 			LOG.info("Start web " + (useWebSocket ? "socket" : "") + " frontend on " + port + (secure ? " (Secure)" : ""));
 			NanoHTTPD nanoHTTPD = useWebSocket ? newMjWebSocketDaemon(port, secure) : new MjWebDaemon(port, secure);
-			nanoHTTPD.start(TIME_OUT, false); // false -> this will not start a 'java' daemon, but a normal thread which keeps JVM alive
+			try {
+				nanoHTTPD.start(TIME_OUT, false); // false -> this will not start a 'java' daemon, but a normal thread which keeps JVM alive
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
 		}
 	}
 	
@@ -51,7 +55,7 @@ public class NanoWebServer {
 		}
 	}
 	
-	public static void main(final String[] args) throws Exception {
+	public static void main(final String... args) {
 		Frontend.setInstance(new JsonFrontend());
 		Application.initApplication(args);
 		

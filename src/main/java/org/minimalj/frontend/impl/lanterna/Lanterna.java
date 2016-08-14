@@ -31,7 +31,7 @@ public class Lanterna {
 		}
 	}
 
-	public static void main(final String[] args) throws Exception {
+	public static void main(final String... args) {
 		Application.initApplication(args);
 
 		new Lanterna().run();

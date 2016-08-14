@@ -24,7 +24,7 @@ public class Swing implements Runnable {
 		FrameManager.getInstance().openNavigationFrame(null);
 	}
 
-	public static void main(final String[] args) {
+	public static void main(final String... args) {
 		Application.initApplication(args);
 
 		try {
