@@ -65,7 +65,8 @@ body {
 #navigationContainer {
 	position: absolute;
 	left: 0px;
-	width: auto;
+	width: 15em; /* fallback for very old browsers without calc */
+	width: calc(15em - 1px);
 	top: 0px;
 	bottom: 0px;
 	margin: 0px;
