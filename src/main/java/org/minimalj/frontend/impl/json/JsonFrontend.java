@@ -166,6 +166,8 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$WS", "ws");
 		result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
+		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
+		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
 		return result;
 	}
 
