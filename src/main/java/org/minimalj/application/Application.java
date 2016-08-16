@@ -168,8 +168,8 @@ public abstract class Application {
 	}
 
 	public String getName() {
-		if (Resources.isAvailable("Application.title")) {
-			return Resources.getString("Application.title");
+		if (Resources.isAvailable(Resources.APPLICATION_TITLE)) {
+			return Resources.getString(Resources.APPLICATION_TITLE);
 		} else {
 			return getClass().getSimpleName();
 		}
