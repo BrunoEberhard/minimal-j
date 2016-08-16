@@ -168,8 +168,8 @@ public abstract class Application {
 	}
 
 	public String getName() {
-		if (Resources.getResourceBundle().containsKey("Application.title")) {
-			return Resources.getResourceBundle().getString("Application.title");
+		if (Resources.isAvailable("Application.title")) {
+			return Resources.getString("Application.title");
 		} else {
 			return getClass().getSimpleName();
 		}
