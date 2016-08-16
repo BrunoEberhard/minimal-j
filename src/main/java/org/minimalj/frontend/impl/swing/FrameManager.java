@@ -43,7 +43,7 @@ public class FrameManager {
 	public static void setSystemLookAndFeel() {
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getString(Resources.APPLICATION_TITLE));
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getString(Resources.APPLICATION_NAME));
 			
 			String name = UIManager.getSystemLookAndFeelClassName();
 			UIManager.setLookAndFeel(name);
