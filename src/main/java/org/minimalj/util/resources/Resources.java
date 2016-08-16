@@ -38,9 +38,6 @@ public class Resources {
 	public static final boolean OPTIONAL = false;
 	
 	public static final String APPLICATION_TITLE = "Application.title";
-	public static final String APPLICATION_VENDOR = "Application.vendor";
-	public static final String APPLICATION_HOMEPAGE = "Application.homepage";
-	public static final String APPLICATION_VERSION = "Application.version";
 
 	private static final Map<Locale, Resources> resourcesByLocale = new HashMap<>();
 	
