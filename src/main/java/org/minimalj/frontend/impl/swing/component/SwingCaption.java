@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.LabelUI;
 
-import org.minimalj.util.resources.Resources;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 
 public class SwingCaption extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -34,7 +34,7 @@ public class SwingCaption extends JPanel {
 
 	public void setValidationMessages(List<String> validationMessages) {
 		if (!validationMessages.isEmpty()) {
-			captionLabel.setIcon(Resources.getIcon("field_error.png"));
+			captionLabel.setIcon(SwingFrontend.getIcon("FieldError.icon"));
 			StringBuilder s = new StringBuilder();
 			s.append("<html>");
 			for (int i = 0; i<validationMessages.size(); i++) {

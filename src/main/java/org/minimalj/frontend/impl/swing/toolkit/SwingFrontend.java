@@ -12,12 +12,14 @@ import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Stack;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.FocusManager;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -37,10 +39,9 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.security.Subject;
+import org.minimalj.util.resources.Resources;
 
 public class SwingFrontend extends Frontend {
-	private static final Logger logger = Logger.getLogger(SwingFrontend.class.getName());
-	
 	@Override
 	public IComponent createText(String string) {
 		return new SwingText(string);
@@ -341,6 +342,17 @@ public class SwingFrontend extends Frontend {
 			}
 		});
 		return swingAction;
+	}
+	
+	public static Icon getIcon(String resourceName) {
+		if (Resources.isAvailable(resourceName)) {
+			String filename = Resources.getString(resourceName);
+			URL url = Resources.class.getResource(filename);
+			if (url != null) {
+				return new ImageIcon(url);
+			}
+		}
+		return null;
 	}
 	
 	/**

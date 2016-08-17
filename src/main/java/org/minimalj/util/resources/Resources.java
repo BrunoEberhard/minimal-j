@@ -18,9 +18,6 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-
 import org.minimalj.application.DevMode;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
@@ -31,14 +28,14 @@ import org.minimalj.util.MultiResourceBundle;
 
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
-	private static final String ICONS_DIRECTORY = "icons";
 
 	private static Set<String> resourceBundleNames = new HashSet<>();
 	
 	public static final boolean OPTIONAL = false;
 	
 	public static final String APPLICATION_NAME = "Application.name";
-
+	public static final String APPLICATION_ICON = "Application.icon";
+	
 	private static final Map<Locale, Resources> resourcesByLocale = new HashMap<>();
 	
 	private ResourceBundle resourceBundle;
@@ -80,27 +77,6 @@ public class Resources {
 			}
 		} else {
 			reportMissing(resourceName, reportIfMissing);
-			return null;
-		}
-	}
-	
-	public static Icon getIconByResourceName(String resourceName) {
-		if (Resources.isAvailable(resourceName)) {
-			String filename = Resources.getString(resourceName);
-			URL url = Resources.class.getResource(ICONS_DIRECTORY + "/" + filename);
-			if (url != null) {
-				return new ImageIcon(url);
-			}
-		}
-		return null;
-	}
-	
-	public static Icon getIcon(String filename) {
-		filename = ICONS_DIRECTORY + "/" + filename;
-		URL url = Resources.class.getResource(filename);
-		if (url != null) {
-			return new ImageIcon(url);
-		} else {
 			return null;
 		}
 	}

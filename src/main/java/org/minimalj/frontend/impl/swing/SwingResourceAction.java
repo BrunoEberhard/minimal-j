@@ -5,12 +5,13 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.KeyStroke;
 
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public abstract class SwingResourceAction extends AbstractAction {
 	private static final long serialVersionUID = 1L;
-	
+
 	protected SwingResourceAction() {
 		String actionName = this.getClass().getSimpleName();
 		initProperties(this, actionName);
@@ -42,18 +43,18 @@ public abstract class SwingResourceAction extends AbstractAction {
 			action.putValue(Action.ACCELERATOR_KEY, key);
 		}
 		
-		Icon icon = Resources.getIconByResourceName(baseName + ".icon");
+		Icon icon = SwingFrontend.getIcon(baseName + ".icon");
 		if (icon != null) {
 			action.putValue(Action.SMALL_ICON, icon);
 			action.putValue(Action.LARGE_ICON_KEY, icon);
 		}
 		
-		Icon smallIcon = Resources.getIconByResourceName(baseName + ".smallIcon");
+		Icon smallIcon = SwingFrontend.getIcon(baseName + ".smallIcon");
 		if (smallIcon != null) {
 			action.putValue(Action.SMALL_ICON, smallIcon);
 		}
 		
-		Icon largeIcon = Resources.getIconByResourceName(baseName + ".largeIcon");
+		Icon largeIcon = SwingFrontend.getIcon(baseName + ".largeIcon");
 		if (largeIcon != null) {
 			action.putValue(Action.LARGE_ICON_KEY, largeIcon);
 		}
