@@ -7,9 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -51,7 +54,8 @@ public class SwingFrame extends JFrame {
 		createContent();
 
 		setSubject(subject);
-
+		updateIcon();
+		
 		// TODO still necessary?
 		getRootPane().putClientProperty(SwingFrame.class.getSimpleName(), this);
 	}
@@ -209,6 +213,17 @@ public class SwingFrame extends JFrame {
 				throw new RuntimeException("Page null");
 			}
 			tabbedPane.setTitleAt(index, page.getTitle());
+		}
+	}
+	
+	protected void updateIcon() {
+		InputStream inputStream = Application.getInstance().getIcon();
+		if (inputStream != null) {
+			try {
+				setIconImage(ImageIO.read(inputStream));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	

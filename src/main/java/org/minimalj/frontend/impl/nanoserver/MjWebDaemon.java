@@ -8,6 +8,7 @@ import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
 import org.minimalj.util.resources.Resources;
@@ -63,6 +64,8 @@ public class MjWebDaemon extends NanoHTTPD {
 			String data = files.get("postData");
 			String result = sessionManager.handle(data);
 			return newFixedLengthResponse(Status.OK, "text/xml", result);
+		} else if ("/application.png".equals(uri)) {			
+			return newChunkedResponse(Status.OK, "png", Application.getInstance().getIcon());
 		} else {
 			int index = uri.lastIndexOf('.');
 			if (index > -1 && index < uri.length()-1) {

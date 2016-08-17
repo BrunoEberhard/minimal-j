@@ -19,7 +19,6 @@ import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
-
 	private static boolean useWebSocket = Boolean.valueOf(System.getProperty("MjUseWebSocket", "false"));
 	
 	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
@@ -168,7 +167,16 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
 		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
+		result = result.replace("$ICON", getIconLink());
 		return result;
+	}
+	
+	private static String getIconLink() {
+		if (Application.getInstance().getIcon() != null) {
+			return "<link rel=\"icon\" href=\"application.png\" type=\"image/png\">";
+		} else {
+			return "";
+		}
 	}
 
 }

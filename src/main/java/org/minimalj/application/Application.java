@@ -18,6 +18,7 @@
  */
 package org.minimalj.application;
 
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -175,6 +176,19 @@ public abstract class Application {
 		}
 	}
 	
+	public InputStream getIcon() {
+		String applicationIconName;
+		if (Resources.isAvailable(Resources.APPLICATION_ICON)) {
+			applicationIconName = Resources.getString(Resources.APPLICATION_ICON);
+		} else {
+			applicationIconName = getClass().getSimpleName() + ".png";
+		}
+		InputStream icon = getClass().getResourceAsStream(applicationIconName);
+		if (icon == null) {
+			icon = getClass().getResourceAsStream("/" + applicationIconName);
+		}
+		return icon;
+	}
 	
 	/**
 	 * If more than one class of entities should be search have a look at

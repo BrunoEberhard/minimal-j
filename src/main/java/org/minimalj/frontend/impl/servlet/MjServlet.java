@@ -82,6 +82,9 @@ public class MjServlet extends HttpServlet {
 			response.getWriter().write(result);
 			response.setContentType("text/xml");
 			return;	
+		} else if ("/application.png".equals(uri)) {			
+			response.setContentType("png");
+			inputStream = Application.getInstance().getIcon();
 		} else {
 			int index = uri.lastIndexOf('.');
 			if (index > -1 && index < uri.length()-1) {
