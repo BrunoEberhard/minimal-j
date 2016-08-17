@@ -32,6 +32,7 @@ import javax.swing.text.JTextComponent;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
+import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
@@ -347,7 +348,7 @@ public class SwingFrontend extends Frontend {
 	public static Icon getIcon(String resourceName) {
 		if (Resources.isAvailable(resourceName)) {
 			String filename = Resources.getString(resourceName);
-			URL url = Resources.class.getResource(filename);
+			URL url = Swing.class.getResource(filename);
 			if (url != null) {
 				return new ImageIcon(url);
 			}
