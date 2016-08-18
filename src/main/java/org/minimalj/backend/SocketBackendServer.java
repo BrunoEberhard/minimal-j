@@ -106,10 +106,13 @@ public class SocketBackendServer {
 		}
 	}
 	
-	public static void main(final String[] args) throws Exception {
+	public static void main(final String[] args) {
 		Application.initApplication(args);
 		
-		new SocketBackendServer(8020).run();
+		String backendPort = System.getProperty("MjBackendPort", "8020");
+		int port = Integer.valueOf(backendPort);
+
+		new SocketBackendServer(port).run();
 	}
 
 }
