@@ -11,8 +11,8 @@ public class ActionGroup extends Action {
 
 	private final List<Action> items = new ArrayList<>();
 
-	public ActionGroup(String resourceName) {
-		super(resourceName);
+	public ActionGroup(String name) {
+		super(name);
 	}
 
 	@Override
