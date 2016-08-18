@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.petclinic.model.Vet;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.criteria.By;
+import org.minimalj.persistence.criteria.By;
 
 public class VetTablePage extends TablePage<Vet> {
 

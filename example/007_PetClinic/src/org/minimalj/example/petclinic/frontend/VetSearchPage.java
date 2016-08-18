@@ -6,7 +6,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.petclinic.model.Vet;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.transaction.criteria.By;
+import org.minimalj.persistence.criteria.By;
 
 public class VetSearchPage extends SimpleSearchPage<Vet> {
 

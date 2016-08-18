@@ -6,9 +6,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.backend.sql.SqlPersistence;
-import org.minimalj.transaction.criteria.By;
-import org.minimalj.transaction.criteria.FieldOperator;
+import org.minimalj.persistence.criteria.By;
+import org.minimalj.persistence.criteria.FieldOperator;
+import org.minimalj.persistence.sql.SqlPersistence;
 
 public class SqlSimpleCriteriaTest {
 	

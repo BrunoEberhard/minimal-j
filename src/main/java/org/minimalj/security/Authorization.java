@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.minimalj.backend.Persistence;
 import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.Grant.Privilege;
+import org.minimalj.persistence.Persistence;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;

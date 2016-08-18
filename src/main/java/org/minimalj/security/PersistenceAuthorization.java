@@ -14,11 +14,11 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.sql.DataSource;
 
-import org.minimalj.backend.Persistence;
-import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.transaction.criteria.By;
+import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.criteria.By;
+import org.minimalj.persistence.sql.SqlPersistence;
 
 public class PersistenceAuthorization extends Authorization {
 

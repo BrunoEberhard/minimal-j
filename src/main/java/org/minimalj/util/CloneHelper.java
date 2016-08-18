@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.minimalj.backend.sql.LazyList;
+import org.minimalj.persistence.sql.LazyList;
 
 public class CloneHelper {
 

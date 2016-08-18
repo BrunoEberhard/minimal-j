@@ -4,7 +4,7 @@ import java.util.Collections;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.persistence.sql.SqlPersistence;
 import org.minimalj.util.IdUtils;
 
 import junit.framework.Assert;

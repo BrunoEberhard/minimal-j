@@ -1,7 +1,7 @@
 package org.minimalj.security.permissiontest.pkgrole;
 
-import org.minimalj.backend.Persistence;
-import org.minimalj.transaction.PersistenceTransaction;
+import org.minimalj.backend.persistence.PersistenceTransaction;
+import org.minimalj.persistence.Persistence;
 import org.minimalj.transaction.Role;
 
 @Role("transactionRole")

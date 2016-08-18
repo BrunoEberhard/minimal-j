@@ -5,17 +5,18 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.backend.persistence.DeleteEntityTransaction;
+import org.minimalj.backend.persistence.InsertTransaction;
+import org.minimalj.backend.persistence.ReadCriteriaTransaction;
+import org.minimalj.backend.persistence.ReadEntityTransaction;
+import org.minimalj.backend.persistence.SaveTransaction;
+import org.minimalj.backend.persistence.UpdateTransaction;
+import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.criteria.Criteria;
+import org.minimalj.persistence.sql.SqlPersistence;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.IsAuthorizationActive;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.criteria.Criteria;
-import org.minimalj.transaction.persistence.DeleteEntityTransaction;
-import org.minimalj.transaction.persistence.InsertTransaction;
-import org.minimalj.transaction.persistence.ReadCriteriaTransaction;
-import org.minimalj.transaction.persistence.ReadEntityTransaction;
-import org.minimalj.transaction.persistence.SaveTransaction;
-import org.minimalj.transaction.persistence.UpdateTransaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 

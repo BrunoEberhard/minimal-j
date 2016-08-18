@@ -7,7 +7,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.model.Customer;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.transaction.criteria.By; 
+import org.minimalj.persistence.criteria.By; 
 
 public class CustomerTablePage extends TablePage<Customer> {
 

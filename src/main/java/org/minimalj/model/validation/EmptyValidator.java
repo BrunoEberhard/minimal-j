@@ -3,11 +3,11 @@ package org.minimalj.model.validation;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.minimalj.backend.sql.EmptyObjects;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.persistence.sql.EmptyObjects;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 

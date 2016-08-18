@@ -3,13 +3,13 @@ package org.minimalj.security;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.backend.persistence.ReadEntityTransaction;
+import org.minimalj.persistence.sql.SqlPersistence;
 import org.minimalj.security.permissiontest.A;
 import org.minimalj.security.permissiontest.B;
 import org.minimalj.security.permissiontest.C;
 import org.minimalj.security.permissiontest.pkgrole.G;
 import org.minimalj.security.permissiontest.pkgrole.H;
-import org.minimalj.transaction.persistence.ReadEntityTransaction;
 
 public class SubjectTest {
 

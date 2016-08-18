@@ -13,7 +13,7 @@ import org.minimalj.frontend.page.DetailPageAction;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.model.Rendering.RenderType;
-import org.minimalj.transaction.criteria.By;
+import org.minimalj.persistence.criteria.By;
 import org.minimalj.util.resources.Resources;
 
 public class OwnerPage extends ObjectPage<Owner> {

@@ -2,10 +2,10 @@ package org.minimalj.example.persistence;
 
 import java.util.logging.Level;
 
-import org.minimalj.backend.sql.AbstractTable;
-import org.minimalj.backend.sql.SqlPersistence;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.persistence.sql.AbstractTable;
+import org.minimalj.persistence.sql.SqlPersistence;
 
 public class PersistenceExample {
 

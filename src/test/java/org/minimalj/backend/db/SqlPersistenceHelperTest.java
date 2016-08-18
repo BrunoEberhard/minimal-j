@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.minimalj.backend.sql.SqlHelper;
+import org.minimalj.persistence.sql.SqlHelper;
 
 public class SqlPersistenceHelperTest {
 

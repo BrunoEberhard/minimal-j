@@ -6,8 +6,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.backend.sql.EmptyObjects;
-import org.minimalj.backend.sql.SqlPersistence;
+import org.minimalj.persistence.sql.EmptyObjects;
+import org.minimalj.persistence.sql.SqlPersistence;
 
 public class SqlCrudTest {
 	

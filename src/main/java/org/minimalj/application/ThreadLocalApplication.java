@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.backend.Persistence;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.persistence.Persistence;
 
 /**
  * <p>Warning: This class is only for rare cases where you really need several applications in one JVM.
