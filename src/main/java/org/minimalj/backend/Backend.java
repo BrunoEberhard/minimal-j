@@ -37,11 +37,10 @@ import org.minimalj.util.StringUtils;
  * <LI><code>MjBackendAddress</code> and <code>MjBackendPort</code>: if
  * these two are set the transactions are delegated to a remote
  * SocketBackendServer.</LI>
- * <LI><code>MjBackendDatabase</code>, <code>MjBackendDatabaseUser</code>, <code>MjBackendDatabasePassword</code>: if
- * these properties are set the transactions are executed with
- * a relational database.</LI>
  * <LI><code>MjBackend</code>: if this property is set it specifies
  * the classname of the backend.</LI>
+ * <LI>If the backend should run in the same JVM as the frontend you
+ * don't need to set any property</LI>
  * </UL>
  */
 public class Backend {
