@@ -22,7 +22,7 @@ public class NanoWebServer {
 	private static void start(boolean secure) {
 		int port = getPort(secure);
 		if (port > 0) {
-			LOG.info("Start web " + (useWebSocket ? "socket" : "") + " frontend on " + port + (secure ? " (Secure)" : ""));
+			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web " + (useWebSocket ? "socket " : "") + "frontend on port " + port + (secure ? " (Secure)" : ""));
 			NanoHTTPD nanoHTTPD = useWebSocket ? newMjWebSocketDaemon(port, secure) : new MjWebDaemon(port, secure);
 			try {
 				nanoHTTPD.start(TIME_OUT, false); // false -> this will not start a 'java' daemon, but a normal thread which keeps JVM alive

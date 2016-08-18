@@ -24,7 +24,7 @@ public class DemoNanoWebServer {
 	private static NanoHTTPD start(boolean secure) throws IOException {
 		int port = getPort(secure);
 		if (port > 0) {
-			System.out.println("Start web frontend on " + port + (secure ? " (Secure)" : ""));
+			System.out.println("Start " + Application.getInstance().getClass().getSimpleName() + " web frontend on port " + port + (secure ? " (Secure)" : ""));
 			NanoHTTPD daemon = new DemoWebDaemon(port, secure);
 			daemon.start(TIME_OUT);
 			return daemon;
