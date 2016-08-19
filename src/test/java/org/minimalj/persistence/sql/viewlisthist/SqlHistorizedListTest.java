@@ -2,12 +2,11 @@ package org.minimalj.persistence.sql.viewlisthist;
 
 import java.util.Collections;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.minimalj.persistence.sql.SqlPersistence;
-
-import junit.framework.Assert;
 
 @Ignore // HistorizedLazyListTable not yet implemented
 public class SqlHistorizedListTest {

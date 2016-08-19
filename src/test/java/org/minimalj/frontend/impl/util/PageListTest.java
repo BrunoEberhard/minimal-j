@@ -1,10 +1,9 @@
 package org.minimalj.frontend.impl.util;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
-
-import junit.framework.Assert;
 
 public class PageListTest {
 

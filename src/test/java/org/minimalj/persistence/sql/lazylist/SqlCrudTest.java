@@ -2,12 +2,11 @@ package org.minimalj.persistence.sql.lazylist;
 
 import java.util.Collections;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.persistence.sql.SqlPersistence;
 import org.minimalj.util.IdUtils;
-
-import junit.framework.Assert;
 
 public class SqlCrudTest {
 	
