@@ -30,7 +30,7 @@ public class DeleteEntityTransaction<ENTITY> extends PersistenceTransaction<ENTI
 	public DeleteEntityTransaction(Class<ENTITY> clazz, Object id) {
 		Objects.nonNull(clazz);
 		Objects.nonNull(id);
-		this.classHolder = new ClassHolder<ENTITY>((Class<ENTITY>) clazz);
+		this.classHolder = new ClassHolder<ENTITY>(clazz);
 		this.id = id;
 	}
 
