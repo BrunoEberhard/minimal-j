@@ -1,7 +1,12 @@
 == Release notes
 
+Every release contains many small fixes.
+
 === next
-* Next release could probably be 1.0 version
+
+=== 1.0.0.0
+* Some packages refactored
+* Restructured pom.xml (include nanohttp, make lanterna optional)
 
 === 0.14.0.0
 * Frontend: Support for delete actions

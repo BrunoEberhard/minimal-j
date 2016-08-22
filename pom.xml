@@ -1,8 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>0.14.0.1-SNAPSHOT</version>
+	<version>1.0.0.0-SNAPSHOT</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -144,8 +145,7 @@
 		</testResources>
 	</build>
 	<dependencies>
-		<!-- note: an application project has to have its own dependencies to jdbc or ui - jars -->
-		<!-- because all the variations of jdbc and ui technologies are here declared as scope compile -->
+		<!-- servlet and websocket are provided by server (tomcat) -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -158,12 +158,25 @@
 			<version>1.1</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- nanohttpd could be marked as optional. But that's very annoying for beginners -->
+		<!-- It's a small jar and if you really don't need it in your project exclude it -->
 		<dependency>
 			<groupId>org.nanohttpd</groupId>
 			<artifactId>nanohttpd-websocket</artifactId>
 			<version>2.3.0</version>
-			<scope>provided</scope>
 		</dependency>
+
+		<!-- the lanterna UI is not complete. If you really want to try it out declare this -->
+		<!-- dependency in your own project pom.xml  -->
+		<dependency>
+			<groupId>com.googlecode.lanterna</groupId>
+			<artifactId>lanterna</artifactId>
+			<version>2.1.6</version>
+			<optional>true</optional>
+		</dependency>
+		
+		<!-- all jdbc server and the apache db should be included by the projects -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
@@ -177,22 +190,18 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.jumpmind.symmetric.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<version>1.1.1</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- just for test scope -->
 		<dependency>
-			<groupId>com.googlecode.lanterna</groupId>
-			<artifactId>lanterna</artifactId>
-			<version>2.1.6</version>
-			<scope>provided</scope>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<properties>
