@@ -672,7 +672,7 @@ $ICON
 		var isClosed = navigationElement.style.display == "none";
 		if (isClosed && (openOrClose == undefined || openOrClose == "open")) {
 			navigationElement.style.display = "block";
-			if (!isCompact) pageElement.style.left = "15em";
+			if (isCompact) { closeActionMenu() } else { pageElement.style.left = "15em" }
 			return true;
 		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
 			navigationElement.style.display = "none";
