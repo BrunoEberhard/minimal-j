@@ -19,10 +19,10 @@ import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.criteria.FieldCriteria;
-import org.minimalj.persistence.criteria.SearchCriteria;
 import org.minimalj.persistence.criteria.Criteria.AndCriteria;
 import org.minimalj.persistence.criteria.Criteria.OrCriteria;
+import org.minimalj.persistence.criteria.FieldCriteria;
+import org.minimalj.persistence.criteria.SearchCriteria;
 import org.minimalj.security.Authorization;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -275,22 +275,6 @@ public class Table<T> extends AbstractTable<T> {
 				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
 			return executeSelectAll(statement, maxResults);
-		} catch (SQLException e) {
-			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
-		}
-	}
-	
-	public int count(Criteria criteria) {
-		List<Object> whereClause = whereClause(criteria);
-		String query = "SELECT COUNT(*) FROM " + getTableName() + " WHERE " + whereClause.get(0);
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
-			for (int i = 1; i<whereClause.size(); i++) {
-				helper.setParameter(statement, i, whereClause.get(i), null);
-			}
-			try (ResultSet resultSet = statement.executeQuery()) {
-				resultSet.next();
-				return resultSet.getInt(1);
-			}
 		} catch (SQLException e) {
 			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}
