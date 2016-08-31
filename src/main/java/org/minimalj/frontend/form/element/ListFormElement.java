@@ -8,7 +8,6 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
-import org.minimalj.util.resources.Resources;
 
 public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<T>> {
 	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
@@ -41,16 +40,10 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 			super(name);
 			assertEditable(this);
 		}
-		
+
 		@Override
-		protected Object[] getNameArguments() {
-			Class<?> editedClass = GenericUtils.getGenericClass(ListFormElement.this.getClass());
-			if (editedClass != null) {
-				String resourceName = Resources.getResourceName(editedClass);
-				return new Object[] { Resources.getString(resourceName) };
-			} else {
-				return null;
-			}
+		protected Class<?> getEditedClass() {
+			return GenericUtils.getGenericClass(ListFormElement.this.getClass());
 		}
 	}
 	

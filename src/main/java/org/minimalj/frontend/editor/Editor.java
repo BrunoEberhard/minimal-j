@@ -44,13 +44,18 @@ public abstract class Editor<T, RESULT> extends Action {
 	
 	@Override
 	protected Object[] getNameArguments() {
-		Class<?> editedClass = GenericUtils.getGenericClass(getClass());
+		Class<?> editedClass = getEditedClass();
 		if (editedClass != null) {
 			String resourceName = Resources.getResourceName(editedClass);
-			return new Object[]{Resources.getString(resourceName)};
-		} else {
-			return null;
+			if (Resources.isAvailable(resourceName)) {
+				return new Object[]{Resources.getString(resourceName)};
+			}
 		}
+		return null;
+	}
+
+	protected Class<?> getEditedClass() {
+		return GenericUtils.getGenericClass(getClass());
 	}
 
 	public String getTitle() {
