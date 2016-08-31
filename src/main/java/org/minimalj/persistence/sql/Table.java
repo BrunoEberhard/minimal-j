@@ -30,7 +30,9 @@ import org.minimalj.util.LoggingRuntimeException;
 
 @SuppressWarnings("rawtypes")
 public class Table<T> extends AbstractTable<T> {
-
+	
+	private static final List<Object> EMPTY_WHERE_CLAUSE = Collections.singletonList("1=1");
+	
 	protected final PropertyInterface idProperty;
 	
 	protected final String selectAllQuery;
@@ -238,7 +240,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			result.add(0, clause); // insert at beginning
 		} else if (criteria == null || criteria.getClass() == Criteria.class) {
-			result = Collections.singletonList("1=1");
+			result = EMPTY_WHERE_CLAUSE;
 		} else {
 			throw new IllegalArgumentException("Unknown criteria: " + criteria);
 		}
@@ -269,7 +271,7 @@ public class Table<T> extends AbstractTable<T> {
 	public List<T> read(Criteria criteria, int maxResults) {
 		Authorization.checkGrants(Grant.Privilege.SELECT, getClazz());
 		List<Object> whereClause = whereClause(criteria);
-		String query = "SELECT * FROM " + getTableName() + " WHERE " + whereClause.get(0);
+		String query = "SELECT * FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
@@ -284,7 +286,7 @@ public class Table<T> extends AbstractTable<T> {
 		Authorization.checkGrants(Grant.Privilege.SELECT, getClazz());
 		Authorization.checkGrants(Grant.Privilege.SELECT, resultClass);
 		List<Object> whereClause = whereClause(criteria);
-		String query = select(resultClass) + " WHERE " + whereClause.get(0);
+		String query = select(resultClass) + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				statement.setObject(i, whereClause.get(i));
