@@ -121,6 +121,16 @@ li {
 	color: gray;
 }
 
+.button {
+	stroke: #555;
+	fill: #555;
+}
+
+.button:hover {
+	stroke: #000;
+	fill: #000;
+}
+
 /* pages */
 
 #pageContainer {
