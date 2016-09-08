@@ -30,7 +30,7 @@ body {
 
 .headerButton {
 	margin-top: 0.4em;
-	margin-left: 1em;
+	margin-left: 0.4em;
 }
 
 #searchSpan {
@@ -124,6 +124,8 @@ li {
 .button {
 	stroke: #555;
 	fill: #555;
+	display: inline-block;
+	margin-left: 1em;
 }
 
 .button:hover {
