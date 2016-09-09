@@ -1,13 +1,19 @@
 package org.minimalj.util;
 
 import java.lang.reflect.Field;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.persistence.criteria.By;
 
 public class Codes {
@@ -48,20 +54,36 @@ public class Codes {
 			updateCode(clazz);
 		}
 		cacheItem = (CodeCacheItem<T>) cache.get(clazz);
-		List<T> codes = cacheItem.getCodes();
+		List<T> codes = cacheItem.getCodes(LocaleContext.getCurrent());
 		return codes;
 	}
+
+	private static class CodeComparator implements Comparator<Code> {
+		private final Collator collator;
+		
+		public CodeComparator(Locale locale) {
+			this.collator = Collator.getInstance(LocaleContext.getCurrent());
+		}
+		
+		@Override
+		public int compare(Code o1, Code o2) {
+			String string1 = Rendering.render(o1, Rendering.RenderType.PLAIN_TEXT);
+			String string2 = Rendering.render(o2, Rendering.RenderType.PLAIN_TEXT);
+			return collator.compare(string1, string2);
+		}
+	}
 	
-	private static <T> void updateCode(Class<T> clazz) {
+	private static <T extends Code> void updateCode(Class<T> clazz) {
 		CodeCacheItem<T> codeItem = new CodeCacheItem<T>();
 		cache.put(clazz, codeItem);
 		List<T> codes = Backend.read(clazz, By.all(), Integer.MAX_VALUE);
 		codeItem.setCodes(codes);
 	}
 	
-	public static class CodeCacheItem<S> {
+	public static class CodeCacheItem<S extends Code> {
 		private final long timestamp;
 		private List<S> codes;
+		private Map<Locale, List<S>> codesSortedByLocale;
 		
 		public CodeCacheItem() {
 			this.timestamp = System.currentTimeMillis();
@@ -75,12 +97,26 @@ public class Codes {
 			return codes;
 		}
 
+		public List<S> getCodes(Locale locale) {
+			if (codes != null) {
+				if (!codesSortedByLocale.containsKey(locale)) {
+					List<S> sortedCodes = new ArrayList<>(codes);
+					Collections.sort(sortedCodes, new CodeComparator(locale));
+					codesSortedByLocale.put(locale, sortedCodes);
+				}
+				return codesSortedByLocale.get(locale);
+			} else {
+				return null;
+			}
+		}
+
 		public boolean isLoading() {
 			return codes == null;
 		}
 
 		public void setCodes(List<S> codes) {
 			this.codes = codes;
+			codesSortedByLocale = new HashMap<>();
 		}
 	}
 
