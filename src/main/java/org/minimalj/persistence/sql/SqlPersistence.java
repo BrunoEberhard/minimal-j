@@ -517,7 +517,7 @@ public class SqlPersistence extends Persistence {
 				Class<?> fieldClass = property.getClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = getCode(codeClass, value, false);
+					value = getCode(codeClass, value);
 				} else if (View.class.isAssignableFrom(fieldClass)) {
 					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
 					Table<?> referenceTable = getTable(viewedClass);
@@ -668,10 +668,6 @@ public class SqlPersistence extends Persistence {
 	}
 
 	public <T extends Code> T getCode(Class<T> clazz, Object codeId) {
-		return getCode(clazz, codeId, true);
-	}
-
-	<T extends Code> T getCode(Class<T> clazz, Object codeId, boolean forceCache) {
 		if (isLoading(clazz)) {
 			// this special case is needed to break a possible reference cycle
 			return getTable(clazz).read(codeId);
