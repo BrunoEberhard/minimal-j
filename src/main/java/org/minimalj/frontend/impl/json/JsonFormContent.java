@@ -2,7 +2,6 @@ package org.minimalj.frontend.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -13,10 +12,10 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public static final String VALIDATION_MESSAGE = "validationMessage";
 	public static final String SPAN = "span";
 
-	private final List<List<Map<String, Object>>> rows = new ArrayList<>();
+	private final List<List<JsonComponent>> rows = new ArrayList<>();
 	private final int columns;
 	
-	private List<Map<String, Object>> actualRow = new ArrayList<>();
+	private List<JsonComponent> actualRow = new ArrayList<>();
 	private int actualColumn;
 	
 	public JsonFormContent(int columns, int columnWidth) {
