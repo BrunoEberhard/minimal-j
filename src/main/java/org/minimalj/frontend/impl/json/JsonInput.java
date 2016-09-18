@@ -21,8 +21,13 @@ public class JsonInput {
 		this.input = input;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> get(String name) {
-		return get(input, name);
+		if (!input.containsKey(name)) {
+			return Collections.emptyMap();
+		} else {
+			return (Map<String, Object>) input.get(name);
+		}
 	}
 
 	public Object getObject(String name) {
@@ -32,13 +37,4 @@ public class JsonInput {
 	public boolean containsObject(String name) {
 		return input.containsKey(name);
 	}
-
-	public static Map<String, Object> get(Map<String, Object> object, String name) {
-		if (!object.containsKey(name)) {
-			return Collections.emptyMap();
-		} else {
-			return (Map<String, Object>) object.get(name);
-		}
-	}
-
 }
