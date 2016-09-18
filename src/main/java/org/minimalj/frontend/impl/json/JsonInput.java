@@ -1,7 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class JsonInput {
@@ -26,10 +25,6 @@ public class JsonInput {
 		return get(input, name);
 	}
 
-	public List<Object> getList(String name) {
-		return getList(input, name);
-	}
-
 	public Object getObject(String name) {
 		return input.get(name);
 	}
@@ -43,14 +38,6 @@ public class JsonInput {
 			return Collections.emptyMap();
 		} else {
 			return (Map<String, Object>) object.get(name);
-		}
-	}
-	
-	public static List<Object> getList(Map<String, Object> object, String name) {
-		if (!object.containsKey(name)) {
-			return Collections.emptyList();
-		} else {
-			return (List<Object>) object.get(name);
 		}
 	}
 
