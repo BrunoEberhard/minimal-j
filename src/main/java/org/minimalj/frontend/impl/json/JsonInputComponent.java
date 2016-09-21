@@ -6,8 +6,6 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 
 public abstract class JsonInputComponent<T> extends JsonComponent implements Input<T> {
-	private static final long serialVersionUID = 1L;
-	
 	public static final String VALUE = "value";
 	public static final String EDITABLE = "editable";
 

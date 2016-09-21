@@ -1,14 +1,24 @@
 package org.minimalj.frontend.impl.json;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.frontend.Frontend.IComponent;
 
-public class JsonComponent extends LinkedHashMap<String, Object> implements IComponent {
-	private static final long serialVersionUID = 1L;
-
+/**
+ * Base class for all objects that represent an UI element in a web
+ * frontend.<p>
+ * 
+ * It only implements Externalizable to remove the need for a serialVersionUID in every subclass.
+ * Java serialization of this classes will fail. Use JsonWriter and JsonReader.
+ *
+ */
+public class JsonComponent extends LinkedHashMap<String, Object> implements IComponent, Externalizable {
 	private static final String ID = "id";
 	private static final String TYPE = "type";
 
@@ -53,6 +63,20 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 	public static interface JsonPropertyListener {
 		
 		public void propertyChange(String componentId, String property, Object value);
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		explainExternalization();
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		explainExternalization();
+	}
+
+	private void explainExternalization() {
+		throw new RuntimeException("JsonComponent is not meant to be serialized. Does only implement Externalizable to avoid SerialVersionUID in all components");
 	}
 	
 }

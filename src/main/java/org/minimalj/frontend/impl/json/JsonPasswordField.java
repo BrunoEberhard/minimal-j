@@ -17,8 +17,6 @@ public class JsonPasswordField extends JsonInputComponent<char[]> implements Pas
 		this.changeListener = changeListener;
 	}
 
-	private static final long serialVersionUID = 1L;
-
 	@Override
 	public void setValue(char[] value) {
 		put(VALUE, value);

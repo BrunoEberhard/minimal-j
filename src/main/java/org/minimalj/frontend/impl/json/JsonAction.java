@@ -5,7 +5,6 @@ import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.util.StringUtils;
 
 public class JsonAction extends JsonComponent {
-	private static final long serialVersionUID = 1L;
 	private final Action action;
 	
 	public JsonAction(Action action) {
@@ -28,8 +27,6 @@ public class JsonAction extends JsonComponent {
 	}
 	
 	public static class JsonActionGroup extends JsonComponent {
-		private static final long serialVersionUID = 1L;
-		
 		public JsonActionGroup() {
 			super("ActionGroup", false);
 		}
