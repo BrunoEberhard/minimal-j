@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
@@ -78,8 +77,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		
 		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
 			Page page = Application.getInstance().createDefaultPage();
-			String pageId = UUID.randomUUID().toString();
-			show(page, pageId, null);
+			show(page, null);
 
 			navigation = createNavigation();
 			register(navigation);
@@ -166,7 +164,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	
 	@Override
 	public void show(Page page) {
-		show(page, UUID.randomUUID().toString(), null);
+		show(page, null);
 	}
 	
 	@Override
@@ -174,7 +172,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		int pageIndex = visiblePageAndDetailsList.indexOf(detail);
 		if (pageIndex < 0) {
 			String mainPageId = visiblePageAndDetailsList.getId(mainPage);
-			show(detail, UUID.randomUUID().toString(), mainPageId);
+			show(detail, mainPageId);
 		} else {
 			String pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);
@@ -182,7 +180,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		}
 	}
 	
-	private void show(Page page, String pageId, String masterPageId) {
+	private void show(Page page, String masterPageId) {
 		if (masterPageId == null) {
 			visiblePageAndDetailsList.clear();
 			componentById.clear();
@@ -191,9 +189,9 @@ public class JsonPageManager implements PageManager, LoginListener {
 			visiblePageAndDetailsList.removeAllAfter(masterPageId);
 		}
 		
+		String pageId = pageStore.put(page);
 		output.add("showPage", createJson(page, pageId, masterPageId));
 		visiblePageAndDetailsList.put(pageId, page);
-		pageStore.put(pageId, page);
 	}
 	
 	private void show(List<String> pageIds) {

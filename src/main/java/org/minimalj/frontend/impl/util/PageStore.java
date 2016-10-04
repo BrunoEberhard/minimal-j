@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.minimalj.frontend.page.Page;
 
@@ -9,14 +10,11 @@ public class PageStore {
 
 	private final Map<String, PageStoreEntry> pagesById = new HashMap<>();
 	
-	public void put(String pageId, Page page) {
-		if (pagesById.containsKey(pageId)) {
-			PageStoreEntry entry = pagesById.get(pageId);
-			entry.updateLastUsed();
-		} else {
-			PageStoreEntry entry = new PageStoreEntry(page);
-			pagesById.put(pageId, entry);
-		}
+	public String put(Page page) {
+		String pageId = UUID.randomUUID().toString();
+		PageStoreEntry entry = new PageStoreEntry(page);
+		pagesById.put(pageId, entry);
+		return pageId;
 	}
 	
 	public Page get(String pageId) {
