@@ -27,7 +27,7 @@ the dependency in the pom.xml of your project.
 <dependency>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>0.9.0.4</version>
+	<version>1.0.0.0</version>
 </dependency>
 ----
 
@@ -39,22 +39,21 @@ libraries. For example:
 	<groupId>org.apache.derby</groupId>
 	<artifactId>derby</artifactId>
 	<version>10.11.1.1</version>
-	<scope>compile</scope>
+	<scope>provided</scope>
 </dependency>
 ----
 
 The apache derby db is used if you want to store your data only in the JVM memory. Have you
-noted the scope _compile_? This means that this dependency is not passed to projects with
+noted the scope _provided_? This means that this dependency is not passed to projects with
 a dependency to Minimal-J. If you want to use the in memory feature you have to add the
 dependency to your project! On the other side if you don't use the feature you don't have
 to bother about anything from derby db.
 
 At the moment there a few dependencies you can copy from den Minimal-J pom.xml. Of course
-you can remove the compile scope when doing this.
+you have to remove the provided scope when doing this.
 
 * Derby DB (with driver)
 * The Maria DB JDBC driver
-* NanoHttpd (Web UI)
 * Lanterna (Terminal UI)
 
 === Build
@@ -68,9 +67,8 @@ mvn clean install
 === Start
 
 Then you can start your application with a frontend of your choice. But for some frontend
-some preparations must be done. If you want to start a standalone web application your project needs the dependency
-to nanohttpd. To deploy on web server a WEB-INF directory with a proper web.xml must be configured. Only the Swing frontend works out of the box.
-This is the reason why a like to start with the Swing frontend so much. You don't need a tomcat and/or all the JEE stuff.
+some preparations must be done. To deploy on web server a WEB-INF directory with a proper web.xml must be configured. Swing and HTML (Json) frontend works out of the box.
+This is the reason why I like to start my applications with these frontend so much. You don't need a tomcat and/or all the JEE stuff.
 
 You can put together a correct classpath by yourself or you can delegate this to maven
 by using the exec plugin
