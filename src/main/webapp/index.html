@@ -365,18 +365,11 @@ $ICON
 			element.classList.add("table");		
 			element.appendChild(createTableHeaders(content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
-		} else if (type == "ReadOnlyTextField") {
-			element = document.createElement("div");
-			if (content.value != undefined) {
-				element.appendChild(document.createTextNode(content.value));
-			} else {
-				element.innerHTML = "&nbsp;";
-			}
-		} else if (type == "Text" || type == "Gap" || type == "Title") {
+		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
 			element = document.createElement("div");
 			element.classList.add(type);
 			if (content.value != undefined) {
-				element.innerHTML = content.value;
+				element.appendChild(document.createTextNode(content.value));
 			} else {
 				element.innerHTML = "&nbsp;";
 			}
