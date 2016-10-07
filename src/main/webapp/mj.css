@@ -287,10 +287,30 @@ table.form > tbody > tr > td:last-child {
 	padding-right: 3ex;
 }
 
-table input[type="text"], table input[type="password"], table select, table textarea, table .lookup, dialog table label, dialog div.list {
+table input[type="text"], table input[type="password"], table select, table textarea, table .lookup, dialog table label {
 	width: calc(100% - 0.4rem);
 	margin-left: 0.2rem;
 	margin-right: 0.2rem;
+}
+
+dialog table div {
+	width: calc(100% - 0.4rem);
+	margin-left: 0.2rem;
+	margin-right: 0.2rem;
+	height: calc(100% - 0.4rem);
+	padding-top: 0.2rem;
+	padding-bottom: 0.2rem;
+}
+
+dialog table div.list {
+	padding-top: 0.05rem;
+}
+
+dialog table div div {
+	width: 100%;
+	margin: 0px;
+	height: 100%;
+	padding: 0px;
 }
 
 table.form td, table.form th {
