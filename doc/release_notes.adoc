@@ -7,6 +7,7 @@ Every release contains many small fixes.
 === 1.1.0.0
 * Configuration: specify all configuration properties in a config file
 * MjServlet: separate it in a special project. Manage to get context parameters as configuration
+* Lanterna: also moved in separate project. Still not finished.
 
 === 1.0.0.0
 * Some packages refactored
