@@ -245,7 +245,7 @@ public abstract class Application {
 		} else if (Application.class.getName().equals(mainClass)) {
 			logger.severe("and starting the Application class doesn't work at all. Nothing started.");
 		} else {
-			Swing.main(mainClass);
+			NanoWebServer.main(mainClass);
 		}
 	}
 	
