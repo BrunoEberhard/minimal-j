@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.page.TablePage.TablePageWithDetail;
 import org.minimalj.util.GenericUtils;
@@ -15,7 +16,7 @@ public abstract class SearchPage<T, DETAIL_PAGE extends Page> extends TablePageW
 	
 	public SearchPage(String query, Object[] keys) {
 		super(keys);
-		String separator = System.getProperty("MjSearchQualifierSeparator", ":");
+		String separator = Configuration.get("MjSearchQualifierSeparator", ":");
 		int pos = query.indexOf(separator);
 		if (pos > 0 && pos < query.length()-1) {
 			String searchQualifier = query.substring(0, pos).toLowerCase();

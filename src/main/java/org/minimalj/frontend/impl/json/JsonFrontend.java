@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -19,7 +20,7 @@ import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
-	private static boolean useWebSocket = Boolean.valueOf(System.getProperty("MjUseWebSocket", "false"));
+	private static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 	
 	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
 

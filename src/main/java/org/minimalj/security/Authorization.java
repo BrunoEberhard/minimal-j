@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.Grant.Privilege;
 import org.minimalj.persistence.Persistence;
@@ -31,12 +32,12 @@ public abstract class Authorization {
 			return null;
 		}
 		
-		String userFile = System.getProperty("MjUserFile");
+		String userFile = Configuration.get("MjUserFile");
 		if (userFile != null) {
 			return new TextFileAuthorization(userFile);
 		}
 		
-		String authorizationClassName = System.getProperty("MjAuthorization");
+		String authorizationClassName = Configuration.get("MjAuthorization");
 		if (!StringUtils.isBlank(authorizationClassName)) {
 			try {
 				@SuppressWarnings("unchecked")

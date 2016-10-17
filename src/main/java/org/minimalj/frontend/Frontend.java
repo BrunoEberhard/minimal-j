@@ -3,6 +3,7 @@ package org.minimalj.frontend;
 import java.util.List;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
@@ -46,7 +47,7 @@ public abstract class Frontend {
 	}
 
 	public boolean loginAtStart() {
-		return Application.getInstance().isLoginRequired() || System.getProperty("MjLoginAtStart", "false").equals("true");
+		return Application.getInstance().isLoginRequired() || Configuration.get("MjLoginAtStart", "false").equals("true");
 	}
 	
 	/**

@@ -25,7 +25,7 @@ public class NanoHttpdDemoApplication {
 	private static final int TIME_OUT = 5 * 60 * 1000;
 	
 	private static int getPort(boolean secure) {
-		String portString = System.getProperty("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
+		String portString = Configuration.get("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
 		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1 ;
 	}
 	

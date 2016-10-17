@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
 
@@ -28,8 +29,8 @@ public class MjWebSocketDaemon extends NanoWSD {
 			try {
 				// see notes in MjWebDaemon
 				
-				String keyAndTrustStoreClasspathPath = System.getProperty("MjKeystore"); // in example '/mjdevkeystore.jks'
-				char[] passphrase = System.getProperty("MjKeystorePassphrase").toCharArray(); //  ub example 'mjdev1'
+				String keyAndTrustStoreClasspathPath = Configuration.get("MjKeystore"); // in example '/mjdevkeystore.jks'
+				char[] passphrase = Configuration.get("MjKeystorePassphrase").toCharArray(); //  ub example 'mjdev1'
 				
 				makeSecure(makeSSLSocketFactory(keyAndTrustStoreClasspathPath, passphrase), null);
 			} catch (IOException e) {

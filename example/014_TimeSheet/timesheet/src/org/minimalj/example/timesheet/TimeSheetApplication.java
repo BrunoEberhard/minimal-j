@@ -33,6 +33,6 @@ public class TimeSheetApplication extends Application {
 	}
 	
 	public static void main(String[] args) {
-		Swing.main(TimeSheetApplication.class.getName());
+		Swing.start(new TimeSheetApplication());
 	}
 }

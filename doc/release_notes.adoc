@@ -4,6 +4,10 @@ Every release contains many small fixes.
 
 === next
 
+=== 1.1.0.0
+* Configuration: specify all configuration properties in a config file
+* MjServlet: separate it in a special project. Manage to get context parameters as configuration
+
 === 1.0.0.0
 * Some packages refactored
 * Restructured pom.xml (include nanohttp, make lanterna optional)

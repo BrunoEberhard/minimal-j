@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.backend.persistence.DeleteEntityTransaction;
 import org.minimalj.backend.persistence.InsertTransaction;
 import org.minimalj.backend.persistence.ReadCriteriaTransaction;
@@ -49,13 +50,13 @@ public class Backend {
 	private static Backend instance;
 	
 	public static Backend create() {
-		String backendAddress = System.getProperty("MjBackendAddress");
-		String backendPort = System.getProperty("MjBackendPort", "8020");
+		String backendAddress = Configuration.get("MjBackendAddress");
+		String backendPort = Configuration.get("MjBackendPort", "8020");
 		if (backendAddress != null) {
 			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
 		} 
 
-		String backendClassName = System.getProperty("MjBackend");
+		String backendClassName = Configuration.get("MjBackend");
 		if (!StringUtils.isBlank(backendClassName)) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -159,7 +160,7 @@ public class Backend {
 	}
 	
 	private void init() {
-		String initClassName = System.getProperty("MjInit");
+		String initClassName = Configuration.get("MjInit");
 		if (initClassName != null) {
 			try {
 				Class<?> initClass = Class.forName(initClassName);

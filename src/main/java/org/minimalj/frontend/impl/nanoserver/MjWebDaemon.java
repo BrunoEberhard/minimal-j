@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
 import org.minimalj.util.resources.Resources;
@@ -36,8 +37,8 @@ public class MjWebDaemon extends NanoHTTPD {
 				// keytool.exe -keystore mjdevkeystore.jks -keyalg RSA -keysize 3072 -genkeypair -dname "cn=localhost, ou=MJ, o=Minimal-J, c=CH" -storepass mjdev1 -keypass mjdev1
 				// keytool.exe -keystore mjdevkeystore.jks -storepass mjdev1 -keypass mjdev1 -export -file mj.cer
 
-				String keyAndTrustStoreClasspathPath = System.getProperty("MjKeystore"); // in example '/mjdevkeystore.jks'
-				char[] passphrase = System.getProperty("MjKeystorePassphrase").toCharArray(); //  ub example 'mjdev1'
+				String keyAndTrustStoreClasspathPath = Configuration.get("MjKeystore"); // in example '/mjdevkeystore.jks'
+				char[] passphrase = Configuration.get("MjKeystorePassphrase").toCharArray(); //  ub example 'mjdev1'
 				
 				makeSecure(makeSSLSocketFactory(keyAndTrustStoreClasspathPath, passphrase), null);
 			} catch (IOException e) {

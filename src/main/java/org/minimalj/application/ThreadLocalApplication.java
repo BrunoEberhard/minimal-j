@@ -27,14 +27,14 @@ public class ThreadLocalApplication extends Application {
 	private final InheritableThreadLocal<Application> current = new InheritableThreadLocal<>();
 	
 	public ThreadLocalApplication() {
-		Backend.setInstance(new ThreadLocalBackend());
+		
 	}
 
 	public void setCurrentApplication(Application application) {
 		current.set(application);
 	}
 	
-	private Application getCurrentApplication() {
+	public Application getCurrentApplication() {
 		return current.get();
 	}
 	

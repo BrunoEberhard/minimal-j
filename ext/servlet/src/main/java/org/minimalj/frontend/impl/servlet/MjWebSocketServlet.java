@@ -45,10 +45,8 @@ public class MjWebSocketServlet {
 		}
     }
 
-
     @OnError
     public void onError(Throwable t) throws Throwable {
-        logger.severe("Error: " + t.toString());
+        logger.severe("Error: " + t);
     }
-
 }

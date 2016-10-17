@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.util.StringUtils;
@@ -17,7 +18,7 @@ public class NanoWebServer {
 	private static final boolean SECURE = true;
 	private static final int TIME_OUT = 5 * 60 * 1000;
 	
-	private static boolean useWebSocket = Boolean.valueOf(System.getProperty("MjUseWebSocket", "false"));
+	private static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 	
 	private static void start(boolean secure) {
 		int port = getPort(secure);
@@ -33,7 +34,7 @@ public class NanoWebServer {
 	}
 	
 	private static int getPort(boolean secure) {
-		String portString = System.getProperty("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
+		String portString = Configuration.get("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
 		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1 ;
 	}
 	
@@ -55,9 +56,17 @@ public class NanoWebServer {
 		}
 	}
 	
-	public static void main(final String... args) {
+	public static void start(Application application) {
+		Application.setInstance(application);
 		Frontend.setInstance(new JsonFrontend());
+
+		start(!SECURE);
+        start(SECURE);
+	}
+	
+	public static void main(String... args) {
 		Application.initApplication(args);
+		Frontend.setInstance(new JsonFrontend());
 		
 		start(!SECURE);
         start(SECURE);

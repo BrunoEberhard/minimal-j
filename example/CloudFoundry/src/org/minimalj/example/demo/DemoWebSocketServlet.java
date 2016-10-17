@@ -14,9 +14,10 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.json.JsonPageManager;
 
-@ServerEndpoint(value = "/demoWs/{application}")
+@ServerEndpoint(value = "/ws/{application}")
 public class DemoWebSocketServlet {
 	private static final Logger logger = Logger.getLogger(DemoWebSocketServlet.class.getName());
 
@@ -37,7 +38,7 @@ public class DemoWebSocketServlet {
 
     @OnMessage
     public void incoming(@PathParam("application") String applicationName, String message, Session session) {
-    	DemoServlet.examplesApplication.setCurrentApplication(applicationName);
+    	((ExamplesApplication) Application.getInstance()).setCurrentApplication(applicationName);
     	
     	JsonPageManager pageManager = pageManagers.get(session);
     	String result = pageManager.handle(message);

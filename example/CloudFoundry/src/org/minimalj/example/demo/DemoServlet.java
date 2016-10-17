@@ -3,29 +3,24 @@ package org.minimalj.example.demo;
 import java.io.IOException;
 import java.util.Locale;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.servlet.MjServlet;
 
+@javax.servlet.annotation.WebServlet(urlPatterns = "/")
 public class DemoServlet extends MjServlet {
 	private static final long serialVersionUID = 1L;
 
 	private final InheritableThreadLocal<String> currentApplicationName = new InheritableThreadLocal<>();
-	static ExamplesApplication examplesApplication;
 	
 	@Override
-	protected void initializeApplication() {
-		if (examplesApplication == null) {
-			Frontend.setInstance(new JsonFrontend());
-			
-			examplesApplication = new ExamplesApplication();
-			Application.setInstance(examplesApplication);
-		}
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		Application.setInstance(new ExamplesApplication());
 	}
 	
 	@Override
@@ -38,14 +33,14 @@ public class DemoServlet extends MjServlet {
 		String applicationName = uriWithoutfile.substring(uriWithoutfile.lastIndexOf('/') + 1);
 		
 		currentApplicationName.set(applicationName);
-		examplesApplication.setCurrentApplication(applicationName);
+		((ExamplesApplication) Application.getInstance()).setCurrentApplication(applicationName);
 
 		super.service(request, response);
 	}
 
 	@Override
 	protected String fillPlaceHolder(String html, Locale locale, String url) {
-		html = html.replace("$WS", "../demoWs/" + currentApplicationName.get());
+		html = html.replace("$WS", "../ws/" + currentApplicationName.get());
 		return super.fillPlaceHolder(html, locale, url);
 	}
 }

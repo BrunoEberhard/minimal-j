@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>1.0.0.1-SNAPSHOT</version>
+	<version>1.1.0.0-SNAPSHOT</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -144,20 +144,6 @@
 		</testResources>
 	</build>
 	<dependencies>
-		<!-- servlet and websocket are provided by server (tomcat) -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.websocket</groupId>
-			<artifactId>javax.websocket-api</artifactId>
-			<version>1.1</version>
-			<scope>provided</scope>
-		</dependency>
-
 		<!-- nanohttpd could be marked as optional. But that's very annoying for beginners -->
 		<!-- It's a small jar and if you really don't need it in your project exclude it -->
 		<dependency>
@@ -173,7 +159,7 @@
 			<artifactId>lanterna</artifactId>
 			<version>2.1.6</version>
 			<optional>true</optional>
-		</dependency>
+		</dependency>	
 		
 		<!-- all jdbc server and the apache db should be included by the projects -->
 		<dependency>

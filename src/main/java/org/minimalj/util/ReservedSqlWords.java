@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
+
 public class ReservedSqlWords {
 	private static final Logger logger = Logger.getLogger(ReservedSqlWords.class.getName());
 	
@@ -16,7 +18,7 @@ public class ReservedSqlWords {
 	
 	private static Collection<String> loadReservedSqlWords() {
 		Collection<String> reservedSqlWords = new HashSet<>();
-		String fileName = System.getProperty("MjReservedSqlWordsFile", "reservedSqlWords.txt");
+		String fileName = Configuration.get("MjReservedSqlWordsFile", "reservedSqlWords.txt");
 		try (InputStreamReader isr = new InputStreamReader(ReservedSqlWords.class.getResourceAsStream(fileName))) {
 			try (BufferedReader r = new BufferedReader(isr)) {
 				while (r.ready()) {

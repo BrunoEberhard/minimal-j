@@ -6,83 +6,66 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
+import org.minimalj.application.ThreadLocalApplication;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonPageManager;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-public class MjServlet extends HttpServlet {
+@javax.servlet.annotation.WebServlet(urlPatterns = "/")
+@javax.servlet.annotation.HandlesTypes(Application.class)
+public class MjServlet extends HttpServlet implements javax.servlet.ServletContainerInitializer {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(MjServlet.class.getName());
 	
-	private static boolean applicationInitialized;
-	
-	protected void initializeApplication() {
-		if (!applicationInitialized) {
-			Frontend.setInstance(new JsonFrontend());
-			String applicationName = getServletConfig().getInitParameter("Application");
-			if (StringUtils.isBlank(applicationName)) {
-				throw new IllegalArgumentException("Missing Application parameter");
-			}
-			Application application = Application.createApplication(applicationName);
-			Application.setInstance(application);
-			applicationInitialized = true;
-		}
-	}
-	
-	private void copyPropertiesFromServletConfigToSystem() {
-		Enumeration<?> propertyNames = getServletConfig().getInitParameterNames();
-		while (propertyNames.hasMoreElements()) {
-			String propertyName = (String) propertyNames.nextElement();
-			System.setProperty(propertyName, getServletConfig().getInitParameter(propertyName));
-		}
-	}	
-	
 	@Override
-	public void init() throws ServletException {
-		copyPropertiesFromServletConfigToSystem();
-		initializeApplication();
-	}
-
-	@Override
+    public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		copyInitParametersToConfiguration(config.getServletContext());
+		Frontend.setInstance(new JsonFrontend());
+    }
+	
+    @Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		String contextPath = request.getContextPath();
 		String requestURI = request.getRequestURI();
 		String uri = requestURI.substring(contextPath.length());
-
+		
 		if (uri.equals("")) {
 			response.sendRedirect("./");
 			return;
 		}
-		
+
 		InputStream inputStream = null;
-		uri = uri.substring(uri.lastIndexOf('/'), uri.length());
 		javax.servlet.http.HttpSession session = request.getSession(true);
-		if (uri.equals("/")) {
+		if (uri.endsWith("/")) {
 			session.setAttribute("MjPageManager", new JsonPageManager());
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
 			response.getWriter().write(html);
 			response.setContentType("text/html");
 			return;
-		} else if ("/ajax_request.xml".equals(uri)) {
+		} else if (uri.endsWith("/ajax_request.xml")) {
 			String postData = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 			JsonPageManager pageManager = (JsonPageManager) session.getAttribute("MjPageManager");
 			String result = pageManager.handle(postData);
 			response.getWriter().write(result);
 			response.setContentType("text/xml");
 			return;	
-		} else if ("/application.png".equals(uri)) {			
+		} else if (uri.endsWith("/application.png")) {			
 			response.setContentType("png");
 			inputStream = Application.getInstance().getIcon();
 		} else {
@@ -92,7 +75,8 @@ public class MjServlet extends HttpServlet {
 				String mimeType = Resources.getMimeType(postfix);
 				if (mimeType != null) {
 					response.setContentType(mimeType);
-					inputStream = getClass().getResourceAsStream(uri);
+					int pos = uri.lastIndexOf("/");
+					inputStream = getClass().getResourceAsStream(uri.substring(pos));
 				}
 			}
 		}
@@ -111,7 +95,27 @@ public class MjServlet extends HttpServlet {
 	}
 	
 	protected String fillPlaceHolder(String html, Locale locale, String url) {
-		// gives a subclass to replace some texts in the index.html
 		return JsonFrontend.fillPlaceHolder(html, locale);
 	}
+	
+	protected void copyInitParametersToConfiguration(ServletContext servletContext) {
+		Enumeration<?> propertyNames = servletContext.getInitParameterNames();
+		while (propertyNames.hasMoreElements()) {
+			String propertyName = (String) propertyNames.nextElement();
+			Configuration.set(propertyName, servletContext.getInitParameter(propertyName));
+		}
+	}	
+	
+	@Override
+	public void onStartup(Set<Class<?>> applicationClasses, ServletContext servletContext) throws ServletException {
+		applicationClasses.remove(ThreadLocalApplication.class);
+		if (applicationClasses.size() == 0) {
+			throw new IllegalStateException("No application found");
+		} else if (applicationClasses.size() > 1) {
+			return;
+			// throw new IllegalStateException("There should be only one Application in classpath");
+		}
+		Application.initApplication(applicationClasses.iterator().next().getName());
+	}
+
 }

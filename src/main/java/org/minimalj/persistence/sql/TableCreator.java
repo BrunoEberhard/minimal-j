@@ -3,6 +3,7 @@ package org.minimalj.persistence.sql;
 import javax.sql.DataSource;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 
 public class TableCreator {
 
@@ -10,9 +11,9 @@ public class TableCreator {
 		Application.initApplication(args);
 		Application application = Application.getInstance();
 		
-		String database = System.getProperty("MjSqlDatabase");
-		String user = System.getProperty("MjSqlDatabaseUser", "APP");
-		String password = System.getProperty("MjSqlDatabasePassword", "APP");
+		String database = Configuration.get("MjSqlDatabase");
+		String user = Configuration.get("MjSqlDatabaseUser", "APP");
+		String password = Configuration.get("MjSqlDatabasePassword", "APP");
 		
 		DataSource dataSource = SqlPersistence.mariaDbDataSource(database, user, password);
 		new SqlPersistence(dataSource, SqlPersistence.CREATE_TABLES, application.getEntityClasses());

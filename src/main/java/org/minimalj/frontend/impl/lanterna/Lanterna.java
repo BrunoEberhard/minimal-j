@@ -30,10 +30,14 @@ public class Lanterna {
 			x.printStackTrace();
 		}
 	}
-
-	public static void main(final String... args) {
+	
+	public static void start(Application application) {
+		Application.setInstance(application);
+		new Lanterna().run();
+	}
+	
+	public static void main(String... args) {
 		Application.initApplication(args);
-
 		new Lanterna().run();
 	}
 }

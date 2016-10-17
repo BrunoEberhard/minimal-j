@@ -8,9 +8,11 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
+
 public class JsonSessionManager {
 	private static final Logger logger = Logger.getLogger(JsonSessionManager.class.getName());
-	private static final int MAX_SESSIONS = Integer.valueOf(System.getProperty("MjMaxSessions", "30"));
+	private static final int MAX_SESSIONS = Integer.valueOf(Configuration.get("MjMaxSessions", "30"));
 
 	private final Map<String, JsonPageManager> sessions = new HashMap<>();
 	private final List<String> sessionList = new ArrayList<>();

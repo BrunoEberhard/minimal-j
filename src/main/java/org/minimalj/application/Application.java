@@ -102,25 +102,15 @@ public abstract class Application {
 	 * 
 	 * @param args the arguments provided to the jvm
 	 */
-	public static void initApplication(String[] args) {
+	public static void initApplication(String... args) {
 		if (args.length < 1) {
-			throw new IllegalArgumentException("Please specify an Application as first argument");
+			System.err.println("Please specify an Application as argument");
+			System.exit(-1);
 		}
-		
-		String applicationClassName = args[0];
-		Application application = createApplication(applicationClassName);
-		Application.setInstance(application);
+		setInstance(createApplicationByClassName(args[0]));
 	}
 	
-	/**
-	 * Creates the Application from a class name. This method should normally only
-	 * be called by a frontend or a backend main class.
-	 * 
-	 * @param applicationClassName qualified class name
-	 * @return the created application. Different exceptions are thrown if the
-	 * creation failed.
-	 */
-	public static Application createApplication(String applicationClassName) {
+	private static Application createApplicationByClassName(String applicationClassName) {
 		Class<?> applicationClass;
 		try {
 			applicationClass = Class.forName(applicationClassName);
@@ -137,10 +127,10 @@ public abstract class Application {
 		if (!(application instanceof Application)) {
 			throw new IllegalArgumentException("Class " + applicationClassName + " doesn't extend Application");
 		}
-		
+
 		return (Application) application;
 	}
-
+	
 	/**
 	 * @return The application specific ResourceBundle names
 	 */
@@ -255,7 +245,7 @@ public abstract class Application {
 		} else if (Application.class.getName().equals(mainClass)) {
 			logger.severe("and starting the Application class doesn't work at all. Nothing started.");
 		} else {
-			Swing.main(new String[]{mainClass});
+			Swing.main(mainClass);
 		}
 	}
 	

@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
@@ -109,7 +110,7 @@ public class SocketBackendServer {
 	public static void main(final String[] args) {
 		Application.initApplication(args);
 		
-		String backendPort = System.getProperty("MjBackendPort", "8020");
+		String backendPort = Configuration.get("MjBackendPort", "8020");
 		int port = Integer.valueOf(backendPort);
 
 		new SocketBackendServer(port).run();

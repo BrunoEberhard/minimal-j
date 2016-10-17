@@ -4,7 +4,13 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.persistence.criteria.Criteria;
 import org.minimalj.persistence.sql.SqlPersistence;
 import org.minimalj.util.LoggingRuntimeException;
@@ -19,7 +25,7 @@ public abstract class Persistence {
 	private static final Logger logger = Logger.getLogger(Persistence.class.getName());
 
 	public static Persistence create() {
-		String persistenceClassName = System.getProperty("MjPersistence");
+		String persistenceClassName = Configuration.get("MjPersistence");
 		if (!StringUtils.isBlank(persistenceClassName)) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -31,16 +37,33 @@ public abstract class Persistence {
 			}
 		} 
 		
-		String database = System.getProperty("MjSqlDatabase");
-		String user = System.getProperty("MjSqlDatabaseUser", "APP");
-		String password = System.getProperty("MjSqlDatabasePassword", "APP");
 		Class<?>[] entityClasses = Application.getInstance().getEntityClasses();
+
+		DataSource jndiDataSource = getJndiDataSource();
+		if (jndiDataSource != null) {
+			return new SqlPersistence(jndiDataSource, entityClasses);
+		}
+		
+		String database = Configuration.get("MjSqlDatabase");
+		String user = Configuration.get("MjSqlDatabaseUser", "APP");
+		String password = Configuration.get("MjSqlDatabasePassword", "APP");
 		if (StringUtils.isBlank(database)) {
-			String databaseFile = System.getProperty("MjSqlDatabaseFile", null);
+			String databaseFile = Configuration.get("MjSqlDatabaseFile", null);
 			boolean createTables = databaseFile == null || !new File(databaseFile).exists();
 			return new SqlPersistence(SqlPersistence.embeddedDataSource(databaseFile), createTables, entityClasses);
 		} else {
 			return new SqlPersistence(SqlPersistence.mariaDbDataSource(database, user, password), entityClasses);
+		}
+	}
+	
+	private static DataSource getJndiDataSource() {
+		try {
+			Context initContext = new InitialContext();
+			DataSource dataSource = (DataSource) initContext.lookup("java:/comp/env/jdbc");
+			return dataSource;
+		} catch (NamingException e) {
+			logger.fine("Exception while retrieving JNDI datasource (" + e.getMessage() + ")");
+			return null;
 		}
 	}
 	

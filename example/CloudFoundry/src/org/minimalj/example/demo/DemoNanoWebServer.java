@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.nanoserver.MjWebDaemon;
@@ -17,7 +19,7 @@ public class DemoNanoWebServer {
 	private static final ExamplesApplication application = new ExamplesApplication();
 	
 	private static int getPort(boolean secure) {
-		String portString = System.getProperty("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
+		String portString = Configuration.get("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
 		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1 ;
 	}
 	
@@ -41,8 +43,9 @@ public class DemoNanoWebServer {
 	}
 	
 	public static void main(final String[] args) throws Exception {
-		Frontend.setInstance(new JsonFrontend());
 		Application.setInstance(application);
+		Frontend.setInstance(new JsonFrontend());
+		Backend.setInstance(application.new ThreadLocalBackend());
 		
 		NanoHTTPD daemon = null, secureDaemon = null;
         try {
