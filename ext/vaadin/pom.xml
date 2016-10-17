@@ -46,25 +46,21 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
 			<version>7.6.8</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client-compiled</artifactId>
 			<version>7.6.8</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client</artifactId>
 			<version>7.6.8</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
 			<version>7.6.8</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 		   <groupId>de.akquinet.engineering.vaadin</groupId>

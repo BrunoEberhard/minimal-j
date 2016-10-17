@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -14,7 +13,6 @@ import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
-import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
@@ -115,10 +113,6 @@ public class Vaadin extends UI implements PageManager {
 		show(Application.getInstance().createDefaultPage());
 	}
 
-	static {
-		Frontend.setInstance(new VaadinFrontend());
-	}
-	
 	private TextField createSearchField() {
 		TextField textFieldSearch = new TextField();
         textFieldSearch.setWidth("160px");
