@@ -36,15 +36,10 @@ import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Extend this class to configure your Application.
+ * Extend this class to define your Application.
  * Both frontend and backend refer to this class.<p>
  * 
- * Set the first argument of the JVM to your extension of this class if the application
- * is started with Swing or NanoWebServer as main class or set the <code>init-param</code> in the servlet
- * element in the <code>web.xml</code> if a web server is used.<p>
- *
- * All non static methods can be overridden to define the behavior
- * of the application.
+ * All non static methods can be overridden.
  * 
  * @see Swing
  * @see NanoWebServer
@@ -205,6 +200,10 @@ public abstract class Application {
 		}
 	}
 
+	/**
+	 * 
+	 * @return The page displayed when the application is started or when a new Tab is openend
+	 */
 	public Page createDefaultPage() {
 		return new EmptyPage();
 	}
