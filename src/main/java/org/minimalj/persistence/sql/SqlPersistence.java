@@ -660,9 +660,7 @@ public class SqlPersistence extends Persistence {
 	private void testModel(Class<?>[] classes) {
 		ModelTest test = new ModelTest(classes);
 		if (!test.getProblems().isEmpty()) {
-			for (String s : test.getProblems()) {
-				logger.severe(s);
-			}
+			test.logProblems();
 			throw new IllegalArgumentException("The persistent classes don't apply to the given rules");
 		}
 	}
