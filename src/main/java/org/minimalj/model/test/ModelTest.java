@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
@@ -33,6 +35,7 @@ import org.minimalj.util.resources.Resources;
  * They are fast and its better to see problems at startup of an application.
  */
 public class ModelTest {
+	private static final Logger logger = Logger.getLogger(ModelTest.class.getName());
 
 	private final Collection<Class<?>> mainClasses;
 	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
@@ -55,8 +58,29 @@ public class ModelTest {
 		}
 	}
 	
+	/**
+	 * Allows fail early when application is started. NanoWebServer / Swing can check at startup
+	 * if persistence will make problems. Without this there would be a lot of confusing stacktrace lines
+	 */
+	public static void exitIfProblems() {
+		ModelTest test = new ModelTest(Application.getInstance().getEntityClasses());
+		if (!test.getProblems().isEmpty()) {
+			test.logProblems();
+			System.exit(-1);
+		}
+	}
+	
 	public List<String> getProblems() {
 		return problems;
+	}
+	
+	public void logProblems() {
+		if (!problems.isEmpty()) {
+			logger.severe("The entitiy classes don't apply to the given rules");
+			for (String s : problems) {
+				logger.severe(s);
+			}
+		}
 	}
 	
 	public boolean isValid() {

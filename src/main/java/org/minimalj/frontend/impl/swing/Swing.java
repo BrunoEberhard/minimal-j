@@ -8,6 +8,7 @@ import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.model.test.ModelTest;
 
 public class Swing implements Runnable {
 
@@ -25,6 +26,7 @@ public class Swing implements Runnable {
 	}
 
 	private static void start() {
+		ModelTest.exitIfProblems();
 		try {
 			SwingUtilities.invokeAndWait(new Swing());
 		} catch (InvocationTargetException | InterruptedException e) {
