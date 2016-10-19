@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.swing.component;
 
+import java.net.URL;
+
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.util.StringUtils;
 
@@ -18,6 +20,23 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 
 	public SwingHtmlContent(String htmlOrUrl) {
 		Platform.setImplicitExit(false);
+
+		String url, html;
+		if (htmlOrUrl.startsWith("<")) {
+			url = null;
+			html = htmlOrUrl;
+		} else if (StringUtils.isUrl(htmlOrUrl)) {
+			url = htmlOrUrl;
+			html = null;
+		} else {
+			URL resource = getClass().getClassLoader().getResource(htmlOrUrl);
+			if (resource != null) {
+				url = resource.toExternalForm();
+				html = null;
+			} else {
+				throw new IllegalArgumentException("Invalid content: " + htmlOrUrl);
+			}
+		}
 		
 		PlatformImpl.startup(new Runnable() {
 			@Override
@@ -33,17 +52,14 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 
 				Scene scene = new Scene(anchorPane);
 				WebEngine webEngine = webBrowser.getEngine();
-				if (htmlOrUrl.startsWith("<")) {
-					webEngine.loadContent(htmlOrUrl);
-				} else if (StringUtils.isUrl(htmlOrUrl)) {
-					webEngine.load(htmlOrUrl);
+				if (html != null) {
+					webEngine.loadContent(html);
 				} else {
-					webEngine.load(getClass().getClassLoader().getResource(htmlOrUrl).toExternalForm());
+					webEngine.load(url);
 				}
 				setScene(scene);
 			}
 		});
 	}
 	
-
 }
