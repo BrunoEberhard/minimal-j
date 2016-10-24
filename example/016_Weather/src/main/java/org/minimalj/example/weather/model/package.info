@@ -1,0 +1,18 @@
+Class model to work with api of
+
+http://api.openweathermap.org/
+
+for example:
+
+http://api.openweathermap.org/data/2.5/forecast/weather?q=zurich&APPID=xyz (I'm not sure if it is good to spread the appid)
+
+
+These classes were first generated with http://www.jsonschema2pojo.org/
+(with package: org.minimalj.example.weather.model, class name: Weather and generate double as only active checkbox)
+
+Some changes were hand made to be conform with minimal-j rules
+
+The json file was formatted with https://jsonformatter.curiousconcept.com/
+
+The @generated tag caused a warning which can only be removed like described in
+http://stackoverflow.com/questions/25222811/access-restriction-the-type-application-is-not-api-restriction-on-required-l
