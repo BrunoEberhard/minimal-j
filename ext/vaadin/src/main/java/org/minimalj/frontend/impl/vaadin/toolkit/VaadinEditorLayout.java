@@ -3,46 +3,38 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.vaadin.VaadinBorderLayout;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
-public class VaadinEditorLayout extends VaadinBorderLayout implements IComponent {
+public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	public VaadinEditorLayout(IContent content, Action[] actions) {
-		setSizeFull();
+		setMargin(true);
 		
 		Component contentComponent = (Component) content;
-		Panel scrollPanel = decorateWithScrollPanel((ComponentContainer) contentComponent);
-		addComponent(scrollPanel, Constraint.CENTER);
+		contentComponent.setWidth("100%");
+		addComponent(contentComponent);
+		setExpandRatio(contentComponent, 1f);
 		
 		Component buttonBar = createButtonBar(actions);
-		setMinimumSouthHeight("5ex");
-		addComponent(buttonBar, Constraint.SOUTH);
+		addComponent(buttonBar);
+		setExpandRatio(buttonBar, 0f);
 	}
 
-	private static Panel decorateWithScrollPanel(ComponentContainer content) {
-		Panel scrollablePanel = new Panel(content);
-		// scrollablePanel.setScrollable(true);
-		scrollablePanel.setHeight("100%");
-		return scrollablePanel;
-	}
-	
 	private Component createButtonBar(Action... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
 		horizontalLayout.setWidth("100%");
 		horizontalLayout.setSpacing(true);
-		horizontalLayout.setMargin(true);
+		horizontalLayout.setMargin(false);
 		
 		addButtons(horizontalLayout, actions);
 		return horizontalLayout;

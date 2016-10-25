@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -16,11 +17,16 @@ import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.security.AuthenticationFailedPage;
+import org.minimalj.security.LoginAction;
+import org.minimalj.security.LoginAction.LoginListener;
+import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
 import com.github.wolfie.history.HistoryExtension;
 import com.github.wolfie.history.HistoryExtension.PopStateEvent;
 import com.github.wolfie.history.HistoryExtension.PopStateListener;
+import com.vaadin.annotations.Theme;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
@@ -37,9 +43,12 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-public class Vaadin extends UI implements PageManager {
+@Theme("mjtheme")
+public class Vaadin extends UI implements PageManager, LoginListener {
 	private static final long serialVersionUID = 1L;
 
+	private Subject subject;
+	
 	private final HistoryExtension history;
 	private final PageStore pageStore = new PageStore();
 	private Map<String, String> state; // position -> page id
@@ -110,7 +119,11 @@ public class Vaadin extends UI implements PageManager {
 		verticalScrollPane = new VerticalLayout();
 		splitPanel.setSecondComponent(verticalScrollPane);
 		
-		show(Application.getInstance().createDefaultPage());
+		if (subject == null && Frontend.loginAtStart()) {
+			new LoginAction(this).action();
+		} else {
+			show(Application.getInstance().createDefaultPage());
+		}
 	}
 
 	private TextField createSearchField() {
@@ -138,10 +151,11 @@ public class Vaadin extends UI implements PageManager {
 
 	private void addNavigationActions(List<Action> actions, Object parentId) {
 		for (Action action : actions) {
-			addNavigationAction(action, null);
+			addNavigationAction(action, parentId);
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
 				addNavigationActions(actionGroup.getItems(), actionGroup);
+				tree.expandItem(actionGroup);
 			} else {
 				tree.setChildrenAllowed(action, false);
 			}
@@ -149,12 +163,28 @@ public class Vaadin extends UI implements PageManager {
 
 	}
 	
-	private void addNavigationAction(Action action, String parentId) {
+	private void addNavigationAction(Action action, Object parentId) {
 //		String itemId = Rendering.render(action, Rendering.RenderType.PLAIN_TEXT); 
 		tree.addItem(action);
 		tree.setItemCaption(action, action.getName());
 		tree.setParent(action, parentId);
 	}
+	
+	@Override
+	public void loginSucceded(Subject subject) {
+		this.subject = subject;
+		Subject.setCurrent(subject);
+		
+		updateNavigation();
+		show(Application.getInstance().createDefaultPage());
+	}
+
+	@Override
+	public void loginCancelled() {
+		if (subject == null && Application.getInstance().isLoginRequired()) {
+			show(new AuthenticationFailedPage());
+		}
+	};
 	
 //	private void updateContent(Component content) {
 //		verticalScrollPane.removeAllComponents();
@@ -316,13 +346,7 @@ public class Vaadin extends UI implements PageManager {
 	@Override
 	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
 		Component component = new VaadinEditorLayout(content, actions);
-		component.setSizeFull();
-	
-		return createDialog(title, component);
-	}
-	
-	private IDialog createDialog(String title, Component component) {
-		return new VaadinDialog((ComponentContainer) component, title);
+		return new VaadinDialog((ComponentContainer) component, title, saveAction, closeAction);
 	}
 
 	@Override

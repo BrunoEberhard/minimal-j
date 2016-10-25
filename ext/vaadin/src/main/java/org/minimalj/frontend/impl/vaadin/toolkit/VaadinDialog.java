@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import java.util.Iterator;
 
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 
 import com.vaadin.ui.Component;
@@ -14,18 +15,21 @@ public class VaadinDialog extends Window implements IDialog {
 	private static final long serialVersionUID = 1L;
 	
 	private CloseListener closeListener;
+	private final Action saveAction, closeAction;
+	private static int styleCount;
 	
-	public VaadinDialog(ComponentContainer content, String title) {
+	public VaadinDialog(ComponentContainer content, String title, Action saveAction, Action closeAction) {
 		super(title, content);
+		this.saveAction = saveAction;
+		this.closeAction = closeAction;
 		
 		setModal(true);
 		addListener(new VaadinDialogListener());
 		
 		VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
 		if (componentWithWidth != null) {
-			setWidth((componentWithWidth.getDialogWidth() + 1) + "ex");
+			setWidth(componentWithWidth.getDialogWidth() + "ex");
 		}
-		
 		
 		UI.getCurrent().addWindow(this);
 		VaadinFrontend.focusFirstComponent(getContent());
@@ -37,9 +41,10 @@ public class VaadinDialog extends Window implements IDialog {
 
 		@Override
 		public void windowClose(CloseEvent e) {
-//			if (closeListener == null || closeListener.close()) {
-//				UI.getCurrent().removeWindow(VaadinDialog.this);
-//			}
+			// if (closeListener == null || closeListener.close()) {
+				VaadinDialog.super.close();
+				closeAction.action();
+			// }
 		}
 	}
 	

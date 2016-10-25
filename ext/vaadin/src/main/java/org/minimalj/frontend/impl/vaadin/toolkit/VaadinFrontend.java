@@ -36,7 +36,7 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinActionLabel(action);
 	}
 
-	private static class VaadinActionLabel extends Button implements IComponent {
+	public static class VaadinActionLabel extends Button implements IComponent {
 
 		private static final long serialVersionUID = 1L;
 
@@ -133,18 +133,6 @@ public class VaadinFrontend extends Frontend {
 	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
 		return new VaadinTable<T>(keys, listener);
 	}
-	
-//	@Override
-//	public IDialog createDialog(String title, IContent content, Action... actions) {
-//		Component component = new VaadinEditorLayout(content, actions);
-//		component.setSizeFull();
-//
-//		return createDialog(title, component);
-//	}
-//
-//	private IDialog createDialog(String title, Component component) {
-//		return new VaadinDialog((ComponentContainer) component, title);
-//	}
 
 	@Override
 	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
@@ -274,13 +262,9 @@ public class VaadinFrontend extends Frontend {
 //		
 //	}
 
-	/* (non-Javadoc)
-	 * @see org.minimalj.frontend.Frontend#createPasswordField(org.minimalj.frontend.Frontend.InputComponentListener, int)
-	 */
 	@Override
 	public PasswordField createPasswordField(InputComponentListener changeListener, int maxLength) {
-		// TODO Auto-generated method stub
-		return null;
+		return new VaadinPasswordField(changeListener, maxLength);
 	}
 
 	/* (non-Javadoc)
@@ -297,8 +281,8 @@ public class VaadinFrontend extends Frontend {
 	 */
 	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
-		// TODO Auto-generated method stub
-		return null;
+//		return new VaadinHtmlContent(htmlOrUrl);
+		return new VaadinUrlContent(htmlOrUrl);
 	}
 
 	/* (non-Javadoc)

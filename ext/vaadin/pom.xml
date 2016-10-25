@@ -21,6 +21,10 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+			<plugin>
+    			<groupId>com.vaadin</groupId>
+    			<artifactId>vaadin-maven-plugin</artifactId>			
+			</plugin>
 		</plugins>
 		<resources>
 			<resource>
@@ -45,22 +49,22 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
-			<version>7.6.8</version>
+			<version>7.7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client-compiled</artifactId>
-			<version>7.6.8</version>
+			<version>7.7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client</artifactId>
-			<version>7.6.8</version>
+			<version>7.7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
-			<version>7.6.8</version>
+			<version>7.7.3</version>
 		</dependency>
 		<dependency>
 		   <groupId>de.akquinet.engineering.vaadin</groupId>

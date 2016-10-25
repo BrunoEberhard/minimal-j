@@ -6,7 +6,6 @@ import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
@@ -16,26 +15,27 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 	
 	private final int columns;
 	private final int columnWidth;
-	private final int width;
+	private final int dialogWidth;
 	private int column, row;
 	private boolean isVerticallyGrowing;
 	
 	public VaadinGridFormLayout(int columns, int columnWidthPercentage) {
 		super(columns, 1);
+		
 		this.columns = columns;
-		this.columnWidth = columnWidthPercentage; // Math.max(columnWidthPercentage, 60 / columns);
+		columnWidth = columnWidthPercentage / 2; // Math.max(columnWidthPercentage, 60 / columns);
+		dialogWidth = columnWidth * columns;
 		
-		width = columnWidth * columns;
-		setWidth(width + "px");
+		for (int i = 0; i<columns; i++) {
+			setColumnExpandRatio(i, 1.0f / columns);
+		}
 		
-		setSpacing(false);
-		setMargin(new MarginInfo(true, false, true, false));
-		addStyleName("gridForm");
+		setSpacing(true);
 	}
 	
 	@Override
 	public int getDialogWidth() {
-		return width;
+		return dialogWidth;
 	}
 
 	public boolean isVerticallyGrowing() {
@@ -49,18 +49,12 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 
 	@Override
 	public void add(String caption, IComponent field, int span) {
-		GridLayout gridLayout = new GridLayout(1, 1);
-		gridLayout.setColumnExpandRatio(0, 1.0f);
-		gridLayout.setMargin(new MarginInfo(false, column + span >= columns, false, true));
-		gridLayout.setSpacing(false);
-		
 		Component component = (Component) field;
-		component.setWidth((columnWidth * span), Unit.PIXELS);
+		component.setWidth(100, Unit.PERCENTAGE);
 		component.setCaption(caption);
-		gridLayout.addComponent(component, 0, 0);
 		
-		setRows(row+1); // addComponent with these arguments doenst auto grow grid
-		addComponent(gridLayout, column, row, column + span -1, row);
+		setRows(row+1); // addComponent with these arguments doesnt auto grow grid
+		addComponent(component, column, row, column + span -1, row);
 		
 		column += span;
 		if (column >= columns) {
