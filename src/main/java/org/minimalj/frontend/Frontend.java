@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
@@ -46,8 +47,13 @@ public abstract class Frontend {
 		return Frontend.instance != null;
 	}
 
-	public boolean loginAtStart() {
-		return Application.getInstance().isLoginRequired() || Configuration.get("MjLoginAtStart", "false").equals("true");
+	// just a helper method for all frontends. Is it at the right place here?
+	public static boolean loginAtStart() {
+		boolean loginAtStart = Application.getInstance().isLoginRequired() || Configuration.get("MjLoginAtStart", "false").equals("true");
+		if (loginAtStart && !Backend.isAuthorizationActive()) {
+			throw new IllegalStateException("Login required but authorization is not configured!");
+		}
+		return loginAtStart;
 	}
 	
 	/**

@@ -61,7 +61,7 @@ public class FrameManager {
 		final SwingFrame frame = new SwingFrame(subject);
 		frame.setVisible(true);
 		navigationFrames.add(frame);
-		if (subject == null && Frontend.getInstance().loginAtStart()) {
+		if (subject == null && Frontend.loginAtStart()) {
 			SwingFrame.activeFrameOverride = frame;
 			LoginListener listener = new LoginListener() {
 				@Override
