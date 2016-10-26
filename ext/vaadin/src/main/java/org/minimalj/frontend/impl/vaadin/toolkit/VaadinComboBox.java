@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 
-import com.vaadin.ui.Select;
+import com.vaadin.ui.ComboBox;
 
-public class VaadinComboBox<T> extends Select implements Input {
+public class VaadinComboBox<T> extends ComboBox implements Input<T> {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener listener;
@@ -20,20 +22,35 @@ public class VaadinComboBox<T> extends Select implements Input {
 		this.listener = listener;
 		this.objects = objects;
 		updateChoice();
-		addListener(new ComboBoxChangeListener());
+		addValueChangeListener(new ComboBoxChangeListener());
 	}
 
 	private void updateChoice() {
 		removeAllItems();
 		if (setObject != null && !objects.contains(setObject)) {
-			addItem(setObject);
+			add(setObject);
 		}
 		for (Object object : objects) {
-			addItem(object);
+			add(object);
 		}
 	}
 
+	public void add(Object item) {
+		super.addItem(item);
+		if (item instanceof Rendering) {
+			Rendering renderingValue = (Rendering) item;
+			String text = renderingValue.render(RenderType.PLAIN_TEXT);
+			setItemCaption(item, text);
+// 			Tooltip not yet supported. Maybe easy with ItemDescriptionGenerator
+//			String tooltip = renderingValue.renderTooltip(RenderType.PLAIN_TEXT);
+//			if (tooltip != null) {
+//			}
+		}
+
+	}
+	
 	@Override
+	@SuppressWarnings("unchecked")
 	public void setValue(Object object) {
 		if (setObject != null && !setObject.equals(object) || setObject == null && object != null) {
 			this.setObject = (T) object;
@@ -43,8 +60,9 @@ public class VaadinComboBox<T> extends Select implements Input {
 	}
 
 	@Override
-	public Object getValue() {
-		return super.getValue();
+	@SuppressWarnings("unchecked")
+	public T getValue() {
+		return (T) super.getValue();
 	}
 	
 	@Override

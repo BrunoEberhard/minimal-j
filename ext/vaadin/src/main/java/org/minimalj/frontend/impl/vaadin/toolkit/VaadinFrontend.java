@@ -83,7 +83,7 @@ public class VaadinFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new VaadinComboBox(objects, changeListener);
+		return new VaadinComboBox<T>(objects, changeListener);
 	}
 
 	@Override
