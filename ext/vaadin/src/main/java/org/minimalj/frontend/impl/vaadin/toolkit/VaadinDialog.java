@@ -48,6 +48,10 @@ public class VaadinDialog extends Window implements IDialog {
 		}
 	}
 	
+	public Action getSaveAction() {
+		return saveAction;
+	}
+	
 	@Override
 	public void closeDialog() {
 		setVisible(false);

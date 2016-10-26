@@ -5,8 +5,6 @@ import org.minimalj.frontend.Frontend.PasswordField;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.event.ShortcutListener;
 import com.vaadin.ui.HorizontalLayout;
 
 /**
@@ -18,7 +16,6 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 	private static final long serialVersionUID = 1L;
 
 	private TextChangeEvent event;
-	private Runnable commitListener;
 	private final com.vaadin.ui.PasswordField field;
 	
 	public VaadinPasswordField(InputComponentListener changeListener, int maxLength) {
@@ -28,19 +25,8 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 		field.setNullRepresentation("");
 		field.setImmediate(true);
 		if (changeListener != null) {
-			field.addListener(new VaadinTextFieldTextChangeListener(changeListener));
-			field.addShortcutListener(new ShortcutListener("Commit", ShortcutAction.KeyCode.ENTER, null) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void handleAction(Object sender, Object target) {
-					if (target == field) {
-						if (commitListener != null) {
-							commitListener.run();
-						}
-					}
-				}
-			});
+			field.addTextChangeListener(new VaadinTextFieldTextChangeListener(changeListener));
+			field.addShortcutListener(new VaadinTextField.CommitShortcutListener());
 		} else {
 			setReadOnly(true);
 		}
@@ -48,10 +34,6 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 		field.setWidth(100, Unit.PERCENTAGE);
 	}
 
-	public void setCommitListener(Runnable commitListener) {
-		this.commitListener = commitListener;
-	}
-	
 	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
 		private static final long serialVersionUID = 1L;
 		private final InputComponentListener changeListener;

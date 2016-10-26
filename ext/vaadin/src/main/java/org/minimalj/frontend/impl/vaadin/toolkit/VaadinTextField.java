@@ -2,11 +2,14 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.action.Action;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.Component;
 
 /**
  * 
@@ -17,7 +20,6 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements Input<St
 	private static final long serialVersionUID = 1L;
 
 	private TextChangeEvent event;
-	private Runnable commitListener;
 	
 	public VaadinTextField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
@@ -28,26 +30,42 @@ public class VaadinTextField extends com.vaadin.ui.TextField implements Input<St
 		setNullRepresentation("");
 		setImmediate(true);
 		if (changeListener != null) {
-			addListener(new VaadinTextFieldTextChangeListener(changeListener));
-			addShortcutListener(new ShortcutListener("Commit", ShortcutAction.KeyCode.ENTER, null) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void handleAction(Object sender, Object target) {
-					if (target == VaadinTextField.this) {
-						if (commitListener != null) {
-							commitListener.run();
-						}
-					}
-				}
-			});
+			addTextChangeListener(new VaadinTextFieldTextChangeListener(changeListener));
+			addShortcutListener(new CommitShortcutListener());
 		} else {
 			setReadOnly(true);
 		}
 	}
+	
+	static class CommitShortcutListener extends ShortcutListener {
+		private static final long serialVersionUID = 1L;
 
-	public void setCommitListener(Runnable commitListener) {
-		this.commitListener = commitListener;
+		public CommitShortcutListener() {
+			super("Commit", ShortcutAction.KeyCode.ENTER, null);
+		}
+		
+		@Override
+		public void handleAction(Object sender, Object target) {
+			if (target instanceof AbstractTextField) {
+				VaadinDialog dialog = findDialog((AbstractTextField) target);
+				if (dialog != null) {
+					Action saveAction = dialog.getSaveAction();
+					if (saveAction.isEnabled()) {
+						saveAction.action();
+					}						
+				}
+			}
+		}
+	}
+
+	static VaadinDialog findDialog(Component c) {
+		while (c != null) {
+			if (c instanceof VaadinDialog) {
+				return (VaadinDialog) c;
+			}
+			c = c.getParent();
+		}
+		return null;
 	}
 	
 	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
