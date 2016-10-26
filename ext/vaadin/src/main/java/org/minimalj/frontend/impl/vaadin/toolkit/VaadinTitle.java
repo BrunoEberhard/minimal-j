@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import org.minimalj.frontend.Frontend.IComponent;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 
 public class VaadinTitle extends Label implements IComponent {
@@ -9,8 +10,8 @@ public class VaadinTitle extends Label implements IComponent {
 
 	public VaadinTitle(String content) {
 //		content = Util.escapeHTML(content);
-		setContentMode(CONTENT_XHTML);
-		setValue("<h1>" + content + "</h1><hr />");
+		setContentMode(ContentMode.HTML);
+		setValue("<h2>" + content + "</h2><hr />");
 	}
 
 }
