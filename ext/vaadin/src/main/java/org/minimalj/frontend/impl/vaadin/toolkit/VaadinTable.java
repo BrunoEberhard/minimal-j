@@ -49,7 +49,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 		addActionHandler(new VaadinTableActionHandler());
 		
 		tableClickListener = new VaadinTableItemClickListener();
-		addListener(tableClickListener);
+		addItemClickListener(tableClickListener);
 	}
 	
 	@Override
