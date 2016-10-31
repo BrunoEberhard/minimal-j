@@ -10,7 +10,9 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
@@ -26,13 +28,17 @@ import org.minimalj.util.StringUtils;
 import com.github.wolfie.history.HistoryExtension;
 import com.github.wolfie.history.HistoryExtension.PopStateEvent;
 import com.github.wolfie.history.HistoryExtension.PopStateListener;
+import com.vaadin.addon.contextmenu.ContextMenu;
+import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -84,7 +90,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		HorizontalLayout topbar = new HorizontalLayout();
 		outerPanel.addComponent(topbar);
 		outerPanel.setExpandRatio(topbar, 0f);
-		topbar.setHeight("32px");
+		topbar.setHeight("5ex");
 		topbar.setWidth("100%");
 		topbar.setStyleName("topbar");
 		topbar.setSpacing(true);
@@ -100,6 +106,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		outerPanel.setExpandRatio(splitPanel, 1.0f);
 
 		tree = new Tree();
+		tree.setSelectable(false);
 		tree.addItemClickListener(new ItemClickListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -107,7 +114,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 			public void itemClick(ItemClickEvent event) {
 	             Object itemId = event.getItemId();
 	             if (itemId instanceof Action) {
-	            	 ((Action) itemId).action();
+            		 ((Action) itemId).action();
 	             } 
 		     }
 		});
@@ -128,15 +135,17 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 
 	private TextField createSearchField() {
 		TextField textFieldSearch = new TextField();
-        textFieldSearch.setWidth("160px");
+        textFieldSearch.setWidth("30ex");
         textFieldSearch.addShortcutListener(new ShortcutListener("Search", ShortcutAction.KeyCode.ENTER, null) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void handleAction(Object sender, Object target) {
-				String query = textFieldSearch.getValue();
-				Page page = Application.getInstance().createSearchPage(query);
-				show(page);
+				if (target == textFieldSearch) {
+					String query = textFieldSearch.getValue();
+					Page page = Application.getInstance().createSearchPage(query);
+					show(page);
+				}
 			}
 		});
         
@@ -174,6 +183,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	public void loginSucceded(Subject subject) {
 		this.subject = subject;
 		Subject.setCurrent(subject);
+		VaadinService.getCurrentRequest().getWrappedSession().setAttribute("subject", subject);
 		
 		updateNavigation();
 		show(Application.getInstance().createDefaultPage());
@@ -185,6 +195,10 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 			show(new AuthenticationFailedPage());
 		}
 	};
+	
+	public Subject getSubject() {
+		return subject;
+	}
 	
 //	private void updateContent(Component content) {
 //		verticalScrollPane.removeAllComponents();
@@ -273,12 +287,96 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		Component content;
 		if (page != null) {
 			content = (Component) page.getContent();
+			createMenu((AbstractComponent) content, page.getActions());
+			
 			if (content != null) {
 				verticalScrollPane.addComponent(content);
 			}
 		}
 	}
 
+	private ContextMenu createMenu(AbstractComponent parentComponent, List<Action> actions) {
+		if (actions != null && actions.size() > 0) {
+			ContextMenu menu = new ContextMenu(parentComponent, true);
+			addActions(menu, actions);
+			return menu;
+		}
+		return null;
+	}
+
+	private static void addActions(ContextMenu menu, List<Action> actions) {
+		for (Action action : actions) {
+			if (action instanceof ActionGroup) {
+				ActionGroup actionGroup = (org.minimalj.frontend.action.ActionGroup) action;
+				MenuItem subMenu = menu.addItem(actionGroup.getName(), e -> {});
+				addActions(subMenu, actionGroup.getItems());
+			} else if (action instanceof Separator) {
+				menu.addSeparator();
+			} else {
+				adaptAction(menu, action);
+			}
+		}
+	}
+
+	// no common interface between MenuItem and ContextMenu
+	private static void addActions(MenuItem menu, List<Action> actions) {
+		for (Action action : actions) {
+			if (action instanceof ActionGroup) {
+				ActionGroup actionGroup = (org.minimalj.frontend.action.ActionGroup) action;
+				MenuItem subMenu = menu.addItem(actionGroup.getName(), e -> {});
+				addActions(subMenu, actionGroup.getItems());
+			} else if (action instanceof Separator) {
+				menu.addSeparator();
+			} else {
+				adaptAction(menu, action);
+			}
+		}
+	}
+	
+	private static MenuItem adaptAction(MenuItem menu, Action action) {
+		MenuItem item = menu.addItem(action.getName(), e -> {
+			action.action();
+		});
+		action.setChangeListener(new ActionChangeListener() {
+			{
+				update();
+			}
+			
+			@Override
+			public void change() {
+				update();
+			}
+
+			protected void update() {
+				item.setEnabled(action.isEnabled());
+				item.setDescription(action.getDescription());
+			}
+		});
+		return item;
+	}
+
+	private static MenuItem adaptAction(ContextMenu menu, Action action) {
+		MenuItem item = menu.addItem(action.getName(), e -> {
+			action.action();
+		});
+		action.setChangeListener(new ActionChangeListener() {
+			{
+				update();
+			}
+			
+			@Override
+			public void change() {
+				update();
+			}
+
+			protected void update() {
+				item.setEnabled(action.isEnabled());
+				item.setDescription(action.getDescription());
+			}
+		});
+		return item;
+	}
+	
 	private Page getPageAtLevel(int level) {
 		String pageId = state.get(String.valueOf(level));
 		return pageId != null ? pageStore.get(pageId) : null;
