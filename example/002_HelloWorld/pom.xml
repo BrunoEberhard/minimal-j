@@ -16,6 +16,17 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<configuration>
+					<mainClass>org.minimalj.frontend.impl.swing.Swing</mainClass>
+					<arguments>
+						<argument>org.minimalj.example.empty.EmptyApplication</argument>
+					</arguments>
+				</configuration>
+			</plugin>			
 		</plugins>
 		<sourceDirectory>src</sourceDirectory>
 	</build>
