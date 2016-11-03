@@ -1,6 +1,6 @@
 package org.minimalj.frontend.impl.vaadin;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +13,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.action.Separator;
+import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
@@ -40,10 +41,14 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
@@ -69,9 +74,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 			public void popState(PopStateEvent event) {
 				if (event.getStateAsJson() != null) {
 					state = event.getStateAsMap();
-					Page page = getPageAtLevel(0);
-					
-					updateContent(page);				
+					updateContent();				
 				}
 			}
 		};
@@ -276,23 +279,89 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	@Override
 	public void show(Page page) {
 		String pageId = pageStore.put(page);
-		Map<String, String> nextState = Collections.singletonMap("0", pageId);
-		history.pushState(nextState, "");
+		state = new HashMap<>();
+		state.put("0", pageId);
+		history.pushState(state, "");
 		
-		updateContent(page);
+		updateContent();
 	}
 	
-	private void updateContent(Page page) {
-		verticalScrollPane.removeAllComponents();
-		Component content;
-		if (page != null) {
-			content = (Component) page.getContent();
-			createMenu((AbstractComponent) content, page.getActions());
-			
-			if (content != null) {
-				verticalScrollPane.addComponent(content);
+	@Override
+	public void showDetail(Page mainPage, Page detail) {
+		int pos = indexOfDetail(mainPage);
+		for (int j = state.size()-1; j>pos; j--) {
+			state.remove(String.valueOf(j));
+		}
+
+		String detailId = pageStore.put(detail);
+		state.put(String.valueOf(state.size()), detailId);
+
+		updateContent();
+	}
+
+	@Override
+	public void hideDetail(Page detail) {
+		int pos = indexOfDetail(detail);
+		for (int j = state.size()-1; j>=pos; j--) {
+			state.remove(String.valueOf(j));
+		}
+		
+		updateContent();
+	}
+	
+	@Override
+	public boolean isDetailShown(Page detail) {
+		return indexOfDetail(detail) >= 0;
+	}
+
+	private int indexOfDetail(Page detail) {
+		for (int pos = 0; pos < state.size(); pos++) {
+			String id = state.get(String.valueOf(pos)); 
+			Page d = pageStore.get(id);
+			if (d == detail) {
+				return pos;
 			}
 		}
+		return -1;
+	}
+	
+	private void updateContent() {
+		verticalScrollPane.removeAllComponents();
+
+		for (int pos = 0; state.containsKey(String.valueOf(pos)); pos++) {
+			Component content;
+			String pageId = state.get(String.valueOf(pos));
+			Page page = pageStore.get(pageId);
+			content = (Component) page.getContent();
+			createMenu((AbstractComponent) content, page.getActions());
+				
+			if (content != null) {
+				ClickListener closeListener = new ClickListener() {
+					@Override
+					public void buttonClick(ClickEvent event) {
+						hideDetail(page);
+					}
+				};
+				Component decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
+				verticalScrollPane.addComponent(decoratedContent);
+			}
+		}
+	}
+	
+	private static class VaadinDecoration extends VerticalLayout {
+
+		public VaadinDecoration(String title, Component content, boolean showMinimize, ClickListener closeListener) {
+			HorizontalLayout titleBar = new HorizontalLayout();
+			titleBar.addComponent(new Label(title));
+			
+			Button closeButton = new Button("Close");
+			closeButton.addClickListener(closeListener);
+			titleBar.addComponent(closeButton);
+			
+			addComponent(titleBar);
+			addComponent(content);
+		}
+		
 	}
 
 	private ContextMenu createMenu(AbstractComponent parentComponent, List<Action> actions) {
