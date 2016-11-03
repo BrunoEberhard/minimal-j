@@ -1,6 +1,14 @@
+== Topics
+
+* link:doc/setup.adoc[Setup]
+* link:arch.adoc[Architecture] Explains the difference between client/server and frontend/backend
+* link:lists.adoc[Lists] How to use one to many relations in the data model
+* link:ui_content_and_components.adoc[UI details] Content, components and forms
+* link:authorization.adoc[Authorization] Security concepts and configuration
+
 == Examples
 
-The small examples are currently deployed on CloudFoundry as online demo.
+These small examples are currently deployed on CloudFoundry as online demo.
 
 * link:../example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:http://minimalj-examples.cfapps.io/empty/[(online demo)]
 * link:../example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:http://minimalj-examples.cfapps.io/greeting/[(online demo)]
@@ -9,13 +17,6 @@ The small examples are currently deployed on CloudFoundry as online demo.
 * link:../example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used link:http://minimalj-examples.cfapps.io/numbers/[(online demo)]
 * link:../example/006_Persistence/doc/006.adoc[Persistence] Introduction to the O/R mapping
 * link:../example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:http://minimalj-examples.cfapps.io/petClinic/[(online demo)]
-
-== Topics 
-
-* link:arch.adoc[Architecture] Explains the difference between client/server and frontend/backend
-* link:lists.adoc[Lists] How to use one to many relations in the data model
-* link:ui_content_and_components.adoc[UI details] Content, components and forms
-* link:authorization.adoc[Authorization] Security concepts and configuration
 
 == Real applications (german)
 * http://www.openech.ch/[Open-eCH]. Source Code available on https://github.com/BrunoEberhard/open-ech[github].

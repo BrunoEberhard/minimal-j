@@ -22,14 +22,15 @@ Minimal applications may not always look the same. But the UI concepts never cha
 * ORM persistence layer for Maria DB or in memory DB. Transactions and Authorization supported.
 * Small: The minimalj.jar is still < 1MB
 * Very few dependencies
-* Applications run standalone or in a servlet container.
+* Applications can run standalone (like SpringBoot)
 
 == Documentation
 
-* link:doc/user_guide/user_guide.adoc[Minimal user guide] Good starting point for user and programmer.
-* link:doc/setup.adoc[Setup]
-* link:doc/release_notes.adoc[Release Notes]
+* link:doc/user_guide/user_guide.adoc[Minimal user guide] Good starting point for users and developers.
 * link:doc/topics.adoc[Tutorial and examples]
+* link:doc/release_notes.adoc[Release Notes]
+* link:http://javadoc.io/doc/org.minimalj/minimalj/[Browse API]
+
 
 === Contact
 

@@ -1,9 +1,8 @@
-== Setup
+= Setup
 
-=== Java 8
+== Java 8
 
-Minimal-J is based on Java 8. Even if the new language constructs aren't used much yet
-there are some jdk classes which are needed. For example LocalDate.
+Minimal-J is based on Java 8.
 
 For information about Java and the download of Java see http://java.oracle.com/ . But be aware that you also need
 good Java knowledge to use Minimal-J. It's a good idea to learn java by a specific book
@@ -11,17 +10,18 @@ before using Minimal-J. Minimal-J uses Java somehow different than other framewo
 as I like that maybe you should know about how it's used elsewhere before learning
 the _minimal_ way.
 
-=== Example
+== Maven 3
 
-You find the examples on https://github.com/BrunoEberhard/minimal-j/tree/master/example[github]
-in the example directory. For an easy starts it's best to grab the empty application and
-try the stuff explained here and then fill it with your own ideas.
+Minimal-J uses maven 3 as building tool. You can download maven from https://maven.apache.org/ .
 
-=== Maven
+== Eclipse / IDE
 
-Minimal-J is built with maven and uploaded to the mvnrepository. If you have installed
-maven (see https://maven.apache.org/ ) you can download the needed jar automatically by putting
-the dependency in the pom.xml of your project.
+Of course Minimal-J can be used with every IDE. Personally I use eclipse. Most of the screenshots
+will show eclipse. You can download the latest version of eclipse from https://www.eclipse.org/ .
+
+= Create new project
+
+== Minimal-J dependency
 
 ----
 <dependency>
