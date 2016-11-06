@@ -203,55 +203,6 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		return subject;
 	}
 	
-//	private void updateContent(Component content) {
-//		verticalScrollPane.removeAllComponents();
-//		verticalScrollPane.addComponent(content);
-//
-//		if (content instanceof Table) {
-//			this.content = content;
-//			windowContent.addComponent(content);
-//			windowContent.setExpandRatio(content, 1);
-//			this.content.setSizeFull();
-//		} else if (content != null) {
-//			if (content instanceof FormContent) {
-//				content = createFormAlignLayout(content);
-//			}
-//			verticalScrollPane.removeAllComponents();
-//			verticalScrollPane.addComponent(content);
-//			this.content = verticalScrollPane;
-//			windowContent.addComponent(verticalScrollPane);
-//			windowContent.setExpandRatio(verticalScrollPane, 1);
-//			this.content.setSizeFull();
-//		} else {
-//			this.content = null;
-//		}
-//		
-//		updateWindowTitle();
-//	}
-//	
-//	private Component createFormAlignLayout(Component content) {
-//		VaadinGridLayout gridLayout = new VaadinGridLayout(3, 3);
-//		gridLayout.setMargin(false);
-//		gridLayout.setStyleName("gridForm");
-//		gridLayout.setSizeFull();
-//		gridLayout.addComponent(content, 1, 1);
-//		gridLayout.setRowExpandRatio(0, 0.1f);
-//		gridLayout.setRowExpandRatio(1, 0.7f);
-//		gridLayout.setRowExpandRatio(2, 0.2f);
-//		gridLayout.setColumnExpandRatio(0, 0.3f);
-//		gridLayout.setColumnExpandRatio(1, 0.0f);
-//		gridLayout.setColumnExpandRatio(2, 0.7f);
-//		return gridLayout;
-//	}
-//	
-//	private class VaadinGridLayout extends GridLayout implements IContent {
-//		private static final long serialVersionUID = 1L;
-//
-//		public VaadinGridLayout(int columns, int rows) {
-//			super(columns, rows);
-//		}
-//	}
-
 	@Override
 	public void showMessage(String text) {
 		com.vaadin.ui.Notification.show(text,
@@ -451,65 +402,6 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		return pageId != null ? pageStore.get(pageId) : null;
 	}
 	
-//	@Override
-//	public void showDetail(Page mainPage, Page detail) {
-//		/* TODO check if detail is already displayed. If yes only update title and content 
-//		int index = visiblePageAndDetailsList.indexOf(detail);
-//		if (index > -1) {
-//			SwingDecoration decoration = (SwingDecoration) verticalPanel.getComponents()[index];
-//			decoration.setTitle(detail.getTitle());
-//			decoration.setContentVisible();
-//			return;
-//		}
-//		*/
-//		int level = 0;
-//		Page page;
-//		do {
-//			page = getPageAtLevel(level++);
-//		} while (page != mainPage && page != null);
-//		
-//		do {
-//			page = getPageAtLevel(level++);
-//			
-//			
-//		}
-//		
-//		removeDetailsOf(mainPage);
-//		addPageOrDetail(detail);
-//
-//		history.addQuiet(new ArrayList<>(visiblePageAndDetailsList));
-//	}
-//	
-//	private void addPageOrDetail(Page page) {
-//		visiblePageAndDetailsList.add(page);
-//		ActionListener closeListener = null;
-//		if (visiblePageAndDetailsList.size() > 1) {
-//			closeListener = new ActionListener() {
-//				@Override
-//				public void actionPerformed(ActionEvent e) {
-//					hideDetail(page);
-//				}
-//			};
-//		}
-//	
-//		Component content = (Component) page.getContent();
-//		if (content != null) {
-//			content.add
-//			JPopupMenu menu = createMenu(page.getActions());
-//			content.setComponentPopupMenu(menu);
-//			setInheritMenu(content);
-//		} else {
-//			content = new Panel();
-//		}
-//
-//		SwingDecoration newPage = new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
-//		verticalPanel.add(newPage, "");
-//		verticalPanel.revalidate();
-//
-//		SwingUtilities.invokeLater(() -> limitOpenPages(newPage));
-//	}
-
-	
 	@Override
 	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
 		Component component = new VaadinEditorLayout(content, actions);
@@ -521,53 +413,4 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	void onHistoryChanged() {
-		updateWindowTitle();
-//		updateActions();
-//		toolBar.onHistoryChanged();
-//		frame.onHistoryChanged();
-	}
-	
-//	private IAction[] wrapActions(IAction[] actions) {
-//		IAction[] wrappedActions = new IAction[actions.length];
-//		for (int i = 0; i<actions.length; i++) {
-//			wrappedActions[i] = new VaadinActionWrapper(actions[i]);
-//		}
-//		return wrappedActions;
-//	}
-//	
-//	public class VaadinActionWrapper implements IAction {
-//
-//		private final IAction action;
-//
-//		public VaadinActionWrapper(IAction action) {
-//			this.action = action;
-//		}
-//
-//		public void action() {
-//			ApplicationContext.setApplicationContext(VaadinWindow.this.applicationContext);
-//			action.action();
-//		}
-//
-//		@Override
-//		public String getName() {
-//			return action.getName();
-//		}
-//
-//		@Override
-//		public String getDescription() {
-//			return action.getDescription();
-//		}
-//
-//		@Override
-//		public boolean isEnabled() {
-//			return action.isEnabled();
-//		}
-//
-//		@Override
-//		public void setChangeListener(ActionChangeListener changeListener) {
-//			action.setChangeListener(changeListener);
-//		}
-//	}
 }
