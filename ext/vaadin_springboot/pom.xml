@@ -34,6 +34,12 @@
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj_vaadin</artifactId>
 			<version>[0.0.1-SNAPSHOT,)</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin-client</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
