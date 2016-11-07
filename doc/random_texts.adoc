@@ -19,17 +19,6 @@ need to be in JavaScript. This layer cannot be omitted. I tried but as long as t
 needed to extend die Frontends component class. This form layer contains a lot of business logic and should really be able to
 rely on a static type checking.
 
-=== What about the Vaadin frontend?
-
-In previous versions a Vaadin frontend was included. But it was Vaadin 6 which soon will be not supported anymore. The
-migration to Vaadin 7 would have needed quite an effort. As the Vaadin frontend essentially has the same goal as the
-Json / Web frontend I didn't want to spend the needed time.
-
-Vaadin 7 splits the one jar that Vaadin 6 had as dependency in a bunch of dependencies. This is another reason why
-I hesitated to mirgrate.
-
-And finally the whole Vaadin technology is an overkill for the small part Minimal-J needs.
-
 === What about the Android frontend?
 
 The Android frontend implement a year ago by Marco Musolf may be reactivated some time later. At the moment I want to focus
