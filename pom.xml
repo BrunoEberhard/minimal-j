@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>1.1.0.0-SNAPSHOT</version>
+	<version>1.1.0.0</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -144,7 +144,7 @@
 		</testResources>
 	</build>
 	<dependencies>
-		<!-- nanohttpd could be marked as optional. But that's very annoying for beginners -->
+		<!-- nanohttpd could be marked as optional or in provided scope. But that's very annoying for beginners -->
 		<!-- It's a small jar and if you really don't need it in your project exclude it -->
 		<dependency>
 			<groupId>org.nanohttpd</groupId>
@@ -152,7 +152,6 @@
 			<version>2.3.0</version>
 		</dependency>
 		
-		<!-- all jdbc server and the apache db should be included by the projects -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
