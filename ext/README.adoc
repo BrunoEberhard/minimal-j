@@ -1,0 +1,25 @@
+= Ext projects
+
+The projects in this folder are special extension to Minimal-J. They may be incomplete or their
+code is not as clean as the core of Minimal-J. I simply don't have the resources to keep everything
+in a perfect state. Still these projects may be useful or provide a hint of what is possible with
+Minimal-J.
+
+The ext projets are not released to a maven repository and don't have a release management yet.
+
+== servlet
+
+This project allows to deploy Minimal-J applictions to a java application server like tomcat,
+
+== vaadin_springboot
+
+This is a frontend implemented in vaadin. It doesn't provide much more value as the web based
+fronted included in Minimal-J. But certain aspects look a little bit better.
+
+== vaadin_servlet
+
+Same as vaadin_springboot but to be deployed as servlet.
+
+== lanterna
+
+A terminal based frontend. Nice showcase but quite incomplete.
