@@ -250,8 +250,8 @@ to retrieve some simple data.
 I hope you don't think Minimal-J will leave you to work with plain JDBC. Far from that. You will get quite some support for your complex queries. Let's look
 at some code from a test class:
 [source,java]
-----	
-	@Test
+----
+@Test
 	public void testQuery() {
 		G g = new G("testName1");
 		persistence.insert(g);
