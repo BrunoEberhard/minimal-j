@@ -26,10 +26,9 @@ Minimal applications may not always look the same. But the UI concepts never cha
 
 == Documentation
 
-* link:doc/user_guide/user_guide.adoc[Minimal user guide] Good starting point for users and developers.
-* link:doc/topics.adoc[Tutorial and examples]
+* link:doc/user_guide/user_guide.adoc[Minimal user guide] User guide for Minimal-J applications.
+* link:doc/topics.adoc[Tutorial and examples] Informations for developers.
 * link:doc/release_notes.adoc[Release Notes]
-* link:http://javadoc.io/doc/org.minimalj/minimalj/[Browse API]
 
 
 === Contact

@@ -18,6 +18,9 @@ These small examples are currently deployed on CloudFoundry as online demo.
 * link:../example/006_Persistence/doc/006.adoc[Persistence] Introduction to the O/R mapping
 * link:../example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:http://minimalj-examples.cfapps.io/petClinic/[(online demo)]
 
+== API
+* link:http://javadoc.io/doc/org.minimalj/minimalj/[Browse API]
+
 == Real applications (german)
 * http://www.openech.ch/[Open-eCH]. Source Code available on https://github.com/BrunoEberhard/open-ech[github].
 * https://openech-taxstatement.herokuapp.com/[eCH 0196 implementation]. Source Code on https://github.com/BrunoEberhard/open-ech-taxstatement[github].
