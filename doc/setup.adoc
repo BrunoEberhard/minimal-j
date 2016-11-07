@@ -10,18 +10,23 @@ before using Minimal-J. Minimal-J uses Java somehow different than other framewo
 as I like that maybe you should know about how it's used elsewhere before learning
 the _minimal_ way.
 
-== Maven 3
-
-Minimal-J uses maven 3 as building tool. You can download maven from https://maven.apache.org/ .
-
 == Eclipse / IDE
 
 Of course Minimal-J can be used with every IDE. Personally I use eclipse. Most of the screenshots
 will show eclipse. You can download the latest version of eclipse from https://www.eclipse.org/ .
 
+== Maven 3
+
+Minimal-J uses maven 3 as building tool. In newer eclipse versions maven is already included. If
+your IDE has not built in support for maven ou can download maven from https://maven.apache.org/ .
+
 = Create new project
 
+To start a new project simply use the eclipse wizard to create a new maven project.
+
 == Minimal-J dependency
+
+Now you have to add the dependency to Minimal-J in the newly created pom.xml:
 
 ----
 <dependency>
@@ -31,7 +36,11 @@ will show eclipse. You can download the latest version of eclipse from https://w
 </dependency>
 ----
 
-If look in the pom.xml of Minimal-J you see that there are some dependencies to 3rd party
+Of course you should replace the version with the newest available.
+
+=== Dependency for Memory DB
+
+If you look in the pom.xml of Minimal-J you see that there are some dependencies to 3rd party
 libraries. For example:
 
 ----
@@ -46,17 +55,10 @@ libraries. For example:
 The apache derby db is used if you want to store your data only in the JVM memory. Have you
 noted the scope _provided_? This means that this dependency is not passed to projects with
 a dependency to Minimal-J. If you want to use the in memory feature you have to add the
-dependency to your project! On the other side if you don't use the feature you don't have
+dependency to your own project. On the other side if you don't use the feature you don't have
 to bother about anything from derby db.
 
-At the moment there a few dependencies you can copy from den Minimal-J pom.xml. Of course
-you have to remove the provided scope when doing this.
-
-* Derby DB (with driver)
-* The Maria DB JDBC driver
-* Lanterna (Terminal UI)
-
-=== Build
+= Build
 
 You can build your project in the usual maven way
 
@@ -64,7 +66,7 @@ You can build your project in the usual maven way
 mvn clean install
 ----
 
-=== Start
+= Start
 
 Then you can start your application with a frontend of your choice. But for some frontend
 some preparations must be done. To deploy on web server a WEB-INF directory with a proper web.xml must be configured. Swing and HTML (Json) frontend works out of the box.
@@ -87,7 +89,8 @@ Most of the frontends are started like this.
 
 === Start configuration in pom.xml
 
-The command shell parameters above could also be specified in the pom.xml of your project. This saves you typos and makes it more clear how the application should be
+The command shell parameters above could also be specified in the pom.xml of your project.
+This saves you typos and makes it more clear how the application should be
 started. You do it by adding the exec maven plugin to the build:
 
 ----
@@ -118,56 +121,38 @@ started. You do it by adding the exec maven plugin to the build:
 Now you also can start the application from your ide without further configuration.
 link:http://stackoverflow.com/questions/6079253/running-maven-exec-plugin-inside-eclipse[Stackoverflow] explains how to do this.
 
-=== Run as servlet
+== Run as servlet
 
-You really don't need a complete application server to run Minimal-J applications. Still you can do it by configuring the
-web.xml for your project like this:
+You really don't need a complete application server to run Minimal-J applications. But maybe you are
+not able to run standalone applications because your infrastructure only allows to deploy web applications.
+
+There is a special artifact to needed if you want your Minimal-J application to be a servlet. So you can replace
+your dependency to Minimal-J with this one:
+
+----
+<dependency>
+	<groupId>org.minimalj</groupId>
+	<artifactId>minimalj_servlet</artifactId>
+	<version>1.0.0.0</version>
+</dependency>
+----
+
+=== Parameters for servlets
+
+If you start your application as a servlet you cannot pass System parameters to configure your Application.
+But you can provide a context.xml containing your parameters:
 
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	id="WebApp_ID" version="2.5">
-	<display-name>Hello World</display-name>
-	<servlet>
-		<servlet-name>HelloWorld</servlet-name>
-		<servlet-class>org.minimalj.frontend.impl.servlet.MjServlet</servlet-class>
-		<init-param>
-			<description>Minimal-J application class to start</description>
-			<param-name>Application</param-name>
-			<param-value>org.minimalj.example.helloworld.HelloWorldApplication</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>HelloWorld</servlet-name>
-		<url-pattern>/*</url-pattern>
-	</servlet-mapping>
-</web-app>
+<Context>
+	<Parameter name="MjDevMode" value="true" override="true" />
+	<Parameter name="MjSqlDatabase" value="mydb" override="true" />
+</Context>
 ----
 
-All the things that you can with the parameters when you start the application directly you can do by adding the
-parameters as init-param. The MjServlet will simply copy all the init-param to system properties (see copyPropertiesFromServletConfigToSystem in MjServlet).
+This file has to be in the META-INF folder of your web application.
 
-==== MjWebSocketServlet
+== Run with Springboot
 
-There is also a class named MjWebSocketServlet in Minimal-J. This provides the WebSocket server if you want to run the web front end not
-with the ajax protocol but with WebSockets. Put these lines in your web.xml to activate WebSocket:
-
-----
-		<init-param>
-			<description>The web front end should us WebSocket for communication</description>
-			<param-name>MjUseWebSocket</param-name>
-			<param-value>true</param-value>
-		</init-param>
-----
-
-As you see in the class MjWebSocketServlet the configuration of the WebSocket server is done by annotation. So you don't
-need to add another servlet in the web.xml.
-
-Note that the MjWebSocketServlet is not started if there is the 'javax.websocket-api.jar' deployed with your web app see 
-http://stackoverflow.com/questions/21852459/tomcat-7-0-50-java-webscoket-implementation-gives-404-error[stackoverflow].
-In my workspace the websocket-api jar is deployed even as I set the dependency to provided. In this case you have to set
-the included jar for the web application manually.
-
-This applies only for the WebSocket protocol. The ajax protocol will run out of the box.
+You may have found the springboot project in the ext folder. This can only be used if you want to
+use Vaadin as frontend.
