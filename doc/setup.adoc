@@ -68,9 +68,12 @@ mvn clean install
 
 = Start
 
-Then you can start your application with a frontend of your choice. But for some frontend
-some preparations must be done. To deploy on web server a WEB-INF directory with a proper web.xml must be configured. Swing and HTML (Json) frontend works out of the box.
+Then you can start your application with a frontend of your choice. For some frontend
+some preparations must be done. Swing and HTML (Json) frontend works out of the box.
 This is the reason why I like to start my applications with these frontend so much. You don't need a tomcat and/or all the JEE stuff.
+
+Standalone frontends provide a class with a main method. These classes need the class name of
+your application as argument.
 
 You can put together a correct classpath by yourself or you can delegate this to maven
 by using the exec plugin
