@@ -36,6 +36,7 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.MarginInfo;
@@ -49,6 +50,7 @@ import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
@@ -64,9 +66,11 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	private final PageStore pageStore = new PageStore();
 	private Map<String, String> state; // position -> page id
 
+	private HorizontalSplitPanel splitPanel;
 	private VerticalLayout verticalScrollPane;
 	
 	private Tree tree;
+	private float lastSplitPosition = -1;
 	
 	public Vaadin() {
 		PopStateListener myPopStateListener = new PopStateListener() {
@@ -99,12 +103,37 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		topbar.setSpacing(true);
 		topbar.setMargin(new MarginInfo(false, true, false, false));
 
+		Button buttonNavigation = new Button(FontAwesome.NAVICON);
+		buttonNavigation.addClickListener(e -> {
+			if (lastSplitPosition > -1) {
+				if (lastSplitPosition < 100) {
+					lastSplitPosition = 200;
+				}
+				splitPanel.setSplitPosition(lastSplitPosition);
+				lastSplitPosition = -1;
+			} else {
+				lastSplitPosition = splitPanel.getSplitPosition();
+				splitPanel.setSplitPosition(0);
+			}
+		});
+		topbar.addComponent(buttonNavigation);
+		topbar.setComponentAlignment(buttonNavigation, Alignment.MIDDLE_LEFT);
+
+		Button buttonLogin = new Button(FontAwesome.SIGN_IN);
+		buttonLogin.addClickListener(e -> new LoginAction(this).action());
+		topbar.addComponent(buttonLogin);
+		topbar.setComponentAlignment(buttonLogin, Alignment.MIDDLE_LEFT);
+		
+		Panel panel = new Panel();
+		topbar.addComponent(panel);
+		topbar.setExpandRatio(panel, 1.0f);
+		
 		TextField textFieldSearch = createSearchField();
 		textFieldSearch.setEnabled(Application.getInstance().hasSearchPages());
 		topbar.addComponent(textFieldSearch);
 		topbar.setComponentAlignment(textFieldSearch, Alignment.MIDDLE_RIGHT);
 		
-		HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
+		splitPanel = new HorizontalSplitPanel();
 		outerPanel.addComponent(splitPanel);
 		outerPanel.setExpandRatio(splitPanel, 1.0f);
 
@@ -300,14 +329,20 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	}
 	
 	private static class VaadinDecoration extends VerticalLayout {
+		private static final long serialVersionUID = 1L;
 
 		public VaadinDecoration(String title, Component content, boolean showMinimize, ClickListener closeListener) {
 			HorizontalLayout titleBar = new HorizontalLayout();
-			titleBar.addComponent(new Label(title));
+			titleBar.setWidth("100%");
+			Label label = new Label(title);
+			titleBar.addComponent(label);
+			titleBar.setComponentAlignment(label, Alignment.MIDDLE_LEFT);
+			titleBar.setExpandRatio(label, 1.0f);
 			
-			Button closeButton = new Button("Close");
+			Button closeButton = new Button(FontAwesome.CLOSE);
 			closeButton.addClickListener(closeListener);
 			titleBar.addComponent(closeButton);
+			titleBar.setComponentAlignment(closeButton, Alignment.MIDDLE_RIGHT);
 			
 			addComponent(titleBar);
 			addComponent(content);
