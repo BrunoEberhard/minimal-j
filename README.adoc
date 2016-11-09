@@ -34,9 +34,9 @@ Minimal applications may not always look the same. But the UI concepts never cha
 
 How to implement Hello World in Minimal-J:
 
-[![Minimal-J - Hello World](http://img.youtube.com/vi/0VHz7gv6TpA/0.jpg)](http://www.youtube.com/watch?v=0VHz7gv6TpA)
+![Minimal-J - Hello World](http://img.youtube.com/vi/0VHz7gv6TpA/0.jpg)
 
-[![Everything Is AWESOME](http://img.youtube.com/vi/StTqXEQ2l-Y/0.jpg)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Everything Is AWESOME")
+[![Minimal-J - Hello World](http://img.youtube.com/vi/0VHz7gv6TpA/0.jpg)](http://www.youtube.com/watch?v=0VHz7gv6TpA)
 
 === Contact
 
