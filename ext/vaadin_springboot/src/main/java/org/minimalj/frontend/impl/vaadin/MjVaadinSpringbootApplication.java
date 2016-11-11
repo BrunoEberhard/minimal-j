@@ -9,11 +9,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MjVaadinSpringbootApplication {
 
+	private static void start() {
+		Frontend.setInstance(new VaadinFrontend());
+		SpringApplication.run(MjVaadinSpringbootApplication.class);
+	}
+	
+	public static void start(Application application) {
+		Application.setInstance(application);
+		start();
+	}
+	
 	public static void main(String... args) {
 		Application.initApplication(args);
-		Frontend.setInstance(new VaadinFrontend());
-		
-		SpringApplication.run(MjVaadinSpringbootApplication.class, args);
+		start();
 	}
 	
 }
