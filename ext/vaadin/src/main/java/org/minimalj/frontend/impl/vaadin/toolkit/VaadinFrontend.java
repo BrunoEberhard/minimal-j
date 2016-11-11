@@ -267,13 +267,9 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinPasswordField(changeListener, maxLength);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.minimalj.frontend.Frontend#createImage(org.minimalj.frontend.Frontend.Size, org.minimalj.frontend.Frontend.InputComponentListener)
-	 */
 	@Override
 	public Input<byte[]> createImage(Size size, InputComponentListener changeListener) {
-		// TODO Auto-generated method stub
-		return null;
+		return new VaadinImage(size, changeListener);
 	}
 
 	/* (non-Javadoc)
