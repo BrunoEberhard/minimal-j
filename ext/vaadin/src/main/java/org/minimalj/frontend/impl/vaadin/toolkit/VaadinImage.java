@@ -9,7 +9,6 @@ import java.nio.file.Files;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.frontend.Frontend.Size;
 
 import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
@@ -24,7 +23,7 @@ public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[
 
 	private final InputComponentListener changeListener;
 	
-	private final Size size;
+	private final int size;
 
 	private Image image;
 	private Upload upload;
@@ -33,13 +32,13 @@ public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[
 	private File uploadFile;
 	private byte[] imageData;
 	
-	public VaadinImage(Size size, InputComponentListener changeListener) {
+	public VaadinImage(int size, InputComponentListener changeListener) {
 		super(3, 1);
 		this.changeListener = changeListener;
 		this.size = size;
 		
 		image = new Image();
-		image.setHeight(size == Size.LARGE ? 30 : (size == Size.MEDIUM ? 9 : 3), Unit.EM);
+		image.setHeight(size * 3, Unit.EM);
 		addComponent(image, 0, 0);
 		
 		upload = new Upload();

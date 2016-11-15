@@ -21,14 +21,13 @@ import javax.swing.SwingConstants;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.frontend.Frontend.Size;
 
 public class SwingImage extends JPanel implements Input<byte[]> {
 	private static final long serialVersionUID = 1L;
 
 	private final InputComponentListener changeListener;
 	
-	private final Size size;
+	private final int size;
 
 	private final JLabel image;
 	
@@ -39,7 +38,7 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 	private byte[] imageData;
 	private ImageIcon icon;
 	
-	public SwingImage(Size size, InputComponentListener changeListener) {
+	public SwingImage(int size, InputComponentListener changeListener) {
 		super(new BorderLayout(6, 0));
 		this.changeListener = changeListener;
 		this.size = size;
@@ -124,13 +123,7 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 		if (icon != null) {
 			JTextField textField = new JTextField();
 			int textFieldHeight = textField.getPreferredSize().height;
-			if (size == Size.SMALL) {
-				d.height = textFieldHeight;
-			} else if (size == Size.MEDIUM) {
-				d.height = textFieldHeight * 3;
-			} else if (size == Size.LARGE) {
-				d.height = textFieldHeight * 10;
-			}
+			d.height = textFieldHeight * size;
 		}
 		return d;
 	}

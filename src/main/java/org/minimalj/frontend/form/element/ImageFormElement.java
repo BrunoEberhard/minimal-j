@@ -4,15 +4,18 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.frontend.Frontend.Size;
 
 public class ImageFormElement extends AbstractFormElement<byte[]> {
 
 	private final Input<byte[]> input;
-	
+
 	public ImageFormElement(Object key) {
+		this(key, 3);
+	}
+	
+	public ImageFormElement(Object key, int size) {
 		super(key);
-		input = Frontend.getInstance().createImage(Size.MEDIUM, new ImageFieldChangeListener());
+		input = Frontend.getInstance().createImage(size, new ImageFieldChangeListener());
 	}
 
 	@Override

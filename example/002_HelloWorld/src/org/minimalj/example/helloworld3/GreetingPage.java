@@ -4,7 +4,6 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Input;
-import org.minimalj.frontend.Frontend.Size;
 import org.minimalj.frontend.page.Page;
 
 public class GreetingPage extends Page {
@@ -25,7 +24,7 @@ public class GreetingPage extends Page {
 		FormContent form = Frontend.getInstance().createFormContent(1, 100);
 		form.add(Frontend.getInstance().createText("Hello " + user.name));
 		if (user.image != null) {
-			Input<byte[]> image = Frontend.getInstance().createImage(Size.LARGE, null);
+			Input<byte[]> image = Frontend.getInstance().createImage(10, null);
 			image.setValue(user.image);
 			form.add(image);
 		}

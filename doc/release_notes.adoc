@@ -3,6 +3,7 @@
 Every release contains many small fixes.
 
 === next
+* Frontend: replace special Size class with a simple integer (API change)
 
 === 1.1.0.0
 * Configuration: specify all configuration properties in a config file
