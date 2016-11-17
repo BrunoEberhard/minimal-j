@@ -34,8 +34,8 @@ public class TextFileAuthorization extends PersistenceAuthorization {
 			String[] split = passwordAndRoles.split(",");
 
 			User user = new User();
-			user.hash = Base64.getDecoder().decode(split[0].trim());
-			user.salt = Base64.getDecoder().decode(split[1].trim());
+			user.password.hash = Base64.getDecoder().decode(split[0].trim());
+			user.password.salt = Base64.getDecoder().decode(split[1].trim());
 			
 			for (int i = 2; i<split.length; i++) {
 				user.roles.add(new UserRole(split[i].trim()));
@@ -60,7 +60,7 @@ public class TextFileAuthorization extends PersistenceAuthorization {
 		}
 		User user = new User();
 		user.name = args[0];
-		user.setPassword(args[1].toCharArray());
+		user.password.setPassword(args[1].toCharArray());
 		for (int i = 2; i<args.length; i++) {
 			user.roles.add(new UserRole(args[i].trim()));
 		}

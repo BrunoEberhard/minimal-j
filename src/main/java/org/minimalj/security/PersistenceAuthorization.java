@@ -28,10 +28,6 @@ public class PersistenceAuthorization extends Authorization {
 		this.authorizationPersistence = authorizationPersistence;
 	}
 	
-	public PersistenceAuthorization(DataSource dataSource) {
-		this.authorizationPersistence = new SqlPersistence(dataSource, User.class);
-	}
-
 	protected PersistenceAuthorization() {
 		this.authorizationPersistence = null;
 	}
@@ -43,7 +39,7 @@ public class PersistenceAuthorization extends Authorization {
 			return null;
 		}
 		User user = userList.get(0);
-		if (!user.validatePassword(userPassword.password)) {
+		if (!user.password.validatePassword(userPassword.password)) {
 			return null;
 		}
 		List<String> roleNames = user.roles.stream().map((role) -> role.name).collect(Collectors.toList());
@@ -54,25 +50,20 @@ public class PersistenceAuthorization extends Authorization {
 		return authorizationPersistence.read(User.class, By.field(User.$.name, userName), 1);
 	}
 
-	public static class User implements Serializable {
+	public static class Password implements Serializable {
 		private static final long serialVersionUID = 1L;
-		public static final User $ = Keys.of(User.class);
+		public static final Password $ = Keys.of(Password.class);
 		
 		public static final String HASH_ALGORITHM = "PBKDF2WithHmacSHA1";
 		public static final int HASH_ITERATIONS = 1000;
 		public static final int HASH_SIZE = 24;
 		public static final int SALT_SIZE = 24;
 		
-		@Size(255)
-		public String name;
-		
 		@Size(HASH_SIZE)
 		public byte[] hash;
 
 		@Size(SALT_SIZE)
 		public byte[] salt;
-		
-		List<UserRole> roles = new ArrayList<>();
 		
 		public void setPassword(char[] password) {
 			salt = new byte[SALT_SIZE];
@@ -101,12 +92,26 @@ public class PersistenceAuthorization extends Authorization {
 				throw new RuntimeException("Hashing not possible", e);
 			}
 		}
+	}
+
+	public static class User implements Serializable {
+		private static final long serialVersionUID = 1L;
+		public static final User $ = Keys.of(User.class);
+		
+		public Object id;
+		
+		@Size(255)
+		public String name;
+		
+		public final Password password = new Password();
+		
+		public List<UserRole> roles = new ArrayList<>();
 		
 		public String format() {
 			StringBuilder s = new StringBuilder();
 			s.append(name).append(" = ");
-			s.append(Base64.getEncoder().encodeToString(hash)).append(", ");
-			s.append(Base64.getEncoder().encodeToString(salt));
+			s.append(Base64.getEncoder().encodeToString(password.hash)).append(", ");
+			s.append(Base64.getEncoder().encodeToString(password.salt));
 			for (UserRole role : roles) {
 				s.append(", ").append(role.name);
 			}
