@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.minimalj.security.model.User;
+import org.minimalj.security.model.UserRole;
+
 public class TextFileAuthorization extends PersistenceAuthorization {
 
 	private Map<String, User> userByName = new HashMap<>();
@@ -53,6 +56,11 @@ public class TextFileAuthorization extends PersistenceAuthorization {
 		}
 	}
 
+	/**
+	 * Can be used to create entries in the users textfile
+	 * 
+	 * @param args username and password
+	 */
 	public static void main(String[] args) {
 		if (args.length < 2) {
 			System.err.println("Two arguments needed as username and password");

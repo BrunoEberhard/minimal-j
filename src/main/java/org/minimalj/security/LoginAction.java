@@ -10,6 +10,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.PasswordFormElement;
+import org.minimalj.security.model.UserPassword;
 
 public class LoginAction extends Editor<UserPassword, Subject> {
 

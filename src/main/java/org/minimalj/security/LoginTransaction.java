@@ -2,6 +2,7 @@ package org.minimalj.security;
 
 import java.util.Objects;
 
+import org.minimalj.security.model.UserPassword;
 import org.minimalj.transaction.Transaction;
 
 public class LoginTransaction implements Transaction<Subject> {

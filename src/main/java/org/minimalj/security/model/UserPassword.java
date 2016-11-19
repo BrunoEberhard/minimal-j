@@ -1,14 +1,10 @@
-package org.minimalj.security;
-
-import java.io.Serializable;
+package org.minimalj.security.model;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
 
-public class UserPassword implements Serializable {
-	private static final long serialVersionUID = 1L;
-	
+public class UserPassword {
 	public static final UserPassword $ = Keys.of(UserPassword.class);
 
 	@Size(255) @NotEmpty

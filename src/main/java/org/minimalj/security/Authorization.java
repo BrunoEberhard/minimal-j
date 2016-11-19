@@ -12,6 +12,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.Grant.Privilege;
 import org.minimalj.persistence.Persistence;
+import org.minimalj.security.model.UserPassword;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
@@ -131,26 +132,24 @@ public abstract class Authorization {
 		return subject != null ? subject.getRoles() : Collections.emptyList();
 	}
 	
-	/**
-	 * @param userPassword UserPassword
-	 * @return null if login failed, empty list if user has no roles
-	 */
-	protected abstract List<String> retrieveRoles(UserPassword userPassword);
-
-	public Subject login(UserPassword userPassword) {
-		List<String> roles = retrieveRoles(userPassword);
-		if (roles != null) {
-			Subject subject = new Subject();
-			subject.setName(userPassword.user);
-			subject.getRoles().addAll(roles);
-			UUID token = UUID.randomUUID();
-			subject.setToken(token);
-			userByToken.put(token, subject);
-			return subject;
-		} else {
-			return null;
-		}
+	public Subject createSubject(String name) {
+		Subject subject = new Subject();
+		subject.setName(name);
+		UUID token = UUID.randomUUID();
+		subject.setToken(token);
+		userByToken.put(token, subject);
+		return subject;
 	}
+
+	/**
+	 * An implementation can decide to provide more methods than just login,
+	 * for example for a requested SMS. <code>createSubject</code> should be used
+	 * to create and register the returned <code>Subject</code>.
+	 * 
+	 * @param userPassword input by user
+	 * @return Subject created with createSubject method and filled with state and roles
+	 */
+	protected abstract Subject login(UserPassword userPassword);
 
 	public void logout() {
 		userByToken.remove(securityToken.get());
