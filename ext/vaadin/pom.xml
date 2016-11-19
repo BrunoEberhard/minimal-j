@@ -74,7 +74,13 @@
 			<artifactId>history</artifactId>
 			<version>1.2.0</version>
 		</dependency>
-		
+		<!-- 
+		<dependency>
+		  <groupId>com.vaadin.addon</groupId>
+		  <artifactId>easyuploads</artifactId>
+		  <version>7.4.10</version>
+		</dependency>
+		 -->
 	</dependencies>
 	<description>Use Vaadin for Minimal-J.
 
