@@ -10,7 +10,6 @@ import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.model.validation.Validatable;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ChangeListener;
@@ -95,13 +94,12 @@ public abstract class Wizard<RESULT> extends Action {
 	protected abstract WizardStep<?> getFirstStep();
 	
 	private void validate(Object stepObject) {
-		validationMessages.clear();
 		if (stepObject instanceof Validation) {
-			((Validation) stepObject).validate(validationMessages);
+			validationMessages.addAll(((Validation) stepObject).validateNullSafe());
 		}
 		ObjectValidator.validate(stepObject, validationMessages, form.getProperties());
-		if (step instanceof Validatable) {
-			((Validatable) step).validate();
+		if (step instanceof Validation) {
+			validationMessages.addAll(((Validation) step).validateNullSafe());
 		}
 		form.indicate(validationMessages);
 		nextAction.setValidationMessages(validationMessages);

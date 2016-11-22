@@ -11,7 +11,7 @@ import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.EmptyValidator;
 import org.minimalj.model.validation.InvalidValues;
-import org.minimalj.model.validation.Validatable;
+import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.resources.Resources;
 
@@ -56,10 +56,10 @@ public class ObjectValidator {
 	public static void validatePropertyValues(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
 		for (PropertyInterface property : properties) {
 			Object value = property.getValue(object);
-			if (value instanceof Validatable) {
-				String validationMessage = ((Validatable) value).validate();
-				if (validationMessage != null) {
-					validationMessages.add(new ValidationMessage(property, validationMessage));
+			if (value instanceof Validation) {
+				List<ValidationMessage> thisMessages = ((Validation) value).validateNullSafe();
+				for (ValidationMessage m : thisMessages) {
+					validationMessages.add(new ValidationMessage(property, m.getFormattedText()));
 				}
 			}
 		}

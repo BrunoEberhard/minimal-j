@@ -1,5 +1,7 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.List;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -7,7 +9,8 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
-import org.minimalj.model.validation.Validatable;
+import org.minimalj.model.validation.Validation;
+import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 
@@ -72,7 +75,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 			T value = getValue();
 			boolean valid = true;
 			valid &= !InvalidValues.isInvalid(value);
-			valid &= !(value instanceof Validatable) || ((Validatable) value).validate() == null;
+			if (value instanceof Validation) {
+				List<ValidationMessage> validationMessages = ((Validation) value).validateNullSafe();
+				valid &= validationMessages.isEmpty();
+			}
 
 			if (valid) {
 				setValue(value);

@@ -30,7 +30,6 @@ public abstract class Editor<T, RESULT> extends Action {
 
 	private T object;
 	private Form<T> form;
-	private final List<ValidationMessage> validationMessages = new ArrayList<>();
 	private SaveAction saveAction;
 	private IDialog dialog;
 	
@@ -106,9 +105,9 @@ public abstract class Editor<T, RESULT> extends Action {
 	protected abstract Form<T> createForm();
 	
 	private void validate() {
-		validationMessages.clear();
+		List<ValidationMessage> validationMessages = new ArrayList<>();
 		if (object instanceof Validation) {
-			((Validation) object).validate(validationMessages);
+			validationMessages.addAll(((Validation) object).validateNullSafe());
 		}
 		ObjectValidator.validate(object, validationMessages, form.getProperties());
 		validate(object, validationMessages);
