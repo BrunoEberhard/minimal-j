@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.View;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.security.Password;
