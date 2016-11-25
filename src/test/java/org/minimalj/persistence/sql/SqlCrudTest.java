@@ -15,7 +15,7 @@ public class SqlCrudTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class, N.class, O.class);
 	}
 	
 	@AfterClass
@@ -127,6 +127,52 @@ public class SqlCrudTest {
 		Assert.assertNull("Dependable should be removed", h.k);
 	}
 	
+	@Test(expected = RuntimeException.class)
+	public void testDeleteIdentifiableChild() {
+		N n = new N("testN");
+		O o1 = new O("testO1");
+		O o2 = new O("testO2");
+		n.oList.add(o1);
+		n.oList.add(o2);
+		
+		Object n_id = persistence.insert(n);
+		n = persistence.read(N.class, n_id);
+		
+		Assert.assertEquals(2, n.oList.size());
+		o1 = n.oList.get(0);
+		o2 = n.oList.get(1);
+		Assert.assertNotNull(o1.id);
+		Assert.assertNotNull(o2.id);
+
+		persistence.delete(o1);
+
+		n = persistence.read(N.class, n_id);
+		
+		Assert.assertEquals(1, n.oList.size());
+		o2 = n.oList.get(0);
+		Assert.assertNotNull(o2.id);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testDeleteIdentifiableReference() {
+		N n = new N("testN");
+		O o = new O("testO");
+		n.oReference = o;
+		
+		Object n_id = persistence.insert(n);
+		n = persistence.read(N.class, n_id);
+		
+		Assert.assertNotNull(n.oReference);
+		o = n.oReference;
+		Assert.assertNotNull(o.id);
+
+		persistence.delete(o);
+
+		n = persistence.read(N.class, n_id);
+		
+		Assert.assertNull(n.oReference);
+	}
+
 	@Test
 	public void testByteArray() throws Exception {
 		M m = new M();
