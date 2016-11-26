@@ -21,7 +21,6 @@ import org.minimalj.util.StringUtils;
 public abstract class Authorization {
 	private static final Logger LOG = Logger.getLogger(Persistence.class.getName());
 
-	private static ThreadLocal<Serializable> securityToken = new ThreadLocal<>();
 	private Map<UUID, Subject> userByToken = new HashMap<>();
 
 	public static Authorization instance;
@@ -152,7 +151,7 @@ public abstract class Authorization {
 	protected abstract Subject login(UserPassword userPassword);
 
 	public void logout() {
-		userByToken.remove(securityToken.get());
+		userByToken.remove(Subject.getCurrent().getToken());
 	}
 
 	public Subject getUserByToken(Serializable token) {
