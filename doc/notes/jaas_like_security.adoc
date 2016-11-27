@@ -1,0 +1,89 @@
+= JAAS like Authentication
+
+27.11.2016
+
+Zum zweiten Mal habe ich versucht, die Authorisierung in MJ mehr nach dem Vorbild von Jaas zu gestalten.
+
+Das Problem sind die Callbacks. Damit verlangt ein LoginModul nach mehr Informationen vom Benutzer. Leider
+sollen die Callbacks synchron funktionieren. Wenn nun LoginModul und CallbackHandler in verschiedenen Servern
+laufen ergibt sich ein Problem.
+
+Lösen lässt sich das vielleicht, indem die Socket Verbindung zwischen Front/Backend offen gehalten wird
+und so Callbacks gemeldet werden können. Das Backend kann "pushen". Der Code dazu ist aber ziemlich kompliziert.
+Der Code unten ist nicht getestet. Und es fehlt das Rückkopieren der erhaltenen Callbacks auf die ursprünglichen
+Objekte.
+
+Schlussendlich lohnt sich der Aufwand wohl nicht. Die erhaltenen Subject Objekte enthalten Principals. Diese
+sind aber leider nicht normiert ( link:http://arjan-tijms.omnifaces.org/2014/02/jaas-in-java-ee-is-not-universal.html )
+Somit bräuchte es sowieso wieder was spezifisches um die erhaltenen Principals zu mappen.
+
+[source,java,title="SocketBackend.java"]
+----
+	@Override
+	public javax.security.auth.Subject login(CallbackHandler callbackHandler) throws LoginException, UnsupportedCallbackException {
+		try (Socket socket = new Socket(url, port)) {
+			try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+				oos.writeObject(null); // mark login
+				
+				try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+					while (true) {
+						Object response = ois.readObject();
+						if (response instanceof javax.security.auth.Subject) {
+							return (javax.security.auth.Subject) response;
+						} else if (response instanceof LoginException) {
+							throw (LoginException) response;
+						} else if (response instanceof UnsupportedCallbackException) {
+							throw (UnsupportedCallbackException) response;							
+						} else if (response instanceof Callback[]) {
+							Callback[] callbacks = (Callback[]) response;
+							callbackHandler.handle(callbacks);
+							oos.writeObject(callbacks);
+						} else {
+							throw new RuntimeException("Invalid response: " + response);
+						}
+					}
+
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException("Invalid response", e);
+				}
+			}
+		} catch (IOException x) {
+			throw new LoggingRuntimeException(x, LOG, "Couldn't execute on " + url + ":" + port);
+		}
+	}
+----
+
+[source,java,title="SocketBackendServer.java"]
+----
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public void run() {
+			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+				Serializable securityToken = (Serializable) ois.readObject();
+				
+				if (securityToken == null) {
+					try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {			
+						CallbackHandler callbackHandler = new CallbackHandler() {
+							@Override
+							public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+								oos.writeObject(callbacks);
+								try {
+									Callback[] answerdCallbacks = (Callback[]) ois.readObject();
+									// TODO copy answers on original callbacks
+								} catch (ClassNotFoundException e) {
+									throw new RuntimeException(e);
+								}
+							}
+						};
+						try {
+							javax.security.auth.Subject subject = Backend.getInstance().login(callbackHandler);
+							oos.writeObject(subject);
+						} catch (LoginException | UnsupportedCallbackException e) {
+							oos.writeObject(e);
+						}
+					}
+					return;
+				}
+			
+----
+				
