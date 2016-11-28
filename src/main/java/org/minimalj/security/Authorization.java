@@ -21,7 +21,7 @@ import org.minimalj.util.StringUtils;
 public abstract class Authorization {
 	private static final Logger LOG = Logger.getLogger(Persistence.class.getName());
 
-	private Map<UUID, Subject> subjectByToken = new HashMap<>();
+	private final Map<UUID, Subject> subjectByToken = new HashMap<>();
 
 	public static Authorization instance;
 	
