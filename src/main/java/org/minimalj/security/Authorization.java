@@ -21,7 +21,7 @@ import org.minimalj.util.StringUtils;
 public abstract class Authorization {
 	private static final Logger LOG = Logger.getLogger(Persistence.class.getName());
 
-	private Map<UUID, Subject> userByToken = new HashMap<>();
+	private Map<UUID, Subject> subjectByToken = new HashMap<>();
 
 	public static Authorization instance;
 	
@@ -136,7 +136,7 @@ public abstract class Authorization {
 		subject.setName(name);
 		UUID token = UUID.randomUUID();
 		subject.setToken(token);
-		userByToken.put(token, subject);
+		subjectByToken.put(token, subject);
 		return subject;
 	}
 
@@ -151,11 +151,11 @@ public abstract class Authorization {
 	protected abstract Subject login(UserPassword userPassword);
 
 	public void logout() {
-		userByToken.remove(Subject.getCurrent().getToken());
+		subjectByToken.remove(Subject.getCurrent().getToken());
 	}
 
 	public Subject getUserByToken(Serializable token) {
-		return userByToken.get(token);
+		return subjectByToken.get(token);
 	}
 	
 }
