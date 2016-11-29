@@ -15,8 +15,8 @@ import org.minimalj.backend.persistence.UpdateTransaction;
 import org.minimalj.persistence.Persistence;
 import org.minimalj.persistence.criteria.Criteria;
 import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
-import org.minimalj.security.IsAuthorizationActive;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -72,6 +72,8 @@ public class Backend {
 	};
 	
 	private Persistence persistence = null; 
+	private Boolean authenticationActive = null;
+	private Authentication authentication = null; 
 	
 	private InheritableThreadLocal<Transaction<?>> currentTransaction = new InheritableThreadLocal<>();
 	
@@ -105,14 +107,28 @@ public class Backend {
 		return persistence;
 	}
 	
+	protected Authentication createAuthentication() {
+		return Authentication.create();
+	}
+	
+	public final Authentication getAuthentication() {
+		if (authentication == null) {
+			if (authenticationActive == null) {
+				authentication = Authentication.create();
+				authenticationActive = authentication != null;
+			}
+		}
+		return authentication;
+	}
+	
+	public boolean isAuthenticationActive() {
+		return getAuthentication() != null;
+	}
+	
 	public boolean isInTransaction() {
 		return currentTransaction.get() != null;
 	}
 	
-	public static boolean isAuthorizationActive() {
-		return execute(new IsAuthorizationActive());
-	}
-
 	// Could be moved in a class like "Do" but that would seem even more like magic
 	// Backend.read or Backend.execute gives a hint that there is a separation between
 	// the current stuff and the things done in the Transaction
@@ -147,7 +163,7 @@ public class Backend {
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (!Authorization.isActive() || Authorization.getInstance().isAllowed(transaction)) {
+		if (Authorization.isAllowed(transaction)) {
 			try {
 				currentTransaction.set(transaction);
 				return transaction.execute();

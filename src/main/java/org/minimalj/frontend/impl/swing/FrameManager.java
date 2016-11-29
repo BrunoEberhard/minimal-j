@@ -9,9 +9,9 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.minimalj.application.DevMode;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
-import org.minimalj.security.LoginAction;
-import org.minimalj.security.LoginAction.LoginListener;
+import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -63,7 +63,7 @@ public class FrameManager {
 		navigationFrames.add(frame);
 		if (subject == null && Frontend.loginAtStart()) {
 			SwingFrame.activeFrameOverride = frame;
-			LoginListener listener = new LoginListener() {
+			LoginListener loginListener = new LoginListener() {
 				@Override
 				public void loginSucceded(Subject subject) {
 					frame.setSubject(subject);
@@ -75,7 +75,7 @@ public class FrameManager {
 					removeNavigationFrameView(frame);
 				}
 			};
-			new LoginAction(listener).action();
+			Backend.getInstance().getAuthentication().login(loginListener);
 			SwingFrame.activeFrameOverride = null;
 		}
 	}

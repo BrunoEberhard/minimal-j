@@ -20,10 +20,10 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
-import org.minimalj.security.LoginAction;
-import org.minimalj.security.LoginAction.LoginListener;
 import org.minimalj.security.Subject;
+import org.minimalj.security.UserPasswordAuthentication.UserPasswordAction;
 import org.minimalj.util.LocaleContext;
 
 public class JsonPageManager implements PageManager, LoginListener {
@@ -149,7 +149,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		
 		String login = (String) input.getObject("login");
 		if (login != null || subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-			new LoginAction(this).action();
+			new UserPasswordAction(this).action();
 		}
 		
 		List<String> pageIds = (List<String>) input.getObject("showPages");

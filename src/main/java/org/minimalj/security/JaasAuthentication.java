@@ -12,12 +12,13 @@ import javax.security.auth.login.LoginException;
 
 import org.minimalj.security.model.UserPassword;
 
-public class JaasAuthorization extends Authorization {
+// TODO...
+public class JaasAuthentication extends Authentication {
 
 	private final MinimalCallbackHandler minimalCallbackHandler;
 	private final LoginContext loginContext;
 
-	public JaasAuthorization(String jaasConfiguration) {
+	public JaasAuthentication(String jaasConfiguration) {
 		try {
 			this.minimalCallbackHandler = new MinimalCallbackHandler();
 			this.loginContext = new LoginContext(jaasConfiguration, minimalCallbackHandler);
@@ -27,6 +28,11 @@ public class JaasAuthorization extends Authorization {
 	}
 
 	@Override
+	public void login(LoginListener loginListener) {
+		// TODO Auto-generated method stub
+	}
+	
+//	@Override
 	protected Subject login(UserPassword userPassword) {
 		minimalCallbackHandler.setUser(userPassword.user);
 		minimalCallbackHandler.setPassword(userPassword.password);
@@ -36,8 +42,9 @@ public class JaasAuthorization extends Authorization {
 		} catch (LoginException le) {
 			return null;
 		}
-		Subject subject = createSubject(userPassword.user);
-		return subject;
+//		Subject subject = createSubject(userPassword.user);
+//		return subject;
+		return null;
 	}
 
 	private class MinimalCallbackHandler implements CallbackHandler {

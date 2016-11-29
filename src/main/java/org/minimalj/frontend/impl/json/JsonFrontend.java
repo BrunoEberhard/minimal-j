@@ -160,7 +160,7 @@ public class JsonFrontend extends Frontend {
 	public static String fillPlaceHolder(String html, Locale locale) {
 		LocaleContext.setCurrent(locale);
 		String result = html.replace("$LOCALE", locale.getLanguage());
-		result = result.replace("$AUTHORIZATION", Boolean.toString(Backend.isAuthorizationActive()));
+		result = result.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
 		result = result.replace("$WEB_SOCKET", Boolean.toString(useWebSocket()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");

@@ -50,7 +50,7 @@ public abstract class Frontend {
 	// just a helper method for all frontends. Is it at the right place here?
 	public static boolean loginAtStart() {
 		boolean loginAtStart = Application.getInstance().isLoginRequired() || Configuration.get("MjLoginAtStart", "false").equals("true");
-		if (loginAtStart && !Backend.isAuthorizationActive()) {
+		if (loginAtStart && !Backend.getInstance().isAuthenticationActive()) {
 			throw new IllegalStateException("Login required but authorization is not configured!");
 		}
 		return loginAtStart;

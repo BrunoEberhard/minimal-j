@@ -22,8 +22,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.component.HideableTabbedPane;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.security.LoginAction;
-import org.minimalj.security.LoginAction.LoginListener;
+import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -39,13 +38,13 @@ public class SwingFrame extends JFrame {
 	final Action loginAction, closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction;
 	
 	public SwingFrame(Subject subject) {
-		boolean authorizationActive = Backend.isAuthorizationActive();
-		loginAction = authorizationActive ? new SwingLoginAction() : null;
+		boolean authenticationActive = Backend.getInstance().isAuthenticationActive();
+		loginAction = authenticationActive ? new SwingLoginAction() : null;
 		
 		closeWindowAction = new CloseWindowAction();
 		exitAction = new ExitAction();
 		newWindowAction = new NewWindowAction();
-		newWindowWithLoginAction = authorizationActive ? new NewWindowWithLoginAction() : null;
+		newWindowWithLoginAction = authenticationActive ? new NewWindowWithLoginAction() : null;
 		newTabAction = new NewTabAction();
 		
 		setDefaultSize();
@@ -251,7 +250,7 @@ public class SwingFrame extends JFrame {
 					// nothing to do. just go on.
 				}
 			};
-			new LoginAction(listener).action();
+			Backend.getInstance().getAuthentication().login(listener);
 		}
 	}
 	

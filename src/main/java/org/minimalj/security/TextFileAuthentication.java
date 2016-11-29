@@ -2,21 +2,19 @@ package org.minimalj.security;
 
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.minimalj.security.model.User;
 import org.minimalj.security.model.UserRole;
 
-public class TextFileAuthorization extends PersistenceAuthorization {
+public class TextFileAuthentication extends UserPasswordAuthentication {
 
-	private Map<String, User> userByName = new HashMap<>();
+	private final transient Map<String, User> userByName = new HashMap<>();
 
-	public TextFileAuthorization(String loginConfiguration) {
+	public TextFileAuthentication(String loginConfiguration) {
 		super();
 		try {
 			loadUsers(loginConfiguration);
@@ -48,12 +46,8 @@ public class TextFileAuthorization extends PersistenceAuthorization {
 	}
 	
 	@Override
-	protected List<User> retrieveUsers(String userName) {
-		if (userByName.containsKey(userName)) {
-			return Collections.singletonList(userByName.get(userName));
-		} else {
-			return null;
-		}
+	protected User retrieveUser(String userName) {
+		return userByName.get(userName);
 	}
 
 	/**
