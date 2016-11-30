@@ -13,9 +13,7 @@ import org.minimalj.security.Password;
 public class User {
 	public static final User $ = Keys.of(User.class);
 	
-//	@Size(255)
-//	public char[] password;
-	public final Password password= new Password();
+	public final Password password = new Password();
 	
 	@NotEmpty
 	public String loginname;
