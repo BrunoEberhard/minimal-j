@@ -67,8 +67,10 @@ public class SocketBackendServer {
 		public void run() {
 			try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 				Serializable securityToken = (Serializable) ois.readObject();
-				Subject subject = Backend.getInstance().getAuthentication().getUserByToken(securityToken);
-				Subject.setCurrent(subject);
+				if (Backend.getInstance().isAuthenticationActive()) {
+					Subject subject = Backend.getInstance().getAuthentication().getUserByToken(securityToken);
+					Subject.setCurrent(subject);
+				}
 				
 				Transaction transaction = (Transaction) ois.readObject();
 				
