@@ -11,6 +11,7 @@ import org.minimalj.security.model.User;
 import org.minimalj.security.model.UserRole;
 
 public class TextFileAuthentication extends UserPasswordAuthentication {
+	private static final long serialVersionUID = 1L;
 
 	private final transient Map<String, User> userByName = new HashMap<>();
 

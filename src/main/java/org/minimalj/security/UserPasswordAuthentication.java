@@ -17,6 +17,7 @@ import org.minimalj.security.model.UserPassword;
 import org.minimalj.transaction.Transaction;
 
 public abstract class UserPasswordAuthentication extends Authentication {
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void login(LoginListener loginListener) {

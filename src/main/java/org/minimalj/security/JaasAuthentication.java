@@ -14,9 +14,10 @@ import org.minimalj.security.model.UserPassword;
 
 // TODO...
 public class JaasAuthentication extends Authentication {
+	private static final long serialVersionUID = 1L;
 
-	private final MinimalCallbackHandler minimalCallbackHandler;
-	private final LoginContext loginContext;
+	private final transient MinimalCallbackHandler minimalCallbackHandler;
+	private final transient LoginContext loginContext;
 
 	public JaasAuthentication(String jaasConfiguration) {
 		try {

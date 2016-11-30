@@ -7,6 +7,7 @@ import org.minimalj.persistence.criteria.By;
 import org.minimalj.security.model.User;
 
 public class PersistenceAuthentication extends UserPasswordAuthentication {
+	private static final long serialVersionUID = 1L;
 
 	private final transient Persistence authenticationPersistence;
 	

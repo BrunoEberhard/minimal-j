@@ -15,7 +15,6 @@ import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
-import org.minimalj.util.StringUtils;
 
 public class SocketBackend extends Backend {
 	private static final Logger LOG = Logger.getLogger(SocketBackend.class.getName());
@@ -29,24 +28,16 @@ public class SocketBackend extends Backend {
 	}
 	
 	public Authentication createAuthentication() {
-		String authenticationClassName = execute(new Transaction<String>() {
-			private static final long serialVersionUID = 1L;
+		return execute(new GetAuthentication());
+	}
+	
+	public static class GetAuthentication implements Transaction<Authentication> {
+		private static final long serialVersionUID = 1L;
 
-			@Override
-			public String execute() {
-				return Backend.getInstance().getAuthentication().getClass().getName();
-			}
-		});
-		if (!StringUtils.isBlank(authenticationClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Authentication> authenticationClass = (Class<? extends Authentication>) Class.forName(authenticationClassName);
-				return authenticationClass.newInstance();
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, LOG, "Set authentication failed");
-			}
+		@Override
+		public Authentication execute() {
+			return Backend.getInstance().getAuthentication();
 		}
-		return null;
 	}
 	
 	@Override

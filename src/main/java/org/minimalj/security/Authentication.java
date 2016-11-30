@@ -12,10 +12,12 @@ import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
-public abstract class Authentication {
+public abstract class Authentication implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger LOG = Logger.getLogger(Authentication.class.getName());
 
-	private final Map<UUID, Subject> subjectByToken = new HashMap<>();
+	private final transient Map<UUID, Subject> subjectByToken = new HashMap<>();
 
 	public static Authentication create() {
 		String userFile = Configuration.get("MjUserFile");
