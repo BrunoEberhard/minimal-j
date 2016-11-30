@@ -114,7 +114,7 @@ public class Backend {
 	public final Authentication getAuthentication() {
 		if (authentication == null) {
 			if (authenticationActive == null) {
-				authentication = Authentication.create();
+				authentication = createAuthentication();
 				authenticationActive = authentication != null;
 			}
 		}
