@@ -1,6 +1,6 @@
 package org.minimalj.example.miniboost.frontend;
 
-import static org.minimalj.example.miniboost.model.Customer.*;
+import static org.minimalj.example.miniboost.model.Customer.$;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import org.minimalj.persistence.criteria.By;
 
 public class CustomerSearchPage extends SimpleSearchPage<Customer> {
 
-	private static final Object[] keys = {$.matchcode, $.name1, $.name2, $.address.country, $.address.zip, $.address.city, $.address.street};
+	private static final Object[] keys = {$.matchcode, $.name1, $.name2, $.address.getCountryAndZip(), $.address.city, $.address.street};
 	
 	public CustomerSearchPage(String query) {
 		super(query, keys);
