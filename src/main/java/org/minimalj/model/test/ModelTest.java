@@ -3,6 +3,7 @@ package org.minimalj.model.test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +19,8 @@ import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.TechnicalField;
+import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -195,6 +198,10 @@ public class ModelTest {
 			testName(field);
 			testTypeOfField(field);
 			testNoMethodsForPublicField(field);
+			TechnicalField technicalField = field.getAnnotation(TechnicalField.class);
+			if (technicalField != null) {
+				testTypeOfTechnicalField(field, technicalField.value());
+			}
 			Class<?> fieldType = field.getType();
 			if (fieldType == String.class) {
 				if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
@@ -355,6 +362,18 @@ public class ModelTest {
 			}
 		} else {
 			problems.add("No property for " + field.getName());
+		}
+	}
+	
+	private void testTypeOfTechnicalField(Field field, TechnicalFieldType type) {
+		if (type == TechnicalFieldType.CREATE_DATE || type == TechnicalFieldType.EDIT_DATE) {
+			if (field.getType() != LocalDateTime.class) {
+				problems.add("Technical field " + type.name() + " must be of LocalDateTime, not " + field.getType().getName());
+			} 
+		} else if (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.EDIT_USER) {
+			if (field.getType() != String.class) {
+				problems.add("Technical field " + type.name() + " must be of String, not " + field.getType().getName());
+			} 
 		}
 	}
 	

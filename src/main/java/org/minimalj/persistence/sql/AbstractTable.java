@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,9 +21,12 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
+import org.minimalj.model.annotation.TechnicalField;
+import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.persistence.criteria.FieldOperator;
+import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -333,7 +337,20 @@ public abstract class AbstractTable<T> {
 						}
 					}
 				}
-			} 
+			} else {
+				TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
+				if (technicalField != null) {
+					TechnicalFieldType type = technicalField.value();
+					if (type == TechnicalFieldType.EDIT_DATE && mode != ParameterMode.HISTORIZE || type == TechnicalFieldType.CREATE_DATE && mode == ParameterMode.INSERT) {
+						value = LocalDateTime.now();
+					} else if (type == TechnicalFieldType.EDIT_USER && mode != ParameterMode.HISTORIZE || (type == TechnicalFieldType.CREATE_USER && mode == ParameterMode.INSERT)) {
+						Subject subject = Subject.getCurrent();
+						if (subject != null) {
+							value = subject.getName();
+						}
+					}
+				}
+			}
 			helper.setParameter(statement, parameterPos++, value, property);
 			if (doubleValues) helper.setParameter(statement, parameterPos++, value, property);
 		}
