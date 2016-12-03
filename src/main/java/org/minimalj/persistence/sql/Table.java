@@ -164,7 +164,7 @@ public class Table<T> extends AbstractTable<T> {
 				updateStatement.setInt(parameterIndex, IdUtils.getVersion(object));
 				updateStatement.execute();
 				if (updateStatement.getUpdateCount() == 0) {
-					throw new RuntimeException("Pessimistic locking failed");
+					throw new IllegalStateException("Pessimistic locking failed");
 				}
 			} else {
 				updateStatement.execute();

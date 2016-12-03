@@ -1,5 +1,7 @@
 package org.minimalj.persistence.sql;
 
+import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -46,8 +48,10 @@ public class SqlCrudTest {
 		A a3 = persistence.read(A.class, id);
 		Assert.assertNull(a3);
 		
-//		List<Integer> version = persistence.readVersions(A.class, id);
-//		Assert.assertEquals("While delete, the old version should be still in the db", 1, version.size());
+		List<A> history = persistence.loadHistory(A.class, id, 1);
+		Assert.assertFalse(history.isEmpty());
+
+		Assert.assertTrue(history.get(0).historized);
 	}
 	
 	@Test

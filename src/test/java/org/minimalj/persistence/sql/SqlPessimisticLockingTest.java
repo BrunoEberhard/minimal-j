@@ -10,7 +10,7 @@ public class SqlPessimisticLockingTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), Q.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), Q.class, R.class);
 	}
 	
 	@AfterClass
@@ -46,6 +46,37 @@ public class SqlPessimisticLockingTest {
 		// this tries to update an old version of q
 		q.string = "C";
 		persistence.update(q);
+	}
+	
+	@Test
+	public void testHistorizedPessimisticLockingOk() {
+		R r = new R();
+		r.string = "A";
+		Object id = persistence.insert(r);
+		r = persistence.read(R.class, id);
+		
+		r.string = "B";
+		persistence.update(r);
+		r = persistence.read(R.class, id);
+		
+		r.string = "C";
+		persistence.update(r);
+	}
+
+	@Test(expected = Exception.class)
+	public void testHistorizedPessimisticLockingFail() {
+		R r = new R();
+		r.string = "A";
+		Object id = persistence.insert(r);
+		r = persistence.read(R.class, id);
+		
+		r.string = "B";
+		persistence.update(r);
+		// here the read is forgotten
+		
+		// this tries to update an old version of r
+		r.string = "C";
+		persistence.update(r);
 	}
 
 }

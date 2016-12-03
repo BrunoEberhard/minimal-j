@@ -341,15 +341,15 @@ public class SqlPersistence extends Persistence {
 	}
 
 	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
-		// TODO maxResults is ignored in loadHistory
 		@SuppressWarnings("unchecked")
 		Table<T> table = (Table<T>) getTable(clazz);
 		if (table instanceof HistorizedTable) {
-			T object = table.read(id);
-			int version = IdUtils.getVersion(object);
-			List<T> result = new ArrayList<>(version);
-			for (int time = 1; time<version; time++) {
-				result.add(((HistorizedTable<T>) table).read(id, time));
+			HistorizedTable<T> historizedTable = (HistorizedTable<T>) table;
+			int maxVersion = historizedTable.getMaxVersion(id);
+			int maxResults = Math.min(maxVersion + 1, maxResult);
+			List<T> result = new ArrayList<>(maxResults);
+			for (int i = 0; i<maxResults; i++) {
+				result.add(historizedTable.read(id, maxVersion - i));
 			}
 			return result;
 		} else {

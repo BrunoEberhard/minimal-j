@@ -1,6 +1,7 @@
 package org.minimalj.persistence.sql;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map.Entry;
@@ -25,17 +26,20 @@ public class HistorizedTable<T> extends Table<T> {
 
 	private final String selectByIdAndTimeQuery;
 	private final String endQuery;
+	private final String selectMaxVersionQuery;
 	
 	public HistorizedTable(SqlPersistence sqlPersistence, Class<T> clazz) {
 		super(sqlPersistence, clazz);
 
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
+		selectMaxVersionQuery = selectMaxVersionQuery();
 	}
 
 	@Override
 	public Object insert(T object) {
 		Authorization.checkGrants(Privilege.INSERT, getClazz());
+		
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
 			Object id = IdUtils.getId(object);
 			if (id == null) {
@@ -63,41 +67,54 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	public void update(T object) {
+		Authorization.checkGrants(Privilege.UPDATE, getClazz());
+
 		Object id = IdUtils.getId(object);
 		update(id, object);
 	}
 	
 	private void update(Object id, T object) {
-		Authorization.checkGrants(Privilege.UPDATE, getClazz());
-
-		// TODO Update sollte erst mal prüfen, ob update nötig ist.
-		// T oldObject = read(id);
-		// na, ob dann das mit allen subTables noch stimmt??
-		// if (ColumnAccess.equals(oldObject, object)) return;
-		
 		try {
+			int version = IdUtils.getVersion(object);
 			try (PreparedStatement endStatement = createStatement(sqlPersistence.getConnection(), endQuery, false)) {
 				endStatement.setObject(1, id);
+				endStatement.setInt(2, version);
 				endStatement.execute();	
+				if (endStatement.getUpdateCount() == 0) {
+					throw new IllegalStateException("Pessimistic locking failed");
+				}
 			}
 			
-			boolean doDelete = object == null;
-			if (doDelete) return;
-			
-			int version = IdUtils.getVersion(object) + 1;
-			IdUtils.setVersion(object, version);
+			int newVersion = version + 1;
 			try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 				int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
-				updateStatement.setInt(parameterIndex, version);
+				updateStatement.setInt(parameterIndex, newVersion);
 				updateStatement.execute();
 			}
 			
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
-				((HistorizedSubTable) listTableEntry.getValue()).replaceAll(object, list, version);
+				((HistorizedSubTable) listTableEntry.getValue()).replaceAll(object, list, newVersion);
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
+		}
+	}
+	
+	public int getMaxVersion(Object id) {
+		Authorization.checkGrants(Privilege.SELECT, getClazz());
+
+		int result = 0;
+		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false)) {
+			selectMaxVersionStatement.setObject(1, id);
+			try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
+				if (resultSet.next()) {
+					result = resultSet.getInt(1);
+				} 
+				return result;
+			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
 		}
 	}
 	
@@ -135,8 +152,14 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	public void delete(Object id) {
-		// update to null object is delete
-		update(id, null);
+		Authorization.checkGrants(Privilege.DELETE, getClazz());
+
+		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
+			deleteStatement.setObject(1, id);
+			deleteStatement.execute();
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with id " + id);
+		}
 	}
 
 	@Override
@@ -218,8 +241,24 @@ public class HistorizedTable<T> extends Table<T> {
 
 		return s.toString();
 	}
+	
+	private String selectMaxVersionQuery() {
+		StringBuilder s = new StringBuilder();
+		
+		s.append("SELECT MAX(version) FROM ").append(getTableName()); 
+		s.append(" WHERE id = ?");
+
+		return s.toString();
+	}
 
 	private String endQuery() {
+		StringBuilder s = new StringBuilder();
+		s.append("UPDATE ").append(getTableName()).append(" SET historized = 1 WHERE id = ? AND version = ? AND historized = 0");
+		return s.toString();
+	}
+	
+	@Override
+	protected String deleteQuery() {
 		StringBuilder s = new StringBuilder();
 		s.append("UPDATE ").append(getTableName()).append(" SET historized = 1 WHERE id = ? AND historized = 0");
 		return s.toString();
