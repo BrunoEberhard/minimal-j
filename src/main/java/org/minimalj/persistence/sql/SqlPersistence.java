@@ -493,6 +493,9 @@ public class SqlPersistence extends Persistence {
 			} else if ("VERSION".equalsIgnoreCase(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
 				continue;
+			} else if ("HISTORIZED".equalsIgnoreCase(columnName)) {
+				IdUtils.setHistorized(result, resultSet.getInt(columnIndex));
+				continue;
 			}
 			
 			PropertyInterface property = columns.get(columnName);

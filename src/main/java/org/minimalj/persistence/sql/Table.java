@@ -24,6 +24,7 @@ import org.minimalj.persistence.criteria.Criteria.OrCriteria;
 import org.minimalj.persistence.criteria.FieldCriteria;
 import org.minimalj.persistence.criteria.SearchCriteria;
 import org.minimalj.security.Authorization;
+import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -34,6 +35,7 @@ public class Table<T> extends AbstractTable<T> {
 	private static final List<Object> EMPTY_WHERE_CLAUSE = Collections.singletonList("1=1");
 	
 	protected final PropertyInterface idProperty;
+	protected final boolean pessimisticLocking;
 	
 	protected final String selectAllQuery;
 
@@ -48,6 +50,8 @@ public class Table<T> extends AbstractTable<T> {
 		
 		this.idProperty = FlatProperties.getProperty(clazz, "id", true);
 		Objects.nonNull(idProperty);
+		
+		this.pessimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
 		List<PropertyInterface> lists = FlatProperties.getListProperties(clazz);
 		this.lists = createListTables(lists);
@@ -155,8 +159,16 @@ public class Table<T> extends AbstractTable<T> {
 	
 	void updateWithId(T object, Object id) {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
-			setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
-			updateStatement.execute();
+			int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
+			if (pessimisticLocking) {
+				updateStatement.setInt(parameterIndex, IdUtils.getVersion(object));
+				updateStatement.execute();
+				if (updateStatement.getUpdateCount() == 0) {
+					throw new RuntimeException("Pessimistic locking failed");
+				}
+			} else {
+				updateStatement.execute();
+			}
 			
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
@@ -426,8 +438,14 @@ public class Table<T> extends AbstractTable<T> {
 		for (Object columnNameObject : getColumns().keySet()) {
 			s.append((String) columnNameObject).append("= ?, ");
 		}
-		s.delete(s.length()-2, s.length());
-		s.append(" WHERE id = ?");
+		// this is used in a callback where pessimisticLocking is not yet initialized
+		boolean pessimisticLocking = FieldUtils.hasValidVersionfield(clazz);
+		if (pessimisticLocking) {
+			s.append(" version = version + 1 WHERE id = ? AND version = ?");
+		} else {
+			s.delete(s.length()-2, s.length());
+			s.append(" WHERE id = ?");
+		}
 
 		return s.toString();
 	}
@@ -445,6 +463,9 @@ public class Table<T> extends AbstractTable<T> {
 			syntax.addIdColumn(s, idProperty);
 		} else {
 			syntax.addIdColumn(s, Object.class, 36);
+		}
+		if (pessimisticLocking) {
+			s.append(",\n version INTEGER DEFAULT 0");
 		}
 	}
 	

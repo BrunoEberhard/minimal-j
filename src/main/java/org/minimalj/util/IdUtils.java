@@ -94,12 +94,12 @@ public class IdUtils {
 	 * Set the value of the <code>version</code> in the given object
 	 * 
 	 * @param object object containing a public <code>version</code> field. Must not be <code>null</code>
-	 * @param id the new value. Can be <code>null</code>.
+	 * @param version the new value. Can be <code>null</code>.
 	 */
-	public static void setVersion(Object object, int id) {
+	public static void setVersion(Object object, int version) {
 		try {
 			Field versionField = object.getClass().getField("version");
-			if (versionField.getType() == Integer.TYPE) versionField.set(object, id);
+			if (versionField.getType() == Integer.TYPE) versionField.set(object, version);
 			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 			throw new RuntimeException(e);
@@ -111,6 +111,15 @@ public class IdUtils {
 			Field versionField = object.getClass().getField("version");
 			if (versionField.getType() == Integer.TYPE) return (Integer) versionField.get(object);
 			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
+		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static void setHistorized(Object object, int historized) {
+		try {
+			Field historizedField = object.getClass().getField("historized");
+			historizedField.set(object, Boolean.valueOf(historized > 0));
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
