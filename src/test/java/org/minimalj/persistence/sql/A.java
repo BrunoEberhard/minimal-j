@@ -20,7 +20,8 @@ public class A {
 	
 	public Object id;
 	public int version;
-	
+	public boolean historized;
+
 	@Size(30)
 	public String aName;
 	public final List<B> b = new ArrayList<B>();

@@ -136,6 +136,21 @@ public class FieldUtils {
 		}
 	}
 	
+	public static boolean hasValidHistorizedField(Class<?> clazz) {
+		try {
+			Field field = clazz.getField("historized");
+			if (field.getType() == Boolean.TYPE) {
+				return true;
+			} else {
+				throw new RuntimeException("Type of historized field invalid: " + field.getType());
+			}
+		} catch (NoSuchFieldException e) {
+			return false;
+		} catch (SecurityException e) {
+			throw new LoggingRuntimeException(e, logger, "hasValidHistorizedField failed");
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <T> T getStaticValue(Field field) {
 		try {

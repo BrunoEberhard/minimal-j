@@ -97,6 +97,7 @@ public class ModelTest {
 			testNoSuperclass(clazz);
 			testId(clazz);
 			testVersion(clazz);
+			testHistorized(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
 			if (!IdUtils.hasId(clazz)) {
@@ -182,7 +183,27 @@ public class ModelTest {
 		} catch (NoSuchFieldException e) {
 			// thats ok, version is not mandatory
 		} catch (SecurityException e) {
-			problems.add(clazz.getName() + " makes SecurityException with the id field");
+			problems.add(clazz.getName() + " makes SecurityException with the version field");
+		}
+	}
+	
+	private void testHistorized(Class<?> clazz) {
+		try {
+			Field fieldVersion = clazz.getField("historized");
+			if (isMain(clazz) && !Codes.isCode(clazz)) {
+				if (fieldVersion.getType() != Boolean.TYPE) {
+					problems.add(clazz.getName() + ": Domain classes historized must be of primitiv type boolean");
+				}
+				if (!FieldUtils.isPublic(fieldVersion)) {
+					problems.add(clazz.getName() + ": field version must be public");
+				}
+			} else {
+				problems.add(clazz.getName() + ": Only main entities are allowed to have an historized field");
+			}
+		} catch (NoSuchFieldException e) {
+			// thats ok, historized is not mandatory
+		} catch (SecurityException e) {
+			problems.add(clazz.getName() + " makes SecurityException with the historized field");
 		}
 	}
 	
@@ -194,7 +215,7 @@ public class ModelTest {
 	}
 
 	private void testField(Field field) {
-		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version")) {
+		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "historized")) {
 			testName(field);
 			testTypeOfField(field);
 			testNoMethodsForPublicField(field);

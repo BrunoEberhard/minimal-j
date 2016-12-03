@@ -17,7 +17,8 @@ public class B {
 	
 	public Object id;
 	public int version;
-	
+	public boolean historized;
+
 	public List<C> c;
 	
 	@Size(30)

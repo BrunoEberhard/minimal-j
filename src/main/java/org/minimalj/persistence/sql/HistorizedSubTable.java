@@ -1,7 +1,6 @@
 package org.minimalj.persistence.sql;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -12,8 +11,8 @@ import org.minimalj.util.IdUtils;
 /**
  * Minimal-J internal<p>
  * 
- * HistorizedTable has one version columns, HistorizedSubTable hast two.
- * One for startVersion and one vor endVersion.<p>
+ * HistorizedTable has one version columns, HistorizedSubTable has two.
+ * One for startVersion and one for endVersion.<p>
  * 
  * For a new Entry there is startVersion and endVersion = 0.<p>
  * 
@@ -26,17 +25,14 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 
 	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
-	private final String readVersionsQuery;
 	
 	public HistorizedSubTable(SqlPersistence sqlPersistence, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
 		super(sqlPersistence, prefix, clazz, parentIdProperty);
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
-		readVersionsQuery = readVersionsQuery();
 	}
 	
-//	public void addAll(PARENT parent, List<ELEMENT> objects, Integer version) {
 	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		int version = 0;
@@ -54,7 +50,8 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 	}
 
 	public void replaceAll(PARENT parent, List<ELEMENT> objects, int version) {
-		List<ELEMENT> objectsInDb = read(parent, version);
+		int oldVersion = version-1;
+		List<ELEMENT> objectsInDb = read(parent, oldVersion);
 		Object parentId = IdUtils.getId(parent);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
@@ -119,36 +116,19 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		}
 	}
 	
-	public void readVersions(Object id, List<Integer> result) {
-		try (PreparedStatement readVersionsStatement = createStatement(sqlPersistence.getConnection(), readVersionsQuery, false)) {
-			readVersionsStatement.setObject(1, id);
-			try (ResultSet resultSet = readVersionsStatement.executeQuery()) {
-				while (resultSet.next()) {
-					int version = resultSet.getInt(1);
-					if (!result.contains(version)) result.add(version);
-					int endVersion = resultSet.getInt(2);
-					if (!result.contains(version)) result.add(endVersion);
-				}
-			}
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
-		}
-	}
-	
 	// Queries
 	
 	protected String selectByIdAndTimeQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM ").append(getTableName()); 
-		query.append(" WHERE id = ? AND (startVersion = 0 OR startVersion < ?) AND (endVersion = 0 OR endVersion >= ?) ORDER BY position");
+		query.append(" WHERE id = ? AND startVersion <= ? AND endVersion > ? ORDER BY position");
 		return query.toString();
 	}
 	
 	@Override
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE id = ?");
-		query.append(" AND endVersion = 0 ORDER BY position");
+		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE id = ? AND endVersion = " + Integer.MAX_VALUE + " ORDER BY position");
 		return query.toString();
 	}
 	
@@ -166,20 +146,14 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		for (int i = 0; i<getColumns().keySet().size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?, ?, ?, 0)");
+		s.append("?, ?, ?, " + Integer.MAX_VALUE + ")");
 
 		return s.toString();
 	}
 	
 	private String endQuery() {
 		StringBuilder s = new StringBuilder();
-		s.append("UPDATE ").append(getTableName()).append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion = 0");
-		return s.toString();
-	}
-	
-	private String readVersionsQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("SELECT startVersion, endVersion FROM ").append(getTableName()).append(" WHERE id = ?");
+		s.append("UPDATE ").append(getTableName()).append(" SET endVersion = ? WHERE id = ? AND position = ? AND endVersion = " + Integer.MAX_VALUE);
 		return s.toString();
 	}
 	

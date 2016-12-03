@@ -102,10 +102,20 @@ public class IdUtils {
 			if (versionField.getType() == Integer.TYPE) versionField.set(object, id);
 			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-			// throw new LoggingRuntimeException(e, logger, "setting Version failed");
+			throw new RuntimeException(e);
 		}
 	}
 
+	public static int getVersion(Object object) {
+		try {
+			Field versionField = object.getClass().getField("version");
+			if (versionField.getType() == Integer.TYPE) return (Integer) versionField.get(object);
+			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
+		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	/**
 	 * Get the value of the <code>id</code> field as String
 	 * 

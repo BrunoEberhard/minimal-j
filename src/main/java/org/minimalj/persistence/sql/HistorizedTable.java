@@ -1,10 +1,7 @@
 package org.minimalj.persistence.sql;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -19,8 +16,8 @@ import org.minimalj.util.LoggingRuntimeException;
  * Minimal-J internal<p>
  *
  * A HistorizedTable contains a column named version. In the actual valid row this
- * column is set to 0. After updates the row with the version 1 is the oldest row
- * the row with version 2 the second oldest and so on.
+ * column is > 0. After updates the row with the version -1 is the oldest row
+ * the row with version -2 the second oldest and so on.
  * 
  */
 @SuppressWarnings("rawtypes")
@@ -28,16 +25,12 @@ public class HistorizedTable<T> extends Table<T> {
 
 	private final String selectByIdAndTimeQuery;
 	private final String endQuery;
-	private final String selectMaxVersionQuery;
-	private final String readVersionsQuery;
 	
 	public HistorizedTable(SqlPersistence sqlPersistence, Class<T> clazz) {
 		super(sqlPersistence, clazz);
 
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
-		selectMaxVersionQuery = selectMaxVersionQuery();
-		readVersionsQuery = readVersionsQuery();
 	}
 
 	@Override
@@ -61,7 +54,6 @@ public class HistorizedTable<T> extends Table<T> {
 	@Override
 	SubTable createListTable(PropertyInterface property) {
 		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
-		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
 			throw new RuntimeException("Not yet implemented");
 		} else {
@@ -84,19 +76,19 @@ public class HistorizedTable<T> extends Table<T> {
 		// if (ColumnAccess.equals(oldObject, object)) return;
 		
 		try {
-			int version = findMaxVersion(id) + 1;
-			
 			try (PreparedStatement endStatement = createStatement(sqlPersistence.getConnection(), endQuery, false)) {
-				endStatement.setInt(1, version);
-				endStatement.setObject(2, id);
+				endStatement.setObject(1, id);
 				endStatement.execute();	
 			}
 			
 			boolean doDelete = object == null;
 			if (doDelete) return;
 			
+			int version = IdUtils.getVersion(object) + 1;
+			IdUtils.setVersion(object, version);
 			try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
-				setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
+				int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
+				updateStatement.setInt(parameterIndex, version);
 				updateStatement.execute();
 			}
 			
@@ -109,21 +101,6 @@ public class HistorizedTable<T> extends Table<T> {
 		}
 	}
 	
-	private int findMaxVersion(Object id) {
-		int result = 0;
-		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false)) {
-			selectMaxVersionStatement.setObject(1, id);
-			try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
-				if (resultSet.next()) {
-					result = resultSet.getInt(1);
-				} 
-				return result;
-			}
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
-		}
-	}
-
 	@Override
 	public T read(Object id) {
 		Authorization.checkGrants(Privilege.SELECT, getClazz());
@@ -181,32 +158,6 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 		}
 	}		
-
-	public List<Integer> readVersions(Object id) {
-		Authorization.checkGrants(Privilege.SELECT, getClazz());
-		try (PreparedStatement readVersionsStatement = createStatement(sqlPersistence.getConnection(), readVersionsQuery, false)) {
-			List<Integer> result = new ArrayList<Integer>();
-			readVersionsStatement.setObject(1, id);
-			ResultSet resultSet = readVersionsStatement.executeQuery();
-			while (resultSet.next()) {
-				int version = resultSet.getInt(1);
-				if (!result.contains(version)) result.add(version);
-			}
-			resultSet.close();
-			
-			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
-				HistorizedSubTable historizedSubTable = (HistorizedSubTable) listTableEntry.getValue();
-				historizedSubTable.readVersions(id, result);
-			}
-			
-			result.remove(Integer.valueOf(0));
-			Collections.sort(result);
-			return result;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read version of " + getTableName() + " with ID " + id);
-		}
-	}
-	
 	
 	// Statements
 
@@ -214,7 +165,7 @@ public class HistorizedTable<T> extends Table<T> {
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM ").append(getTableName()); 
-		query.append(" WHERE id = ? AND version = 0");
+		query.append(" WHERE id = ? AND historized = 0");
 		return query.toString();
 	}
 	
@@ -222,7 +173,7 @@ public class HistorizedTable<T> extends Table<T> {
 	protected String selectAllQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM ").append(getTableName()); 
-		query.append(" WHERE version = 0");
+		query.append(" WHERE historized = 0");
 		return query.toString();
 	}
 	
@@ -241,11 +192,11 @@ public class HistorizedTable<T> extends Table<T> {
 		for (String columnName : getColumns().keySet()) {
 			s.append(columnName).append(", ");
 		}
-		s.append("id, version) VALUES (");
+		s.append("id, version, historized) VALUES (");
 		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?, 0)");
+		s.append("?, 0, 0)");
 
 		return s.toString();
 	}
@@ -259,36 +210,18 @@ public class HistorizedTable<T> extends Table<T> {
 			s.append(name);
 			s.append(", ");
 		}
-		s.append("id, version) VALUES (");
+		s.append("id, version, historized) VALUES (");
 		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?, 0)");
+		s.append("?, ?, 0)");
 
 		return s.toString();
 	}
 
-	private String selectMaxVersionQuery() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("SELECT MAX(version) FROM ").append(getTableName()); 
-		s.append(" WHERE id = ?");
-
-		return s.toString();
-	}
-	
 	private String endQuery() {
 		StringBuilder s = new StringBuilder();
-		s.append("UPDATE ").append(getTableName()).append(" SET version = ? WHERE id = ? AND version = 0");
-		return s.toString();
-	}
-	
-	private String readVersionsQuery() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("SELECT version FROM ").append(getTableName()); 
-		s.append(" WHERE id = ?");
-
+		s.append("UPDATE ").append(getTableName()).append(" SET historized = 1 WHERE id = ? AND historized = 0");
 		return s.toString();
 	}
 	
@@ -296,6 +229,7 @@ public class HistorizedTable<T> extends Table<T> {
 	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
 		super.addSpecialColumns(syntax, s);
 		s.append(",\n version INTEGER NOT NULL");
+		s.append(",\n historized INTEGER NOT NULL");
 	}
 	
 	@Override

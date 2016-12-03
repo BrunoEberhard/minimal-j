@@ -296,11 +296,6 @@ public class SqlPersistence extends Persistence {
 		return table.read(id, time);
 	}
 
-	public List<Integer> readVersions(Class<?> clazz, Object id) {
-		HistorizedTable<?> table = (HistorizedTable<?>) getTable(clazz);
-		return table.readVersions(id);
-	}
-
 	@Override
 	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
 		if (View.class.isAssignableFrom(resultClass)) {
@@ -350,9 +345,10 @@ public class SqlPersistence extends Persistence {
 		@SuppressWarnings("unchecked")
 		Table<T> table = (Table<T>) getTable(clazz);
 		if (table instanceof HistorizedTable) {
-			List<Integer> times = ((HistorizedTable<T>) table).readVersions(id);
-			List<T> result = new ArrayList<>();
-			for (int time : times) {	
+			T object = table.read(id);
+			int version = IdUtils.getVersion(object);
+			List<T> result = new ArrayList<>(version);
+			for (int time = 1; time<version; time++) {
 				result.add(((HistorizedTable<T>) table).read(id, time));
 			}
 			return result;
@@ -398,7 +394,7 @@ public class SqlPersistence extends Persistence {
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = StringUtils.toSnakeCase(field.getName()).toUpperCase();
-			if (StringUtils.equals(fieldName, "ID", "VERSION")) continue;
+			if (StringUtils.equals(fieldName, "ID", "VERSION", "HISTORIZED")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
@@ -554,7 +550,7 @@ public class SqlPersistence extends Persistence {
 	
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			boolean historized = FieldUtils.hasValidVersionfield(clazz);
+			boolean historized = FieldUtils.hasValidHistorizedField(clazz);
 			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
 			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
 			tables.put(table.getClazz(), table);

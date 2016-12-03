@@ -1,13 +1,10 @@
 package org.minimalj.persistence.sql;
 
-import java.util.List;
-
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.persistence.sql.EmptyObjects;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
 	
@@ -49,8 +46,8 @@ public class SqlCrudTest {
 		A a3 = persistence.read(A.class, id);
 		Assert.assertNull(a3);
 		
-		List<Integer> version = persistence.readVersions(A.class, id);
-		Assert.assertEquals("While delete, the old version should be still in the db", 1, version.size());
+//		List<Integer> version = persistence.readVersions(A.class, id);
+//		Assert.assertEquals("While delete, the old version should be still in the db", 1, version.size());
 	}
 	
 	@Test
@@ -80,14 +77,15 @@ public class SqlCrudTest {
 		Object id = writeSimpleA();
 		readTheAandAddBandE(id);
 		
-		List<Integer> versions = persistence.readVersions(A.class, id);
-		Assert.assertEquals("A should now have 1 historized version", 1, versions.size());
+		A a = persistence.read(A.class, id);
+		int version = IdUtils.getVersion(a);
+		Assert.assertEquals("A should now have 2 versions (0 and 1)", 1, version);
 		
-		A a3 = persistence.readVersion(A.class, id, versions.get(0));
+		A a3 = persistence.readVersion(A.class, id, 0);
 		Assert.assertEquals("The historized (first) version of A should not have any B attached", 0, a3.b.size());
 		Assert.assertTrue("The historized (first) version of A should not have a E attached", EmptyObjects.isEmpty(a3.e));
 		
-		A a4 = persistence.read(A.class, id);
+		A a4 = persistence.readVersion(A.class, id, 1);
 		Assert.assertEquals("The actual version of A should have a B attached", 1, a4.b.size());
 		Assert.assertNotNull("The actual version of A should have a E attached", a4.e);
 
@@ -95,16 +93,17 @@ public class SqlCrudTest {
 		removeFirstB(id);
 		removeFirstB(id);
 		
-		versions = persistence.readVersions(A.class, id);
-		Assert.assertEquals("A should now have 4 historized versions", 4, versions.size());
+		a = persistence.read(A.class, id);
+		version = IdUtils.getVersion(a);
+		Assert.assertEquals("A should now have 4 historized versions and the actual should be version 4", 4, version);
 
 		Assert.assertEquals("Every B should be removed from the A now", 0, persistence.read(A.class, id).b.size());
 		
 		// now check for the right amount of B's attached to A in every version
-		Assert.assertEquals(1, persistence.readVersion(A.class, id, versions.get(3)).b.size());
-		Assert.assertEquals(2, persistence.readVersion(A.class, id, versions.get(2)).b.size());
-		Assert.assertEquals(1, persistence.readVersion(A.class, id, versions.get(1)).b.size());
-		Assert.assertEquals(0, persistence.readVersion(A.class, id, versions.get(0)).b.size());
+		Assert.assertEquals(1, persistence.readVersion(A.class, id, 3).b.size());
+		Assert.assertEquals(2, persistence.readVersion(A.class, id, 2).b.size());
+		Assert.assertEquals(1, persistence.readVersion(A.class, id, 1).b.size());
+		Assert.assertEquals(0, persistence.readVersion(A.class, id, 0).b.size());
 	}
 	
 	@Test
