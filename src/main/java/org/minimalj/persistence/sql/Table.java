@@ -246,7 +246,7 @@ public class Table<T> extends AbstractTable<T> {
 				result.add(search);
 			}
 			if (this instanceof HistorizedTable) {
-				clause += ") and version = 0";
+				clause += ") and historized = 0";
 			} else {
 				clause += ")";
 			}
