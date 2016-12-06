@@ -21,11 +21,6 @@ public class Criteria implements Serializable {
 		}
 	}
 
-	public Criteria and(Filter filter) {
-		Criteria other = filter.getCriteria();
-		return and(other);
-	}
-	
 	public Criteria or(Criteria other) {
 		if (other != null) {
 			if (other instanceof OrCriteria) {
@@ -114,7 +109,4 @@ public class Criteria implements Serializable {
 		}
 	}
 	
-	public static interface Filter {
-		public Criteria getCriteria();
-	}
 }

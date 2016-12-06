@@ -1,6 +1,5 @@
 package org.minimalj.persistence.criteria;
 
-import org.minimalj.persistence.criteria.Criteria.Filter;
 import org.minimalj.util.StringUtils;
 
 public class By {
@@ -42,10 +41,6 @@ public class By {
 
 	public static Criteria all() {
 		return ALL;
-	}
-
-	public static Criteria filter(Filter filter) {
-		return filter.getCriteria();
 	}
 
 	public static Criteria range(Object key, Object minIncluding, Object maxIncluding) {
