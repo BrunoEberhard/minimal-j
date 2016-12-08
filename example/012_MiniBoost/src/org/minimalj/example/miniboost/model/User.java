@@ -15,15 +15,14 @@ public class User {
 	
 	public final Password password = new Password();
 	
-	@NotEmpty
+	@NotEmpty @Size(50)
 	public String loginname;
 
 	public final List<Role> roles = new ArrayList<>();
 	
 	@Size(50)
 	public String firstname, lastname;
-	@Size(2)
-	public String country;
+	public Country country;
 	@Size(255) @NotEmpty
 	public String email;
 	@Size(50)

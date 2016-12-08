@@ -8,9 +8,15 @@ import java.util.Set;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.example.miniboost.frontend.AddCustomerEditor;
+import org.minimalj.example.miniboost.frontend.AddProjectEditor;
 import org.minimalj.example.miniboost.frontend.CustomerSearchPage;
+import org.minimalj.example.miniboost.frontend.CustomerTablePage;
+import org.minimalj.example.miniboost.frontend.ProjectTablePage;
+import org.minimalj.example.miniboost.frontend.UserEditor;
 import org.minimalj.example.miniboost.model.Customer;
 import org.minimalj.example.miniboost.model.Employee;
+import org.minimalj.example.miniboost.model.Project;
+import org.minimalj.example.miniboost.model.ProjectCost;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
@@ -30,8 +36,18 @@ public class MiniBoostApplication extends Application {
 		List<Action> menu = new ArrayList<>();
 
 		ActionGroup groupOwner = new ActionGroup(Resources.getResourceName(Customer.class));
+		groupOwner.add(new CustomerTablePage());
 		groupOwner.add(new AddCustomerEditor());
 		menu.add(groupOwner);
+
+		ActionGroup groupProject = new ActionGroup(Resources.getResourceName(Project.class));
+		groupProject.add(new ProjectTablePage());
+		groupProject.add(new AddProjectEditor());
+		menu.add(groupProject);
+
+		ActionGroup groupAdmin = new ActionGroup("Setting");
+		groupAdmin.add(new UserEditor());
+		menu.add(groupAdmin);
 		
 		return menu;
 	}
@@ -48,7 +64,7 @@ public class MiniBoostApplication extends Application {
 	
 	@Override
 	public Class<?>[] getEntityClasses() {
-		return new Class[]{Customer.class, Employee.class};
+		return new Class[]{Customer.class, Employee.class, Project.class, ProjectCost.class};
 	}
 	
 	public static void main(String[] args) {
