@@ -10,7 +10,7 @@ import org.minimalj.security.UserPasswordAuthentication;
 import org.minimalj.security.model.UserRole;
 import org.minimalj.util.CloneHelper;
 
-public class MiniBoostAuthorization extends UserPasswordAuthentication {
+public class MiniBoostAuthentication extends UserPasswordAuthentication {
 	private static final long serialVersionUID = 1L;
 
 	@Override
