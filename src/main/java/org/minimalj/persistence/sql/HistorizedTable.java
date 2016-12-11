@@ -81,7 +81,7 @@ public class HistorizedTable<T> extends Table<T> {
 				endStatement.setInt(2, version);
 				endStatement.execute();	
 				if (endStatement.getUpdateCount() == 0) {
-					throw new IllegalStateException("Pessimistic locking failed");
+					throw new IllegalStateException("Optimistic locking failed");
 				}
 			}
 			

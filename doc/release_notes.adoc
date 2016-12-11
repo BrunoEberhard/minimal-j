@@ -4,7 +4,7 @@ Every release contains many small fixes.
 
 === next
 * Frontend: replace special Size class with a simple integer (API change)
-* Persistence: pessimistic locking
+* Persistence: Optimistic locking
 * Persistence: Technical fields (create/edit by/at)
 
 === 1.1.0.0

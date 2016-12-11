@@ -35,7 +35,7 @@ public class Table<T> extends AbstractTable<T> {
 	private static final List<Object> EMPTY_WHERE_CLAUSE = Collections.singletonList("1=1");
 	
 	protected final PropertyInterface idProperty;
-	protected final boolean pessimisticLocking;
+	protected final boolean optimisticLocking;
 	
 	protected final String selectAllQuery;
 
@@ -51,7 +51,7 @@ public class Table<T> extends AbstractTable<T> {
 		this.idProperty = FlatProperties.getProperty(clazz, "id", true);
 		Objects.nonNull(idProperty);
 		
-		this.pessimisticLocking = FieldUtils.hasValidVersionfield(clazz);
+		this.optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
 		List<PropertyInterface> lists = FlatProperties.getListProperties(clazz);
 		this.lists = createListTables(lists);
@@ -160,11 +160,11 @@ public class Table<T> extends AbstractTable<T> {
 	void updateWithId(T object, Object id) {
 		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
 			int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
-			if (pessimisticLocking) {
+			if (optimisticLocking) {
 				updateStatement.setInt(parameterIndex, IdUtils.getVersion(object));
 				updateStatement.execute();
 				if (updateStatement.getUpdateCount() == 0) {
-					throw new IllegalStateException("Pessimistic locking failed");
+					throw new IllegalStateException("Optimistic locking failed");
 				}
 			} else {
 				updateStatement.execute();
@@ -438,9 +438,9 @@ public class Table<T> extends AbstractTable<T> {
 		for (Object columnNameObject : getColumns().keySet()) {
 			s.append((String) columnNameObject).append("= ?, ");
 		}
-		// this is used in a callback where pessimisticLocking is not yet initialized
-		boolean pessimisticLocking = FieldUtils.hasValidVersionfield(clazz);
-		if (pessimisticLocking) {
+		// this is used in a callback where OptimisticLocking is not yet initialized
+		boolean optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
+		if (optimisticLocking) {
 			s.append(" version = version + 1 WHERE id = ? AND version = ?");
 		} else {
 			s.delete(s.length()-2, s.length());
@@ -464,7 +464,7 @@ public class Table<T> extends AbstractTable<T> {
 		} else {
 			syntax.addIdColumn(s, Object.class, 36);
 		}
-		if (pessimisticLocking) {
+		if (optimisticLocking) {
 			s.append(",\n version INTEGER DEFAULT 0");
 		}
 	}

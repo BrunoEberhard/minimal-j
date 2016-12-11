@@ -4,7 +4,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SqlPessimisticLockingTest {
+public class SqlOptimisticLockingTest {
 	
 	private static SqlPersistence persistence;
 	
@@ -18,7 +18,7 @@ public class SqlPessimisticLockingTest {
 	}
 	
 	@Test
-	public void testPessimisticLockingOk() {
+	public void testOptimisticLockingOk() {
 		Q q = new Q();
 		q.string = "A";
 		Object id = persistence.insert(q);
@@ -33,7 +33,7 @@ public class SqlPessimisticLockingTest {
 	}
 
 	@Test(expected = Exception.class)
-	public void testPessimisticLockingFail() {
+	public void testOptimisticLockingFail() {
 		Q q = new Q();
 		q.string = "A";
 		Object id = persistence.insert(q);
@@ -49,7 +49,7 @@ public class SqlPessimisticLockingTest {
 	}
 	
 	@Test
-	public void testHistorizedPessimisticLockingOk() {
+	public void testHistorizedOptimisticLockingOk() {
 		R r = new R();
 		r.string = "A";
 		Object id = persistence.insert(r);
@@ -64,7 +64,7 @@ public class SqlPessimisticLockingTest {
 	}
 
 	@Test(expected = Exception.class)
-	public void testHistorizedPessimisticLockingFail() {
+	public void testHistorizedOptimisticLockingFail() {
 		R r = new R();
 		r.string = "A";
 		Object id = persistence.insert(r);
