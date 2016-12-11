@@ -291,6 +291,75 @@ the argument is a class. If yes the name of the table is returned. Else the name
 The fourth definition uses a trick to further reduce the length of the query definition. It may be too much for you or your
 project. Again, discuss this with your team how would like to handle such things. You also may use an other method name for this trick.
 
+=== Optimistic Locking
+
+In some cases you need to detect if two user modify an entity at the same time. Suppose the two user A and B load an entity at
+nearly the same time and start editing it. When finished both save the entity. If the implementation doesn't take care of this
+situation the user that saves the entity as seconds 'wins'. Meaning his work is saved and the earlier save is overwritten.
+Even worse, the first user is not notified that his work is lost.
+
+There are two strategies for this problem. With pessimistic locking an entity is locked as soon as someone is editing it. Nobody else
+can enter the edit state. When saved the lock is resolved and the entity is free again. This solution works nice but needs
+more work on both implementation and the database. Most of time the other solution is chosen: optimistic locking.
+
+With optimistic locking it's not forbidden to have two user editing the same entity. But when the second user tries to save he
+is notified this is not possible. He has to reload the entity and possible do his work again. This sounds harsh but the optimistic
+part of this strategy is the belief that this happens very rarly.
+
+Pessimistic locking is not part of Minimal-J. It is looked as a special business case that needs special implementation. Minimal-J
+supports (like most other OR-Mapper) only optimistic locking out of the box. You specify an entity to have pessimistic locking
+by adding a *version* field. This field counts up with every modification. You can read this field (although you should not
+have the need to) but you should not change it as this would mess up the implementation of the optimistic locking.
+
+The test class SqlOptimisticLockingTest uses this entity. The only difference to other entity
+classes is the version field. No other special treatment is necessary.
+
+[source,java]
+----
+public class Q {
+	public static final Q $ = Keys.of(Q.class);
+	
+	public Object id;
+	public int version;
+
+	@Size(255)
+	public String string;
+}
+----
+
+One of the tests provokes an exception when trying to update the entity twice without
+reading it after the first update:
+
+[source,java]
+----
+	@Test(expected = Exception.class)
+	public void testOptimisticLockingFail() {
+		Q q = new Q();
+		q.string = "A";
+		Object id = persistence.insert(q);
+		q = persistence.read(Q.class, id);
+		
+		q.string = "B";
+		persistence.update(q);
+		// here the read is forgotten
+		
+		// this tries to update an old version of q
+		q.string = "C";
+		persistence.update(q);
+	}
+----
+
+If you activate the sql logging you see what happens. The first update sets the String to 'B' and the version to 1.
+The second update doesn't do anything as there is still the where clause 'version = 0'. The missing update
+is detected by Minimal-J (in the method updateWithId in the table class).
+
+----
+INSERT INTO Q (STRING, id) VALUES ('A', '1e1ebb02-a604-4ea8-b896-878226aacd5b')
+SELECT * FROM Q WHERE id = '1e1ebb02-a604-4ea8-b896-878226aacd5b'
+UPDATE Q SET STRING= 'B',  version = version + 1 WHERE id = '1e1ebb02-a604-4ea8-b896-878226aacd5b' AND version = 0
+UPDATE Q SET STRING= 'C',  version = version + 1 WHERE id = '1e1ebb02-a604-4ea8-b896-878226aacd5b' AND version = 0
+----
+
 === Create tables
 Normally when starting an application the database for it already exists. The application should not create the tables
 every time it is started. For examples it is actually helpfull that the tables are created because otherwise the
