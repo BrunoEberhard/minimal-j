@@ -420,7 +420,7 @@ public class TechnicalFields {
 }
 ----
 
-Not that the following class produces the exact same database schema as the first class. This is because the name of the
+Note that the following class produces the exact same database schema as the first class. This is because the name of the
 mixin field matches the name of the class. This means no prefix is generated for the fields of the mixin class.
 
 [source, java]
@@ -437,6 +437,41 @@ public class S {
 	public final TechnicalFields technicalFiels = new TechnicalFields();
 }
 ----
+
+=== Historized entities
+
+If you need a complete audit trail for your entities Minimal-J provides an other possibility. It's called historized
+entities. For such entities with every update a new row in the database table is created and the existing one is
+not changed (except for the historized flag which is set to true as soon as a newer entity exists).
+
+To activate historization for entity you have to include a special field called historized of class boolean. Yes,
+really the primitive type not the class type boolean.
+
+[source, java]
+----
+public class R {
+	public static final R $ = Keys.of(R.class);
+	
+	public Object id;
+	public int version;
+	public boolean historized;
+
+	@Size(255)
+	public String string;
+}
+----
+
+You can use this class like any other entity with some exceptions:
+
+* There is a special method on SqlPersistence class that can load the history of an entity:
+public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {...}
+* Historized entities don't support lazy lists (yet).
+
+Historized entities are somehow against the spirit of Minimal-J. They are a very 'special feature' that could probably
+left out. And the feature is not even complete (no lazy lists). But it would be very hard to make the feature
+pluggable and one of the bigger examples really need the historization.
+
+But at the end you don't really have to care about historized entities if you don't want use them. 
 
 === Create tables
 Normally when starting an application the database for it already exists. The application should not create the tables
