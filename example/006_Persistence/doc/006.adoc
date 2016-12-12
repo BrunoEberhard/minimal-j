@@ -353,6 +353,7 @@ If you activate the sql logging you see what happens. The first update sets the 
 The second update doesn't do anything as there is still the where clause 'version = 0'. The missing update
 is detected by Minimal-J (in the method updateWithId in the table class).
 
+[log,txt]
 ----
 INSERT INTO Q (STRING, id) VALUES ('A', '1e1ebb02-a604-4ea8-b896-878226aacd5b')
 SELECT * FROM Q WHERE id = '1e1ebb02-a604-4ea8-b896-878226aacd5b'
