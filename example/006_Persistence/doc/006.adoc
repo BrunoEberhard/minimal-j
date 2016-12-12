@@ -475,7 +475,7 @@ But at the end you don't really have to care about historized entities if you do
 
 === Create tables
 Normally when starting an application the database for it already exists. The application should not create the tables
-every time it is started. For examples it is actually helpfull that the tables are created because otherwise the
+every time it is started. For examples it is actually helpful that the tables are created because otherwise the
 examples would fail or get complicated. But how does the persistence layer know if the tables have to be created?
 
 Answer: there is a third parameter in den SqlPersistence constructor. It's named createTablesOnInitialize . It's default
@@ -486,6 +486,6 @@ There is a special main class named TableCreator. This class you will use to ini
 
 WARNING: There is no check if the used database is a match of the java entities. If you don't newly create the database after
 changing a java entity the persistence layer will probably fail with its operations. For small changes (like name
-changes) you could manually update the database. For structural changes it's recommanded to export the data, delete
+changes) you could manually update the database. For structural changes it's recommended to export the data, delete
 the database, and import after the new creation. At the point where this procedure is too expensive you may be
 experienced enough to manually update the database even for structural changes.
