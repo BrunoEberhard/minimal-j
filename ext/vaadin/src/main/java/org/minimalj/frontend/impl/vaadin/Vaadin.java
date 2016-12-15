@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
@@ -20,9 +21,8 @@ import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
-import org.minimalj.security.LoginAction;
-import org.minimalj.security.LoginAction.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
@@ -120,7 +120,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		topbar.setComponentAlignment(buttonNavigation, Alignment.MIDDLE_LEFT);
 
 		Button buttonLogin = new Button(FontAwesome.SIGN_IN);
-		buttonLogin.addClickListener(e -> new LoginAction(this).action());
+		buttonLogin.addClickListener(e -> Backend.getInstance().getAuthentication().login(this));
 		topbar.addComponent(buttonLogin);
 		topbar.setComponentAlignment(buttonLogin, Alignment.MIDDLE_LEFT);
 		
@@ -159,7 +159,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		splitPanel.setSecondComponent(verticalScrollPane);
 		
 		if (subject == null && Frontend.loginAtStart()) {
-			new LoginAction(this).action();
+			Backend.getInstance().getAuthentication().login(this);
 		} else {
 			show(Application.getInstance().createDefaultPage());
 		}
