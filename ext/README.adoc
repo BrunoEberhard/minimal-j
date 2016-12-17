@@ -23,3 +23,7 @@ Same as vaadin_springboot but to be deployed as servlet.
 == lanterna
 
 A terminal based frontend. Nice showcase but quite incomplete.
+
+== metamodel
+
+Generate a browseable metamodel from the entity classes of an application.
