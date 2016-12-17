@@ -3,6 +3,8 @@ package org.minimalj.security;
 import java.util.Collections;
 import java.util.List;
 
+import org.minimalj.application.DevMode;
+import org.minimalj.backend.Backend;
 import org.minimalj.model.annotation.Grant;
 import org.minimalj.model.annotation.Grant.Privilege;
 import org.minimalj.transaction.Role;
@@ -11,19 +13,23 @@ import org.minimalj.transaction.Transaction;
 public class Authorization {
 
 	public static boolean isAllowed(Transaction<?> transaction) {
-		Role role = getRole(transaction);
-		if (role != null) {
-			List<String> currentRoles = getCurrentRoles();
-			for (String allowingRole : role.value()) {
-				if (currentRoles.contains(allowingRole)) {
-					return true;
+		boolean skipAuthorization = DevMode.isActive() && !Backend.getInstance().isAuthenticationActive();
+		
+		if (!skipAuthorization) {
+			Role role = getRole(transaction);
+			if (role != null) {
+				List<String> currentRoles = getCurrentRoles();
+				for (String allowingRole : role.value()) {
+					if (currentRoles.contains(allowingRole)) {
+						return true;
+					}
 				}
+				return false;
 			}
-			return false;
-		} else {
 			// Transaction specifies no needed role. Every user passes
-			return true;
 		}
+
+		return true;
 	}
 	
 	public static Role getRole(Transaction<?> transaction) {

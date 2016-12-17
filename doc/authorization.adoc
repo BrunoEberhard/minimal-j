@@ -5,10 +5,10 @@ authorization happens when the frontend sends the backend a Transaction to execu
 
 [source,java,title="Backend.java"]
 ----
-	[..]
-	
+    [..]
+
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (!Authorization.isActive() || Authorization.getInstance().isAllowed(transaction)) {
+		if (Authorization.isAllowed(transaction)) {
 			try {
 				currentTransaction.set(transaction);
 				return transaction.execute();
@@ -21,7 +21,7 @@ authorization happens when the frontend sends the backend a Transaction to execu
 	}
 ----
 
-This seems readable not only for the compiler. The Authorization class knows who is logged in (in respect of
+This seems readable not only for the compiler. The Authorization class asks the Subjet class who is logged in (in respect of
 the current Thread). It also provides the method to check if a Transaction is allowed.
 
 NOTE: There are two quite similar classes called Subject and User. Subject has more to do with who is
@@ -118,25 +118,42 @@ import org.minimalj.model.annotation.Grant;
 ----
 Note that packages don't inherit there roles from their parent package. This would lead to a error-prone complexity.
 
-== Authorization configuration
-The Authorization class defines the available users and their roles. There are several specializations to this class:
+== Authentication
+The Authentication class decides if a user may login and keeps track of the currently logged in
+users. The most important method is:
 
-- The TextFileAuthorization takes a file as input for the users and their passwords. The format of this file is described below.
-- The PersistenceAuthorization uses a Persistence instance for that. The Persistence instance can be the one used for all other business entites or a special one.
-- The JaasAuthorization connects Minimal-J to the authorization provided by Java itself.
+[source,java]
+----
+	public abstract void login(LoginListener loginListener);
+----
 
-Which one of this specializations is activated is defined via application properties or the application can set the
-current Authorization. This method has also the highest priority:
+The specializations of this class define what kind of credentials a user must provide to login (most probably a
+user name and a password) and where the list of all users is stored.
 
- 1. The application sets the Authorization object with the static method setInstance at startup. Note that the Authorization
- object cannot be replaced once it is set. 
+The UserPasswordAuthentication is the abstract class which provides the UI action and the transaction to 
+implement a simple name/password login. For a more complex Authentication for example with a token sent to
+the users phone a different UI would be needed.
 
- 2. The property MjUserFile is set to a file.
+The TextFileAuthentication takes a file as input for the users and their passwords. The format of this file is described below.
+Small applications with only a few users may want to use this class.
+
+But most applications want to store their users in the database. They can use PersistenceAuthentication or
+implement a specialization of UserPasswordAuthentication.
+
+== Authentication configuration
+
+The used Authentication is defined with properties. You see in the
+Authentication.create() how this works. 
+
+ 1. if the property MjUserFile is set to a file this file should provide user names as (hashed passwords).
  
- 3. The property MjJaasConfiguration is set.
+ 2. if MjAuthentication is set then it should be the name of a class extending the Authentication class.
  
- 4. If nothing from above the Authorization is disabled. The user will not see the login buttons.
-
+ 3. If both properties are empty the authentication and authorization is disabled.
+ The user will not see the login buttons. In dev mode the user can execute all available transactions.
+ But only in dev mode.
+ 
+ 
 === The user file format
 The file defining the users has a special format. The format is very similar to the one used by Shiro.
 
@@ -156,4 +173,5 @@ application together with at least two arguments (user and password) and it prin
 === Login Dialog
 If the application is started without authentication then the frontend will not show the user the menu entry (or icon)
 to log in. If the authentication is active the frontend must decide if it should confront the user with a login dialog
-right on the start or if it is possible to look around without any authentication.
+right on the start or if it is possible to look around without any authentication. This specification is done
+by an override of the <code>isLoginRequired</code> method in the specific application class.
