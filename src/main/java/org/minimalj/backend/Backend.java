@@ -138,8 +138,7 @@ public class Backend {
 	}
 
 	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
-		return result;
+		return execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
 	}
 
 	public static <T> Object insert(T object) {
