@@ -3,6 +3,7 @@ package org.minimalj.example.miniboost.frontend;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.frontend.element.CountryFormElement;
 import org.minimalj.example.miniboost.model.User;
 import org.minimalj.frontend.action.Action;
@@ -27,6 +28,11 @@ public class UserEditor extends SimpleEditor<User> {
 		return form;
 	}
 
+	@Override
+	protected User save(User user) {
+		return Backend.save(user);
+	}
+	
 	protected List<Action> createAdditionalActions() {
 		List<Action> actions = new ArrayList<>();
 		actions.add(new PasswordEditor());
@@ -44,8 +50,6 @@ public class UserEditor extends SimpleEditor<User> {
 		
 		@Override
 		protected PlainPassword save(PlainPassword changedObject) {
-			
-			
 			return changedObject;
 		}
 	}
