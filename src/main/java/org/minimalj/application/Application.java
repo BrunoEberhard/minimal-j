@@ -110,7 +110,7 @@ public abstract class Application {
 		try {
 			applicationClass = Class.forName(applicationClassName);
 		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException("Could not found Application class: " + applicationClassName);
+			throw new IllegalArgumentException("Could not find Application class: " + applicationClassName);
 		}
 		Object application;
 		try {
