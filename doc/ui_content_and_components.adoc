@@ -1,5 +1,33 @@
 == Frontend details
 
+As a beginner to Minimal-J you may just want to make things work. For that Minimal-J provides
+some simple entry points:
+
+* To *edit* an entity you have to extends the Editor class. Most of the time you can even
+use the SimpleEditor oder the NewObjectEditor. The editor class extends from Action class. A
+complete Editor class can be used in the getNavigation method in the Application class.
+
+* To *display* a single entity there is an ObjectPage. You can use such a Page for example in the
+method createDefaultPage of the Application class.
+
+* To show a *table* of entities there are the classes TablePage, TablePageWithDetail, SimpleTablePageWithDetail,
+SearchPage and SimpleSearchPage.
+
+NOTE: 'Simple' in Minimal-j means that with these classes some first confusing stuff
+can be left out. For example the SimpleEditor has only one generic parameters. A second
+parameter is only needed if the save method returns a different class of objects as the
+class of the edited object.
+
+To learn Minimal-J it's a good idea to start with Editors and Pages. After some time
+you will see that you need a little bit more. For example you need to create special FormElements.
+
+Remember that some things are complicate in Minimal-J on purpose. These are the things
+in my experience lead to problems. First you may think that Minimal-J is too strict. But
+even with the small toolkit you can accomplish complete applications that look very clean
+to your users!
+
+== Key concepts
+
 === Pages
 
 Pages are one of the building blocks of an application. On small device they fill up the whole
@@ -38,7 +66,7 @@ nest components. It's not possible to put a table in a FormElement.
 
 ==== Table
 
-Tables show a list of entities of the same class. Minimal-J doesn't support inheritence for business classes so the objects
+Tables show a list of entities of the same class. Minimal-J doesn't support inheritance for business classes so the objects
 will be really of the same class. Tables are meant to be read only. The displayed objects cannot be edited directly in the table.
 But tables can have a context menu with actions. And a row of table can be double clicked (or 'started' in the way the frontend
 should do it according where it lives).
@@ -92,7 +120,7 @@ SimpleTablePageWithDetail provides a default implementation for that method.
 ==== Html
 
 With html content you can break out from the constraints given by Minimal-J. A HtmlPage can display basically every URL or html
-string. The frontends may depend on system funcionality for that. For example the SwingFrontend uses the JavaFX bridge to the system
+string. The frontends may depend on system functionality for that. For example the SwingFrontend uses the JavaFX bridge to the system
 browser. And for the web based frontend displaying web content is the easiest part.
 
 Displaying html is meant to be used for start or help pages. Also report engines (not in scope for Minimal-J) could present their
@@ -101,7 +129,7 @@ of Minimal-J or to circumvent its rules.
 
 ==== Form
 
-Forms in Minimal-J have basically the same funtion as in HTML.
+Forms in Minimal-J have basically the same function as in HTML.
 You define with a Form what fields of an entity are shown and in which order.
 Fields can depend on each other. This could mean if a checkbox is selected some fields get editable.
 
@@ -111,10 +139,12 @@ the later layout of the form. But you cannot set horizontal weights to a field. 
 ===== FormElement
 
 FormElement objects represent the business side. Fields of an entity are 'bound' to a FormElement.
-Minimal-J doesn't emphasize much on binding.
+Minimal-J doesn't emphasize much on binding. There is no thing like BindingContext. Forms have their
+elements. If an entity is set to the form by calling setObject then the fields from which the
+elements were created are forwarded to the FormElements.
 
 It's very important to note that a FormElement is _not_ a IComponent but _provides_ one. This
-is necessary as the specifc implementations of the components depend on the chosen Frontend.
+is necessary as the specific implementations of the components depend on the chosen Frontend.
 
 The framework provides the basic form elements like the ones for formatted strings, dates, numbers and enumerations. But
 for more complex types you will define your one FormElement classes. Look at the existing examples how to do this!
@@ -122,7 +152,7 @@ for more complex types you will define your one FormElement classes. Look at the
 ===== Inputs / Components
 
 Minimal-J doesn't try to have as many shiny components as possible. Where other frameworks are proud to present pages of predefined components
-Minimal-J restricts you basically to texts, comboboxes and checkboxes (with some veriations).
+Minimal-J restricts you basically to texts, comboboxes and checkboxes (with some variations).
 
-The Frontend class acts a factory for all components. This makes sense as for differend frontends (web or rich client) different components have
+The Frontend class acts a factory for all components. This makes sense as for different frontends (web or rich client) different components have
 to be created.
