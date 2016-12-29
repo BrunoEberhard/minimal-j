@@ -341,9 +341,9 @@ public abstract class AbstractTable<T> {
 				TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
 				if (technicalField != null) {
 					TechnicalFieldType type = technicalField.value();
-					if (type == TechnicalFieldType.EDIT_DATE && mode != ParameterMode.HISTORIZE || type == TechnicalFieldType.CREATE_DATE && mode == ParameterMode.INSERT) {
+					if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && mode == ParameterMode.INSERT) {
 						value = LocalDateTime.now();
-					} else if (type == TechnicalFieldType.EDIT_USER && mode != ParameterMode.HISTORIZE || (type == TechnicalFieldType.CREATE_USER && mode == ParameterMode.INSERT)) {
+					} else if (type == TechnicalFieldType.EDIT_USER || (type == TechnicalFieldType.CREATE_USER && mode == ParameterMode.INSERT)) {
 						Subject subject = Subject.getCurrent();
 						if (subject != null) {
 							value = subject.getName();
