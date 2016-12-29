@@ -45,7 +45,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private final ItemTableModel tableModel;
 	private final TableActionListener<T> listener;
 	
-	public SwingTable(Object[] keys, TableActionListener<T> listener) {
+	public SwingTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		this.keys = keys;
 		this.listener = listener;
 		
@@ -54,7 +54,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		tableModel = new ItemTableModel();
 		table = new JTable(tableModel);
 
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setSelectionMode(multiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
 		table.setRowSelectionAllowed(true);
 		table.setFillsViewportHeight(true);
 		
@@ -105,16 +105,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	public void setObjects(List<T> objects) {
 		tableModel.setObjects(objects);
 	}
-	
-	public T getSelectedObject() {
-		int leadSelectionIndex = table.getSelectionModel().getLeadSelectionIndex();
-		if (leadSelectionIndex >= 0 && leadSelectionIndex < table.getRowCount()) {
-			int leadSelectionIndexInModel = table.convertRowIndexToModel(leadSelectionIndex);
-			return tableModel.getObject(leadSelectionIndexInModel);
-		} else {
-			return null;
-		}
-	}
 
 	public List<T> getSelectedObjects() {
 		List<T> selectedIds = new ArrayList<>(table.getSelectedRowCount());
@@ -130,7 +120,11 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() >= 2 && listener != null) {
-				SwingFrontend.runWithContext(() -> listener.action(getSelectedObject()));
+		        int row = table.rowAtPoint(e.getPoint());
+		        if (e.getClickCount() == 2 && row >= 0) {
+		        	int rowInModel = table.convertRowIndexToModel(row);
+		        	SwingFrontend.runWithContext(() -> listener.action(tableModel.getObject(rowInModel)));
+		        }
 			}
 		}
 	}
@@ -139,7 +133,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (!e.getValueIsAdjusting() && table.isShowing()) {
-				SwingFrontend.runWithContext(() -> listener.selectionChanged(getSelectedObject(), getSelectedObjects()));
+				SwingFrontend.runWithContext(() -> listener.selectionChanged(getSelectedObjects()));
 			}
 		}
 	}

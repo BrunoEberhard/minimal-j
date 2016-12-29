@@ -26,7 +26,7 @@ public class SwingSearchPanel<T> extends JPanel {
 		
 		text = new JTextField();
 		searchButton = new JButton("Search");
-		table = new SwingTable<T>(keys, listener);
+		table = new SwingTable<T>(keys, false, listener);
 
 		JPanel northPanel = new JPanel(new BorderLayout());
 		northPanel.add(text, BorderLayout.CENTER);

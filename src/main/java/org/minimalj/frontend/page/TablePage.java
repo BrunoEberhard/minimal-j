@@ -2,6 +2,7 @@ package org.minimalj.frontend.page;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
@@ -23,11 +24,11 @@ import org.minimalj.util.resources.Resources;
  */
 public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
+	private final boolean multiSelect;
 	private final Object[] keys;
 	private transient ITable<T> table;
 	private transient List<T> objects;
 	private transient List<TableSelectionAction> actions;
-	private transient T selectedObject;
 	private transient List<T> selectedObjects;
 	
 	/*
@@ -38,9 +39,14 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	private transient boolean reloadFlag;
 	
 	public TablePage(Object[] keys) {
+		this.multiSelect = allowMultiselect();
 		this.keys = keys;
 	}
 
+	protected boolean allowMultiselect() {
+		return false;
+	}
+	
 	protected abstract List<T> load();
 
 	@Override
@@ -57,7 +63,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	
 	@Override
 	public IContent getContent() {
-		table = Frontend.getInstance().createTable(keys, this);
+		table = Frontend.getInstance().createTable(keys, multiSelect, this);
 		if (objects == null || reloadFlag) {
 			objects = load();
 			reloadFlag = true;
@@ -66,11 +72,10 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		// for hidden/reshown detail it can happen that getContent is called
 		// for a second time. Then the selection has to be cleared not to keep the old selection
 		// (or table could be reused but than every Frontend has to take care about selection state)
-		selectedObject = null;
 		selectedObjects = null;
 		return table;
 	}
-
+	
 	public int getResultCount() {
 		if (objects == null) {
 			objects = load();
@@ -88,11 +93,10 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	}
 	
 	@Override
-	public void selectionChanged(T selectedObject, List<T> selectedObjects) {
-		this.selectedObject = selectedObject;
+	public void selectionChanged(List<T> selectedObjects) {
 		this.selectedObjects = selectedObjects;
 		if (actions != null) {
-			actions.stream().forEach(action -> action.selectionChanged(selectedObject, selectedObjects));
+			actions.stream().forEach(action -> action.selectionChanged(selectedObjects));
 		}
 	}
 	
@@ -126,13 +130,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			actions.add(this);
 		}
 		
-		public abstract void selectionChanged(T selectedObject, List<T> selectedObjects);
+		public abstract void selectionChanged(List<T> selectedObjects);
 	}
 	
 	public class DeleteDetailAction extends TableSelectionAction {
 
 		public DeleteDetailAction() {
-			selectionChanged(selectedObject, selectedObjects);
+			selectionChanged(selectedObjects);
 		}
 		
 		@Override
@@ -154,7 +158,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 
 		@Override
-		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
+		public void selectionChanged(List<T> selectedObjects) {
 			setEnabled(selectedObjects != null && !selectedObjects.isEmpty());
 		}
 	}	
@@ -171,10 +175,31 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 
 		protected abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject);
 
+		protected DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, List<T> selectedObjects) {
+			if (selectedObjects == null || selectedObjects.size() != 1) {
+				return null;
+			} else {
+				return updateDetailPage(page, selectedObjects.get(0));
+			}
+		}
+		
+//		@Override
+//		public boolean hasmultiSelect() {
+//			for (Method m : this.getClass().getDeclaredMethods()) {
+//				if (m.getName().equals("updateDetailPage")) {
+//					Class<?>[] parameterTypes = m.getParameterTypes();
+//					if (parameterTypes.length == 2 && parameterTypes[0] == Page.class && parameterTypes[1] == List.class) {
+//						return true;
+//					}
+//				}
+//			}
+//			return false;
+//		}
+		
 		@Override
 		public void action(T selectedObject) {
 			if (detailPage != null) {
-				updateDetailPage(selectedObject);
+				updateDetailPage(Collections.singletonList(selectedObject));
 			} else {
 				detailPage = createDetailPage(selectedObject);
 				if (detailPage != null) {
@@ -184,20 +209,20 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 
 		@Override
-		public void selectionChanged(T selectedObject, List<T> selectedObjects) {
-			super.selectionChanged(selectedObject, selectedObjects);
+		public void selectionChanged(List<T> selectedObjects) {
+			super.selectionChanged(selectedObjects);
 			boolean detailVisible = detailPage != null && Frontend.isDetailShown(detailPage); 
 			if (detailVisible) {
-				if (selectedObject != null) {
-					updateDetailPage(selectedObject);
+				if (selectedObjects != null && !selectedObjects.isEmpty()) {
+					updateDetailPage(selectedObjects);
 				} else {
 					Frontend.hideDetail(detailPage);
 				}
 			}
 		}
 		
-		private void updateDetailPage(T selectedObject) {
-			DETAIL_PAGE updatedDetailPage = updateDetailPage(detailPage, selectedObject);
+		private void updateDetailPage(List<T> selectedObjects) {
+			DETAIL_PAGE updatedDetailPage = updateDetailPage(detailPage, selectedObjects);
 			if (Frontend.isDetailShown(detailPage)) {
 				if (updatedDetailPage == null || updatedDetailPage != detailPage) {
 					Frontend.hideDetail(detailPage);
@@ -208,6 +233,16 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 				detailPage = updatedDetailPage;
 			}
 		}
+	}
+	
+	public static interface TablePagemultiSelect<T, DETAIL_PAGE extends Page> {
+		
+		public abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, List<T> selectedObjects);
+
+		public default DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject) {
+			return null;
+		}
+
 	}
 	
 	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, ObjectPage<T>> {

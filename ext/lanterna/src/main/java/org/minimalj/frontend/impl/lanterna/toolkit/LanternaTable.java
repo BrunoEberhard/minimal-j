@@ -36,7 +36,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	private int selectedLine;
 	private final TableActionListener<T> listener;
 	
-	public LanternaTable(Object[] keys, TableActionListener<T> listener) {
+	public LanternaTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		this.properties = convert(keys);
 		this.listener = listener;
 

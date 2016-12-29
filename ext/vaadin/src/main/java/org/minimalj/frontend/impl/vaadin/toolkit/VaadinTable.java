@@ -32,11 +32,11 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
-	public VaadinTable(Object[] keys, TableActionListener<T> listener) {
+	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		this.listener = listener;
 		
 		setSelectable(true);
-		setMultiSelect(false);
+		setMultiSelect(multiSelect);
 		setSizeFull();
 		
 		for (Object key : keys) {

@@ -115,9 +115,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 		Map<String, Object> tableSelection = input.get("tableSelection");
 		if (tableSelection != null && !tableSelection.isEmpty()) {
 			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSelection.get("table"));
-			int row = ((Long) tableSelection.get("row")).intValue();
 			List<Number> rows = ((List<Number>) tableSelection.get("rows"));
-			table.selection(row, rows);
+			table.selection(rows);
 		}
 		
 		String search = (String) input.getObject("search");

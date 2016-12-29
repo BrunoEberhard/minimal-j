@@ -101,8 +101,8 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
-		return new JsonTable<T>(keys, listener);
+	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new JsonTable<T>(keys, multiSelect, listener);
 	}
 
 	@Override

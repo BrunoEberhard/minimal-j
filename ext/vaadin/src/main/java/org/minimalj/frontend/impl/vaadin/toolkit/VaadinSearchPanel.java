@@ -25,7 +25,7 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 		
 		text = new TextField();
 		searchButton = new Button("Search");
-		table = new VaadinTable<T>(keys, listener);
+		table = new VaadinTable<T>(keys, false, listener);
 
 		HorizontalLayout northPanel = new HorizontalLayout();
 		northPanel.setWidth("100%");

@@ -24,7 +24,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final TableActionListener<T> listener;
 	private List<T> objects;
 	
-	public JsonTable(Object[] keys, TableActionListener<T> listener) {
+	public JsonTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
 		this.properties = convert(keys);
 		this.listener = listener;
@@ -35,6 +35,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			headers.add(header);
 		}
 		put("headers", headers);
+		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
 	}
 
@@ -90,13 +91,12 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		listener.action(object);
 	}
 	
-	public void selection(int selectedRow, List<Number> selectedRows) {
-		T selectedObject = objects.get(selectedRow);
+	public void selection(List<Number> selectedRows) {
 		List<T> selectedObjects = new ArrayList<>(selectedRows.size());
 		for (Number r : selectedRows) {
 			selectedObjects.add(objects.get(r.intValue()));
 		}
-		listener.selectionChanged(selectedObject, selectedObjects);
+		listener.selectionChanged(selectedObjects);
 	}
 
 }
