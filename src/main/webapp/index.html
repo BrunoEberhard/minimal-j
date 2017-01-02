@@ -780,6 +780,9 @@ $ICON
 		send(data, true);
 	}
 
+	var lastSelectedTable;
+	var lastSelectedRow;
+	
 	function tableSelection(event, rowElement, row) {
 		if (event.button != 0) return; // only 'left' mouse button should select
 		var tableElement = rowElement;
@@ -790,24 +793,41 @@ $ICON
 		
 		var multiSelect = tableElement.classList.contains("multiSelect");
 		var rows = [];
-		for (var i = 0; i < tableElement.rows.length; i++) {
-			if (tableElement.rows[i].classList.contains("selected")) {
-				if (multiSelect && event.ctrlKey) {
-					rows.push(i);
-				} else {
+		if (multiSelect && lastSelectedTable == tableElement && event.shiftKey) {
+			for (var i = 0; i < tableElement.rows.length; i++) {
+				if (i < row && i < lastSelectedRow || i > row && i > lastSelectedRow) {
 					tableElement.rows[i].classList.remove("selected");
+				} else if (i >= row && i <= lastSelectedRow || i >= lastSelectedRow && i <= row) {
+					rows.push(i);
+					tableElement.rows[i].classList.add("selected");
 				}
 			}
+		} else {
+			for (var i = 0; i < tableElement.rows.length; i++) {
+				if (tableElement.rows[i].classList.contains("selected")) {
+					if (multiSelect && event.ctrlKey) {
+						rows.push(i);
+					} else {
+						tableElement.rows[i].classList.remove("selected");
+					}
+				}
+			}
+			rows.push(row);
+			tableElement.rows[row].classList.add("selected");
 		}
-		rows.push(row);
-		tableElement.rows[row].classList.add("selected");
-
+		lastSelectedTable = tableElement;
+		lastSelectedRow = row;
+		
 		var tableAction = {"table" : tableElement.id, "row" : row, "rows" : rows};
 		var data = {"tableSelection" : tableAction};
 		if (pageElement != undefined) {
 			data.focusPageId = pageElement.id;
 		}
 		send(data, false);
+		
+		if (event.shiftKey || event.ctrlKey) {
+			event.preventDefault();
+		}
 	}
 
 	function tableAction(tableId, row) {
