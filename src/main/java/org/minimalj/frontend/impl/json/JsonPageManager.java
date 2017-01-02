@@ -226,6 +226,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	
 	@Override
 	public void hideDetail(Page page) {
+		output.add("hidePage", visiblePageAndDetailsList.getId(page));
 		visiblePageAndDetailsList.removeAllFrom(page);
 	}
 	

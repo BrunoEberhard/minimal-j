@@ -48,6 +48,10 @@ $ICON
 			for (var i = 0; i<pages.length; i++) {
 				showPage(pages[i]);
 			}
+		} else if ("hidePage" in dataObject) {
+			addNewStateToHistory();
+			hidePage(dataObject.hidePage);
+			saveStateInHistory();
 		} else if (dataObject.pageId) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
@@ -239,6 +243,18 @@ $ICON
 		pageContainerElement.appendChild(pageElement);
 		
 		pageElement.scrollIntoView();
+	}
+	
+	function hidePage(page) {
+		var start = -1;
+		for (var i = 0; i<pageContainerElement.childNodes.length; i++) {
+			if (pageContainerElement.childNodes[i].id == page) {
+				start = i;
+			}
+		}
+		for (var i = pageContainerElement.childNodes.length -1; i>= start; i--) {
+			pageContainerElement.removeChild(pageContainerElement.lastChild);
+		}
 	}
 
 	function togglePageActionMenu(event) {
