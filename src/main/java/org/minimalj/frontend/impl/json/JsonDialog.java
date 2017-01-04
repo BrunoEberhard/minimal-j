@@ -46,7 +46,7 @@ public class JsonDialog extends JsonComponent implements IDialog {
 	public static class JsonSearchDialog<T> extends JsonDialog {
 
 		public JsonSearchDialog(Search<T> search, Object[] keys, TableActionListener<T> listener) {
-			super("SearchDialog", new JsonSearchPanel(search, keys, listener));
+			super("SearchDialog", new JsonSearchPanel<T>(search, keys, listener));
 		}
 		
 	}
