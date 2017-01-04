@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.json;
 
-import java.util.logging.Logger;
-
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.Search;
@@ -11,8 +9,6 @@ import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.EqualsHelper;
 
 public class JsonLookup<T> extends JsonInputComponent<T> implements Input<T> {
-	private static final Logger logger = Logger.getLogger(JsonLookup.class.getName());
-
 	private final Object[] keys;
 	private final Search<T> search;
 
@@ -27,7 +23,7 @@ public class JsonLookup<T> extends JsonInputComponent<T> implements Input<T> {
 	}
 	
 	public JsonDialog showLookupDialog() {
-		dialog = new JsonDialog.JsonSearchDialog(search, keys, new JsonLookupTableListener());
+		dialog = new JsonDialog.JsonSearchDialog<T>(search, keys, new JsonLookupTableListener());
 		return dialog;
 	}
 	
