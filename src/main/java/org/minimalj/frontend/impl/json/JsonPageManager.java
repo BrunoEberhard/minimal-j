@@ -136,13 +136,13 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		String openLookupDialog = (String) input.getObject("openLookupDialog");
 		if (openLookupDialog != null) {
-			JsonLookup lookup = (JsonLookup) componentById.get(openLookupDialog);
+			JsonLookup<?> lookup = (JsonLookup<?>) componentById.get(openLookupDialog);
 			lookup.showLookupDialog();
 		}
 
 		String removeReference = (String) input.getObject("removeReference");
 		if (removeReference != null) {
-			JsonLookup lookup = (JsonLookup) componentById.get(removeReference);
+			JsonLookup<?> lookup = (JsonLookup<?>) componentById.get(removeReference);
 			lookup.setValue(null);
 		}
 		
