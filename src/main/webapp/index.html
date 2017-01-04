@@ -387,7 +387,9 @@ $ICON
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
 			element = document.createElement("div");
 			element.classList.add(type);
-			if (content.value != undefined) {
+			if (content.htmlValue != undefined) {
+				element.innerHTML = content.htmlValue;
+			} else if (content.value != undefined) {
 				element.appendChild(document.createTextNode(content.value));
 			} else {
 				element.innerHTML = "&nbsp;";
