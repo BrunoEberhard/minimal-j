@@ -1,4 +1,4 @@
-package org.minimalj.persistence.sql.viewlisthist;
+package org.minimalj.persistence.sql.lazylisthist;
 
 import java.util.Collections;
 
