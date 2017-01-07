@@ -1,11 +1,14 @@
 package org.minimalj.persistence.sql;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Size;
 import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
@@ -14,7 +17,7 @@ public class SqlCrudTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class, N.class, O.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class);
 	}
 	
 	@AfterClass
@@ -132,48 +135,48 @@ public class SqlCrudTest {
 	
 	@Test(expected = RuntimeException.class)
 	public void testDeleteIdentifiableChild() {
-		N n = new N("testN");
-		O o1 = new O("testO1");
-		O o2 = new O("testO2");
-		n.oList.add(o1);
-		n.oList.add(o2);
+		TestEntity entity = new TestEntity("testN");
+		TestElement e1 = new TestElement("testO1");
+		TestElement e2 = new TestElement("testO2");
+		entity.testElementList.add(e1);
+		entity.testElementList.add(e2);
 		
-		Object n_id = persistence.insert(n);
-		n = persistence.read(N.class, n_id);
+		Object entity_id = persistence.insert(entity);
+		entity = persistence.read(TestEntity.class, entity_id);
 		
-		Assert.assertEquals(2, n.oList.size());
-		o1 = n.oList.get(0);
-		o2 = n.oList.get(1);
-		Assert.assertNotNull(o1.id);
-		Assert.assertNotNull(o2.id);
+		Assert.assertEquals(2, entity.testElementList.size());
+		e1 = entity.testElementList.get(0);
+		e2 = entity.testElementList.get(1);
+		Assert.assertNotNull(e1.id);
+		Assert.assertNotNull(e2.id);
 
-		persistence.delete(o1);
+		persistence.delete(e1);
 
-		n = persistence.read(N.class, n_id);
+		entity = persistence.read(TestEntity.class, entity_id);
 		
-		Assert.assertEquals(1, n.oList.size());
-		o2 = n.oList.get(0);
-		Assert.assertNotNull(o2.id);
+		Assert.assertEquals(1, entity.testElementList.size());
+		e2 = entity.testElementList.get(0);
+		Assert.assertNotNull(e2.id);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testDeleteIdentifiableReference() {
-		N n = new N("testN");
-		O o = new O("testO");
-		n.oReference = o;
+		TestEntity entity = new TestEntity("testN");
+		TestElement e = new TestElement("testO");
+		entity.testElementReference = e;
 		
-		Object n_id = persistence.insert(n);
-		n = persistence.read(N.class, n_id);
+		Object element_id = persistence.insert(entity);
+		entity = persistence.read(TestEntity.class, element_id);
 		
-		Assert.assertNotNull(n.oReference);
-		o = n.oReference;
-		Assert.assertNotNull(o.id);
+		Assert.assertNotNull(entity.testElementReference);
+		e = entity.testElementReference;
+		Assert.assertNotNull(e.id);
 
-		persistence.delete(o);
+		persistence.delete(e);
 
-		n = persistence.read(N.class, n_id);
+		entity = persistence.read(TestEntity.class, element_id);
 		
-		Assert.assertNull(n.oReference);
+		Assert.assertNull(entity.testElementReference);
 	}
 
 	@Test
@@ -217,6 +220,47 @@ public class SqlCrudTest {
 		A a5 = persistence.read(A.class, id);
 		a5.b.remove(0);
 		persistence.update(a5);
+	}
+
+	//
+	
+	public static class TestElement {
+		public static final TestElement $ = Keys.of(TestElement.class);
+		
+		public TestElement() {
+			// needed for reflection constructor
+		}
+		
+		public TestElement(String testElementName) {
+			this.testElementName = testElementName;
+		}
+		
+		public Object id;
+		
+		@Size(30)
+		public String testElementName;
+		
+	}
+
+	public static class TestEntity {
+		public static final TestEntity $ = Keys.of(TestEntity.class);
+		
+		public TestEntity() {
+			// needed for reflection constructor
+		}
+
+		public TestEntity(String testElement) {
+			this.testElement = testElement;
+		}
+
+		public Object id;
+
+		@Size(20)
+		public String testElement;
+		
+		public final List<TestElement> testElementList = new ArrayList<>();
+
+		public TestElement testElementReference;
 	}
 
 }

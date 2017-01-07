@@ -5,22 +5,22 @@ import java.util.List;
 import org.minimalj.model.annotation.Size;
 
 
-public class B {
+public class TestElementB {
 
-	public B() {
+	public TestElementB() {
 		// needed for reflection constructor
 	}
 	
-	public B(String bName) {
-		this.bName = bName;
+	public TestElementB(String name) {
+		this.name = name;
 	}
 	
 	public Object id;
 	public int version;
 	public boolean historized;
 
-	public List<C> c;
+	public List<TestElementC> list;
 	
 	@Size(30)
-	public String bName;
+	public String name;
 }

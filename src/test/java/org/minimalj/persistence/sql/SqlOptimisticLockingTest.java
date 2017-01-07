@@ -3,6 +3,8 @@ package org.minimalj.persistence.sql;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Size;
 
 public class SqlOptimisticLockingTest {
 	
@@ -10,7 +12,7 @@ public class SqlOptimisticLockingTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), Q.class, R.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
 	}
 	
 	@AfterClass
@@ -19,64 +21,85 @@ public class SqlOptimisticLockingTest {
 	
 	@Test
 	public void testOptimisticLockingOk() {
-		Q q = new Q();
-		q.string = "A";
-		Object id = persistence.insert(q);
-		q = persistence.read(Q.class, id);
+		TestEntity entity = new TestEntity();
+		entity.string = "A";
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntity.class, id);
 		
-		q.string = "B";
-		persistence.update(q);
-		q = persistence.read(Q.class, id);
+		entity.string = "B";
+		persistence.update(entity);
+		entity = persistence.read(TestEntity.class, id);
 		
-		q.string = "C";
-		persistence.update(q);
+		entity.string = "C";
+		persistence.update(entity);
 	}
 
 	@Test(expected = Exception.class)
 	public void testOptimisticLockingFail() {
-		Q q = new Q();
-		q.string = "A";
-		Object id = persistence.insert(q);
-		q = persistence.read(Q.class, id);
+		TestEntity entity = new TestEntity();
+		entity.string = "A";
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntity.class, id);
 		
-		q.string = "B";
-		persistence.update(q);
+		entity.string = "B";
+		persistence.update(entity);
 		// here the read is forgotten
 		
 		// this tries to update an old version of q
-		q.string = "C";
-		persistence.update(q);
+		entity.string = "C";
+		persistence.update(entity);
 	}
 	
 	@Test
 	public void testHistorizedOptimisticLockingOk() {
-		R r = new R();
-		r.string = "A";
-		Object id = persistence.insert(r);
-		r = persistence.read(R.class, id);
+		TestEntityHistorized entity = new TestEntityHistorized();
+		entity.string = "A";
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntityHistorized.class, id);
 		
-		r.string = "B";
-		persistence.update(r);
-		r = persistence.read(R.class, id);
+		entity.string = "B";
+		persistence.update(entity);
+		entity = persistence.read(TestEntityHistorized.class, id);
 		
-		r.string = "C";
-		persistence.update(r);
+		entity.string = "C";
+		persistence.update(entity);
 	}
 
 	@Test(expected = Exception.class)
 	public void testHistorizedOptimisticLockingFail() {
-		R r = new R();
-		r.string = "A";
-		Object id = persistence.insert(r);
-		r = persistence.read(R.class, id);
+		TestEntityHistorized entity = new TestEntityHistorized();
+		entity.string = "A";
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntityHistorized.class, id);
 		
-		r.string = "B";
-		persistence.update(r);
+		entity.string = "B";
+		persistence.update(entity);
 		// here the read is forgotten
 		
 		// this tries to update an old version of r
-		r.string = "C";
-		persistence.update(r);
+		entity.string = "C";
+		persistence.update(entity);
+	}
+
+	public static class TestEntity {
+		public static final TestEntity $ = Keys.of(TestEntity.class);
+		
+		public Object id;
+		public int version;
+
+		@Size(255)
+		public String string;
+	}
+	
+	public static class TestEntityHistorized {
+		public static final TestEntityHistorized $ = Keys.of(TestEntityHistorized.class);
+		
+		public Object id;
+		public int version;
+		public boolean historized;
+
+		@Size(255)
+		public String string;
 	}
 
 }

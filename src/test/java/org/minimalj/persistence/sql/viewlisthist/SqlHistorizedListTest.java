@@ -15,59 +15,59 @@ public class SqlHistorizedListTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, B.class, C.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class, TestElementB.class, TestElementC.class);
 	}
 	
 	@Test 
 	public void testInsertWithNewReferencedObject() {
-		A a = new A("A1");
+		TestEntity entity = new TestEntity("A1");
 		
-		B b = new B("B1");
-		a.b = Collections.singletonList(b);
+		TestElementB b = new TestElementB("B1");
+		entity.list = Collections.singletonList(b);
 		
-		C c = new C("C1");
-		b.c = Collections.singletonList(c);
+		TestElementC c = new TestElementC("C1");
+		b.list = Collections.singletonList(c);
 		
-		Object aId = persistence.insert(a);
+		Object entityId = persistence.insert(entity);
 		
-		A a2 = persistence.read(A.class, aId);
-		Assert.assertEquals("B1", a2.b.get(0).bName);
+		TestEntity entity2 = persistence.read(TestEntity.class, entityId);
+		Assert.assertEquals("B1", entity2.list.get(0).name);
 		
 		// lists of c is not loaded
 	}
 	
 	@Test 
 	public void testInsertWithExistingReferencedObject() {
-		B b = new B("B1");
+		TestElementB b = new TestElementB("B1");
 		Object bId = persistence.insert(b);
-		b = persistence.read(B.class, bId);
+		b = persistence.read(TestElementB.class, bId);
 		
-		A a = new A("A1");
-		a.b = Collections.singletonList(b);
+		TestEntity entity = new TestEntity("A1");
+		entity.list = Collections.singletonList(b);
 		
-		Object aId = persistence.insert(a);
+		Object id = persistence.insert(entity);
 		
-		A a2 = persistence.read(A.class, aId);
-		Assert.assertEquals("B1", a2.b.get(0).bName);
+		TestEntity a2 = persistence.read(TestEntity.class, id);
+		Assert.assertEquals("B1", a2.list.get(0).name);
 	}
 	
 	@Test(expected = RuntimeException.class)
 	public void testUnloadedList() {
-		A a = new A("A1");
+		TestEntity entity = new TestEntity("A1");
 		
-		B b = new B("B1");
-		a.b = Collections.singletonList(b);
+		TestElementB b = new TestElementB("B1");
+		entity.list = Collections.singletonList(b);
 		
-		C c = new C("C1");
-		b.c = Collections.singletonList(c);
+		TestElementC c = new TestElementC("C1");
+		b.list = Collections.singletonList(c);
 		
-		Object aId = persistence.insert(a);
+		Object id = persistence.insert(entity);
 		
-		A a2 = persistence.read(A.class, aId);
+		TestEntity entity2 = persistence.read(TestEntity.class, id);
 		
-		Assert.assertEquals(1, a2.b.size());
+		Assert.assertEquals(1, entity2.list.size());
 		
-		a2.b.get(0).c.get(0);
+		entity2.list.get(0).list.get(0);
 	}
 
 }

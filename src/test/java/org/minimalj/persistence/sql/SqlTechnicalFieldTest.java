@@ -5,6 +5,10 @@ import java.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Size;
+import org.minimalj.model.annotation.TechnicalField;
+import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.security.Subject;
 
 public class SqlTechnicalFieldTest {
@@ -13,13 +17,13 @@ public class SqlTechnicalFieldTest {
 
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), S.class, U.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
 	}
 
 	@Test
 	public void testCreate() {
-		S s = new S();
-		s.string = "Testobject";
+		TestEntity entity = new TestEntity();
+		entity.string = "Testobject";
 
 		Subject subject = new Subject();
 		subject.setName("A");
@@ -27,19 +31,19 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(s);
-		s = persistence.read(S.class, id);
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntity.class, id);
 		LocalDateTime after = LocalDateTime.now();
 
-		Assert.assertEquals("A", s.createUser);
-		Assert.assertTrue(before.compareTo(s.createDate) <= 0);
-		Assert.assertTrue(after.compareTo(s.createDate) >= 0);
+		Assert.assertEquals("A", entity.createUser);
+		Assert.assertTrue(before.compareTo(entity.createDate) <= 0);
+		Assert.assertTrue(after.compareTo(entity.createDate) >= 0);
 	}
 
 	@Test
 	public void testEdit() {
-		S s = new S();
-		s.string = "Testobject";
+		TestEntity entity = new TestEntity();
+		entity.string = "Testobject";
 
 		Subject subject = new Subject();
 		subject.setName("B");
@@ -47,33 +51,33 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(s);
-		s = persistence.read(S.class, id);
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntity.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 
 		subject = new Subject();
 		subject.setName("C");
 		Subject.setCurrent(subject);
 
-		s.string = "Changed";
-		persistence.update(s);
-		s = persistence.read(S.class, id);
+		entity.string = "Changed";
+		persistence.update(entity);
+		entity = persistence.read(TestEntity.class, id);
 		LocalDateTime afterEdit = LocalDateTime.now();
 
 		// create time / user should not be changed
-		Assert.assertEquals("B", s.createUser);
-		Assert.assertTrue(before.compareTo(s.createDate) <= 0);
-		Assert.assertTrue(afterInsert.compareTo(s.createDate) >= 0);
+		Assert.assertEquals("B", entity.createUser);
+		Assert.assertTrue(before.compareTo(entity.createDate) <= 0);
+		Assert.assertTrue(afterInsert.compareTo(entity.createDate) >= 0);
 
-		Assert.assertEquals("C", s.editUser);
-		Assert.assertTrue(afterInsert.compareTo(s.editDate) <= 0);
-		Assert.assertTrue(afterEdit.compareTo(s.editDate) >= 0);
+		Assert.assertEquals("C", entity.editUser);
+		Assert.assertTrue(afterInsert.compareTo(entity.editDate) <= 0);
+		Assert.assertTrue(afterEdit.compareTo(entity.editDate) >= 0);
 	}
 
 	@Test
 	public void testCreateHistorized() {
-		U u = new U();
-		u.string = "Testobject";
+		TestEntityHistorized entity = new TestEntityHistorized();
+		entity.string = "Testobject";
 
 		Subject subject = new Subject();
 		subject.setName("A");
@@ -81,19 +85,19 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(u);
-		u = persistence.read(U.class, id);
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntityHistorized.class, id);
 		LocalDateTime after = LocalDateTime.now();
 
-		Assert.assertEquals("A", u.createUser);
-		Assert.assertTrue(before.compareTo(u.createDate) <= 0);
-		Assert.assertTrue(after.compareTo(u.createDate) >= 0);
+		Assert.assertEquals("A", entity.createUser);
+		Assert.assertTrue(before.compareTo(entity.createDate) <= 0);
+		Assert.assertTrue(after.compareTo(entity.createDate) >= 0);
 	}
 
 	@Test
 	public void testEditHistorized() {
-		U u = new U();
-		u.string = "Testobject";
+		TestEntityHistorized entity = new TestEntityHistorized();
+		entity.string = "Testobject";
 
 		Subject subject = new Subject();
 		subject.setName("B");
@@ -101,27 +105,74 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(u);
-		u = persistence.read(U.class, id);
+		Object id = persistence.insert(entity);
+		entity = persistence.read(TestEntityHistorized.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 
 		subject = new Subject();
 		subject.setName("C");
 		Subject.setCurrent(subject);
 
-		u.string = "Changed";
-		persistence.update(u);
-		u = persistence.read(U.class, id);
+		entity.string = "Changed";
+		persistence.update(entity);
+		entity = persistence.read(TestEntityHistorized.class, id);
 		LocalDateTime afterEdit = LocalDateTime.now();
 
 		// create time / user should not be changed
-		Assert.assertEquals("B", u.createUser);
-		Assert.assertTrue(before.compareTo(u.createDate) <= 0);
-		Assert.assertTrue(afterInsert.compareTo(u.createDate) >= 0);
+		Assert.assertEquals("B", entity.createUser);
+		Assert.assertTrue(before.compareTo(entity.createDate) <= 0);
+		Assert.assertTrue(afterInsert.compareTo(entity.createDate) >= 0);
 
-		Assert.assertEquals("C", u.editUser);
-		Assert.assertTrue(afterInsert.compareTo(u.editDate) <= 0);
-		Assert.assertTrue(afterEdit.compareTo(u.editDate) >= 0);
+		Assert.assertEquals("C", entity.editUser);
+		Assert.assertTrue(afterInsert.compareTo(entity.editDate) <= 0);
+		Assert.assertTrue(afterEdit.compareTo(entity.editDate) >= 0);
+	}
+	
+	public static class TestEntity {
+		public static final TestEntity $ = Keys.of(TestEntity.class);
+		
+		public Object id;
+		public int version;
+
+		@Size(255)
+		public String string;
+		
+		@TechnicalField(TechnicalFieldType.CREATE_DATE) 
+		public LocalDateTime createDate;
+		
+		@TechnicalField(TechnicalFieldType.CREATE_USER) @Size(255)
+		public String createUser;
+
+		@TechnicalField(TechnicalFieldType.EDIT_DATE)
+		public LocalDateTime editDate;
+		
+		@TechnicalField(TechnicalFieldType.EDIT_USER) @Size(255)
+		public String editUser;
+
 	}
 
+	public static class TestEntityHistorized {
+		public static final TestEntityHistorized $ = Keys.of(TestEntityHistorized.class);
+		
+		public Object id;
+		public int version;
+		public boolean historized;
+
+		@Size(255)
+		public String string;
+		
+		@TechnicalField(TechnicalFieldType.CREATE_DATE) 
+		public LocalDateTime createDate;
+		
+		@TechnicalField(TechnicalFieldType.CREATE_USER) @Size(255)
+		public String createUser;
+
+		@TechnicalField(TechnicalFieldType.EDIT_DATE)
+		public LocalDateTime editDate;
+		
+		@TechnicalField(TechnicalFieldType.EDIT_USER) @Size(255)
+		public String editUser;
+
+	}
+	
 }

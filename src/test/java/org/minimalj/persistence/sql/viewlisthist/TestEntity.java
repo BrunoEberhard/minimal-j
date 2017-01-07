@@ -5,16 +5,16 @@ import java.util.List;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
-public class A {
+public class TestEntity {
 
-	public static final A $ = Keys.of(A.class);
+	public static final TestEntity $ = Keys.of(TestEntity.class);
 	
-	public A() {
+	public TestEntity() {
 		// needed for reflection constructor
 	}
 	
-	public A(String aName) {
-		this.aName = aName;
+	public TestEntity(String name) {
+		this.name = name;
 	}
 	
 	public Object id;
@@ -22,8 +22,8 @@ public class A {
 	public boolean historized;
 	
 	@Size(30)
-	public String aName;
+	public String name;
 
-	public List<B> b;
+	public List<TestElementB> list;
 
 }

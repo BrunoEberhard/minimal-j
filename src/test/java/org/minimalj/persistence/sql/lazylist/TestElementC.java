@@ -3,18 +3,18 @@ package org.minimalj.persistence.sql.lazylist;
 import org.minimalj.model.annotation.Size;
 
 
-public class C {
+public class TestElementC {
 
-	public C() {
+	public TestElementC() {
 		// needed for reflection constructor
 	}
 	
-	public C(String cName) {
-		this.cName = cName;
+	public TestElementC(String name) {
+		this.name = name;
 	}
 	
 	public Object id;
 	
 	@Size(30)
-	public String cName;
+	public String name;
 }

@@ -1,6 +1,6 @@
 package org.minimalj.security.permissiontest;
 
-public class A {
+public class TestEntityA {
 
 	public Object id;
 }

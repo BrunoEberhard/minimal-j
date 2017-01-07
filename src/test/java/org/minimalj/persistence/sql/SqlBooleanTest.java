@@ -2,6 +2,8 @@ package org.minimalj.persistence.sql;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.NotEmpty;
 
 public class SqlBooleanTest {
 
@@ -9,23 +11,35 @@ public class SqlBooleanTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), P.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@Test
 	public void testValidBooleans() {
-		P p = new P();
-		p.notEmptyBoolean = true;
-		p.optionalBoolean = false;
+		TestEntity entity = new TestEntity();
+		entity.notEmptyBoolean = true;
+		entity.optionalBoolean = false;
 		
-		persistence.insert(p);
+		persistence.insert(entity);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testInvalidBooleans() {
-		P p = new P();
+		TestEntity entity = new TestEntity();
 		
-		persistence.insert(p);
+		persistence.insert(entity);
 	}
+	
+	public static class TestEntity {
+		public static final TestEntity $ = Keys.of(TestEntity.class);
+		
+		public Object id;
+		
+		@NotEmpty
+		public Boolean notEmptyBoolean;
+		
+		public Boolean optionalBoolean;
+	}
+
 
 }

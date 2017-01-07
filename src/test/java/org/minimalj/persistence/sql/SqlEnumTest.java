@@ -1,10 +1,12 @@
 package org.minimalj.persistence.sql;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.persistence.sql.SqlPersistence;
 
 public class SqlEnumTest {
 	
@@ -12,7 +14,7 @@ public class SqlEnumTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), F.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@AfterClass
@@ -21,27 +23,36 @@ public class SqlEnumTest {
 	
 	@Test
 	public void testCrudDates() {
-		F f = new F();
-		f.fenum.add(FEnum.element2);
-		f.fenum.add(FEnum.element3);
+		TestEntity entity = new TestEntity();
+		entity.enuum.add(TestEnum.element2);
+		entity.enuum.add(TestEnum.element3);
 		
-		Object id = persistence.insert(f);
+		Object id = persistence.insert(entity);
 
 		//
 		
-		F f2 = persistence.read(F.class, id);
-		Assert.assertEquals(f.fenum.size(), f2.fenum.size());
-		Assert.assertFalse(f2.fenum.contains(FEnum.element1));
-		Assert.assertTrue(f2.fenum.contains(FEnum.element2));
-		Assert.assertTrue(f2.fenum.contains(FEnum.element3));
+		TestEntity entity2 = persistence.read(TestEntity.class, id);
+		Assert.assertEquals(entity.enuum.size(), entity2.enuum.size());
+		Assert.assertFalse(entity2.enuum.contains(TestEnum.element1));
+		Assert.assertTrue(entity2.enuum.contains(TestEnum.element2));
+		Assert.assertTrue(entity2.enuum.contains(TestEnum.element3));
 		
-		f2.fenum.remove(FEnum.element2);
-		persistence.update(f2);
+		entity2.enuum.remove(TestEnum.element2);
+		persistence.update(entity2);
 		
-		F f3 = persistence.read(F.class, id);
-		Assert.assertFalse(f3.fenum.contains(FEnum.element1));
-		Assert.assertFalse(f3.fenum.contains(FEnum.element2));
-		Assert.assertTrue(f3.fenum.contains(FEnum.element3));
+		TestEntity entity3 = persistence.read(TestEntity.class, id);
+		Assert.assertFalse(entity3.enuum.contains(TestEnum.element1));
+		Assert.assertFalse(entity3.enuum.contains(TestEnum.element2));
+		Assert.assertTrue(entity3.enuum.contains(TestEnum.element3));
+	}
+	
+	public static class TestEntity {
+		public Object id;
+
+		public final Set<TestEnum> enuum = new HashSet<>();
 	}
 
+	public enum TestEnum {
+		element1, element2, element3;
+	}
 }

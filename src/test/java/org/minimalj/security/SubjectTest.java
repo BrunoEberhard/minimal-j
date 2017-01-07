@@ -5,9 +5,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.backend.persistence.ReadEntityTransaction;
 import org.minimalj.persistence.sql.SqlPersistence;
-import org.minimalj.security.permissiontest.A;
-import org.minimalj.security.permissiontest.B;
-import org.minimalj.security.permissiontest.C;
+import org.minimalj.security.permissiontest.TestEntityA;
+import org.minimalj.security.permissiontest.TestEntityB;
+import org.minimalj.security.permissiontest.TestEntityC;
 import org.minimalj.security.permissiontest.pkgrole.G;
 import org.minimalj.security.permissiontest.pkgrole.H;
 
@@ -17,13 +17,13 @@ public class SubjectTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, B.class, C.class, G.class, H.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntityA.class, TestEntityB.class, TestEntityC.class, G.class, H.class);
 	}
 	
 	@Test
 	public void testEntityWithoutRole() throws Exception {
 		Assert.assertNull("ReadTransaction without Role annotation to class or package should need no role",
-				Authorization.getRole(new ReadEntityTransaction<>(A.class, null)));
+				Authorization.getRole(new ReadEntityTransaction<>(TestEntityA.class, null)));
 	}
 
 	@Test // roles for entities need to be re implemented
@@ -31,7 +31,7 @@ public class SubjectTest {
 		Subject subject = new Subject();
 		subject.getRoles().add("RoleA");
 		Subject.setCurrent(subject);
-		B b = new B();
+		TestEntityB b = new TestEntityB();
 		try {
 			persistence.insert(b);
 			Assert.fail("RoleA should not allow access to B");
