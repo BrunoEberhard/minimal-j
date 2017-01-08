@@ -1,6 +1,6 @@
 package org.minimalj.security.permissiontest.pkgrole;
 
-public class G {
+public class TestEntityG {
 
 	public Object id;
 

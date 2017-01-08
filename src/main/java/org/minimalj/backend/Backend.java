@@ -162,15 +162,12 @@ public class Backend {
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (Authorization.isAllowed(transaction)) {
-			try {
-				currentTransaction.set(transaction);
-				return transaction.execute();
-			} finally {
-				currentTransaction.set(null);
-			}
-		} else {
-			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
+		Authorization.checkAuthorization(transaction.getClass());
+		try {
+			currentTransaction.set(transaction);
+			return transaction.execute();
+		} finally {
+			currentTransaction.set(null);
 		}
 	}
 	

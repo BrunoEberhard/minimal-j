@@ -79,19 +79,7 @@ Not every read or insert needs a specialized Transaction. If you call read or in
 To restrict access on entities their classes can be annotated
 [source,java]
 ----
-@Grant("RoleX")
-public class Entity {
-
-	[..]
-}
-----
-If the role name is specified then this role is need for all types of Transactions. For read, insert, update
-and delete. But sometimes you may want to restrict only the write access for some user. You can do this by annotate
-different roles for the different types of Transactions:
-[source,java]
-----
-@Grant("ReadRole")
-@Grant(privilege = Privilege.UPDATE, value = "UpdateRole")
+@Role("RoleX")
 public class Entity {
 
 	[..]
@@ -109,12 +97,10 @@ the permission for most of your entities on a package level and only annotate th
 is also a good idea so that you don't forget the permission of new classes.
 [source,java,title="package-info.java"]
 ----
-@Grant("pkgRole")
-@Grant(privilege = org.minimalj.model.annotation.Grant.Privilege.SELECT, value = "ReadPkgRole")
-@Grant(privilege = org.minimalj.model.annotation.Grant.Privilege.UPDATE, value = "UpdatePkgRole")
+@Role("pkgRole")
 package org.minimalj.security.permissiontest.pkgrole;
 
-import org.minimalj.model.annotation.Grant;
+import org.minimalj.transaction.Role;
 ----
 Note that packages don't inherit there roles from their parent package. This would lead to a error-prone complexity.
 

@@ -2,11 +2,13 @@ package org.minimalj.security.permissiontest.pkgrole;
 
 import org.minimalj.backend.persistence.PersistenceTransaction;
 import org.minimalj.persistence.Persistence;
+import org.minimalj.transaction.Role;
 
-public class T<ENTITY, RETURN> extends PersistenceTransaction<ENTITY, RETURN> {
+@Role("transactionRole")
+public class TestTransactionU<ENTITY, RETURN> extends PersistenceTransaction<ENTITY, RETURN> {
 	private static final long serialVersionUID = 1L;
 
-	public T() {
+	public TestTransactionU() {
 	}
 
 	@Override
@@ -14,3 +16,4 @@ public class T<ENTITY, RETURN> extends PersistenceTransaction<ENTITY, RETURN> {
 		return null;
 	}
 }
+

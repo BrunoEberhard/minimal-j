@@ -1,8 +1,8 @@
 package org.minimalj.security.permissiontest;
 
-import org.minimalj.model.annotation.Grant;
+import org.minimalj.transaction.Role;
 
-@Grant("RoleB")
+@Role("RoleB")
 public class TestEntityB {
 
 	public Object id;

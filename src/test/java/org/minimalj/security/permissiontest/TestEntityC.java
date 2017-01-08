@@ -1,10 +1,8 @@
 package org.minimalj.security.permissiontest;
 
-import org.minimalj.model.annotation.Grant;
-import org.minimalj.model.annotation.Grant.Privilege;
+import org.minimalj.transaction.Role;
 
-@Grant("ReadRole")
-@Grant(privilege = Privilege.UPDATE, value = "UpdateRole")
+@Role("ReadRole")
 public class TestEntityC {
 
 	public Object id;
