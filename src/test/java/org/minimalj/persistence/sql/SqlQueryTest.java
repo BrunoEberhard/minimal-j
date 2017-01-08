@@ -4,7 +4,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.persistence.sql.SqlPersistence;
 
 public class SqlQueryTest {
 
@@ -12,7 +11,7 @@ public class SqlQueryTest {
 
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), G.class);
 	}
 
 	@AfterClass
