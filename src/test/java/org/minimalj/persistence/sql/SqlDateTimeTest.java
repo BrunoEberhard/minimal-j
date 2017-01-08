@@ -8,7 +8,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.persistence.sql.SqlPersistence;
 
 public class SqlDateTimeTest {
 	
@@ -16,7 +15,7 @@ public class SqlDateTimeTest {
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), D.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntityDates.class);
 	}
 	
 	@AfterClass
@@ -25,7 +24,7 @@ public class SqlDateTimeTest {
 	
 	@Test
 	public void testCrudDates() {
-		D d = new D();
+		TestEntityDates d = new TestEntityDates();
 		d.localDate = LocalDate.of(2000, 1, 2);
 		d.localTime = LocalTime.of(12, 34, 56);
 		d.localDateTime = LocalDateTime.of(2001, 2, 3, 10, 20, 30);
@@ -34,10 +33,19 @@ public class SqlDateTimeTest {
 
 		//
 		
-		D d2 = persistence.read(D.class, id);
+		TestEntityDates d2 = persistence.read(TestEntityDates.class, id);
 		Assert.assertEquals(d.localDate, d2.localDate);
 		Assert.assertEquals(d.localTime, d2.localTime);
 		Assert.assertEquals(d.localDateTime, d2.localDateTime);
+	}
+	
+	public static class TestEntityDates {
+		public Object id;
+		
+		public LocalDate localDate;
+		public LocalTime localTime;
+		public LocalDateTime localDateTime;
+		
 	}
 
 }
