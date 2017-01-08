@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.minimalj.persistence.criteria.By;
 import org.minimalj.persistence.criteria.Criteria;
 import org.minimalj.persistence.criteria.SearchCriteria;
-import org.minimalj.persistence.sql.SqlPersistence;
 
 public class SqlCriteriaTest {
 
@@ -17,7 +16,7 @@ public class SqlCriteriaTest {
 
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class);
+		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), G.class);
 	}
 
 	@AfterClass
