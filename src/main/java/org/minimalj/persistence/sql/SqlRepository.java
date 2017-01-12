@@ -39,7 +39,7 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 import org.minimalj.persistence.criteria.By;
 import org.minimalj.persistence.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
@@ -56,8 +56,8 @@ import org.minimalj.util.StringUtils;
  * The Mapper to a relationale Database
  * 
  */
-public class SqlPersistence extends Persistence {
-	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
+public class SqlRepository extends Repository {
+	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
 	private final SqlSyntax syntax;
@@ -75,11 +75,11 @@ public class SqlPersistence extends Persistence {
 
 	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
-	public SqlPersistence(DataSource dataSource, Class<?>... classes) {
+	public SqlRepository(DataSource dataSource, Class<?>... classes) {
 		this(dataSource, createTablesOnInitialize(dataSource), classes);
 	}
 
-	public SqlPersistence(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
+	public SqlRepository(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
 		this.dataSource = dataSource;
 		this.mainClasses = Arrays.asList(classes);
 		Connection connection = getAutoCommitConnection();

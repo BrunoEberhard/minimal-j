@@ -18,8 +18,8 @@ public class TableCreator {
 		String user = Configuration.get("MjSqlDatabaseUser", "APP");
 		String password = Configuration.get("MjSqlDatabasePassword", "APP");
 		
-		DataSource dataSource = SqlPersistence.mariaDbDataSource(database, user, password);
-		new SqlPersistence(dataSource, SqlPersistence.CREATE_TABLES, application.getEntityClasses());
+		DataSource dataSource = SqlRepository.mariaDbDataSource(database, user, password);
+		new SqlRepository(dataSource, SqlRepository.CREATE_TABLES, application.getEntityClasses());
 	}
 
 }

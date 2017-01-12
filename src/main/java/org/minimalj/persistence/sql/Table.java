@@ -39,12 +39,12 @@ public class Table<T> extends AbstractTable<T> {
 
 	protected final HashMap<PropertyInterface, ListTable> lists;
 	
-	public Table(SqlPersistence sqlPersistence, Class<T> clazz) {
-		this(sqlPersistence, null, clazz);
+	public Table(SqlRepository sqlRepository, Class<T> clazz) {
+		this(sqlRepository, null, clazz);
 	}
 	
-	public Table(SqlPersistence sqlPersistence, String name, Class<T> clazz) {
-		super(sqlPersistence, name, clazz);
+	public Table(SqlRepository sqlRepository, String name, Class<T> clazz) {
+		super(sqlRepository, name, clazz);
 		
 		this.idProperty = FlatProperties.getProperty(clazz, "id", true);
 		Objects.nonNull(idProperty);
@@ -85,7 +85,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public Object insert(T object) {
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
 			Object id;
 			if (IdUtils.hasId(object.getClass())) {
 				id = IdUtils.getId(object);
@@ -100,7 +100,7 @@ public class Table<T> extends AbstractTable<T> {
 			insertStatement.execute();
 			insertLists(object);
 			if (object instanceof Code) {
-				sqlPersistence.invalidateCodeCache(object.getClass());
+				sqlRepository.invalidateCodeCache(object.getClass());
 			}
 			return id;
 		} catch (SQLException x) {
@@ -118,7 +118,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void delete(Object id) {
-		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
+		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
 		} catch (SQLException x) {
@@ -139,9 +139,9 @@ public class Table<T> extends AbstractTable<T> {
 		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
-			return new CrossTable<>(sqlPersistence, subTableName, elementClass, idProperty);
+			return new CrossTable<>(sqlRepository, subTableName, elementClass, idProperty);
 		} else {
-			return new SubTable(sqlPersistence, subTableName, elementClass, idProperty);
+			return new SubTable(sqlRepository, subTableName, elementClass, idProperty);
 		}
 	}
 	
@@ -154,7 +154,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	void updateWithId(T object, Object id) {
-		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
+		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
 			int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
 			if (optimisticLocking) {
 				updateStatement.setInt(parameterIndex, IdUtils.getVersion(object));
@@ -172,7 +172,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			
 			if (object instanceof Code) {
-				sqlPersistence.invalidateCodeCache(object.getClass());
+				sqlRepository.invalidateCodeCache(object.getClass());
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
@@ -180,7 +180,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(Object id) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (object != null) {
@@ -278,7 +278,7 @@ public class Table<T> extends AbstractTable<T> {
 	public List<T> read(Criteria criteria, int maxResults) {
 		List<Object> whereClause = whereClause(criteria);
 		String query = "SELECT * FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
@@ -291,7 +291,7 @@ public class Table<T> extends AbstractTable<T> {
 	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
 		List<Object> whereClause = whereClause(criteria);
 		String query = select(resultClass) + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				statement.setObject(i, whereClause.get(i));
 			}
@@ -303,7 +303,7 @@ public class Table<T> extends AbstractTable<T> {
 
 	public <S> S readView(Class<S> resultClass, Object id) {
 		String query = select(resultClass) + " WHERE id = ?";
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
 			statement.setObject(1, id);
 			return executeSelectView(resultClass, statement);
 		} catch (SQLException e) {
@@ -313,7 +313,7 @@ public class Table<T> extends AbstractTable<T> {
 
 	private String select(Class<?> resultClass) {
 		String querySql = "select ID";
-		Map<String, PropertyInterface> propertiesByColumns = sqlPersistence.findColumns(resultClass);
+		Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
 		for (String column : propertiesByColumns.keySet()) {
 			querySql += ", ";
 			querySql += column;
@@ -327,7 +327,7 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next() && result.size() < maxResults) {
-				S resultObject = sqlPersistence.readResultSetRow(resultClass, resultSet, loadedReferences);
+				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 				result.add(resultObject);
 
 				// this may work, but make it readable
@@ -353,7 +353,7 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			if (resultSet.next()) {
-				result = sqlPersistence.readResultSetRow(resultClass, resultSet, loadedReferences);
+				result = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 			}
 		}
 		return result;

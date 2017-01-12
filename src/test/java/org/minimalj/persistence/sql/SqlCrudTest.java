@@ -13,11 +13,11 @@ import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
 	
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class);
 	}
 	
 	@AfterClass
@@ -27,31 +27,31 @@ public class SqlCrudTest {
 	@Test
 	public void testInsertAndDelete() {
 		G g = new G("testName1");
-		Object id = persistence.insert(g);
+		Object id = repository.insert(g);
 		
-		G g2 = persistence.read(G.class, id);
+		G g2 = repository.read(G.class, id);
 		Assert.assertNotNull(g2);
 		
-		persistence.delete(g2);
+		repository.delete(g2);
 		
-		G g3 = persistence.read(G.class, id);
+		G g3 = repository.read(G.class, id);
 		Assert.assertNull(g3);
 	}
 	
 	@Test
 	public void testInsertAndDeleteHistorized() {
 		A a = new A("testName1");
-		Object id = persistence.insert(a);
+		Object id = repository.insert(a);
 		
-		A a2 = persistence.read(A.class, id);
+		A a2 = repository.read(A.class, id);
 		Assert.assertNotNull(a2);
 		
-		persistence.delete(a2);
+		repository.delete(a2);
 		
-		A a3 = persistence.read(A.class, id);
+		A a3 = repository.read(A.class, id);
 		Assert.assertNull(a3);
 		
-		List<A> history = persistence.loadHistory(A.class, id, 1);
+		List<A> history = repository.loadHistory(A.class, id, 1);
 		Assert.assertFalse(history.isEmpty());
 
 		Assert.assertTrue(history.get(0).historized);
@@ -68,11 +68,11 @@ public class SqlCrudTest {
 		a.c.add(new C("testNameC2"));
 		a.c.add(new C("testNameC3"));
 
-		Object id = persistence.insert(a);
+		Object id = repository.insert(a);
 
 		//
 		
-		A a2 = persistence.read(A.class, id);
+		A a2 = repository.read(A.class, id);
 		Assert.assertEquals("The string in the first B of A should match the original String", "testNameB1", a2.b.get(0).bName);
 		Assert.assertEquals("The string in the second C of A should match the original String", "testNameC2", a2.c.get(1).cName);
 		Assert.assertEquals("The count of the B's attached to A should match", 2, a2.b.size());
@@ -84,15 +84,15 @@ public class SqlCrudTest {
 		Object id = writeSimpleA();
 		readTheAandAddBandE(id);
 		
-		A a = persistence.read(A.class, id);
+		A a = repository.read(A.class, id);
 		int version = IdUtils.getVersion(a);
 		Assert.assertEquals("A should now have 2 versions (0 and 1)", 1, version);
 		
-		A a3 = persistence.readVersion(A.class, id, 0);
+		A a3 = repository.readVersion(A.class, id, 0);
 		Assert.assertEquals("The historized (first) version of A should not have any B attached", 0, a3.b.size());
 		Assert.assertTrue("The historized (first) version of A should not have a E attached", EmptyObjects.isEmpty(a3.e));
 		
-		A a4 = persistence.readVersion(A.class, id, 1);
+		A a4 = repository.readVersion(A.class, id, 1);
 		Assert.assertEquals("The actual version of A should have a B attached", 1, a4.b.size());
 		Assert.assertNotNull("The actual version of A should have a E attached", a4.e);
 
@@ -100,36 +100,36 @@ public class SqlCrudTest {
 		removeFirstB(id);
 		removeFirstB(id);
 		
-		a = persistence.read(A.class, id);
+		a = repository.read(A.class, id);
 		version = IdUtils.getVersion(a);
 		Assert.assertEquals("A should now have 4 historized versions and the actual should be version 4", 4, version);
 
-		Assert.assertEquals("Every B should be removed from the A now", 0, persistence.read(A.class, id).b.size());
+		Assert.assertEquals("Every B should be removed from the A now", 0, repository.read(A.class, id).b.size());
 		
 		// now check for the right amount of B's attached to A in every version
-		Assert.assertEquals(1, persistence.readVersion(A.class, id, 3).b.size());
-		Assert.assertEquals(2, persistence.readVersion(A.class, id, 2).b.size());
-		Assert.assertEquals(1, persistence.readVersion(A.class, id, 1).b.size());
-		Assert.assertEquals(0, persistence.readVersion(A.class, id, 0).b.size());
+		Assert.assertEquals(1, repository.readVersion(A.class, id, 3).b.size());
+		Assert.assertEquals(2, repository.readVersion(A.class, id, 2).b.size());
+		Assert.assertEquals(1, repository.readVersion(A.class, id, 1).b.size());
+		Assert.assertEquals(0, repository.readVersion(A.class, id, 0).b.size());
 	}
 	
 	@Test
 	public void testDependable() throws Exception {
 		H h = new H();
-		Object id = persistence.insert(h);
+		Object id = repository.insert(h);
 
-		h = persistence.read(H.class, id);
+		h = repository.read(H.class, id);
 		h.k = new K("Test");
-		persistence.update(h);
+		repository.update(h);
 
-		h = persistence.read(H.class, id);
+		h = repository.read(H.class, id);
 		Assert.assertNotNull("Dependable should be available", h.k);
 		Assert.assertEquals("Content of dependable should be stored", "Test", h.k.k);
 		
 		h.k = null;
-		persistence.update(h);
+		repository.update(h);
 
-		h = persistence.read(H.class, id);
+		h = repository.read(H.class, id);
 		Assert.assertNull("Dependable should be removed", h.k);
 	}
 	
@@ -141,8 +141,8 @@ public class SqlCrudTest {
 		entity.testElementList.add(e1);
 		entity.testElementList.add(e2);
 		
-		Object entity_id = persistence.insert(entity);
-		entity = persistence.read(TestEntity.class, entity_id);
+		Object entity_id = repository.insert(entity);
+		entity = repository.read(TestEntity.class, entity_id);
 		
 		Assert.assertEquals(2, entity.testElementList.size());
 		e1 = entity.testElementList.get(0);
@@ -150,9 +150,9 @@ public class SqlCrudTest {
 		Assert.assertNotNull(e1.id);
 		Assert.assertNotNull(e2.id);
 
-		persistence.delete(e1);
+		repository.delete(e1);
 
-		entity = persistence.read(TestEntity.class, entity_id);
+		entity = repository.read(TestEntity.class, entity_id);
 		
 		Assert.assertEquals(1, entity.testElementList.size());
 		e2 = entity.testElementList.get(0);
@@ -165,16 +165,16 @@ public class SqlCrudTest {
 		TestElement e = new TestElement("testO");
 		entity.testElementReference = e;
 		
-		Object element_id = persistence.insert(entity);
-		entity = persistence.read(TestEntity.class, element_id);
+		Object element_id = repository.insert(entity);
+		entity = repository.read(TestEntity.class, element_id);
 		
 		Assert.assertNotNull(entity.testElementReference);
 		e = entity.testElementReference;
 		Assert.assertNotNull(e.id);
 
-		persistence.delete(e);
+		repository.delete(e);
 
-		entity = persistence.read(TestEntity.class, element_id);
+		entity = repository.read(TestEntity.class, element_id);
 		
 		Assert.assertNull(entity.testElementReference);
 	}
@@ -182,44 +182,44 @@ public class SqlCrudTest {
 	@Test
 	public void testByteArray() throws Exception {
 		M m = new M();
-		Object id = persistence.insert(m);
+		Object id = repository.insert(m);
 
-		m = persistence.read(M.class, id);
+		m = repository.read(M.class, id);
 		m.bytes = new byte[]{1,2,3};
-		persistence.update(m);
+		repository.update(m);
 
-		m = persistence.read(M.class, id);
+		m = repository.read(M.class, id);
 		Assert.assertNotNull("Byte array should be available", m.bytes);
 		Assert.assertEquals("Content of byte array should be stored", 3, m.bytes.length);
 		
-		persistence.delete(m);
+		repository.delete(m);
 	}
 
 	private Object writeSimpleA() {
 		A a = new A("testName1");
 
-		Object id = persistence.insert(a);
+		Object id = repository.insert(a);
 		return id;
 	}
 
 	private void readTheAandAddBandE(Object id) {
-		A a2 = persistence.read(A.class, id);
+		A a2 = repository.read(A.class, id);
 		a2.b.add(new B("testNameB1"));
 		a2.e = new E();
 		a2.e.e = "AddedE";
 		
-		persistence.update(a2);
+		repository.update(a2);
 	}
 
 	private void addAnotherB(final A a4) {
 		a4.b.add(new B("testNameB2"));
-		persistence.update(a4);
+		repository.update(a4);
 	}
 
 	private void removeFirstB(final Object id) {
-		A a5 = persistence.read(A.class, id);
+		A a5 = repository.read(A.class, id);
 		a5.b.remove(0);
-		persistence.update(a5);
+		repository.update(a5);
 	}
 
 	//

@@ -2,7 +2,7 @@ package org.minimalj.backend.persistence;
 
 import java.util.Objects;
 
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.IdUtils;
 
@@ -36,8 +36,8 @@ public class DeleteEntityTransaction<ENTITY> extends PersistenceTransaction<ENTI
 	}
 
 	@Override
-	public Void execute(Persistence persistence) {
-		persistence.delete(getEntityClazz(), id);
+	public Void execute(Repository repository) {
+		repository.delete(getEntityClazz(), id);
 		return null;
 	}
 }

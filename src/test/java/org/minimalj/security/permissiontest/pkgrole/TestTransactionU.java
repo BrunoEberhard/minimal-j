@@ -1,7 +1,7 @@
 package org.minimalj.security.permissiontest.pkgrole;
 
 import org.minimalj.backend.persistence.PersistenceTransaction;
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 import org.minimalj.transaction.Role;
 
 @Role("transactionRole")
@@ -12,7 +12,7 @@ public class TestTransactionU<ENTITY, RETURN> extends PersistenceTransaction<ENT
 	}
 
 	@Override
-	protected RETURN execute(Persistence persistence) {
+	protected RETURN execute(Repository repository) {
 		return null;
 	}
 	

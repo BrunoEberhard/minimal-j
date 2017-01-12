@@ -2,8 +2,8 @@ package org.minimalj.backend.persistence;
 
 import java.util.List;
 
-import org.minimalj.persistence.Persistence;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.Repository;
+import org.minimalj.persistence.sql.SqlRepository;
 import org.minimalj.util.IdUtils;
 
 public class ReadHistoryTransaction<ENTITY> extends ReadTransaction<ENTITY, List<ENTITY>> {
@@ -30,13 +30,13 @@ public class ReadHistoryTransaction<ENTITY> extends ReadTransaction<ENTITY, List
 	}
 	
 	@Override
-	public List<ENTITY> execute(Persistence persistence) {
-		if (persistence instanceof SqlPersistence) {
-			SqlPersistence sqlPersistence = (SqlPersistence) persistence;
-			List<ENTITY>	result = sqlPersistence.loadHistory(getEntityClazz(), id, maxResults);
+	public List<ENTITY> execute(Repository repository) {
+		if (repository instanceof SqlRepository) {
+			SqlRepository sqlRepository = (SqlRepository) repository;
+			List<ENTITY>	result = sqlRepository.loadHistory(getEntityClazz(), id, maxResults);
 			return result;
 		} else {
-			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlPersistence.class.getSimpleName());
+			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlRepository.class.getSimpleName());
 		}
 	}
 

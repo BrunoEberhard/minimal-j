@@ -19,15 +19,15 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 
 	protected final PropertyInterface parentIdProperty;
 	
-	public SubTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
-		super(sqlPersistence, name, clazz);
+	public SubTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+		super(sqlRepository, name, clazz);
 		
 		this.parentIdProperty = parentIdProperty;
 	}
 	
 	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
 				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, IdUtils.getId(parent));
@@ -63,7 +63,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 	
 	protected void update(Object parentId, int position, ELEMENT object) throws SQLException {
-		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
+		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
 			int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
 			updateStatement.setInt(parameterPos++, position);
 			updateStatement.execute();
@@ -71,7 +71,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 
 	protected void insert(Object parentId, int position, ELEMENT object) throws SQLException {
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos++, position);
 			insertStatement.execute();
@@ -79,7 +79,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 	
 	protected void delete(Object parentId, int position) throws SQLException {
-		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
+		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.setInt(2, position);
 			deleteStatement.execute();
@@ -88,7 +88,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);
 		} catch (SQLException x) {

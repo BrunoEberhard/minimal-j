@@ -1,7 +1,7 @@
 package org.minimalj.backend.persistence;
 
-import org.minimalj.persistence.Persistence;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.Repository;
+import org.minimalj.persistence.sql.SqlRepository;
 
 public class ReadEntityTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTITY> {
 	private static final long serialVersionUID = 1L;
@@ -20,16 +20,16 @@ public class ReadEntityTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTIT
 	}
 
 	@Override
-	protected ENTITY execute(Persistence persistence) {
+	protected ENTITY execute(Repository repository) {
 		ENTITY result;
 		if (time == null) {
-			result = persistence.read(getEntityClazz(), id);
+			result = repository.read(getEntityClazz(), id);
 		} else {
-			if (persistence instanceof SqlPersistence) {
-				SqlPersistence sqlPersistence = (SqlPersistence) persistence;
-				result = sqlPersistence.readVersion(getEntityClazz(), id, time);
+			if (repository instanceof SqlRepository) {
+				SqlRepository sqlRepository = (SqlRepository) repository;
+				result = sqlRepository.readVersion(getEntityClazz(), id, time);
 			} else {
-				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlPersistence.class.getSimpleName());
+				throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlRepository.class.getSimpleName());
 			}
 		}
 		return result;

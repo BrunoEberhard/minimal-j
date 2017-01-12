@@ -12,28 +12,27 @@ import javax.sql.DataSource;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.sql.SqlRepository;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
  * The common interface of all types of persistences. Note that specific implementations
- * can have more methods. See for example the <code>execute</code> methods in SqlPersistence
+ * can have more methods. See for example the <code>execute</code> methods in SqlRepository
  *
  */
-public abstract class Persistence {
-	private static final Logger logger = Logger.getLogger(Persistence.class.getName());
+public abstract class Repository {
+	private static final Logger logger = Logger.getLogger(Repository.class.getName());
 
-	public static Persistence create() {
-		String persistenceClassName = Configuration.get("MjPersistence");
-		if (!StringUtils.isBlank(persistenceClassName)) {
+	public static Repository create() {
+		String repositoryClassName = Configuration.get("MjRepository");
+		if (!StringUtils.isBlank(repositoryClassName)) {
 			try {
 				@SuppressWarnings("unchecked")
-				Class<? extends Persistence> persistenceClass = (Class<? extends Persistence>) Class.forName(persistenceClassName);
-				Persistence persistence = persistenceClass.newInstance();
-				return persistence;
+				Class<? extends Repository> repositoryClass = (Class<? extends Repository>) Class.forName(repositoryClassName);
+				return repositoryClass.newInstance();
 			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set persistence failed (" + persistenceClassName + ")");
+				throw new LoggingRuntimeException(x, logger, "Set repository failed (" + repositoryClassName + ")");
 			}
 		} 
 		
@@ -41,7 +40,7 @@ public abstract class Persistence {
 
 		DataSource jndiDataSource = getJndiDataSource();
 		if (jndiDataSource != null) {
-			return new SqlPersistence(jndiDataSource, entityClasses);
+			return new SqlRepository(jndiDataSource, entityClasses);
 		}
 		
 		String database = Configuration.get("MjSqlDatabase");
@@ -50,9 +49,9 @@ public abstract class Persistence {
 		if (StringUtils.isBlank(database)) {
 			String databaseFile = Configuration.get("MjSqlDatabaseFile", null);
 			boolean createTables = databaseFile == null || !new File(databaseFile).exists();
-			return new SqlPersistence(SqlPersistence.embeddedDataSource(databaseFile), createTables, entityClasses);
+			return new SqlRepository(SqlRepository.embeddedDataSource(databaseFile), createTables, entityClasses);
 		} else {
-			return new SqlPersistence(SqlPersistence.mariaDbDataSource(database, user, password), entityClasses);
+			return new SqlRepository(SqlRepository.mariaDbDataSource(database, user, password), entityClasses);
 		}
 	}
 	

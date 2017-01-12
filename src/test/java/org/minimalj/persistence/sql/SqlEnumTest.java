@@ -10,11 +10,11 @@ import org.junit.Test;
 
 public class SqlEnumTest {
 	
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@AfterClass
@@ -27,20 +27,20 @@ public class SqlEnumTest {
 		entity.enuum.add(TestEnum.element2);
 		entity.enuum.add(TestEnum.element3);
 		
-		Object id = persistence.insert(entity);
+		Object id = repository.insert(entity);
 
 		//
 		
-		TestEntity entity2 = persistence.read(TestEntity.class, id);
+		TestEntity entity2 = repository.read(TestEntity.class, id);
 		Assert.assertEquals(entity.enuum.size(), entity2.enuum.size());
 		Assert.assertFalse(entity2.enuum.contains(TestEnum.element1));
 		Assert.assertTrue(entity2.enuum.contains(TestEnum.element2));
 		Assert.assertTrue(entity2.enuum.contains(TestEnum.element3));
 		
 		entity2.enuum.remove(TestEnum.element2);
-		persistence.update(entity2);
+		repository.update(entity2);
 		
-		TestEntity entity3 = persistence.read(TestEntity.class, id);
+		TestEntity entity3 = repository.read(TestEntity.class, id);
 		Assert.assertFalse(entity3.enuum.contains(TestEnum.element1));
 		Assert.assertFalse(entity3.enuum.contains(TestEnum.element2));
 		Assert.assertTrue(entity3.enuum.contains(TestEnum.element3));

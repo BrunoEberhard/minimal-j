@@ -7,11 +7,11 @@ import org.minimalj.model.annotation.NotEmpty;
 
 public class SqlBooleanTest {
 
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@Test
@@ -20,14 +20,14 @@ public class SqlBooleanTest {
 		entity.notEmptyBoolean = true;
 		entity.optionalBoolean = false;
 		
-		persistence.insert(entity);
+		repository.insert(entity);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testInvalidBooleans() {
 		TestEntity entity = new TestEntity();
 		
-		persistence.insert(entity);
+		repository.insert(entity);
 	}
 	
 	public static class TestEntity {

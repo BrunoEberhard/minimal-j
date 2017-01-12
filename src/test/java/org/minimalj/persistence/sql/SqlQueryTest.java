@@ -7,11 +7,11 @@ import org.junit.Test;
 
 public class SqlQueryTest {
 
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), G.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), G.class);
 	}
 
 	@AfterClass
@@ -21,25 +21,25 @@ public class SqlQueryTest {
 	@Test
 	public void testQuery() {
 		G g = new G("testName1");
-		persistence.insert(g);
+		repository.insert(g);
 
-		g = persistence.execute(G.class, "SELECT * FROM G WHERE g LIKE '%N%'");
+		g = repository.execute(G.class, "SELECT * FROM G WHERE g LIKE '%N%'");
 		Assert.assertNotNull(g);
 
-		g = persistence.execute(G.class, "SELECT * FROM " + persistence.name(G.class) + " WHERE g LIKE '%am%'");
+		g = repository.execute(G.class, "SELECT * FROM " + repository.name(G.class) + " WHERE g LIKE '%am%'");
 		Assert.assertNotNull(g);
 
-		g = persistence.execute(G.class,
-				"SELECT * FROM " + persistence.name(G.class) + " WHERE " + persistence.name(G.$.g) + " LIKE '%est%'");
+		g = repository.execute(G.class,
+				"SELECT * FROM " + repository.name(G.class) + " WHERE " + repository.name(G.$.g) + " LIKE '%est%'");
 		Assert.assertNotNull(g);
 
-		g = persistence.execute(G.class,
+		g = repository.execute(G.class,
 				"SELECT * FROM " + $(G.class) + " WHERE " + $(G.$.g) + " LIKE '%est%'");
 		Assert.assertNotNull(g);
 	}
 	
 	private String $(Object classOrKey) {
-		return persistence.name(classOrKey);
+		return repository.name(classOrKey);
 	}
 	
 }

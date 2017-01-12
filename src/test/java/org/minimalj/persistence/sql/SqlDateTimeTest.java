@@ -11,11 +11,11 @@ import org.junit.Test;
 
 public class SqlDateTimeTest {
 	
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntityDates.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntityDates.class);
 	}
 	
 	@AfterClass
@@ -29,11 +29,11 @@ public class SqlDateTimeTest {
 		d.localTime = LocalTime.of(12, 34, 56);
 		d.localDateTime = LocalDateTime.of(2001, 2, 3, 10, 20, 30);
 		
-		Object id = persistence.insert(d);
+		Object id = repository.insert(d);
 
 		//
 		
-		TestEntityDates d2 = persistence.read(TestEntityDates.class, id);
+		TestEntityDates d2 = repository.read(TestEntityDates.class, id);
 		Assert.assertEquals(d.localDate, d2.localDate);
 		Assert.assertEquals(d.localTime, d2.localTime);
 		Assert.assertEquals(d.localDateTime, d2.localDateTime);

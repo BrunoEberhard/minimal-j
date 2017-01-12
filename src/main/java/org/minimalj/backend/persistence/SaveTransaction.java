@@ -1,6 +1,6 @@
 package org.minimalj.backend.persistence;
 
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 import org.minimalj.util.IdUtils;
 
 public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
@@ -11,14 +11,14 @@ public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 	}
 
 	@Override
-	protected ENTITY execute(Persistence persistence) {
+	protected ENTITY execute(Repository repository) {
 		ENTITY unwrapped = getUnwrapped();
 		Object id = IdUtils.getId(unwrapped); 
 		if (id == null) {
-			id = persistence.insert(unwrapped);
+			id = repository.insert(unwrapped);
 		} else {
-			persistence.update(unwrapped);
+			repository.update(unwrapped);
 		}
-		return (ENTITY) persistence.read(unwrapped.getClass(), id);
+		return (ENTITY) repository.read(unwrapped.getClass(), id);
 	}
 }

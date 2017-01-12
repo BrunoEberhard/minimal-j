@@ -13,9 +13,9 @@ import org.minimalj.backend.persistence.ReadCriteriaTransaction;
 import org.minimalj.backend.persistence.ReadEntityTransaction;
 import org.minimalj.backend.persistence.SaveTransaction;
 import org.minimalj.backend.persistence.UpdateTransaction;
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.sql.SqlRepository;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
 import org.minimalj.transaction.Transaction;
@@ -46,7 +46,7 @@ import org.minimalj.util.StringUtils;
  * </UL>
  */
 public class Backend {
-	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
+	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
 
 	private static Backend instance;
 	
@@ -72,7 +72,7 @@ public class Backend {
 		return new Backend();
 	};
 	
-	private Persistence persistence = null; 
+	private Repository repository = null; 
 	private Boolean authenticationActive = null;
 	private Authentication authentication = null; 
 	private Authorization authorization = null; 
@@ -95,18 +95,18 @@ public class Backend {
 		return instance;
 	}
 	
-	public void setPersistence(Persistence persistence) {
-		this.persistence = persistence;
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 	
-	public Persistence getPersistence() {
+	public Repository getRepository() {
 		if (!isInTransaction()) {
 			throw new IllegalStateException("Persistence may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
-		if (persistence == null) {
-			persistence = Persistence.create();
+		if (repository == null) {
+			repository = Repository.create();
 		}
-		return persistence;
+		return repository;
 	}
 	
 	protected Authentication createAuthentication() {

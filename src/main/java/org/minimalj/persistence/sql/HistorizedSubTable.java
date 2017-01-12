@@ -26,8 +26,8 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
 	
-	public HistorizedSubTable(SqlPersistence sqlPersistence, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
-		super(sqlPersistence, prefix, clazz, parentIdProperty);
+	public HistorizedSubTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+		super(sqlRepository, prefix, clazz, parentIdProperty);
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
@@ -36,7 +36,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		int version = 0;
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
 				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, IdUtils.getId(parent));
@@ -68,7 +68,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 			}
 			
 			if (end) {
-				try (PreparedStatement endStatement = createStatement(sqlPersistence.getConnection(), endQuery, false)) {
+				try (PreparedStatement endStatement = createStatement(sqlRepository.getConnection(), endQuery, false)) {
 					endStatement.setInt(1, version);
 					endStatement.setObject(2, parentId);
 					endStatement.setInt(3, position);
@@ -79,7 +79,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 			}
 			
 			if (insert) {
-				try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+				try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 					int parameterPos = setParameters(insertStatement, objects.get(position), false, ParameterMode.HISTORIZE, parentId);
 					insertStatement.setInt(parameterPos++, position);
 					insertStatement.setInt(parameterPos++, version);
@@ -96,7 +96,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		if (time == null) {
 			return getList(parent);
 		}
-		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
+		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
 			selectByIdAndTimeStatement.setInt(2, time);
 			selectByIdAndTimeStatement.setInt(3, time);
@@ -108,7 +108,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);
 		} catch (SQLException x) {

@@ -9,11 +9,11 @@ import org.minimalj.model.annotation.Size;
 
 public class SqlLongFieldNameTest {
 	
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@AfterClass
@@ -23,14 +23,14 @@ public class SqlLongFieldNameTest {
 	@Test
 	public void testInsertAndDelete() {
 		TestEntity entity = new TestEntity();
-		Object id = persistence.insert(entity);
+		Object id = repository.insert(entity);
 		
-		TestEntity l2 = persistence.read(TestEntity.class, id);
+		TestEntity l2 = repository.read(TestEntity.class, id);
 		Assert.assertNotNull(l2);
 		
-		persistence.delete(l2);
+		repository.delete(l2);
 		
-		TestEntity l3 = persistence.read(TestEntity.class, id);
+		TestEntity l3 = repository.read(TestEntity.class, id);
 		Assert.assertNull(l3);
 	}
 

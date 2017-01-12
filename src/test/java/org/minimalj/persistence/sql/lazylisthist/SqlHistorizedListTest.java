@@ -6,16 +6,16 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.sql.SqlRepository;
 
 @Ignore // HistorizedLazyListTable not yet implemented
 public class SqlHistorizedListTest {
 	
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class, TestElementB.class, TestElementC.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class, TestElementB.class, TestElementC.class);
 	}
 	
 	@Test 
@@ -28,9 +28,9 @@ public class SqlHistorizedListTest {
 		TestElementC c = new TestElementC("C1");
 		b.list = Collections.singletonList(c);
 		
-		Object entityId = persistence.insert(entity);
+		Object entityId = repository.insert(entity);
 		
-		TestEntity entity2 = persistence.read(TestEntity.class, entityId);
+		TestEntity entity2 = repository.read(TestEntity.class, entityId);
 		Assert.assertEquals("B1", entity2.list.get(0).name);
 		
 		// lists of c is not loaded
@@ -39,15 +39,15 @@ public class SqlHistorizedListTest {
 	@Test 
 	public void testInsertWithExistingReferencedObject() {
 		TestElementB b = new TestElementB("B1");
-		Object bId = persistence.insert(b);
-		b = persistence.read(TestElementB.class, bId);
+		Object bId = repository.insert(b);
+		b = repository.read(TestElementB.class, bId);
 		
 		TestEntity entity = new TestEntity("A1");
 		entity.list = Collections.singletonList(b);
 		
-		Object id = persistence.insert(entity);
+		Object id = repository.insert(entity);
 		
-		TestEntity a2 = persistence.read(TestEntity.class, id);
+		TestEntity a2 = repository.read(TestEntity.class, id);
 		Assert.assertEquals("B1", a2.list.get(0).name);
 	}
 	
@@ -61,9 +61,9 @@ public class SqlHistorizedListTest {
 		TestElementC c = new TestElementC("C1");
 		b.list = Collections.singletonList(c);
 		
-		Object id = persistence.insert(entity);
+		Object id = repository.insert(entity);
 		
-		TestEntity entity2 = persistence.read(TestEntity.class, id);
+		TestEntity entity2 = repository.read(TestEntity.class, id);
 		
 		Assert.assertEquals(1, entity2.list.size());
 		

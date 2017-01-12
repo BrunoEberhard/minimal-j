@@ -16,13 +16,13 @@ public class PersistenceExample {
 		AbstractTable.sqlLogger.setLevel(Level.FINEST);
 		AbstractTable.sqlLogger.getParent().getHandlers()[0].setLevel(Level.FINEST);
 		
-		SqlPersistence persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), ExamplePerson.class);
+		SqlRepository repository = new SqlRepository(SqlRepository.embeddedDataSource(), ExamplePerson.class);
 
 		ExamplePerson person = new ExamplePerson();
 		person.firstName = "Peter";
 		person.lastName = "Muster";
 		
-		persistence.insert(person);
+		repository.insert(person);
 	}
 	
 	public static class ExamplePerson {
@@ -35,13 +35,13 @@ public class PersistenceExample {
 }
 ----
 
-This example is not a complete Minimal-J application. The persistence layer can be created independently. This
-is not the recommanded way to use it but it's quite usefull for test or example classes.
+This example is not a complete Minimal-J application. The repository can be created independently. This
+is not the recommended way to use it but it's quite useful for test or example classes.
 
 The first two lines configure the java logging to print out all the execute sql statements. Normally you will
 do this with a logging.properties file.
 
-Then the persistence layer is created. It's a persistence layer over a database. As input parameter a DataSource
+Then the repository is created. It's a persistence layer over a database. As input parameter a DataSource
 is needed. DataSource is a JDK class. It is not as popular as the basic JDBC classes and mostly known to be
 a tricky configuration point when deploying to a web server. Actually it's not that bad. Read more about it at
 oracle https://docs.oracle.com/javase/tutorial/jdbc/basics/sqldatasources.html . 
@@ -51,7 +51,7 @@ methods in Minimal-J that save you all the trouble at the start. In the example 
 You need the derby.jar and derbyclient.jar for that in your classpath. Otherwise you get an exception when
 starting the application.
 
-As second argument the SqlPersistence constructor needs an Array of the model entities. Or at least of the main
+As second argument the SqlRepository constructor needs an Array of the model entities. Or at least of the main
 entities. If these main entities reference some list or inline entities that don't need to be listed.
 
 Then an ExamplePerson is constructed and filled and inserted. Here the log from these actions.
@@ -112,16 +112,16 @@ Minimal-J distinguishes three types of read cases:
 
 3. Read objects by a database specific query
 
-The first two types are independend by the used persistence layer. The third is not. You also see this in the 
-persistence interface
+The first two types are independend by the used repository. The third is not. You also see this in the  repository class
 
-[source,java,title="Persistence.java"]
+[source,java,title="Repository.java"]
 ----
 package org.minimalj.backend;
 
 import [..]
 
-public interface Persistence {
+public abstract class Repository {
+	[..]
 	public <T> T read(Class<T> clazz, Object id);
 	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
 	public <T> Object insert(T object);
@@ -133,35 +133,29 @@ public interface Persistence {
 The first two method correspond to the first to types of read cases.
 
 ==== Read objects by Id
-This is the most simple case. You have the Id of a business entity and know its class. The persistence layer will
+This is the most simple case. You have the Id of a business entity and know its class. The repository will
 find your object:
 [source,java]
 ----
-	Person person = persistence.read(Person.class, id);
+	Person person = repository.read(Person.class, id);
 ----
-The returned person object will be completly filled with all depending objects and views. If the person contains a
+The returned person object will be completely filled with all depending objects and views. If the person contains a
 List of addresses this List will be filled. There is no lazy loading in Minimal-J. If you only want a part of the
 Person to be loaded you need a View of the Person class.
 
-Where do you get the Persistence object? In the example above we created it ourself. But normally the Backend holds
-the single instanceof of the persistence:
+Where do you get the Repository object? In the example above we created it ourself. But normally the Backend holds
+the single instance of of the repository:
 [source,java]
 ----
-    Persistence persistence = Backend.getInstance().getPersistence();
-	Person person = persistence.read(Person.class, id);
-----
-or with the shortcut:
-[source,java]
-----
-    Persistence persistence = Backend.persistence();
-	Person person = persistence.read(Person.class, id);
+    Repository repository = Backend.getInstance().getRepository();
+	Person person = repository.read(Person.class, id);
 ----
 or in one line:
 [source,java]
 ----
 	Person person = Backend.read(Person.class, id);
 ----
-All 3 versions do exactly the same. The first should not be used. You can decide wether you use the second or the
+Both versions do exactly the same. The first should not be used. You can decide wether you use the second or the
 third version. There is really no reason to have two Persistence objects in your application. If you still feel uneasy
 to call static methods you can pass around the Persistence object. 
 

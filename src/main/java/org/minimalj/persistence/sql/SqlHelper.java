@@ -21,10 +21,10 @@ import org.minimalj.util.ReservedSqlWords;
 public class SqlHelper {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
 
-	private final SqlPersistence sqlPersistence;
+	private final SqlRepository sqlRepository;
 	
-	public SqlHelper(SqlPersistence sqlPersistence) {
-		this.sqlPersistence = sqlPersistence;
+	public SqlHelper(SqlRepository sqlRepository) {
+		this.sqlRepository = sqlRepository;
 	}
 	
 	/**
@@ -87,7 +87,7 @@ public class SqlHelper {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (property.getClazz().isArray()) {
 			preparedStatement.setNull(param, Types.BLOB);			
-		} else if (sqlPersistence.tableExists(clazz)) {
+		} else if (sqlRepository.tableExists(clazz)) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else {
 			throw new IllegalArgumentException(clazz.getSimpleName());

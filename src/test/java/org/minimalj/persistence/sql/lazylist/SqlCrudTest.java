@@ -5,16 +5,16 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.sql.SqlRepository;
 import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
 	
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
 	}
 	
 	/*
@@ -29,8 +29,8 @@ public class SqlCrudTest {
 		TestElementC c = new TestElementC("cName");
 		b.list = Collections.singletonList(c);
 		
-		Object id = persistence.insert(entity);
-		return persistence.read(TestEntity.class, id);
+		Object id = repository.insert(entity);
+		return repository.read(TestEntity.class, id);
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class SqlCrudTest {
 		
 		entity.list.add(new TestElementB("bName2"));
 
-		entity = persistence.read(TestEntity.class, IdUtils.getId(entity));
+		entity = repository.read(TestEntity.class, IdUtils.getId(entity));
 
 		Assert.assertEquals("An additional element with id should be persisted when calling add method", 2, entity.list.size());
 	}
@@ -59,8 +59,8 @@ public class SqlCrudTest {
 		TestElementC c2 = new TestElementC("cName2");
 		b.list = Collections.singletonList(c2);
 
-		persistence.update(b);
-		entity = persistence.read(TestEntity.class, IdUtils.getId(entity));
+		repository.update(b);
+		entity = repository.read(TestEntity.class, IdUtils.getId(entity));
 
 		Assert.assertEquals("Update an element should not remove it from its list", 1, entity.list.size());
 		Assert.assertEquals("Update of an element should replace its lists", 1, entity.list.get(0).list.size());
@@ -74,10 +74,10 @@ public class SqlCrudTest {
 
 		entity1.list.add(entity2.list.get(0));
 		
-		entity1 = persistence.read(TestEntity.class, IdUtils.getId(entity1));
+		entity1 = repository.read(TestEntity.class, IdUtils.getId(entity1));
 		Assert.assertEquals("Add of an element should be possible even if it was used before", 2, entity1.list.size());
 
-		entity2 = persistence.read(TestEntity.class, IdUtils.getId(entity2));
+		entity2 = repository.read(TestEntity.class, IdUtils.getId(entity2));
 		Assert.assertEquals("The new usage of the element should not change the existing one", 1, entity2.list.size());
 	}
 

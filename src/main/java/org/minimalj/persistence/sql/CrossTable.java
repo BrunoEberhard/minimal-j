@@ -21,15 +21,15 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 	private final String maxPositionQuery;
 	
-	public CrossTable(SqlPersistence sqlPersistence, String name, Class<ELEMENT> clazz, PropertyInterface idProperty) {
-		super(sqlPersistence, name, clazz, idProperty);
+	public CrossTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface idProperty) {
+		super(sqlRepository, name, clazz, idProperty);
 		maxPositionQuery = maxPositionQuery();
 	}
 	
 	@Override
 	protected void createConstraints(SqlSyntax syntax) {
 		Class<?> referencedClass = ViewUtil.resolve(getClazz());
-		AbstractTable<?> referencedTable = sqlPersistence.getAbstractTable(referencedClass);
+		AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(referencedClass);
 
 		String s = syntax.createConstraint(getTableName(), "elementId", referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
 		if (s != null) {
@@ -45,7 +45,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT element = objects.get(position);
 				Object elementId = getOrCreateId(element);
@@ -61,7 +61,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	
 	@Override
 	protected void update(Object parentId, int position, Object element) throws SQLException {
-		try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
+		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
 			Object elementId = getOrCreateId(element);
 			updateStatement.setObject(1, elementId);
 			updateStatement.setObject(2, parentId);
@@ -73,10 +73,10 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	public ELEMENT addElement(Object parentId, ELEMENT element) {
 		Object elementId = IdUtils.getId(element); 
 		if (elementId == null) {
-			elementId = sqlPersistence.getTable(getClazz()).insert(element);
+			elementId = sqlRepository.getTable(getClazz()).insert(element);
 			IdUtils.setId(element, elementId);
 		}
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), maxPositionQuery, false)) {
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), maxPositionQuery, false)) {
 			statement.setObject(1, parentId);
 			ResultSet resultSet = statement.executeQuery();
 			resultSet.next();
@@ -91,7 +91,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	
 	@Override
 	protected void insert(Object parentId, int position, Object object) throws SQLException {
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, false)) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			Object element = IdUtils.getId(object);
 			insertStatement.setObject(1, element);
 			insertStatement.setObject(2, parentId);
@@ -102,7 +102,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	
 	@Override
 	protected void delete(Object parentId, int position) throws SQLException {
-		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
+		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.setInt(2, position);
 			deleteStatement.execute();
@@ -111,17 +111,17 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent) {
-		return new LazyList<PARENT, ELEMENT>(sqlPersistence, getClazz(), parent, getTableName());
+		return new LazyList<PARENT, ELEMENT>(sqlRepository, getClazz(), parent, getTableName());
 	}
 	
 	public List<ELEMENT> readAll(Object parentId) {
-		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			statement.setObject(1, parentId);
 			List<ELEMENT> result = new ArrayList<>();
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					Object id = resultSet.getObject(1);
-					ELEMENT element = sqlPersistence.getTable(getClazz()).read(id);
+					ELEMENT element = sqlRepository.getTable(getClazz()).read(id);
 					result.add(element);
 				}
 			}
@@ -132,10 +132,10 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	}
 
 	public List<ELEMENT> read(Object parentId, int index, int maxResults) throws SQLException {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, parentId);
 			List<ELEMENT> result = new ArrayList<>();
-			Table<ELEMENT> table = sqlPersistence.getTable(clazz);
+			Table<ELEMENT> table = sqlRepository.getTable(clazz);
 			try (ResultSet resultSet = selectByIdStatement.executeQuery()) {
 				while (resultSet.next() && index > 0) {
 					index = index - 1;

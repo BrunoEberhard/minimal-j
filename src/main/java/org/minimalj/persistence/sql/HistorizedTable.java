@@ -26,8 +26,8 @@ public class HistorizedTable<T> extends Table<T> {
 	private final String endQuery;
 	private final String selectMaxVersionQuery;
 	
-	public HistorizedTable(SqlPersistence sqlPersistence, Class<T> clazz) {
-		super(sqlPersistence, clazz);
+	public HistorizedTable(SqlRepository sqlRepository, Class<T> clazz) {
+		super(sqlRepository, clazz);
 
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 		endQuery = endQuery();
@@ -36,7 +36,7 @@ public class HistorizedTable<T> extends Table<T> {
 
 	@Override
 	public Object insert(T object) {
-		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
 			Object id = IdUtils.getId(object);
 			if (id == null) {
 				id = IdUtils.createId();
@@ -57,7 +57,7 @@ public class HistorizedTable<T> extends Table<T> {
 		if (IdUtils.hasId(elementClass)) {
 			throw new RuntimeException("Not yet implemented");
 		} else {
-			return new HistorizedSubTable(sqlPersistence, buildSubTableName(property), elementClass, idProperty);
+			return new HistorizedSubTable(sqlRepository, buildSubTableName(property), elementClass, idProperty);
 		}
 	}
 	
@@ -70,7 +70,7 @@ public class HistorizedTable<T> extends Table<T> {
 	private void update(Object id, T object) {
 		try {
 			int version = IdUtils.getVersion(object);
-			try (PreparedStatement endStatement = createStatement(sqlPersistence.getConnection(), endQuery, false)) {
+			try (PreparedStatement endStatement = createStatement(sqlRepository.getConnection(), endQuery, false)) {
 				endStatement.setObject(1, id);
 				endStatement.setInt(2, version);
 				endStatement.execute();	
@@ -80,7 +80,7 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 			
 			int newVersion = version + 1;
-			try (PreparedStatement updateStatement = createStatement(sqlPersistence.getConnection(), updateQuery, false)) {
+			try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
 				int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
 				updateStatement.setInt(parameterIndex, newVersion);
 				updateStatement.execute();
@@ -97,7 +97,7 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	public int getMaxVersion(Object id) {
 		int result = 0;
-		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false)) {
+		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlRepository.getConnection(), selectMaxVersionQuery, false)) {
 			selectMaxVersionStatement.setObject(1, id);
 			try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
 				if (resultSet.next()) {
@@ -112,7 +112,7 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	public T read(Object id) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (object != null) {
@@ -126,7 +126,7 @@ public class HistorizedTable<T> extends Table<T> {
 
 	public T read(Object id, Integer time) {
 		if (time != null) {
-			try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
+			try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
 				selectByIdAndTimeStatement.setObject(1, id);
 				selectByIdAndTimeStatement.setInt(2, time);
 				T object = executeSelect(selectByIdAndTimeStatement);
@@ -142,7 +142,7 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	public void delete(Object id) {
-		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
+		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, id);
 			deleteStatement.execute();
 		} catch (SQLException x) {

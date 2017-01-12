@@ -13,11 +13,11 @@ import org.minimalj.security.Subject;
 
 public class SqlTechnicalFieldTest {
 
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
 	}
 
 	@Test
@@ -31,8 +31,8 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(entity);
-		entity = persistence.read(TestEntity.class, id);
+		Object id = repository.insert(entity);
+		entity = repository.read(TestEntity.class, id);
 		LocalDateTime after = LocalDateTime.now();
 
 		Assert.assertEquals("A", entity.createUser);
@@ -51,8 +51,8 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(entity);
-		entity = persistence.read(TestEntity.class, id);
+		Object id = repository.insert(entity);
+		entity = repository.read(TestEntity.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 
 		subject = new Subject();
@@ -60,8 +60,8 @@ public class SqlTechnicalFieldTest {
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";
-		persistence.update(entity);
-		entity = persistence.read(TestEntity.class, id);
+		repository.update(entity);
+		entity = repository.read(TestEntity.class, id);
 		LocalDateTime afterEdit = LocalDateTime.now();
 
 		// create time / user should not be changed
@@ -85,8 +85,8 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(entity);
-		entity = persistence.read(TestEntityHistorized.class, id);
+		Object id = repository.insert(entity);
+		entity = repository.read(TestEntityHistorized.class, id);
 		LocalDateTime after = LocalDateTime.now();
 
 		Assert.assertEquals("A", entity.createUser);
@@ -105,8 +105,8 @@ public class SqlTechnicalFieldTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = persistence.insert(entity);
-		entity = persistence.read(TestEntityHistorized.class, id);
+		Object id = repository.insert(entity);
+		entity = repository.read(TestEntityHistorized.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 
 		subject = new Subject();
@@ -114,8 +114,8 @@ public class SqlTechnicalFieldTest {
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";
-		persistence.update(entity);
-		entity = persistence.read(TestEntityHistorized.class, id);
+		repository.update(entity);
+		entity = repository.read(TestEntityHistorized.class, id);
 		LocalDateTime afterEdit = LocalDateTime.now();
 
 		// create time / user should not be changed

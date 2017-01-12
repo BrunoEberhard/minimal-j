@@ -8,15 +8,15 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.sql.SqlRepository;
 
 public class EnumSetTest {
 
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
 	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), ObjectWithE.class);
+		repository = new SqlRepository(SqlRepository.embeddedDataSource(), ObjectWithE.class);
 	}
 
 	@Test
@@ -68,9 +68,9 @@ public class EnumSetTest {
 	private boolean testWithPersistence(Set<E> testSet) {
 		ObjectWithE object = new ObjectWithE();
 		object.setOfE.addAll(testSet);
-		Object id = persistence.insert(object);
+		Object id = repository.insert(object);
 		
-		ObjectWithE readObject = persistence.read(ObjectWithE.class, id);
+		ObjectWithE readObject = repository.read(ObjectWithE.class, id);
 		Set<E> resultSet = readObject.setOfE;
 		
 		return compareSets(testSet, resultSet);

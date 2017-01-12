@@ -2,7 +2,7 @@ package org.minimalj.backend.persistence;
 
 import java.util.List;
 
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 import org.minimalj.persistence.sql.LazyList;
 import org.minimalj.util.SerializationContainer;
 
@@ -28,8 +28,8 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 		}
 
 		@Override
-		public List<ELEMENT> execute(Persistence persistence) {
-			lazyList.setPersistence(persistence);
+		public List<ELEMENT> execute(Repository repository) {
+			lazyList.setPersistence(repository);
 			return lazyList.getList();
 		}
 	}
@@ -44,8 +44,8 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 		}
 
 		@Override
-		public ELEMENT execute(Persistence persistence) {
-			lazyList.setPersistence(persistence);
+		public ELEMENT execute(Repository repository) {
+			lazyList.setPersistence(repository);
 			return lazyList.get(position);
 		}
 	}
@@ -60,9 +60,9 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 		}
 
 		@Override
-		public ELEMENT execute(Persistence persistence) {
+		public ELEMENT execute(Repository repository) {
 			ELEMENT element = (ELEMENT) SerializationContainer.unwrap(elementWrapped);
-			lazyList.setPersistence(persistence);
+			lazyList.setPersistence(repository);
 			return lazyList.addElement(element);
 		}
 	}
@@ -77,8 +77,8 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 		}
 
 		@Override
-		public ELEMENT execute(Persistence persistence) {
-			lazyList.setPersistence(persistence);
+		public ELEMENT execute(Repository repository) {
+			lazyList.setPersistence(repository);
 			return lazyList.remove(position);
 		}
 	}

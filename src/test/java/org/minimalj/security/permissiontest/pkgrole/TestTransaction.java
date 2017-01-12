@@ -1,7 +1,7 @@
 package org.minimalj.security.permissiontest.pkgrole;
 
 import org.minimalj.backend.persistence.PersistenceTransaction;
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 
 public class TestTransaction<ENTITY, RETURN> extends PersistenceTransaction<ENTITY, RETURN> {
 	private static final long serialVersionUID = 1L;
@@ -10,7 +10,7 @@ public class TestTransaction<ENTITY, RETURN> extends PersistenceTransaction<ENTI
 	}
 
 	@Override
-	protected RETURN execute(Persistence persistence) {
+	protected RETURN execute(Repository repository) {
 		return null;
 	}
 	

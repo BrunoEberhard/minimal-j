@@ -2,7 +2,7 @@ package org.minimalj.backend.persistence;
 
 import java.util.List;
 
-import org.minimalj.persistence.Persistence;
+import org.minimalj.persistence.Repository;
 import org.minimalj.persistence.criteria.Criteria;
 
 public class ReadCriteriaTransaction<ENTITY> extends ReadTransaction<ENTITY, List<ENTITY>> {
@@ -18,8 +18,8 @@ public class ReadCriteriaTransaction<ENTITY> extends ReadTransaction<ENTITY, Lis
 	}
 
 	@Override
-	public List<ENTITY> execute(Persistence persistence) {
-		List<ENTITY> result = persistence.read(getEntityClazz(), criteria, maxResults);
+	public List<ENTITY> execute(Repository repository) {
+		List<ENTITY> result = repository.read(getEntityClazz(), criteria, maxResults);
 		return result;
 	}
 }

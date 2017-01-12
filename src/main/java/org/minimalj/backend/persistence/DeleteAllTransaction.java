@@ -1,7 +1,7 @@
 package org.minimalj.backend.persistence;
 
-import org.minimalj.persistence.Persistence;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.persistence.Repository;
+import org.minimalj.persistence.sql.SqlRepository;
 
 public class DeleteAllTransaction<ENTITY> extends DeleteEntityTransaction<ENTITY> {
 	private static final long serialVersionUID = 1L;
@@ -11,13 +11,13 @@ public class DeleteAllTransaction<ENTITY> extends DeleteEntityTransaction<ENTITY
 	}
 	
 	@Override
-	public Void execute(Persistence persistence) {
-		if (persistence instanceof SqlPersistence) {
-			SqlPersistence sqlPersistence = (SqlPersistence) persistence;
-			sqlPersistence.deleteAll(getEntityClazz());
+	public Void execute(Repository repository) {
+		if (repository instanceof SqlRepository) {
+			SqlRepository sqlRepository = (SqlRepository) repository;
+			sqlRepository.deleteAll(getEntityClazz());
 			return null;
 		} else {
-			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlPersistence.class.getSimpleName());
+			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlRepository.class.getSimpleName());
 		}
 	}
 
