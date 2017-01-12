@@ -8,43 +8,43 @@ public class ChainedPropertyTest {
 
 	@Test public void 
 	available() {
-		C c = new C();
+		TestEntityC c = new TestEntityC();
 		c.text = "Hello";
-		B b = new B();
+		TestEntityB b = new TestEntityB();
 		b.c = c;
-		A a = new A();
+		TestEntityA a = new TestEntityA();
 		a.b = b;
-		Assert.assertTrue(((ChainedProperty) Keys.getProperty(A.$.b.c.text)).isAvailableFor(a));
+		Assert.assertTrue(((ChainedProperty) Keys.getProperty(TestEntityA.$.b.c.text)).isAvailableFor(a));
 		// value of field should not matter
 		c.text = null;
-		Assert.assertTrue(((ChainedProperty) Keys.getProperty(A.$.b.c.text)).isAvailableFor(a));
+		Assert.assertTrue(((ChainedProperty) Keys.getProperty(TestEntityA.$.b.c.text)).isAvailableFor(a));
 	}
 	
 	@Test public void 
 	not_available1() {
-		B b = new B();
-		A a = new A();
+		TestEntityB b = new TestEntityB();
+		TestEntityA a = new TestEntityA();
 		a.b = b;
-		Assert.assertFalse(((ChainedProperty) Keys.getProperty(A.$.b.c.text)).isAvailableFor(a));
+		Assert.assertFalse(((ChainedProperty) Keys.getProperty(TestEntityA.$.b.c.text)).isAvailableFor(a));
 	}
 	
 	@Test public void 
 	not_available() {
-		A a = new A();
-		Assert.assertFalse(((ChainedProperty) Keys.getProperty(A.$.b.c.text)).isAvailableFor(a));
+		TestEntityA a = new TestEntityA();
+		Assert.assertFalse(((ChainedProperty) Keys.getProperty(TestEntityA.$.b.c.text)).isAvailableFor(a));
 	}
 	
-	public static class A {
-		public static final A $ = Keys.of(A.class);
+	public static class TestEntityA {
+		public static final TestEntityA $ = Keys.of(TestEntityA.class);
 		
-		public B b;
+		public TestEntityB b;
 	}
 	
-	public static class B {
-		public C c;
+	public static class TestEntityB {
+		public TestEntityC c;
 	}
 	
-	public static class C {
+	public static class TestEntityC {
 		public String text;
 	}
 	
