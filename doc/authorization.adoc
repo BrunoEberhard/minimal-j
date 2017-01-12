@@ -8,7 +8,7 @@ authorization happens when the frontend sends the backend a Transaction to execu
 	[..]
 
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (authenticationActive) {
+		if (isAuthenticationActive()) {
 			getAuthorization().check(transaction);
 		}
 		try {

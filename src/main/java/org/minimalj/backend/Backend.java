@@ -171,7 +171,7 @@ public class Backend {
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (authenticationActive) {
+		if (isAuthenticationActive()) {
 			getAuthorization().check(transaction);
 		}
 		try {
