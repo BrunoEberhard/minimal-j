@@ -5,23 +5,22 @@ authorization happens when the frontend sends the backend a Transaction to execu
 
 [source,java,title="Backend.java"]
 ----
-    [..]
+	[..]
 
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (Authorization.isAllowed(transaction)) {
-			try {
-				currentTransaction.set(transaction);
-				return transaction.execute();
-			} finally {
-				currentTransaction.set(null);
-			}
-		} else {
-			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
+		if (authenticationActive) {
+			getAuthorization().check(transaction);
+		}
+		try {
+			currentTransaction.set(transaction);
+			return transaction.execute();
+		} finally {
+			currentTransaction.set(null);
 		}
 	}
 ----
 
-This seems readable not only for the compiler. The Authorization class asks the Subjet class who is logged in (in respect of
+This seems readable not only for the compiler. The default Authorization class asks the Subject class who is logged in (in respect of
 the current Thread). It also provides the method to check if a Transaction is allowed.
 
 NOTE: There are two quite similar classes called Subject and User. Subject has more to do with who is
@@ -30,7 +29,7 @@ all users and their roles. Minimal-J doesn't depend on the link:http://shiro.apa
 tries to use more or less the same terminology.
 
 === Navigation
-As you see above the Backend would throw an exception if the logged in user is not allowed to execute a transaction. Of course this should stay an exception. Normally a Frontend should not come to that point.
+The Backend would throw an exception if the logged in user is not allowed to execute a transaction. Of course this should stay an exception. Normally a Frontend should not come to that point where it receives an exception from the backend.
 
 The application should present a specialized navigation based on the granted roles. This is done with conditions in the Application.getNavigation() method:
 [source,java,title="XyApplication.java"]
@@ -136,8 +135,7 @@ Authentication.create() how this works.
  2. if MjAuthentication is set then it should be the name of a class extending the Authentication class.
  
  3. If both properties are empty the authentication and authorization is disabled.
- The user will not see the login buttons. In dev mode the user can execute all available transactions.
- But only in dev mode.
+ The user will not see the login buttons. The user can execute all available transactions.
  
  
 === The user file format
@@ -157,7 +155,7 @@ If you wonder how to get the hashed passwords: The TextFileAuthorization class h
 application together with at least two arguments (user and password) and it prints out a line for your user/password file.
 
 === Login Dialog
-If the application is started without authentication then the frontend will not show the user the menu entry (or icon)
-to log in. If the authentication is active the frontend must decide if it should confront the user with a login dialog
+If the application is started without authentication then the Frontend will not show the user the menu entry (or icon)
+to log in. If the authentication is active the Frontend must decide if it should confront the user with a login dialog
 right on the start or if it is possible to look around without any authentication. This specification is done
-by an override of the <code>isLoginRequired</code> method in the specific application class.
+by an override of the <code>isLoginRequired</code> method in the application class.

@@ -26,4 +26,6 @@ public abstract class PersistenceTransaction<ENTITY, RETURN> implements Transact
 
 	protected abstract RETURN execute(Persistence persistence);
 	
+	public abstract Class<ENTITY> getEntityClazz();
+
 }

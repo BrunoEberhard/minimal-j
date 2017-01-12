@@ -15,5 +15,10 @@ public class TestTransactionU<ENTITY, RETURN> extends PersistenceTransaction<ENT
 	protected RETURN execute(Persistence persistence) {
 		return null;
 	}
+	
+	@Override
+	public Class<ENTITY> getEntityClazz() {
+		return null;
+	}
 }
 

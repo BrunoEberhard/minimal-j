@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.security.Authorization;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -37,8 +36,6 @@ public class HistorizedTable<T> extends Table<T> {
 
 	@Override
 	public Object insert(T object) {
-		Authorization.checkAuthorization(getClazz());
-		
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
 			Object id = IdUtils.getId(object);
 			if (id == null) {
@@ -66,8 +63,6 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	public void update(T object) {
-		Authorization.checkAuthorization(getClazz());
-
 		Object id = IdUtils.getId(object);
 		update(id, object);
 	}
@@ -101,8 +96,6 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 	
 	public int getMaxVersion(Object id) {
-		Authorization.checkAuthorization(getClazz());
-
 		int result = 0;
 		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlPersistence.getConnection(), selectMaxVersionQuery, false)) {
 			selectMaxVersionStatement.setObject(1, id);
@@ -119,7 +112,6 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	public T read(Object id) {
-		Authorization.checkAuthorization(getClazz());
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
@@ -134,7 +126,6 @@ public class HistorizedTable<T> extends Table<T> {
 
 	public T read(Object id, Integer time) {
 		if (time != null) {
-			Authorization.checkAuthorization(getClazz());
 			try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlPersistence.getConnection(), selectByIdAndTimeQuery, false)) {
 				selectByIdAndTimeStatement.setObject(1, id);
 				selectByIdAndTimeStatement.setInt(2, time);
@@ -151,8 +142,6 @@ public class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	public void delete(Object id) {
-		Authorization.checkAuthorization(getClazz());
-
 		try (PreparedStatement deleteStatement = createStatement(sqlPersistence.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, id);
 			deleteStatement.execute();

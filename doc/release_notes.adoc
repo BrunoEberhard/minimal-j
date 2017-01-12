@@ -3,7 +3,7 @@
 Every release contains many small fixes.
 
 === next
-* Security: removed Grant concept
+* Security: removed Grant concept, redesigned authorization
 
 === 1.2.0.0
 * Frontend: replace special Size class with a simple integer (API change)

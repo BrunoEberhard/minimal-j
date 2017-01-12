@@ -3,31 +3,74 @@ package org.minimalj.security;
 import java.util.Collections;
 import java.util.List;
 
-import org.minimalj.application.DevMode;
-import org.minimalj.backend.Backend;
+import org.minimalj.backend.persistence.PersistenceTransaction;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.transaction.Role;
+import org.minimalj.transaction.Transaction;
 
+/**
+ * The 
+ *
+ */
 public class Authorization {
 
-	public static void checkAuthorization(Class<?> clazz) {
-		boolean skipAuthorization = DevMode.isActive() && !Backend.getInstance().isAuthenticationActive();
-		
-		if (!skipAuthorization) {
-			List<String> currentRoles = getCurrentRoles();
-			checkAuthorization(currentRoles, clazz);
+	public final void check(Object object) {
+		if (!isAllowed(object)) {
+			throw new IllegalStateException(object + " forbidden");
 		}
 	}
 
-	public static void checkAuthorization(List<String> currentRoles, Class<?> clazz) {
+	public final boolean isAllowed(Object object) {
+		if (object instanceof PersistenceTransaction) {
+			PersistenceTransaction<?, ?> persistenceTransaction = (PersistenceTransaction<?, ?>) object;
+			return isAllowedPersistenceTransaction(persistenceTransaction);
+		} else if (object instanceof Transaction) {
+			Transaction<?> transaction = (Transaction<?>) object;
+			return isAllowedTransaction(transaction);
+		} else if (object instanceof Action) {
+			Action action = (Action) object;
+			return isAllowedAction(action);
+		} else {
+			return isAllowedEntity(object);
+		}
+	}
+
+	//
+	
+	public boolean isAllowedEntity(Object entity) {
+		return isAllowed(entity.getClass());
+	}
+	
+	public boolean isAllowedAction(Action action) {
+		return isAllowed(action.getClass());
+	}
+	
+	public boolean isAllowedTransaction(Transaction<?> transaction) {
+		return isAllowed(transaction.getClass());
+	}
+	
+	public boolean isAllowedPersistenceTransaction(PersistenceTransaction<?, ?> transaction) {
+		return isAllowed(transaction.getEntityClazz());
+	}
+	
+	//
+
+	public static boolean isAllowed(Class<?> clazz) {
+		List<String> currentRoles = getCurrentRoles();
+		return isAllowed(currentRoles, clazz);
+	}
+	
+	public static boolean isAllowed(List<String> currentRoles, Class<?> clazz) {
 		Role role = getRole(clazz);
 		if (role != null) {
 			for (String allowingRole : role.value()) {
 				if (currentRoles.contains(allowingRole)) {
-					return;
+					return true;
 				}
 			}
-			throw new IllegalStateException(clazz.getSimpleName() + " forbidden");
+			return false;
 		}
+		return true;
 	}
 	
 	public static Role getRole(Class<?> clazz) {

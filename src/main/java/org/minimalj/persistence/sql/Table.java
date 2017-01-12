@@ -22,7 +22,6 @@ import org.minimalj.persistence.criteria.Criteria.AndCriteria;
 import org.minimalj.persistence.criteria.Criteria.OrCriteria;
 import org.minimalj.persistence.criteria.FieldCriteria;
 import org.minimalj.persistence.criteria.SearchCriteria;
-import org.minimalj.security.Authorization;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -86,7 +85,6 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public Object insert(T object) {
-		Authorization.checkAuthorization(getClazz());
 		try (PreparedStatement insertStatement = createStatement(sqlPersistence.getConnection(), insertQuery, true)) {
 			Object id;
 			if (IdUtils.hasId(object.getClass())) {
@@ -152,7 +150,6 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public void update(T object) {
-		Authorization.checkAuthorization(object.getClass());
 		updateWithId(object, IdUtils.getId(object));
 	}
 	
@@ -183,7 +180,6 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(Object id) {
-		Authorization.checkAuthorization(getClazz());
 		try (PreparedStatement selectByIdStatement = createStatement(sqlPersistence.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
@@ -280,7 +276,6 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public List<T> read(Criteria criteria, int maxResults) {
-		Authorization.checkAuthorization(getClazz());
 		List<Object> whereClause = whereClause(criteria);
 		String query = "SELECT * FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
@@ -294,7 +289,6 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
-		Authorization.checkAuthorization(resultClass);
 		List<Object> whereClause = whereClause(criteria);
 		String query = select(resultClass) + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
@@ -308,7 +302,6 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public <S> S readView(Class<S> resultClass, Object id) {
-		Authorization.checkAuthorization(resultClass);
 		String query = select(resultClass) + " WHERE id = ?";
 		try (PreparedStatement statement = createStatement(sqlPersistence.getConnection(), query, false)) {
 			statement.setObject(1, id);

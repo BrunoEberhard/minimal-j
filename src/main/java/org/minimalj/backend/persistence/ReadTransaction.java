@@ -11,7 +11,8 @@ public abstract class ReadTransaction<ENTITY, RETURN> extends PersistenceTransac
 		this.classHolder = new ClassHolder<ENTITY>(clazz);
 	}
 
-	protected Class<ENTITY> getEntityClazz() {
+	@Override
+	public Class<ENTITY> getEntityClazz() {
 		return classHolder.getClazz();
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.persistence.DeleteEntityTransaction;
 import org.minimalj.backend.persistence.InsertTransaction;
@@ -74,6 +75,7 @@ public class Backend {
 	private Persistence persistence = null; 
 	private Boolean authenticationActive = null;
 	private Authentication authentication = null; 
+	private Authorization authorization = null; 
 	
 	private InheritableThreadLocal<Transaction<?>> currentTransaction = new InheritableThreadLocal<>();
 	
@@ -125,6 +127,13 @@ public class Backend {
 		return getAuthentication() != null;
 	}
 	
+	public Authorization getAuthorization() {
+		if (authorization == null) {
+			authorization = Application.getInstance().createAuthorization();
+		}
+		return authorization;
+	}
+	
 	public boolean isInTransaction() {
 		return currentTransaction.get() != null;
 	}
@@ -162,7 +171,9 @@ public class Backend {
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		Authorization.checkAuthorization(transaction.getClass());
+		if (authenticationActive) {
+			getAuthorization().check(transaction);
+		}
 		try {
 			currentTransaction.set(transaction);
 			return transaction.execute();

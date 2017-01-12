@@ -19,4 +19,11 @@ public abstract class WriteTransaction<ENTITY, RETURN> extends PersistenceTransa
 		}
 		return unwrapped;
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Class<ENTITY> getEntityClazz() {
+		return (Class<ENTITY>) object.getClass();
+	}
+
 }
