@@ -358,19 +358,19 @@ public class SqlRepository extends Repository {
 	}
 
 	@Override
-	public <ELEMENT> List<ELEMENT> getList(String listName, Object parentId) {
-		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(listName);
-		return subTable.readAll(parentId);
+	public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list) {
+		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(list.getListName());
+		return subTable.readAll(list.getParentId());
 	}
 	
 	@Override
-	public <ELEMENT> ELEMENT add(String listName, Object parentId, ELEMENT element) {
-		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(listName);
-		return subTable.addElement(parentId, element);
+	public <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element) {
+		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(list.getListName());
+		return subTable.addElement(list.getParentId(), element);
 	}
 	
 	@Override
-	public void remove(String listName, Object parentId, int position) {
+	public <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position) {
 		throw new RuntimeException("Not yet implemented");
 	}
 	

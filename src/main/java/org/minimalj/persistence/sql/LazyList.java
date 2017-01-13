@@ -4,10 +4,6 @@ import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.List;
 
-import org.minimalj.backend.Backend;
-import org.minimalj.backend.persistence.ListTransaction.AddTransaction;
-import org.minimalj.backend.persistence.ListTransaction.ReadAllElementsTransaction;
-import org.minimalj.backend.persistence.ListTransaction.RemoveTransaction;
 import org.minimalj.persistence.Repository;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
@@ -34,8 +30,14 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		this.elementClassName = elementClass.getName();
 	}
 	
-	public void setPersistence(Repository repository) {
+	public void setRepository(Repository repository) {
 		this.repository = repository;
+	}
+	
+	private void checkRepository() {
+		if (repository == null) {
+			throw new IllegalStateException();
+		}
 	}
 	
 	public Class<ELEMENT> getElementClass() {
@@ -53,13 +55,14 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		return parentId;
 	}
 	
+	public String getListName() {
+		return listName;
+	}
+	
 	public List<ELEMENT> getList() {
 		if (list == null) {
-			if (repository != null) {
-				return repository.getList(listName, parentId);
-			} else {
-				list = Backend.execute(new ReadAllElementsTransaction<PARENT, ELEMENT>(this));
-			}
+			checkRepository();
+			return repository.getList(this);
 		}
 		return list;
 	}
@@ -76,12 +79,9 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	
 	@Override
 	public boolean add(ELEMENT element) {
+		checkRepository();
 		ELEMENT savedElement;
-		if (repository != null) {
-			savedElement = repository.add(listName, parentId, element);
-		} else {
-			savedElement = Backend.execute(new AddTransaction<PARENT, ELEMENT>(this, element));
-		}
+		savedElement = repository.add(this, element);
 		if (list != null) {
 			CloneHelper.deepCopy(savedElement, element);
 			list.add(element);
@@ -90,11 +90,8 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	}
 
 	public ELEMENT addElement(ELEMENT element) {
-		if (repository != null) {
-			element = repository.add(listName, parentId, element);
-		} else {
-			element = Backend.execute(new AddTransaction<PARENT, ELEMENT>(this, element));
-		}
+		checkRepository();
+		element = repository.add(this, element);
 		if (list != null) {
 			list.add(element);
 		}
@@ -103,11 +100,8 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 
 	@Override
 	public ELEMENT remove(int index) {
-		if (repository != null) {
-			repository.remove(listName, parentId, index);
-			return null; //
-		} else {
-			return Backend.execute(new RemoveTransaction<PARENT, ELEMENT>(this, index));
-		}
+		checkRepository();
+		repository.remove(this, index);
+		return null; //
 	}
 }

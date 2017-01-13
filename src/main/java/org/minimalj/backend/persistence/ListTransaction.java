@@ -29,7 +29,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 
 		@Override
 		public List<ELEMENT> execute(Repository repository) {
-			lazyList.setPersistence(repository);
+			lazyList.setRepository(repository);
 			return lazyList.getList();
 		}
 	}
@@ -45,7 +45,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 
 		@Override
 		public ELEMENT execute(Repository repository) {
-			lazyList.setPersistence(repository);
+			lazyList.setRepository(repository);
 			return lazyList.get(position);
 		}
 	}
@@ -62,7 +62,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 		@Override
 		public ELEMENT execute(Repository repository) {
 			ELEMENT element = (ELEMENT) SerializationContainer.unwrap(elementWrapped);
-			lazyList.setPersistence(repository);
+			lazyList.setRepository(repository);
 			return lazyList.addElement(element);
 		}
 	}
@@ -78,7 +78,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends Persisten
 
 		@Override
 		public ELEMENT execute(Repository repository) {
-			lazyList.setPersistence(repository);
+			lazyList.setRepository(repository);
 			return lazyList.remove(position);
 		}
 	}

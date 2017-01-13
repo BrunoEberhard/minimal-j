@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.persistence.criteria.Criteria;
+import org.minimalj.persistence.sql.LazyList;
 import org.minimalj.persistence.sql.SqlRepository;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -87,10 +88,10 @@ public abstract class Repository {
 	
 	// list handling, list name is the name of the property containing the list
 	
-	public abstract <ELEMENT> List<ELEMENT> getList(String listName, Object parentId);
+	public abstract <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list);
 
-	public abstract <ELEMENT> ELEMENT add(String listName, Object parentId, ELEMENT element);
+	public abstract <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element);
 
-	public abstract void remove(String listName, Object parentId, int position);
+	public abstract <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position);
 
 }
