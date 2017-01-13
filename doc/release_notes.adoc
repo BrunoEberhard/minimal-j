@@ -4,6 +4,7 @@ Every release contains many small fixes.
 
 === next
 * Security: removed Grant concept, redesigned authorization
+* Renamed Persistence class and package to repository
 
 === 1.2.0.0
 * Frontend: replace special Size class with a simple integer (API change)

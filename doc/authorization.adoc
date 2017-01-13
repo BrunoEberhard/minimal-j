@@ -122,7 +122,7 @@ the users phone a different UI would be needed.
 The TextFileAuthentication takes a file as input for the users and their passwords. The format of this file is described below.
 Small applications with only a few users may want to use this class.
 
-But most applications want to store their users in the database. They can use PersistenceAuthentication or
+But most applications want to store their users in the database. They can use RepositoryAuthentication or
 implement a specialization of UserPasswordAuthentication.
 
 == Authentication configuration

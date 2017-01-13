@@ -8,26 +8,26 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.persistence.sql.SqlRepository;
+import org.minimalj.repository.sql.SqlRepository;
 
 public class EnumSetTest {
 
 	private static SqlRepository repository;
 	
 	@BeforeClass
-	public static void setupPersistence() {
+	public static void setupRepository() {
 		repository = new SqlRepository(SqlRepository.embeddedDataSource(), ObjectWithE.class);
 	}
 
 	@Test
 	public void testEnumToIntFirstElement() {
 		Set<E> set = Collections.singleton(E.e0);
-		testConversionAndPersistence(set);
+		testConversionAndRepository(set);
 	}
 
-	void testConversionAndPersistence(Set<E> set) {
+	void testConversionAndRepository(Set<E> set) {
 		Assert.assertTrue(test(set));
-		Assert.assertTrue(testWithPersistence(set));
+		Assert.assertTrue(testWithRepository(set));
 	}
 
 	@Test
@@ -36,26 +36,26 @@ public class EnumSetTest {
 		set.add(E.e1);
 		set.add(E.e5);
 		set.add(E.e14);
-		testConversionAndPersistence(set);
+		testConversionAndRepository(set);
 	}
 	
 	@Test
 	public void testEnumToIntAllElements() {
 		Set<E> set = new HashSet<E>();
 		set.addAll(Arrays.asList(E.values()));
-		testConversionAndPersistence(set);
+		testConversionAndRepository(set);
 	}
 
 	@Test
 	public void testEnumToIntNoElements() {
 		Set<E> set = Collections.emptySet();
-		testConversionAndPersistence(set);
+		testConversionAndRepository(set);
 	}
 
 	@Test
 	public void testEnumToIntLastElement() {
 		Set<E> set = Collections.singleton(E.e31);
-		testConversionAndPersistence(set);
+		testConversionAndRepository(set);
 	}
 	
 	private boolean test(Set<E> testSet) {
@@ -65,7 +65,7 @@ public class EnumSetTest {
 		return compareSets(testSet, resultSet);
 	}
 
-	private boolean testWithPersistence(Set<E> testSet) {
+	private boolean testWithRepository(Set<E> testSet) {
 		ObjectWithE object = new ObjectWithE();
 		object.setOfE.addAll(testSet);
 		Object id = repository.insert(object);

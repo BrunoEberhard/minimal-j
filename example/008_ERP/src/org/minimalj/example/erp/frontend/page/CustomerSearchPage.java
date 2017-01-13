@@ -1,6 +1,6 @@
 package org.minimalj.example.erp.frontend.page;
 
-import static org.minimalj.example.erp.model.Customer.*;
+import static org.minimalj.example.erp.model.Customer.$;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 
 
 public class CustomerSearchPage extends SimpleSearchPage<Customer> {

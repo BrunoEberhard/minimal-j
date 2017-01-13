@@ -3,7 +3,7 @@ package org.minimalj.security;
 import java.util.Collections;
 import java.util.List;
 
-import org.minimalj.backend.persistence.PersistenceTransaction;
+import org.minimalj.backend.repository.RepositoryTransaction;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
@@ -21,9 +21,9 @@ public class Authorization {
 	}
 
 	public final boolean isAllowed(Object object) {
-		if (object instanceof PersistenceTransaction) {
-			PersistenceTransaction<?, ?> persistenceTransaction = (PersistenceTransaction<?, ?>) object;
-			return isAllowedPersistenceTransaction(persistenceTransaction);
+		if (object instanceof RepositoryTransaction) {
+			RepositoryTransaction<?, ?> repositoryTransaction = (RepositoryTransaction<?, ?>) object;
+			return isAllowedRepositoryTransaction(repositoryTransaction);
 		} else if (object instanceof Transaction) {
 			Transaction<?> transaction = (Transaction<?>) object;
 			return isAllowedTransaction(transaction);
@@ -49,7 +49,7 @@ public class Authorization {
 		return isAllowed(transaction.getClass());
 	}
 	
-	public boolean isAllowedPersistenceTransaction(PersistenceTransaction<?, ?> transaction) {
+	public boolean isAllowedRepositoryTransaction(RepositoryTransaction<?, ?> transaction) {
 		return isAllowed(transaction.getEntityClazz());
 	}
 	

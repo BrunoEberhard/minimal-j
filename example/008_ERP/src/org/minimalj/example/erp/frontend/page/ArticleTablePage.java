@@ -6,7 +6,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 
 
 public class ArticleTablePage extends SimpleTablePageWithDetail<Article> {

@@ -8,7 +8,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.model.Keys;
-import org.minimalj.persistence.criteria.SearchCriteria;
+import org.minimalj.repository.criteria.SearchCriteria;
 
 // To make this class generic is a little bit senseless as
 // there are no checks at all

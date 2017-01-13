@@ -12,10 +12,9 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.TablePage.TablePageWithDetail;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.persistence.criteria.By;
-import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.criteria.SearchCriteria;
-import org.minimalj.persistence.criteria.Criteria.Filter;
+import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.criteria.SearchCriteria;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
 

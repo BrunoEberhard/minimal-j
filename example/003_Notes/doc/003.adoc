@@ -41,7 +41,7 @@ columns need a lot of space in a croweded table.
 
 I think you unterstand what the load method wants to do / say. But what must be done to make this
 work? If nothing else is specified at startup of an application a apache derby database is used
-for persistence. This is a database included in every JDK (but not in the JRE. You have to include
+for the repository. This is a database included in every JDK (but not in the JRE. You have to include
 it in the classpath yourself!). Without configuration the database lives only in the JVM memory.
 All data will be lost when the application exits.
 

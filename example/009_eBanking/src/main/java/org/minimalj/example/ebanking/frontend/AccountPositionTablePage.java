@@ -16,9 +16,8 @@ import org.minimalj.frontend.page.TablePage;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.persistence.criteria.By;
-import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.criteria.Criteria.Filter;
+import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
 
 public class AccountPositionTablePage extends TablePage<AccountPosition> {

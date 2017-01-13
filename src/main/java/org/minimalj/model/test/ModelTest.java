@@ -34,7 +34,7 @@ import org.minimalj.util.resources.Resources;
 /**
  * Test some restricitions on model classes.<p>
  * 
- * These tests are called by JUnit tests but also by Persistence.
+ * These tests are called by JUnit tests but also by the Repository.
  * They are fast and its better to see problems at startup of an application.
  */
 public class ModelTest {
@@ -63,7 +63,7 @@ public class ModelTest {
 	
 	/**
 	 * Allows fail early when application is started. NanoWebServer / Swing can check at startup
-	 * if persistence will make problems. Without this there would be a lot of confusing stacktrace lines
+	 * if repository will make problems. Without this there would be a lot of confusing stacktrace lines
 	 */
 	public static void exitIfProblems() {
 		ModelTest test = new ModelTest(Application.getInstance().getEntityClasses());

@@ -9,7 +9,7 @@ import org.minimalj.model.annotation.Size;
  * http://www.currency-iso.org/dam/downloads/schema.xsd
  * 
  * Note: this entity is not intended to be used with a Minimal-J
- * persistence. The model test would fail as there is no id field.
+ * repository. The model test would fail as there is no id field.
  */
 public class IsoCurrencyInformation {
 	@Size(140)

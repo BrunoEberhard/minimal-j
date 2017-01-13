@@ -14,7 +14,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 
 public class Codes {
 

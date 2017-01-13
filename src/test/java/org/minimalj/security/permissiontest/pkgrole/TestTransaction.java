@@ -1,9 +1,9 @@
 package org.minimalj.security.permissiontest.pkgrole;
 
-import org.minimalj.backend.persistence.PersistenceTransaction;
-import org.minimalj.persistence.Repository;
+import org.minimalj.backend.repository.RepositoryTransaction;
+import org.minimalj.repository.Repository;
 
-public class TestTransaction<ENTITY, RETURN> extends PersistenceTransaction<ENTITY, RETURN> {
+public class TestTransaction<ENTITY, RETURN> extends RepositoryTransaction<ENTITY, RETURN> {
 	private static final long serialVersionUID = 1L;
 
 	public TestTransaction() {

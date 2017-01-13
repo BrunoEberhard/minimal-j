@@ -7,15 +7,15 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.backend.persistence.DeleteEntityTransaction;
-import org.minimalj.backend.persistence.InsertTransaction;
-import org.minimalj.backend.persistence.ReadCriteriaTransaction;
-import org.minimalj.backend.persistence.ReadEntityTransaction;
-import org.minimalj.backend.persistence.SaveTransaction;
-import org.minimalj.backend.persistence.UpdateTransaction;
-import org.minimalj.persistence.Repository;
-import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.sql.SqlRepository;
+import org.minimalj.backend.repository.DeleteEntityTransaction;
+import org.minimalj.backend.repository.InsertTransaction;
+import org.minimalj.backend.repository.ReadCriteriaTransaction;
+import org.minimalj.backend.repository.ReadEntityTransaction;
+import org.minimalj.backend.repository.SaveTransaction;
+import org.minimalj.backend.repository.UpdateTransaction;
+import org.minimalj.repository.Repository;
+import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
 import org.minimalj.transaction.Transaction;
@@ -101,7 +101,7 @@ public class Backend {
 	
 	public Repository getRepository() {
 		if (!isInTransaction()) {
-			throw new IllegalStateException("Persistence may only be accessed from within a " + Transaction.class.getSimpleName());
+			throw new IllegalStateException("Repository may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
 		if (repository == null) {
 			repository = Repository.create();
