@@ -37,7 +37,7 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 
 	@Override
 	protected List<AccountPosition> load() {
-		return Backend.read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter), 1000);
+		return Backend.read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter.getCriteria()), 1000);
 	}
 
 	public void setAccount(Account account) {
@@ -67,12 +67,17 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 		}
 		
 		@Override
+		protected AccountPositionFilter save(AccountPositionFilter filter) {
+			return filter;
+		}
+		
+		@Override
 		protected void finished(AccountPositionFilter filter) {
 			Frontend.show(new AccountPositionTablePage(account, filter));
 		}
 	}
 
-	public static class AccountPositionFilter implements Filter {
+	public static class AccountPositionFilter {
 		public static final AccountPositionFilter $ = Keys.of(AccountPositionFilter.class);
 		
 		@Size(255)
@@ -129,7 +134,6 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 		}
 		*/
 		
-		@Override
 		public Criteria getCriteria() {
 			Criteria p = new Criteria();
 			p = p.and(By.search(description));
