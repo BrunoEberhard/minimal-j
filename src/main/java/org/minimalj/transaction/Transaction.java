@@ -25,4 +25,12 @@ public interface Transaction<T> extends Serializable {
 	 */
 	public T execute();
 	
+	/**
+	 * 
+	 * @return the used isolation (for example 'serializable') for transaction
+	 */
+	public default Isolation getIsolation() {
+		return getClass().getAnnotation(Isolation.class);
+	}
+	
 }

@@ -14,10 +14,12 @@ import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
+import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.criteria.Criteria;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
+import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -174,12 +176,41 @@ public class Backend {
 		if (isAuthenticationActive()) {
 			getAuthorization().check(transaction);
 		}
+
 		try {
 			currentTransaction.set(transaction);
-			return transaction.execute();
+			if (getRepository() instanceof TransactionalRepository) {
+				TransactionalRepository transactionalRepository = (TransactionalRepository) getRepository();
+				return doExecute(transaction, transactionalRepository);
+			} else {
+				return transaction.execute();
+			}
 		} finally {
 			currentTransaction.set(null);
 		}
+	}
+
+	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
+		Isolation isolation = transaction.getClass().getAnnotation(Isolation.class);
+		if (isolation != null) {
+			return doExecute(transaction, transactionalRepository, isolation);
+		} else {
+			return transaction.execute();
+		}
+	}
+
+	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository,
+			Isolation isolation) {
+		T result;
+		boolean commit = false;
+		try {
+			transactionalRepository.startTransaction(isolation.value().getLevel());
+			result = transaction.execute();
+			commit = true;
+		} finally {
+			transactionalRepository.endTransaction(commit);
+		}
+		return result;
 	}
 	
 	private void init() {
