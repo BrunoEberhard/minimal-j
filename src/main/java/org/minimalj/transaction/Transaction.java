@@ -24,8 +24,25 @@ public interface Transaction<T> extends Serializable {
 	 * @return the return value from the transaction
 	 */
 	public T execute();
-	
+
 	/**
+	 * The default role for a Transaction relies on the Annotation
+	 * on the class or on the package
+	 * 
+	 * @return the role needed to execute this transaction
+	 */
+	public default Role getRole() {
+		Role role = getClass().getAnnotation(Role.class);
+		if (role != null) {
+			return role;
+		}
+		role = getClass().getPackage().getAnnotation(Role.class);
+		return role;
+	}
+
+	/**
+	 * The default isolation for a Transaction relies on the Annotation
+	 * on the class
 	 * 
 	 * @return the used isolation (for example 'serializable') for transaction
 	 */
