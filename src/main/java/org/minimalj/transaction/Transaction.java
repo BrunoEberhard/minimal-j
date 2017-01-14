@@ -58,12 +58,12 @@ public interface Transaction<T> extends Serializable {
 			return role;
 		}
 		if (transaction instanceof EntityTransaction) {
-			EntityTransaction<?, ?> repositoryTransaction = (EntityTransaction<?, ?>) transaction;
-			role = repositoryTransaction.getEntityClazz().getAnnotation(Role.class);
+			EntityTransaction<?, ?> entityTransaction = (EntityTransaction<?, ?>) transaction;
+			role = entityTransaction.getEntityClazz().getAnnotation(Role.class);
 			if (role != null) {
 				return role;
 			}
-			role = repositoryTransaction.getEntityClazz().getPackage().getAnnotation(Role.class);
+			role = entityTransaction.getEntityClazz().getPackage().getAnnotation(Role.class);
 			if (role != null) {
 				return role;
 			}
