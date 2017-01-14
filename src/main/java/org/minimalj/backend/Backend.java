@@ -23,14 +23,14 @@ import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
- * A backend is reponsible for executing the transactions.
- * It can do this by keeping a database (SqlBackend) or by
- * delegating everything to an other backend (SocketBackend).<p>
+ * A Backend is responsible for executing the transactions.
+ * It can do this by keeping a database (SqlRepository) or by
+ * delegating everything to an other Backend (SocketBackend).<p>
  * 
- * Every frontend needs a backend. But a backend can serve more
- * than one frontend.<p>
+ * Every Frontend needs a Backend. But a Backend can serve more
+ * than one Frontend.<p>
  * 
- * The backend configuration must be done with system properties.
+ * The Backend configuration must be done with system properties.
  * These are handled in the initBackend method. The configuration
  * cannot be changed during the lifetime of an application VM.<p>
  * 
@@ -40,8 +40,8 @@ import org.minimalj.util.StringUtils;
  * these two are set the transactions are delegated to a remote
  * SocketBackendServer.</LI>
  * <LI><code>MjBackend</code>: if this property is set it specifies
- * the classname of the backend.</LI>
- * <LI>If the backend should run in the same JVM as the frontend you
+ * the classname of the Backend.</LI>
+ * <LI>If the Backend should run in the same JVM as the Frontend you
  * don't need to set any property</LI>
  * </UL>
  */
