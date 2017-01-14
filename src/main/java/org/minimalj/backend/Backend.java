@@ -191,7 +191,7 @@ public class Backend {
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
-		Isolation isolation = transaction.getClass().getAnnotation(Isolation.class);
+		Isolation isolation = transaction.getIsolation();
 		if (isolation != null) {
 			return doExecute(transaction, transactionalRepository, isolation);
 		} else {
