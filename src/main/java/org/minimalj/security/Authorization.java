@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.TransactionUtil;
 
 public class Authorization {
 
@@ -19,7 +20,7 @@ public class Authorization {
 	}
 
 	public static boolean isAllowed(List<String> currentRoles, Transaction<?> transaction) {
-		Role role = Transaction.getRole(transaction);
+		Role role = TransactionUtil.getRole(transaction);
 		if (role != null) {
 			for (String allowingRole : role.value()) {
 				if (currentRoles.contains(allowingRole)) {

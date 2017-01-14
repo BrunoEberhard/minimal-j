@@ -2,8 +2,6 @@ package org.minimalj.transaction;
 
 import java.io.Serializable;
 
-import org.minimalj.backend.repository.EntityTransaction;
-
 /**
  * The transaction is the action the frontend passes to the backend for
  * execution.<p>
@@ -27,48 +25,4 @@ public interface Transaction<T> extends Serializable {
 	 */
 	public T execute();
 
-	/**
-	 * The isolation for a Transaction relies on the Annotation
-	 * on the class
-	 * 
-	 * @return the used isolation (for example 'serializable') for transaction
-	 */	
-	public static Isolation getIsolation(Transaction<?> transaction) {
-		if (transaction instanceof EntityTransaction) {
-			return ((EntityTransaction<?,?>) transaction).getEntityClazz().getAnnotation(Isolation.class);
-		} else {
-			return transaction.getClass().getAnnotation(Isolation.class);
-		}
-	}
-
-	/**
-	 * The role(s) for a Transaction relies on the Annotation
-	 * on the class or on the package
-	 * 
-	 * @return the role needed to execute this transaction
-	 */
-	public static Role getRole(Transaction<?> transaction) {
-		Role role;
-		role = transaction.getClass().getAnnotation(Role.class);
-		if (role != null) {
-			return role;
-		}
-		role = transaction.getClass().getPackage().getAnnotation(Role.class);
-		if (role != null) {
-			return role;
-		}
-		if (transaction instanceof EntityTransaction) {
-			EntityTransaction<?, ?> entityTransaction = (EntityTransaction<?, ?>) transaction;
-			role = entityTransaction.getEntityClazz().getAnnotation(Role.class);
-			if (role != null) {
-				return role;
-			}
-			role = entityTransaction.getEntityClazz().getPackage().getAnnotation(Role.class);
-			if (role != null) {
-				return role;
-			}
-		}
-		return null;
-	}
-	
 }
