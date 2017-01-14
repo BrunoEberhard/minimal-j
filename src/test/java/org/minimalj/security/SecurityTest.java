@@ -8,29 +8,29 @@ import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.security.permissiontest.TestEntityA;
 import org.minimalj.security.permissiontest.TestEntityB;
 import org.minimalj.security.permissiontest.pkgrole.TestEntityG;
+import org.minimalj.transaction.Transaction;
 
 public class SecurityTest {
 
 	@Test
 	public void testEntityWithoutRole() throws Exception {
 		Assert.assertNull("ReadTransaction without Role annotation to class or package should need no role",
-				new ReadEntityTransaction<TestEntityA>(TestEntityA.class, 1).getRole());
+				Transaction.getRole(new ReadEntityTransaction<TestEntityA>(TestEntityA.class, 1)));
 	}
 
 	@Test
 	public void testEntityWithSingleRole() throws Exception {
-		Authorization authorization = new Authorization();
 		Subject subject = new Subject();
 		subject.getRoles().add("RoleA");
 		Subject.setCurrent(subject);
 		try {
-			authorization.check(new ReadEntityTransaction<TestEntityB>(TestEntityB.class, 1));
+			Authorization.check(new ReadEntityTransaction<TestEntityB>(TestEntityB.class, 1));
 			Assert.fail("RoleA should not allow access to B");
 		} catch (Exception e) {
 			// expected
 		}
 		subject.getRoles().add("RoleB");
-		authorization.check(new ReadEntityTransaction<TestEntityB>(TestEntityB.class, 1));
+		Authorization.check(new ReadEntityTransaction<TestEntityB>(TestEntityB.class, 1));
 	}
 	
 	//

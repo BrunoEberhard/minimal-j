@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
@@ -77,7 +76,6 @@ public class Backend {
 	private Repository repository = null; 
 	private Boolean authenticationActive = null;
 	private Authentication authentication = null; 
-	private Authorization authorization = null; 
 	
 	private InheritableThreadLocal<Transaction<?>> currentTransaction = new InheritableThreadLocal<>();
 	
@@ -129,13 +127,6 @@ public class Backend {
 		return getAuthentication() != null;
 	}
 	
-	public Authorization getAuthorization() {
-		if (authorization == null) {
-			authorization = Application.getInstance().createAuthorization();
-		}
-		return authorization;
-	}
-	
 	public boolean isInTransaction() {
 		return currentTransaction.get() != null;
 	}
@@ -174,7 +165,7 @@ public class Backend {
 	
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (isAuthenticationActive()) {
-			getAuthorization().check(transaction);
+			Authorization.check(transaction);
 		}
 
 		try {
@@ -191,7 +182,7 @@ public class Backend {
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
-		Isolation isolation = transaction.getIsolation();
+		Isolation isolation = Transaction.getIsolation(transaction);
 		if (isolation != null) {
 			return doExecute(transaction, transactionalRepository, isolation);
 		} else {

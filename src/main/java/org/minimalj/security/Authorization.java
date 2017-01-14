@@ -6,24 +6,20 @@ import java.util.List;
 import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
 
-/**
- * The 
- *
- */
 public class Authorization {
 
-	public final void check(Transaction<?> transaction) {
+	public static void check(Transaction<?> transaction) {
 		if (!isAllowed(transaction)) {
 			throw new IllegalStateException(transaction + " forbidden");
 		}
 	}
 	
-	public boolean isAllowed(Transaction<?> transaction) {
+	public static boolean isAllowed(Transaction<?> transaction) {
 		return isAllowed(getCurrentRoles(), transaction);
 	}
-	
+
 	public static boolean isAllowed(List<String> currentRoles, Transaction<?> transaction) {
-		Role role = transaction.getRole();
+		Role role = Transaction.getRole(transaction);
 		if (role != null) {
 			for (String allowingRole : role.value()) {
 				if (currentRoles.contains(allowingRole)) {
@@ -35,7 +31,7 @@ public class Authorization {
 		return true;
 	}
 	
-	protected static List<String> getCurrentRoles() {
+	public static List<String> getCurrentRoles() {
 		Subject subject = Subject.getCurrent();
 		return subject != null ? subject.getRoles() : Collections.emptyList();
 	}

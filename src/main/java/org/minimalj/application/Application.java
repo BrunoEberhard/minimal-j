@@ -31,7 +31,6 @@ import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -215,16 +214,6 @@ public abstract class Application {
 	 */
 	public boolean isLoginRequired() {
 		return false;
-	}
-	
-	/**
-	 * The authorization is only active if an authentication is configured.
-	 * The default authorization is based on the role annotations on classes and packages
-	 * 
-	 * @return the used authorization for this application
-	 */
-	public Authorization createAuthorization() {
-		return new Authorization();
 	}
 	
 	/**
