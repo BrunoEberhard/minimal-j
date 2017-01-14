@@ -13,8 +13,8 @@ they are closely tied to the object holding the list. Elements (objects) without
 deleted directly or independently.
 
 IMPORTANT: If the elements contain an id field the list is lazy loaded. This means every access to the
-list causes a RepositoryTransaction. This can be very expensive. Also the implemented lazy list don't support
-all the methods an normal list does.
+list causes a Transaction. This can be very expensive. Also the implemented lazy list don't support
+all the methods a normal list does.
 
 === Elements with or without id
 
