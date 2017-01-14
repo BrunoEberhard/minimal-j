@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.repository.Repository;
+import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.transaction.Transaction;
 
 public abstract class RepositoryTransaction<ENTITY, RETURN> implements Transaction<RETURN> {
@@ -14,12 +15,17 @@ public abstract class RepositoryTransaction<ENTITY, RETURN> implements Transacti
 		RETURN result;
 		boolean commit = false;
 		Repository repository = Backend.getInstance().getRepository();
-		try {
-			repository.startTransaction(Connection.TRANSACTION_SERIALIZABLE);
+		if (repository instanceof TransactionalRepository) {
+			TransactionalRepository transactionalRepository = (TransactionalRepository) repository;
+			try {
+				transactionalRepository.startTransaction(Connection.TRANSACTION_SERIALIZABLE);
+				result = execute(repository);
+				commit = true;
+			} finally {
+				transactionalRepository.endTransaction(commit);
+			}
+		} else {
 			result = execute(repository);
-			commit = true;
-		} finally {
-			repository.endTransaction(commit);
 		}
 		return result;
 	}

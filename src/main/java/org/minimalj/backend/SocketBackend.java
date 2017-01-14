@@ -11,12 +11,13 @@ import java.util.logging.Logger;
 
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
+import org.minimalj.backend.repository.ListTransaction.AddTransaction;
+import org.minimalj.backend.repository.ListTransaction.ReadAllElementsTransaction;
+import org.minimalj.backend.repository.ListTransaction.RemoveTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
-import org.minimalj.backend.repository.ListTransaction.AddTransaction;
-import org.minimalj.backend.repository.ListTransaction.ReadAllElementsTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.criteria.Criteria;
 import org.minimalj.repository.sql.LazyList;
@@ -108,15 +109,7 @@ public class SocketBackend extends Backend {
 		return;
 	}
 	
-	public static class SocketBackendRepository extends Repository {
-
-		@Override
-		public void startTransaction(int transactionIsolationLevel) {
-		}
-
-		@Override
-		public void endTransaction(boolean commit) {
-		}
+	public static class SocketBackendRepository implements Repository {
 
 		public <T> T read(Class<T> clazz, Object id) {
 			return execute(new ReadEntityTransaction<T>(clazz, id, null));
@@ -154,7 +147,7 @@ public class SocketBackend extends Backend {
 
 		@Override
 		public <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position) {
-			throw new RuntimeException("Not yet implemented");
+			execute(new RemoveTransaction<>(list, position));
 		}
 	}
 

@@ -22,8 +22,8 @@ import org.minimalj.util.StringUtils;
  * can have more methods. See for example the <code>execute</code> methods in SqlRepository
  *
  */
-public abstract class Repository {
-	private static final Logger logger = Logger.getLogger(Repository.class.getName());
+public interface Repository {
+	public static final Logger logger = Logger.getLogger(Repository.class.getName());
 
 	public static Repository create() {
 		String repositoryClassName = Configuration.get("MjRepository");
@@ -56,7 +56,7 @@ public abstract class Repository {
 		}
 	}
 	
-	private static DataSource getJndiDataSource() {
+	public static DataSource getJndiDataSource() {
 		try {
 			Context initContext = new InitialContext();
 			DataSource dataSource = (DataSource) initContext.lookup("java:/comp/env/jdbc");
@@ -67,31 +67,24 @@ public abstract class Repository {
 		}
 	}
 	
-	// transaction
-
-	public abstract void startTransaction(int transactionIsolationLevel);
-	
-	public abstract void endTransaction(boolean commit);
-	
-	
 	// object handling
 	
-	public abstract <T> T read(Class<T> clazz, Object id);
+	public <T> T read(Class<T> clazz, Object id);
 
-	public abstract <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
+	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
 
-	public abstract <T> Object insert(T object);
+	public <T> Object insert(T object);
 
-	public abstract <T> void update(T object);
+	public <T> void update(T object);
 
-	public abstract <T> void delete(Class<T> clazz, Object id);
+	public <T> void delete(Class<T> clazz, Object id);
 	
-	// list handling, list name is the name of the property containing the list
+	// list handling
 	
-	public abstract <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list);
+	public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list);
 
-	public abstract <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element);
+	public <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element);
 
-	public abstract <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position);
+	public <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position);
 
 }

@@ -39,7 +39,7 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
-import org.minimalj.repository.Repository;
+import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.criteria.By;
 import org.minimalj.repository.criteria.Criteria;
 import org.minimalj.util.CloneHelper;
@@ -56,7 +56,7 @@ import org.minimalj.util.StringUtils;
  * The Mapper to a relationale Database
  * 
  */
-public class SqlRepository extends Repository {
+public class SqlRepository implements TransactionalRepository {
 	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	

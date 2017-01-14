@@ -120,7 +120,7 @@ package org.minimalj.backend;
 
 import [..]
 
-public abstract class Repository {
+public interface Repository {
 	[..]
 	public <T> T read(Class<T> clazz, Object id);
 	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
@@ -147,7 +147,7 @@ Where do you get the Repository object? In the example above we created it ourse
 the single instance of of the repository:
 [source,java]
 ----
-    Repository repository = Backend.getInstance().getRepository();
+	Repository repository = Backend.getInstance().getRepository();
 	Person person = repository.read(Person.class, id);
 ----
 or in one line:
