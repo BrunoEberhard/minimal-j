@@ -4,7 +4,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.repository.Repository;
 import org.minimalj.transaction.Transaction;
 
-public abstract class RepositoryTransaction<ENTITY, RETURN> implements Transaction<RETURN> {
+public abstract class EntityTransaction<ENTITY, RETURN> implements Transaction<RETURN> {
 	private static final long serialVersionUID = 1L;
 
 	@Override

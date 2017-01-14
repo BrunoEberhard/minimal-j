@@ -6,7 +6,7 @@ import org.minimalj.repository.Repository;
 import org.minimalj.repository.sql.LazyList;
 import org.minimalj.util.SerializationContainer;
 
-public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends RepositoryTransaction<ELEMENT, RETURN> {
+public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends EntityTransaction<ELEMENT, RETURN> {
 	private static final long serialVersionUID = 1L;
 	
 	protected final LazyList<PARENT, ELEMENT> lazyList;

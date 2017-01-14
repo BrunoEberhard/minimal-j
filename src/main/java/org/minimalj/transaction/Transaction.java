@@ -2,7 +2,7 @@ package org.minimalj.transaction;
 
 import java.io.Serializable;
 
-import org.minimalj.backend.repository.RepositoryTransaction;
+import org.minimalj.backend.repository.EntityTransaction;
 
 /**
  * The transaction is the action the frontend passes to the backend for
@@ -34,8 +34,8 @@ public interface Transaction<T> extends Serializable {
 	 * @return the used isolation (for example 'serializable') for transaction
 	 */	
 	public static Isolation getIsolation(Transaction<?> transaction) {
-		if (transaction instanceof RepositoryTransaction) {
-			return ((RepositoryTransaction<?,?>) transaction).getEntityClazz().getAnnotation(Isolation.class);
+		if (transaction instanceof EntityTransaction) {
+			return ((EntityTransaction<?,?>) transaction).getEntityClazz().getAnnotation(Isolation.class);
 		} else {
 			return transaction.getClass().getAnnotation(Isolation.class);
 		}
@@ -57,8 +57,8 @@ public interface Transaction<T> extends Serializable {
 		if (role != null) {
 			return role;
 		}
-		if (transaction instanceof RepositoryTransaction) {
-			RepositoryTransaction<?, ?> repositoryTransaction = (RepositoryTransaction<?, ?>) transaction;
+		if (transaction instanceof EntityTransaction) {
+			EntityTransaction<?, ?> repositoryTransaction = (EntityTransaction<?, ?>) transaction;
 			role = repositoryTransaction.getEntityClazz().getAnnotation(Role.class);
 			if (role != null) {
 				return role;

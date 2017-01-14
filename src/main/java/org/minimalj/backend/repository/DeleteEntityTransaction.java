@@ -6,7 +6,7 @@ import org.minimalj.repository.Repository;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.IdUtils;
 
-public class DeleteEntityTransaction<ENTITY> extends RepositoryTransaction<ENTITY, Void> {
+public class DeleteEntityTransaction<ENTITY> extends EntityTransaction<ENTITY, Void> {
 	private static final long serialVersionUID = 1L;
 
 	private final ClassHolder<ENTITY> classHolder;

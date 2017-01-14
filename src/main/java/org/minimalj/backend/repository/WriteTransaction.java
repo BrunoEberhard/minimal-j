@@ -2,7 +2,7 @@ package org.minimalj.backend.repository;
 
 import org.minimalj.util.SerializationContainer;
 
-public abstract class WriteTransaction<ENTITY, RETURN> extends RepositoryTransaction<ENTITY, RETURN> {
+public abstract class WriteTransaction<ENTITY, RETURN> extends EntityTransaction<ENTITY, RETURN> {
 	private static final long serialVersionUID = 1L;
 
 	private final Object object;
