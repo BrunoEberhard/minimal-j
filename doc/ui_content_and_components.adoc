@@ -1,5 +1,33 @@
 == Frontend details
 
+As a beginner to Minimal-J you may just want to make things work. For that Minimal-J provides
+some simple entry points:
+
+* To *edit* an entity you have to extends the Editor class. Most of the time you can even
+use the SimpleEditor oder the NewObjectEditor. The editor class extends from Action class. A
+complete Editor class can be used in the getNavigation method in the Application class.
+
+* To *display* a single entity there is an ObjectPage. You can use such a Page for example in the
+method createDefaultPage of the Application class.
+
+* To show a *table* of entities there are the classes TablePage, TablePageWithDetail, SimpleTablePageWithDetail,
+SearchPage and SimpleSearchPage.
+
+NOTE: 'Simple' in Minimal-j means that with these classes some first confusing stuff
+can be left out. For example the SimpleEditor has only one generic parameters. A second
+parameter is only needed if the save method returns a different class of objects as the
+class of the edited object.
+
+To learn Minimal-J it's a good idea to start with Editors and Pages. After some time
+you will see that you need a little bit more. For example you need to create special FormElements.
+
+Remember that some things are complicate in Minimal-J on purpose. These are the things
+in my experience lead to problems. First you may think that Minimal-J is too strict. But
+even with the small toolkit you can accomplish complete applications that look very clean
+to your users!
+
+== Key concepts
+
 === Pages
 
 Pages are one of the building blocks of an application. On small device they fill up the whole
@@ -38,7 +66,7 @@ nest components. It's not possible to put a table in a FormElement.
 
 ==== Table
 
-Tables show a list of entities of the same class. Minimal-J doesn't support inheritence for business classes so the objects
+Tables show a list of entities of the same class. Minimal-J doesn't support inheritance for business classes so the objects
 will be really of the same class. Tables are meant to be read only. The displayed objects cannot be edited directly in the table.
 But tables can have a context menu with actions. And a row of table can be double clicked (or 'started' in the way the frontend
 should do it according where it lives).
@@ -92,7 +120,7 @@ SimpleTablePageWithDetail provides a default implementation for that method.
 ==== Html
 
 With html content you can break out from the constraints given by Minimal-J. A HtmlPage can display basically every URL or html
-string. The frontends may depend on system funcionality for that. For example the SwingFrontend uses the JavaFX bridge to the system
+string. The frontends may depend on system functionality for that. For example the SwingFrontend uses the JavaFX bridge to the system
 browser. And for the web based frontend displaying web content is the easiest part.
 
 Displaying html is meant to be used for start or help pages. Also report engines (not in scope for Minimal-J) could present their
@@ -101,7 +129,7 @@ of Minimal-J or to circumvent its rules.
 
 ==== Form
 
-Forms in Minimal-J have basically the same funtion as in HTML.
+Forms in Minimal-J have basically the same function as in HTML.
 You define with a Form what fields of an entity are shown and in which order.
 Fields can depend on each other. This could mean if a checkbox is selected some fields get editable.
 
@@ -110,19 +138,138 @@ the later layout of the form. But you cannot set horizontal weights to a field. 
 
 ===== FormElement
 
-FormElement objects represent the business side. Fields of an entity are 'bound' to a FormElement.
-Minimal-J doesn't emphasize much on binding.
+FormElement objects represent the _business_ side. Fields of an entity are 'bound' to a FormElement.
+Minimal-J doesn't emphasize much on binding. There is no thing like BindingContext. Forms have their
+elements. If an entity is set to the form by calling setObject then the fields from which the
+elements were created are forwarded to the FormElements.
 
-It's very important to note that a FormElement is _not_ a IComponent but _provides_ one. This
-is necessary as the specifc implementations of the components depend on the chosen Frontend.
+Note that a FormElement is _not_ a IComponent but _provides_ one. This
+is necessary as the specific implementations of the components depend on the chosen Frontend.
 
 The framework provides the basic form elements like the ones for formatted strings, dates, numbers and enumerations. But
 for more complex types you will define your one FormElement classes. Look at the existing examples how to do this!
 
+==== ObjectFormElement and ListFormElement
+
+ObjectFormElement and ListFormElement are very useful for an entity that contains one or many depending entities.
+Depending entities don't have an id field of their own. They cannot be saved or loaded without the main entity.
+To display and edit such depending entities you can use the ObjectFormElement or ListFormElement. ListFormElement
+will not display a list as you may know from html. The meaning is that you see a list of the depending entities
+as text lines.
+
+Such a FormElement can provide Actions. Often these Actions will open a new Dialog where you can modify the depending
+entity. Also you can allow the user to remove a depending entity.
+
+These special FormElements will be a great part of your work with Minimal-J.
+
+==== Form (as factory)
+
+When you add some lines to a form by calling the line(Object) method the Form tries to automatically create
+the matching FormElement for you. This happens in the methods createElement. The first one with
+an Object as input tries to find out if you already provided a FormElement. You may want to do
+this if in your case the automated creation of the FormElements doesn't work. For example
+if you have a implemented specialization of a FormElement yourself.
+
+[source,java,title="Form.java"]
+----
+	public FormElement<?> createElement(Object key) {
+		[..]
+		if (key instanceof FormElement) {
+			element = (FormElement<?>) key;
+			property = element.getProperty();
+			[..]
+		} else {
+			property = Keys.getProperty(key);
+			[..]
+			element = createElement(property);
+		}
+		return element;
+	}
+----
+
+If the key is no FormElement then the other createElement method is called.
+In this method exists an if case for every field class known to the Minimal-J framework.
+
+[source,java,title="Form.java"]
+----
+	protected FormElement<?> createElement(PropertyInterface property) {
+		Class<?> fieldClass = property.getClazz();
+		boolean editable = this.editable && !property.isFinal();
+
+		if (fieldClass == String.class) {
+			return editable ? new StringFormElement(property) : new TextFormElement(property);
+		} else if (fieldClass == Boolean.class) {
+			return new CheckBoxFormElement(property, editable);
+		}	
+		[..]
+		logger.severe("No FormElement could be created..");
+		return new TypeUnknownFormElement(property);
+	}
+----
+
+It's a good idea to subclass Form and override the createElement(PropertyInterface) method. You can add your own
+FormElement classes. Here the exmaple from the Open-eCH project:
+
+[source,java,title="EchForm.java"]
+----
+	@Override
+	public FormElement<?> createElement(PropertyInterface property) {
+		Class<?> type = property.getClazz();
+		if (type == DatePartiallyKnown.class) {
+			return new DatePartiallyKnownFormElement(property, editable);
+		} else if (type == PersonIdentification.class) {
+			return new PersonIdentificationFormElement(property);
+		} else if (type == PartnerIdentification.class) {
+			return new PartnerIdentificationFormElement(property);
+		} else if (type == Person.class) {
+			return new PersonFormElement(property);
+		[..]
+		}
+		return super.createElement(property);
+	}		
+----
+
 ===== Inputs / Components
 
 Minimal-J doesn't try to have as many shiny components as possible. Where other frameworks are proud to present pages of predefined components
-Minimal-J restricts you basically to texts, comboboxes and checkboxes (with some veriations).
+Minimal-J restricts you basically to texts, comboboxes and checkboxes (with some variations).
 
-The Frontend class acts a factory for all components. This makes sense as for differend frontends (web or rich client) different components have
-to be created.
+The Frontend class acts a factory for all components. This makes sense as for different frontends (web or rich client) different components have
+to be created. Normally you don't create components in your Editors. You create a Form an fill it with
+FormElements. The FormElements then create the components through the factory.
+
+The interface for Input has only 3 methods.
+
+[source,java,title="Input.java"]
+----
+	[..]
+	public interface Input<T> extends IComponent {
+		public void setValue(T value);
+		public T getValue();
+		public void setEditable(boolean editable);
+	}
+----
+
+You can change the value of a Input component or you can get the value. And the only state that can be
+changed after creation is if the Input is in a editable state. It's quite common to have some FormElements
+disabled based on some input the user has given in a previous field.
+
+For comboboxes or checkboxes there are no specific interfaces. All the additional information such an Input
+needs is provided when the Input is created. Some of the factory methods:
+
+[source,java,title="Frontend.java"]
+----
+	[..]
+	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch, InputComponentListener changeListener);
+	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
+	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
+----
+
+So you can provide a max string length for a text the user may enter. Or restrict the allowed characters. With InputType you
+can specify that the input must be for example a phone number (InputType of course comes from the HTML5 tag).
+Remeber that normally you don't actually call these methods directly but through creating FormElements. There you have
+to provide all these parameters. But that's only once.
+
+The InputComponentListener parameter must be the listener that gets informed if the user enters some new value in the Input.
+This listener must be provided and cannot be null. It would simply make no sense to have no listener. If the user
+can enter some value someone should get informed. 
