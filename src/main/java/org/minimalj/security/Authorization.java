@@ -3,9 +3,8 @@ package org.minimalj.security;
 import java.util.Collections;
 import java.util.List;
 
-import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.TransactionUtil;
+import org.minimalj.transaction.TransactionAnnotations;
 
 public class Authorization {
 
@@ -20,9 +19,9 @@ public class Authorization {
 	}
 
 	public static boolean isAllowed(List<String> currentRoles, Transaction<?> transaction) {
-		Role role = TransactionUtil.getRole(transaction);
-		if (role != null) {
-			for (String allowingRole : role.value()) {
+		String[] roles = TransactionAnnotations.getRoles(transaction);
+		if (roles != null) {
+			for (String allowingRole : roles) {
 				if (currentRoles.contains(allowingRole)) {
 					return true;
 				}

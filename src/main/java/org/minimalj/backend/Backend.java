@@ -20,7 +20,7 @@ import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.TransactionUtil;
+import org.minimalj.transaction.TransactionAnnotations;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
@@ -183,20 +183,20 @@ public class Backend {
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
-		Isolation isolation = TransactionUtil.getIsolation(transaction);
-		if (isolation != null) {
-			return doExecute(transaction, transactionalRepository, isolation);
+		Isolation.Level isolationLevel = TransactionAnnotations.getIsolation(transaction);
+		if (isolationLevel != null) {
+			return doExecute(transaction, transactionalRepository, isolationLevel);
 		} else {
 			return transaction.execute();
 		}
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository,
-			Isolation isolation) {
+			Isolation.Level isolationLevel) {
 		T result;
 		boolean commit = false;
 		try {
-			transactionalRepository.startTransaction(isolation.value().getLevel());
+			transactionalRepository.startTransaction(isolationLevel.getLevel());
 			result = transaction.execute();
 			commit = true;
 		} finally {

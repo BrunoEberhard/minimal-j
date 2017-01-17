@@ -4,22 +4,24 @@ import java.lang.annotation.Annotation;
 
 import org.minimalj.backend.repository.EntityTransaction;
 
-public class TransactionUtil {
+public class TransactionAnnotations {
 
 	/**
 	 * 
 	 * @return the used isolation (for example 'serializable') for transaction
 	 */	
-	public static Isolation getIsolation(Transaction<?> transaction) {
-		return getAnnotation(transaction, Isolation.class);
+	public static Isolation.Level getIsolation(Transaction<?> transaction) {
+		Isolation isolation = getAnnotation(transaction, Isolation.class);
+		return isolation != null ? isolation.value() : Isolation.Level.SERIALIZABLE;
 	}
 
 	/**
 	 * 
-	 * @return the role needed to execute the transaction
+	 * @return the roles that allow to execute the transaction
 	 */
-	public static Role getRole(Transaction<?> transaction) {
-		return getAnnotation(transaction, Role.class);
+	public static String[] getRoles(Transaction<?> transaction) {
+		Role role = getAnnotation(transaction, Role.class);
+		return role != null ? role.value() : null;
 	}
 	
 	private static <A extends Annotation> A getAnnotation(Transaction<?> transaction, Class<A> annotationClass) {

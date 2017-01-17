@@ -8,14 +8,14 @@ import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.security.permissiontest.TestEntityA;
 import org.minimalj.security.permissiontest.TestEntityB;
 import org.minimalj.security.permissiontest.pkgrole.TestEntityG;
-import org.minimalj.transaction.TransactionUtil;
+import org.minimalj.transaction.TransactionAnnotations;
 
 public class SecurityTest {
 
 	@Test
 	public void testEntityWithoutRole() throws Exception {
 		Assert.assertNull("ReadTransaction without Role annotation to class or package should need no role",
-				TransactionUtil.getRole(new ReadEntityTransaction<TestEntityA>(TestEntityA.class, 1)));
+				TransactionAnnotations.getRoles(new ReadEntityTransaction<TestEntityA>(TestEntityA.class, 1)));
 	}
 
 	@Test
