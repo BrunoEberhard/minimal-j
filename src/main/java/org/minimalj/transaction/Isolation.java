@@ -6,6 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Connection;
 
+/**
+ * Annotate a Transaction or an entity with this annotation.
+ * If a Transaction or entity has no Isolation specified the
+ * default is 'serializable'.
+ *
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.PACKAGE})
 public @interface Isolation {
