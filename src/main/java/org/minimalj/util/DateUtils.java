@@ -231,6 +231,14 @@ public class DateUtils {
 		sb.deleteCharAt(22);
 		return xsdDateTimeFormat.parse(sb.toString());
 	}
+
+	public static int getTimeSize(PropertyInterface property) {
+		Size size = property.getAnnotation(Size.class);
+		if (size == null) {
+			return Size.TIME_HH_MM;
+		}
+		return size.value();
+	}
 	
 	public static DateTimeFormatter getTimeFormatter(PropertyInterface property) {
 		Size size = property.getAnnotation(Size.class);
