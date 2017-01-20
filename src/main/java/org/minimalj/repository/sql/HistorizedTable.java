@@ -253,14 +253,14 @@ public class HistorizedTable<T> extends Table<T> {
 	}
 	
 	@Override
-	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
-		super.addSpecialColumns(syntax, s);
+	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
+		super.addSpecialColumns(dialect, s);
 		s.append(",\n historized INTEGER NOT NULL");
 	}
 	
 	@Override
-	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
-		syntax.addPrimaryKey(s, "id, version");
+	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
+		dialect.addPrimaryKey(s, "id, version");
 	}
 
 }

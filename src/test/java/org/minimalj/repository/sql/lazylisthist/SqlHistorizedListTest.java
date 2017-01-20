@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.sql.SqlRepository;
 
 @Ignore // HistorizedLazyListTable not yet implemented
@@ -15,7 +16,7 @@ public class SqlHistorizedListTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class, TestElementB.class, TestElementC.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class, TestElementB.class, TestElementC.class);
 	}
 	
 	@Test 

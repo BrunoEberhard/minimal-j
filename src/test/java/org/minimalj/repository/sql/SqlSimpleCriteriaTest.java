@@ -6,9 +6,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.criteria.By;
 import org.minimalj.repository.criteria.FieldOperator;
-import org.minimalj.repository.sql.SqlRepository;
 
 public class SqlSimpleCriteriaTest {
 	
@@ -16,7 +16,7 @@ public class SqlSimpleCriteriaTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), A.class, G.class, H.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), A.class, G.class, H.class);
 		
 		insertA(5);
 		insertA(7);

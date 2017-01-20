@@ -144,15 +144,15 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 
 	@Override
-	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
+	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
 		s.append(" id ");
-		syntax.addColumnDefinition(s, parentIdProperty);
+		dialect.addColumnDefinition(s, parentIdProperty);
 		s.append(",\n position INTEGER NOT NULL");
 	}
 	
 	@Override
-	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
-		syntax.addPrimaryKey(s, "id, position");
+	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
+		dialect.addPrimaryKey(s, "id, position");
 	}
 
 }

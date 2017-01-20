@@ -4,6 +4,7 @@ import java.util.logging.Level;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.sql.AbstractTable;
 import org.minimalj.repository.sql.SqlRepository;
 
@@ -13,7 +14,7 @@ public class RepositoryExample {
 		AbstractTable.sqlLogger.setLevel(Level.FINEST);
 		AbstractTable.sqlLogger.getParent().getHandlers()[0].setLevel(Level.FINEST);
 		
-		SqlRepository repository = new SqlRepository(SqlRepository.embeddedDataSource(), ExamplePerson.class);
+		SqlRepository repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), ExamplePerson.class);
 
 		ExamplePerson person = new ExamplePerson();
 		person.firstName = "Peter";

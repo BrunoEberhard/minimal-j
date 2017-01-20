@@ -6,7 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.DataSourceFactory;
 
 public class SqlLongFieldNameTest {
 	
@@ -14,7 +14,7 @@ public class SqlLongFieldNameTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@AfterClass

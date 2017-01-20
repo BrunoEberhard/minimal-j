@@ -7,6 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Code;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.criteria.By;
 import org.minimalj.repository.sql.SqlRepository;
 
@@ -16,7 +17,7 @@ public class CodesTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestCode.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestCode.class);
 	}
 	
 	@Test

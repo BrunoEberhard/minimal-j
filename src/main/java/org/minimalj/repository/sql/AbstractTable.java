@@ -45,7 +45,6 @@ public abstract class AbstractTable<T> {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
 	
 	protected final SqlRepository sqlRepository;
-	protected final SqlHelper helper;
 	protected final Class<T> clazz;
 	protected final LinkedHashMap<String, PropertyInterface> columns;
 	
@@ -61,7 +60,6 @@ public abstract class AbstractTable<T> {
 	
 	protected AbstractTable(SqlRepository sqlRepository, String name, Class<T> clazz) {
 		this.sqlRepository = sqlRepository;
-		this.helper = new SqlHelper(sqlRepository);
 		this.name = buildTableName(sqlRepository, name != null ? name : StringUtils.toSnakeCase(clazz.getSimpleName()));
 		this.clazz = clazz;
 		this.columns = sqlRepository.findColumns(clazz);
@@ -80,7 +78,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	public String buildTableName(SqlRepository repository, String name) {
-		name = SqlHelper.buildName(name, repository.getMaxIdentifierLength(), repository.getTableByName().keySet());
+		name = SqlIdentifier.buildIdentifier(name, repository.getMaxIdentifierLength(), repository.getTableByName().keySet());
 
 		// the repository adds the table name too late. For subtables it's important to add the table name here.
 		repository.getTableByName().put(name, this);
@@ -112,42 +110,42 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	protected void createTable(SqlSyntax syntax) {
+	protected void createTable(SqlDialect dialect) {
 		StringBuilder s = new StringBuilder();
-		syntax.addCreateStatementBegin(s, getTableName());
-		addSpecialColumns(syntax, s);
-		addFieldColumns(syntax, s);
-		addPrimaryKey(syntax, s);
-		syntax.addCreateStatementEnd(s);
+		dialect.addCreateStatementBegin(s, getTableName());
+		addSpecialColumns(dialect, s);
+		addFieldColumns(dialect, s);
+		addPrimaryKey(dialect, s);
+		dialect.addCreateStatementEnd(s);
 		
 		execute(s.toString());
 	}
 	
-	protected abstract void addSpecialColumns(SqlSyntax syntax, StringBuilder s);
+	protected abstract void addSpecialColumns(SqlDialect dialect, StringBuilder s);
 	
-	protected void addFieldColumns(SqlSyntax syntax, StringBuilder s) {
+	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			s.append(",\n ").append(column.getKey()).append(' '); 
 
 			PropertyInterface property = column.getValue();
-			syntax.addColumnDefinition(s, property);
+			dialect.addColumnDefinition(s, property);
 			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
 			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
 		}
 	}
 
-	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
-		syntax.addPrimaryKey(s, "ID");
+	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
+		dialect.addPrimaryKey(s, "ID");
 	}
 	
-	protected void createIndexes(SqlSyntax syntax) {
+	protected void createIndexes(SqlDialect dialect) {
 		for (String index : indexes) {
-			String s = syntax.createIndex(getTableName(), index, this instanceof HistorizedTable);
+			String s = dialect.createIndex(getTableName(), index, this instanceof HistorizedTable);
 			execute(s.toString());
 		}
 	}
 	
-	protected void createConstraints(SqlSyntax syntax) {
+	protected void createConstraints(SqlDialect dialect) {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			
@@ -156,7 +154,7 @@ public abstract class AbstractTable<T> {
 				fieldClass = ViewUtil.resolve(fieldClass);
 				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
 
-				String s = syntax.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
+				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
 				if (s != null) {
 					execute(s.toString());
 				}
@@ -211,7 +209,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
-			if (SqlHelper.isDependable(property) && fieldClazz != clazz) {
+			if (isDependable(property) && fieldClazz != clazz) {
 				if (!View.class.isAssignableFrom(property.getClazz())) {
 					sqlRepository.addClass(fieldClazz);
 				}
@@ -314,7 +312,7 @@ public abstract class AbstractTable<T> {
 						value = referencedTable.insert(value);
 					}
 				}
-			} else if (SqlHelper.isDependable(property)) {
+			} else if (isDependable(property)) {
 				Table dependableTable = sqlRepository.getTable(property.getClazz());
 				if (mode == ParameterMode.INSERT) {
 					if (value != null) {
@@ -351,8 +349,8 @@ public abstract class AbstractTable<T> {
 					}
 				}
 			}
-			helper.setParameter(statement, parameterPos++, value, property);
-			if (doubleValues) helper.setParameter(statement, parameterPos++, value, property);
+			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property);
+			if (doubleValues) sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property);
 		}
 		statement.setObject(parameterPos++, id);
 		if (doubleValues) statement.setObject(parameterPos++, id);
@@ -479,6 +477,20 @@ public abstract class AbstractTable<T> {
 			if (index < 0) throw new IllegalArgumentException();
 			fieldPath = fieldPath.substring(0, index);
 		}
+	}
+	
+	//
+	
+	/**
+	 * @param property the property to check
+	 * @return true if property isn't a base object like String, Integer, Date, enum but a dependable
+	 */
+	public static boolean isDependable(PropertyInterface property) {
+		if (property.getClazz().getName().startsWith("java")) return false;
+		if (Enum.class.isAssignableFrom(property.getClazz())) return false;
+		if (property.isFinal()) return false;
+		if (property.getClazz().isArray()) return false;
+		return true;
 	}
 	
 }

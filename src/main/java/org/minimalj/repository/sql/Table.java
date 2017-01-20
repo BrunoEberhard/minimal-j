@@ -58,29 +58,29 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	public void createTable(SqlSyntax syntax) {
-		super.createTable(syntax);
+	public void createTable(SqlDialect dialect) {
+		super.createTable(dialect);
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createTable(syntax);
+			subTable.createTable(dialect);
 		}
 	}
 
 	@Override
-	public void createIndexes(SqlSyntax syntax) {
-		super.createIndexes(syntax);
+	public void createIndexes(SqlDialect dialect) {
+		super.createIndexes(dialect);
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createIndexes(syntax);
+			subTable.createIndexes(dialect);
 		}
 	}
 
 	@Override
-	public void createConstraints(SqlSyntax syntax) {
-		super.createConstraints(syntax);
+	public void createConstraints(SqlDialect dialect) {
+		super.createConstraints(dialect);
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createConstraints(syntax);
+			subTable.createConstraints(dialect);
 		}
 	}
 	
@@ -280,7 +280,7 @@ public class Table<T> extends AbstractTable<T> {
 		String query = "SELECT * FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
-				helper.setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
+				sqlRepository.getSqlDialect().setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
 			return executeSelectAll(statement, maxResults);
 		} catch (SQLException e) {
@@ -448,11 +448,11 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	protected void addSpecialColumns(SqlSyntax syntax, StringBuilder s) {
+	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
 		if (idProperty != null) {
-			syntax.addIdColumn(s, idProperty);
+			dialect.addIdColumn(s, idProperty);
 		} else {
-			syntax.addIdColumn(s, Object.class, 36);
+			dialect.addIdColumn(s, Object.class, 36);
 		}
 		if (optimisticLocking) {
 			s.append(",\n version INTEGER DEFAULT 0");
@@ -460,7 +460,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@Override
-	protected void addPrimaryKey(SqlSyntax syntax, StringBuilder s) {
-		syntax.addPrimaryKey(s, "id");
+	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
+		dialect.addPrimaryKey(s, "id");
 	}	
 }

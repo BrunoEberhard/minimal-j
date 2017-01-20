@@ -9,8 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.sql.EmptyObjects;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
@@ -19,7 +18,7 @@ public class SqlCrudTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class);
 	}
 	
 	@AfterClass

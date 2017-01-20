@@ -32,13 +32,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 
 	@Override
 	protected int getAllowedSize(PropertyInterface property) {
-		int size = property.getAnnotation(Size.class).value();
-		switch (size) {
-		case Size.TIME_HH_MM: return 5;
-		case Size.TIME_WITH_SECONDS: return 8;
-		case Size.TIME_WITH_MILLIS: return 12;
-		default: throw new IllegalArgumentException(String.valueOf(size));
-		}
+		return DateUtils.getTimeSize(property);
 	}
 
 	@Override

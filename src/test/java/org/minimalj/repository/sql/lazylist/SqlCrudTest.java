@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.util.IdUtils;
 
@@ -14,7 +15,7 @@ public class SqlCrudTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
 	}
 	
 	/*

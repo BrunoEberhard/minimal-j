@@ -4,15 +4,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.Repository;
+import org.minimalj.repository.DataSourceFactory;
 
 public class SqlBooleanTest {
 
-	private static SqlRepository repository;
+	private static Repository repository;
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@Test
