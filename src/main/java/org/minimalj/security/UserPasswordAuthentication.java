@@ -109,8 +109,8 @@ public abstract class UserPasswordAuthentication extends Authentication {
 		
 		@Override
 		public Subject execute() {
-			User user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user);
-			if (!user.password.validatePassword(userPassword.password)) {
+			User user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
+			if (user == null) {
 				return null;
 			}
 			Subject subject = Backend.getInstance().getAuthentication().createSubject(userPassword.user);
@@ -120,6 +120,16 @@ public abstract class UserPasswordAuthentication extends Authentication {
 		}
 	}
 	
-	protected abstract User retrieveUser(String userName);
+	protected User retrieveUser(String userName, char[] password) {
+		User user = retrieveUser(userName);
+		if (user.password.validatePassword(password)) {
+			return user;
+		} else {
+			return null;
+		}
+	}
 
+	protected User retrieveUser(String userName) {
+		return null;
+	}
 }
