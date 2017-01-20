@@ -25,17 +25,17 @@ public @interface Size {
 	/**
 	 * Constant to annotate the precision of LocalDate fields to minutes
 	 */
-	public static final int TIME_HH_MM = 4;
+	public static final int TIME_HH_MM = 5;
 
 	/**
 	 * Constant to annotate the precision of LocalDate fields to seconds
 	 */
-	public static final int TIME_WITH_SECONDS = 6;
+	public static final int TIME_WITH_SECONDS = 8;
 
 	/**
 	 * Constant to annotate the precision of LocalDate fields to milliseconds
 	 */
-	public static final int TIME_WITH_MILLIS = 9;
+	public static final int TIME_WITH_MILLIS = 12;
 	
 
 	/**
