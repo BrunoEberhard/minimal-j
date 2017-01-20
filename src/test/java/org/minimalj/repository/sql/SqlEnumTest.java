@@ -7,7 +7,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.DataSourceFactory;
 
 public class SqlEnumTest {
 	
@@ -15,7 +15,7 @@ public class SqlEnumTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
 	}
 	
 	@AfterClass

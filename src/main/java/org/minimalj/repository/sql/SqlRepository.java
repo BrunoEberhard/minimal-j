@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.criteria.By;
 import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.sql.SqlDialect.OracleSqlDialect;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -52,6 +54,8 @@ import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
+import oracle.jdbc.pool.OracleDataSource;
+
 /**
  * The Mapper to a relationale Database
  * 
@@ -60,7 +64,7 @@ public class SqlRepository implements TransactionalRepository {
 	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
 	public static final boolean CREATE_TABLES = true;
 	
-	private final SqlSyntax syntax;
+	private final SqlDialect sqlDialect;
 	
 	private final List<Class<?>> mainClasses;
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
@@ -87,12 +91,15 @@ public class SqlRepository implements TransactionalRepository {
 			String databaseProductName = connection.getMetaData().getDatabaseProductName();
 			boolean isMySqlDb = StringUtils.equals(databaseProductName, "MySQL");
 			boolean isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
+			boolean isOracle = StringUtils.equals(databaseProductName, "Oracle");
 			if (isMySqlDb) {
-				syntax = new SqlSyntax.MariaSqlSyntax();
+				sqlDialect = new SqlDialect.MariaSqlDialect();
 			} else if (isDerbyDb) {
-				syntax = new SqlSyntax.DerbySqlSyntax();
+				sqlDialect = new SqlDialect.DerbySqlDialect();
+			} else if (isOracle) {
+				sqlDialect = new SqlDialect.OracleSqlDialect();				
 			} else {
-				throw new RuntimeException("Only MySQL/MariaDB and Derby DB supported at the moment");
+				throw new RuntimeException("Only Oracle, MySQL/MariaDB and Derby DB supported at the moment");
 			}
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
@@ -107,71 +114,6 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	/**
-	 * Convinience method for prototyping and testing
-	 * @return a DataSource representing a in memory database managed by derby db.
-	 */
-	public static DataSource embeddedDataSource() {
-		return embeddedDataSource(null);
-	}
-	
-	// every JUnit test must have a fresh memory db
-	private static int memoryDbCount = 1;
-	
-	public static DataSource embeddedDataSource(String file) {
-		EmbeddedDataSource dataSource;
-		try {
-			dataSource = new EmbeddedDataSource();
-		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing EmbeddedDataSource. Please ensure to have derby in the classpath");
-			throw new IllegalStateException("Configuration error: Missing EmbeddedDataSource");
-		}
-		
-		dataSource.setDatabaseName(file != null ? file : "memory:TempDB" + (memoryDbCount++));
-		dataSource.setCreateDatabase("create");
-		return dataSource;
-	}
-	
-	public static DataSource mariaDbDataSource(String database, String user, String password) {
-		try {
-			MySQLDataSource dataSource = new MySQLDataSource("localhost", 3306, database);
-			dataSource.setUser(user);
-			dataSource.setPassword(password);
-			return dataSource;
-		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing MySQLDataSource. Please ensure to have mariadb-java-client in the classpath");
-			throw new IllegalStateException("Configuration error: Missing MySQLDataSource");
-		}
-		
-	}
-	
-//	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
-//		String vcap_services = System.getenv("VCAP_SERVICES");
-//		
-//		if (vcap_services != null && vcap_services.length() > 0) {
-//			JSONObject root = new JSONObject(vcap_services);
-//
-//			JSONArray mysqlNode = (JSONArray) root.get("mysql-5.1");
-//			JSONObject firstSqlNode = (JSONObject) mysqlNode.get(0);
-//			JSONObject credentials = (JSONObject) firstSqlNode.get("credentials");
-//
-//			String dbname = credentials.getString("name");
-//			String hostname = credentials.getString("hostname");
-//			String user = credentials.getString("user");
-//			String password = credentials.getString("password");
-//			String port = credentials.getString("port");
-//			
-//			String dbUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbname;
-//
-//			Class.forName("com.mysql.jdbc.Driver");
-//			connection = DriverManager.getConnection(dbUrl, user, password);
-//			
-//			isDerbyDb = false;
-//			isDerbyMemoryDb = false;
-//			isMySqlDb = true;
-//		}
-//	}
-
 	private Connection getAutoCommitConnection() {
 		try {
 			// problem with isValid in maria db driver < 1.1.8 
@@ -184,6 +126,10 @@ public class SqlRepository implements TransactionalRepository {
 		} catch (Exception e) {
 			throw new LoggingRuntimeException(e, logger, "Not possible to create autocommit connection");
 		}
+	}
+	
+	public SqlDialect getSqlDialect() {
+		return sqlDialect;
 	}
 
 	public boolean isMainClasses(Class<?> clazz) {
@@ -404,11 +350,11 @@ public class SqlRepository implements TransactionalRepository {
 					if (!hasClassName) {
 						key = fieldName + "_" + inlineKey;
 					}
-					key = SqlHelper.buildName(key, getMaxIdentifierLength(), columns.keySet());
+					key = SqlIdentifier.buildIdentifier(key, getMaxIdentifierLength(), columns.keySet());
 					columns.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
 				}
 			} else {
-				fieldName = SqlHelper.buildName(fieldName, getMaxIdentifierLength(), columns.keySet());
+				fieldName = SqlIdentifier.buildIdentifier(fieldName, getMaxIdentifierLength(), columns.keySet());
 				columns.put(fieldName, new FieldProperty(field));
 			}
 		}
@@ -478,7 +424,6 @@ public class SqlRepository implements TransactionalRepository {
 		
 		R result = CloneHelper.newInstance(clazz);
 		
-		SqlHelper helper = new SqlHelper(this);
 		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
 		
 		// first read the resultSet completly then resolve references
@@ -533,7 +478,7 @@ public class SqlRepository implements TransactionalRepository {
 						loadedReferences.get(fieldClass).put(value, reference);
 						value = reference;
 					}
-				} else if (SqlHelper.isDependable(property)) {
+				} else if (AbstractTable.isDependable(property)) {
 					value = getTable(fieldClass).read(value);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
@@ -541,7 +486,7 @@ public class SqlRepository implements TransactionalRepository {
 					EnumUtils.fillSet((int) value, enumClass, set);
 					continue; // skip setValue, it's final
 				} else {
-					value = helper.convertToFieldClass(fieldClass, value);
+					value = sqlDialect.convertToFieldClass(fieldClass, value);
 				}
 				property.setValue(result, value);
 			}
@@ -563,13 +508,13 @@ public class SqlRepository implements TransactionalRepository {
 	private void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
-			table.createTable(syntax);
+			table.createTable(sqlDialect);
 		}
 		for (AbstractTable<?> table : tableList) {
-			table.createIndexes(syntax);
+			table.createIndexes(sqlDialect);
 		}
 		for (AbstractTable<?> table : tableList) {
-			table.createConstraints(syntax);
+			table.createConstraints(sqlDialect);
 		}
 	}
 
@@ -704,11 +649,10 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public int getMaxIdentifierLength() {
-		return syntax.getMaxIdentifierLength();
+		return sqlDialect.getMaxIdentifierLength();
 	}
-	
+
 	public Map<String, AbstractTable<?>> getTableByName() {
 		return tableByName;
 	}
-
 }

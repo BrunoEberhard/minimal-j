@@ -5,7 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.DataSourceFactory;
 
 public class SqlOptimisticLockingTest {
 	
@@ -13,7 +13,7 @@ public class SqlOptimisticLockingTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
 	}
 	
 	@AfterClass

@@ -27,11 +27,11 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	}
 	
 	@Override
-	protected void createConstraints(SqlSyntax syntax) {
+	protected void createConstraints(SqlDialect dialect) {
 		Class<?> referencedClass = ViewUtil.resolve(getClazz());
 		AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(referencedClass);
 
-		String s = syntax.createConstraint(getTableName(), "elementId", referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
+		String s = dialect.createConstraint(getTableName(), "elementId", referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
 		if (s != null) {
 			execute(s.toString());
 		}
@@ -182,10 +182,10 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	}
 
 	@Override
-	protected void addFieldColumns(SqlSyntax syntax, StringBuilder s) {
+	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
 		s.append(",\n elementId "); 
 		PropertyInterface elementIdProperty = Properties.getProperty(clazz, "id");
-		syntax.addColumnDefinition(s, elementIdProperty);
+		dialect.addColumnDefinition(s, elementIdProperty);
 		s.append(" NOT NULL");
 	}
 

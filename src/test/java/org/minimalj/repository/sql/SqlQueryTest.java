@@ -4,7 +4,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.DataSourceFactory;
 
 public class SqlQueryTest {
 
@@ -12,7 +12,7 @@ public class SqlQueryTest {
 
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), G.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), G.class);
 	}
 
 	@AfterClass

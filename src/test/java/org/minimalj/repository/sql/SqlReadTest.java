@@ -6,8 +6,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.criteria.By;
-import org.minimalj.repository.sql.SqlRepository;
 
 public class SqlReadTest {
 	
@@ -15,7 +15,7 @@ public class SqlReadTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), A.class, G.class, H.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), A.class, G.class, H.class);
 	}
 	
 	@AfterClass

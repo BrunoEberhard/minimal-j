@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.repository.DataSourceFactory;
 
 public class TableCreator {
 
@@ -18,7 +19,7 @@ public class TableCreator {
 		String user = Configuration.get("MjSqlDatabaseUser", "APP");
 		String password = Configuration.get("MjSqlDatabasePassword", "APP");
 		
-		DataSource dataSource = SqlRepository.mariaDbDataSource(database, user, password);
+		DataSource dataSource = DataSourceFactory.mariaDbDataSource(database, user, password);
 		new SqlRepository(dataSource, SqlRepository.CREATE_TABLES, application.getEntityClasses());
 	}
 

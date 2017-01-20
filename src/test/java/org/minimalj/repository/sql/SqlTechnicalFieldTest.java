@@ -9,7 +9,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.security.Subject;
 
 public class SqlTechnicalFieldTest {
@@ -18,7 +18,7 @@ public class SqlTechnicalFieldTest {
 
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlRepository(SqlRepository.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class, TestEntityHistorized.class);
 	}
 
 	@Test
