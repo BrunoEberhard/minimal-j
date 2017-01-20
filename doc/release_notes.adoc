@@ -3,6 +3,7 @@
 Every release contains many small fixes.
 
 === next
+* SqlRepository: Oracle Dialect
 * Security: removed Grant concept, redesigned authorization
 * Renamed Persistence class and package to repository
 
