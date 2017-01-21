@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
+import org.minimalj.util.LoggingRuntimeException;
 
 public class DataSourceFactory {
 	public static final Logger logger = Logger.getLogger(DataSourceFactory.class.getName());
@@ -50,10 +51,9 @@ public class DataSourceFactory {
 	}
 
 	public static DataSource dataSource(String url, String user, String password) {
-//		if (url.startsWith("jdbc:oracle")) {
-//			return oracleDbDataSource(url, user, password);
-//		} else 
-		if (url.startsWith("jdbc:mariadb")) {
+		if (url.startsWith("jdbc:oracle")) {
+			return oracleDbDataSource(url, user, password);
+		} else if (url.startsWith("jdbc:mariadb")) {
 			return mariaDbDataSource(url, user, password);
 		} else {
 			throw new RuntimeException("Unknown jdbc URL: " + url);
@@ -73,29 +73,42 @@ public class DataSourceFactory {
 		}
 	}
 
-//	<dependency>
-//		<groupId>com.oracle</groupId>
-//		<artifactId>ojdbc7</artifactId>
-//		<version>12.1.0.2</version>
-//		<scope>provided</scope>
-//	</dependency>		
-//		
-//	public static DataSource oracleDbDataSource(String url, String user, String password) {
-//		try {
-//			OracleDataSource dataSource = new OracleDataSource();
-//			// dataSource.setURL("jdbc:oracle:thin:@localhost:1521:orcl");
-//			dataSource.setURL(url);
-//			dataSource.setUser(user);
-//			dataSource.setPassword(password);
-//			return dataSource;
-//		} catch (NoClassDefFoundError e) {
-//			logger.severe("Missing OracleConnectionPoolDataSourceImpl. Please ensure to have ojdbc7 in the classpath");
-//			throw new IllegalStateException("Configuration error: Missing OracleConnectionPoolDataSourceImpl");
-//		} catch (SQLException e) {
-//			throw new LoggingRuntimeException(e, logger, "Cannot connect to oracle db");
-//		}
-//	}
-	
+	/**
+	 * Don't forget to add the dependency to ojdbc like this in your pom.xml
+	 * <pre>
+	 * &lt;dependency&gt;
+	 * 	&lt;groupId&gt;com.oracle&lt;/groupId&gt;
+	 * 	&lt;artifactId&gt;ojdbc7&lt;/artifactId&gt;
+	 * 	&lt;version&gt;12.1.0.2&lt;/version&gt;
+	 * 	&lt;scope&gt;provided&lt;/scope&gt;
+	 * &lt;/dependency&gt;		
+	 * </pre>
+	 * 
+	 * You need to register at the oracle maven repository to actually get the driver.
+	 * 
+	 * @param url for example "jdbc:oracle:thin:@localhost:1521:orcl"
+	 * @param user User
+	 * @param password Password
+	 * @return DataSource
+	 */
+	public static DataSource oracleDbDataSource(String url, String user, String password) {
+		try {
+			@SuppressWarnings("unchecked")
+			Class<? extends DataSource> dataSourceClass = (Class<? extends DataSource>) Class.forName("oracle.jdbc.pool.OracleDataSource");
+			DataSource dataSource = dataSourceClass.newInstance();
+			dataSourceClass.getMethod("setURL", String.class).invoke(dataSource, url);
+			dataSourceClass.getMethod("setUser", String.class).invoke(dataSource, user);
+			dataSourceClass.getMethod("setPassword", String.class).invoke(dataSource, password);
+			
+			// OracleDataSource dataSource = new OracleDataSource();
+			// dataSource.setURL(url);
+			// dataSource.setUser(user);
+			// dataSource.setPassword(password);
+			return dataSource;
+		} catch (Exception e) {
+			throw new LoggingRuntimeException(e, logger, "Cannot connect to oracle db");
+		}
+	}
 	
 //	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
 //		String vcap_services = System.getenv("VCAP_SERVICES");
