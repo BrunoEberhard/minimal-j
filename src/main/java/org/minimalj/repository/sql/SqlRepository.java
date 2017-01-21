@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
@@ -83,19 +84,7 @@ public class SqlRepository implements TransactionalRepository {
 		this.mainClasses = Arrays.asList(classes);
 		Connection connection = getAutoCommitConnection();
 		try {
-			String databaseProductName = connection.getMetaData().getDatabaseProductName();
-			boolean isMySqlDb = StringUtils.equals(databaseProductName, "MySQL");
-			boolean isDerbyDb = StringUtils.equals(databaseProductName, "Apache Derby");
-			boolean isOracle = StringUtils.equals(databaseProductName, "Oracle");
-			if (isMySqlDb) {
-				sqlDialect = new SqlDialect.MariaSqlDialect();
-			} else if (isDerbyDb) {
-				sqlDialect = new SqlDialect.DerbySqlDialect();
-			} else if (isOracle) {
-				sqlDialect = new SqlDialect.OracleSqlDialect();				
-			} else {
-				throw new RuntimeException("Only Oracle, MySQL/MariaDB and Derby DB supported at the moment");
-			}
+			sqlDialect = findDialect(connection);
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
 			}
@@ -106,6 +95,30 @@ public class SqlRepository implements TransactionalRepository {
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
+		}
+	}
+
+	private SqlDialect findDialect(Connection connection) throws SQLException {
+		String dialectClassName = Configuration.get("MjSqlDialect");
+		if (!StringUtils.isBlank(dialectClassName)) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends SqlDialect> dialectClass = (Class<? extends SqlDialect>) Class.forName(dialectClassName);
+				return dialectClass.newInstance();
+			} catch (Exception x) {
+				throw new LoggingRuntimeException(x, logger, "SqlDialect failed (" + dialectClassName + ")");
+			}
+		}
+		
+		String databaseProductName = connection.getMetaData().getDatabaseProductName();
+		if (StringUtils.equals(databaseProductName, "MySQL")) {
+			return new SqlDialect.MariaSqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
+			return new SqlDialect.DerbySqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
+			return new SqlDialect.OracleSqlDialect();				
+		} else {
+			throw new RuntimeException("Only Oracle, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
 		}
 	}
 	
