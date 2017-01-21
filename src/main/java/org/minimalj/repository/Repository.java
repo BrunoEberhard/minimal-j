@@ -11,7 +11,6 @@ import org.minimalj.application.Configuration;
 import org.minimalj.repository.criteria.Criteria;
 import org.minimalj.repository.sql.LazyList;
 import org.minimalj.repository.sql.SqlRepository;
-import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
@@ -23,16 +22,9 @@ public interface Repository {
 	public static final Logger logger = Logger.getLogger(Repository.class.getName());
 
 	public static Repository create() {
-		String repositoryClassName = Configuration.get("MjRepository");
-		if (!StringUtils.isBlank(repositoryClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Repository> repositoryClass = (Class<? extends Repository>) Class.forName(repositoryClassName);
-				return repositoryClass.newInstance();
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set repository failed (" + repositoryClassName + ")");
-			}
-		} 
+		if (Configuration.available("MjRepository")) {
+			return Configuration.getClazz("MjRepository", Repository.class);
+		}
 		
 		Class<?>[] entityClasses = Application.getInstance().getEntityClasses();
 

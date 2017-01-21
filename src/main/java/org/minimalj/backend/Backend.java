@@ -2,7 +2,6 @@ package org.minimalj.backend;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
@@ -21,8 +20,6 @@ import org.minimalj.security.Authorization;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.TransactionAnnotations;
-import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
 
 /**
  * A Backend is responsible for executing the transactions.
@@ -59,18 +56,9 @@ public class Backend {
 			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
 		} 
 
-		String backendClassName = Configuration.get("MjBackend");
-		if (!StringUtils.isBlank(backendClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
-				Backend backend = backendClass.newInstance();
-				return backend;
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set backend failed");
-			}
-		} 
-
+		if (Configuration.available("MjBackend")) {
+			return Configuration.getClazz("MjBackend", Backend.class);
+		}
 		return new Backend();
 	};
 	
@@ -206,22 +194,9 @@ public class Backend {
 	}
 	
 	private void init() {
-		String initClassName = Configuration.get("MjInit");
-		if (initClassName != null) {
-			try {
-				Class<?> initClass = Class.forName(initClassName);
-				Object init = initClass.newInstance();
-				if (init instanceof Transaction) {
-					logger.info("Execute initialization: " + initClassName);
-					((Transaction<?>) init).execute();
-				} else {
-					logger.severe("Class " + initClassName + " doesn't extend Transaction");
-				}
-			} catch (ClassNotFoundException e) {
-				logger.severe("Could not found initialization class: " + initClassName);
-			} catch (InstantiationException | IllegalAccessException e) {
-				logger.log(Level.SEVERE, "Could not instantiate initialization class: " + initClassName, e);
-			}
+		if (Configuration.available("MjInit")) {
+			Transaction<?> init = Configuration.getClazz("MjInit", Transaction.class);
+			init.execute();
 		}
 	}
 

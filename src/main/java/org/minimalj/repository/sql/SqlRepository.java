@@ -99,15 +99,8 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	private SqlDialect findDialect(Connection connection) throws SQLException {
-		String dialectClassName = Configuration.get("MjSqlDialect");
-		if (!StringUtils.isBlank(dialectClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends SqlDialect> dialectClass = (Class<? extends SqlDialect>) Class.forName(dialectClassName);
-				return dialectClass.newInstance();
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "SqlDialect failed (" + dialectClassName + ")");
-			}
+		if (Configuration.available("MjSqlDialect")) {
+			return Configuration.getClazz("MjSqlDialect", SqlDialect.class);
 		}
 		
 		String databaseProductName = connection.getMetaData().getDatabaseProductName();
