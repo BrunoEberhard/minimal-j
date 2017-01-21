@@ -7,7 +7,7 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -21,8 +21,6 @@ import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
-
-import oracle.sql.TIMESTAMP;
 
 public abstract class SqlDialect {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
@@ -250,9 +248,8 @@ public abstract class SqlDialect {
 
 		@Override
 		public void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
-			if (value instanceof LocalTime && !InvalidValues.isInvalid(value)) {
-				DateTimeFormatter formatter = DateUtils.getTimeFormatter(property);
-				value = formatter.format((LocalTime) value);
+			if (value instanceof Temporal && !InvalidValues.isInvalid(value)) {
+				value = value.toString();
 			}
 			super.setParameter(preparedStatement, param, value, property);
 		}
@@ -260,7 +257,7 @@ public abstract class SqlDialect {
 		@Override
 		public void setParameterNull(PreparedStatement preparedStatement, int param, PropertyInterface property) throws SQLException {
 			Class<?> clazz = property.getClazz();
-			if (clazz == LocalTime.class) {
+			if (clazz == LocalTime.class || clazz == LocalDate.class || clazz == LocalDateTime.class) {
 				preparedStatement.setNull(param, Types.CHAR);
 			} else {
 				super.setParameterNull(preparedStatement, param, property);
@@ -272,8 +269,12 @@ public abstract class SqlDialect {
 			Class<?> clazz = property.getClazz();
 			if (clazz == LocalDateTime.class) {
 				s.append("TIMESTAMP");
+			} else if (clazz == LocalDate.class) {
+				s.append("CHAR(10)");
 			} else if (clazz == LocalTime.class) {
-				s.append("CHAR(").append(DateUtils.getTimeSize(property)).append(")");
+				s.append("CHAR(").append(DateUtils.getTimeSize(property)).append(")");				
+			} else if (clazz == LocalTime.class) {
+				s.append("CHAR(30)");
 			} else if (clazz == LocalDate.class) {
 				s.append("DATE");
 			} else if (clazz == Boolean.class) {
@@ -374,6 +375,8 @@ public abstract class SqlDialect {
 				value = ((java.sql.Date) value).toLocalDate();
 			} else if (value instanceof java.sql.Timestamp) {
 				value = ((java.sql.Timestamp) value).toLocalDateTime().toLocalDate();
+			} else if (value instanceof String) {
+				value = LocalDate.parse((String) value);				
 			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
@@ -394,8 +397,8 @@ public abstract class SqlDialect {
 				value = ((java.sql.Date) value).toLocalDate().atStartOfDay();
 			} else if (value instanceof java.sql.Timestamp) {
 				value = ((java.sql.Timestamp) value).toLocalDateTime();
-			} else if (value instanceof TIMESTAMP) {
-				value = convertTimestampToLocalDateTime((TIMESTAMP) value);
+			} else if (value instanceof String) {
+				value = LocalDateTime.parse((String) value);
 			} else {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
@@ -415,17 +418,4 @@ public abstract class SqlDialect {
 		return value;
 	}
 
-	/**
-	 * Used with OracleDialect
-	 * 
-	 * @param timestamp a oracle specific timestamp
-	 * @return a LocalDateTime
-	 */
-	private Object convertTimestampToLocalDateTime(TIMESTAMP timestamp) {
-		try {
-			return timestamp.timestampValue().toLocalDateTime();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

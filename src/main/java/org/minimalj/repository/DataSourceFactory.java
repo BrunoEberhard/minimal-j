@@ -1,6 +1,5 @@
 package org.minimalj.repository;
 
-import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import javax.naming.Context;
@@ -10,9 +9,6 @@ import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.mariadb.jdbc.MySQLDataSource;
-import org.minimalj.util.LoggingRuntimeException;
-
-import oracle.jdbc.pool.OracleDataSource;
 
 public class DataSourceFactory {
 	public static final Logger logger = Logger.getLogger(DataSourceFactory.class.getName());
@@ -54,9 +50,10 @@ public class DataSourceFactory {
 	}
 
 	public static DataSource dataSource(String url, String user, String password) {
-		if (url.startsWith("jdbc:oracle")) {
-			return oracleDbDataSource(url, user, password);
-		} else if (url.startsWith("jdbc:mariadb")) {
+//		if (url.startsWith("jdbc:oracle")) {
+//			return oracleDbDataSource(url, user, password);
+//		} else 
+		if (url.startsWith("jdbc:mariadb")) {
 			return mariaDbDataSource(url, user, password);
 		} else {
 			throw new RuntimeException("Unknown jdbc URL: " + url);
@@ -76,21 +73,28 @@ public class DataSourceFactory {
 		}
 	}
 
-	public static DataSource oracleDbDataSource(String url, String user, String password) {
-		try {
-			OracleDataSource dataSource = new OracleDataSource();
-			// dataSource.setURL("jdbc:oracle:thin:@localhost:1521:orcl");
-			dataSource.setURL(url);
-			dataSource.setUser(user);
-			dataSource.setPassword(password);
-			return dataSource;
-		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing OracleConnectionPoolDataSourceImpl. Please ensure to have ojdbc7 in the classpath");
-			throw new IllegalStateException("Configuration error: Missing OracleConnectionPoolDataSourceImpl");
-		} catch (SQLException e) {
-			throw new LoggingRuntimeException(e, logger, "Cannot connect to oracle db");
-		}
-	}
+//	<dependency>
+//		<groupId>com.oracle</groupId>
+//		<artifactId>ojdbc7</artifactId>
+//		<version>12.1.0.2</version>
+//		<scope>provided</scope>
+//	</dependency>		
+//		
+//	public static DataSource oracleDbDataSource(String url, String user, String password) {
+//		try {
+//			OracleDataSource dataSource = new OracleDataSource();
+//			// dataSource.setURL("jdbc:oracle:thin:@localhost:1521:orcl");
+//			dataSource.setURL(url);
+//			dataSource.setUser(user);
+//			dataSource.setPassword(password);
+//			return dataSource;
+//		} catch (NoClassDefFoundError e) {
+//			logger.severe("Missing OracleConnectionPoolDataSourceImpl. Please ensure to have ojdbc7 in the classpath");
+//			throw new IllegalStateException("Configuration error: Missing OracleConnectionPoolDataSourceImpl");
+//		} catch (SQLException e) {
+//			throw new LoggingRuntimeException(e, logger, "Cannot connect to oracle db");
+//		}
+//	}
 	
 	
 //	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {

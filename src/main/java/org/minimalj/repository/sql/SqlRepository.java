@@ -14,7 +14,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.mariadb.jdbc.MySQLDataSource;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
@@ -43,7 +41,6 @@ import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.criteria.By;
 import org.minimalj.repository.criteria.Criteria;
-import org.minimalj.repository.sql.SqlDialect.OracleSqlDialect;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -53,8 +50,6 @@ import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
-
-import oracle.jdbc.pool.OracleDataSource;
 
 /**
  * The Mapper to a relationale Database
