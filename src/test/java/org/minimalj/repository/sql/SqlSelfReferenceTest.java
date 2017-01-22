@@ -25,7 +25,7 @@ public class SqlSelfReferenceTest {
 	}
 	
 	@Test @Ignore // not yet solved
-	public void testCycleTest() {
+	public void testCycleWithOneInserts() {
 		TestEntity e1 = new TestEntity();
 		TestEntity e2 = new TestEntity();
 		e1.reference = e2;
@@ -35,6 +35,20 @@ public class SqlSelfReferenceTest {
 		Assert.assertEquals(e1, e1.reference.reference);
 	}
 	
+	@Test
+	public void testCycleWithSeparateInserts() {
+		TestEntity e1 = new TestEntity();
+		Object id1 = repository.insert(e1);
+		TestEntity e2 = new TestEntity();
+		repository.insert(e2);
+		e1.reference = e2;
+		repository.update(e1);
+		e2.reference = e1;
+		repository.update(e2);
+
+		e1 = repository.read(TestEntity.class, id1);
+		Assert.assertEquals(e1, e1.reference.reference);
+	}
 	
 	public static class TestEntity {
 		public Object id;
