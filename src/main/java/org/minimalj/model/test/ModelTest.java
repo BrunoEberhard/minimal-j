@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,6 +96,9 @@ public class ModelTest {
 			testedClasses.add(clazz);
 			testName(clazz);
 			testNoSuperclass(clazz);
+			if (!testNoSelfMixins(clazz)) {
+				return; // further tests could create a StackOverflowException
+			}
 			testId(clazz);
 			testVersion(clazz);
 			testHistorized(clazz);
@@ -145,7 +149,32 @@ public class ModelTest {
 			problems.add(clazz.getName() + ": Domain classes must not extends other classes");
 		}
 	}
-				
+	
+	private boolean testNoSelfMixins(Class<?> clazz) {
+		return testNoSelfMixins(clazz, Collections.emptyList());
+	}
+
+	private boolean testNoSelfMixins(Class<?> clazz, List<Class<?>> outerClasses) {
+		List<Class<?>> forbiddenClasses = new ArrayList<>(outerClasses);
+		forbiddenClasses.add(clazz);
+		
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
+
+			if (FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
+				Class<?> mixinClass = field.getType();
+				if (forbiddenClasses.contains(mixinClass)) {
+					problems.add(clazz.getName() + ": Mixin classes must not mix in itself");
+					return false;
+				} else {
+					return testNoSelfMixins(mixinClass);
+				}
+			}
+		}
+		return true;
+	}
+	
 	private void testId(Class<?> clazz) {
 		try {
 			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
