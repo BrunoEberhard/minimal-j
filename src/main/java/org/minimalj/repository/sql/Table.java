@@ -18,10 +18,10 @@ import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.criteria.Criteria;
-import org.minimalj.repository.criteria.FieldCriteria;
-import org.minimalj.repository.criteria.SearchCriteria;
 import org.minimalj.repository.criteria.Criteria.AndCriteria;
 import org.minimalj.repository.criteria.Criteria.OrCriteria;
+import org.minimalj.repository.criteria.FieldCriteria;
+import org.minimalj.repository.criteria.SearchCriteria;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -192,6 +192,19 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	public T read(Object id, Map<Class<?>, Map<Object, Object>> loadedReferences) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+			selectByIdStatement.setObject(1, id);
+			T object = executeSelect(selectByIdStatement, loadedReferences);
+			if (object != null) {
+				loadLists(object);
+			}
+			return object;
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
+		}
+	}
+	
 	private List<String> getColumns(Object[] keys) {
 		List<String> result = new ArrayList<>();
 		PropertyInterface[] properties = Keys.getProperties(keys);
@@ -301,11 +314,11 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public <S> S readView(Class<S> resultClass, Object id) {
+	public <S> S readView(Class<S> resultClass, Object id, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		String query = select(resultClass) + " WHERE id = ?";
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
 			statement.setObject(1, id);
-			return executeSelectView(resultClass, statement);
+			return executeSelectView(resultClass, statement, loadedReferences);
 		} catch (SQLException e) {
 			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}
@@ -348,10 +361,9 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 
-	protected <S> S executeSelectView(Class<S> resultClass, PreparedStatement preparedStatement) throws SQLException {
+	protected <S> S executeSelectView(Class<S> resultClass, PreparedStatement preparedStatement, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		S result = null;
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			if (resultSet.next()) {
 				result = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 			}

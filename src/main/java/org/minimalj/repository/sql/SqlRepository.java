@@ -423,6 +423,8 @@ public class SqlRepository implements TransactionalRepository {
 			return (R) resultSet.getString(1);
 		}
 		
+		Object id = null;
+		Integer position = 0;
 		R result = CloneHelper.newInstance(clazz);
 		
 		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
@@ -434,11 +436,15 @@ public class SqlRepository implements TransactionalRepository {
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
 			if ("ID".equalsIgnoreCase(columnName)) {
-				IdUtils.setId(result, resultSet.getObject(columnIndex));
+				id = resultSet.getObject(columnIndex);
+				IdUtils.setId(result, id);
 				continue;
 			} else if ("VERSION".equalsIgnoreCase(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
 				continue;
+			} else if ("POSITION".equalsIgnoreCase(columnName)) {
+				position = resultSet.getInt(columnIndex);
+				continue;				
 			} else if ("HISTORIZED".equalsIgnoreCase(columnName)) {
 				IdUtils.setHistorized(result, resultSet.getInt(columnIndex));
 				continue;
@@ -455,6 +461,16 @@ public class SqlRepository implements TransactionalRepository {
 			values.put(property, value);
 		}
 		
+		if (!loadedReferences.containsKey(clazz)) {
+			loadedReferences.put(clazz, new HashMap<>());
+		}
+		Object key = position == null ? id : id + "-" + position;
+		if (loadedReferences.get(clazz).containsKey(key)) {
+			return (R) loadedReferences.get(clazz).get(key);
+		} else {
+			loadedReferences.get(clazz).put(key, result);
+		}
+		
 		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
 			Object value = entry.getValue();
 			PropertyInterface property = entry.getKey();
@@ -466,18 +482,13 @@ public class SqlRepository implements TransactionalRepository {
 				} else if (View.class.isAssignableFrom(fieldClass)) {
 					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
 					Table<?> referenceTable = getTable(viewedClass);
-					value = referenceTable.readView(fieldClass, value);
+					value = referenceTable.readView(fieldClass, value, loadedReferences);
 				} else if (IdUtils.hasId(fieldClass)) {
-					if (!loadedReferences.containsKey(fieldClass)) {
-						loadedReferences.put(fieldClass, new HashMap<>());
-					}
-					if (loadedReferences.get(fieldClass).containsKey(value)) {
+					if (loadedReferences.containsKey(fieldClass) && loadedReferences.get(fieldClass).containsKey(value)) {
 						value = loadedReferences.get(fieldClass).get(value);
 					} else {
 						Table<?> referenceTable = getTable(fieldClass);
-						Object reference = referenceTable.read(value);
-						loadedReferences.get(fieldClass).put(value, reference);
-						value = reference;
+						value = referenceTable.read(value, loadedReferences);
 					}
 				} else if (AbstractTable.isDependable(property)) {
 					value = getTable(fieldClass).read(value);

@@ -269,6 +269,18 @@ public abstract class AbstractTable<T> {
 			throw new RuntimeException(x.getMessage());
 		}
 	}
+	
+	protected T executeSelect(PreparedStatement preparedStatement, Map<Class<?>, Map<Object, Object>> loadedReferences) {
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			if (resultSet.next()) {
+				return sqlRepository.readResultSetRow(clazz,  resultSet, loadedReferences);
+			} else {
+				return null;
+			}
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
+		}
+	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) {
 		return executeSelectAll(preparedStatement, Long.MAX_VALUE);
