@@ -399,7 +399,7 @@ public class SqlRepository implements TransactionalRepository {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				T result = null;
 				if (resultSet.next()) {
-					result = readResultSetRow(clazz, resultSet, null);
+					result = readResultSetRow(clazz, resultSet);
 				}
 				return result;
 			}
