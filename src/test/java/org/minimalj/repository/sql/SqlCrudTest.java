@@ -259,7 +259,7 @@ public class SqlCrudTest {
 		@Size(20)
 		public String testElement;
 		
-		public final List<TestElement> testElementList = new ArrayList<>();
+		public List<TestElement> testElementList = new ArrayList<>();
 
 		public TestElement testElementReference;
 	}

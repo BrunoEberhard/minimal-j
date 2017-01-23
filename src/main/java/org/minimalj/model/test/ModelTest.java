@@ -325,8 +325,10 @@ public class ModelTest {
 			// silent
 		}
 		if (listType != null) {
-			messagePrefix = "Generic of " + messagePrefix;
-			testTypeOfListField(listType, messagePrefix);
+			testTypeOfListField(listType, "Generic of " + messagePrefix);
+			if (IdUtils.hasId(listType) && FieldUtils.isFinal(field)) {
+				problems.add("List of identifiables must not be final: " + messagePrefix);
+			}
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}
