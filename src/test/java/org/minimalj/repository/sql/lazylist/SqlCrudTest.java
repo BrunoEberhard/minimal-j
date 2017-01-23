@@ -82,4 +82,14 @@ public class SqlCrudTest {
 		Assert.assertEquals("The new usage of the element should not change the existing one", 1, entity2.list.size());
 	}
 
+	@Test
+	public void testNullList() {
+		TestEntity entity = new TestEntity("aName");
+		
+		Object id = repository.insert(entity);
+		entity = repository.read(TestEntity.class, id);
+		
+		Assert.assertTrue(entity.list == null || entity.list.isEmpty());
+	}
+
 }
