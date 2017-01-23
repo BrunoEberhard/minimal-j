@@ -12,10 +12,8 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.TablePage.TablePageWithDetail;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.persistence.criteria.By;
-import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.criteria.SearchCriteria;
-import org.minimalj.persistence.criteria.Criteria.Filter;
+import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.criteria.SearchCriteria;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
 
@@ -43,7 +41,7 @@ public class AccountTablePage extends TablePageWithDetail<Account, AccountPositi
 	
 	@Override
 	protected List<Account> load() {
-		List<Account> accounts = Backend.read(Account.class, By.filter(accountFilter), 100);
+		List<Account> accounts = Backend.read(Account.class, accountFilter.getCriteria(), 100);
 		return accounts;
 	}
 
@@ -69,12 +67,17 @@ public class AccountTablePage extends TablePageWithDetail<Account, AccountPositi
 		}
 		
 		@Override
+		protected AccountFilter save(AccountFilter object) {
+			return object;
+		}
+		
+		@Override
 		protected void finished(AccountFilter filter) {
 			Frontend.show(new AccountTablePage(filter));
 		}
 	}
 
-	public static class AccountFilter implements Filter {
+	public static class AccountFilter {
 		public static final AccountFilter $ = Keys.of(AccountFilter.class);
 		
 		@Size(255)
@@ -84,7 +87,6 @@ public class AccountTablePage extends TablePageWithDetail<Account, AccountPositi
 			return !StringUtils.isEmpty(description);
 		}
 		
-		@Override
 		public Criteria getCriteria() {
 			if (active()) {
 				return new SearchCriteria(description);

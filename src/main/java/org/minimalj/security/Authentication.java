@@ -4,18 +4,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
 
 public abstract class Authentication implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	private static final Logger LOG = Logger.getLogger(Authentication.class.getName());
 
 	private final transient Map<UUID, Subject> subjectByToken = new HashMap<>();
 
@@ -25,16 +20,8 @@ public abstract class Authentication implements Serializable {
 			return new TextFileAuthentication(userFile);
 		}
 		
-		String authenticationClassName = Configuration.get("MjAuthentication");
-		if (!StringUtils.isBlank(authenticationClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Authentication> authenticationClass = (Class<? extends Authentication>) Class.forName(authenticationClassName);
-				Authentication authentication = authenticationClass.newInstance();
-				return authentication;
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, LOG, "Set authentication failed");
-			}
+		if (Configuration.available("MjAuthentication")) {
+			return Configuration.getClazz("MjAuthentication", Authentication.class);
 		}
 
 		return null;

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.persistence.Persistence;
+import org.minimalj.repository.Repository;
 
 /**
  * <p>Warning: This class is only for rare cases where you really need several applications in one JVM.
@@ -16,7 +16,7 @@ import org.minimalj.persistence.Persistence;
  * 
  * <p>For tests or demo deployments it may be needed that the application can be replaced.
  * This is forbidden by the Application class itself. This extension can switch the current
- * Application and the persistence.</p>
+ * Application and the repository.</p>
  * 
  * <p>Also note that this trick only works if Frontend and Backend are deployed in
  * the same JVM!</p>
@@ -64,21 +64,21 @@ public class ThreadLocalApplication extends Application {
 	}
 
 	public class ThreadLocalBackend extends Backend {
-		private final Map<Application, Persistence> persistences = new HashMap<>(); 
+		private final Map<Application, Repository> repositories = new HashMap<>(); 
 
 		@Override
-		public Persistence getPersistence() {
+		public Repository getRepository() {
 			Application application = getCurrentApplication();
-			if (!persistences.containsKey(application)) {
-				super.setPersistence(null); // this forces super.getPersistence to create a new instance
-				persistences.put(application, super.getPersistence());
+			if (!repositories.containsKey(application)) {
+				super.setRepository(null); // this forces super.getRepository to create a new instance
+				repositories.put(application, super.getRepository());
 			}
-			return persistences.get(application);
+			return repositories.get(application);
 		}
 		
 		@Override
-		public void setPersistence(Persistence persistence) {
-			persistences.put(getCurrentApplication(), persistence);
+		public void setRepository(Repository repository) {
+			repositories.put(getCurrentApplication(), repository);
 		}
 		
 	}

@@ -9,7 +9,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 import org.minimalj.util.mock.Mocking;
 
 public class Owner implements Rendering, Mocking {

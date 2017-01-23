@@ -1,6 +1,6 @@
 package org.minimalj.example.library.frontend.page;
 
-import static org.minimalj.example.library.model.Book.*;
+import static org.minimalj.example.library.model.Book.$;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 
 
 public class BookSearchPage extends SimpleSearchPage<Book> {

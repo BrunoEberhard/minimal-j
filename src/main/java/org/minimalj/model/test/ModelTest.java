@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +35,7 @@ import org.minimalj.util.resources.Resources;
 /**
  * Test some restricitions on model classes.<p>
  * 
- * These tests are called by JUnit tests but also by Persistence.
+ * These tests are called by JUnit tests but also by the Repository.
  * They are fast and its better to see problems at startup of an application.
  */
 public class ModelTest {
@@ -63,7 +64,7 @@ public class ModelTest {
 	
 	/**
 	 * Allows fail early when application is started. NanoWebServer / Swing can check at startup
-	 * if persistence will make problems. Without this there would be a lot of confusing stacktrace lines
+	 * if repository will make problems. Without this there would be a lot of confusing stacktrace lines
 	 */
 	public static void exitIfProblems() {
 		ModelTest test = new ModelTest(Application.getInstance().getEntityClasses());
@@ -95,6 +96,9 @@ public class ModelTest {
 			testedClasses.add(clazz);
 			testName(clazz);
 			testNoSuperclass(clazz);
+			if (!testNoSelfMixins(clazz)) {
+				return; // further tests could create a StackOverflowException
+			}
 			testId(clazz);
 			testVersion(clazz);
 			testHistorized(clazz);
@@ -145,7 +149,32 @@ public class ModelTest {
 			problems.add(clazz.getName() + ": Domain classes must not extends other classes");
 		}
 	}
-				
+	
+	private boolean testNoSelfMixins(Class<?> clazz) {
+		return testNoSelfMixins(clazz, Collections.emptyList());
+	}
+
+	private boolean testNoSelfMixins(Class<?> clazz, List<Class<?>> outerClasses) {
+		List<Class<?>> forbiddenClasses = new ArrayList<>(outerClasses);
+		forbiddenClasses.add(clazz);
+		
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
+
+			if (FieldUtils.isFinal(field) && !FieldUtils.isList(field)) {
+				Class<?> mixinClass = field.getType();
+				if (forbiddenClasses.contains(mixinClass)) {
+					problems.add(clazz.getName() + ": Mixin classes must not mix in itself");
+					return false;
+				} else {
+					return testNoSelfMixins(mixinClass);
+				}
+			}
+		}
+		return true;
+	}
+	
 	private void testId(Class<?> clazz) {
 		try {
 			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
@@ -296,8 +325,10 @@ public class ModelTest {
 			// silent
 		}
 		if (listType != null) {
-			messagePrefix = "Generic of " + messagePrefix;
-			testTypeOfListField(listType, messagePrefix);
+			testTypeOfListField(listType, "Generic of " + messagePrefix);
+			if (IdUtils.hasId(listType) && FieldUtils.isFinal(field)) {
+				problems.add("List of identifiables must not be final: " + messagePrefix);
+			}
 		} else {
 			problems.add("Could not evaluate generic of " + messagePrefix);
 		}

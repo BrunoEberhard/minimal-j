@@ -7,6 +7,6 @@ First a list of classes you should really have a look upon
 
  * Application: The abstract class you have to extend to define the entry point for your application
  * Backend: Provides shortcuts for all the CRUD - Transactions
- * Persistence: Manages the mapping from Java objects 
+ * Repository: Manages the mapping from Java objects 
 
 

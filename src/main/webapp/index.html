@@ -48,6 +48,10 @@ $ICON
 			for (var i = 0; i<pages.length; i++) {
 				showPage(pages[i]);
 			}
+		} else if ("hidePage" in dataObject) {
+			addNewStateToHistory();
+			hidePage(dataObject.hidePage);
+			saveStateInHistory();
 		} else if (dataObject.pageId) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
@@ -240,6 +244,18 @@ $ICON
 		
 		pageElement.scrollIntoView();
 	}
+	
+	function hidePage(page) {
+		var start = -1;
+		for (var i = 0; i<pageContainerElement.childNodes.length; i++) {
+			if (pageContainerElement.childNodes[i].id == page) {
+				start = i;
+			}
+		}
+		for (var i = pageContainerElement.childNodes.length -1; i>= start; i--) {
+			pageContainerElement.removeChild(pageContainerElement.lastChild);
+		}
+	}
 
 	function togglePageActionMenu(event) {
 		var element = event.target;
@@ -362,13 +378,18 @@ $ICON
 		} else if (type == "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
-			element.classList.add("table");		
+			element.classList.add("table");
+			if (content.multiSelect) {
+				element.classList.add("multiSelect");
+			}
 			element.appendChild(createTableHeaders(content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
 			element = document.createElement("div");
 			element.classList.add(type);
-			if (content.value != undefined) {
+			if (content.htmlValue != undefined) {
+				element.innerHTML = content.htmlValue;
+			} else if (content.value != undefined) {
 				element.appendChild(document.createTextNode(content.value));
 			} else {
 				element.innerHTML = "&nbsp;";
@@ -777,6 +798,9 @@ $ICON
 		send(data, true);
 	}
 
+	var lastSelectedTable;
+	var lastSelectedRow;
+	
 	function tableSelection(event, rowElement, row) {
 		if (event.button != 0) return; // only 'left' mouse button should select
 		var tableElement = rowElement;
@@ -785,25 +809,40 @@ $ICON
 		var pageElement = tableElement;
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 		
+		var multiSelect = tableElement.classList.contains("multiSelect");
 		var rows = [];
-		for (var i = 0; i < tableElement.rows.length; i++) {
-			if (tableElement.rows[i].classList.contains("selected")) {
-				if (!event.ctrlKey) {
+		if (multiSelect && lastSelectedTable == tableElement && event.shiftKey) {
+			for (var i = 0; i < tableElement.rows.length; i++) {
+				if (i < row && i < lastSelectedRow || i > row && i > lastSelectedRow) {
 					tableElement.rows[i].classList.remove("selected");
-				} else {
+				} else if (i >= row && i <= lastSelectedRow || i >= lastSelectedRow && i <= row) {
 					rows.push(i);
+					tableElement.rows[i].classList.add("selected");
 				}
 			}
+		} else {
+			for (var i = 0; i < tableElement.rows.length; i++) {
+				if (tableElement.rows[i].classList.contains("selected")) {
+					if (multiSelect && event.ctrlKey) {
+						rows.push(i);
+					} else {
+						tableElement.rows[i].classList.remove("selected");
+					}
+				}
+			}
+			rows.push(row);
+			tableElement.rows[row].classList.add("selected");
 		}
-		rows.push(row);
-		tableElement.rows[row].classList.add("selected");
-
-		var tableAction = {"table" : tableElement.id, "row" : row, "rows" : rows};
+		lastSelectedTable = tableElement;
+		lastSelectedRow = row;
+		
+		var tableAction = {"table" : tableElement.id, "rows" : rows};
 		var data = {"tableSelection" : tableAction};
-		if (pageElement != undefined) {
-			data.focusPageId = pageElement.id;
-		}
 		send(data, false);
+		
+		if (event.shiftKey || event.ctrlKey) {
+			event.preventDefault();
+		}
 	}
 
 	function tableAction(tableId, row) {
@@ -813,9 +852,6 @@ $ICON
 		
 		var tableAction = {"table" : tableId, "row" : row};
 		var data = {"tableAction" : tableAction};
-		if (pageElement != undefined) {
-			data.focusPageId = pageElement.id;
-		}
 		send(data, true);
 	}
 	

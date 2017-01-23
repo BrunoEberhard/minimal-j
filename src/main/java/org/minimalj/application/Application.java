@@ -110,7 +110,7 @@ public abstract class Application {
 		try {
 			applicationClass = Class.forName(applicationClassName);
 		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException("Could not found Application class: " + applicationClassName);
+			throw new IllegalArgumentException("Could not find Application class: " + applicationClassName);
 		}
 		Object application;
 		try {
@@ -145,9 +145,9 @@ public abstract class Application {
 
 	/**
 	 * Defines the (root) entities of this application. These are the classes the are used
-	 * for persistence. Classes only used as base for an editor should not be listed here.
+	 * for the repository. Classes only used as base for an editor should not be listed here.
 	 * 
-	 * @return all the classes used for persistence. These classes will be checked for compliance by the ModelTest .
+	 * @return all the classes used for the repository. These classes will be checked for compliance by the ModelTest .
 	 */
 	public Class<?>[] getEntityClasses() {
 		return new Class<?>[0];

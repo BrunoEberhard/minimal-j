@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * If it's a String field it also must not be empty.
  * If it's a Integer or Long field it must not be 0.<p>
  * 
- * In DB Persistence the column will be marked as <code>NOT NULL</code>.
+ * In DB the column will be marked as <code>NOT NULL</code>.
  *
  */
 @Retention(RetentionPolicy.RUNTIME)

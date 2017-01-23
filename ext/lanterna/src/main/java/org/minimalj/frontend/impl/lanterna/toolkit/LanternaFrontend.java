@@ -116,8 +116,8 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
-		return new LanternaTable<T>(keys, listener);
+	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new LanternaTable<T>(keys, multiSelect, listener);
 	}
 
 	@Override

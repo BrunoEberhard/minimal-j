@@ -7,27 +7,28 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Code;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.persistence.criteria.By;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.repository.DataSourceFactory;
+import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.sql.SqlRepository;
 
 public class CodesTest {
 
-	private static SqlPersistence persistence;
+	private static SqlRepository repository;
 	
 	@BeforeClass
-	public static void setupPersistence() {
-		persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), TestCode.class);
+	public static void setupRepository() {
+		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestCode.class);
 	}
 	
 	@Test
 	public void testDeclaratedCodes() {
-		List<TestCode> codes = persistence.read(TestCode.class, By.all(), 3);
-		Assert.assertEquals("public static final codes should be automatically inserted in the persistence", 2, codes.size());
+		List<TestCode> codes = repository.read(TestCode.class, By.all(), 3);
+		Assert.assertEquals("public static final codes should be automatically inserted in the repository", 2, codes.size());
 	}
 
 	@Test
 	public void testDeclaratedCode() {
-		TestCode code = persistence.read(TestCode.class, TestCode.A.id);
+		TestCode code = repository.read(TestCode.class, TestCode.A.id);
 		Assert.assertEquals(TestCode.A.text, code.text);
 	}
 	

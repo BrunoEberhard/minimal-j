@@ -246,6 +246,21 @@ public class ModelTestTest {
 		public Object id;
 		public Integer a;
 	}
+	
+	@Test public void
+	should_test_not_accept_self_mixin() {
+		ModelTest modelTest = new ModelTest(TestClass19b.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+	
+	public static class TestClass19a {
+		public Object id;
+		public final TestClass19b mixin = new TestClass19b();
+	}
+	
+	public static class TestClass19b {
+		public final TestClass19b selfMixin = new TestClass19b();
+	}
 
 	//
 

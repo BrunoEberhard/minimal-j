@@ -143,14 +143,14 @@ public abstract class Frontend {
 
 	public static interface TableActionListener<U> {
 
-		public default void selectionChanged(U selectedObject, List<U> selectedObjects) {
+		public default void selectionChanged(List<U> selectedObjects) {
 		}
 		
 		public default void action(U selectedObject) {
 		}
 	}
 	
-	public abstract <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener);
+	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 	
 	public abstract IContent createHtmlContent(String htmlOrUrl);
 		

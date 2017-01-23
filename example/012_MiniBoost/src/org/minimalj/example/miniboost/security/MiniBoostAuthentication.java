@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.model.Role;
 import org.minimalj.example.miniboost.model.User;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 import org.minimalj.security.UserPasswordAuthentication;
 import org.minimalj.security.model.UserRole;
 import org.minimalj.util.CloneHelper;

@@ -17,7 +17,9 @@ public class JsonText extends JsonComponent {
 		if (rendering != null) {
 			RenderType renderType = rendering.getPreferredRenderType(RenderType.HMTL, RenderType.PLAIN_TEXT);
 			String s = rendering.render(renderType);
-			put(JsonInputComponent.VALUE, s);
+			// Security: should the rendered string be checked for attacks?
+			// the value is later inserted in the html page as innerHtml
+			put(renderType == RenderType.HMTL ? "htmlValue" : JsonInputComponent.VALUE, s);
 		}
 	}
 }

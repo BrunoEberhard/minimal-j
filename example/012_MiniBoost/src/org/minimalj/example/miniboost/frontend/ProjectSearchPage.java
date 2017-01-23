@@ -8,7 +8,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.model.Project;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 
 public class ProjectSearchPage extends SimpleSearchPage<Project> {
 

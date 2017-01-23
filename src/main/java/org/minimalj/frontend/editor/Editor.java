@@ -212,12 +212,7 @@ public abstract class Editor<T, RESULT> extends Action {
 
 		public SimpleEditor(String actionName) {
 			super(actionName);
-		}
-		
-		@Override
-		protected T save(T changedObject) {
-			return changedObject;
-		}
+		}	
 	}
 
 	public static abstract class NewObjectEditor<T> extends SimpleEditor<T> {

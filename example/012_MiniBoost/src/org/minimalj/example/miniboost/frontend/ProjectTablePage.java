@@ -9,7 +9,7 @@ import org.minimalj.example.miniboost.frontend.ProjectTablePage.ProjectCostTable
 import org.minimalj.example.miniboost.model.Project;
 import org.minimalj.example.miniboost.model.ProjectCost;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.persistence.criteria.By; 
+import org.minimalj.repository.criteria.By; 
 
 public class ProjectTablePage extends TablePage.TablePageWithDetail<Project, ProjectCostTablePage> {
 

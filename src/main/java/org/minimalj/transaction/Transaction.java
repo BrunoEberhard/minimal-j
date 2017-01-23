@@ -24,5 +24,5 @@ public interface Transaction<T> extends Serializable {
 	 * @return the return value from the transaction
 	 */
 	public T execute();
-	
+
 }

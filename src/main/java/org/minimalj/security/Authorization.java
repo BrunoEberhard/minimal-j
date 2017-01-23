@@ -3,73 +3,35 @@ package org.minimalj.security;
 import java.util.Collections;
 import java.util.List;
 
-import org.minimalj.application.DevMode;
-import org.minimalj.backend.Backend;
-import org.minimalj.model.annotation.Grant;
-import org.minimalj.model.annotation.Grant.Privilege;
-import org.minimalj.transaction.Role;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.transaction.TransactionAnnotations;
 
 public class Authorization {
 
-	public static boolean isAllowed(Transaction<?> transaction) {
-		boolean skipAuthorization = DevMode.isActive() && !Backend.getInstance().isAuthenticationActive();
-		
-		if (!skipAuthorization) {
-			Role role = getRole(transaction);
-			if (role != null) {
-				List<String> currentRoles = getCurrentRoles();
-				for (String allowingRole : role.value()) {
-					if (currentRoles.contains(allowingRole)) {
-						return true;
-					}
-				}
-				return false;
-			}
-			// Transaction specifies no needed role. Every user passes
+	public static void check(Transaction<?> transaction) {
+		if (!isAllowed(transaction)) {
+			throw new IllegalStateException(transaction + " forbidden");
 		}
+	}
+	
+	public static boolean isAllowed(Transaction<?> transaction) {
+		return isAllowed(getCurrentRoles(), transaction);
+	}
 
+	public static boolean isAllowed(List<String> currentRoles, Transaction<?> transaction) {
+		String[] roles = TransactionAnnotations.getRoles(transaction);
+		if (roles != null) {
+			for (String allowingRole : roles) {
+				if (currentRoles.contains(allowingRole)) {
+					return true;
+				}
+			}
+			return false;
+		}
 		return true;
 	}
 	
-	public static Role getRole(Transaction<?> transaction) {
-		Role role = transaction.getClass().getAnnotation(Role.class);
-		if (role != null) {
-			return role;
-		}
-		role = transaction.getClass().getPackage().getAnnotation(Role.class);
-		return role;
-	}
-	
-	public static void checkGrants(Grant.Privilege privilege, Class<?> clazz) {
-		List<String> currentRoles = getCurrentRoles();
-		@SuppressWarnings("unused")
-		boolean allowed = false;
-		Grant[] grantsOnClass = clazz.getAnnotationsByType(Grant.class);
-		allowed |= isGranted(currentRoles, privilege, clazz, grantsOnClass);
-		Grant[] grantsOnPackage = clazz.getPackage().getAnnotationsByType(Grant.class);
-		allowed |= isGranted(currentRoles, privilege, clazz, grantsOnPackage);
-		allowed |= isGranted(currentRoles, Privilege.ALL, clazz, grantsOnClass);
-		allowed |= isGranted(currentRoles, Privilege.ALL, clazz, grantsOnPackage);
-	}
-	
-	protected static boolean isGranted(List<String> currentRoles, Grant.Privilege privilege, Class<?> clazz, Grant[] grants) {
-		if (grants != null) {
-			for (Grant grant : grants) {
-				if (grant.privilege() == privilege) {
-					for (String roleGranted : grant.value()) {
-						if (currentRoles.contains(roleGranted)) {
-							return true;
-						}
-					}
-					throw new IllegalStateException(privilege + " not allowed on " + clazz.getSimpleName());
-				}
-			}
-		}
-		return false;
-	}
-
-	protected static List<String> getCurrentRoles() {
+	public static List<String> getCurrentRoles() {
 		Subject subject = Subject.getCurrent();
 		return subject != null ? subject.getRoles() : Collections.emptyList();
 	}

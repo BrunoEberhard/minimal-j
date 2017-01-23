@@ -2,6 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
@@ -31,13 +32,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 
 	@Override
 	protected int getAllowedSize(PropertyInterface property) {
-		int size = property.getAnnotation(Size.class).value();
-		switch (size) {
-		case Size.TIME_HH_MM: return 5;
-		case Size.TIME_WITH_SECONDS: return 8;
-		case Size.TIME_WITH_MILLIS: return 12;
-		default: throw new IllegalArgumentException(String.valueOf(size));
-		}
+		return DateUtils.getTimeSize(property);
 	}
 
 	@Override
@@ -45,7 +40,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 		if (string != null) {
 			try {
 				return LocalTime.parse(string, formatter);
-			} catch (IllegalArgumentException iae) {
+			} catch (DateTimeParseException iae) {
 				return InvalidValues.createInvalidLocalTime(string);
 			}
 		} else {

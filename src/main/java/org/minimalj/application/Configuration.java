@@ -7,6 +7,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.util.LoggingRuntimeException;
+
 /**
  * Properties are considered in the following order:
  * 
@@ -53,5 +55,24 @@ public class Configuration {
 	
 	public static String get(String key) {
 		return get(key, null);
+	}
+	
+	public static boolean available(String key) {
+		return get(key) != null;
+	}
+	
+	public static <T> T getClazz(String key, Class<T> clazz) {
+		String className = get(key);
+		try {
+			@SuppressWarnings("unchecked")
+			Class<? extends T> configuredClass = (Class<? extends T>) Class.forName(className);
+			return configuredClass.newInstance();
+		} catch (ClassNotFoundException e) {
+			throw new LoggingRuntimeException(e, logger, className + " not found / " + key + " configuration failed");
+		} catch (ClassCastException cce) {
+			throw new LoggingRuntimeException(cce, logger, className + " is not a " + clazz.getName() + ". " + key + " configuration failed");
+		} catch (Exception x) {
+			throw new LoggingRuntimeException(x, logger, className + " / " + key + " configuration failed");
+		}
 	}
 }

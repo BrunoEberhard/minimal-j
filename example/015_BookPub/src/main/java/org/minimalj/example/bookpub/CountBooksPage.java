@@ -5,7 +5,7 @@ import org.minimalj.example.bookpub.entity.Book;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.persistence.criteria.By;
+import org.minimalj.repository.criteria.By;
 
 public class CountBooksPage extends Page {
 

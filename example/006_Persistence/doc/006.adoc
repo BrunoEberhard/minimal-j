@@ -4,25 +4,25 @@ Minimal-J doesn't provide a 'complete' Object-relational mapping as you may know
 It's function is reduced to only work with entities following the rules of the Minimal-J models. The
 complexity is still high enough. Here a basic example:
 
-[source,java,title="PersistenceExample.java"]
+[source,java,title="RepositoryExample.java"]
 ----
-package org.minimalj.example.persistence;
+package org.minimalj.example.repository;
 
 import [..]
 
-public class PersistenceExample {
+public class RepositoryExample {
 
 	public static void main(String[] args) {
 		AbstractTable.sqlLogger.setLevel(Level.FINEST);
 		AbstractTable.sqlLogger.getParent().getHandlers()[0].setLevel(Level.FINEST);
 		
-		SqlPersistence persistence = new SqlPersistence(SqlPersistence.embeddedDataSource(), ExamplePerson.class);
+		SqlRepository repository = new SqlRepository(SqlRepository.embeddedDataSource(), ExamplePerson.class);
 
 		ExamplePerson person = new ExamplePerson();
 		person.firstName = "Peter";
 		person.lastName = "Muster";
 		
-		persistence.insert(person);
+		repository.insert(person);
 	}
 	
 	public static class ExamplePerson {
@@ -35,13 +35,13 @@ public class PersistenceExample {
 }
 ----
 
-This example is not a complete Minimal-J application. The persistence layer can be created independently. This
-is not the recommanded way to use it but it's quite usefull for test or example classes.
+This example is not a complete Minimal-J application. The repository can be created independently. This
+is not the recommended way to use it but it's quite useful for test or example classes.
 
 The first two lines configure the java logging to print out all the execute sql statements. Normally you will
 do this with a logging.properties file.
 
-Then the persistence layer is created. It's a persistence layer over a database. As input parameter a DataSource
+Then the repository is created. It's a persistence layer over a database. As input parameter a DataSource
 is needed. DataSource is a JDK class. It is not as popular as the basic JDBC classes and mostly known to be
 a tricky configuration point when deploying to a web server. Actually it's not that bad. Read more about it at
 oracle https://docs.oracle.com/javase/tutorial/jdbc/basics/sqldatasources.html . 
@@ -51,12 +51,12 @@ methods in Minimal-J that save you all the trouble at the start. In the example 
 You need the derby.jar and derbyclient.jar for that in your classpath. Otherwise you get an exception when
 starting the application.
 
-As second argument the SqlPersistence constructor needs an Array of the model entities. Or at least of the main
+As second argument the SqlRepository constructor needs an Array of the model entities. Or at least of the main
 entities. If these main entities reference some list or inline entities that don't need to be listed.
 
 Then an ExamplePerson is constructed and filled and inserted. Here the log from these actions.
 
-[log,txt,title="Log of PersistenceExample"]
+[log,txt,title="Log of RepositoryExample"]
 ----
 Aug 05, 2015 9:04:11 AM org.minimalj.backend.sql.LoggingPreparedStatement log
 FEIN:    34ms CREATE TABLE EXAMPLE_PERSON (
@@ -112,16 +112,16 @@ Minimal-J distinguishes three types of read cases:
 
 3. Read objects by a database specific query
 
-The first two types are independend by the used persistence layer. The third is not. You also see this in the 
-persistence interface
+The first two types are independend by the used repository. The third is not. You also see this in the  repository class
 
-[source,java,title="Persistence.java"]
+[source,java,title="Repository.java"]
 ----
 package org.minimalj.backend;
 
 import [..]
 
-public interface Persistence {
+public interface Repository {
+	[..]
 	public <T> T read(Class<T> clazz, Object id);
 	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
 	public <T> Object insert(T object);
@@ -133,40 +133,34 @@ public interface Persistence {
 The first two method correspond to the first to types of read cases.
 
 ==== Read objects by Id
-This is the most simple case. You have the Id of a business entity and know its class. The persistence layer will
+This is the most simple case. You have the Id of a business entity and know its class. The repository will
 find your object:
 [source,java]
 ----
-	Person person = persistence.read(Person.class, id);
+	Person person = repository.read(Person.class, id);
 ----
-The returned person object will be completly filled with all depending objects and views. If the person contains a
+The returned person object will be completely filled with all depending objects and views. If the person contains a
 List of addresses this List will be filled. There is no lazy loading in Minimal-J. If you only want a part of the
 Person to be loaded you need a View of the Person class.
 
-Where do you get the Persistence object? In the example above we created it ourself. But normally the Backend holds
-the single instanceof of the persistence:
+Where do you get the Repository object? In the example above we created it ourself. But normally the Backend holds
+the single instance of of the repository:
 [source,java]
 ----
-    Persistence persistence = Backend.getInstance().getPersistence();
-	Person person = persistence.read(Person.class, id);
-----
-or with the shortcut:
-[source,java]
-----
-    Persistence persistence = Backend.persistence();
-	Person person = persistence.read(Person.class, id);
+	Repository repository = Backend.getInstance().getRepository();
+	Person person = repository.read(Person.class, id);
 ----
 or in one line:
 [source,java]
 ----
 	Person person = Backend.read(Person.class, id);
 ----
-All 3 versions do exactly the same. The first should not be used. You can decide wether you use the second or the
-third version. There is really no reason to have two Persistence objects in your application. If you still feel uneasy
-to call static methods you can pass around the Persistence object. 
+Both versions do exactly the same. The first should not be used. You can decide wether you use the second or the
+third version. There is really no reason to have two Repository objects in your application. If you still feel uneasy
+to call static methods you can pass around the Repository object. 
 
 ==== Read by Criteria
-This is the best way to read objects depending on thier fields. The most common use of this is probably when you want
+This is the best way to read objects depending on their fields. The most common use of this is probably when you want
 to implement a filter for a table. The user may see one or more FormElement to enter values the object he is looking
 for should match. This is a code snippet from AccountPositionTablePage:
 
@@ -178,7 +172,7 @@ for should match. This is a code snippet from AccountPositionTablePage:
 	}
 ----
 
-The second read method in the Persistence interface takes as second argument a Criteria object. The first one is as for the
+The second read method in the Repository class takes as second argument a Criteria object. The first one is as for the
 other method the class of the read objects. Maybe with some (dirty) magic tricks the class could be retrieved from the criteria
 but this wouldn't save much typing and would make the construction of the Criterias much more complex.
 
@@ -254,25 +248,25 @@ at some code from a test class:
 @Test
 	public void testQuery() {
 		G g = new G("testName1");
-		persistence.insert(g);
+		repository.insert(g);
 
-		g = persistence.execute(G.class, "SELECT * FROM G WHERE g LIKE '%N%'");
+		g = repository.execute(G.class, "SELECT * FROM G WHERE g LIKE '%N%'");
 		Assert.assertNotNull(g);
 
-		g = persistence.execute(G.class, "SELECT * FROM " + persistence.name(G.class) + " WHERE g LIKE '%am%'");
+		g = repository.execute(G.class, "SELECT * FROM " + repository.name(G.class) + " WHERE g LIKE '%am%'");
 		Assert.assertNotNull(g);
 
-		g = persistence.execute(G.class,
-				"SELECT * FROM " + persistence.name(G.class) + " WHERE " + persistence.name(G.$.g) + " LIKE '%est%'");
+		g = repository.execute(G.class,
+				"SELECT * FROM " + repository.name(G.class) + " WHERE " + repository.name(G.$.g) + " LIKE '%est%'");
 		Assert.assertNotNull(g);
 
-		g = persistence.execute(G.class,
+		g = repository.execute(G.class,
 				"SELECT * FROM " + $(G.class) + " WHERE " + $(G.$.g) + " LIKE '%est%'");
 		Assert.assertNotNull(g);
 	}
 	
 	private String $(Object classOrKey) {
-		return persistence.name(classOrKey);
+		return repository.name(classOrKey);
 	}
 ----
 The test method insert a simple test Object to the database. Then it will be read four times. Everytime the same SQL statement will be
@@ -284,7 +278,7 @@ maybe some classes are quite old and will really not be changed anytime soon. Th
 this with your team (and your architect). You should agree when it's allowed to use this type of query definition. And at least all code
 that use direct queries should be tested with a unit test!
 
-Now the second definition uses a method on the persistence to get the name of the table corresponding to the class. Quite easy to guess how
+Now the second definition uses a method on the repository to get the name of the table corresponding to the class. Quite easy to guess how
 this works isn't it? In the same way the column name for a field can be looked up. The name method contains some magic that checks if
 the argument is a class. If yes the name of the table is returned. Else the name of the field.
 
@@ -336,16 +330,16 @@ reading it after the first update:
 	public void testOptimisticLockingFail() {
 		Q q = new Q();
 		q.string = "A";
-		Object id = persistence.insert(q);
-		q = persistence.read(Q.class, id);
+		Object id = repository.insert(q);
+		q = repository.read(Q.class, id);
 		
 		q.string = "B";
-		persistence.update(q);
+		repository.update(q);
 		// here the read is forgotten
 		
 		// this tries to update an old version of q
 		q.string = "C";
-		persistence.update(q);
+		repository.update(q);
 	}
 ----
 
@@ -464,7 +458,7 @@ public class R {
 
 You can use this class like any other entity with some exceptions:
 
-* There is a special method on SqlPersistence class that can load the history of an entity:
+* There is a special method on SqlRepository class that can load the history of an entity:
 public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {...}
 * Historized entities don't support lazy lists (yet).
 
@@ -479,7 +473,7 @@ Normally when starting an application the database for it already exists. The ap
 every time it is started. For examples it is actually helpful that the tables are created because otherwise the
 examples would fail or get complicated. But how does the persistence layer know if the tables have to be created?
 
-Answer: there is a third parameter in den SqlPersistence constructor. It's named createTablesOnInitialize . It's default
+Answer: there is a third parameter in den SqlRepository constructor. It's named createTablesOnInitialize . It's default
 is calculated in the method createTablesOnInitialize(DataSource). There you see that the default is exactly made to be
 working for examples but in real word applications the tables will not be created.
 

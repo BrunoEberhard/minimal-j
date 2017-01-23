@@ -2,34 +2,34 @@ package org.minimalj.backend;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
-import org.minimalj.backend.persistence.DeleteEntityTransaction;
-import org.minimalj.backend.persistence.InsertTransaction;
-import org.minimalj.backend.persistence.ReadCriteriaTransaction;
-import org.minimalj.backend.persistence.ReadEntityTransaction;
-import org.minimalj.backend.persistence.SaveTransaction;
-import org.minimalj.backend.persistence.UpdateTransaction;
-import org.minimalj.persistence.Persistence;
-import org.minimalj.persistence.criteria.Criteria;
-import org.minimalj.persistence.sql.SqlPersistence;
+import org.minimalj.backend.repository.DeleteEntityTransaction;
+import org.minimalj.backend.repository.InsertTransaction;
+import org.minimalj.backend.repository.ReadCriteriaTransaction;
+import org.minimalj.backend.repository.ReadEntityTransaction;
+import org.minimalj.backend.repository.SaveTransaction;
+import org.minimalj.backend.repository.UpdateTransaction;
+import org.minimalj.repository.Repository;
+import org.minimalj.repository.TransactionalRepository;
+import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
+import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
+import org.minimalj.transaction.TransactionAnnotations;
 
 /**
- * A backend is reponsible for executing the transactions.
- * It can do this by keeping a database (SqlBackend) or by
- * delegating everything to an other backend (SocketBackend).<p>
+ * A Backend is responsible for executing the transactions.
+ * It can do this by keeping a database (SqlRepository) or by
+ * delegating everything to an other Backend (SocketBackend).<p>
  * 
- * Every frontend needs a backend. But a backend can serve more
- * than one frontend.<p>
+ * Every Frontend needs a Backend. But a Backend can serve more
+ * than one Frontend.<p>
  * 
- * The backend configuration must be done with system properties.
+ * The Backend configuration must be done with system properties.
  * These are handled in the initBackend method. The configuration
  * cannot be changed during the lifetime of an application VM.<p>
  * 
@@ -39,13 +39,13 @@ import org.minimalj.util.StringUtils;
  * these two are set the transactions are delegated to a remote
  * SocketBackendServer.</LI>
  * <LI><code>MjBackend</code>: if this property is set it specifies
- * the classname of the backend.</LI>
- * <LI>If the backend should run in the same JVM as the frontend you
+ * the classname of the Backend.</LI>
+ * <LI>If the Backend should run in the same JVM as the Frontend you
  * don't need to set any property</LI>
  * </UL>
  */
 public class Backend {
-	private static final Logger logger = Logger.getLogger(SqlPersistence.class.getName());
+	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
 
 	private static Backend instance;
 	
@@ -56,22 +56,13 @@ public class Backend {
 			return new SocketBackend(backendAddress, Integer.valueOf(backendPort));
 		} 
 
-		String backendClassName = Configuration.get("MjBackend");
-		if (!StringUtils.isBlank(backendClassName)) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<? extends Backend> backendClass = (Class<? extends Backend>) Class.forName(backendClassName);
-				Backend backend = backendClass.newInstance();
-				return backend;
-			} catch (Exception x) {
-				throw new LoggingRuntimeException(x, logger, "Set backend failed");
-			}
-		} 
-
+		if (Configuration.available("MjBackend")) {
+			return Configuration.getClazz("MjBackend", Backend.class);
+		}
 		return new Backend();
 	};
 	
-	private Persistence persistence = null; 
+	private Repository repository = null; 
 	private Boolean authenticationActive = null;
 	private Authentication authentication = null; 
 	
@@ -93,18 +84,18 @@ public class Backend {
 		return instance;
 	}
 	
-	public void setPersistence(Persistence persistence) {
-		this.persistence = persistence;
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 	
-	public Persistence getPersistence() {
+	public Repository getRepository() {
 		if (!isInTransaction()) {
-			throw new IllegalStateException("Persistence may only be accessed from within a " + Transaction.class.getSimpleName());
+			throw new IllegalStateException("Repository may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
-		if (persistence == null) {
-			persistence = Persistence.create();
+		if (repository == null) {
+			repository = Repository.create();
 		}
-		return persistence;
+		return repository;
 	}
 	
 	protected Authentication createAuthentication() {
@@ -138,8 +129,7 @@ public class Backend {
 	}
 
 	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		List<T> result = execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
-		return result;
+		return execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
 	}
 
 	public static <T> Object insert(T object) {
@@ -163,35 +153,50 @@ public class Backend {
 	}
 	
 	public <T> T doExecute(Transaction<T> transaction) {
-		if (Authorization.isAllowed(transaction)) {
-			try {
-				currentTransaction.set(transaction);
-				return transaction.execute();
-			} finally {
-				currentTransaction.set(null);
-			}
-		} else {
-			throw new IllegalStateException(transaction.getClass().getSimpleName() + " forbidden");
+		if (isAuthenticationActive()) {
+			Authorization.check(transaction);
 		}
+
+		try {
+			currentTransaction.set(transaction);
+			if (getRepository() instanceof TransactionalRepository) {
+				TransactionalRepository transactionalRepository = (TransactionalRepository) getRepository();
+				return doExecute(transaction, transactionalRepository);
+			} else {
+				return transaction.execute();
+			}
+		} finally {
+			currentTransaction.set(null);
+		}
+	}
+
+	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
+		Isolation.Level isolationLevel = TransactionAnnotations.getIsolation(transaction);
+		if (isolationLevel != null) {
+			return doExecute(transaction, transactionalRepository, isolationLevel);
+		} else {
+			return transaction.execute();
+		}
+	}
+
+	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository,
+			Isolation.Level isolationLevel) {
+		T result;
+		boolean commit = false;
+		try {
+			transactionalRepository.startTransaction(isolationLevel.getLevel());
+			result = transaction.execute();
+			commit = true;
+		} finally {
+			transactionalRepository.endTransaction(commit);
+		}
+		return result;
 	}
 	
 	private void init() {
-		String initClassName = Configuration.get("MjInit");
-		if (initClassName != null) {
-			try {
-				Class<?> initClass = Class.forName(initClassName);
-				Object init = initClass.newInstance();
-				if (init instanceof Transaction) {
-					logger.info("Execute initialization: " + initClassName);
-					((Transaction<?>) init).execute();
-				} else {
-					logger.severe("Class " + initClassName + " doesn't extend Transaction");
-				}
-			} catch (ClassNotFoundException e) {
-				logger.severe("Could not found initialization class: " + initClassName);
-			} catch (InstantiationException | IllegalAccessException e) {
-				logger.log(Level.SEVERE, "Could not instantiate initialization class: " + initClassName, e);
-			}
+		if (Configuration.available("MjInit")) {
+			Transaction<?> init = Configuration.getClazz("MjInit", Transaction.class);
+			init.execute();
 		}
 	}
 

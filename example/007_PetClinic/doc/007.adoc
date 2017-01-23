@@ -76,8 +76,8 @@ public class Owner implements Rendering, Mocking {
 }
 ----
 
-The first lines are maybe to one to be explaind. First the declaration of the
-$ constant. This constant is used to specificy the Form layout and some other places
+The first lines are maybe to one to be explained. First the declaration of the
+$ constant. This constant is used to specify the Form layout and some other places
 were a field can be referenced. It's important to declare this constant final and
 static. The persistence layer checks this at startup and throws an exception if a
 model entity doesn't follow all the rules by Minimal-J.
@@ -86,7 +86,7 @@ The id field is as always of class Object. This means the persistence layer is f
 it likes as id class. Most probably it will be a UUID but that's up to the persistence
 layer.
 
-The person field is declared final and must be initiallized. This means the Person is
+The person field is declared final and must be initialized. This means the Person is
 used as inline field. Inline fields don't get a DB table of their own. Their fields are
 added to the entity where the inline is used. The owner table looks like this:
 
@@ -105,19 +105,19 @@ CREATE TABLE OWNER (
 
 As the field person has the same name as its class the names don't have a prefix (in case you
 wonder what will happen if an inline Class is used twice). Inlines are good replacement
-for inheritence ('has a' instead of 'is a'). Even better you can inline more than one
-inline and you get kind of multiple inheritence. Maybe it's more like 'traits' in Scala.
+for inheritance ('has a' instead of 'is a'). Even better you can inline more than one
+inline and you get kind of multiple inheritance. Maybe it's more like 'traits' in Scala.
 
 The String fields are easy. All of them are required. Their maximum size must be specified
 or the persistence layer will complain.
 
 Then there is the getPets method. Basically it should declare a kind of a virtual field. This
 field is not persisted directly. But a persistence operation is execute if the method is called.
-This explanins the second line.
+This explains the second line.
 
 The first line exists only for the Minimal-J framework. It is necessary for the magic in the
 $ constant. It makes it possible to write Owner.$.getPets() as a reference to a virtual
-field. You don't have to unterstand exactly how this works. But it's important that you
+field. You don't have to understand exactly how this works. But it's important that you
 use the line correctly. The pattern is:
 [source,java]
 ----
@@ -202,7 +202,7 @@ methods or constants at all. So why bother? Because of how codes are treated by 
 layer.
 
 When an entity is inserted or updated and this entity contains a Code then this Code itself is
-not touched by this operation. Meaning the frontend could have changed the name of the PetType
+not touched by this operation. Meaning the Frontend could have changed the name of the PetType
 before setting it to the pet. Then send it to the backend for persisting. The pet would still
 referered as the original type.
 
@@ -222,9 +222,9 @@ Hamster
 ----
 The first line declares the field names to be filled. Than simply the instances are listed.
 
-Then there is a second way to declare fields. That way is to prefered when the values of the codes
+Then there is a second way to declare fields. That way is to preferred when the values of the codes
 are used in the application code itself. In the PetClinic we don't need this. For example we don't
-have a restricition that a visit can only be entered for a specific PetType.
+have a restriction that a visit can only be entered for a specific PetType.
 
 Still here the example of such a Code declaration:
 [source,java]
@@ -249,7 +249,7 @@ public class PetType implements Code, Rendering {
 	[..]
 }
 ----
-The declaration is only one line but because now there is a constuctor with an argument the constructor
+The declaration is only one line but because now there is a constructor with an argument the constructor
 without arguments has to be declared too to stay public accessible. The framework looks in the Code
 classes for public static final declarations of objects of the right class. These are recognized as
 needed constants.
@@ -266,8 +266,8 @@ business areas. It's up to you.
 === Owner search page
 
 The OwnerSearchPage is a SimpleSearchPage. Why simple? Because the objects displayed are not a reduced version
-but the business entities itself. For complex entities with lots of depending or rerferenced objects it's a good idea to
-have a search entitiy (a view) of the complex entitiy. So you load only a small part of the data. Then when
+but the business entities itself. For complex entities with lots of depending or referenced objects it's a good idea to
+have a search entity (a view) of the complex entity. So you load only a small part of the data. Then when
 the user wants to display a single entity in its full beauty you have to reload the entity with all depending
 objects. Obviously for that you have to have two classes and the SearchPage needs exactly these two classes
 as generic types.

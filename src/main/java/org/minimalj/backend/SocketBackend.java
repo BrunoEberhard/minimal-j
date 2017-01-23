@@ -6,8 +6,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.List;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.repository.DeleteEntityTransaction;
+import org.minimalj.backend.repository.InsertTransaction;
+import org.minimalj.backend.repository.ListTransaction.AddTransaction;
+import org.minimalj.backend.repository.ListTransaction.ReadAllElementsTransaction;
+import org.minimalj.backend.repository.ListTransaction.RemoveTransaction;
+import org.minimalj.backend.repository.ReadCriteriaTransaction;
+import org.minimalj.backend.repository.ReadEntityTransaction;
+import org.minimalj.backend.repository.SaveTransaction;
+import org.minimalj.backend.repository.UpdateTransaction;
+import org.minimalj.repository.Repository;
+import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.sql.LazyList;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
@@ -25,6 +38,7 @@ public class SocketBackend extends Backend {
 	public SocketBackend(String url, int port) {
 		this.url = url;
 		this.port = port;
+		setRepository(new SocketBackendRepository());
 	}
 	
 	public Authentication createAuthentication() {
@@ -93,6 +107,48 @@ public class SocketBackend extends Backend {
 			outputStream.write(b);
 		}
 		return;
+	}
+	
+	public static class SocketBackendRepository implements Repository {
+
+		public <T> T read(Class<T> clazz, Object id) {
+			return execute(new ReadEntityTransaction<T>(clazz, id, null));
+		}
+
+		public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
+			return execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		}
+
+		public <T> Object insert(T object) {
+			return execute(new InsertTransaction<T>(object));
+		}
+
+		public <T> void update(T object) {
+			execute(new UpdateTransaction<T>(object));
+		}
+
+		public <T> T save(T object) {
+			return execute(new SaveTransaction<T>(object));
+		}
+
+		public <T> void delete(Class<T> clazz, Object id) {
+			execute(new DeleteEntityTransaction<T>(clazz, id));
+		}
+
+		@Override
+		public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list) {
+			return execute(new ReadAllElementsTransaction<>(list));
+		}
+
+		@Override
+		public <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element) {
+			return execute(new AddTransaction<>(list, element));
+		}
+
+		@Override
+		public <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position) {
+			execute(new RemoveTransaction<>(list, position));
+		}
 	}
 
 }

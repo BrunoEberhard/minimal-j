@@ -130,8 +130,8 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> ITable<T> createTable(Object[] keys, TableActionListener<T> listener) {
-		return new VaadinTable<T>(keys, listener);
+	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new VaadinTable<T>(keys, multiSelect, listener);
 	}
 
 	@Override
