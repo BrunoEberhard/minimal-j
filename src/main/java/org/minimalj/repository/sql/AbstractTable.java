@@ -64,7 +64,7 @@ public abstract class AbstractTable<T> {
 		this.clazz = clazz;
 		this.columns = sqlRepository.findColumns(clazz);
 		
-		sqlRepository.getTableByName().put(name, this);
+		sqlRepository.getTableByName().put(this.name, this);
 		
 		this.selectByIdQuery = selectByIdQuery();
 		this.insertQuery = insertQuery();
