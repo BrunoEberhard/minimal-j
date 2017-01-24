@@ -1,0 +1,61 @@
+== Mixins
+
+In the data model mixins are a compound of a few values often used together. An example could be a
+Money class. Money has a currency and an amount. Another common example is a 
+Duration class which consists of a from and a to Date.
+
+The presentation of the values of the mixin should be consistent in the UI.
+There is probably a specialized FormElement for every mixin class.
+Also the validation between the values is always the same. For example the to Date
+must not be before the from date.
+
+Mixins are business entities. But they are too small to get same treatment as
+main entities. They don't need an id. They are never used outside the scope of
+a real main entity. On the database you don't want to them to have a special
+table.
+
+There is nothing special in the declaration of a mixin class. In fact you can use
+a class as both a normal entity class and as a mixin class. If you use it only as
+mixin class you can omit the $ constant declaration.
+
+The difference is in the use of a mixin class.
+* The field of a mixin has to be final
+* Of course the mixin field has to initialized
+
+=== Example
+
+The money class could look like this:
+
+[source,java,title="Money.java"]
+----
+public class Money {
+	@Size(3)
+	public String currency;
+	public BigDecimal amount;
+----
+
+This money class can now be used in all other entity classes (except in itself). It also
+can be used more than once in the same class:
+
+[source,java,title="Book.java"]
+----
+public class Book {
+	public static final Book $ = Keys.of(Book.class);
+
+	@Required @Size(ExampleFormats.NAME) 
+	public String title;
+	public final Money costs = new Money();
+	public final Money price = new Money();
+----
+
+=== Details
+
+* In a SqlRepository the columns of the money class will be prefixed. So will get columns like: COSTS\_CURRENCY, COSTS\_AMOUNT, PRICE\_CURRENCY, PRICE\_AMOUNT. This is true except if the prefix would be the same as the mixin name. Then the prefix is left out.
+
+* Mixins can contain other mixins. But of course it's not allowed to have cycles of mixins.
+
+* Mixins can hold the id field of a main entity class.
+
+* Mixins are one of the tricks to be able to have only one shared data model for UI and persistence.
+From UI perspective you use the complete mixin object for a FormElement. The persistence layer
+is more interested in the fields.
