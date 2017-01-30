@@ -5,6 +5,7 @@ import java.util.AbstractList;
 import java.util.List;
 
 import org.minimalj.repository.Repository;
+import org.minimalj.util.ClassHolder;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 
@@ -15,8 +16,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	
 	private transient Repository repository;
 
-	private transient Class<ELEMENT> elementClass;
-	private final String elementClassName;
+	private final ClassHolder<ELEMENT> elementClass;
 	
 	private final Object parentId;
 	
@@ -26,8 +26,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		this.repository = repository;
 		this.parentId = IdUtils.getId(parent);
 		this.listName = listName;
-		this.elementClass = elementClass;
-		this.elementClassName = elementClass.getName();
+		this.elementClass = new ClassHolder<>(elementClass);
 	}
 	
 	public void setRepository(Repository repository) {
@@ -41,14 +40,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	}
 	
 	public Class<ELEMENT> getElementClass() {
-		if (elementClass == null) {
-			try {
-				elementClass = (Class<ELEMENT>) Class.forName(elementClassName);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return elementClass;
+		return elementClass.getClazz();
 	}
 	
 	public Object getParentId() {
