@@ -8,7 +8,7 @@ import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.security.permissiontest.TestEntityA;
 import org.minimalj.security.permissiontest.TestEntityB;
 import org.minimalj.security.permissiontest.TestEntityBView;
-import org.minimalj.security.permissiontest.pkgrole.TestEntityG;
+import org.minimalj.security.permissiontest.pkgrole.TestEntityH;
 import org.minimalj.transaction.TransactionAnnotations;
 
 public class SecurityTest {
@@ -53,17 +53,17 @@ public class SecurityTest {
 	//
 	
 	public void testNotAuthorized() {
-		Assert.assertFalse(Authorization.isAllowed(Collections.emptyList(), new ReadEntityTransaction<TestEntityG>(TestEntityG.class, 1)));
+		Assert.assertFalse(Authorization.isAllowed(Collections.emptyList(), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
 	@Test
-	public void testGranted() {
-		Assert.assertTrue(Authorization.isAllowed(Collections.singletonList("pkgRole"), new ReadEntityTransaction<TestEntityG>(TestEntityG.class, 1)));
+	public void testAuthorized() {
+		Assert.assertTrue(Authorization.isAllowed(Collections.singletonList("ClassRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
 	@Test
-	public void testGrantedReadOnPackage() {
-		Assert.assertTrue(Authorization.isAllowed(Collections.singletonList("pkgRole"), new ReadEntityTransaction<TestEntityG>(TestEntityG.class, 1)));
+	public void testAuthorizationOnPackageOverruled() {
+		Assert.assertFalse(Authorization.isAllowed(Collections.singletonList("pkgRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
 }
