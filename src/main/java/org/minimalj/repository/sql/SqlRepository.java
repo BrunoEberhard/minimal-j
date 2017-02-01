@@ -310,17 +310,6 @@ public class SqlRepository implements TransactionalRepository {
 		return subTable.readAll(list.getParentId());
 	}
 	
-	@Override
-	public <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element) {
-		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(list.getListName());
-		return subTable.addElement(list.getParentId(), element);
-	}
-	
-	@Override
-	public <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position) {
-		throw new RuntimeException("Not yet implemented");
-	}
-	
 	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {

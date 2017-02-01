@@ -46,14 +46,20 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		int position = 0;
 		try {
 			while (position < Math.max(objects.size(), objectsInDb.size())) {
-				if (position < objectsInDb.size() && position < objects.size()) {
-					update(parentId, position, objects.get(position));
-				} else if (position < objectsInDb.size()) {
+				if (position < objects.size()) {
+					Object object = objects.get(position);
+					if (IdUtils.getId(object) == null) {
+						object = sqlRepository.insert(object);
+					}
+					if (position < objectsInDb.size()) {
+						update(parentId, position, objects.get(position));
+					} else {
+						insert(parentId, position, objects.get(position));
+					}
+				} else {
 					// delete all beginning from this position with one delete statement
 					delete(parentId, position);
 					break; 
-				} else /* if (position < objects.size()) */ {
-					insert(parentId, position, objects.get(position));
 				}
 				position++;
 			}

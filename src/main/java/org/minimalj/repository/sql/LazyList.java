@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.minimalj.repository.Repository;
 import org.minimalj.util.ClassHolder;
-import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 
 public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements Serializable {
@@ -51,49 +50,40 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		return listName;
 	}
 	
+	public boolean isLoaded() {
+		return list != null;
+	}
+	
 	public List<ELEMENT> getList() {
-		if (list == null) {
+		if (!isLoaded()) {
 			checkRepository();
-			return repository.getList(this);
+			list = repository.getList(this);
 		}
 		return list;
 	}
-	
+
+	@Override
+	public ELEMENT get(int index) {
+		return getList().get(index);
+	}
+
 	@Override
 	public int size() {
 		return getList().size();
 	}
 	
 	@Override
-	public ELEMENT get(int index) {
-		return getList().get(index);
+	public ELEMENT set(int index, ELEMENT element) {
+		return super.set(index, element);
 	}
 	
 	@Override
-	public boolean add(ELEMENT element) {
-		checkRepository();
-		ELEMENT savedElement;
-		savedElement = repository.add(this, element);
-		if (list != null) {
-			CloneHelper.deepCopy(savedElement, element);
-			list.add(element);
-		}
-		return true;
+	public void add(int index, ELEMENT element) {
+		getList().add(index, element);
 	}
-
-	public ELEMENT addElement(ELEMENT element) {
-		checkRepository();
-		element = repository.add(this, element);
-		if (list != null) {
-			list.add(element);
-		}
-		return element;
-	}
-
+	
 	@Override
 	public ELEMENT remove(int index) {
-		checkRepository();
-		repository.remove(this, index);
-		return null; //
+		return getList().remove(index);
 	}
 }

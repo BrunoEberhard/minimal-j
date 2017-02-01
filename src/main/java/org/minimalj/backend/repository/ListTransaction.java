@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.sql.LazyList;
-import org.minimalj.util.SerializationContainer;
 
 public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends EntityTransaction<ELEMENT, RETURN> {
 	private static final long serialVersionUID = 1L;
@@ -47,39 +46,6 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends EntityTra
 		public ELEMENT execute(Repository repository) {
 			lazyList.setRepository(repository);
 			return lazyList.get(position);
-		}
-	}
-	
-	public static class AddTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, ELEMENT> {
-		private static final long serialVersionUID = 1L;
-		protected final Object elementWrapped;
-
-		public AddTransaction(LazyList<PARENT, ELEMENT> lazyList, ELEMENT element) {
-			super(lazyList);
-			this.elementWrapped = SerializationContainer.wrap(element);
-		}
-
-		@Override
-		public ELEMENT execute(Repository repository) {
-			ELEMENT element = (ELEMENT) SerializationContainer.unwrap(elementWrapped);
-			lazyList.setRepository(repository);
-			return lazyList.addElement(element);
-		}
-	}
-
-	public static class RemoveTransaction<PARENT, ELEMENT> extends ListTransaction<PARENT, ELEMENT, ELEMENT> {
-		private static final long serialVersionUID = 1L;
-		private final int position;
-		
-		public RemoveTransaction(LazyList<PARENT, ELEMENT> lazyList, int position) {
-			super(lazyList);
-			this.position = position;
-		}
-
-		@Override
-		public ELEMENT execute(Repository repository) {
-			lazyList.setRepository(repository);
-			return lazyList.remove(position);
 		}
 	}
 
