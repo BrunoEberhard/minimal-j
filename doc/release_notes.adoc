@@ -2,7 +2,8 @@
 
 Every release contains many small fixes.
 
-=== next
+=== 1.4.0.0
+* Repository: removed active 'push' of changes on lazy lists
 
 === 1.3.0.0
 * SqlRepository: Oracle Dialect
