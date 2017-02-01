@@ -11,9 +11,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
-import org.minimalj.backend.repository.ListTransaction.AddTransaction;
 import org.minimalj.backend.repository.ListTransaction.ReadAllElementsTransaction;
-import org.minimalj.backend.repository.ListTransaction.RemoveTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
@@ -138,16 +136,6 @@ public class SocketBackend extends Backend {
 		@Override
 		public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list) {
 			return execute(new ReadAllElementsTransaction<>(list));
-		}
-
-		@Override
-		public <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element) {
-			return execute(new AddTransaction<>(list, element));
-		}
-
-		@Override
-		public <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position) {
-			execute(new RemoveTransaction<>(list, position));
 		}
 	}
 

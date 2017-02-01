@@ -5,7 +5,7 @@ import java.util.AbstractList;
 import java.util.List;
 
 import org.minimalj.repository.Repository;
-import org.minimalj.util.CloneHelper;
+import org.minimalj.util.ClassHolder;
 import org.minimalj.util.IdUtils;
 
 public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements Serializable {
@@ -15,8 +15,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	
 	private transient Repository repository;
 
-	private transient Class<ELEMENT> elementClass;
-	private final String elementClassName;
+	private final ClassHolder<ELEMENT> elementClass;
 	
 	private final Object parentId;
 	
@@ -26,8 +25,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		this.repository = repository;
 		this.parentId = IdUtils.getId(parent);
 		this.listName = listName;
-		this.elementClass = elementClass;
-		this.elementClassName = elementClass.getName();
+		this.elementClass = new ClassHolder<>(elementClass);
 	}
 	
 	public void setRepository(Repository repository) {
@@ -41,14 +39,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	}
 	
 	public Class<ELEMENT> getElementClass() {
-		if (elementClass == null) {
-			try {
-				elementClass = (Class<ELEMENT>) Class.forName(elementClassName);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return elementClass;
+		return elementClass.getClazz();
 	}
 	
 	public Object getParentId() {
@@ -59,49 +50,40 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		return listName;
 	}
 	
+	public boolean isLoaded() {
+		return list != null;
+	}
+	
 	public List<ELEMENT> getList() {
-		if (list == null) {
+		if (!isLoaded()) {
 			checkRepository();
-			return repository.getList(this);
+			list = repository.getList(this);
 		}
 		return list;
 	}
-	
+
+	@Override
+	public ELEMENT get(int index) {
+		return getList().get(index);
+	}
+
 	@Override
 	public int size() {
 		return getList().size();
 	}
 	
 	@Override
-	public ELEMENT get(int index) {
-		return getList().get(index);
+	public ELEMENT set(int index, ELEMENT element) {
+		return super.set(index, element);
 	}
 	
 	@Override
-	public boolean add(ELEMENT element) {
-		checkRepository();
-		ELEMENT savedElement;
-		savedElement = repository.add(this, element);
-		if (list != null) {
-			CloneHelper.deepCopy(savedElement, element);
-			list.add(element);
-		}
-		return true;
+	public void add(int index, ELEMENT element) {
+		getList().add(index, element);
 	}
-
-	public ELEMENT addElement(ELEMENT element) {
-		checkRepository();
-		element = repository.add(this, element);
-		if (list != null) {
-			list.add(element);
-		}
-		return element;
-	}
-
+	
 	@Override
 	public ELEMENT remove(int index) {
-		checkRepository();
-		repository.remove(this, index);
-		return null; //
+		return getList().remove(index);
 	}
 }

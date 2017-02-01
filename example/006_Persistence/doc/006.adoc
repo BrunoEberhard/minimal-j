@@ -52,7 +52,7 @@ You need the derby.jar and derbyclient.jar for that in your classpath. Otherwise
 starting the application.
 
 As second argument the SqlRepository constructor needs an Array of the model entities. Or at least of the main
-entities. If these main entities reference some list or inline entities that don't need to be listed.
+entities. If these main entities reference some list or mixin entities that don't need to be listed.
 
 Then an ExamplePerson is constructed and filled and inserted. Here the log from these actions.
 
@@ -75,7 +75,7 @@ the field names are translated to snakeCase (there is a method for it in StringU
 upper case a underscore is inserted (except for the first letter).
 
 NOTE: There is no consensus in the world of databases what is a valid identifier. Some database allow special characters.
-Other do not or require quotation. Most projects take care of that by simply ommit special characters. That's exactly
+Other do not or require quotation. Most projects take care of that by simply omit special characters. That's exactly
 what Minimal-J is doing. I have never seen a project using umlauts in field names.
 
 === Very long field names
@@ -97,10 +97,10 @@ The second log entry shows how the object is added to the table. There is only o
 actually see the values. Normally PreparedStatment is used an when logging those you only see something like
 (?, ?, ?). Of course Minimal-J does use PreparedStatement (you have to - if you only construct statements out of
 a String you have security problems). But the LoggingPreparedStatement does insert the values in the log line.
-This can be quite helpfull.
+This can be quite helpful.
 
 Note that the LoggingPreparedStatement is only implemented as much as Minimal-J needs it. For projects not using
-Minimal-J you may have to implement some more overriden methods.
+Minimal-J you may have to implement some more overridden methods.
 
 
 === Read objects
@@ -140,7 +140,7 @@ find your object:
 	Person person = repository.read(Person.class, id);
 ----
 The returned person object will be completely filled with all depending objects and views. If the person contains a
-List of addresses this List will be filled. There is no lazy loading in Minimal-J. If you only want a part of the
+List of addresses this List will be filled. If you only want a part of the
 Person to be loaded you need a View of the Person class.
 
 Where do you get the Repository object? In the example above we created it ourself. But normally the Backend holds

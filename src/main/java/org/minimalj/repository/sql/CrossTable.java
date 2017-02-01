@@ -19,11 +19,8 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
-	private final String maxPositionQuery;
-	
 	public CrossTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface idProperty) {
 		super(sqlRepository, name, clazz, idProperty);
-		maxPositionQuery = maxPositionQuery();
 	}
 	
 	@Override
@@ -69,25 +66,6 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 			updateStatement.execute();
 		}
 	}
-	
-	public ELEMENT addElement(Object parentId, ELEMENT element) {
-		Object elementId = IdUtils.getId(element); 
-		if (elementId == null) {
-			elementId = sqlRepository.getTable(getClazz()).insert(element);
-			IdUtils.setId(element, elementId);
-		}
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), maxPositionQuery, false)) {
-			statement.setObject(1, parentId);
-			ResultSet resultSet = statement.executeQuery();
-			resultSet.next();
-			int nextPosition = resultSet.getInt(1) + 1;
-			insert(parentId, nextPosition, element);
-			return element;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "addElement failed");
-		}
-	}
-
 	
 	@Override
 	protected void insert(Object parentId, int position, Object object) throws SQLException {
@@ -172,12 +150,6 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 		StringBuilder s = new StringBuilder();
 		s.append("UPDATE ").append(getTableName()).append(" SET ");
 		s.append("elementId = ? WHERE id = ? AND position = ?");
-		return s.toString();
-	}
-
-	protected String maxPositionQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("SELECT MAX(position) FROM ").append(getTableName()).append(" WHERE id = ?");
 		return s.toString();
 	}
 

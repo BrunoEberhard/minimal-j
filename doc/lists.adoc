@@ -12,10 +12,6 @@ IMPORTANT: It's very crucial if the elements of a list contain an id field or no
 they are closely tied to the object holding the list. Elements (objects) without id field cannot be changed, saved or
 deleted directly or independently.
 
-IMPORTANT: If the elements contain an id field the list is lazy loaded. This means every access to the
-list causes a Transaction. This can be very expensive. Also the implemented lazy list don't support
-all the methods a normal list does.
-
 === Elements with or without id
 
 How can you decide if elements should have their own id? This depends on the business needs.
@@ -33,10 +29,10 @@ Elements should _have_ their own id if
 * elements can be created before creating a containing object or without creating one
 * changing an element doesn't bother the containing object
 * the elements of list will be listed in a DetailPage
-* there will be many (even thousends) of elements for one containing object
+* there will be many (even thousands) of elements for one containing object
 
 NOTE: There is no easy solution like 'we use an id everywhere'. It really depends on many things if you want to
 have an id. Probably there will be more elements with an id. But in some cases the costs for that are simply to
-high and the user will also have to use a unnecessary compilcated UI.
+high and the user will also have to use a unnecessary complicated UI.
 
 WARNING: At the moment elements with an id of a _historized_ list are not yet implemented.

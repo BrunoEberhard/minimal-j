@@ -46,7 +46,8 @@ public class SqlCrudTest {
 		TestEntity entity = insertAndRead();
 		
 		entity.list.add(new TestElementB("bName2"));
-
+		repository.update(entity);
+		
 		entity = repository.read(TestEntity.class, IdUtils.getId(entity));
 
 		Assert.assertEquals("An additional element with id should be persisted when calling add method", 2, entity.list.size());
@@ -74,6 +75,7 @@ public class SqlCrudTest {
 		TestEntity entity2 = insertAndRead();
 
 		entity1.list.add(entity2.list.get(0));
+		repository.update(entity1);
 		
 		entity1 = repository.read(TestEntity.class, IdUtils.getId(entity1));
 		Assert.assertEquals("Add of an element should be possible even if it was used before", 2, entity1.list.size());

@@ -58,12 +58,8 @@ public interface Repository {
 
 	public <T> void delete(Class<T> clazz, Object id);
 	
-	// list handling
+	// lazy list handling
 	
 	public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list);
-
-	public <ELEMENT, PARENT> ELEMENT add(LazyList<PARENT, ELEMENT> list, ELEMENT element);
-
-	public <ELEMENT, PARENT> void remove(LazyList<PARENT, ELEMENT> list, int position);
 
 }

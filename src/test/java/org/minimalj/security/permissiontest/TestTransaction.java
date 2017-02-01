@@ -1,9 +1,10 @@
-package org.minimalj.security.permissiontest.pkgrole;
+package org.minimalj.security.permissiontest;
 
 import org.minimalj.backend.repository.EntityTransaction;
 import org.minimalj.repository.Repository;
+import org.minimalj.security.permissiontest.pkgrole.TestEntityH;
 
-public class TestTransaction<ENTITY, RETURN> extends EntityTransaction<ENTITY, RETURN> {
+public class TestTransaction<RETURN> extends EntityTransaction<TestEntityH, RETURN> {
 	private static final long serialVersionUID = 1L;
 
 	public TestTransaction() {
@@ -15,7 +16,7 @@ public class TestTransaction<ENTITY, RETURN> extends EntityTransaction<ENTITY, R
 	}
 	
 	@Override
-	public Class<ENTITY> getEntityClazz() {
-		return null;
+	public Class<TestEntityH> getEntityClazz() {
+		return TestEntityH.class;
 	}
 }
