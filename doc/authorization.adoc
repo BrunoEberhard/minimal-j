@@ -9,10 +9,12 @@ authorization happens when the frontend sends the backend a Transaction to execu
 
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (isAuthenticationActive()) {
-			getAuthorization().check(transaction);
+			Authorization.check(transaction);
 		}
+
 		try {
 			currentTransaction.set(transaction);
+			[..]
 			return transaction.execute();
 		} finally {
 			currentTransaction.set(null);
@@ -52,7 +54,7 @@ The application should present a specialized navigation based on the granted rol
 ----
 
 === Restrict Transactions
-A Transcation can restrict execution to one or more roles by the Role Annotation:
+A Transaction can restrict execution to one or more roles by the Role Annotation:
 [source,java]
 ----
 @Role("Developer")
@@ -85,9 +87,52 @@ public class Entity {
 }
 ----
 
+==== Restrict operations on entity classes
+
+If you want to restrict only certain operations on an entity you can implement extensions of the EntityTransactions and give them special
+Annotations.
+
+[source,java]
+----
+@Role("RoleY")
+public class ReadEntityTransaction<Entity> extends ReadTransaction<Entity, Entity> {
+	private static final long serialVersionUID = 1L;
+
+	public ReadEntityTransaction(Object id) {
+		super(Entity.class, id);
+	}
+}	
+----
+
+Or
+
+[source,java]
+----
+@Role("RoleZ")
+public class InsertEntityTransaction<Entity> extends InsertTransaction<Entity, Object> {
+	private static final long serialVersionUID = 1L;
+
+	public InsertTransaction(Entity entity) {
+		super(entity);
+	}
+}	
+----
+
+To only allow read access on an entity as simple way is to define a View on this entity and to annotate this View class:
+
+[source,java]
+----
+@Role("Everybody")
+public class EntityView implements View<Entity> {
+
+	[..]
+}
+----
+
+
 === Package wide roles
 The needed roles for a Transaction or a business entity can also be specified on a package level. You can
-specifiy these roles in the package-info.java file. If you don't know about this file you may have a look at
+specify these roles in the package-info.java file. If you don't know about this file you may have a look at
 the link:https://docs.oracle.com/javase/specs/jls/se8/html/jls-7.html[Oracle documentation]. The package-info.java
 makes it possible to annotate the package.
 
@@ -130,7 +175,7 @@ implement a specialization of UserPasswordAuthentication.
 The used Authentication is defined with properties. You see in the
 Authentication.create() how this works. 
 
- 1. if the property MjUserFile is set to a file this file should provide user names as (hashed passwords).
+ 1. if the property MjUserFile is set to a file this file should provide user names (with hashed passwords).
  
  2. if MjAuthentication is set then it should be the name of a class extending the Authentication class.
  
@@ -154,8 +199,12 @@ granted to this user are listed.
 If you wonder how to get the hashed passwords: The TextFileAuthorization class has a main method. Start this class as java
 application together with at least two arguments (user and password) and it prints out a line for your user/password file.
 
+=== User and Roles in Repoository
+In most applications you don't keep the user names and passwords in a text file but you store the in the database.
+In this case you need the RepositoryAuthentication or a similar extension of the UserPasswordAuthentication.
+
 === Login Dialog
 If the application is started without authentication then the Frontend will not show the user the menu entry (or icon)
 to log in. If the authentication is active the Frontend must decide if it should confront the user with a login dialog
 right on the start or if it is possible to look around without any authentication. This specification is done
-by an override of the <code>isLoginRequired</code> method in the application class.
+by an override of the _isLoginRequired_ method in the Application class.
