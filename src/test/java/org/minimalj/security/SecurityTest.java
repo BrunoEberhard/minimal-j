@@ -8,6 +8,8 @@ import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.security.permissiontest.TestEntityA;
 import org.minimalj.security.permissiontest.TestEntityB;
 import org.minimalj.security.permissiontest.TestEntityBView;
+import org.minimalj.security.permissiontest.TestTransaction;
+import org.minimalj.security.permissiontest.TestTransactionU;
 import org.minimalj.security.permissiontest.pkgrole.TestEntityH;
 import org.minimalj.transaction.TransactionAnnotations;
 
@@ -52,18 +54,37 @@ public class SecurityTest {
 
 	//
 	
-	public void testNotAuthorized() {
+	public void testNotAuthorizedEntity() {
 		Assert.assertFalse(Authorization.isAllowed(Collections.emptyList(), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
 	@Test
-	public void testAuthorized() {
+	public void testAuthorizedEntity() {
 		Assert.assertTrue(Authorization.isAllowed(Collections.singletonList("ClassRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
 	@Test
-	public void testAuthorizationOnPackageOverruled() {
+	public void testAuthorizationOnPackageOverruledEntity() {
 		Assert.assertFalse(Authorization.isAllowed(Collections.singletonList("pkgRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
+	@Test
+	public void testAuthorizedTransaction() {
+		Assert.assertTrue("Without a Role annotation itself an EntityTransaction depends on the Role of its entity", Authorization.isAllowed(Collections.singletonList("ClassRole"), new TestTransaction<>()));
+	}
+
+	@Test
+	public void testNotAuthorizedTransaction() {
+		Assert.assertFalse("Without a Role annotation itself an EntityTransaction depends on the Role of its entity", Authorization.isAllowed(Collections.singletonList("guest"), new TestTransaction<>()));
+	}
+
+	@Test
+	public void testAuthorizedTransaction2() {
+		Assert.assertTrue("An EntityTransaction can overrule the Role of its Entity", Authorization.isAllowed(Collections.singletonList("transactionRole"), new TestTransactionU<>()));
+	}
+
+	@Test
+	public void testNotAuthorizedTransaction2() {
+		Assert.assertFalse("An EntityTransaction can overrule the Role of its Entity", Authorization.isAllowed(Collections.singletonList("ClassRole"), new TestTransactionU<>()));
+	}
 }
