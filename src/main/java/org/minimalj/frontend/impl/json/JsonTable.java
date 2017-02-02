@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
@@ -56,7 +58,9 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	protected String convert(PropertyInterface property, Object value) {
-		if (value instanceof LocalTime) {
+		if (value instanceof Rendering) {
+			return ((Rendering) value).render(RenderType.PLAIN_TEXT);
+		} else if (value instanceof LocalTime) {
 			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
 		} else if (value instanceof LocalDate) {
 			return DateUtils.format((LocalDate) value); 
