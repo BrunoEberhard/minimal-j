@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.minimalj.model.Rendering.RenderType;
+import org.minimalj.util.LocaleContext;
 
 
 public class EnumUtils {
@@ -88,7 +89,7 @@ public class EnumUtils {
 		String bundleName = enumElement.getClass().getName();
 		while (true) {
 			try {
-				ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName);
+				ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName, LocaleContext.getCurrent());
 				return resourceBundle.getString(enumElement.name());
 			} catch (MissingResourceException mre) {
 				int pos = bundleName.lastIndexOf('$');
