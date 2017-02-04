@@ -10,6 +10,7 @@ import org.minimalj.frontend.form.element.CheckBoxFormElement.CheckBoxProperty;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
@@ -62,7 +63,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 			if (object instanceof Rendering) {
 				add((Rendering) object);
 			} else {
-				add(object.toString());
+				add(Rendering.render(object, RenderType.PLAIN_TEXT));
 			}
 		}
 	}
