@@ -9,6 +9,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.MenuComponent;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
@@ -118,6 +119,11 @@ public class EditablePanel extends JDesktopPane {
 	
 	public void unlock() {
 		lockCount--;
+		if (lockCount < 1) {
+			// wake up
+			EventQueue theQueue = getToolkit().getSystemEventQueue();
+			theQueue.postEvent(new ActionEvent(this, 0, "unlock"));
+		}
 	}
 	
 	public boolean tryToCloseDialogs() {
