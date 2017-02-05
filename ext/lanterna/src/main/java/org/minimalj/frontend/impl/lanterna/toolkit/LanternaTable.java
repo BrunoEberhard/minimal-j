@@ -1,9 +1,5 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,8 +11,9 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.impl.lanterna.component.HighContrastLanternaTheme;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
 
 import com.googlecode.lanterna.gui.TextGraphics;
@@ -148,19 +145,9 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	}
 	
 	protected String getValue(int row, int column) {
-		Object value = properties.get(column).getValue(getObject(row));
-		if (value instanceof LocalTime) {
-			PropertyInterface property = properties.get(column);
-			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
-		} else if (value instanceof LocalDate) {
-			return DateUtils.format((LocalDate) value); 
-		} else if (value instanceof LocalDateTime) {
-			PropertyInterface property = properties.get(column);
-			String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) value);
-			String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value);
-			return date + " " + time; 
-		}
-		return "" + value;
+		PropertyInterface property = properties.get(column);
+		Object value = property.getValue(getObject(row));
+		return Rendering.render(value, RenderType.PLAIN_TEXT, property);
 	}
 
 	// Interactable

@@ -1,9 +1,5 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +7,8 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.vaadin.PropertyVaadinContainer;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
 
 import com.vaadin.data.Property;
@@ -61,16 +57,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	protected String formatPropertyValue(Object rowId, Object colId,
 			Property<?> property) {
 		Object value = property.getValue();
-		if (value instanceof LocalTime) {
-			return DateUtils.getTimeFormatter((PropertyInterface) colId).format((LocalTime) value); 
-		} else if (value instanceof LocalDate) {
-			return DateUtils.getDateTimeFormatter().format((TemporalAccessor) value); 
-		} else if (value instanceof LocalDateTime) {
-			String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) value);
-			String time = DateUtils.getTimeFormatter((PropertyInterface) colId).format((TemporalAccessor) value);
-			return date + " " + time;
-		}
-		return super.formatPropertyValue(rowId, colId, property);
+		return Rendering.render(value, Rendering.RenderType.PLAIN_TEXT, (PropertyInterface) colId);
 	}
      
 	private class VaadinTableItemClickListener implements ItemClickListener {

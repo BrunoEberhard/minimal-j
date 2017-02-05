@@ -35,12 +35,12 @@ public class MiniBoostApplication extends Application {
 	public List<Action> getNavigation() {
 		List<Action> menu = new ArrayList<>();
 
-		ActionGroup groupOwner = new ActionGroup(Resources.getResourceName(Customer.class));
+		ActionGroup groupOwner = new ActionGroup(Resources.getString(Customer.class));
 		groupOwner.add(new CustomerTablePage());
 		groupOwner.add(new AddCustomerEditor());
 		menu.add(groupOwner);
 
-		ActionGroup groupProject = new ActionGroup(Resources.getResourceName(Project.class));
+		ActionGroup groupProject = new ActionGroup(Resources.getString(Project.class));
 		groupProject.add(new ProjectTablePage());
 		groupProject.add(new AddProjectEditor());
 		menu.add(groupProject);

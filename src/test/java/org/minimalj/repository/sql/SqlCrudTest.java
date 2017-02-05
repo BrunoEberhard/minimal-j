@@ -2,6 +2,7 @@ package org.minimalj.repository.sql;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -151,13 +152,18 @@ public class SqlCrudTest {
 		Assert.assertNotNull(e1.id);
 		Assert.assertNotNull(e2.id);
 
-		repository.delete(e1);
-
-		entity = repository.read(TestEntity.class, entity_id);
-		
-		Assert.assertEquals(1, entity.testElementList.size());
-		e2 = entity.testElementList.get(0);
-		Assert.assertNotNull(e2.id);
+		TestElement elementToDelete = e1;
+		executeWithoutLog(() -> repository.delete(elementToDelete));
+	}
+	
+	public static void executeWithoutLog(Runnable r) {
+		Level logLevel = AbstractTable.sqlLogger.getLevel();
+		try {
+			AbstractTable.sqlLogger.setLevel(Level.OFF);
+			r.run();
+		} finally {
+			AbstractTable.sqlLogger.setLevel(logLevel);
+		}
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -173,13 +179,10 @@ public class SqlCrudTest {
 		e = entity.testElementReference;
 		Assert.assertNotNull(e.id);
 
-		repository.delete(e);
-
-		entity = repository.read(TestEntity.class, element_id);
-		
-		Assert.assertNull(entity.testElementReference);
+		TestElement elementToDelete = e;
+		executeWithoutLog(() -> repository.delete(elementToDelete)); 
 	}
-
+	
 	@Test
 	public void testByteArray() throws Exception {
 		M m = new M();

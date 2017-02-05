@@ -36,16 +36,16 @@ public class MinimalClinicApplication extends Application {
 	public List<Action> getNavigation() {
 		List<Action> menu = new ArrayList<>();
 
-		ActionGroup groupOwner = new ActionGroup(Resources.getResourceName(Owner.class));
+		ActionGroup groupOwner = new ActionGroup(Resources.getString(Owner.class));
 		groupOwner.add(new PageAction(new OwnerTablePage()));
 		groupOwner.add(new AddOwnerEditor());
 		menu.add(groupOwner);
 		
-		ActionGroup groupPet = new ActionGroup(Resources.getResourceName(Pet.class));
+		ActionGroup groupPet = new ActionGroup(Resources.getString(Pet.class));
 		groupPet.add(new PageAction(new PetTablePage()));
 		menu.add(groupPet);
 
-		ActionGroup groupVet = new ActionGroup(Resources.getResourceName(Vet.class));
+		ActionGroup groupVet = new ActionGroup(Resources.getString(Vet.class));
 		groupVet.add(new PageAction(new VetTablePage()));
 		groupVet.add(new AddVetEditor());
 		menu.add(groupVet);

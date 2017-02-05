@@ -4,8 +4,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.repository.Repository;
 import org.minimalj.repository.DataSourceFactory;
+import org.minimalj.repository.Repository;
 
 public class SqlBooleanTest {
 
@@ -29,7 +29,7 @@ public class SqlBooleanTest {
 	public void testInvalidBooleans() {
 		TestEntity entity = new TestEntity();
 		
-		repository.insert(entity);
+		SqlCrudTest.executeWithoutLog(() -> repository.insert(entity));
 	}
 	
 	public static class TestEntity {

@@ -1,9 +1,5 @@
 package org.minimalj.frontend.impl.json;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,8 +9,8 @@ import java.util.logging.Logger;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.DateUtils;
 import org.minimalj.util.resources.Resources;
 
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
@@ -55,19 +51,6 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return properties;
 	}
 
-	protected String convert(PropertyInterface property, Object value) {
-		if (value instanceof LocalTime) {
-			return DateUtils.getTimeFormatter(property).format((LocalTime) value); 
-		} else if (value instanceof LocalDate) {
-			return DateUtils.format((LocalDate) value); 
-		} else if (value instanceof LocalDateTime) {
-			String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) value);
-			String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) value);
-			return date + " " + time; 
-		}
-		return value != null ? value.toString() : null;
-	}
-	
 	@Override
 	public void setObjects(List<T> objects) {
 		this.objects = objects;
@@ -77,7 +60,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			List<String> rowContent = new ArrayList<>();
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
-				String stringValue = convert(property, value);
+				String stringValue = Rendering.render(value, Rendering.RenderType.PLAIN_TEXT, property);
 				rowContent.add(stringValue);
 			}
 			tableContent.add(rowContent);

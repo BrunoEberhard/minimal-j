@@ -235,7 +235,7 @@ public abstract class Application {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		Logger logger = Logger.getLogger(Application.class.getName());
 		logger.warning("Starting the Application class is not the intended way to start a Minimal-J application");
 		String mainClass = System.getProperty("sun.java.command");
