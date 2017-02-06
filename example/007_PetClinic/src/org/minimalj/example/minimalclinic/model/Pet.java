@@ -24,11 +24,6 @@ public class Pet implements Rendering {
 	@NotEmpty
 	public PetType type;
     
-//    public List<Visit> getVisits() {
-//    	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "visits", List.class);
-//    	return Backend.read(Visit.class, By.field(Visit.$.pet, this), 100);
-//    }
-        
     @Override
     public String render(RenderType renderType) {
     	return name + ", " + DateUtils.format(birthDate) + ", " + type.render(renderType);
