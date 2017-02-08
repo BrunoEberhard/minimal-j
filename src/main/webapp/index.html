@@ -758,6 +758,7 @@ $ICON
 			changedValue[source.id] = source.value.split("");		
 		} else {
 			changedValue[source.id] = source.value;
+			source.valueOnBlur = undefined;
 		}
 		data.changedValue = changedValue;
 		if (saveAction != undefined) {
