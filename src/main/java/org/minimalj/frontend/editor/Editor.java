@@ -46,9 +46,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		Class<?> editedClass = getEditedClass();
 		if (editedClass != null) {
 			String resourceName = Resources.getResourceName(editedClass);
-			if (Resources.isAvailable(resourceName)) {
-				return new Object[]{Resources.getString(resourceName)};
-			}
+			return new Object[]{Resources.getString(resourceName)};
 		}
 		return null;
 	}
