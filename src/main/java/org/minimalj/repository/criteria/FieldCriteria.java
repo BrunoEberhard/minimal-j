@@ -7,7 +7,7 @@ import java.time.temporal.Temporal;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
-public class FieldCriteria extends Criteria implements Serializable {
+public class FieldCriteria extends ChainableQuery implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final FieldOperator operator;
@@ -33,7 +33,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		this.path = property.getPath();
 	}
 	
-	private FieldCriteria(String path, FieldOperator operator, Object value) {
+	FieldCriteria(String path, FieldOperator operator, Object value) {
 		this.path = path;
 		this.operator = operator;
 		this.value = value;
@@ -71,7 +71,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		return value;
 	}
 
-	public Criteria negate() {
+	public Query negate() {
 		return new FieldCriteria(path, operator.negate(), value);
 	}
 }

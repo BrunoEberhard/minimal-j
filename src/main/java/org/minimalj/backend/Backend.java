@@ -13,7 +13,8 @@ import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
-import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.criteria.Query;
+import org.minimalj.repository.criteria.Sorting;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
@@ -128,8 +129,8 @@ public class Backend {
 		return execute(new ReadEntityTransaction<T>(clazz, id, null));
 	}
 
-	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		return execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+	public static <T> List<T> select(Class<T> clazz, Query criteria, Sorting... sorting) {
+		return execute(new ReadCriteriaTransaction<T>(clazz, criteria, sorting));
 	}
 
 	public static <T> Object insert(T object) {

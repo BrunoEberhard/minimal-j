@@ -27,7 +27,7 @@ public class RepositoryAuthentication extends UserPasswordAuthentication {
 	}
 	
 	protected User retrieveUser(String userName) {
-		List<User> users =  authenticationRepository.read(User.class, By.field(User.$.name, userName), 1);
+		List<User> users =  authenticationRepository.find(User.class, By.field(User.$.name, userName));
 		return users.isEmpty() ? null : users.get(0);
 	}
 }

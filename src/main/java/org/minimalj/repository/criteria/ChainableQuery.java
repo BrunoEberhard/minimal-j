@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Criteria implements Serializable {
+public class ChainableQuery implements Query {
 	private static final long serialVersionUID = 1L;
 
 	// TODO: check for recursion?
-	public Criteria and(Criteria other) {
+	public ChainableQuery and(ChainableQuery other) {
 		if (other != null) {
 			if (other instanceof AndCriteria) {
 				((AndCriteria) other).getCriterias().add(0, this);
@@ -21,7 +21,7 @@ public class Criteria implements Serializable {
 		}
 	}
 
-	public Criteria or(Criteria other) {
+	public ChainableQuery or(ChainableQuery other) {
 		if (other != null) {
 			if (other instanceof OrCriteria) {
 				((OrCriteria) other).getCriterias().add(0, this);
@@ -34,27 +34,35 @@ public class Criteria implements Serializable {
 		}
 	}
 	
+	public Query maxRowNowNum(int maxRowNum) {
+		return and(new MaxRowNumCriteria(maxRowNum));
+	}
+	
+	public PagingCriteria paging(int pageSize, int pageNum) {
+		return new PagingCriteria(this, pageSize, pageNum);
+	}
+	
 	public int getLevel() {
 		return 0;
 	}
 	
-	public static abstract class CombinedCriteria extends Criteria implements Serializable {
+	public static abstract class CombinedCriteria extends ChainableQuery implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		private final List<Criteria> criterias;
+		private final List<ChainableQuery> criterias;
 
-		public CombinedCriteria(Criteria criteria1, Criteria criteria2) {
+		public CombinedCriteria(ChainableQuery criteria1, ChainableQuery criteria2) {
 			// don't use Arrays.asList as Array might change later
 			criterias = new ArrayList<>();
 			criterias.add(criteria1);
 			criterias.add(criteria2);
 		}
 		
-		public CombinedCriteria(List<Criteria> criterias) {
+		public CombinedCriteria(List<ChainableQuery> criterias) {
 			this.criterias = criterias;
 		}
 
-		public List<Criteria> getCriterias() {
+		public List<ChainableQuery> getCriterias() {
 			return criterias;
 		}
 	}
@@ -62,11 +70,11 @@ public class Criteria implements Serializable {
 	public static class OrCriteria extends CombinedCriteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		public OrCriteria(Criteria criteria1, Criteria criteria2) {
+		public OrCriteria(ChainableQuery criteria1, ChainableQuery criteria2) {
 			super(criteria1, criteria2);
 		}
 
-		public OrCriteria(List<Criteria> criterias) {
+		public OrCriteria(List<ChainableQuery> criterias) {
 			super(criterias);
 		}
 
@@ -76,7 +84,7 @@ public class Criteria implements Serializable {
 		}
 		
 		@Override
-		public Criteria or(Criteria other) {
+		public ChainableQuery or(ChainableQuery other) {
 			if (other != null && !getCriterias().contains(other)) {
 				getCriterias().add(other);
 			}
@@ -87,16 +95,16 @@ public class Criteria implements Serializable {
 	public static class AndCriteria extends CombinedCriteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		public AndCriteria(Criteria criteria1, Criteria criteria2) {
+		public AndCriteria(ChainableQuery criteria1, ChainableQuery criteria2) {
 			super(criteria1, criteria2);
 		}
 
-		public AndCriteria(List<Criteria> criterias) {
+		public AndCriteria(List<ChainableQuery> criterias) {
 			super(criterias);
 		}
 
 		@Override
-		public Criteria and(Criteria other) {
+		public ChainableQuery and(ChainableQuery other) {
 			if (other != null && !getCriterias().contains(other)) {
 				getCriterias().add(other);
 			}

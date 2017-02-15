@@ -41,7 +41,8 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.criteria.By;
-import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.criteria.Query;
+import org.minimalj.repository.criteria.Sorting;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -244,14 +245,14 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	@Override
-	public <T> List<T> read(Class<T> resultClass, Criteria criteria, int maxResults) {
+	public <T> List<T> find(Class<T> resultClass, Query criteria, Sorting... sorting) {
 		if (View.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
 			Table<?> table = getTable(viewedClass);
-			return table.readView(resultClass, criteria, maxResults);
+			return table.readView(resultClass, criteria, sorting);
 		} else {
 			Table<T> table = getTable(resultClass);
-			return table.read(criteria, maxResults);
+			return table.read(criteria, sorting);
 		}
 	}
 
@@ -641,7 +642,7 @@ public class SqlRepository implements TransactionalRepository {
 	private <T extends Code> void updateCode(Class<T> clazz) {
 		CodeCacheItem<T> codeCacheItem = new CodeCacheItem<T>();
 		codeCache.put(clazz, codeCacheItem);
-		List<T> codes = getTable(clazz).read(By.all(), Integer.MAX_VALUE);
+		List<T> codes = find(clazz, By.all());
 		codeCacheItem.setCodes(codes);
 	}
 

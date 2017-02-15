@@ -29,7 +29,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 
 		@Override
 		public List<T> search(String searchText) {
-			return (List<T>) Backend.read(fieldClazz, new SearchCriteria(searchText, searchColumns), 100);
+			return (List<T>) Backend.select(fieldClazz, new SearchCriteria(searchText, searchColumns).maxRowNowNum(100));
 		}
 	}
 	

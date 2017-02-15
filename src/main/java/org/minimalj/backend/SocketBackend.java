@@ -17,7 +17,8 @@ import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
-import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.criteria.Query;
+import org.minimalj.repository.criteria.Sorting;
 import org.minimalj.repository.sql.LazyList;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
@@ -113,8 +114,8 @@ public class SocketBackend extends Backend {
 			return execute(new ReadEntityTransaction<T>(clazz, id, null));
 		}
 
-		public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-			return execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		public <T> List<T> find(Class<T> clazz, Query criteria, Sorting... sorting) {
+			return execute(new ReadCriteriaTransaction<T>(clazz, criteria, sorting));
 		}
 
 		public <T> Object insert(T object) {

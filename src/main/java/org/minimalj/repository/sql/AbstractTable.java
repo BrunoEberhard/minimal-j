@@ -234,6 +234,9 @@ public abstract class AbstractTable<T> {
 	
 	protected String whereStatement(final String wholeFieldPath, FieldOperator criteriaOperator) {
 		String fieldPath = wholeFieldPath;
+		if ("row".equals(fieldPath)) {
+			return "ROW_NUMBER() " + criteriaOperator.getOperatorAsString() + " ?";
+		}
 		String column;
 		while (true) {
 			column = findColumn(fieldPath);
@@ -283,14 +286,10 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) {
-		return executeSelectAll(preparedStatement, Long.MAX_VALUE);
-	}
-	
-	protected List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) {
 		List<T> result = new ArrayList<T>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
-			while (resultSet.next() && result.size() < maxResults) {
+			while (resultSet.next()) {
 				T object = sqlRepository.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
 					((Table<T>) this).loadLists(object);

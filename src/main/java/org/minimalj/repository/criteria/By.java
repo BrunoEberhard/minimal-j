@@ -4,7 +4,7 @@ import org.minimalj.util.StringUtils;
 
 public class By {
 
-	public static final Criteria ALL = new Criteria();
+	public static final AllCriteria ALL = new AllCriteria();
 	public static final boolean ADD_WILDCARDS = true;
 	
 	public static SearchCriteria search(String query) {
@@ -39,12 +39,16 @@ public class By {
 		return new FieldCriteria(key, operator, value);
 	}
 
-	public static Criteria all() {
+	public static AllCriteria all() {
 		return ALL;
 	}
 
-	public static Criteria range(Object key, Object minIncluding, Object maxIncluding) {
-		Criteria c = null;
+	public static Query maxRowNum(int maxRowNum) {
+		return new MaxRowNumCriteria(maxRowNum);
+	}
+
+	public static ChainableQuery range(Object key, Object minIncluding, Object maxIncluding) {
+		ChainableQuery c = null;
 		if (minIncluding != null) {
 			c = new FieldCriteria(key, FieldOperator.greaterOrEqual, minIncluding);
 		}

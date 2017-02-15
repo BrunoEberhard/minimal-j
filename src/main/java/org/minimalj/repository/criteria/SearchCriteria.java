@@ -2,7 +2,7 @@ package org.minimalj.repository.criteria;
 
 import java.io.Serializable;
 
-public class SearchCriteria extends Criteria implements Serializable {
+public class SearchCriteria extends ChainableQuery implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final String query;
@@ -40,7 +40,7 @@ public class SearchCriteria extends Criteria implements Serializable {
 		return notEqual;
 	}
 	
-	public Criteria negate() {
+	public ChainableQuery negate() {
 		return new SearchCriteria(query, keys, !notEqual);
 	}
 }

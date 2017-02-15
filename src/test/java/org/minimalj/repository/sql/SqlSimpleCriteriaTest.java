@@ -35,7 +35,7 @@ public class SqlSimpleCriteriaTest {
 	
 	@Test 
 	public void testFindByIntegerField() {
-		List<A> list = repository.getTable(A.class).read(By.field(A.$.int1, 5), 2);
+		List<A> list = repository.find(A.class, By.field(A.$.int1, 5).maxRowNowNum(2));
 		Assert.assertEquals(1, list.size());
 		A a = list.get(0);
 		Assert.assertNotNull(a.int1);
@@ -44,13 +44,13 @@ public class SqlSimpleCriteriaTest {
 	
 	@Test 
 	public void testMinimumForField() {
-		List<A> list = repository.getTable(A.class).read(By.field(A.$.int1, FieldOperator.greaterOrEqual, 7), 3);
+		List<A> list = repository.find(A.class, By.field(A.$.int1, FieldOperator.greaterOrEqual, 7).maxRowNowNum(3));
 		Assert.assertEquals(2, list.size());
 	}
 	
 	@Test(expected = IllegalArgumentException.class) 
 	public void testOperatorCheck() {
-		repository.getTable(A.class).read(By.field(A.$.e, FieldOperator.greaterOrEqual, 7), 1);
+		repository.find(A.class, By.field(A.$.e, FieldOperator.greaterOrEqual, 7));
 	}
 
 }
