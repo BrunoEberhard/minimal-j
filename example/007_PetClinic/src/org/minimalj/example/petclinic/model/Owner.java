@@ -9,7 +9,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 import org.minimalj.util.mock.Mocking;
 
 public class Owner implements Rendering, Mocking {
@@ -30,7 +30,7 @@ public class Owner implements Rendering, Mocking {
     
     public List<Pet> getPets() {
     	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets", List.class);
-    	return Backend.read(Pet.class, By.field(Pet.$.owner, this), 100);
+    	return Backend.find(Pet.class, By.field(Pet.$.owner, this));
 	}
     
     @Override

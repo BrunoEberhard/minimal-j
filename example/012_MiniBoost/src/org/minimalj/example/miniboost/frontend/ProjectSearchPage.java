@@ -8,7 +8,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.model.Project;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 
 public class ProjectSearchPage extends SimpleSearchPage<Project> {
 
@@ -20,7 +20,7 @@ public class ProjectSearchPage extends SimpleSearchPage<Project> {
 
 	@Override
 	protected List<Project> load(String query) {
-		return Backend.read(Project.class, By.search(query), 100);
+		return Backend.find(Project.class, By.search(query).limit(100));
 	}
 
 	@Override

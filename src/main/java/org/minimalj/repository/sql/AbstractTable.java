@@ -25,7 +25,7 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.repository.criteria.FieldOperator;
+import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.GenericUtils;
@@ -234,9 +234,6 @@ public abstract class AbstractTable<T> {
 	
 	protected String whereStatement(final String wholeFieldPath, FieldOperator criteriaOperator) {
 		String fieldPath = wholeFieldPath;
-		if ("row".equals(fieldPath)) {
-			return "ROW_NUMBER() " + criteriaOperator.getOperatorAsString() + " ?";
-		}
 		String column;
 		while (true) {
 			column = findColumn(fieldPath);

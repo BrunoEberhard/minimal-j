@@ -7,8 +7,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.criteria.By;
-import org.minimalj.repository.criteria.FieldOperator;
+import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.FieldOperator;
 
 public class SqlSimpleCriteriaTest {
 	
@@ -35,7 +35,7 @@ public class SqlSimpleCriteriaTest {
 	
 	@Test 
 	public void testFindByIntegerField() {
-		List<A> list = repository.find(A.class, By.field(A.$.int1, 5).maxRowNowNum(2));
+		List<A> list = repository.find(A.class, By.field(A.$.int1, 5).limit(2));
 		Assert.assertEquals(1, list.size());
 		A a = list.get(0);
 		Assert.assertNotNull(a.int1);
@@ -44,7 +44,7 @@ public class SqlSimpleCriteriaTest {
 	
 	@Test 
 	public void testMinimumForField() {
-		List<A> list = repository.find(A.class, By.field(A.$.int1, FieldOperator.greaterOrEqual, 7).maxRowNowNum(3));
+		List<A> list = repository.find(A.class, By.field(A.$.int1, FieldOperator.greaterOrEqual, 7).limit(3));
 		Assert.assertEquals(2, list.size());
 	}
 	

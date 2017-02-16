@@ -40,9 +40,8 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.TransactionalRepository;
-import org.minimalj.repository.criteria.By;
-import org.minimalj.repository.criteria.Query;
-import org.minimalj.repository.criteria.Sorting;
+import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.Query;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -245,14 +244,14 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	@Override
-	public <T> List<T> find(Class<T> resultClass, Query criteria, Sorting... sorting) {
+	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (View.class.isAssignableFrom(resultClass)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
 			Table<?> table = getTable(viewedClass);
-			return table.readView(resultClass, criteria, sorting);
+			return table.readView(resultClass, query);
 		} else {
 			Table<T> table = getTable(resultClass);
-			return table.read(criteria, sorting);
+			return table.read(query);
 		}
 	}
 

@@ -1,8 +1,8 @@
-package org.minimalj.repository.criteria;
+package org.minimalj.repository.query;
 
 import java.io.Serializable;
 
-public class SearchCriteria extends ChainableQuery implements Serializable {
+public class SearchCriteria extends Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final String query;
@@ -22,11 +22,6 @@ public class SearchCriteria extends ChainableQuery implements Serializable {
 		this.query = query;
 		this.notEqual = notEqual;
 	}
-	
-	@Override
-	public int getLevel() {
-		return 0;
-	}
 
 	public Object[] getKeys() {
 		return keys;
@@ -40,7 +35,7 @@ public class SearchCriteria extends ChainableQuery implements Serializable {
 		return notEqual;
 	}
 	
-	public ChainableQuery negate() {
+	public Criteria negate() {
 		return new SearchCriteria(query, keys, !notEqual);
 	}
 }

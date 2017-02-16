@@ -1,4 +1,4 @@
-package org.minimalj.repository.criteria;
+package org.minimalj.repository.query;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -7,7 +7,7 @@ import java.time.temporal.Temporal;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
-public class FieldCriteria extends ChainableQuery implements Serializable {
+public class FieldCriteria extends Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final FieldOperator operator;
@@ -52,11 +52,6 @@ public class FieldCriteria extends ChainableQuery implements Serializable {
 				throw new IllegalArgumentException("Value is " + value.getClass().getName() + " but must be " + property.getClazz().getSimpleName());
 			}
 		}
-	}
-	
-	@Override
-	public int getLevel() {
-		return 0;
 	}
 	
 	public FieldOperator getOperator() {

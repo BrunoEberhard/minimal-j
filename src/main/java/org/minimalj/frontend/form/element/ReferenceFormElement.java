@@ -8,7 +8,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.model.Keys;
-import org.minimalj.repository.criteria.SearchCriteria;
+import org.minimalj.repository.query.SearchCriteria;
 
 // To make this class generic is a little bit senseless as
 // there are no checks at all
@@ -29,7 +29,7 @@ public class ReferenceFormElement<T> extends AbstractFormElement<T> {
 
 		@Override
 		public List<T> search(String searchText) {
-			return (List<T>) Backend.select(fieldClazz, new SearchCriteria(searchText, searchColumns).maxRowNowNum(100));
+			return (List<T>) Backend.find(fieldClazz, new SearchCriteria(searchText, searchColumns).limit(100));
 		}
 	}
 	

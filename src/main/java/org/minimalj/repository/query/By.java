@@ -1,4 +1,4 @@
-package org.minimalj.repository.criteria;
+package org.minimalj.repository.query;
 
 import org.minimalj.util.StringUtils;
 
@@ -43,12 +43,12 @@ public class By {
 		return ALL;
 	}
 
-	public static Query maxRowNum(int maxRowNum) {
-		return new MaxRowNumCriteria(maxRowNum);
+	public static Limit limit(int rows) {
+		return new Limit(ALL, rows);
 	}
-
-	public static ChainableQuery range(Object key, Object minIncluding, Object maxIncluding) {
-		ChainableQuery c = null;
+	
+	public static Criteria range(Object key, Object minIncluding, Object maxIncluding) {
+		Criteria c = null;
 		if (minIncluding != null) {
 			c = new FieldCriteria(key, FieldOperator.greaterOrEqual, minIncluding);
 		}

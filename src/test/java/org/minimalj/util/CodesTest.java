@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.minimalj.model.Code;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.SqlRepository;
 
 public class CodesTest {
@@ -22,7 +22,7 @@ public class CodesTest {
 	
 	@Test
 	public void testDeclaratedCodes() {
-		List<TestCode> codes = repository.find(TestCode.class, By.maxRowNum(3));
+		List<TestCode> codes = repository.find(TestCode.class, By.limit(3));
 		Assert.assertEquals("public static final codes should be automatically inserted in the repository", 2, codes.size());
 	}
 

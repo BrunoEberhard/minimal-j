@@ -6,7 +6,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.minimalclinic.model.Vet;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 
 public class VetSearchPage extends SimpleSearchPage<Vet> {
 
@@ -18,7 +18,7 @@ public class VetSearchPage extends SimpleSearchPage<Vet> {
 
 	@Override
 	protected List<Vet> load(String query) {
-		return Backend.read(Vet.class, By.search(query), 100);
+		return Backend.find(Vet.class, By.search(query));
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 
 
 public class LendTablePage extends TablePage<Lend> {
@@ -29,7 +29,7 @@ public class LendTablePage extends TablePage<Lend> {
 
 	@Override
 	protected List<Lend> load() {
-		return Backend.read(Lend.class, By.field(Lend.$.customer, customer), 100);
+		return Backend.find(Lend.class, By.field(Lend.$.customer, customer));
 	}
 
 	@Override

@@ -17,12 +17,13 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.repository.criteria.ChainableQuery.AndCriteria;
-import org.minimalj.repository.criteria.ChainableQuery.OrCriteria;
-import org.minimalj.repository.criteria.Query;
-import org.minimalj.repository.criteria.FieldCriteria;
-import org.minimalj.repository.criteria.SearchCriteria;
-import org.minimalj.repository.criteria.Sorting;
+import org.minimalj.repository.query.AllCriteria;
+import org.minimalj.repository.query.FieldCriteria;
+import org.minimalj.repository.query.Limit;
+import org.minimalj.repository.query.Query;
+import org.minimalj.repository.query.SearchCriteria;
+import org.minimalj.repository.query.Criteria.AndCriteria;
+import org.minimalj.repository.query.Criteria.OrCriteria;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -260,7 +261,15 @@ public class Table<T> extends AbstractTable<T> {
 				clause += ")";
 			}
 			result.add(0, clause); // insert at beginning
-		} else if (criteria == null || criteria.getClass() == Query.class) {
+		} else if (criteria instanceof Limit) {
+			Limit limit = (Limit) criteria;
+			result = whereClause(limit.getQuery());
+			String s = (String) result.get(0);
+			s = s + sqlRepository.getSqlDialect().limit(limit.getRows(), limit.getOffset());
+			result.set(0, s);
+		} else if (criteria instanceof AllCriteria) {
+			result = new ArrayList<>(EMPTY_WHERE_CLAUSE);
+		} else if (criteria == null) {
 			result = EMPTY_WHERE_CLAUSE;
 		} else {
 			throw new IllegalArgumentException("Unknown criteria: " + criteria);
@@ -289,10 +298,10 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	public List<T> read(Query criteria, Sorting... sorting) {
-		List<Object> whereClause = whereClause(criteria);
-		String query = "SELECT * FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
+	public List<T> read(Query query) {
+		List<Object> whereClause = whereClause(query);
+		String queryString = "SELECT * FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				sqlRepository.getSqlDialect().setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
@@ -302,10 +311,10 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public <S> List<S> readView(Class<S> resultClass, Query criteria, Sorting... sorting) {
-		List<Object> whereClause = whereClause(criteria);
-		String query = select(resultClass) + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
+	public <S> List<S> readView(Class<S> resultClass, Query query) {
+		List<Object> whereClause = whereClause(query);
+		String queryString = select(resultClass) + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				statement.setObject(i, whereClause.get(i));
 			}

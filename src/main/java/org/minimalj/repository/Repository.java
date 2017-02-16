@@ -8,8 +8,7 @@ import javax.sql.DataSource;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.repository.criteria.Query;
-import org.minimalj.repository.criteria.Sorting;
+import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.LazyList;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.util.StringUtils;
@@ -53,7 +52,7 @@ public interface Repository {
 	public <T> T read(Class<T> clazz, Object id);
 
 	// spring: find
-	public <T> List<T> find(Class<T> clazz, Query criteria, Sorting... sorting);
+	public <T> List<T> find(Class<T> clazz, Query query);
 
 	public <T> Object insert(T object);
 
