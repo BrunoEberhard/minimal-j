@@ -167,7 +167,7 @@ public abstract class SqlDialect {
 	}
 	
 	public String limit(int rows, Integer offset) {
-		return " OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
+		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
 	}
 	
 	public static class MariaSqlDialect extends SqlDialect {

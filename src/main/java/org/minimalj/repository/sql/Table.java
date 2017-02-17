@@ -266,7 +266,7 @@ public class Table<T> extends AbstractTable<T> {
 			Limit limit = (Limit) query;
 			result = whereClause(limit.getQuery());
 			String s = (String) result.get(0);
-			s = s + sqlRepository.getSqlDialect().limit(limit.getRows(), limit.getOffset());
+			s = s + " " + sqlRepository.getSqlDialect().limit(limit.getRows(), limit.getOffset());
 			result.set(0, s);
 		} else if (query instanceof Order) {
 			Order order = (Order) query;
