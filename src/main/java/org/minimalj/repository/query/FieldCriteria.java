@@ -33,7 +33,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		this.path = property.getPath();
 	}
 	
-	FieldCriteria(String path, FieldOperator operator, Object value) {
+	private FieldCriteria(String path, FieldOperator operator, Object value) {
 		this.path = path;
 		this.operator = operator;
 		this.value = value;
