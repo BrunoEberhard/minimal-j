@@ -30,11 +30,11 @@ public interface Query extends Serializable {
 	
 	public interface QueryOrderable extends Query {
 		
-		public default Query order(Object key) {
+		public default Order order(Object key) {
 			return order(key, true);
 		}
 			
-		public default Query order(Object key, boolean ascending) {
+		public default Order order(Object key, boolean ascending) {
 			PropertyInterface property = Keys.getProperty(key);
 			String path = property.getPath();
 			return new Order(this, path, ascending);

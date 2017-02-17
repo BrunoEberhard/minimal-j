@@ -1,10 +1,9 @@
 package org.minimalj.repository.query;
 
-import java.io.Serializable;
-
 import org.minimalj.repository.query.Query.QueryLimitable;
+import org.minimalj.repository.query.Query.QueryOrderable;
 
-public class Order implements QueryLimitable, Serializable {
+public class Order implements QueryLimitable, QueryOrderable {
 	private static final long serialVersionUID = 1L;
 
 	private final Query query;
@@ -15,6 +14,10 @@ public class Order implements QueryLimitable, Serializable {
 		this.query = query;
 		this.path = path;
 		this.ascending = ascending;
+	}
+	
+	public Query getQuery() {
+		return query;
 	}
 	
 	public String getPath() {

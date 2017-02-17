@@ -170,7 +170,7 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	private String findColumn(String fieldPath) {
+	protected String findColumn(String fieldPath) {
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			if (entry.getValue().getPath().equals(fieldPath)) {
 				return entry.getKey();

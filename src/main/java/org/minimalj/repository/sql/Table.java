@@ -18,12 +18,13 @@ import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.AllCriteria;
-import org.minimalj.repository.query.FieldCriteria;
-import org.minimalj.repository.query.Limit;
-import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.repository.query.Criteria.AndCriteria;
 import org.minimalj.repository.query.Criteria.OrCriteria;
+import org.minimalj.repository.query.FieldCriteria;
+import org.minimalj.repository.query.Limit;
+import org.minimalj.repository.query.Order;
+import org.minimalj.repository.query.Query;
+import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -221,16 +222,16 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 
-	public List<Object> whereClause(Query criteria) {
+	public List<Object> whereClause(Query query) {
 		List<Object> result;
-		if (criteria instanceof AndCriteria) {
-			AndCriteria andCriteria = (AndCriteria) criteria;
+		if (query instanceof AndCriteria) {
+			AndCriteria andCriteria = (AndCriteria) query;
 			result = combine(andCriteria.getCriterias(), "AND");
-		} else if (criteria instanceof OrCriteria) {
-			OrCriteria orCriteria = (OrCriteria) criteria;
+		} else if (query instanceof OrCriteria) {
+			OrCriteria orCriteria = (OrCriteria) query;
 			result = combine(orCriteria.getCriterias(), "OR");
-		} else if (criteria instanceof FieldCriteria) {
-			FieldCriteria fieldCriteria = (FieldCriteria) criteria;
+		} else if (query instanceof FieldCriteria) {
+			FieldCriteria fieldCriteria = (FieldCriteria) query;
 			result = new ArrayList<>();
 			Object value = fieldCriteria.getValue();
 			String term = whereStatement(fieldCriteria.getPath(), fieldCriteria.getOperator());
@@ -239,8 +240,8 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			result.add(term);
 			result.add(value);
-		} else if (criteria instanceof SearchCriteria) {
-			SearchCriteria searchCriteria = (SearchCriteria) criteria;
+		} else if (query instanceof SearchCriteria) {
+			SearchCriteria searchCriteria = (SearchCriteria) query;
 			result = new ArrayList<>();
 			String search = convertUserSearch(searchCriteria.getQuery());
 			String clause = "(";
@@ -261,20 +262,48 @@ public class Table<T> extends AbstractTable<T> {
 				clause += ")";
 			}
 			result.add(0, clause); // insert at beginning
-		} else if (criteria instanceof Limit) {
-			Limit limit = (Limit) criteria;
+		} else if (query instanceof Limit) {
+			Limit limit = (Limit) query;
 			result = whereClause(limit.getQuery());
 			String s = (String) result.get(0);
 			s = s + sqlRepository.getSqlDialect().limit(limit.getRows(), limit.getOffset());
 			result.set(0, s);
-		} else if (criteria instanceof AllCriteria) {
+		} else if (query instanceof Order) {
+			Order order = (Order) query;
+			List<Order> orders = new ArrayList<>();
+			orders.add(order);
+			while (order.getQuery() instanceof Order) {
+				order = (Order) order.getQuery();
+				orders.add(0, order);
+			}
+			result = whereClause(order.getQuery());
+			String s = (String) result.get(0);
+			s = s + " " + order(orders);
+			result.set(0, s);
+		} else if (query instanceof AllCriteria) {
 			result = new ArrayList<>(EMPTY_WHERE_CLAUSE);
-		} else if (criteria == null) {
+		} else if (query == null) {
 			result = EMPTY_WHERE_CLAUSE;
 		} else {
-			throw new IllegalArgumentException("Unknown criteria: " + criteria);
+			throw new IllegalArgumentException("Unknown criteria: " + query);
 		}
 		return result;
+	}
+	
+	private String order(List<Order> orders) {
+		StringBuilder s = new StringBuilder();
+		for (Order order : orders) {
+			if (s.length() == 0) {
+				s.append("ORDER BY ");
+			} else {
+				s.append(", ");
+			}
+			s.append(findColumn(order.getPath()));
+			if (!order.isAscending()) {
+				s.append(" DESC");
+			}
+		}
+		return s.toString();
 	}
 	
 	private List<Object> combine(List<? extends Query> criterias, String operator) {
