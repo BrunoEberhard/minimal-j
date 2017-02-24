@@ -2,8 +2,8 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import org.minimalj.frontend.Frontend.IComponent;
 
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.v7.ui.Label;
 
 public class VaadinTitle extends Label implements IComponent {
 	private static final long serialVersionUID = 1L;

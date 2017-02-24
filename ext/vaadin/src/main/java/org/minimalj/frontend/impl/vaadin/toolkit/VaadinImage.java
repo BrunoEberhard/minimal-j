@@ -14,9 +14,9 @@ import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Image;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FinishedEvent;
-import com.vaadin.ui.Upload.StartedEvent;
+import com.vaadin.v7.ui.Upload;
+import com.vaadin.v7.ui.Upload.FinishedEvent;
+import com.vaadin.v7.ui.Upload.StartedEvent;
 
 public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[]> {
 	private static final long serialVersionUID = 1L;

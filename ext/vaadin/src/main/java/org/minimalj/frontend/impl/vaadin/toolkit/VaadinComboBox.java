@@ -7,7 +7,7 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 
 public class VaadinComboBox<T> extends ComboBox implements Input<T> {
 	private static final long serialVersionUID = 1L;
@@ -75,7 +75,7 @@ public class VaadinComboBox<T> extends ComboBox implements Input<T> {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
+		public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event) {
 			listener.changed(VaadinComboBox.this);
 		}
 	}

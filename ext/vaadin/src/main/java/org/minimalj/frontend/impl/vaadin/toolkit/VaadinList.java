@@ -9,7 +9,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.VaadinActionLabel;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.VerticalLayout;
 
 public class VaadinList extends VerticalLayout implements IList {
 	private static final long serialVersionUID = 1L;

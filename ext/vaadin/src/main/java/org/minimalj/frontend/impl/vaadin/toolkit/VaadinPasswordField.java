@@ -3,9 +3,9 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.PasswordField;
 
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
+import com.vaadin.v7.event.FieldEvents.TextChangeListener;
+import com.vaadin.v7.ui.HorizontalLayout;
 
 /**
  * 
@@ -16,11 +16,11 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 	private static final long serialVersionUID = 1L;
 
 	private TextChangeEvent event;
-	private final com.vaadin.ui.PasswordField field;
+	private final com.vaadin.v7.ui.PasswordField field;
 	
 	public VaadinPasswordField(InputComponentListener changeListener, int maxLength) {
 		super();
-		field = new com.vaadin.ui.PasswordField();
+		field = new com.vaadin.v7.ui.PasswordField();
 		field.setMaxLength(maxLength);
 		field.setNullRepresentation("");
 		field.setImmediate(true);

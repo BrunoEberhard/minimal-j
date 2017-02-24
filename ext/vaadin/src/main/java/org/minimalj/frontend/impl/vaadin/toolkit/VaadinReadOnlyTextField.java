@@ -3,8 +3,8 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.util.StringUtils;
 
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.VerticalLayout;
 
 public class VaadinReadOnlyTextField extends VerticalLayout implements Input<String> {
 	private static final long serialVersionUID = 1L;

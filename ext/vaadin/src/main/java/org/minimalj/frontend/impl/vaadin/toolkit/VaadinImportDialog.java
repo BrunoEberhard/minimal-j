@@ -5,9 +5,9 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Upload;
+import com.vaadin.v7.ui.Upload;
 import com.vaadin.ui.Window;
 
 public class VaadinImportDialog extends Window implements Upload.Receiver {
@@ -30,7 +30,7 @@ public class VaadinImportDialog extends Window implements Upload.Receiver {
 		setModal(true);
 		UI.getCurrent().addWindow(this);
 		
-		addListener(new CloseListener() {
+		addCloseListener(new CloseListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -11,13 +11,13 @@ import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.resources.Resources;
 
-import com.vaadin.data.Property;
+import com.vaadin.v7.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.v7.event.ItemClickEvent;
+import com.vaadin.v7.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.Table;
 
 public class VaadinTable<T> extends Table implements ITable<T> {
 	private static final long serialVersionUID = 1L;

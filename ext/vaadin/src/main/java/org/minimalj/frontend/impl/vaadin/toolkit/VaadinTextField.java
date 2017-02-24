@@ -4,11 +4,11 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.action.Action;
 
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
+import com.vaadin.v7.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
-import com.vaadin.ui.AbstractTextField;
+import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 
 /**
@@ -16,7 +16,7 @@ import com.vaadin.ui.Component;
  * @author Bruno
  *
  */
-public class VaadinTextField extends com.vaadin.ui.TextField implements Input<String> {
+public class VaadinTextField extends com.vaadin.v7.ui.TextField implements Input<String> {
 	private static final long serialVersionUID = 1L;
 
 	private TextChangeEvent event;

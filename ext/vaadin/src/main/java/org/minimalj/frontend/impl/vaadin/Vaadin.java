@@ -32,8 +32,8 @@ import com.github.wolfie.history.HistoryExtension.PopStateListener;
 import com.vaadin.addon.contextmenu.ContextMenu;
 import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.v7.event.ItemClickEvent;
+import com.vaadin.v7.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.FontAwesome;
@@ -47,14 +47,14 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.Tree;
+import com.vaadin.v7.ui.TextField;
+import com.vaadin.v7.ui.Tree;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.VerticalLayout;
 
 @Theme("mjtheme")
 public class Vaadin extends UI implements PageManager, LoginListener {

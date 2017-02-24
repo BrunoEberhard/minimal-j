@@ -3,8 +3,8 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
+import com.vaadin.v7.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 
@@ -13,7 +13,7 @@ import com.vaadin.event.ShortcutListener;
  * Maybe some code could be deduplicated.
  * 
  */
-public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements Input<String> {
+public class VaadinTextAreaField extends com.vaadin.v7.ui.TextArea implements Input<String> {
 	private static final long serialVersionUID = 1L;
 
 	private TextChangeEvent event;

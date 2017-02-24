@@ -9,9 +9,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.VerticalLayout;
 
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
@@ -55,7 +55,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		button.setDescription(action.getDescription());
 		button.setWidth((action.getName().length() + 5) + "ex");
 		// installShortcut(button, action);
-		button.addListener(new ClickListener() {
+		button.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.minimalj.model.properties.PropertyInterface;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property;
 
 public class PropertyVaadinContainer<T> implements Container.Sortable {
 	private static final long serialVersionUID = 1L;

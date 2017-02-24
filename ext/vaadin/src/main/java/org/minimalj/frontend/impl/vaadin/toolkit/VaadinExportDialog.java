@@ -8,7 +8,7 @@ import java.io.PipedOutputStream;
 
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;

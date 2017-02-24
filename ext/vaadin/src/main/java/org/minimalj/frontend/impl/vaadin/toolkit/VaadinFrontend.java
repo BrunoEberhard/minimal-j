@@ -11,13 +11,13 @@ import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
-import com.vaadin.ui.AbstractField;
+import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.v7.ui.themes.BaseTheme;
 
 public class VaadinFrontend extends Frontend {
 
@@ -44,7 +44,7 @@ public class VaadinFrontend extends Frontend {
 			super(action.getName());
 //			button.setDescription((String) action.getValue(Action.LONG_DESCRIPTION));
 			setStyleName(BaseTheme.BUTTON_LINK);
-			addListener(new ClickListener() {
+			addClickListener(new ClickListener() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -195,7 +195,7 @@ public class VaadinFrontend extends Frontend {
 
 			public VaadinLookupLabel() {
 				setStyleName(BaseTheme.BUTTON_LINK);
-				addListener(new ClickListener() {
+				addClickListener(new ClickListener() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -212,7 +212,7 @@ public class VaadinFrontend extends Frontend {
 			public VaadinRemoveLabel() {
 				super("[x]");
 				setStyleName(BaseTheme.BUTTON_LINK);
-				addListener(new ClickListener() {
+				addClickListener(new ClickListener() {
 					private static final long serialVersionUID = 1L;
 
 					@Override

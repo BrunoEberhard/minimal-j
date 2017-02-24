@@ -24,7 +24,7 @@ public class VaadinDialog extends Window implements IDialog {
 		this.closeAction = closeAction;
 		
 		setModal(true);
-		addListener(new VaadinDialogListener());
+		addCloseListener(new VaadinDialogListener());
 		
 		VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
 		if (componentWithWidth != null) {

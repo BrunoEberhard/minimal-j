@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.vaadin.server.JsonPaintTarget;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -272,17 +272,17 @@ public class VaadinConfirmDialog extends Window {
 
     public final void setContentMode(final ContentMode contentMode) {
         msgContentMode = contentMode;
-        com.vaadin.shared.ui.label.ContentMode labelContentMode = com.vaadin.shared.ui.label.ContentMode.TEXT;
+        com.vaadin.v7.shared.ui.label.ContentMode labelContentMode = com.vaadin.v7.shared.ui.label.ContentMode.TEXT;
         switch (contentMode) {
         case TEXT_WITH_NEWLINES:
         case TEXT:
-            labelContentMode = com.vaadin.shared.ui.label.ContentMode.TEXT;
+            labelContentMode = com.vaadin.v7.shared.ui.label.ContentMode.TEXT;
             break;
         case PREFORMATTED:
-            labelContentMode = com.vaadin.shared.ui.label.ContentMode.PREFORMATTED;
+            labelContentMode = com.vaadin.v7.shared.ui.label.ContentMode.PREFORMATTED;
             break;
         case HTML:
-            labelContentMode = com.vaadin.shared.ui.label.ContentMode.HTML;
+            labelContentMode = com.vaadin.v7.shared.ui.label.ContentMode.HTML;
             break;
         }
         messageLabel

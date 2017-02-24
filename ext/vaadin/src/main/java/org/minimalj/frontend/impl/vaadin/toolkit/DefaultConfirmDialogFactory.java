@@ -9,14 +9,14 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.v7.ui.themes.Reindeer;
 
 /**
  * This is the default implementation for confirmation dialog factory.
@@ -92,7 +92,7 @@ public class DefaultConfirmDialogFactory implements Factory {
         c.setExpandRatio(panel, 1f);
 
         // Always HTML, but escape
-        Label text = new Label("", com.vaadin.shared.ui.label.ContentMode.HTML);
+        Label text = new Label("", com.vaadin.v7.shared.ui.label.ContentMode.HTML);
         text.setId(VaadinConfirmDialog.MESSAGE_ID);
         scrollContent.addComponent(text);
         confirm.setMessageLabel(text);

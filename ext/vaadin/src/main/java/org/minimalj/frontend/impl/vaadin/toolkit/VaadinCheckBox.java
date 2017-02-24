@@ -3,8 +3,8 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.VerticalLayout;
 
 public class VaadinCheckBox extends VerticalLayout implements Input<Boolean> {
 
@@ -16,7 +16,6 @@ public class VaadinCheckBox extends VerticalLayout implements Input<Boolean> {
 		checkBox = new CheckBox(text);
 		addComponent(checkBox);
 		this.listener = listener;
-		setImmediate(true);
 		checkBox.addListener(new CheckBoxChangeListener());
 	}
 
@@ -43,7 +42,7 @@ public class VaadinCheckBox extends VerticalLayout implements Input<Boolean> {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
+		public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event) {
 			listener.changed(VaadinCheckBox.this);
 		}
 	}
