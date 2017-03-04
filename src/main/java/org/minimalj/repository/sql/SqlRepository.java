@@ -254,6 +254,16 @@ public class SqlRepository implements TransactionalRepository {
 			return table.read(query);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> long count(Class<T> clazz, Query query) {
+		if (View.class.isAssignableFrom(clazz)) {
+			clazz = (Class<T>) ViewUtil.getViewedClass(clazz);
+		}
+		Table<?> table = getTable(clazz);
+		return table.count(query);
+	}
 
 	@Override
 	public <T> Object insert(T object) {

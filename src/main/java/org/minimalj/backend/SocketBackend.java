@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ListTransaction.ReadAllElementsTransaction;
@@ -117,6 +118,10 @@ public class SocketBackend extends Backend {
 			return execute(new ReadCriteriaTransaction<T>(clazz, query));
 		}
 
+		public <T> long count(Class<T> clazz, Query query) {
+			return execute(new CountTransaction<T>(clazz, query));
+		}
+		
 		public <T> Object insert(T object) {
 			return execute(new InsertTransaction<T>(object));
 		}

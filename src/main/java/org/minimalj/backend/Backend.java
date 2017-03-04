@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
@@ -132,6 +133,10 @@ public class Backend {
 		return execute(new ReadCriteriaTransaction<T>(clazz, query));
 	}
 
+	public static <T> long count (Class<T> clazz, Query query) {
+		return execute(new CountTransaction<T>(clazz, query));
+	}
+	
 	public static <T> Object insert(T object) {
 		return execute(new InsertTransaction<T>(object));
 	}

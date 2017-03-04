@@ -53,6 +53,8 @@ public interface Repository {
 
 	// spring: find
 	public <T> List<T> find(Class<T> clazz, Query query);
+	
+	public <T> long count(Class<T> clazz, Query query);
 
 	public <T> Object insert(T object);
 
