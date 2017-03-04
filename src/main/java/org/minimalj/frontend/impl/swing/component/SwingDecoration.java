@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.Serializable;
 
 import javax.swing.BorderFactory;
@@ -17,6 +20,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+
+import org.minimalj.frontend.page.Parts;
 
 public class SwingDecoration extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -28,6 +33,7 @@ public class SwingDecoration extends JPanel {
 	private final ActionListener closeListener;
 	
 	private JLabel titleLabel;
+	private JPanel partNumbersComponent;
 	
 	public SwingDecoration(String title, Component content, boolean minimize, ActionListener closeListener) {
 		super(new BorderLayout());
@@ -59,6 +65,12 @@ public class SwingDecoration extends JPanel {
 
 			
 		bar.add(Box.createHorizontalGlue());
+
+		partNumbersComponent = new JPanel();
+		partNumbersComponent.setOpaque(false);
+		partNumbersComponent.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 10));
+		partNumbersComponent.setLayout(new FlowLayout());
+		bar.add(partNumbersComponent);
 		
 		if (minimize) {
 			JButton button = new JButton();
@@ -103,7 +115,30 @@ public class SwingDecoration extends JPanel {
 		}
 	}
 	
+	public void setParts(Parts parts) {
+		if (parts != null) {
+			partNumbersComponent.setVisible(true);
+			updatePartNumbers(parts);
+		} else {
+			partNumbersComponent.setVisible(false);
+		}
+	}
 	
+	private void updatePartNumbers(Parts parts) {
+		for (int i = 0; i < 4 && i < parts.getPartCount(); i++) {
+			JLabel label = new JLabel(String.valueOf(i + 1));
+			final int j = i;
+			label.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					parts.setCurrentPart(j);
+					updatePartNumbers(parts);
+				}
+			});
+			partNumbersComponent.add(label);
+		}
+	}
+
 	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, WP_MAXBUTTON, WP_RESTOREBUTTON };
 
 	private static class FrameButtonIcon implements Icon, Serializable {

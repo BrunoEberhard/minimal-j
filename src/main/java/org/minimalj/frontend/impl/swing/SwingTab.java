@@ -44,6 +44,7 @@ import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.frontend.page.Parts;
 import org.minimalj.frontend.page.ProgressListener;
 
 public class SwingTab extends EditablePanel implements PageManager {
@@ -389,6 +390,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 		content.putClientProperty("page", page);
 
 		SwingDecoration newPage = new SwingDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
+		if (page instanceof Parts) {
+			newPage.setParts((Parts) page);
+		}
 		verticalPanel.add(newPage, "");
 		verticalPanel.revalidate();
 

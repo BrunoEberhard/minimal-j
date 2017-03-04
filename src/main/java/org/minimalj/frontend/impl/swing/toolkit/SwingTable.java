@@ -16,8 +16,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterEvent.Type;
+import javax.swing.event.RowSorterListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -66,8 +71,9 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		table.addMouseListener(new SwingTableMouseListener());
 		table.getSelectionModel().addListSelectionListener(new SwingTableSelectionListener());
+        table.getRowSorter().addRowSorterListener(new SwingTableRowSortingListener());
 	}
-
+	
 	private List<PropertyInterface> convert(Object[] keys) {
 		List<PropertyInterface> properties = new ArrayList<PropertyInterface>(keys.length);
 		for (Object key : keys) {
@@ -130,6 +136,25 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 	
+	private class SwingTableRowSortingListener implements RowSorterListener {
+        @Override
+        public void sorterChanged(RowSorterEvent e) {
+        	if (e.getType() == Type.SORT_ORDER_CHANGED) {
+        		@SuppressWarnings("unchecked")
+				List<SortKey> sortKeys = e.getSource().getSortKeys();
+        		Object[] keys = new Object[sortKeys.size()];
+        		boolean[] directions = new boolean[sortKeys.size()];
+        		int index = 0;
+        		for (SortKey s : sortKeys) {
+        			keys[index] = SwingTable.this.keys[s.getColumn()];
+        			directions[index] = s.getSortOrder() == SortOrder.ASCENDING;
+        			index++;
+        		}
+        		listener.sortingChanged(keys, directions);
+        	}
+        }
+    }
+    
 	public class ItemTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
