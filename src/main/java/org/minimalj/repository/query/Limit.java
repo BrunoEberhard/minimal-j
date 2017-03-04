@@ -8,10 +8,10 @@ public class Limit implements Query {
 	private final int rows;
 	
 	public Limit(Query query, int rows) {
-		this(query, rows, null);
+		this(query, null, rows);
 	}
 	
-	public Limit(Query query, int rows, Integer offset) {
+	public Limit(Query query, Integer offset, int rows) {
 		this.query = query;
 		this.offset = offset;
 		this.rows = rows;

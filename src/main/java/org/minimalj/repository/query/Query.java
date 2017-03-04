@@ -23,7 +23,7 @@ public interface Query extends Serializable {
 			return new Limit(this, rows);
 		}
 
-		public default Query limit(int offset, Integer rows) {
+		public default Query limit(Integer offset, int rows) {
 			return new Limit(this, offset, rows);
 		}
 	}
