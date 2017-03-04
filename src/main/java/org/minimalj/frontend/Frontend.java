@@ -148,6 +148,9 @@ public abstract class Frontend {
 		
 		public default void action(U selectedObject) {
 		}
+		
+		public default void sortingChanged(Object[] keys, boolean[] ascending) {
+		}
 	}
 	
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);

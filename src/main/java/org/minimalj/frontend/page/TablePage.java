@@ -76,14 +76,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		return table;
 	}
 	
-	public int getResultCount() {
-		if (objects == null) {
-			objects = load();
-			reloadFlag = false;
-		}
-		return objects.size();
-	}
-	
 	public void refresh() {
 		if (table != null) {
 			objects = load();
