@@ -7,10 +7,10 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.model.Project;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.page.SearchPage.SimpleSearchPage;
+import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.repository.query.By;
 
-public class ProjectSearchPage extends SimpleSearchPage<Project> {
+public class ProjectSearchPage extends SearchPage<Project> {
 
 	private static final Object[] keys = {$.matchcode, $.address.city, $.startDate};
 	
@@ -19,8 +19,8 @@ public class ProjectSearchPage extends SimpleSearchPage<Project> {
 	}
 
 	@Override
-	protected List<Project> load(String query) {
-		return Backend.find(Project.class, By.search(query).limit(100));
+	protected List<Project> load(String query, Object[] sortKey, boolean[] sortDirection, int offset, int rows) {
+		return Backend.find(Project.class, By.search(query).limit(offset, rows));
 	}
 
 	@Override
