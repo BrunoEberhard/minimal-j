@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -68,8 +69,8 @@ public class SwingDecoration extends JPanel {
 
 		partNumbersComponent = new JPanel();
 		partNumbersComponent.setOpaque(false);
-		partNumbersComponent.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 10));
-		partNumbersComponent.setLayout(new FlowLayout());
+		partNumbersComponent.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+		partNumbersComponent.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		bar.add(partNumbersComponent);
 		
 		if (minimize) {
@@ -125,8 +126,14 @@ public class SwingDecoration extends JPanel {
 	}
 	
 	private void updatePartNumbers(Parts parts) {
-		for (int i = 0; i < 4 && i < parts.getPartCount(); i++) {
+		partNumbersComponent.removeAll();
+		int start = Math.max(0, Math.min(parts.getCurrentPart() - 1, parts.getPartCount() - 3));
+		int end = Math.min(parts.getPartCount() - 1, parts.getCurrentPart() + 3);
+		for (int i = start; i < end; i++) {
 			JLabel label = new JLabel(String.valueOf(i + 1));
+			if (parts.getCurrentPart() == i) {
+				label.setFont(label.getFont().deriveFont(Font.BOLD));
+			}
 			final int j = i;
 			label.addMouseListener(new MouseAdapter() {
 				@Override
@@ -137,6 +144,7 @@ public class SwingDecoration extends JPanel {
 			});
 			partNumbersComponent.add(label);
 		}
+		partNumbersComponent.revalidate();
 	}
 
 	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, WP_MAXBUTTON, WP_RESTOREBUTTON };
