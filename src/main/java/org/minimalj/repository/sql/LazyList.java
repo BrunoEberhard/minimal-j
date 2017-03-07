@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.List;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.repository.Repository;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.IdUtils;
@@ -28,16 +29,6 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		this.elementClass = new ClassHolder<>(elementClass);
 	}
 	
-	public void setRepository(Repository repository) {
-		this.repository = repository;
-	}
-	
-	private void checkRepository() {
-		if (repository == null) {
-			throw new IllegalStateException();
-		}
-	}
-	
 	public Class<ELEMENT> getElementClass() {
 		return elementClass.getClazz();
 	}
@@ -54,10 +45,13 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 		return list != null;
 	}
 	
+	private Repository getRepository() {
+		return repository != null ? repository : Backend.getInstance().getRepository();
+	}
+
 	public List<ELEMENT> getList() {
 		if (!isLoaded()) {
-			checkRepository();
-			list = repository.getList(this);
+			list = getRepository().getList(this);
 		}
 		return list;
 	}

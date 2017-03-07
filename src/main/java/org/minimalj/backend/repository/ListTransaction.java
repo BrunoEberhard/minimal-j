@@ -28,8 +28,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends EntityTra
 
 		@Override
 		public List<ELEMENT> execute(Repository repository) {
-			lazyList.setRepository(repository);
-			return lazyList.getList();
+			return repository.getList(lazyList);
 		}
 	}
 	
@@ -44,8 +43,7 @@ public abstract class ListTransaction<PARENT, ELEMENT, RETURN> extends EntityTra
 
 		@Override
 		public ELEMENT execute(Repository repository) {
-			lazyList.setRepository(repository);
-			return lazyList.get(position);
+			return repository.getList(lazyList).get(position);
 		}
 	}
 
