@@ -327,8 +327,13 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	// TODO merge count / read
 	public long count(Query query) {
+		if (query instanceof Limit) {
+			query = ((Limit) query).getQuery();
+		}
+		while (query instanceof Order) {
+			query = ((Order) query).getQuery();
+		}
 		List<Object> whereClause = whereClause(query);
 		String queryString = "SELECT COUNT(*) FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
