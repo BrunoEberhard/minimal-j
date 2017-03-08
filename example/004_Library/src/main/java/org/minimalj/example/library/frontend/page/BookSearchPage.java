@@ -27,8 +27,8 @@ public class BookSearchPage extends SearchPage<Book> {
 	}
 	
 	@Override
-	protected List<Book> load(String query, Object[] sortKey, boolean[] sortDirection, int offset, int rows) {
-		return Backend.find(Book.class, By.search(query).limit(offset, rows));
+	protected List<Book> load(String query) {
+		return Backend.find(Book.class, By.search(query));
 	}
 
 	@Override

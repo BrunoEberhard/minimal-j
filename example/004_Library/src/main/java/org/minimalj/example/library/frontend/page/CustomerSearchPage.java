@@ -24,8 +24,8 @@ public class CustomerSearchPage extends SearchPage<Customer> {
 	}
 	
 	@Override
-	protected List<Customer> load(String query, Object[] sortKey, boolean[] sortDirection, int offset, int rows) {
-		return Backend.find(Customer.class, By.search(query).limit(offset, rows));
+	protected List<Customer> load(String query) {
+		return Backend.find(Customer.class, By.search(query));
 	}
 
 	@Override

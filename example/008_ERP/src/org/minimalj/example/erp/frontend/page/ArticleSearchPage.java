@@ -24,8 +24,8 @@ public class ArticleSearchPage extends SearchPage<Article> {
 	}
 	
 	@Override
-	protected List<Article> load(String query, Object[] sortKey, boolean[] sortDirection, int offset, int rows) {
-		return Backend.find(Article.class, By.search(query).limit(offset, rows));
+	protected List<Article> load(String query) {
+		return Backend.find(Article.class, By.search(query));
 	}
 
 	@Override

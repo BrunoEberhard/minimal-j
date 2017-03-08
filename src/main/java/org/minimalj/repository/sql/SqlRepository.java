@@ -40,8 +40,11 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.TransactionalRepository;
+import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Query;
+import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -50,6 +53,7 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
+import org.minimalj.util.QueryResultList;
 import org.minimalj.util.StringUtils;
 
 /**
@@ -245,13 +249,17 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
-		if (View.class.isAssignableFrom(resultClass)) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
-			Table<?> table = getTable(viewedClass);
-			return table.readView(resultClass, query);
+		if (query instanceof Limit || query instanceof AllCriteria) {
+			if (View.class.isAssignableFrom(resultClass)) {
+				Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
+				Table<?> table = getTable(viewedClass);
+				return table.readView(resultClass, query);
+			} else {
+				Table<T> table = getTable(resultClass);
+				return table.read(query);
+			}
 		} else {
-			Table<T> table = getTable(resultClass);
-			return table.read(query);
+			return new QueryResultList<>(this, resultClass, (QueryLimitable) query);
 		}
 	}
 	

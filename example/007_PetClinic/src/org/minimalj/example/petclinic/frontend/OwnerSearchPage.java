@@ -17,8 +17,8 @@ public class OwnerSearchPage extends SearchPage<Owner> {
 	}
 
 	@Override
-	protected List<Owner> load(String query, Object[] sortKey, boolean[] sortDirection, int offset, int rows) {
-		return Backend.find(Owner.class, By.search(query).limit(offset, rows));
+	protected List<Owner> load(String query) {
+		return Backend.find(Owner.class, By.search(query));
 	}
 
 	@Override

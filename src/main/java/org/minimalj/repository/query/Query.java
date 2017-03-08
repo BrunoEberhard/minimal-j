@@ -28,7 +28,7 @@ public interface Query extends Serializable {
 		}
 	}
 	
-	public interface QueryOrderable extends Query {
+	public interface QueryOrderable extends QueryLimitable {
 		
 		public default Order order(Object key) {
 			return order(key, true);

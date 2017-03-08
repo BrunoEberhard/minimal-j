@@ -17,8 +17,8 @@ public class VetSearchPage extends SearchPage<Vet> {
 	}
 
 	@Override
-	protected List<Vet> load(String query, Object[] sortKey, boolean[] sortDirection, int offset, int rows) {
-		return Backend.find(Vet.class, By.search(query).limit(offset, rows));
+	protected List<Vet> load(String query) {
+		return Backend.find(Vet.class, By.search(query));
 	}
 
 	@Override

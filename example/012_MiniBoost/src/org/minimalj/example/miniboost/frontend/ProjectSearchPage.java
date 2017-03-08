@@ -19,8 +19,8 @@ public class ProjectSearchPage extends SearchPage<Project> {
 	}
 
 	@Override
-	protected List<Project> load(String query, Object[] sortKey, boolean[] sortDirection, int offset, int rows) {
-		return Backend.find(Project.class, By.search(query).limit(offset, rows));
+	protected List<Project> load(String query) {
+		return Backend.find(Project.class, By.search(query));
 	}
 
 	@Override

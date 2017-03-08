@@ -6,17 +6,17 @@ import org.minimalj.repository.query.Query.QueryOrderable;
 public class Order implements QueryLimitable, QueryOrderable {
 	private static final long serialVersionUID = 1L;
 
-	private final Query query;
+	private final QueryLimitable query;
 	private final String path;
 	private final boolean ascending;
 	
-	public Order(Query query, String path, boolean ascending) {
+	public Order(QueryLimitable query, String path, boolean ascending) {
 		this.query = query;
 		this.path = path;
 		this.ascending = ascending;
 	}
 	
-	public Query getQuery() {
+	public QueryLimitable getQuery() {
 		return query;
 	}
 	
