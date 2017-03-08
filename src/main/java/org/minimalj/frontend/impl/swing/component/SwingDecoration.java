@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.Serializable;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -74,12 +73,7 @@ public class SwingDecoration extends JPanel {
 		bar.add(partNumbersComponent);
 		
 		if (minimize) {
-			JButton button = new JButton();
-			button.setFocusPainted(false);
-			button.setMargin(new Insets(0,0,0,0));
-			button.setIcon(new FrameButtonIcon(Part.WP_MINBUTTON));
-			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+			JButton button = createDecorationButton(Part.WP_MINBUTTON);
 			bar.add(button);
 			
 			button.addActionListener(new ActionListener() {
@@ -93,12 +87,7 @@ public class SwingDecoration extends JPanel {
 		}
 		
 		if (closeListener != null) {
-			JButton button = new JButton();
-			button.setFocusPainted(false);
-			button.setMargin(new Insets(0, 0, 0, 0));
-			button.setIcon(new FrameButtonIcon(Part.WP_CLOSEBUTTON));
-			button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
-			button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+			JButton button = createDecorationButton(Part.WP_CLOSEBUTTON);
 			bar.add(button);
 			button.addActionListener(closeListener);
 		}
@@ -106,6 +95,15 @@ public class SwingDecoration extends JPanel {
 		bar.setPreferredSize(bar.getMinimumSize());
 		
 		return bar;
+	}
+	
+	public static JButton createDecorationButton(Part part) {
+		JButton button = new JButton(new DecorationButtonIcon(part));
+		button.setFocusPainted(false);
+		button.setMargin(new Insets(0, 0, 0, 0));
+		button.setMaximumSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+		button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
+		return button;
 	}
 	
 	public void minimize() {
@@ -147,13 +145,13 @@ public class SwingDecoration extends JPanel {
 		partNumbersComponent.revalidate();
 	}
 
-	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, WP_MAXBUTTON, WP_RESTOREBUTTON };
+	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, WP_MAXBUTTON, WP_RESTOREBUTTON, PREV, NEXT };
 
-	private static class FrameButtonIcon implements Icon, Serializable {
+	public static class DecorationButtonIcon implements Icon {
 
         private Part part;
 
-        private FrameButtonIcon(Part part) {
+        public DecorationButtonIcon(Part part) {
             this.part = part;
         }
 
@@ -170,8 +168,11 @@ public class SwingDecoration extends JPanel {
                 int w = width * 3/4 -3;
                 int thickness2 = Math.max(height / 8, 2);
                 int thickness  = Math.max(width / 15, 1);
-                if (part == Part.WP_CLOSEBUTTON) {
-                    int lineWidth;
+                if (part == Part.WP_CLOSEBUTTON || part == Part.NEXT || part == Part.PREV) {
+                	int leftDiv = (part == Part.WP_CLOSEBUTTON || part == Part.NEXT) ? 1 : 2;
+                	int rightDiv = (part == Part.WP_CLOSEBUTTON || part == Part.PREV) ? 1 : 2;
+                	
+                	int lineWidth;
                     if      (width > 47) lineWidth = 6;
                     else if (width > 37) lineWidth = 5;
                     else if (width > 26) lineWidth = 4;
@@ -181,7 +182,7 @@ public class SwingDecoration extends JPanel {
                     y = height / 12 + 3;
                     if (lineWidth == 1) {
                         if (w % 2 == 1) { x++; w++; }
-                        g.drawLine(x,     y, x+w-2, y+w-2);
+                        g.drawLine(x,     y, x+w-2, y+w/rightDiv-2);
                         g.drawLine(x+w-2, y, x,     y+w-2);
                     } else if (lineWidth == 2) {
                         if (w > 6) { x++; w--; }
