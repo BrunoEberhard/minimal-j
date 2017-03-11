@@ -108,25 +108,6 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 			throw new LoggingRuntimeException(x, sqlLogger, "readAll failed");
 		}
 	}
-
-	public List<ELEMENT> read(Object parentId, int index, int maxResults) throws SQLException {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, parentId);
-			List<ELEMENT> result = new ArrayList<>();
-			Table<ELEMENT> table = sqlRepository.getTable(clazz);
-			try (ResultSet resultSet = selectByIdStatement.executeQuery()) {
-				while (resultSet.next() && index > 0) {
-					index = index - 1;
-				}
-				while (resultSet.next() && maxResults > 0) {
-					Object elementid = resultSet.getObject(1);
-					result.add(table.read(elementid));
-					maxResults = maxResults - 1;
-				}
-			}
-			return result;
-		}
-	}
 	
 	// Queries
 	
