@@ -250,14 +250,14 @@ public class SqlRepository implements TransactionalRepository {
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (query instanceof Limit || query instanceof AllCriteria) {
+			Table<T> table;
 			if (View.class.isAssignableFrom(resultClass)) {
 				Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
-				Table<?> table = getTable(viewedClass);
-				return table.readView(resultClass, query);
+				table = (Table<T>) getTable(viewedClass);
 			} else {
-				Table<T> table = getTable(resultClass);
-				return table.read(query);
+				table = getTable(resultClass);
 			}
+			return table.find(query, resultClass);
 		} else {
 			return new QueryResultList<>(this, resultClass, (QueryLimitable) query);
 		}
@@ -322,12 +322,6 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
-	@Override
-	public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list) {
-		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(list.getListName());
-		return subTable.readAll(list.getParentId());
-	}
-	
 	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {
