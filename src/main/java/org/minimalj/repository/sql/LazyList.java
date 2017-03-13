@@ -19,7 +19,7 @@ public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements 
 	public LazyList(Repository repository, Class<ELEMENT> elementClass, PARENT parent, String crossName) {
 		Object parentId = IdUtils.getId(parent);
 		
-		list = repository.find(elementClass, new RelationCriteria(parent.getClass(), crossName, parentId));
+		list = repository.find(elementClass, new RelationCriteria(crossName, parentId));
 		size = list.size();
 	}
 	
