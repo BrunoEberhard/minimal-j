@@ -4,6 +4,7 @@ Every release contains many small fixes.
 
 === 1.5.0.0
 * Redesign / refactoring of queries (repository)
+* Extendable search tables
 
 === 1.4.0.0
 * Repository: removed active 'push' of changes on lazy lists
