@@ -271,7 +271,7 @@ public class Table<T> extends AbstractTable<T> {
 				// this is only done to avoid SQL Injection
 				throw new IllegalArgumentException("Invalid cross name: " + crossTableName);
 			}
-			String clause = "T.id = C.elementId AND C.id = ?";
+			String clause = "T.id = C.elementId AND C.id = ? ORDER BY C.position";
 			result.add(clause);
 			result.add(relationCriteria.getRelatedId());
 		} else if (query instanceof Limit) {
