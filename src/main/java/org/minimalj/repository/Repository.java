@@ -45,12 +45,10 @@ public interface Repository {
 		}
 	}
 	
-	// object handling
+	// 
 	
-	// spring: findOne
 	public <T> T read(Class<T> clazz, Object id);
 
-	// spring: find
 	public <T> List<T> find(Class<T> clazz, Query query);
 	
 	public <T> long count(Class<T> clazz, Query query);
