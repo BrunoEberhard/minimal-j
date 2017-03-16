@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -341,18 +342,17 @@ public class Table<T> extends AbstractTable<T> {
 	
 	public long count(Query query) {
 		query = getCriteria(query);
+		String tableName;
+		List<Object> whereClause;
 		if (query instanceof RelationCriteria) {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
-			String queryString = "SELECT COUNT(*) FROM " + relationCriteria.getCrossName() + " WHERE id = ?";
-			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
-				statement.setObject(1, relationCriteria.getRelatedId());
-				return executeSelectCount(statement);
-			} catch (SQLException e) {
-				throw new LoggingRuntimeException(e, sqlLogger, "count failed");
-			}
+			tableName = relationCriteria.getCrossName();
+			whereClause = Arrays.asList("id = ?", relationCriteria.getRelatedId());
+		} else {
+			tableName = getTableName();
+			whereClause = whereClause(query);
 		}
-		List<Object> whereClause = whereClause(query);
-		String queryString = "SELECT COUNT(*) FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
+		String queryString = "SELECT COUNT(*) FROM " + tableName + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				sqlRepository.getSqlDialect().setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
