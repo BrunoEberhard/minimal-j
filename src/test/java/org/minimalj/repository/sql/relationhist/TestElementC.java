@@ -1,4 +1,4 @@
-package org.minimalj.repository.sql.lazylist;
+package org.minimalj.repository.sql.relationhist;
 
 import org.minimalj.model.annotation.Size;
 

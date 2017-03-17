@@ -1,4 +1,6 @@
-package org.minimalj.repository.query;
+package org.minimalj.repository.list;
+
+import org.minimalj.repository.query.Criteria;
 
 public class RelationCriteria extends Criteria {
 

@@ -1,4 +1,4 @@
-package org.minimalj.util;
+package org.minimalj.repository.list;
 
 import java.io.Serializable;
 import java.util.AbstractList;
@@ -11,6 +11,8 @@ import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
+import org.minimalj.util.ClassHolder;
+import org.minimalj.util.Sortable;
 
 public class QueryResultList<T> extends AbstractList<T> implements Sortable, Serializable {
 	private static final long serialVersionUID = 1L;

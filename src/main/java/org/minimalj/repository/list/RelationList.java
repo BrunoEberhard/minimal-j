@@ -1,4 +1,4 @@
-package org.minimalj.repository.sql;
+package org.minimalj.repository.list;
 
 import java.io.Serializable;
 import java.util.AbstractList;
@@ -6,17 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.repository.Repository;
-import org.minimalj.repository.query.RelationCriteria;
 import org.minimalj.util.IdUtils;
-import org.minimalj.util.QueryResultList;
 
-public class LazyList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements Serializable {
+public class RelationList<PARENT, ELEMENT> extends AbstractList<ELEMENT> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private transient List<ELEMENT> list;
 	private int size;
 	
-	public LazyList(Repository repository, Class<ELEMENT> elementClass, PARENT parent, String crossName) {
+	public RelationList(Repository repository, Class<ELEMENT> elementClass, PARENT parent, String crossName) {
 		Object parentId = IdUtils.getId(parent);
 		
 		list = repository.find(elementClass, new RelationCriteria(crossName, parentId));

@@ -9,6 +9,7 @@ import java.util.List;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.list.RelationList;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -89,7 +90,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent) {
-		return new LazyList<PARENT, ELEMENT>(sqlRepository, getClazz(), parent, name);
+		return new RelationList<PARENT, ELEMENT>(sqlRepository, getClazz(), parent, name);
 	}
 	
 	public List<ELEMENT> readAll(Object parentId) {

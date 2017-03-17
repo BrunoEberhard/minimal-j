@@ -40,6 +40,7 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.TransactionalRepository;
+import org.minimalj.repository.list.QueryResultList;
 import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Limit;
@@ -53,7 +54,6 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.QueryResultList;
 import org.minimalj.util.StringUtils;
 
 /**
