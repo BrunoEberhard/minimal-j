@@ -176,7 +176,7 @@ public abstract class Application {
 	}
 	
 	/**
-	 * If more than one class of entities should be search have a look at
+	 * If more than one class of entities should be searched have a look at
 	 * SearchPage.handle(SearchPage...)
 	 * 
 	 * @param query the string the user entered in the search field

@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 
 public class SqlReadTest {
 	
@@ -51,13 +51,13 @@ public class SqlReadTest {
 		h.g = g;
 		repository.insert(h);
 		
-		List<H> hList = repository.getTable(H.class).read(By.field(H.$.g, g), 3);
+		List<H> hList = repository.find(H.class, By.field(H.$.g, g).limit(3));
 		Assert.assertEquals("Read by reference", 2, hList.size());
 
-		hList = repository.getTable(H.class).read(By.field(H.$.g.id, g.id), 3);
+		hList = repository.find(H.class, By.field(H.$.g.id, g.id).limit(3));
 		Assert.assertEquals("Read by references id", 2, hList.size());
 
-		hList = repository.getTable(H.class).read(By.field(H.$.g.g, "g2"), 3);
+		hList = repository.find(H.class, By.field(H.$.g.g, "g2").limit(3));
 		Assert.assertEquals("Read by references field", 2, hList.size());
 	}
 
@@ -75,7 +75,7 @@ public class SqlReadTest {
 		h.i.rG = g;
 		repository.insert(h);
 		
-		List<H> hList = repository.getTable(H.class).read(By.field(H.$.i.rG, g), 3);
+		List<H> hList = repository.find(H.class, By.field(H.$.i.rG, g).limit(3));
 		
 		Assert.assertEquals(2, hList.size());
 	}

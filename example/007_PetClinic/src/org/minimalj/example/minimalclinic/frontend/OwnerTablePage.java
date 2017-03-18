@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.minimalclinic.model.Owner;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 
 public class OwnerTablePage extends TablePage.TablePageWithDetail<Owner, OwnerPage> {
 
@@ -17,7 +17,7 @@ public class OwnerTablePage extends TablePage.TablePageWithDetail<Owner, OwnerPa
 
 	@Override
 	protected List<Owner> load() {
-		return Backend.read(Owner.class, By.all(), 100);
+		return Backend.find(Owner.class, By.all());
 	}
 
 	@Override

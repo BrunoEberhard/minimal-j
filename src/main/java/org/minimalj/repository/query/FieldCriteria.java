@@ -1,4 +1,4 @@
-package org.minimalj.repository.criteria;
+package org.minimalj.repository.query;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -54,11 +54,6 @@ public class FieldCriteria extends Criteria implements Serializable {
 		}
 	}
 	
-	@Override
-	public int getLevel() {
-		return 0;
-	}
-	
 	public FieldOperator getOperator() {
 		return operator;
 	}
@@ -71,7 +66,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		return value;
 	}
 
-	public Criteria negate() {
+	public Query negate() {
 		return new FieldCriteria(path, operator.negate(), value);
 	}
 }

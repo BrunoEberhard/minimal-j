@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.minimalj.repository.sql.LazyList;
+import org.minimalj.repository.list.RelationList;
 
 public class CloneHelper {
 
@@ -69,8 +69,8 @@ public class CloneHelper {
 			if (fromValue instanceof List) {
 				List fromList = (List)fromValue;
 				List toList = (List)toValue;
-				if (fromList instanceof LazyList) {
-					// LazyList doesn't need to be cloned
+				if (fromList instanceof RelationList) {
+					// RelationList doesn't need to be cloned
 					field.set(to, fromList);
 				} else if (fromList != null) {
 					if (FieldUtils.isFinal(field)) {

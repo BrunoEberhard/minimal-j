@@ -155,6 +155,15 @@ $ICON
 			var id = dataObject.loadSuggestions;
 			createSuggestions(id, dataObject.suggestions);
 		}
+		if (dataObject.tableExtendContent != undefined) {
+			var table = document.getElementById(dataObject.tableId);
+			var button = table.getElementsByTagName("button")[0];
+			table.removeChild(button);
+			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
+			if (dataObject.extendable) {
+				table.appendChild(button);			
+			}
+		}
 		
 		var block = document.getElementById('block');
 		block.classList.remove("is-blocked"); 
@@ -384,6 +393,14 @@ $ICON
 			}
 			element.appendChild(createTableHeaders(content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
+			
+			if (content.extendable) {
+				var button = document.createElement("button");
+				button.appendChild(document.createTextNode(">"));
+				button.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
+				button.setAttribute("style", "width: 10em");
+				element.appendChild(button);
+			}
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
 			element = document.createElement("div");
 			element.classList.add(type);
@@ -758,6 +775,7 @@ $ICON
 			changedValue[source.id] = source.value.split("");		
 		} else {
 			changedValue[source.id] = source.value;
+			source.valueOnBlur = undefined;
 		}
 		data.changedValue = changedValue;
 		if (saveAction != undefined) {
@@ -852,6 +870,11 @@ $ICON
 		
 		var tableAction = {"table" : tableId, "row" : row};
 		var data = {"tableAction" : tableAction};
+		send(data, true);
+	}
+	
+	function tableExtendContent(tableId) {
+		var data = {"tableExtendContent" : tableId};
 		send(data, true);
 	}
 	

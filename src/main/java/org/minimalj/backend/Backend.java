@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
@@ -13,7 +14,7 @@ import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
-import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
@@ -128,10 +129,14 @@ public class Backend {
 		return execute(new ReadEntityTransaction<T>(clazz, id, null));
 	}
 
-	public static <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-		return execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+	public static <T> List<T> find(Class<T> clazz, Query query) {
+		return execute(new ReadCriteriaTransaction<T>(clazz, query));
 	}
 
+	public static <T> long count (Class<T> clazz, Query query) {
+		return execute(new CountTransaction<T>(clazz, query));
+	}
+	
 	public static <T> Object insert(T object) {
 		return execute(new InsertTransaction<T>(object));
 	}

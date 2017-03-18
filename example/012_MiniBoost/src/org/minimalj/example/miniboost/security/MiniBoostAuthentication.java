@@ -5,7 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.model.Role;
 import org.minimalj.example.miniboost.model.User;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 import org.minimalj.security.UserPasswordAuthentication;
 import org.minimalj.security.model.UserRole;
 import org.minimalj.util.CloneHelper;
@@ -15,7 +15,7 @@ public class MiniBoostAuthentication extends UserPasswordAuthentication {
 
 	@Override
 	protected org.minimalj.security.model.User retrieveUser(String userName) {
-		List<User> userList = Backend.read(User.class, By.field(User.$.loginname, userName), 1);
+		List<User> userList = Backend.find(User.class, By.field(User.$.loginname, userName).limit(1));
 		if (userList.isEmpty()) {
 			return null;
 		} 

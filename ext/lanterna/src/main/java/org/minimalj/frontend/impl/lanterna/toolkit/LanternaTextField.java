@@ -44,6 +44,7 @@ public class LanternaTextField extends TextBox implements Input<String> {
 	}
 	
 	private void fireChangeEvent() {
+		textOnFocusLost = super.getText();
 		changeListener.changed(LanternaTextField.this);
 	}
 	

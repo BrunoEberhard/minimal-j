@@ -119,6 +119,14 @@ public class JsonPageManager implements PageManager, LoginListener {
 			table.selection(rows);
 		}
 		
+		String tableExtendContent = (String) input.getObject("tableExtendContent");
+		if (tableExtendContent != null) {
+			JsonTable<?> table = (JsonTable<?>) componentById.get(tableExtendContent);
+			output.add("tableId", tableExtendContent);
+			output.add("tableExtendContent", table.extendContent());
+			output.add("extendable", table.isExtendable());
+		}
+		
 		String search = (String) input.getObject("search");
 		if (search != null) {
 			Page searchPage = Application.getInstance().createSearchPage(search);

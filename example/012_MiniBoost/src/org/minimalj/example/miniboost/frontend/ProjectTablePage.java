@@ -9,7 +9,7 @@ import org.minimalj.example.miniboost.frontend.ProjectTablePage.ProjectCostTable
 import org.minimalj.example.miniboost.model.Project;
 import org.minimalj.example.miniboost.model.ProjectCost;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.repository.criteria.By; 
+import org.minimalj.repository.query.By; 
 
 public class ProjectTablePage extends TablePage.TablePageWithDetail<Project, ProjectCostTablePage> {
 
@@ -21,7 +21,7 @@ public class ProjectTablePage extends TablePage.TablePageWithDetail<Project, Pro
 
 	@Override
 	protected List<Project> load() {
-		return Backend.read(Project.class, By.all(), 100);
+		return Backend.find(Project.class, By.limit(100));
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class ProjectTablePage extends TablePage.TablePageWithDetail<Project, Pro
 		
 		@Override
 		protected List<ProjectCost> load() {
-			return Backend.read(ProjectCost.class, By.field(ProjectCost.$.project, project), Integer.MAX_VALUE);
+			return Backend.find(ProjectCost.class, By.field(ProjectCost.$.project, project));
 		}
 	}
 

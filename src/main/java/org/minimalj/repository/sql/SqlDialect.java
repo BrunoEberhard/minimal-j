@@ -166,6 +166,10 @@ public abstract class SqlDialect {
 		return s.toString();
 	}
 	
+	public String limit(int rows, Integer offset) {
+		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
+	}
+	
 	public static class MariaSqlDialect extends SqlDialect {
 		
 		@Override
@@ -197,6 +201,11 @@ public abstract class SqlDialect {
 		@Override
 		public int getMaxIdentifierLength() {
 			return 64;
+		}
+		
+		@Override
+		public String limit(int rows, Integer offset) {
+			return "LIMIT " + rows + (offset != null ? " OFFSET " + offset.toString() : "");
 		}
 	}
 	

@@ -9,6 +9,7 @@ import java.util.List;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.list.RelationList;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -89,7 +90,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent) {
-		return new LazyList<PARENT, ELEMENT>(sqlRepository, getClazz(), parent, getTableName());
+		return new RelationList<PARENT, ELEMENT>(sqlRepository, getClazz(), parent, name);
 	}
 	
 	public List<ELEMENT> readAll(Object parentId) {
@@ -106,25 +107,6 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 			return result;
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "readAll failed");
-		}
-	}
-
-	public List<ELEMENT> read(Object parentId, int index, int maxResults) throws SQLException {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, parentId);
-			List<ELEMENT> result = new ArrayList<>();
-			Table<ELEMENT> table = sqlRepository.getTable(clazz);
-			try (ResultSet resultSet = selectByIdStatement.executeQuery()) {
-				while (resultSet.next() && index > 0) {
-					index = index - 1;
-				}
-				while (resultSet.next() && maxResults > 0) {
-					Object elementid = resultSet.getObject(1);
-					result.add(table.read(elementid));
-					maxResults = maxResults - 1;
-				}
-			}
-			return result;
 		}
 	}
 	

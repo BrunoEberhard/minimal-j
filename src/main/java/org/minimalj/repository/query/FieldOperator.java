@@ -1,4 +1,4 @@
-package org.minimalj.repository.criteria;
+package org.minimalj.repository.query;
 
 public enum FieldOperator {
 	less("<"), greaterOrEqual(">="), lessOrEqual("<="), greater(">"), equal("="), notEqual("<>");

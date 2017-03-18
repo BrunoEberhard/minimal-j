@@ -25,7 +25,7 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.repository.criteria.FieldOperator;
+import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.GenericUtils;
@@ -170,7 +170,7 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	private String findColumn(String fieldPath) {
+	protected String findColumn(String fieldPath) {
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			if (entry.getValue().getPath().equals(fieldPath)) {
 				return entry.getKey();
@@ -258,6 +258,15 @@ public abstract class AbstractTable<T> {
 
 	// execution helpers
 
+	protected long executeSelectCount(PreparedStatement preparedStatement) {
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			resultSet.next();
+			return resultSet.getLong(1);
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
+		}
+	}
+	
 	protected T executeSelect(PreparedStatement preparedStatement) {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
@@ -283,14 +292,10 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) {
-		return executeSelectAll(preparedStatement, Long.MAX_VALUE);
-	}
-	
-	protected List<T> executeSelectAll(PreparedStatement preparedStatement, long maxResults) {
 		List<T> result = new ArrayList<T>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
-			while (resultSet.next() && result.size() < maxResults) {
+			while (resultSet.next()) {
 				T object = sqlRepository.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
 					((Table<T>) this).loadLists(object);

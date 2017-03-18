@@ -8,8 +8,7 @@ import javax.sql.DataSource;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.repository.criteria.Criteria;
-import org.minimalj.repository.sql.LazyList;
+import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.util.StringUtils;
 
@@ -46,20 +45,18 @@ public interface Repository {
 		}
 	}
 	
-	// object handling
+	// 
 	
 	public <T> T read(Class<T> clazz, Object id);
 
-	public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults);
+	public <T> List<T> find(Class<T> clazz, Query query);
+	
+	public <T> long count(Class<T> clazz, Query query);
 
 	public <T> Object insert(T object);
 
 	public <T> void update(T object);
 
 	public <T> void delete(Class<T> clazz, Object id);
-	
-	// lazy list handling
-	
-	public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list);
 
 }

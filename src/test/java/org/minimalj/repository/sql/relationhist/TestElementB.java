@@ -1,4 +1,4 @@
-package org.minimalj.repository.sql.lazylisthist;
+package org.minimalj.repository.sql.relationhist;
 
 import java.util.List;
 

@@ -12,8 +12,8 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.TablePage.TablePageWithDetail;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.criteria.Criteria;
-import org.minimalj.repository.criteria.SearchCriteria;
+import org.minimalj.repository.query.Criteria;
+import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
 
@@ -41,7 +41,7 @@ public class AccountTablePage extends TablePageWithDetail<Account, AccountPositi
 	
 	@Override
 	protected List<Account> load() {
-		List<Account> accounts = Backend.read(Account.class, accountFilter.getCriteria(), 100);
+		List<Account> accounts = Backend.find(Account.class, accountFilter.getQuery());
 		return accounts;
 	}
 
@@ -87,7 +87,7 @@ public class AccountTablePage extends TablePageWithDetail<Account, AccountPositi
 			return !StringUtils.isEmpty(description);
 		}
 		
-		public Criteria getCriteria() {
+		public Criteria getQuery() {
 			if (active()) {
 				return new SearchCriteria(description);
 			} else {

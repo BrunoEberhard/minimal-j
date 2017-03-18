@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,11 +18,15 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.repository.criteria.Criteria;
-import org.minimalj.repository.criteria.Criteria.AndCriteria;
-import org.minimalj.repository.criteria.Criteria.OrCriteria;
-import org.minimalj.repository.criteria.FieldCriteria;
-import org.minimalj.repository.criteria.SearchCriteria;
+import org.minimalj.repository.list.RelationCriteria;
+import org.minimalj.repository.query.AllCriteria;
+import org.minimalj.repository.query.Criteria.AndCriteria;
+import org.minimalj.repository.query.Criteria.OrCriteria;
+import org.minimalj.repository.query.FieldCriteria;
+import org.minimalj.repository.query.Limit;
+import org.minimalj.repository.query.Order;
+import org.minimalj.repository.query.Query;
+import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -219,16 +224,16 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 
-	public List<Object> whereClause(Criteria criteria) {
+	public List<Object> whereClause(Query query) {
 		List<Object> result;
-		if (criteria instanceof AndCriteria) {
-			AndCriteria andCriteria = (AndCriteria) criteria;
+		if (query instanceof AndCriteria) {
+			AndCriteria andCriteria = (AndCriteria) query;
 			result = combine(andCriteria.getCriterias(), "AND");
-		} else if (criteria instanceof OrCriteria) {
-			OrCriteria orCriteria = (OrCriteria) criteria;
+		} else if (query instanceof OrCriteria) {
+			OrCriteria orCriteria = (OrCriteria) query;
 			result = combine(orCriteria.getCriterias(), "OR");
-		} else if (criteria instanceof FieldCriteria) {
-			FieldCriteria fieldCriteria = (FieldCriteria) criteria;
+		} else if (query instanceof FieldCriteria) {
+			FieldCriteria fieldCriteria = (FieldCriteria) query;
 			result = new ArrayList<>();
 			Object value = fieldCriteria.getValue();
 			String term = whereStatement(fieldCriteria.getPath(), fieldCriteria.getOperator());
@@ -237,8 +242,8 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			result.add(term);
 			result.add(value);
-		} else if (criteria instanceof SearchCriteria) {
-			SearchCriteria searchCriteria = (SearchCriteria) criteria;
+		} else if (query instanceof SearchCriteria) {
+			SearchCriteria searchCriteria = (SearchCriteria) query;
 			result = new ArrayList<>();
 			String search = convertUserSearch(searchCriteria.getQuery());
 			String clause = "(";
@@ -259,15 +264,62 @@ public class Table<T> extends AbstractTable<T> {
 				clause += ")";
 			}
 			result.add(0, clause); // insert at beginning
-		} else if (criteria == null || criteria.getClass() == Criteria.class) {
+		} else if (query instanceof RelationCriteria) {
+			RelationCriteria relationCriteria = (RelationCriteria) query;
+			result = new ArrayList<>();
+			String crossTableName = relationCriteria.getCrossName();
+			if (!sqlRepository.getTableByName().containsKey(crossTableName)) {
+				// this is only done to avoid SQL Injection
+				throw new IllegalArgumentException("Invalid cross name: " + crossTableName);
+			}
+			String clause = "T.id = C.elementId AND C.id = ? ORDER BY C.position";
+			result.add(clause);
+			result.add(relationCriteria.getRelatedId());
+		} else if (query instanceof Limit) {
+			Limit limit = (Limit) query;
+			result = whereClause(limit.getQuery());
+			String s = (String) result.get(0);
+			s = s + " " + sqlRepository.getSqlDialect().limit(limit.getRows(), limit.getOffset());
+			result.set(0, s);
+		} else if (query instanceof Order) {
+			Order order = (Order) query;
+			List<Order> orders = new ArrayList<>();
+			orders.add(order);
+			while (order.getQuery() instanceof Order) {
+				order = (Order) order.getQuery();
+				orders.add(0, order);
+			}
+			result = whereClause(order.getQuery());
+			String s = (String) result.get(0);
+			s = s + " " + order(orders);
+			result.set(0, s);
+		} else if (query instanceof AllCriteria) {
+			result = new ArrayList<>(EMPTY_WHERE_CLAUSE);
+		} else if (query == null) {
 			result = EMPTY_WHERE_CLAUSE;
 		} else {
-			throw new IllegalArgumentException("Unknown criteria: " + criteria);
+			throw new IllegalArgumentException("Unknown criteria: " + query);
 		}
 		return result;
 	}
 	
-	private List<Object> combine(List<Criteria> criterias, String operator) {
+	private String order(List<Order> orders) {
+		StringBuilder s = new StringBuilder();
+		for (Order order : orders) {
+			if (s.length() == 0) {
+				s.append("ORDER BY ");
+			} else {
+				s.append(", ");
+			}
+			s.append(findColumn(order.getPath()));
+			if (!order.isAscending()) {
+				s.append(" DESC");
+			}
+		}
+		return s.toString();
+	}
+	
+	private List<Object> combine(List<? extends Query> criterias, String operator) {
 		if (criterias.isEmpty()) {
 			return null;
 		} else if (criterias.size() == 1) {
@@ -288,27 +340,48 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	public List<T> read(Criteria criteria, int maxResults) {
-		List<Object> whereClause = whereClause(criteria);
-		String query = "SELECT * FROM " + getTableName() + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
+	public long count(Query query) {
+		query = getCriteria(query);
+		String tableName;
+		List<Object> whereClause;
+		if (query instanceof RelationCriteria) {
+			RelationCriteria relationCriteria = (RelationCriteria) query;
+			tableName = relationCriteria.getCrossName();
+			whereClause = Arrays.asList("id = ?", relationCriteria.getRelatedId());
+		} else {
+			tableName = getTableName();
+			whereClause = whereClause(query);
+		}
+		String queryString = "SELECT COUNT(*) FROM " + tableName + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
 				sqlRepository.getSqlDialect().setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
-			return executeSelectAll(statement, maxResults);
+			return executeSelectCount(statement);
 		} catch (SQLException e) {
-			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+			throw new LoggingRuntimeException(e, sqlLogger, "count failed");
 		}
 	}
 
-	public <S> List<S> readView(Class<S> resultClass, Criteria criteria, int maxResults) {
-		List<Object> whereClause = whereClause(criteria);
-		String query = select(resultClass) + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
+	private Query getCriteria(Query query) {
+		if (query instanceof Limit) {
+			query = ((Limit) query).getQuery();
+		}
+		while (query instanceof Order) {
+			query = ((Order) query).getQuery();
+		}
+		return query;
+	}
+	
+	public <S> List<S> find(Query query, Class<S> resultClass) {
+		List<Object> whereClause = whereClause(query);
+		String select = getCriteria(query) instanceof RelationCriteria ? select(resultClass, (RelationCriteria) getCriteria(query)) : select(resultClass);
+		String queryString = select + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
 			for (int i = 1; i<whereClause.size(); i++) {
-				statement.setObject(i, whereClause.get(i));
+				sqlRepository.getSqlDialect().setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
 			}
-			return executeSelectViewAll(resultClass, statement, maxResults);
+			return resultClass == getClazz() ? (List<S>) executeSelectAll(statement) : executeSelectViewAll(resultClass, statement);
 		} catch (SQLException e) {
 			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}
@@ -325,21 +398,41 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	private String select(Class<?> resultClass) {
-		String querySql = "select ID";
-		Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
-		for (String column : propertiesByColumns.keySet()) {
-			querySql += ", ";
-			querySql += column;
+		String querySql = "SELECT ";
+		if (resultClass == getClazz()) {
+			querySql += "*";
+		} else {
+			querySql += "id";
+			Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
+			for (String column : propertiesByColumns.keySet()) {
+				querySql += ", "+ column;
+			}
 		}
-		querySql += " from " + getTableName();
+		querySql += " FROM " + getTableName();
 		return querySql;
 	}
 	
-	protected <S> List<S> executeSelectViewAll(Class<S> resultClass, PreparedStatement preparedStatement, long maxResults) throws SQLException {
+	private String select(Class<?> resultClass, RelationCriteria relationCriteria) {
+		String crossTableName = relationCriteria.getCrossName();
+		String querySql = "SELECT ";
+		if (resultClass == getClazz()) {
+			querySql += "T.*";
+		} else {
+			querySql += "T.id";
+			Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
+			for (String column : propertiesByColumns.keySet()) {
+				querySql += ", T." + column;
+			}
+		}
+		querySql += " FROM " + getTableName() + " T, " + crossTableName + " C";
+		return querySql;
+	}
+	
+	protected <S> List<S> executeSelectViewAll(Class<S> resultClass, PreparedStatement preparedStatement) throws SQLException {
 		List<S> result = new ArrayList<>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
-			while (resultSet.next() && result.size() < maxResults) {
+			while (resultSet.next()) {
 				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 				result.add(resultObject);
 

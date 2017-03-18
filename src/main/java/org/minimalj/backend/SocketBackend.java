@@ -9,16 +9,15 @@ import java.net.Socket;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
-import org.minimalj.backend.repository.ListTransaction.ReadAllElementsTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
-import org.minimalj.repository.criteria.Criteria;
-import org.minimalj.repository.sql.LazyList;
+import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
@@ -113,10 +112,14 @@ public class SocketBackend extends Backend {
 			return execute(new ReadEntityTransaction<T>(clazz, id, null));
 		}
 
-		public <T> List<T> read(Class<T> clazz, Criteria criteria, int maxResults) {
-			return execute(new ReadCriteriaTransaction<T>(clazz, criteria, maxResults));
+		public <T> List<T> find(Class<T> clazz, Query query) {
+			return execute(new ReadCriteriaTransaction<T>(clazz, query));
 		}
 
+		public <T> long count(Class<T> clazz, Query query) {
+			return execute(new CountTransaction<T>(clazz, query));
+		}
+		
 		public <T> Object insert(T object) {
 			return execute(new InsertTransaction<T>(object));
 		}
@@ -131,11 +134,6 @@ public class SocketBackend extends Backend {
 
 		public <T> void delete(Class<T> clazz, Object id) {
 			execute(new DeleteEntityTransaction<T>(clazz, id));
-		}
-
-		@Override
-		public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list) {
-			return execute(new ReadAllElementsTransaction<>(list));
 		}
 	}
 

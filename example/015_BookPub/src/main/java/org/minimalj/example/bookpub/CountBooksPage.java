@@ -5,13 +5,13 @@ import org.minimalj.example.bookpub.entity.Book;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 
 public class CountBooksPage extends Page {
 
 	@Override
 	public IContent getContent() {
-		return Frontend.getInstance().createHtmlContent("<html>Books: " + Backend.read(Book.class, By.all(), Integer.MAX_VALUE).size()+"</html>");
+		return Frontend.getInstance().createHtmlContent("<html>Books: " + Backend.find(Book.class, By.all()).size()+"</html>");
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.minimalj.repository.criteria;
+package org.minimalj.repository.query;
 
 import java.io.Serializable;
 
@@ -21,11 +21,6 @@ public class SearchCriteria extends Criteria implements Serializable {
 		this.keys = keys;
 		this.query = query;
 		this.notEqual = notEqual;
-	}
-	
-	@Override
-	public int getLevel() {
-		return 0;
 	}
 
 	public Object[] getKeys() {

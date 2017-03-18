@@ -13,7 +13,7 @@ import org.minimalj.frontend.page.DetailPageAction;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.model.Rendering.RenderType;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 import org.minimalj.util.resources.Resources;
 
 public class OwnerPage extends ObjectPage<Owner> {
@@ -94,7 +94,7 @@ public class OwnerPage extends ObjectPage<Owner> {
 
 		@Override
 		protected List<Pet> load() {
-			return Backend.read(Pet.class, By.field(Pet.$.owner, owner), Integer.MAX_VALUE);
+			return Backend.find(Pet.class, By.field(Pet.$.owner, owner));
 		}
 
 	}

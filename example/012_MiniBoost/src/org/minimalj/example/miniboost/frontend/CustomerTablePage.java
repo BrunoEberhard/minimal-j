@@ -1,13 +1,13 @@
 package org.minimalj.example.miniboost.frontend;
 
-import static org.minimalj.example.miniboost.model.Customer.*;
+import static org.minimalj.example.miniboost.model.Customer.$;
 
 import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.miniboost.model.Customer;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.repository.criteria.By; 
+import org.minimalj.repository.query.By; 
 
 public class CustomerTablePage extends TablePage<Customer> {
 
@@ -19,7 +19,7 @@ public class CustomerTablePage extends TablePage<Customer> {
 
 	@Override
 	protected List<Customer> load() {
-		return Backend.read(Customer.class, By.all(), 100);
+		return Backend.find(Customer.class, By.limit(100));
 	}
 
 }

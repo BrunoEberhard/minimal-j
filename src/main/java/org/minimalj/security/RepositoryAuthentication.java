@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.repository.Repository;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 import org.minimalj.security.model.User;
 
 /**
@@ -27,7 +27,7 @@ public class RepositoryAuthentication extends UserPasswordAuthentication {
 	}
 	
 	protected User retrieveUser(String userName) {
-		List<User> users =  authenticationRepository.read(User.class, By.field(User.$.name, userName), 1);
+		List<User> users =  authenticationRepository.find(User.class, By.field(User.$.name, userName));
 		return users.isEmpty() ? null : users.get(0);
 	}
 }

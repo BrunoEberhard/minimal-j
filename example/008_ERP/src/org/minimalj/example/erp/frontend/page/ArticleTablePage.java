@@ -6,7 +6,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Article;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
-import org.minimalj.repository.criteria.By;
+import org.minimalj.repository.query.By;
 
 
 public class ArticleTablePage extends SimpleTablePageWithDetail<Article> {
@@ -17,7 +17,7 @@ public class ArticleTablePage extends SimpleTablePageWithDetail<Article> {
 	
 	@Override
 	protected List<Article> load() {
-		return Backend.read(Article.class, By.all(), 100);
+		return Backend.find(Article.class, By.limit(100));
 	}
 
 	@Override

@@ -16,8 +16,8 @@ import org.minimalj.frontend.page.TablePage;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.criteria.By;
-import org.minimalj.repository.criteria.Criteria;
+import org.minimalj.repository.query.Criteria;
+import org.minimalj.repository.query.By;
 import org.minimalj.util.CloneHelper;
 
 public class AccountPositionTablePage extends TablePage<AccountPosition> {
@@ -37,7 +37,7 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 
 	@Override
 	protected List<AccountPosition> load() {
-		return Backend.read(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter.getCriteria()), 1000);
+		return Backend.find(AccountPosition.class, By.field(AccountPosition.$.account, account).and(filter.getCriteria()));
 	}
 
 	public void setAccount(Account account) {
@@ -90,22 +90,22 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 
 		/* first version (keep it for documentation)
 		@Override
-		public Criteria getCriteria() {
-			Criteria p = new Criteria();
+		public Query getQuery() {
+			Query p = new Query();
 			if (!StringUtils.isEmpty(description)) {
-				p = p.and(new SearchCriteria("*" + description + "*"));
+				p = p.and(new SearchQuery("*" + description + "*"));
 			}
 			if (minAmount != null) {
-				p = p.and(new FieldCriteria(AccountPosition.$.amount, FieldOperator.greaterOrEqual, minAmount));
+				p = p.and(new FieldQuery(AccountPosition.$.amount, FieldOperator.greaterOrEqual, minAmount));
 			}
 			if (maxAmount != null) {
-				p = p.and(new FieldCriteria(AccountPosition.$.amount, FieldOperator.lessOrEqual, maxAmount));
+				p = p.and(new FieldQuery(AccountPosition.$.amount, FieldOperator.lessOrEqual, maxAmount));
 			}
 			if (from != null) {
-				p = p.and(new FieldCriteria(AccountPosition.$.valueDate, FieldOperator.greaterOrEqual, from));
+				p = p.and(new FieldQuery(AccountPosition.$.valueDate, FieldOperator.greaterOrEqual, from));
 			}
 			if (to != null) {
-				p = p.and(new FieldCriteria(AccountPosition.$.valueDate, FieldOperator.lessOrEqual, to));
+				p = p.and(new FieldQuery(AccountPosition.$.valueDate, FieldOperator.lessOrEqual, to));
 			}
 			return p;
 		}
@@ -113,8 +113,8 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 		
 		/* second version (keep it for documentation)
 		@Override
-		public Criteria getCriteria() {
-			Criteria p = new Criteria();
+		public Query getQuery() {
+			Query p = new Query();
 			if (!StringUtils.isEmpty(description)) {
 				p = p.and(By.search("*" + description + "*"));
 			}
@@ -135,8 +135,7 @@ public class AccountPositionTablePage extends TablePage<AccountPosition> {
 		*/
 		
 		public Criteria getCriteria() {
-			Criteria p = new Criteria();
-			p = p.and(By.search(description));
+			Criteria p = By.search(description);
 			p = p.and(By.range(AccountPosition.$.amount, minAmount, maxAmount));
 			p = p.and(By.range(AccountPosition.$.valueDate, from, to));
 			return p;

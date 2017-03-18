@@ -1,10 +1,13 @@
-package org.minimalj.repository.criteria;
+package org.minimalj.repository.query;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Criteria implements Serializable {
+import org.minimalj.repository.query.Query.QueryLimitable;
+import org.minimalj.repository.query.Query.QueryOrderable;
+
+public class Criteria implements QueryLimitable, QueryOrderable {
 	private static final long serialVersionUID = 1L;
 
 	// TODO: check for recursion?
@@ -34,23 +37,19 @@ public class Criteria implements Serializable {
 		}
 	}
 	
-	public int getLevel() {
-		return 0;
-	}
-	
-	public static abstract class CombinedCriteria extends Criteria implements Serializable {
+	public static abstract class CompoundCriteria extends Criteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private final List<Criteria> criterias;
 
-		public CombinedCriteria(Criteria criteria1, Criteria criteria2) {
+		public CompoundCriteria(Criteria criteria1, Criteria criteria2) {
 			// don't use Arrays.asList as Array might change later
 			criterias = new ArrayList<>();
 			criterias.add(criteria1);
 			criterias.add(criteria2);
 		}
 		
-		public CombinedCriteria(List<Criteria> criterias) {
+		public CompoundCriteria(List<Criteria> criterias) {
 			this.criterias = criterias;
 		}
 
@@ -59,7 +58,7 @@ public class Criteria implements Serializable {
 		}
 	}
 	
-	public static class OrCriteria extends CombinedCriteria implements Serializable {
+	public static class OrCriteria extends CompoundCriteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		public OrCriteria(Criteria criteria1, Criteria criteria2) {
@@ -71,11 +70,6 @@ public class Criteria implements Serializable {
 		}
 
 		@Override
-		public int getLevel() {
-			return -1;
-		}
-		
-		@Override
 		public Criteria or(Criteria other) {
 			if (other != null && !getCriterias().contains(other)) {
 				getCriterias().add(other);
@@ -84,7 +78,7 @@ public class Criteria implements Serializable {
 		}
 	}	
 	
-	public static class AndCriteria extends CombinedCriteria implements Serializable {
+	public static class AndCriteria extends CompoundCriteria implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		public AndCriteria(Criteria criteria1, Criteria criteria2) {
@@ -101,11 +95,6 @@ public class Criteria implements Serializable {
 				getCriterias().add(other);
 			}
 			return this;
-		}
-
-		@Override
-		public int getLevel() {
-			return 1;
 		}
 	}
 	
