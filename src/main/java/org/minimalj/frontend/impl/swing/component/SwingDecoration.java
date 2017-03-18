@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing.component;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -7,11 +8,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -145,85 +149,45 @@ public class SwingDecoration extends JPanel {
 		partNumbersComponent.revalidate();
 	}
 
-	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, WP_MAXBUTTON, WP_RESTOREBUTTON, PREV, NEXT };
+	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, PREV, NEXT };
 
 	public static class DecorationButtonIcon implements Icon {
 
-        private Part part;
+		private Part part;
 
-        public DecorationButtonIcon(Part part) {
-            this.part = part;
-        }
+		public DecorationButtonIcon(Part part) {
+			this.part = part;
+		}
 
-        @Override
+		@Override
 		public void paintIcon(Component c, Graphics g, int x0, int y0) {
-            int width = getIconWidth();
-            int height = getIconHeight();
+			Graphics2D g2 = (Graphics2D) g;
+			int width = getIconWidth();
+			int height = getIconHeight();
 
+			g.setColor(Color.black);
+			g2.setStroke(new BasicStroke(Math.max(((float) height) / 12f, 1.4f)));
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                g.setColor(Color.black);
-                int x = width / 12 + 2;
-                int y = height / 5;
-                int h = height - y * 2 - 1;
-                int w = width * 3/4 -3;
-                int thickness2 = Math.max(height / 8, 2);
-                int thickness  = Math.max(width / 15, 1);
-                if (part == Part.WP_CLOSEBUTTON || part == Part.NEXT || part == Part.PREV) {
-                	int leftDiv = (part == Part.WP_CLOSEBUTTON || part == Part.NEXT) ? 1 : 2;
-                	int rightDiv = (part == Part.WP_CLOSEBUTTON || part == Part.PREV) ? 1 : 2;
-                	
-                	int lineWidth;
-                    if      (width > 47) lineWidth = 6;
-                    else if (width > 37) lineWidth = 5;
-                    else if (width > 26) lineWidth = 4;
-                    else if (width > 16) lineWidth = 3;
-                    else if (width > 12) lineWidth = 2;
-                    else                 lineWidth = 1;
-                    y = height / 12 + 3;
-                    if (lineWidth == 1) {
-                        if (w % 2 == 1) { x++; w++; }
-                        g.drawLine(x,     y, x+w-2, y+w/rightDiv-2);
-                        g.drawLine(x+w-2, y, x,     y+w-2);
-                    } else if (lineWidth == 2) {
-                        if (w > 6) { x++; w--; }
-                        g.drawLine(x,     y, x+w-2, y+w-2);
-                        g.drawLine(x+w-2, y, x,     y+w-2);
-                        g.drawLine(x+1,   y, x+w-1, y+w-2);
-                        g.drawLine(x+w-1, y, x+1,   y+w-2);
-                    } else {
-                        x += 2; y++; w -= 2;
-                        g.drawLine(x,     y,   x+w-1, y+w-1);
-                        g.drawLine(x+w-1, y,   x,     y+w-1);
-                        g.drawLine(x+1,   y,   x+w-1, y+w-2);
-                        g.drawLine(x+w-2, y,   x,     y+w-2);
-                        g.drawLine(x,     y+1, x+w-2, y+w-1);
-                        g.drawLine(x+w-1, y+1, x+1,   y+w-1);
-                        for (int i = 4; i <= lineWidth; i++) {
-                            g.drawLine(x+i-2,   y,     x+w-1,   y+w-i+1);
-                            g.drawLine(x,       y+i-2, x+w-i+1, y+w-1);
-                            g.drawLine(x+w-i+1, y,     x,       y+w-i+1);
-                            g.drawLine(x+w-1,   y+i-2, x+i-2,   y+w-1);
-                        }
-                    }
-                } else if (part == Part.WP_MINBUTTON) {
-                    g.fillRect(x, y+h-thickness2, w-w/3, thickness2);
-                } else if (part == Part.WP_MAXBUTTON) {
-                    g.fillRect(x, y, w, thickness2);
-                    g.fillRect(x, y, thickness, h);
-                    g.fillRect(x+w-thickness, y, thickness, h);
-                    g.fillRect(x, y+h-thickness, w, thickness);
-                } else if (part == Part.WP_RESTOREBUTTON) {
-                    g.fillRect(x+w/3, y, w-w/3, thickness2);
-                    g.fillRect(x+w/3, y, thickness, h/3);
-                    g.fillRect(x+w-thickness, y, thickness, h-h/3);
-                    g.fillRect(x+w-w/3, y+h-h/3-thickness, w/3, thickness);
+			float inset = width / 20f + ((part == Part.WP_CLOSEBUTTON || part == Part.WP_MINBUTTON) ? 4 : 5);
+			float x = inset;
+			float y = inset;
+			float w = width - 2 * inset;
 
-                    g.fillRect(x, y+h/3, w-w/3, thickness2);
-                    g.fillRect(x, y+h/3, thickness, h-h/3);
-                    g.fillRect(x+w-w/3-thickness, y+h/3, thickness, h-h/3);
-                    g.fillRect(x, y+h-thickness, w-w/3, thickness);
-                }
-        }
+			if (part == Part.WP_CLOSEBUTTON) {
+				g2.draw(new Line2D.Float(x, y, x + w, y + w));
+				g2.draw(new Line2D.Float(x + w, y, x, y + w));
+			} else if (part == Part.NEXT) {
+				g2.draw(new Line2D.Float(x, y, x + w, y + w / 2));
+				g2.draw(new Line2D.Float(x + w, y + w / 2, x, y + w));
+			} else if (part == Part.PREV) {
+				g2.draw(new Line2D.Float(x, y + w / 2, x + w, y + w));
+				g2.draw(new Line2D.Float(x + w, y, x, y + w / 2));
+
+			} else if (part == Part.WP_MINBUTTON) {
+				g2.draw(new Line2D.Float(x + w / 3, y + w, x + w, y + w));
+			}
+		}
 
         @Override
 		public int getIconWidth() {
