@@ -6,15 +6,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 
 import javax.swing.BorderFactory;
@@ -24,8 +21,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-
-import org.minimalj.frontend.page.Parts;
 
 public class SwingDecoration extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -116,37 +111,6 @@ public class SwingDecoration extends JPanel {
 			content.getParent().revalidate();
 			content.getParent().repaint();
 		}
-	}
-	
-	public void setParts(Parts parts) {
-		if (parts != null) {
-			partNumbersComponent.setVisible(true);
-			updatePartNumbers(parts);
-		} else {
-			partNumbersComponent.setVisible(false);
-		}
-	}
-	
-	private void updatePartNumbers(Parts parts) {
-		partNumbersComponent.removeAll();
-		int start = Math.max(0, Math.min(parts.getCurrentPart() - 1, parts.getPartCount() - 3));
-		int end = Math.min(parts.getPartCount() - 1, parts.getCurrentPart() + 3);
-		for (int i = start; i < end; i++) {
-			JLabel label = new JLabel(String.valueOf(i + 1));
-			if (parts.getCurrentPart() == i) {
-				label.setFont(label.getFont().deriveFont(Font.BOLD));
-			}
-			final int j = i;
-			label.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					parts.setCurrentPart(j);
-					updatePartNumbers(parts);
-				}
-			});
-			partNumbersComponent.add(label);
-		}
-		partNumbersComponent.revalidate();
 	}
 
 	public enum Part { WP_CLOSEBUTTON, WP_MINBUTTON, PREV, NEXT };
