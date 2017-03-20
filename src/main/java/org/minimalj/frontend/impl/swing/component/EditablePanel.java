@@ -43,10 +43,17 @@ public class EditablePanel extends JDesktopPane {
 	}
 
 	public void setContent(JComponent content) {
-		JInternalFrame frame = new JInternalFrame("");
-		BasicInternalFrameUI bi = (BasicInternalFrameUI) frame.getUI();
-		bi.setNorthPane(null);
-		frame.setBorder(null);
+		JInternalFrame frame = new JInternalFrame("") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void updateUI() {
+				super.updateUI();
+				setBorder(null);
+				BasicInternalFrameUI bi = (BasicInternalFrameUI) getUI();
+				bi.setNorthPane(null);
+			}
+		};
 		frame.setLayout(new BorderLayout());
 		frame.add(content, BorderLayout.CENTER);
 		add(frame);
