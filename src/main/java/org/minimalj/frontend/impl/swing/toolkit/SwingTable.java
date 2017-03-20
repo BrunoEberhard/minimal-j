@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,12 +112,9 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 	
 	private void bindRowHeightToFont() {
-		table.addPropertyChangeListener("UI", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				table.setRowHeight(table.getFont().getSize() * 5 / 3 + 2);
-			}
-		});
+		PropertyChangeListener listener = event -> table.setRowHeight(table.getFont().getSize() * 5 / 3 + 2);
+		listener.propertyChange(null);
+		table.addPropertyChangeListener("UI", listener);
 	}
 
 	@Override
