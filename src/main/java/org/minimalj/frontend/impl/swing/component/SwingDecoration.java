@@ -2,10 +2,8 @@ package org.minimalj.frontend.impl.swing.component;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -21,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 public class SwingDecoration extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -32,7 +31,6 @@ public class SwingDecoration extends JPanel {
 	private final ActionListener closeListener;
 	
 	private JLabel titleLabel;
-	private JPanel partNumbersComponent;
 	
 	public SwingDecoration(String title, Component content, boolean minimize, ActionListener closeListener) {
 		super(new BorderLayout());
@@ -61,15 +59,7 @@ public class SwingDecoration extends JPanel {
 		titleLabel = new JLabel(title);
 		titleLabel.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 0));
 		bar.add(titleLabel);
-
-			
 		bar.add(Box.createHorizontalGlue());
-
-		partNumbersComponent = new JPanel();
-		partNumbersComponent.setOpaque(false);
-		partNumbersComponent.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
-		partNumbersComponent.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		bar.add(partNumbersComponent);
 		
 		if (minimize) {
 			JButton button = createDecorationButton(Part.WP_MINBUTTON);
@@ -122,14 +112,14 @@ public class SwingDecoration extends JPanel {
 		public DecorationButtonIcon(Part part) {
 			this.part = part;
 		}
-
+		
 		@Override
 		public void paintIcon(Component c, Graphics g, int x0, int y0) {
 			Graphics2D g2 = (Graphics2D) g;
 			int width = getIconWidth();
 			int height = getIconHeight();
 
-			g.setColor(Color.black);
+			g2.setColor(UIManager.getColor("menuText"));
 			g2.setStroke(new BasicStroke(Math.max(((float) height) / 12f, 1.4f)));
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
