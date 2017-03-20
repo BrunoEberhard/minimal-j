@@ -19,7 +19,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 
 public class TerminalLookAndFeel extends MetalLookAndFeel implements MetalThemeProvider {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static Logger logger = Logger.getLogger(PrintLookAndFeel.class.getName());
 	static Properties properties = new Properties();
 
@@ -50,35 +50,18 @@ public class TerminalLookAndFeel extends MetalLookAndFeel implements MetalThemeP
 	protected void initComponentDefaults(UIDefaults table) {
 		super.initComponentDefaults(table);
 
+		Border border = new BorderUIResource(new MatteBorder(1, 1, 1, 1, getBlack()));
 		Border lineBorder = new BorderUIResource(new MatteBorder(0, 0, 1, 0, getBlack()));
 		Object textBorder = new BorderUIResource(new CompoundBorder(lineBorder, new BasicBorders.MarginBorder()));
-		
-		Object[] defaults = new Object[] { "ComboBox.selectionForeground", getHighlightedTextColor(), "Panel.font", getControlTextFont(), 
-		        "ToolTip.border", lineBorder,
-		        "TitledBorder.border", lineBorder,
-		        "TextField.border", textBorder,
-		        "PasswordField.border", textBorder,
-		        "TextArea.border", textBorder,
-		        "TextPane.border", textBorder,
-		        "EditorPane.border", textBorder,
-		        "Button.border", lineBorder,
-		        "MenuItem.disabledForeground", new Color(0, 80, 0),
-				};
+
+		Object[] defaults = new Object[] { "ComboBox.selectionForeground", getHighlightedTextColor(), "Panel.font",
+				getControlTextFont(), "ToolTip.border", lineBorder, "TitledBorder.border", lineBorder,
+				"TextField.border", textBorder, "PasswordField.border", textBorder, "TextArea.border", textBorder,
+				"TextPane.border", textBorder, "EditorPane.border", textBorder, "Button.border", border,
+				"MenuItem.disabledForeground", new Color(0, 80, 0), };
 		table.putDefaults(defaults);
 	}
 
-//    protected void initClassDefaults(UIDefaults table)
-//    {
-//        super.initClassDefaults(table);
-//        final String metalPackageName = "javax.swing.plaf.metal.";
-//
-//        Object[] uiDefaults = {
-//                "TextFieldUI", metalPackageName + "TerminalTextFieldUI",
-//        };
-//
-//        table.putDefaults(uiDefaults);
-//    }
-    
 	public static class MetalTheme extends DefaultMetalTheme {
 		private FontUIResource font;
 
@@ -93,7 +76,7 @@ public class TerminalLookAndFeel extends MetalLookAndFeel implements MetalThemeP
 				fontSize = Integer.parseInt(properties.getProperty("fontSize"));
 			} catch (Exception exc) {
 			}
-			font = new FontUIResource(fontName, Font.PLAIN, largeFont ? fontSize * 2: fontSize);
+			font = new FontUIResource(fontName, Font.PLAIN, largeFont ? fontSize * 2 : fontSize);
 		}
 
 		@Override
