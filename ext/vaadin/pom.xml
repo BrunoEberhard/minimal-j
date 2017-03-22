@@ -40,6 +40,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-compatibility-client-compiled</artifactId>
+			<version>8.0.0</version>
+		</dependency> 
+		<dependency>
+			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client-compiled</artifactId>
 			<version>8.0.0</version>
 		</dependency> 
@@ -50,6 +55,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-shared</artifactId>
+			<version>8.0.0</version>
+		</dependency>		
+		<dependency>
+			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
 			<version>8.0.0</version>
 		</dependency>
@@ -57,11 +67,6 @@
 		  <groupId>com.vaadin</groupId>
 		  <artifactId>vaadin-compatibility-server</artifactId>
 		  <version>8.0.0</version>
-		</dependency>
-		<dependency>
-		   <groupId>de.akquinet.engineering.vaadin</groupId>
-		   <artifactId>vaadin-html5-widgets-core</artifactId>
-		   <version>1.2</version>
 		</dependency>
 		<dependency>
 		  <groupId>com.vaadin.addon</groupId>

@@ -5,9 +5,9 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.Upload;
+import com.vaadin.ui.Upload;
 import com.vaadin.ui.Window;
 
 public class VaadinImportDialog extends Window implements Upload.Receiver {
@@ -21,6 +21,7 @@ public class VaadinImportDialog extends Window implements Upload.Receiver {
 		inputStream = new CloseablePipedInputStream();
 		
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
+		horizontalLayout.setSpacing(false);
 		upload = new Upload(null, this);
 
 		horizontalLayout.addComponent(upload);
