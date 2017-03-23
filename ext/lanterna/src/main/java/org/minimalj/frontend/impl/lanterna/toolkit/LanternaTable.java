@@ -99,17 +99,23 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	
 	private void updateSubList() {
 		this.objectsSubList = objects.subList(scrollIndex, scrollIndex+lines);
+		updateColumnWidths();
 	}
 	
 	@Override
 	public void repaint(TextGraphics graphics) {
 		setLines(graphics.getHeight() - 1);
-		
+		int unusedWidth = graphics.getWidth() - 3 - aggregatedColumnWidth();
+		int spacing = Math.min(4, unusedWidth / columnWidthArray.length);
+		String space = " ";
+		for (int i = 1; i<spacing; i++) {
+			space = space + " ";
+		}
 		
 		StringBuilder s = new StringBuilder(graphics.getWidth());
 		s.append("   ");
 		for (int i = 0; i<properties.size(); i++) {
-			s.append(' ');
+			s.append(space);
 			String value = columnTitleArray[i];
 			int columnWidth = columnWidthArray[i];
 			if (columnWidth < value.length()) {
@@ -134,7 +140,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 			s.append(']');
 			
 			for (int i = 0; i<properties.size(); i++) {
-				s.append(' ');
+				s.append(space);
 				String value = getValue(line, i);
 				int columnWidth = columnWidthArray[i];
 				if (columnWidth < value.length()) {
@@ -252,7 +258,6 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 			this.objects = Collections.emptyList();
 		}
 		updateSubList();
-		updateColumnWidths();
 	}
 
 	public List<T> getSelectedObjects() {
@@ -265,10 +270,15 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 
 	@Override
 	protected TerminalSize calculatePreferredSize() {
-		int width = 3;
-		for (int columnWidth: columnWidthArray) {
-			width += columnWidth + 1;
-		}
+		int width = 3 + aggregatedColumnWidth() + 2 * columnWidthArray.length;
 		return new TerminalSize(width, objects.size() + 1);
+	}
+	
+	private int aggregatedColumnWidth() {
+		int width = 0;
+		for (int columnWidth: columnWidthArray) {
+			width += columnWidth;
+		}
+		return width;
 	}
 }
