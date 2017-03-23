@@ -26,6 +26,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 
 	private final List<PropertyInterface> properties;
 	private List<T> objects = Collections.emptyList();
+	private List<T> objectsSubList = Collections.emptyList();
 	private final int[] columnWidthArray;
 	private final String[] columnTitleArray;
 	private int scrollIndex, lines;
@@ -52,7 +53,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	private void updateColumnWidths() {
 		for (int i = 0; i<columnWidthArray.length; i++) {
 			int width = columnTitleArray[i].length();
-			for (int row = 0; row<objects.size(); row++) {
+			for (int row = 0; row<objectsSubList.size(); row++) {
 				String value = getValue(row, i);
 				width = Math.max(width, value.length());
 			}
@@ -88,8 +89,23 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		return properties;
 	}
 	
+	private void setLines(int lines) {
+		lines = Math.min(lines, objects.size() - scrollIndex);
+		if (lines != this.lines) {
+			this.lines = lines;
+			updateSubList();
+		}
+	}
+	
+	private void updateSubList() {
+		this.objectsSubList = objects.subList(scrollIndex, scrollIndex+lines);
+	}
+	
 	@Override
 	public void repaint(TextGraphics graphics) {
+		setLines(graphics.getHeight() - 1);
+		
+		
 		StringBuilder s = new StringBuilder(graphics.getWidth());
 		s.append("   ");
 		for (int i = 0; i<properties.size(); i++) {
@@ -110,8 +126,8 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		graphics.drawString(0, 0, s.length() > graphics.getWidth() ? s.substring(0, graphics.getWidth()) : s.toString());
 		
 		int line = 0;
-		while (line < graphics.getHeight()-1 && line + scrollIndex < objects.size()) {
-			Object object = getObject(line + scrollIndex);
+		while (line < objectsSubList.size()) {
+			Object object = objectsSubList.get(line);
 			s = new StringBuilder(graphics.getWidth());
 			s.append('[');
 			s.append(selectedObjects.contains(object) ? 'x' : ' ');
@@ -119,7 +135,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 			
 			for (int i = 0; i<properties.size(); i++) {
 				s.append(' ');
-				String value = getValue(line + scrollIndex, i);
+				String value = getValue(line, i);
 				int columnWidth = columnWidthArray[i];
 				if (columnWidth < value.length()) {
 					value = value.substring(0, columnWidth);
@@ -136,17 +152,11 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 			graphics.drawString(0, line + 1, s.length() > graphics.getWidth() ? s.substring(0, graphics.getWidth()) : s.toString());
 			line++;
 		}
-		
-		lines = graphics.getHeight() - 1;
 	}
 
-	private T getObject(int index) {
-		return objects.get(index);
-	}
-	
 	protected String getValue(int row, int column) {
 		PropertyInterface property = properties.get(column);
-		Object value = property.getValue(getObject(row));
+		Object value = property.getValue(objectsSubList.get(row));
 		return Rendering.render(value, RenderType.PLAIN_TEXT, property);
 	}
 
@@ -190,11 +200,10 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	//
 	
 	private Result toggleSelection() {
-		int selectedRow = scrollIndex + selectedLine;
-		if (selectedRow >= objects.size()) {
+		if (selectedLine >= objectsSubList.size()) {
 			return Result.EVENT_NOT_HANDLED;
 		}
-		T object = getObject(selectedRow);
+		T object = objectsSubList.get(selectedLine);
 		if (selectedObjects.contains(object)) {
 			selectedObjects.remove(object);
 		} else {
@@ -210,6 +219,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		} else if (selectedLine == lines-1) {
 			scrollIndex = scrollIndex + lines;
 			selectedLine = 0;
+			updateSubList();
 		} else {
 			selectedLine++;
 		}
@@ -227,6 +237,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 			if (selectedLine + scrollIndex >= objects.size()) {
 				selectedLine = objects.size() - scrollIndex - 1;
 			}
+			updateSubList();
 		} else {
 			selectedLine--;
 		}
@@ -240,6 +251,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 		} else {
 			this.objects = Collections.emptyList();
 		}
+		updateSubList();
 		updateColumnWidths();
 	}
 
@@ -248,7 +260,7 @@ public class LanternaTable<T> extends AbstractInteractableComponent implements I
 	}
 
 	public T getSelectedObject() {
-		return getObject(scrollIndex + selectedLine);
+		return objectsSubList.get(selectedLine);
 	}
 
 	@Override
