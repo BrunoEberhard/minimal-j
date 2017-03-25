@@ -268,10 +268,7 @@ public class Table<T> extends AbstractTable<T> {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
 			result = new ArrayList<>();
 			String crossTableName = relationCriteria.getCrossName();
-			if (!sqlRepository.getTableByName().containsKey(crossTableName)) {
-				// this is only done to avoid SQL Injection
-				throw new IllegalArgumentException("Invalid cross name: " + crossTableName);
-			}
+			avoidSqlInjection(crossTableName);
 			String clause = "T.id = C.elementId AND C.id = ? ORDER BY C.position";
 			result.add(clause);
 			result.add(relationCriteria.getRelatedId());
@@ -301,6 +298,12 @@ public class Table<T> extends AbstractTable<T> {
 			throw new IllegalArgumentException("Unknown criteria: " + query);
 		}
 		return result;
+	}
+
+	private void avoidSqlInjection(String crossTableName) {
+		if (!sqlRepository.getTableByName().containsKey(crossTableName)) {
+			throw new IllegalArgumentException("Invalid cross name: " + crossTableName);
+		}
 	}
 	
 	private String order(List<Order> orders) {
@@ -347,6 +350,7 @@ public class Table<T> extends AbstractTable<T> {
 		if (query instanceof RelationCriteria) {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
 			tableName = relationCriteria.getCrossName();
+			avoidSqlInjection(tableName);
 			whereClause = Arrays.asList("id = ?", relationCriteria.getRelatedId());
 		} else {
 			tableName = getTableName();
