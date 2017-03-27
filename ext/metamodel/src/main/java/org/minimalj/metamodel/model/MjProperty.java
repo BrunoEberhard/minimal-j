@@ -89,7 +89,7 @@ public class MjProperty {
 	}
 	
 	public String getFormattedType() {
-		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "formattedType", String.class);
+		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "formattedType");
 		if (propertyType == MjPropertyType.LIST) {
 			return "List<" + type.name + ">";
 		} else if (propertyType == MjPropertyType.ENUM_SET) {

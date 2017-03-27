@@ -29,7 +29,7 @@ public class Country implements Code, Rendering {
 	}
 	
 	public String getName() {
-		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "getName", String.class);
+		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "getName");
 		
 		if (LocaleContext.getCurrent().equals(Locale.ENGLISH)) {
 			return nameEn;

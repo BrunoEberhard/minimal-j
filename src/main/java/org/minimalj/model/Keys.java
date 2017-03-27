@@ -56,27 +56,35 @@ public class Keys {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T methodOf(Object keyObject, String methodName, Class<T> returnType) {
+	public static <T> T methodOf(Object keyObject, String propertyName) {
 		String qualifiedMethodName = null;
 		
 		PropertyInterface enclosingProperty = null;
 		if (properties.containsKey(keyObject)) {
 			enclosingProperty = properties.get(keyObject);
-			qualifiedMethodName = enclosingProperty.getDeclaringClass().getName() + "." + enclosingProperty.getPath() + "." + methodName;
+			qualifiedMethodName = enclosingProperty.getDeclaringClass().getName() + "." + enclosingProperty.getPath() + "." + propertyName;
 		} else {
-			qualifiedMethodName = keyObject.getClass().getName() + "." + methodName;
+			qualifiedMethodName = keyObject.getClass().getName() + "." + propertyName;
 		}
 		
-		if (methodKeyByName.containsKey(qualifiedMethodName)) {
-			return (T) methodKeyByName.get(qualifiedMethodName);
+		PropertyInterface property = getMethodProperty(keyObject.getClass(), propertyName);
+		if (property == null) {
+			if (propertyName.startsWith("get")) {
+				throw new IllegalArgumentException("methodOf must be called with the property name. Not with the getter name");
+			} else {
+				throw new IllegalArgumentException("methodOf called with invalid property name");
+			}
 		}
-		T t = (T)createKey(returnType, qualifiedMethodName, null);
-		methodKeyByName.put(qualifiedMethodName, t);
-		
-		PropertyInterface property = getMethodProperty(keyObject.getClass(), methodName);
 		if (enclosingProperty != null) {
 			property = new ChainedProperty(enclosingProperty, property);
 		}
+
+		if (methodKeyByName.containsKey(qualifiedMethodName)) {
+			return (T) methodKeyByName.get(qualifiedMethodName);
+		}
+		T t = (T)createKey(property.getClazz(), qualifiedMethodName, null);
+		methodKeyByName.put(qualifiedMethodName, t);
+		
 		fillFields(t, property, 0);
 		properties.put(t, property);
 		

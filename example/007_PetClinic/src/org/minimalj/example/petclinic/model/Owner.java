@@ -29,7 +29,7 @@ public class Owner implements Rendering, Mocking {
     public String telephone;
     
     public List<Pet> getPets() {
-    	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets", List.class);
+    	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets");
     	return Backend.find(Pet.class, By.field(Pet.$.owner, this));
 	}
     

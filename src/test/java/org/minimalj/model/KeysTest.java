@@ -129,7 +129,7 @@ public class KeysTest {
 		private Boolean b2;
 		
 		public Boolean getB2() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b2", Boolean.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b2");
 			
 			return b2;
 		}
@@ -139,7 +139,7 @@ public class KeysTest {
 		}
 		
 		public TestClass3 getTestClass3() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass3", TestClass3.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass3");
 			return null;
 		}
 	}
@@ -155,7 +155,7 @@ public class KeysTest {
 		public final TestClass1 tc1 = new TestClass1();
 		
 		public String getS3() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "s3", String.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "s3");
 
 			return s3;
 		}
@@ -165,7 +165,7 @@ public class KeysTest {
 		}
 		
 		public Boolean getB1() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b1", Boolean.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b1");
 			
 			return b1;
 		}
@@ -175,7 +175,7 @@ public class KeysTest {
 		}
 
 		public TestClass1 getTestClass1b() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass1b", TestClass1.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass1b");
 			return testClass1b;
 		}
 		
