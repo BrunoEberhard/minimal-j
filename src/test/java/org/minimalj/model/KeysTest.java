@@ -119,6 +119,28 @@ public class KeysTest {
 		Assert.assertEquals(message, "testClass1b.s1", Keys.getProperty(TestClass2.$.getTestClass1b().s1).getPath());
 		Assert.assertEquals(message, "testClass1b.testClass3.list", Keys.getProperty(TestClass2.$.getTestClass1b().getTestClass3().list).getPath());
 	}
+
+	@Test
+	public void methodPropertyGetterName() {
+		try {
+			// initialize keys
+			TestClass5.$.getA();
+			Assert.fail();
+		} catch (Exception x) {
+			Assert.assertTrue(x.getMessage().startsWith("methodOf must be called with the property name"));
+		}
+	}
+
+	@Test
+	public void methodPropertyWrongName() {
+		try {
+			// initialize keys
+			TestClass6.$.getA();
+			Assert.fail();
+		} catch (Exception x) {
+			Assert.assertTrue(x.getMessage().startsWith("methodOf called with invalid property name"));
+		}
+	}
 	
 	//
 	
@@ -192,5 +214,30 @@ public class KeysTest {
 		
 		public final TestClass1 testClass1 = new TestClass1();
 	}
+
+	public static class TestClass5 {
+		public static final TestClass5 $ = Keys.of(TestClass5.class);
+		
+		public String getA() {
+			if (Keys.isKeyObject(this)) {
+				return Keys.methodOf(this, "getA");
+			}
+			
+			return "unused string";
+		}
+	}
 	
+	public static class TestClass6 {
+		public static final TestClass6 $ = Keys.of(TestClass6.class);
+		
+		public String getA() {
+			if (Keys.isKeyObject(this)) {
+				return Keys.methodOf(this, "b");
+			}
+			
+			return "unused string";
+		}
+	}
+
+
 }
