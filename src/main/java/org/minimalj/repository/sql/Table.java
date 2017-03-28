@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -213,9 +214,15 @@ public class Table<T> extends AbstractTable<T> {
 	private List<String> getColumns(Object[] keys) {
 		List<String> result = new ArrayList<>();
 		PropertyInterface[] properties = Keys.getProperties(keys);
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-			PropertyInterface property = entry.getValue();
-			for (PropertyInterface p : properties) {
+		for (PropertyInterface p : properties) {
+			if (p instanceof MethodProperty) {
+				throw new IllegalArgumentException("Not possible to query for method properties");
+			} else if (p.getPath().equals("id")) {
+				result.add("id");
+				continue;
+			}
+			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+				PropertyInterface property = entry.getValue();
 				if (p.getPath().equals(property.getPath())) {
 					result.add(entry.getKey());
 				}
