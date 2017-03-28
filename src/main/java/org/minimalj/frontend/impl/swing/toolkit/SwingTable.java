@@ -88,9 +88,11 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         panel.setOpaque(false);
         prevButton = SwingDecoration.createDecorationButton(SwingDecoration.Part.PREV);
         prevButton.addActionListener(e -> { offset -= 50; setObjects(list); });
+        prevButton.setVisible(false);
 		panel.add(prevButton);
 		nextButton = SwingDecoration.createDecorationButton(SwingDecoration.Part.NEXT);
 		nextButton.addActionListener(e -> { offset += 50; setObjects(list); });
+        nextButton.setVisible(false);
 		panel.add(nextButton);
         table.getTableHeader().add(panel, BorderLayout.LINE_END);
 	}
