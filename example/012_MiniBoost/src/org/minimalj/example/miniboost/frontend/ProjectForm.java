@@ -23,7 +23,7 @@ public class ProjectForm extends Form<Project> {
 		line($.description);
 		line($.address.street, $.address.zip);
 		boolean german = LocaleContext.getCurrent().getLanguage().equals(new Locale("de").getLanguage());
-		line($.address.city, new ReferenceFormElement<>($.address.country, new Object[]{ german ? Country.$.nameDe : Country.$.nameEn, Country.$.id}) );
+		line($.address.city, new ReferenceFormElement<>($.address.country, new Object[]{ german ? Country.$.nameDe : Country.$.nameEn, Country.$.code2}) );
 		
 		text("Projektdaten");
 		line($.startDate, $.endDate);

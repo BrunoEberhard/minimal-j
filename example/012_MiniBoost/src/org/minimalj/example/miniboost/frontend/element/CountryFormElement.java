@@ -33,7 +33,7 @@ public class CountryFormElement extends AbstractFormElement<Country> implements 
 		@Override
 		public List<Country> search(String searchText) {
 			return countries.stream().filter(c -> {
-				return c.nameDe.contains(searchText) || c.id.contains(searchText);
+				return c.nameDe.contains(searchText) || c.code2.contains(searchText);
  			}).collect(Collectors.toList());
 		}
 	}

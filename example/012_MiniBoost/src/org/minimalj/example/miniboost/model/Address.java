@@ -17,11 +17,11 @@ public class Address {
 	public String getCountryAndZip() {
 		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "countryAndZip");
 
-		if (!StringUtils.isBlank(country.id)) {
+		if (country.id != null) {
 			if (!StringUtils.isBlank(zip)) {
-				return country + " " + zip;
+				return country.code2 + " " + zip;
 			} else {
-				return country.id;
+				return country.code2;
 			}
 		} else {
 			return zip;

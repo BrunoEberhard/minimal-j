@@ -11,8 +11,11 @@ import org.minimalj.util.LocaleContext;
 public class Country implements Code, Rendering {
 	public static final Country $ = Keys.of(Country.class);
 	
+	@Size(3)
+	public Integer id;
+	
 	@Size(2)
-	public String id;
+	public String code2;
 	
 	@Size(3)
 	public String code3, codenum;
@@ -36,6 +39,11 @@ public class Country implements Code, Rendering {
 		} else {
 			return nameDe;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return code2;
 	}
 	
 }
