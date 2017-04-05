@@ -34,7 +34,11 @@ public class CsvReader {
     	List<PropertyInterface> properties = new ArrayList<PropertyInterface>(fields.size());
 		for (String field : fields) {
 			try {
-				properties.add(FlatProperties.getProperty(clazz, field.trim()));
+				field = field.trim();
+				if (StringUtils.isEmpty(field)) {
+					throw new RuntimeException("csv - file contains empty header field");
+				}
+				properties.add(FlatProperties.getProperty(clazz, field));
 			} catch (IllegalArgumentException x) {
 				throw new RuntimeException("No field " + field + " in " + clazz.getSimpleName() + ". Please check csv - file for missing or invalid header line");
 			}
@@ -97,10 +101,13 @@ public class CsvReader {
     	while (true) {
     		c = reader.read();
     		if (c == -1) {
-    			throw new IllegalStateException();
+    			return "";
     		} else if (!Character.isWhitespace(c)) {
     			reader.unread(c);
     			break;
+    		} else if (c == '\n') {
+    			reader.unread(c);
+    			return "";
     		}
     	}
     	if (c == QUOTE_CHAR) {
@@ -138,7 +145,10 @@ public class CsvReader {
 		StringBuilder s = new StringBuilder();
 		do {
 			int c = reader.read();
-			if (c == SEPARATOR || c < 0x20) {
+			if (c < 0) {
+				return s.toString().trim();
+			}
+			if (c == SEPARATOR || c == '\n') {
 				reader.unread(c);
 				return s.toString().trim();
 			} else {

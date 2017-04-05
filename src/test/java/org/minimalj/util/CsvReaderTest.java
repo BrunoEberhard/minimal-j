@@ -126,6 +126,12 @@ public class CsvReaderTest {
 		checkResult(result);
 	}
 
+	@Test
+	public void testReadWithMissingLastValue() throws Exception {
+		CsvReader reader = reader("i,l,bd,s,ld\n 142,123456789012345,2.1,s,");
+		reader.readValues(CsvReaderTestA.class);
+	}
+	
 	private static CsvReader reader(String s) {
 		ByteArrayInputStream bais = new ByteArrayInputStream(s.getBytes());
 		return new CsvReader(bais);
