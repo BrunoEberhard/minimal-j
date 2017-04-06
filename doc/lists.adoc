@@ -1,6 +1,6 @@
 == Lists in the data model
 
-The proper handling of lists in the database layer is quite important. Many application have performance
+The proper handling of lists (many to one relations) in the database layer is quite important. Many application have performance
 problems because they load too many objects from the database at the wrong time. For example a search by the
 user may be slow only because for every found result all the depending objects are load too. Even if they
 are not displayed on the result page.
