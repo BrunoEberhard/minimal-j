@@ -14,6 +14,36 @@ import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.Sortable;
 
+/**
+ * A repository may (but is not required to) return a QueryResultList when the
+ * find method is called. Only the size of the list is calculated when a
+ * QueryResultList is calculated. Every element read with a get(index) is loaded
+ * from the backend.
+ * <p>
+ * 
+ * If you know you will use many elements of the List use the subList method to
+ * load a complete range of elements in a unmodifiable List. This is how such
+ * lists are used by the Frontend
+ * <p>
+ *
+ * A QueryResultList is unmodifiable. Every call of a add or remove method will
+ * result in a UnsupportedOperationException.
+ * <p>
+ * 
+ * If the database has changed before you call a get or subList method you may
+ * get <code>null</code> as element or a unexpected reduced sub list. You don't
+ * get an exception in that cases.
+ * <p>
+ * 
+ * QueryResultList is Sortable. The order of the elements can be changed at any
+ * time. The size of the List is not recalculated and the sub List created
+ * before a sort are not updated. Of course this is mainly used by a Frontend.
+ * Business methods should execute a new find on the Repository / Backend.
+ * <p>
+ *
+ * @param <T>
+ *            Class of the Elements
+ */
 public class QueryResultList<T> extends AbstractList<T> implements Sortable, Serializable {
 	private static final long serialVersionUID = 1L;
 
