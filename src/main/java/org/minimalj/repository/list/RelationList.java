@@ -9,14 +9,18 @@ import org.minimalj.repository.Repository;
 import org.minimalj.util.IdUtils;
 
 /**
- * The class RelationList is used as a specialized list class for elements with
- * an id. RelationLists load their content lazy. Not all elements are loaded
- * when the main entity is loaded. When a get method is called on the list the
- * requested element is loaded through the backend. If you want avoid too many
- * server roundtrips and you know that a lot of elements will be requested you
- * should use the subList method. The subList method of a RelationList will
- * return a unmodifiable List with all elements of the selected range preloaded.
- * This is how such lists are used by the Frontend.
+ * The class RelationList is used as a specialized list used if a (main) entity
+ * has a one-to-many relation to element entities (that have an id of their
+ * own).
+ * <p>
+ * 
+ * RelationLists load their content lazy. At the beginning only the size is
+ * calculated. But the element entities are not loaded when the main entity is
+ * loaded. When a get method is called on the list the requested element is
+ * loaded through the backend. If you want avoid too many server roundtrips and
+ * you know that a lot of elements will be requested you should use the subList
+ * method. The subList method of a RelationList will return a unmodifiable List
+ * with all elements of the selected range preloaded.
  * <p>
  * 
  * Normally the use of this class should be completely transparent. But you have
