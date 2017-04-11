@@ -2,15 +2,19 @@ package org.minimalj.repository.list;
 
 import org.minimalj.repository.query.Criteria;
 
+/**
+ * A RelationCriteria is a special Criteria that is used internally by
+ * RelationLists that need to load additional element entities.
+ * <p>
+ *
+ */
 public class RelationCriteria extends Criteria {
-
 	private static final long serialVersionUID = 1L;
-	
+
 	private final String crossName;
 	private final Object relatedId;
 
-	public RelationCriteria(String crossName, Object relatedId) {
-		super();
+	RelationCriteria(String crossName, Object relatedId) {
 		this.crossName = crossName;
 		this.relatedId = relatedId;
 	}
