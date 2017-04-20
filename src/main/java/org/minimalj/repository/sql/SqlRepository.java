@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.h2.jdbcx.JdbcDataSource;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
@@ -111,9 +112,9 @@ public class SqlRepository implements TransactionalRepository {
 		if (StringUtils.equals(databaseProductName, "MySQL")) {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
-			return new SqlDialect.DerbySqlDialect();
-		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
-			return new SqlDialect.OracleSqlDialect();				
+			return new SqlDialect.H2SqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "Oracle", "H2")) {
+			return new SqlDialect.H2SqlDialect();				
 		} else {
 			throw new RuntimeException("Only Oracle, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
 		}
@@ -233,7 +234,13 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	private static boolean createTablesOnInitialize(DataSource dataSource) {
-		return dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
+		if (dataSource instanceof EmbeddedDataSource) {
+			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
+		} else if (dataSource instanceof JdbcDataSource) {
+			return ((JdbcDataSource) dataSource).getUrl().startsWith("jdbc:h2:mem:TempDB");
+		} else {
+			return false;
+		}
 	}
 	
 	@Override

@@ -87,7 +87,7 @@ public abstract class SqlDialect {
 				s.append(" (").append(size).append(", ").append(decimal).append(')');
 			}
 		} else if (clazz == Boolean.class) {
-			s.append("BIT"); // MariaDB. DerbyDB is different
+			s.append("BIT");
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			s.append("INTEGER");
 		} else if (clazz == Set.class) {
@@ -209,22 +209,9 @@ public abstract class SqlDialect {
 		}
 	}
 	
-	public static class DerbySqlDialect extends SqlDialect {
-
-		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
-			Class<?> clazz = property.getClazz();
-			
-			if (clazz == LocalDateTime.class) {
-				s.append("TIMESTAMP");
-			} else if (clazz == Boolean.class) {
-				s.append("SMALLINT");
-			} else {
-				super.addColumnDefinition(s, property);
-			}
-		}
-		
-		
+	// Das von h2 überprüfen
+	public static class H2SqlDialect extends SqlDialect {
+	
 		@Override
 		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
 			if (!referencedTableIsHistorized) {
@@ -233,23 +220,11 @@ public abstract class SqlDialect {
 				return null;
 			}
 		}
-		
-		@Override
-		public String createUniqueIndex(String tableName, String column) {
-			StringBuilder s = new StringBuilder();
-			s.append("ALTER TABLE ");
-			s.append(tableName);
-			s.append(" ADD CONSTRAINT ");
-			s.append(column);
-			s.append("_UNIQUE UNIQUE (");
-			s.append(column);
-			s.append(')');
-			return s.toString();
-		}
 
 		@Override
 		public int getMaxIdentifierLength() {
-			return 128;
+			// h2 doesn't really have a maximum identifier length
+			return 256;
 		}
 	}
 
