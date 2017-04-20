@@ -142,6 +142,24 @@ public class KeysTest {
 		}
 	}
 	
+	@Test
+	public void listElements() {
+		TestClass7 testClass7 = new TestClass7();
+		testClass7.list = new ArrayList<>();
+		TestClass8 testClass8 = new TestClass8();
+		testClass8.value = 42;
+		testClass7.list.add(testClass8);
+		
+		PropertyInterface p = Keys.getProperty(TestClass7.$.list.get(0).value);
+		Assert.assertEquals(42, p.getValue(testClass7));
+		
+		// testClass7.list.add(new TestClass8());
+		p = Keys.getProperty(TestClass7.$.list.get(1).value);
+		p.setValue(testClass7, 43);
+		
+		Assert.assertEquals(Integer.valueOf(43), testClass7.list.get(1).value);
+	}
+	
 	//
 	
 	public static class TestClass1 {
@@ -239,5 +257,16 @@ public class KeysTest {
 		}
 	}
 
+	public static class TestClass7 {
+		public static final TestClass7 $ = Keys.of(TestClass7.class);
+		
+		public List<TestClass8> list;
+	}
+
+	public static class TestClass8 {
+		public static final TestClass8 $ = Keys.of(TestClass8.class);
+		
+		public Integer value;
+	}
 
 }

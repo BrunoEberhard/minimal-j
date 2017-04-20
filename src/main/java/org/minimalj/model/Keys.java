@@ -19,6 +19,9 @@ import java.util.logging.Logger;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.VirtualProperty;
+import org.minimalj.util.CloneHelper;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 public class Keys {
@@ -95,12 +98,15 @@ public class Keys {
 		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (PropertyInterface property : propertiesOfObject.values()) {
 			Object value = null;
-			Class<?> type = property.getClazz();
+			Class<?> clazz = property.getClazz();
 
 			if (property.isFinal()) {
 				value = property.getValue(object);
+			} else if (property.getClazz() == List.class) {
+				value = new KeyList<>(property);			
+				property.setValue(object, value);	
 			} else {
-				value = createKey(type, property.getName(), property.getDeclaringClass());
+				value = createKey(clazz, property.getName(), property.getDeclaringClass());
 				property.setValue(object, value);	
 			}
 			
@@ -108,7 +114,7 @@ public class Keys {
 				property = new ChainedProperty(enclosingProperty, property);
 			}
 
-			boolean fill = !type.getName().startsWith("java") && !type.isArray();
+			boolean fill = !clazz.getName().startsWith("java") && !clazz.isArray();
 			if (fill && depth < 6) {
 				fillFields(value, property, depth + 1);
 			}
@@ -117,33 +123,31 @@ public class Keys {
 		}
 	}
 	
-	private static Object createKey(Class<?> type, String fieldName, Class<?> declaringClass) {
-		if (type == String.class) {
+	private static Object createKey(Class<?> clazz, String fieldName, Class<?> declaringClass) {
+		if (clazz == String.class) {
 			return new String(fieldName);
-		} else if (type == Integer.class || type == Integer.TYPE) {
+		} else if (clazz == Integer.class || clazz == Integer.TYPE) {
 			return new Integer(0);
-		} else if (type == Long.class || type == Long.TYPE) {
+		} else if (clazz == Long.class || clazz == Long.TYPE) {
 			return new Long(0);
-		} else if (Enum.class.isAssignableFrom(type)) {
-			Class<Enum> enumClass = (Class<Enum>) type;
+		} else if (Enum.class.isAssignableFrom(clazz)) {
+			Class<Enum> enumClass = (Class<Enum>) clazz;
 			return EnumUtils.createEnum(enumClass, fieldName);
-		} else if (type == Boolean.class || type == Boolean.TYPE) {
+		} else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
 			return new Boolean(false);
-		} else if (type == BigDecimal.class) {
+		} else if (clazz == BigDecimal.class) {
 			return new BigDecimal(0);
-		} else if (type == LocalDate.class) {
+		} else if (clazz == LocalDate.class) {
 			return LocalDate.now();			
-		} else if (type == LocalDateTime.class) {
+		} else if (clazz == LocalDateTime.class) {
 			return LocalDateTime.now();	
-		} else if (type == LocalTime.class) {
+		} else if (clazz == LocalTime.class) {
 			return LocalTime.now();				
-		} else if (type.isArray()) {
-			return Array.newInstance(type.getComponentType(), 0);
-		} else if (type == List.class) {
-			return new ArrayList<>();			
+		} else if (clazz.isArray()) {
+			return Array.newInstance(clazz.getComponentType(), 0);
 		} else {
 			try {
-				Object keyObject = type.newInstance();
+				Object keyObject = clazz.newInstance();
 				keyObjects.add(keyObject);
 				return keyObject;
 			} catch (Exception x) {
@@ -273,6 +277,78 @@ public class Keys {
 	
 	private static boolean isStatic(Method method) {
 		return Modifier.isStatic(method.getModifiers());
+	}
+	
+	private static class KeyList<T> extends ArrayList<T> {
+		private static final long serialVersionUID = 1L;
+
+		private final PropertyInterface property;
+		private final Class<T> elementClass;
+		
+		public KeyList(PropertyInterface property) {
+			this.property = property;
+			this.elementClass = (Class<T>) GenericUtils.getGenericClass(property.getType());
+		}
+		
+		@Override
+		public T get(int index) {
+			for (int i = size(); i<= index; i++) {
+				String elementName = i + "_" + property.getName();
+				T key = (T) createKey(elementClass, elementName, null);
+				PropertyInterface property2 = new ChainedProperty(property, new KeyListElementProperty(i, elementName));
+				fillFields(key, property2, 0);
+				properties.put(key, property2);
+				add(key);
+			}
+			return super.get(index);
+		}
+		
+		private class KeyListElementProperty extends VirtualProperty {
+			private final String elementName;
+			private final int index;
+			
+			public KeyListElementProperty(int index, String elementName) {
+				this.index = index;
+				this.elementName = elementName;
+			}
+			
+			@Override
+			public String getName() {
+				return elementName;
+			}
+
+			@Override
+			public Class<?> getClazz() {
+				return getClazz();
+			}
+
+			@Override
+			public Object getValue(Object object) {
+				List list = (List) object;
+				if (list != null) {
+					resize(list);
+					return list.get(index);
+				} else {
+					return null;
+				}
+			}
+
+			@Override
+			public void setValue(Object object, Object value) {
+				List list = (List) object;
+				if (list == null) {
+					throw new NullPointerException();
+				}
+				resize(list);
+				list.set(index, value);
+			}
+
+			private void resize(List list) {
+				for (int i = list.size(); i <= index; i++) {
+					list.add(CloneHelper.newInstance(elementClass));
+				}
+			}
+		}
 	}
 
 }
