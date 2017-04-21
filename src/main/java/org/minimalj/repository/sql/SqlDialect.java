@@ -227,6 +227,49 @@ public abstract class SqlDialect {
 			return 256;
 		}
 	}
+	
+	public static class DerbySqlDialect extends SqlDialect {
+
+		@Override
+		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+			Class<?> clazz = property.getClazz();
+			
+			if (clazz == LocalDateTime.class) {
+				s.append("TIMESTAMP");
+			} else if (clazz == Boolean.class) {
+				s.append("SMALLINT");
+			} else {
+				super.addColumnDefinition(s, property);
+			}
+		}
+		
+		@Override
+		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
+			if (!referencedTableIsHistorized) {
+				return super.createConstraint(tableName, column, referencedTableName, referencedTableIsHistorized);
+			} else {
+				return null;
+			}
+		}
+		
+		@Override
+		public String createUniqueIndex(String tableName, String column) {
+			StringBuilder s = new StringBuilder();
+			s.append("ALTER TABLE ");
+			s.append(tableName);
+			s.append(" ADD CONSTRAINT ");
+			s.append(column);
+			s.append("_UNIQUE UNIQUE (");
+			s.append(column);
+			s.append(')');
+			return s.toString();
+		}
+
+		@Override
+		public int getMaxIdentifierLength() {
+			return 128;
+		}
+	}
 
 	public static class OracleSqlDialect extends SqlDialect {
 

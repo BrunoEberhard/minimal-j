@@ -112,11 +112,13 @@ public class SqlRepository implements TransactionalRepository {
 		if (StringUtils.equals(databaseProductName, "MySQL")) {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
+			return new SqlDialect.DerbySqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "H2")) {
 			return new SqlDialect.H2SqlDialect();
-		} else if (StringUtils.equals(databaseProductName, "Oracle", "H2")) {
-			return new SqlDialect.H2SqlDialect();				
+		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
+			return new SqlDialect.OracleSqlDialect();				
 		} else {
-			throw new RuntimeException("Only Oracle, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
+			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
 		}
 	}
 	

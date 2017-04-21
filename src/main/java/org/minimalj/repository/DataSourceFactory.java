@@ -44,7 +44,7 @@ public class DataSourceFactory {
 		try {
 			dataSource = new JdbcDataSource();
 		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing EmbeddedDataSource. Please ensure to have h2 in the classpath");
+			logger.severe("Missing JdbcDataSource. Please ensure to have h2 in the classpath");
 			throw new IllegalStateException("Configuration error: Missing JdbcDataSource");
 		}
 		dataSource.setUrl(file != null ? "jdbc:h2:" + file : "jdbc:h2:mem:TempDB" + (memoryDbCount++));

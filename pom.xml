@@ -189,6 +189,7 @@
 		    <groupId>com.h2database</groupId>
 		    <artifactId>h2</artifactId>
 		    <version>1.4.193</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jumpmind.symmetric.jdbc</groupId>
