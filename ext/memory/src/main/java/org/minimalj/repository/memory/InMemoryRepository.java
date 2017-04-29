@@ -29,6 +29,9 @@ public class InMemoryRepository implements Repository {
 	
 	public InMemoryRepository(Class<?>... classes) {
 		for (Class<?> clazz : classes) {
+			if (FieldUtils.hasValidHistorizedField(clazz)) {
+				throw new IllegalArgumentException(this.getClass().getSimpleName() + " doesn't support historized classes like " + clazz.getSimpleName());
+			}
 			memory.put(clazz, new HashMap<>());
 		}
 	}

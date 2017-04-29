@@ -6,7 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 
 public class SqlLongFieldNameTest {
 	
@@ -41,7 +40,6 @@ public class SqlLongFieldNameTest {
 		
 		public Object id;
 		public int version;
-		public boolean historized;
 
 		@Size(30)
 		public String aVeryLongFieldNameAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyz;
