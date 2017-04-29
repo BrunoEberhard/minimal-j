@@ -7,9 +7,13 @@ Minimal-J.
 
 The ext projets are not released to a maven repository and don't have a release management yet.
 
+== memory
+
+A Repository that keeps all data in the (VM) memory
+
 == servlet
 
-This project allows to deploy Minimal-J applictions to a java application server like tomcat,
+This project allows to deploy Minimal-J applictions to a java application server like tomcat.
 
 == vaadin_springboot
 
