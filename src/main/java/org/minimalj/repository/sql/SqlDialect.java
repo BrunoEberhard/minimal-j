@@ -209,7 +209,6 @@ public abstract class SqlDialect {
 		}
 	}
 	
-	// Das von h2 überprüfen
 	public static class H2SqlDialect extends SqlDialect {
 	
 		@Override
