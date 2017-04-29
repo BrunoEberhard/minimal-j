@@ -209,18 +209,8 @@ public abstract class SqlDialect {
 		}
 	}
 	
-	// Das von h2 überprüfen
 	public static class H2SqlDialect extends SqlDialect {
 	
-		@Override
-		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
-			if (!referencedTableIsHistorized) {
-				return super.createConstraint(tableName, column, referencedTableName, referencedTableIsHistorized);
-			} else {
-				return null;
-			}
-		}
-
 		@Override
 		public int getMaxIdentifierLength() {
 			// h2 doesn't really have a maximum identifier length
