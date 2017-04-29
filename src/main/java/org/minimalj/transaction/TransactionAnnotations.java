@@ -7,7 +7,7 @@ import org.minimalj.backend.repository.EntityTransaction;
 public class TransactionAnnotations {
 
 	/**
-	 * 
+	 * @param transaction Annotated transaction
 	 * @return the used isolation (for example 'serializable') for transaction
 	 */	
 	public static Isolation.Level getIsolation(Transaction<?> transaction) {
@@ -16,7 +16,7 @@ public class TransactionAnnotations {
 	}
 
 	/**
-	 * 
+	 * @param transaction Annotated transaction
 	 * @return the roles that allow to execute the transaction
 	 */
 	public static String[] getRoles(Transaction<?> transaction) {

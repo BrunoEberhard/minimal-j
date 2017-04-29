@@ -5,7 +5,6 @@ import org.minimalj.repository.query.Criteria;
 /**
  * A RelationCriteria is a special Criteria that is used internally by
  * RelationLists that need to load additional element entities.
- * <p>
  *
  */
 public class RelationCriteria extends Criteria {
