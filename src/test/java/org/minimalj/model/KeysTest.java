@@ -142,7 +142,7 @@ public class KeysTest {
 		}
 	}
 	
-	@Test
+	@Test(expected = IndexOutOfBoundsException.class)
 	public void listElements() {
 		TestClass7 testClass7 = new TestClass7();
 		testClass7.list = new ArrayList<>();
@@ -150,10 +150,13 @@ public class KeysTest {
 		testClass8.value = 42;
 		testClass7.list.add(testClass8);
 		
+		// $.list.get(x) is not supported right now. There was a version of Keys which
+		// implemented it but there are some problems: final lists (can be setAccessible),
+		// resource-names, adhoc generation of missing elements, implementation in SQL queries.
+		// last but not least, the Keys class gets very complicated.
 		PropertyInterface p = Keys.getProperty(TestClass7.$.list.get(0).value);
 		Assert.assertEquals(42, p.getValue(testClass7));
 		
-		// testClass7.list.add(new TestClass8());
 		p = Keys.getProperty(TestClass7.$.list.get(1).value);
 		p.setValue(testClass7, 43);
 		

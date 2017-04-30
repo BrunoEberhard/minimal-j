@@ -3,8 +3,7 @@
 Every release contains many small fixes.
 
 === 1.6.0.0
-* Support for H2 Database
-* Keys allow references to List elements
+* Support for H2 Database - much faster than derby
 * In Memory Database (as extension project)
 
 === 1.5.0.0

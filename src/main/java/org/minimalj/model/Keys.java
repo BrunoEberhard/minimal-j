@@ -19,9 +19,6 @@ import java.util.logging.Logger;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.properties.VirtualProperty;
-import org.minimalj.util.CloneHelper;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 public class Keys {
@@ -100,10 +97,7 @@ public class Keys {
 			Object value = null;
 			Class<?> clazz = property.getClazz();
 
-			if (property.getClazz() == List.class) {
-				value = new KeyList<>(property);			
-				property.setValue(object, value);	
-			} else if (property.isFinal()) {
+			if (property.isFinal()) {
 				value = property.getValue(object);
 			} else {
 				value = createKey(clazz, property.getName(), property.getDeclaringClass());
@@ -145,6 +139,8 @@ public class Keys {
 			return LocalTime.now();				
 		} else if (clazz.isArray()) {
 			return Array.newInstance(clazz.getComponentType(), 0);
+		} else if (clazz == List.class) {
+			return new ArrayList<>();			
 		} else {
 			try {
 				Object keyObject = clazz.newInstance();
@@ -277,78 +273,6 @@ public class Keys {
 	
 	private static boolean isStatic(Method method) {
 		return Modifier.isStatic(method.getModifiers());
-	}
-	
-	public static class KeyList<T> extends ArrayList<T> {
-		private static final long serialVersionUID = 1L;
-
-		private final PropertyInterface property;
-		private final Class<T> elementClass;
-		
-		public KeyList(PropertyInterface property) {
-			this.property = property;
-			this.elementClass = (Class<T>) GenericUtils.getGenericClass(property.getType());
-		}
-		
-		@Override
-		public T get(int index) {
-			for (int i = size(); i<= index; i++) {
-				String elementName = i + "_" + property.getName();
-				T key = (T) createKey(elementClass, elementName, null);
-				PropertyInterface property2 = new ChainedProperty(property, new KeyListElementProperty(i, elementName));
-				fillFields(key, property2, 0);
-				properties.put(key, property2);
-				add(key);
-			}
-			return super.get(index);
-		}
-		
-		private class KeyListElementProperty extends VirtualProperty {
-			private final String elementName;
-			private final int index;
-			
-			public KeyListElementProperty(int index, String elementName) {
-				this.index = index;
-				this.elementName = elementName;
-			}
-			
-			@Override
-			public String getName() {
-				return elementName;
-			}
-
-			@Override
-			public Class<?> getClazz() {
-				return getClazz();
-			}
-
-			@Override
-			public Object getValue(Object object) {
-				List list = (List) object;
-				if (list != null) {
-					resize(list);
-					return list.get(index);
-				} else {
-					return null;
-				}
-			}
-
-			@Override
-			public void setValue(Object object, Object value) {
-				List list = (List) object;
-				if (list == null) {
-					throw new NullPointerException();
-				}
-				resize(list);
-				list.set(index, value);
-			}
-
-			private void resize(List list) {
-				for (int i = list.size(); i <= index; i++) {
-					list.add(CloneHelper.newInstance(elementClass));
-				}
-			}
-		}
 	}
 
 }
