@@ -100,11 +100,11 @@ public class Keys {
 			Object value = null;
 			Class<?> clazz = property.getClazz();
 
-			if (property.isFinal()) {
-				value = property.getValue(object);
-			} else if (property.getClazz() == List.class) {
+			if (property.getClazz() == List.class) {
 				value = new KeyList<>(property);			
 				property.setValue(object, value);	
+			} else if (property.isFinal()) {
+				value = property.getValue(object);
 			} else {
 				value = createKey(clazz, property.getName(), property.getDeclaringClass());
 				property.setValue(object, value);	
@@ -279,7 +279,7 @@ public class Keys {
 		return Modifier.isStatic(method.getModifiers());
 	}
 	
-	private static class KeyList<T> extends ArrayList<T> {
+	public static class KeyList<T> extends ArrayList<T> {
 		private static final long serialVersionUID = 1L;
 
 		private final PropertyInterface property;

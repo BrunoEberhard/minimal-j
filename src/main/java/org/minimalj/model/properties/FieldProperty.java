@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.minimalj.model.Keys;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -40,6 +41,9 @@ public class FieldProperty implements PropertyInterface {
 	public void setValue(Object object, Object value) {
 		try {
 			if (!isFinal) {
+				field.set(object, value);
+			} else if (value instanceof Keys.KeyList) {
+				field.setAccessible(true);
 				field.set(object, value);
 			} else {
 				Object finalObject = field.get(object);
