@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.minimalj.model.View;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -44,7 +46,7 @@ class PredicateFactory {
 					} else if (value == null) {
 						value = EmptyObjects.getEmptyObject(object.getClass());
 					}
-					int sign = ((Comparable) value).compareTo(object);
+					int sign = ((Comparable) object).compareTo(value);
 					switch (fieldCriteria.getOperator()) {
 					case less:
 						return sign < 0;
@@ -104,6 +106,10 @@ class PredicateFactory {
 	}
 
 	private static List<PropertyInterface> findSearchColumns(Class<?> clazz) {
+		if (View.class.isAssignableFrom(clazz)) {
+			clazz = ViewUtil.getViewedClass(clazz);
+		}
+		
 		List<PropertyInterface> searchColumns = new ArrayList<>();
 		for (PropertyInterface property : Properties.getProperties(clazz).values()) {
 			Searched searchable = property.getAnnotation(Searched.class);

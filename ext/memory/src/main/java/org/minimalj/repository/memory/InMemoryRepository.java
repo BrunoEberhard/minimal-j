@@ -3,20 +3,27 @@ package org.minimalj.repository.memory;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.minimalj.model.View;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
+import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
+import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Subject;
 import org.minimalj.util.CloneHelper;
@@ -24,13 +31,14 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
 public class InMemoryRepository implements Repository {
-
+	private static final Logger logger = Logger.getLogger(InMemoryRepository.class.getName());
+	
 	private Map<Class<?>, Map<Object, Object>> memory = new HashMap<>();
 	
 	public InMemoryRepository(Class<?>... classes) {
 		for (Class<?> clazz : classes) {
 			if (FieldUtils.hasValidHistorizedField(clazz)) {
-				throw new IllegalArgumentException(this.getClass().getSimpleName() + " doesn't support historized classes like " + clazz.getSimpleName());
+				logger.warning(this.getClass().getSimpleName() + " doesn't support historized classes like " + clazz.getSimpleName());
 			}
 			memory.put(clazz, new HashMap<>());
 		}
@@ -43,10 +51,10 @@ public class InMemoryRepository implements Repository {
 	}
 
 	private <T> Map<Object, Object> objects(Class<T> clazz) {
-		Map<Object, Object> objects = memory.get(clazz);
-		if (objects == null) {
-			throw new IllegalArgumentException();
+		if (!memory.containsKey(clazz)) {
+			memory.put(clazz, new HashMap<>());
 		}
+		Map<Object, Object> objects = memory.get(clazz);
 		return objects;
 	}
 
@@ -60,6 +68,29 @@ public class InMemoryRepository implements Repository {
 			} else {
 				return l.subList(limit.getOffset(), Math.min(limit.getOffset() + limit.getRows(), l.size()));
 			}
+		} else if (query instanceof Order) {
+			Order order = (Order) query;
+			List l = find(clazz, order.getQuery());
+			if (l.isEmpty()) {
+				return l;
+			}
+			String path = order.getPath();
+			if (path.contains(".")) {
+				throw new IllegalArgumentException();
+			}
+			PropertyInterface property = Properties.getProperty(l.get(0).getClass(), path);
+			Collections.sort(l, (a, b) -> {
+				Object value1 = property.getValue(a);
+				Object value2 = property.getValue(b);
+				if (value1 == null) {
+					return value2 == null ? 0 : -1;
+				} else if (value2 == null) {
+					return 1;
+				} else {
+					return ((Comparable) value1).compareTo(value2);
+				}
+			});
+			return l;
 		} else if (query instanceof Criteria) {
 			return find(clazz, (Criteria) query);
 		} else {
@@ -68,9 +99,15 @@ public class InMemoryRepository implements Repository {
 	}
 	
 	public <T> List find(Class<T> clazz, Criteria criteria) {
-		Map<Object, Object> objects = objects(clazz);
 		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
-		return (List) objects.values().stream().filter(predicate).collect(Collectors.toList());
+		if (View.class.isAssignableFrom(clazz)) {
+			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
+			Map<Object, Object> objects = objects(viewedClass);
+			return (List) objects.values().stream().filter(predicate).map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
+		} else {
+			Map<Object, Object> objects = objects(clazz);
+			return (List) objects.values().stream().filter(predicate).collect(Collectors.toList());
+		}
 //		return (List) objects.values().stream().filter(criteria).collect(Collectors.toList());
 	}
 	
