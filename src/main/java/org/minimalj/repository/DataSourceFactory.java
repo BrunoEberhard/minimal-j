@@ -1,5 +1,6 @@
 package org.minimalj.repository;
 
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import javax.naming.Context;
@@ -9,7 +10,7 @@ import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.h2.jdbcx.JdbcDataSource;
-import org.mariadb.jdbc.MySQLDataSource;
+import org.mariadb.jdbc.MariaDbDataSource;
 import org.minimalj.util.LoggingRuntimeException;
 
 public class DataSourceFactory {
@@ -77,14 +78,16 @@ public class DataSourceFactory {
 	
 	public static DataSource mariaDbDataSource(String url, String user, String password) {
 		try {
-			MySQLDataSource dataSource = new MySQLDataSource();
-			dataSource.setURL(url);
+			MariaDbDataSource dataSource = new MariaDbDataSource();
+			dataSource.setUrl(url);
 			dataSource.setUser(user);
 			dataSource.setPassword(password);
 			return dataSource;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing MySQLDataSource. Please ensure to have mariadb-java-client in the classpath");
-			throw new IllegalStateException("Configuration error: Missing MySQLDataSource");
+			logger.severe("Missing MariaDbDataSource. Please ensure to have mariadb-java-client in the classpath");
+			throw new IllegalStateException("Configuration error: Missing MariaDbDataSource");
 		}
 	}
 

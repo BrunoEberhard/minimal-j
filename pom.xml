@@ -192,9 +192,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jumpmind.symmetric.jdbc</groupId>
+			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>1.1.1</version>
+			<version>1.5.9</version>
 			<scope>provided</scope>
 		</dependency>
  		

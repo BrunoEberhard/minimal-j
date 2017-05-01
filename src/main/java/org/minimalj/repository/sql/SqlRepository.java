@@ -124,9 +124,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	private Connection getAutoCommitConnection() {
 		try {
-			// problem with isValid in maria db driver < 1.1.8 
-			// if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
-			if (autoCommitConnection == null) {
+			if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
 				autoCommitConnection = dataSource.getConnection();
 				autoCommitConnection.setAutoCommit(true);
 			}
