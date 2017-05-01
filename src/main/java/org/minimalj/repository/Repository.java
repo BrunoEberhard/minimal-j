@@ -21,11 +21,11 @@ public interface Repository {
 	public static final Logger logger = Logger.getLogger(Repository.class.getName());
 
 	public static Repository create() {
-		if (Configuration.available("MjRepository")) {
-			return Configuration.getClazz("MjRepository", Repository.class);
-		}
-		
 		Class<?>[] entityClasses = Application.getInstance().getEntityClasses();
+
+		if (Configuration.available("MjRepository")) {
+			return Configuration.getClazz("MjRepository", Repository.class, (Object) entityClasses);
+		}
 
 		DataSource jndiDataSource = DataSourceFactory.getJndiDataSource();
 		if (jndiDataSource != null) {
