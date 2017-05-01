@@ -236,13 +236,13 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	private static boolean createTablesOnInitialize(DataSource dataSource) {
-		if (dataSource instanceof EmbeddedDataSource) {
+		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
+		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
 			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
-		} else if (dataSource instanceof JdbcDataSource) {
+		} else if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
 			return ((JdbcDataSource) dataSource).getUrl().startsWith("jdbc:h2:mem:TempDB");
-		} else {
-			return false;
 		}
+		return false;
 	}
 	
 	@Override
