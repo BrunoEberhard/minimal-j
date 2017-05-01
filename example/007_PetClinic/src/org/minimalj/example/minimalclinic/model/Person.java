@@ -14,7 +14,7 @@ public class Person implements Rendering, Mocking {
     public String firstName, lastName;
 
 	public String getName() {
-		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "name", String.class);
+		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "name");
 		
 		return firstName + " " + lastName;
 	}

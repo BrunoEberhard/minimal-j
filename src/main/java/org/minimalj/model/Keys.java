@@ -56,27 +56,35 @@ public class Keys {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T methodOf(Object keyObject, String methodName, Class<T> returnType) {
+	public static <T> T methodOf(Object keyObject, String propertyName) {
 		String qualifiedMethodName = null;
 		
 		PropertyInterface enclosingProperty = null;
 		if (properties.containsKey(keyObject)) {
 			enclosingProperty = properties.get(keyObject);
-			qualifiedMethodName = enclosingProperty.getDeclaringClass().getName() + "." + enclosingProperty.getPath() + "." + methodName;
+			qualifiedMethodName = enclosingProperty.getDeclaringClass().getName() + "." + enclosingProperty.getPath() + "." + propertyName;
 		} else {
-			qualifiedMethodName = keyObject.getClass().getName() + "." + methodName;
+			qualifiedMethodName = keyObject.getClass().getName() + "." + propertyName;
 		}
 		
-		if (methodKeyByName.containsKey(qualifiedMethodName)) {
-			return (T) methodKeyByName.get(qualifiedMethodName);
+		PropertyInterface property = getMethodProperty(keyObject.getClass(), propertyName);
+		if (property == null) {
+			if (propertyName.startsWith("get")) {
+				throw new IllegalArgumentException("methodOf must be called with the property name. Not with the getter name");
+			} else {
+				throw new IllegalArgumentException("methodOf called with invalid property name");
+			}
 		}
-		T t = (T)createKey(returnType, qualifiedMethodName, null);
-		methodKeyByName.put(qualifiedMethodName, t);
-		
-		PropertyInterface property = getMethodProperty(keyObject.getClass(), methodName);
 		if (enclosingProperty != null) {
 			property = new ChainedProperty(enclosingProperty, property);
 		}
+
+		if (methodKeyByName.containsKey(qualifiedMethodName)) {
+			return (T) methodKeyByName.get(qualifiedMethodName);
+		}
+		T t = (T)createKey(property.getClazz(), qualifiedMethodName, null);
+		methodKeyByName.put(qualifiedMethodName, t);
+		
 		fillFields(t, property, 0);
 		properties.put(t, property);
 		
@@ -87,12 +95,12 @@ public class Keys {
 		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (PropertyInterface property : propertiesOfObject.values()) {
 			Object value = null;
-			Class<?> type = property.getClazz();
+			Class<?> clazz = property.getClazz();
 
 			if (property.isFinal()) {
 				value = property.getValue(object);
 			} else {
-				value = createKey(type, property.getName(), property.getDeclaringClass());
+				value = createKey(clazz, property.getName(), property.getDeclaringClass());
 				property.setValue(object, value);	
 			}
 			
@@ -100,7 +108,7 @@ public class Keys {
 				property = new ChainedProperty(enclosingProperty, property);
 			}
 
-			boolean fill = !type.getName().startsWith("java") && !type.isArray();
+			boolean fill = !clazz.getName().startsWith("java") && !clazz.isArray();
 			if (fill && depth < 6) {
 				fillFields(value, property, depth + 1);
 			}
@@ -109,33 +117,33 @@ public class Keys {
 		}
 	}
 	
-	private static Object createKey(Class<?> type, String fieldName, Class<?> declaringClass) {
-		if (type == String.class) {
+	private static Object createKey(Class<?> clazz, String fieldName, Class<?> declaringClass) {
+		if (clazz == String.class) {
 			return new String(fieldName);
-		} else if (type == Integer.class || type == Integer.TYPE) {
+		} else if (clazz == Integer.class || clazz == Integer.TYPE) {
 			return new Integer(0);
-		} else if (type == Long.class || type == Long.TYPE) {
+		} else if (clazz == Long.class || clazz == Long.TYPE) {
 			return new Long(0);
-		} else if (Enum.class.isAssignableFrom(type)) {
-			Class<Enum> enumClass = (Class<Enum>) type;
+		} else if (Enum.class.isAssignableFrom(clazz)) {
+			Class<Enum> enumClass = (Class<Enum>) clazz;
 			return EnumUtils.createEnum(enumClass, fieldName);
-		} else if (type == Boolean.class || type == Boolean.TYPE) {
+		} else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
 			return new Boolean(false);
-		} else if (type == BigDecimal.class) {
+		} else if (clazz == BigDecimal.class) {
 			return new BigDecimal(0);
-		} else if (type == LocalDate.class) {
+		} else if (clazz == LocalDate.class) {
 			return LocalDate.now();			
-		} else if (type == LocalDateTime.class) {
+		} else if (clazz == LocalDateTime.class) {
 			return LocalDateTime.now();	
-		} else if (type == LocalTime.class) {
+		} else if (clazz == LocalTime.class) {
 			return LocalTime.now();				
-		} else if (type.isArray()) {
-			return Array.newInstance(type.getComponentType(), 0);
-		} else if (type == List.class) {
+		} else if (clazz.isArray()) {
+			return Array.newInstance(clazz.getComponentType(), 0);
+		} else if (clazz == List.class) {
 			return new ArrayList<>();			
 		} else {
 			try {
-				Object keyObject = type.newInstance();
+				Object keyObject = clazz.newInstance();
 				keyObjects.add(keyObject);
 				return keyObject;
 			} catch (Exception x) {

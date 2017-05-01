@@ -54,6 +54,21 @@ public class CsvReaderTest {
 		
 		reader = reader("ab,");
 		Assert.assertEquals("ab", reader.readField());
+
+		reader = reader(" ab,");
+		Assert.assertEquals("ab", reader.readField());
+
+		reader = reader("  ab,");
+		Assert.assertEquals("ab", reader.readField());
+
+		reader = reader("ab ,");
+		Assert.assertEquals("ab", reader.readField());
+		
+		reader = reader(" \"ab\",");
+		Assert.assertEquals("ab", reader.readField());
+		
+		reader = reader("\t\"ab\"\t,");
+		Assert.assertEquals("ab", reader.readField());
 	}
 	
 	
@@ -85,12 +100,36 @@ public class CsvReaderTest {
 	public void testReadFields() throws Exception {
 		CsvReader reader = reader("i,l,bd,s, ld\n142, 123456789012345, 2.1, s, " + LocalDate.of(2012, 3, 4));
 		List<CsvReaderTestA> result = reader.readValues(CsvReaderTestA.class);
+		checkResult(result);
+	}
+
+	private void checkResult(List<CsvReaderTestA> result) {
 		Assert.assertEquals(1, result.size());
 		Assert.assertEquals((long)142, (long) result.get(0).i);
 		Assert.assertEquals(123456789012345L, (long) result.get(0).l);
 		Assert.assertEquals(new BigDecimal("2.1"), result.get(0).bd);
 		Assert.assertEquals("s", result.get(0).s);
 		Assert.assertEquals(LocalDate.of(2012, 3, 4), result.get(0).ld);
+	}
+
+	@Test
+	public void testReadWithSpaces() throws Exception {
+		CsvReader reader = reader("i, l,  bd,   s,  ld\n    142,   123456789012345,   2.1,   s,   " + LocalDate.of(2012, 3, 4));
+		List<CsvReaderTestA> result = reader.readValues(CsvReaderTestA.class);
+		checkResult(result);
+	}
+
+	@Test
+	public void testReadWithTabs() throws Exception {
+		CsvReader reader = reader("\ti,\tl\t,\tbd\t,\t\ts,\tld\n\t142,\t123456789012345,\t2.1,\ts,\t" + LocalDate.of(2012, 3, 4));
+		List<CsvReaderTestA> result = reader.readValues(CsvReaderTestA.class);
+		checkResult(result);
+	}
+
+	@Test
+	public void testReadWithMissingLastValue() throws Exception {
+		CsvReader reader = reader("i,l,bd,s,ld\n 142,123456789012345,2.1,s,");
+		reader.readValues(CsvReaderTestA.class);
 	}
 	
 	private static CsvReader reader(String s) {

@@ -45,9 +45,9 @@
 			<version>10.11.1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jumpmind.symmetric.jdbc</groupId>
+			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>1.1.1</version>
+			<version>1.5.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.lanterna</groupId>

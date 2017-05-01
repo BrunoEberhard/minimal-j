@@ -119,6 +119,49 @@ public class KeysTest {
 		Assert.assertEquals(message, "testClass1b.s1", Keys.getProperty(TestClass2.$.getTestClass1b().s1).getPath());
 		Assert.assertEquals(message, "testClass1b.testClass3.list", Keys.getProperty(TestClass2.$.getTestClass1b().getTestClass3().list).getPath());
 	}
+
+	@Test
+	public void methodPropertyGetterName() {
+		try {
+			// initialize keys
+			TestClass5.$.getA();
+			Assert.fail();
+		} catch (Exception x) {
+			Assert.assertTrue(x.getMessage().startsWith("methodOf must be called with the property name"));
+		}
+	}
+
+	@Test
+	public void methodPropertyWrongName() {
+		try {
+			// initialize keys
+			TestClass6.$.getA();
+			Assert.fail();
+		} catch (Exception x) {
+			Assert.assertTrue(x.getMessage().startsWith("methodOf called with invalid property name"));
+		}
+	}
+	
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void listElements() {
+		TestClass7 testClass7 = new TestClass7();
+		testClass7.list = new ArrayList<>();
+		TestClass8 testClass8 = new TestClass8();
+		testClass8.value = 42;
+		testClass7.list.add(testClass8);
+		
+		// $.list.get(x) is not supported right now. There was a version of Keys which
+		// implemented it but there are some problems: final lists (can be setAccessible),
+		// resource-names, adhoc generation of missing elements, implementation in SQL queries.
+		// last but not least, the Keys class gets very complicated.
+		PropertyInterface p = Keys.getProperty(TestClass7.$.list.get(0).value);
+		Assert.assertEquals(42, p.getValue(testClass7));
+		
+		p = Keys.getProperty(TestClass7.$.list.get(1).value);
+		p.setValue(testClass7, 43);
+		
+		Assert.assertEquals(Integer.valueOf(43), testClass7.list.get(1).value);
+	}
 	
 	//
 	
@@ -129,7 +172,7 @@ public class KeysTest {
 		private Boolean b2;
 		
 		public Boolean getB2() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b2", Boolean.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b2");
 			
 			return b2;
 		}
@@ -139,7 +182,7 @@ public class KeysTest {
 		}
 		
 		public TestClass3 getTestClass3() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass3", TestClass3.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass3");
 			return null;
 		}
 	}
@@ -155,7 +198,7 @@ public class KeysTest {
 		public final TestClass1 tc1 = new TestClass1();
 		
 		public String getS3() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "s3", String.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "s3");
 
 			return s3;
 		}
@@ -165,7 +208,7 @@ public class KeysTest {
 		}
 		
 		public Boolean getB1() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b1", Boolean.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "b1");
 			
 			return b1;
 		}
@@ -175,7 +218,7 @@ public class KeysTest {
 		}
 
 		public TestClass1 getTestClass1b() {
-			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass1b", TestClass1.class);
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "testClass1b");
 			return testClass1b;
 		}
 		
@@ -192,5 +235,41 @@ public class KeysTest {
 		
 		public final TestClass1 testClass1 = new TestClass1();
 	}
+
+	public static class TestClass5 {
+		public static final TestClass5 $ = Keys.of(TestClass5.class);
+		
+		public String getA() {
+			if (Keys.isKeyObject(this)) {
+				return Keys.methodOf(this, "getA");
+			}
+			
+			return "unused string";
+		}
+	}
 	
+	public static class TestClass6 {
+		public static final TestClass6 $ = Keys.of(TestClass6.class);
+		
+		public String getA() {
+			if (Keys.isKeyObject(this)) {
+				return Keys.methodOf(this, "b");
+			}
+			
+			return "unused string";
+		}
+	}
+
+	public static class TestClass7 {
+		public static final TestClass7 $ = Keys.of(TestClass7.class);
+		
+		public List<TestClass8> list;
+	}
+
+	public static class TestClass8 {
+		public static final TestClass8 $ = Keys.of(TestClass8.class);
+		
+		public Integer value;
+	}
+
 }

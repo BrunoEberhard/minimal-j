@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +43,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(SwingTable.class.getName());
+	private static final int PAGE_SIZE = 50;
 	
 	private final Object[] keys;
 	private final List<PropertyInterface> properties;
@@ -88,10 +88,12 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         JPanel panel = new JPanel(new FlowLayout());
         panel.setOpaque(false);
         prevButton = SwingDecoration.createDecorationButton(SwingDecoration.Part.PREV);
-        prevButton.addActionListener(e -> { offset -= 50; setObjects(list); });
+        prevButton.addActionListener(e -> setOffset(offset - PAGE_SIZE));
+        prevButton.setVisible(false);
 		panel.add(prevButton);
 		nextButton = SwingDecoration.createDecorationButton(SwingDecoration.Part.NEXT);
-		nextButton.addActionListener(e -> { offset += 50; setObjects(list); });
+		nextButton.addActionListener(e -> setOffset(offset + PAGE_SIZE));
+        nextButton.setVisible(false);
 		panel.add(nextButton);
         table.getTableHeader().add(panel, BorderLayout.LINE_END);
 	}
@@ -113,19 +115,21 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 	
 	private void bindRowHeightToFont() {
-		table.addPropertyChangeListener("UI", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				table.setRowHeight(table.getFont().getSize() * 5 / 3 + 2);
-			}
-		});
+		PropertyChangeListener listener = event -> table.setRowHeight(table.getFont().getSize() * 5 / 3 + 2);
+		listener.propertyChange(null);
+		table.addPropertyChangeListener("UI", listener);
 	}
 
 	@Override
 	public void setObjects(List<T> list) {
 		this.list = list;
-		tableModel.setObjects(list.subList(offset, Math.min(list.size(), offset + 50)));
-		nextButton.setVisible(list.size() > offset + 50);
+		setOffset(0);
+	}
+	
+	private void setOffset(int offset) {
+		this.offset = offset;
+		tableModel.setObjects(list.subList(offset, Math.min(list.size(), offset + PAGE_SIZE)));
+		nextButton.setVisible(list.size() > offset + PAGE_SIZE);
 		prevButton.setVisible(offset > 0);
 	}
 
@@ -178,7 +182,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         		if (list instanceof Sortable) {
         			((Sortable) list).sort(keys, directions);
         		}
-        		tableModel.setObjects(list.subList(offset, Math.min(list.size(), offset + 50)));
+        		setOffset(0);
         	}
         }
     }

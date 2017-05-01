@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -213,9 +214,15 @@ public class Table<T> extends AbstractTable<T> {
 	private List<String> getColumns(Object[] keys) {
 		List<String> result = new ArrayList<>();
 		PropertyInterface[] properties = Keys.getProperties(keys);
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-			PropertyInterface property = entry.getValue();
-			for (PropertyInterface p : properties) {
+		for (PropertyInterface p : properties) {
+			if (p instanceof MethodProperty) {
+				throw new IllegalArgumentException("Not possible to query for method properties");
+			} else if (p.getPath().equals("id")) {
+				result.add("id");
+				continue;
+			}
+			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+				PropertyInterface property = entry.getValue();
 				if (p.getPath().equals(property.getPath())) {
 					result.add(entry.getKey());
 				}
@@ -268,10 +275,7 @@ public class Table<T> extends AbstractTable<T> {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
 			result = new ArrayList<>();
 			String crossTableName = relationCriteria.getCrossName();
-			if (!sqlRepository.getTableByName().containsKey(crossTableName)) {
-				// this is only done to avoid SQL Injection
-				throw new IllegalArgumentException("Invalid cross name: " + crossTableName);
-			}
+			avoidSqlInjection(crossTableName);
 			String clause = "T.id = C.elementId AND C.id = ? ORDER BY C.position";
 			result.add(clause);
 			result.add(relationCriteria.getRelatedId());
@@ -301,6 +305,12 @@ public class Table<T> extends AbstractTable<T> {
 			throw new IllegalArgumentException("Unknown criteria: " + query);
 		}
 		return result;
+	}
+
+	private void avoidSqlInjection(String crossTableName) {
+		if (!sqlRepository.getTableByName().containsKey(crossTableName)) {
+			throw new IllegalArgumentException("Invalid cross name: " + crossTableName);
+		}
 	}
 	
 	private String order(List<Order> orders) {
@@ -347,6 +357,7 @@ public class Table<T> extends AbstractTable<T> {
 		if (query instanceof RelationCriteria) {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
 			tableName = relationCriteria.getCrossName();
+			avoidSqlInjection(tableName);
 			whereClause = Arrays.asList("id = ?", relationCriteria.getRelatedId());
 		} else {
 			tableName = getTableName();

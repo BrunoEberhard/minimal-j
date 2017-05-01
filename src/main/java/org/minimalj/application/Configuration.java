@@ -3,6 +3,7 @@ package org.minimalj.application;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,12 +62,21 @@ public class Configuration {
 		return get(key) != null;
 	}
 	
-	public static <T> T getClazz(String key, Class<T> clazz) {
+	public static <T> T getClazz(String key, Class<T> clazz, Object... parameters) {
 		String className = get(key);
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends T> configuredClass = (Class<? extends T>) Class.forName(className);
-			return configuredClass.newInstance();
+			if (parameters == null) {
+				return configuredClass.newInstance();
+			} else {
+				Class<?>[] parameterTypes = new Class[parameters.length];
+				for (int i = 0; i<parameters.length; i++) {
+					parameterTypes[i] = parameters[i].getClass();
+				}
+				Constructor<? extends T> constructor = configuredClass.getConstructor(parameterTypes);
+				return constructor.newInstance(parameters);
+			}
 		} catch (ClassNotFoundException e) {
 			throw new LoggingRuntimeException(e, logger, className + " not found / " + key + " configuration failed");
 		} catch (ClassCastException cce) {

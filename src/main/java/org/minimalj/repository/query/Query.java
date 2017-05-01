@@ -6,7 +6,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
 /**
- * The inner interfaces enforce the pattern: criteria(s) / order(s) / limit.<p>
+ * The inner interfaces enforce the pattern: criteria(s) / order(s) / limit.
  * 
  * <UL>
  * <LI>To a criteria a next criteria can be added but also an order or limit</LI>
