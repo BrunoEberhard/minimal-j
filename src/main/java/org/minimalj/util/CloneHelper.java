@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.minimalj.repository.sql.LazyList;
+import org.minimalj.repository.list.RelationList;
 
 public class CloneHelper {
 
@@ -30,11 +30,22 @@ public class CloneHelper {
 	public static <T> T clone(T object) {
 		if (object == null) return null;
 
+		return clone(object, new ArrayList(), new ArrayList());
+	}
+	
+	public static <T> T clone(T object, List originals, List copies) {
+		int pos = originals.indexOf(object);
+		if (pos >= 0) {
+			return (T) copies.get(pos);
+		}
+			
 		@SuppressWarnings("unchecked")
 		Class<T> clazz = (Class<T>) object.getClass();
 		try {
 			T copy = newInstance(clazz);
-			_deepCopy(object, copy);
+			originals.add(object);
+			copies.add(copy);
+			_deepCopy(object, copy, originals, copies);
 			return copy;
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
@@ -54,14 +65,14 @@ public class CloneHelper {
 		if (from.getClass() != to.getClass()) throw new IllegalArgumentException("from and to must have exactly same class, from has " + from.getClass() + " to has " + to.getClass());
 
 		try {
-			_deepCopy(from, to);
+			_deepCopy(from, to, new ArrayList(), new ArrayList());
 		} catch (IllegalAccessException | IllegalArgumentException x) {
 			throw new RuntimeException(x);
 		}
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void _deepCopy(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
+	private static void _deepCopy(Object from, Object to, List originals, List copies) throws IllegalArgumentException, IllegalAccessException {
 		for (Field field : from.getClass().getDeclaredFields()) {
 			if (FieldUtils.isStatic(field)) continue;
 			Object fromValue = field.get(from);
@@ -69,8 +80,8 @@ public class CloneHelper {
 			if (fromValue instanceof List) {
 				List fromList = (List)fromValue;
 				List toList = (List)toValue;
-				if (fromList instanceof LazyList) {
-					// LazyList doesn't need to be cloned
+				if (fromList instanceof RelationList) {
+					// RelationList doesn't need to be cloned
 					field.set(to, fromList);
 				} else if (fromList != null) {
 					if (FieldUtils.isFinal(field)) {
@@ -80,7 +91,7 @@ public class CloneHelper {
 						field.set(to, toList);
 					}
 					for (Object element : fromList) {
-						toList.add(clone(element));
+						toList.add(clone(element, originals, copies));
 					}
 				}
 			} else if (fromValue instanceof Set) {
@@ -96,16 +107,19 @@ public class CloneHelper {
 			} else if (FieldUtils.isFinal(field)) {
 				if (fromValue != null) {
 					if (toValue != null) {
-						deepCopy(fromValue, toValue);
+						_deepCopy(fromValue, toValue, originals, copies);
 					} else {
 						throw new IllegalStateException("final field is not null in from object but null in to object. Field: " + field);
 					}
 				}
 			} else if (FieldUtils.isTransient(field) || fromValue == null) {
 				// note: transient fields are copied but not cloned!
+				field.set(to, fromValue);
+			} else if (fromValue instanceof byte[]) {
+				toValue = ((byte[]) fromValue).clone();
 				field.set(to, toValue);
 			} else {
-				toValue = CloneHelper.clone(fromValue);
+				toValue = clone(fromValue, originals, copies);
 				field.set(to, toValue);
 			}
 		}

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.minimalj.model.Code;
@@ -12,10 +13,25 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.LoggingRuntimeException;
 
-public abstract class PreferencesHelper {
+public class PreferencesHelper {
+
 	private static final Logger logger = Logger.getLogger(PreferencesHelper.class.getName());
-	
+
+	public static void load(Object data) {
+		Preferences preferences = Preferences.userNodeForPackage(data.getClass()).node(data.getClass().getSimpleName());
+		load(preferences, data);
+	}
+
+	/**
+	 * loads a (Minimal-J) Object from a (java.util) Preferences node.
+	 * 
+	 * @param preferences
+	 *            the user preferences
+	 * @param data
+	 *            the object to be filled
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void load(Preferences preferences, Object data) {
 		for (Entry<String, PropertyInterface> entry : FlatProperties.getProperties(data.getClass()).entrySet()) {
@@ -60,10 +76,17 @@ public abstract class PreferencesHelper {
 					}
 				}
 			} else {
-				logger.warning("Preference Field with unsupported Class: " + key + " of class " + clazz.getSimpleName() + " in " + data.getClass().getSimpleName());
+				logger.warning("Preference Field with unsupported Class: " + key + " of class " + clazz.getSimpleName()
+						+ " in " + data.getClass().getSimpleName());
 			}
 			FlatProperties.set(data, key, value);
 		}
+	}
+
+	public static void save(Object object) {
+		Preferences preferences = Preferences.userNodeForPackage(object.getClass())
+				.node(object.getClass().getSimpleName());
+		save(preferences, object);
 	}
 
 	public static void save(Preferences preferences, Object object) {
@@ -73,11 +96,11 @@ public abstract class PreferencesHelper {
 			if (value == null) {
 				preferences.remove(key);
 			} else if (value instanceof Boolean) {
-				preferences.putBoolean(key, (Boolean)value);
+				preferences.putBoolean(key, (Boolean) value);
 			} else if (value instanceof String) {
-				preferences.put(key, (String)value);
+				preferences.put(key, (String) value);
 			} else if (value instanceof Integer) {
-				preferences.putInt(key, (Integer)value);
+				preferences.putInt(key, (Integer) value);
 			} else if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
 				preferences.putInt(key, e.ordinal());
@@ -90,12 +113,17 @@ public abstract class PreferencesHelper {
 				} else if (id instanceof Integer) {
 					preferences.putInt(key, (Integer) id);
 				} else {
-					throw new IllegalArgumentException("Only codes with String or Integer ids are allowed for preferences object");
+					throw new IllegalArgumentException(
+							"Only codes with String or Integer ids are allowed for preferences object");
 				}
 			} else {
 				throw new IllegalArgumentException();
 			}
 		}
+		try {
+			preferences.flush();
+		} catch (BackingStoreException e) {
+			throw new LoggingRuntimeException(e, logger, e.getMessage());
+		}
 	}
-
 }

@@ -6,7 +6,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 
 /**
- * The inner interfaces enforce the pattern: criteria(s) / order(s) / limit.<p>
+ * The inner interfaces enforce the pattern: criteria(s) / order(s) / limit.
  * 
  * <UL>
  * <LI>To a criteria a next criteria can be added but also an order or limit</LI>
@@ -23,12 +23,12 @@ public interface Query extends Serializable {
 			return new Limit(this, rows);
 		}
 
-		public default Query limit(int offset, Integer rows) {
+		public default Query limit(Integer offset, int rows) {
 			return new Limit(this, offset, rows);
 		}
 	}
 	
-	public interface QueryOrderable extends Query {
+	public interface QueryOrderable extends QueryLimitable {
 		
 		public default Order order(Object key) {
 			return order(key, true);

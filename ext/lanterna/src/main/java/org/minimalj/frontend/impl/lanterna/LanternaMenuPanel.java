@@ -19,6 +19,7 @@ import com.googlecode.lanterna.gui.component.TextBox;
 import com.googlecode.lanterna.gui.dialog.ActionListDialog;
 import com.googlecode.lanterna.gui.layout.BorderLayout;
 import com.googlecode.lanterna.gui.layout.HorisontalLayout;
+import com.googlecode.lanterna.terminal.TerminalSize;
 
 public class LanternaMenuPanel extends Panel {
 	private final LanternaGUIScreen guiScreen;
@@ -32,7 +33,8 @@ public class LanternaMenuPanel extends Panel {
 
 		Panel panel = new Panel();
 		panel.setLayoutManager(new BorderLayout());
-
+		panel.setPreferredSize(new TerminalSize(Integer.MAX_VALUE, 1));
+		
 		bar = new Panel();
 		bar.setLayoutManager(new HorisontalLayout());
 		updateMenu(null);

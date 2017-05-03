@@ -10,8 +10,8 @@ import java.util.Stack;
 
 public class JsonWriter {
 
-	private StringBuilder buf = new StringBuilder();
-	private Stack<Object> calls = new Stack<>();
+	private final StringBuilder s = new StringBuilder(512);
+	private final Stack<Object> calls = new Stack<>();
 
 	private static final String spaces = "                                                            ";
 	private static final int stepsize = 3;
@@ -22,9 +22,9 @@ public class JsonWriter {
 	}
 
 	public String write(Map<String, Object> values) {
-		buf.setLength(0);
+		s.setLength(0);
 		value(values);
-		return buf.toString();
+		return s.toString();
 	}
 
 	private void indent() {
@@ -47,14 +47,16 @@ public class JsonWriter {
 		indent();
 	}
 
-	private void stepIn() {
+	private void stepIn(char c) {
+		add(c);
 		++level;
 		nl();
 	}
 
-	private void stepOut() {
+	private void stepOut(char c) {
 		--level;
 		nl();
+		add(c);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -63,9 +65,7 @@ public class JsonWriter {
 			add("null");
 		} else {
 			calls.push(object);
-			if (object instanceof Class)
-				string(object);
-			else if (object instanceof Boolean)
+			if (object instanceof Boolean)
 				bool(((Boolean) object).booleanValue());
 			else if (object instanceof Number)
 				add(object);
@@ -82,7 +82,7 @@ public class JsonWriter {
 			else if (object instanceof Collection)
 				array(((Collection) object).iterator());
 			else {
-				System.err.println(buf.toString());
+				System.err.println(s.toString());
 				throw new IllegalArgumentException("cannot be serialized in json: " + object);
 			}
 			calls.pop();
@@ -100,8 +100,7 @@ public class JsonWriter {
 	}
 
 	private void map(Map<String, Object> map) {
-		add("{");
-		stepIn();
+		stepIn('{');
 
 		Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
 		while (it.hasNext()) {
@@ -115,13 +114,11 @@ public class JsonWriter {
 			}
 		}
 
-		stepOut();
-		add("}");
+		stepOut('}');
 	}
 
 	private void array(Iterator<?> it) {
-		add("[");
-		stepIn();
+		stepIn('[');
 
 		while (it.hasNext()) {
 			value(it.next());
@@ -131,13 +128,11 @@ public class JsonWriter {
 			}
 		}
 
-		stepOut();
-		add("]");
+		stepOut(']');
 	}
 
 	private void array(Object object) {
-		add("[");
-		stepIn();
+		stepIn('[');
 
 		int length = Array.getLength(object);
 		for (int i = 0; i < length; ++i) {
@@ -148,8 +143,7 @@ public class JsonWriter {
 			}
 		}
 
-		stepOut();
-		add("]");
+		stepOut(']');
 	}
 
 	private void bool(boolean b) {
@@ -186,11 +180,11 @@ public class JsonWriter {
 	}
 
 	private void add(Object obj) {
-		buf.append(obj);
+		s.append(obj);
 	}
 
 	private void add(char c) {
-		buf.append(c);
+		s.append(c);
 	}
 
 	private static final char[] hex = "0123456789ABCDEF".toCharArray();
@@ -204,4 +198,5 @@ public class JsonWriter {
 			n <<= 4;
 		}
 	}
+	
 }

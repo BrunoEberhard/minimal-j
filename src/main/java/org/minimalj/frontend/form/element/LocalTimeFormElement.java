@@ -17,12 +17,12 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	public LocalTimeFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
 		formatter = DateUtils.getTimeFormatter(property);
-		size = property.getAnnotation(Size.class).value();
+		Size sizeAnnotation = property.getAnnotation(Size.class);
+		size = sizeAnnotation != null ? sizeAnnotation.value() : Size.TIME_HH_MM;
 	}
 	
 	@Override
 	protected String getAllowedCharacters(PropertyInterface property) {
-		int size = property.getAnnotation(Size.class).value();
 		if (size > Size.TIME_WITH_SECONDS) {
 			return "01234567890:.";
 		} else {

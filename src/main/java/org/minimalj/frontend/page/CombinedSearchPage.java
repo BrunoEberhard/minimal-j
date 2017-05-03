@@ -41,11 +41,11 @@ public class CombinedSearchPage extends TablePage<SearchResult> {
 		public SearchResult(SearchPage searchPage) {
 			this.searchPage = searchPage;
 			pageName = searchPage.getName();
-			resultCount = searchPage.getResultCount();
+			resultCount = searchPage.getCount();
 		}
 		
 		private SearchPage searchPage;
 		public String pageName;
-		public Integer resultCount;
+		public Long resultCount;
 	}
 }

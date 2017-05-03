@@ -76,14 +76,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		return table;
 	}
 	
-	public int getResultCount() {
-		if (objects == null) {
-			objects = load();
-			reloadFlag = false;
-		}
-		return objects.size();
-	}
-	
 	public void refresh() {
 		if (table != null) {
 			objects = load();
@@ -183,19 +175,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			}
 		}
 		
-//		@Override
-//		public boolean hasmultiSelect() {
-//			for (Method m : this.getClass().getDeclaredMethods()) {
-//				if (m.getName().equals("updateDetailPage")) {
-//					Class<?>[] parameterTypes = m.getParameterTypes();
-//					if (parameterTypes.length == 2 && parameterTypes[0] == Page.class && parameterTypes[1] == List.class) {
-//						return true;
-//					}
-//				}
-//			}
-//			return false;
-//		}
-		
 		@Override
 		public void action(T selectedObject) {
 			if (detailPage != null) {
@@ -233,16 +212,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 				detailPage = updatedDetailPage;
 			}
 		}
-	}
-	
-	public static interface TablePagemultiSelect<T, DETAIL_PAGE extends Page> {
-		
-		public abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, List<T> selectedObjects);
-
-		public default DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject) {
-			return null;
-		}
-
 	}
 	
 	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, ObjectPage<T>> {

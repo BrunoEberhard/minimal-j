@@ -1,10 +1,11 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,32 +14,46 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterEvent.Type;
+import javax.swing.event.RowSorterListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
 
 public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(SwingTable.class.getName());
+	private static final int PAGE_SIZE = 50;
 	
 	private final Object[] keys;
 	private final List<PropertyInterface> properties;
 	private final JTable table;
 	private final ItemTableModel tableModel;
 	private final TableActionListener<T> listener;
+	private final JButton nextButton, prevButton;
+	
+	private List<T> list;
+	private int offset;
 	
 	public SwingTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		this.keys = keys;
@@ -66,8 +81,23 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		table.addMouseListener(new SwingTableMouseListener());
 		table.getSelectionModel().addListSelectionListener(new SwingTableSelectionListener());
+        table.getRowSorter().addRowSorterListener(new SwingTableRowSortingListener());
+        
+        table.getTableHeader().setLayout(new BorderLayout());
+        
+        JPanel panel = new JPanel(new FlowLayout());
+        panel.setOpaque(false);
+        prevButton = SwingDecoration.createDecorationButton(SwingDecoration.Part.PREV);
+        prevButton.addActionListener(e -> setOffset(offset - PAGE_SIZE));
+        prevButton.setVisible(false);
+		panel.add(prevButton);
+		nextButton = SwingDecoration.createDecorationButton(SwingDecoration.Part.NEXT);
+		nextButton.addActionListener(e -> setOffset(offset + PAGE_SIZE));
+        nextButton.setVisible(false);
+		panel.add(nextButton);
+        table.getTableHeader().add(panel, BorderLayout.LINE_END);
 	}
-
+	
 	private List<PropertyInterface> convert(Object[] keys) {
 		List<PropertyInterface> properties = new ArrayList<PropertyInterface>(keys.length);
 		for (Object key : keys) {
@@ -85,17 +115,22 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 	
 	private void bindRowHeightToFont() {
-		table.addPropertyChangeListener("UI", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				table.setRowHeight(table.getFont().getSize() * 5 / 3 + 2);
-			}
-		});
+		PropertyChangeListener listener = event -> table.setRowHeight(table.getFont().getSize() * 5 / 3 + 2);
+		listener.propertyChange(null);
+		table.addPropertyChangeListener("UI", listener);
 	}
 
 	@Override
-	public void setObjects(List<T> objects) {
-		tableModel.setObjects(objects);
+	public void setObjects(List<T> list) {
+		this.list = list;
+		setOffset(0);
+	}
+	
+	private void setOffset(int offset) {
+		this.offset = offset;
+		tableModel.setObjects(list.subList(offset, Math.min(list.size(), offset + PAGE_SIZE)));
+		nextButton.setVisible(list.size() > offset + PAGE_SIZE);
+		prevButton.setVisible(offset > 0);
 	}
 
 	public List<T> getSelectedObjects() {
@@ -130,6 +165,28 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 	
+	private class SwingTableRowSortingListener implements RowSorterListener {
+        @Override
+        public void sorterChanged(RowSorterEvent e) {
+        	if (e.getType() == Type.SORT_ORDER_CHANGED) {
+        		@SuppressWarnings("unchecked")
+				List<SortKey> sortKeys = e.getSource().getSortKeys();
+        		Object[] keys = new Object[sortKeys.size()];
+        		boolean[] directions = new boolean[sortKeys.size()];
+        		int index = 0;
+        		for (SortKey s : sortKeys) {
+        			keys[index] = SwingTable.this.keys[s.getColumn()];
+        			directions[index] = s.getSortOrder() == SortOrder.ASCENDING;
+        			index++;
+        		}
+        		if (list instanceof Sortable) {
+        			((Sortable) list).sort(keys, directions);
+        		}
+        		setOffset(0);
+        	}
+        }
+    }
+    
 	public class ItemTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
@@ -141,6 +198,10 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		public void setObjects(List<T> objects) {
 			this.objects = objects;
 			fireTableDataChanged();
+		}
+		
+		public List<T> getObjects() {
+			return objects;
 		}
 		
 		public T getObject(int index) {

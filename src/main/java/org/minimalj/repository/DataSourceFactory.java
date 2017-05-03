@@ -1,5 +1,6 @@
 package org.minimalj.repository;
 
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import javax.naming.Context;
@@ -8,7 +9,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
-import org.mariadb.jdbc.MySQLDataSource;
+import org.h2.jdbcx.JdbcDataSource;
+import org.mariadb.jdbc.MariaDbDataSource;
 import org.minimalj.util.LoggingRuntimeException;
 
 public class DataSourceFactory {
@@ -25,18 +27,32 @@ public class DataSourceFactory {
 		}
 	}
 
+	// every JUnit test must have a fresh memory db
+	private static int memoryDbCount = 1;
+	
 	/**
-	 * Convenience method for prototyping and testing
-	 * @return a DataSource representing a in memory database managed by derby db.
+	 * Convenience method for prototyping and testing. The tables will be
+	 * created automatically.
+	 * 
+	 * @return a DataSource representing a in memory database
 	 */
 	public static DataSource embeddedDataSource() {
 		return embeddedDataSource(null);
 	}
 	
-	// every JUnit test must have a fresh memory db
-	private static int memoryDbCount = 1;
-	
 	public static DataSource embeddedDataSource(String file) {
+		JdbcDataSource dataSource;
+		try {
+			dataSource = new JdbcDataSource();
+		} catch (NoClassDefFoundError e) {
+			logger.severe("Missing JdbcDataSource. Please ensure to have h2 in the classpath");
+			throw new IllegalStateException("Configuration error: Missing JdbcDataSource");
+		}
+		dataSource.setUrl(file != null ? "jdbc:h2:" + file : "jdbc:h2:mem:TempDB" + (memoryDbCount++));
+		return dataSource;
+	}
+
+	public static DataSource embeddedDerbyDataSource(String file) {
 		EmbeddedDataSource dataSource;
 		try {
 			dataSource = new EmbeddedDataSource();
@@ -49,7 +65,7 @@ public class DataSourceFactory {
 		dataSource.setCreateDatabase("create");
 		return dataSource;
 	}
-
+	
 	public static DataSource dataSource(String url, String user, String password) {
 		if (url.startsWith("jdbc:oracle")) {
 			return oracleDbDataSource(url, user, password);
@@ -62,14 +78,16 @@ public class DataSourceFactory {
 	
 	public static DataSource mariaDbDataSource(String url, String user, String password) {
 		try {
-			MySQLDataSource dataSource = new MySQLDataSource();
-			dataSource.setURL(url);
+			MariaDbDataSource dataSource = new MariaDbDataSource();
+			dataSource.setUrl(url);
 			dataSource.setUser(user);
 			dataSource.setPassword(password);
 			return dataSource;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing MySQLDataSource. Please ensure to have mariadb-java-client in the classpath");
-			throw new IllegalStateException("Configuration error: Missing MySQLDataSource");
+			logger.severe("Missing MariaDbDataSource. Please ensure to have mariadb-java-client in the classpath");
+			throw new IllegalStateException("Configuration error: Missing MariaDbDataSource");
 		}
 	}
 

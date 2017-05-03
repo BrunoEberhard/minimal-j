@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.h2.jdbcx.JdbcDataSource;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
@@ -40,8 +41,12 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.TransactionalRepository;
+import org.minimalj.repository.list.QueryResultList;
+import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Query;
+import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -108,18 +113,18 @@ public class SqlRepository implements TransactionalRepository {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
 			return new SqlDialect.DerbySqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "H2")) {
+			return new SqlDialect.H2SqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
 			return new SqlDialect.OracleSqlDialect();				
 		} else {
-			throw new RuntimeException("Only Oracle, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
+			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
 		}
 	}
 	
 	private Connection getAutoCommitConnection() {
 		try {
-			// problem with isValid in maria db driver < 1.1.8 
-			// if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
-			if (autoCommitConnection == null) {
+			if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
 				autoCommitConnection = dataSource.getConnection();
 				autoCommitConnection.setAutoCommit(true);
 			}
@@ -229,7 +234,13 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	private static boolean createTablesOnInitialize(DataSource dataSource) {
-		return dataSource instanceof EmbeddedDataSource && "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
+		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
+		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
+			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
+		} else if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
+			return ((JdbcDataSource) dataSource).getUrl().startsWith("jdbc:h2:mem:TempDB");
+		}
+		return false;
 	}
 	
 	@Override
@@ -245,14 +256,28 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
-		if (View.class.isAssignableFrom(resultClass)) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
-			Table<?> table = getTable(viewedClass);
-			return table.readView(resultClass, query);
+		if (query instanceof Limit || query instanceof AllCriteria) {
+			Table<T> table;
+			if (View.class.isAssignableFrom(resultClass)) {
+				Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
+				table = (Table<T>) getTable(viewedClass);
+			} else {
+				table = getTable(resultClass);
+			}
+			return table.find(query, resultClass);
 		} else {
-			Table<T> table = getTable(resultClass);
-			return table.read(query);
+			return new QueryResultList<>(this, resultClass, (QueryLimitable) query);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> long count(Class<T> clazz, Query query) {
+		if (View.class.isAssignableFrom(clazz)) {
+			clazz = (Class<T>) ViewUtil.getViewedClass(clazz);
+		}
+		Table<?> table = getTable(clazz);
+		return table.count(query);
 	}
 
 	@Override
@@ -304,12 +329,6 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
-	@Override
-	public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list) {
-		CrossTable<?, ELEMENT> subTable = (CrossTable<?, ELEMENT>) getTableByName().get(list.getListName());
-		return subTable.readAll(list.getParentId());
-	}
-	
 	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {

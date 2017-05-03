@@ -1,0 +1,244 @@
+id, code2, code3, codenum, areaCode, nameEn, nameDe
+   1,   "BE",  "BEL", "056", "", "Belgien",                                              "Belgium",                           0
+   2,   "DE",  "DEU", "276", "", "Deutschland",                                          "Germany",                           0
+   3,   "DK",  "DNK", "208", "", "Dänemark",                                             "Denmark",                           0
+   4,   "FR",  "FRA", "250", "", "Frankreich",                                           "France",                            0
+   5,   "EL",  "GRC", "300", "", "Griechenland",                                         "Greece",                            0
+   6,   "IT",  "ITA", "380", "", "Italien",                                              "Italy",                             0
+   7,   "NL",  "NLD", "528", "", "Niederland",                                           "Netherlands",                       0
+   8,   "PT",  "PRT", "620", "", "Portugal",                                             "Portuguese",                        0
+   9,   "ES",  "ESP", "724", "", "Spanien",                                              "Spain",                             0
+  10,   "CH",  "CHE", "756", "", "Schweiz",                                              "Switzerland",                       0
+  11,   "UK",  "GBR", "826", "", "Vereinigtes Königreich Großbritannien und Nordirland", "United Kingdom Großbritannien and North Ireland",  0
+  12,   "US",  "USA", "840", "", "Vereinigte Staaten von Amerika",                       "United States",                     0
+  13,   "AF",  "AFG", "004", "", "Afghanistan",                                          "Afghanistan",                       0
+  14,   "EG",  "EGY", "818", "", "Ägypten",                                              "Egypt",                             0
+  15,   "AL",  "ALB", "008", "", "Albanien",                                             "Albania",                           0
+  16,   "DZ",  "DZA", "012", "", "Algerien",                                             "Algeria",                           0
+  17,   "AS",  "ASM", "016", "", "Amerikanisch Samoa",                                   "American Samoa",                    0
+  18,   "AD",  "AND", "020", "", "Andorra",                                              "Andorra",                           0
+  19,   "AO",  "AGO", "024", "", "Angola",                                               "Angola",                            0
+  20,   "AI",  "AIA", "660", "", "Anguilla",                                             "Anguilla",                          0
+  21,   "AQ",  "ATA", "010", "", "Antarktika",                                           "Antarctica",                        0
+  22,   "AG",  "ATG", "028", "", "Antigua und Barbedos",                                 "Antigua and Barbuda",               0
+  23,   "AR",  "ARG", "032", "", "Argentinien",                                          "Argentina",                         0
+  24,   "AM",  "ARM", "051", "", "Armenien",                                             "Armenia",                           0
+  25,   "AW",  "ABW", "533", "", "Aruba",                                                "Aruba",                             0
+  26,   "AC",  "ASC",    "", "", "Ascension",                                            "Ascension Islands",                 0
+  27,   "AU",  "AUS", "036", "", "Australien",                                           "Australia",                         0
+  28,   "AZ",  "AZE", "031", "", "Azerbaijan",                                           "Azerbaijan",                        0
+  29,   "BS",  "BHS", "044", "", "Bahamas",                                              "Bahamas",                           0
+  30,   "BH",  "BHR", "048", "", "Bahrain",                                              "Bahrain",                           0
+  31,   "BD",  "BGD", "050", "", "Bangladesch",                                          "Bangladesh",                        0
+  32,   "BB",  "BRB", "052", "", "Barbados",                                             "Barbados",                          0
+  33,   "BY",  "BLR", "112", "", "Belarus",                                              "Belarus",                           0
+  34,   "BZ",  "BLZ", "084", "", "Belize",                                               "Belize",                            0
+  35,   "BJ",  "BEN", "204", "", "Benin",                                                "Benin",                             0
+  36,   "BM",  "BMU", "060", "", "Bermuda",                                              "Bermuda",                           0
+  37,   "BT",  "BTN", "064", "", "Bhutan",                                               "Bhutan",                            0
+  38,   "BO",  "BOL", "068", "", "Bolivien",                                             "Bolivia, Plurinational State of",   0
+  39,   "BA",  "BIH", "070", "", "Bosnien und Herzegowina",                              "Bosnia and Herzegovina",            0
+  40,   "BW",  "BWA", "072", "", "Botswana",                                             "Botswana",                          0
+  41,   "BV",  "BVT", "074", "", "Bouvetinseln",                                         "Bouvet Island",                     0
+  42,   "BR",  "BRA", "076", "", "Brasilien",                                            "Brazil",                            0
+  43,   "IO",  "IOT", "086", "", "Britisches Territorium im Indischen Ozean",            "British Indian Ocean Territory",    0
+  44,   "BN",  "BRN", "096", "", "Brunei Darussalam",                                    "Brunei Darussalam",                 0
+  45,   "BG",  "BGR", "100", "", "Bulgarien",                                            "Bulgaria",                          0
+  46,   "BF",  "BFA", "854", "", "Burkina Faso",                                         "Burkina Faso",                      0
+  47,   "BI",  "BDI", "108", "", "Burundi",                                              "Burundi",                           0
+  48,   "CV",  "CPV", "132", "", "Kap Verde",                                            "Capo Verde",                        0
+  49,   "KY",  "CYM", "136", "", "Kaimaninseln",                                         "Cayman Islands",                    0
+  50,   "CL",  "CHL", "152", "", "Chile",                                                "Chile",                             0
+  51,   "CN",  "CHN", "156", "", "China",                                                "China",                             0
+  52,   "CX",  "CXR", "162", "", "Weihnachtsinsel",                                      "Christmas Islands",                 0
+  53,   "CC",  "CCK", "166", "", "Kokosinseln",                                          "Cocos Keeling) Islands",           0
+  54,   "CK",  "COK", "184", "", "Cookinseln",                                           "Cook Islands",                      0
+  55,   "CR",  "CRI", "188", "", "Costa Rica",                                           "Costa Rica",                        0
+  56,   "CI",  "CIV", "384", "", "Cote d Ivorie  Elfenbeinküste)",                      "Cote d Ivorie",                     0
+  57,   "DJ",  "DJI", "262", "", "Dschibuti",                                            "Djibouti",                          0
+  58,   "DM",  "DMA", "212", "", "Dominica",                                             "Dominica",                          0
+  59,   "DO",  "DOM", "214", "", "Dominikanische Republik",                              "Dominican Republic",                0
+  60,   "EC",  "ECU", "218", "", "Ecuador",                                              "Ecuador",                           0
+  61,   "SV",  "SLV", "222", "", "El Salvador",                                          "El Salvador",                       0
+  62,   "GQ",  "GNQ", "226", "", "Äquatorialguinea",                                     "Equatorial Guinea",                 0
+  63,   "ER",  "ERI", "232", "", "Eritrea",                                              "Eritrea",                           0
+  64,   "EE",  "EST", "233", "", "Estland",                                              "Estonia",                           0
+  65,   "ET",  "ETH", "231", "", "Äthiopien",                                            "Ethiopia",                          0
+  66,   "FK",  "FLK", "238", "", "Falklandinseln",                                       "Falkland Islands Malvinas)",       0
+  67,   "FJ",  "FJI", "242", "", "Fidschi",                                              "Fiji",                              0
+  68,   "FI",  "FIN", "246", "", "Finnland",                                             "Finland",                           0
+  69,   "GF",  "GUF", "254", "", "Französisch Guayana",                                  "French Guiana",                     0
+  70,   "PF",  "PYF", "258", "", "Französisch Polinsien",                                "French Polynesia",                  0
+  71,   "TF",  "ATF", "260", "", "Französische Süd- und Antarktisgebiete",               "French Southern Territories",       0
+  72,   "GA",  "GAB", "266", "", "Gabun",                                                "Gabon",                             0
+  73,   "GM",  "GMB", "270", "", "Gambia",                                               "Gambia",                            0
+  74,   "GE",  "GEO", "268", "", "Georgien",                                             "Georgia",                           0
+  75,   "GH",  "GHA", "288", "", "Ghana",                                                "Ghana",                             0
+  76,   "GI",  "GIB", "292", "", "Gibraltar",                                            "Gibraltar",                         0
+  77,   "GL",  "GRL", "304", "", "Grönland",                                             "Greenland",                         0
+  78,   "GD",  "GRD", "308", "", "Grenada",                                              "Grenada",                           0
+  79,   "GP",  "GLP", "312", "", "Guadaloupe",                                           "Guadaloupe",                        0
+  80,   "GU",  "GUM", "316", "", "Guam",                                                 "Guam",                              0
+  81,   "GT",  "GTM", "320", "", "Guatemala",                                            "Guatemala",                         0
+  82,   "GG",  "GGY", "831", "", "Guernsey Kanalinsel)",                                "Guernsey",                          0
+  83,   "GN",  "GIN", "324", "", "Guinea",                                               "Guinea",                            0
+  84,   "GW",  "GNB", "624", "", "Guinea-Bissau",                                        "Guinea-Bissau",                     0
+  85,   "GY",  "GUY", "328", "", "Guyana",                                               "Guyana",                            0
+  86,   "HT",  "HTI", "332", "", "Haiti",                                                "Haiti",                             0
+  87,   "HM",  "HMD", "334", "", "Heard und McDonaldinseln",                             "Heard Island and McDonald islands", 0
+  88,   "VA",  "VAT", "336", "", "Vatikanstadt",                                         "Holy See Vatican City State)",     0
+  89,   "HN",  "HND", "340", "", "Honduras",                                             "Honduras",                          0
+  90,   "HK",  "HKG", "344", "", "Hongkong",                                             "Hong Kong",                         0
+  91,   "IS",  "ISL", "352", "", "Island",                                               "Iceland",                           0
+  92,   "IN",  "IND", "356", "", "Indien",                                               "India",                             0
+  93,   "ID",  "IDN", "360", "", "Indonesien",                                           "Indonesia",                         0
+  94,   "IR",  "IRN", "364", "", "Iran, Islamische Republik",                            "Iran, Islamic Republic of",         0
+  95,   "IQ",  "IRQ", "368", "", "Irak",                                                 "Iraq",                              0
+  96,   "IE",  "IRL", "372", "", "Irland",                                               "Ireland",                           0
+  97,   "IM",  "IMN", "833", "", "Insel Man",                                            "Isle of man",                       0
+  98,   "IL",  "ISR", "376", "", "Israel",                                               "Israel",                            0
+  99,   "JM",  "JAM", "388", "", "Jamaika",                                              "Jamaica",                           0
+ 100,   "JP",  "JPN", "392", "", "Japan",                                                "Japan",                             0
+ 101,   "JE",  "JEY", "832", "", "Jersey Kanalinsel)",                                  "Jersey",                            0
+ 102,   "JO",  "JOR", "400", "", "Jordanien",                                            "Jordan",                            0
+ 103,   "CM",  "CMR", "120", "", "Kamerun",                                              "Cameroon",                          0
+ 104,   "KH",  "KHM", "116", "", "Kambodscha",                                           "Cambodia",                          0
+ 105,   "CA",  "CAN", "124", "", "Kanada",                                               "Canada",                            0
+ 106,   "KZ",  "KAZ", "124", "", "Kasachstan",                                           "Kazakhstan",                        0
+ 107,   "KE",  "KEN", "404", "", "Kenia",                                                "Kenya",                             0
+ 108,   "KI",  "KIR", "296", "", "Kiribati",                                             "Kiribati",                          0
+ 109,   "CO",  "COL", "170", "", "Kolumbien",                                            "Colombia",                          0
+ 110,   "KM",  "COM", "174", "", "Komoren",                                              "Comoros",                           0
+ 111,   "CG",  "COG", "178", "", "Republik Kongo",                                       "Congo",                             0
+ 112,   "CD",  "COD", "180", "", "Kongo, Demokratische Republik",                        "Congo, the Democratic Republic of the",  0
+ 113,   "HR",  "HRV", "191", "", "Kroatien",                                             "Croatia",                           0
+ 114,   "CU",  "CUB", "192", "", "Kuba",                                                 "Cuba",                              0
+ 115,   "KP",  "PRK", "408", "", "Korea, Demokratische Republik Nordkorea)",            "Korea, Democratic People""s Republic of", 0
+ 116,   "KR",  "KOR", "410", "", "Korea, Republik Südkorea)",                           "Korea, Republic of",                0
+ 117,   "KW",  "KWT", "414", "", "Kuwait",                                               "Kuwait",                            0
+ 118,   "KG",  "KGZ", "417", "", "Kirgisistan",                                          "Kyrgyzstan",                        0
+ 119,   "LA",  "LAO", "418", "", "Laos, Demokratische Volksrepublik",                    "Lao People""s Demoratic Republic ", 0
+ 120,   "LV",  "LVA", "428", "", "Lettland",                                             "Latvia",                            0
+ 121,   "LB",  "LBN", "422", "", "Libanon",                                              "Lebanon",                           0
+ 122,   "LS",  "LSO", "426", "", "Lesotho",                                              "Lesotho",                           0
+ 123,   "LR",  "LBR", "430", "", "Liberia",                                              "Liberia",                           0
+ 124,   "LY",  "LBY", "434", "", "Libyen",                                               "Libya",                             0
+ 125,   "LI",  "LIE", "438", "", "Liechtenstein",                                        "Liechtenstein",                     0
+ 126,   "LT",  "LTU", "440", "", "Litauen",                                              "Lithuania",                         0
+ 127,   "LU",  "LUX", "442", "", "Luxemburg",                                            "Luxembourg",                        0
+ 128,   "MO",  "MAC", "446", "", "Macao",                                                "Macao",                             0
+ 129,   "MK",  "MKD", "807", "", "Mazedonien",                                           "Macedonia, the former Yugoslav Republic of",  0
+ 130,   "MG",  "MDG", "450", "", "Madagaska",                                            "Madagascar",                        0
+ 131,   "MW",  "MWI", "454", "", "Malawi",                                               "Malawi",                            0
+ 132,   "MY",  "MYS", "458", "", "Malaysia",                                             "Malaysia",                          0
+ 133,   "MV",  "MDV", "462", "", "Malediven",                                            "Maledives",                         0
+ 134,   "ML",  "MLI", "466", "", "Mali",                                                 "Mali",                              0
+ 135,   "MT",  "MLT", "470", "", "Malta",                                                "Malta",                             0
+ 136,   "MH",  "MHL", "584", "", "Marshallinseln",                                       "Marshall Islands",                  0
+ 137,   "MQ",  "MTQ", "474", "", "Martinique",                                           "Martinique",                        0
+ 138,   "MR",  "MRT", "478", "", "Mauretanien",                                          "Mauritania",                        0
+ 139,   "MU",  "MUS", "480", "", "Mauritius",                                            "Mauritius",                         0
+ 140,   "YT",  "MYT", "175", "", "Mayotte",                                              "Mayotte",                           0
+ 141,   "MX",  "MEX", "484", "", "Mexiko",                                               "Mexiko",                            0
+ 142,   "FM",  "FSM", "583", "", "Mikronesien",                                          "Micronesia, Federated States of",   0
+ 143,   "MD",  "MDA", "498", "", "Moldawien Republik Moldau)",                          "Moldova, Republic of",              0
+ 144,   "MC",  "MCO", "492", "", "Monaco",                                               "Monaco",                            0
+ 145,   "MN",  "MNG", "496", "", "Mongolei",                                             "Mongolia",                          0
+ 146,   "ME",  "MNE", "499", "", "Montenegro",                                           "Montenegro",                        0
+ 147,   "MS",  "MSR", "500", "", "Montserrat",                                           "Montserrat"                   ,     0
+ 148,   "MA",  "MAR", "504", "", "Marokko",                                              "Morocco",                           0
+ 149,   "MZ",  "MOZ", "508", "", "Mosambik",                                             "Mozambique",                        0
+ 150,   "MM",  "MMR", "104", "", "Myanmar Burma)",                                      "Myanmar",                           0
+ 151,   "NA",  "NAM", "516", "", "Namibia",                                              "Namibia",                           0
+ 152,   "NR",  "NRU", "520", "", "Nauru",                                                "Nauru",                             0
+ 153,   "NP",  "NPL", "524", "", "Nepal",                                                "Nepal",                             0
+ 154,   "AN",  "ANT", "530", "", "Niederländische Antillen",                             "Netherlands Antillen",              0
+ 155,   "NC",  "NCL", "540", "", "Neukaledonien",                                        "New Caledonia",                     0
+ 156,   "NZ",  "NZL", "554", "", "Neuseeland",                                           "New Zealand",                       0
+ 157,   "NI",  "NIC", "558", "", "Nicaragua",                                            "Nicaragua",                         0
+ 158,   "NE",  "NER", "562", "", "Niger",                                                "Niger",                             0
+ 159,   "NG",  "NGA", "566", "", "Nigeria",                                              "Nigeria",                           0
+ 160,   "NU",  "NIU", "570", "", "Niue",                                                 "Niue",                              0
+ 161,   "NF",  "NFK", "574", "", "Norfolkinsel",                                         "Norfolk Island",                    0
+ 162,   "MP",  "MNP", "580", "", "Nördliche Marianen",                                   "Northern Mariana Islands",          0
+ 163,   "NO",  "NOR", "578", "", "Norwegen",                                             "Norway",                            0
+ 164,   "AT",  "AUT", "512", "", "Österreich",                                           "Austria",                           0
+ 165,   "OM",  "OMN", "512", "", "Oman",                                                 "Oman",                              0
+ 166,   "TL",  "TLS", "626", "", "Osstimor Timor-Leste)",                               "Osttimor",                          0
+ 167,   "PK",  "PAK", "586", "", "Pakistan",                                             "Pakistan",                          0
+ 168,   "PW",  "PLW", "585", "", "Palau",                                                "Palau",                             0
+ 169,   "PS",  "PSE", "275", "", "Staat Palästina",                                      "Palestine, State of",               0
+ 170,   "PA",  "PAN", "591", "", "Panama",                                               "Panama",                            0
+ 171,   "PG",  "PNG", "598", "", "Papua-Neuguinea",                                      "Papua New Guinea",                  0
+ 172,   "PY",  "PRY", "600", "", "Paraguay",                                             "Paraguay",                          0
+ 173,   "PE",  "PER", "604", "", "Peru",                                                 "Peru",                              0
+ 174,   "PH",  "PHL", "608", "", "Philippinen",                                          "Philippines",                       0
+ 175,   "PN",  "PCN", "612", "", "Pitcairninseln",                                       "Pitcairn",                          0
+ 176,   "PL",  "POL", "616", "", "Polen",                                                "Poland",                            0
+ 177,   "PR",  "PRI", "630", "", "Puerto Rico",                                          "Puerto Rico",                       0
+ 178,   "QA",  "QAT", "634", "", "Katar",                                                "Qatar",                             0
+ 179,   "RE",  "REU", "638", "", "Reunion",                                              "Reunion",                           0
+ 180,   "RO",  "ROU", "642", "", "Rumänien",                                             "Romania",                           0
+ 181,   "RU",  "RUS", "643", "", "Russische Föderation",                                 "Russian Federation",                0
+ 182,   "RW",  "RWA", "646", "", "Ruanda",                                               "Rwanda",                            0
+ 183,   "SH",  "SHN", "654", "", "St. Helena",                                           "Saint Helena",                      0
+ 184,   "KN",  "KNA", "659", "", "St. Kitts und Nevis",                                  "Saint Kitts and Nevis",             0
+ 185,   "LC",  "LCA", "662", "", "St. Lucia",                                            "Saint Lucia",                       0
+ 186,   "PM",  "SPM", "666", "", "St. Pierre und Miquelon",                              "Saint Pierre and Miquelon",         0
+ 187,   "VC",  "VCT", "670", "", "St. Vincent und die Grenadinen",                       "Saint Vincent and the Grenadines",  0
+ 188,   "WS",  "WSM", "882", "", "Samoa",                                                "Samoa",                             0
+ 189,   "SM",  "SMR", "674", "", "San Marino",                                           "San Marino",                        0
+ 190,   "ST",  "STP", "678", "", "Sao Tome und Principe",                                "Sao Tome und Principe",             0
+ 191,   "SA",  "SAU", "682", "", "Saudi Arabien",                                        "Saudi Arabia",                      0
+ 192,   "SN",  "SEN", "686", "", "Senegal",                                              "Senegal",                           0
+ 193,   "RS",  "SRB", "688", "", "Serbien",                                              "Serbia",                            0
+ 194,   "SC",  "SYC", "690", "", "Seychellen",                                           "Seychelles",                        0
+ 195,   "SL",  "SLE", "694", "", "Sierra Leone",                                         "Sierra Leone",                      0
+ 196,   "SG",  "SGP", "702", "", "Singapur",                                             "Singapore",                         0
+ 197,   "SK",  "SVK", "703", "", "Slowakei",                                             "Slovakia",                          0
+ 198,   "SI",  "SVN", "705", "", "Slowenien",                                            "Slovenia",                          0
+ 199,   "SB",  "SLB", "090", "", "Salomonen",                                            "Solomon Islands",                   0
+ 200,   "SO",  "SOM", "706", "", "Somalia",                                              "Somalia",                           0
+ 201,   "ZA",  "ZAF", "710", "", "Südafrika",                                            "South Africa",                      0
+ 202,   "GS",  "SGS", "239", "", "Südgeorgien und die Südlichen Sandwichinseln",         "South Georgia and the south sandwich islands", 0
+ 203,   "LK",  "LKA", "144", "", "Sri Lanka",                                            "Sri Lanka",                         0
+ 204,   "SD",  "SDN", "729", "", "Sudan",                                                "Sudan",                             0
+ 205,   "SR",  "SUR", "740", "", "Surinam",                                              "Suriname",                          0
+ 206,   "SJ",  "SJM", "744", "", "Svalbard und Jan Mayen",                               "Svalbard and Jan Mayen",            0
+ 207,   "SZ",  "SWZ", "748", "", "Swasiland",                                            "Swaziland",                         0
+ 208,   "SE",  "SWE", "752", "", "Schweden",                                             "Sweden",                            0
+ 209,   "SY",  "SYR", "760", "", "Syrien, Arabische Republik",                           "Syrian Arab Republic",              0
+ 210,   "TW",  "TWN", "158", "", "Taiwan Republik China)",                              "Taiwan, Provine of China",          0
+ 211,   "TJ",  "TJK", "762", "", "Tadschikistan",                                        "Tajikistan",                        0
+ 212,   "TZ",  "TZA", "834", "", "Tansania, Vereinigte Republik",                        "Tanzania, United Republic of",      0
+ 213,   "TH",  "THA", "764", "", "Thailand",                                             "Thailand",                          0
+ 214,   "TG",  "TGO", "768", "", "Togo",                                                 "Togo",                              0
+ 215,   "TK",  "TKL", "772", "", "Tokelau",                                              "Tokelau",                           0
+ 216,   "TO",  "TON", "776", "", "Tonga",                                                "Tonga",                             0
+ 217,   "TT",  "TTO", "780", "", "Trinidad und Tobago",                                  "Trinidad and Tobago",               0
+ 218,   "TD",  "TCD", "148", "", "Tschad",                                               "Tschad",                            0
+ 219,   "CZ",  "CZE", "203", "", "Tschechische Republik",                                "Czech Republic",                    0
+ 220,   "TN",  "TUN", "788", "", "Tunesien",                                             "Tunesia",                           0
+ 221,   "TR",  "TUR", "792", "", "Türkei",                                               "Turkey",                            0
+ 222,   "TM",  "TKM", "795", "", "Turkmenistan",                                         "Turkmenistan",                      0
+ 223,   "TC",  "TCA", "796", "", "Turks- und Caicosinseln",                              "Turks and Caicos Islands",          0
+ 224,   "TV",  "TUV", "798", "", "Tuvalu",                                               "Tuvalu",                            0
+ 225,   "UG",  "UGA", "800", "", "Uganda",                                               "Uganda",                            0
+ 226,   "UA",  "UKR", "804", "", "Ukraine",                                              "Ukraine",                           0
+ 227,   "HU",  "HUN", "348", "", "Ungarn",                                               "Hungary",                           0
+ 228,   "UM",  "UMI", "581", "", "United States Minor Outlying Islands",                 "United States Minor Outlying Islands",   0
+ 229,   "UY",  "URY", "858", "", "Uruguay",                                              "Uruguay",                           0
+ 230,   "UZ",  "UZB", "860", "", "Usbekistan",                                           "Uzbekistan",                        0
+ 231,   "VU",  "VUT", "548", "", "Vanuatu",                                              "Vanuatu",                           0
+ 232,   "VE",  "VEN", "862", "", "Venezuela",                                            "Venezuela, Bolivarian Republic of", 0
+ 233,   "AE",  "ARE", "784", "", "Vereinigte Arabische Emirate",                         "United Aarab Emirates",             0
+ 234,   "VN",  "VNM", "704", "", "Vietnam",                                              "Viet Nam",                          0
+ 235,   "VG",  "VGB", "092", "", "Britische Jungferninseln",                             "Virgin Islands, British",           0
+ 236,   "VI",  "VIR", "850", "", "Amerikanische Jungferninseln",                         "Virgin Islands, U.S.",              0
+ 237,   "WF",  "WLF", "876", "", "Wallis und Futuna",                                    "Wallis und Futuna",                 0
+ 238,   "EH",  "ESH", "732", "", "Westsahara",                                           "Western Sahara",                    0
+ 239,   "YE",  "YEM", "887", "", "Yemen",                                                "Yemen",                             0
+ 240,   "ZM",  "ZMB", "894", "", "Sambia",                                               "Zambia",                            0
+ 241,   "CF",  "CAF", "140", "", "Zentralafrikanische Republik",                         "Central African Republic",          0
+ 242,   "ZW",  "ZWE", "716", "", "Simbabwe",                                             "Zimbabwe",                          0
+ 243,   "CY",  "CYP", "196", "", "Zypern",                                               "Cyprus",                            0

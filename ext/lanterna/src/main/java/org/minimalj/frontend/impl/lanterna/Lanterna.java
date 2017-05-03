@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.lanterna;
 
+import javax.swing.JFrame;
+
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.lanterna.component.HighContrastLanternaTheme;
@@ -25,6 +27,7 @@ public class Lanterna {
 			gui.setTheme(new HighContrastLanternaTheme());
 
 			screen.startScreen();
+			terminal.getJFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // TODO ask
 			gui.init();
 		} catch (Exception x) {
 			x.printStackTrace();

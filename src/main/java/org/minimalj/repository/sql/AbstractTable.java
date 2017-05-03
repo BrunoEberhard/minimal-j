@@ -258,6 +258,15 @@ public abstract class AbstractTable<T> {
 
 	// execution helpers
 
+	protected long executeSelectCount(PreparedStatement preparedStatement) {
+		try (ResultSet resultSet = preparedStatement.executeQuery()) {
+			resultSet.next();
+			return resultSet.getLong(1);
+		} catch (SQLException x) {
+			throw new RuntimeException(x.getMessage());
+		}
+	}
+	
 	protected T executeSelect(PreparedStatement preparedStatement) {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {

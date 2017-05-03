@@ -16,9 +16,12 @@ import org.minimalj.util.resources.Resources;
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
+	private static final int PAGE_SIZE = 50;
+	
 	private final List<PropertyInterface> properties;
 	private final TableActionListener<T> listener;
 	private List<T> objects;
+	private int visibleRows = PAGE_SIZE;
 	
 	public JsonTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
@@ -54,7 +57,27 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	@Override
 	public void setObjects(List<T> objects) {
 		this.objects = objects;
+
+		visibleRows = 0;
+		List<List<String>> tableContent = extendContent();
 		
+		put("tableContent", tableContent);
+		put("size", objects.size());
+		put("extendable", isExtendable());
+	}
+
+	public List<List<String>> extendContent() {
+		int newVisibleRows = Math.min(objects.size(), visibleRows + PAGE_SIZE);
+		List<T> newVisibleObjects = objects.subList(visibleRows, newVisibleRows);
+		visibleRows = newVisibleRows;
+		return createTableContent(newVisibleObjects);
+	}
+	
+	public boolean isExtendable() {
+		return visibleRows < objects.size();
+	}
+	
+	private List<List<String>> createTableContent(List<T> objects) {
 		List<List<String>> tableContent = new ArrayList<>();
 		for (T object : objects) {
 			List<String> rowContent = new ArrayList<>();
@@ -65,8 +88,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			}
 			tableContent.add(rowContent);
 		}
-		
-		put("tableContent", tableContent);
+		return tableContent;
 	}
 	
 	public void action(int row) {

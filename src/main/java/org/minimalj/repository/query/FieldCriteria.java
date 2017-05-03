@@ -12,6 +12,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 
 	private final FieldOperator operator;
 	private final Object value;
+	private transient PropertyInterface property;
 	
 	// The key object is not serializable or later the == operator will not work.
 	// But at the moment the only thing needed
@@ -26,7 +27,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		this.operator = operator;
 		this.value = value;
 		
-		PropertyInterface property = Keys.getProperty(key);
+		property = Keys.getProperty(key);
 		assertValidOperator(property, operator);
 		assertValidValueClass(property, value);
 
@@ -62,11 +63,18 @@ public class FieldCriteria extends Criteria implements Serializable {
 		return path;
 	}
 
+	/*
+	 * Only to be used by InMemoryRepository
+	 */
+	public PropertyInterface getProperty() {
+		return property;
+	}
+	
 	public Object getValue() {
 		return value;
 	}
 
-	public Query negate() {
+	public Criteria negate() {
 		return new FieldCriteria(path, operator.negate(), value);
 	}
 }

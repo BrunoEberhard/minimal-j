@@ -87,7 +87,7 @@ public abstract class SqlDialect {
 				s.append(" (").append(size).append(", ").append(decimal).append(')');
 			}
 		} else if (clazz == Boolean.class) {
-			s.append("BIT"); // MariaDB. DerbyDB is different
+			s.append("BIT");
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			s.append("INTEGER");
 		} else if (clazz == Set.class) {
@@ -209,6 +209,24 @@ public abstract class SqlDialect {
 		}
 	}
 	
+	public static class H2SqlDialect extends SqlDialect {
+	
+		@Override
+		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {
+			if (!referencedTableIsHistorized) {
+				return super.createConstraint(tableName, column, referencedTableName, referencedTableIsHistorized);
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public int getMaxIdentifierLength() {
+			// h2 doesn't really have a maximum identifier length
+			return 256;
+		}
+	}
+	
 	public static class DerbySqlDialect extends SqlDialect {
 
 		@Override
@@ -223,7 +241,6 @@ public abstract class SqlDialect {
 				super.addColumnDefinition(s, property);
 			}
 		}
-		
 		
 		@Override
 		public String createConstraint(String tableName, String column, String referencedTableName, boolean referencedTableIsHistorized) {

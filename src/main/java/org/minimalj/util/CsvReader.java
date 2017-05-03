@@ -34,7 +34,11 @@ public class CsvReader {
     	List<PropertyInterface> properties = new ArrayList<PropertyInterface>(fields.size());
 		for (String field : fields) {
 			try {
-				properties.add(FlatProperties.getProperty(clazz, field.trim()));
+				field = field.trim();
+				if (StringUtils.isEmpty(field)) {
+					throw new RuntimeException("csv - file contains empty header field");
+				}
+				properties.add(FlatProperties.getProperty(clazz, field));
 			} catch (IllegalArgumentException x) {
 				throw new RuntimeException("No field " + field + " in " + clazz.getSimpleName() + ". Please check csv - file for missing or invalid header line");
 			}
@@ -70,7 +74,7 @@ public class CsvReader {
     		int c = reader.read();
     		if (c < 0) {
     			return null;
-    		} else if (c >= 0x20) {
+    		} else if (!Character.isWhitespace(c)) {
     			reader.unread(c);
     			break;
     		}
@@ -78,15 +82,13 @@ public class CsvReader {
     	
         List<String> values = new ArrayList<>();
         String value = readField();
-        if (value == null) throw new IllegalStateException();
         values.add(value);
         while (value != null) {
         	int c = reader.read();
         	if (c == SEPARATOR) {
                 value = readField();
-                if (value == null) throw new IllegalStateException();
                 values.add(value);
-        	} else {
+        	} else if (c < 0 || c == '\n') {
         		value = null;
         	}
         }
@@ -95,9 +97,19 @@ public class CsvReader {
     
     // field = (escaped / non-escaped)
     String readField() throws IOException {
-    	int c = reader.read();
-    	if (c == -1) throw new IllegalStateException();
-    	reader.unread(c);
+    	int c;
+    	while (true) {
+    		c = reader.read();
+    		if (c == -1) {
+    			return "";
+    		} else if (!Character.isWhitespace(c)) {
+    			reader.unread(c);
+    			break;
+    		} else if (c == '\n') {
+    			reader.unread(c);
+    			return "";
+    		}
+    	}
     	if (c == QUOTE_CHAR) {
     		return readEscaped();
     	} else {
@@ -133,9 +145,12 @@ public class CsvReader {
 		StringBuilder s = new StringBuilder();
 		do {
 			int c = reader.read();
-			if (c == SEPARATOR || c < 0x20) {
+			if (c < 0) {
+				return s.toString().trim();
+			}
+			if (c == SEPARATOR || c == '\n') {
 				reader.unread(c);
-				return s.toString();
+				return s.toString().trim();
 			} else {
 				s.append((char) c);
 			}

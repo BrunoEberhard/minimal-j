@@ -110,10 +110,11 @@ public abstract class Frontend {
 	}
 	
 	public interface Search<S> {
+
 		public List<S> search(String query);
 	}
 	
-	public abstract <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys);
+	public abstract <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> search, Object[] keys);
 	
 	public abstract IComponent createComponentGroup(IComponent... components);
 
@@ -136,8 +137,9 @@ public abstract class Frontend {
 	}
 	
 	public abstract SwitchContent createSwitchContent();
-
+	
 	public interface ITable<T> extends IContent {
+		
 		public void setObjects(List<T> objects);
 	}
 

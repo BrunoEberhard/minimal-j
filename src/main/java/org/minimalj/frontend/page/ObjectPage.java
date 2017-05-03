@@ -10,8 +10,8 @@ import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * This page requires the object to be persistet. Meaning the object has to have
- * its id. If you want to display an object without involving a backend use a
+ * This page requires the object to be persistent. Meaning the object has to have
+ * its id. If you want to display an object without involving a Backend use a
  * normal page with this pattern:
  * 
  * <pre>
@@ -31,7 +31,7 @@ import org.minimalj.util.resources.Resources;
  * }
  * </pre>
  *
- * But be carefull as this pattern keeps the complete object in the memory.
+ * But be careful as this pattern keeps the complete object in the memory.
  */
 public abstract class ObjectPage<T> extends Page {
 

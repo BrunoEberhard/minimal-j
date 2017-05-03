@@ -9,7 +9,6 @@ import javax.sql.DataSource;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.sql.LazyList;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.util.StringUtils;
 
@@ -22,11 +21,11 @@ public interface Repository {
 	public static final Logger logger = Logger.getLogger(Repository.class.getName());
 
 	public static Repository create() {
-		if (Configuration.available("MjRepository")) {
-			return Configuration.getClazz("MjRepository", Repository.class);
-		}
-		
 		Class<?>[] entityClasses = Application.getInstance().getEntityClasses();
+
+		if (Configuration.available("MjRepository")) {
+			return Configuration.getClazz("MjRepository", Repository.class, (Object) entityClasses);
+		}
 
 		DataSource jndiDataSource = DataSourceFactory.getJndiDataSource();
 		if (jndiDataSource != null) {
@@ -46,22 +45,18 @@ public interface Repository {
 		}
 	}
 	
-	// object handling
+	// 
 	
-	// spring: findOne
 	public <T> T read(Class<T> clazz, Object id);
 
-	// spring: find
 	public <T> List<T> find(Class<T> clazz, Query query);
+	
+	public <T> long count(Class<T> clazz, Query query);
 
 	public <T> Object insert(T object);
 
 	public <T> void update(T object);
 
 	public <T> void delete(Class<T> clazz, Object id);
-	
-	// lazy list handling
-	
-	public <ELEMENT, PARENT> List<ELEMENT> getList(LazyList<PARENT, ELEMENT> list);
 
 }
