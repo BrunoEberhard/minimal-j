@@ -1,6 +1,5 @@
 package org.minimalj.frontend.impl.vaadin;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +25,6 @@ import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
-import com.github.wolfie.history.HistoryExtension;
-import com.github.wolfie.history.HistoryExtension.PopStateEvent;
-import com.github.wolfie.history.HistoryExtension.PopStateListener;
 import com.vaadin.addon.contextmenu.ContextMenu;
 import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
@@ -64,7 +60,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 
 	private Subject subject;
 	
-	private final HistoryExtension history;
+//	private final HistoryExtension history;
 	private final PageStore pageStore = new PageStore();
 	private Map<String, String> state; // position -> page id
 
@@ -75,17 +71,17 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	private float lastSplitPosition = -1;
 	
 	public Vaadin() {
-		PopStateListener myPopStateListener = new PopStateListener() {
-			@Override
-			public void popState(PopStateEvent event) {
-				if (event.getStateAsJson() != null) {
-					state = event.getStateAsMap();
-					updateContent();				
-				}
-			}
-		};
-		history = HistoryExtension.extend(this, myPopStateListener);
-		history.addPopStateListener(myPopStateListener);
+//		PopStateListener myPopStateListener = new PopStateListener() {
+//			@Override
+//			public void popState(PopStateEvent event) {
+//				if (event.getStateAsJson() != null) {
+//					state = event.getStateAsMap();
+//					updateContent();				
+//				}
+//			}
+//		};
+//		history = HistoryExtension.extend(this, myPopStateListener);
+//		history.addPopStateListener(myPopStateListener);
 	}
 	
 	@Override
@@ -262,10 +258,10 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 
 	@Override
 	public void show(Page page) {
-		String pageId = pageStore.put(page);
-		state = new HashMap<>();
-		state.put("0", pageId);
-		history.pushState(state, "");
+//		String pageId = pageStore.put(page);
+//		state = new HashMap<>();
+//		state.put("0", pageId);
+//		history.pushState(state, "");
 		
 		updateContent();
 	}
