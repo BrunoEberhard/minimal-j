@@ -1,3 +1,8 @@
 Manifest-Version: 1.0
-Class-Path: 
+Vaadin-Stylesheets: VAADIN/themes/mjtheme/mjtheme.scss
+Implementation-Title: Minimal-J Vaadin
+Implementation-Version: 0.1.0.0
+Vaadin-Widgetsets: org.minimalj.frontend.impl.vaadin.MjWidgetSet
+Vaadin-Package-Version: 1
+License-title: Apache License 2.0
 
