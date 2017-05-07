@@ -184,7 +184,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
     }
 	
 	private void updateNavigation() {
-		tree.clear();
+		tree.removeAllItems();
 		List<Action> actions = Application.getInstance().getNavigation();
 		addNavigationActions(actions, null);
 	}
