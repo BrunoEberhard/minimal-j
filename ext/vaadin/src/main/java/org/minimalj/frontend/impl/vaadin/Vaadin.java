@@ -312,10 +312,10 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 			String pageId = state.get(String.valueOf(pos));
 			Page page = pageStore.get(pageId);
 			content = (Component) page.getContent();
-			content.addStyleName("page");
-			createMenu((AbstractComponent) content, page.getActions());
 				
 			if (content != null) {
+				content.addStyleName("page");
+				createMenu((AbstractComponent) content, page.getActions());
 				Component decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
 				verticalScrollPane.addComponent(decoratedContent);
 			}
