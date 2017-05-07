@@ -313,7 +313,6 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 			Page page = pageStore.get(pageId);
 			content = (Component) page.getContent();
 			content.addStyleName("page");
-			System.out.println("Set menu: " + page.getActions());
 			createMenu((AbstractComponent) content, page.getActions());
 				
 			if (content != null) {
