@@ -29,6 +29,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		addStyleName("table");
 		this.listener = listener;
 		
 		setSelectable(true);

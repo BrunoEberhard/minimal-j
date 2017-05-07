@@ -32,6 +32,7 @@ import com.github.wolfie.history.HistoryExtension.PopStateListener;
 import com.vaadin.addon.contextmenu.ContextMenu;
 import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.ShortcutAction;
@@ -39,24 +40,22 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 @Theme("mjtheme")
+@Widgetset("org.minimalj.frontend.impl.vaadin.MjWidgetSet")
 public class Vaadin extends UI implements PageManager, LoginListener {
 	private static final long serialVersionUID = 1L;
 
@@ -99,9 +98,9 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		outerPanel.setExpandRatio(topbar, 0f);
 		topbar.setHeight("5ex");
 		topbar.setWidth("100%");
-		topbar.setStyleName("topbar");
+		topbar.addStyleName("topbar");
 		topbar.setSpacing(true);
-		topbar.setMargin(new MarginInfo(false, true, false, false));
+		topbar.setMargin(false);
 
 		Button buttonNavigation = new Button(FontAwesome.NAVICON);
 		buttonNavigation.addClickListener(e -> {
@@ -124,9 +123,9 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		topbar.addComponent(buttonLogin);
 		topbar.setComponentAlignment(buttonLogin, Alignment.MIDDLE_LEFT);
 		
-		Panel panel = new Panel();
-		topbar.addComponent(panel);
-		topbar.setExpandRatio(panel, 1.0f);
+		HorizontalLayout filler = new HorizontalLayout();
+		topbar.addComponent(filler);
+		topbar.setExpandRatio(filler, 1.0f);
 		
 		TextField textFieldSearch = createSearchField();
 		textFieldSearch.setEnabled(Application.getInstance().hasSearchPages());
@@ -313,16 +312,12 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 			String pageId = state.get(String.valueOf(pos));
 			Page page = pageStore.get(pageId);
 			content = (Component) page.getContent();
+			content.addStyleName("page");
+			System.out.println("Set menu: " + page.getActions());
 			createMenu((AbstractComponent) content, page.getActions());
 				
 			if (content != null) {
-				ClickListener closeListener = new ClickListener() {
-					@Override
-					public void buttonClick(ClickEvent event) {
-						hideDetail(page);
-					}
-				};
-				Component decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
+				Component decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
 				verticalScrollPane.addComponent(decoratedContent);
 			}
 		}
@@ -333,6 +328,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 
 		public VaadinDecoration(String title, Component content, boolean showMinimize, ClickListener closeListener) {
 			HorizontalLayout titleBar = new HorizontalLayout();
+			titleBar.addStyleName("pageDecoration");
 			titleBar.setWidth("100%");
 			Label label = new Label(title);
 			titleBar.addComponent(label);
