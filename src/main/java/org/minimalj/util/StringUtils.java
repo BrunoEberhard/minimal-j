@@ -49,6 +49,10 @@ public class StringUtils {
 		return s == null || s.trim().length() == 0;
 	}
 	
+	public static String emptyIfNull(String s) {
+		return s == null ? "" : s;
+	}
+	
 	public static String padLeft(String s, int length, char c) {
 		if (s == null) s = "";
 		while (s.length() < length) s = c + s;
