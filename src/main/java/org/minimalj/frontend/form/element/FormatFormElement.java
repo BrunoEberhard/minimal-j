@@ -1,6 +1,7 @@
 package org.minimalj.frontend.form.element;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -23,7 +24,8 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 * and the subclasses need a chance to initialize the values
 	 */
 	protected Input<String> textField;
-
+	protected boolean typed;
+	
 	public FormatFormElement(PropertyInterface property, boolean editable) {
 		super(property);
 		this.editable = editable;
@@ -34,15 +36,22 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	protected abstract int getAllowedSize(PropertyInterface property);
 
 	protected InputType getInputType() {
-		return InputType.FREE;
+		return InputType.TEXT;
 	}
 
 	@Override
 	public IComponent getComponent() {
 		if (textField == null) {
 			if (editable) {
-				textField = Frontend.getInstance().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
-						getInputType(), null, new TextFormatFieldChangeListener());
+				Optional<Input<String>> typeTextField = Frontend.getInstance().createInput(getAllowedSize(getProperty()), getInputType(), new TextFormatFieldChangeListener());
+				typed = typeTextField.isPresent();
+				if (typed) {
+					textField = typeTextField.get();
+				} else {
+					textField = Frontend.getInstance().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
+							null, new TextFormatFieldChangeListener());
+				}
+				
 			} else {
 				textField = Frontend.getInstance().createReadOnlyTextField();
 			}

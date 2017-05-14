@@ -1,6 +1,7 @@
 package org.minimalj.frontend;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -77,14 +78,17 @@ public abstract class Frontend {
 	}
 	
 	 // http://www.w3schools.com/html/html_form_input_types.asp 
-	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
-
+	public enum InputType { TEXT, EMAIL, URL, TEL, NUMBER, DATE, TIME, DATETIME; }
+	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
+		return Optional.empty();
+	}
+	
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Action action);
 	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createTitle(String string);
 	public abstract Input<String> createReadOnlyTextField();
-	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch, InputComponentListener changeListener);
+	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
 	public abstract IList createList(Action... actions);
@@ -93,6 +97,7 @@ public abstract class Frontend {
 
 	public abstract Input<byte[]> createImage(int size, InputComponentListener changeListener);
 
+	
 	public interface IList extends IComponent {
 		/**
 		 * @param enabled if false no content should be shown (or

@@ -439,9 +439,14 @@ $ICON
 			element.className = "action";
 			element.innerHTML = content.name;
 			element.setAttribute("onclick", "action(\"" + content.id + "\");");
-		} else if (type == "TextField" || type == "PasswordField") {
+		} else if (type == "TextField") {
 			element = document.createElement("input");
-			element.type = type == "PasswordField" ? "password" : "text";
+			try {
+				element.type = content.inputType;
+			} catch (err) {
+				// happens in ie 10 for datetime-local
+				element.type = "text";
+			}
 			element.setAttribute("onkeyup", "sendchange(this);");
 			element.setAttribute("onblur", "setDeferredValue(this);");
 			element.setAttribute("maxlength", content.maxLength);
@@ -925,7 +930,8 @@ $ICON
 	
 	function send(data, block) {
 		data.locale = "$LOCALE";
-
+	    data.compact = isCompact;
+	    	
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
 		
