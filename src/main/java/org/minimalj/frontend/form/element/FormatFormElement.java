@@ -24,6 +24,17 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 * and the subclasses need a chance to initialize the values
 	 */
 	protected Input<String> textField;
+	
+	/*
+	 * typed: Frontends may or may not provide special Inputs for date or time. Even
+	 * the same Frontend can sometimes support those Inputs and sometimes not. For
+	 * example a HTML Frontend depends on the used Browser. FireFox and Microsoft didn't
+	 * support date and time Inputs for a long time.
+	 * If typed is true then the FormElement must format the date or time without
+	 * considering the current Locale. If typed is false a normal text Input is
+	 * used for the date or time. Then the FormElement must to the formatting according
+	 * to the current Locale.
+	 */
 	protected boolean typed;
 	
 	public FormatFormElement(PropertyInterface property, boolean editable) {
@@ -80,7 +91,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	private class TextFormatFieldChangeListener implements InputComponentListener {
 		@Override
 		public void changed(IComponent source) {
-			// Formattierung auslösen
+			// Redo format
 			T value = getValue();
 			boolean valid = true;
 			valid &= !InvalidValues.isInvalid(value);
