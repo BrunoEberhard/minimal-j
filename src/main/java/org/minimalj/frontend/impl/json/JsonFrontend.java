@@ -24,7 +24,7 @@ public class JsonFrontend extends Frontend {
 	private static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 	
 	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
-	private static ThreadLocal<Boolean> compactByThread = new ThreadLocal<>();
+	private static ThreadLocal<Boolean> useInputTypesByThread = new ThreadLocal<>();
 
 	public static void setSession(JsonPageManager session) {
 		sessionByThread.set(session);
@@ -34,8 +34,8 @@ public class JsonFrontend extends Frontend {
 		return sessionByThread.get();
 	}
 	
-	public static void setCompact(boolean compact){
-		compactByThread.set(compact);
+	public static void setUseInputTypes(boolean compact){
+		useInputTypesByThread.set(compact);
 	}
 	
 	@Override
@@ -77,7 +77,7 @@ public class JsonFrontend extends Frontend {
 	
 	@Override
 	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
-		if (compactByThread.get()) {
+		if (useInputTypesByThread.get()) {
 			return Optional.of(new JsonTextField("TextField", maxLength, null, inputType, null, changeListener));
 		} else {
 			return Optional.empty();
