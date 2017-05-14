@@ -72,7 +72,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		if (locale != null) {
 			LocaleContext.setCurrent(Locale.forLanguageTag(locale));
 		}		
-		JsonFrontend.setCompact("true".equals(input.getObject("compact")));
+		JsonFrontend.setCompact(Boolean.TRUE.equals(input.getObject("compact")));
 		
 		output = new JsonOutput();
 		
