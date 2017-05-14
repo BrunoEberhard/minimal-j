@@ -35,6 +35,7 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 		return german ? size : 255;
 	}
 	
+	@Override
 	protected InputType getInputType() {
 		return InputType.DATETIME;
 	}

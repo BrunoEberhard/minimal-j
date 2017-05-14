@@ -31,6 +31,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 		}
 	}
 
+	@Override
 	protected InputType getInputType() {
 		return InputType.TIME;
 	}

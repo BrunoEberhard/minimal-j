@@ -28,6 +28,7 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 		return german ? 10 : 255;
 	}
 	
+	@Override
 	protected InputType getInputType() {
 		return InputType.DATE;
 	}
