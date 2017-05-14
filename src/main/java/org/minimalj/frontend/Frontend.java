@@ -79,6 +79,15 @@ public abstract class Frontend {
 	
 	 // http://www.w3schools.com/html/html_form_input_types.asp 
 	public enum InputType { TEXT, EMAIL, URL, TEL, NUMBER, DATE, TIME, DATETIME; }
+	
+	/**
+	 * Frontends may or may not provide special Inputs. Even a single Frontend
+	 * can sometimes support those Inputs and sometimes not. For example a HTML
+	 * Frontend depends on the used Browser. Firefox and Microsoft didn't
+	 * support date and time Inputs for a long time. Also the used device or the
+	 * user preferences can influence whether the returned Optional is empty or
+	 * contains an Input.
+	 */
 	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
 		return Optional.empty();
 	}
