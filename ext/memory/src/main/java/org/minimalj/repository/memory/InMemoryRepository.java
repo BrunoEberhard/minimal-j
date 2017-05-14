@@ -179,9 +179,9 @@ public class InMemoryRepository implements Repository {
 				Object value = field.get(object);
 				if (field.getAnnotation(NotEmpty.class) != null) {
 					if (value == null) {
-						throw new IllegalArgumentException();
+						throw new IllegalArgumentException(field.getName() + " must not be null");
 					} else if (value instanceof String && ((String)value).isEmpty()) {
-						throw new IllegalArgumentException();
+						throw new IllegalArgumentException(field.getName() + " must not be empty");
 					}
 				}
 				
