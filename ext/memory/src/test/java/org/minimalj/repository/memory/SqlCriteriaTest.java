@@ -6,9 +6,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.SearchCriteria;
 
 public class SqlCriteriaTest {

@@ -9,7 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
 
 public class SqlOrderTest {
