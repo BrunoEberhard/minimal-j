@@ -1055,9 +1055,8 @@ $ICON
 			styleSheet.insertRule(".page { height: 100%; border-bottom: 0;}", 0);
 			styleSheet.insertRule(".actionMenu { z-index:1; right: 1ex; top: 1ex; max-height: calc(100% - 3em); overflow: scroll; margin-top: 0; border: 1px rgb(160,160,160) solid; min-width: 13em;}", 0);
 			styleSheet.insertRule(".pageButton { display: none; }", 0);
-			styleSheet.insertRule("table.form td, table.form th { padding: 1ex 0px; }", 0);
-			styleSheet.insertRule("table.form input { margin: 0px; }", 0);
-			styleSheet.insertRule("table.form { margin: 0px; }", 0);
+			styleSheet.insertRule("table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }", 0);
+			styleSheet.insertRule("table.form, table.form input, table.form select { margin: 0px; }", 0);
 			styleSheet.insertRule("dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }", 0);
 			styleSheet.insertRule(".dialogFooter button { font-size : inherit; }", 0);
 			styleSheet.insertRule(".dialogFooter { height: 1.7em; }", 0);
