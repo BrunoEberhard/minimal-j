@@ -191,10 +191,11 @@ public class InMemoryRepository implements Repository {
 						field.set(object, LocalDateTime.now());
 					} else if (technicalField.value() == TechnicalFieldType.EDIT_DATE) {
 						field.set(object, LocalDateTime.now());
-					} else if (technicalField.value() == TechnicalFieldType.CREATE_USER && value == null) {
-						field.set(object, Subject.getCurrent().getName());
-					} else if (technicalField.value() == TechnicalFieldType.EDIT_USER) {
-						field.set(object, Subject.getCurrent().getName());
+					} else if (technicalField.value() == TechnicalFieldType.CREATE_USER && value == null || technicalField.value() == TechnicalFieldType.EDIT_USER) {
+						Subject currentSubject = Subject.getCurrent();
+						if (currentSubject != null) {
+							field.set(object, currentSubject.getName());
+						}
 					}
 				}
 				
