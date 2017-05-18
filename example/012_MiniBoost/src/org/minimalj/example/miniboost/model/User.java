@@ -8,7 +8,7 @@ import java.util.List;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.security.Password;
+import org.minimalj.security.model.Password;
 
 public class User {
 	public static final User $ = Keys.of(User.class);
