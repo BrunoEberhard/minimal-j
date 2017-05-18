@@ -13,7 +13,7 @@ public class By {
 	
 	public static SearchCriteria search(String query, boolean addWildcards) {
 		if (!StringUtils.isEmpty(query)) {
-			if (addWildcards) {
+			if (addWildcards && !query.contains("*")) {
 				if (!query.startsWith("*")) {
 					query = "*" + query;
 				}
