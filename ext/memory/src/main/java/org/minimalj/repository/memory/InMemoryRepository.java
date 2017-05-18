@@ -21,10 +21,13 @@ import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.Repository;
+import org.minimalj.repository.list.QueryResultList;
+import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
+import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.security.Subject;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
@@ -68,37 +71,49 @@ public class InMemoryRepository implements Repository {
 			} else {
 				return l.subList(limit.getOffset(), Math.min(limit.getOffset() + limit.getRows(), l.size()));
 			}
-		} else if (query instanceof Order) {
-			Order order = (Order) query;
-			List l = find(clazz, order.getQuery());
-			if (l.isEmpty()) {
-				return l;
-			}
-			String path = order.getPath();
-			if (path.contains(".")) {
-				throw new IllegalArgumentException();
-			}
-			PropertyInterface property = Properties.getProperty(l.get(0).getClass(), path);
-			Collections.sort(l, (a, b) -> {
-				Object value1 = property.getValue(a);
-				Object value2 = property.getValue(b);
-				if (value1 == null) {
-					return value2 == null ? 0 : -1;
-				} else if (value2 == null) {
-					return 1;
-				} else {
-					return ((Comparable) value1).compareTo(value2);
-				}
-			});
-			return l;
-		} else if (query instanceof Criteria) {
-			return find(clazz, (Criteria) query);
+		} else if (query instanceof AllCriteria) {
+			AllCriteria allCriteria = (AllCriteria) query;
+			return find(clazz, allCriteria);
 		} else {
-			throw new IllegalArgumentException();
+			return new QueryResultList(this, clazz, (QueryLimitable) query);
 		}
 	}
+
+	private <T> List find(Class<T> clazz, QueryLimitable query) {
+		List<Order> orders = new ArrayList<>();
+		while (query instanceof Order) {
+			Order order = (Order) query;
+			orders.add(order);
+			query = order.getQuery();
+		}
+		List l = find(clazz, (Criteria) query);
+		for (Order order : orders) {
+			order(order, l);
+		}
+		return l;
+	}
+
+	private void order(Order order, List l) {
+		String path = order.getPath();
+		if (path.contains(".")) {
+			throw new IllegalArgumentException();
+		}
+		int factor = order.isAscending() ? 1 : -1;
+		PropertyInterface property = Properties.getProperty(l.get(0).getClass(), path);
+		Collections.sort(l, (a, b) -> {
+			Object value1 = property.getValue(a);
+			Object value2 = property.getValue(b);
+			if (value1 == null) {
+				return value2 == null ? 0 : -factor;
+			} else if (value2 == null) {
+				return factor;
+			} else {
+				return ((Comparable) value1).compareTo(value2) * factor;
+			}
+		});
+	}
 	
-	public <T> List find(Class<T> clazz, Criteria criteria) {
+	private <T> List find(Class<T> clazz, Criteria criteria) {
 		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
 		if (View.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
@@ -113,7 +128,13 @@ public class InMemoryRepository implements Repository {
 	
 	@Override
 	public <T> long count(Class<T> clazz, Query query) {
-		return find(clazz, query).size();
+		if (query instanceof Limit) {
+			query = ((Limit) query).getQuery();
+		}
+		while (query instanceof Order) {
+			query = ((Order) query).getQuery();
+		}
+		return find(clazz, (Criteria) query).size();
 	}
 
 	@Override
