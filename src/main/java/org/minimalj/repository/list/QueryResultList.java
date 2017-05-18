@@ -11,6 +11,7 @@ import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
+import org.minimalj.repository.query.Query.QueryOrderable;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.Sortable;
 
@@ -92,8 +93,7 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 		}
 		for (int i = 0; i<sortKeys.length; i++) {
 			PropertyInterface property = Keys.getProperty(sortKeys[i]);
-			String path = property.getPath();
-			query = new Order(query, path, sortDirections[i]);
+			query = ((QueryOrderable) query).order(property, sortDirections[i]);
 		}
 	}
 
