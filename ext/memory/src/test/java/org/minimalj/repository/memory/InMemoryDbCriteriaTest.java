@@ -10,7 +10,7 @@ import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.SearchCriteria;
 
-public class SqlCriteriaTest {
+public class InMemoryDbCriteriaTest {
 
 	private static InMemoryRepository respository;
 

@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.FieldOperator;
 
-public class SqlSimpleCriteriaTest {
+public class InMemoryDbSimpleCriteriaTest {
 	
 	private static InMemoryRepository repository;
 	

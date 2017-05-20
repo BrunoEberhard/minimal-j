@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
-public class SqlCrudTest {
+public class InMemoryDbCrudTest {
 	
 	private static InMemoryRepository repository;
 	

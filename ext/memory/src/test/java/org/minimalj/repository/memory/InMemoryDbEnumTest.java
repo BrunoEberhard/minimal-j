@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SqlEnumTest {
+public class InMemoryDbEnumTest {
 	
 	private static InMemoryRepository repository;
 	

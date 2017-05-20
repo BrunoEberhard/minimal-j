@@ -6,7 +6,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.repository.Repository;
 
-public class SqlBooleanTest {
+public class InMemoryDbBooleanTest {
 
 	private static Repository repository;
 	

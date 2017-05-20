@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
-public class SqlLongFieldNameTest {
+public class InMemoryDbLongFieldNameTest {
 	
 	private static InMemoryRepository repository;
 	
