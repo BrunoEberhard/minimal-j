@@ -3,7 +3,7 @@ package org.minimalj.model.properties;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.minimalj.util.CloneHelper;
@@ -44,11 +44,11 @@ public class FieldProperty implements PropertyInterface {
 			} else {
 				Object finalObject = field.get(object);
 				if (finalObject == value) return;
-				if (finalObject instanceof List) {
-					List finalList = (List) finalObject;
-					finalList.clear();
+				if (finalObject instanceof Collection) {
+					Collection finalCollection = (Collection) finalObject;
+					finalCollection.clear();
 					if (value != null) {
-						finalList.addAll((List) value);
+						finalCollection.addAll((Collection) value);
 					}
 				} else {
 					if (value == null) {
