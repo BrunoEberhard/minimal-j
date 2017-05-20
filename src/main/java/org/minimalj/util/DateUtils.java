@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
@@ -18,8 +17,6 @@ import org.minimalj.model.validation.InvalidValues;
 
 
 public class DateUtils {
-	private static final Logger logger = Logger.getLogger(DateUtils.class.getName());
-	
 	private static final Map<Locale, DateTimeFormatter> dateFormatByLocale = new HashMap<>();
 
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
