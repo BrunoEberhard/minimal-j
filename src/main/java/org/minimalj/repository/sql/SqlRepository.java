@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,7 +66,6 @@ public class SqlRepository implements TransactionalRepository {
 	
 	private final SqlDialect sqlDialect;
 	
-	private final List<Class<?>> mainClasses;
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<String, AbstractTable<?>>();
 	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
@@ -86,7 +84,6 @@ public class SqlRepository implements TransactionalRepository {
 
 	public SqlRepository(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
 		this.dataSource = dataSource;
-		this.mainClasses = Arrays.asList(classes);
 		Connection connection = getAutoCommitConnection();
 		try {
 			sqlDialect = findDialect(connection);
@@ -138,10 +135,6 @@ public class SqlRepository implements TransactionalRepository {
 		return sqlDialect;
 	}
 
-	public boolean isMainClasses(Class<?> clazz) {
-		return mainClasses.contains(clazz);
-	}
-	
 	@Override
 	public void startTransaction(int transactionIsolationLevel) {
 		if (isTransactionActive()) return;
