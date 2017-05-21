@@ -15,16 +15,16 @@ import org.minimalj.util.resources.Resources;
  * normal page with this pattern:
  * 
  * <pre>
- * public class TeaCup extends Page {
+ * public class TeaCupPage extends Page {
  * 
- * 	private final TaxStatement teaCup;
+ * 	private final TeaCup teaCup;
  * 
- * 	public TeaCup(TaxStatement teaCup) {
+ * 	public TeaCup(TeaCup teaCup) {
  * 		this.teaCup = teaCup;
  * 	}
  * 
  * 	public IContent getContent() {
- * 		TaxStatementForm form = new TaxStatementForm(Form.READ_ONLY);
+ * 		TeaCupForm form = new TeaCupForm(Form.READ_ONLY);
  * 		form.setObject(teaCup);
  * 		return form.getContent();
  * 	}
