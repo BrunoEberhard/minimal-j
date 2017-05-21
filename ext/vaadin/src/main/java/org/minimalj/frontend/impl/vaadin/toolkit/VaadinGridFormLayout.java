@@ -21,6 +21,7 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 	
 	public VaadinGridFormLayout(int columns, int columnWidthPercentage) {
 		super(columns, 1);
+		addStyleName("form");
 		
 		this.columns = columns;
 		columnWidth = columnWidthPercentage / 2; // Math.max(columnWidthPercentage, 60 / columns);

@@ -4,9 +4,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 
-public class SqlSelfReferenceTest {
+public class InMemoryDbSelfReferenceTest {
 
 	private static InMemoryRepository repository;
 	
@@ -38,15 +37,17 @@ public class SqlSelfReferenceTest {
 	@Test
 	public void testCycleWithSeparateInserts() {
 		TestEntity e1 = new TestEntity();
-		Object id1 = repository.insert(e1);
+		e1.id = repository.insert(e1);
 		TestEntity e2 = new TestEntity();
-		repository.insert(e2);
+		e2.id = repository.insert(e2);
+		
 		e1.reference = e2;
 		repository.update(e1);
+		
 		e2.reference = e1;
 		repository.update(e2);
 
-		e1 = repository.read(TestEntity.class, id1);
+		e1 = repository.read(TestEntity.class, e1.id);
 		Assert.assertEquals(e1, e1.reference.reference);
 	}
 	

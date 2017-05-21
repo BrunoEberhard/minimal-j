@@ -6,10 +6,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
 
-public class SqlReadTest {
+public class InMemoryDbReadTest {
 	
 	private static InMemoryRepository repository;
 	

@@ -5,9 +5,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 
-public class SqlOptimisticLockingTest {
+public class InMemoryDbOptimisticLockingTest {
 	
 	private static InMemoryRepository repository;
 	

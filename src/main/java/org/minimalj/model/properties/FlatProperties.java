@@ -75,7 +75,7 @@ public class FlatProperties {
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
-			if (!FieldUtils.isFinal(field)) {
+			if (!FieldUtils.isFinal(field) || FieldUtils.isSet(field.getType())) {
 				properties.put(field.getName(), new FieldProperty(field));
 			} else if (!FieldUtils.isList(field)) {
 				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());

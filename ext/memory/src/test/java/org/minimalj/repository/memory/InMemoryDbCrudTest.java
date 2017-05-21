@@ -2,7 +2,6 @@ package org.minimalj.repository.memory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -10,10 +9,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.util.IdUtils;
 
-public class SqlCrudTest {
+public class InMemoryDbCrudTest {
 	
 	private static InMemoryRepository repository;
 	

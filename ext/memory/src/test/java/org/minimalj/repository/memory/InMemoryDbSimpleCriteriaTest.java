@@ -6,11 +6,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.FieldOperator;
 
-public class SqlSimpleCriteriaTest {
+public class InMemoryDbSimpleCriteriaTest {
 	
 	private static InMemoryRepository repository;
 	

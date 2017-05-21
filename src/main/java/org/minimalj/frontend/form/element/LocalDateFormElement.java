@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
+import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
@@ -26,22 +27,39 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 	protected int getAllowedSize(PropertyInterface property) {
 		return german ? 10 : 255;
 	}
+	
+	@Override
+	protected InputType getInputType() {
+		return InputType.DATE;
+	}
 
 	@Override
 	public LocalDate parse(String string) {
-		try {
-			return DateUtils.parse(string);
-		} catch (DateTimeParseException x) {
-			return InvalidValues.createInvalidLocalDate(string);
+		if (string != null) {
+			try {
+				if (typed) {
+					return LocalDate.parse(string);
+				} else {
+					return DateUtils.parse(string);
+				}
+			} catch (DateTimeParseException x) {
+				return InvalidValues.createInvalidLocalDate(string);
+			}
+		} else {
+			return null;
 		}
 	}
 	
 	@Override
 	public String render(LocalDate value) {
 		if (InvalidValues.isInvalid(value)) {
-			return InvalidValues.getInvalidValue(value);
+			return typed ? InvalidValues.getInvalidValue(value) : null;
 		} else if (value != null) {
-			return DateUtils.format(value);
+			if (typed) {
+				return value.toString();
+			} else {
+				return DateUtils.format(value);
+			}
 		} else {
 			return null;
 		}

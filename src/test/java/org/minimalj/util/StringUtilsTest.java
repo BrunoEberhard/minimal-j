@@ -41,6 +41,13 @@ public class StringUtilsTest {
 	}
 	
 	@Test
+	public void emptyIfNull() {
+		Assert.assertEquals("", StringUtils.emptyIfNull(null));
+		Assert.assertEquals("", StringUtils.emptyIfNull(""));
+		Assert.assertEquals("a", StringUtils.emptyIfNull("a"));
+	}
+	
+	@Test
 	public void upperFirstChar() {
 		Assert.assertEquals("Der", StringUtils.upperFirstChar("der"));
 		Assert.assertEquals("Der", StringUtils.upperFirstChar("Der"));

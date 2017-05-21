@@ -1,5 +1,8 @@
 package org.minimalj.model.properties;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.test.ModelTest;
@@ -46,6 +49,13 @@ public class FlatPropertiesTest {
 		Assert.assertTrue(modelTest.isValid());
 		Assert.assertTrue(FlatProperties.getProperties(TestEntityA4.class).keySet().contains("testEntityB2"));
 	}
+	
+	@Test public void 
+	final_Set_should_be_property() {
+		ModelTest modelTest = new ModelTest(TestEntityC.class);
+		Assert.assertTrue(modelTest.isValid());
+		Assert.assertTrue(FlatProperties.getProperties(TestEntityC.class).keySet().contains("e"));
+	}
 
 	public static class TestEntityA {
 		public Object id;
@@ -84,6 +94,15 @@ public class FlatPropertiesTest {
 	
 	public static class TestEntityB2 {
 		public Integer testEntityB2;
+	}
+	
+	public static enum TestEnum {
+		A, B;
+	}
+	
+	public static class TestEntityC {
+		public Object id;
+		public final Set<TestEnum> e = new TreeSet<TestEnum>();
 	}
 
 }

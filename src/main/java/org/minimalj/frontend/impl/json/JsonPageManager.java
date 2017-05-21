@@ -72,6 +72,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		if (locale != null) {
 			LocaleContext.setCurrent(Locale.forLanguageTag(locale));
 		}		
+		JsonFrontend.setUseInputTypes(Boolean.TRUE.equals(input.getObject("inputTypes")));
 		
 		output = new JsonOutput();
 		

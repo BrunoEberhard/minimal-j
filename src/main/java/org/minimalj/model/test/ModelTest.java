@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
@@ -253,9 +255,11 @@ public class ModelTest {
 				testTypeOfTechnicalField(field, technicalField.value());
 			}
 			Class<?> fieldType = field.getType();
-			if (fieldType == String.class) {
-				if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
-					testSize(field);
+			if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
+				if (fieldType == String.class) {
+					testStringSize(field);
+				} else if (fieldType == LocalTime.class || fieldType == LocalDateTime.class) {
+					testTimeSize(field);
 				}
 			} 
 		}
@@ -397,12 +401,22 @@ public class ModelTest {
 		testClass(fieldType);
 	}
 	
-	private void testSize(Field field) {
+	private void testStringSize(Field field) {
 		PropertyInterface property = Properties.getProperty(field);
 		try {
 			AnnotationUtil.getSize(property);
 		} catch (IllegalArgumentException x) {
 			problems.add("Missing size for: " + property.getDeclaringClass().getName() + "." + property.getPath());
+		}
+	}
+	
+	private void testTimeSize(Field field) {
+		PropertyInterface property = Properties.getProperty(field);
+		int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
+		if (size > -1) {
+			if (size != Size.TIME_HH_MM && size != Size.TIME_WITH_SECONDS && size != Size.TIME_WITH_MILLIS) {
+				problems.add("Unsupported size for: " + property.getDeclaringClass().getName() + "." + property.getPath() + " - only Size.TIME_ constants can be used");
+			}
 		}
 	}
 		

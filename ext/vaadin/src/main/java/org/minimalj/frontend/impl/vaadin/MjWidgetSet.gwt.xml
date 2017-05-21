@@ -5,10 +5,5 @@
     <inherits name="com.vaadin.DefaultWidgetSet"/>
 
     <inherits name="de.akquinet.engineering.vaadin.html5.Html5Widgets" />
-
     <inherits name="com.vaadin.addon.contextmenu.WidgetSet" />
-
-    <inherits name="de.akquinet.engineering.vaadin.html5.Html5Widgets" />
-
-    <inherits name="de.akquinet.engineering.vaadin.html5.Html5Widgets" />
 </module>

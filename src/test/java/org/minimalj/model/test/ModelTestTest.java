@@ -2,6 +2,7 @@ package org.minimalj.model.test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -273,4 +274,65 @@ public class ModelTestTest {
 		Assert.assertTrue(modelTest.isValid());
 	}
 	
+	@Test public void 
+	should_accept_Temporal_without_size() {
+		ModelTest modelTest = new ModelTest(TestClass20.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static class TestClass20 {
+		public Object id;
+
+		public LocalDate a;
+		public LocalTime b;
+		public LocalDateTime c;
+	}
+
+	@Test public void 
+	should_accept_Temporal_with_size() {
+		ModelTest modelTest = new ModelTest(TestClass21.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static class TestClass21 {
+		public Object id;
+
+		@Size(Size.TIME_HH_MM)
+		public LocalTime t1;
+		@Size(Size.TIME_WITH_SECONDS)
+		public LocalTime t2;
+		@Size(Size.TIME_WITH_MILLIS)
+		public LocalTime t3;
+
+		@Size(Size.TIME_HH_MM)
+		public LocalDateTime dt1;
+		@Size(Size.TIME_WITH_SECONDS)
+		public LocalDateTime dt2;
+		@Size(Size.TIME_WITH_MILLIS)
+		public LocalDateTime dt3;
+	}
+
+	@Test public void 
+	should_not_accept_Temporal_with_unsupported_size() {
+		ModelTest modelTest = new ModelTest(TestClass22a.class);
+		Assert.assertFalse(modelTest.isValid());
+		
+		modelTest = new ModelTest(TestClass22b.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass22a {
+		public Object id;
+
+		@Size(Size.TIME_HH_MM + 1)
+		public LocalTime t1;
+	}
+
+	public static class TestClass22b {
+		public Object id;
+
+		@Size(Size.TIME_HH_MM + 1)
+		public LocalDateTime t1;
+	}
+
 }

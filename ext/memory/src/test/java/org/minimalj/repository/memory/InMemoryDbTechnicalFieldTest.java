@@ -11,7 +11,7 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.security.Subject;
 
-public class SqlTechnicalFieldTest {
+public class InMemoryDbTechnicalFieldTest {
 
 	private static InMemoryRepository repository;
 

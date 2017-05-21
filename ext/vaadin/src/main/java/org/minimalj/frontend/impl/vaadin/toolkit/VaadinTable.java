@@ -29,6 +29,7 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		addStyleName("table");
 		this.listener = listener;
 		
 		setSelectable(true);
@@ -50,7 +51,8 @@ public class VaadinTable<T> extends Table implements ITable<T> {
 	
 	@Override
 	public void setObjects(List<T> objects) {
-		setContainerDataSource(new PropertyVaadinContainer<T>(objects, properties));
+		// TODO Paging in Vaadin. For example with viritin. At the moment the maxim of displayed objects is set to 100
+		setContainerDataSource(new PropertyVaadinContainer<T>(objects.subList(0, Math.min(100, objects.size())), properties));
 	}
 
 	@Override

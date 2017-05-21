@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
@@ -23,6 +24,7 @@ public class JsonFrontend extends Frontend {
 	private static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 	
 	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
+	private static ThreadLocal<Boolean> useInputTypesByThread = new ThreadLocal<>();
 
 	public static void setSession(JsonPageManager session) {
 		sessionByThread.set(session);
@@ -30,6 +32,10 @@ public class JsonFrontend extends Frontend {
 
 	public static JsonPageManager getClientSession() {
 		return sessionByThread.get();
+	}
+	
+	public static void setUseInputTypes(boolean compact){
+		useInputTypesByThread.set(compact);
 	}
 	
 	@Override
@@ -65,9 +71,17 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch,
-			InputComponentListener changeListener) {
-		return new JsonTextField("TextField", maxLength, allowedCharacters, inputType, suggestionSearch, changeListener);
+	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
+		return new JsonTextField("TextField", maxLength, allowedCharacters, null, suggestionSearch, changeListener);
+	}
+	
+	@Override
+	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
+		if (useInputTypesByThread.get()) {
+			return Optional.of(new JsonTextField("TextField", maxLength, null, inputType, null, changeListener));
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	@Override
@@ -112,7 +126,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public IComponent createComponentGroup(IComponent... components) {
-		JsonComponent group = new JsonComponent("Group", false);
+		JsonComponent group = new JsonComponent("Group");
 		if (components.length > 0) {
 			// click on the caption label should focus first component, not the group
 			group.put("firstId", ((JsonComponent) components[0]).get("id"));

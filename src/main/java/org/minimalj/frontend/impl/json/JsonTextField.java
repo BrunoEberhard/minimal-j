@@ -7,9 +7,9 @@ import org.minimalj.frontend.Frontend.Search;
 
 public class JsonTextField extends JsonInputComponent<String> implements Input<String> {
 
-	private static final String MAX_LENGTH = "maxLength";
+	public static final String MAX_LENGTH = "maxLength";
+	public static final String INPUT_TYPE = "inputType";
 	private static final String ALLOWED_CHARACTERS = "allowedCharacters";
-	private static final String INPUT_TYPE = "inputType";
 	private static final String SUGGESTIONS = "suggestions";
 	
 	private final Search<String> suggestions;
@@ -24,14 +24,19 @@ public class JsonTextField extends JsonInputComponent<String> implements Input<S
 		this.suggestions = null;
 	}
 	
-	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestions,
-			InputComponentListener changeListener) {
+	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType,
+			Search<String> suggestions, InputComponentListener changeListener) {
 		super(type, changeListener);
 		this.suggestions = suggestions;
 		put(MAX_LENGTH, maxLength);
-		put(ALLOWED_CHARACTERS, allowedCharacters);
 		if (inputType != null) {
-			put(INPUT_TYPE, inputType.name());
+			if (inputType == InputType.DATETIME) {
+				put(INPUT_TYPE, "datetime-local");
+			} else {
+				put(INPUT_TYPE, inputType.name().toLowerCase());
+			}
+		} else {
+			put(ALLOWED_CHARACTERS, allowedCharacters);
 		}
 		if (suggestions != null) {
 			put(SUGGESTIONS, "true");

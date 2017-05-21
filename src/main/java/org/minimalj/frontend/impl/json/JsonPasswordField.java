@@ -7,13 +7,13 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.PasswordField;
 
 public class JsonPasswordField extends JsonInputComponent<char[]> implements PasswordField {
-	private static final String MAX_LENGTH = "maxLength";
 	
 	private InputComponentListener changeListener;
 	
 	public JsonPasswordField(int maxLength, InputComponentListener changeListener) {
-		super("PasswordField", changeListener);
-		put(MAX_LENGTH, maxLength);
+		super("TextField", changeListener);
+		put(JsonTextField.INPUT_TYPE, "password");
+		put(JsonTextField.MAX_LENGTH, maxLength);
 		this.changeListener = changeListener;
 	}
 

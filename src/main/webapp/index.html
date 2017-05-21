@@ -439,11 +439,27 @@ $ICON
 			element.className = "action";
 			element.innerHTML = content.name;
 			element.setAttribute("onclick", "action(\"" + content.id + "\");");
-		} else if (type == "TextField" || type == "PasswordField") {
+		} else if (type == "TextField") {
 			element = document.createElement("input");
-			element.type = type == "PasswordField" ? "password" : "text";
-			element.setAttribute("onkeyup", "sendchange(this);");
-			element.setAttribute("onblur", "setDeferredValue(this);");
+			try {
+				element.type = content.inputType;
+				if (content.inputType == "time") {
+					if (content.maxLength == 8) {
+						element.step = 1;
+					} else if (content.maxLength == 12) {
+						element.step = "0.001";
+					}
+				}
+			} catch (err) {
+				// happens in ie 10 for datetime-local
+				element.type = "text";
+			}
+			if (element.type == "date" || element.type == "time" || element.type == "datetime-local") {
+				element.setAttribute("onchange", "sendchange(this);");
+			} else {
+				element.setAttribute("onkeyup", "sendchange(this);");
+				element.setAttribute("onblur", "setDeferredValue(this);");
+			}
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.value = content.value;
@@ -925,7 +941,8 @@ $ICON
 	
 	function send(data, block) {
 		data.locale = "$LOCALE";
-
+	    data.inputTypes = isCompact && checkInput("date");
+	    	
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
 		
@@ -1038,9 +1055,8 @@ $ICON
 			styleSheet.insertRule(".page { height: 100%; border-bottom: 0;}", 0);
 			styleSheet.insertRule(".actionMenu { z-index:1; right: 1ex; top: 1ex; max-height: calc(100% - 3em); overflow: scroll; margin-top: 0; border: 1px rgb(160,160,160) solid; min-width: 13em;}", 0);
 			styleSheet.insertRule(".pageButton { display: none; }", 0);
-			styleSheet.insertRule("table.form td, table.form th { padding: 1ex 0px; }", 0);
-			styleSheet.insertRule("table.form input { margin: 0px; }", 0);
-			styleSheet.insertRule("table.form { margin: 0px; }", 0);
+			styleSheet.insertRule("table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }", 0);
+			styleSheet.insertRule("table.form, table.form input, table.form select { margin: 0px; }", 0);
 			styleSheet.insertRule("dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }", 0);
 			styleSheet.insertRule(".dialogFooter button { font-size : inherit; }", 0);
 			styleSheet.insertRule(".dialogFooter { height: 1.7em; }", 0);
@@ -1057,6 +1073,12 @@ $ICON
 		send({
 			"showDefaultPage" : "default-" + (new Date().getTime())
 		});
+	}
+	
+	function checkInput(type) {
+	    var input = document.createElement("input");
+	    input.setAttribute("type", type);
+	    return input.type == type;
 	}
 </script>
 <style id="dynamicStyle"></style>

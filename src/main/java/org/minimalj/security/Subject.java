@@ -41,6 +41,11 @@ public class Subject implements Serializable {
 		}
 		return false;
 	}
+	
+	public static boolean currentHasRole(String... roleNames) {
+		Subject currentSubject = getCurrent();
+		return currentSubject != null ? currentSubject.hasRole(roleNames) : false;
+	}
 
 	public static void setCurrent(Subject subject) {
 		Subject.subject.set(subject);

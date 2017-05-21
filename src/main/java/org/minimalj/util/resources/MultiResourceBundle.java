@@ -1,4 +1,4 @@
-package org.minimalj.util;
+package org.minimalj.util.resources;
 
 import java.util.Arrays;
 import java.util.Enumeration;

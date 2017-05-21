@@ -90,8 +90,7 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch,
-			InputComponentListener changeListener) {
+	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
 		if (suggestionSearch == null) {
 			return new SwingTextField(changeListener, maxLength, allowedCharacters);
 		} else {

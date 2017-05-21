@@ -3,6 +3,7 @@ package org.minimalj.repository.memory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
@@ -64,12 +65,14 @@ class PredicateFactory {
 		} else if (query instanceof SearchCriteria) {
 			SearchCriteria searchCriteria = (SearchCriteria) query;
 			List<PropertyInterface> searchColumns = findSearchColumns(clazz);
+			String regex = convertQuery(searchCriteria.getQuery());
+			Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 			return (object) -> {
 				for (PropertyInterface p : searchColumns) {
 					Object value = p.getValue(object);
 					if (value instanceof String) {
-						String s = ((String) value).toLowerCase();
-						if (s.contains(searchCriteria.getQuery().replaceAll("\\*", "").toLowerCase())) {
+						String s = ((String) value);
+						if (pattern.matcher(s).matches()) {
 							return !searchCriteria.isNotEqual();
 						}
 					}
@@ -121,5 +124,26 @@ class PredicateFactory {
 			throw new IllegalArgumentException("No fields are annotated as 'Searched' in " + clazz.getName());
 		}
 		return searchColumns;
+	}
+	
+	private static String ESCAPE = ".()+|^$@%\\{},";
+	
+	private static String convertQuery(String query) {
+		query = query.trim();
+		StringBuilder sb = new StringBuilder(query.length() + 10);
+		sb.append('^');
+		for (char c: query.toCharArray()) {
+			if (c == '*') {
+				sb.append(".*");
+			} else if (c == '?') {
+				sb.append(".");
+			} else if (ESCAPE.indexOf(c) >= 0) {
+				sb.append("\\").append(c);
+			} else {
+				sb.append(c);
+			}
+		}
+		sb.append('$');
+		return sb.toString();
 	}
 }

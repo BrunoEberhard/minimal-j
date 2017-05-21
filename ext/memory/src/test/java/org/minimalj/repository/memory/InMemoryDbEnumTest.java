@@ -7,9 +7,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 
-public class SqlEnumTest {
+public class InMemoryDbEnumTest {
 	
 	private static InMemoryRepository repository;
 	

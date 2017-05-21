@@ -1,4 +1,4 @@
-package org.minimalj.security;
+package org.minimalj.security.model;
 
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;

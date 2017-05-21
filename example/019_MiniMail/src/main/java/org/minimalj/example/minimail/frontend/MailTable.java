@@ -1,14 +1,15 @@
 package org.minimalj.example.minimail.frontend;
 
-import java.util.Collections;
 import java.util.List;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.example.minimail.model.Mail;
 import org.minimalj.frontend.page.TablePage;
+import org.minimalj.repository.query.By;
 
 public class MailTable extends TablePage<Mail> {
 
-	public static final Object[] keys = new Object[]{Mail.$.from, Mail.$.to, Mail.$.date, Mail.$.subject};
+	public static final Object[] keys = new Object[]{Mail.$.from.address, Mail.$.to.address, Mail.$.date, Mail.$.subject};
 	
 	public MailTable() {
 		super(keys);
@@ -16,7 +17,7 @@ public class MailTable extends TablePage<Mail> {
 
 	@Override
 	protected List<Mail> load() {
-		return Collections.emptyList();
+		return Backend.find(Mail.class, By.all());
 	}
 
 }

@@ -8,6 +8,8 @@ import org.minimalj.model.annotation.Size;
 public class Mail {
 	public static final Mail $ = Keys.of(Mail.class);
 
+	public Object id;
+	
 	public final EMailAddress from = new EMailAddress();
 	public final EMailAddress to = new EMailAddress();
 	

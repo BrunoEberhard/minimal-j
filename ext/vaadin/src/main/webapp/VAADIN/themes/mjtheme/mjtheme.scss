@@ -40,4 +40,34 @@
   	height: initial;
   	font-size: 12px;
   }
+  
+  .topbar {
+  	background: rgb(224,224,224);
+  	padding-left: 0.4em;
+  	padding-right: 1em;
+  }
+  
+  .pageDecoration {
+  	background: rgb(240,240,240);
+  	padding-left: 0.6em;
+  }
+
+  .form {
+	padding: 0.6em;
+  }
+    
+  .v-captiontext {
+  	font-size: 12px;
+  	line-height: 15px;
+  }
+  
+  .v-textfield, .v-filterselect {
+  	font-size: 14px;
+  	height: 30px;
+  }
+  
+  .v-textfield {
+  	padding-top: 1px;
+  	padding-bottom: 2px;
+  }
 }
