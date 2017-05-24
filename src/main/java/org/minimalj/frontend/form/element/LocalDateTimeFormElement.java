@@ -76,6 +76,6 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 	
 	@Override
 	public void mock() {
-		setValue(LocalDateTime.of(MockDate.generateRandomDate(), MockDate.generateRandomTime(4)));
+		setValue(LocalDateTime.of(MockDate.generateRandomDate(), MockDate.generateRandomTime(Size.TIME_HH_MM)));
 	}
 }
