@@ -12,8 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
@@ -47,7 +45,6 @@ public class ModelTest {
 	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
 	
 	private final List<String> problems = new ArrayList<String>();
-	private final SortedSet<String> missingResources = new TreeSet<String>();
 	
 	public ModelTest(Class<?>... modelClasses) {
 		this(Arrays.asList(modelClasses));
@@ -60,7 +57,7 @@ public class ModelTest {
 			testClass(clazz);
 		}
 		if (DevMode.isActive()) {
-			reportMissingResources();
+			Resources.printMissing();
 		}
 	}
 	
@@ -446,17 +443,7 @@ public class ModelTest {
 	private void testResources(Class<?> clazz) {
 		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
 			if (StringUtils.equals(property.getName(), "id", "version")) continue;
-			String resourceText = Resources.getPropertyName(property);
-			if (resourceText.startsWith("'") && resourceText.endsWith("'")) {
-				missingResources.add(resourceText.substring(1, resourceText.length()-1));
-			}
+			Resources.getPropertyName(property);
 		}
 	}
-	
-	public void reportMissingResources() {
-		for (String key : missingResources) {
-			Resources.reportMissing(key, true);
-		}
-	}
-
 }
