@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ public class Keys {
 
 	private static final Logger logger = Logger.getLogger(Keys.class.getName());
 	private static final Map<Object, PropertyInterface> properties = new IdentityHashMap<Object, PropertyInterface>();
+	private static final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 
 	private static final List<Object> keyObjects = new ArrayList<>();
 	private static final Map<String, Object> methodKeyByName = new HashMap<String, Object>();
@@ -56,7 +58,7 @@ public class Keys {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T methodOf(Object keyObject, String propertyName) {
+	public static <T> T methodOf(Object keyObject, String propertyName, Object... dependencies) {
 		String qualifiedMethodName = null;
 		
 		PropertyInterface enclosingProperty = null;
@@ -87,6 +89,29 @@ public class Keys {
 		
 		fillFields(t, property, 0);
 		properties.put(t, property);
+
+		//
+		
+		List<PropertyInterface> dependenciesList = new ArrayList<>();
+		if (dependencies != null && dependencies.length > 0) {
+			for (Object d : dependencies) {
+				PropertyInterface dependency = Keys.getProperty(d);
+				if (enclosingProperty != null) {
+					dependency = new ChainedProperty(enclosingProperty, dependency);
+				}
+				dependenciesList.add(dependency);
+			}
+		}
+		if (enclosingProperty != null) {
+			dependenciesList.add(enclosingProperty);
+			List<PropertyInterface> enclosingDependencies = Keys.dependencies.get(enclosingProperty);
+			if (enclosingDependencies != null) {
+				dependenciesList.addAll(enclosingDependencies);
+			}
+		}
+		if (!dependenciesList.isEmpty()) {
+			Keys.dependencies.put(property, dependenciesList);
+		}
 		
 		return t;
 	}
@@ -172,8 +197,16 @@ public class Keys {
 		}
 		return properties;
 	}
+	
+	public static List<PropertyInterface> getDependencies(PropertyInterface property) {
+		if (dependencies.containsKey(property)) {
+			return dependencies.get(property);
+		} else {
+			return Collections.emptyList();
+		}
+	}
 
-	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
+	private static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
 		Method[] methods = clazz.getMethods();
 		for (Method method: methods) {
 			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;

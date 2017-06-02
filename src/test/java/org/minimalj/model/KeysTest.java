@@ -1,5 +1,6 @@
 package org.minimalj.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,6 +164,27 @@ public class KeysTest {
 		Assert.assertEquals(Integer.valueOf(43), testClass7.list.get(1).value);
 	}
 	
+	@Test
+	public void testMethodPropertyDependencies() {
+		PropertyInterface propertyC = Keys.getProperty(TestClass9.$.testClass10.getC());
+		List<PropertyInterface> dependencies = Keys.getDependencies(propertyC);
+		
+		TestClass9 testClass9 = new TestClass9();
+		testClass9.testClass10 = new TestClass10();
+	
+		dependencies.get(0).setValue(testClass9, BigDecimal.valueOf(1));
+		dependencies.get(1).setValue(testClass9, BigDecimal.valueOf(2));
+		
+		Assert.assertEquals(BigDecimal.valueOf(3), testClass9.testClass10.getC());
+		
+		TestClass10 testClass10 = new TestClass10();
+		testClass10.a = BigDecimal.valueOf(3);
+		testClass10.b = BigDecimal.valueOf(4);
+		
+		
+		
+	}
+	
 	//
 	
 	public static class TestClass1 {
@@ -270,6 +292,26 @@ public class KeysTest {
 		public static final TestClass8 $ = Keys.of(TestClass8.class);
 		
 		public Integer value;
+	}
+	
+	public static class TestClass9 {
+
+		public static final TestClass9 $ = Keys.of(TestClass9.class);
+		
+		public TestClass10 testClass10;
+	}
+
+	public static class TestClass10 {
+
+		public static final TestClass10 $ = Keys.of(TestClass10.class);
+		
+		public BigDecimal a, b;
+		
+		public BigDecimal getC() {
+			if (Keys.isKeyObject(this)) return Keys.methodOf(this, "c", $.a, $.b);
+			
+			return a != null && b != null ? a.add(b) : null;
+		}
 	}
 
 }
