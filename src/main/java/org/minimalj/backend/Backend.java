@@ -81,7 +81,7 @@ public class Backend {
 		return instance;
 	}
 	
-	public void setRepository(Repository repository) {
+	protected void setRepository(Repository repository) {
 		this.repository = repository;
 	}
 	
