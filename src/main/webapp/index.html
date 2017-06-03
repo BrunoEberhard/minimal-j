@@ -521,6 +521,7 @@ $ICON
 				element.setAttribute("checked", "checked");
 			}
 			var label = document.createElement("label");
+			label.className = "checkboxLabel";
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */

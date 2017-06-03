@@ -346,9 +346,14 @@ input, .checkBoxContainer, select {
 
 input[type="checkbox"] {
 	height: inherit;
+	width: 1.2em;
 	margin-bottom: 0px;
 	margin-top: 0px;
 	vertical-align: bottom;
+}
+
+label.checkboxLabel {
+	font-weight: normal;
 }
 
 textarea {
