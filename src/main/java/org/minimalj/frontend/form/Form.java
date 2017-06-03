@@ -284,7 +284,6 @@ public class Form<T> {
 		List<PropertyInterface> dependencies = Keys.getDependencies(field.getProperty());
 		for (PropertyInterface dependency : dependencies) {
 			addDependecy(dependency, field.getProperty());
-			System.out.println(dependency.getPath() + " --> " + field.getProperty().getPath());
 		}
 		
 	}
