@@ -2,7 +2,6 @@ package org.minimalj.repository.memory;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class InMemoryDbSelfReferenceTest {
@@ -23,7 +22,7 @@ public class InMemoryDbSelfReferenceTest {
 		Assert.assertEquals(e, e.reference);
 	}
 	
-	@Test @Ignore // not yet solved
+	@Test
 	public void testCycleWithOneInserts() {
 		TestEntity e1 = new TestEntity();
 		TestEntity e2 = new TestEntity();
