@@ -103,6 +103,7 @@ public class ModelTest {
 			testHistorized(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
+			testSelfReferences(clazz);
 			if (!IdUtils.hasId(clazz)) {
 				testNoListFields(clazz);
 			}
@@ -446,4 +447,27 @@ public class ModelTest {
 			Resources.getPropertyName(property);
 		}
 	}
+	
+	private void testSelfReferences(Class<?> clazz) {
+		testSelfReferences(clazz, new HashSet<>());
+	}
+	
+	private void testSelfReferences(Class<?> clazz, Set<Class<?>> forbiddenClasses) {
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
+				Class<?> fieldType = field.getType();
+				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
+					if (forbiddenClasses.contains(fieldType)) {
+						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
+					} else {
+						forbiddenClasses.add(fieldType);
+						testSelfReferences(fieldType, forbiddenClasses);
+						forbiddenClasses.remove(fieldType);
+					}
+				}
+			}
+		}
+	}
+	
 }
