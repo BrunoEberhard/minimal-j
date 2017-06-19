@@ -380,18 +380,51 @@ public class ModelTestTest {
 		public TestClass25a reference;
 	}
 	
+
 	@Test public void 
-	should_accept_two_fields_of_same_class() {
-		ModelTest modelTest = new ModelTest(TestClass26a.class);
+	should_accept_indirect_self_reference_through_view() {
+		ModelTest modelTest = new ModelTest(TestClass26.class);
 		Assert.assertTrue(modelTest.isValid());
 	}
 
-	public static class TestClass26a {
+	public static class TestClass26 {
 		public Object id;
-		public TestClass26b a, b;
+		public TestView26 v;
+	}
+	
+	public static class TestView26 implements View<TestClass26> {
+		public Object id;
+		// view must not contain field v
 	}
 
-	public static class TestClass26b {
+	@Test public void 
+	should_not_accept_self_reference_through_view() {
+		ModelTest modelTest = new ModelTest(TestClass27.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass27 {
+		public Object id;
+		public TestView27 v;
+	}
+	
+	public static class TestView27 implements View<TestClass27> {
+		public Object id;
+		public TestView27 v;
+	}
+
+	@Test public void 
+	should_accept_two_fields_of_same_class() {
+		ModelTest modelTest = new ModelTest(TestClass28a.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static class TestClass28a {
+		public Object id;
+		public TestClass28b a, b;
+	}
+
+	public static class TestClass28b {
 		public Object id;
 	}
 }
