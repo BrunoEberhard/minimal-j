@@ -67,7 +67,7 @@ public class MinimalClinicApplication extends Application {
 	
 	public static void main(String[] args) {
 		Configuration.set("MjRepository", InMemoryRepository.class.getName());
-		// NanoWebServer.main(MinimalClinicApplication.class.getName());
+		Configuration.set("MjDevMode", "true");
 		Swing.main(MinimalClinicApplication.class.getName());
 	}
 }
