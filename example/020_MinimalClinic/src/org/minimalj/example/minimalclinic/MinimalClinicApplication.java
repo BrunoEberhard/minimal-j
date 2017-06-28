@@ -1,11 +1,10 @@
 package org.minimalj.example.minimalclinic;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.example.minimalclinic.frontend.AddOwnerEditor;
 import org.minimalj.example.minimalclinic.frontend.AddPetEditor;
 import org.minimalj.example.minimalclinic.frontend.AddVetEditor;
@@ -17,22 +16,18 @@ import org.minimalj.example.minimalclinic.frontend.VetTablePage;
 import org.minimalj.example.minimalclinic.model.Owner;
 import org.minimalj.example.minimalclinic.model.Pet;
 import org.minimalj.example.minimalclinic.model.Vet;
-import org.minimalj.example.petclinic.PetClinicApplication;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.frontend.page.SearchPage;
+import org.minimalj.repository.memory.InMemoryRepository;
 import org.minimalj.util.resources.Resources;
 
 public class MinimalClinicApplication extends Application {
 
-	@Override
-	protected Set<String> getResourceBundleNames() {
-		return Collections.singleton(PetClinicApplication.class.getName());
-	}
-	
 	@Override
 	public List<Action> getNavigation() {
 		List<Action> menu = new ArrayList<>();
@@ -57,7 +52,7 @@ public class MinimalClinicApplication extends Application {
 	
 	@Override
 	public Page createDefaultPage() {
-		return new HtmlPage("intro_minimalclinic.html", "Minimal Clinic");
+		return new HtmlPage("intro.html", "Minimal Clinic");
 	}
 	
 	@Override
@@ -68,5 +63,11 @@ public class MinimalClinicApplication extends Application {
 	@Override
 	public Class<?>[] getEntityClasses() {
 		return new Class[]{Owner.class, Pet.class, Vet.class};
+	}
+	
+	public static void main(String[] args) {
+		Configuration.set("MjRepository", InMemoryRepository.class.getName());
+		// NanoWebServer.main(MinimalClinicApplication.class.getName());
+		Swing.main(MinimalClinicApplication.class.getName());
 	}
 }
