@@ -150,7 +150,7 @@ public class FrameManager {
 		if (DevMode.isActive()) {
 			return true;
 		} else {
-			int answer = JOptionPane.showConfirmDialog(navigationFrameView, "Soll die Applikation beendet werden?", "Applikation beenden", JOptionPane.YES_NO_OPTION);
+			int answer = JOptionPane.showConfirmDialog(navigationFrameView, Resources.getString("Exit.confirm"), Resources.getString("Exit.confirm.title"), JOptionPane.YES_NO_OPTION);
 			return answer == JOptionPane.YES_OPTION;
 		}
 	}
