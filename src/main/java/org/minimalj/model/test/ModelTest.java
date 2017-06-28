@@ -42,7 +42,7 @@ public class ModelTest {
 	private static final Logger logger = Logger.getLogger(ModelTest.class.getName());
 
 	private final Collection<Class<?>> mainClasses;
-	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
+	private Set<Class<?>> modelClasses = new HashSet<Class<?>>();
 	
 	private final List<String> problems = new ArrayList<String>();
 	
@@ -50,10 +50,10 @@ public class ModelTest {
 		this(Arrays.asList(modelClasses));
 	}
 	
-	public ModelTest(Collection<Class<?>> modelClasses) {
-		this.mainClasses = modelClasses;
+	public ModelTest(Collection<Class<?>> mainClasses) {
+		this.mainClasses = mainClasses;
 
-		for (Class<?> clazz : modelClasses) {
+		for (Class<?> clazz : mainClasses) {
 			testClass(clazz);
 		}
 		if (DevMode.isActive()) {
@@ -77,6 +77,10 @@ public class ModelTest {
 		return problems;
 	}
 	
+	public Set<Class<?>> getModelClasses() {
+		return Collections.unmodifiableSet(modelClasses);
+	}
+	
 	public void logProblems() {
 		if (!problems.isEmpty()) {
 			logger.severe("The entitiy classes don't apply to the given rules");
@@ -91,8 +95,8 @@ public class ModelTest {
 	}
 
 	private void testClass(Class<?> clazz) {
-		if (!testedClasses.contains(clazz)) {
-			testedClasses.add(clazz);
+		if (!modelClasses.contains(clazz)) {
+			modelClasses.add(clazz);
 			testName(clazz);
 			testNoSuperclass(clazz);
 			if (!testNoSelfMixins(clazz)) {
