@@ -112,7 +112,14 @@ public class JsonPageManager implements PageManager, LoginListener {
 			int row = ((Long) tableAction.get("row")).intValue();
 			table.action(row);
 		}
-		
+
+		Map<String, Object> tableSortAction = input.get("tableSortAction");
+		if (tableSortAction != null && !tableSortAction.isEmpty()) {
+			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSortAction.get("table"));
+			int column = ((Long) tableSortAction.get("column")).intValue();
+			table.sort(column);
+		}
+
 		Map<String, Object> tableSelection = input.get("tableSelection");
 		if (tableSelection != null && !tableSelection.isEmpty()) {
 			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSelection.get("table"));

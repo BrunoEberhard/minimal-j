@@ -391,7 +391,7 @@ $ICON
 			if (content.multiSelect) {
 				element.classList.add("multiSelect");
 			}
-			element.appendChild(createTableHeaders(content.headers));
+			element.appendChild(createTableHeaders(content.id, content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 			
 			if (content.extendable) {
@@ -634,11 +634,12 @@ $ICON
 		return td;
 	}
 
-	function createTableHeaders(headers) {
+	function createTableHeaders(tableId, headers) {
 		var element = document.createElement("thead");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
 			th.appendChild(document.createTextNode(headers[i]));
+			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
 			element.appendChild(th);
 		}
 		return element;
@@ -887,6 +888,16 @@ $ICON
 		
 		var tableAction = {"table" : tableId, "row" : row};
 		var data = {"tableAction" : tableAction};
+		send(data, true);
+	}
+
+	function tableSortAction(tableId, column) {
+		var tableElement = document.getElementById(tableId);
+		var pageElement = tableElement;
+		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
+		
+		var tableAction = {"table" : tableId, "column" : column};
+		var data = {"tableSortAction" : tableAction};
 		send(data, true);
 	}
 	
