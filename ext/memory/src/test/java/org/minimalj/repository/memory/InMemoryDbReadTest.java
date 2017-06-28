@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.minimalj.repository.query.By;
 
@@ -12,8 +12,8 @@ public class InMemoryDbReadTest {
 	
 	private static InMemoryRepository repository;
 	
-	@BeforeClass
-	public static void setupRepository() {
+	@Before
+	public void setupRepository() {
 		repository = new InMemoryRepository(A.class, G.class, H.class);
 	}
 	
