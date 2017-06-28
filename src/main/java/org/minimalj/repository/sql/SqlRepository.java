@@ -92,7 +92,7 @@ public class SqlRepository implements TransactionalRepository {
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
 			}
-			testModel(classes);
+			new ModelTest(classes).assertValid();
 			if (createTablesOnInitialize) {
 				createTables();
 				createCodes();
@@ -635,14 +635,6 @@ public class SqlRepository implements TransactionalRepository {
 		return tables.containsKey(clazz);
 	}
 	
-	private void testModel(Class<?>[] classes) {
-		ModelTest test = new ModelTest(classes);
-		if (!test.getProblems().isEmpty()) {
-			test.logProblems();
-			throw new IllegalArgumentException("The persistent classes don't apply to the given rules");
-		}
-	}
-
 	public <T extends Code> T getCode(Class<T> clazz, Object codeId) {
 		if (isLoading(clazz)) {
 			// this special case is needed to break a possible reference cycle

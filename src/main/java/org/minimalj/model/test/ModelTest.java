@@ -77,6 +77,18 @@ public class ModelTest {
 		return problems;
 	}
 	
+	/**
+	 * if there are problems log them and throw IllegalArgumentException
+	 * 
+	 * @throws IllegalArgumentException if problems is not empty
+	 */
+	public void assertValid() {
+		if (!getProblems().isEmpty()) {
+			logProblems();
+			throw new IllegalArgumentException("The persistent classes don't apply to the given rules");
+		}
+	}
+	
 	public Set<Class<?>> getModelClasses() {
 		return Collections.unmodifiableSet(modelClasses);
 	}
