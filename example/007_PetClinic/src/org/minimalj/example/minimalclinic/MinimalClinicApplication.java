@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.minimalj.application.Application;
 import org.minimalj.example.minimalclinic.frontend.AddOwnerEditor;
+import org.minimalj.example.minimalclinic.frontend.AddPetEditor;
 import org.minimalj.example.minimalclinic.frontend.AddVetEditor;
 import org.minimalj.example.minimalclinic.frontend.OwnerSearchPage;
 import org.minimalj.example.minimalclinic.frontend.OwnerTablePage;
@@ -43,6 +44,7 @@ public class MinimalClinicApplication extends Application {
 		
 		ActionGroup groupPet = new ActionGroup(Resources.getString(Pet.class));
 		groupPet.add(new PageAction(new PetTablePage()));
+		groupPet.add(new AddPetEditor());
 		menu.add(groupPet);
 
 		ActionGroup groupVet = new ActionGroup(Resources.getString(Vet.class));
