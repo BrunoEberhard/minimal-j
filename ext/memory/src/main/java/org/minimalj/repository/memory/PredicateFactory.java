@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
-import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Criteria.AndCriteria;
@@ -114,7 +114,7 @@ class PredicateFactory {
 		}
 		
 		List<PropertyInterface> searchColumns = new ArrayList<>();
-		for (PropertyInterface property : Properties.getProperties(clazz).values()) {
+		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
 			Searched searchable = property.getAnnotation(Searched.class);
 			if (searchable != null) {
 				searchColumns.add(property);
