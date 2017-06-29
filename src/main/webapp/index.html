@@ -158,10 +158,9 @@ $ICON
 		if (dataObject.tableExtendContent != undefined) {
 			var table = document.getElementById(dataObject.tableId);
 			var button = table.getElementsByTagName("button")[0];
-			table.removeChild(button);
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
-			if (dataObject.extendable) {
-				table.appendChild(button);			
+			if (!dataObject.extendable) {
+				table.removeChild(button);			
 			}
 		}
 		
@@ -395,11 +394,13 @@ $ICON
 			element.appendChild(createTableRows(content.id, content.tableContent));
 			
 			if (content.extendable) {
+				var footer = document.createElement("tfoot");
 				var button = document.createElement("button");
 				button.appendChild(document.createTextNode(">"));
 				button.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
 				button.setAttribute("style", "width: 10em");
-				element.appendChild(button);
+				footer.appendChild(button);
+				element.appendChild(footer);
 			}
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
 			element = document.createElement("div");
