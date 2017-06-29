@@ -2,8 +2,11 @@ package org.minimalj.repository.memory;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore // InMemoryDb could live with self references. But Minimal-J doesn't
+		// want it
 public class InMemoryDbSelfReferenceTest {
 
 	private static InMemoryRepository repository;

@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
-import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Criteria.AndCriteria;
@@ -19,6 +19,7 @@ import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.IdUtils;
 
 /*
  * Criterias could implement Predicate. This would be more object oriented than
@@ -36,7 +37,13 @@ class PredicateFactory {
 				object = p.getValue(object);
 				Object value = fieldCriteria.getValue();
 				if (fieldCriteria.getOperator() == FieldOperator.equal) {
-					return EqualsHelper.equals(value, object);
+					if (IdUtils.hasId(p.getClazz())) {
+						Object objectId = object != null ? IdUtils.getId(object) : null;
+						Object valueId = object != null ? IdUtils.getId(value) : null;
+						return EqualsHelper.equals(valueId, objectId);
+					} else {
+						return EqualsHelper.equals(value, object);
+					}
 				} else {
 					if (object == null) {
 						if (value == null) {
@@ -114,7 +121,7 @@ class PredicateFactory {
 		}
 		
 		List<PropertyInterface> searchColumns = new ArrayList<>();
-		for (PropertyInterface property : Properties.getProperties(clazz).values()) {
+		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
 			Searched searchable = property.getAnnotation(Searched.class);
 			if (searchable != null) {
 				searchColumns.add(property);
