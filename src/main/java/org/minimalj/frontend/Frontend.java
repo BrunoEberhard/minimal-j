@@ -87,6 +87,11 @@ public abstract class Frontend {
 	 * support date and time Inputs for a long time. Also the used device or the
 	 * user preferences can influence whether the returned Optional is empty or
 	 * contains an Input.
+	 * 
+	 * @param maxLength maximum input length
+	 * @param inputType TEXT, EMAIL, ...
+	 * @param changeListener listener attached to the Input
+	 * @return optional
 	 */
 	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
 		return Optional.empty();
