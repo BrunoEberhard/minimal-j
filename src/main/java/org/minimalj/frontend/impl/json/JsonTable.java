@@ -109,18 +109,24 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	public void sort(int column) {
-		column = column + 1;
-		if (sortColumn == null) {
-			sortColumn = column;
-		} else if (sortColumn == column) {
-			sortColumn = -sortColumn;
-		} else {
-			sortColumn = column;
-		}
 		if (objects instanceof Sortable) {
-			Object[] keys = new Object[] { this.keys[Math.abs(sortColumn) - 1] };
-			((Sortable) objects).sort(keys, new boolean[] { sortColumn > 0 });
+			Sortable sortable = (Sortable) objects;
+			if (sortable.canSortBy(keys[column])) {
+				
+				column = column + 1;
+				if (sortColumn == null) {
+					sortColumn = column;
+				} else if (sortColumn == column) {
+					sortColumn = -sortColumn;
+				} else {
+					sortColumn = column;
+				}
+				if (objects instanceof Sortable) {
+					Object[] keys = new Object[] { this.keys[Math.abs(sortColumn) - 1] };
+					sortable.sort(keys, new boolean[] { sortColumn > 0 });
+				}
+				setObjects(objects);
+			}
 		}
-		setObjects(objects);
 	}
 }
