@@ -30,4 +30,8 @@ public class ExamplesApplication extends ThreadLocalApplication {
 		setCurrentApplication(applications.get(applicationName));
 		
 	}
+	
+	public static void main(String[] args) {
+		DemoNanoWebServer.start(new ExamplesApplication());
+	}
 }

@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
+		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -18,32 +18,29 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>../001_EmptyApplication/src</source>
-								<source>../002_HelloWorld/src</source>
-								<source>../003_Notes/src</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>org.minimalj.example</groupId>
+			<artifactId>emptyApplication</artifactId>
+			<version>1.0.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.minimalj.example</groupId>
+			<artifactId>helloWorld</artifactId>
+			<version>1.0.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.minimalj.example</groupId>
+			<artifactId>notes</artifactId>
+			<version>1.0.0.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.7.0.0,)</version>
+			<version>[1.8.0.0-SNAPSHOT,)</version>
 		</dependency>
 	</dependencies>
 
