@@ -9,7 +9,6 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.nanoserver.MjWebDaemon;
-import org.minimalj.model.test.ModelTest;
 import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -45,7 +44,6 @@ public class DemoNanoWebServer {
 
 		Application.setInstance(application);
 		Frontend.setInstance(new JsonFrontend());
-		ModelTest.exitIfProblems();
 		
 		start(!SECURE);
         start(SECURE);
