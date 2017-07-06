@@ -23,7 +23,6 @@ import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.frontend.page.SearchPage;
-import org.minimalj.repository.memory.InMemoryRepository;
 import org.minimalj.util.resources.Resources;
 
 public class MinimalClinicApplication extends Application {
@@ -66,7 +65,7 @@ public class MinimalClinicApplication extends Application {
 	}
 	
 	public static void main(String[] args) {
-		Configuration.set("MjRepository", InMemoryRepository.class.getName());
+		Configuration.set("MjRepository", "org.minimalj.repository.memory.InMemoryRepository");
 		Configuration.set("MjDevMode", "true");
 		Swing.main(MinimalClinicApplication.class.getName());
 	}
