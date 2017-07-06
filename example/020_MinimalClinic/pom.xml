@@ -3,10 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
 	<artifactId>minimalClinic</artifactId>
-	<version>1.0</version>
+	<version>1.0.0.0</version>
 	<name>Pet Clinic</name>
 	<description>A more complete demo application for Minimal-J. Based on an application from Spring.</description>
 	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+			</extension>
+		</extensions>		
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
 			<resource>
@@ -58,18 +64,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>1.8.0.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.nanohttpd</groupId>
-					<artifactId>nanohttpd</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.minimalj</groupId>
-			<artifactId>memory</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>[1.7.0.0,)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fluttercode.datafactory</groupId>
@@ -77,4 +72,10 @@
 			<version>0.8</version>
 		</dependency>
 	</dependencies>
+	<distributionManagement>
+		<repository>
+			<id>openech-repository</id>
+			<url>ftp://ftp.openech.ch/public_html/repository</url>
+		</repository>
+	</distributionManagement>		
 </project>
