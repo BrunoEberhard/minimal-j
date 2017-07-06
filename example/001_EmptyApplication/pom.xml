@@ -3,17 +3,31 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
 	<artifactId>emptyApplication</artifactId>
-	<version>1.0</version>
+	<version>1.0.0.0</version>
 	<name>Example_001_EmptyApplication</name>
 	<description>The empty application shows how to set up a Minimal-J application</description>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+			</extension>
+		</extensions>
 	</build>
 	<dependencies>
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.0.0.0,)</version>
+			<version>[1.7.0.0,)</version>
 		</dependency>
 	</dependencies>
+
+	<distributionManagement>
+		<repository>
+			<id>openech-repository</id>
+			<url>ftp://ftp.openech.ch/public_html/repository</url>
+		</repository>
+	</distributionManagement>
+
 </project>

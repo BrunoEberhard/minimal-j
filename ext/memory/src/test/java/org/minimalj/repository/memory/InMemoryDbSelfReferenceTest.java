@@ -5,6 +5,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore // InMemoryDb could live with self references. But Minimal-J doesn't
+		// want it
 public class InMemoryDbSelfReferenceTest {
 
 	private static InMemoryRepository repository;
@@ -23,7 +25,7 @@ public class InMemoryDbSelfReferenceTest {
 		Assert.assertEquals(e, e.reference);
 	}
 	
-	@Test @Ignore // not yet solved
+	@Test
 	public void testCycleWithOneInserts() {
 		TestEntity e1 = new TestEntity();
 		TestEntity e2 = new TestEntity();

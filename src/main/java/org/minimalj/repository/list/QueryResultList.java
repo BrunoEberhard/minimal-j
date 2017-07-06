@@ -96,5 +96,10 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 			query = ((QueryOrderable) query).order(property, sortDirections[i]);
 		}
 	}
+	
+	@Override
+	public boolean canSortBy(Object sortKey) {
+		return true;
+	}
 
 }

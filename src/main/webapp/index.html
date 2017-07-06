@@ -158,10 +158,9 @@ $ICON
 		if (dataObject.tableExtendContent != undefined) {
 			var table = document.getElementById(dataObject.tableId);
 			var button = table.getElementsByTagName("button")[0];
-			table.removeChild(button);
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
-			if (dataObject.extendable) {
-				table.appendChild(button);			
+			if (!dataObject.extendable) {
+				table.removeChild(button);			
 			}
 		}
 		
@@ -391,15 +390,17 @@ $ICON
 			if (content.multiSelect) {
 				element.classList.add("multiSelect");
 			}
-			element.appendChild(createTableHeaders(content.headers));
+			element.appendChild(createTableHeaders(content.id, content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 			
 			if (content.extendable) {
+				var footer = document.createElement("tfoot");
 				var button = document.createElement("button");
 				button.appendChild(document.createTextNode(">"));
 				button.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
 				button.setAttribute("style", "width: 10em");
-				element.appendChild(button);
+				footer.appendChild(button);
+				element.appendChild(footer);
 			}
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
 			element = document.createElement("div");
@@ -521,6 +522,7 @@ $ICON
 				element.setAttribute("checked", "checked");
 			}
 			var label = document.createElement("label");
+			label.className = "checkboxLabel";
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
@@ -633,11 +635,12 @@ $ICON
 		return td;
 	}
 
-	function createTableHeaders(headers) {
+	function createTableHeaders(tableId, headers) {
 		var element = document.createElement("thead");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
 			th.appendChild(document.createTextNode(headers[i]));
+			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
 			element.appendChild(th);
 		}
 		return element;
@@ -886,6 +889,16 @@ $ICON
 		
 		var tableAction = {"table" : tableId, "row" : row};
 		var data = {"tableAction" : tableAction};
+		send(data, true);
+	}
+
+	function tableSortAction(tableId, column) {
+		var tableElement = document.getElementById(tableId);
+		var pageElement = tableElement;
+		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
+		
+		var tableAction = {"table" : tableId, "column" : column};
+		var data = {"tableSortAction" : tableAction};
 		send(data, true);
 	}
 	

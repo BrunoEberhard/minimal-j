@@ -276,7 +276,7 @@ public class SwingFrontend extends Frontend {
 				addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						SwingLookup.this.selectedObject = null;
+						SwingLookup.this.setValue(null);
 						changeListener.changed(SwingLookup.this);
 					}
 				});
@@ -286,7 +286,7 @@ public class SwingFrontend extends Frontend {
 		private class LookupClickListener implements TableActionListener<T> {
 			@Override
 			public void action(T selectedObject) {
-				SwingLookup.this.selectedObject = selectedObject;
+				SwingLookup.this.setValue(selectedObject);
 				dialog.closeDialog();
 				changeListener.changed(SwingLookup.this);
 			}

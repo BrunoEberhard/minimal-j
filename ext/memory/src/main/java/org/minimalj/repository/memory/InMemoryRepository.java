@@ -1,5 +1,6 @@
 package org.minimalj.repository.memory;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,10 +10,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
@@ -21,6 +24,7 @@ import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.list.QueryResultList;
 import org.minimalj.repository.query.AllCriteria;
@@ -30,7 +34,10 @@ import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.security.Subject;
+import org.minimalj.transaction.Transaction;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.Codes;
+import org.minimalj.util.CsvReader;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
@@ -39,18 +46,80 @@ public class InMemoryRepository implements Repository {
 	
 	private Map<Class<?>, Map<Object, Object>> memory = new HashMap<>();
 	
+	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+	
 	public InMemoryRepository(Class<?>... classes) {
+		ModelTest modelTest = new ModelTest(classes);
+		modelTest.assertValid();
+		
 		for (Class<?> clazz : classes) {
 			if (FieldUtils.hasValidHistorizedField(clazz)) {
 				logger.warning(this.getClass().getSimpleName() + " doesn't support historized classes like " + clazz.getSimpleName());
 			}
 			memory.put(clazz, new HashMap<>());
 		}
+		
+		createCodes(modelTest.getModelClasses());
+	}
+
+	private void createCodes(Set<Class<?>> modelClasses) {
+		createConstantCodes(modelClasses);
+		createCsvCodes(modelClasses);
 	}
 	
+	@SuppressWarnings("unchecked")
+	private void createConstantCodes(Set<Class<?>> modelClasses) {
+		for (Class<?> clazz : modelClasses) {
+			if (Code.class.isAssignableFrom(clazz)) {
+				Class<? extends Code> codeClass = (Class<? extends Code>) clazz; 
+				List<? extends Code> constants = Codes.getConstants(codeClass);
+				for (Code code : constants) {
+					insert(code);
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void createCsvCodes(Set<Class<?>> modelClasses) {
+		for (Class<?> clazz : modelClasses) {
+			if (Code.class.isAssignableFrom(clazz)) {
+				Class<? extends Code> codeClazz = (Class<? extends Code>) clazz;
+				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
+				if (is != null) {
+					CsvReader reader = new CsvReader(is);
+					List<? extends Code> values = reader.readValues(codeClazz);
+					for (Code value : values) {
+						insert(value);
+					}
+				}
+			}
+		}
+	}
+
+	private <T> T executeWrite(Transaction<T> t) {
+		lock.writeLock().lock();
+		try {
+			return t.execute();
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	private <T> T executeRead(Transaction<T> t) {
+		lock.readLock().lock();
+		try {
+			return t.execute();
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
-		return CloneHelper.clone(read_(clazz, id));
+		return executeRead(() -> {
+			return CloneHelper.clone(read_(clazz, id));
+		});
 	}
 
 	// read without clone
@@ -69,20 +138,22 @@ public class InMemoryRepository implements Repository {
 
 	@Override
 	public <T> List find(Class<T> clazz, Query query) {
-		if (query instanceof Limit) {
-			Limit limit = (Limit) query;
-			List l = find(clazz, limit.getQuery());
-			if (limit.getOffset() == null) {
-				return l.subList(0, Math.min(limit.getRows(), l.size()));
+		return executeRead(() -> {
+			if (query instanceof Limit) {
+				Limit limit = (Limit) query;
+				List l = find(clazz, limit.getQuery());
+				if (limit.getOffset() == null) {
+					return l.subList(0, Math.min(limit.getRows(), l.size()));
+				} else {
+					return l.subList(limit.getOffset(), Math.min(limit.getOffset() + limit.getRows(), l.size()));
+				}
+			} else if (query instanceof AllCriteria) {
+				AllCriteria allCriteria = (AllCriteria) query;
+				return find(clazz, allCriteria);
 			} else {
-				return l.subList(limit.getOffset(), Math.min(limit.getOffset() + limit.getRows(), l.size()));
+				return new QueryResultList(this, clazz, (QueryLimitable) query);
 			}
-		} else if (query instanceof AllCriteria) {
-			AllCriteria allCriteria = (AllCriteria) query;
-			return find(clazz, allCriteria);
-		} else {
-			return new QueryResultList(this, clazz, (QueryLimitable) query);
-		}
+		});
 	}
 
 	private <T> List find(Class<T> clazz, QueryLimitable query) {
@@ -134,20 +205,25 @@ public class InMemoryRepository implements Repository {
 	}
 	
 	@Override
-	public <T> long count(Class<T> clazz, Query query) {
-		if (query instanceof Limit) {
-			query = ((Limit) query).getQuery();
-		}
-		while (query instanceof Order) {
-			query = ((Order) query).getQuery();
-		}
-		return find(clazz, (Criteria) query).size();
+	public <T> long count(Class<T> clazz, Query q) {
+		return executeRead(() -> {
+			Query query = q;
+			if (query instanceof Limit) {
+				query = ((Limit) query).getQuery();
+			}
+			while (query instanceof Order) {
+				query = ((Order) query).getQuery();
+			}
+			return find(clazz, (Criteria) query).size();
+		});
 	}
 
 	@Override
 	public <T> Object insert(T object) {
-		T t = save(object);
-		return IdUtils.getId(t);
+		return executeWrite(() -> {
+			T t = save(object);
+			return IdUtils.getId(t);
+		});
 	}
 
 	private <T> T save(T object) {
@@ -261,26 +337,29 @@ public class InMemoryRepository implements Repository {
 	
 	@Override
 	public <T> void update(T object) {
-		Object id = IdUtils.getId(object);
-		if (id == null) {
-			throw new IllegalArgumentException();
-		}
-		check(object);
-		
-		Object existingObject = read_(object.getClass(), id);
-		
-		boolean lock = FieldUtils.hasValidVersionfield(object.getClass());
-		if (lock) {
-			int existingVersion = IdUtils.getVersion(existingObject);
-			int updateVersion = IdUtils.getVersion(object);
-			if (existingVersion > updateVersion) {
-				throw new RuntimeException();
+		executeWrite(() -> {
+			Object id = IdUtils.getId(object);
+			if (id == null) {
+				throw new IllegalArgumentException();
 			}
-			update(object, existingObject);
-			IdUtils.setVersion(existingObject, existingVersion + 1);
-		} else {
-			update(object, existingObject);
-		}
+			check(object);
+			
+			Object existingObject = read_(object.getClass(), id);
+			
+			boolean lock = FieldUtils.hasValidVersionfield(object.getClass());
+			if (lock) {
+				int existingVersion = IdUtils.getVersion(existingObject);
+				int updateVersion = IdUtils.getVersion(object);
+				if (existingVersion > updateVersion) {
+					throw new RuntimeException();
+				}
+				update(object, existingObject);
+				IdUtils.setVersion(existingObject, existingVersion + 1);
+			} else {
+				update(object, existingObject);
+			}
+			return null;
+		});
 	}
 
 	private <T> void update(T object, Object existingObject) {
@@ -347,12 +426,15 @@ public class InMemoryRepository implements Repository {
 	
 	@Override
 	public <T> void delete(Class<T> clazz, Object id) {
-		Map<Object, Object> objects = objects(clazz);
-		Object object = objects.get(id);
-		if (object != null && isReferenced(object)) {
-			throw new IllegalStateException("Referenced objects cannot be deleted");
-		}
-		objects.remove(id);
+		executeWrite(() -> {
+			Map<Object, Object> objects = objects(clazz);
+			Object object = objects.get(id);
+			if (object != null && isReferenced(object)) {
+				throw new IllegalStateException("Referenced objects cannot be deleted");
+			}
+			objects.remove(id);
+			return null;
+		});
 	}
 
 	public <T> void delete(Object object) {

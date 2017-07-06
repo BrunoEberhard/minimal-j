@@ -64,7 +64,7 @@ public class Form<T> {
 	private ChangeListener<Form<?>> changeListener;
 	private boolean changeFromOutsite;
 
-	private final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
+	private final Map<String, List<PropertyInterface>> dependencies = new HashMap<>();
 	@SuppressWarnings("rawtypes")
 	private final Map<PropertyInterface, Map<PropertyInterface, PropertyUpdater>> propertyUpdater = new HashMap<>();
 	
@@ -190,6 +190,7 @@ public class Form<T> {
 		String captionText = caption(element);
 		formContent.add(captionText, element.getComponent(), span);
 		registerNamedElement(element);
+		addDependencies(element);
 	}
 	
 	// 
@@ -217,15 +218,23 @@ public class Form<T> {
 	 */
 	public void addDependecy(Object from, Object... to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
-		if (!dependencies.containsKey(fromProperty)) {
-			dependencies.put(fromProperty, new ArrayList<PropertyInterface>());
+		if (!dependencies.containsKey(fromProperty.getPath())) {
+			dependencies.put(fromProperty.getPath(), new ArrayList<PropertyInterface>());
 		}
-		List<PropertyInterface> list = dependencies.get(fromProperty);
+		List<PropertyInterface> list = dependencies.get(fromProperty.getPath());
 		for (Object key : to) {
 			list.add(Keys.getProperty(key));
 		}
 	}
 
+	private void addDependecy(PropertyInterface fromProperty, PropertyInterface to) {
+		if (!dependencies.containsKey(fromProperty.getPath())) {
+			dependencies.put(fromProperty.getPath(), new ArrayList<PropertyInterface>());
+		}
+		List<PropertyInterface> list = dependencies.get(fromProperty.getPath());
+		list.add(to);
+	}
+	
 	/**
 	 * Declares that if the key or property <i>from</i> changes the specified
 	 * updater should be called and after its return the <i>to</i> key or property
@@ -237,7 +246,7 @@ public class Form<T> {
 	 * @param <TO> the type (class) of the toKey / field
 	 * @param from the field triggering the update
 	 * @param updater the updater doing the change of the to field
-	 * @param to the changed field by the udpater
+	 * @param to the changed field by the updater
 	 */
 	@SuppressWarnings("rawtypes")
 	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
@@ -271,6 +280,14 @@ public class Form<T> {
 		field.setChangeListener(formPanelChangeListener);
 	}
 
+	private void addDependencies(FormElement<?> field) {
+		List<PropertyInterface> dependencies = Keys.getDependencies(field.getProperty());
+		for (PropertyInterface dependency : dependencies) {
+			addDependecy(dependency, field.getProperty());
+		}
+		
+	}
+	
 	public final void mock() {
 		changeFromOutsite = true;
 		try {
@@ -385,8 +402,8 @@ public class Form<T> {
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		private void refreshDependendFields(PropertyInterface property) {
-			if (dependencies.containsKey(property)) {
-				List<PropertyInterface> dependendProperties = dependencies.get(property);
+			if (dependencies.containsKey(property.getPath())) {
+				List<PropertyInterface> dependendProperties = dependencies.get(property.getPath());
 				for (PropertyInterface dependendProperty : dependendProperties) {
 					for (FormElement formElement : elements.values()) {
 						String formElementPath = formElement.getProperty().getPath();

@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,6 +40,7 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.list.QueryResultList;
 import org.minimalj.repository.query.AllCriteria;
@@ -90,7 +92,7 @@ public class SqlRepository implements TransactionalRepository {
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
 			}
-			testModel(classes);
+			new ModelTest(classes).assertValid();
 			if (createTablesOnInitialize) {
 				createTables();
 				createCodes();
@@ -259,7 +261,26 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			return table.find(query, resultClass);
 		} else {
-			return new QueryResultList<>(this, resultClass, (QueryLimitable) query);
+			return new SqlQueryResultList<>(this, resultClass, (QueryLimitable) query);
+		}
+	}
+	
+	private static class SqlQueryResultList<T> extends QueryResultList<T> {
+		private static final long serialVersionUID = 1L;
+
+		public SqlQueryResultList(Repository repository, Class<T> clazz, QueryLimitable query) {
+			super(repository, clazz, query);
+		}
+		
+		@Override
+		public boolean canSortBy(Object sortKey) {
+			PropertyInterface property = Keys.getProperty(sortKey);
+			if (property.getClass() != FieldProperty.class) {
+				return false;
+			}
+			
+			return property.getClazz() == String.class || Number.class.isAssignableFrom(property.getClazz())
+					|| Temporal.class.isAssignableFrom(property.getClazz());
 		}
 	}
 	
@@ -614,14 +635,6 @@ public class SqlRepository implements TransactionalRepository {
 		return tables.containsKey(clazz);
 	}
 	
-	private void testModel(Class<?>[] classes) {
-		ModelTest test = new ModelTest(classes);
-		if (!test.getProblems().isEmpty()) {
-			test.logProblems();
-			throw new IllegalArgumentException("The persistent classes don't apply to the given rules");
-		}
-	}
-
 	public <T extends Code> T getCode(Class<T> clazz, Object codeId) {
 		if (isLoading(clazz)) {
 			// this special case is needed to break a possible reference cycle

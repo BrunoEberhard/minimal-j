@@ -2,6 +2,10 @@
 
 Every release contains many small fixes.
 
+=== 1.8.0.0
+* Model: self references of classes are only allowed through View or Lists
+* SwingFrontend: fix special LookAndFeel
+
 === 1.7.0.0
 * Frontend: support for html5 inputs on small devices
 * Frontend: better Date/Time/DateTime support

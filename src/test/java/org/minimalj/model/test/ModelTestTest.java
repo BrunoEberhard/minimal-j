@@ -334,5 +334,97 @@ public class ModelTestTest {
 		@Size(Size.TIME_HH_MM + 1)
 		public LocalDateTime t1;
 	}
+	
+	//
 
+	@Test public void 
+	should_not_accept_direct_self_reference() {
+		ModelTest modelTest = new ModelTest(TestClass23.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass23 {
+		public Object id;
+		public TestClass23 selfReference;
+	}
+	
+	@Test public void 
+	should_not_accept_indirect_self_reference() {
+		ModelTest modelTest = new ModelTest(TestClass24a.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass24a {
+		public Object id;
+		public TestClass24b reference;
+	}
+	
+	public static class TestClass24b {
+		public Object id;
+		public TestClass24a reference;
+	}
+
+	@Test public void 
+	should_accept_indirect_self_reference() {
+		ModelTest modelTest = new ModelTest(TestClass25a.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static class TestClass25a {
+		public Object id;
+		public List<TestClass25b> referenceList;
+	}
+	
+	public static class TestClass25b {
+		public Object id;
+		public TestClass25a reference;
+	}
+	
+
+	@Test public void 
+	should_accept_indirect_self_reference_through_view() {
+		ModelTest modelTest = new ModelTest(TestClass26.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static class TestClass26 {
+		public Object id;
+		public TestView26 v;
+	}
+	
+	public static class TestView26 implements View<TestClass26> {
+		public Object id;
+		// view must not contain field v
+	}
+
+	@Test public void 
+	should_not_accept_self_reference_through_view() {
+		ModelTest modelTest = new ModelTest(TestClass27.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass27 {
+		public Object id;
+		public TestView27 v;
+	}
+	
+	public static class TestView27 implements View<TestClass27> {
+		public Object id;
+		public TestView27 v;
+	}
+
+	@Test public void 
+	should_accept_two_fields_of_same_class() {
+		ModelTest modelTest = new ModelTest(TestClass28a.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static class TestClass28a {
+		public Object id;
+		public TestClass28b a, b;
+	}
+
+	public static class TestClass28b {
+		public Object id;
+	}
 }

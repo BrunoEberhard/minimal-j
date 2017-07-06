@@ -103,7 +103,7 @@ public class StringUtils {
 		if (string.length() > 1) {
 			return string.substring(0, 1).toLowerCase() + string.substring(1);
 		} else {
-			return string.substring(0, 1);
+			return string.substring(0, 1).toLowerCase();
 		}
 	}
 
