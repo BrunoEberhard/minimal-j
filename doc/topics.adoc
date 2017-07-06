@@ -14,12 +14,12 @@
 
 These small examples are currently deployed on CloudFoundry as online demo.
 
-* link:../example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:http://minimalj-examples.cfapps.io/empty/[(online demo)]
-* link:../example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:http://minimalj-examples.cfapps.io/greeting/[(online demo)]
-* link:../example/003_Notes/doc/003.adoc[Notes] This application manages some notes link:http://minimalj-examples.cfapps.io/notes/[(online demo)]
-* link:../example/004_Library/doc/004.adoc[Library] Shows some more features of the framework link:http://minimalj-examples.cfapps.io/library/[(online demo)]
-* link:../example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used link:http://minimalj-examples.cfapps.io/numbers/[(online demo)]
-* link:../example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:http://minimalj-examples.cfapps.io/petClinic/[(online demo)]
+* link:../example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:https://minimal-examples.herokuapp.com/empty/[(online demo)]
+* link:../example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:https://minimal-examples.herokuapp.com/greeting/[(online demo)]
+* link:../example/003_Notes/doc/003.adoc[Notes] This application manages some notes link:https://minimal-examples.herokuapp.com/notes/[(online demo)]
+* link:../example/004_Library/doc/004.adoc[Library] Shows some more features of the framework link:https://minimal-examples.herokuapp.com/library/[(online demo)]
+* link:../example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used link:https://minimal-examples.herokuapp.com/numbers/[(online demo)]
+* link:../example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application
 
 == API
 * link:http://javadoc.io/doc/org.minimalj/minimalj/[Browse API]
