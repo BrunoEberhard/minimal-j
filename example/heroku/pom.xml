@@ -13,7 +13,7 @@
 			<url>http://www.openech.ch/repository</url>
 		</repository>
 	</repositories>
-	
+
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
@@ -38,7 +38,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>			
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -55,6 +55,21 @@
 		<dependency>
 			<groupId>org.minimalj.example</groupId>
 			<artifactId>notes</artifactId>
+			<version>1.0.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.minimalj.example</groupId>
+			<artifactId>library</artifactId>
+			<version>1.0.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.minimalj.example</groupId>
+			<artifactId>numbers</artifactId>
+			<version>1.0.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.minimalj.example</groupId>
+			<artifactId>minimalClinic</artifactId>
 			<version>1.0.0.0</version>
 		</dependency>
 
