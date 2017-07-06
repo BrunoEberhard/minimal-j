@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.ThreadLocalApplication;
+import org.minimalj.backend.Backend;
 import org.minimalj.example.empty.EmptyApplication;
 import org.minimalj.example.helloworld.HelloWorldApplication;
 import org.minimalj.example.helloworld2.GreetingApplication;
@@ -18,6 +19,8 @@ public class ExamplesApplication extends ThreadLocalApplication {
 	private final Map<String, Application> applications;
 	
 	public ExamplesApplication() {
+		Backend.setInstance(new ThreadLocalBackend());
+
 		applications = new HashMap<>();
 		applications.put("empty", new EmptyApplication());
 		applications.put("notes", new NotesApplication());
