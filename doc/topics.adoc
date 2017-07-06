@@ -19,7 +19,7 @@ These small examples are currently deployed on CloudFoundry as online demo.
 * link:../example/003_Notes/doc/003.adoc[Notes] This application manages some notes link:https://minimal-examples.herokuapp.com/notes/[(online demo)]
 * link:../example/004_Library/doc/004.adoc[Library] Shows some more features of the framework link:https://minimal-examples.herokuapp.com/library/[(online demo)]
 * link:../example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used link:https://minimal-examples.herokuapp.com/numbers/[(online demo)]
-* link:../example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application link:https://minimal-examples.herokuapp.com/minimalClinic/[(online demo)]
+* link:../example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application
 
 == API
 * link:http://javadoc.io/doc/org.minimalj/minimalj/[Browse API]
