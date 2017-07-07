@@ -160,7 +160,7 @@ $ICON
 			var button = table.getElementsByTagName("button")[0];
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
 			if (!dataObject.extendable) {
-				table.removeChild(button);			
+				button.parentNode.removeChild(button);			
 			}
 		}
 		
