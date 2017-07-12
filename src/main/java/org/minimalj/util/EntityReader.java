@@ -18,13 +18,13 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.properties.FlatProperties;
 
 
-public class SerializationInputStream {
-	private static final Logger logger = Logger.getLogger(SerializationInputStream.class.getName());
+public class EntityReader {
+	private static final Logger logger = Logger.getLogger(EntityReader.class.getName());
 
 	private final DataInputStream dis;
 	
-	public SerializationInputStream(InputStream out) {
-		dis = new DataInputStream(out);
+	public EntityReader(InputStream inputStream) {
+		dis = new DataInputStream(inputStream);
 	}
 	
 	public Object read(Class<?> fieldClazz) throws IOException {

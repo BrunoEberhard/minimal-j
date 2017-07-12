@@ -16,12 +16,12 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.properties.FlatProperties;
 
 
-public class SerializationOutputStream {
+public class EntityWriter {
 
 	private final DataOutputStream dos;
 	
-	public SerializationOutputStream(OutputStream out) {
-		dos = new DataOutputStream(out);
+	public EntityWriter(OutputStream outputStream) {
+		dos = new DataOutputStream(outputStream);
 	}
 	
 	private void writeObject(Object object) throws IOException {

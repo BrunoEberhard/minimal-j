@@ -47,13 +47,13 @@ public class SerializationContainer implements Serializable {
 	}
 	
 	private void writeObject(ObjectOutputStream out) throws IOException {
-		SerializationOutputStream soo = new SerializationOutputStream(out);
-		soo.writeArgument(object);
+		EntityWriter writer = new EntityWriter(out);
+		writer.writeArgument(object);
  	}
 	
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		SerializationInputStream soo = new SerializationInputStream(in);
-		object = soo.readArgument();
+		EntityReader reader = new EntityReader(in);
+		object = reader.readArgument();
 	}
 	
 }
