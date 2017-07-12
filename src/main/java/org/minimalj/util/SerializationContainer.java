@@ -31,14 +31,6 @@ public class SerializationContainer implements Serializable {
 		}
 	}
 	
-	public static Object[] wrap(Object[] objects) {
-		Object[] containers = new Object[objects.length];
-		for (int i = 0; i<objects.length; i++) {
-			containers[i] = wrap(objects[i]);
-		}
-		return containers;
-	}
-	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object unwrap(Object container) {
 		if (container instanceof List && !(container instanceof QueryResultList)) {
@@ -52,14 +44,6 @@ public class SerializationContainer implements Serializable {
 		} else {
 			return container;
 		}
-	}
-	
-	public static Object[] unwrap(Object[] containers) {
-		Object[] objects = new Object[containers.length];
-		for (int i = 0; i<containers.length; i++) {
-			objects[i] = unwrap(containers[i]);
-		}
-		return objects;
 	}
 	
 	private void writeObject(ObjectOutputStream out) throws IOException {
