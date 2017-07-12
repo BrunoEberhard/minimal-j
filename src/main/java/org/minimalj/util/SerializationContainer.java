@@ -48,12 +48,12 @@ public class SerializationContainer implements Serializable {
 	
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		EntityWriter writer = new EntityWriter(out);
-		writer.writeArgument(object);
+		writer.write(object);
  	}
 	
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		EntityReader reader = new EntityReader(in);
-		object = reader.readArgument();
+		object = reader.read();
 	}
 	
 }

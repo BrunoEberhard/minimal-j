@@ -43,12 +43,12 @@ public class EntityWriter {
 				fieldClass = String.class;
 			}
 			if (!writePrimitiv(value, fieldClass)) {
-	    		write(value);	
+	    		writeIfNotNull(value);	
 			}
 		}
 	}
 
-	public void write(Object value) throws IOException {
+	private void writeIfNotNull(Object value) throws IOException {
 		if (value != null) {
     		dos.write(1);
 			writeObject(value);
@@ -95,13 +95,13 @@ public class EntityWriter {
 			List list = (List) value;
 			dos.writeInt(list.size());
 			for (int i = 0; i<list.size(); i++) {
-				write(list.get(i));
+				writeIfNotNull(list.get(i));
 			}
 		} else if (fieldClazz.isArray()) {
 			int arrayLength = Array.getLength(value);
 			dos.writeInt(arrayLength);
 			for (int i = 0; i<arrayLength; i++) {
-				write(Array.get(value, i));
+				writeIfNotNull(Array.get(value, i));
 			}
 		} else if (value instanceof Set<?>) {
 			Set<?> set = (Set<?>) value;
@@ -114,13 +114,13 @@ public class EntityWriter {
 			}
 		} else if (value instanceof LocalDate) {
 			dos.write(1); // ok, year is probably not 0 but still
-			write(dos, (LocalDate) value);
+			write((LocalDate) value);
 		} else if (value instanceof LocalTime) {
 			dos.write(1);
-			write(dos, (LocalTime) value);
+			write((LocalTime) value);
 		} else if (value instanceof LocalDateTime) {
 			dos.write(1);
-			write(dos, (LocalDateTime) value);
+			write((LocalDateTime) value);
 		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
 			dos.writeByte(((Enum<?>) value).ordinal() + 1);
 		} else {
@@ -129,13 +129,13 @@ public class EntityWriter {
 		return true;
 	}
 
-    private static void write(DataOutputStream dos, LocalDate value) throws IOException {
+    private void write(LocalDate value) throws IOException {
     	dos.writeInt(value.getYear());
     	dos.writeByte(value.getMonthValue());
     	dos.writeByte(value.getDayOfMonth());
 	}
     
-    private static void write(DataOutputStream out, LocalTime value) throws IOException {
+    private void write(LocalTime value) throws IOException {
     	int nano = value.getNano();
     	int second = value.getSecond();
     	int minute = value.getMinute();
@@ -143,30 +143,30 @@ public class EntityWriter {
         if (nano == 0) {
             if (second == 0) {
                 if (minute == 0) {
-                    out.writeByte(~hour);
+                    dos.writeByte(~hour);
                 } else {
-                    out.writeByte(hour);
-                    out.writeByte(~minute);
+                    dos.writeByte(hour);
+                    dos.writeByte(~minute);
                 }
             } else {
-                out.writeByte(hour);
-                out.writeByte(minute);
-                out.writeByte(~second);
+                dos.writeByte(hour);
+                dos.writeByte(minute);
+                dos.writeByte(~second);
             }
         } else {
-            out.writeByte(hour);
-            out.writeByte(minute);
-            out.writeByte(second);
-            out.writeInt(nano);
+            dos.writeByte(hour);
+            dos.writeByte(minute);
+            dos.writeByte(second);
+            dos.writeInt(nano);
         }
 	}
     
-    private static void write(DataOutputStream dos, LocalDateTime value) throws IOException {
-    	write(dos, value.toLocalDate());
-    	write(dos, value.toLocalTime());
+    private void write(LocalDateTime value) throws IOException {
+    	write(value.toLocalDate());
+    	write(value.toLocalTime());
 	}
 
-	public void writeString(String value) throws IOException {
+    private void writeString(String value) throws IOException {
 		int chunkSize = 20000;
 		int chunks = (value.length() - 1) / chunkSize + 1;
 		dos.write(chunks);
@@ -175,24 +175,10 @@ public class EntityWriter {
 		}
     }
 
-	public void writeParameterTypes(Class<?>[] parameterTypes) throws IOException {
-		dos.write(parameterTypes.length);
-		for (Class<?> clazz : parameterTypes) {
-			writeString(clazz.getName());
-		}
-	}
-
-	public void writeArguments(Object[] args) throws IOException {
-		dos.write(args.length);
-		for (Object object : args) {
-			writeArgument(object);
-		}
-	}
-
-	public void writeArgument(Object object) throws IOException {
+	public void write(Object object) throws IOException {
 		if (object != null) {
 			writeString(object.getClass().getName());
-			write(object);
+			writeIfNotNull(object);
 		} else {
 			dos.write(0);
 		}
