@@ -164,6 +164,7 @@ public class InMemoryRepository implements Repository {
 			query = order.getQuery();
 		}
 		List l = find(clazz, (Criteria) query);
+		Collections.reverse(orders);
 		for (Order order : orders) {
 			order(order, l);
 		}
