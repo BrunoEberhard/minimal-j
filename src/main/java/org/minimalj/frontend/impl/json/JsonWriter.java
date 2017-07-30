@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.json;
 import java.lang.reflect.Array;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -59,6 +60,10 @@ public class JsonWriter {
 		add(c);
 	}
 
+	private void emptyArray() {
+		add("[]");
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void value(Object object) {
 		if (object == null || cyclic(object)) {
@@ -67,11 +72,9 @@ public class JsonWriter {
 			calls.push(object);
 			if (object instanceof Boolean)
 				bool(((Boolean) object).booleanValue());
-			else if (object instanceof Number)
+			else if (object instanceof Number || object instanceof Temporal)
 				add(object);
-			else if (object instanceof String)
-				string(object);
-			else if (object instanceof Character)
+			else if (object instanceof String || object instanceof Character)
 				string(object);
 			else if (object instanceof Map)
 				map((Map) object);
@@ -106,7 +109,7 @@ public class JsonWriter {
 		while (it.hasNext()) {
 			Map.Entry<?, ?> e = it.next();
 			value(e.getKey());
-			add(":");
+			add(": ");
 			value(e.getValue());
 			if (it.hasNext()) {
 				add(',');
@@ -118,32 +121,36 @@ public class JsonWriter {
 	}
 
 	private void array(Iterator<?> it) {
-		stepIn('[');
-
-		while (it.hasNext()) {
-			value(it.next());
-			if (it.hasNext()) {
-				add(",");
-				nl();
+		if (it.hasNext()) {
+			stepIn('[');
+			while (it.hasNext()) {
+				value(it.next());
+				if (it.hasNext()) {
+					add(",");
+					nl();
+				}
 			}
+			stepOut(']');
+		} else {
+			emptyArray();
 		}
-
-		stepOut(']');
 	}
 
 	private void array(Object object) {
-		stepIn('[');
-
 		int length = Array.getLength(object);
-		for (int i = 0; i < length; ++i) {
-			value(Array.get(object, i));
-			if (i < length - 1) {
-				add(',');
-				nl();
+		if (length > 0) {
+			stepIn('[');
+			for (int i = 0; i < length; ++i) {
+				value(Array.get(object, i));
+				if (i < length - 1) {
+					add(',');
+					nl();
+				}
 			}
+			stepOut(']');
+		} else {
+			emptyArray();
 		}
-
-		stepOut(']');
 	}
 
 	private void bool(boolean b) {

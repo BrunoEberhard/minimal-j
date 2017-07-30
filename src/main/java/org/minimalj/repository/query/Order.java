@@ -1,5 +1,7 @@
 package org.minimalj.repository.query;
 
+import org.minimalj.model.Keys;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.repository.query.Query.QueryOrderable;
 
@@ -26,5 +28,17 @@ public class Order implements QueryLimitable, QueryOrderable {
 	
 	public boolean isAscending() {
 		return ascending;
+	}
+	
+	@Override
+	public Order order(Object key, boolean ascending) {
+		// the most significant order key should be the first one
+		// (with super.order it would be at the end of the chain)
+		
+		PropertyInterface property = Keys.getProperty(key);
+		String path = property.getPath();
+		
+		Order subOrder = new Order(this.query, path, ascending);
+		return new Order(subOrder, this.path, this.ascending);
 	}
 }
