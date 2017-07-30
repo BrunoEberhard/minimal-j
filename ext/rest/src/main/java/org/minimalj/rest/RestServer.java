@@ -1,4 +1,4 @@
-package org.minimalj.backend.rest;
+package org.minimalj.rest;
 
 import java.io.IOException;
 import java.util.logging.Logger;

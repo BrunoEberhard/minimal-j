@@ -1,4 +1,4 @@
-package org.minimalj.backend.rest;
+package org.minimalj.rest;
 
 import java.util.ArrayList;
 import java.util.HashMap;

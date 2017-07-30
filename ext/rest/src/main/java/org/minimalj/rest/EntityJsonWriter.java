@@ -1,4 +1,4 @@
-package org.minimalj.backend.rest;
+package org.minimalj.rest;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.minimalj.frontend.impl.json.JsonWriter;
 import org.minimalj.model.Keys;
@@ -34,7 +35,16 @@ public class EntityJsonWriter extends JsonWriter {
 		Map<String, Object> map = convert(entity, new HashSet<>());
 		return write(map);
 	}
-	
+
+	public String write(List<?> entities) {
+		List<Map<String, Object>> mapList = new ArrayList<>();
+		TreeSet<String> ids = new TreeSet<>();
+		for (Object entity : entities) {
+			mapList.add(convert(entity, ids));
+		};
+		return write(mapList);
+	}
+
 //	private List<Map<String, Object>> convert(Object entity) {
 	private Map<String, Object> convert(Object entity, Set<String> ids) {
 		Map<String, Object> values = new HashMap<>();
