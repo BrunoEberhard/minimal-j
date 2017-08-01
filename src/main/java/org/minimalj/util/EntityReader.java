@@ -18,16 +18,16 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.properties.FlatProperties;
 
 
-public class SerializationInputStream {
-	private static final Logger logger = Logger.getLogger(SerializationInputStream.class.getName());
+public class EntityReader {
+	private static final Logger logger = Logger.getLogger(EntityReader.class.getName());
 
 	private final DataInputStream dis;
 	
-	public SerializationInputStream(InputStream out) {
-		dis = new DataInputStream(out);
+	public EntityReader(InputStream inputStream) {
+		dis = new DataInputStream(inputStream);
 	}
 	
-	public Object read(Class<?> fieldClazz) throws IOException {
+	private Object read(Class<?> fieldClazz) throws IOException {
 		if (fieldClazz == Byte.TYPE) {
 			return new Byte(dis.readByte());
 		} else if (fieldClazz == Short.TYPE) {
@@ -168,7 +168,7 @@ public class SerializationInputStream {
 		}
 	}
 
-    public String readString() throws IOException {
+    private String readString() throws IOException {
     	int chunks = dis.read();
     	return readString(chunks);
     }
@@ -183,30 +183,7 @@ public class SerializationInputStream {
 		return s.toString();
     }
 
-	public Class<?>[] readParameterTypes() throws IOException {
-		int count = dis.read();
-		Class<?>[] result = new Class[count];
-		for (int i = 0; i<count; i++) {
-			String className = readString();
-			try {
-				result[i] = Class.forName(className);
-			} catch (ClassNotFoundException e) {
-				throw new LoggingRuntimeException(e, logger, "Class loading failed");
-			}
-		}
-		return result;
-	}
-
-	public Object[] readArguments() throws IOException {
-		int count = dis.read();
-		Object[] result = new Object[count];
-		for (int i = 0; i<count; i++) {
-			result[i] = readArgument();
-		}
-		return result;
-	}
-
-	public Object readArgument() throws IOException {
+	public Object read() throws IOException {
 		String className = readString();
 		if (className != null) {
 			try {

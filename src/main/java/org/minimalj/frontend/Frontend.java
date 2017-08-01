@@ -172,7 +172,20 @@ public abstract class Frontend {
 	}
 	
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
-	
+
+	/**
+	 * Allows several types of input:
+	 * <UL>
+	 * <LI>if it starts with a '&lt;' it's supposed to be a html document
+	 * starting with &lt;html&gt; and ending with &lt;/html&gt;
+	 * <LI>if it is a valid url the content of that url is loaded
+	 * <LI>if it ends with '.html' the content is loaded from the classpath
+	 * <LI>if none of the above the input is used as plain String
+	 * </UL>
+	 * 
+	 * @param htmlOrUrl html, url, classpath location or string
+	 * @return html content
+	 */
 	public abstract IContent createHtmlContent(String htmlOrUrl);
 		
 	//

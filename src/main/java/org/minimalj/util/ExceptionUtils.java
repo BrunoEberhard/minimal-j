@@ -10,14 +10,12 @@ import java.util.logging.Logger;
 
 public class ExceptionUtils {
 
-	private static final Logger EXCEPTION_LOGGER = Logger.getLogger("Exception");
-	
 	/**
 	 * Logs only the relevant part of the stack trace. For example
 	 * if a getter fails it's irrelevant if the getter is called
 	 * by a swing class or something else
 	 * 
-	 * @param logger the logger where the ouput should go
+	 * @param logger the logger where the output should go
 	 * @param exception the exception to be printed
 	 */
 	public static void logReducedStackTrace(Logger logger, Exception exception) {
@@ -33,7 +31,7 @@ public class ExceptionUtils {
 			linesToSkip++;
 		}
 		for (int i = 0; i<=throwableStrings.length-linesToSkip; i++) {
-			EXCEPTION_LOGGER.log(Level.SEVERE, throwableStrings[i]);
+			logger.log(Level.SEVERE, throwableStrings[i]);
 		}
 	}
 

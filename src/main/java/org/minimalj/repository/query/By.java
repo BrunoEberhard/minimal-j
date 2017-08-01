@@ -27,7 +27,7 @@ public class By {
 		}
 	}
 	
-	public static SearchCriteria search(String query, Object[] keys) {
+	public static SearchCriteria search(String query, Object... keys) {
 		return new SearchCriteria(query, keys);
 	}
 

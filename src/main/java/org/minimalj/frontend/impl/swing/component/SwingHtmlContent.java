@@ -28,7 +28,7 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 		} else if (StringUtils.isUrl(htmlOrUrl)) {
 			url = htmlOrUrl;
 			html = null;
-		} else {
+		} else if (htmlOrUrl.endsWith(".html")) {
 			URL resource = getClass().getClassLoader().getResource(htmlOrUrl);
 			if (resource != null) {
 				url = resource.toExternalForm();
@@ -36,6 +36,9 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 			} else {
 				throw new IllegalArgumentException("Invalid content: " + htmlOrUrl);
 			}
+		} else {
+			url = null;
+			html = "<html>" + StringUtils.escapeHTML(htmlOrUrl) + "</html>";
 		}
 		
 		PlatformImpl.startup(new Runnable() {

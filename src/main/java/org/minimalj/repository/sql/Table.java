@@ -291,7 +291,7 @@ public class Table<T> extends AbstractTable<T> {
 			orders.add(order);
 			while (order.getQuery() instanceof Order) {
 				order = (Order) order.getQuery();
-				orders.add(0, order);
+				orders.add(order);
 			}
 			result = whereClause(order.getQuery());
 			String s = (String) result.get(0);

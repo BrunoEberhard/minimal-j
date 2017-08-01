@@ -14,7 +14,6 @@ import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
-import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Query;
@@ -108,30 +107,32 @@ public class SocketBackend extends Backend {
 	
 	public static class SocketBackendRepository implements Repository {
 
+		@Override
 		public <T> T read(Class<T> clazz, Object id) {
 			return execute(new ReadEntityTransaction<T>(clazz, id, null));
 		}
 
+		@Override
 		public <T> List<T> find(Class<T> clazz, Query query) {
 			return execute(new ReadCriteriaTransaction<T>(clazz, query));
 		}
 
+		@Override
 		public <T> long count(Class<T> clazz, Query query) {
 			return execute(new CountTransaction<T>(clazz, query));
 		}
 		
+		@Override
 		public <T> Object insert(T object) {
 			return execute(new InsertTransaction<T>(object));
 		}
 
+		@Override
 		public <T> void update(T object) {
 			execute(new UpdateTransaction<T>(object));
 		}
 
-		public <T> T save(T object) {
-			return execute(new SaveTransaction<T>(object));
-		}
-
+		@Override
 		public <T> void delete(Class<T> clazz, Object id) {
 			execute(new DeleteEntityTransaction<T>(clazz, id));
 		}
