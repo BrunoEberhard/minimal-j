@@ -129,7 +129,5 @@ public abstract class UserPasswordAuthentication extends Authentication {
 		}
 	}
 
-	protected User retrieveUser(String userName) {
-		return null;
-	}
+	protected abstract User retrieveUser(String userName);
 }
