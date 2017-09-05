@@ -7,6 +7,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
@@ -27,16 +28,21 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
+import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
+import org.minimalj.frontend.impl.swing.component.QueryLayout;
+import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.security.Subject;
@@ -180,6 +186,34 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
 		return new SwingHtmlContent(htmlOrUrl);
+	}
+	
+	private static class QueryContent extends JPanel implements IContent {
+		private static final long serialVersionUID = 1L;
+
+		public QueryContent(String caption, JComponent component) {
+			super(new QueryLayout());
+			add(component, QueryLayoutConstraint.TEXTFIELD);
+			JLabel label = new JLabel(caption);
+			add(label, QueryLayoutConstraint.CAPTION, 1);
+		}
+	}
+	
+	@Override
+	public IContent createQueryContent() {
+		JTextField field = new JTextField();
+		field.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SwingFrontend.runWithContext(() -> {
+					String query = ((JTextField) field).getText();
+					Page page = Application.getInstance().createSearchPage(query);
+					show(page);
+				});
+			}
+		});
+
+		return new QueryContent(Resources.getString("Application.queryCaption"), (JTextField) field);
 	}
 	
 	@Override

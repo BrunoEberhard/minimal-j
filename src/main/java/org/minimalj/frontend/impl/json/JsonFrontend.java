@@ -150,8 +150,13 @@ public class JsonFrontend extends Frontend {
 		return new JsonHtmlContent(htmlOrUrl);
 	}
 	
-	//
+	@Override
+	public IContent createQueryContent() {
+		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);
+		return new JsonQueryContent(caption);
+	}
 	
+	//
 	
 	public static boolean useWebSocket() {
 		return useWebSocket;

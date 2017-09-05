@@ -383,6 +383,11 @@ $ICON
 			}
 			var rows = content.rows;
 			element.appendChild(createFormRows(rows, element.columns));
+		} else if (type == "Query") {
+			element = document.getElementById("queryCaption");
+			removeChildren(element);
+			element.appendChild(document.createTextNode(content.caption));
+			element = document.getElementById("query").cloneNode(true);
 		} else if (type == "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -942,6 +947,15 @@ $ICON
 		}
 	}
 
+	function querySearch() {
+		var searchElement = document.getElementById("querySearch");
+		var search = searchElement.value;
+		if (search != undefined && search.length > 0) {
+			var data = {"search" : search};
+			send(data, true);
+		}
+	}
+	
 	function searchButtonAction() {
 		var searchElement = document.getElementById("search");
 		if (searchElement.style.display == "inline") {
@@ -1176,6 +1190,10 @@ $ICON
 	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
 			</svg>		
 		</span>
+		<div id="query">
+			<div id="queryCaption" style="text-align: center; margin-top: 17em"></div>
+			<div style="text-align: center; margin-top: 1em; margin-bottom: 8em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:600px; max-width: 600px; height: 2em;"></div>
+		</div>
 	</div>
 			
 

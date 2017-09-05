@@ -188,6 +188,16 @@ public abstract class Frontend {
 	 */
 	public abstract IContent createHtmlContent(String htmlOrUrl);
 		
+	/**
+	 * Create a content with a caption and a large search field. Something like
+	 * what a really big search engine show.
+	 * <p>
+	 * 
+	 * The caption text is defined by the Resource QueryPage or if that is not
+	 * available by the Application.name .
+	 */
+	public abstract IContent createQueryContent();
+	
 	//
 	
 	public abstract PageManager getPageManager();
