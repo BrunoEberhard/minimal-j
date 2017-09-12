@@ -372,17 +372,13 @@ $ICON
 		var element;
 		var editable = content.editable == undefined || content.editable;
 		if (type == "Form") {
-			element = document.createElement("table");
+			element = document.createElement("div");
 			element.classList.add("form")			
-			if (!isCompact) {
-				element.columns = content.columns;
-				element.style.width = (content.columns * content.columnWidth / 6) + "em";
-			} else {
-				element.columns = 1;
-				element.style.width = "100%";
-			}
+			element.dataset.maxWidth = (content.columns * content.columnWidth / 6) + "em";
 			var rows = content.rows;
-			element.appendChild(createFormRows(rows, element.columns));
+			for (var i = 0; i < rows.length; i++) {
+				element.appendChild(createFormRow(rows[i], content.columnWidth));
+			}
 		} else if (type == "Query") {
 			element = document.getElementById("queryCaption");
 			removeChildren(element);
@@ -584,40 +580,33 @@ $ICON
 		return element;
 	}
 	
-	function createFormRows(rows, columnCount) {
-		var element = document.createElement("tbody");
+	function createFormRows(rows, columnWidth) {
+		var element = document.createElement("div");
 		for (var i = 0; i < rows.length; i++) {
-			if (columnCount == 1) {
-				var row = rows[i];
-				for (var j = 0; j < row.length; j++) {
-					var singleRow = [ row[j] ];
-					element.appendChild(createFormRow(singleRow));
-				}
-			} else if (columnCount == 2) {
-				var row = rows[i];
-				for (var j = 0; j < row.length; j = j + 2) {
-					var doubleRow = j < row.length - 1 && !(row[j].span > 1) ? [ row[j], row[j+1] ] : [ row[j] ];
-					element.appendChild(createFormRow(doubleRow));
-				}
-			} else {
-				element.appendChild(createFormRow(rows[i]));
-			}
+			element.appendChild(createFormRow(rows[i], columnWidth));
 		}
 		return element;
 	}
-	function createFormRow(row) {
-		var element = document.createElement("tr");
+	function createFormRow(row, columnWidth) {
+		var element = document.createElement("div");
 		for (var i = 0; i < row.length; i++) {
-			element.appendChild(createFormCell(row[i]));
+			var cellElement = createFormCell(row[i]);
+			var span = row[i].span;
+			span = span ? span : 1;
+			cellElement.style.minWidth = (columnWidth / 6 - 1) + "em";
+			cellElement.style.width = (columnWidth * (span ? span : 1) / 6 - 1) + "em";
+			cellElement.style.flexShrink = span;
+			cellElement.style.flexGrow = span;
+			element.appendChild(cellElement);
 		}
 		return element;
 	}
 	function createFormCell(cell) {
-		var td = document.createElement("td");
+		var td = document.createElement("div");
 		var isTitle = cell.type == "Title";
-		if ((cell.span != undefined  || isTitle) && !isCompact) {
-			td.colSpan = cell.span;
-		}
+//		if ((cell.span != undefined  || isTitle) && !isCompact) {
+//			td.colSpan = cell.span;
+//		}
 		if (!isTitle && cell.caption != undefined) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.firstId != undefined ? cell.firstId : cell.id);
@@ -749,11 +738,10 @@ $ICON
 		header.appendChild(headerDiv);
 		dialog.appendChild(header);
 
-		var content = document.createElement("div");
+		var content = createContent(json["content"]);
 		content.classList.add("dialogContent");
-		content.appendChild(createContent(json["content"]));
 		dialog.appendChild(content);
-
+		
 		var actions = json["actions"];
 		if (actions != undefined) {
 			var footer = document.createElement("div");
@@ -1032,19 +1020,23 @@ $ICON
 			if (!isCompact) {
 				for (var i = 0; i < dialogElements.length; i++) {
 					var dialogElement = dialogElements[i];
-					dialogElement.style.top = (i + 3) + "em";
-					dialogElement.style.left = (i + 18) + "em";
+					dialogElement.style.top = 0;
+					dialogElement.style.marginTop = (i + 3) + "em";
+					dialogElement.style.marginLeft = (i + 18) + "em";
 
 					var contentElement = dialogElement.querySelector(".dialogContent");
-					var type = dialogElement.getAttribute("type");
 					var height = Math.max(100, height = window.innerHeight - 140);
-
 					contentElement.style.maxHeight = height + "px";
 
+					var maxWidthElement = dialogElement.querySelector(".form");
+					if (maxWidthElement != undefined) {
+						dialogElement.style.maxWidth = maxWidthElement.dataset.maxWidth;
+					}
+					
+					var type = dialogElement.getAttribute("type");
 					if (type == "SearchDialog") {
 						contentElement.style.height = height + "px";
-						dialogElement.style.width = "auto";
-						dialogElement.style.right = "3em";
+						dialogElement.style.marginRight = "3em";
 						contentElement.style.paddingRight = "0em";
 					}
 				}
