@@ -204,6 +204,8 @@ dialog {
 	border: 1px rgb(160,160,160) solid;
 	padding: 0em;
 	width: auto;
+	margin-top: 1em;
+	margin-left: 1em;
 	margin-right: 2em;
 }
 
@@ -281,15 +283,14 @@ table tr:nth-child(odd).selected {
 }
 
 .form > div > div {
-	padding-left: 0.7ex;
-	padding-top: 0.7ex;
-	padding-bottom: 0.7ex;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
 }
 
-.form input, .form select, .form textarea, .form .lookup, dialog .form label, dialog .form div.list {
-	width: calc(100% - 0.4rem);
-	margin-left: 0.2rem;
-	margin-right: 0.2rem;
+.form input, .form select, .form textarea, .form .lookup, dialog .form label, dialog .form div.list, dialog .form .Title {
+	width: calc(100% - 1em);
+	margin-left: 0.5em;
+	margin-right: 0.5em;
 }
 
 dialog .form div.list {
@@ -299,22 +300,9 @@ dialog .form div.list {
 
 /* group (of form elements) must not double the paddings and keep background pattern */
 
-.form.group tr {
-	height: auto;
-	background: none;
-}
-
-.form.group td {
-	padding-top: 0;
-	padding-bottom: 0;
-}
-
-.form.group td:first-child {
-	padding-left: 0;
-}
-
-.form.group td:last-child {
-	padding-right: 0;
+.group {
+	display: flex;
+	flex-wrap: wrap;	
 }
 
 /* various elements */

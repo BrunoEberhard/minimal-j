@@ -144,6 +144,7 @@ $ICON
 					}
 				}
 			}
+			updateDialogSizes();
 		}
 		if (dataObject.message != undefined) {
 			alert(dataObject.message);
@@ -373,8 +374,10 @@ $ICON
 		var editable = content.editable == undefined || content.editable;
 		if (type == "Form") {
 			element = document.createElement("div");
-			element.classList.add("form")			
-			element.dataset.maxWidth = (content.columns * content.columnWidth / 6) + "em";
+			element.classList.add("form")	
+			element.dataset.columns = content.columns ? content.columns : 1;
+			element.dataset.columnWidth = content.columnWidth;
+			element.style.maxWidth = (content.columns * content.columnWidth * 1.5 / 5 + 3) + "em";
 			var rows = content.rows;
 			for (var i = 0; i < rows.length; i++) {
 				element.appendChild(createFormRow(rows[i], content.columnWidth));
@@ -414,25 +417,14 @@ $ICON
 				element.innerHTML = "&nbsp;";
 			}
 		} else if (type == "Group") {
-			element = document.createElement("table");
+			element = document.createElement("div");
 			element.classList.add("group");
 			var components = content.components;
-			if (!isCompact) {
-				var tr = document.createElement("tr");
-				element.appendChild(tr);
-				for (var i = 0; i < components.length; i++) {
-					var td = document.createElement("td");
-					td.appendChild(createContent(components[i]));
-					tr.appendChild(td);
-				}
-			} else {
-				for (var i = 0; i < components.length; i++) {
-					var tr = document.createElement("tr");
-					element.appendChild(tr);
-					var td = document.createElement("td");
-					td.appendChild(createContent(components[i]));
-					tr.appendChild(td);
-				}
+			for (var i = 0; i < components.length; i++) {
+				var item = document.createElement("div");
+				item.classList.add("groupItem");
+				item.appendChild(createContent(components[i]));
+				element.appendChild(item);
 			}
 		} else if (type == "Switch") {
 			element = document.createElement("div");
@@ -590,23 +582,16 @@ $ICON
 	function createFormRow(row, columnWidth) {
 		var element = document.createElement("div");
 		for (var i = 0; i < row.length; i++) {
-			var cellElement = createFormCell(row[i]);
 			var span = row[i].span;
 			span = span ? span : 1;
-			cellElement.style.minWidth = (columnWidth / 6 - 1) + "em";
-			cellElement.style.width = (columnWidth * (span ? span : 1) / 6 - 1) + "em";
-			cellElement.style.flexShrink = span;
-			cellElement.style.flexGrow = span;
+			var cellElement = createFormCell(row[i], span, columnWidth);
 			element.appendChild(cellElement);
 		}
 		return element;
 	}
-	function createFormCell(cell) {
-		var td = document.createElement("div");
+	function createFormCell(cell, span, width) {
+		var cellElement = document.createElement("div");
 		var isTitle = cell.type == "Title";
-//		if ((cell.span != undefined  || isTitle) && !isCompact) {
-//			td.colSpan = cell.span;
-//		}
 		if (!isTitle && cell.caption != undefined) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.firstId != undefined ? cell.firstId : cell.id);
@@ -621,14 +606,30 @@ $ICON
 				tooltip.className = "hide";
 			}
 			caption.appendChild(tooltip);
-			td.appendChild(caption);
+			cellElement.appendChild(caption);
 		} else {
-			td.style.verticalAlign = "bottom";
+			cellElement.style.verticalAlign = "bottom";
 		}
-		td.appendChild(createContent(cell));
-		return td;
+		var cellContent = createContent(cell);
+		setWidths(cellElement, cellContent, span, width);
+		cellElement.appendChild(cellContent);
+		return cellElement;
 	}
+	function setWidths(cellElement, cellContent, span, width) {
+		cellElement.style.minWidth = (width / 5) + "em";
+		cellElement.style.width = (width * span / 5) + "em";
+		cellElement.style.flexShrink = span;
+		cellElement.style.flexGrow = span;
 
+		if (cellContent.classList.contains("group")) {
+			var childCount = cellContent.children.length;
+			for (var i = 0; i < childCount; i++) {
+				var groupItem = cellContent.children[i];
+				setWidths(groupItem, groupItem.children[0], span / childCount, width);
+			}
+		}
+	}
+	
 	function createTableHeaders(tableId, headers) {
 		var element = document.createElement("thead");
 		for (var i = 0; i < headers.length; i++) {
@@ -768,7 +769,8 @@ $ICON
 			}
 		}
 
-		document.querySelector("body").appendChild(dialog);
+		var parent = document.querySelector("body");
+		parent.appendChild(dialog);
 		if (dialog.show == undefined) {
 			dialogPolyfill.registerDialog(dialog);
 		}
@@ -1030,7 +1032,8 @@ $ICON
 
 					var maxWidthElement = dialogElement.querySelector(".form");
 					if (maxWidthElement != undefined) {
-						dialogElement.style.maxWidth = maxWidthElement.dataset.maxWidth;
+						var columns = maxWidthElement.dataset.columns;
+						dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 5 + 3) + "em";
 					}
 					
 					var type = dialogElement.getAttribute("type");
