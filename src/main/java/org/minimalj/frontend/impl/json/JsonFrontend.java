@@ -176,7 +176,7 @@ public class JsonFrontend extends Frontend {
 		return readStream(JsonFrontend.class.getResourceAsStream("/index.html"));
 	}
 	
-	public static String fillPlaceHolder(String html, Locale locale) {
+	public static String fillPlaceHolder(String html, Locale locale, String base, String path) {
 		LocaleContext.setCurrent(locale);
 		String result = html.replace("$LOCALE", locale.getLanguage());
 		result = result.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
@@ -188,6 +188,8 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
 		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
 		result = result.replace("$ICON", getIconLink());
+		result = result.replace("$BASE", base);
+		result = result.replace("$PATH", path);
 		return result;
 	}
 	

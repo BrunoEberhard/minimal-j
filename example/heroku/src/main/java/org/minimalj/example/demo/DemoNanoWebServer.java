@@ -1,6 +1,7 @@
 package org.minimalj.example.demo;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ import org.minimalj.frontend.impl.nanoserver.MjWebDaemon;
 import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class DemoNanoWebServer {
 	private static final Logger LOG = Logger.getLogger(DemoNanoWebServer.class.getName());
@@ -56,13 +58,22 @@ public class DemoNanoWebServer {
 		}
 	
 		@Override
-		public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
-			String uriWithoutfile = uri.substring(0, uri.lastIndexOf('/'));
-			String applicationName = uriWithoutfile.substring(uriWithoutfile.lastIndexOf('/') + 1);
+		public Response serve(String uriString, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
+			URI uri = URI.create(uriString);
+			String path = uri.getPath();
+			if (path.length() < 2) {
+				return NanoHTTPD.newFixedLengthResponse(Status.BAD_REQUEST, "text/html", uriString + " invalid");
+			}
+			int applicationNameEnd = path.indexOf('/', 1);
+			if (applicationNameEnd < 0) {
+				return NanoHTTPD.newFixedLengthResponse(Status.BAD_REQUEST, "text/html", uriString + " invalid");
+			}
 
+			String applicationName = path.substring(1, applicationNameEnd);
 			application.setCurrentApplication(applicationName);
 			
-			return super.serve(uri, method, headers, parms, files);
+			String uriWithoutApplicationName = path.substring(applicationNameEnd);
+			return super.serve(uriWithoutApplicationName, method, headers, parms, files);
 		}
 		
 	}

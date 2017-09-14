@@ -4,6 +4,7 @@
 
 <!-- $MINIMALJ-VERSION -->
 <!-- $APPLICATION-VERSION -->
+<base href="$BASE">
 
 <script src="dialog-polyfill.js"></script>
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -40,7 +41,7 @@ $ICON
 			titleElement.replaceChild(document.createTextNode(dataObject.applicationName), titleElement.firstChild);
 		}
 		if ("showPage" in dataObject) {
-			addNewStateToHistory();
+			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
 			saveStateInHistory();
 		} else if ("showPages" in dataObject) {
@@ -176,10 +177,10 @@ $ICON
 		}
 	}
 	
-	function addNewStateToHistory() {
+	function addNewStateToHistory(fragment) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, fragment); // second argument is ignored by browsers (!)
 		}
 	}
 	
@@ -1093,7 +1094,8 @@ $ICON
 		window.onpopstate = popState;
 
 		send({
-			"showDefaultPage" : "default-" + (new Date().getTime())
+			"showDefaultPage" : "default-" + (new Date().getTime()),
+			"path" : "$PATH"
 		});
 	}
 	

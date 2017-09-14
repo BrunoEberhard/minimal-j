@@ -27,4 +27,15 @@ public abstract class Page {
 	public List<Action> getActions() {
 		return null;
 	}
+	
+	/**
+	 * Allows the Frontend to make a bookmark or a link for this Page. The parts
+	 * of the route should be glued together with '/'. For example "person/42".
+	 * 
+	 * @see org.minimalj.application.Application#createPage(String[])
+	 * @return <code>null</code> if this Page class or object is not routable.
+	 */
+	public String getRoute() {
+		return null;
+	}
 }
