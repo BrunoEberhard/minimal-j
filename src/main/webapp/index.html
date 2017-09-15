@@ -216,16 +216,8 @@ $ICON
 		pageElement.id = page.pageId;
 			
 		var hasActionMenu = page.actionMenu != null;
-		if (isCompact) {
-			document.getElementById("actionMenuButton").style.display = hasActionMenu ? "inline" : "none";
-		}
-		if (hasActionMenu) {
-			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
-			actionMenuElement.classList.add("actionMenu");
-			if (isCompact) actionMenuElement.style.display = "none";
-			pageElement.appendChild(actionMenuElement);
-		}
 		
+		// page
 		if (!isCompact) {
 			var headerElement = createPageHeader(page.title);
 			pageElement.appendChild(headerElement);
@@ -240,18 +232,41 @@ $ICON
 			pageTitleElement.appendChild(document.createTextNode(page.title));
 		}
 		
+		var pageContentAndActionsElement = document.createElement("div");
+		pageContentAndActionsElement.className = "pageContentAndActions";
+
 		if (page.content != null) {
+			var pageContentElement = document.createElement("div");
+			pageContentElement.className = "pageContent";
+			
 			var contentElement = createContent(page.content);
-			contentElement.classList.add("pageContent");
-			if (page.actionMenu != null) {
-				contentElement.classList.add("pageContentSmall");
-			}
-			pageElement.appendChild(contentElement);
+			pageContentElement.appendChild(contentElement);
+
+			pageContentAndActionsElement.appendChild(pageContentElement);
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
-		pageContainerElement.appendChild(pageElement);
 		
+		// actions
+		if (isCompact) {
+			document.getElementById("actionMenuButton").style.display = hasActionMenu ? "inline" : "none";
+		}
+		if (hasActionMenu) {
+			var actionMenuContainer = document.createElement("div");
+			actionMenuContainer.className = "actionMenuContainer";
+			
+			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
+			actionMenuElement.className = "actionMenu";
+			
+			if (isCompact) actionMenuElement.style.display = "none";
+			
+			actionMenuContainer.appendChild(actionMenuElement);
+			pageContentAndActionsElement.appendChild(actionMenuContainer);
+		}
+		
+		pageElement.appendChild(pageContentAndActionsElement);
+		
+		pageContainerElement.appendChild(pageElement);
 		pageElement.scrollIntoView();
 	}
 	
@@ -271,17 +286,12 @@ $ICON
 		var element = event.target;
 		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
 		if (element != null) {
-			var actionMenuElement = element.querySelector(".actionMenu");
-			var pageContentElement = element.querySelector(".pageContent");
+			var actionMenuElement = element.querySelector(".actionMenuContainer");
 			if (actionMenuElement != null) {
 				if (actionMenuElement.style.display != "none") {
 					actionMenuElement.style.display = "none";
-					pageContentElement.classList.remove("pageContentSmall");
-					pageContentElement.classList.add("pageContentExpend");
 				} else {
 					actionMenuElement.style.display = "block";
-					pageContentElement.classList.remove("pageContentExpend");
-					pageContentElement.classList.add("pageContentSmall");
 				}
 				event.preventDefault();
 			}
@@ -378,7 +388,7 @@ $ICON
 			element.classList.add("form")	
 			element.dataset.columns = content.columns ? content.columns : 1;
 			element.dataset.columnWidth = content.columnWidth;
-			element.style.maxWidth = (content.columns * content.columnWidth * 1.5 / 5 + 3) + "em";
+			element.style.maxWidth = (content.columns * content.columnWidth * 1.5 / 6 + 3) + "em";
 			var rows = content.rows;
 			for (var i = 0; i < rows.length; i++) {
 				element.appendChild(createFormRow(rows[i], content.columnWidth));
@@ -617,8 +627,8 @@ $ICON
 		return cellElement;
 	}
 	function setWidths(cellElement, cellContent, span, width) {
-		cellElement.style.minWidth = (width / 5) + "em";
-		cellElement.style.width = (width * span / 5) + "em";
+		cellElement.style.minWidth = (width / 6) + "em";
+		cellElement.style.width = (width * span / 6) + "em";
 		cellElement.style.flexShrink = span;
 		cellElement.style.flexGrow = span;
 
@@ -1034,7 +1044,7 @@ $ICON
 					var maxWidthElement = dialogElement.querySelector(".form");
 					if (maxWidthElement != undefined) {
 						var columns = maxWidthElement.dataset.columns;
-						dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 5 + 3) + "em";
+						dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3) + "em";
 					}
 					
 					var type = dialogElement.getAttribute("type");

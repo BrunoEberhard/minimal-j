@@ -55,6 +55,7 @@ body {
 
 #container {
 	position: fixed;
+	display: flex;
 	top: 2.2em;
 	bottom: 0;
 	left: 0;
@@ -63,12 +64,6 @@ body {
 }
 
 #navigationContainer {
-	position: absolute;
-	left: 0px;
-	width: 15em; /* fallback for very old browsers without calc */
-	width: calc(15em - 1px);
-	top: 0px;
-	bottom: 0px;
 	margin: 0px;
 	color: black;
 	border-right: 1px rgb(160,160,160) solid;
@@ -136,11 +131,7 @@ li {
 /* pages */
 
 #pageContainer {
-	position: absolute;
-	left: 0em;
-	right: 0em;
-	top: 0px;
-	bottom: 0px;
+	flex-grow: 10;
 	margin: 0px;
 	overflow: auto;
 	background: white;
@@ -150,6 +141,7 @@ li {
 	position: relative;
 	border-bottom: 1px rgb(160,160,160) solid;
 	min-height: 10em;
+	width: 100%;
 }
 
 .pageHeader {
@@ -157,22 +149,23 @@ li {
 	height: calc(1.8em - 1px);
 	line-height: 1.9em;
 	padding-left: 1em;
-	width: calc(100% - 1em);
 	background: rgb(240,240,240);
 	border-bottom: 1px rgb(160,160,160) solid;
 }
 
+.pageContentAndActions {
+	display: flex;
+	flex-flow: nowrap;
+	align-items: stretch;
+	position: relative;
+}
+
 .pageContent {
+	width: 10em;
+	flex-grow: 10;
+	flex-shrink: 1;
 	padding-left: 1em;
 	padding-top: 0.5ex;
-}
-
-.pageContentSmall {
-	width: calc(100% - 16em);
-}
-
-.pageContentExpend {
-	width: calc(100% - 1em);
 }
 
 iframe.pageContent {
@@ -185,12 +178,17 @@ table.table tr td {
 	line-height: 1.6em;
 }
 
-.actionMenu {
-	position: absolute; right: 0em; top: 1.8em; bottom: 0em;
+.actionMenuContainer {
+	flex-grow: 1;
+	flex-shrink: 1;
 	border-left: 1px rgb(160,160,160) solid;
-	min-width: 15em;
+	width: 15em;
 	background: white;
 	overflow: auto;
+}
+
+.actionMenu {
+	height: 1em;
 }
 
 ul.actionMenu {
