@@ -2,8 +2,18 @@ package org.minimalj.frontend.impl.swing.component;
 
 import java.net.URL;
 
+import org.minimalj.application.Application;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.util.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 
 import com.sun.javafx.application.PlatformImpl;
 
@@ -17,6 +27,7 @@ import javafx.scene.web.WebView;
 @SuppressWarnings("restriction")
 public class SwingHtmlContent extends JFXPanel implements IContent {
 	private static final long serialVersionUID = 1L;
+	public static final String EVENT_TYPE_CLICK = "click";
 
 	public SwingHtmlContent(String htmlOrUrl) {
 		Platform.setImplicitExit(false);
@@ -40,7 +51,7 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 			url = null;
 			html = "<html>" + StringUtils.escapeHTML(htmlOrUrl) + "</html>";
 		}
-		
+
 		PlatformImpl.startup(new Runnable() {
 			@Override
 			public void run() {
@@ -61,8 +72,35 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 					webEngine.load(url);
 				}
 				setScene(scene);
+
+				webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
+					if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+						EventListener listener = new EventListener() {
+							@Override
+							public void handleEvent(Event ev) {
+								String domEventType = ev.getType();
+								if (domEventType.equals(EVENT_TYPE_CLICK)) {
+									String href = ((Element) ev.getTarget()).getAttribute("href");
+									if (href.startsWith("/")) {
+										href = href.substring(1);
+									}
+									String[] route = href.split("/");
+									Page page = Application.getInstance().createPage(route);
+									SwingFrontend.runWithContext(() -> Frontend.show(page));
+								}
+							}
+						};
+
+						Document doc = webBrowser.getEngine().getDocument();
+						NodeList nodeList = doc.getElementsByTagName("a");
+						for (int i = 0; i < nodeList.getLength(); i++) {
+							((EventTarget) nodeList.item(i)).addEventListener(EVENT_TYPE_CLICK, listener, true);
+						}
+					}
+				});
+
 			}
 		});
 	}
-	
+
 }
