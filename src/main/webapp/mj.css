@@ -41,10 +41,10 @@ body {
 }
 
 #search {
-	font-size: 11px;
 	vertical-align: top;
 	border: solid 1px #666;
-	margin-top: 0.35em;
+	margin-top: 0.42em;
+	padding: 0px;
 }
 
 #search input:focus {
@@ -168,7 +168,7 @@ li {
 	padding-top: 0.5ex;
 }
 
-iframe.pageContent {
+.pageContent iframe {
 	padding: 0em;
 	width: 100%;
 }
@@ -281,8 +281,8 @@ table tr:nth-child(odd).selected {
 }
 
 .form > div > div {
-	padding-top: 0.5em;
-	padding-bottom: 0.5em;
+	padding-top: 0.4em;
+	padding-bottom: 0.4em;
 }
 
 .form input, .form select, .form textarea, .form .lookup, dialog .form label, dialog .form div.list, dialog .form .Title {
@@ -306,7 +306,9 @@ dialog .form div.list {
 /* various elements */
 
 input, .checkBoxContainer, select {
-	height: 1.5em
+	padding-top: 0.15em;
+	padding-bottom: 0.15em;
+	font-size: inherit;
 }
 
 input[type="checkbox"] {
