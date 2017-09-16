@@ -22,6 +22,7 @@ import com.vaadin.ui.renderers.TextRenderer;
 
 import elemental.json.JsonValue;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
@@ -41,17 +42,6 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 		setSelectionMode(multiSelect ? SelectionMode.MULTI : SelectionMode.SINGLE);
 		setSizeFull();
 		
-//		for (Object key : keys) {
-//			PropertyInterface property = Keys.getProperty(key);
-//			addColumn(property.getPath(), new MjTableRenderer(property));
-			
-//			getColumn(property.getPath()).setCaption(caption);
-			
-
-//		}
-
-		// addActionHandler(new VaadinTableActionHandler());
-		
 		tableClickListener = new VaadinTableItemClickListener();
 		addItemClickListener(tableClickListener);
 	}
@@ -66,6 +56,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	}
 
 	private static class MjTablePropertySet<T> implements PropertySet<T> {
+		private static final long serialVersionUID = 1L;
 
 		private final PropertyInterface properties[];
 		private final List<PropertyDefinition<T, ?>> defList = new ArrayList<>();
@@ -92,7 +83,8 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 			return Optional.empty();
 		}
 		
-		private static class MjTablePropertyDefinition implements PropertyDefinition {
+		private static class MjTablePropertyDefinition<T> implements PropertyDefinition {
+			private static final long serialVersionUID = 1L;
 
 			private final PropertyInterface property;
 			
@@ -130,7 +122,13 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 				return null;
 			}
 
+			@Override
+			public Class getPropertyHolderType() {
+				return property.getDeclaringClass();
+			}
+			
 			private class MjTableValueProvider implements ValueProvider {
+				private static final long serialVersionUID = 1L;
 
 				@Override
 				public Object apply(Object source) {
@@ -139,16 +137,14 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 			}
 			
 			private class MjTableSetter implements Setter {
+				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void accept(Object bean, Object fieldvalue) {
 					property.setValue(bean, fieldvalue);
 				}
-
 			}
-			
 		}
-		
 	}
 	
 	@Override
@@ -204,10 +200,6 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 //			}
 //		}
 //
-//		@Override
-//		public void handleAction(Action action, Object sender, Object target) {
-//			System.out.println(action);
-//		}
 //		
 //	}
 
