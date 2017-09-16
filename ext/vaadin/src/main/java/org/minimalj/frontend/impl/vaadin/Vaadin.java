@@ -29,6 +29,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.contextmenu.ContextMenu;
 import com.vaadin.contextmenu.MenuItem;
+import com.vaadin.data.TreeData;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.FontAwesome;
@@ -42,21 +43,20 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.event.ItemClickEvent;
-import com.vaadin.v7.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.Tree;
 import com.vaadin.v7.ui.VerticalLayout;
 
 @Theme("mjtheme")
-// @Widgetset("org.minimalj.frontend.impl.vaadin.MjWidgetSet")
+@Widgetset("org.minimalj.frontend.impl.vaadin.MjWidgetSet")
 // @Widgetset("com.vaadin.DefaultWidgetSet")
-@Widgetset("com.vaadin.v7.Vaadin7WidgetSet")
+// @Widgetset("com.vaadin.v7.Vaadin7WidgetSet")
 public class Vaadin extends UI implements PageManager, LoginListener {
 	private static final long serialVersionUID = 1L;
 
@@ -69,7 +69,8 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	private HorizontalSplitPanel splitPanel;
 	private VerticalLayout verticalScrollPane;
 	
-	private Tree tree;
+	private Tree<Action> navigationTree;
+	private TreeData<Action> navigationTreeData = new TreeData<>();
 	private float lastSplitPosition = -1;
 	
 	public Vaadin() {
@@ -139,22 +140,13 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		outerPanel.addComponent(splitPanel);
 		outerPanel.setExpandRatio(splitPanel, 1.0f);
 
-		tree = new Tree();
-		tree.setSelectable(false);
-		tree.addItemClickListener(new ItemClickListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
-	             Object itemId = event.getItemId();
-	             if (itemId instanceof Action) {
-            		 ((Action) itemId).action();
-	             } 
-		     }
-		});
+		navigationTree = new Tree<>(null, navigationTreeData);
+		navigationTree.setSelectionMode(SelectionMode.NONE);
+		navigationTree.addItemClickListener(event -> event.getItem().action());
+		navigationTree.setItemCaptionGenerator(action -> action.getName());
 		
 		updateNavigation();
-		splitPanel.setFirstComponent(tree);
+		splitPanel.setFirstComponent(navigationTree);
 		splitPanel.setSplitPosition(200, Unit.PIXELS);
 		
 		verticalScrollPane = new VerticalLayout();
@@ -187,30 +179,27 @@ public class Vaadin extends UI implements PageManager, LoginListener {
     }
 	
 	private void updateNavigation() {
-		tree.removeAllItems();
 		List<Action> actions = Application.getInstance().getNavigation();
 		addNavigationActions(actions, null);
 	}
 
-	private void addNavigationActions(List<Action> actions, Object parentId) {
+	private void addNavigationActions(List<Action> actions, Action parent) {
 		for (Action action : actions) {
-			addNavigationAction(action, parentId);
+			addNavigationAction(action, parent);
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
 				addNavigationActions(actionGroup.getItems(), actionGroup);
-				tree.expandItem(actionGroup);
+				// navigationTree.expand(actionGroup);
 			} else {
-				tree.setChildrenAllowed(action, false);
+				// navigationTree.setChildrenAllowed(action, false);
 			}
 		}
 
 	}
 	
-	private void addNavigationAction(Action action, Object parentId) {
-//		String itemId = Rendering.render(action, Rendering.RenderType.PLAIN_TEXT); 
-		tree.addItem(action);
-		tree.setItemCaption(action, action.getName());
-		tree.setParent(action, parentId);
+	private void addNavigationAction(Action action, Action parent) {
+		navigationTreeData.addItem(parent, action);
+		System.out.println("added: " + action.getName() + " to " + parent);
 	}
 	
 	@Override
