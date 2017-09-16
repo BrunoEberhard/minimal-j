@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,8 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
@@ -20,6 +19,7 @@ import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
@@ -42,23 +42,22 @@ public class ModelTest {
 	private static final Logger logger = Logger.getLogger(ModelTest.class.getName());
 
 	private final Collection<Class<?>> mainClasses;
-	private Set<Class<?>> testedClasses = new HashSet<Class<?>>();
+	private Set<Class<?>> modelClasses = new HashSet<Class<?>>();
 	
 	private final List<String> problems = new ArrayList<String>();
-	private final SortedSet<String> missingResources = new TreeSet<String>();
 	
 	public ModelTest(Class<?>... modelClasses) {
 		this(Arrays.asList(modelClasses));
 	}
 	
-	public ModelTest(Collection<Class<?>> modelClasses) {
-		this.mainClasses = modelClasses;
+	public ModelTest(Collection<Class<?>> mainClasses) {
+		this.mainClasses = mainClasses;
 
-		for (Class<?> clazz : modelClasses) {
+		for (Class<?> clazz : mainClasses) {
 			testClass(clazz);
 		}
 		if (DevMode.isActive()) {
-			reportMissingResources();
+			Resources.printMissing();
 		}
 	}
 	
@@ -78,6 +77,22 @@ public class ModelTest {
 		return problems;
 	}
 	
+	/**
+	 * if there are problems log them and throw IllegalArgumentException
+	 * 
+	 * @throws IllegalArgumentException if problems is not empty
+	 */
+	public void assertValid() {
+		if (!getProblems().isEmpty()) {
+			logProblems();
+			throw new IllegalArgumentException("The persistent classes don't apply to the given rules");
+		}
+	}
+	
+	public Set<Class<?>> getModelClasses() {
+		return Collections.unmodifiableSet(modelClasses);
+	}
+	
 	public void logProblems() {
 		if (!problems.isEmpty()) {
 			logger.severe("The entitiy classes don't apply to the given rules");
@@ -92,8 +107,8 @@ public class ModelTest {
 	}
 
 	private void testClass(Class<?> clazz) {
-		if (!testedClasses.contains(clazz)) {
-			testedClasses.add(clazz);
+		if (!modelClasses.contains(clazz)) {
+			modelClasses.add(clazz);
 			testName(clazz);
 			testNoSuperclass(clazz);
 			if (!testNoSelfMixins(clazz)) {
@@ -104,6 +119,7 @@ public class ModelTest {
 			testHistorized(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
+			testSelfReferences(clazz);
 			if (!IdUtils.hasId(clazz)) {
 				testNoListFields(clazz);
 			}
@@ -253,9 +269,11 @@ public class ModelTest {
 				testTypeOfTechnicalField(field, technicalField.value());
 			}
 			Class<?> fieldType = field.getType();
-			if (fieldType == String.class) {
-				if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
-					testSize(field);
+			if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
+				if (fieldType == String.class) {
+					testStringSize(field);
+				} else if (fieldType == LocalTime.class || fieldType == LocalDateTime.class) {
+					testTimeSize(field);
 				}
 			} 
 		}
@@ -397,12 +415,22 @@ public class ModelTest {
 		testClass(fieldType);
 	}
 	
-	private void testSize(Field field) {
+	private void testStringSize(Field field) {
 		PropertyInterface property = Properties.getProperty(field);
 		try {
 			AnnotationUtil.getSize(property);
 		} catch (IllegalArgumentException x) {
 			problems.add("Missing size for: " + property.getDeclaringClass().getName() + "." + property.getPath());
+		}
+	}
+	
+	private void testTimeSize(Field field) {
+		PropertyInterface property = Properties.getProperty(field);
+		int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
+		if (size > -1) {
+			if (size != Size.TIME_HH_MM && size != Size.TIME_WITH_SECONDS && size != Size.TIME_WITH_MILLIS) {
+				problems.add("Unsupported size for: " + property.getDeclaringClass().getName() + "." + property.getPath() + " - only Size.TIME_ constants can be used");
+			}
 		}
 	}
 		
@@ -432,17 +460,30 @@ public class ModelTest {
 	private void testResources(Class<?> clazz) {
 		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
 			if (StringUtils.equals(property.getName(), "id", "version")) continue;
-			String resourceText = Resources.getPropertyName(property);
-			if (resourceText.startsWith("'") && resourceText.endsWith("'")) {
-				missingResources.add(resourceText.substring(1, resourceText.length()-1));
+			Resources.getPropertyName(property);
+		}
+	}
+	
+	private void testSelfReferences(Class<?> clazz) {
+		testSelfReferences(clazz, new HashSet<>());
+	}
+	
+	private void testSelfReferences(Class<?> clazz, Set<Class<?>> forbiddenClasses) {
+		Field[] fields = clazz.getFields();
+		for (Field field : fields) {
+			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
+				Class<?> fieldType = field.getType();
+				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
+					if (forbiddenClasses.contains(fieldType)) {
+						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
+					} else {
+						forbiddenClasses.add(fieldType);
+						testSelfReferences(fieldType, forbiddenClasses);
+						forbiddenClasses.remove(fieldType);
+					}
+				}
 			}
 		}
 	}
 	
-	public void reportMissingResources() {
-		for (String key : missingResources) {
-			Resources.reportMissing(key, true);
-		}
-	}
-
 }

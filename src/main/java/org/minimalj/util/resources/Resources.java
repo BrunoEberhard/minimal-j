@@ -24,7 +24,6 @@ import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.LocaleContext;
-import org.minimalj.util.MultiResourceBundle;
 
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
@@ -99,13 +98,16 @@ public class Resources {
 		}
 	}
 	
-	private static final Set<String> reported = new TreeSet<>();
+	private static final Set<String> missing = new TreeSet<>();
 	
 	public static void reportMissing(String resourceName, boolean reportIfMissing) {
-		if (reportIfMissing && DevMode.isActive() && !reported.contains(resourceName)) {
-			reported.add(resourceName);
-			System.out.println(resourceName + " = ");
+		if (reportIfMissing && DevMode.isActive()) {
+			missing.add(resourceName);
 		}
+	}
+
+	public static void printMissing() {
+		missing.stream().forEach(s -> System.out.println(s + " = " ));
 	}
 	
 	public static String getString(Class<?> clazz) {

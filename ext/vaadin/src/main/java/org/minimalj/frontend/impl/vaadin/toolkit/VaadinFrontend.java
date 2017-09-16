@@ -11,12 +11,12 @@ import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
-import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.UI;
+import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.v7.ui.themes.BaseTheme;
 
 public class VaadinFrontend extends Frontend {
@@ -66,8 +66,7 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch,
-			InputComponentListener changeListener) {
+	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
 		return new VaadinTextField(changeListener, maxLength);
 	}
 	
@@ -104,6 +103,11 @@ public class VaadinFrontend extends Frontend {
 	@Override
 	public SwitchContent createSwitchContent() {
 		return new VaadinSwitchContent();
+	}
+	
+	@Override
+	public IContent createQueryContent() {
+		throw new RuntimeException("Not yet implemented");
 	}
 
 	public static void focusFirstComponent(Component component) {

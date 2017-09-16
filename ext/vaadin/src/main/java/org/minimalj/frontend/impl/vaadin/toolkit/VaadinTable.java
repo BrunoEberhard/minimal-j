@@ -18,7 +18,6 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.components.grid.ItemClickListener;
-import com.vaadin.ui.renderers.AbstractRenderer;
 import com.vaadin.ui.renderers.TextRenderer;
 
 import elemental.json.JsonValue;
@@ -35,6 +34,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super(propertySet(keys));
+		addStyleName("table");
 		this.listener = listener;
 		this.properties = Keys.getProperties(keys);
 		

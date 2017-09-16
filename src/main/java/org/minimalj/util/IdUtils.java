@@ -63,6 +63,32 @@ public class IdUtils {
 		}
 	}
 	
+	/**
+	 * @param modelClass
+	 *            the model class for which an id should be pars (used to
+	 *            determin the class of the id - remember code classes could
+	 *            have string id)
+	 * @param idString
+	 *            the id as string
+	 * @return the id object useable for persistence
+	 */
+	public static Object parseId(Class<?> modelClass, String idString) {
+		Field idField = getIdField(modelClass);
+		if (idField == null) throw new IllegalArgumentException(modelClass.getName() + " has no id field");
+		Class<?> idFieldType = idField.getType();
+		if (idFieldType == Object.class) {
+			return UUID.fromString(idString);
+		} else if (idFieldType == String.class) {
+			return idString;
+		} else if (idFieldType == Integer.class) {
+			return Integer.parseInt(idString);
+		} else if (idFieldType == Long.class) {
+			return Long.parseLong(idString);
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+	
 	public static boolean equals(Object a, Object b) {
 		if (a != null && hasId(a.getClass())) {
 			a = getId(a);

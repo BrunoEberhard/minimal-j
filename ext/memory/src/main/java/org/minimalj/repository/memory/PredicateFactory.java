@@ -3,11 +3,12 @@ package org.minimalj.repository.memory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Searched;
-import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Criteria.AndCriteria;
@@ -18,6 +19,7 @@ import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.IdUtils;
 
 /*
  * Criterias could implement Predicate. This would be more object oriented than
@@ -35,7 +37,13 @@ class PredicateFactory {
 				object = p.getValue(object);
 				Object value = fieldCriteria.getValue();
 				if (fieldCriteria.getOperator() == FieldOperator.equal) {
-					return EqualsHelper.equals(value, object);
+					if (IdUtils.hasId(p.getClazz())) {
+						Object objectId = object != null ? IdUtils.getId(object) : null;
+						Object valueId = object != null ? IdUtils.getId(value) : null;
+						return EqualsHelper.equals(valueId, objectId);
+					} else {
+						return EqualsHelper.equals(value, object);
+					}
 				} else {
 					if (object == null) {
 						if (value == null) {
@@ -64,12 +72,14 @@ class PredicateFactory {
 		} else if (query instanceof SearchCriteria) {
 			SearchCriteria searchCriteria = (SearchCriteria) query;
 			List<PropertyInterface> searchColumns = findSearchColumns(clazz);
+			String regex = convertQuery(searchCriteria.getQuery());
+			Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 			return (object) -> {
 				for (PropertyInterface p : searchColumns) {
 					Object value = p.getValue(object);
 					if (value instanceof String) {
-						String s = ((String) value).toLowerCase();
-						if (s.contains(searchCriteria.getQuery().replaceAll("\\*", "").toLowerCase())) {
+						String s = ((String) value);
+						if (pattern.matcher(s).matches()) {
 							return !searchCriteria.isNotEqual();
 						}
 					}
@@ -111,7 +121,7 @@ class PredicateFactory {
 		}
 		
 		List<PropertyInterface> searchColumns = new ArrayList<>();
-		for (PropertyInterface property : Properties.getProperties(clazz).values()) {
+		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
 			Searched searchable = property.getAnnotation(Searched.class);
 			if (searchable != null) {
 				searchColumns.add(property);
@@ -121,5 +131,26 @@ class PredicateFactory {
 			throw new IllegalArgumentException("No fields are annotated as 'Searched' in " + clazz.getName());
 		}
 		return searchColumns;
+	}
+	
+	private static String ESCAPE = ".()+|^$@%\\{},";
+	
+	private static String convertQuery(String query) {
+		query = query.trim();
+		StringBuilder sb = new StringBuilder(query.length() + 10);
+		sb.append('^');
+		for (char c: query.toCharArray()) {
+			if (c == '*') {
+				sb.append(".*");
+			} else if (c == '?') {
+				sb.append(".");
+			} else if (ESCAPE.indexOf(c) >= 0) {
+				sb.append("\\").append(c);
+			} else {
+				sb.append(c);
+			}
+		}
+		sb.append('$');
+		return sb.toString();
 	}
 }

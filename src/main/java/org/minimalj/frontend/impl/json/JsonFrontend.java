@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
@@ -23,6 +24,7 @@ public class JsonFrontend extends Frontend {
 	private static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 	
 	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
+	private static ThreadLocal<Boolean> useInputTypesByThread = new ThreadLocal<>();
 
 	public static void setSession(JsonPageManager session) {
 		sessionByThread.set(session);
@@ -30,6 +32,10 @@ public class JsonFrontend extends Frontend {
 
 	public static JsonPageManager getClientSession() {
 		return sessionByThread.get();
+	}
+	
+	public static void setUseInputTypes(boolean compact){
+		useInputTypesByThread.set(compact);
 	}
 	
 	@Override
@@ -65,9 +71,17 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch,
-			InputComponentListener changeListener) {
-		return new JsonTextField("TextField", maxLength, allowedCharacters, inputType, suggestionSearch, changeListener);
+	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
+		return new JsonTextField("TextField", maxLength, allowedCharacters, null, suggestionSearch, changeListener);
+	}
+	
+	@Override
+	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
+		if (useInputTypesByThread.get()) {
+			return Optional.of(new JsonTextField("TextField", maxLength, null, inputType, null, changeListener));
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	@Override
@@ -112,7 +126,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public IComponent createComponentGroup(IComponent... components) {
-		JsonComponent group = new JsonComponent("Group", false);
+		JsonComponent group = new JsonComponent("Group");
 		if (components.length > 0) {
 			// click on the caption label should focus first component, not the group
 			group.put("firstId", ((JsonComponent) components[0]).get("id"));
@@ -136,8 +150,13 @@ public class JsonFrontend extends Frontend {
 		return new JsonHtmlContent(htmlOrUrl);
 	}
 	
-	//
+	@Override
+	public IContent createQueryContent() {
+		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);
+		return new JsonQueryContent(caption);
+	}
 	
+	//
 	
 	public static boolean useWebSocket() {
 		return useWebSocket;
@@ -157,7 +176,7 @@ public class JsonFrontend extends Frontend {
 		return readStream(JsonFrontend.class.getResourceAsStream("/index.html"));
 	}
 	
-	public static String fillPlaceHolder(String html, Locale locale) {
+	public static String fillPlaceHolder(String html, Locale locale, String base, String path) {
 		LocaleContext.setCurrent(locale);
 		String result = html.replace("$LOCALE", locale.getLanguage());
 		result = result.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
@@ -169,6 +188,8 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
 		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
 		result = result.replace("$ICON", getIconLink());
+		result = result.replace("$BASE", base);
+		result = result.replace("$PATH", path);
 		return result;
 	}
 	

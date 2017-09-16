@@ -3,21 +3,21 @@ package org.minimalj.repository.query;
 public class Limit implements Query {
 	private static final long serialVersionUID = 1L;
 
-	private final Query query;
+	private final QueryLimitable query;
 	private final Integer offset;
 	private final int rows;
 	
-	public Limit(Query query, int rows) {
+	public Limit(QueryLimitable query, int rows) {
 		this(query, null, rows);
 	}
 	
-	public Limit(Query query, Integer offset, int rows) {
+	public Limit(QueryLimitable query, Integer offset, int rows) {
 		this.query = query;
 		this.offset = offset;
 		this.rows = rows;
 	}
 
-	public Query getQuery() {
+	public QueryLimitable getQuery() {
 		return query;
 	}
 	

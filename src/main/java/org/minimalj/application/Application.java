@@ -176,6 +176,18 @@ public abstract class Application {
 	}
 	
 	/**
+	 * Create a page for a given route, for example {"person", "42"} A frontend
+	 * may support links or bookmarks. 
+	 * @see org.minimalj.frontend.page.Page#getRoute()
+	 * 
+	 * @param route
+	 * @return the (valid) page for this route
+	 */
+	public Page createPage(String[] route) {
+		return new EmptyPage();
+	}
+	
+	/**
 	 * If more than one class of entities should be searched have a look at
 	 * SearchPage.handle(SearchPage...)
 	 * 

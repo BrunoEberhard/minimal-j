@@ -127,8 +127,7 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch,
-			InputComponentListener changeListener) {
+	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}
 	

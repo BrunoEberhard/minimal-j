@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 
+import org.minimalj.repository.list.QueryResultList;
+
 public class SerializationContainer implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -14,7 +16,7 @@ public class SerializationContainer implements Serializable {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Serializable wrap(Object object) {
-		if (object instanceof List) {
+		if (object instanceof List && !(object instanceof QueryResultList)) {
 			List list = (List) object;
 			for (int i = 0; i<list.size(); i++) {
 				list.set(i, wrap(list.get(i)));
@@ -29,17 +31,9 @@ public class SerializationContainer implements Serializable {
 		}
 	}
 	
-	public static Object[] wrap(Object[] objects) {
-		Object[] containers = new Object[objects.length];
-		for (int i = 0; i<objects.length; i++) {
-			containers[i] = wrap(objects[i]);
-		}
-		return containers;
-	}
-	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object unwrap(Object container) {
-		if (container instanceof List) {
+		if (container instanceof List && !(container instanceof QueryResultList)) {
 			List list = (List) container;
 			for (int i = 0; i<list.size(); i++) {
 				list.set(i, unwrap(list.get(i)));
@@ -52,22 +46,14 @@ public class SerializationContainer implements Serializable {
 		}
 	}
 	
-	public static Object[] unwrap(Object[] containers) {
-		Object[] objects = new Object[containers.length];
-		for (int i = 0; i<containers.length; i++) {
-			objects[i] = unwrap(containers[i]);
-		}
-		return objects;
-	}
-	
 	private void writeObject(ObjectOutputStream out) throws IOException {
-		SerializationOutputStream soo = new SerializationOutputStream(out);
-		soo.writeArgument(object);
+		EntityWriter writer = new EntityWriter(out);
+		writer.write(object);
  	}
 	
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		SerializationInputStream soo = new SerializationInputStream(in);
-		object = soo.readArgument();
+		EntityReader reader = new EntityReader(in);
+		object = reader.read();
 	}
 	
 }

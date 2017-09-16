@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultRowSorter;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -124,8 +125,22 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	public void setObjects(List<T> list) {
 		this.list = list;
 		setOffset(0);
+		setSortableColumns(list);
 	}
 	
+	private void setSortableColumns(List<T> list) {
+		if (table.getRowSorter() instanceof DefaultRowSorter) {
+			DefaultRowSorter<?, ?> sorter = (DefaultRowSorter<?, ?>) table.getRowSorter();
+			Sortable sortable = null;
+			if (list instanceof Sortable) {
+				sortable = (Sortable) list;
+			}
+			for (int i = 0; i < keys.length; i++) {
+				sorter.setSortable(i, sortable != null && sortable.canSortBy(keys[i]));
+			}
+		}
+	}
+
 	private void setOffset(int offset) {
 		this.offset = offset;
 		tableModel.setObjects(list.subList(offset, Math.min(list.size(), offset + PAGE_SIZE)));

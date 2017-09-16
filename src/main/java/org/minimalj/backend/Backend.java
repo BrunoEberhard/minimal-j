@@ -81,7 +81,7 @@ public class Backend {
 		return instance;
 	}
 	
-	public void setRepository(Repository repository) {
+	protected void setRepository(Repository repository) {
 		this.repository = repository;
 	}
 	
@@ -117,9 +117,9 @@ public class Backend {
 		return currentTransaction.get() != null;
 	}
 	
-	// Could be moved in a class like "Do" but that would seem even more like magic
-	// Backend.read or Backend.execute gives a hint that there is a separation between
-	// the current stuff and the things done in the Transaction
+	// It may seem unnecessary to create Transaction for crud. Especially if
+	// repository is available locally. But the authorization check is done
+	// in the execute method.
 	
 	public static <T> T read(Class<T> clazz, Object id) {
 		return execute(new ReadEntityTransaction<T>(clazz, id, null));

@@ -3,9 +3,9 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.PasswordField;
 
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
-import com.vaadin.v7.event.FieldEvents.TextChangeListener;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * 
@@ -15,17 +15,15 @@ import com.vaadin.v7.ui.HorizontalLayout;
 public class VaadinPasswordField extends HorizontalLayout implements PasswordField {
 	private static final long serialVersionUID = 1L;
 
-	private TextChangeEvent event;
-	private final com.vaadin.v7.ui.PasswordField field;
+	private ValueChangeEvent<String> event;
+	private final com.vaadin.ui.PasswordField field;
 	
 	public VaadinPasswordField(InputComponentListener changeListener, int maxLength) {
-		super();
-		field = new com.vaadin.v7.ui.PasswordField();
+		setMargin(false);
+		field = new com.vaadin.ui.PasswordField();
 		field.setMaxLength(maxLength);
-		field.setNullRepresentation("");
-		field.setImmediate(true);
 		if (changeListener != null) {
-			field.addTextChangeListener(new VaadinTextFieldTextChangeListener(changeListener));
+			field.addValueChangeListener(new VaadinTextFieldTextChangeListener(changeListener));
 			field.addShortcutListener(new VaadinTextField.CommitShortcutListener());
 		} else {
 			setReadOnly(true);
@@ -34,7 +32,7 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 		field.setWidth(100, Unit.PERCENTAGE);
 	}
 
-	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
+	private class VaadinTextFieldTextChangeListener implements ValueChangeListener<String> {
 		private static final long serialVersionUID = 1L;
 		private final InputComponentListener changeListener;
 		
@@ -43,7 +41,7 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 		}
 
 		@Override
-		public void textChange(TextChangeEvent event) {
+		public void valueChange(ValueChangeEvent<String> event) {
 			VaadinPasswordField.this.event = event;
 			changeListener.changed(VaadinPasswordField.this);
 			VaadinPasswordField.this.event = null;
@@ -63,7 +61,7 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 	@Override
 	public char[] getValue() {
 		if (event != null) {
-			return event.getText().toCharArray();
+			return event.getValue().toCharArray();
 		} else {
 			return field.getValue().toCharArray();
 		}

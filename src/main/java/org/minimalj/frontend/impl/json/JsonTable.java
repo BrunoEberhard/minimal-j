@@ -11,6 +11,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
 
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
@@ -18,13 +19,16 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 	private static final int PAGE_SIZE = 50;
 	
+	private final Object[] keys;
 	private final List<PropertyInterface> properties;
 	private final TableActionListener<T> listener;
 	private List<T> objects;
 	private int visibleRows = PAGE_SIZE;
+	private Integer sortColumn = null;
 	
 	public JsonTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
+		this.keys = keys;
 		this.properties = convert(keys);
 		this.listener = listener;
 
@@ -104,4 +108,25 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		listener.selectionChanged(selectedObjects);
 	}
 
+	public void sort(int column) {
+		if (objects instanceof Sortable) {
+			Sortable sortable = (Sortable) objects;
+			if (sortable.canSortBy(keys[column])) {
+				
+				column = column + 1;
+				if (sortColumn == null) {
+					sortColumn = column;
+				} else if (sortColumn == column) {
+					sortColumn = -sortColumn;
+				} else {
+					sortColumn = column;
+				}
+				if (objects instanceof Sortable) {
+					Object[] keys = new Object[] { this.keys[Math.abs(sortColumn) - 1] };
+					sortable.sort(keys, new boolean[] { sortColumn > 0 });
+				}
+				setObjects(objects);
+			}
+		}
+	}
 }

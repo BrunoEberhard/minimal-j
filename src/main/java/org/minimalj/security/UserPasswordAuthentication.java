@@ -122,14 +122,12 @@ public abstract class UserPasswordAuthentication extends Authentication {
 	
 	protected User retrieveUser(String userName, char[] password) {
 		User user = retrieveUser(userName);
-		if (user.password.validatePassword(password)) {
+		if (user != null && user.password.validatePassword(password)) {
 			return user;
 		} else {
 			return null;
 		}
 	}
 
-	protected User retrieveUser(String userName) {
-		return null;
-	}
+	protected abstract User retrieveUser(String userName);
 }

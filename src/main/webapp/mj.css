@@ -41,10 +41,10 @@ body {
 }
 
 #search {
-	font-size: 11px;
 	vertical-align: top;
 	border: solid 1px #666;
-	margin-top: 0.35em;
+	margin-top: 0.42em;
+	padding: 0px;
 }
 
 #search input:focus {
@@ -55,6 +55,7 @@ body {
 
 #container {
 	position: fixed;
+	display: flex;
 	top: 2.2em;
 	bottom: 0;
 	left: 0;
@@ -63,12 +64,6 @@ body {
 }
 
 #navigationContainer {
-	position: absolute;
-	left: 0px;
-	width: 15em; /* fallback for very old browsers without calc */
-	width: calc(15em - 1px);
-	top: 0px;
-	bottom: 0px;
 	margin: 0px;
 	color: black;
 	border-right: 1px rgb(160,160,160) solid;
@@ -136,11 +131,7 @@ li {
 /* pages */
 
 #pageContainer {
-	position: absolute;
-	left: 0em;
-	right: 0em;
-	top: 0px;
-	bottom: 0px;
+	flex-grow: 10;
 	margin: 0px;
 	overflow: auto;
 	background: white;
@@ -150,6 +141,7 @@ li {
 	position: relative;
 	border-bottom: 1px rgb(160,160,160) solid;
 	min-height: 10em;
+	width: 100%;
 }
 
 .pageHeader {
@@ -157,25 +149,26 @@ li {
 	height: calc(1.8em - 1px);
 	line-height: 1.9em;
 	padding-left: 1em;
-	width: calc(100% - 1em);
 	background: rgb(240,240,240);
 	border-bottom: 1px rgb(160,160,160) solid;
 }
 
+.pageContentAndActions {
+	display: flex;
+	flex-flow: nowrap;
+	align-items: stretch;
+	position: relative;
+}
+
 .pageContent {
+	width: 10em;
+	flex-grow: 10;
+	flex-shrink: 1;
 	padding-left: 1em;
 	padding-top: 0.5ex;
 }
 
-.pageContentSmall {
-	width: calc(100% - 16em);
-}
-
-.pageContentExpend {
-	width: calc(100% - 1em);
-}
-
-iframe.pageContent {
+.pageContent iframe {
 	padding: 0em;
 	width: 100%;
 }
@@ -185,12 +178,17 @@ table.table tr td {
 	line-height: 1.6em;
 }
 
-.actionMenu {
-	position: absolute; right: 0em; top: 1.8em; bottom: 0em;
+.actionMenuContainer {
+	flex-grow: 1;
+	flex-shrink: 1;
 	border-left: 1px rgb(160,160,160) solid;
-	min-width: 15em;
+	width: 15em;
 	background: white;
 	overflow: auto;
+}
+
+.actionMenu {
+	height: 1em;
 }
 
 ul.actionMenu {
@@ -203,7 +201,10 @@ ul.actionMenu {
 dialog {
 	border: 1px rgb(160,160,160) solid;
 	padding: 0em;
-	right: auto;
+	width: auto;
+	margin-top: 1em;
+	margin-left: 1em;
+	margin-right: 2em;
 }
 
 .dialogHeader {
@@ -268,87 +269,58 @@ table tr:nth-child(odd).selected {
 	background: #99f;
 }
 
-table.form {
+.form {
 	border-spacing: 0px;
 	width: 100%;
 	margin-top: 0.5ex;
 }
 
-table.form tr {
-	height: 3em;
+.form > div {
+	display: flex;
+	flex-wrap: wrap;	
 }
 
-table.form > tbody > tr > td:first-child {
-	padding-left: 0.7ex;
+.form > div > div {
+	padding-top: 0.4em;
+	padding-bottom: 0.4em;
 }
 
-/* In chrome/firefox the scrollbar needs space from form on the right */
-table.form > tbody > tr > td:last-child {
-	padding-right: 3ex;
+.form input, .form select, .form textarea, .form .lookup, dialog .form label, dialog .form div.list, dialog .form .Title {
+	width: calc(100% - 1em);
+	margin-left: 0.5em;
+	margin-right: 0.5em;
 }
 
-table input[type="text"], table input[type="password"], table select, table textarea, table .lookup, dialog table label {
-	width: calc(100% - 0.4rem);
-	margin-left: 0.2rem;
-	margin-right: 0.2rem;
-}
-
-dialog table div {
-	width: calc(100% - 0.4rem);
-	margin-left: 0.2rem;
-	margin-right: 0.2rem;
-	height: calc(100% - 0.4rem);
-	padding-top: 0.2rem;
-	padding-bottom: 0.2rem;
-}
-
-dialog table div.list {
+dialog .form div.list {
 	padding-top: 0.05rem;
-}
-
-dialog table div div {
-	width: 100%;
-	margin: 0px;
 	height: 100%;
-	padding: 0px;
-}
-
-table.form td, table.form th {
-	padding-top: 1ex;
-	padding-bottom: 1ex;
 }
 
 /* group (of form elements) must not double the paddings and keep background pattern */
 
-table.group tr {
-	height: auto;
-	background: none;
-}
-
-table.group td {
-	padding-top: 0;
-	padding-bottom: 0;
-}
-
-table.group td:first-child {
-	padding-left: 0;
-}
-
-table.group td:last-child {
-	padding-right: 0;
+.group {
+	display: flex;
+	flex-wrap: wrap;	
 }
 
 /* various elements */
 
 input, .checkBoxContainer, select {
-	height: 1.5em
+	padding-top: 0.15em;
+	padding-bottom: 0.15em;
+	font-size: inherit;
 }
 
 input[type="checkbox"] {
 	height: inherit;
+	width: 1.2em;
 	margin-bottom: 0px;
 	margin-top: 0px;
 	vertical-align: bottom;
+}
+
+label.checkboxLabel {
+	font-weight: normal;
 }
 
 textarea {
@@ -365,7 +337,6 @@ label {
 	display: block;
 	font-size: x-smaller;
 	font-weight: bolder;
-	margin-bottom: 0.5ex;
 }
 
 .title {

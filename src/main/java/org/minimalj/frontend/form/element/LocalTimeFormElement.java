@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
@@ -28,7 +29,12 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 		} else {
 			return "01234567890:";
 		}
-	} 
+	}
+
+	@Override
+	protected InputType getInputType() {
+		return InputType.TIME;
+	}
 
 	@Override
 	protected int getAllowedSize(PropertyInterface property) {
@@ -51,7 +57,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	@Override
 	public String render(LocalTime value) {
 		if (InvalidValues.isInvalid(value)) {
-			return InvalidValues.getInvalidValue(value);
+			return typed ? InvalidValues.getInvalidValue(value) : null;
 		} else if (value != null) {
 			return formatter.format(value);
 		} else {

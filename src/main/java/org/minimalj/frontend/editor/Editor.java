@@ -127,7 +127,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
 			// TODO clever error handling, for example at login if jdbc is wrong
-			Frontend.showError(x.getLocalizedMessage());
+			Frontend.showError(x.getLocalizedMessage() != null ? x.getLocalizedMessage() : x.getClass().getSimpleName());
 			return;
 		}
 	}

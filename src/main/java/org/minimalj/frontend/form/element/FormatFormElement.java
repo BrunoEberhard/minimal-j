@@ -1,6 +1,7 @@
 package org.minimalj.frontend.form.element;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -23,7 +24,19 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 * and the subclasses need a chance to initialize the values
 	 */
 	protected Input<String> textField;
-
+	
+	/*
+	 * typed: Frontends may or may not provide special Inputs for date or time. Even
+	 * the same Frontend can sometimes support those Inputs and sometimes not. For
+	 * example a HTML Frontend depends on the used Browser. FireFox and Microsoft didn't
+	 * support date and time Inputs for a long time.
+	 * If typed is true then the FormElement must format the date or time without
+	 * considering the current Locale. If typed is false a normal text Input is
+	 * used for the date or time. Then the FormElement must to the formatting according
+	 * to the current Locale.
+	 */
+	protected boolean typed;
+	
 	public FormatFormElement(PropertyInterface property, boolean editable) {
 		super(property);
 		this.editable = editable;
@@ -34,15 +47,22 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	protected abstract int getAllowedSize(PropertyInterface property);
 
 	protected InputType getInputType() {
-		return InputType.FREE;
+		return InputType.TEXT;
 	}
 
 	@Override
 	public IComponent getComponent() {
 		if (textField == null) {
 			if (editable) {
-				textField = Frontend.getInstance().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
-						getInputType(), null, new TextFormatFieldChangeListener());
+				Optional<Input<String>> typeTextField = Frontend.getInstance().createInput(getAllowedSize(getProperty()), getInputType(), new TextFormatFieldChangeListener());
+				typed = typeTextField.isPresent();
+				if (typed) {
+					textField = typeTextField.get();
+				} else {
+					textField = Frontend.getInstance().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
+							null, new TextFormatFieldChangeListener());
+				}
+				
 			} else {
 				textField = Frontend.getInstance().createReadOnlyTextField();
 			}
@@ -71,7 +91,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	private class TextFormatFieldChangeListener implements InputComponentListener {
 		@Override
 		public void changed(IComponent source) {
-			// Formattierung auslösen
+			// Redo format
 			T value = getValue();
 			boolean valid = true;
 			valid &= !InvalidValues.isInvalid(value);

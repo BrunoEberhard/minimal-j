@@ -5,12 +5,14 @@ import java.util.AbstractList;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
+import org.minimalj.repository.query.Query.QueryOrderable;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.Sortable;
 
@@ -62,22 +64,22 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 		this.size = (int) repository.count(clazz, query);
 	}
 	
-	private Repository getRepository() {
-		return repository != null ? repository : Backend.getInstance().getRepository();
-	}
-	
 	@Override
 	public T get(int index) {
 		Query limtedCriteria = query.limit(index, 1);
-		List<T> result = getRepository().find(clazz.getClazz(), limtedCriteria);
+		List<T> result = find(limtedCriteria);
 		return result.isEmpty() ? null : result.get(0);
 	}
-	
+
 	@Override
 	public List<T> subList(int fromIndex, int toIndex) {
 		Query limtedCriteria = query.limit(fromIndex, toIndex - fromIndex);
-		List<T> result = getRepository().find(clazz.getClazz(), limtedCriteria);
-		return result;
+		return find(limtedCriteria);
+	}
+
+	private List<T> find(Query limtedCriteria) {
+		return repository != null ? repository.find(clazz.getClazz(), limtedCriteria)
+				: Backend.execute(new ReadCriteriaTransaction<T>(clazz.getClazz(), limtedCriteria));
 	}
 	
 	@Override
@@ -92,9 +94,13 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 		}
 		for (int i = 0; i<sortKeys.length; i++) {
 			PropertyInterface property = Keys.getProperty(sortKeys[i]);
-			String path = property.getPath();
-			query = new Order(query, path, sortDirections[i]);
+			query = ((QueryOrderable) query).order(property, sortDirections[i]);
 		}
+	}
+	
+	@Override
+	public boolean canSortBy(Object sortKey) {
+		return true;
 	}
 
 }

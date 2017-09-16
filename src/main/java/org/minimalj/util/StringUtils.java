@@ -49,6 +49,10 @@ public class StringUtils {
 		return s == null || s.trim().length() == 0;
 	}
 	
+	public static String emptyIfNull(String s) {
+		return s == null ? "" : s;
+	}
+	
 	public static String padLeft(String s, int length, char c) {
 		if (s == null) s = "";
 		while (s.length() < length) s = c + s;
@@ -99,7 +103,7 @@ public class StringUtils {
 		if (string.length() > 1) {
 			return string.substring(0, 1).toLowerCase() + string.substring(1);
 		} else {
-			return string.substring(0, 1);
+			return string.substring(0, 1).toLowerCase();
 		}
 	}
 

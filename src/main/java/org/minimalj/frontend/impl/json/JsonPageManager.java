@@ -25,31 +25,40 @@ import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
 import org.minimalj.security.UserPasswordAuthentication.UserPasswordAction;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.StringUtils;
 
 public class JsonPageManager implements PageManager, LoginListener {
 
 	private Subject subject;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
+	private Page showOnLogin;
 	private final PageList visiblePageAndDetailsList = new PageList();
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
 	private final PageStore pageStore = new PageStore();
-	
+
 	public JsonPageManager() {
 		//
 	}
-	
+
 	@Override
 	public void loginSucceded(Subject subject) {
 		this.subject = subject;
 		Subject.setCurrent(subject);
-		
+
 		componentById.clear();
 		navigation = createNavigation();
 		register(navigation);
 		output.add("navigation", navigation);
+
+		if (showOnLogin != null) {
+			show(showOnLogin, null);
+			showOnLogin = null;
+		} else {
+			show(Application.getInstance().createDefaultPage(), null);
+		}
 	}
 
 	@Override
@@ -58,67 +67,92 @@ public class JsonPageManager implements PageManager, LoginListener {
 			show(new AuthenticationFailedPage());
 		}
 	};
-	
+
 	public String handle(String inputString) {
 		JsonInput input = new JsonInput(inputString);
 		JsonOutput output = handle(input);
 		return output.toString();
 	}
-	
+
 	public JsonOutput handle(JsonInput input) {
 		JsonFrontend.setSession(this);
 		Subject.setCurrent(subject);
 		String locale = (String) input.getObject("locale");
 		if (locale != null) {
 			LocaleContext.setCurrent(Locale.forLanguageTag(locale));
-		}		
-		
-		output = new JsonOutput();
-		
-		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
-			Page page = Application.getInstance().createDefaultPage();
-			show(page, null);
-
-			navigation = createNavigation();
-			register(navigation);
-			output.add("navigation", navigation);
-			output.add("applicationName", Application.getInstance().getName());
 		}
-		
+		JsonFrontend.setUseInputTypes(Boolean.TRUE.equals(input.getObject("inputTypes")));
+
+		output = new JsonOutput();
+
+		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
+			Page page = null;
+			String path = (String) input.getObject("path");
+			if (!StringUtils.isEmpty(path)) {
+				String[] pathFragments = path.substring(1).split("/");
+				page = Application.getInstance().createPage(pathFragments);
+			}
+
+			
+			if (page == null) {
+				page = Application.getInstance().createDefaultPage();
+			}
+
+			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
+				showOnLogin = page;
+				new UserPasswordAction(this).action();
+			} else {
+				show(page, null);
+
+				navigation = createNavigation();
+				register(navigation);
+				output.add("navigation", navigation);
+				output.add("applicationName", Application.getInstance().getName());
+			}
+		}
+
 		if (input.containsObject("closePage")) {
 			String pageId = (String) input.getObject("closePage");
 			visiblePageAndDetailsList.removeAllFrom(pageId);
 		}
-		
+
 		Map<String, Object> changedValues = input.get(JsonInput.CHANGED_VALUE);
 		for (Map.Entry<String, Object> entry : changedValues.entrySet()) {
 			String componentId = entry.getKey();
-			Object newValue = entry.getValue(); // most of the time a String, but not for password
-			
+			Object newValue = entry.getValue(); // most of the time a String,
+												// but not for password
+
 			JsonComponent component = componentById.get(componentId);
-			((JsonInputComponent<?>) component).changedValue(newValue); 
+			((JsonInputComponent<?>) component).changedValue(newValue);
 		}
-		
+
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
 		if (actionId != null) {
 			JsonAction action = (JsonAction) componentById.get(actionId);
 			action.action();
 		}
-		
+
 		Map<String, Object> tableAction = input.get(JsonInput.TABLE_ACTION);
 		if (tableAction != null && !tableAction.isEmpty()) {
 			JsonTable<?> table = (JsonTable<?>) componentById.get(tableAction.get("table"));
 			int row = ((Long) tableAction.get("row")).intValue();
 			table.action(row);
 		}
-		
+
+		Map<String, Object> tableSortAction = input.get("tableSortAction");
+		if (tableSortAction != null && !tableSortAction.isEmpty()) {
+			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSortAction.get("table"));
+			int column = ((Long) tableSortAction.get("column")).intValue();
+			table.sort(column);
+		}
+
 		Map<String, Object> tableSelection = input.get("tableSelection");
 		if (tableSelection != null && !tableSelection.isEmpty()) {
 			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSelection.get("table"));
 			List<Number> rows = ((List<Number>) tableSelection.get("rows"));
 			table.selection(rows);
 		}
-		
+
 		String tableExtendContent = (String) input.getObject("tableExtendContent");
 		if (tableExtendContent != null) {
 			JsonTable<?> table = (JsonTable<?>) componentById.get(tableExtendContent);
@@ -126,13 +160,13 @@ public class JsonPageManager implements PageManager, LoginListener {
 			output.add("tableExtendContent", table.extendContent());
 			output.add("extendable", table.isExtendable());
 		}
-		
+
 		String search = (String) input.getObject("search");
 		if (search != null) {
 			Page searchPage = Application.getInstance().createSearchPage(search);
 			show(searchPage);
 		}
-		
+
 		String loadSuggestions = (String) input.getObject("loadSuggestions");
 		if (loadSuggestions != null) {
 			JsonTextField textField = (JsonTextField) componentById.get(loadSuggestions);
@@ -153,27 +187,28 @@ public class JsonPageManager implements PageManager, LoginListener {
 			JsonLookup<?> lookup = (JsonLookup<?>) componentById.get(removeReference);
 			lookup.setValue(null);
 		}
-		
+
 		String login = (String) input.getObject("login");
-		if (login != null || subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
+		if (login != null || subject == null && Frontend.loginAtStart()
+				&& !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
 			new UserPasswordAction(this).action();
 		}
-		
+
 		List<String> pageIds = (List<String>) input.getObject("showPages");
 		if (pageIds != null) {
 			show(pageIds);
 		}
-		
+
 		Subject.setCurrent(null);
 		JsonFrontend.setSession(null);
 		return output;
 	}
-	
+
 	@Override
 	public void show(Page page) {
 		show(page, null);
 	}
-	
+
 	@Override
 	public void showDetail(Page mainPage, Page detail) {
 		int pageIndex = visiblePageAndDetailsList.indexOf(detail);
@@ -186,7 +221,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 			output.add("title", detail.getTitle());
 		}
 	}
-	
+
 	private void show(Page page, String masterPageId) {
 		if (masterPageId == null) {
 			visiblePageAndDetailsList.clear();
@@ -195,12 +230,12 @@ public class JsonPageManager implements PageManager, LoginListener {
 		} else {
 			visiblePageAndDetailsList.removeAllAfter(masterPageId);
 		}
-		
+
 		String pageId = pageStore.put(page);
 		output.add("showPage", createJson(page, pageId, masterPageId));
 		visiblePageAndDetailsList.put(pageId, page);
 	}
-	
+
 	private void show(List<String> pageIds) {
 		List<JsonComponent> jsonList = new ArrayList<>();
 		visiblePageAndDetailsList.clear();
@@ -213,31 +248,35 @@ public class JsonPageManager implements PageManager, LoginListener {
 		}
 		output.add("showPages", jsonList);
 	}
-	
+
 	private JsonComponent createJson(Page page, String pageId, String masterPageId) {
 		JsonComponent json = new JsonComponent("page");
-		
+
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
-		
+		String route = page.getRoute();
+		if (!StringUtils.isEmpty(route)) {
+			json.put("route", route.endsWith("/") ? route : route + "/");
+		}
+
 		JsonComponent content = (JsonComponent) page.getContent();
 		register(content);
 		json.put("content", content);
-		
+
 		List<Object> actionMenu = createActionMenu(page);
 		register(actionMenu);
 		json.put("actionMenu", actionMenu);
-		
+
 		return json;
 	}
-	
+
 	@Override
 	public void hideDetail(Page page) {
 		output.add("hidePage", visiblePageAndDetailsList.getId(page));
 		visiblePageAndDetailsList.removeAllFrom(page);
 	}
-	
+
 	@Override
 	public boolean isDetailShown(Page page) {
 		return visiblePageAndDetailsList.contains(page);
@@ -262,13 +301,13 @@ public class JsonPageManager implements PageManager, LoginListener {
 	public void showError(String text) {
 		output.add("error", text);
 	}
-	
+
 	private List<Object> createNavigation() {
 		List<Action> navigationActions = Application.getInstance().getNavigation();
 		List<Object> navigationItems = createActions(navigationActions);
 		return navigationItems;
 	}
-	
+
 	private List<Object> createActionMenu(Page page) {
 		List<Action> actions = page.getActions();
 		if (actions != null && actions.size() > 0) {
@@ -284,7 +323,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		}
 		return items;
 	}
-	
+
 	List<Object> createActions(Action[] actions) {
 		return createActions(Arrays.asList(actions));
 	}
@@ -335,18 +374,18 @@ public class JsonPageManager implements PageManager, LoginListener {
 	public void closeDialog(String id) {
 		output.add("closeDialog", id);
 	}
-	
+
 	public void clearContent(String elementId) {
 		output.removeContent(elementId);
 	}
-	
+
 	public void addContent(String elementId, JsonComponent content) {
 		register(content);
 		output.addContent(elementId, content);
 	}
 
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {
-		
+
 		@Override
 		public void propertyChange(String componentId, String property, Object value) {
 			output.propertyChange(componentId, property, value);

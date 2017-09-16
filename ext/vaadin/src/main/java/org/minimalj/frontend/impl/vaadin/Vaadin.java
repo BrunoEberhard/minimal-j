@@ -25,10 +25,10 @@ import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
-import com.vaadin.addon.contextmenu.ContextMenu;
-import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.contextmenu.ContextMenu;
+import com.vaadin.contextmenu.MenuItem;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.FontAwesome;
@@ -54,6 +54,8 @@ import com.vaadin.v7.ui.Tree;
 import com.vaadin.v7.ui.VerticalLayout;
 
 @Theme("mjtheme")
+// @Widgetset("org.minimalj.frontend.impl.vaadin.MjWidgetSet")
+// @Widgetset("com.vaadin.DefaultWidgetSet")
 @Widgetset("com.vaadin.v7.Vaadin7WidgetSet")
 public class Vaadin extends UI implements PageManager, LoginListener {
 	private static final long serialVersionUID = 1L;
@@ -185,7 +187,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
     }
 	
 	private void updateNavigation() {
-		tree.clear();
+		tree.removeAllItems();
 		List<Action> actions = Application.getInstance().getNavigation();
 		addNavigationActions(actions, null);
 	}

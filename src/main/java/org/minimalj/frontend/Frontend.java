@@ -1,6 +1,7 @@
 package org.minimalj.frontend;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -77,14 +78,31 @@ public abstract class Frontend {
 	}
 	
 	 // http://www.w3schools.com/html/html_form_input_types.asp 
-	public enum InputType { FREE, EMAIL, URL, TEL, NUMBER; }
-
+	public enum InputType { TEXT, EMAIL, URL, TEL, NUMBER, DATE, TIME, DATETIME; }
+	
+	/**
+	 * Frontends may or may not provide special Inputs. Even a single Frontend
+	 * can sometimes support those Inputs and sometimes not. For example a HTML
+	 * Frontend depends on the used Browser. Firefox and Microsoft didn't
+	 * support date and time Inputs for a long time. Also the used device or the
+	 * user preferences can influence whether the returned Optional is empty or
+	 * contains an Input.
+	 * 
+	 * @param maxLength maximum input length
+	 * @param inputType TEXT, EMAIL, ...
+	 * @param changeListener listener attached to the Input
+	 * @return optional
+	 */
+	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
+		return Optional.empty();
+	}
+	
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Action action);
 	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createTitle(String string);
 	public abstract Input<String> createReadOnlyTextField();
-	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, InputType inputType, Search<String> suggestionSearch, InputComponentListener changeListener);
+	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
 	public abstract IList createList(Action... actions);
@@ -93,6 +111,7 @@ public abstract class Frontend {
 
 	public abstract Input<byte[]> createImage(int size, InputComponentListener changeListener);
 
+	
 	public interface IList extends IComponent {
 		/**
 		 * @param enabled if false no content should be shown (or
@@ -153,9 +172,32 @@ public abstract class Frontend {
 	}
 	
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
-	
+
+	/**
+	 * Allows several types of input:
+	 * <UL>
+	 * <LI>if it starts with a '&lt;' it's supposed to be a html document
+	 * starting with &lt;html&gt; and ending with &lt;/html&gt;
+	 * <LI>if it is a valid url the content of that url is loaded
+	 * <LI>if it ends with '.html' the content is loaded from the classpath
+	 * <LI>if none of the above the input is used as plain String
+	 * </UL>
+	 * 
+	 * @param htmlOrUrl html, url, classpath location or string
+	 * @return html content
+	 */
 	public abstract IContent createHtmlContent(String htmlOrUrl);
 		
+	/**
+	 * Create a content with a caption and a large search field. Something like
+	 * what a really big search engine show.
+	 * <p>
+	 * 
+	 * The caption text is defined by the Resource QueryPage or if that is not
+	 * available by the Application.name .
+	 */
+	public abstract IContent createQueryContent();
+	
 	//
 	
 	public abstract PageManager getPageManager();

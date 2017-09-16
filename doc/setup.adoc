@@ -32,7 +32,7 @@ Now you have to add the dependency to Minimal-J in the newly created pom.xml:
 <dependency>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>1.0.0.0</version>
+	<version>1.8.0.0</version>
 </dependency>
 ----
 
@@ -45,18 +45,18 @@ libraries. For example:
 
 ----
 <dependency>
-	<groupId>org.apache.derby</groupId>
-	<artifactId>derby</artifactId>
-	<version>10.11.1.1</version>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>1.4.193</version>
 	<scope>provided</scope>
 </dependency>
 ----
 
-The apache derby db is used if you want to store your data only in the JVM memory. Have you
+The h2 db is used if you want to store your data only in the JVM memory. Have you
 noted the scope _provided_? This means that this dependency is not passed to projects with
-a dependency to Minimal-J. If you want to use the in memory feature you have to add the
-dependency to your own project. On the other side if you don't use the feature you don't have
-to bother about anything from derby db.
+a dependency to Minimal-J. If you want to use the h2 database you have to add the
+dependency to your own project. On the other side if you don't use the database you don't have
+to bother about anything from h2.
 
 = Build
 
