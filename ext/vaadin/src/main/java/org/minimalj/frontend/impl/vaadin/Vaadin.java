@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.vaadin;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -189,9 +190,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
 				addNavigationActions(actionGroup.getItems(), actionGroup);
-				// navigationTree.expand(actionGroup);
-			} else {
-				// navigationTree.setChildrenAllowed(action, false);
+				navigationTree.expand(actionGroup);
 			}
 		}
 
@@ -199,7 +198,6 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	
 	private void addNavigationAction(Action action, Action parent) {
 		navigationTreeData.addItem(parent, action);
-		System.out.println("added: " + action.getName() + " to " + parent);
 	}
 	
 	@Override
@@ -249,9 +247,9 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 
 	@Override
 	public void show(Page page) {
-//		String pageId = pageStore.put(page);
-//		state = new HashMap<>();
-//		state.put("0", pageId);
+		String pageId = pageStore.put(page);
+		state = new HashMap<>();
+		state.put("0", pageId);
 //		history.pushState(state, "");
 		
 		updateContent();
