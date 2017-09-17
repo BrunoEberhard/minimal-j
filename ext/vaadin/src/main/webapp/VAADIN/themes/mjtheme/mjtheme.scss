@@ -34,6 +34,7 @@
 
   $v-font-size: 14px;
   $v-font-weight: 100;
+  $v-font-color-contrast: 1.0;
 
   .v-app {
   	color: black;
@@ -64,7 +65,7 @@
   	font-size: 12px;
   	line-height: 15px;
   }
-  
+    
   .v-textfield, .v-filterselect {
   	font-size: 14px;
   	height: 30px;
