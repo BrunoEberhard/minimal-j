@@ -6,6 +6,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -30,15 +31,16 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 		table = new VaadinTable<T>(keys, false, listener);
 
 		HorizontalLayout northPanel = new HorizontalLayout();
-		northPanel.setMargin(false);
-		northPanel.setSpacing(false);
 		northPanel.setWidth("100%");
 		northPanel.addComponent(text);
 		northPanel.addComponent(searchButton);
 		text.setWidth("100%");
+		northPanel.setComponentAlignment(text, Alignment.MIDDLE_LEFT);
 		northPanel.setExpandRatio(text, 1.0f);
 				
 		addComponent(northPanel);
+		setExpandRatio(northPanel, 0.0f);
+		table.setSizeFull();
 		addComponent(table);
 		setExpandRatio(table, 1.0f);
 

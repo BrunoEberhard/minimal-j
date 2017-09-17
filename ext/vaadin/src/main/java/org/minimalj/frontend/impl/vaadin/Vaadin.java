@@ -18,6 +18,7 @@ import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinSearchPanel;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
@@ -440,8 +441,10 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	}
 
 	@Override
-	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
-		// TODO Auto-generated method stub
-		return null;
+	public <T> IDialog showSearchDialog(Search<T> search, Object[] keys, TableActionListener<T> listener) {
+		Component component = new VaadinSearchPanel<>(search, keys, listener);
+		VaadinDialog dialog = new VaadinDialog((ComponentContainer) component, "Search", null, null);
+		dialog.setHeight("25em");
+		return dialog;
 	}
 }

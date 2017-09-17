@@ -43,7 +43,9 @@ public class VaadinDialog extends Window implements IDialog {
 		public void windowClose(CloseEvent e) {
 			// if (closeListener == null || closeListener.close()) {
 				VaadinDialog.super.close();
-				closeAction.action();
+				if (closeAction != null) {
+					closeAction.action();
+				}
 			// }
 		}
 	}
