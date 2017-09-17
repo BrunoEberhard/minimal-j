@@ -35,6 +35,10 @@
   $v-font-size: 14px;
   $v-font-weight: 100;
 
+  .v-app {
+  	color: black;
+  }
+
   .link {
   	padding: 0px;
   	height: initial;
@@ -70,4 +74,16 @@
   	padding-top: 1px;
   	padding-bottom: 2px;
   }
+  
+  .queryContentLabel {
+  	text-align: center;
+  	margin-top: 17em;
+  }
+
+  .queryContentTextField {
+  	text-align: center;
+  	margin-top: 1em;
+  	margin-bottom: 8em;
+  }
+  
 }

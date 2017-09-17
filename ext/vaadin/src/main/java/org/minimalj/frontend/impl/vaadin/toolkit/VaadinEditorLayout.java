@@ -9,15 +9,15 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	public VaadinEditorLayout(IContent content, Action[] actions) {
-		setMargin(true);
+		setSpacing(false);
 		
 		Component contentComponent = (Component) content;
 		contentComponent.setWidth("100%");
@@ -33,7 +33,6 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
 		horizontalLayout.setWidth("100%");
-		horizontalLayout.setSpacing(true);
 		horizontalLayout.setMargin(false);
 		
 		addButtons(horizontalLayout, actions);

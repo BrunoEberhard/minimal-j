@@ -54,7 +54,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-compatibility-client</artifactId>
+			<artifactId>vaadin-client</artifactId>
 		</dependency> 
 		<!-- 
 		<dependency>
@@ -68,7 +68,7 @@
 		</dependency>		 
 		<dependency>
 		  <groupId>com.vaadin</groupId>
-		  <artifactId>vaadin-compatibility-server</artifactId>
+		  <artifactId>vaadin-server</artifactId>
 		</dependency>
 
 		<dependency>

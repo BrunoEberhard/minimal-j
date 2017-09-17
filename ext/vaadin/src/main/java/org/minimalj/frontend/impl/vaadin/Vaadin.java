@@ -45,19 +45,18 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 @Theme("mjtheme")
 @Widgetset("org.minimalj.frontend.impl.vaadin.MjWidgetSet")
 // @Widgetset("com.vaadin.DefaultWidgetSet")
-// @Widgetset("com.vaadin.v7.Vaadin7WidgetSet")
 public class Vaadin extends UI implements PageManager, LoginListener {
 	private static final long serialVersionUID = 1L;
 
@@ -91,7 +90,9 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 	@Override
 	protected void init(VaadinRequest request) {
 		VerticalLayout outerPanel = new VerticalLayout();
-
+		outerPanel.setMargin(false);
+		outerPanel.setSpacing(false);
+		
 		setContent(outerPanel);
 		setSizeFull();
 		outerPanel.setSizeFull();
@@ -151,6 +152,8 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		splitPanel.setSplitPosition(200, Unit.PIXELS);
 		
 		verticalScrollPane = new VerticalLayout();
+		verticalScrollPane.setMargin(false);
+		verticalScrollPane.setSpacing(false);
 		splitPanel.setSecondComponent(verticalScrollPane);
 		
 		if (subject == null && Frontend.loginAtStart()) {
@@ -321,7 +324,11 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		private static final long serialVersionUID = 1L;
 
 		public VaadinDecoration(String title, Component content, boolean showMinimize, ClickListener closeListener) {
+			setMargin(false);
+			setSpacing(false);
+			
 			HorizontalLayout titleBar = new HorizontalLayout();
+			titleBar.setMargin(false);
 			titleBar.setWidth("100%");
 			Label label = new Label(title);
 			titleBar.addComponent(label);
