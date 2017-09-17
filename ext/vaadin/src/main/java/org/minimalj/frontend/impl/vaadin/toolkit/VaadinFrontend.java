@@ -276,18 +276,11 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinImage(size, changeListener);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.minimalj.frontend.Frontend#createHtmlContent(java.lang.String)
-	 */
 	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
-//		return new VaadinHtmlContent(htmlOrUrl);
 		return new VaadinUrlContent(htmlOrUrl);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.minimalj.frontend.Frontend#getPageManager()
-	 */
 	@Override
 	public PageManager getPageManager() {
 		return (PageManager) UI.getCurrent();
