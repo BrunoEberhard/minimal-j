@@ -58,11 +58,9 @@ import com.vaadin.ui.VerticalLayout;
 @Theme("mjtheme")
 @Widgetset("org.minimalj.frontend.impl.vaadin.MjWidgetSet")
 // @Widgetset("com.vaadin.DefaultWidgetSet")
-public class Vaadin extends UI implements PageManager, LoginListener {
+public class Vaadin extends UI implements PageManager {
 	private static final long serialVersionUID = 1L;
 
-	private Subject subject;
-	
 //	private final HistoryExtension history;
 	private final PageStore pageStore = new PageStore();
 	private Map<String, String> state; // position -> page id
@@ -125,7 +123,7 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 
 		if (Backend.getInstance().isAuthenticationActive()) {
 			Button buttonLogin = new Button(FontAwesome.SIGN_IN);
-			buttonLogin.addClickListener(e -> Backend.getInstance().getAuthentication().login(this));
+			buttonLogin.addClickListener(e -> Backend.getInstance().getAuthentication().login(new VaadinLoginListener(null)));
 			topbar.addComponent(buttonLogin);
 			topbar.setComponentAlignment(buttonLogin, Alignment.MIDDLE_LEFT);
 		}
@@ -157,10 +155,12 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		verticalScrollPane.setSpacing(false);
 		splitPanel.setSecondComponent(verticalScrollPane);
 		
-		if (subject == null && Frontend.loginAtStart()) {
-			Backend.getInstance().getAuthentication().login(this);
+		String route = (String) request.getAttribute("path");
+		if (getSubject() == null && Frontend.loginAtStart()) {
+			Backend.getInstance().getAuthentication().login(new VaadinLoginListener(route));
 		} else {
-			show(Application.getInstance().createDefaultPage());
+			Page page = getPage(route);
+			show(page);
 		}
 	}
 
@@ -204,25 +204,47 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		navigationTreeData.addItem(parent, action);
 	}
 	
-	@Override
-	public void loginSucceded(Subject subject) {
-		this.subject = subject;
-		Subject.setCurrent(subject);
-		VaadinService.getCurrentRequest().getWrappedSession().setAttribute("subject", subject);
-		
-		updateNavigation();
-		show(Application.getInstance().createDefaultPage());
-	}
+	private class VaadinLoginListener implements LoginListener {
+		private final String route;
 
-	@Override
-	public void loginCancelled() {
-		if (subject == null && Application.getInstance().isLoginRequired()) {
-			show(new AuthenticationFailedPage());
+		public VaadinLoginListener(String route) {
+			this.route = route;
 		}
-	};
+		
+		@Override
+		public void loginSucceded(Subject subject) {
+			getSession().setAttribute("subject", subject);
+//			Vaadin.this.subject = subject;
+			Subject.setCurrent(subject);
+			VaadinService.getCurrentRequest().getWrappedSession().setAttribute("subject", subject);
+			
+			updateNavigation();
+			Page page = getPage(route);
+			show(page);
+		}
+	
+		@Override
+		public void loginCancelled() {
+			if (getSubject() == null && Application.getInstance().isLoginRequired()) {
+				show(new AuthenticationFailedPage());
+			}
+		};
+	}
+	
+	private Page getPage(String route) {
+		Page page = null;
+		if (!StringUtils.isEmpty(route)) {
+			String[] pathFragments = route.substring(1).split("/");
+			page = Application.getInstance().createPage(pathFragments);
+		}
+		if (page == null) {
+			page = Application.getInstance().createDefaultPage();
+		}
+		return page;
+	}
 	
 	public Subject getSubject() {
-		return subject;
+		return (Subject) getSession().getAttribute("subject");
 	}
 	
 	@Override
@@ -254,8 +276,19 @@ public class Vaadin extends UI implements PageManager, LoginListener {
 		String pageId = pageStore.put(page);
 		state = new HashMap<>();
 		state.put("0", pageId);
-//		history.pushState(state, "");
-		
+		String route = page.getRoute();
+		if (!StringUtils.isEmpty(route)) {
+			String currentPath = com.vaadin.server.Page.getCurrent().getLocation().getPath();
+			if (currentPath.startsWith("/")) {
+				currentPath = currentPath.substring(1);
+			}
+			if (currentPath.endsWith("/")) {
+				currentPath = currentPath.substring(0, currentPath.length() - 1);
+			}
+			if (!currentPath.equals(route)) {
+				com.vaadin.server.Page.getCurrent().pushState(route);
+			}
+		}
 		updateContent();
 	}
 	
