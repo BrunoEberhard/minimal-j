@@ -278,7 +278,7 @@ public class VaadinFrontend extends Frontend {
 
 	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
-		return new VaadinUrlContent(htmlOrUrl);
+		return new VaadinHtmlContent(htmlOrUrl);
 	}
 
 	@Override
