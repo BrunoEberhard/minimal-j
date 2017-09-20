@@ -76,6 +76,16 @@
   	padding-bottom: 2px;
   }
   
+  .mjButton {
+  	background: none;
+  	border: none;
+  }
+  
+  .mjButton:focus::after {
+  	box-shadow: none;
+  	border: none;
+  }
+  
   .queryContentLabel {
   	text-align: center;
   	margin-top: 17em;

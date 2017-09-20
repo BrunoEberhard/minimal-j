@@ -37,7 +37,7 @@ import com.vaadin.contextmenu.MenuItem;
 import com.vaadin.data.TreeData;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.MarginInfo;
@@ -89,13 +89,14 @@ public class Vaadin extends UI implements PageManager {
 		HorizontalLayout topbar = new HorizontalLayout();
 		outerPanel.addComponent(topbar);
 		outerPanel.setExpandRatio(topbar, 0f);
-		topbar.setHeight("5ex");
+		topbar.setHeight("4.5ex");
 		topbar.setWidth("100%");
 		topbar.setStyleName("topbar");
 		topbar.setSpacing(true);
 		topbar.setMargin(new MarginInfo(false, true, false, false));
 
-		Button buttonNavigation = new Button(FontAwesome.NAVICON);
+		Button buttonNavigation = new Button(VaadinIcons.MENU);
+		buttonNavigation.addStyleName("mjButton");
 		buttonNavigation.addClickListener(e -> {
 			if (lastSplitPosition > -1) {
 				if (lastSplitPosition < 100) {
@@ -112,7 +113,8 @@ public class Vaadin extends UI implements PageManager {
 		topbar.setComponentAlignment(buttonNavigation, Alignment.MIDDLE_LEFT);
 
 		if (Backend.getInstance().isAuthenticationActive()) {
-			Button buttonLogin = new Button(FontAwesome.SIGN_IN);
+			Button buttonLogin = new Button(VaadinIcons.SIGN_IN);
+			buttonLogin.addStyleName("mjButton");
 			buttonLogin.addClickListener(e -> Backend.getInstance().getAuthentication().login(new VaadinLoginListener(null)));
 			topbar.addComponent(buttonLogin);
 			topbar.setComponentAlignment(buttonLogin, Alignment.MIDDLE_LEFT);
@@ -372,7 +374,8 @@ public class Vaadin extends UI implements PageManager {
 			titleBar.setComponentAlignment(label, Alignment.MIDDLE_LEFT);
 			titleBar.setExpandRatio(label, 1.0f);
 			
-			Button closeButton = new Button(FontAwesome.CLOSE);
+			Button closeButton = new Button(VaadinIcons.CLOSE);
+			closeButton.addStyleName("mjButton");
 			closeButton.addClickListener(closeListener);
 			titleBar.addComponent(closeButton);
 			titleBar.setComponentAlignment(closeButton, Alignment.MIDDLE_RIGHT);
