@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.vaadin;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,6 @@ import com.vaadin.ui.VerticalLayout;
 public class Vaadin extends UI implements PageManager {
 	private static final long serialVersionUID = 1L;
 
-//	private final HistoryExtension history;
 	private final PageStore pageStore = new PageStore();
 	private Map<String, String> state; // position -> page id
 
@@ -74,17 +74,6 @@ public class Vaadin extends UI implements PageManager {
 	private float lastSplitPosition = -1;
 	
 	public Vaadin() {
-//		PopStateListener myPopStateListener = new PopStateListener() {
-//			@Override
-//			public void popState(PopStateEvent event) {
-//				if (event.getStateAsJson() != null) {
-//					state = event.getStateAsMap();
-//					updateContent();				
-//				}
-//			}
-//		};
-//		history = HistoryExtension.extend(this, myPopStateListener);
-//		history.addPopStateListener(myPopStateListener);
 	}
 	
 	@Override
@@ -165,6 +154,17 @@ public class Vaadin extends UI implements PageManager {
 			Page page = getPage(route);
 			show(page, true);
 		}
+		
+		com.vaadin.server.Page.getCurrent().addPopStateListener(event -> {
+			URI uri = URI.create(event.getUri());
+			String fragment = uri.getFragment();
+			if (!StringUtils.isEmpty(fragment)) {
+				Page page = pageStore.get(fragment);
+				if (page != null) {
+					show(page, null);
+				}
+			}
+		});
 	}
 
 	private TextField createSearchField() {
@@ -279,7 +279,7 @@ public class Vaadin extends UI implements PageManager {
 		show(page, false);
 	}
 	
-	private void show(Page page, boolean initial) {
+	private void show(Page page, Boolean replaceState) {
 		String pageId = pageStore.put(page);
 		state = new HashMap<>();
 		state.put("0", pageId);
@@ -287,9 +287,10 @@ public class Vaadin extends UI implements PageManager {
 		if (StringUtils.isEmpty(route)) {
 			route = "/";
 		}
-		if (initial) {
+		route = route + "#" + pageId;
+		if (replaceState != null && replaceState) {
 			com.vaadin.server.Page.getCurrent().replaceState(route);
-		} else {
+		} else if (replaceState != null && !replaceState) {
 			com.vaadin.server.Page.getCurrent().pushState(route);
 		}
 		com.vaadin.server.Page.getCurrent().setTitle(page.getTitle());
