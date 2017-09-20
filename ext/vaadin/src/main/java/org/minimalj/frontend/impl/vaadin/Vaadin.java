@@ -217,7 +217,6 @@ public class Vaadin extends UI implements PageManager {
 		@Override
 		public void loginSucceded(Subject subject) {
 			getSession().setAttribute("subject", subject);
-//			Vaadin.this.subject = subject;
 			Subject.setCurrent(subject);
 			VaadinService.getCurrentRequest().getWrappedSession().setAttribute("subject", subject);
 			
@@ -445,9 +444,7 @@ public class Vaadin extends UI implements PageManager {
 	}
 
 	private static MenuItem adaptAction(ContextMenu menu, Action action) {
-		MenuItem item = menu.addItem(action.getName(), e -> {
-			action.action();
-		});
+		MenuItem item = menu.addItem(action.getName(), e -> action.action());
 		action.setChangeListener(new ActionChangeListener() {
 			{
 				update();
