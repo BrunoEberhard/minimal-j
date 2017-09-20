@@ -48,26 +48,13 @@ public class MjSpringVaadinServlet extends SpringVaadinServlet {
 			
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-				if (request instanceof HttpServletRequest) {
+				if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
 					HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+					HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 					String uri = httpServletRequest.getRequestURI();
-					if (uri.contains("/VAADIN/")) {
-						int index = uri.indexOf("/VAADIN/");
-						if (index > 0) {
-							((HttpServletResponse) response).sendRedirect(uri.substring(index));
-							return;
-						}
-					}
-					if (uri.contains("/vaadinServlet/")) {
-						int index = uri.indexOf("/vaadinServlet/");
-						if (index > 0) {
-							((HttpServletResponse) response).sendRedirect(uri.substring(index));
-							return;
-						}
-					}
 					if (!uri.startsWith("/vaadinServlet/") && !uri.startsWith("/VAADIN/") && !uri.equals("/")) {
-						request.setAttribute("path", uri);
-						httpServletRequest.getRequestDispatcher("/").forward(httpServletRequest, response);
+						httpServletRequest.getSession().setAttribute("path", uri);
+						httpServletResponse.sendRedirect("/");
 						return;
 					}
 				}

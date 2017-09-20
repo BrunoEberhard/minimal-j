@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
@@ -41,7 +43,6 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -153,14 +154,16 @@ public class Vaadin extends UI implements PageManager {
 		verticalScrollPane = new VerticalLayout();
 		verticalScrollPane.setMargin(false);
 		verticalScrollPane.setSpacing(false);
+		verticalScrollPane.setSizeFull();
 		splitPanel.setSecondComponent(verticalScrollPane);
 		
-		String route = (String) request.getAttribute("path");
+		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+		String route = (String) httpServletRequest.getSession().getAttribute("path");
 		if (getSubject() == null && Frontend.loginAtStart()) {
 			Backend.getInstance().getAuthentication().login(new VaadinLoginListener(route));
 		} else {
 			Page page = getPage(route);
-			show(page);
+			show(page, true);
 		}
 	}
 
@@ -220,7 +223,7 @@ public class Vaadin extends UI implements PageManager {
 			
 			updateNavigation();
 			Page page = getPage(route);
-			show(page);
+			show(page, true);
 		}
 	
 		@Override
@@ -273,22 +276,23 @@ public class Vaadin extends UI implements PageManager {
 
 	@Override
 	public void show(Page page) {
+		show(page, false);
+	}
+	
+	private void show(Page page, boolean initial) {
 		String pageId = pageStore.put(page);
 		state = new HashMap<>();
 		state.put("0", pageId);
 		String route = page.getRoute();
-		if (!StringUtils.isEmpty(route)) {
-			String currentPath = com.vaadin.server.Page.getCurrent().getLocation().getPath();
-			if (currentPath.startsWith("/")) {
-				currentPath = currentPath.substring(1);
-			}
-			if (currentPath.endsWith("/")) {
-				currentPath = currentPath.substring(0, currentPath.length() - 1);
-			}
-			if (!currentPath.equals(route)) {
-				com.vaadin.server.Page.getCurrent().pushState(route);
-			}
+		if (StringUtils.isEmpty(route)) {
+			route = "/";
 		}
+		if (initial) {
+			com.vaadin.server.Page.getCurrent().replaceState(route);
+		} else {
+			com.vaadin.server.Page.getCurrent().pushState(route);
+		}
+		com.vaadin.server.Page.getCurrent().setTitle(page.getTitle());
 		updateContent();
 	}
 	
@@ -334,22 +338,21 @@ public class Vaadin extends UI implements PageManager {
 	private void updateContent() {
 		verticalScrollPane.removeAllComponents();
 
+		boolean onlyOnepage = state.size() == 1;
 		for (int pos = 0; state.containsKey(String.valueOf(pos)); pos++) {
 			Component content;
 			String pageId = state.get(String.valueOf(pos));
 			Page page = pageStore.get(pageId);
 			content = (Component) page.getContent();
 			createMenu((AbstractComponent) content, page.getActions());
-				
+
 			if (content != null) {
-				ClickListener closeListener = new ClickListener() {
-					@Override
-					public void buttonClick(ClickEvent event) {
-						hideDetail(page);
-					}
-				};
-				Component decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, closeListener);
+				VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
 				verticalScrollPane.addComponent(decoratedContent);
+				if (onlyOnepage) {
+					decoratedContent.setSizeFull();
+					decoratedContent.setExpandRatio(content, 1.0f);
+				}
 			}
 		}
 	}
