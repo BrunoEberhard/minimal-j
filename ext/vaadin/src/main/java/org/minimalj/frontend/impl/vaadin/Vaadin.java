@@ -21,6 +21,7 @@ import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinGridFormLayout;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinSearchPanel;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
@@ -67,7 +68,6 @@ public class Vaadin extends UI implements PageManager {
 	private Map<String, String> state; // position -> page id
 
 	private HorizontalSplitPanel splitPanel;
-	private VerticalLayout verticalScrollPane;
 	
 	private Tree<Action> navigationTree;
 	private TreeData<Action> navigationTreeData = new TreeData<>();
@@ -141,12 +141,6 @@ public class Vaadin extends UI implements PageManager {
 		updateNavigation();
 		splitPanel.setFirstComponent(navigationTree);
 		splitPanel.setSplitPosition(200, Unit.PIXELS);
-		
-		verticalScrollPane = new VerticalLayout();
-		verticalScrollPane.setMargin(false);
-		verticalScrollPane.setSpacing(false);
-		verticalScrollPane.setSizeFull();
-		splitPanel.setSecondComponent(verticalScrollPane);
 		
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		String route = (String) httpServletRequest.getSession().getAttribute("path");
@@ -338,24 +332,41 @@ public class Vaadin extends UI implements PageManager {
 	}
 	
 	private void updateContent() {
-		verticalScrollPane.removeAllComponents();
-
-		boolean onlyOnepage = state.size() == 1;
-		for (int pos = 0; state.containsKey(String.valueOf(pos)); pos++) {
-			Component content;
-			String pageId = state.get(String.valueOf(pos));
+		if (state.size() == 1) {
+			String pageId = state.get(String.valueOf(0));
 			Page page = pageStore.get(pageId);
-			content = (Component) page.getContent();
+			Component content = (Component) page.getContent();
+			if (content instanceof VaadinGridFormLayout) {
+				content = new Panel(content);
+			}
+			content.setSizeFull();
 			createMenu((AbstractComponent) content, page.getActions());
-
-			if (content != null) {
-				VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
-				verticalScrollPane.addComponent(decoratedContent);
-				if (onlyOnepage) {
-					decoratedContent.setSizeFull();
-					decoratedContent.setExpandRatio(content, 1.0f);
+			
+			VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
+			decoratedContent.setSizeFull();
+			splitPanel.setSecondComponent(decoratedContent);
+		} else if (state.size() > 1) {
+			VerticalLayout verticalLayout = new VerticalLayout();
+			verticalLayout.setMargin(false);
+			verticalLayout.setSpacing(false);
+			verticalLayout.setWidth("100%");
+			
+			Component content = null;
+			for (int pos = 0; state.containsKey(String.valueOf(pos)); pos++) {
+				String pageId = state.get(String.valueOf(pos));
+				Page page = pageStore.get(pageId);
+				content = (Component) page.getContent();
+				createMenu((AbstractComponent) content, page.getActions());
+				
+				if (content != null) {
+					VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
+					verticalLayout.addComponent(decoratedContent);
 				}
 			}
+			splitPanel.setSecondComponent(verticalLayout);
+			UI.getCurrent().scrollIntoView(content);
+		} else {
+			splitPanel.setSecondComponent(null);
 		}
 	}
 	
@@ -379,13 +390,13 @@ public class Vaadin extends UI implements PageManager {
 			closeButton.addClickListener(closeListener);
 			titleBar.addComponent(closeButton);
 			titleBar.setComponentAlignment(closeButton, Alignment.MIDDLE_RIGHT);
-			
+
 			addComponent(titleBar);
 			addComponent(content);
+			setExpandRatio(content, 1.0f);
 		}
-		
 	}
-
+	
 	private ContextMenu createMenu(AbstractComponent parentComponent, List<Action> actions) {
 		if (actions != null && actions.size() > 0) {
 			ContextMenu menu = new ContextMenu(parentComponent, true);
