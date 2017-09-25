@@ -28,6 +28,9 @@ import org.minimalj.transaction.TransactionAnnotations;
  * Every Frontend needs a Backend. But a Backend can serve more
  * than one Frontend.<p>
  * 
+ * The Backend keeps a repository that may only be accessed within
+ * a transaction. See EntityTransaction.<p>
+ * 
  * The Backend configuration must be done with system properties.
  * These are handled in the initBackend method. The configuration
  * cannot be changed during the lifetime of an application VM.<p>
@@ -85,6 +88,16 @@ public class Backend {
 		this.repository = repository;
 	}
 	
+	/**
+	 * The backend repository may only be accessed within a transaction. You
+	 * must <b>not</b> call getRepository from somewhere else or you will get an
+	 * IllegalStateException. To simply read or write an entity use the static
+	 * read or insert methods.
+	 * 
+	 * @return the main/backend repository
+	 * @throws IllegalStateException
+	 *             if currently no transaction is active
+	 */
 	public Repository getRepository() {
 		if (!isInTransaction()) {
 			throw new IllegalStateException("Repository may only be accessed from within a " + Transaction.class.getSimpleName());
