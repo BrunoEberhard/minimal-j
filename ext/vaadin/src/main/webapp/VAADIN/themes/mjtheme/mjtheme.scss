@@ -27,18 +27,15 @@
 // For more information, see: https://vaadin.com/book/-/page/themes.valo.html
 // Example variants can be copy/pasted from https://vaadin.com/wiki/-/wiki/Main/Valo+Examples
 
+$v-background-color: #ffffff;
+$v-font-color: black;
+$v-font-size: 14px;
+$v-font-weight: 100;
+
 @import "../valo/valo.scss";
 
 @mixin mjtheme {
   @include valo;
-
-  $v-font-size: 14px;
-  $v-font-weight: 100;
-  $v-font-color-contrast: 1.0;
-
-  .v-app {
-  	color: black;
-  }
 
   .link {
   	padding: 0px;
