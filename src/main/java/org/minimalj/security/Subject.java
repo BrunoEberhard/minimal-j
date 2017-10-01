@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.transaction.Role;
+import org.minimalj.transaction.TransactionAnnotations;
+
 public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -53,6 +56,15 @@ public class Subject implements Serializable {
 	
 	public static Subject getCurrent() {
 		return subject.get();
+	}
+
+	public static boolean currentCanAccess(Class<?> clazz) {
+		Role role = TransactionAnnotations.getAnnotationOfClassOrPackage(clazz, Role.class);
+		if (role == null) {
+			return true;
+		} else {
+			return currentHasRole(role.value());
+		}
 	}
 
 }

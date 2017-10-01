@@ -18,44 +18,34 @@ import org.minimalj.util.LocaleContext;
 
 public class EnumUtils {
 
+	@SuppressWarnings({ "restriction", "rawtypes", "unchecked" })
 	public static <T extends Enum<T>> T createEnum(Class<T> clazz, String name) {
 		try {
-			@SuppressWarnings("rawtypes")
-			Constructor con = null;
-			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-				if (c.getParameterTypes().length == 2) {
-					con = c;
-					break;
-				}
-			}
-			if (con == null) throw new IllegalArgumentException(clazz.getName() + " must have empty constructor");
-
-			Method[] methods = con.getClass().getDeclaredMethods();
-			for (Method m : methods) {
-				if (m.getName().equals("acquireConstructorAccessor")) {
-					m.setAccessible(true);
-					m.invoke(con, new Object[0]);
-				}
-			}
-			Field[] fields = con.getClass().getDeclaredFields();
-			Object ca = null;
-			for (Field f : fields) {
-				if (f.getName().equals("constructorAccessor")) {
-					f.setAccessible(true);
-					ca = f.get(con);
-				}
-			}
-			Method m = ca.getClass().getMethod("newInstance",
-					new Class[] { Object[].class });
-			m.setAccessible(true);
+			// which one is better for jdk9? This?
+			// sun.misc.Unsafe unsafe = getUnsafe();
+			// T e = (T) unsafe.allocateInstance(clazz);
 			
-			@SuppressWarnings("unchecked")
-			T v = (T) m.invoke(ca, new Object[] { new Object[] { name,
-					Integer.MAX_VALUE } });
-			return v;
+			// or this?
+			sun.reflect.ReflectionFactory f = sun.reflect.ReflectionFactory.getReflectionFactory();
+			Constructor c = f.newConstructorForSerialization(clazz);
+			T e = (T) c.newInstance();
+			
+			// in jdk9: replace this with VarHandle
+			sun.misc.Unsafe unsafe = getUnsafe();
+			unsafe.putObject(e, unsafe.objectFieldOffset(Enum.class.getDeclaredField("name")), name);
+			unsafe.putInt(e, unsafe.objectFieldOffset(Enum.class.getDeclaredField("ordinal")), Integer.MAX_VALUE);
+			
+			return e;
 		} catch (Exception x) {
 			throw new RuntimeException(x);
-		}
+		} 
+	}
+	
+	@SuppressWarnings("restriction")
+	private static sun.misc.Unsafe getUnsafe() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		Field singleoneInstanceField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+		singleoneInstanceField.setAccessible(true);
+		return (sun.misc.Unsafe) singleoneInstanceField.get(null);
 	}
 	
 	public static <T extends Enum<T>> T getDefault(Class<T> enumClass) {
@@ -115,8 +105,10 @@ public class EnumUtils {
 
 	
 //	private static <T> Map<Class<T>, List<CodeItem<T>>> itemLists = new HashMap<Class<T>, List<CodeItem<T>>>();
+	@SuppressWarnings("rawtypes")
 	private static Map itemLists = new HashMap();
 
+	@SuppressWarnings("unchecked")
 	public static <T extends Enum<T>> List<CodeItem<T>> itemList(Class<T> enumClass) {
 		if (!itemLists.containsKey(enumClass)) {
 			List<T> values = valueList(enumClass);

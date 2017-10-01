@@ -4,6 +4,7 @@
 
 <!-- $MINIMALJ-VERSION -->
 <!-- $APPLICATION-VERSION -->
+<base href="$BASE">
 
 <script src="dialog-polyfill.js"></script>
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -40,7 +41,7 @@ $ICON
 			titleElement.replaceChild(document.createTextNode(dataObject.applicationName), titleElement.firstChild);
 		}
 		if ("showPage" in dataObject) {
-			addNewStateToHistory();
+			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
 			saveStateInHistory();
 		} else if ("showPages" in dataObject) {
@@ -144,6 +145,7 @@ $ICON
 					}
 				}
 			}
+			updateDialogSizes();
 		}
 		if (dataObject.message != undefined) {
 			alert(dataObject.message);
@@ -175,10 +177,10 @@ $ICON
 		}
 	}
 	
-	function addNewStateToHistory() {
+	function addNewStateToHistory(fragment) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, fragment); // second argument is ignored by browsers (!)
 		}
 	}
 	
@@ -214,16 +216,8 @@ $ICON
 		pageElement.id = page.pageId;
 			
 		var hasActionMenu = page.actionMenu != null;
-		if (isCompact) {
-			document.getElementById("actionMenuButton").style.display = hasActionMenu ? "inline" : "none";
-		}
-		if (hasActionMenu) {
-			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
-			actionMenuElement.classList.add("actionMenu");
-			if (isCompact) actionMenuElement.style.display = "none";
-			pageElement.appendChild(actionMenuElement);
-		}
 		
+		// page
 		if (!isCompact) {
 			var headerElement = createPageHeader(page.title);
 			pageElement.appendChild(headerElement);
@@ -238,18 +232,41 @@ $ICON
 			pageTitleElement.appendChild(document.createTextNode(page.title));
 		}
 		
+		var pageContentAndActionsElement = document.createElement("div");
+		pageContentAndActionsElement.className = "pageContentAndActions";
+
 		if (page.content != null) {
+			var pageContentElement = document.createElement("div");
+			pageContentElement.className = "pageContent";
+			
 			var contentElement = createContent(page.content);
-			contentElement.classList.add("pageContent");
-			if (page.actionMenu != null) {
-				contentElement.classList.add("pageContentSmall");
-			}
-			pageElement.appendChild(contentElement);
+			pageContentElement.appendChild(contentElement);
+
+			pageContentAndActionsElement.appendChild(pageContentElement);
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
-		pageContainerElement.appendChild(pageElement);
 		
+		// actions
+		if (isCompact) {
+			document.getElementById("actionMenuButton").style.display = hasActionMenu ? "inline" : "none";
+		}
+		if (hasActionMenu) {
+			var actionMenuContainer = document.createElement("div");
+			actionMenuContainer.className = "actionMenuContainer";
+			
+			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
+			actionMenuElement.className = "actionMenu";
+			
+			if (isCompact) actionMenuElement.style.display = "none";
+			
+			actionMenuContainer.appendChild(actionMenuElement);
+			pageContentAndActionsElement.appendChild(actionMenuContainer);
+		}
+		
+		pageElement.appendChild(pageContentAndActionsElement);
+		
+		pageContainerElement.appendChild(pageElement);
 		pageElement.scrollIntoView();
 	}
 	
@@ -269,17 +286,12 @@ $ICON
 		var element = event.target;
 		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
 		if (element != null) {
-			var actionMenuElement = element.querySelector(".actionMenu");
-			var pageContentElement = element.querySelector(".pageContent");
+			var actionMenuElement = element.querySelector(".actionMenuContainer");
 			if (actionMenuElement != null) {
 				if (actionMenuElement.style.display != "none") {
 					actionMenuElement.style.display = "none";
-					pageContentElement.classList.remove("pageContentSmall");
-					pageContentElement.classList.add("pageContentExpend");
 				} else {
 					actionMenuElement.style.display = "block";
-					pageContentElement.classList.remove("pageContentExpend");
-					pageContentElement.classList.add("pageContentSmall");
 				}
 				event.preventDefault();
 			}
@@ -352,7 +364,7 @@ $ICON
 		var b = document.getElementById("pageHeaderButtons");
 		var button = b.cloneNode(true);
 		button.id = "menu";
-		button.setAttribute("style", "position: absolute; right: 1em; top: 0.2em;"); 
+		button.setAttribute("style", "position: absolute; right: 1em; top: 0.4em;"); 
 		element.appendChild(button);
 
 		return element;
@@ -372,17 +384,20 @@ $ICON
 		var element;
 		var editable = content.editable == undefined || content.editable;
 		if (type == "Form") {
-			element = document.createElement("table");
-			element.classList.add("form")			
-			if (!isCompact) {
-				element.columns = content.columns;
-				element.style.width = (content.columns * content.columnWidth / 6) + "em";
-			} else {
-				element.columns = 1;
-				element.style.width = "100%";
-			}
+			element = document.createElement("div");
+			element.classList.add("form")	
+			element.dataset.columns = content.columns ? content.columns : 1;
+			element.dataset.columnWidth = content.columnWidth;
+			element.style.maxWidth = (content.columns * content.columnWidth * 1.5 / 6 + 3) + "em";
 			var rows = content.rows;
-			element.appendChild(createFormRows(rows, element.columns));
+			for (var i = 0; i < rows.length; i++) {
+				element.appendChild(createFormRow(rows[i], content.columnWidth));
+			}
+		} else if (type == "Query") {
+			element = document.getElementById("queryCaption");
+			removeChildren(element);
+			element.appendChild(document.createTextNode(content.caption));
+			element = document.getElementById("query").cloneNode(true);
 		} else if (type == "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -413,25 +428,14 @@ $ICON
 				element.innerHTML = "&nbsp;";
 			}
 		} else if (type == "Group") {
-			element = document.createElement("table");
+			element = document.createElement("div");
 			element.classList.add("group");
 			var components = content.components;
-			if (!isCompact) {
-				var tr = document.createElement("tr");
-				element.appendChild(tr);
-				for (var i = 0; i < components.length; i++) {
-					var td = document.createElement("td");
-					td.appendChild(createContent(components[i]));
-					tr.appendChild(td);
-				}
-			} else {
-				for (var i = 0; i < components.length; i++) {
-					var tr = document.createElement("tr");
-					element.appendChild(tr);
-					var td = document.createElement("td");
-					td.appendChild(createContent(components[i]));
-					tr.appendChild(td);
-				}
+			for (var i = 0; i < components.length; i++) {
+				var item = document.createElement("div");
+				item.classList.add("groupItem");
+				item.appendChild(createContent(components[i]));
+				element.appendChild(item);
 			}
 		} else if (type == "Switch") {
 			element = document.createElement("div");
@@ -579,40 +583,26 @@ $ICON
 		return element;
 	}
 	
-	function createFormRows(rows, columnCount) {
-		var element = document.createElement("tbody");
+	function createFormRows(rows, columnWidth) {
+		var element = document.createElement("div");
 		for (var i = 0; i < rows.length; i++) {
-			if (columnCount == 1) {
-				var row = rows[i];
-				for (var j = 0; j < row.length; j++) {
-					var singleRow = [ row[j] ];
-					element.appendChild(createFormRow(singleRow));
-				}
-			} else if (columnCount == 2) {
-				var row = rows[i];
-				for (var j = 0; j < row.length; j = j + 2) {
-					var doubleRow = j < row.length - 1 && !(row[j].span > 1) ? [ row[j], row[j+1] ] : [ row[j] ];
-					element.appendChild(createFormRow(doubleRow));
-				}
-			} else {
-				element.appendChild(createFormRow(rows[i]));
-			}
+			element.appendChild(createFormRow(rows[i], columnWidth));
 		}
 		return element;
 	}
-	function createFormRow(row) {
-		var element = document.createElement("tr");
+	function createFormRow(row, columnWidth) {
+		var element = document.createElement("div");
 		for (var i = 0; i < row.length; i++) {
-			element.appendChild(createFormCell(row[i]));
+			var span = row[i].span;
+			span = span ? span : 1;
+			var cellElement = createFormCell(row[i], span, columnWidth);
+			element.appendChild(cellElement);
 		}
 		return element;
 	}
-	function createFormCell(cell) {
-		var td = document.createElement("td");
+	function createFormCell(cell, span, width) {
+		var cellElement = document.createElement("div");
 		var isTitle = cell.type == "Title";
-		if ((cell.span != undefined  || isTitle) && !isCompact) {
-			td.colSpan = cell.span;
-		}
 		if (!isTitle && cell.caption != undefined) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.firstId != undefined ? cell.firstId : cell.id);
@@ -627,14 +617,30 @@ $ICON
 				tooltip.className = "hide";
 			}
 			caption.appendChild(tooltip);
-			td.appendChild(caption);
+			cellElement.appendChild(caption);
 		} else {
-			td.style.verticalAlign = "bottom";
+			cellElement.style.verticalAlign = "bottom";
 		}
-		td.appendChild(createContent(cell));
-		return td;
+		var cellContent = createContent(cell);
+		setWidths(cellElement, cellContent, span, width);
+		cellElement.appendChild(cellContent);
+		return cellElement;
 	}
+	function setWidths(cellElement, cellContent, span, width) {
+		cellElement.style.minWidth = (width / 6) + "em";
+		cellElement.style.width = (width * span / 6) + "em";
+		cellElement.style.flexShrink = span;
+		cellElement.style.flexGrow = span;
 
+		if (cellContent.classList.contains("group")) {
+			var childCount = cellContent.children.length;
+			for (var i = 0; i < childCount; i++) {
+				var groupItem = cellContent.children[i];
+				setWidths(groupItem, groupItem.children[0], span / childCount, width);
+			}
+		}
+	}
+	
 	function createTableHeaders(tableId, headers) {
 		var element = document.createElement("thead");
 		for (var i = 0; i < headers.length; i++) {
@@ -744,11 +750,10 @@ $ICON
 		header.appendChild(headerDiv);
 		dialog.appendChild(header);
 
-		var content = document.createElement("div");
+		var content = createContent(json["content"]);
 		content.classList.add("dialogContent");
-		content.appendChild(createContent(json["content"]));
 		dialog.appendChild(content);
-
+		
 		var actions = json["actions"];
 		if (actions != undefined) {
 			var footer = document.createElement("div");
@@ -775,7 +780,8 @@ $ICON
 			}
 		}
 
-		document.querySelector("body").appendChild(dialog);
+		var parent = document.querySelector("body");
+		parent.appendChild(dialog);
 		if (dialog.show == undefined) {
 			dialogPolyfill.registerDialog(dialog);
 		}
@@ -942,6 +948,15 @@ $ICON
 		}
 	}
 
+	function querySearch() {
+		var searchElement = document.getElementById("querySearch");
+		var search = searchElement.value;
+		if (search != undefined && search.length > 0) {
+			var data = {"search" : search};
+			send(data, true);
+		}
+	}
+	
 	function searchButtonAction() {
 		var searchElement = document.getElementById("search");
 		if (searchElement.style.display == "inline") {
@@ -1018,19 +1033,24 @@ $ICON
 			if (!isCompact) {
 				for (var i = 0; i < dialogElements.length; i++) {
 					var dialogElement = dialogElements[i];
-					dialogElement.style.top = (i + 3) + "em";
-					dialogElement.style.left = (i + 18) + "em";
+					dialogElement.style.top = 0;
+					dialogElement.style.marginTop = (i + 3) + "em";
+					dialogElement.style.marginLeft = (i + 18) + "em";
 
 					var contentElement = dialogElement.querySelector(".dialogContent");
-					var type = dialogElement.getAttribute("type");
 					var height = Math.max(100, height = window.innerHeight - 140);
-
 					contentElement.style.maxHeight = height + "px";
 
+					var maxWidthElement = dialogElement.querySelector(".form");
+					if (maxWidthElement != undefined) {
+						var columns = maxWidthElement.dataset.columns;
+						dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3) + "em";
+					}
+					
+					var type = dialogElement.getAttribute("type");
 					if (type == "SearchDialog") {
 						contentElement.style.height = height + "px";
-						dialogElement.style.width = "auto";
-						dialogElement.style.right = "3em";
+						dialogElement.style.marginRight = "3em";
 						contentElement.style.paddingRight = "0em";
 					}
 				}
@@ -1084,7 +1104,8 @@ $ICON
 		window.onpopstate = popState;
 
 		send({
-			"showDefaultPage" : "default-" + (new Date().getTime())
+			"showDefaultPage" : "default-" + (new Date().getTime()),
+			"path" : "$PATH"
 		});
 	}
 	
@@ -1101,15 +1122,15 @@ $ICON
 	<div id="all">
 		<div id="header">
 			<div class="button" style="margin-left: 0.5em;" title="Show or hide navigation">
-				<svg width="17px" height="17px" class="headerButton" onclick="toggleNavigation()">
+				<svg width="1.4em" height="1.4em" class="headerButton" onclick="toggleNavigation()">
 					<g style="stroke-width:0px"> 		
-						<rect x="0" y="5%" width="100%" height="3px"/>
-						<rect x="0" y="40%" width="100%" height="3px"/>
-						<rect x="0" y="75%" width="100%" height="3px"/>
+						<rect x="0" y="5%" width="100%" height="0.25em"/>
+						<rect x="0" y="40%" width="100%" height="0.25em"/>
+						<rect x="0" y="75%" width="100%" height="0.25em"/>
 					</g>
 				</svg>
 			</div><div title="Login / Logout" id="loginSpan" class="button">
-				<svg width="17px" height="17px" id="loginButton" class="headerButton" onclick="changeLogin()">
+				<svg width="1.4em" height="1.4em" id="loginButton" class="headerButton" onclick="changeLogin()">
 					<g style="stroke-width:16%;stroke-linecap:square"> 		
 						<line x1="70%" y1="8%" x2="91%" y2="8%" />
 						<line x1="70%" y1="91%" x2="91%" y2="91%" />
@@ -1124,13 +1145,13 @@ $ICON
 			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
 			<div class="button" id="searchSpan">
 				<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
-				<svg id="searchButton" width="17px" height="17px" class="headerButton" onclick="searchButtonAction();">
+				<svg id="searchButton" width="1.4em" height="1.4em" class="headerButton" onclick="searchButtonAction();">
 					<g style="stroke-width:16%;stroke-linecap:square"> 		
 						<line x1="59%" y1="59%" x2="91%" y2="91%" />
 						<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
 					</g>
 				</svg>
-				<svg id="actionMenuButton" width="17px" height="17px" class="headerButton" onclick="toggleActionMenu();">
+				<svg id="actionMenuButton" width="1.4em" height="1.4em" class="headerButton" onclick="toggleActionMenu();">
 					<g style="stroke-width:0px"> 		
 						<rect x="12px" y="5%" width="3px" height="3px"/>
 						<rect x="12px" y="40%" width="3px" height="3px"/>
@@ -1158,15 +1179,15 @@ $ICON
 
 	<div id="templates" style="display: none">
 		<div id="pageHeaderButtons">
-			<svg style="stroke-width:0px" width="15px" height="15px" class="actionMenuButton button" onclick="togglePageActionMenu(evt);">
-				<rect x="11px" y="2px" width="3px" height="2.5px"/>
-				<rect x="11px" y="7px" width="3px" height="2.5px"/>
-				<rect x="11px" y="12px" width="3px" height="2.5px"/>
-			</svg><svg width="15px" height="15px" class="pageButton button" onclick="togglePage(evt);">
-			  <rect x="20%" y="12px" width="100%" height="2px" />
-			</svg><svg width="15px" height="15px" class="pageButton button" onclick="closePage(evt);">
-			  <line x1="2px" y1="3px" x2="13px" y2="14px" style="stroke-width:2.5px" />
-			  <line x1="2px" y1="14px" x2="13px" y2="3px" style="stroke-width:2.5px" />
+			<svg style="stroke-width:0px" width="1.0em" height="1.0em" class="actionMenuButton button" onclick="togglePageActionMenu(evt);">
+				<rect x="73%" y="13%" width="20%" height="17%"/>
+				<rect x="73%" y="46%" width="20%" height="17%"/>
+				<rect x="73%" y="80%" width="20%" height="17%"/>
+			</svg><svg width="1.0em" height="1.0em" class="pageButton button" onclick="togglePage(evt);">
+			  <rect x="20%" y="80%" width="100%" height="13%" />
+			</svg><svg width="1.0em" height="1.0em" class="pageButton button" onclick="closePage(evt);">
+				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
+				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>
 		</div>
 		<span id="tooltip">
@@ -1176,6 +1197,10 @@ $ICON
 	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
 			</svg>		
 		</span>
+		<div id="query">
+			<div id="queryCaption" style="text-align: center; margin-top: 17em"></div>
+			<div style="text-align: center; margin-top: 1em; margin-bottom: 8em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:600px; max-width: 600px; height: 2em;"></div>
+		</div>
 	</div>
 			
 
