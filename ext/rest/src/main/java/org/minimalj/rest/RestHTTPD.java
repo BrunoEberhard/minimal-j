@@ -14,6 +14,7 @@ import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -68,6 +69,15 @@ public class RestHTTPD extends NanoHTTPD {
 				String[] pathElements = path.split("/");
 				if (pathElements.length == 0) {
 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", "Please specify class");
+				}
+				if (StringUtils.equals("swagger-ui", pathElements[0])) {
+					if (pathElements.length == 1) {
+						return newChunkedResponse(Status.OK, "text/html", getClass().getResourceAsStream(uriString + "/index.html"));
+					} else {
+						int pos = uriString.lastIndexOf('.');
+						String mimeType = Resources.getMimeType(uriString.substring(pos + 1));
+						return newChunkedResponse(Status.OK, mimeType, getClass().getResourceAsStream(uriString));
+					}
 				}
 				Class<?> clazz = getClass(pathElements[0]);
 				if (clazz == null) {
