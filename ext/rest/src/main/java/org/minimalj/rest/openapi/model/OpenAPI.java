@@ -1,6 +1,7 @@
 package org.minimalj.rest.openapi.model;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.print.attribute.standard.Media;
 import javax.security.auth.callback.Callback;
@@ -13,7 +14,7 @@ public class OpenAPI {
 	public String openapi;
 	public Info info;
 	public List<Server> servers;
-	public List<Path> paths;
+	public Map<String, Map<String, Operation>> paths;
 	public Components components;
 	
 	public static class Info {
@@ -61,24 +62,20 @@ public class OpenAPI {
 	
 	public static class Components {
 		public List<Schema> schemas;
-		public List<Response> responses;
-		public List<Parameters> parameters;
-		public List<Examples> examples;
-		public List<requestBody> requestBodies;
-		public List<Header> headers;
-		public List<SecuritySchema> securitySchemes;
-		public List<Link> links;
+//		public List<Response> responses;
+//		public List<Parameters> parameters;
+//		public List<Examples> examples;
+//		public List<requestBody> requestBodies;
+//		public List<Header> headers;
+//		public List<SecuritySchema> securitySchemes;
+//		public List<Link> links;
 		public List<Callback> callbacks;
 	}
 	
 	// PathItem
-	public static class Path {
-		public String path;
-		public String ref_;
-		public String summary;
-		public String description;
-		public Operation get_;
-	}
+//	public static class Path {
+//		public Map<String, Operation> operations;
+//	}
 
 	public static class Operation {
 		public List<StringValue> tags;
@@ -87,6 +84,7 @@ public class OpenAPI {
 		public ExternalDocs externalDocs;
 		public String operationId;
 		public List<Parameter> parameters;
+		public Map<String, Response> responeses; 
 		
 		public Boolean deprecated;
 		public List<Server> servers;
@@ -99,7 +97,7 @@ public class OpenAPI {
 	}
 
 	public static class Parameter {
-		public String ref_;
+		public String ref;
 
 		@NotEmpty
 		public String name;
@@ -109,6 +107,20 @@ public class OpenAPI {
 		@NotEmpty
 		public Boolean required;
 		public Boolean deprecated, allowEmptyValue;
+		
+		public String type;
+		public String format;
+		
+		public Schema schema; // content not supported at the moment
+	}
+	
+	public static class Response {
+		public String description;
+		public Content content;
+	}
+	
+	public static class Content {
+		public Map<String, Object> what;
 	}
 	
 	public static enum In {
@@ -130,6 +142,7 @@ public class OpenAPI {
 	}
 
 	public static class Schema {
+		public Type type;
 		public String name;
 		public List<StringValue> required;
 		public List<Property> properties;
@@ -150,7 +163,8 @@ public class OpenAPI {
 	}
 	
 	public static enum Type {
-		INTEGER, NUMBER, STRING, BOOLEAN;
+		INTEGER, NUMBER, STRING, BOOLEAN, ARRAY, OBJECT;
 	}
 	
+    
 }

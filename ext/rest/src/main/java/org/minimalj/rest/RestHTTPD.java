@@ -13,6 +13,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
+import org.minimalj.rest.openapi.OpenAPIFactory;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -73,6 +74,8 @@ public class RestHTTPD extends NanoHTTPD {
 				if (StringUtils.equals("swagger-ui", pathElements[0])) {
 					if (pathElements.length == 1) {
 						return newChunkedResponse(Status.OK, "text/html", getClass().getResourceAsStream(uriString + "/index.html"));
+					} else if (StringUtils.equals("swagger.json", pathElements[1])) {
+						return newFixedLengthResponse(Status.OK, "text/json", OpenAPIFactory.create(Application.getInstance()));
 					} else {
 						int pos = uriString.lastIndexOf('.');
 						String mimeType = Resources.getMimeType(uriString.substring(pos + 1));
