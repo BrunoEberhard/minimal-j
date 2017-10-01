@@ -48,6 +48,14 @@ public class EntityJsonWriter extends JsonWriter {
 //	private List<Map<String, Object>> convert(Object entity) {
 	private Map<String, Object> convert(Object entity, Set<String> ids) {
 		Map<String, Object> values = new HashMap<>();
+
+		if (entity instanceof Map) {
+			Map<String, Object> map = (Map<String, Object>) entity;
+			for (Map.Entry<String, Object> e2 : map.entrySet()) {
+				values.put(e2.getKey(), convert(e2.getValue(), ids));
+			}
+			return values;
+		}
 		
 		Map<String, PropertyInterface> properties = FlatProperties.getProperties(entity.getClass());
 		for (Map.Entry<String, PropertyInterface> e : properties.entrySet()) {
