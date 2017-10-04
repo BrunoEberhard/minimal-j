@@ -1,5 +1,7 @@
 package org.minimalj.rest.openapi.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +15,8 @@ public class OpenAPI {
 	@NotEmpty
 	public String openapi;
 	public Info info;
-	public List<Server> servers;
-	public Map<String, Map<String, Operation>> paths;
+	public List<Server> servers = new ArrayList<>();
+	public Map<String, Map<String, Operation>> paths = new HashMap<>();
 	public Components components;
 	
 	public static class Info {
@@ -43,13 +45,13 @@ public class OpenAPI {
 		@NotEmpty
 		public String url;
 		public String description;
-		public List<ServerVariable> variables;
+		public List<ServerVariable> variables = new ArrayList<>();
 	}
 	
 	public static class ServerVariable {
 		@NotEmpty
 		public String name;
-		public List<StringValue> enum_;
+		public List<StringValue> enum_ = new ArrayList<>();
 		@NotEmpty
 		public String default_;
 		public String description;
@@ -61,30 +63,30 @@ public class OpenAPI {
 	}
 	
 	public static class Components {
-		public List<Schema> schemas;
-//		public List<Response> responses;
-//		public List<Parameters> parameters;
-//		public List<Examples> examples;
-//		public List<requestBody> requestBodies;
-//		public List<Header> headers;
-//		public List<SecuritySchema> securitySchemes;
-//		public List<Link> links;
-		public List<Callback> callbacks;
+		public Map<String, Schema> schemas = new HashMap<>();
+//		public List<Response> responses = new ArrayList<>();
+//		public List<Parameters> parameters = new ArrayList<>();
+//		public List<Examples> examples = new ArrayList<>();
+//		public List<requestBody> requestBodies = new ArrayList<>();
+//		public List<Header> headers = new ArrayList<>();
+//		public List<SecuritySchema> securitySchemes = new ArrayList<>();
+//		public List<Link> links = new ArrayList<>();
+		public List<Callback> callbacks = new ArrayList<>();
 	}
 	
 	// PathItem
 //	public static class Path {
-//		public Map<String, Operation> operations;
+//		public Map<String, Operation> operations = new HashMap<>();
 //	}
 
 	public static class Operation {
-		public List<StringValue> tags;
+		public List<StringValue> tags = new ArrayList<>();
 		public String summary;
 		public String description;
 		public ExternalDocs externalDocs;
 		public String operationId;
-		public List<Parameter> parameters;
-		public Map<String, Response> responeses; 
+		public List<Parameter> parameters = new ArrayList<>();
+		public Map<String, Response> responses = new HashMap<>(); 
 		
 		public Boolean deprecated;
 		public List<Server> servers;
@@ -116,11 +118,11 @@ public class OpenAPI {
 	
 	public static class Response {
 		public String description;
-		public Content content;
+		public Map<String, Content> content = new HashMap<>();
 	}
 	
 	public static class Content {
-		public Map<String, Object> what;
+		public Schema schema;
 	}
 	
 	public static enum In {
@@ -130,7 +132,7 @@ public class OpenAPI {
 	public static class RequestBody {
 		public String description;
 		@NotEmpty
-		public List<Media> content;
+		public List<Media> content = new ArrayList<>();
 		public Boolean required;
 	}
 	
@@ -144,12 +146,12 @@ public class OpenAPI {
 	public static class Schema {
 		public Type type;
 		public String name;
-		public List<StringValue> required;
-		public List<Property> properties;
+		public List<StringValue> required = new ArrayList<>();
+		public Map<String, Property> properties = new HashMap<>();
+		public String $ref;
 	}
 
 	public static class Property {
-		public String name;
 		public Type type;
 		public String format; // int32, int64, float, double, byte, binary, date, date-time, password, etc...
 		public Schema items; // required for array Property
@@ -159,7 +161,7 @@ public class OpenAPI {
 		public String xml;
 		public ExternalDocs externalDocs;
 		public Object example;
-		public boolean deprecated;
+		public Boolean deprecated;
 	}
 	
 	public static enum Type {
