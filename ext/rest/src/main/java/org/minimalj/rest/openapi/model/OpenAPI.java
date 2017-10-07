@@ -2,6 +2,7 @@ package org.minimalj.rest.openapi.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class OpenAPI {
 	public String openapi;
 	public Info info;
 	public List<Server> servers = new ArrayList<>();
-	public Map<String, Map<String, Operation>> paths = new HashMap<>();
+	public Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 	public Components components;
 	
 	public static class Info {
@@ -63,9 +64,9 @@ public class OpenAPI {
 	}
 	
 	public static class Components {
-		public Map<String, Schema> schemas = new HashMap<>();
+		public Map<String, Schema> schemas = new LinkedHashMap<>();
 //		public List<Response> responses = new ArrayList<>();
-//		public List<Parameters> parameters = new ArrayList<>();
+		public Map<String, Schema> parameters = new LinkedHashMap<>();
 //		public List<Examples> examples = new ArrayList<>();
 //		public List<requestBody> requestBodies = new ArrayList<>();
 //		public List<Header> headers = new ArrayList<>();
@@ -76,7 +77,7 @@ public class OpenAPI {
 	
 	// PathItem
 //	public static class Path {
-//		public Map<String, Operation> operations = new HashMap<>();
+//		public Map<String, Operation> operations = new LinkedHashMap<>();
 //	}
 
 	public static class Operation {
@@ -86,7 +87,7 @@ public class OpenAPI {
 		public ExternalDocs externalDocs;
 		public String operationId;
 		public List<Parameter> parameters = new ArrayList<>();
-		public Map<String, Response> responses = new HashMap<>(); 
+		public Map<String, Response> responses = new LinkedHashMap<>(); 
 		
 		public Boolean deprecated;
 		public List<Server> servers;
@@ -118,7 +119,7 @@ public class OpenAPI {
 	
 	public static class Response {
 		public String description;
-		public Map<String, Content> content = new HashMap<>();
+		public Map<String, Content> content = new LinkedHashMap<>();
 	}
 	
 	public static class Content {
@@ -147,7 +148,7 @@ public class OpenAPI {
 		public Type type;
 		public String name;
 		public List<StringValue> required = new ArrayList<>();
-		public Map<String, Property> properties = new HashMap<>();
+		public Map<String, Property> properties = new LinkedHashMap<>();
 		public String $ref;
 	}
 
@@ -155,6 +156,7 @@ public class OpenAPI {
 		public Type type;
 		public String format; // int32, int64, float, double, byte, binary, date, date-time, password, etc...
 		public Schema items; // required for array Property
+		public String $ref;
 		public Boolean nullable;
 		public String discriminator;
 		public Boolean readOnly, writeOnly;
