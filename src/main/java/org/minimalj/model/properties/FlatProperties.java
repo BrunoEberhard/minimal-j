@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -69,7 +70,9 @@ public class FlatProperties {
 	}
 	
 	private static Map<String, PropertyInterface> properties(Class<?> clazz) {
-		Map<String, PropertyInterface> properties = new HashMap<String, PropertyInterface>();
+		// Java doesn't guarantee the field / property order but most of the time the
+		// order is as in the class described. Keep it that way for json/xml/yaml... serialization stuff.
+		Map<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
 		
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
