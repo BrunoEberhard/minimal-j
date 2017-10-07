@@ -165,8 +165,8 @@ public class JsonWriter {
 				add("\\\"");
 			else if (c == '\\')
 				add("\\\\");
-			else if (c == '/')
-				add("\\/");
+//			else if (c == '/')
+//				add("\\/");
 			else if (c == '\b')
 				add("\\b");
 			else if (c == '\f')
