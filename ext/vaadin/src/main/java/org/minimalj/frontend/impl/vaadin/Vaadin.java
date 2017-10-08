@@ -232,8 +232,7 @@ public class Vaadin extends UI implements PageManager {
 	private Page getPage(String route) {
 		Page page = null;
 		if (!StringUtils.isEmpty(route)) {
-			String[] pathFragments = route.substring(1).split("/");
-			page = Application.getInstance().createPage(pathFragments);
+			page = Application.getInstance().createPage(route.substring(1));
 		}
 		if (page == null) {
 			page = Application.getInstance().createDefaultPage();
