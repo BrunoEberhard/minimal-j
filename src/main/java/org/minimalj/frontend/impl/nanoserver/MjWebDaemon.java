@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.nanoserver;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
@@ -53,27 +54,28 @@ public class MjWebDaemon extends NanoHTTPD {
 		return serve(sessionManager, uri, method, headers, parms, files);
 	}
 
-    static Response serve(JsonSessionManager sessionManager, String uri, Method method, Map<String, String> headers, Map<String, String> parms,
+    static Response serve(JsonSessionManager sessionManager, String uriString, Method method, Map<String, String> headers, Map<String, String> parms,
             Map<String, String> files) {
-		uri = uri.substring(uri.lastIndexOf('/'), uri.length());
-		if (uri.equals("/")) {
+    	URI uri = URI.create(uriString);
+		String path = uri.getPath();
+		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			Locale locale = getLocale(headers.get("accept-language"));
-			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale);
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
-		} else if ("/ajax_request.xml".equals(uri)) {
+		} else if (path.equals("/ajax_request.xml")) {
 			String data = files.get("postData");
 			String result = sessionManager.handle(data);
 			return newFixedLengthResponse(Status.OK, "text/xml", result);
-		} else if ("/application.png".equals(uri)) {			
+		} else if (path.equals("/application.png")) {			
 			return newChunkedResponse(Status.OK, "png", Application.getInstance().getIcon());
 		} else {
-			int index = uri.lastIndexOf('.');
-			if (index > -1 && index < uri.length()-1) {
-				String postfix = uri.substring(index+1);
+			int index = uriString.lastIndexOf('.');
+			if (index > -1 && index < uriString.length()-1) {
+				String postfix = uriString.substring(index+1);
 				String mimeType = Resources.getMimeType(postfix);
 				if (mimeType != null) {
-					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uri);
+					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uriString);
 					return newChunkedResponse(Status.OK, mimeType, inputStream);
 				}
 			}

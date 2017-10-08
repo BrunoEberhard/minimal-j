@@ -184,8 +184,8 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         @Override
         public void sorterChanged(RowSorterEvent e) {
         	if (e.getType() == Type.SORT_ORDER_CHANGED) {
-        		@SuppressWarnings("unchecked")
-				List<SortKey> sortKeys = e.getSource().getSortKeys();
+				@SuppressWarnings("unchecked")
+				List<? extends SortKey> sortKeys = e.getSource().getSortKeys();
         		Object[] keys = new Object[sortKeys.size()];
         		boolean[] directions = new boolean[sortKeys.size()];
         		int index = 0;

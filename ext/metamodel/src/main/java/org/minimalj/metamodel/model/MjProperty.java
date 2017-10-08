@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
-
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Enabled;
@@ -17,12 +16,13 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.IdUtils;
 
 public class MjProperty {
 	public static final MjProperty $ = Keys.of(MjProperty.class);
 	
 	public enum MjPropertyType {
-		INLINE, LIST, ENUM_SET, REFERENCE,
+		INLINE, LIST, ENUM, ENUM_SET, DEPENDABLE, REFERENCE,
 		// primitives
 		String, Integer, Long, Boolean, BigDecimal, LocalDate,
 		LocalTime, LocalDateTime, ByteArray;
@@ -83,8 +83,10 @@ public class MjProperty {
 		else if (fieldType == LocalDateTime.class) return MjPropertyType.LocalDateTime;
 
 		else if (fieldType == List.class) return MjPropertyType.LIST;
+		else if (Enum.class.isAssignableFrom(fieldType)) return MjPropertyType.ENUM;
 		else if (fieldType == Set.class) return MjPropertyType.ENUM_SET;
 		else if (FieldUtils.isFinal(field)) return MjPropertyType.INLINE;
+		else if (!IdUtils.hasId(fieldType)) return MjPropertyType.DEPENDABLE;
 		else return MjPropertyType.REFERENCE;
 	}
 	

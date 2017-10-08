@@ -24,7 +24,7 @@ public class VaadinDialog extends Window implements IDialog {
 		this.closeAction = closeAction;
 		
 		setModal(true);
-		addListener(new VaadinDialogListener());
+		addCloseListener(new VaadinDialogListener());
 		
 		VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
 		if (componentWithWidth != null) {
@@ -43,7 +43,9 @@ public class VaadinDialog extends Window implements IDialog {
 		public void windowClose(CloseEvent e) {
 			// if (closeListener == null || closeListener.close()) {
 				VaadinDialog.super.close();
-				closeAction.action();
+				if (closeAction != null) {
+					closeAction.action();
+				}
 			// }
 		}
 	}

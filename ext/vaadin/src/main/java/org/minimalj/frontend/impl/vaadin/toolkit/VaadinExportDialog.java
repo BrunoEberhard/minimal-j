@@ -24,6 +24,7 @@ public class VaadinExportDialog extends Window {
 		
 		try {
 			HorizontalLayout horizontalLayout = new HorizontalLayout();
+			horizontalLayout.setMargin(false);
 			final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
             
     		StreamSource ss = new StreamSource() {

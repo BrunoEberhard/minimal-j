@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

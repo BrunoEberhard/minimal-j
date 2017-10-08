@@ -15,7 +15,7 @@ import org.minimalj.util.StringUtils;
 public class MjEntity {
 
 	public enum MjEntityType {
-		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, ENUM, CODE;
+		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE;
 	}
 	
 	public static final MjEntity $ = Keys.of(MjEntity.class);
@@ -44,15 +44,13 @@ public class MjEntity {
 		
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version")) {
+			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "historized")) {
 				properties.add(new MjProperty(model, field));
 			}
 		}
 		
 		if (Code.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.CODE;
-		} else if (Enum.class.isAssignableFrom(clazz)) {
-			type = MjEntityType.ENUM;
 		} else if (IdUtils.hasId(clazz)) {
 			type = MjEntityType.ENTITY;
 		} else {

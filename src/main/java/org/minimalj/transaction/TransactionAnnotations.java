@@ -23,29 +23,32 @@ public class TransactionAnnotations {
 		Role role = getAnnotation(transaction, Role.class);
 		return role != null ? role.value() : null;
 	}
-	
+
 	private static <A extends Annotation> A getAnnotation(Transaction<?> transaction, Class<A> annotationClass) {
-		A annotation;
-		annotation = transaction.getClass().getAnnotation(annotationClass);
-		if (annotation != null) {
-			return annotation;
-		}
-		annotation = transaction.getClass().getPackage().getAnnotation(annotationClass);
+		A annotation = getAnnotationOfClassOrPackage(transaction.getClass(), annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		if (transaction instanceof EntityTransaction) {
 			EntityTransaction<?, ?> entityTransaction = (EntityTransaction<?, ?>) transaction;
-			annotation = entityTransaction.getEntityClazz().getAnnotation(annotationClass);
-			if (annotation != null) {
-				return annotation;
-			}
-			annotation = entityTransaction.getEntityClazz().getPackage().getAnnotation(annotationClass);
-			if (annotation != null) {
-				return annotation;
-			}
+			Class<?> entityClazz = entityTransaction.getEntityClazz();
+			annotation = getAnnotationOfClassOrPackage(entityClazz, annotationClass);
 		}
-		return null;
+		return annotation;
 	}
-	
+
+	/**
+	 * @param clazz inspected class
+	 * @param annotationClass the annotation to get
+	 * @return the annotation on the class itself or if not available the
+	 *         annotation for the (direct) package of the class
+	 */
+	public static <A extends Annotation> A getAnnotationOfClassOrPackage(Class<?> clazz, Class<A> annotationClass) {
+		A annotation = clazz.getAnnotation(annotationClass);
+		if (annotation != null) {
+			return annotation;
+		} else {
+			return clazz.getPackage().getAnnotation(annotationClass);
+		}
+	}
 }

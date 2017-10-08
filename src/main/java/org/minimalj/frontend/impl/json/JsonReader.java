@@ -16,9 +16,6 @@ public class JsonReader {
 	private static final Object ARRAY_END = new Object();
 	private static final Object COLON = new Object();
 	private static final Object COMMA = new Object();
-	private static final int FIRST = 0;
-	private static final int CURRENT = 1;
-	private static final int NEXT = 2;
 
 	private static final Map<Character, Character> escapes = new HashMap<>();
 
@@ -36,13 +33,13 @@ public class JsonReader {
 	private CharacterIterator it;
 	private char c;
 	private Object token;
-	private StringBuilder buf = new StringBuilder();
+	private StringBuilder builder = new StringBuilder();
 
 	public void reset() {
 		it = null;
 		c = 0;
 		token = null;
-		buf.setLength(0);
+		builder.setLength(0);
 	}
 
 	protected char next() {
@@ -56,29 +53,18 @@ public class JsonReader {
 		}
 	}
 
-	public Object read(CharacterIterator ci, int start) {
+	public Object read(CharacterIterator it) {
 		reset();
-		it = ci;
-		switch (start) {
-		case FIRST:
-			c = it.first();
-			break;
-		case CURRENT:
-			c = it.current();
-			break;
-		case NEXT:
-			c = it.next();
-			break;
-		}
+		this.it = it;
+		c = it.next();
 		return read();
 	}
 
-	public Object read(CharacterIterator it) {
-		return read(it, NEXT);
-	}
-
 	public Object read(String string) {
-		return read(new StringCharacterIterator(string), FIRST);
+		reset();
+		this.it = new StringCharacterIterator(string);
+		c = it.first();
+		return read();
 	}
 
 	protected Object read() {
@@ -165,7 +151,7 @@ public class JsonReader {
 	protected Object number() {
 		int length = 0;
 		boolean isFloatingPoint = false;
-		buf.setLength(0);
+		builder.setLength(0);
 
 		if (c == '-') {
 			add();
@@ -185,7 +171,7 @@ public class JsonReader {
 			isFloatingPoint = true;
 		}
 
-		String s = buf.toString();
+		String s = builder.toString();
 		return isFloatingPoint ? (length < 17) ? (Object) Double.valueOf(s) : new BigDecimal(s) : (length < 19) ? (Object) Long.valueOf(s)
 				: new BigInteger(s);
 	}
@@ -199,7 +185,7 @@ public class JsonReader {
 	}
 
 	protected Object string() {
-		buf.setLength(0);
+		builder.setLength(0);
 		while (c != '"') {
 			if (c == '\\') {
 				next();
@@ -217,11 +203,11 @@ public class JsonReader {
 		}
 		next();
 
-		return buf.toString();
+		return builder.toString();
 	}
 
 	protected void add(char cc) {
-		buf.append(cc);
+		builder.append(cc);
 		next();
 	}
 

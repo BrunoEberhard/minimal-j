@@ -172,7 +172,22 @@ public abstract class Application {
 		if (icon == null) {
 			icon = getClass().getResourceAsStream("/" + applicationIconName);
 		}
+		if (icon == null) {
+			icon = getClass().getResourceAsStream("/application_16.png");
+		}		
 		return icon;
+	}
+	
+	/**
+	 * Create a page for a given route, for example "person/42" A frontend
+	 * may support links or bookmarks. 
+	 * @see org.minimalj.frontend.page.Page#getRoute()
+	 * 
+	 * @param route String returned by getRoute of a Page
+	 * @return the (valid) page for this route
+	 */
+	public Page createPage(String route) {
+		return new EmptyPage();
 	}
 	
 	/**

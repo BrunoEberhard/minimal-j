@@ -127,6 +127,12 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
+	public IContent createQueryContent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
 	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
 		return new LanternaTextField(changeListener);
 	}

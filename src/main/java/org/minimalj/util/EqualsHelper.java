@@ -13,6 +13,9 @@ public class EqualsHelper {
 		if (to == null) {
 			return false;
 		}
+		if (FieldUtils.isAllowedPrimitive(from.getClass())) {
+			return from.equals(to);
+		}
 		try {
 			return _equals(from, to);
 		} catch (IllegalAccessException | IllegalArgumentException x) {

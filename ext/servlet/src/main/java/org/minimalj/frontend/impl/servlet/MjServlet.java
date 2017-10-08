@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -54,7 +54,8 @@ public class MjServlet extends HttpServlet implements javax.servlet.ServletConta
 		if (uri.endsWith("/")) {
 			session.setAttribute("MjPageManager", new JsonPageManager());
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
-			String html = fillPlaceHolder(htmlTemplate, request.getLocale(), request.getRequestURL().toString());
+			String path = URI.create(requestURI).getPath();
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, request.getLocale(), path);
 			response.getWriter().write(html);
 			response.setContentType("text/html");
 			return;
@@ -93,11 +94,7 @@ public class MjServlet extends HttpServlet implements javax.servlet.ServletConta
             outputStream.write(buffer, 0, length);
         }
 	}
-	
-	protected String fillPlaceHolder(String html, Locale locale, String url) {
-		return JsonFrontend.fillPlaceHolder(html, locale);
-	}
-	
+
 	protected void copyInitParametersToConfiguration(ServletContext servletContext) {
 		Enumeration<?> propertyNames = servletContext.getInitParameterNames();
 		while (propertyNames.hasMoreElements()) {

@@ -43,6 +43,12 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		this.keys = keys;
 	}
 
+	/**
+	 * To create a table with multiselection override this method an return true.
+	 * This method is called once at construction time of the TablePage and must
+	 * be constant for a class. It must not depend on the displayed values.
+	 * @return true if table should allow multi selection
+	 */
 	protected boolean allowMultiselect() {
 		return false;
 	}

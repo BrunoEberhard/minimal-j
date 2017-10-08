@@ -17,7 +17,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	public VaadinEditorLayout(IContent content, Action[] actions) {
-		setMargin(true);
+		setSpacing(false);
 		
 		Component contentComponent = (Component) content;
 		contentComponent.setWidth("100%");
@@ -33,7 +33,6 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.addStyleName("buttonBar");
 		horizontalLayout.setWidth("100%");
-		horizontalLayout.setSpacing(true);
 		horizontalLayout.setMargin(false);
 		
 		addButtons(horizontalLayout, actions);
@@ -55,7 +54,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		button.setDescription(action.getDescription());
 		button.setWidth((action.getName().length() + 5) + "ex");
 		// installShortcut(button, action);
-		button.addListener(new ClickListener() {
+		button.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override

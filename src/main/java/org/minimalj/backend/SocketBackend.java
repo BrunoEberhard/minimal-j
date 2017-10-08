@@ -37,6 +37,7 @@ public class SocketBackend extends Backend {
 		setRepository(new SocketBackendRepository());
 	}
 	
+	@Override
 	public Authentication createAuthentication() {
 		return execute(new GetAuthentication());
 	}
