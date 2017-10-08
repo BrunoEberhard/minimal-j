@@ -1,8 +1,11 @@
 package org.minimalj.rest;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +17,7 @@ import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.rest.openapi.OpenAPIFactory;
+import org.minimalj.transaction.Transaction;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -60,14 +64,20 @@ public class RestHTTPD extends NanoHTTPD {
 	@Override
     public Response serve(String uriString, Method method, Map<String, String> headers, Map<String, String> parameters,
             Map<String, String> files) {
+		
+		String[] pathElements;
+		try {
+			URI uri = new URI(uriString);
+			String path = uri.getPath();
+			if (path.startsWith("/")) {
+				path = path.substring(1);
+			}
+			pathElements = path.split("/");
+		} catch (URISyntaxException e) {
+			return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", e.getMessage());
+		}
+
 		if (method == Method.GET) {
-			try {
-				URI uri = new URI(uriString);
-				String path = uri.getPath();
-				if (path.startsWith("/")) {
-					path = path.substring(1);
-				}
-				String[] pathElements = path.split("/");
 				if (pathElements.length == 0) {
 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", "Please specify class");
 				}
@@ -116,13 +126,51 @@ public class RestHTTPD extends NanoHTTPD {
 					Object object = Backend.read(clazz, id);
 					return newFixedLengthResponse(Status.OK, "text/json", new EntityJsonWriter().write(object));
 				}
-				return newFixedLengthResponse(Status.BAD_REQUEST, "text/json", "Hallo");
-			} catch (URISyntaxException e) {
-				return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", e.getMessage());
+		} else if (method == Method.POST) {
+			if (StringUtils.equals("java-transaction", pathElements[0])) {
+				if (pathElements.length == 1 && pathElements[0].equals("java-transaction")) {
+					Object input;
+					String inputString = files.get("PostData");
+					if (inputString == null) {
+						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
+					}
+					try {
+						byte[] inputByteArray = Base64.getDecoder().decode(inputString);
+						try (ByteArrayInputStream bis = new ByteArrayInputStream(inputByteArray)) {
+							try (ObjectInputStream ois = new ObjectInputStream(bis)) {
+								input = ois.readObject();
+							} catch (Exception x) {
+								return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Failed to read input: " + x.getMessage());
+							}
+						} catch (IOException e) {
+							return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", "IOException " + e.getMessage());
+						}
+					} catch (IllegalArgumentException x) {
+						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Input not in valid Base64 scheme");
+					}
+					if (input == null) {
+						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No input");
+					}
+					if (!(input instanceof Transaction)) {
+						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Input not a Transaction but a " + input.getClass().getName());
+					}
+					
+					Object output = ((Transaction<?>) input).execute();
+					
+					// TODO
+//					ByteArrayOutputStream bos = new ByteArrayOutputStream(outputByteArray);
+//					
+//					byte[] outputByteArray = new ObjectOutputStream(new ByteArrayOutputStream());
+//
+//					String outputString = Base64.getEncoder().encodeToString(outputByteArray);
+//					return newFixedLengthResponse(Status.OK, "application/base64", outputString);
+					
+				}
 			}
 		} else {
 			return null;
 		}
+		return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Not a valid request url");
 	}
 
 }
