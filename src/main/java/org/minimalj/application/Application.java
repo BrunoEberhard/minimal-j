@@ -183,7 +183,7 @@ public abstract class Application {
 	 * may support links or bookmarks. 
 	 * @see org.minimalj.frontend.page.Page#getRoute()
 	 * 
-	 * @param route
+	 * @param route String returned by getRoute of a Page
 	 * @return the (valid) page for this route
 	 */
 	public Page createPage(String route) {

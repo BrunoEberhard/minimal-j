@@ -195,6 +195,8 @@ public abstract class Frontend {
 	 * 
 	 * The caption text is defined by the Resource QueryPage or if that is not
 	 * available by the Application.name .
+	 * 
+	 * @return query content
 	 */
 	public abstract IContent createQueryContent();
 	
