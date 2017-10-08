@@ -172,6 +172,9 @@ public abstract class Application {
 		if (icon == null) {
 			icon = getClass().getResourceAsStream("/" + applicationIconName);
 		}
+		if (icon == null) {
+			icon = getClass().getResourceAsStream("/application_16.png");
+		}		
 		return icon;
 	}
 	
