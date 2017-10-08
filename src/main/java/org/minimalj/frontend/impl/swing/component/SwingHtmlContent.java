@@ -84,8 +84,7 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 									if (href.startsWith("/")) {
 										href = href.substring(1);
 									}
-									String[] route = href.split("/");
-									Page page = Application.getInstance().createPage(route);
+									Page page = Application.getInstance().createPage(href);
 									SwingFrontend.runWithContext(() -> Frontend.show(page));
 								}
 							}

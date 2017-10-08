@@ -89,8 +89,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 			Page page = null;
 			String path = (String) input.getObject("path");
 			if (!StringUtils.isEmpty(path)) {
-				String[] pathFragments = path.substring(1).split("/");
-				page = Application.getInstance().createPage(pathFragments);
+				page = Application.getInstance().createPage(path.substring(1));
 			}
 
 			
