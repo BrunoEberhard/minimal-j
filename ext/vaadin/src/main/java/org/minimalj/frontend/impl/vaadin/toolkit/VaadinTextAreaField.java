@@ -3,8 +3,6 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 
@@ -16,7 +14,6 @@ import com.vaadin.event.ShortcutListener;
 public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements Input<String> {
 	private static final long serialVersionUID = 1L;
 
-	private TextChangeEvent event;
 	private Runnable commitListener;
 	
 	public VaadinTextAreaField(InputComponentListener changeListener, int maxLength) {
@@ -25,10 +22,8 @@ public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements Input
 	
 	public VaadinTextAreaField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
 		setMaxLength(maxLength);
-		setNullRepresentation("");
-		setImmediate(true);
 		if (changeListener != null) {
-			addListener(new VaadinTextFieldTextChangeListener(changeListener));
+			addValueChangeListener(event -> changeListener.changed(VaadinTextAreaField.this));
 			addShortcutListener(new ShortcutListener("Commit", ShortcutAction.KeyCode.ENTER, null) {
 				private static final long serialVersionUID = 1L;
 
@@ -46,22 +41,6 @@ public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements Input
 		}
 	}
 
-	private class VaadinTextFieldTextChangeListener implements TextChangeListener {
-		private static final long serialVersionUID = 1L;
-		private final InputComponentListener changeListener;
-		
-		public VaadinTextFieldTextChangeListener(InputComponentListener changeListener) {
-			this.changeListener = changeListener;
-		}
-
-		@Override
-		public void textChange(TextChangeEvent event) {
-			VaadinTextAreaField.this.event = event;
-			changeListener.changed(VaadinTextAreaField.this);
-			VaadinTextAreaField.this.event = null;
-		}
-	}
-
 	@Override
 	public void setEditable(boolean editable) {
 		setReadOnly(!editable);
@@ -69,23 +48,10 @@ public class VaadinTextAreaField extends com.vaadin.ui.TextArea implements Input
 
 	@Override
 	public void setValue(String text) {
-		boolean readOnly = isReadOnly();
-		if (readOnly) {
-			setReadOnly(false);
-			setValue(text);
-			setReadOnly(true);
-		} else {
-			setValue(text);
-		}		
-	}
-
-	@Override
-	public String getValue() {
-		if (event != null) {
-			return event.getText();
-		} else {
-			return (String) getValue();
+		if (text == null) {
+			clear();
+			return;
 		}
+		super.setValue(text);
 	}
-	
 }

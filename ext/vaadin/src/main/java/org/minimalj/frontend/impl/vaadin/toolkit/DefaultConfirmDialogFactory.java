@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinConfirmDialog.Factory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -16,7 +17,6 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * This is the default implementation for confirmation dialog factory.
@@ -78,21 +78,21 @@ public class DefaultConfirmDialogFactory implements Factory {
         VerticalLayout c = new VerticalLayout();
         confirm.setContent(c);
         c.setSizeFull();
-        c.setSpacing(true);
-        c.setMargin(true);
 
         // Panel for scrolling lengthy messages.
         VerticalLayout scrollContent = new VerticalLayout();
+        scrollContent.setSpacing(false);
+        scrollContent.setMargin(false);
         Panel panel = new Panel(scrollContent);
         c.addComponent(panel);
         panel.setWidth("100%");
         panel.setHeight("100%");
-        panel.setStyleName(Reindeer.PANEL_LIGHT);
+        // panel.setStyleName(Reindeer.PANEL_LIGHT);
         panel.addStyleName("borderless"); // valo compatibility
         c.setExpandRatio(panel, 1f);
 
         // Always HTML, but escape
-        Label text = new Label("", com.vaadin.shared.ui.label.ContentMode.HTML);
+        Label text = new Label("", ContentMode.HTML);
         text.setId(VaadinConfirmDialog.MESSAGE_ID);
         scrollContent.addComponent(text);
         confirm.setMessageLabel(text);
@@ -101,7 +101,7 @@ public class DefaultConfirmDialogFactory implements Factory {
         HorizontalLayout buttons = new HorizontalLayout();
         c.addComponent(buttons);
         c.setComponentAlignment(buttons, Alignment.TOP_RIGHT);
-        buttons.setSpacing(true);
+        buttons.setMargin(false);
 
         final Button cancel = new Button(cancelCaption != null ? cancelCaption
                 : DEFAULT_CANCEL_CAPTION);
@@ -125,7 +125,7 @@ public class DefaultConfirmDialogFactory implements Factory {
         ok.setData(true);
         ok.setId(VaadinConfirmDialog.OK_ID);
         ok.setClickShortcut(KeyCode.ENTER, null);
-        ok.setStyleName(Reindeer.BUTTON_DEFAULT);
+        // ok.setStyleName(Reindeer.BUTTON_DEFAULT);
         ok.focus();
         buttons.addComponent(ok);
         confirm.setOkButton(ok);

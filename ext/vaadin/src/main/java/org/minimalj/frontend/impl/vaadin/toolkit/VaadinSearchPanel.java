@@ -6,6 +6,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -21,6 +22,8 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 	private final int width;
 	
 	public VaadinSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
+		setMargin(false);
+		setSpacing(false);
 		setSizeFull();
 		
 		text = new TextField();
@@ -32,13 +35,16 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, 
 		northPanel.addComponent(text);
 		northPanel.addComponent(searchButton);
 		text.setWidth("100%");
+		northPanel.setComponentAlignment(text, Alignment.MIDDLE_LEFT);
 		northPanel.setExpandRatio(text, 1.0f);
 				
 		addComponent(northPanel);
+		setExpandRatio(northPanel, 0.0f);
+		table.setSizeFull();
 		addComponent(table);
 		setExpandRatio(table, 1.0f);
 
-		searchButton.addListener(new ClickListener() {
+		searchButton.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {

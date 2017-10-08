@@ -17,7 +17,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.ui.themes.ValoTheme;
 
 public class VaadinFrontend extends Frontend {
 
@@ -43,8 +43,8 @@ public class VaadinFrontend extends Frontend {
 		public VaadinActionLabel(final Action action) {
 			super(action.getName());
 //			button.setDescription((String) action.getValue(Action.LONG_DESCRIPTION));
-			setStyleName(BaseTheme.BUTTON_LINK);
-			addListener(new ClickListener() {
+			setStyleName(ValoTheme.BUTTON_LINK);
+			addClickListener(new ClickListener() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -104,22 +104,27 @@ public class VaadinFrontend extends Frontend {
 	public SwitchContent createSwitchContent() {
 		return new VaadinSwitchContent();
 	}
+	
+	@Override
+	public IContent createQueryContent() {
+		return new VaadinQueryContent();
+	}
 
 	public static void focusFirstComponent(Component component) {
-		AbstractField field = findAbstractField(component);
+		AbstractField<?> field = findAbstractField(component);
 		if (field != null) {
 			field.focus();
 		}
 	}
 	
-	private static AbstractField findAbstractField(Component c) {
+	private static AbstractField<?> findAbstractField(Component c) {
 		if (c instanceof AbstractField) {
-			return ((AbstractField) c);
+			return ((AbstractField<?>) c);
 		} else if (c instanceof ComponentContainer) {
 			ComponentContainer container = (ComponentContainer) c;
-			Iterator<Component> components = container.getComponentIterator();
+			Iterator<Component> components = container.iterator();
 			while (components.hasNext()) {
-				AbstractField field = findAbstractField(components.next());
+				AbstractField<?> field = findAbstractField(components.next());
 				if (field != null) {
 					return field;
 				}
@@ -193,8 +198,8 @@ public class VaadinFrontend extends Frontend {
 			private static final long serialVersionUID = 1L;
 
 			public VaadinLookupLabel() {
-				setStyleName(BaseTheme.BUTTON_LINK);
-				addListener(new ClickListener() {
+				setStyleName(ValoTheme.BUTTON_LINK);
+				addClickListener(new ClickListener() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -210,8 +215,8 @@ public class VaadinFrontend extends Frontend {
 
 			public VaadinRemoveLabel() {
 				super("[x]");
-				setStyleName(BaseTheme.BUTTON_LINK);
-				addListener(new ClickListener() {
+				setStyleName(ValoTheme.BUTTON_LINK);
+				addClickListener(new ClickListener() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -271,18 +276,11 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinImage(size, changeListener);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.minimalj.frontend.Frontend#createHtmlContent(java.lang.String)
-	 */
 	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
-//		return new VaadinHtmlContent(htmlOrUrl);
-		return new VaadinUrlContent(htmlOrUrl);
+		return new VaadinHtmlContent(htmlOrUrl);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.minimalj.frontend.Frontend#getPageManager()
-	 */
 	@Override
 	public PageManager getPageManager() {
 		return (PageManager) UI.getCurrent();

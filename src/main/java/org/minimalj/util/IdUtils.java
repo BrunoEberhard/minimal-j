@@ -76,9 +76,7 @@ public class IdUtils {
 		Field idField = getIdField(modelClass);
 		if (idField == null) throw new IllegalArgumentException(modelClass.getName() + " has no id field");
 		Class<?> idFieldType = idField.getType();
-		if (idFieldType == Object.class) {
-			return UUID.fromString(idString);
-		} else if (idFieldType == String.class) {
+		if (idFieldType == Object.class || idFieldType == String.class) {
 			return idString;
 		} else if (idFieldType == Integer.class) {
 			return Integer.parseInt(idString);

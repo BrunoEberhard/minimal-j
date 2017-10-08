@@ -19,6 +19,8 @@ public class VaadinList extends VerticalLayout implements IList {
 	private List<Component> disabledChildren;
 	
 	public VaadinList(Action... actions) {
+		setMargin(false);
+		setSpacing(false);
 		addStyleName("whiteBackground");
 		if (actions != null) {
 			for (Action action : actions) {

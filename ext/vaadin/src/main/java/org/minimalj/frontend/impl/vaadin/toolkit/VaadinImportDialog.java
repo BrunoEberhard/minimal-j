@@ -21,6 +21,7 @@ public class VaadinImportDialog extends Window implements Upload.Receiver {
 		inputStream = new CloseablePipedInputStream();
 		
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
+		horizontalLayout.setSpacing(false);
 		upload = new Upload(null, this);
 
 		horizontalLayout.addComponent(upload);
@@ -30,7 +31,7 @@ public class VaadinImportDialog extends Window implements Upload.Receiver {
 		setModal(true);
 		UI.getCurrent().addWindow(this);
 		
-		addListener(new CloseListener() {
+		addCloseListener(new CloseListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override

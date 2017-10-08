@@ -7,6 +7,7 @@ Every release contains many small fixes.
 * HtmlFrontend: Title in Browser
 * Frontends: Simple application icon
 * Pages can provide route for bookmarks
+* Vaadin Frontend: complete migration to Vaadin 8
 
 === 1.8.0.0
 * Model: self references of classes are only allowed through View or Lists

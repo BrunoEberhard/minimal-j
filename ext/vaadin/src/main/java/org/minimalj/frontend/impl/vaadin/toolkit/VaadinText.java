@@ -4,7 +4,8 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
-import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.shared.ui.ContentMode;
+
 import com.vaadin.ui.Label;
 
 public class VaadinText extends Label implements IComponent {
