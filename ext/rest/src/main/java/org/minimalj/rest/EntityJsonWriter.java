@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,18 @@ public class EntityJsonWriter extends JsonWriter {
 
 //	private List<Map<String, Object>> convert(Object entity) {
 	private Map<String, Object> convert(Object entity, Set<String> ids) {
-		Map<String, Object> values = new HashMap<>();
+		Map<String, Object> values = new LinkedHashMap<>();
+
+		if (entity instanceof Map) {
+			Map<String, Object> map = (Map<String, Object>) entity;
+			if (map.isEmpty()) {
+				return null;
+			}
+			for (Map.Entry<String, Object> e2 : map.entrySet()) {
+				values.put(e2.getKey(), convert(e2.getValue(), ids));
+			}
+			return values;
+		}
 		
 		Map<String, PropertyInterface> properties = FlatProperties.getProperties(entity.getClass());
 		for (Map.Entry<String, PropertyInterface> e : properties.entrySet()) {
@@ -55,27 +67,41 @@ public class EntityJsonWriter extends JsonWriter {
 			Object value = property.getValue(entity);
 			
 			if (value == null) {
-				values.put(e.getKey(), null);
-			} else if (StringUtils.equals(e.getKey(), "id", "version", "historized") || FieldUtils.isAllowedPrimitive(property.getClazz())) {
-				values.put(e.getKey(), value.toString());
-			} else if (value instanceof List) {
-				List listValue = (List) value;
-				List list = new ArrayList<>();
-				for (Object element : listValue) {
-					list.add(convert(element, ids));
-				}
-				values.put(e.getKey(), list);
-			} else if (value != null && IdUtils.hasId(value.getClass())) {
-				String id = IdUtils.getId(value).toString();
-				if (ids.contains(id)) {
-					values.put(e.getKey(), id);
-				} else {
-					ids.add(id);
-					value = convert(value, ids);
-					values.put(e.getKey(), value);
-				}
+				continue;
 			} else {
-				values.put(e.getKey(), convert(value, ids));
+				String propertyName = e.getKey();
+				
+				if (value instanceof Boolean) {
+					values.put(propertyName, value);
+				} else if (StringUtils.equals(propertyName, "id", "version", "historized") || FieldUtils.isAllowedPrimitive(property.getClazz())) {
+					values.put(propertyName, value.toString());
+				} else if (value instanceof List) {
+					List listValue = (List) value;
+					if (listValue.isEmpty()) {
+						continue;
+					}
+					List list = new ArrayList<>();
+					for (Object element : listValue) {
+						list.add(convert(element, ids));
+					}
+					values.put(propertyName, list);
+				} else if (value != null && IdUtils.hasId(value.getClass())) {
+					String id = IdUtils.getId(value).toString();
+					if (ids.contains(id)) {
+						values.put(propertyName, id);
+					} else {
+						ids.add(id);
+						value = convert(value, ids);
+						values.put(propertyName, value);
+					}
+				} else if (value instanceof Enum) {
+					values.put(propertyName, value.toString().toLowerCase());
+				} else {
+					value = convert(value, ids);
+					if (value != null) {
+						values.put(propertyName, value);
+					}
+				}
 			}
 		}
 		return values;
@@ -85,7 +111,7 @@ public class EntityJsonWriter extends JsonWriter {
 		if (object instanceof Query) {
 			return prepare((Query) object);
 		}
-		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> result = new LinkedHashMap<>();
 		try {
 			BeanInfo beanInfo = Introspector.getBeanInfo(object.getClass());
 			for (PropertyDescriptor property : beanInfo.getPropertyDescriptors()) {
@@ -106,7 +132,7 @@ public class EntityJsonWriter extends JsonWriter {
 	}
 
 	public static Map<String, Object> prepare(Query query) {
-		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> result = new LinkedHashMap<>();
 		if (query instanceof Limit) {
 			Limit limit = (Limit) query;
 			result.put("Offset", limit.getOffset());
@@ -135,7 +161,7 @@ public class EntityJsonWriter extends JsonWriter {
 		if (criteria instanceof AllCriteria) {
 			return null;
 		} 
-		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> result = new LinkedHashMap<>();
 		if (criteria instanceof FieldCriteria) {
 			FieldCriteria fieldCriteria = (FieldCriteria) criteria;
 			result.put(fieldCriteria.getPath(), fieldCriteria.getValue());

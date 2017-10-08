@@ -165,20 +165,19 @@ public class JsonWriter {
 				add("\\\"");
 			else if (c == '\\')
 				add("\\\\");
-			else if (c == '/')
-				add("\\/");
-			else if (c == '\b')
-				add("\\b");
-			else if (c == '\f')
-				add("\\f");
-			else if (c == '\n')
-				add("\\n");
-			else if (c == '\r')
-				add("\\r");
-			else if (c == '\t')
-				add("\\t");
 			else if (Character.isISOControl(c)) {
-				unicode(c);
+				if (c == '\b')
+					add("\\b");
+				else if (c == '\f')
+					add("\\f");
+				else if (c == '\n')
+					add("\\n");
+				else if (c == '\r')
+					add("\\r");
+				else if (c == '\t')
+					add("\\t");
+				else
+					unicode(c);
 			} else {
 				add(c);
 			}
