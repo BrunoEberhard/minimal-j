@@ -61,7 +61,7 @@ public class MjWebDaemon extends NanoHTTPD {
 		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			Locale locale = getLocale(headers.get("accept-language"));
-			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, base(path), path);
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		} else if (path.equals("/ajax_request.xml")) {
 			String data = files.get("postData");
@@ -83,15 +83,6 @@ public class MjWebDaemon extends NanoHTTPD {
 		logger.warning("Could not serve: " + uri);
 		return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
 	}
-    
-    private static String base(String path) {
-    	String base = "./";
-    	int level = path.split("/").length - 1;
-    	for (int i = 0; i<level; i++) {
-    		base = base + "../";
-    	}
-    	return base;
-    }
     
     private static Locale getLocale(String userLocale) {
     	final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
