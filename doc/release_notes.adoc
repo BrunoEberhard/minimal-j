@@ -2,6 +2,12 @@
 
 Every release contains many small fixes.
 
+=== 1.9.0.0
+* HtmlFrontend: FlexBox Layout
+* HtmlFrontend: Title in Browser
+* Frontends: Simple application icon
+* Pages can provide route for bookmarks
+
 === 1.8.0.0
 * Model: self references of classes are only allowed through View or Lists
 * SwingFrontend: fix special LookAndFeel
