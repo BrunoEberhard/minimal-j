@@ -54,7 +54,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		output.add("navigation", navigation);
 
 		if (showOnLogin != null) {
-			show(showOnLogin, null);
+			show(showOnLogin);
 			showOnLogin = null;
 		} else {
 			show(Application.getInstance().createDefaultPage(), null);
@@ -99,14 +99,14 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
 				showOnLogin = page;
+				updateTitle(null);
 				new UserPasswordAction(this).action();
 			} else {
-				show(page, null);
+				show(page);
 
 				navigation = createNavigation();
 				register(navigation);
 				output.add("navigation", navigation);
-				output.add("applicationName", Application.getInstance().getName());
 			}
 		}
 
@@ -206,6 +206,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	@Override
 	public void show(Page page) {
 		show(page, null);
+		updateTitle(page);
 	}
 
 	@Override
@@ -246,8 +247,20 @@ public class JsonPageManager implements PageManager, LoginListener {
 			previousId = pageId;
 		}
 		output.add("showPages", jsonList);
+		updateTitle(!pageIds.isEmpty() ? pageStore.get(pageIds.get(0)) : null);
 	}
 
+	private void updateTitle(Page page) {
+		String title = page != null ? page.getTitle() : null;
+		if (StringUtils.isEmpty(title)) {
+			title = Application.getInstance().getName();
+		}
+		if (StringUtils.isEmpty(title)) {
+			title = "Minimal-J";
+		}
+		output.add("title", title);
+	}
+	
 	private JsonComponent createJson(Page page, String pageId, String masterPageId) {
 		JsonComponent json = new JsonComponent("page");
 

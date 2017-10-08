@@ -37,8 +37,8 @@ $ICON
 		var dataObject = JSON.parse(data);
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
-		if (dataObject.applicationName != undefined) {
-			titleElement.replaceChild(document.createTextNode(dataObject.applicationName), titleElement.firstChild);
+		if (dataObject.title != undefined) {
+			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
 		if ("showPage" in dataObject) {
 			addNewStateToHistory(dataObject.showPage.route);
