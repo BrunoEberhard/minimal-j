@@ -70,6 +70,10 @@ public class EntityJsonWriter extends JsonWriter {
 				continue;
 			} else {
 				String propertyName = e.getKey();
+				// V2 !!!
+				if ("eNum".equals(propertyName)) {
+					propertyName = "enum";
+				}
 				
 				if (value instanceof Boolean) {
 					values.put(propertyName, value);
@@ -82,7 +86,12 @@ public class EntityJsonWriter extends JsonWriter {
 					}
 					List list = new ArrayList<>();
 					for (Object element : listValue) {
-						list.add(convert(element, ids));
+						if (element instanceof String) {
+							// List<String> would be not allowed in MJ but 'required' is such a list
+							list.add(element);
+						} else {
+							list.add(convert(element, ids));
+						}
 					}
 					values.put(propertyName, list);
 				} else if (value != null && IdUtils.hasId(value.getClass())) {
@@ -120,7 +129,6 @@ public class EntityJsonWriter extends JsonWriter {
 				}
 				Object value = property.getReadMethod().invoke(object);
 				if (value != null && !value.getClass().isPrimitive() && !FieldUtils.isAllowedPrimitive(value.getClass())) {
-					System.out.println("Recall: " + property.getName());
 					value = prepare(value);
 				}
 				result.put(property.getName(), value);
