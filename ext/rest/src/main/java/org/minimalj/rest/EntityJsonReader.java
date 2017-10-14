@@ -1,7 +1,6 @@
 package org.minimalj.rest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,53 +8,66 @@ import java.util.Set;
 import org.minimalj.frontend.impl.json.JsonReader;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
 public class EntityJsonReader extends JsonReader {
 
-	public Object read(String input) {
+	public <T> T read(Class<T> clazz, String input) {
+		if (StringUtils.isEmpty(input)) {
+			return null;
+		}
 		Map<String, Object> values = (Map<String, Object>) super.read(input);
-		
-		return null;
+		return convert(clazz, values);
 	}
-	
-	
-//	private List<Map<String, Object>> convert(Object entity) {
-	private Map<String, Object> convert(Object entity, Set<String> ids) {
-		Map<String, Object> values = new HashMap<>();
-		
-		Map<String, PropertyInterface> properties = Properties.getProperties(entity.getClass());
-		for (Map.Entry<String, PropertyInterface> e : properties.entrySet()) {
-			PropertyInterface property = e.getValue();
-			Object value = property.getValue(entity);
-			
-			if (value == null) {
-				values.put(e.getKey(), null);
-			} else if (StringUtils.equals(e.getKey(), "id", "version", "historized") || FieldUtils.isAllowedPrimitive(property.getClazz())) {
-				values.put(e.getKey(), value.toString());
-			} else if (value instanceof List) {
-				List listValue = (List) value;
-				List list = new ArrayList<>();
-				for (Object element : listValue) {
-					list.add(convert(element, ids));
-				}
-				values.put(e.getKey(), list);
-			} else if (value != null && IdUtils.hasId(value.getClass())) {
-				String id = IdUtils.getId(value).toString();
-				if (ids.contains(id)) {
-					values.put(e.getKey(), id);
-				} else {
-					ids.add(id);
-					value = convert(value, ids);
-					values.put(e.getKey(), value);
-				}
-			} else {
-				values.put(e.getKey(), convert(value, ids));
+
+	private <T> List<T> convertList(Class<T> clazz, List list) {
+		List convertedList = new ArrayList<>();
+		for (Object item : list) {
+			convertedList.add(convert(clazz, (Map<String, Object>) item));
+		}
+		return convertedList;
+	}
+
+	private <T extends Enum> void convertEnumSet(Set<T> set, Class<T> clazz, List list) {
+		set.clear();
+		for (Object item : list) {
+			set.add(Enum.valueOf(clazz, (String) item));
+		}
+	}
+
+	private <T> T convert(Class<T> clazz, Map<String, Object> values) {
+		T entity = CloneHelper.newInstance(clazz);
+
+		Map<String, PropertyInterface> properties = Properties.getProperties(clazz);
+		for (Map.Entry<String, Object> entry : values.entrySet()) {
+			PropertyInterface property = properties.get(entry.getKey());
+			if (property == null) {
+				continue;
+			}
+			Object value = entry.getValue();
+			if (property.getClazz() == List.class) {
+				List list = (List) values;
+				value = convertList((Class) property.getType(), list);
+			} else if (property.getClazz() == Set.class) {
+				Set set = (Set) property.getValue(entity);
+				convertEnumSet(set, (Class) property.getType(), (List)value);
+			} else if (value instanceof String) {
+				String string = (String) value;
+				Class<?> propertyClazz = property.getClazz();
+				value = FieldUtils.parse(string, propertyClazz);
+				property.setValue(entity, value);
+			} else if (value instanceof Boolean) {
+				property.setValue(entity, value);
+			} else if (value instanceof Map) {
+				Map map = (Map) value;
+				Class c2 = property.getClazz();
+				value = convert(c2, map);
+				property.setValue(entity, value);
 			}
 		}
-		return values;
+		return entity;
 	}
 	
 }
