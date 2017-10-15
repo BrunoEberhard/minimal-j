@@ -1,17 +1,19 @@
 package org.minimalj.rest;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -22,8 +24,11 @@ import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.rest.openapi.OpenAPIFactory;
+import org.minimalj.security.Subject;
+import org.minimalj.transaction.InputStreamTransaction;
+import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.util.IdUtils;
+import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -146,51 +151,59 @@ public class RestHTTPD extends NanoHTTPD {
  					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post excepts id in url");
  				}
 			}
+
+		} else if (method == Method.PUT) {
 			if (pathElements.length > 0) {
 				if (StringUtils.equals("java-transaction", pathElements[0])) {
-					if (pathElements.length == 1 && pathElements[0].equals("java-transaction")) {
-						Object input;
-						String inputString = files.get("content");
-						if (inputString == null) {
-							return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
+
+					if (Backend.getInstance().isAuthenticationActive()) {
+						String token = headers.get("token");
+						if (!StringUtils.isEmpty(token)) {
+							Subject subject = Backend.getInstance().getAuthentication().getUserByToken(UUID.fromString(token));
+							Subject.setCurrent(subject);
 						}
-						try {
-							byte[] inputByteArray = Base64.getDecoder().decode(inputString);
-							try (ByteArrayInputStream bis = new ByteArrayInputStream(inputByteArray)) {
-								try (ObjectInputStream ois = new ObjectInputStream(bis)) {
-									input = ois.readObject();
-								} catch (Exception x) {
-									return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Failed to read input: " + x.getMessage());
-								}
-							} catch (IOException e) {
-								return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", "IOException " + e.getMessage());
-							}
-						} catch (IllegalArgumentException x) {
-							return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Input not in valid Base64 scheme");
-						}
-						if (input == null) {
-							return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No input");
-						}
+					}
+
+					String inputFileName = files.get("content");
+					if (inputFileName == null) {
+						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
+					}
+					try (FileInputStream bis = new FileInputStream(inputFileName); ObjectInputStream ois = new ObjectInputStream(bis)) {
+						Object input = ois.readObject();
 						if (!(input instanceof Transaction)) {
 							return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Input not a Transaction but a " + input.getClass().getName());
 						}
-						
-						Object output = ((Transaction<?>) input).execute();
-						
-						// TODO
-	//					ByteArrayOutputStream bos = new ByteArrayOutputStream(outputByteArray);
-	//					
-	//					byte[] outputByteArray = new ObjectOutputStream(new ByteArrayOutputStream());
-	//
-	//					String outputString = Base64.getEncoder().encodeToString(outputByteArray);
-	//					return newFixedLengthResponse(Status.OK, "application/base64", outputString);
-						
+						Transaction<?> transaction = (Transaction<?>) input;
+
+						if (transaction instanceof InputStreamTransaction) {
+							InputStreamTransaction<?> inputStreamTransaction = (InputStreamTransaction<?>) transaction;
+							inputStreamTransaction.setStream(ois);
+						}
+						if (transaction instanceof OutputStreamTransaction) {
+							return newFixedLengthResponse(Status.NOT_IMPLEMENTED, "text/plain", "OutputStreamTransaction not implemented");
+						}
+
+						Object output;
+						try {
+							output = Backend.execute((Transaction<?>) transaction);
+						} catch (Exception e) {
+							return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", e.getMessage());
+						}
+
+						try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)) {
+							oos.writeObject(SerializationContainer.wrap(output));
+							oos.flush();
+							byte[] bytes = byteArrayOutputStream.toByteArray();
+							try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes)) {
+								return newFixedLengthResponse(Status.OK, "application/octet-stream", byteArrayInputStream, bytes.length);
+							}
+						}
+					} catch (Exception e) {
+						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", e.getMessage());
 					}
-				} else {
-					
 				}
 			}
-		} else if (method == Method.PUT) {
+			
 			if (clazz != null) {
 				String inputFileName = files.get("content");
 				if (inputFileName == null) {
