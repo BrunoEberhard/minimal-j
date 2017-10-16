@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.minimalj.model.EnumUtils;
+
 public class FieldUtils {
 	public static final Logger logger = Logger.getLogger(FieldUtils.class.getName());
 
@@ -185,6 +187,14 @@ public class FieldUtils {
 				value = LocalTime.parse(s);
 			} else if (clazz == LocalDateTime.class) {
 				value = LocalDateTime.parse(s);
+			} else if (Enum.class.isAssignableFrom(clazz)) {
+				List<Enum> values = (List<Enum>) EnumUtils.valueList((Class<Enum>) clazz);
+				for (Enum enumValue : values) {
+					if (enumValue.name().equalsIgnoreCase(s)) {
+						value = enumValue;
+						break;
+					}
+				}
 			} else {
 				throw new IllegalArgumentException(s);
 			}
