@@ -19,6 +19,7 @@ import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Query;
+import org.minimalj.rest.EntityJsonReader;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
@@ -70,6 +71,9 @@ public class RestBackend extends Backend {
 	
 	@Override
 	public <T> T doExecute(Transaction<T> transaction) {
+		if (transaction instanceof ReadEntityTransaction) {
+			return super.doExecute(transaction);
+		}
 		HttpURLConnection connection = null;
 		try {
 			URL u = new URL("http", url, port, "/java-transaction/" + UUID.randomUUID());
@@ -149,13 +153,12 @@ public class RestBackend extends Backend {
 
 		@Override
 		public <T> T read(Class<T> clazz, Object id) {
-			return execute(new ReadEntityTransaction<T>(clazz, id, null));
-			/*
+			// return execute(new ReadEntityTransaction<T>(clazz, id, null));
 			HttpURLConnection connection = null;
 			try {
-				String myUrl = url + "/" + clazz.getSimpleName() + "/" + id;
-				URL u = new URL("http", myUrl, port, null);
+				URL u = new URL("http", url, port, "/" + clazz.getSimpleName() + "/" + id);
 				connection = (HttpURLConnection) u.openConnection();
+				connection.setRequestMethod("GET");
 				connection.setDoOutput(false);
 				connection.setDoInput(true);
 				Subject subject = Subject.getCurrent();
@@ -166,7 +169,7 @@ public class RestBackend extends Backend {
 				if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 					try (InputStream inputStream = connection.getInputStream()) {
 						EntityJsonReader read = new EntityJsonReader();
-						// return read.read(inputStream);
+						return (T) read.read(clazz, inputStream);
 					}
 				} else {
 					// throw new RuntimeException(errorMessage);
@@ -179,7 +182,6 @@ public class RestBackend extends Backend {
 				}
 			}
 			return null;
-			*/
 		}
 
 		@Override
