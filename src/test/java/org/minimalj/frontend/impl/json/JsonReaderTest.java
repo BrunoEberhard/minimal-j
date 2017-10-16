@@ -33,4 +33,12 @@ public class JsonReaderTest {
 	public static class TestUinames {
 		public String name, surname, gender, region;
 	}
+	
+	@Test
+	public void testNestedObjects() {
+		String s = "{\"tableAction\":{\"table\":\"a41986a7-10dc-43e7-93da-61d8ff15ba14\",\"row\":29},\"locale\":\"de\",\"inputTypes\":false,\"dialogVisible\":false,\"session\":\"453fffb6-01a0-488e-951b-6555bb63f30f\"}";
+		JsonReader read = new JsonReader();
+		read.read(s);
+	}
+	
 }
