@@ -1,12 +1,13 @@
 package org.minimalj.rest;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.minimalj.frontend.impl.json.JsonReader;
-import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
@@ -19,6 +20,11 @@ public class EntityJsonReader extends JsonReader {
 			return null;
 		}
 		Map<String, Object> values = (Map<String, Object>) super.read(input);
+		return convert(clazz, values);
+	}
+	
+	public <T> T read(Class<T> clazz, InputStream inputStream) {
+		Map<String, Object> values = (Map<String, Object>) super.read(inputStream);
 		return convert(clazz, values);
 	}
 
@@ -40,7 +46,7 @@ public class EntityJsonReader extends JsonReader {
 	private <T> T convert(Class<T> clazz, Map<String, Object> values) {
 		T entity = CloneHelper.newInstance(clazz);
 
-		Map<String, PropertyInterface> properties = Properties.getProperties(clazz);
+		Map<String, PropertyInterface> properties = FlatProperties.getProperties(clazz);
 		for (Map.Entry<String, Object> entry : values.entrySet()) {
 			PropertyInterface property = properties.get(entry.getKey());
 			if (property == null) {
@@ -55,8 +61,14 @@ public class EntityJsonReader extends JsonReader {
 				convertEnumSet(set, (Class) property.getType(), (List)value);
 			} else if (value instanceof String) {
 				String string = (String) value;
-				Class<?> propertyClazz = property.getClazz();
-				value = FieldUtils.parse(string, propertyClazz);
+				if ("version".equals(property.getName())) {
+					value = Integer.parseInt(string);
+				} else if (!"id".equals(property.getName()) || property.getClazz() != Object.class) {
+					Class<?> propertyClazz = property.getClazz();
+					if (propertyClazz != String.class) {
+						value = FieldUtils.parse(string, propertyClazz);
+					}
+				}
 				property.setValue(entity, value);
 			} else if (value instanceof Boolean) {
 				property.setValue(entity, value);
