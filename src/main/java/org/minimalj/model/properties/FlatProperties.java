@@ -78,9 +78,9 @@ public class FlatProperties {
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
-			if (!FieldUtils.isFinal(field) || FieldUtils.isSet(field.getType())) {
+			if (!FieldUtils.isFinal(field) || FieldUtils.isSet(field.getType()) || FieldUtils.isList(field.getType())) {
 				properties.put(field.getName(), new FieldProperty(field));
-			} else if (!FieldUtils.isList(field)) {
+			} else {
 				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field) && !hasCollidingFields(clazz, field.getType(), field.getName());
 				for (String inlineKey : inlinePropertys.keySet()) {
