@@ -11,24 +11,26 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
-public class EntityJsonReader extends JsonReader {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class EntityJsonReader {
 
-	public <T> T read(Class<T> clazz, String input) {
+	public static <T> T read(Class<T> clazz, String input) {
 		if (StringUtils.isEmpty(input)) {
 			return null;
 		}
-		Map<String, Object> values = (Map<String, Object>) super.read(input);
+		Map<String, Object> values = (Map<String, Object>) JsonReader.read(input);
 		return convert(clazz, values);
 	}
 	
-	public <T> T read(Class<T> clazz, InputStream inputStream) {
-		Map<String, Object> values = (Map<String, Object>) super.read(inputStream);
+	public static <T> T read(Class<T> clazz, InputStream inputStream) {
+		Map<String, Object> values = (Map<String, Object>) JsonReader.read(inputStream);
 		return convert(clazz, values);
 	}
 
-	private <T> List<T> convertList(Class<T> clazz, List list) {
+	private static <T> List<T> convertList(Class<T> clazz, List list) {
 		List convertedList = new ArrayList<>();
 		for (Object item : list) {
 			convertedList.add(convert(clazz, (Map<String, Object>) item));
@@ -36,14 +38,14 @@ public class EntityJsonReader extends JsonReader {
 		return convertedList;
 	}
 
-	private <T extends Enum> void convertEnumSet(Set<T> set, Class<T> clazz, List list) {
+	private static <T extends Enum> void convertEnumSet(Set<T> set, Class<T> clazz, List list) {
 		set.clear();
 		for (Object item : list) {
 			set.add(Enum.valueOf(clazz, (String) item));
 		}
 	}
 
-	private <T> T convert(Class<T> clazz, Map<String, Object> values) {
+	private static <T> T convert(Class<T> clazz, Map<String, Object> values) {
 		T entity = CloneHelper.newInstance(clazz);
 
 		Map<String, PropertyInterface> properties = FlatProperties.getProperties(clazz);
@@ -54,11 +56,12 @@ public class EntityJsonReader extends JsonReader {
 			}
 			Object value = entry.getValue();
 			if (property.getClazz() == List.class) {
-				List list = (List) values;
-				value = convertList((Class) property.getType(), list);
+				List list = (List) value;
+				value = convertList(GenericUtils.getGenericClass(property.getType()), list);
+				property.setValue(entity, value);
 			} else if (property.getClazz() == Set.class) {
 				Set set = (Set) property.getValue(entity);
-				convertEnumSet(set, (Class) property.getType(), (List)value);
+				convertEnumSet(set, (Class<? extends Enum>) GenericUtils.getGenericClass(property.getType()), (List)value);
 			} else if (value instanceof String) {
 				String string = (String) value;
 				if ("version".equals(property.getName())) {

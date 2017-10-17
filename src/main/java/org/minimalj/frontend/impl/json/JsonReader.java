@@ -3,8 +3,6 @@ package org.minimalj.frontend.impl.json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,10 +11,10 @@ import java.util.Map;
 
 public class JsonReader {
 
-	private static final Object OBJECT_END = new Object();
-	private static final Object ARRAY_END = new Object();
-	private static final Object COLON = new Object();
-	private static final Object COMMA = new Object();
+	private static final Object OBJECT_END = "]";
+	private static final Object ARRAY_END = "}";
+	private static final Object COLON = ":";
+	private static final Object COMMA = ",";
 
 	private static final Map<Character, Character> escapes = new HashMap<>();
 
@@ -31,19 +29,37 @@ public class JsonReader {
 		escapes.put('t', '\t');
 	}
 
-	private String input;
+	private final InputStreamReader reader;
+
+	private final String input;
 	private int pos;
-	private InputStreamReader reader;
+
 	private Character pushedBack;
 	
 	private StringBuilder builder = new StringBuilder();
 
-	private void reset() {
-		pos = 0;
-		builder.setLength(0);
-		pushedBack = null;
+	private JsonReader(String input) {
+		this.input = input;
+		this.reader = null;
 	}
 
+	private JsonReader(InputStreamReader reader) {
+		this.input = null;
+		this.reader = reader;
+	}
+	
+	public static Object read(InputStream inputStream) {
+		return read(new InputStreamReader(inputStream));
+	}
+	
+	public static Object read(InputStreamReader reader) {
+		return new JsonReader(reader).read();
+	}
+	
+	public static Object read(String string) {
+		return new JsonReader(string).read();
+	}
+	
 	private char next() {
 		if (pushedBack != null) {
 			char res = pushedBack;
@@ -81,24 +97,6 @@ public class JsonReader {
 
 	private void pushBack(char c) {
 		pushedBack = c;
-	}
-	
-	public Object read(InputStream inputStream) {
-		return read(new InputStreamReader(inputStream));
-	}
-	
-	public Object read(InputStreamReader reader) {
-		input = null;
-		this.reader = reader;
-		reset();
-		return read();
-	}
-	
-	public Object read(String string) {
-		input = string;
-		reader = null;
-		reset();
-		return read();
 	}
 
 	private Object read() {
@@ -191,9 +189,11 @@ public class JsonReader {
 		pushBack(c);
 		
 		String s = builder.toString();
-		int length = builder.length();
-		return isFloatingPoint ? (length < 17) ? (Object) Double.valueOf(s) : new BigDecimal(s) : (length < 19) ? (Object) Long.valueOf(s)
-				: new BigInteger(s);
+		if (isFloatingPoint) {
+			return Double.valueOf(s);
+		} else {
+			return Long.valueOf(s);
+		}
 	}
 
 	private char addDigits(char c) {
