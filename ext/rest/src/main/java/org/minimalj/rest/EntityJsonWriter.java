@@ -28,24 +28,24 @@ import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.StringUtils;
 
-public class EntityJsonWriter extends JsonWriter {
+public class EntityJsonWriter {
 
-	public String write(Object entity) {
+	public static String write(Object entity) {
 		Map<String, Object> map = convert(entity, new HashSet<>());
-		return write(map);
+		return new JsonWriter().write(map);
 	}
 
-	public String write(List<?> entities) {
+	public static String write(List<?> entities) {
 		List<Map<String, Object>> mapList = new ArrayList<>();
 		TreeSet<String> ids = new TreeSet<>();
 		for (Object entity : entities) {
 			mapList.add(convert(entity, ids));
 		};
-		return write(mapList);
+		return new JsonWriter().write(mapList);
 	}
 
 //	private List<Map<String, Object>> convert(Object entity) {
-	private Map<String, Object> convert(Object entity, Set<String> ids) {
+	private static Map<String, Object> convert(Object entity, Set<String> ids) {
 		Map<String, Object> values = new LinkedHashMap<>();
 
 		if (entity instanceof Map) {
@@ -77,24 +77,24 @@ public class EntityJsonWriter extends JsonWriter {
 					values.put(propertyName, value);
 				} else if (StringUtils.equals(propertyName, "id", "version", "historized") || FieldUtils.isAllowedPrimitive(property.getClazz())) {
 					values.put(propertyName, value.toString());
-//				} else if (value instanceof List) {
-//					List listValue = (List) value;
-//					if (listValue.isEmpty()) {
-//						continue;
-//					}
-//					List list = new ArrayList<>();
-//					for (Object element : listValue) {
-//						if (element instanceof String) {
-//							// List<String> would be not allowed in MJ but 'required' is such a list
-//							list.add(element);
-//						} else {
-//							list.add(convert(element, ids));
-//						}
-//					}
-//					values.put(propertyName, list);
+				} else if (value instanceof List) {
+					List listValue = (List) value;
+					if (listValue.isEmpty()) {
+						continue;
+					}
+					List list = new ArrayList<>();
+					for (Object element : listValue) {
+						if (element instanceof String) {
+							// List<String> would be not allowed in MJ but 'required' is such a list
+							list.add(element);
+						} else {
+							list.add(convert(element, ids));
+						}
+					}
+					values.put(propertyName, list);
 				} else if (value instanceof Enum) {
 					values.put(propertyName, value.toString().toLowerCase());
-				} else {
+				} else if (value != null) {
 					value = convert(value, ids);
 					if (value != null) {
 						values.put(propertyName, value);
@@ -103,6 +103,7 @@ public class EntityJsonWriter extends JsonWriter {
 			}
 		}
 		
+		/*
 		List<PropertyInterface> listProperties = FlatProperties.getListProperties(entity.getClass());
 		for (PropertyInterface property : listProperties) {
 			Object value = property.getValue(entity);
@@ -125,6 +126,7 @@ public class EntityJsonWriter extends JsonWriter {
 				values.put(propertyName, list);
 			}
 		}
+		*/
 		return values;
 	}
 
