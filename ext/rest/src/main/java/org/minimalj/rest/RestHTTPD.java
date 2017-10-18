@@ -37,7 +37,7 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class RestHTTPD extends NanoHTTPD {
 
-	private final Map<String, Class> classByName;
+	private final Map<String, Class<?>> classByName;
 	
 	public RestHTTPD( int port, boolean secure) {
 		super(port);
@@ -54,8 +54,8 @@ public class RestHTTPD extends NanoHTTPD {
 		classByName = initClassMap();
 	}
 	
-	protected Map<String, Class> initClassMap() {
-		Map<String, Class> classByName = new HashMap<>();
+	protected Map<String, Class<?>> initClassMap() {
+		Map<String, Class<?>> classByName = new HashMap<>();
 		MjModel model = new MjModel(Application.getInstance().getEntityClasses());
 		for (MjEntity entity : model.entities) {
 			classByName.put(entity.getClazz().getSimpleName(), entity.getClazz());
@@ -110,32 +110,32 @@ public class RestHTTPD extends NanoHTTPD {
 				Query query = By.all();
 				String sizeParameter = parameters.get("size");
 				if (!StringUtils.isBlank(sizeParameter)) {
-					int page = 0;
-					String pageParameter = parameters.get("page");
-					if (!StringUtils.isBlank(pageParameter)) {
+					int offset = 0;
+					String offsetParameter = parameters.get("offset");
+					if (!StringUtils.isBlank(offsetParameter)) {
 						try {
-							page = Integer.valueOf(pageParameter);
+							offset = Integer.valueOf(offsetParameter);
 						} catch (NumberFormatException e) {
 							return newFixedLengthResponse(Status.BAD_REQUEST, "text/json",
-									"page parameter invalid: " + pageParameter);
+									"page parameter invalid: " + offsetParameter);
 						}
 					}
 					try {
 						int size = Integer.valueOf(sizeParameter);
-						query = ((QueryLimitable) query).limit(page != 0 ? page * size : null, size);
+						query = ((QueryLimitable) query).limit(offset, size);
 					} catch (NumberFormatException e) {
 						return newFixedLengthResponse(Status.BAD_REQUEST, "text/json",
 								"size parameter invalid: " + sizeParameter);
 					}
 				}
 				List<?> object = Backend.find(clazz, query);
-				return newFixedLengthResponse(Status.OK, "text/json", new EntityJsonWriter().write(object));
+				return newFixedLengthResponse(Status.OK, "text/json", EntityJsonWriter.write(object));
 			}
 			if (pathElements.length == 2) {
 				// GET entity/id (get one)
 				String id = pathElements[1];
 				Object object = Backend.read(clazz, id);
-				return newFixedLengthResponse(Status.OK, "text/json", new EntityJsonWriter().write(object));
+				return newFixedLengthResponse(Status.OK, "text/json", EntityJsonWriter.write(object));
 			}
 		} else if (method == Method.POST) {
 			if (clazz != null) {
@@ -151,7 +151,17 @@ public class RestHTTPD extends NanoHTTPD {
  					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post excepts id in url");
  				}
 			}
-
+			
+		} else if (method == Method.DELETE) {
+			if (clazz != null) {
+				if (pathElements.length >= 2) {
+					String id = pathElements[1];
+					Backend.delete(clazz, id);
+ 				} else {
+ 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post excepts id in url");
+ 				}
+			}
+			
 		} else if (method == Method.PUT) {
 			if (pathElements.length > 0) {
 				if (StringUtils.equals("java-transaction", pathElements[0])) {
@@ -215,9 +225,10 @@ public class RestHTTPD extends NanoHTTPD {
 					for (String line : inputLines) {
 						input = input + line;
 					}
-					Object inputObject = new EntityJsonReader().read(clazz, input);
+					Object inputObject = EntityJsonReader.read(clazz, input);
 					// IdUtils.setId(inputObject, null);
-					Backend.insert(inputObject);
+					Object id = Backend.insert(inputObject);
+					return newFixedLengthResponse(Status.OK, "text/plain", id.toString());
 				} catch (IOException x) {
 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Could not read input");
 				}
