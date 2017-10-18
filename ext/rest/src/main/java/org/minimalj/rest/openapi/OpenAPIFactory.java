@@ -2,7 +2,6 @@ package org.minimalj.rest.openapi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,6 +11,7 @@ import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
+import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.rest.EntityJsonWriter;
 import org.minimalj.rest.openapi.model.OpenAPI;
@@ -73,14 +73,26 @@ public class OpenAPIFactory {
 
 			if (IdUtils.hasId(entity.getClazz())) {
 				Map<String, Operation> operations = new HashMap<>();
+
 				Operation operation = operationGetById(entity);
 				operations.put("get", operation);
+				
+				operation = operationPost(entity);
+				operations.put("post", operation);
+
+				operation = operationDelete(entity);
+				operations.put("delete", operation);
+
 				api.paths.put("/" + entityName + "/{id}", operations);
+				
+				// 
 				
 				operations = new HashMap<>();
 				
-				operation = operationGetAll(entity);
-				operations.put("get", operation);
+				if (Code.class.isAssignableFrom(entity.getClazz())) {
+					operation = operationGetAll(entity);
+					operations.put("get", operation);
+				}
 				
 				operation = operationPut(entity);
 				operations.put("put", operation);
@@ -99,7 +111,7 @@ public class OpenAPIFactory {
 			} else {
 				schema = schema(entity);
 			}
-
+			
 			if (this.api == API.OpenAPI3) {
 				api.components.schemas.put(entityName, schema);
 			} else {
@@ -107,8 +119,7 @@ public class OpenAPIFactory {
 			}	
 		}
 		
-		EntityJsonWriter writer = new EntityJsonWriter();
-		return writer.write(api);
+		return EntityJsonWriter.write(api);
 	}
 
 
@@ -118,19 +129,10 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Gets a " + entityName + " by id";
 		
-		Parameter parameter = new Parameter();
-		parameter.name = "id";
+		Parameter parameter = stringParameter("id");
 		parameter.required = true;
 		parameter.in = In.path;
 		parameter.description = entityName + " id";
-		
-		if (api == API.OpenAPI3) {
-			Schema schema = new Schema();
-			schema.type = Type.STRING;
-			parameter.schema = schema;
-		} else {
-			parameter.type = "string";
-		}
 		
 		operation.parameters.add(parameter);
 		
@@ -160,6 +162,16 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Gets all " + entityName;
 
+		Parameter parameter = stringParameter("offset");
+		parameter.in = In.query;
+		parameter.description = "First returned item (starting at 0)";
+		operation.parameters.add(parameter);
+		
+		parameter = stringParameter("size");
+		parameter.in = In.query;
+		parameter.description = "Number of maximal returned items";
+		operation.parameters.add(parameter);
+		
 		Response response = new Response();
 		response.description = "Successful operation";
 
@@ -186,11 +198,80 @@ public class OpenAPIFactory {
 		return operation;
 	}
 	
+	private Parameter stringParameter(String name) {
+		Parameter parameter = new Parameter();
+		parameter.name = name;
+		if (api == API.OpenAPI3) {
+			Schema schema = new Schema();
+			schema.type = Type.STRING;
+			parameter.schema = schema;
+		} else {
+			parameter.type = "string";
+		}
+		return parameter;
+	}
+	
 	private Operation operationPut(MjEntity entity) {
 		String entityName = entity.getClazz().getSimpleName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Add a new " + entityName;
+			
+		Schema schema = new Schema();
+		schema.$ref = SCHEMAS + entityName;
+		
+		if (api == API.OpenAPI3) {
+			Content content = new Content();
+			content.schema = schema;
+			
+			RequestBody requestBody = new RequestBody();
+			requestBody.content.put("application/json", content);
+
+			operation.requestBody = requestBody;
+		} else {
+			// TODO response.schema = schema;
+		}
+		
+		Response response = new Response();
+		response.description = "Successful operation";
+		
+		operation.responses.put("200", response);
+		return operation;
+	}
+	
+	private Operation operationPost(MjEntity entity) {
+		String entityName = entity.getClazz().getSimpleName();
+		
+		Operation operation = new Operation();
+		operation.summary = "Update a " + entityName;
+			
+		Schema schema = new Schema();
+		schema.$ref = SCHEMAS + entityName;
+		
+		if (api == API.OpenAPI3) {
+			Content content = new Content();
+			content.schema = schema;
+			
+			RequestBody requestBody = new RequestBody();
+			requestBody.content.put("application/json", content);
+
+			operation.requestBody = requestBody;
+		} else {
+			// TODO response.schema = schema;
+		}
+		
+		Response response = new Response();
+		response.description = "Successful operation";
+		
+		operation.responses.put("200", response);
+		return operation;
+	}
+	
+	private Operation operationDelete(MjEntity entity) {
+		String entityName = entity.getClazz().getSimpleName();
+		
+		Operation operation = new Operation();
+		operation.summary = "Delete a " + entityName;
 			
 		Schema schema = new Schema();
 		schema.$ref = SCHEMAS + entityName;
