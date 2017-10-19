@@ -216,7 +216,7 @@ public class OpenAPIFactory {
 		
 		Operation operation = new Operation();
 		operation.summary = "Add a new " + entityName;
-			
+		
 		Schema schema = new Schema();
 		schema.$ref = SCHEMAS + entityName;
 		
@@ -244,7 +244,13 @@ public class OpenAPIFactory {
 		
 		Operation operation = new Operation();
 		operation.summary = "Update a " + entityName;
-			
+
+		Parameter parameter = stringParameter("id");
+		parameter.required = true;
+		parameter.in = In.path;
+		parameter.description = entityName + " id";
+		operation.parameters.add(parameter);
+
 		Schema schema = new Schema();
 		schema.$ref = SCHEMAS + entityName;
 		
@@ -272,7 +278,14 @@ public class OpenAPIFactory {
 		
 		Operation operation = new Operation();
 		operation.summary = "Delete a " + entityName;
-			
+
+		Parameter parameter = stringParameter("id");
+		parameter.required = true;
+		parameter.in = In.path;
+		parameter.description = entityName + " id";
+		
+		operation.parameters.add(parameter);
+
 		Schema schema = new Schema();
 		schema.$ref = SCHEMAS + entityName;
 		
