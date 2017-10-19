@@ -16,7 +16,7 @@ public class RestServer {
 	private static final boolean SECURE = true;
 	private static final int TIME_OUT = 5 * 60 * 1000;
 	
-	private static void start(boolean secure) {
+	public static void start(boolean secure) {
 		int port = getPort(secure);
 		if (port > 0) {
 			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " rest server on port " + port + (secure ? " (Secure)" : ""));
