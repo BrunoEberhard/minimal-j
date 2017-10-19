@@ -141,12 +141,13 @@ public class RestHTTPD extends NanoHTTPD {
 			if (clazz != null) {
 				if (pathElements.length >= 2) {
 					String id = pathElements[1];
-					String inputString = files.get("content");
+					String inputString = files.get("postData");
 					if (inputString == null) {
 						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
 					}
 					Object inputObject = EntityJsonReader.read(clazz, inputString);
 					Backend.update(inputObject);
+					return newFixedLengthResponse(Status.OK, "text/json", "success");
  				} else {
  					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post excepts id in url");
  				}
