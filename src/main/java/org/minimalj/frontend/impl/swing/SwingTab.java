@@ -45,6 +45,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
+import org.minimalj.util.StringUtils;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -53,7 +54,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 	public static final int MAX_PAGES_ADPATIV = -1;
 	
 	final SwingFrame frame;
-	final Action previousAction, nextAction, refreshAction;
+	final Action previousAction, nextAction, refreshAction, favoriteAction;
 	final Action closeTabAction;
 	final Action navigationAction;
 	final ScrollToNewPageAction scrollToNewPageAction;
@@ -73,6 +74,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 	
 	private int maxPages;
 	
+	private static final SwingFavorites favorites = new SwingFavorites();
+	
 	public SwingTab(SwingFrame frame) {
 		super();
 		this.frame = frame;
@@ -85,6 +88,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
 		refreshAction = new RefreshAction();
+		favoriteAction = new FavoriteAction();
 
 		closeTabAction = new CloseTabAction();
 		
@@ -147,6 +151,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		if (getVisiblePage() != null) {
 			previousAction.setEnabled(hasPast());
 			nextAction.setEnabled(hasFuture());
+			favoriteAction.setEnabled(!StringUtils.isEmpty(getVisiblePage().getRoute()));
 		} else {
 			previousAction.setEnabled(false);
 			nextAction.setEnabled(false);
@@ -184,6 +189,19 @@ public class SwingTab extends EditablePanel implements PageManager {
 		public void actionPerformed(ActionEvent e) {
 			// not implemented at the moment
 			// replace(getVisiblePage());
+		}
+	}
+	
+	
+	private class FavoriteAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Page page = getVisiblePage();
+			if (page != null && !StringUtils.isEmpty(page.getRoute())) {
+				favorites.addFavorite(page.getRoute(), page.getTitle());
+			}
 		}
 	}
 	

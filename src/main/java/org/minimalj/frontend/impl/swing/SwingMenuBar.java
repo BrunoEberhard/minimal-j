@@ -2,8 +2,11 @@ package org.minimalj.frontend.impl.swing;
 
 import java.awt.event.ActionEvent;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -12,6 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
+import org.minimalj.application.Application;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.lookAndFeel.LookAndFeelAction;
@@ -26,6 +30,7 @@ public class SwingMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	
 	private final SwingTab tab;
+	private static final SwingFavorites favorites = new SwingFavorites();
 
 	public SwingMenuBar(SwingTab tab) {
 		super();
@@ -34,6 +39,7 @@ public class SwingMenuBar extends JMenuBar {
 		add(createWindowMenu());
 		add(createEditMenu());
 		add(createViewMenu());
+		add(createFavoriteMenu());
 	}
 	
 	private JMenu createWindowMenu() {
@@ -112,6 +118,31 @@ public class SwingMenuBar extends JMenuBar {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			tab.setMaxPages(maxPages);
+		}
+	}
+	
+	private JMenu createFavoriteMenu() {
+		JMenu menu = menu("favorite");
+		LinkedHashMap<String, String> favorites = SwingMenuBar.favorites.getFavorites();
+		for (Entry<String, String> favorite : favorites.entrySet()) {
+			menu.add(new JMenuItem(new ShowFavoriteAction(favorite.getKey(), favorite.getValue())));
+		}
+		return menu;
+	}
+	
+	private class ShowFavoriteAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
+		private final String route;
+		
+		public ShowFavoriteAction(String route, String title) {
+			super(title);
+			this.route = route;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			tab.show(Application.getInstance().createPage(route));
 		}
 	}
 	

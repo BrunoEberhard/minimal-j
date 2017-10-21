@@ -29,6 +29,7 @@ public class SwingToolBar extends JToolBar {
 	protected void fillToolBar() {
 		fillToolBarNavigation();
 		fillToolBarRefresh();
+		fillToolBarFavorite();
 		add(Box.createHorizontalGlue());
 		fillToolBarSearch();
 	}
@@ -40,6 +41,10 @@ public class SwingToolBar extends JToolBar {
 	
 	protected void fillToolBarRefresh() {
 		add(tab.refreshAction);
+	}
+	
+	protected void fillToolBarFavorite() {
+		add(tab.favoriteAction);
 	}
 	
 	protected void fillToolBarSearch() {
