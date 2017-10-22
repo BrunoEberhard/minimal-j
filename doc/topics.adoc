@@ -9,6 +9,7 @@
 ** link:self_references.adoc[Self References] Rules for classes referencing their own objects
 * link:ui_content_and_components.adoc[UI details] Content, components and forms
 * link:authorization.adoc[Authorization] Security concepts and configuration
+* link:../ext/README.doc[Extensions] Special implementations of Frontends end Backends
 
 == Examples
 
