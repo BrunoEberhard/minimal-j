@@ -187,7 +187,7 @@ public abstract class Application {
 	 * @return the (valid) page for this route
 	 */
 	public Page createPage(String route) {
-		return new EmptyPage();
+		return null;
 	}
 	
 	/**
