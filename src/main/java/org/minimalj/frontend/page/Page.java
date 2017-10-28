@@ -74,11 +74,14 @@ public abstract class Page {
 		}
 		for (int i = 0; i<route.length(); i++) {
 			char c = route.charAt(i);
-			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '.' || c == '-' || c == '_' || c == '/')) {
-				return false;
-			}
-			if (c == '/' && route.charAt(i - 1) == '.') {
-				return false;
+			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '.' || c == '-' || c == '_')) {
+				if (c == '/') {
+					if (route.charAt(i - 1) == '.') {
+						return false;
+					}
+				} else {
+					return false;
+				}
 			}
 		}
 		return true;
