@@ -11,14 +11,11 @@ import org.minimalj.application.Application;
 
 public class SwingFavorites {
 
-	private final Preferences preferences;
+	private static final Preferences preferences;
+	private static LinkedHashMap<String, String> favorites = new LinkedHashMap<>();
 	
-	public SwingFavorites() {
+	static {
 		preferences = Preferences.userNodeForPackage(Application.getInstance().getClass()).node("favorites");
-	}
-
-	public LinkedHashMap<String, String> getFavorites() {
-		LinkedHashMap<String, String> favorites = new LinkedHashMap<>();
 		try {
 			String[] keys = preferences.keys();
 			Arrays.sort(keys);
@@ -33,13 +30,40 @@ public class SwingFavorites {
 		} catch (BackingStoreException e) {
 			// do nothing, favorites not available
 		}
+	}
+
+	public static LinkedHashMap<String, String> getFavorites() {
 		return favorites;
 	}
 	
-	public void addFavorite(String route, String title) {
+	public static boolean isFavorite(String route) {
+		for (String key : favorites.keySet()) {
+			if (key.equals(route)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static void addFavorite(String route, String title) {
 		LocalDateTime time = LocalDateTime.now();
 		String timeString = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 		
 		preferences.put(timeString + "@" + route, title);
+	}
+
+	public static void toggleFavorite(String route, String title) {
+		String toRemove = null;
+		for (String key : favorites.keySet()) {
+			if (key.equals(route)) {
+				toRemove = key;
+				break;
+			}
+		}
+		if (toRemove != null) {
+			favorites.remove(toRemove);
+		} else {
+			addFavorite(route, title);
+		}
 	}
 }

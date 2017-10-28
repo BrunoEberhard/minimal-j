@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -75,6 +76,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 	private int maxPages;
 	
 	private static final SwingFavorites favorites = new SwingFavorites();
+	private static final Icon favorite_yes_icon = SwingFrontend.getIcon("favorite_yes.largeIcon");
+	private static final Icon favorite_no_icon = SwingFrontend.getIcon("favorite_no.largeIcon");
 	
 	public SwingTab(SwingFrame frame) {
 		super();
@@ -148,13 +151,24 @@ public class SwingTab extends EditablePanel implements PageManager {
 	}
 
 	protected void updateActions() {
+		favoriteAction.putValue(Action.LARGE_ICON_KEY, favorite_no_icon);
 		if (getVisiblePage() != null) {
 			previousAction.setEnabled(hasPast());
 			nextAction.setEnabled(hasFuture());
-			favoriteAction.setEnabled(!StringUtils.isEmpty(getVisiblePage().getRoute()));
+			String route = getVisiblePage().getRoute();
+			if (route != null) {
+				favoriteAction.setEnabled(true);
+				boolean favorite = SwingFavorites.isFavorite(route);
+				if (favorite) {
+					favoriteAction.putValue(Action.LARGE_ICON_KEY, favorite_yes_icon);
+				}
+			} else {
+				favoriteAction.setEnabled(false);
+			}
 		} else {
 			previousAction.setEnabled(false);
 			nextAction.setEnabled(false);
+			favoriteAction.setEnabled(false);
 		}
 	}
 	
@@ -200,7 +214,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		public void actionPerformed(ActionEvent e) {
 			Page page = getVisiblePage();
 			if (page != null && !StringUtils.isEmpty(page.getRoute())) {
-				favorites.addFavorite(page.getRoute(), page.getTitle());
+				SwingFavorites.toggleFavorite(page.getRoute(), page.getTitle());
 			}
 		}
 	}
