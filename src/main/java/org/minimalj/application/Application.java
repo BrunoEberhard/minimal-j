@@ -186,20 +186,6 @@ public abstract class Application implements Model {
 	public Page createPage(String route) {
 		return null;
 	}
-
-	/**
-	 * note: for production you should override this method to avoid continuous use of reflection
-	 * 
-	 * @return true if the application overrides createPage meaning
-	 * the application provides routing
-	 */
-	public boolean hasRouting() {
-		try {
-			return this.getClass().getMethod("createPage", new Class<?>[] { String.class }).getDeclaringClass() != Application.class;
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
 	/**
 	 * If more than one class of entities should be searched have a look at

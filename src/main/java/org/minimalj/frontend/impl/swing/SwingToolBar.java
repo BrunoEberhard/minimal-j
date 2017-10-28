@@ -29,7 +29,9 @@ public class SwingToolBar extends JToolBar {
 	protected void fillToolBar() {
 		fillToolBarNavigation();
 		fillToolBarRefresh();
-		fillToolBarFavorite();
+		if (SwingFrontend.applicationHasRouting()) {
+			fillToolBarFavorite();
+		}
 		add(Box.createHorizontalGlue());
 		fillToolBarSearch();
 	}

@@ -39,7 +39,9 @@ public class SwingMenuBar extends JMenuBar {
 		add(createWindowMenu());
 		add(createEditMenu());
 		add(createViewMenu());
-		add(createFavoriteMenu());
+		if (SwingFrontend.applicationHasRouting()) {
+			add(createFavoriteMenu());
+		}
 	}
 	
 	private JMenu createWindowMenu() {
