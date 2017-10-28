@@ -62,8 +62,8 @@ public abstract class Page {
 	 * <LI>Only characters or digits or the four characters .-_/ are allowed
 	 * <LI>Before a '/' no '.' is allowed
 	 * </UL> 
-	 * @param route
-	 * @return
+	 * @param route String provided by a page
+	 * @return Frontend will accept route or not
 	 */
 	public static boolean validateRoute(String route) {
 		if (StringUtils.isBlank(route)) {
