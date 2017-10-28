@@ -43,6 +43,13 @@ public class PageTest {
 	}
 
 	@Test
+	public void pathsNotValid() {
+		Assert.assertFalse(Page.validateRoute("a./b"));
+		Assert.assertFalse(Page.validateRoute("a/../b"));
+	}
+
+	
+	@Test
 	public void validCharactersRouteValid() {
 		Assert.assertTrue(Page.validateRoute("a._-/b"));
 	}

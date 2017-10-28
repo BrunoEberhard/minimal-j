@@ -60,6 +60,7 @@ public abstract class Page {
 	 * <UL>
 	 * <LI>no '/' at start or end
 	 * <LI>Only characters or digits or the four characters .-_/ are allowed
+	 * <LI>Before a '/' no '.' is allowed
 	 * </UL> 
 	 * @param route
 	 * @return
@@ -74,6 +75,9 @@ public abstract class Page {
 		for (int i = 0; i<route.length(); i++) {
 			char c = route.charAt(i);
 			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '.' || c == '-' || c == '_' || c == '/')) {
+				return false;
+			}
+			if (c == '/' && route.charAt(i - 1) == '.') {
 				return false;
 			}
 		}
