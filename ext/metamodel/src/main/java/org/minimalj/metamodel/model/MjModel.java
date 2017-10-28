@@ -3,6 +3,7 @@ package org.minimalj.metamodel.model;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO rename all MjXy classes to MetaXy
 public class MjModel {
 
 	public final List<MjEntity> entities = new ArrayList<>();

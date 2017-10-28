@@ -31,20 +31,20 @@ import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.model.Model;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
  * Extend this class to define your Application.
- * Both frontend and backend refer to this class.<p>
  * 
  * All non static methods can be overridden.
  * 
  * @see Swing
  * @see NanoWebServer
  */
-public abstract class Application {
+public abstract class Application implements Model {
 	private static Application instance;
 	
 	public Application() {
@@ -143,12 +143,7 @@ public abstract class Application {
 		}
 	}
 
-	/**
-	 * Defines the (root) entities of this application. These are the classes the are used
-	 * for the repository. Classes only used as base for an editor should not be listed here.
-	 * 
-	 * @return all the classes used for the repository. These classes will be checked for compliance by the ModelTest .
-	 */
+	@Override
 	public Class<?>[] getEntityClasses() {
 		return new Class<?>[0];
 	}

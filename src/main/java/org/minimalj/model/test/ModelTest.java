@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import org.minimalj.application.Application;
 import org.minimalj.application.DevMode;
 import org.minimalj.model.EnumUtils;
+import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Size;
@@ -45,6 +46,10 @@ public class ModelTest {
 	private Set<Class<?>> modelClasses = new HashSet<Class<?>>();
 	
 	private final List<String> problems = new ArrayList<String>();
+
+	public ModelTest(Model model) {
+		this(model.getEntityClasses());
+	}
 	
 	public ModelTest(Class<?>... modelClasses) {
 		this(Arrays.asList(modelClasses));

@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.minimalj.model.Code;
+import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
@@ -47,6 +48,10 @@ public class InMemoryRepository implements Repository {
 	private Map<Class<?>, Map<Object, Object>> memory = new HashMap<>();
 	
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+	
+	public InMemoryRepository(Model model) {
+		this(model.getEntityClasses());
+	}
 	
 	public InMemoryRepository(Class<?>... classes) {
 		ModelTest modelTest = new ModelTest(classes);

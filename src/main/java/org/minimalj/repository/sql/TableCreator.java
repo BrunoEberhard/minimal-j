@@ -20,7 +20,7 @@ public class TableCreator {
 		String password = Configuration.get("MjSqlDatabasePassword", "APP");
 		
 		DataSource dataSource = DataSourceFactory.mariaDbDataSource(database, user, password);
-		new SqlRepository(dataSource, SqlRepository.CREATE_TABLES, application.getEntityClasses());
+		new SqlRepository(dataSource, SqlRepository.CREATE_TABLES, application);
 	}
 
 }
