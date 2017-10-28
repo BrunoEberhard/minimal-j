@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -43,14 +44,39 @@ public abstract class Page {
 	 * Although there is no explicit limit to the length of the route it should
 	 * stay human readable.<p>
 	 * 
-	 * By convention the returned String should <b>not</b> begin or end with a '/' and
-	 * the content should be URL 'compatible'. Note that a link in a HtmlPage must
-	 * add a '/' at the end. (subject to change)
+	 * If the validateRoute method in this class doesn't accept the returned
+	 * string the route is ignored by the frontend.
 	 * 
 	 * @see org.minimalj.application.Application#createPage(String)
+	 * @see org.minimalj.frontend.page.Page#validateRoute(String)
 	 * @return <code>null</code> if this Page class or object is not routable.
 	 */
 	public String getRoute() {
 		return null;
+	}
+
+	/**
+	 * Route String must obey some rules to be valid:
+	 * <UL>
+	 * <LI>no '/' at start or end
+	 * <LI>Only characters or digits or the four characters .-_/ are allowed
+	 * </UL> 
+	 * @param route
+	 * @return
+	 */
+	public static boolean validateRoute(String route) {
+		if (StringUtils.isBlank(route)) {
+			return false;
+		}
+		if (route.startsWith("/") || route.endsWith("/")) {
+			return false;
+		}
+		for (int i = 0; i<route.length(); i++) {
+			char c = route.charAt(i);
+			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '.' || c == '-' || c == '_' || c == '/')) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

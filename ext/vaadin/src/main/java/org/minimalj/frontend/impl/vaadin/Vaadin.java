@@ -278,7 +278,7 @@ public class Vaadin extends UI implements PageManager {
 		state = new HashMap<>();
 		state.put("0", pageId);
 		String route = page.getRoute();
-		if (StringUtils.isEmpty(route)) {
+		if (!Page.validateRoute(route)) {
 			route = "/";
 		}
 		route = route + "#" + pageId;
