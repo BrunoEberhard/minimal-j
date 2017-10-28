@@ -24,6 +24,14 @@ public abstract class Page {
 	
 	public abstract IContent getContent();
 	
+	/**
+	 * 
+	 * @return List of Action specific to this page and it's content. These
+	 *         Actions can be displayed by the frontend as context menu or at
+	 *         the right side of the page. Actions can be enabled or disabled
+	 *         but not added or removed. Actions can be grouped with an
+	 *         ActionGroup.
+	 */
 	public List<Action> getActions() {
 		return null;
 	}
@@ -33,7 +41,11 @@ public abstract class Page {
 	 * the user may see this String (for example in the URL). The parts of the
 	 * route should be glued together with '/'. For example "person/42".
 	 * Although there is no explicit limit to the length of the route it should
-	 * stay human readable.
+	 * stay human readable.<p>
+	 * 
+	 * By convention the returned String should <b>not</b> begin or end with a '/' and
+	 * the content should be URL 'compatible'. Note that a link in a HtmlPage must
+	 * add a '/' at the end. (subject to change)
 	 * 
 	 * @see org.minimalj.application.Application#createPage(String)
 	 * @return <code>null</code> if this Page class or object is not routable.
