@@ -7,12 +7,13 @@ import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.resources.Resources.ResourceBundleAccess;
 
 public class ResourcesTest {
 
 	public static final ResourcesTest $ = Keys.of(ResourcesTest.class);
 	
-	private static ResourceBundle resourceBundle = ResourceBundle.getBundle(ResourcesTest.class.getName());
+	private ResourceBundleAccess resourceAccess = new ResourceBundleAccess(ResourceBundle.getBundle(ResourcesTest.class.getName()));
 	
 	public ResourcesTest1 fullQualified;
 	public ResourcesTest2 normal;
@@ -69,9 +70,9 @@ public class ResourcesTest {
 		Assert.assertEquals("Test4", getFieldName(ResourcesTestView.$.byFullQualifiedFieldClass));
 	}
 	
-	private static String getFieldName(Object key) throws Exception {
+	private String getFieldName(Object key) throws Exception {
 		PropertyInterface property = Keys.getProperty(key);
-		return Resources.getPropertyName(resourceBundle, property);
+		return resourceAccess.getPropertyName(property, null);
 	}
 	
 	public static class ResourcesTest1 {

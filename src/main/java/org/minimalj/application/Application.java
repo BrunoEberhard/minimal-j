@@ -130,7 +130,14 @@ public abstract class Application implements Model {
 	}
 	
 	/**
-	 * @return The application specific ResourceBundle names
+	 * 
+	 * @param locale
+	 *            the Locale
+	 * @return The ResourceBundle for the application and the locale. The default
+	 *         name of the properties file is the same as the application class
+	 *         name.
+	 * @see MultiResourceBundle MultiResourceBundle to combine several
+	 *      ResourceBundle
 	 */
 	public ResourceBundle getResourceBundle(Locale locale) {
 		List<ResourceBundle> resourceBundles = new ArrayList<>();
@@ -149,7 +156,6 @@ public abstract class Application implements Model {
 			}
 			applicationClass = applicationClass.getSuperclass();
 		} while (applicationClass != Application.class);
-		resourceBundles.add(ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
 		return new MultiResourceBundle(resourceBundles);
 	}
 
