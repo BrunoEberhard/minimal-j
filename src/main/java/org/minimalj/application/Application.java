@@ -156,6 +156,7 @@ public abstract class Application implements Model {
 			}
 			applicationClass = applicationClass.getSuperclass();
 		} while (applicationClass != Application.class);
+		resourceBundles.add(ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
 		return new MultiResourceBundle(resourceBundles);
 	}
 
