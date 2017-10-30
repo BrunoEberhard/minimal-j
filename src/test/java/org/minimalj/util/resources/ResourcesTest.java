@@ -1,5 +1,7 @@
 package org.minimalj.util.resources;
 
+import java.util.ResourceBundle;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.Keys;
@@ -10,6 +12,8 @@ public class ResourcesTest {
 
 	public static final ResourcesTest $ = Keys.of(ResourcesTest.class);
 	
+	private static ResourceBundle resourceBundle = ResourceBundle.getBundle(ResourcesTest.class.getName());
+	
 	public ResourcesTest1 fullQualified;
 	public ResourcesTest2 normal;
 	
@@ -17,10 +21,6 @@ public class ResourcesTest {
 	public ResourcesTest4 byFullQualifiedFieldClass;
 
 	public String byFieldName;
-
-	static {
-		Resources.addResourceBundleName(ResourcesTest.class.getName());
-	}
 	
 	@Test
 	public void should_find_name_of_full_qualified_field() throws Exception {
@@ -69,10 +69,9 @@ public class ResourcesTest {
 		Assert.assertEquals("Test4", getFieldName(ResourcesTestView.$.byFullQualifiedFieldClass));
 	}
 	
-	private String getFieldName(Object key) throws Exception {
+	private static String getFieldName(Object key) throws Exception {
 		PropertyInterface property = Keys.getProperty(key);
-		String name = Resources.getPropertyName(property);
-		return name;
+		return Resources.getPropertyName(resourceBundle, property);
 	}
 	
 	public static class ResourcesTest1 {

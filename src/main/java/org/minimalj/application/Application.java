@@ -19,11 +19,13 @@
 package org.minimalj.application;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.ResourceBundle.Control;
 import java.util.logging.Logger;
 
 import org.minimalj.frontend.action.Action;
@@ -34,6 +36,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Model;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.MultiResourceBundle;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -50,9 +53,7 @@ public abstract class Application implements Model {
 	private static Application instance;
 	
 	public Application() {
-		for (String resourceBundleName : getResourceBundleNames()) {
-			Resources.addResourceBundleName(resourceBundleName);
-		}
+		//
 	}
 	
 	public static Application getInstance() {
@@ -131,18 +132,25 @@ public abstract class Application implements Model {
 	/**
 	 * @return The application specific ResourceBundle names
 	 */
-	protected Set<String> getResourceBundleNames() {
-		try {
-			// try to load the bundle to provoke the exception if resource bundle is missing
-			ResourceBundle.getBundle(this.getClass().getName());
-			return Collections.singleton(this.getClass().getName());
-		} catch (MissingResourceException x) {
-			Logger logger = Logger.getLogger(Application.class.getName());
-			logger.warning("Missing the default ResourceBundle for " + this.getClass().getName());
-			logger.fine("The default ResourceBundle has the same name as the Application that is launched.");
-			logger.fine("See the MjExampleApplication.java and MjExampleApplication.properties");
-			return Collections.emptySet();
-		}
+	public ResourceBundle getResourceBundle(Locale locale) {
+		List<ResourceBundle> resourceBundles = new ArrayList<>();
+		Class<?> applicationClass = getClass();
+		do {
+			try {
+				String resourceBundleName = applicationClass.getName();
+				resourceBundles.add(ResourceBundle.getBundle(resourceBundleName, locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
+			} catch (MissingResourceException x) {
+				if (applicationClass == getInstance().getClass()) {
+					Logger logger = Logger.getLogger(Application.class.getName());
+					logger.warning("Missing the default ResourceBundle for " + this.getClass().getName());
+					logger.fine("The default ResourceBundle has the same name as the Application that is launched.");
+					logger.fine("See the MjExampleApplication.java and MjExampleApplication.properties");
+				}
+			}
+			applicationClass = applicationClass.getSuperclass();
+		} while (applicationClass != Application.class);
+		resourceBundles.add(ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
+		return new MultiResourceBundle(resourceBundles);
 	}
 
 	@Override
