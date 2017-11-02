@@ -24,7 +24,7 @@ public class DateUtilsXsdTest  extends TestCase {
 
     public void testParse() throws ParseException {
         Date d = DateUtils.parseXsd("2042-12-06T21:30:15+01:00");
-        assertEquals(c.getTime(), d);
+        assertTrue(c.getTime().compareTo(d) == 0);
     }
 
     public void testFormat() throws ParseException {
