@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -241,7 +242,7 @@ public class InMemoryRepository implements Repository {
 		object = CloneHelper.clone(object);
 		Object id = IdUtils.getId(object);
 		if (id == null) {
-			id = IdUtils.createId();
+			id = UUID.randomUUID();
 			IdUtils.setId(object, id);
 		}
 		Map<Object, Object> objects = objects(object.getClass());

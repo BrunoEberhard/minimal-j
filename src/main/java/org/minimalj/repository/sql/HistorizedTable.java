@@ -39,7 +39,7 @@ public class HistorizedTable<T> extends Table<T> {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
 			Object id = IdUtils.getId(object);
 			if (id == null) {
-				id = IdUtils.createId();
+				id = createId();
 				IdUtils.setId(object, id);
 			}
 			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
