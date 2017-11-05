@@ -124,7 +124,7 @@ public class SwingMenuBar extends JMenuBar {
 	}
 	
 	private JMenu createFavoriteMenu() {
-		menuFavorite = menu("favorite");
+		menuFavorite = menu("favorites");
 		LinkedHashMap<String, String> favorites = tab.frame.favorites.getFavorites();
 		updateFavorites(favorites);
 		return menuFavorite;
