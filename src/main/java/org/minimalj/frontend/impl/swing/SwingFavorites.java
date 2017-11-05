@@ -4,27 +4,103 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.prefs.BackingStoreException;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 
 import org.minimalj.application.Application;
 
-public class SwingFavorites {
+public class SwingFavorites implements PreferenceChangeListener {
 
-	private static final Preferences preferences;
-	private static LinkedHashMap<String, String> favorites = new LinkedHashMap<>();
-	
-	static {
-		preferences = Preferences.userNodeForPackage(Application.getInstance().getClass()).node("favorites");
+	private final Consumer<LinkedHashMap<String, String>> changeListener;
+	private Preferences preferences;
+
+	public SwingFavorites(Consumer<LinkedHashMap<String, String>> changeListener) {
+		Objects.nonNull(changeListener);
+		this.changeListener = changeListener;
+	}
+
+	public void setUser(String user) {
+		if (preferences != null) {
+			preferences.removePreferenceChangeListener(this);
+			preferences = null;
+		}
+
+		if (user != null) {
+			preferences = Preferences.userNodeForPackage(Application.getInstance().getClass()).node("favorites").node(user);
+			preferences.addPreferenceChangeListener(this);
+		}
+
+		changeListener.accept(getFavorites());
+	}
+
+	@Override
+	public void preferenceChange(PreferenceChangeEvent evt) {
+		changeListener.accept(getFavorites());
+	}
+
+	public LinkedHashMap<String, String> getFavorites() {
+		if (preferences == null) {
+			return new LinkedHashMap<>();
+		}
 		try {
 			String[] keys = preferences.keys();
 			Arrays.sort(keys);
+			LinkedHashMap<String, String> favorites = new LinkedHashMap<>();
 			for (String key : keys) {
 				try {
-					String route = key.substring(key.indexOf("@")+1);
+					String route = key.substring(key.indexOf("@") + 1);
 					favorites.put(route, preferences.get(key, "Page"));
 				} catch (Exception e) {
 					e.printStackTrace();
+				}
+			}
+			return favorites;
+		} catch (BackingStoreException e) {
+			// do nothing, favorites not available
+			return new LinkedHashMap<>();
+		}
+	}
+
+	public boolean isFavorite(String route) {
+		return findKey(route) != null;
+	}
+
+	private String findKey(String route) {
+		route = "@" + route;
+		String[] keys;
+		try {
+			keys = preferences.keys();
+			for (String key : keys) {
+				if (key.endsWith(route)) {
+					return key;
+				}
+			}
+		} catch (BackingStoreException e) {
+			// do nothing, favorites not available
+		}
+		return null;
+	}
+
+	private void addFavorite(String route, String title) {
+		LocalDateTime time = LocalDateTime.now();
+		String timeString = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+		String key = timeString + "@" + route;
+		preferences.put(key, title);
+	}
+
+	private void removeFavorite(String route) {
+		route = "@" + route;
+		String[] keys;
+		try {
+			keys = preferences.keys();
+			for (String key : keys) {
+				if (key.endsWith(route)) {
+					preferences.remove(key);
 				}
 			}
 		} catch (BackingStoreException e) {
@@ -32,38 +108,13 @@ public class SwingFavorites {
 		}
 	}
 
-	public static LinkedHashMap<String, String> getFavorites() {
-		return favorites;
-	}
-	
-	public static boolean isFavorite(String route) {
-		for (String key : favorites.keySet()) {
-			if (key.equals(route)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public static void addFavorite(String route, String title) {
-		LocalDateTime time = LocalDateTime.now();
-		String timeString = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-		
-		preferences.put(timeString + "@" + route, title);
-	}
-
-	public static void toggleFavorite(String route, String title) {
-		String toRemove = null;
-		for (String key : favorites.keySet()) {
-			if (key.equals(route)) {
-				toRemove = key;
-				break;
-			}
-		}
-		if (toRemove != null) {
-			favorites.remove(toRemove);
+	public void toggleFavorite(String route, String title) {
+		String key = findKey(route);
+		if (key != null) {
+			removeFavorite(route);
 		} else {
 			addFavorite(route, title);
 		}
 	}
+
 }

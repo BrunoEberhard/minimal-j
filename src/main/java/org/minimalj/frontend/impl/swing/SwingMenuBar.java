@@ -30,7 +30,8 @@ public class SwingMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	
 	private final SwingTab tab;
-
+	private JMenu menuFavorite;
+	
 	public SwingMenuBar(SwingTab tab) {
 		super();
 		this.tab = tab;
@@ -123,12 +124,17 @@ public class SwingMenuBar extends JMenuBar {
 	}
 	
 	private JMenu createFavoriteMenu() {
-		JMenu menu = menu("favorite");
-		LinkedHashMap<String, String> favorites = SwingFavorites.getFavorites();
+		menuFavorite = menu("favorite");
+		LinkedHashMap<String, String> favorites = tab.frame.favorites.getFavorites();
+		updateFavorites(favorites);
+		return menuFavorite;
+	}
+
+	void updateFavorites(LinkedHashMap<String, String> favorites) {
+		menuFavorite.removeAll();
 		for (Entry<String, String> favorite : favorites.entrySet()) {
-			menu.add(new JMenuItem(new ShowFavoriteAction(favorite.getKey(), favorite.getValue())));
+			menuFavorite.add(new JMenuItem(new ShowFavoriteAction(favorite.getKey(), favorite.getValue())));
 		}
-		return menu;
 	}
 	
 	private class ShowFavoriteAction extends AbstractAction {

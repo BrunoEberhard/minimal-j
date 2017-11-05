@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +47,6 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
-import org.minimalj.util.StringUtils;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -75,7 +75,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 	
 	private int maxPages;
 	
-	private static final SwingFavorites favorites = new SwingFavorites();
 	private static final Icon favorite_yes_icon = SwingFrontend.getIcon("favorite_yes.largeIcon");
 	private static final Icon favorite_no_icon = SwingFrontend.getIcon("favorite_no.largeIcon");
 	
@@ -92,7 +91,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		nextAction = new NextPageAction();
 		refreshAction = new RefreshAction();
 		favoriteAction = new FavoriteAction();
-
+		
 		closeTabAction = new CloseTabAction();
 		
 		navigationAction = new NavigationAction();
@@ -158,7 +157,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 			String route = getVisiblePage().getRoute();
 			if (route != null) {
 				favoriteAction.setEnabled(true);
-				boolean favorite = SwingFavorites.isFavorite(route);
+				boolean favorite = frame.favorites.isFavorite(route);
 				if (favorite) {
 					favoriteAction.putValue(Action.LARGE_ICON_KEY, favorite_yes_icon);
 				}
@@ -174,6 +173,11 @@ public class SwingTab extends EditablePanel implements PageManager {
 	
 	public void setMaxPages(int maxPages) {
 		this.maxPages = maxPages;
+	}
+	
+	public void updateFavorites(LinkedHashMap<String, String> newFavorites) {
+		updateActions();
+		menuBar.updateFavorites(newFavorites);
 	}
  
 	//
@@ -213,8 +217,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Page page = getVisiblePage();
-			if (page != null && !StringUtils.isEmpty(page.getRoute())) {
-				SwingFavorites.toggleFavorite(page.getRoute(), page.getTitle());
+			if (page != null && Page.validateRoute(page.getRoute())) {
+				frame.favorites.toggleFavorite(page.getRoute(), page.getTitle());
 			}
 		}
 	}
