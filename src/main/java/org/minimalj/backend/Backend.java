@@ -3,6 +3,7 @@ package org.minimalj.backend;
 import java.util.List;
 import java.util.Objects;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
@@ -103,7 +104,7 @@ public class Backend {
 			throw new IllegalStateException("Repository may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
 		if (repository == null) {
-			repository = Repository.create();
+			repository = Repository.create(Application.getInstance());
 		}
 		return repository;
 	}

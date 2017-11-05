@@ -132,9 +132,30 @@ public class CsvReaderTest {
 		reader.readValues(CsvReaderTestA.class);
 	}
 	
+	@Test
+	public void testSkipEmptyLine() throws Exception {
+		CsvReader reader = reader("i,l,bd,s,ld\n\n 142,123456789012345,2.1,s,\n\n 142,123456789012345,2.1,s,");
+		List<CsvReaderTestA> result = reader.readValues(CsvReaderTestA.class);
+		Assert.assertEquals(2, result.size());
+	}
+
+	@Test
+	public void testSkipCommentLine() throws Exception {
+		CsvReader reader = readerWithComment("i,l,bd,s,ld\n#Hello World\n 142,123456789012345,2.1,s,\n#Hello World\n 142,123456789012345,2.1,s,");
+		List<CsvReaderTestA> result = reader.readValues(CsvReaderTestA.class);
+		Assert.assertEquals(2, result.size());
+	}
+
 	private static CsvReader reader(String s) {
 		ByteArrayInputStream bais = new ByteArrayInputStream(s.getBytes());
 		return new CsvReader(bais);
+	}
+
+	private static CsvReader readerWithComment(String s) {
+		ByteArrayInputStream bais = new ByteArrayInputStream(s.getBytes());
+		CsvReader csvReader = new CsvReader(bais);
+		csvReader.setCommentStart("#");
+		return csvReader;
 	}
 	
 	public static class CsvReaderTestA {

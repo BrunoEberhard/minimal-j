@@ -33,6 +33,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.ChainedProperty;
@@ -80,6 +81,14 @@ public class SqlRepository implements TransactionalRepository {
 
 	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
+	public SqlRepository(DataSource dataSource, Model model) {
+		this(dataSource, model.getEntityClasses());
+	}
+	
+	public SqlRepository(DataSource dataSource, boolean createTablesOnInitialize, Model model) {
+		this(dataSource, createTablesOnInitialize, model.getEntityClasses());
+	}
+
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
 		this(dataSource, createTablesOnInitialize(dataSource), classes);
 	}

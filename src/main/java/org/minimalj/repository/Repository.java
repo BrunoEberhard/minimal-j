@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.model.Model;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.util.StringUtils;
@@ -20,16 +20,14 @@ import org.minimalj.util.StringUtils;
 public interface Repository {
 	public static final Logger logger = Logger.getLogger(Repository.class.getName());
 
-	public static Repository create() {
-		Class<?>[] entityClasses = Application.getInstance().getEntityClasses();
-
+	public static Repository create(Model model) {
 		if (Configuration.available("MjRepository")) {
-			return Configuration.getClazz("MjRepository", Repository.class, (Object) entityClasses);
+			return Configuration.getClazz("MjRepository", Repository.class, model);
 		}
 
 		DataSource jndiDataSource = DataSourceFactory.getJndiDataSource();
 		if (jndiDataSource != null) {
-			return new SqlRepository(jndiDataSource, entityClasses);
+			return new SqlRepository(jndiDataSource, model);
 		}
 		
 		String database = Configuration.get("MjSqlDatabase");
@@ -37,11 +35,11 @@ public interface Repository {
 		String password = Configuration.get("MjSqlDatabasePassword", "APP");
 		
 		if (!StringUtils.isBlank(database)) {
-			return new SqlRepository(DataSourceFactory.dataSource(database, user, password), entityClasses);
+			return new SqlRepository(DataSourceFactory.dataSource(database, user, password), model);
 		} else {
 			String databaseFile = Configuration.get("MjSqlDatabaseFile", null);
 			boolean createTables = databaseFile == null || !new File(databaseFile).exists();
-			return new SqlRepository(DataSourceFactory.embeddedDataSource(databaseFile), createTables, entityClasses);
+			return new SqlRepository(DataSourceFactory.embeddedDataSource(databaseFile), createTables, model);
 		}
 	}
 	

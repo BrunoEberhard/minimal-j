@@ -10,12 +10,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.minimalj.model.Code;
+import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
@@ -47,6 +49,10 @@ public class InMemoryRepository implements Repository {
 	private Map<Class<?>, Map<Object, Object>> memory = new HashMap<>();
 	
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+	
+	public InMemoryRepository(Model model) {
+		this(model.getEntityClasses());
+	}
 	
 	public InMemoryRepository(Class<?>... classes) {
 		ModelTest modelTest = new ModelTest(classes);
@@ -236,7 +242,7 @@ public class InMemoryRepository implements Repository {
 		object = CloneHelper.clone(object);
 		Object id = IdUtils.getId(object);
 		if (id == null) {
-			id = IdUtils.createId();
+			id = UUID.randomUUID();
 			IdUtils.setId(object, id);
 		}
 		Map<Object, Object> objects = objects(object.getClass());

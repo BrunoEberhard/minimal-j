@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -66,11 +65,11 @@ public class IdUtils {
 	/**
 	 * @param modelClass
 	 *            the model class for which an id should be pars (used to
-	 *            determin the class of the id - remember code classes could
+	 *            determine the class of the id - remember code classes could
 	 *            have string id)
 	 * @param idString
 	 *            the id as string
-	 * @return the id object useable for persistence
+	 * @return the id object usable for persistence
 	 */
 	public static Object parseId(Class<?> modelClass, String idString) {
 		Field idField = getIdField(modelClass);
@@ -118,13 +117,12 @@ public class IdUtils {
 	 * Set the value of the <code>version</code> in the given object
 	 * 
 	 * @param object object containing a public <code>version</code> field. Must not be <code>null</code>
-	 * @param version the new value. Can be <code>null</code>.
+	 * @param version the new value.
 	 */
 	public static void setVersion(Object object, int version) {
 		try {
 			Field versionField = object.getClass().getField("version");
-			if (versionField.getType() == Integer.TYPE) versionField.set(object, version);
-			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
+			versionField.set(object, version);
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
@@ -133,8 +131,7 @@ public class IdUtils {
 	public static int getVersion(Object object) {
 		try {
 			Field versionField = object.getClass().getField("version");
-			if (versionField.getType() == Integer.TYPE) return (Integer) versionField.get(object);
-			else throw new IllegalArgumentException("Cannot set version on field with " + versionField.getType());
+			return (Integer) versionField.get(object);
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
@@ -160,28 +157,6 @@ public class IdUtils {
 			throw new NullPointerException();
 		}
 		return String.valueOf(getId(object));
-	}
-
-	/**
-	 * Get the value of the <code>id</code> field as String.
-	 * Leaves out all 'filler' characters. For an UUID this would
-	 * be the '-' characters
-	 * 
-	 * @param object object containing the id. Must not be <code>null</code>
-	 * @return the value of the <code>id</code> field as String
-	 */
-	public static String getCompactIdString(Object object) {
-		return getIdString(object).replace("-", "");
-	}
-	
-	/**
-	 * Note: Do not depend on the class of the returned id. It
-	 * could be changed. 
-	 * 
-	 * @return a new unique id
-	 */
-	public static Object createId() {
-		return UUID.randomUUID().toString();
 	}
 
 }

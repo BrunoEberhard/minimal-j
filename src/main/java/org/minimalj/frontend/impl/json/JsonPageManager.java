@@ -268,7 +268,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
 		String route = page.getRoute();
-		if (!StringUtils.isEmpty(route)) {
+		if (Page.validateRoute(route)) {
 			json.put("route", route.endsWith("/") ? route : route + "/");
 		}
 

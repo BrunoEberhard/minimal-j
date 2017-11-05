@@ -47,14 +47,14 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		try {
 			while (position < Math.max(objects.size(), objectsInDb.size())) {
 				if (position < objects.size()) {
-					Object object = objects.get(position);
-					if (IdUtils.getId(object) == null) {
-						object = sqlRepository.insert(object);
+					ELEMENT object = objects.get(position);
+					if (IdUtils.hasId(object.getClass()) && IdUtils.getId(object) == null) {
+						sqlRepository.insert(object);
 					}
 					if (position < objectsInDb.size()) {
-						update(parentId, position, objects.get(position));
+						update(parentId, position, object);
 					} else {
-						insert(parentId, position, objects.get(position));
+						insert(parentId, position, object);
 					}
 				} else {
 					// delete all beginning from this position with one delete statement

@@ -31,20 +31,22 @@ import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.model.Model;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Extend this class to define your Application.
- * Both frontend and backend refer to this class.<p>
+ * Extend this class to define your Application.<p>
  * 
- * All non static methods can be overridden.
+ * All non static methods can be overridden for configuration.<p>
  * 
- * @see Swing
- * @see NanoWebServer
+ * The specific application can be started with the provided main method.<p>
+ * 
+ * @see NanoWebServer NanoWebServer - Start the class as stand alone web application
+ * @see Swing Swing - Start the application as desktop application
  */
-public abstract class Application {
+public abstract class Application implements Model {
 	private static Application instance;
 	
 	public Application() {
@@ -93,7 +95,7 @@ public abstract class Application {
 	
 	/**
 	 * This is just a shortcut for creating the application from jvm arguments.
-	 * Most frontend or backend main classes use this method
+	 * Most frontend main classes use this method
 	 * 
 	 * @param args the arguments provided to the jvm
 	 */
@@ -143,12 +145,7 @@ public abstract class Application {
 		}
 	}
 
-	/**
-	 * Defines the (root) entities of this application. These are the classes the are used
-	 * for the repository. Classes only used as base for an editor should not be listed here.
-	 * 
-	 * @return all the classes used for the repository. These classes will be checked for compliance by the ModelTest .
-	 */
+	@Override
 	public Class<?>[] getEntityClasses() {
 		return new Class<?>[0];
 	}
@@ -187,7 +184,7 @@ public abstract class Application {
 	 * @return the (valid) page for this route
 	 */
 	public Page createPage(String route) {
-		return new EmptyPage();
+		return null;
 	}
 	
 	/**
@@ -202,10 +199,11 @@ public abstract class Application {
 	}
 	
 	/**
-	 * note: for production you should override this method to avoid continuous use of reflection
+	 * note: for production you should override this method to avoid continuous
+	 * use of reflection
 	 * 
-	 * @return true if the application overrides createSearchPage meaning
-	 * the application provides a search page
+	 * @return true if the application overrides createSearchPage meaning the
+	 *         application provides a search page
 	 */
 	public boolean hasSearchPages() {
 		try {
@@ -217,7 +215,7 @@ public abstract class Application {
 
 	/**
 	 * 
-	 * @return The page displayed when the application is started or when a new Tab is openend
+	 * @return The page displayed when the application is started or when a new Tab is opened
 	 */
 	public Page createDefaultPage() {
 		return new EmptyPage();

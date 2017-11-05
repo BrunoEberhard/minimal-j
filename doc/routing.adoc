@@ -1,0 +1,63 @@
+= Routing
+
+The name routing is based on the routing concept of Angular. But only the name. While routing is a
+central concept in Angular it's more of a nice to have in Minimal-J. You can build a complex application
+without routing and you will miss nothing.
+
+In web application routing means you can enter an URL and will be forwarded to certain page.
+Or the application does change the URL itself and then changes the browser content accordingly.
+In Minimal-J the application can show a page directly. A page can have a complex state and this
+state could not be serialized in a readable String for the URL.
+
+== Principle
+
+In Minimal-J a page can signify that it can addressed with a route. This route is a String which
+the application object should be able to parse the String a show redisplay the same page.
+
+Not all a pages must have a route. The pages displaing main entites are better candidates than detail
+pages.
+
+== Route
+
+The Route - String of a page must fulfill certain rules:
+ * no '/' at start or end
+ * Only characters or digits or the four characters .-_/ are allowed
+ * Before a '/' no '.' is allowed
+
+This rules are validated with the Page.validateRoute method.
+If a page provides a invalid route the route is ignored without warning.
+
+These rules are a security measure because routes are used in the URL.
+
+== Example
+Here a simplified example from OpenEch. First the page showing a person:
+
+[source,java,title="PersonPage.java"]
+----
+	@Override
+	public String getRoute() {
+		return "person/" + getObjectId();
+	}
+----
+
+and now the relevant method in the application class:
+
+[source,java,title="OpenEchApplication.java"]
+----
+	@Override
+	public Page createPage(String route) {
+		String[] elements = route.split("/");
+		if (elements.length >= 2) {
+			switch (elements[0]) {
+			case "person": return new PersonPage(elements[1]);
+			}
+		}
+		return null;
+	}
+----
+
+When displaying a person you may notice the changing URL:
+
+image::routing_person.png[title="URL when displaying a routable page"]
+
+This URL can be bookmarked and directly accessed from the bookmark menu in the browser.

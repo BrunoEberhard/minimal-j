@@ -10,6 +10,7 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -31,6 +32,7 @@ public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private Subject subject;
+	final SwingFavorites favorites = new SwingFavorites(this::onFavoritesChange);
 	
 	public static SwingFrame activeFrameOverride = null;
 	
@@ -185,6 +187,7 @@ public class SwingFrame extends JFrame {
 		// Maybe getNavigation in Application should be extended by a subject parameter
 		// then next line would not be needed
 		Subject.setCurrent(subject);
+		favorites.setUser(subject != null ? subject.getName() : null);
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
 			((SwingTab) tabbedPane.getTab(i)).updateNavigation();
 		}
@@ -193,6 +196,13 @@ public class SwingFrame extends JFrame {
 
 	public Subject getSubject() {
 		return subject;
+	}
+	
+	private void onFavoritesChange(LinkedHashMap<String, String> newFavorites) {
+		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+			SwingTab tab = (SwingTab) tabbedPane.getTab(i);
+			tab.updateFavorites(newFavorites);
+		}
 	}
 	
 	protected void updateWindowTitle() {

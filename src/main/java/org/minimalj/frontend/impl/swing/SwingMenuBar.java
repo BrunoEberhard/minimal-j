@@ -2,8 +2,11 @@ package org.minimalj.frontend.impl.swing;
 
 import java.awt.event.ActionEvent;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -12,6 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
+import org.minimalj.application.Application;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.lookAndFeel.LookAndFeelAction;
@@ -26,7 +30,8 @@ public class SwingMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	
 	private final SwingTab tab;
-
+	private JMenu menuFavorite;
+	
 	public SwingMenuBar(SwingTab tab) {
 		super();
 		this.tab = tab;
@@ -34,6 +39,9 @@ public class SwingMenuBar extends JMenuBar {
 		add(createWindowMenu());
 		add(createEditMenu());
 		add(createViewMenu());
+		if (SwingFrontend.applicationHasRouting()) {
+			add(createFavoriteMenu());
+		}
 	}
 	
 	private JMenu createWindowMenu() {
@@ -112,6 +120,41 @@ public class SwingMenuBar extends JMenuBar {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			tab.setMaxPages(maxPages);
+		}
+	}
+	
+	private JMenu createFavoriteMenu() {
+		menuFavorite = menu("favorites");
+		LinkedHashMap<String, String> favorites = tab.frame.favorites.getFavorites();
+		updateFavorites(favorites);
+		return menuFavorite;
+	}
+
+	void updateFavorites(LinkedHashMap<String, String> favorites) {
+		menuFavorite.removeAll();
+		for (Entry<String, String> favorite : favorites.entrySet()) {
+			menuFavorite.add(new JMenuItem(new ShowFavoriteAction(favorite.getKey(), favorite.getValue())));
+		}
+		if (favorites.isEmpty()) {
+			JMenuItem item = new JMenuItem(Resources.getString("Menu.favorites.empty"));
+			item.setEnabled(false);
+			menuFavorite.add(item);
+		}
+	}
+	
+	private class ShowFavoriteAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
+		private final String route;
+		
+		public ShowFavoriteAction(String route, String title) {
+			super(title);
+			this.route = route;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			tab.show(Application.getInstance().createPage(route));
 		}
 	}
 	

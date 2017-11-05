@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
@@ -90,17 +91,21 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	protected Object createId() {
+		return UUID.randomUUID().toString();
+	}
+	
 	public Object insert(T object) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
 			Object id;
 			if (IdUtils.hasId(object.getClass())) {
 				id = IdUtils.getId(object);
 				if (id == null) {
-					id = IdUtils.createId();
+					id = createId();
 					IdUtils.setId(object, id);
 				}
 			} else {
-				id = IdUtils.createId();
+				id = createId();
 			}
 			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
 			insertStatement.execute();
