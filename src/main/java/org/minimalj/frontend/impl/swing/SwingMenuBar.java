@@ -135,6 +135,11 @@ public class SwingMenuBar extends JMenuBar {
 		for (Entry<String, String> favorite : favorites.entrySet()) {
 			menuFavorite.add(new JMenuItem(new ShowFavoriteAction(favorite.getKey(), favorite.getValue())));
 		}
+		if (favorites.isEmpty()) {
+			JMenuItem item = new JMenuItem(Resources.getString("Menu.favorites.empty"));
+			item.setEnabled(false);
+			menuFavorite.add(item);
+		}
 	}
 	
 	private class ShowFavoriteAction extends AbstractAction {
