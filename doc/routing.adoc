@@ -17,6 +17,18 @@ the application object should be able to parse the String a show redisplay the s
 Not all a pages must have a route. The pages displaing main entites are better candidates than detail
 pages.
 
+== Route
+
+The Route - String of a page must fulfill certain rules:
+ * no '/' at start or end
+ * Only characters or digits or the four characters .-_/ are allowed
+ * Before a '/' no '.' is allowed
+
+This rules are validated with the Page.validateRoute method.
+If a page provides a invalid route the route is ignored without warning.
+
+These rules are a security measure because routes are used in the URL.
+
 == Example
 Here a simplified example from OpenEch. First the page showing a person:
 
