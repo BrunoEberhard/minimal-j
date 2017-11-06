@@ -270,10 +270,9 @@ public class Table<T> extends AbstractTable<T> {
 				clause += column + (searchCriteria.isNotEqual() ? " NOT" : "") + " LIKE ?";
 				result.add(search);
 			}
-			if (this instanceof HistorizedTable) {
-				clause += ") and historized = 0";
-			} else {
-				clause += ")";
+			clause += ")";
+			if (isHistorized()) {
+				clause += " and historized = 0";
 			}
 			result.add(0, clause); // insert at beginning
 		} else if (query instanceof RelationCriteria) {

@@ -5,6 +5,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.sql.SqlDialect;
+import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.sql.SubTable;
+import org.minimalj.repository.sql.AbstractTable.ParameterMode;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 

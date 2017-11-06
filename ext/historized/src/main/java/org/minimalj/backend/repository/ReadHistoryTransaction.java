@@ -3,6 +3,7 @@ package org.minimalj.backend.repository;
 import java.util.List;
 
 import org.minimalj.repository.Repository;
+import org.minimalj.repository.sql.SqlHistorizedRepository;
 import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.util.IdUtils;
 
@@ -31,9 +32,9 @@ public class ReadHistoryTransaction<ENTITY> extends ReadTransaction<ENTITY, List
 	
 	@Override
 	public List<ENTITY> execute(Repository repository) {
-		if (repository instanceof SqlRepository) {
-			SqlRepository sqlRepository = (SqlRepository) repository;
-			List<ENTITY>	result = sqlRepository.loadHistory(getEntityClazz(), id, maxResults);
+		if (repository instanceof SqlHistorizedRepository) {
+			SqlHistorizedRepository sqlRepository = (SqlHistorizedRepository) repository;
+			List<ENTITY> result = sqlRepository.loadHistory(getEntityClazz(), id, maxResults);
 			return result;
 		} else {
 			throw new IllegalStateException(getClass().getSimpleName() + " works only with " + SqlRepository.class.getSimpleName());

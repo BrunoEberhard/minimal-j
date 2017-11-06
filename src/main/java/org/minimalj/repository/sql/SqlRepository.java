@@ -257,18 +257,6 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
-	public <T> T readVersion(Class<T> clazz, Object id, int time) {
-		HistorizedTable<T> table = (HistorizedTable<T>) getTable(ViewUtil.resolve(clazz));
-		T result = table.read(id, time);
-		if (View.class.isAssignableFrom(clazz)) {
-			// TODO Historized views are not optimized for read by id and time.
-			// The complete object is read and reduced to view.
-			// Should not cost too much performance as it's only one entity.
-			return ViewUtil.view(result, CloneHelper.newInstance(clazz));
-		} else {
-			return result;
-		}
-	}
 
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
@@ -339,23 +327,6 @@ public class SqlRepository implements TransactionalRepository {
 	public <T> void deleteAll(Class<T> clazz) {
 		Table<T> table = getTable(clazz);
 		table.clear();
-	}
-
-	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
-		@SuppressWarnings("unchecked")
-		Table<T> table = (Table<T>) getTable(clazz);
-		if (table instanceof HistorizedTable) {
-			HistorizedTable<T> historizedTable = (HistorizedTable<T>) table;
-			int maxVersion = historizedTable.getMaxVersion(id);
-			int maxResults = Math.min(maxVersion + 1, maxResult);
-			List<T> result = new ArrayList<>(maxResults);
-			for (int i = 0; i<maxResults; i++) {
-				result.add(historizedTable.read(id, maxVersion - i));
-			}
-			return result;
-		} else {
-			throw new IllegalArgumentException(clazz.getSimpleName() + " is not historized");
-		}
 	}
 
 	//
@@ -547,11 +518,14 @@ public class SqlRepository implements TransactionalRepository {
 	
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			boolean historized = FieldUtils.hasValidHistorizedField(clazz);
 			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
-			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
+			Table<U> table = createTable(clazz);
 			tables.put(table.getClazz(), table);
 		}
+	}
+	
+	<U> Table<U> createTable(Class<U> clazz) {
+		return new Table<U>(this, clazz);
 	}
 	
 	private void createTables() {
