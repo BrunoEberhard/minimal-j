@@ -450,21 +450,8 @@ public class Table<T> extends AbstractTable<T> {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next()) {
 				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
+				loadViewLists(resultObject);
 				result.add(resultObject);
-
-				// this may work, but make it readable
-				List<PropertyInterface> viewLists = FlatProperties.getListProperties(resultClass);
-				for (PropertyInterface viewListProperty : viewLists) {
-					for (Entry<PropertyInterface, ListTable> listPropertyEntry : lists.entrySet()) {
-						if (viewListProperty.getPath().equals(listPropertyEntry.getKey().getPath())) {
-							List values = listPropertyEntry.getValue().getList(resultObject);
-							PropertyInterface listProperty = listPropertyEntry.getKey();
-							listProperty.setValue(resultObject, values);
-
-							break;
-						}
-					}
-				}
 			}
 		}
 		return result;
@@ -475,6 +462,7 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
 				result = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
+				loadViewLists(result);				
 			}
 		}
 		return result;
@@ -506,6 +494,21 @@ public class Table<T> extends AbstractTable<T> {
 			List values = listTableEntry.getValue().getList(object);
 			PropertyInterface listProperty = listTableEntry.getKey();
 			listProperty.setValue(object, values);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected <S> void loadViewLists(S result) {
+		List<PropertyInterface> viewLists = FlatProperties.getListProperties(result.getClass());
+		for (PropertyInterface viewListProperty : viewLists) {
+			for (Entry<PropertyInterface, ListTable> listPropertyEntry : lists.entrySet()) {
+				if (viewListProperty.getPath().equals(listPropertyEntry.getKey().getPath())) {
+					List values = listPropertyEntry.getValue().getList(result);
+					viewListProperty.setValue(result, values);
+
+					break;
+				}
+			}
 		}
 	}
 	

@@ -249,25 +249,31 @@ public class SqlRepository implements TransactionalRepository {
 	
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
-		Table<T> table = getTable(clazz);
-		return table.read(id);
+		if (View.class.isAssignableFrom(clazz)) {
+			Table<T> table = (Table<T>) getTable(ViewUtil.getViewedClass(clazz));
+			return table.readView(clazz, id, new HashMap<>());
+		} else {
+			return getTable(clazz).read(id);
+		}
 	}
 
-	public <T> T readVersion(Class<T> clazz, Object id, Integer time) {
-		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
-		return table.read(id, time);
+	public <T> T readVersion(Class<T> clazz, Object id, int time) {
+		HistorizedTable<T> table = (HistorizedTable<T>) getTable(ViewUtil.resolve(clazz));
+		T result = table.read(id, time);
+		if (View.class.isAssignableFrom(clazz)) {
+			// TODO Historized views are not optimized for read by id and time.
+			// The complete object is read and reduced to view.
+			// Should not cost too much performance as it's only one entity.
+			return ViewUtil.view(result, CloneHelper.newInstance(clazz));
+		} else {
+			return result;
+		}
 	}
 
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (query instanceof Limit || query instanceof AllCriteria) {
-			Table<T> table;
-			if (View.class.isAssignableFrom(resultClass)) {
-				Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
-				table = (Table<T>) getTable(viewedClass);
-			} else {
-				table = getTable(resultClass);
-			}
+			Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
 			return table.find(query, resultClass);
 		} else {
 			return new SqlQueryResultList<>(this, resultClass, (QueryLimitable) query);
