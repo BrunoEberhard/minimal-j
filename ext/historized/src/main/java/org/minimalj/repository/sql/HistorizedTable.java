@@ -179,6 +179,11 @@ public class HistorizedTable<T> extends Table<T> {
 		}
 	}		
 	
+	@Override
+	public void createConstraints(SqlDialect dialect) {
+		// not possible for historized tables
+	}
+	
 	// Statements
 
 	@Override
