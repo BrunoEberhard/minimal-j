@@ -154,7 +154,7 @@ public abstract class AbstractTable<T> {
 				fieldClass = ViewUtil.resolve(fieldClass);
 				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
 
-				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
+				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
 				if (s != null) {
 					execute(s.toString());
 				}
