@@ -110,7 +110,7 @@ public class SocketBackend extends Backend {
 
 		@Override
 		public <T> T read(Class<T> clazz, Object id) {
-			return execute(new ReadEntityTransaction<T>(clazz, id, null));
+			return execute(new ReadEntityTransaction<T>(clazz, id));
 		}
 
 		@Override
