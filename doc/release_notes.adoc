@@ -2,6 +2,9 @@
 
 Every release contains many small fixes.
 
+=== 1.11.0.0
+* Application: Declare Resources with Bundles, not with Strings
+
 === 1.10.0.0
 * Split Application/Model/Api
 * More work/doc on routing
