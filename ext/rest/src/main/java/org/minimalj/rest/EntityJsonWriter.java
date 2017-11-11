@@ -17,7 +17,6 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.AllCriteria;
-import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Criteria.CompoundCriteria;
 import org.minimalj.repository.query.FieldCriteria;
@@ -44,7 +43,6 @@ public class EntityJsonWriter {
 		return new JsonWriter().write(mapList);
 	}
 
-//	private List<Map<String, Object>> convert(Object entity) {
 	private static Map<String, Object> convert(Object entity, Set<String> ids) {
 		Map<String, Object> values = new LinkedHashMap<>();
 
@@ -103,30 +101,6 @@ public class EntityJsonWriter {
 			}
 		}
 		
-		/*
-		List<PropertyInterface> listProperties = FlatProperties.getListProperties(entity.getClass());
-		for (PropertyInterface property : listProperties) {
-			Object value = property.getValue(entity);
-			
-			if (value instanceof List) {
-				String propertyName = property.getName();
-				List listValue = (List) value;
-				if (listValue.isEmpty()) {
-					continue;
-				}
-				List list = new ArrayList<>();
-				for (Object element : listValue) {
-					if (element instanceof String) {
-						// List<String> would be not allowed in MJ but 'required' is such a list
-						list.add(element);
-					} else {
-						list.add(convert(element, ids));
-					}
-				}
-				values.put(propertyName, list);
-			}
-		}
-		*/
 		return values;
 	}
 
@@ -216,23 +190,4 @@ public class EntityJsonWriter {
 		return result;
 	}
 	
-	public static class TestClass {
-		public static final TestClass $ = Keys.of(TestClass.class);
-		public String a,b;
-	}
-	
-	public static void main(String[] args) {
-		Query q = By.field(TestClass.$.a, "xy").and(By.field(TestClass.$.b, "z")).order(TestClass.$.a).order(TestClass.$.b, false).limit(10);
-		
-		String result = new JsonWriter().write(prepare(q));
-		System.out.println(result);
-		
-		//
-		
-		q = By.field(TestClass.$.a, "xy").and(By.search("Fasel", TestClass.$.a, TestClass.$.b).negate());
-		
-		result = new JsonWriter().write(prepare(q));
-		System.out.println(result);
-		
-	}
 }
