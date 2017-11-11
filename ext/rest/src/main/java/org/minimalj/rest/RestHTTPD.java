@@ -192,14 +192,6 @@ public class RestHTTPD extends NanoHTTPD {
 				}
 			}
 		} else if (method == Method.OPTIONS) {
-			
-//			TODO thank on StackOverflow
-//	        header('Access-Control-Allow-Origin: *');
-//	        header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS');
-//	        header('Access-Control-Allow-Headers: API-Key,accept, Content-Type');
-//	        header('Access-Control-Max-Age: 1728000');
-	        
-	        
 			Response response = newFixedLengthResponse(Status.OK, "text/plain", null);
 			response.addHeader("Access-Control-Allow-Origin", "*");
 			response.addHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, PATCH, OPTIONS");
