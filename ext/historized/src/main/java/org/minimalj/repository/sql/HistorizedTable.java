@@ -7,14 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.SearchCriteria;
-import org.minimalj.repository.sql.ListTable;
-import org.minimalj.repository.sql.SqlDialect;
-import org.minimalj.repository.sql.SqlRepository;
-import org.minimalj.repository.sql.SubTable;
-import org.minimalj.repository.sql.Table;
-import org.minimalj.repository.sql.AbstractTable.ParameterMode;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -178,11 +170,6 @@ public class HistorizedTable<T> extends Table<T> {
 			}
 		}
 	}		
-	
-	@Override
-	public void createConstraints(SqlDialect dialect) {
-		// not possible for historized tables
-	}
 	
 	// Statements
 

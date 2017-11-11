@@ -157,6 +157,9 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = property.getClazz();
 				fieldClass = ViewUtil.resolve(fieldClass);
 				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
+				if (referencedTable.isHistorized()) {
+					continue;
+				}
 
 				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
 				if (s != null) {
