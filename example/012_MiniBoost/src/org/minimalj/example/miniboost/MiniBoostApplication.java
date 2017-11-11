@@ -1,9 +1,7 @@
 package org.minimalj.example.miniboost;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -25,11 +23,6 @@ import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.util.resources.Resources;
 
 public class MiniBoostApplication extends Application {
-
-	@Override
-	protected Set<String> getResourceBundleNames() {
-		return Collections.singleton(MiniBoostApplication.class.getName());
-	}
 	
 	@Override
 	public List<Action> getNavigation() {

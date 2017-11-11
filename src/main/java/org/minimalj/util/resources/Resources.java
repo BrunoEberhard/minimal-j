@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,6 +17,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.DevMode;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
@@ -28,56 +28,29 @@ import org.minimalj.util.LocaleContext;
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
 
-	private static Set<String> resourceBundleNames = new HashSet<>();
-	
 	public static final boolean OPTIONAL = false;
 	
 	public static final String APPLICATION_NAME = "Application.name";
 	public static final String APPLICATION_ICON = "Application.icon";
 	
-	private static final Map<Locale, Resources> resourcesByLocale = new HashMap<>();
+	private static final Map<Locale, ResourceBundleAccess> resourcesByLocale = new HashMap<>();
 	
-	private ResourceBundle resourceBundle;
-	
-	private Resources(Locale locale) {
-		resourceBundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
-		for (String resourceBundleName : resourceBundleNames) {
-			resourceBundle = new MultiResourceBundle(resourceBundle, ResourceBundle.getBundle(resourceBundleName, locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
-		}
-	}
-	
-	public static ResourceBundle getResourceBundle() {
+	private static ResourceBundleAccess getAccess() {
 		Locale locale = LocaleContext.getCurrent();
 		if (!resourcesByLocale.containsKey(locale)) {
-			resourcesByLocale.put(locale, new Resources(locale));
+			ResourceBundle resourceBundle = Application.getInstance().getResourceBundle(locale);
+			ResourceBundle frameworkResourceBundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
+			resourcesByLocale.put(locale, new ResourceBundleAccess(new MultiResourceBundle(resourceBundle, frameworkResourceBundle)));
 		}
-		return resourcesByLocale.get(locale).resourceBundle;
-	}
-
-	public static void addResourceBundleName(String resourceBundleName) {
-		resourceBundleNames.add(resourceBundleName);
-		// normally resource bundles are only added at startup. But for tests the
-		// cache has to be cleared.
-		resourcesByLocale.clear();
+		return resourcesByLocale.get(locale);
 	}
 
 	public static boolean isAvailable(String resourceName) {
-		return getResourceBundle().containsKey(resourceName);
+		return getAccess().isAvailable(resourceName);
 	}
 	
 	public static Integer getInteger(String resourceName, boolean reportIfMissing) {
-		if (Resources.isAvailable(resourceName)) {
-			String integerString = Resources.getString(resourceName);
-			try {
-				return Integer.parseInt(integerString);
-			} catch (NumberFormatException nfe) {
-				logger.warning("Number format wrong for resource " + resourceName + "('" + integerString + "')");
-				return null;
-			}
-		} else {
-			reportMissing(resourceName, reportIfMissing);
-			return null;
-		}
+		return getAccess().getInteger(resourceName, reportIfMissing);
 	}
 
 	public static String getString(String resourceName) {
@@ -90,137 +63,184 @@ public class Resources {
 	 * @return the String or 'resourceName' if the resourceName does not exist
 	 */
 	public static String getString(String resourceName, boolean reportIfMissing) {
-		if (isAvailable(resourceName)) {
-			return getResourceBundle().getString(resourceName);
-		} else {
-			reportMissing(resourceName, reportIfMissing);
-			return "'" + resourceName + "'";
+		return getAccess().getString(resourceName, reportIfMissing);
+	}
+	
+	public static String getString(Class<?> clazz) {
+		return getAccess().getString(clazz);
+	}
+
+	public static String getStringOrNull(Class<?> clazz) {
+		return getAccess().getStringOrNull(clazz);
+	}
+
+	public static String getPropertyName(PropertyInterface property) {
+		return getAccess().getPropertyName(property, null);
+	}
+
+	public static String getPropertyName(PropertyInterface property, String postfix) {
+		String result = getAccess().getPropertyName(property, postfix);
+		if (result == null) {
+			// if no resource with postfix try without (need for checkboxes)
+			result = getAccess().getPropertyName(property, null);
+		}
+		return result;
+	}
+	
+	public static String getResourceName(Class<?> clazz) {
+		return getAccess().getResourceName(clazz);
+	}
+
+	//
+	
+	/* test */ static class ResourceBundleAccess {
+		private final ResourceBundle resourceBundle;
+
+		ResourceBundleAccess(ResourceBundle resourceBundle) {
+			this.resourceBundle = resourceBundle;
+		}
+
+		boolean isAvailable(String resourceName) {
+			return resourceBundle.containsKey(resourceName);
+		}
+
+		Integer getInteger(String resourceName, boolean reportIfMissing) {
+			if (isAvailable(resourceName)) {
+				String integerString = getString(resourceName);
+				try {
+					return Integer.parseInt(integerString);
+				} catch (NumberFormatException nfe) {
+					logger.warning("Number format wrong for resource " + resourceName + "('" + integerString + "')");
+					return null;
+				}
+			} else {
+				reportMissing(resourceName, reportIfMissing);
+				return null;
+			}
+		}
+
+		String getString(String resourceName) {
+			return getString(resourceName, true);
+		}
+
+		String getString(String resourceName, boolean reportIfMissing) {
+			if (isAvailable(resourceName)) {
+				return resourceBundle.getString(resourceName);
+			} else {
+				reportMissing(resourceName, reportIfMissing);
+				return "'" + resourceName + "'";
+			}
+		}
+
+		String getString(Class<?> clazz) {
+			String result = getStringOrNull(clazz);
+			if (result != null) {
+				return result;
+			}
+			return getString(clazz.getSimpleName());
+		}
+
+		String getStringOrNull(Class<?> clazz) {
+			if (isAvailable(clazz.getName())) {
+				return getString(clazz.getName());
+			} else if (isAvailable(clazz.getSimpleName())) {
+				return getString(clazz.getSimpleName());
+			} else if (View.class.isAssignableFrom(clazz) && !Code.class.isAssignableFrom(clazz)) {
+				Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
+				String byViewedClass = getStringOrNull(viewedClass);
+				if (byViewedClass != null) {
+					return byViewedClass;
+				}
+			}
+			return null;
+		}
+
+		String getPropertyName(PropertyInterface property, String postfix) {
+			String fieldName = property.getName();
+			if (postfix != null) {
+				fieldName += postfix;
+			}
+			Class<?> declaringClass = property.getDeclaringClass();
+			Class<?> fieldClass = property.getClazz();
+
+			return getPropertyName(fieldName, declaringClass, fieldClass, postfix != null);
+		}
+
+		String getPropertyName(String fieldName, Class<?> declaringClass, Class<?> fieldClass, boolean optional) {
+			// completeQualifiedKey example: "ch.openech.model.Person.nationality"
+			String completeQualifiedKey = declaringClass.getName() + "." + fieldName;
+			if (resourceBundle.containsKey(completeQualifiedKey)) {
+				return resourceBundle.getString(completeQualifiedKey);
+			}
+
+			// qualifiedKey example: "Person.nationality"
+			String qualifiedKey = declaringClass.getSimpleName() + "." + fieldName;
+			if (resourceBundle.containsKey(qualifiedKey)) {
+				return resourceBundle.getString(qualifiedKey);
+			}
+
+			// if declaring class is a view check to viewed class
+			if (View.class.isAssignableFrom(declaringClass) && !Code.class.isAssignableFrom(declaringClass)) {
+				Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
+				return getPropertyName(fieldName, viewedClass, fieldClass, optional);
+			}
+
+			// class of field
+			String byFieldClass = getStringOrNull(fieldClass);
+			if (byFieldClass != null) {
+				return byFieldClass;
+			}
+
+			// unqualifiedKey example: "nationality"
+			if (resourceBundle.containsKey(fieldName)) {
+				return resourceBundle.getString(fieldName);
+			}
+
+			if (!optional) {
+				reportMissing(qualifiedKey, true);
+				return "'" + qualifiedKey + "'";
+			} else {
+				return null;
+			}
+		}
+
+		String getResourceName(Class<?> clazz) {
+			if (clazz.isAnonymousClass()) {
+				clazz = clazz.getSuperclass();
+			}
+
+			Class<?> c = clazz;
+			while (c != Object.class) {
+				if (isAvailable(c.getName())) {
+					return c.getName();
+				}
+
+				if (isAvailable(c.getSimpleName())) {
+					return c.getSimpleName();
+				}
+				c = c.getSuperclass();
+			}
+
+			return clazz.getSimpleName();
 		}
 	}
 	
-	private static final Set<String> missing = new TreeSet<>();
+	//
 	
-	public static void reportMissing(String resourceName, boolean reportIfMissing) {
+	private static final Set<String> missing = new TreeSet<>();
+
+	private static void reportMissing(String resourceName, boolean reportIfMissing) {
 		if (reportIfMissing && DevMode.isActive()) {
 			missing.add(resourceName);
 		}
 	}
 
 	public static void printMissing() {
-		missing.stream().forEach(s -> System.out.println(s + " = " ));
+		missing.stream().forEach(s -> System.out.println(s + " = "));
 	}
 	
-	public static String getString(Class<?> clazz) {
-		String result = getStringOrNull(clazz);
-		if (result != null) {
-			return result;
-		} 
-		return getString(clazz.getSimpleName());
-	}
-
-	public static String getStringOrNull(Class<?> clazz) {
-		if (isAvailable(clazz.getName())) {
-			return getString(clazz.getName());
-		} else if (isAvailable(clazz.getSimpleName())) {
-			return getString(clazz.getSimpleName());
-		} else if (View.class.isAssignableFrom(clazz) && !Code.class.isAssignableFrom(clazz)) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
-			String byViewedClass = getStringOrNull(viewedClass);
-			if (byViewedClass != null) {
-				return byViewedClass;
-			}
-		}
-		return null;
-	}
-
 	//
 	
-	public static String getPropertyName(PropertyInterface property) {
-		return getPropertyName(getResourceBundle(), property);
-	}
-
-	public static String getPropertyName(PropertyInterface property, String postfix) {
-		String result = getPropertyName(getResourceBundle(), property, postfix);
-		if (result == null) {
-			// if no resource with postfix try without (need for checkboxes)
-			result = getPropertyName(getResourceBundle(), property);
-		}
-		return result;
-	}
-	
-	private static String getPropertyName(ResourceBundle resourceBundle, PropertyInterface property) {
-		return getPropertyName(resourceBundle, property, null);
-	}
-	
-	private static String getPropertyName(ResourceBundle resourceBundle, PropertyInterface property, String postfix) {
-		String fieldName = property.getName();
-		if (postfix != null) {
-			fieldName += postfix;
-		}
-		Class<?> declaringClass = property.getDeclaringClass();
-		Class<?> fieldClass = property.getClazz();
-		
-		return getPropertyName(resourceBundle, fieldName, declaringClass, fieldClass, postfix != null);
-	}
-
-	private static String getPropertyName(ResourceBundle resourceBundle, String fieldName, Class<?> declaringClass, Class<?> fieldClass, boolean optional) {
-		// completeQualifiedKey example: "ch.openech.model.Person.nationality"
-		String completeQualifiedKey = declaringClass.getName() + "." + fieldName;
-		if (resourceBundle.containsKey(completeQualifiedKey)) {
-			return resourceBundle.getString(completeQualifiedKey);
-		}
-		
-		// qualifiedKey example: "Person.nationality"
-		String qualifiedKey = declaringClass.getSimpleName() + "." + fieldName;
-		if (resourceBundle.containsKey(qualifiedKey)) {
-			return resourceBundle.getString(qualifiedKey);
-		}
-
-		// if declaring class is a view check to viewed class
-		if (View.class.isAssignableFrom(declaringClass) && !Code.class.isAssignableFrom(declaringClass)) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
-			return getPropertyName(resourceBundle, fieldName, viewedClass, fieldClass, optional);
-		}
-		
-		// class of field
-		String byFieldClass = getStringOrNull(fieldClass);
-		if (byFieldClass != null) {
-			return byFieldClass;
-		}
-		
-		// unqualifiedKey example: "nationality"
-		if (resourceBundle.containsKey(fieldName)) {
-			return resourceBundle.getString(fieldName);
-		}
-		
-		if (!optional) {
-			reportMissing(qualifiedKey, true);
-			return "'" + qualifiedKey + "'";
-		} else {
-			return null;
-		}
-	}
-	
-	public static String getResourceName(Class<?> clazz) {
-		if (clazz.isAnonymousClass()) {
-			clazz = clazz.getSuperclass();
-		}
-		
-		Class<?> c = clazz;
-		while (c != Object.class) {
-			if (Resources.isAvailable(c.getName())) {
-				return c.getName();
-			} 
-			
-			if (Resources.isAvailable(c.getSimpleName())) {
-				return c.getSimpleName();
-			}
-			c = c.getSuperclass();
-		}
-		
-		return clazz.getSimpleName();
-	}
-
 	private static Map<String, String> mimeTypeByPostfix = new HashMap<>();
 	
 	static {
@@ -240,6 +260,7 @@ public class Resources {
 	}
 
 	// combination of NoFallbackControl and EncodingResourceBundleControl (all final)
+	// in Java 9 there are UTF-8 property - files :)
 	private static class NoFallbackUTF8Control extends Control {
 
 		@Override
