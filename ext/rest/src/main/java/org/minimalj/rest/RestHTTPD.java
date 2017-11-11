@@ -200,7 +200,7 @@ public class RestHTTPD extends NanoHTTPD {
 			
 			return response;
 		} else {
-			return null;
+			return newFixedLengthResponse(Status.METHOD_NOT_ALLOWED, "text/plain", "Method not allowed: " + method);
 		}
 		return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Not a valid request url");
 	}
