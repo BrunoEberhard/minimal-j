@@ -70,12 +70,19 @@ public class Configuration {
 			if (parameters == null) {
 				return configuredClass.newInstance();
 			} else {
-				Class<?>[] parameterTypes = new Class[parameters.length];
-				for (int i = 0; i<parameters.length; i++) {
-					parameterTypes[i] = parameters[i].getClass();
+				CONSTRUCTOR: for (Constructor<?> constructor : configuredClass.getConstructors()) {
+					if (constructor.getParameterCount() != parameters.length) {
+						continue;
+					}
+					int i = 0;
+					for (i = 0; i<constructor.getParameterCount(); i++) {
+						if (!constructor.getParameterTypes()[i].isAssignableFrom(parameters[i].getClass())) {
+							continue CONSTRUCTOR;
+						}
+					}
+					return (T) constructor.newInstance(parameters);
 				}
-				Constructor<? extends T> constructor = configuredClass.getConstructor(parameterTypes);
-				return constructor.newInstance(parameters);
+				throw new NoSuchMethodException();
 			}
 		} catch (ClassNotFoundException e) {
 			throw new LoggingRuntimeException(e, logger, className + " not found / " + key + " configuration failed");
