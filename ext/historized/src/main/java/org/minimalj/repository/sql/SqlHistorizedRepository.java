@@ -13,20 +13,12 @@ import org.minimalj.util.FieldUtils;
 
 public class SqlHistorizedRepository extends SqlRepository {
 
-	public SqlHistorizedRepository(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
-		super(dataSource, createTablesOnInitialize, classes);
-	}
-
-	public SqlHistorizedRepository(DataSource dataSource, boolean createTablesOnInitialize, Model model) {
-		super(dataSource, createTablesOnInitialize, model);
-	}
-
 	public SqlHistorizedRepository(DataSource dataSource, Class<?>... classes) {
 		super(dataSource, classes);
 	}
 
-	public SqlHistorizedRepository(DataSource dataSource, Model model) {
-		super(dataSource, model);
+	public SqlHistorizedRepository(Model model) {
+		super(model);
 	}
 
 	@Override

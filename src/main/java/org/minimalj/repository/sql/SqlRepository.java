@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -41,6 +42,7 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.list.QueryResultList;
@@ -65,7 +67,6 @@ import org.minimalj.util.StringUtils;
  */
 public class SqlRepository implements TransactionalRepository {
 	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
-	public static final boolean CREATE_TABLES = true;
 	
 	private final SqlDialect sqlDialect;
 	
@@ -81,20 +82,13 @@ public class SqlRepository implements TransactionalRepository {
 
 	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
-	public SqlRepository(DataSource dataSource, Model model) {
-		this(dataSource, model.getEntityClasses());
+	public SqlRepository(Model model) {
+		this(DataSourceFactory.create(), model.getEntityClasses());
 	}
 	
-	public SqlRepository(DataSource dataSource, boolean createTablesOnInitialize, Model model) {
-		this(dataSource, createTablesOnInitialize, model.getEntityClasses());
-	}
-
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
-		this(dataSource, createTablesOnInitialize(dataSource), classes);
-	}
-
-	public SqlRepository(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
-		this.dataSource = dataSource;
+		this.dataSource = DataSourceFactory.create();
+		
 		Connection connection = getAutoCommitConnection();
 		try {
 			sqlDialect = findDialect(connection);
@@ -102,7 +96,7 @@ public class SqlRepository implements TransactionalRepository {
 				addClass(clazz);
 			}
 			new ModelTest(classes).assertValid();
-			if (createTablesOnInitialize) {
+			if (createTablesOnInitialize(dataSource)) {
 				createTables();
 				createCodes();
 			}
@@ -242,7 +236,12 @@ public class SqlRepository implements TransactionalRepository {
 		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
 			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
 		} else if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
-			return ((JdbcDataSource) dataSource).getUrl().startsWith("jdbc:h2:mem:TempDB");
+			String url = ((JdbcDataSource) dataSource).getUrl();
+			if (url.startsWith("jdbc:h2:mem")) {
+				return true;
+			}
+			String databaseFile = url.substring("jdbc:h2:".length());
+			return !new File(databaseFile).exists();
 		}
 		return false;
 	}
@@ -528,7 +527,7 @@ public class SqlRepository implements TransactionalRepository {
 		return new Table<U>(this, clazz);
 	}
 	
-	private void createTables() {
+	void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			table.createTable(sqlDialect);
@@ -541,7 +540,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
-	private void createCodes() {
+	void createCodes() {
 		createConstantCodes();
 		createCsvCodes();
 	}
