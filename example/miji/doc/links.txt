@@ -1,0 +1,13 @@
+JIRA REST APIs
+https://developer.atlassian.com/jiradev/jira-apis/jira-rest-apis
+
+https://developer.atlassian.com/cloud/jira/platform/rest/
+
+https://developer.atlassian.com/cloud/jira/platform/jira-entity-properties/
+
+JIRA Server platform REST API reference 
+https://docs.atlassian.com/jira/REST/server/
+
+Java Api
+https://docs.atlassian.com/jira/server/
+
