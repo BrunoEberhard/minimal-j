@@ -1,12 +1,10 @@
 package org.minimalj.rest.openapi.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.print.attribute.standard.Media;
 import javax.security.auth.callback.Callback;
 
 import org.minimalj.model.annotation.NotEmpty;
@@ -15,11 +13,15 @@ public class OpenAPI {
 
 	@NotEmpty
 	public String openapi;
+	// V2
+	public String swagger;
 	public Info info;
 	public List<Server> servers = new ArrayList<>();
 	public Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 	public Components components;
-	
+	// V2
+	public Map<String, Schema> definitions = new LinkedHashMap<>();
+
 	public static class Info {
 		@NotEmpty
 		public String title;
@@ -74,11 +76,6 @@ public class OpenAPI {
 //		public List<Link> links = new ArrayList<>();
 		public List<Callback> callbacks = new ArrayList<>();
 	}
-	
-	// PathItem
-//	public static class Path {
-//		public Map<String, Operation> operations = new LinkedHashMap<>();
-//	}
 
 	public static class Operation {
 		public List<StringValue> tags = new ArrayList<>();
@@ -87,6 +84,7 @@ public class OpenAPI {
 		public ExternalDocs externalDocs;
 		public String operationId;
 		public List<Parameter> parameters = new ArrayList<>();
+		public RequestBody requestBody;
 		public Map<String, Response> responses = new LinkedHashMap<>(); 
 		
 		public Boolean deprecated;
@@ -117,9 +115,18 @@ public class OpenAPI {
 		public Schema schema; // content not supported at the moment
 	}
 	
+	public static class RequestBody {
+		public String description;
+		public Boolean required;
+		public Map<String, Content> content = new LinkedHashMap<>();
+	}
+	
 	public static class Response {
 		public String description;
 		public Map<String, Content> content = new LinkedHashMap<>();
+
+		// v2 / !v3
+		public Schema schema;
 	}
 	
 	public static class Content {
@@ -128,13 +135,6 @@ public class OpenAPI {
 	
 	public static enum In {
 		query, header, path, cookie;
-	}
-	
-	public static class RequestBody {
-		public String description;
-		@NotEmpty
-		public List<Media> content = new ArrayList<>();
-		public Boolean required;
 	}
 	
 	public static class Example {
@@ -147,9 +147,14 @@ public class OpenAPI {
 	public static class Schema {
 		public Type type;
 		public String name;
-		public List<StringValue> required = new ArrayList<>();
+		public List<String> required = new ArrayList<>();
 		public Map<String, Property> properties = new LinkedHashMap<>();
 		public String $ref;
+		
+		// V2
+		public Schema items;
+		// V3
+		public List<String> eNum;
 	}
 
 	public static class Property {
@@ -164,6 +169,9 @@ public class OpenAPI {
 		public ExternalDocs externalDocs;
 		public Object example;
 		public Boolean deprecated;
+		
+		// V2
+		public List<String> eNum;
 	}
 	
 	public static enum Type {

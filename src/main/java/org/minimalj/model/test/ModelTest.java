@@ -239,13 +239,13 @@ public class ModelTest {
 	
 	private void testHistorized(Class<?> clazz) {
 		try {
-			Field fieldVersion = clazz.getField("historized");
+			Field fieldHistorized = clazz.getField("historized");
 			if (isMain(clazz) && !Codes.isCode(clazz)) {
-				if (fieldVersion.getType() != Boolean.TYPE) {
+				if (fieldHistorized.getType() != Boolean.TYPE) {
 					problems.add(clazz.getName() + ": Domain classes historized must be of primitiv type boolean");
 				}
-				if (!FieldUtils.isPublic(fieldVersion)) {
-					problems.add(clazz.getName() + ": field version must be public");
+				if (!FieldUtils.isPublic(fieldHistorized)) {
+					problems.add(clazz.getName() + ": field historized must be public");
 				}
 			} else {
 				problems.add(clazz.getName() + ": Only main entities are allowed to have an historized field");

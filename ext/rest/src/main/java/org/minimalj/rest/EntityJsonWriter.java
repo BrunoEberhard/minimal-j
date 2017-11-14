@@ -4,7 +4,6 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,7 +17,6 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.AllCriteria;
-import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Criteria.CompoundCriteria;
 import org.minimalj.repository.query.FieldCriteria;
@@ -27,27 +25,25 @@ import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
-public class EntityJsonWriter extends JsonWriter {
+public class EntityJsonWriter {
 
-	public String write(Object entity) {
+	public static String write(Object entity) {
 		Map<String, Object> map = convert(entity, new HashSet<>());
-		return write(map);
+		return new JsonWriter().write(map);
 	}
 
-	public String write(List<?> entities) {
+	public static String write(List<?> entities) {
 		List<Map<String, Object>> mapList = new ArrayList<>();
 		TreeSet<String> ids = new TreeSet<>();
 		for (Object entity : entities) {
 			mapList.add(convert(entity, ids));
 		};
-		return write(mapList);
+		return new JsonWriter().write(mapList);
 	}
 
-//	private List<Map<String, Object>> convert(Object entity) {
-	private Map<String, Object> convert(Object entity, Set<String> ids) {
+	private static Map<String, Object> convert(Object entity, Set<String> ids) {
 		Map<String, Object> values = new LinkedHashMap<>();
 
 		if (entity instanceof Map) {
@@ -70,6 +66,10 @@ public class EntityJsonWriter extends JsonWriter {
 				continue;
 			} else {
 				String propertyName = e.getKey();
+				// V2 !!!
+				if ("eNum".equals(propertyName)) {
+					propertyName = "enum";
+				}
 				
 				if (value instanceof Boolean) {
 					values.put(propertyName, value);
@@ -82,21 +82,17 @@ public class EntityJsonWriter extends JsonWriter {
 					}
 					List list = new ArrayList<>();
 					for (Object element : listValue) {
-						list.add(convert(element, ids));
+						if (element instanceof String) {
+							// List<String> would be not allowed in MJ but 'required' is such a list
+							list.add(element);
+						} else {
+							list.add(convert(element, ids));
+						}
 					}
 					values.put(propertyName, list);
-				} else if (value != null && IdUtils.hasId(value.getClass())) {
-					String id = IdUtils.getId(value).toString();
-					if (ids.contains(id)) {
-						values.put(propertyName, id);
-					} else {
-						ids.add(id);
-						value = convert(value, ids);
-						values.put(propertyName, value);
-					}
 				} else if (value instanceof Enum) {
 					values.put(propertyName, value.toString().toLowerCase());
-				} else {
+				} else if (value != null) {
 					value = convert(value, ids);
 					if (value != null) {
 						values.put(propertyName, value);
@@ -104,6 +100,7 @@ public class EntityJsonWriter extends JsonWriter {
 				}
 			}
 		}
+		
 		return values;
 	}
 
@@ -120,7 +117,6 @@ public class EntityJsonWriter extends JsonWriter {
 				}
 				Object value = property.getReadMethod().invoke(object);
 				if (value != null && !value.getClass().isPrimitive() && !FieldUtils.isAllowedPrimitive(value.getClass())) {
-					System.out.println("Recall: " + property.getName());
 					value = prepare(value);
 				}
 				result.put(property.getName(), value);
@@ -194,23 +190,4 @@ public class EntityJsonWriter extends JsonWriter {
 		return result;
 	}
 	
-	public static class TestClass {
-		public static final TestClass $ = Keys.of(TestClass.class);
-		public String a,b;
-	}
-	
-	public static void main(String[] args) {
-		Query q = By.field(TestClass.$.a, "xy").and(By.field(TestClass.$.b, "z")).order(TestClass.$.a).order(TestClass.$.b, false).limit(10);
-		
-		String result = new JsonWriter().write(prepare(q));
-		System.out.println(result);
-		
-		//
-		
-		q = By.field(TestClass.$.a, "xy").and(By.search("Fasel", TestClass.$.a, TestClass.$.b).negate());
-		
-		result = new JsonWriter().write(prepare(q));
-		System.out.println(result);
-		
-	}
 }

@@ -11,10 +11,30 @@ import javax.sql.DataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.mariadb.jdbc.MariaDbDataSource;
+import org.minimalj.application.Configuration;
 import org.minimalj.util.LoggingRuntimeException;
+import org.minimalj.util.StringUtils;
 
 public class DataSourceFactory {
 	public static final Logger logger = Logger.getLogger(DataSourceFactory.class.getName());
+	
+	public static DataSource create() {
+		DataSource jndiDataSource = DataSourceFactory.getJndiDataSource();
+		if (jndiDataSource != null) {
+			return jndiDataSource;
+		}
+		
+		String database = Configuration.get("MjSqlDatabase");
+		String user = Configuration.get("MjSqlDatabaseUser", "APP");
+		String password = Configuration.get("MjSqlDatabasePassword", "APP");
+		
+		if (!StringUtils.isBlank(database)) {
+			return DataSourceFactory.dataSource(database, user, password);
+		} else {
+			String databaseFile = Configuration.get("MjSqlDatabaseFile", null);
+			return DataSourceFactory.embeddedDataSource(databaseFile);
+		}
+	}
 	
 	public static DataSource getJndiDataSource() {
 		try {

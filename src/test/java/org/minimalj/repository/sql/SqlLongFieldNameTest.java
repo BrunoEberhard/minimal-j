@@ -41,7 +41,6 @@ public class SqlLongFieldNameTest {
 		
 		public Object id;
 		public int version;
-		public boolean historized;
 
 		@Size(30)
 		public String aVeryLongFieldNameAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyzAbcdefghijklmnopqrstuvwyz;

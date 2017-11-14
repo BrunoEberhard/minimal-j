@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -41,6 +42,7 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.list.QueryResultList;
@@ -65,7 +67,6 @@ import org.minimalj.util.StringUtils;
  */
 public class SqlRepository implements TransactionalRepository {
 	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
-	public static final boolean CREATE_TABLES = true;
 	
 	private final SqlDialect sqlDialect;
 	
@@ -81,20 +82,13 @@ public class SqlRepository implements TransactionalRepository {
 
 	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
 	
-	public SqlRepository(DataSource dataSource, Model model) {
-		this(dataSource, model.getEntityClasses());
+	public SqlRepository(Model model) {
+		this(DataSourceFactory.create(), model.getEntityClasses());
 	}
 	
-	public SqlRepository(DataSource dataSource, boolean createTablesOnInitialize, Model model) {
-		this(dataSource, createTablesOnInitialize, model.getEntityClasses());
-	}
-
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
-		this(dataSource, createTablesOnInitialize(dataSource), classes);
-	}
-
-	public SqlRepository(DataSource dataSource, boolean createTablesOnInitialize, Class<?>... classes) {
-		this.dataSource = dataSource;
+		this.dataSource = DataSourceFactory.create();
+		
 		Connection connection = getAutoCommitConnection();
 		try {
 			sqlDialect = findDialect(connection);
@@ -102,7 +96,7 @@ public class SqlRepository implements TransactionalRepository {
 				addClass(clazz);
 			}
 			new ModelTest(classes).assertValid();
-			if (createTablesOnInitialize) {
+			if (createTablesOnInitialize(dataSource)) {
 				createTables();
 				createCodes();
 			}
@@ -242,32 +236,31 @@ public class SqlRepository implements TransactionalRepository {
 		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
 			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
 		} else if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
-			return ((JdbcDataSource) dataSource).getUrl().startsWith("jdbc:h2:mem:TempDB");
+			String url = ((JdbcDataSource) dataSource).getUrl();
+			if (url.startsWith("jdbc:h2:mem")) {
+				return true;
+			}
+			String databaseFile = url.substring("jdbc:h2:".length());
+			return !new File(databaseFile).exists();
 		}
 		return false;
 	}
 	
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
-		Table<T> table = getTable(clazz);
-		return table.read(id);
+		if (View.class.isAssignableFrom(clazz)) {
+			Table<T> table = (Table<T>) getTable(ViewUtil.getViewedClass(clazz));
+			return table.readView(clazz, id, new HashMap<>());
+		} else {
+			return getTable(clazz).read(id);
+		}
 	}
 
-	public <T> T readVersion(Class<T> clazz, Object id, Integer time) {
-		HistorizedTable<T> table = (HistorizedTable<T>) getTable(clazz);
-		return table.read(id, time);
-	}
 
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (query instanceof Limit || query instanceof AllCriteria) {
-			Table<T> table;
-			if (View.class.isAssignableFrom(resultClass)) {
-				Class<?> viewedClass = ViewUtil.getViewedClass(resultClass);
-				table = (Table<T>) getTable(viewedClass);
-			} else {
-				table = getTable(resultClass);
-			}
+			Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
 			return table.find(query, resultClass);
 		} else {
 			return new SqlQueryResultList<>(this, resultClass, (QueryLimitable) query);
@@ -333,23 +326,6 @@ public class SqlRepository implements TransactionalRepository {
 	public <T> void deleteAll(Class<T> clazz) {
 		Table<T> table = getTable(clazz);
 		table.clear();
-	}
-
-	public <T> List<T> loadHistory(Class<?> clazz, Object id, int maxResult) {
-		@SuppressWarnings("unchecked")
-		Table<T> table = (Table<T>) getTable(clazz);
-		if (table instanceof HistorizedTable) {
-			HistorizedTable<T> historizedTable = (HistorizedTable<T>) table;
-			int maxVersion = historizedTable.getMaxVersion(id);
-			int maxResults = Math.min(maxVersion + 1, maxResult);
-			List<T> result = new ArrayList<>(maxResults);
-			for (int i = 0; i<maxResults; i++) {
-				result.add(historizedTable.read(id, maxVersion - i));
-			}
-			return result;
-		} else {
-			throw new IllegalArgumentException(clazz.getSimpleName() + " is not historized");
-		}
 	}
 
 	//
@@ -541,14 +517,17 @@ public class SqlRepository implements TransactionalRepository {
 	
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			boolean historized = FieldUtils.hasValidHistorizedField(clazz);
 			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
-			Table<U> table = historized ? new HistorizedTable<U>(this, clazz) : new Table<U>(this, clazz);
+			Table<U> table = createTable(clazz);
 			tables.put(table.getClazz(), table);
 		}
 	}
 	
-	private void createTables() {
+	<U> Table<U> createTable(Class<U> clazz) {
+		return new Table<U>(this, clazz);
+	}
+	
+	void createTables() {
 		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			table.createTable(sqlDialect);
@@ -561,7 +540,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
-	private void createCodes() {
+	void createCodes() {
 		createConstantCodes();
 		createCsvCodes();
 	}

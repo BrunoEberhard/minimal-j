@@ -1,6 +1,5 @@
 package org.minimalj.frontend.impl.json;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +40,7 @@ public class JsonSessionManager {
 	}
 	
 	public String handle(String json) {
-		Map<String, Object> data = (Map<String, Object>) new JsonReader().read(json);
+		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
 
 		boolean validSession = true;
 		String sessionId = (String) data.get("session");

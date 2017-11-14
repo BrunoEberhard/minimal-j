@@ -1,16 +1,12 @@
 package org.minimalj.repository;
 
-import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.sql.DataSource;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Model;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.SqlRepository;
-import org.minimalj.util.StringUtils;
 
 /**
  * The common interface of all types of repositories. Note that specific implementations
@@ -25,24 +21,9 @@ public interface Repository {
 			return Configuration.getClazz("MjRepository", Repository.class, model);
 		}
 
-		DataSource jndiDataSource = DataSourceFactory.getJndiDataSource();
-		if (jndiDataSource != null) {
-			return new SqlRepository(jndiDataSource, model);
-		}
-		
-		String database = Configuration.get("MjSqlDatabase");
-		String user = Configuration.get("MjSqlDatabaseUser", "APP");
-		String password = Configuration.get("MjSqlDatabasePassword", "APP");
-		
-		if (!StringUtils.isBlank(database)) {
-			return new SqlRepository(DataSourceFactory.dataSource(database, user, password), model);
-		} else {
-			String databaseFile = Configuration.get("MjSqlDatabaseFile", null);
-			boolean createTables = databaseFile == null || !new File(databaseFile).exists();
-			return new SqlRepository(DataSourceFactory.embeddedDataSource(databaseFile), createTables, model);
-		}
+		return new SqlRepository(model);
 	}
-	
+
 	// 
 	
 	public <T> T read(Class<T> clazz, Object id);

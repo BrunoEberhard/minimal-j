@@ -1,6 +1,6 @@
 package org.minimalj.util.resources;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -9,16 +9,31 @@ import java.util.ResourceBundle;
 
 public class MultiResourceBundle extends ResourceBundle {
 
-	private List<ResourceBundle> resourceBundles;
+	private final List<ResourceBundle> resourceBundles = new ArrayList<>();
 	
 	public MultiResourceBundle(ResourceBundle... resourceBundles) {
-		this(Arrays.asList(resourceBundles));
+		for (ResourceBundle resourceBundle : resourceBundles) {
+			addResourceBundle(resourceBundle);
+		}
 	}
 	
 	public MultiResourceBundle(List<ResourceBundle> resourceBundles) {
-		this.resourceBundles = resourceBundles;
+		for (ResourceBundle resourceBundle : resourceBundles) {
+			addResourceBundle(resourceBundle);
+		}
 	}
 
+	private void addResourceBundle(ResourceBundle resourceBundle) {
+		if (resourceBundle instanceof MultiResourceBundle) {
+			MultiResourceBundle multiResourceBundle = (MultiResourceBundle) resourceBundle;
+			for (ResourceBundle innerBundle : multiResourceBundle.resourceBundles) {
+				addResourceBundle(innerBundle);
+			}
+		} else {
+			resourceBundles.add(resourceBundle);
+		}
+	}
+	
 	@Override
 	public Enumeration<String> getKeys() {
 		LinkedHashSet<String> resultKeys = new LinkedHashSet<String>();

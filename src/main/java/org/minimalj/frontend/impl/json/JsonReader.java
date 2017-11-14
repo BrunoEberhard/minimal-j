@@ -1,9 +1,8 @@
 package org.minimalj.frontend.impl.json;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -12,10 +11,10 @@ import java.util.Map;
 
 public class JsonReader {
 
-	private static final Object OBJECT_END = new Object();
-	private static final Object ARRAY_END = new Object();
-	private static final Object COLON = new Object();
-	private static final Object COMMA = new Object();
+	private static final Object OBJECT_END = "]";
+	private static final Object ARRAY_END = "}";
+	private static final Object COLON = ":";
+	private static final Object COMMA = ",";
 
 	private static final Map<Character, Character> escapes = new HashMap<>();
 
@@ -30,224 +29,222 @@ public class JsonReader {
 		escapes.put('t', '\t');
 	}
 
-	private CharacterIterator it;
-	private char c;
-	private Object token;
+	private final InputStreamReader reader;
+
+	private final String input;
+	private int pos;
+
+	private Character pushedBack;
+	
 	private StringBuilder builder = new StringBuilder();
 
-	public void reset() {
-		it = null;
-		c = 0;
-		token = null;
-		builder.setLength(0);
+	private JsonReader(String input) {
+		this.input = input;
+		this.reader = null;
 	}
 
-	protected char next() {
-		c = it.next();
-		return c;
+	private JsonReader(InputStreamReader reader) {
+		this.input = null;
+		this.reader = reader;
 	}
-
-	protected void skipWhiteSpace() {
-		while (Character.isWhitespace(c)) {
-			next();
+	
+	public static Object read(InputStream inputStream) {
+		return read(new InputStreamReader(inputStream));
+	}
+	
+	public static Object read(InputStreamReader reader) {
+		return new JsonReader(reader).read();
+	}
+	
+	public static Object read(String string) {
+		return new JsonReader(string).read();
+	}
+	
+	private char next() {
+		if (pushedBack != null) {
+			char res = pushedBack;
+			pushedBack = null;
+			return res;
 		}
-	}
-
-	public Object read(CharacterIterator it) {
-		reset();
-		this.it = it;
-		c = it.next();
-		return read();
-	}
-
-	public Object read(String string) {
-		reset();
-		this.it = new StringCharacterIterator(string);
-		c = it.first();
-		return read();
-	}
-
-	protected Object read() {
-		skipWhiteSpace();
-		char ch = c;
-		next();
-		switch (ch) {
-		case '"':
-			token = string();
-			break;
-		case '[':
-			token = array();
-			break;
-		case ']':
-			token = ARRAY_END;
-			break;
-		case ',':
-			token = COMMA;
-			break;
-		case '{':
-			token = object();
-			break;
-		case '}':
-			token = OBJECT_END;
-			break;
-		case ':':
-			token = COLON;
-			break;
-		case 't':
-			next();
-			next();
-			next(); // assumed r-u-e
-			token = Boolean.TRUE;
-			break;
-		case 'f':
-			next();
-			next();
-			next();
-			next(); // assumed a-l-s-e
-			token = Boolean.FALSE;
-			break;
-		case 'n':
-			next();
-			next();
-			next(); // assumed u-l-l
-			token = null;
-			break;
-		default:
-			c = it.previous();
-			if (Character.isDigit(c) || c == '-') {
-				token = number();
+		if (input != null) {
+			return input.charAt(pos++);
+		} else {
+			try {
+				return (char) reader.read();
+			} catch (IOException x) {
+				throw new RuntimeException(x);
 			}
 		}
-		return token;
+	}
+	
+	private void skip(int n) {
+		if (pushedBack != null) {
+			pushedBack = null;
+			n = n -1;
+		}
+		if (input != null) {
+			pos += n;
+		} else {
+			try {
+				for (int i = 0; i<n; i++) {
+					reader.read();
+				}
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
+		}
 	}
 
-	protected Object object() {
+	private void pushBack(char c) {
+		pushedBack = c;
+	}
+
+	private Object read() {
+		char c = next();
+		while (Character.isWhitespace(c)) {
+			c = next();
+		}
+		switch (c) {
+		case '"':
+			return string();
+		case '[':
+			return array();
+		case ']':
+			return ARRAY_END;
+		case ',':
+			return COMMA;
+		case '{':
+			return object();
+		case '}':
+			return OBJECT_END;
+		case ':':
+			return COLON;
+		case 't':
+			skip(3); // true
+			return Boolean.TRUE;
+		case 'f':
+			skip(4); // false
+			return Boolean.FALSE;
+		case 'n':
+			skip(3); // null
+			return null;
+		default:
+			if (Character.isDigit(c) || c == '-') {
+				return number(c);
+			}
+		}
+		throw new IllegalStateException(input);
+	}
+
+	private Object object() {
 		Map<Object, Object> ret = new LinkedHashMap<>();
 		Object key = read();
-		while (token != OBJECT_END) {
+		while (key != OBJECT_END) {
 			read(); // should be a colon
-			if (token != OBJECT_END) {
-				ret.put(key, read());
-				if (read() == COMMA) {
-					key = read();
-				}
+			ret.put(key, read());
+			if (read() == COMMA) {
+				key = read();
+			} else {
+				break;
 			}
 		}
 		return ret;
 	}
 
-	protected Object array() {
+	private Object array() {
 		List<Object> ret = new ArrayList<Object>();
 		Object value = read();
-		while (token != ARRAY_END) {
+		while (value != ARRAY_END) {
 			ret.add(value);
 			if (read() == COMMA) {
 				value = read();
+			} else {
+				break;
 			}
 		}
 		return ret;
 	}
 
-	protected Object number() {
-		int length = 0;
+	private Object number(char c) {
 		boolean isFloatingPoint = false;
 		builder.setLength(0);
 
 		if (c == '-') {
-			add();
+			c = add(c);
 		}
-		length += addDigits();
+		c = addDigits(c);
 		if (c == '.') {
-			add();
-			length += addDigits();
+			c = add(c);
+			c = addDigits(c);
 			isFloatingPoint = true;
 		}
 		if (c == 'e' || c == 'E') {
-			add();
+			c = add(c);
 			if (c == '+' || c == '-') {
-				add();
+				c = add(c);
 			}
-			addDigits();
+			c = addDigits(c);
 			isFloatingPoint = true;
 		}
-
+		pushBack(c);
+		
 		String s = builder.toString();
-		return isFloatingPoint ? (length < 17) ? (Object) Double.valueOf(s) : new BigDecimal(s) : (length < 19) ? (Object) Long.valueOf(s)
-				: new BigInteger(s);
-	}
-
-	protected int addDigits() {
-		int ret;
-		for (ret = 0; Character.isDigit(c); ++ret) {
-			add();
+		if (isFloatingPoint) {
+			return Double.valueOf(s);
+		} else {
+			return Long.valueOf(s);
 		}
-		return ret;
 	}
 
-	protected Object string() {
+	private char addDigits(char c) {
+		while (Character.isDigit(c)) {
+			c = add(c);
+		}
+		return c;
+	}
+
+	private Object string() {
 		builder.setLength(0);
+		char c = next();
 		while (c != '"') {
 			if (c == '\\') {
-				next();
+				c = next();
 				if (c == 'u') {
-					add(unicode());
+					c = add(unicode());
 				} else {
 					Object value = escapes.get(Character.valueOf(c));
 					if (value != null) {
-						add(((Character) value).charValue());
+						c = add(((Character) value).charValue());
+					} else {
+						c = next();
 					}
 				}
 			} else {
-				add();
+				c = add(c);
 			}
 		}
-		next();
-
 		return builder.toString();
 	}
 
-	protected void add(char cc) {
+	private char add(char cc) {
 		builder.append(cc);
-		next();
+		return next();
 	}
-
-	protected void add() {
-		add(c);
-	}
-
-	protected char unicode() {
+	
+	private char unicode() {
 		int value = 0;
 		for (int i = 0; i < 4; ++i) {
-			switch (next()) {
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
+			char c = next();
+			if (c >= '0' && c <= '9') {
 				value = (value << 4) + c - '0';
-				break;
-			case 'a':
-			case 'b':
-			case 'c':
-			case 'd':
-			case 'e':
-			case 'f':
-				value = (value << 4) + (c - 'a') + 10;
-				break;
-			case 'A':
-			case 'B':
-			case 'C':
-			case 'D':
-			case 'E':
-			case 'F':
-				value = (value << 4) + (c - 'A') + 10;
-				break;
+			} else if (c >= 'a' && c <= 'f') {
+				value = (value << 4) + c - 'a';
+			} else if (c >= 'A' && c <= 'F') {
+				value = (value << 4) + c - 'A';
+			} else {
+				throw new IllegalArgumentException();
 			}
+			c = next();
 		}
 		return (char) value;
 	}

@@ -136,7 +136,7 @@ public class Backend {
 	// in the execute method.
 	
 	public static <T> T read(Class<T> clazz, Object id) {
-		return execute(new ReadEntityTransaction<T>(clazz, id, null));
+		return execute(new ReadEntityTransaction<T>(clazz, id));
 	}
 
 	public static <T> List<T> find(Class<T> clazz, Query query) {

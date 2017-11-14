@@ -1,11 +1,8 @@
 package org.minimalj.repository.sql;
 
-import javax.sql.DataSource;
-
 import org.minimalj.application.Application;
-import org.minimalj.application.Configuration;
 import org.minimalj.model.test.ModelTest;
-import org.minimalj.repository.DataSourceFactory;
+import org.minimalj.repository.Repository;
 
 public class TableCreator {
 
@@ -15,12 +12,9 @@ public class TableCreator {
 		
 		ModelTest.exitIfProblems();
 		
-		String database = Configuration.get("MjSqlDatabase");
-		String user = Configuration.get("MjSqlDatabaseUser", "APP");
-		String password = Configuration.get("MjSqlDatabasePassword", "APP");
-		
-		DataSource dataSource = DataSourceFactory.mariaDbDataSource(database, user, password);
-		new SqlRepository(dataSource, SqlRepository.CREATE_TABLES, application);
+		SqlRepository repository = (SqlRepository) Repository.create(application);
+		repository.createTables();
+		repository.createCodes();
 	}
 
 }

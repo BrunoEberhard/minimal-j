@@ -85,6 +85,10 @@ public abstract class AbstractTable<T> {
 		return name;
 	}
 	
+	public boolean isHistorized() {
+		return false;
+	}
+	
 	protected LinkedHashMap<String, PropertyInterface> getColumns() {
 		return columns;
 	}
@@ -140,7 +144,7 @@ public abstract class AbstractTable<T> {
 	
 	protected void createIndexes(SqlDialect dialect) {
 		for (String index : indexes) {
-			String s = dialect.createIndex(getTableName(), index, this instanceof HistorizedTable);
+			String s = dialect.createIndex(getTableName(), index, isHistorized());
 			execute(s.toString());
 		}
 	}
@@ -153,8 +157,11 @@ public abstract class AbstractTable<T> {
 				Class<?> fieldClass = property.getClazz();
 				fieldClass = ViewUtil.resolve(fieldClass);
 				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
+				if (referencedTable.isHistorized()) {
+					continue;
+				}
 
-				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName(), referencedTable instanceof HistorizedTable);
+				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
 				if (s != null) {
 					execute(s.toString());
 				}
@@ -394,7 +401,7 @@ public abstract class AbstractTable<T> {
 	// TODO multiple dependables could be get with one (prepared) statement
 	private Object getDependableId(Object id, String column) {
 		String query = "SELECT " + column + " FROM " + getTableName() + " WHERE ID = ?";
-		if (this instanceof HistorizedTable) {
+		if (isHistorized()) {
 			query += " AND VERSION = 0";
 		}
 		try (PreparedStatement preparedStatement = createStatement(sqlRepository.getConnection(), query, false)) {
