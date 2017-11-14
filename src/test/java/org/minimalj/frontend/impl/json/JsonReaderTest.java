@@ -11,20 +11,19 @@ import org.junit.Test;
  * the moment but the JsonRead should be able to do this)
  *
  */
+@SuppressWarnings("unchecked")
 public class JsonReaderTest {
 
 	@Test
 	public void testUiname() throws Exception {
-		JsonReader reader = new JsonReader();
-		Map<String, Object> data = (Map<String, Object>) reader
+		Map<String, Object> data = (Map<String, Object>) JsonReader
 				.read("{\"name\":\"Emma\",\"surname\":\"Moser\",\"gender\":\"female\",\"region\":\"Switzerland\"}");
 		Assert.assertEquals("Moser", data.get("surname"));
 	}
 
 	@Test
 	public void testUinames() throws Exception {
-		JsonReader reader = new JsonReader();
-		List<Map<String, Object>> data = (List<Map<String, Object>>) reader
+		List<Map<String, Object>> data = (List<Map<String, Object>>) JsonReader
 				.read("[{\"name\":\"Emma\",\"surname\":\"Moser\",\"gender\":\"female\",\"region\":\"Switzerland\"}]");
 		Assert.assertEquals(1, data.size());
 		Assert.assertEquals("Moser", data.get(0).get("surname"));
@@ -33,4 +32,33 @@ public class JsonReaderTest {
 	public static class TestUinames {
 		public String name, surname, gender, region;
 	}
+
+	@Test
+	public void testMaxDouble() {
+		String s = "{\"value\":" + Double.MAX_VALUE + "}";
+		Map<String, Object> result = (Map<String, Object>) JsonReader.read(s);
+		Assert.assertEquals(Double.MAX_VALUE, result.get("value"));
+	}
+	
+	@Test
+	public void testMinDouble() {
+		String s = "{\"value\":" + Double.MIN_VALUE + "}";
+		Map<String, Object> result = (Map<String, Object>) JsonReader.read(s);
+		Assert.assertEquals(Double.MIN_VALUE, result.get("value"));
+	}
+
+	@Test
+	public void testInteger() {
+		String s = "{\"value\":42}";
+		Map<String, Object> result = (Map<String, Object>) JsonReader.read(s);
+		Assert.assertEquals(42L, result.get("value"));
+	}
+	
+	@Test
+	public void testMaxLong() {
+		String s = "{\"value\":" + Long.MAX_VALUE + "}";
+		Map<String, Object> result = (Map<String, Object>) JsonReader.read(s);
+		Assert.assertEquals(Long.MAX_VALUE, result.get("value"));
+	}
+	
 }

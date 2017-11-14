@@ -8,12 +8,14 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
+import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Query;
@@ -25,6 +27,8 @@ import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
+
+import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 /**
  * The RestBackend should rely on the services from a RestServer. CRUD
@@ -40,6 +44,10 @@ public class RestBackend extends Backend {
 
 	private final String url;
 	private final int port;
+	
+	public RestBackend() {
+		this("localhost", 8090);
+	}
 	
 	public RestBackend(String url, int port) {
 		this.url = url;
@@ -63,33 +71,48 @@ public class RestBackend extends Backend {
 	
 	@Override
 	public <T> T doExecute(Transaction<T> transaction) {
+		if (transaction instanceof ReadEntityTransaction) {
+			return super.doExecute(transaction);
+		}
 		HttpURLConnection connection = null;
 		try {
-			URL u = new URL("http", url, port, null);
+			URL u = new URL("http", url, port, "/java-transaction/" + UUID.randomUUID());
 			connection = (HttpURLConnection) u.openConnection();
 			connection.setDoOutput(true);
 			connection.setDoInput(true);
+			// maybe POST would fit better, but sending binary data is much easier with put.
+			connection.setRequestMethod("PUT");
+			connection.addRequestProperty("Content-Type", "application/octet-stream");
+
 			Subject subject = Subject.getCurrent();
 			if (subject != null) {
 				connection.setRequestProperty("token", subject.getToken().toString());
 			}
-			try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())) {
+			OutputStream outputStream = connection.getOutputStream();
+			
+			try (ObjectOutputStream oos = new ObjectOutputStream(outputStream)) {
 				oos.writeObject(transaction);
+				oos.flush();
 				if (transaction instanceof InputStreamTransaction) {
 					sendStream(oos, ((InputStreamTransaction<?>) transaction).getStream());
 				}
 				
+				outputStream.flush();
+				 
 				try (ObjectInputStream ois = new ObjectInputStream(connection.getInputStream())) {
 					if (transaction instanceof OutputStreamTransaction) {
 						receiveStream(ois, ((OutputStreamTransaction<?>) transaction).getStream());
 					}
-					
-					String errorMessage = (String) ois.readObject();
-					if (errorMessage != null) throw new RuntimeException(errorMessage);
-					
-					return readResult(ois);
+
+					return (T) SerializationContainer.unwrap(readResult(ois));
 				} catch (ClassNotFoundException e) {
 					throw new LoggingRuntimeException(e, LOG, "Could not read result from transaction");
+				} catch (IOException e) {
+					if (connection.getResponseCode() == Status.INTERNAL_ERROR.getRequestStatus()) {
+						throw new RuntimeException(connection.getResponseMessage());
+					} else {
+						throw new RuntimeException("Could not execute " + transaction);
+					}
 				}
 			}
 		} catch (IOException x) {
@@ -130,11 +153,12 @@ public class RestBackend extends Backend {
 
 		@Override
 		public <T> T read(Class<T> clazz, Object id) {
+			// return execute(new ReadEntityTransaction<T>(clazz, id, null));
 			HttpURLConnection connection = null;
 			try {
-				String myUrl = url + "/" + clazz.getSimpleName() + "/" + id;
-				URL u = new URL("http", myUrl, port, null);
+				URL u = new URL("http", url, port, "/" + clazz.getSimpleName() + "/" + id);
 				connection = (HttpURLConnection) u.openConnection();
+				connection.setRequestMethod("GET");
 				connection.setDoOutput(false);
 				connection.setDoInput(true);
 				Subject subject = Subject.getCurrent();
@@ -145,7 +169,7 @@ public class RestBackend extends Backend {
 				if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 					try (InputStream inputStream = connection.getInputStream()) {
 						EntityJsonReader read = new EntityJsonReader();
-						// return read.read(inputStream);
+						return (T) read.read(clazz, inputStream);
 					}
 				} else {
 					// throw new RuntimeException(errorMessage);
