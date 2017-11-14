@@ -14,7 +14,7 @@ public class JsonInput {
 	private final Map<String, Object> input;
 
 	public JsonInput(String json) {
-		this((Map<String, Object>) new JsonReader().read(json));
+		this((Map<String, Object>) JsonReader.read(json));
 	}
 	
 	public JsonInput(Map<String, Object> input) {

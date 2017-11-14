@@ -1,23 +1,35 @@
 package org.minimalj.rest;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Base64;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
+import org.minimalj.metamodel.model.MjEntity;
+import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.rest.openapi.OpenAPIFactory;
+import org.minimalj.security.Subject;
+import org.minimalj.transaction.InputStreamTransaction;
+import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -26,7 +38,7 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class RestHTTPD extends NanoHTTPD {
 
-	private Map<String, Class> classByName;
+	private final Map<String, Class<?>> classByName;
 	
 	public RestHTTPD( int port, boolean secure) {
 		super(port);
@@ -40,25 +52,17 @@ public class RestHTTPD extends NanoHTTPD {
 				e.printStackTrace();
 			}
 		}
+		classByName = initClassMap();
 	}
 	
-	protected Map<String, Class> getClassByName() {
-		if (classByName == null) {
-			classByName = new HashMap<>();
-			for (Class entitiyClass : Application.getInstance().getEntityClasses()) {
-				String name = entitiyClass.getSimpleName();
-				if (classByName.containsKey(name)) {
-					throw new IllegalArgumentException("Application contains two entity classes with same SimpleName " + name);
-				}
-				classByName.put(name, entitiyClass);
-			}
+	protected Map<String, Class<?>> initClassMap() {
+		Map<String, Class<?>> classByName = new HashMap<>();
+		MjModel model = new MjModel(Application.getInstance().getEntityClasses());
+		for (MjEntity entity : model.entities) {
+			classByName.put(entity.getClazz().getSimpleName(), entity.getClazz());
 		}
+		
 		return classByName;
-	}
-	
-	
-	protected Class<?> getClass(String simpleName) {
-		return getClassByName().get(simpleName);
 	}
 	
 	@Override
@@ -76,101 +80,194 @@ public class RestHTTPD extends NanoHTTPD {
 		} catch (URISyntaxException e) {
 			return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", e.getMessage());
 		}
-
+		
+		Class<?> clazz = null;
+		if (pathElements.length > 0 && !Character.isLowerCase(pathElements[0].charAt(0))) {
+			clazz = classByName.get(pathElements[0]);
+			if (clazz == null) {
+				return newFixedLengthResponse(Status.NOT_FOUND, "text/html", "Class not available");
+			}
+		}
+		
 		if (method == Method.GET) {
-				if (pathElements.length == 0) {
-					return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", "Please specify class");
-				}
-				if (StringUtils.equals("swagger-ui", pathElements[0])) {
-					if (pathElements.length == 1) {
-						return newChunkedResponse(Status.OK, "text/html", getClass().getResourceAsStream(uriString + "/index.html"));
-					} else if (StringUtils.equals("swagger.json", pathElements[1])) {
-						return newFixedLengthResponse(Status.OK, "text/json", OpenAPIFactory.create(Application.getInstance()));
-					} else {
-						int pos = uriString.lastIndexOf('.');
-						String mimeType = Resources.getMimeType(uriString.substring(pos + 1));
-						return newChunkedResponse(Status.OK, mimeType, getClass().getResourceAsStream(uriString));
-					}
-				}
-				Class<?> clazz = getClass(pathElements[0]);
-				if (clazz == null) {
-					return newFixedLengthResponse(Status.NOT_FOUND, "text/html", "Class not available");
-				}
+			if (pathElements.length == 0) {
+				return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", "Please specify class");
+			}
+			if (StringUtils.equals("swagger-ui", pathElements[0])) {
 				if (pathElements.length == 1) {
-					// GET entity (get all or pages of size x)
-					Query query = By.all();
-					String sizeParameter = parameters.get("size");
-					if (!StringUtils.isBlank(sizeParameter)) {
-						int page = 0;
-						String pageParameter = parameters.get("page");
-						if (!StringUtils.isBlank(pageParameter)) {
-							try {
-								page = Integer.valueOf(pageParameter);
-							} catch (NumberFormatException e) {
-								return newFixedLengthResponse(Status.BAD_REQUEST, "text/json", "page parameter invalid: " + pageParameter);
-							}
-						}
+					return newChunkedResponse(Status.OK, "text/html",
+							getClass().getResourceAsStream(uriString + "/index.html"));
+				} else if (StringUtils.equals("swagger.json", pathElements[1])) {
+					return newFixedLengthResponse(Status.OK, "text/json",
+							new OpenAPIFactory().create(Application.getInstance()));
+				} else {
+					int pos = uriString.lastIndexOf('.');
+					String mimeType = Resources.getMimeType(uriString.substring(pos + 1));
+					return newChunkedResponse(Status.OK, mimeType, getClass().getResourceAsStream(uriString));
+				}
+			}
+			if (pathElements.length == 1) {
+				// GET entity (get all or pages of size x)
+				Query query = By.all();
+				String sizeParameter = parameters.get("size");
+				if (!StringUtils.isBlank(sizeParameter)) {
+					int offset = 0;
+					String offsetParameter = parameters.get("offset");
+					if (!StringUtils.isBlank(offsetParameter)) {
 						try {
-							int size = Integer.valueOf(sizeParameter);
-							query = ((QueryLimitable) query).limit(page != 0 ? page * size : null, size);
+							offset = Integer.valueOf(offsetParameter);
 						} catch (NumberFormatException e) {
-							return newFixedLengthResponse(Status.BAD_REQUEST, "text/json", "size parameter invalid: " + sizeParameter);
+							return newFixedLengthResponse(Status.BAD_REQUEST, "text/json",
+									"page parameter invalid: " + offsetParameter);
 						}
 					}
-					List<?> object = Backend.find(clazz, query);
-					return newFixedLengthResponse(Status.OK, "text/json", new EntityJsonWriter().write(object));
+					try {
+						int size = Integer.valueOf(sizeParameter);
+						query = ((QueryLimitable) query).limit(offset, size);
+					} catch (NumberFormatException e) {
+						return newFixedLengthResponse(Status.BAD_REQUEST, "text/json",
+								"size parameter invalid: " + sizeParameter);
+					}
 				}
-				if (pathElements.length == 2) {
-					// GET entity/id (get one)
-					String id = pathElements[1];
-					Object object = Backend.read(clazz, id);
-					return newFixedLengthResponse(Status.OK, "text/json", new EntityJsonWriter().write(object));
-				}
+				List<?> object = Backend.find(clazz, query);
+				return newFixedLengthResponse(Status.OK, "text/json", EntityJsonWriter.write(object));
+			}
+			if (pathElements.length == 2) {
+				// GET entity/id (get one)
+				String id = pathElements[1];
+				Object object = Backend.read(clazz, id);
+				return newFixedLengthResponse(Status.OK, "text/json", EntityJsonWriter.write(object));
+			}
 		} else if (method == Method.POST) {
-			if (StringUtils.equals("java-transaction", pathElements[0])) {
-				if (pathElements.length == 1 && pathElements[0].equals("java-transaction")) {
-					Object input;
-					String inputString = files.get("PostData");
+			if (clazz != null) {
+				if (pathElements.length >= 2) {
+					String id = pathElements[1];
+					String inputString = files.get("postData");
 					if (inputString == null) {
 						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
 					}
-					try {
-						byte[] inputByteArray = Base64.getDecoder().decode(inputString);
-						try (ByteArrayInputStream bis = new ByteArrayInputStream(inputByteArray)) {
-							try (ObjectInputStream ois = new ObjectInputStream(bis)) {
-								input = ois.readObject();
-							} catch (Exception x) {
-								return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Failed to read input: " + x.getMessage());
-							}
-						} catch (IOException e) {
-							return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", "IOException " + e.getMessage());
-						}
-					} catch (IllegalArgumentException x) {
-						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Input not in valid Base64 scheme");
-					}
-					if (input == null) {
-						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No input");
-					}
-					if (!(input instanceof Transaction)) {
-						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Input not a Transaction but a " + input.getClass().getName());
-					}
-					
-					Object output = ((Transaction<?>) input).execute();
-					
-					// TODO
-//					ByteArrayOutputStream bos = new ByteArrayOutputStream(outputByteArray);
-//					
-//					byte[] outputByteArray = new ObjectOutputStream(new ByteArrayOutputStream());
-//
-//					String outputString = Base64.getEncoder().encodeToString(outputByteArray);
-//					return newFixedLengthResponse(Status.OK, "application/base64", outputString);
-					
+					Object inputObject = EntityJsonReader.read(clazz, inputString);
+					Backend.update(inputObject);
+					return newFixedLengthResponse(Status.OK, "text/json", "success");
+ 				} else {
+ 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post excepts id in url");
+ 				}
+			}
+			
+		} else if (method == Method.DELETE) {
+			if (clazz != null) {
+				if (pathElements.length >= 2) {
+					String id = pathElements[1];
+					Backend.delete(clazz, id);
+ 				} else {
+ 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post expects id in url");
+ 				}
+			}
+			
+		} else if (method == Method.PUT) {
+			String inputFileName = files.get("content");
+			if (inputFileName == null) {
+				return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
+			}
+
+			if (pathElements.length > 0) {
+				if (StringUtils.equals("java-transaction", pathElements[0])) {
+					return transaction(headers, inputFileName);
 				}
 			}
+			
+			if (clazz != null) {
+				String input = "";
+				try {
+					List<String> inputLines = Files.readAllLines(new File(inputFileName).toPath());
+					for (String line : inputLines) {
+						input = input + line;
+					}
+					Object inputObject = EntityJsonReader.read(clazz, input);
+					// IdUtils.setId(inputObject, null);
+					Object id = Backend.insert(inputObject);
+					return newFixedLengthResponse(Status.OK, "text/plain", id.toString());
+				} catch (IOException x) {
+					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Could not read input");
+				}
+			}
+		} else if (method == Method.OPTIONS) {
+			Response response = newFixedLengthResponse(Status.OK, "text/plain", null);
+			response.addHeader("Access-Control-Allow-Origin", "*");
+			response.addHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, PATCH, OPTIONS");
+			response.addHeader("Access-Control-Allow-Headers", "API-Key,accept, Content-Type");
+			response.addHeader("Access-Control-Max-Age", "1728000");
+			
+			return response;
 		} else {
-			return null;
+			return newFixedLengthResponse(Status.METHOD_NOT_ALLOWED, "text/plain", "Method not allowed: " + method);
 		}
 		return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Not a valid request url");
+	}
+
+	private Response transaction(Map<String, String> headers, String inputFileName) {
+		try (InputStream is = new FileInputStream(inputFileName)) {
+			if (Backend.getInstance().isAuthenticationActive()) {
+				String token = headers.get("token");
+				return transaction(token, is);
+			} else {
+				return transaction(is);
+			}
+		} catch (Exception e) {
+			return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", e.getMessage());
+		}
+	}
+	
+	private Response transaction(String token, InputStream is) {
+		if (!StringUtils.isEmpty(token)) {
+			Subject subject = Backend.getInstance().getAuthentication().getUserByToken(UUID.fromString(token));
+			if (subject != null) {
+				Subject.setCurrent(subject);
+			} else {
+				return newFixedLengthResponse(Status.UNAUTHORIZED, "text/plain", "Invalid token");
+			}
+		}
+		try {
+			return transaction(is);
+		} finally {
+			Subject.setCurrent(null);
+		}
+	}
+	
+	private Response transaction(InputStream inputStream) {
+		try (ObjectInputStream ois = new ObjectInputStream(inputStream)) {
+			Object input = ois.readObject();
+			if (!(input instanceof Transaction)) {
+				return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Input not a Transaction but a " + input.getClass().getName());
+			}
+			Transaction<?> transaction = (Transaction<?>) input;
+
+			if (transaction instanceof InputStreamTransaction) {
+				InputStreamTransaction<?> inputStreamTransaction = (InputStreamTransaction<?>) transaction;
+				inputStreamTransaction.setStream(ois);
+			}
+			if (transaction instanceof OutputStreamTransaction) {
+				return newFixedLengthResponse(Status.NOT_IMPLEMENTED, "text/plain", "OutputStreamTransaction not implemented");
+			}
+
+			Object output;
+			try {
+				output = Backend.execute((Transaction<?>) transaction);
+			} catch (Exception e) {
+				return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", e.getMessage());
+			}
+
+			try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)) {
+				oos.writeObject(SerializationContainer.wrap(output));
+				oos.flush();
+				byte[] bytes = byteArrayOutputStream.toByteArray();
+				try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes)) {
+					return newFixedLengthResponse(Status.OK, "application/octet-stream", byteArrayInputStream, bytes.length);
+				}
+			}
+		} catch (Exception e) {
+			return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", e.getMessage());
+		}
 	}
 
 }

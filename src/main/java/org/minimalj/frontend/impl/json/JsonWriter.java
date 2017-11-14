@@ -22,7 +22,7 @@ public class JsonWriter {
 	public JsonWriter() {
 	}
 
-	public String write(Map<String, Object> values) {
+	public String write(Object values) {
 		s.setLength(0);
 		value(values);
 		return s.toString();
