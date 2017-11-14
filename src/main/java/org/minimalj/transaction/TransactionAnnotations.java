@@ -40,6 +40,7 @@ public class TransactionAnnotations {
 	/**
 	 * @param clazz inspected class
 	 * @param annotationClass the annotation to get
+	 * @param <A> type
 	 * @return the annotation on the class itself or if not available the
 	 *         annotation for the (direct) package of the class
 	 */
