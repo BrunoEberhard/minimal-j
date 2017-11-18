@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.minimalj.application.DevMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
@@ -72,7 +72,7 @@ public abstract class Wizard<RESULT> extends Action {
 		
 	protected List<Action> createAdditionalActions() {
 		List<Action> actions = new ArrayList<Action>();
-		if (DevMode.isActive()) {
+		if (Configuration.isDevModeActive()) {
 			actions.add(new FillWithDemoDataAction());
 		}
 		return actions;

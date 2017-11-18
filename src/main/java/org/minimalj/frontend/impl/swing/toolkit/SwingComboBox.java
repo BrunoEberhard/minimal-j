@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import org.minimalj.application.DevMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
@@ -175,7 +175,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 						((JComponent) component).setToolTipText(tooltip);
 					}
 				} else {
-					if (DevMode.isActive()) {
+					if (Configuration.isDevModeActive()) {
 						throw new RuntimeException("Cell component expected to be a JLabel");
 					} else {
 						Logger.getLogger(this.getClass().getName()).warning("Cell component expected to be a JLabel");

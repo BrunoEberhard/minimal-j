@@ -2,7 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import java.util.logging.Logger;
 
-import org.minimalj.application.DevMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
@@ -73,7 +73,7 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 		if (!isEditable()) {
 			String msg = object.getClass().getSimpleName() + " should not be used if " + AbstractObjectFormElement.class.getSimpleName()
 					+ " is not editable";
-			if (DevMode.isActive()) {
+			if (Configuration.isDevModeActive()) {
 				throw new IllegalArgumentException(msg);
 			} else {
 				logger.warning(msg);

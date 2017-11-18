@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import org.minimalj.application.DevMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.security.Authentication.LoginListener;
@@ -147,7 +147,7 @@ public class FrameManager {
 	 * @return true if user wants to leave
 	 */
 	private boolean askBeforeExit(SwingFrame navigationFrameView) {
-		if (DevMode.isActive()) {
+		if (Configuration.isDevModeActive()) {
 			return true;
 		} else {
 			int answer = JOptionPane.showConfirmDialog(navigationFrameView, Resources.getString("Exit.confirm"), Resources.getString("Exit.confirm.title"), JOptionPane.YES_NO_OPTION);
