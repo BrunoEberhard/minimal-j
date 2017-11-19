@@ -24,7 +24,15 @@ public class AnnotationUtil {
 			return size.value();
 		}
 		
-		Sizes sizes = property.getDeclaringClass().getAnnotation(Sizes.class);
+		Sizes sizes = null;
+		Class<?> declaringClass = property.getDeclaringClass();
+		while (sizes == null && declaringClass != null) {
+			sizes = declaringClass.getAnnotation(Sizes.class);
+			declaringClass = declaringClass.getEnclosingClass();
+		}
+		if (sizes == null) {
+			sizes = property.getDeclaringClass().getPackage().getAnnotation(Sizes.class);
+		}
 		if (sizes != null) {
 			Class<?> sizeClass = sizes.value();
 			for (Field field : sizeClass.getFields()) {
@@ -50,7 +58,7 @@ public class AnnotationUtil {
 		if (optional) {
 			return -1;
 		} else {
-			logger.fine("You must annotate the fields with a @size or the entire class with @sizes");
+			logger.fine("You must annotate the fields with a @size or the entire class or package with @sizes");
 			throw new IllegalArgumentException("Size not specified for " + property.getName() + " on " + property.getDeclaringClass());
 		}
 	}
