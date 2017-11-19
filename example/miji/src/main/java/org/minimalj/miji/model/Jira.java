@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.model.annotation.Sizes;
 
+@Sizes(JiraSizes.class)
 public class Jira {
 
 	public static class Project {
@@ -12,13 +14,11 @@ public class Jira {
 
 		public Object id;
 
-		@Size(2048)
 		public String self;
 
-		@Size(2048)
 		public String description;
 
-		@Size(255)
+		public String name;
 		public String key;
 
 		public List<IssueType> issueTypes;
@@ -29,31 +29,26 @@ public class Jira {
 
 		public Object id;
 
-		@Size(2048)
 		public String self;
 
-		@Size(2048)
 		public String description;
 
-		@Size(255)
-		public String name, displayName, key, accountId, emailAddress;
+		public String name, key;
 
+		@Size(255)
+		public String displayName, accountId, emailAddress;
 	}
 
 	public static class Issue {
 		public static final Issue $ = Keys.of(Issue.class);
 
 		public Object id;
-		@Size(255)
 		public String key;
 
-		@Size(2048)
 		public String self;
 
-		@Size(2048)
 		public String description, summary;
 
-		@Size(2048)
 		public String url;
 
 		public Issue parent;
@@ -66,13 +61,10 @@ public class Jira {
 		public static final Issue $ = Keys.of(Issue.class);
 
 		public Object id;
-		@Size(255)
 		public String key;
 
-		@Size(2048)
 		public String self;
 
-		@Size(2048)
 		public String description, name;
 
 		@Size(2048)
@@ -99,7 +91,7 @@ public class Jira {
 
 		public Object id;
 
-		@Size(2048)
+		@Size(32767)
 		public String body;
 	}
 }
