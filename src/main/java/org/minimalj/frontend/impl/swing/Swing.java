@@ -25,18 +25,13 @@ public class Swing implements Runnable {
 		FrameManager.getInstance().openNavigationFrame(null);
 	}
 
-	private static void start() {
+	public static void start() {
 		ModelTest.exitIfProblems();
 		try {
 			SwingUtilities.invokeAndWait(new Swing());
 		} catch (InvocationTargetException | InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	public static void start(Application application) {
-		Application.setInstance(application);
-		start();
 	}
 	
 	public static void main(String... args) {

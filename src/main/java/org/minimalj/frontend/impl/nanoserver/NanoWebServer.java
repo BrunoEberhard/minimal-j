@@ -57,10 +57,9 @@ public class NanoWebServer {
 		}
 	}
 	
-	public static void start(Application application) {
-		Application.setInstance(application);
-		Frontend.setInstance(new JsonFrontend());
+	public static void start() {
 		ModelTest.exitIfProblems();
+		Frontend.setInstance(new JsonFrontend());
 		
 		start(!SECURE);
         start(SECURE);
@@ -68,11 +67,7 @@ public class NanoWebServer {
 	
 	public static void main(String... args) {
 		Application.initApplication(args);
-		Frontend.setInstance(new JsonFrontend());
-		ModelTest.exitIfProblems();
-		
-		start(!SECURE);
-        start(SECURE);
+		start();
 	}
 
 }
