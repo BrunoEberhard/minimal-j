@@ -12,6 +12,8 @@ import com.googlecode.lanterna.gui2.BasicWindow;
 import com.googlecode.lanterna.gui2.BorderLayout;
 import com.googlecode.lanterna.gui2.BorderLayout.Location;
 import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.Container;
+import com.googlecode.lanterna.gui2.Interactable;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.Window;
 
@@ -56,13 +58,33 @@ public class LanternaWindow extends BasicWindow {
 
 		private void show(Page page) {
 			Component pageContent = (Component) page.getContent();
-			//if (pageContent instanceof Table) {
-				//switchLayout.show(new LanternaTableContainer((Table<?>) pageContent));
-					//} else {
-				switchLayout.show(pageContent);
-			// }
-			// Frontend.focusFirstComponent(page.getComponent());
+			switchLayout.show(pageContent);
+			focusFirstInteractable(LanternaWindow.this.getComponent());
+			focusFirstInteractable(pageContent);
 		}
+	}
+	
+	private void focusFirstInteractable(Component component) {
+		Interactable interactable = getFirstInteractable(component);
+		if (interactable != null) {
+			interactable.takeFocus();
+			return;
+		}
+	}
+
+	private Interactable getFirstInteractable(Component component) {
+		if (component instanceof Interactable) {
+			return (Interactable) component;
+		} else if (component instanceof Container) {
+			Container container = (Container) component;
+			for (Component c : container.getChildren()) {
+				Interactable interactable = getFirstInteractable(c);
+				if (interactable != null) {
+					return interactable;
+				}
+			}
+		}
+		return null;
 	}
 
 }
