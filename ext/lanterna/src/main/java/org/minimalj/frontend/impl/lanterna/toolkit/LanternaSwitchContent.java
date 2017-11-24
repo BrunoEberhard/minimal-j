@@ -3,12 +3,10 @@ package org.minimalj.frontend.impl.lanterna.toolkit;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.SwitchContent;
 
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.TextGraphics;
-import com.googlecode.lanterna.gui.component.AbstractContainer;
-import com.googlecode.lanterna.terminal.TerminalSize;
+import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.Panel;
 
-public class LanternaSwitchContent extends AbstractContainer implements SwitchContent {
+public class LanternaSwitchContent extends Panel implements SwitchContent {
 
 	@Override
 	public void show(IContent content) {
@@ -22,22 +20,6 @@ public class LanternaSwitchContent extends AbstractContainer implements SwitchCo
 		}
 		invalidate();
 	}
-	
 
-	@Override
-	protected TerminalSize calculatePreferredSize() {
-		if (getComponentCount() > 0) {
-			return getComponentAt(0).getPreferredSize();
-		} else {
-			return new TerminalSize(0, 0);
-		}
-	}
-
-	@Override
-	public void repaint(TextGraphics graphics) {
-		if (getComponentCount() > 0) {
-			getComponentAt(0).repaint(graphics);
-		} 
-	}
 
 }

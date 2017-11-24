@@ -1,20 +1,23 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
+import java.util.List;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
 
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.layout.VerticalLayout;
+import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.Direction;
+import com.googlecode.lanterna.gui2.LinearLayout;
+import com.googlecode.lanterna.gui2.Panel;
 
 public class LanternaList extends Panel implements IList {
 	
 	private final int actionCount;
 	
 	public LanternaList(Action... actions) {
-		setLayoutManager(new VerticalLayout());
+		setLayoutManager(new LinearLayout(Direction.VERTICAL));
 		if (actions != null) {
 			for (Action action : actions) {
 				addComponent((Component) Frontend.getInstance().createText(action));
@@ -27,8 +30,9 @@ public class LanternaList extends Panel implements IList {
 	
 	@Override
 	public void clear() {
-		for (int i = getComponentCount() - actionCount - 1; i>=0; i--) {
-			removeComponent(getComponentAt(i));
+		List<Component> children = (List<Component>) getChildren();
+		for (int i = children.size() - actionCount - 1; i>=0; i--) {
+			removeComponent(children.get(i));
 		}
 	}
 

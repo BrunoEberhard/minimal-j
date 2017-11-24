@@ -4,7 +4,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 
-import com.googlecode.lanterna.gui.component.Label;
+import com.googlecode.lanterna.gui2.Label;
 
 public class LanternaText extends Label implements IComponent {
 
@@ -13,10 +13,7 @@ public class LanternaText extends Label implements IComponent {
 	}
 
 	public LanternaText(Rendering rendering) {
-		if (rendering != null) {
-			String s = rendering.render(RenderType.PLAIN_TEXT);
-			setText(s);
-		}
+		super(rendering != null ? rendering.render(RenderType.PLAIN_TEXT) : "");
 	}
 
 	@Override
