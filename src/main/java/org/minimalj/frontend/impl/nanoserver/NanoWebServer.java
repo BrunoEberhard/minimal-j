@@ -65,6 +65,11 @@ public class NanoWebServer {
         start(SECURE);
 	}
 	
+	public static void start(Application application) {
+		Application.setInstance(application);
+		start();
+	}
+	
 	public static void main(String... args) {
 		Application.initApplication(args);
 		start();

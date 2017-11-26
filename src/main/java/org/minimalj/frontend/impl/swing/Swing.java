@@ -25,6 +25,11 @@ public class Swing implements Runnable {
 		FrameManager.getInstance().openNavigationFrame(null);
 	}
 
+	public static void start(Application application) {
+		Application.setInstance(application);
+		start();
+	}
+
 	public static void start() {
 		ModelTest.exitIfProblems();
 		try {
