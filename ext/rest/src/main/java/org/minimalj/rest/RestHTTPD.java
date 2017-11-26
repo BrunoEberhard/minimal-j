@@ -82,7 +82,7 @@ public class RestHTTPD extends NanoHTTPD {
 		}
 		
 		Class<?> clazz = null;
-		if (pathElements.length > 0 && !Character.isLowerCase(pathElements[0].charAt(0))) {
+		if (pathElements.length > 0 && !StringUtils.isEmpty(pathElements[0]) && !Character.isLowerCase(pathElements[0].charAt(0))) {
 			clazz = classByName.get(pathElements[0]);
 			if (clazz == null) {
 				return newFixedLengthResponse(Status.NOT_FOUND, "text/html", "Class not available");
@@ -90,11 +90,13 @@ public class RestHTTPD extends NanoHTTPD {
 		}
 		
 		if (method == Method.GET) {
-			if (pathElements.length == 0) {
-				return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", "Please specify class");
-			}
 			if (StringUtils.equals("swagger-ui", pathElements[0])) {
 				if (pathElements.length == 1) {
+					if (!uriString.endsWith("/")) {
+						Response r = newFixedLengthResponse(Response.Status.REDIRECT, MIME_HTML, "");
+			            r.addHeader("Location", uriString + "/");
+			            return r;
+					}
 					return newChunkedResponse(Status.OK, "text/html",
 							getClass().getResourceAsStream(uriString + "/index.html"));
 				} else if (StringUtils.equals("swagger.json", pathElements[1])) {
@@ -106,7 +108,7 @@ public class RestHTTPD extends NanoHTTPD {
 					return newChunkedResponse(Status.OK, mimeType, getClass().getResourceAsStream(uriString));
 				}
 			}
-			if (pathElements.length == 1) {
+			if (pathElements.length == 1 && clazz != null) {
 				// GET entity (get all or pages of size x)
 				Query query = By.all();
 				String sizeParameter = parameters.get("size");
