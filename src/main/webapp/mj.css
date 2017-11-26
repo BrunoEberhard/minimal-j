@@ -20,8 +20,8 @@ body {
 	position: fixed;
 	margin: 0px;
 	width: 100%;
-	height: calc(2.2em - 1px);
-	line-height: 2.1em;
+	height: calc(3em - 1px);
+	line-height: 2.8em;
 	text-align: left;
 	background: rgb(224,224,224);
 	border-bottom: 1px rgb(160,160,160) solid;
@@ -29,10 +29,10 @@ body {
 }
 
 .headerButton {
-	margin-top: 0.4em;
+	margin-top: 0.8em;
 	margin-left: 0.4em;
-	width: 1.5em;
-	height: 1.5em;
+	width: 1.55em;
+	height: 1.55em;
 }
 
 #searchSpan {
@@ -44,9 +44,9 @@ body {
 
 #search {
 	vertical-align: top;
-	border: solid 1px #666;
-	margin-top: 0.42em;
-	padding: 0px;
+	border: solid 1px #888;
+	margin-top: 0.65em;
+	height: 1.75em
 }
 
 #search input:focus {
@@ -58,7 +58,7 @@ body {
 #container {
 	position: fixed;
 	display: flex;
-	top: 2.2em;
+	top: 3em;
 	bottom: 0;
 	left: 0;
 	right: 0;
@@ -85,6 +85,8 @@ body {
 	position: relative;
 	width: calc(15em - 1px);
 	max-height: calc(100% - 1.8em);
+	padding-left: 0.8em;
+	padding-top: 0.6em;
 	bottom: 0;
 	overflow: auto;
 	background: white;
