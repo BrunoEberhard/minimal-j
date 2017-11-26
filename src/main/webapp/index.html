@@ -1071,7 +1071,7 @@ $ICON
 
 	function init() {
 		if (!$LOGIN) {
-			document.getElementById("loginSpan").classList.add("hide");
+			document.getElementById("loginButton").classList.add("hide");
 		}
 
 		pageContainerElement = document.getElementById("pageContainer");
@@ -1121,37 +1121,36 @@ $ICON
 <body onload="init();">
 	<div id="all">
 		<div id="header">
-			<div class="button" style="margin-left: 0.5em;" title="Show or hide navigation">
-				<svg width="1.4em" height="1.4em" class="headerButton" onclick="toggleNavigation()">
-					<g style="stroke-width:0px"> 		
-						<rect x="0" y="5%" width="100%" height="0.25em"/>
-						<rect x="0" y="40%" width="100%" height="0.25em"/>
-						<rect x="0" y="75%" width="100%" height="0.25em"/>
-					</g>
-				</svg>
-			</div><div title="Login / Logout" id="loginSpan" class="button">
-				<svg width="1.4em" height="1.4em" id="loginButton" class="headerButton" onclick="changeLogin()">
-					<g style="stroke-width:16%;stroke-linecap:square"> 		
-						<line x1="70%" y1="8%" x2="91%" y2="8%" />
-						<line x1="70%" y1="91%" x2="91%" y2="91%" />
-						<line x1="91%" y1="8%" x2="91%" y2="91%" />
-						
-						<line x1="0%" y1="50%" x2="55%" y2="50%" />
-						<line x1="40%" y1="30%" x2="60%" y2="50%" />
-						<line x1="40%" y1="70%" x2="60%" y2="50%" />
-					</g>
-				</svg>
-			</div>	
+			<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
+                <g style="stroke-width:0px"> 		
+    				<title>Show or hide navigation</title>
+					<rect x="0" y="5%" width="100%" height="0.25em"/>
+					<rect x="0" y="40%" width="100%" height="0.25em"/>
+					<rect x="0" y="75%" width="100%" height="0.25em"/>
+				</g>
+			</svg>
+			<svg id="loginButton" class="button headerButton" onclick="changeLogin()">
+				<g style="stroke-width:16%;stroke-linecap:square"> 	
+                    <title>Login</title>	
+					<line x1="70%" y1="8%" x2="91%" y2="8%" />
+					<line x1="70%" y1="91%" x2="91%" y2="91%" />
+					<line x1="91%" y1="8%" x2="91%" y2="91%" />
+					
+					<line x1="0%" y1="50%" x2="55%" y2="50%" />
+					<line x1="40%" y1="30%" x2="60%" y2="50%" />
+					<line x1="40%" y1="70%" x2="60%" y2="50%" />
+				</g>
+			</svg>
 			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
 			<div class="button" id="searchSpan">
 				<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
-				<svg id="searchButton" width="1.4em" height="1.4em" class="headerButton" onclick="searchButtonAction();">
+				<svg id="searchButton" class="headerButton" onclick="searchButtonAction();">
 					<g style="stroke-width:16%;stroke-linecap:square"> 		
 						<line x1="59%" y1="59%" x2="91%" y2="91%" />
 						<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
 					</g>
 				</svg>
-				<svg id="actionMenuButton" width="1.4em" height="1.4em" class="headerButton" onclick="toggleActionMenu();">
+				<svg id="actionMenuButton" class="headerButton" onclick="toggleActionMenu();">
 					<g style="stroke-width:0px"> 		
 						<rect x="12px" y="5%" width="3px" height="3px"/>
 						<rect x="12px" y="40%" width="3px" height="3px"/>
@@ -1163,7 +1162,7 @@ $ICON
 		<div id="container">
 			<div id="navigationContainer" style="display: none;">
 				<div id="navigationHeader">
-					<svg width="1.0em" height="1.0em" class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
+					<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
 					  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 					  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 					</svg>
@@ -1179,13 +1178,13 @@ $ICON
 
 	<div id="templates" style="display: none">
 		<div id="pageHeaderButtons">
-			<svg style="stroke-width:0px" width="1.0em" height="1.0em" class="actionMenuButton button" onclick="togglePageActionMenu(evt);">
+			<svg style="stroke-width:0px" class="actionMenuButton pageButton button" onclick="togglePageActionMenu(evt);">
 				<rect x="73%" y="13%" width="20%" height="17%"/>
 				<rect x="73%" y="46%" width="20%" height="17%"/>
 				<rect x="73%" y="80%" width="20%" height="17%"/>
-			</svg><svg width="1.0em" height="1.0em" class="pageButton button" onclick="togglePage(evt);">
+			</svg><svg class="pageButton button" onclick="togglePage(evt);">
 			  <rect x="20%" y="80%" width="100%" height="13%" />
-			</svg><svg width="1.0em" height="1.0em" class="pageButton button" onclick="closePage(evt);">
+			</svg><svg class="pageButton button" onclick="closePage(evt);">
 				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>

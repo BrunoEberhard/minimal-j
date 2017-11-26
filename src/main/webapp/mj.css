@@ -31,6 +31,8 @@ body {
 .headerButton {
 	margin-top: 0.4em;
 	margin-left: 0.4em;
+	width: 1.5em;
+	height: 1.5em;
 }
 
 #searchSpan {
@@ -158,6 +160,11 @@ li {
 	flex-flow: nowrap;
 	align-items: stretch;
 	position: relative;
+}
+
+.pageButton {
+	width: 1.1em;
+	height: 1.1em;
 }
 
 .pageContent {
