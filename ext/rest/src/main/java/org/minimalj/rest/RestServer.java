@@ -36,6 +36,11 @@ public class RestServer {
 	}
 	
 	public static void start() {
+		if (Application.getInstance().getEntityClasses().length == 0) {
+			LOG.severe("Server not started! You must have at least declare one entity class in your application. Please override 'getEntityClasses'.");
+			return;
+		}
+		
 		ModelTest.exitIfProblems();
 		
 		start(!SECURE);
