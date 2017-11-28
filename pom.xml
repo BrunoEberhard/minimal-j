@@ -34,11 +34,20 @@
 			<name>Minimal-J sonytype Maven 2 repository</name>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
+		<!-- 
 		<snapshotRepository>
 			<id>sonatype-nexus-staging</id>
 			<name>Minimal-J sonytype Snapshot Maven 2 repository</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
+	-->
+		<snapshotRepository>
+			<id>packagecloud-travis</id>
+			<url>
+		      packagecloud+https://packagecloud.io/minimalj/snapshot
+		    </url>
+		</snapshotRepository>
+  
 	</distributionManagement>
 
 	<build>
