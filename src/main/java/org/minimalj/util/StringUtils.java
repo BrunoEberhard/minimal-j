@@ -3,6 +3,9 @@ package org.minimalj.util;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend;
+
 public class StringUtils {
 
 	public static boolean equals(String s1, String s2) {
@@ -179,5 +182,39 @@ public class StringUtils {
 			return text.startsWith("<html>") && text.endsWith("</html>");
 		}
 		return false;
+	}
+	
+	public static String sanitizeHtml(String html) {
+		String allowedHtmlTagConfiguration = Configuration.get("MjAllowedHtmlTags");
+		if (!StringUtils.isEmpty(allowedHtmlTagConfiguration)) {
+			return sanitizeHtml(html, allowedHtmlTagConfiguration.split(","));
+		} else {
+			return sanitizeHtml(html, Frontend.ALLOWED_HTML_TAGS);
+		}
+	}
+	
+	public static String sanitizeHtml(String html, String[] allowedTags) {
+		// https://stackoverflow.com/questions/3297300/how-to-remove-all-html-tags-except-img
+		if (html != null) {
+			StringBuilder s = new StringBuilder();
+			s.append("(?i)<(?!");
+			for (String allowedTag : allowedTags) {
+				s.append(allowedTag).append("|/").append(allowedTag).append("|");
+			}
+			s.append("html|/html");
+			s.append(").*?>");
+			return html.replaceAll(s.toString(), "");
+		    // return html.replaceAll("(?i)<(?!b|/b).*?>", "");
+		} else {
+			return html;
+		}
+	}
+	
+	public static String stripHtml(String html) {
+		if (html != null) {
+		    return html.replaceAll("(?i)<.*?>", "");
+		} else {
+			return html;
+		}
 	}
 }
