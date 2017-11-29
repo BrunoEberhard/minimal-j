@@ -2,13 +2,19 @@ package org.minimalj.frontend.impl.json;
 
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
+import org.minimalj.util.StringUtils;
 
 public class JsonText extends JsonComponent {
 
 	public JsonText(Object object) {
 		super("Text");
 		if (object != null) {
-			put(JsonInputComponent.VALUE, object.toString());
+			String string = object.toString();
+			if (StringUtils.isHtml(string)) {
+				put("htmlValue", string);
+			} else {
+				put(JsonInputComponent.VALUE, string);
+			}
 		}
 	}
 
