@@ -165,12 +165,19 @@ public class StringUtils {
 		}
 	}
 
-	public static boolean isUrl(String url) {
+	public static boolean isUrl(String text) {
 		try {
-			new URL(url);
+			new URL(text);
 			return true;
 		} catch (MalformedURLException e) {
 			return false;
 		}
+	}
+	
+	public static boolean isHtml(String text) {
+		if (text != null) {
+			return text.startsWith("<html>") && text.endsWith("</html>");
+		}
+		return false;
 	}
 }
