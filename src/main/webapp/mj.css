@@ -9,11 +9,6 @@ body {
 	height: 100%;
 }
 
-#all {
-	height: 100%;
-	overflow: auto;
-}
-
 /* header with search */
 
 #header {

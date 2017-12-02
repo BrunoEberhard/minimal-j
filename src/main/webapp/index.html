@@ -1110,59 +1110,57 @@ $ICON
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
 <body onload="init();">
-	<div id="all">
-		<div id="header">
-			<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
-                <g style="stroke-width:0px"> 		
-    				<title>Show or hide navigation</title>
-					<rect x="0" y="5%" width="100%" height="0.25em"/>
-					<rect x="0" y="40%" width="100%" height="0.25em"/>
-					<rect x="0" y="75%" width="100%" height="0.25em"/>
+	<div id="header">
+		<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
+              <g style="stroke-width:0px"> 		
+  				<title>Show or hide navigation</title>
+				<rect x="0" y="5%" width="100%" height="0.25em"/>
+				<rect x="0" y="40%" width="100%" height="0.25em"/>
+				<rect x="0" y="75%" width="100%" height="0.25em"/>
+			</g>
+		</svg>
+		<svg id="loginButton" class="button headerButton" onclick="changeLogin()">
+			<g style="stroke-width:16%;stroke-linecap:square"> 	
+                  <title>Login</title>	
+				<line x1="70%" y1="8%" x2="91%" y2="8%" />
+				<line x1="70%" y1="91%" x2="91%" y2="91%" />
+				<line x1="91%" y1="8%" x2="91%" y2="91%" />
+				
+				<line x1="0%" y1="50%" x2="55%" y2="50%" />
+				<line x1="40%" y1="30%" x2="60%" y2="50%" />
+				<line x1="40%" y1="70%" x2="60%" y2="50%" />
+			</g>
+		</svg>
+		<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
+		<div class="button" id="searchSpan">
+			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
+			<svg id="searchButton" class="headerButton" onclick="searchButtonAction();">
+				<g style="stroke-width:16%;stroke-linecap:square"> 		
+					<line x1="59%" y1="59%" x2="91%" y2="91%" />
+					<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
 				</g>
 			</svg>
-			<svg id="loginButton" class="button headerButton" onclick="changeLogin()">
-				<g style="stroke-width:16%;stroke-linecap:square"> 	
-                    <title>Login</title>	
-					<line x1="70%" y1="8%" x2="91%" y2="8%" />
-					<line x1="70%" y1="91%" x2="91%" y2="91%" />
-					<line x1="91%" y1="8%" x2="91%" y2="91%" />
-					
-					<line x1="0%" y1="50%" x2="55%" y2="50%" />
-					<line x1="40%" y1="30%" x2="60%" y2="50%" />
-					<line x1="40%" y1="70%" x2="60%" y2="50%" />
+			<svg id="actionMenuButton" class="headerButton" onclick="toggleActionMenu();">
+				<g style="stroke-width:0px"> 		
+					<rect x="12px" y="5%" width="3px" height="3px"/>
+					<rect x="12px" y="40%" width="3px" height="3px"/>
+					<rect x="12px" y="75%" width="3px" height="3px"/>
 				</g>
 			</svg>
-			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
-			<div class="button" id="searchSpan">
-				<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
-				<svg id="searchButton" class="headerButton" onclick="searchButtonAction();">
-					<g style="stroke-width:16%;stroke-linecap:square"> 		
-						<line x1="59%" y1="59%" x2="91%" y2="91%" />
-						<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
-					</g>
+		</div>			
+	</div>
+	<div id="container">
+		<div id="navigationContainer" style="display: none;">
+			<div id="navigationHeader">
+				<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
+				  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
+				  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 				</svg>
-				<svg id="actionMenuButton" class="headerButton" onclick="toggleActionMenu();">
-					<g style="stroke-width:0px"> 		
-						<rect x="12px" y="5%" width="3px" height="3px"/>
-						<rect x="12px" y="40%" width="3px" height="3px"/>
-						<rect x="12px" y="75%" width="3px" height="3px"/>
-					</g>
-				</svg>
-			</div>			
+			</div>
+			<div id="navigation">
+			</div>
 		</div>
-		<div id="container">
-			<div id="navigationContainer" style="display: none;">
-				<div id="navigationHeader">
-					<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
-					  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
-					  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
-					</svg>
-				</div>
-				<div id="navigation">
-				</div>
-			</div>
-			<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
-			</div>
+		<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
 		</div>
 	</div>
 
