@@ -260,7 +260,7 @@ $ICON
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.className = "actionMenu";
 			
-			if (isCompact) actionMenuContainer.style.display = "none";
+			if (isCompact || pageContainerElement.offsetWidth < 1200) actionMenuContainer.style.display = "none";
 			
 			actionMenuContainer.appendChild(actionMenuElement);
 			pageContentAndActionsElement.appendChild(actionMenuContainer);
