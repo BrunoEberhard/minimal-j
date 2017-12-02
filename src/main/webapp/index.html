@@ -299,7 +299,7 @@ $ICON
 	}
 
 	function toggleActionMenu() {
-		var actionMenuElement = document.getElementsByClassName("actionMenu")[0];
+		var actionMenuElement = document.getElementsByClassName("actionMenu")[0]; // compact: only one action menu
 		if (actionMenuElement.style.display == "block") {
 			actionMenuElement.style.display = "none";
 		} else {
@@ -724,15 +724,13 @@ $ICON
 
 	function toggleNavigation(openOrClose) {
 		var navigationElement = document.getElementById("navigationContainer");
-		var pageElement = document.getElementById("pageContainer");
 		var isClosed = navigationElement.style.display == "none";
 		if (isClosed && (openOrClose == undefined || openOrClose == "open")) {
 			navigationElement.style.display = "block";
-			if (isCompact) { closeActionMenu() } else { pageElement.style.left = "15em" }
+			if (isCompact) { closeActionMenu() }
 			return true;
 		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
 			navigationElement.style.display = "none";
-			if (!isCompact) pageElement.style.left = "0";
 			return true;
 		}
 		return false;
