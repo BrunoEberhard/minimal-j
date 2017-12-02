@@ -89,7 +89,6 @@ body {
 	max-height: calc(100% - 1.8em);
 	bottom: 0;
 	overflow: auto;
-	background: white;
 }
 
 
@@ -167,7 +166,7 @@ li {
 
 .pageContentAndActions {
 	position: relative;
-	min-height: calc(10em - 1.8em)
+	min-height: 12em;
 }
 
 .page:only-child > .pageContentAndActions {
@@ -185,13 +184,16 @@ li {
 
 .pageContent {
 	width: 100%;
-	height: 100%;
 	box-sizing: border-box;
 	padding-left: 1em;
 	padding-top: 0.5ex;
 	overflow: auto;
 }
 
+.page:only-child > .pageContent {
+	height: 100%;
+}
+	
 .pageContent iframe {
 	padding: 0em;
 	width: 100%;
