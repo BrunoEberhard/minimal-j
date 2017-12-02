@@ -20,7 +20,8 @@ body {
 	position: fixed;
 	margin: 0px;
 	width: 100%;
-	height: calc(2.6em - 1px);
+	height: 2.6em;
+	box-sizing: border-box;
 	line-height: 2.45em;
 	text-align: left;
 	background: rgb(224,224,224);
@@ -73,10 +74,11 @@ body {
 
 #navigationHeader {
 	position: relative;
-	height: calc(1.8em - 1px);
+	height: 1.8em;
+	box-sizing: border-box;
 	line-height: 1.9em;
 	padding-left: 1em;
-	width: calc(100% - 1em);
+	width: 100%;
 	background: rgb(240,240,240);
 	border-bottom: 1px rgb(160,160,160) solid;
 }
@@ -155,7 +157,8 @@ li {
 
 .pageHeader {
 	position: relative;
-	height: calc(1.8em - 1px);
+	height: 1.8em;
+	box-sizing: border-box;
 	line-height: 1.9em;
 	padding-left: 1em;
 	background: rgb(240,240,240);
@@ -181,10 +184,11 @@ li {
 }
 
 .pageContent {
-	width: calc(100% - 1em);
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
 	padding-left: 1em;
 	padding-top: 0.5ex;
-	height: calc(100% - 0.5ex);
 	overflow: auto;
 }
 
