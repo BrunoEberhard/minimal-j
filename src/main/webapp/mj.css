@@ -302,7 +302,6 @@ table tr:nth-child(odd).selected {
 
 dialog .form div.list {
 	padding-top: 0.05rem;
-	height: 100%;
 }
 
 /* group (of form elements) must not double the paddings and keep background pattern */
