@@ -390,3 +390,27 @@ block {
 	background: rgba(0, 0, 0, 0.1);
 	z-index: 90;
 }
+
+/* only in non compact mode */
+
+.full #searchButton { display: none; }
+.full #actionMenuButton { display: none; }
+
+/* only in compact mode */
+
+.compact #search { display: none; }
+.compact #navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border-right: 1px rgb(160,160,160) solid;}
+.compact #navigationHeader { display: none; }
+.compact #navigation { max-height: 100%}
+.compact #pageContainer { height: 100%}
+.compact .page { height: 100%; border-bottom: 0;}
+.compact .actionMenu { min-width: 13em;}
+.compact .pageButton { display: none; }
+.compact .page:only-child > .pageContentAndActions { top: 0em; height: 100% }
+.compact table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
+.compact table.form, table.form input, table.form select { margin: 0px; }
+.compact dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }
+.compact .dialogFooter button { font-size : inherit; }
+.compact .dialogFooter { height: 1.7em; }
+.compact .dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}
+

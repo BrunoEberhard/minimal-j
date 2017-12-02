@@ -7,9 +7,11 @@
 <base href="$BASE">
 
 <script src="dialog-polyfill.js"></script>
-<link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 
+<link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 <link rel="stylesheet" type="text/css" href="mj.css" />
+<!-- link rel="stylesheet" type="text/css" href="mj_miniterial.css" -->
+
 $ICON
 
 <script type="text/javascript">
@@ -1082,27 +1084,10 @@ $ICON
 		pageContainerElement = document.getElementById("pageContainer");
 		titleElement = document.getElementsByTagName("title")[0];
 		
-		var styleElement = document.getElementById("dynamicStyle");
-		var styleSheet = styleElement.sheet;
 		if (isCompact) {
-			styleSheet.insertRule("#search { display: none; }", 0);
-			styleSheet.insertRule("#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border-right: 1px rgb(160,160,160) solid;}", 0);
-			styleSheet.insertRule("#navigationHeader { display: none; }", 0);
-			styleSheet.insertRule("#navigation { max-height: 100%}", 0);
-			styleSheet.insertRule("#pageContainer { height: 100%}", 0);
-			styleSheet.insertRule(".page { height: 100%; border-bottom: 0;}", 0);
-			styleSheet.insertRule(".actionMenu { min-width: 13em;}", 0);
-			styleSheet.insertRule(".pageButton { display: none; }", 0);
-            styleSheet.insertRule(".page:only-child > .pageContentAndActions { top: 0em; height: 100% }", 0);
-			styleSheet.insertRule("table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }", 0);
-			styleSheet.insertRule("table.form, table.form input, table.form select { margin: 0px; }", 0);
-			styleSheet.insertRule("dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }", 0);
-			styleSheet.insertRule(".dialogFooter button { font-size : inherit; }", 0);
-			styleSheet.insertRule(".dialogFooter { height: 1.7em; }", 0);
-			styleSheet.insertRule(".dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}", 0);
+            document.getElementsByTagName("body")[0].classList.add("compact");
 		} else {
-			styleSheet.insertRule("#searchButton { display: none; }", 0);
-			styleSheet.insertRule("#actionMenuButton { display: none; }", 0);
+            document.getElementsByTagName("body")[0].classList.add("full");
 			toggleNavigation("open");
 			window.addEventListener("resize", updateDialogSizes);
             window.addEventListener("resize", closeActionMenus);
@@ -1122,7 +1107,6 @@ $ICON
 	    return input.type == type;
 	}
 </script>
-<style id="dynamicStyle"></style>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
 <body onload="init();">
