@@ -196,10 +196,6 @@ table.table tr td {
 	overflow: auto;
 }
 
-.actionMenu {
-	height: 1em;
-}
-
 ul.actionMenu {
 	margin: 0em;
 	padding-right: 2ex;

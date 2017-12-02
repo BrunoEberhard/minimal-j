@@ -258,7 +258,7 @@ $ICON
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.className = "actionMenu";
 			
-			if (isCompact) actionMenuElement.style.display = "none";
+			if (isCompact) actionMenuContainer.style.display = "none";
 			
 			actionMenuContainer.appendChild(actionMenuElement);
 			pageContentAndActionsElement.appendChild(actionMenuContainer);
@@ -299,7 +299,7 @@ $ICON
 	}
 
 	function toggleActionMenu() {
-		var actionMenuElement = document.getElementsByClassName("actionMenu")[0]; // compact: only one action menu
+		var actionMenuElement = document.getElementsByClassName("actionMenuContainer")[0]; // compact: only one action menu
 		if (actionMenuElement.style.display == "block") {
 			actionMenuElement.style.display = "none";
 		} else {
@@ -1076,12 +1076,12 @@ $ICON
 		var styleSheet = styleElement.sheet;
 		if (isCompact) {
 			styleSheet.insertRule("#search { display: none; }", 0);
-			styleSheet.insertRule("#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border: 1px rgb(160,160,160) solid;}", 0);
+			styleSheet.insertRule("#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border-right: 1px rgb(160,160,160) solid;}", 0);
 			styleSheet.insertRule("#navigationHeader { display: none; }", 0);
 			styleSheet.insertRule("#navigation { max-height: 100%}", 0);
 			styleSheet.insertRule("#pageContainer { height: 100%}", 0);
 			styleSheet.insertRule(".page { height: 100%; border-bottom: 0;}", 0);
-			styleSheet.insertRule(".actionMenu { z-index:1; right: 1ex; top: 1ex; max-height: calc(100% - 3em); overflow: scroll; margin-top: 0; border: 1px rgb(160,160,160) solid; min-width: 13em;}", 0);
+			styleSheet.insertRule(".actionMenu { min-width: 13em;}", 0);
 			styleSheet.insertRule(".pageButton { display: none; }", 0);
 			styleSheet.insertRule("table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }", 0);
 			styleSheet.insertRule("table.form, table.form input, table.form select { margin: 0px; }", 0);
@@ -1090,6 +1090,7 @@ $ICON
 			styleSheet.insertRule(".dialogFooter { height: 1.7em; }", 0);
 			styleSheet.insertRule(".dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}", 0);
 		} else {
+            styleSheet.insertRule(".actionMenu { height: 1em; }", 0);
 			styleSheet.insertRule("#searchButton { display: none; }", 0);
 			styleSheet.insertRule("#actionMenuButton { display: none; }", 0);
 			toggleNavigation("open");
