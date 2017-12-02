@@ -148,6 +148,13 @@ li {
 	width: 100%;
 }
 
+.page:only-child {
+	border-bottom: none;
+	top: 0em;
+	right: 0em;
+	height: 100%;
+}
+
 .pageHeader {
 	position: relative;
 	height: calc(1.8em - 1px);
@@ -158,10 +165,16 @@ li {
 }
 
 .pageContentAndActions {
-	display: flex;
-	flex-flow: nowrap;
-	align-items: stretch;
 	position: relative;
+	min-height: calc(10em - 1.8em)
+}
+
+.page:only-child > .pageContentAndActions {
+	position: absolute;
+	top: 1.8em;
+	left: 0em;
+	right: 0em;
+	height: calc(100% - 1.8em)
 }
 
 .pageButton {
@@ -170,11 +183,11 @@ li {
 }
 
 .pageContent {
-	width: 10em;
-	flex-grow: 10;
-	flex-shrink: 1;
+	width: calc(100% - 1em);
 	padding-left: 1em;
 	padding-top: 0.5ex;
+	height: calc(100% - 0.5ex);
+	overflow: auto;
 }
 
 .pageContent iframe {
@@ -188,10 +201,13 @@ table.table tr td {
 }
 
 .actionMenuContainer {
-	flex-grow: 1;
-	flex-shrink: 1;
+	position: absolute;
+	top: 0em;
+	right: 0em;
+	bottom: 0em;
+	z-index: 1;
 	border-left: 1px rgb(160,160,160) solid;
-	width: 15em;
+	min-width: 15em;
 	background: white;
 	overflow: auto;
 }

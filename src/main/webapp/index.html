@@ -211,6 +211,8 @@ $ICON
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
 		
+        closeActionMenus();
+    
 		var pageElement = document.createElement("div");
 		pageElement.className = "page";
 		pageElement.id = page.pageId;
@@ -1058,6 +1060,14 @@ $ICON
 		}
 	}
 
+    function closeActionMenus() {
+        var actionMenuElements = document.getElementsByClassName("actionMenuContainer"); 
+        for (var i = 0; i < actionMenuElements.length; i++) {
+          var actionMenuElement = actionMenuElements[i];
+          actionMenuElement.style.display = "none";
+        }
+    }
+
 	function changeLogin() {
 		send({
 			"login" : "login-" + (new Date().getTime())
@@ -1083,6 +1093,7 @@ $ICON
 			styleSheet.insertRule(".page { height: 100%; border-bottom: 0;}", 0);
 			styleSheet.insertRule(".actionMenu { min-width: 13em;}", 0);
 			styleSheet.insertRule(".pageButton { display: none; }", 0);
+            styleSheet.insertRule(".page:only-child > .pageContentAndActions { top: 0em; height: 100% }", 0);
 			styleSheet.insertRule("table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }", 0);
 			styleSheet.insertRule("table.form, table.form input, table.form select { margin: 0px; }", 0);
 			styleSheet.insertRule("dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }", 0);
@@ -1095,6 +1106,7 @@ $ICON
 			styleSheet.insertRule("#actionMenuButton { display: none; }", 0);
 			toggleNavigation("open");
 			window.addEventListener("resize", updateDialogSizes);
+            window.addEventListener("resize", closeActionMenus);
 		}
 
 		window.onpopstate = popState;
