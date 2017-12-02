@@ -728,12 +728,9 @@ $ICON
 		if (isClosed && (openOrClose == undefined || openOrClose == "open")) {
 			navigationElement.style.display = "block";
 			if (isCompact) { closeActionMenu() }
-			return true;
 		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
 			navigationElement.style.display = "none";
-			return true;
 		}
-		return false;
 	}
 	
 	function showDialog(json) {
