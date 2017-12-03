@@ -69,9 +69,9 @@ body {
 
 #navigationHeader {
 	position: relative;
-	height: 1.8em;
+	height: 2em;
 	box-sizing: border-box;
-	line-height: 1.9em;
+	line-height: 2.1em;
 	padding-left: 1em;
 	width: 100%;
 	background: rgb(240,240,240);
@@ -81,7 +81,7 @@ body {
 #navigation {
 	position: relative;
 	width: calc(15em - 1px);
-	max-height: calc(100% - 1.8em);
+	max-height: calc(100% - 2em);
 	bottom: 0;
 	overflow: auto;
 }
@@ -152,9 +152,9 @@ li {
 
 .pageHeader {
 	position: relative;
-	height: 1.8em;
+	height: 2em;
 	box-sizing: border-box;
-	line-height: 1.9em;
+	line-height: 2.1em;
 	padding-left: 1em;
 	background: rgb(240,240,240);
 	border-bottom: 1px rgb(160,160,160) solid;
@@ -166,10 +166,10 @@ li {
 
 .page:only-child > .pageContentAndActions {
 	position: absolute;
-	top: 1.8em;
+	top: 2em;
 	left: 0em;
 	right: 0em;
-	height: calc(100% - 1.8em)
+	height: calc(100% - 2em)
 }
 
 .pageButton {
