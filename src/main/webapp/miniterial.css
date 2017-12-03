@@ -26,6 +26,10 @@ body {
 	z-index: 1;
 }
 
+.page {
+	border: none;
+}
+
 .pageHeader {
 	border: none;
 	z-index: 1;
