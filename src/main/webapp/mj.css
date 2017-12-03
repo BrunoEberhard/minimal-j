@@ -146,6 +146,7 @@ li {
 	border-bottom: none;
 	top: 0em;
 	right: 0em;
+	min-height: unset;
 	height: 100%;
 }
 
@@ -161,7 +162,6 @@ li {
 
 .pageContentAndActions {
 	position: relative;
-	min-height: 12em;
 }
 
 .page:only-child > .pageContentAndActions {
@@ -185,7 +185,7 @@ li {
 	overflow: auto;
 }
 
-.page:only-child > .pageContent {
+.page:only-child .pageContent {
 	height: 100%;
 }
 	
