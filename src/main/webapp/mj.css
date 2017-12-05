@@ -63,7 +63,6 @@ body {
 
 #navigationContainer {
 	margin: 0px;
-	color: black;
 	border-right: 1px rgb(160,160,160) solid;
 }
 
@@ -225,6 +224,7 @@ dialog {
 	margin-top: 1em;
 	margin-left: 1em;
 	margin-right: 2em;
+	color: unset;
 }
 
 .dialogHeader {
@@ -369,6 +369,7 @@ label {
 
 iframe {
 	border: 0px;
+	font-family: inherit;
 }
 
 block {
