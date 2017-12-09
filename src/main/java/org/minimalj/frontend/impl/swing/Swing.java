@@ -18,9 +18,10 @@ public class Swing implements Runnable {
 
 	@Override
 	public void run() {
-		FrameManager.setSystemLookAndFeel();
 		Frontend.setInstance(new SwingFrontend());
 		Backend.setInstance(new SwingBackend(Backend.create()));
+
+		FrameManager.setSystemLookAndFeel();
 		
 		FrameManager.getInstance().openNavigationFrame(null);
 	}
