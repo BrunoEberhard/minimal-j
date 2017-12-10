@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.util.StringUtils;
 
@@ -34,20 +35,43 @@ public class RestServer {
 		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1 ;
 	}
 	
-	public static void start(Application application) {
-		Application.setInstance(application);
+	public static void start() {
+		if (Application.getInstance().getEntityClasses().length == 0) {
+			LOG.severe("Server not started! You must have at least declare one entity class in your application. Please override 'getEntityClasses'.");
+			return;
+		}
+		
 		ModelTest.exitIfProblems();
 		
 		start(!SECURE);
         start(SECURE);
 	}
 	
+	public static void start(Application application) {
+		Application.setInstance(application);
+		start();
+	}
+	
 	public static void main(String... args) {
 		Application.initApplication(args);
-		ModelTest.exitIfProblems();
-		
-		start(!SECURE);
-        start(SECURE);
+		start();
+	}
+	
+	/**
+	 * To use inner classes as main class you have to use
+	 * <pre>
+	 * java org.minimalj.rest.RestServer$WithFrontend
+	 * </pre>
+	 * 
+	 * Note the $ instead of .
+	 */
+	public static class WithFrontend {
+
+		public static void main(String[] args) {
+			Application.initApplication(args);
+			NanoWebServer.start();
+			RestServer.start();
+		}
 	}
 
 }

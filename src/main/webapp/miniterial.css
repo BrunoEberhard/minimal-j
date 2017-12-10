@@ -1,0 +1,113 @@
+body {
+	font-family: 'Robot', sans-serif;
+	font-size: unset;
+	margin: 0px;
+	height: 100%;
+}
+
+#header {
+	border: none;
+	z-index: 2;
+	box-shadow: 1px 1px 4px gray;
+}
+
+#navigationHeader {
+	border: none;
+}
+
+#navigationContainer {
+	background: rgb(250, 250, 250);
+	z-index: 1;
+	box-shadow: 1px 1px 4px gray;
+	border: none;
+}
+
+.pageContentAndActions {
+	z-index: 1;
+}
+
+.page {
+	border: none;
+}
+
+.pageHeader {
+	border: none;
+	z-index: 1;
+	box-shadow: 1px 1px 4px gray;
+}
+
+.actionMenuContainer {
+	background: rgb(250, 250, 250);
+	border: none;
+	z-index: 1;
+	box-shadow: 1px 1px 4px gray;
+}
+
+dialog {
+	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px
+		rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
+	border: none;
+}
+
+.dialogHeader {
+	height: 4em;
+	line-height: 4em;
+	border: none;
+	background: unset;
+}
+
+.dialogContent {
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.dialogFooter {
+	border: none;
+	background: unset;
+	padding-right: 2em;
+}
+
+button {
+	padding: .5em 1em;
+	border-width: 0;
+	outline: none;
+	border-radius: 2px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+	background-color: #888888;
+	color: #ecf0f1;
+	transition: background-color .3s;
+}
+
+.dialogFooter button {
+	margin: 0.5em 1em;
+}
+
+button:hover {
+	background-color: #aaaaaa;
+}
+
+.form input, .form select, .form textarea {
+	font-family: inherit;
+	box-sizing: border-box;
+	background-color: transparent;
+	padding: 4px 0;
+	border: none;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+.form select:after {
+	position: absolute;
+	top: 0.75em;
+	right: 0.5em;
+	width: 0;
+	height: 0;
+	padding: 0;
+	content: '';
+	border-left: .25em solid transparent;
+	border-right: .25em solid transparent;
+	border-top: 0.375em solid rgba(0, 0, 0, 0.12);
+	pointer-events: none;
+}

@@ -4,12 +4,11 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.PasswordField;
 import org.minimalj.util.StringUtils;
 
-import com.googlecode.lanterna.gui.component.InteractableComponent;
-import com.googlecode.lanterna.gui.component.PasswordBox;
-import com.googlecode.lanterna.gui.listener.ComponentAdapter;
-import com.googlecode.lanterna.input.Key;
+import com.googlecode.lanterna.gui2.Interactable;
+import com.googlecode.lanterna.gui2.TextBox;
+import com.googlecode.lanterna.input.KeyStroke;
 
-public class LanternaPasswordField extends PasswordBox implements PasswordField {
+public class LanternaPasswordField extends TextBox implements PasswordField {
 
 	private final InputComponentListener changeListener;
 	
@@ -17,12 +16,12 @@ public class LanternaPasswordField extends PasswordBox implements PasswordField 
 
 	public LanternaPasswordField(InputComponentListener changeListener) {
 		this.changeListener = changeListener;
-		addComponentListener(new TextFieldComponentListener());
+		setMask('*');
 	}
 
 	@Override
 	public void setEditable(boolean editable) {
-		super.setVisible(editable);
+		super.setReadOnly(!editable);
 	}
 
 	@Override
@@ -36,37 +35,35 @@ public class LanternaPasswordField extends PasswordBox implements PasswordField 
 	public void setValue(char[] value) {
 		String text = value != null ? new String(value) : "";
 		textOnFocusLost = text;
-		if (!hasFocus()) {
+		if (!isFocused()) {
 			super.setText(text);
 		}
 	}
-		
+	
 	private void fireChangeEvent() {
+		textOnFocusLost = super.getText();
 		changeListener.changed(LanternaPasswordField.this);
 	}
 	
 	@Override
-	public Result keyboardInteraction(Key key) {
-		Result result = super.keyboardInteraction(key);
-		if (result != Result.EVENT_NOT_HANDLED) {
+	public synchronized Result handleKeyStroke(KeyStroke keyStroke) {
+		Result result = super.handleKeyStroke(keyStroke);
+		if (result != Result.UNHANDLED) {
 			fireChangeEvent();
 		}
 		return result;
 	}
-
-	private class TextFieldComponentListener extends ComponentAdapter {
-
-		@Override
-		public void onComponentReceivedFocus(InteractableComponent interactableComponent) {
-			textOnFocusLost = getText();
+	
+	@Override
+	protected void afterLeaveFocus(FocusChangeDirection direction, Interactable nextInFocus) {
+		if (!StringUtils.equals(textOnFocusLost, getText())) {
+			setText(textOnFocusLost);
 		}
-		
-		@Override
-		public void onComponentLostFocus(InteractableComponent interactableComponent) {
-			if (!StringUtils.equals(textOnFocusLost, getText())) {
-				setText(textOnFocusLost);
-			}
-		}
+	}
+	
+	@Override
+	protected void afterEnterFocus(FocusChangeDirection direction, Interactable previouslyInFocus) {
+		textOnFocusLost = getText();
 	}
 	
 }

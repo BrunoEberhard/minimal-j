@@ -90,11 +90,42 @@ public class StringUtilsTest {
 	public void isUrl() {
 		Assert.assertTrue(StringUtils.isUrl("http://www.notrealaddress.com/"));
 		Assert.assertTrue(StringUtils.isUrl("https://www.notrealaddress.com/"));
+		Assert.assertFalse(StringUtils.isUrl("<html><body>hi</body></html>"));
+		Assert.assertFalse(StringUtils.isUrl("Hi"));
+		Assert.assertFalse(StringUtils.isUrl(null));
 	}
 
 	@Test
 	public void isHtml() {
-		Assert.assertFalse(StringUtils.isUrl("<html><body>hi</body></html>"));
-		Assert.assertFalse(StringUtils.isUrl("Hi"));
+		Assert.assertFalse(StringUtils.isHtml("http://www.notrealaddress.com/"));
+		Assert.assertFalse(StringUtils.isHtml("https://www.notrealaddress.com/"));
+		Assert.assertTrue(StringUtils.isHtml("<html><body>hi</body></html>"));
+		Assert.assertFalse(StringUtils.isHtml("Hi"));
+		Assert.assertFalse(StringUtils.isHtml(null));
 	}
+	
+	@Test
+	public void sanitizeHtml() {
+		String[] allowedHtmlTags = new String[] {"b"};
+		Assert.assertEquals(null, StringUtils.sanitizeHtml(null, allowedHtmlTags));
+		Assert.assertEquals("", StringUtils.sanitizeHtml("", allowedHtmlTags));
+		Assert.assertEquals("s", StringUtils.sanitizeHtml("s", allowedHtmlTags));
+		Assert.assertEquals("text <b>bold</b>", StringUtils.sanitizeHtml("text <b>bold</b>", allowedHtmlTags));
+		Assert.assertEquals("<b>bold</b> text", StringUtils.sanitizeHtml("<b>bold</b> text", allowedHtmlTags));
+		Assert.assertEquals("<b>bold</b>", StringUtils.sanitizeHtml("<b>bold</b>", allowedHtmlTags));
+		Assert.assertEquals("<b>bold special bold2</b>", StringUtils.sanitizeHtml("<b>bold <x>special<x> bold2</b>", allowedHtmlTags));
+		Assert.assertEquals("text special", StringUtils.sanitizeHtml("text <x>special</x>", allowedHtmlTags));
+	}
+	
+	@Test
+	public void stripHtml() {
+		Assert.assertEquals(null, StringUtils.stripHtml(null));
+		Assert.assertEquals("", StringUtils.stripHtml(""));
+		Assert.assertEquals("s", StringUtils.stripHtml("s"));
+		Assert.assertEquals("text bold", StringUtils.stripHtml("text <b>bold</b>"));
+		Assert.assertEquals("bold text", StringUtils.stripHtml("<b>bold</b> text"));
+		Assert.assertEquals("bold", StringUtils.stripHtml("<b>bold</b>"));
+		Assert.assertEquals("bold special bold2", StringUtils.stripHtml("<b>bold <x>special<x> bold2</b>"));
+	}
+
 }

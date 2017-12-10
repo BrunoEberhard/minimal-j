@@ -1,36 +1,24 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.page.IDialog;
 
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.Window;
-import com.googlecode.lanterna.gui.listener.WindowAdapter;
+import com.googlecode.lanterna.gui2.BasicWindow;
+import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 
 public class LanternaDialog implements IDialog {
 
-	private final Window window;
+	private final BasicWindow window;
 	
-	public LanternaDialog(LanternaGUIScreen screen, IContent content, String title, final Action closeAction, Action[] actions) {
-		Component component = new LanternaEditorLayout(screen, content, actions);
+	public LanternaDialog(MultiWindowTextGUI gui, IContent content, String title, final Action closeAction, Action[] actions) {
+		Component component = new LanternaEditorLayout(content, actions);
 
-		window = new Window(title);
-		window.addComponent(component);
-		window.addWindowListener(new WindowAdapter() {
-			@Override
-			public void onWindowClosed(Window window) {
-				if (closeAction != null) {
-					closeAction.action();
-				} else {
-					closeDialog();
-				}
-			}
-		});
+		window = new BasicWindow(title);
+		window.setComponent(component);
 		
-		((LanternaGUIScreen) Frontend.getInstance().getPageManager()).show(window);
+		gui.addWindow(window);
 	}
 	
 	@Override

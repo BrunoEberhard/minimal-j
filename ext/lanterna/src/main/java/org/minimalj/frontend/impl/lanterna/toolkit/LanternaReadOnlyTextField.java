@@ -2,13 +2,12 @@ package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import org.minimalj.frontend.Frontend.Input;
 
-import com.googlecode.lanterna.gui.component.Label;
+import com.googlecode.lanterna.gui2.Label;
 
 public class LanternaReadOnlyTextField extends Label implements Input<String> {
 
 	public LanternaReadOnlyTextField() {
-		super();
-		setAlignment(Alignment.LEFT_CENTER);
+		super("");
 	}
 
 	@Override

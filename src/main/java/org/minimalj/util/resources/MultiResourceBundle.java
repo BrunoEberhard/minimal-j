@@ -47,6 +47,16 @@ public class MultiResourceBundle extends ResourceBundle {
 	}
 
 	@Override
+	public boolean containsKey(String key) {
+		for (ResourceBundle resourceBundle : resourceBundles) {
+			if (resourceBundle.containsKey(key)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	protected Object handleGetObject(String key) {
 		Object result = null;
 		for (ResourceBundle resourceBundle : resourceBundles) {

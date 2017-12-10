@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.DevMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
@@ -230,7 +230,7 @@ public class Resources {
 	private static final Set<String> missing = new TreeSet<>();
 
 	private static void reportMissing(String resourceName, boolean reportIfMissing) {
-		if (reportIfMissing && DevMode.isActive()) {
+		if (reportIfMissing && Configuration.isDevModeActive()) {
 			missing.add(resourceName);
 		}
 	}

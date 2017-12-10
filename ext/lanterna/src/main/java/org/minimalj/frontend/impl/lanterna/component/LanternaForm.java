@@ -9,13 +9,14 @@ import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaCaption;
 
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.TextGraphics;
-import com.googlecode.lanterna.gui.component.AbstractContainer;
-import com.googlecode.lanterna.terminal.TerminalPosition;
-import com.googlecode.lanterna.terminal.TerminalSize;
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.LayoutManager;
+import com.googlecode.lanterna.gui2.Panel;
 
-public class LanternaForm extends AbstractContainer implements FormContent {
+
+public class LanternaForm extends Panel implements FormContent, LayoutManager {
 
 	private final List<List<Component>> rows = new ArrayList<>();
 	private final Map<Component, Integer> spans = new HashMap<Component, Integer>();
@@ -24,10 +25,10 @@ public class LanternaForm extends AbstractContainer implements FormContent {
 
 	private List<Component> actualRow = new ArrayList<>();
 	private int actualColumn;
-	private boolean hasArea;
 	
     public LanternaForm(int columns) {
     	if (columns < 1) throw new IllegalArgumentException(LanternaForm.class.getSimpleName() + " can only work with at least 1 column");
+    	setLayoutManager(this);
     	this.columns = columns;
     	createNewRow();
     }
@@ -59,7 +60,6 @@ public class LanternaForm extends AbstractContainer implements FormContent {
 		actualColumn += span;
 		spans.put(lanternaComponent, span);
 		super.addComponent(lanternaComponent);
-//		hasArea |= verticalGrow; // TODO
 	}
 
 	@Override
@@ -67,35 +67,45 @@ public class LanternaForm extends AbstractContainer implements FormContent {
 		LanternaCaption caption = captionByComponent.get(component);
 		caption.setValidationMessages(validationMessages);
 	}
-
+	
 	@Override
-	public void repaint(TextGraphics graphics) {
+	public void doLayout(TerminalSize area, List<Component> components) {
 		int terminalRow = 0;
-		int columnSize = graphics.getWidth() / columns; // TODO Round correct
+		int columnSize = area.getColumns() / columns; // TODO Round correct
 		for (List<Component> row : rows) {
 			int terminalColumn = 0;
+			int height = 1;
 			for (Component c : row) {
-				TerminalPosition position = new TerminalPosition(terminalColumn, terminalRow * 3);
-				TerminalSize size = new TerminalSize(spans.get(c) * columnSize, 2);
-				TextGraphics subSubGraphics = graphics.subAreaGraphics(position, size);
-				if(c.isVisible()) {
-					try {
-						c.repaint(subSubGraphics);
-					} catch (Exception x) {
-						x.printStackTrace();
-					}
-				}
+				height = Math.max(height, c.getPreferredSize().getRows());
+			}
+			
+			for (Component c : row) {
+				TerminalPosition position = new TerminalPosition(terminalColumn, terminalRow);
+				TerminalSize size = new TerminalSize(spans.get(c) * columnSize, height);
+				c.setPosition(position);
+				c.setSize(size);
 				terminalColumn += size.getColumns();
 			}
-			terminalRow++;
+			terminalRow += height + 1;
 		}
 	}
 
 	@Override
-	protected TerminalSize calculatePreferredSize() {
-		// TODO calculate instead of guess
-		TerminalSize size = new TerminalSize(columns * 40, rows.size() * 3);
-		return size;
+	public TerminalSize getPreferredSize(List<Component> components) {
+		int sumHeight = -1;
+		for (List<Component> row : rows) {
+			int height = 1;
+			for (Component c : row) {
+				height = Math.max(height, c.getPreferredSize().getRows());
+			}
+			sumHeight += height + 1;
+		}
+		
+		return new TerminalSize(columns * 40, Math.max(0, sumHeight));
 	}
 
+	@Override
+	public boolean hasChanged() {
+		return false;
+	}
 }

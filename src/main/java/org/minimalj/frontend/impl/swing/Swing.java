@@ -18,25 +18,26 @@ public class Swing implements Runnable {
 
 	@Override
 	public void run() {
-		FrameManager.setSystemLookAndFeel();
 		Frontend.setInstance(new SwingFrontend());
 		Backend.setInstance(new SwingBackend(Backend.create()));
+
+		FrameManager.setSystemLookAndFeel();
 		
 		FrameManager.getInstance().openNavigationFrame(null);
 	}
 
-	private static void start() {
+	public static void start(Application application) {
+		Application.setInstance(application);
+		start();
+	}
+
+	public static void start() {
 		ModelTest.exitIfProblems();
 		try {
 			SwingUtilities.invokeAndWait(new Swing());
 		} catch (InvocationTargetException | InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	public static void start(Application application) {
-		Application.setInstance(application);
-		start();
 	}
 	
 	public static void main(String... args) {

@@ -1,9 +1,7 @@
 package org.minimalj.frontend.impl.lanterna.component;
 
-import com.googlecode.lanterna.gui.Theme;
-import com.googlecode.lanterna.terminal.Terminal.Color;
-
-public class HighContrastLanternaTheme extends Theme {
+// TODO migrate to Lanterna 3.0
+public class HighContrastLanternaTheme { /* extends Theme {
     private static final Definition DEFAULT = new Definition(Color.GREEN, Color.BLACK, false);
     private static final Definition BRIGHT = new Definition(Color.GREEN, Color.BLACK, true);
 
@@ -30,5 +28,6 @@ public class HighContrastLanternaTheme extends Theme {
         setDefinition(Category.PROGRESS_BAR_COMPLETED, new Definition(Color.GREEN, Color.BLACK, false));
         setDefinition(Category.PROGRESS_BAR_REMAINING, new Definition(Color.RED, Color.BLACK, false));
     }
-    
+    */
+	
 }

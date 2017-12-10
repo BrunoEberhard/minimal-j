@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
@@ -23,7 +24,6 @@ import org.minimalj.frontend.page.PageManager;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
-import org.minimalj.security.UserPasswordAuthentication.UserPasswordAction;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 
@@ -100,7 +100,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
 				showOnLogin = page;
 				updateTitle(null);
-				new UserPasswordAction(this).action();
+				Backend.getInstance().getAuthentication().login(this);
 			} else {
 				show(page);
 
@@ -190,7 +190,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		String login = (String) input.getObject("login");
 		if (login != null || subject == null && Frontend.loginAtStart()
 				&& !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-			new UserPasswordAction(this).action();
+			Backend.getInstance().getAuthentication().login(this);
 		}
 
 		List<String> pageIds = (List<String>) input.getObject("showPages");

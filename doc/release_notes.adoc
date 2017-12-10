@@ -2,6 +2,10 @@
 
 Every release contains many small fixes.
 
+=== 1.12.0.0
+* Codes: clear cache when write a code
+* Upgrade to Lanterna 3
+
 === 1.11.0.0
 * Application: Declare Resources with Bundles, not with Strings
 * Refactor repository configuration

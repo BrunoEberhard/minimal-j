@@ -2,7 +2,14 @@ package org.minimalj.frontend.page;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.util.StringUtils;
 
+/**
+ * <b>note:</b> for security reasons read the JavaDoc in the Frontend class
+ * 
+ * @see Frontend#createHtmlContent(String)
+ * @see StringUtils#sanitizeHtml(String)
+ */
 public class HtmlPage extends Page {
 
 	private final String htmlOrUrl;

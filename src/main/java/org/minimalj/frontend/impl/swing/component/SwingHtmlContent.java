@@ -33,7 +33,7 @@ public class SwingHtmlContent extends JFXPanel implements IContent {
 		Platform.setImplicitExit(false);
 
 		String url, html;
-		if (htmlOrUrl.startsWith("<")) {
+		if (StringUtils.isHtml(htmlOrUrl)) {
 			url = null;
 			html = htmlOrUrl;
 		} else if (StringUtils.isUrl(htmlOrUrl)) {

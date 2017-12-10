@@ -11,6 +11,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.StringUtils;
 
 /**
  * To provide a new kind (Xy) of client you have to implement two things:
@@ -97,6 +98,13 @@ public abstract class Frontend {
 		return Optional.empty();
 	}
 	
+	/**
+	 * In text and titles html is supported (text has to start with &lt;html&gt; and
+	 * end with &lt;/html&gt; but only a limited set of tags to prevent code
+	 * injection. This can be overriden by configuration MjAllowedHtmlTags.
+	 */
+	public static final String[] ALLOWED_HTML_TAGS = { "b", "i", "u", "sub", "sup" };
+	
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Action action);
 	public abstract IComponent createText(Rendering rendering);
@@ -176,12 +184,15 @@ public abstract class Frontend {
 	/**
 	 * Allows several types of input:
 	 * <UL>
-	 * <LI>if it starts with a '&lt;' it's supposed to be a html document
-	 * starting with &lt;html&gt; and ending with &lt;/html&gt;
+	 * <LI>if it starts with a '&lt;html&gt;' and ends with &lt;/html&gt; it's supposed to be a html document
 	 * <LI>if it is a valid url the content of that url is loaded
 	 * <LI>if it ends with '.html' the content is loaded from the classpath
 	 * <LI>if none of the above the input is used as plain String
 	 * </UL>
+	 * <strong>note:</strong> If any user input is used as html content the input should be considered
+	 * dangerous as some Frontends could execute injected code.<p>
+	 * 
+	 * @see StringUtils#sanitizeHtml(String)
 	 * 
 	 * @param htmlOrUrl html, url, classpath location or string
 	 * @return html content

@@ -2,33 +2,31 @@ package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import java.util.List;
 
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.component.CommonCheckBox;
-import com.googlecode.lanterna.gui.component.Label;
-import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.layout.HorisontalLayout;
-import com.googlecode.lanterna.gui.layout.VerticalLayout;
-import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.Label;
+import com.googlecode.lanterna.gui2.LinearLayout;
+import com.googlecode.lanterna.gui2.Panel;
 
 public class LanternaCaption extends Panel {
 
 	private Label validationLabel;
 	
 	public LanternaCaption(Component component, String caption) {
-		super(Panel.Orientation.VERTICAL);
+		super(new LinearLayout());
 		Panel panel = new Panel();
-		panel.setLayoutManager(new HorisontalLayout());
 		panel.addComponent(new Label(caption));
 		
-		validationLabel = new Label("", Terminal.Color.RED);
+		validationLabel = new Label("");
+		validationLabel.setForegroundColor(TextColor.ANSI.RED);
 		panel.addComponent(validationLabel);
 		
 		addComponent(panel);
-		if (component instanceof CommonCheckBox) {
+		// if (component instanceof CheckBox) {
 			addComponent(component);
-		} else {
-			addComponent(component, VerticalLayout.MAXIMIZES_HORIZONTALLY);
-		}
+		// } else {
+		// 	addComponent(component, VerticalLayout.MAXIMIZES_HORIZONTALLY);
+		// }
 	}
 	
 	public void setValidationMessages(List<String> validationMessages) {

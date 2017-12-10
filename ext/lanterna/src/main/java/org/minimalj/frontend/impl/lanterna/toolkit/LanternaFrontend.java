@@ -4,25 +4,31 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.lanterna.LanternaGUIScreen;
 import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 
-import com.googlecode.lanterna.gui.component.Button;
+import com.googlecode.lanterna.gui2.Button;
+import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.TextBox.Style;
 
 public class LanternaFrontend extends Frontend {
 	
-	private static ThreadLocal<LanternaGUIScreen> screenByThread = new ThreadLocal<>();
+	private static ThreadLocal<PageManager> currentPageManager = new ThreadLocal<>();
 
 	public LanternaFrontend() {
 	}
 	
-	public static void setGui(LanternaGUIScreen value) {
-		if (value == null && screenByThread.get() != null) {
-			screenByThread.get().actionComplete();
+	public static void run(Component component, Runnable runnable) {
+		PageManager pageManager = (PageManager) component.getTextGUI();
+		currentPageManager.set(pageManager); 
+		try {
+			runnable.run();
+		} catch (Exception x) {
+			pageManager.showError(x.getMessage());
+		} finally {
+			currentPageManager.set(null);
 		}
-		screenByThread.set(value);
 	}
 	
 	@Override
@@ -52,42 +58,20 @@ public class LanternaFrontend extends Frontend {
 
 	@Override
 	public IComponent createText(final Action action) {
-		LanternaActionAdapter lanternaAction = new LanternaActionAdapter(action);
-		LanternaActionText button = new LanternaActionText(action.getName(), lanternaAction);
+		LanternaActionText button = new LanternaActionText(action.getName());
+		button.addListener(b -> LanternaFrontend.run(b, () -> action.action()));
 		return button;
 	}
 
 	public static class LanternaActionText extends Button implements IComponent {
-		public LanternaActionText(String name, com.googlecode.lanterna.gui.Action action) {
-			super(name, action);
-		}
-	}
-
-	/*
-	 * Cannot be done as inner class because lanterna action has to be provided
-	 * to the button constructor. And the minimal-j action needs the component for
-	 * the action method.
-	 */
-	private static class LanternaActionAdapter implements com.googlecode.lanterna.gui.Action {
-		private final LanternaGUIScreen browser;
-		private final Action action;
-		
-		public LanternaActionAdapter(Action action) {
-			this.action = action;
-			this.browser = screenByThread.get();
-		}
-		
-		@Override
-		public void doAction() {
-			screenByThread.set(browser);
-			action.action();
-			screenByThread.set(null);
+		public LanternaActionText(String name) {
+			super(name);
 		}
 	}
 	
 	@Override
 	public PageManager getPageManager() {
-		return screenByThread.get();
+		return currentPageManager.get();
 	}
 	
 	@Override
@@ -134,7 +118,7 @@ public class LanternaFrontend extends Frontend {
 	
 	@Override
 	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
-		return new LanternaTextField(changeListener);
+		return new LanternaTextField(changeListener, Style.SINGLE_LINE);
 	}
 	
 	@Override
@@ -144,7 +128,7 @@ public class LanternaFrontend extends Frontend {
 
 	@Override
 	public Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener) {
-		return new LanternaTextField(changeListener);
+		return new LanternaTextField(changeListener, Style.MULTI_LINE);
 	}
 
 	@Override

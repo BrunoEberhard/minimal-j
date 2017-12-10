@@ -92,4 +92,8 @@ public class Configuration {
 			throw new LoggingRuntimeException(x, logger, className + " / " + key + " configuration failed");
 		}
 	}
+
+	public static boolean isDevModeActive() {
+		return Configuration.get("MjDevMode", "false").equals("true");
+	}
 }

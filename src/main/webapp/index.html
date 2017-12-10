@@ -7,9 +7,11 @@
 <base href="$BASE">
 
 <script src="dialog-polyfill.js"></script>
-<link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 
+<link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 <link rel="stylesheet" type="text/css" href="mj.css" />
+<!--  link rel="stylesheet" type="text/css" href="miniterial.css"/ -->
+
 $ICON
 
 <script type="text/javascript">
@@ -211,6 +213,8 @@ $ICON
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
 		
+        closeActionMenus();
+    
 		var pageElement = document.createElement("div");
 		pageElement.className = "page";
 		pageElement.id = page.pageId;
@@ -258,7 +262,7 @@ $ICON
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.className = "actionMenu";
 			
-			if (isCompact) actionMenuElement.style.display = "none";
+			if (isCompact || pageContainerElement.offsetWidth < 1200) actionMenuContainer.style.display = "none";
 			
 			actionMenuContainer.appendChild(actionMenuElement);
 			pageContentAndActionsElement.appendChild(actionMenuContainer);
@@ -299,7 +303,7 @@ $ICON
 	}
 
 	function toggleActionMenu() {
-		var actionMenuElement = document.getElementsByClassName("actionMenu")[0];
+		var actionMenuElement = document.getElementsByClassName("actionMenuContainer")[0]; // compact: only one action menu
 		if (actionMenuElement.style.display == "block") {
 			actionMenuElement.style.display = "none";
 		} else {
@@ -310,7 +314,7 @@ $ICON
 	}
 	
 	function closeActionMenu() {
-		var actionMenuElement = document.getElementsByClassName("actionMenu")[0];
+		var actionMenuElement = document.getElementsByClassName("actionMenuContainer")[0];
 		if (actionMenuElement != undefined) {
 			actionMenuElement.style.display = "none";
 		}
@@ -724,18 +728,13 @@ $ICON
 
 	function toggleNavigation(openOrClose) {
 		var navigationElement = document.getElementById("navigationContainer");
-		var pageElement = document.getElementById("pageContainer");
 		var isClosed = navigationElement.style.display == "none";
 		if (isClosed && (openOrClose == undefined || openOrClose == "open")) {
 			navigationElement.style.display = "block";
-			if (isCompact) { closeActionMenu() } else { pageElement.style.left = "15em" }
-			return true;
+			if (isCompact) { closeActionMenu() }
 		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
 			navigationElement.style.display = "none";
-			if (!isCompact) pageElement.style.left = "0";
-			return true;
 		}
-		return false;
 	}
 	
 	function showDialog(json) {
@@ -1034,7 +1033,7 @@ $ICON
 				for (var i = 0; i < dialogElements.length; i++) {
 					var dialogElement = dialogElements[i];
 					dialogElement.style.top = 0;
-					dialogElement.style.marginTop = (i + 3) + "em";
+					dialogElement.style.marginTop = (i + 4) + "em";
 					dialogElement.style.marginLeft = (i + 18) + "em";
 
 					var contentElement = dialogElement.querySelector(".dialogContent");
@@ -1063,6 +1062,14 @@ $ICON
 		}
 	}
 
+    function closeActionMenus() {
+        var actionMenuElements = document.getElementsByClassName("actionMenuContainer"); 
+        for (var i = 0; i < actionMenuElements.length; i++) {
+          var actionMenuElement = actionMenuElements[i];
+          actionMenuElement.style.display = "none";
+        }
+    }
+
 	function changeLogin() {
 		send({
 			"login" : "login-" + (new Date().getTime())
@@ -1071,34 +1078,19 @@ $ICON
 
 	function init() {
 		if (!$LOGIN) {
-			document.getElementById("loginSpan").classList.add("hide");
+			document.getElementById("loginButton").classList.add("hide");
 		}
 
 		pageContainerElement = document.getElementById("pageContainer");
 		titleElement = document.getElementsByTagName("title")[0];
 		
-		var styleElement = document.getElementById("dynamicStyle");
-		var styleSheet = styleElement.sheet;
 		if (isCompact) {
-			styleSheet.insertRule("#search { display: none; }", 0);
-			styleSheet.insertRule("#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border: 1px rgb(160,160,160) solid;}", 0);
-			styleSheet.insertRule("#navigationHeader { display: none; }", 0);
-			styleSheet.insertRule("#navigation { max-height: 100%}", 0);
-			styleSheet.insertRule("#pageContainer { height: 100%}", 0);
-			styleSheet.insertRule(".page { height: 100%; border-bottom: 0;}", 0);
-			styleSheet.insertRule(".actionMenu { z-index:1; right: 1ex; top: 1ex; max-height: calc(100% - 3em); overflow: scroll; margin-top: 0; border: 1px rgb(160,160,160) solid; min-width: 13em;}", 0);
-			styleSheet.insertRule(".pageButton { display: none; }", 0);
-			styleSheet.insertRule("table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }", 0);
-			styleSheet.insertRule("table.form, table.form input, table.form select { margin: 0px; }", 0);
-			styleSheet.insertRule("dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }", 0);
-			styleSheet.insertRule(".dialogFooter button { font-size : inherit; }", 0);
-			styleSheet.insertRule(".dialogFooter { height: 1.7em; }", 0);
-			styleSheet.insertRule(".dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}", 0);
+            document.getElementsByTagName("body")[0].classList.add("compact");
 		} else {
-			styleSheet.insertRule("#searchButton { display: none; }", 0);
-			styleSheet.insertRule("#actionMenuButton { display: none; }", 0);
+            document.getElementsByTagName("body")[0].classList.add("full");
 			toggleNavigation("open");
 			window.addEventListener("resize", updateDialogSizes);
+            window.addEventListener("resize", closeActionMenus);
 		}
 
 		window.onpopstate = popState;
@@ -1115,77 +1107,73 @@ $ICON
 	    return input.type == type;
 	}
 </script>
-<style id="dynamicStyle"></style>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
 <body onload="init();">
-	<div id="all">
-		<div id="header">
-			<div class="button" style="margin-left: 0.5em;" title="Show or hide navigation">
-				<svg width="1.4em" height="1.4em" class="headerButton" onclick="toggleNavigation()">
-					<g style="stroke-width:0px"> 		
-						<rect x="0" y="5%" width="100%" height="0.25em"/>
-						<rect x="0" y="40%" width="100%" height="0.25em"/>
-						<rect x="0" y="75%" width="100%" height="0.25em"/>
-					</g>
+	<div id="header">
+		<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
+              <g style="stroke-width:0px"> 		
+  				<title>Show or hide navigation</title>
+				<rect x="0" y="5%" width="100%" height="0.25em"/>
+				<rect x="0" y="40%" width="100%" height="0.25em"/>
+				<rect x="0" y="75%" width="100%" height="0.25em"/>
+			</g>
+		</svg>
+		<svg id="loginButton" class="button headerButton" onclick="changeLogin()">
+			<g style="stroke-width:16%;stroke-linecap:square"> 	
+                  <title>Login</title>	
+				<line x1="70%" y1="8%" x2="91%" y2="8%" />
+				<line x1="70%" y1="91%" x2="91%" y2="91%" />
+				<line x1="91%" y1="8%" x2="91%" y2="91%" />
+				
+				<line x1="0%" y1="50%" x2="55%" y2="50%" />
+				<line x1="40%" y1="30%" x2="60%" y2="50%" />
+				<line x1="40%" y1="70%" x2="60%" y2="50%" />
+			</g>
+		</svg>
+		<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
+		<div class="button" id="searchSpan">
+			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
+			<svg id="searchButton" class="headerButton" onclick="searchButtonAction();">
+				<g style="stroke-width:16%;stroke-linecap:square"> 		
+					<line x1="59%" y1="59%" x2="91%" y2="91%" />
+					<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
+				</g>
+			</svg>
+			<svg id="actionMenuButton" class="headerButton" onclick="toggleActionMenu();">
+				<g style="stroke-width:0px"> 		
+					<rect x="12px" y="5%" width="3px" height="3px"/>
+					<rect x="12px" y="40%" width="3px" height="3px"/>
+					<rect x="12px" y="75%" width="3px" height="3px"/>
+				</g>
+			</svg>
+		</div>			
+	</div>
+	<div id="container">
+		<div id="navigationContainer" style="display: none;">
+			<div id="navigationHeader">
+				<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
+				  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
+				  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 				</svg>
-			</div><div title="Login / Logout" id="loginSpan" class="button">
-				<svg width="1.4em" height="1.4em" id="loginButton" class="headerButton" onclick="changeLogin()">
-					<g style="stroke-width:16%;stroke-linecap:square"> 		
-						<line x1="70%" y1="8%" x2="91%" y2="8%" />
-						<line x1="70%" y1="91%" x2="91%" y2="91%" />
-						<line x1="91%" y1="8%" x2="91%" y2="91%" />
-						
-						<line x1="0%" y1="50%" x2="55%" y2="50%" />
-						<line x1="40%" y1="30%" x2="60%" y2="50%" />
-						<line x1="40%" y1="70%" x2="60%" y2="50%" />
-					</g>
-				</svg>
-			</div>	
-			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
-			<div class="button" id="searchSpan">
-				<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
-				<svg id="searchButton" width="1.4em" height="1.4em" class="headerButton" onclick="searchButtonAction();">
-					<g style="stroke-width:16%;stroke-linecap:square"> 		
-						<line x1="59%" y1="59%" x2="91%" y2="91%" />
-						<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
-					</g>
-				</svg>
-				<svg id="actionMenuButton" width="1.4em" height="1.4em" class="headerButton" onclick="toggleActionMenu();">
-					<g style="stroke-width:0px"> 		
-						<rect x="12px" y="5%" width="3px" height="3px"/>
-						<rect x="12px" y="40%" width="3px" height="3px"/>
-						<rect x="12px" y="75%" width="3px" height="3px"/>
-					</g>
-				</svg>
-			</div>			
+			</div>
+			<div id="navigation">
+			</div>
 		</div>
-		<div id="container">
-			<div id="navigationContainer" style="display: none;">
-				<div id="navigationHeader">
-					<svg width="1.0em" height="1.0em" class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
-					  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
-					  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
-					</svg>
-				</div>
-				<div id="navigation">
-				</div>
-			</div>
-			<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
-			</div>
+		<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
 		</div>
 	</div>
 
 
 	<div id="templates" style="display: none">
 		<div id="pageHeaderButtons">
-			<svg style="stroke-width:0px" width="1.0em" height="1.0em" class="actionMenuButton button" onclick="togglePageActionMenu(evt);">
+			<svg style="stroke-width:0px" class="actionMenuButton pageButton button" onclick="togglePageActionMenu(evt);">
 				<rect x="73%" y="13%" width="20%" height="17%"/>
 				<rect x="73%" y="46%" width="20%" height="17%"/>
 				<rect x="73%" y="80%" width="20%" height="17%"/>
-			</svg><svg width="1.0em" height="1.0em" class="pageButton button" onclick="togglePage(evt);">
+			</svg><svg class="pageButton button" onclick="togglePage(evt);">
 			  <rect x="20%" y="80%" width="100%" height="13%" />
-			</svg><svg width="1.0em" height="1.0em" class="pageButton button" onclick="closePage(evt);">
+			</svg><svg class="pageButton button" onclick="closePage(evt);">
 				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>

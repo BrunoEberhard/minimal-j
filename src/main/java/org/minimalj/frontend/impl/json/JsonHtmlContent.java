@@ -11,11 +11,11 @@ public class JsonHtmlContent extends JsonComponent implements IContent {
 	}
 
 	private static boolean isUrl(String htmlOrUrl) {
-		return !htmlOrUrl.startsWith("<") && (StringUtils.isUrl(htmlOrUrl) || htmlOrUrl.endsWith(".html"));
+		return !StringUtils.isHtml(htmlOrUrl) && (StringUtils.isUrl(htmlOrUrl) || htmlOrUrl.endsWith(".html"));
 	}
 
 	private String convert(String htmlOrUrl) {
-		if (get("type").equals("Url") ||  htmlOrUrl.startsWith("<")) {
+		if (get("type").equals("Url") || StringUtils.isHtml(htmlOrUrl)) {
 			return htmlOrUrl;
 		} else {
 			return "<html>" + StringUtils.escapeHTML(htmlOrUrl) + "</html>";

@@ -11,3 +11,8 @@ https://docs.atlassian.com/jira/REST/server/
 Java Api
 https://docs.atlassian.com/jira/server/
 
+Sprint etc...
+https://docs.atlassian.com/jira-software/REST/cloud/?_ga=2.264971471.1147439858.1510907460-991966975.1510907460#agile/1.0/issue-getIssue
+
+https://wxyz.atlassian.net/rest/api/2/issue/WXYZ-2004 
+https://wxyz.atlassian.net/rest/agile/1.0/issue/WXYZ-2004 

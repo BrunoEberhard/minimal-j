@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.DevMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Model;
 import org.minimalj.model.View;
@@ -61,7 +61,7 @@ public class ModelTest {
 		for (Class<?> clazz : mainClasses) {
 			testClass(clazz);
 		}
-		if (DevMode.isActive()) {
+		if (Configuration.isDevModeActive()) {
 			Resources.printMissing();
 		}
 	}
@@ -128,7 +128,7 @@ public class ModelTest {
 			if (!IdUtils.hasId(clazz)) {
 				testNoListFields(clazz);
 			}
-			if (DevMode.isActive()) {
+			if (Configuration.isDevModeActive()) {
 				testResources(clazz);
 			}
 		}

@@ -4,10 +4,10 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.util.StringUtils;
 
-import com.googlecode.lanterna.gui.component.InteractableComponent;
-import com.googlecode.lanterna.gui.component.TextBox;
-import com.googlecode.lanterna.gui.listener.ComponentAdapter;
-import com.googlecode.lanterna.input.Key;
+import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.gui2.Interactable;
+import com.googlecode.lanterna.gui2.TextBox;
+import com.googlecode.lanterna.input.KeyStroke;
 
 public class LanternaTextField extends TextBox implements Input<String> {
 
@@ -15,14 +15,14 @@ public class LanternaTextField extends TextBox implements Input<String> {
 	
 	private String textOnFocusLost;
 
-	public LanternaTextField(InputComponentListener changeListener) {
+	public LanternaTextField(InputComponentListener changeListener, Style style) {
+		super(new TerminalSize(10, style == Style.MULTI_LINE ? 3 : 1),  "", style);
 		this.changeListener = changeListener;
-		addComponentListener(new TextFieldComponentListener());
 	}
 
 	@Override
 	public void setEditable(boolean editable) {
-		super.setVisible(editable);
+		super.setReadOnly(!editable);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class LanternaTextField extends TextBox implements Input<String> {
 			text = "";
 		}
 		textOnFocusLost = text;
-		if (!hasFocus()) {
+		if (!isFocused()) {
 			super.setText(text);
 		}
 	}
@@ -49,27 +49,24 @@ public class LanternaTextField extends TextBox implements Input<String> {
 	}
 	
 	@Override
-	public Result keyboardInteraction(Key key) {
-		Result result = super.keyboardInteraction(key);
-		if (result != Result.EVENT_NOT_HANDLED) {
+	public synchronized Result handleKeyStroke(KeyStroke keyStroke) {
+		Result result = super.handleKeyStroke(keyStroke);
+		if (result != Result.UNHANDLED) {
 			fireChangeEvent();
 		}
 		return result;
 	}
-
-	private class TextFieldComponentListener extends ComponentAdapter {
-
-		@Override
-		public void onComponentReceivedFocus(InteractableComponent interactableComponent) {
-			textOnFocusLost = getText();
+	
+	@Override
+	protected void afterLeaveFocus(FocusChangeDirection direction, Interactable nextInFocus) {
+		if (!StringUtils.equals(textOnFocusLost, getText())) {
+			setText(textOnFocusLost);
 		}
-		
-		@Override
-		public void onComponentLostFocus(InteractableComponent interactableComponent) {
-			if (!StringUtils.equals(textOnFocusLost, getText())) {
-				setText(textOnFocusLost);
-			}
-		}
+	}
+	
+	@Override
+	protected void afterEnterFocus(FocusChangeDirection direction, Interactable previouslyInFocus) {
+		textOnFocusLost = getText();
 	}
 	
 }
