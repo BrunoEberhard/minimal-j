@@ -12,6 +12,7 @@ import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
+import org.minimalj.backend.repository.WriteTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.query.Query;
@@ -20,6 +21,7 @@ import org.minimalj.security.Authorization;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.transaction.TransactionAnnotations;
+import org.minimalj.util.Codes;
 
 /**
  * A Backend is responsible for executing the transactions.
@@ -182,6 +184,15 @@ public class Backend {
 			}
 		} finally {
 			currentTransaction.set(null);
+			handleCodeCache(transaction);
+		}
+	}
+
+	protected <T> void handleCodeCache(Transaction<T> transaction) {
+		if (transaction instanceof WriteTransaction) {
+			// we could check if the transaction is about a code class. But the
+			// removeFromCache method is probably faster than to call 'isCode'
+			Codes.removeFromCache(((WriteTransaction<?, ?>) transaction).getEntityClazz());
 		}
 	}
 

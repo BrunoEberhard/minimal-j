@@ -57,6 +57,10 @@ public class Codes {
 		List<T> codes = cacheItem.getCodes(LocaleContext.getCurrent());
 		return codes;
 	}
+	
+	public static <T extends Code> void removeFromCache(Class<?> clazz) {
+		cache.remove(clazz);
+	}
 
 	private static class CodeComparator implements Comparator<Code> {
 		private final Collator collator;
