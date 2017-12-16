@@ -18,11 +18,13 @@ import org.minimalj.util.LoggingRuntimeException;
 public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
 	protected final PropertyInterface parentIdProperty;
+	private final boolean hasId;
 	
 	public SubTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
 		super(sqlRepository, name, clazz);
 		
 		this.parentIdProperty = parentIdProperty;
+		this.hasId = IdUtils.hasId(clazz);
 	}
 	
 	@Override
@@ -48,7 +50,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 			while (position < Math.max(objects.size(), objectsInDb.size())) {
 				if (position < objects.size()) {
 					ELEMENT object = objects.get(position);
-					if (IdUtils.hasId(object.getClass()) && IdUtils.getId(object) == null) {
+					if (hasId && IdUtils.getId(object) == null) {
 						sqlRepository.insert(object);
 					}
 					if (position < objectsInDb.size()) {
