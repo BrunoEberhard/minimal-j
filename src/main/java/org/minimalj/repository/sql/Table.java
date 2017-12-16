@@ -91,6 +91,15 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	@Override
+	public void clear() {
+		for (Object object : lists.values()) {
+			AbstractTable subTable = (AbstractTable) object;
+			subTable.clear();
+		}
+		super.clear();
+	}
+	
 	protected Object createId() {
 		return UUID.randomUUID().toString();
 	}
