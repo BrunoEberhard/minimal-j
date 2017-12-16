@@ -121,5 +121,19 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 			handleChange();
 		}
 	}
+	
+	protected class RemoveEntryAction extends Action {
+		private final T entry;
+		
+		public RemoveEntryAction(T entry) {
+			this.entry = entry;
+		}
+		
+		@Override
+		public void action() {
+			getValue().remove(entry);
+			handleChange();
+		}
+    };
 
 }
