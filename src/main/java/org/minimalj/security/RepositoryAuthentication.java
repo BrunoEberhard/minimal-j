@@ -12,6 +12,7 @@ import org.minimalj.security.model.User;
  * repository. You have to add the User - class to your Application.getEntityClasses
  * to let the Repository handle the needed classes.
  *
+ * @see User
  */
 public class RepositoryAuthentication extends UserPasswordAuthentication {
 	private static final long serialVersionUID = 1L;
@@ -26,6 +27,7 @@ public class RepositoryAuthentication extends UserPasswordAuthentication {
 		this.authenticationRepository = authenticationRepository;
 	}
 	
+	@Override
 	protected User retrieveUser(String userName) {
 		List<User> users =  authenticationRepository.find(User.class, By.field(User.$.name, userName));
 		return users.isEmpty() ? null : users.get(0);
