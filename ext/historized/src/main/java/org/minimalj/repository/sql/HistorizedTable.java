@@ -47,7 +47,7 @@ public class HistorizedTable<T> extends Table<T> {
 				id = createId();
 				IdUtils.setId(object, id);
 			}
-			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
+			setParameters(insertStatement, object, ParameterMode.INSERT, id);
 			insertStatement.execute();
 			insertLists(object);
 			return id;
@@ -86,7 +86,7 @@ public class HistorizedTable<T> extends Table<T> {
 			
 			int newVersion = version + 1;
 			try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
-				int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.HISTORIZE, id);
+				int parameterIndex = setParameters(updateStatement, object, ParameterMode.HISTORIZE, id);
 				updateStatement.setInt(parameterIndex, newVersion);
 				updateStatement.execute();
 			}

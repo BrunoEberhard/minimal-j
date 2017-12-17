@@ -39,7 +39,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
-				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, IdUtils.getId(parent));
+				int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, IdUtils.getId(parent));
 				insertStatement.setInt(parameterPos++, position);
 				insertStatement.setInt(parameterPos++, version);
 				insertStatement.execute();
@@ -80,7 +80,7 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 			
 			if (insert) {
 				try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
-					int parameterPos = setParameters(insertStatement, objects.get(position), false, ParameterMode.HISTORIZE, parentId);
+					int parameterPos = setParameters(insertStatement, objects.get(position), ParameterMode.HISTORIZE, parentId);
 					insertStatement.setInt(parameterPos++, position);
 					insertStatement.setInt(parameterPos++, version);
 					insertStatement.execute();
