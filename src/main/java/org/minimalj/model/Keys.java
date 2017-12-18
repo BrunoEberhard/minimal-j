@@ -211,7 +211,7 @@ public class Keys {
 		for (Method method: methods) {
 			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;
 			String name = method.getName();
-			if (!name.startsWith("get") && name.length() > 3) continue;
+			if (!name.startsWith("get") && name.length() > 3) continue; // TODO check
 			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;
 			
 			String setterName = "set" + name.substring(3);
@@ -300,11 +300,12 @@ public class Keys {
 		}
 	}
 	
-	private static boolean isPublic(Method method) {
+	// TODO merge with FieldUtils.isPublic
+	public static boolean isPublic(Method method) {
 		return Modifier.isPublic(method.getModifiers());
 	}
 	
-	private static boolean isStatic(Method method) {
+	public static boolean isStatic(Method method) {
 		return Modifier.isStatic(method.getModifiers());
 	}
 
