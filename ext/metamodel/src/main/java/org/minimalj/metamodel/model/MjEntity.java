@@ -1,11 +1,14 @@
 package org.minimalj.metamodel.model;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Materialized;
+import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.util.FieldUtils;
@@ -47,6 +50,14 @@ public class MjEntity {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "historized")) {
 				properties.add(new MjProperty(model, field));
 			}
+		}
+		Method[] methods = clazz.getMethods();
+		for (Method method: methods) {
+			if (!Keys.isPublic(method) || Keys.isStatic(method)) continue;
+			if (method.getAnnotation(Searched.class) == null && method.getAnnotation(Materialized.class) == null) continue;
+			String methodName = method.getName();
+			if (!methodName.startsWith("get") || methodName.length() < 4) continue;
+			properties.add(new MjProperty(model, method));
 		}
 		
 		if (Code.class.isAssignableFrom(clazz)) {

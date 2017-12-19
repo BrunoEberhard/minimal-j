@@ -14,7 +14,7 @@ public class PropertyTablePage extends TablePage.TablePageWithDetail<MjProperty,
 	private final MjEntity entity;
 	
 	public PropertyTablePage(MjEntity entity) {
-		super(new Object[]{MjProperty.$.name, MjProperty.$.getFormattedType(), MjProperty.$.size, MjProperty.$.notEmpty, MjProperty.$.searched});
+		super(new Object[]{MjProperty.$.name, MjProperty.$.getFormattedType(), MjProperty.$.notEmpty, MjProperty.$.searched, MjProperty.$.materialized});
 		this.entity = entity;
 	}
 	
