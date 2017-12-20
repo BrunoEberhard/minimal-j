@@ -285,21 +285,6 @@ public class OpenAPIFactory {
 		parameter.description = entityName + " id";
 		
 		operation.parameters.add(parameter);
-
-		Schema schema = new Schema();
-		schema.$ref = SCHEMAS + entityName;
-		
-		if (api == API.OpenAPI3) {
-			Content content = new Content();
-			content.schema = schema;
-			
-			RequestBody requestBody = new RequestBody();
-			requestBody.content.put("application/json", content);
-
-			operation.requestBody = requestBody;
-		} else {
-			// TODO response.schema = schema;
-		}
 		
 		Response response = new Response();
 		response.description = "Successful operation";
