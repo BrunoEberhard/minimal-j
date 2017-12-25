@@ -463,12 +463,8 @@ $ICON
 				// happens in ie 10 for datetime-local
 				element.type = "text";
 			}
-			if (element.type == "date" || element.type == "time" || element.type == "datetime-local") {
-				element.setAttribute("onchange", "sendchange(this);");
-			} else {
-				element.setAttribute("onkeyup", "sendchange(this);");
-				element.setAttribute("onblur", "setDeferredValue(this);");
-			}
+			element.setAttribute("onchange", "sendchange(this);");
+			element.setAttribute("onblur", "setDeferredValue(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.value = content.value;
