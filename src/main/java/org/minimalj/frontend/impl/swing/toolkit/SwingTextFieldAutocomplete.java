@@ -97,7 +97,7 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Inp
 		private String selection;
 		
 		public void setQuery(Search<String> suggestions, String query) {
-			if (!StringUtils.equals(lastSearch, query) && !(selection != null && selection.startsWith(query))) {
+			if (!StringUtils.equals(lastSearch, query)) {
 				lastSearch = query;
 				elements = suggestions.search(query);
 				if (elements.isEmpty()) {
