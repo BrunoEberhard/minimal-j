@@ -17,7 +17,6 @@ $ICON
 <script type="text/javascript">
 	"use strict";
 
-	var isTouch = "ontouchstart" in document.documentElement;
 	var isCompact;
 	if (location.search == "?mobile" || location.search == "?compact") {
 		isCompact = true;
@@ -655,12 +654,8 @@ $ICON
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
-			if (!isTouch) {
-				rowElement.setAttribute("onmousedown", "tableSelection(event, this, " + i + ");");
-				rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", " + i + " );");
-			} else {
-				rowElement.setAttribute("onmousedown", "tableAction(\"" + tableId + "\", " + i + " );");
-			}
+			rowElement.setAttribute("onmousedown", "tableSelection(event, this, " + i + ");");
+			rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", " + i + " );");
 			element.appendChild(rowElement);
 		}
 		return element;
