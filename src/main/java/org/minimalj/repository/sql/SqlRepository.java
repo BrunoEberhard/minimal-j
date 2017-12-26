@@ -49,6 +49,7 @@ import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.list.QueryResultList;
+import org.minimalj.repository.list.SortableList;
 import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Limit;
@@ -264,7 +265,8 @@ public class SqlRepository implements TransactionalRepository {
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (query instanceof Limit || query instanceof AllCriteria) {
 			Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
-			return table.find(query, resultClass);
+			List<T> list = table.find(query, resultClass);
+			return (query instanceof AllCriteria) ? new SortableList<T>(list) : list;
 		} else {
 			return new SqlQueryResultList<>(this, resultClass, (QueryLimitable) query);
 		}
