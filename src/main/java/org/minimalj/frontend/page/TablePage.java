@@ -2,6 +2,7 @@ package org.minimalj.frontend.page;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,7 +12,9 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
+import org.minimalj.frontend.form.Form;
+import org.minimalj.util.ClassHolder;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -20,16 +23,18 @@ import org.minimalj.util.resources.Resources;
 /**
  * Shows a table of objects of one class. 
  *
- * @param <T> Class of objects in this overview
+ * @param <T> Class of objects in this TablePage. Must be specified.
  */
 public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
 	private final boolean multiSelect;
 	private final Object[] keys;
+	private final ClassHolder<T> clazz;
 	private transient ITable<T> table;
 	private transient List<T> objects;
-	private transient List<TableSelectionAction> actions;
+	private transient List<TableSelectionAction<T>> actions;
 	private transient List<T> selectedObjects;
+	protected final Object[] nameArguments;
 	
 	/*
 	 * this flag indicates if the next call of getContent should trigger a new loading
@@ -38,9 +43,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	 */
 	private transient boolean reloadFlag;
 	
+	@SuppressWarnings("unchecked")
 	public TablePage(Object[] keys) {
 		this.multiSelect = allowMultiselect();
 		this.keys = keys;
+
+		this.clazz = new ClassHolder<T>((Class<T>) GenericUtils.getGenericClass(getClass()));
+		this.nameArguments = new Object[] { Resources.getString(Resources.getResourceName(clazz.getClazz())) };
 	}
 
 	/**
@@ -61,8 +70,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		if (title != null) {
 			return title;
 		} else {
-			Class<?> tableClazz = GenericUtils.getGenericClass(getClass());
-			String className = Resources.getString(tableClazz);
+			String className = Resources.getString(clazz.getClazz());
 			return MessageFormat.format(Resources.getString(TablePage.class.getSimpleName() + ".title"), className);
 		}
 	}
@@ -98,54 +106,75 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
-	public abstract class NewDetailEditor<DETAIL> extends Editor<DETAIL, T> {
+	public abstract class DetailEditor extends SimpleEditor<T> implements TableSelectionAction<T> {
+		protected T selection;
+
+		protected DetailEditor() {
+			registerSelectionAction(this);
+			setEnabled(false);
+		}
 		
 		@Override
-		protected DETAIL createObject() {
-			@SuppressWarnings("unchecked")
-			Class<DETAIL> clazz = (Class<DETAIL>) GenericUtils.getGenericClass(getClass());
-			DETAIL newInstance = CloneHelper.newInstance(clazz);
+		protected Object[] getNameArguments() {
+			return nameArguments;
+		}
+		
+		@Override
+		protected T createObject() {
+			return selection;
+		}
+		
+		@Override
+		public void selectionChanged(List<T> selectedObjects) {
+			this.selection = selectedObjects.isEmpty() ? null : selectedObjects.get(0);
+			setEnabled(selection != null);
+		}
+		
+		@Override
+		protected T save(T object) {
+			return Backend.save(object);
+		}
+		
+		@Override
+		protected void finished(T result) {
+			TablePage.this.refresh();
+		}
+	}	
+	
+	public abstract class NewDetailEditor extends SimpleEditor<T> {
+		
+		@Override
+		protected Object[] getNameArguments() {
+			return nameArguments;
+		}
+		
+		@Override
+		protected T createObject() {
+			T newInstance = CloneHelper.newInstance(clazz.getClazz());
 			return newInstance;
 		}
 		
 		@Override
 		protected void finished(T result) {
 			TablePage.this.refresh();
-			if (TablePage.this instanceof TablePageWithDetail) {
-				// after closing the editor the user expects the new object
-				// to be displayed as the detail. This call provides that (opens the detail)
-				TablePage.this.action(result);
-			}
+		}
+		
+		@Override
+		protected T save(T object) {
+			return (T) Backend.save(object);
 		}
 	}
 	
-	public abstract class TableSelectionAction extends Action {
-		
-		protected TableSelectionAction() {
-			if (actions == null) {
-				actions = new ArrayList<>();
-			}
-			actions.add(this);
-		}
-		
-		public abstract void selectionChanged(List<T> selectedObjects);
-	}
-	
-	public class DeleteDetailAction extends TableSelectionAction {
+	public class DeleteDetailAction extends Action implements TableSelectionAction<T> {
 
 		public DeleteDetailAction() {
+			registerSelectionAction(this);
 			selectionChanged(selectedObjects);
 		}
 		
 		@Override
 		protected Object[] getNameArguments() {
-			Class<?> clazz = GenericUtils.getGenericClass(TablePage.this.getClass());
-			if (clazz != null) {
-				String resourceName = Resources.getResourceName(clazz);
-				return new Object[] { Resources.getString(resourceName) };
-			} else {
-				return null;
-			}
+			return nameArguments;
 		}
 		
 		@Override
@@ -153,6 +182,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			for (T object : TablePage.this.selectedObjects) {
 				Backend.delete(object.getClass(), IdUtils.getId(object));
 			}
+			TablePage.this.refresh();
 		}
 
 		@Override
@@ -161,6 +191,19 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}	
 	
+	protected void registerSelectionAction(TableSelectionAction<T> action) {
+		if (actions == null) {
+			actions = new ArrayList<>();
+		}
+		actions.add(action);
+	}
+
+	public interface TableSelectionAction<T> {
+		
+		public abstract void selectionChanged(List<T> selectedObjects);
+
+	}
+
 	public static abstract class TablePageWithDetail<T, DETAIL_PAGE extends Page> extends TablePage<T> {
 		
 		private DETAIL_PAGE detailPage;
@@ -220,15 +263,107 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
-	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, ObjectPage<T>> {
+	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, SimpleTablePageWithDetail<T>.DetailPage> {
 
 		public SimpleTablePageWithDetail(Object[] keys) {
 			super(keys);
 		}
 		
+		protected abstract Form<T> createForm(boolean editable);
+		
+		public class DetailEditor extends TablePage<T>.DetailEditor {
+
+			@Override
+			protected Form<T> createForm() {
+				return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE);
+			}
+		}
+		
+		public class NewDetailEditor extends TablePage<T>.NewDetailEditor {
+
+			@Override
+			protected Form<T> createForm() {
+				return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE);
+			}
+		}
+		
+		public class DetailPage extends Page {
+
+			private transient Form<T> form;
+			private T detail;
+
+			public DetailPage(T detail) {
+		  		this.detail = detail;
+		  	}
+			
+			@Override
+			public String getTitle() {
+				String title = Resources.getStringOrNull(getClass());
+				if (title != null) {
+					return title;
+				} else {
+					return MessageFormat.format(Resources.getString(DetailPage.class.getSimpleName() + ".title"), nameArguments);
+				}
+			}
+			
+			@Override
+			public List<Action> getActions() {
+				return Arrays.asList(new DetailEditor());
+			}
+			
+			public IContent getContent() {
+				if (form == null) {
+					form = createForm(Form.READ_ONLY);
+				}
+				form.setObject(detail);
+				return form.getContent();
+			}
+			
+			public void setDetail(T detail) {
+				this.detail = detail;
+				if (form != null) {
+					form.setObject(detail);
+				}
+			}
+			
+			public class DetailEditor extends SimpleEditor<T> {
+
+				@Override
+				protected Object[] getNameArguments() {
+					return SimpleTablePageWithDetail.this.nameArguments;
+				}
+				
+				@Override
+				protected Form<T> createForm() {
+					return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE);
+				}
+				
+				@Override
+				protected T createObject() {
+					return detail;
+				}
+				
+				@Override
+				protected T save(T object) {
+					return Backend.save(object);
+				}
+				
+				@Override
+				protected void finished(T result) {
+					SimpleTablePageWithDetail.this.refresh();
+					SimpleTablePageWithDetail.this.action(result);
+				}
+			}	
+		}
+		
 		@Override
-		protected ObjectPage<T> updateDetailPage(ObjectPage<T> detailPage, T mainObject) {
-			detailPage.setObject(mainObject);
+		protected DetailPage createDetailPage(T detail) {
+			return new DetailPage(detail);
+		}
+		
+		@Override
+		protected DetailPage updateDetailPage(SimpleTablePageWithDetail<T>.DetailPage detailPage, T mainObject) {
+			detailPage.setDetail(mainObject);
 			return detailPage;
 		}
 	}
