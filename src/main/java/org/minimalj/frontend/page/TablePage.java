@@ -112,10 +112,18 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	
 	protected boolean hasForm() {
 		try {
-			return getClass().getMethod("createForm", new Class<?>[] { Boolean.TYPE })
-					.getDeclaringClass() != TablePage.class;
+			return getClass().getDeclaredMethod("createForm", new Class<?>[] { Boolean.TYPE }) != null;
 		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(e);
+			return false;
+		}
+	}
+	
+	@Override
+	public List<Action> getActions() {
+		if (hasForm()) {
+			return Arrays.asList(new NewDetailEditor(), new DetailEditor(), new DeleteDetailAction());
+		} else {
+			return null;
 		}
 	}
 	
