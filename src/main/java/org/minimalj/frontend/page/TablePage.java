@@ -106,12 +106,31 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
-	public abstract class DetailEditor extends SimpleEditor<T> implements TableSelectionAction<T> {
+	protected Form<T> createForm(boolean editable) {
+		throw new RuntimeException("createForm not implemented in " + this.getClass().getName());
+	}
+	
+	protected boolean hasForm() {
+		try {
+			return getClass().getMethod("createForm", new Class<?>[] { Boolean.TYPE })
+					.getDeclaringClass() != TablePage.class;
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public void action(T selectedObject) {
+		if (hasForm()) {
+			new TablePageEditor(selectedObject).action();
+		}
+	}
+
+	private class TablePageEditor extends SimpleEditor<T>  {
 		protected T selection;
 
-		protected DetailEditor() {
-			registerSelectionAction(this);
-			setEnabled(false);
+		public TablePageEditor(T selection) {
+			this.selection = selection;
 		}
 		
 		@Override
@@ -125,9 +144,8 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 		
 		@Override
-		public void selectionChanged(List<T> selectedObjects) {
-			this.selection = selectedObjects.isEmpty() ? null : selectedObjects.get(0);
-			setEnabled(selection != null);
+		protected Form<T> createForm() {
+			return TablePage.this.createForm(Form.EDITABLE);
 		}
 		
 		@Override
@@ -141,8 +159,27 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}	
 	
-	public abstract class NewDetailEditor extends SimpleEditor<T> {
+	public class DetailEditor extends TablePageEditor implements TableSelectionAction<T> {
+
+		public DetailEditor() {
+			super(null);
+			registerSelectionAction(this);
+			setEnabled(false);
+		}
 		
+		@Override
+		public void selectionChanged(List<T> selectedObjects) {
+			this.selection = selectedObjects.isEmpty() ? null : selectedObjects.get(0);
+			setEnabled(selection != null);
+		}
+	}	
+	
+	public class NewDetailEditor extends TablePageEditor {
+		
+		public NewDetailEditor() {
+			super(null);
+		}
+
 		@Override
 		protected Object[] getNameArguments() {
 			return nameArguments;
@@ -150,18 +187,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		
 		@Override
 		protected T createObject() {
-			T newInstance = CloneHelper.newInstance(clazz.getClazz());
-			return newInstance;
-		}
-		
-		@Override
-		protected void finished(T result) {
-			TablePage.this.refresh();
-		}
-		
-		@Override
-		protected T save(T object) {
-			return (T) Backend.save(object);
+			return CloneHelper.newInstance(clazz.getClazz());
 		}
 	}
 	
@@ -268,25 +294,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		public SimpleTablePageWithDetail(Object[] keys) {
 			super(keys);
 		}
-		
-		protected abstract Form<T> createForm(boolean editable);
-		
-		public class DetailEditor extends TablePage<T>.DetailEditor {
-
-			@Override
-			protected Form<T> createForm() {
-				return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE);
-			}
-		}
-		
-		public class NewDetailEditor extends TablePage<T>.NewDetailEditor {
-
-			@Override
-			protected Form<T> createForm() {
-				return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE);
-			}
-		}
-		
+			
 		public class DetailPage extends Page {
 
 			private transient Form<T> form;
@@ -308,7 +316,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			
 			@Override
 			public List<Action> getActions() {
-				return Arrays.asList(new DetailEditor());
+				return Arrays.asList(new DetailPageEditor());
 			}
 			
 			public IContent getContent() {
@@ -326,7 +334,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 				}
 			}
 			
-			public class DetailEditor extends SimpleEditor<T> {
+			public class DetailPageEditor extends SimpleEditor<T> {
 
 				@Override
 				protected Object[] getNameArguments() {
