@@ -161,6 +161,7 @@ li {
 
 .pageContentAndActions {
 	position: relative;
+	min-height: 8em;
 }
 
 .page:only-child > .pageContentAndActions {
