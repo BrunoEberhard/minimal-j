@@ -134,9 +134,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 
-	private class TablePageEditor extends SimpleEditor<T>  {
+	protected class TablePageEditor extends SimpleEditor<T>  {
 		protected T selection;
 
+		public TablePageEditor() {
+			this(null);
+		}
+		
 		public TablePageEditor(T selection) {
 			this.selection = selection;
 		}
@@ -170,7 +174,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	public class DetailEditor extends TablePageEditor implements TableSelectionAction<T> {
 
 		public DetailEditor() {
-			super(null);
 			registerSelectionAction(this);
 			setEnabled(false);
 		}
@@ -183,16 +186,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	}	
 	
 	public class NewDetailEditor extends TablePageEditor {
-		
-		public NewDetailEditor() {
-			super(null);
-		}
 
-		@Override
-		protected Object[] getNameArguments() {
-			return nameArguments;
-		}
-		
 		@Override
 		protected T createObject() {
 			return CloneHelper.newInstance(clazz.getClazz());
