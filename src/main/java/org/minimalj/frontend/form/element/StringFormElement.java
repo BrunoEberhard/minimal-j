@@ -17,7 +17,7 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 	private final int maxLength;
 	private final Input<String> textField;
 
-	public StringFormElement(Object key, Boolean multiLine) {
+	public StringFormElement(String key, Boolean multiLine) {
 		this(Keys.getProperty(key), multiLine);
 	}
 

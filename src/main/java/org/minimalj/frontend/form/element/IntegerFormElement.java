@@ -11,7 +11,7 @@ import org.minimalj.util.mock.Mocking;
 
 public class IntegerFormElement extends NumberFormElement<Integer> implements Mocking {
 
-	public IntegerFormElement(Object key, boolean editable) {
+	public IntegerFormElement(Integer key, boolean editable) {
 		this(Keys.getProperty(key), editable);
 	}
 	

@@ -13,7 +13,7 @@ public class PasswordFormElement extends AbstractFormElement<char[]> {
 	private final int maxLength;
 	private final PasswordField textField;
 
-	public PasswordFormElement(Object key) {
+	public PasswordFormElement(char[] key) {
 		super(Keys.getProperty(key));
 		this.maxLength = AnnotationUtil.getSize(Keys.getProperty(key));
 		this.textField = Frontend.getInstance().createPasswordField(listener(), maxLength);

@@ -22,7 +22,7 @@ public class TextFormElement implements FormElement<Object> {
 
 	protected final Input<String> textField;
 
-	public TextFormElement(Object key) {
+	public TextFormElement(String key) {
 		this(Keys.getProperty(key));
 	}
 	
