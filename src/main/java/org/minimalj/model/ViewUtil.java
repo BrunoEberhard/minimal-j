@@ -4,12 +4,24 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.IdUtils;
 
 public class ViewUtil {
 
+	/**
+	 * Creates a view to a complete object. Meaning all fields existing on view and
+	 * the complete object are copied from the complete object to the view.
+	 * 
+	 * @param completeObject
+	 *            the source
+	 * @param viewObject
+	 *            the filled view object
+	 * @return the view object (same as input)
+	 */
 	public static <T> T view(Object completeObject, T viewObject) {
 		if (completeObject == null) return null;
 		
@@ -22,6 +34,30 @@ public class ViewUtil {
 			entry.getValue().setValue(viewObject, value);
 		}
 		return viewObject;
+	}
+
+	/**
+	 * Resolves a view object to the real object. Of course this is only possible by
+	 * asking the Backend to read the complete object. This method expects the view
+	 * to have an id.
+	 * 
+	 * @param viewObject
+	 *            the view object
+	 * @return the complete object (could be newer as the view object as the Backend
+	 *         is asked)
+	 */
+	public static <T> T viewed(View<T> viewObject) {
+		if (viewObject == null) return null;
+		
+		@SuppressWarnings("unchecked")
+		Class<T> viewedClass = (Class<T>) getViewedClass(viewObject.getClass());
+		
+		Object id = IdUtils.getId(viewObject);
+		if (id == null) {
+			return null;
+		}
+		
+		return Backend.read(viewedClass, id);
 	}
 	
 	public static Class<?> getViewedClass(Class<?> clazz) {
