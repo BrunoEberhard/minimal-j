@@ -1,10 +1,13 @@
 package org.minimalj.frontend.form.element;
 
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
 
 public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> {
@@ -33,6 +36,10 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		protected Class<?> getEditedClass() {
 			return GenericUtils.getGenericClass(ObjectFormElement.this.getClass());
 		}
+		
+		protected boolean persist() {
+			return IdUtils.hasId(getEditedClass());
+		}
 
 		@Override
 		public Form<T> createForm() {
@@ -46,6 +53,9 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 
 		@Override
 		public Void save(T edited) {
+			if (persist()) {
+				edited = Backend.save(edited);
+			}
 			ObjectFormElement.this.setValue(edited);
 			return null;
 		}
@@ -53,6 +63,23 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		@Override
 		protected void finished(Void result) {
 			handleChange();
+		}
+	}
+	
+	public class NewObjectFormElementEditor extends ObjectFormElementEditor {
+		public NewObjectFormElementEditor() {
+			assertEditable(this);
+		}
+
+		public NewObjectFormElementEditor(String name) {
+			super(name);
+			assertEditable(this);
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public T createObject() {
+			return (T) CloneHelper.newInstance(GenericUtils.getGenericClass(ObjectFormElement.this.getClass()));
 		}
 	}
 
