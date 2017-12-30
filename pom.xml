@@ -76,6 +76,12 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+			</extension>
+		</extensions>		
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -180,6 +186,20 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>openech-release</id>
+			<activation>
+				<property>
+					<name>openech-release</name>
+				</property>
+			</activation>
+			<distributionManagement>
+				<repository>
+					<id>openech-repository</id>
+					<url>ftp://ftp.openech.ch/public_html/repository</url>
+				</repository>
+			</distributionManagement>
 		</profile>
 	</profiles>
 
