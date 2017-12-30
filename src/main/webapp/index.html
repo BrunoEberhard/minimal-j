@@ -118,7 +118,7 @@ $ICON
 						} else if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
 							element.value = value.join("");
 						} else {
-							if (document.activeElement != element) {
+							if (document.activeElement != element || element.id != dataObject.source) {
 								element[property] = value;
 							} else {
 								// a date (formatted input) should not change while user is entering more characters. Wait for blur

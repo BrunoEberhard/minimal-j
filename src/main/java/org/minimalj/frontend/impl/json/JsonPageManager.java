@@ -123,6 +123,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 			JsonComponent component = componentById.get(componentId);
 			((JsonInputComponent<?>) component).changedValue(newValue);
+			output.add("source", componentId);
 		}
 
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
