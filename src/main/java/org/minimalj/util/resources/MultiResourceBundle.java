@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class MultiResourceBundle extends ResourceBundle {
@@ -14,6 +15,12 @@ public class MultiResourceBundle extends ResourceBundle {
 	public MultiResourceBundle(ResourceBundle... resourceBundles) {
 		for (ResourceBundle resourceBundle : resourceBundles) {
 			addResourceBundle(resourceBundle);
+		}
+	}
+	
+	public MultiResourceBundle(Locale locale, String... resourceBundleNames) {
+		for (String resourceBundleName : resourceBundleNames) {
+			addResourceBundle(ResourceBundle.getBundle(resourceBundleName, locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
 		}
 	}
 	
