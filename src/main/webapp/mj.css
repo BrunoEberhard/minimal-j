@@ -222,10 +222,18 @@ dialog {
 	border: 1px rgb(160,160,160) solid;
 	padding: 0em;
 	width: auto;
-	margin-top: 1em;
-	margin-left: 1em;
-	margin-right: 2em;
+	top: 1em;
+	left: 1em;
+	margin-right: 1em;
+	margin-bottom: 1em;
 	color: unset;
+}
+
+dialog.fullscreen {
+	position: absolute;
+	bottom: 0em;
+	box-sizing: border-box;
+	border: none;
 }
 
 .dialogHeader {
@@ -247,6 +255,14 @@ dialog {
 	border-top: 1px rgb(160,160,160) solid;
 	padding-top: 0.2em;
 	padding-bottom: 0.2em;
+	height: fit-content;
+}
+
+.fullscreen .dialogFooter {
+	position: absolute;
+	left: 0em;
+	right: 0em;
+	bottom: 0em;
 }
 
 .dialogFooter button {
@@ -403,10 +419,8 @@ block {
 .compact .page { height: 100%; border-bottom: 0;}
 .compact .actionMenu { min-width: 13em;}
 .compact .pageButton { display: none; }
-.compact .page:only-child > .pageContentAndActions { top: 0em; height: 100% }
 .compact table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 .compact table.form, table.form input, table.form select { margin: 0px; }
-.compact dialog { position: absolute; top: 1ex; left: 1ex; right: 1ex; width: inherit; }
 .compact .dialogFooter button { font-size : inherit; }
 .compact .dialogFooter { height: 1.7em; }
 .compact .dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}
