@@ -72,7 +72,7 @@ dialog {
 
 .dialogHeader {
 	border: none;
-	background: unset;
+	background: transparent;
 	padding: 0em;
 }
 
@@ -91,7 +91,7 @@ dialog {
 
 .dialogFooter {
 	border: none;
-	background: unset;
+	background: transparent;
 }
 
 button {
