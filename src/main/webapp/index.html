@@ -20,7 +20,7 @@ $ICON
 
 	var isSmall = window.innerWidth < 992;
 	var isLarge = window.innerWidth >= 1200;
-	var isMultiPage = true;
+	var isMultiPage = !isSmall;
 	
 	var websocket;
 	var session = sessionStorage.sessionId;
