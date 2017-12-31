@@ -1016,10 +1016,27 @@ $ICON
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
 		if (dialogElements != undefined && dialogElements.length > 0) {
-			if (window.innerWidth >= 768) {
-				var navigationContainer = document.getElementById("navigationContainer");
-				var marginLeft = window.innerWidth >= 1200 && navigation.style.display != "none" ? navigation.clientWidth + 20 : 0;
+            var maxDialogWidth = 0;
+            for (var i = 0; i < dialogElements.length; i++) {
+                var dialogElement = dialogElements[i];
+				var maxWidthElement = dialogElement.querySelector(".form");
+				if (maxWidthElement != undefined) {
+                      var columns = maxWidthElement.dataset.columns;
+                      dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3) + "em";
+                      maxDialogWidth = Math.max(maxDialogWidth, parseInt(window.getComputedStyle(dialogElement).maxWidth));
+				} else {
+                      dialogElement.style.maxWidth = "unset";
+                }
+            }
 			
+            if (maxDialogWidth < window.innerWidth - 20) {
+      
+                var marginLeft = 0;
+				var navigationContainer = document.getElementById("navigationContainer");
+                if (navigationContainer.display != "none" && navigationContainer.clientWidth + maxDialogWidth < window.innerWidth) {
+                    marginLeft += navigationContainer.clientWidth;
+                }
+
 				for (var i = 0; i < dialogElements.length; i++) {
 					var dialogElement = dialogElements[i];
                     dialogElement.classList.remove("fullscreen");
@@ -1041,14 +1058,6 @@ $ICON
 					var height = Math.max(100, height = window.innerHeight - 10 - headerHeight - top - dialogPadding - dialogHeaderHeight - dialogFooterHeight);
 					contentElement.style.maxHeight = height + "px";
 
-					var maxWidthElement = dialogElement.querySelector(".form");
-					if (maxWidthElement != undefined) {
-						var columns = maxWidthElement.dataset.columns;
-						dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3) + "em";
-					} else {
-                        dialogElement.style.maxWidth = "unset";
-                    }
-					
 					var type = dialogElement.getAttribute("type");
 					if (type == "SearchDialog") {
 						contentElement.style.height = height + "px";
