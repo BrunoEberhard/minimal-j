@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -176,6 +178,17 @@ public class JsonFrontend extends Frontend {
 		return readStream(JsonFrontend.class.getResourceAsStream("/index.html"));
 	}
 	
+	static final Map<String, String> THEMES = new HashMap<>();
+	
+	static {
+		THEMES.put("", "");
+		THEMES.put("material", "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"miniterial.css\"/>");
+		/*
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
+		<link rel="stylesheet" type="text/css" href="miniterial.css"/>
+		*/
+	}
+	
 	public static String fillPlaceHolder(String html, Locale locale, String path) {
 		LocaleContext.setCurrent(locale);
 		String result = html.replace("$LOCALE", locale.getLanguage());
@@ -190,6 +203,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$BASE", base(path));
 		result = result.replace("$PATH", path);
+		result = result.replace("$THEME", THEMES.get(Configuration.get("MjTheme", "")));
 		return result;
 	}
 	
