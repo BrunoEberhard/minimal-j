@@ -404,24 +404,27 @@ block {
 	z-index: 90;
 }
 
-/* only in non compact mode */
+@media (min-width: 992px) {
+	#searchButton { display: none; }
+	#actionMenuButton { display: none; }
+}
 
-.full #searchButton { display: none; }
-.full #actionMenuButton { display: none; }
-
-/* only in compact mode */
-
-.compact #search { display: none; }
-.compact #navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border-right: 1px rgb(160,160,160) solid;}
-.compact #navigationHeader { display: none; }
-.compact #navigation { max-height: 100%}
-.compact #pageContainer { height: 100%}
-.compact .page { height: 100%; border-bottom: 0;}
-.compact .actionMenu { min-width: 13em;}
-.compact .pageButton { display: none; }
-.compact table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
-.compact table.form, table.form input, table.form select { margin: 0px; }
-.compact .dialogFooter button { font-size : inherit; }
-.compact .dialogFooter { height: 1.7em; }
-.compact .dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}
-
+@media (max-width: 991px) {
+	#search { display: none; }
+	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border-right: 1px rgb(160,160,160) solid;}
+	#navigationHeader { display: none; }
+	#navigation { max-height: 100%}
+	#pageContainer { height: 100%}
+	/* not working with ie: #pageContainer .page:not(:last-child) { display: none; } */
+	.page { display: none; }
+	.page:last-child { display: block; border-bottom: none; top: 0em; right: 0em; min-height: unset; height: 100%; }
+	.page:last-child > .pageContentAndActions { top: 0em; height: 100%;}
+	.pageHeader { display: none; }
+	.actionMenu { min-width: 13em;}
+	.pageButton { display: none; }
+	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
+	table.form, table.form input, table.form select { margin: 0px; }
+	.dialogFooter button { font-size : inherit; }
+	.dialogFooter { height: 1.7em; }
+	.dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}
+}

@@ -76,12 +76,14 @@ dialog {
 	padding: 0em;
 }
 
-.compact .dialogHeader {
-	line-height: unset;
-}
+@media (max-width: 991px) {
+	.dialogHeader {
+		line-height: unset;
+	}
 
-.compact .dialogFooter {
-	height: fit-content;
+	.dialogFooter {
+		height: fit-content;
+	}
 }
 
 .dialogContent {

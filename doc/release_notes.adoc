@@ -5,6 +5,7 @@ Every release contains many small fixes.
 === 1.14.0.0
 * Sorting for completely loaded tables
 * SimpleTablePageWithDetail more helper methods
+* HtmlFrontend: more dynamic layout
 
 === 1.13.0.0
 * Materialized getters (@Materialized)
