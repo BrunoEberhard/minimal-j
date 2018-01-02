@@ -1,6 +1,7 @@
 package org.minimalj.security;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -15,18 +16,21 @@ public class TextFileAuthentication extends UserPasswordAuthentication {
 
 	private final transient Map<String, User> userByName = new HashMap<>();
 
-	public TextFileAuthentication(String loginConfiguration) {
+	public TextFileAuthentication(String userTextFile) {
 		super();
-		try {
-			loadUsers(loginConfiguration);
+		try (InputStream is = getClass().getClassLoader().getResourceAsStream(userTextFile)) {
+			loadUsers(is);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void loadUsers(String userTextFile) throws IOException {
+	protected TextFileAuthentication() {
+	}
+	
+	protected void loadUsers(InputStream is) throws IOException {
 		Properties p = new Properties();
-		p.load(getClass().getClassLoader().getResourceAsStream(userTextFile));
+		p.load(is);
 
 		Enumeration<?> e = p.propertyNames();
 		while (e.hasMoreElements()) {
