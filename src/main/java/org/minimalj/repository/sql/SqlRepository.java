@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -437,6 +438,16 @@ public class SqlRepository implements TransactionalRepository {
 	
 	@SuppressWarnings("unchecked")
 	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+		if (clazz == Integer.class) {
+			return (R) Integer.valueOf(resultSet.getInt(1));
+		} else if (clazz == Long.class) {
+			return (R) Long.valueOf(resultSet.getLong(1));
+		} else if (clazz == BigDecimal.class) {
+			return (R) resultSet.getBigDecimal(1);
+		} else if (clazz == String.class) {
+			return (R) resultSet.getString(1);
+		}
+		
 		Object id = null;
 		Integer position = 0;
 		R result = CloneHelper.newInstance(clazz);
