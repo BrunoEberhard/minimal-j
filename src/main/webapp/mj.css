@@ -137,7 +137,6 @@ li {
 .page {
 	position: relative;
 	border-bottom: 1px rgb(160,160,160) solid;
-	min-height: 10em;
 	width: 100%;
 }
 

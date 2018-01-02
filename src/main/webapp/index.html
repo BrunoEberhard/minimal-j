@@ -310,18 +310,12 @@ $ICON
 	function togglePage(event) {
 		var element = event.target;
 		while ((element = element.parentNode) && element.className != "page");
-		var pageContentElement = element.querySelector(".pageContent");
+		var pageContentElement = element.querySelector(".pageContentAndActions");
 		if (pageContentElement.style.display == "none") {
-			element.style.minHeight = "10em";
-			pageContentElement.style.display = "table";
+			pageContentElement.style.display = null;
 			element.scrollIntoView();
 		} else {
-			element.style.minHeight = "0em";
 			pageContentElement.style.display = "none";
-			var actionMenuElement = element.querySelector(".actionMenu");
-			if (actionMenuElement != null) {
-				actionMenuElement.style.display = "none";
-			}
 		}
 	}
 	
