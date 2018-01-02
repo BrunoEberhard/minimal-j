@@ -2,6 +2,7 @@ package org.minimalj.model.properties;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -63,7 +64,7 @@ public class FlatProperties {
 	
 	public static Map<String, PropertyInterface> getProperties(Class<?> clazz) {
 		if (!properties.containsKey(clazz)) {
-			properties.put(clazz, properties(clazz));
+			properties.put(clazz, Collections.unmodifiableMap(properties(clazz)));
 		}
 		Map<String, PropertyInterface> propertiesForClass = properties.get(clazz);
 		return propertiesForClass;
