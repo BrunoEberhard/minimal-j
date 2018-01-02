@@ -173,7 +173,7 @@ $ICON
 	function addNewStateToHistory(fragment) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText, fragment != undefined ? fragment : ""); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, fragment != undefined ? fragment : "/"); // second argument is ignored by browsers (!)
 		}
 	}
 	
