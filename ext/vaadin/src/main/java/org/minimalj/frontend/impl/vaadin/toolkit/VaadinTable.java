@@ -15,6 +15,8 @@ import org.minimalj.util.resources.Resources;
 import com.vaadin.data.PropertyDefinition;
 import com.vaadin.data.PropertySet;
 import com.vaadin.data.ValueProvider;
+import com.vaadin.event.selection.SelectionEvent;
+import com.vaadin.event.selection.SelectionListener;
 import com.vaadin.server.Setter;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.components.grid.ItemClickListener;
@@ -27,7 +29,6 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
 	private final TableActionListener<T> listener;
-	private VaadinTableItemClickListener tableClickListener;
 	// private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	// private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
@@ -42,8 +43,9 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 		setSelectionMode(multiSelect ? SelectionMode.MULTI : SelectionMode.SINGLE);
 		setSizeFull();
 		
-		tableClickListener = new VaadinTableItemClickListener();
-		addItemClickListener(tableClickListener);
+		VaadinTableListener tableListener = new VaadinTableListener();
+		addItemClickListener(tableListener);
+		addSelectionListener(tableListener);
 	}
 	
 	@Override
@@ -177,7 +179,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 		}
 	}
 	
-	private class VaadinTableItemClickListener implements ItemClickListener<T> {
+	private class VaadinTableListener implements ItemClickListener<T>, SelectionListener<T> {
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -185,6 +187,11 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 			if (event.getMouseEventDetails().isDoubleClick()) {
 				listener.action(event.getItem());
 			}			
+		}
+
+		@Override
+		public void selectionChange(SelectionEvent<T> event) {
+			listener.selectionChanged(new ArrayList<>(event.getAllSelectedItems()));
 		}
 	}
 	
