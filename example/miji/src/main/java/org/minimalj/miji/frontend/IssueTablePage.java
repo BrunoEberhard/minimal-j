@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
+import org.minimalj.frontend.page.TableEditorPage;
 import org.minimalj.miji.model.Jira.Issue;
 import org.minimalj.security.Subject;
 
-public class IssueTablePage extends SimpleTablePageWithDetail<Issue> {
+public class IssueTablePage extends TableEditorPage<Issue> {
 
 	private static final Object[] keys = new Object[] { Issue.$.key, Issue.$.summary };
 	
@@ -22,8 +22,8 @@ public class IssueTablePage extends SimpleTablePageWithDetail<Issue> {
 	}
 
 	@Override
-	protected Form<Issue> createForm(boolean editable) {
-		Form<Issue> form = new Form<>(false, 2);
+	protected Form<Issue> createForm(boolean editable, boolean newObject) {
+		Form<Issue> form = new Form<>(editable, 2);
 		form.line(Issue.$.key, new IssueFormElement(Issue.$.parent, false));
 		form.line(Issue.$.assignee);
 		form.line(Issue.$.summary);

@@ -3,13 +3,14 @@ package org.minimalj.metamodel.page;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.util.resources.Resources;
 
-public class PropertyTablePage extends TablePage.TablePageWithDetail<MjProperty, TablePage<?>> {
+public class PropertyTablePage extends TableDetailPage<MjProperty, TablePage<?>> {
 
 	private final MjEntity entity;
 	

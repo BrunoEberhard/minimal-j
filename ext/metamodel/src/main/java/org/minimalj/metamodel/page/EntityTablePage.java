@@ -3,12 +3,12 @@ package org.minimalj.metamodel.page;
 import java.util.List;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.frontend.page.TablePage.TablePageWithDetail;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjModel;
 
-public class EntityTablePage extends TablePageWithDetail<MjEntity, TablePage<?>> {
+public class EntityTablePage extends TableDetailPage<MjEntity, TablePage<?>> {
 
 	private final MjModel model;
 

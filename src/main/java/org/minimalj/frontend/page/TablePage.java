@@ -1,7 +1,6 @@
 package org.minimalj.frontend.page;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,11 +11,7 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.editor.Editor.SimpleEditor;
-import org.minimalj.frontend.form.Form;
-import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ClassHolder;
-import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
@@ -30,11 +25,10 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 
 	private transient boolean multiSelect;
 	private transient Object[] columns;
-	private final ClassHolder<T> clazz;
+	final ClassHolder<T> clazz;
 	private transient ITable<T> table;
 	private transient List<T> objects;
-	private transient List<TableSelectionAction<T>> actions;
-	private transient List<T> selectedObjects;
+	private transient List<Action> actions;
 	protected final Object[] nameArguments;
 	
 	/*
@@ -97,10 +91,22 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		// for hidden/reshown detail it can happen that getContent is called
 		// for a second time. Then the selection has to be cleared not to keep the old selection
 		// (or table could be reused but than every Frontend has to take care about selection state)
-		selectedObjects = null;
+		selectionChanged(null); // TODO should table.setObjects takes care of this?
 		return table;
 	}
 	
+	@Override
+	public final List<Action> getActions() {
+		if (actions == null) {
+			actions = getTableActions();
+		}
+		return actions;
+	}
+
+	public List<Action> getTableActions() {
+		return Collections.emptyList();
+	}
+		
 	public void refresh() {
 		if (table != null) {
 			objects = load();
@@ -108,126 +114,31 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			reloadFlag = false;
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public void selectionChanged(List<T> selectedObjects) {
-		this.selectedObjects = selectedObjects;
 		if (actions != null) {
-			actions.stream().forEach(action -> action.selectionChanged(selectedObjects));
+			for (Action action : actions) {
+				if (action instanceof TableSelectionAction) {
+					((TableSelectionAction<T>) action).selectionChanged(selectedObjects);
+				}
+			}
 		}
 	}
 	
-	protected Form<T> createForm(boolean editable, boolean newObject) {
-		throw new RuntimeException("createForm not implemented in " + this.getClass().getName());
-	}
+	//
 	
-	protected boolean hasForm() {
-		try {
-			return getClass().getDeclaredMethod("createForm", new Class<?>[] { Boolean.TYPE, Boolean.TYPE }) != null;
-		} catch (NoSuchMethodException e) {
-			return false;
-		}
-	}
-	
-	protected void validate(T object, boolean newObject, List<ValidationMessage> validationMessages) {
-		// to be overridden
-	}
-	
-	@Override
-	public List<Action> getActions() {
-		if (hasForm()) {
-			return Arrays.asList(new NewDetailEditor(), new DetailEditor(), new DeleteDetailAction());
-		} else {
-			return null;
-		}
-	}
-	
-	@Override
-	public void action(T selectedObject) {
-		if (hasForm()) {
-			new TablePageEditor(selectedObject).action();
-		}
+	public interface TableSelectionAction<T> {
+		
+		public abstract void selectionChanged(List<T> selectedObjects);
 	}
 
-	protected class TablePageEditor extends SimpleEditor<T>  {
-		protected T selection;
-
-		public TablePageEditor() {
-			this(null);
-		}
-		
-		public TablePageEditor(T selection) {
-			this.selection = selection;
-		}
-		
-		@Override
-		protected Object[] getNameArguments() {
-			return nameArguments;
-		}
-		
-		@Override
-		protected T createObject() {
-			return selection;
-		}
-		
-		@Override
-		protected Form<T> createForm() {
-			return TablePage.this.createForm(Form.EDITABLE, false);
-		}
-		
-		@Override
-		protected void validate(T object, List<ValidationMessage> validationMessages) {
-			TablePage.this.validate(object, false, validationMessages);
-		}
-		
-		@Override
-		protected T save(T object) {
-			return Backend.save(object);
-		}
-		
-		@Override
-		protected void finished(T result) {
-			TablePage.this.refresh();
-		}
-	}	
-	
-	public class DetailEditor extends TablePageEditor implements TableSelectionAction<T> {
-
-		public DetailEditor() {
-			registerSelectionAction(this);
-			setEnabled(false);
-		}
-		
-		@Override
-		public void selectionChanged(List<T> selectedObjects) {
-			this.selection = selectedObjects.isEmpty() ? null : selectedObjects.get(0);
-			setEnabled(selection != null);
-		}
-	}	
-	
-	public class NewDetailEditor extends TablePageEditor {
-
-		@Override
-		protected Form<T> createForm() {
-			return TablePage.this.createForm(Form.EDITABLE, true);
-		}
-		
-		@Override
-		protected T createObject() {
-			return CloneHelper.newInstance(clazz.getClazz());
-		}
-		
-		@Override
-		protected void validate(T object, List<ValidationMessage> validationMessages) {
-			TablePage.this.validate(object, true, validationMessages);
-		}
-	}
-	
 	public class DeleteDetailAction extends Action implements TableSelectionAction<T> {
-
+		private transient List<T> selectedObjects;
+		
 		public DeleteDetailAction() {
-			registerSelectionAction(this);
-			selectionChanged(selectedObjects);
+			selectionChanged(null);
 		}
 		
 		@Override
@@ -237,175 +148,18 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		
 		@Override
 		public void action() {
-			for (T object : TablePage.this.selectedObjects) {
+			for (T object : selectedObjects) {
 				Backend.delete(object.getClass(), IdUtils.getId(object));
 			}
 			TablePage.this.refresh();
+			TablePage.this.selectionChanged(Collections.emptyList());
 		}
 
 		@Override
 		public void selectionChanged(List<T> selectedObjects) {
+			this.selectedObjects = selectedObjects;
 			setEnabled(selectedObjects != null && !selectedObjects.isEmpty());
 		}
 	}	
-	
-	protected void registerSelectionAction(TableSelectionAction<T> action) {
-		if (actions == null) {
-			actions = new ArrayList<>();
-		}
-		actions.add(action);
-	}
-
-	public interface TableSelectionAction<T> {
-		
-		public abstract void selectionChanged(List<T> selectedObjects);
-
-	}
-
-	public static abstract class TablePageWithDetail<T, DETAIL_PAGE extends Page> extends TablePage<T> {
-		
-		private DETAIL_PAGE detailPage;
-
-		public TablePageWithDetail(Object[] keys) {
-			super(keys);
-		}
-
-		protected abstract DETAIL_PAGE createDetailPage(T mainObject);
-
-		protected abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject);
-
-		protected DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, List<T> selectedObjects) {
-			if (selectedObjects == null || selectedObjects.size() != 1) {
-				return null;
-			} else {
-				return updateDetailPage(page, selectedObjects.get(0));
-			}
-		}
-		
-		@Override
-		public void action(T selectedObject) {
-			if (detailPage != null) {
-				updateDetailPage(Collections.singletonList(selectedObject));
-			} else {
-				detailPage = createDetailPage(selectedObject);
-				if (detailPage != null) {
-					Frontend.showDetail(TablePageWithDetail.this, detailPage);
-				}
-			}
-		}
-
-		@Override
-		public void selectionChanged(List<T> selectedObjects) {
-			super.selectionChanged(selectedObjects);
-			boolean detailVisible = detailPage != null && Frontend.isDetailShown(detailPage); 
-			if (detailVisible) {
-				if (selectedObjects != null && !selectedObjects.isEmpty()) {
-					updateDetailPage(selectedObjects);
-				} else {
-					Frontend.hideDetail(detailPage);
-				}
-			}
-		}
-		
-		private void updateDetailPage(List<T> selectedObjects) {
-			DETAIL_PAGE updatedDetailPage = updateDetailPage(detailPage, selectedObjects);
-			if (Frontend.isDetailShown(detailPage)) {
-				if (updatedDetailPage == null || updatedDetailPage != detailPage) {
-					Frontend.hideDetail(detailPage);
-				}
-			}
-			if (updatedDetailPage != null) {
-				Frontend.showDetail(TablePageWithDetail.this, updatedDetailPage);
-				detailPage = updatedDetailPage;
-			}
-		}
-	}
-	
-	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, SimpleTablePageWithDetail<T>.DetailPage> {
-
-		public SimpleTablePageWithDetail(Object[] keys) {
-			super(keys);
-		}
-			
-		public class DetailPage extends Page {
-
-			private transient Form<T> form;
-			private T detail;
-
-			public DetailPage(T detail) {
-		  		this.detail = detail;
-		  	}
-			
-			@Override
-			public String getTitle() {
-				String title = Resources.getStringOrNull(getClass());
-				if (title != null) {
-					return title;
-				} else {
-					return MessageFormat.format(Resources.getString(DetailPage.class.getSimpleName() + ".title"), nameArguments);
-				}
-			}
-			
-			@Override
-			public List<Action> getActions() {
-				return Arrays.asList(new DetailPageEditor());
-			}
-			
-			public IContent getContent() {
-				if (form == null) {
-					form = createForm(Form.READ_ONLY, false);
-				}
-				form.setObject(detail);
-				return form.getContent();
-			}
-			
-			public void setDetail(T detail) {
-				this.detail = detail;
-				if (form != null) {
-					form.setObject(detail);
-				}
-			}
-			
-			public class DetailPageEditor extends SimpleEditor<T> {
-
-				@Override
-				protected Object[] getNameArguments() {
-					return SimpleTablePageWithDetail.this.nameArguments;
-				}
-				
-				@Override
-				protected Form<T> createForm() {
-					return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE, false);
-				}
-				
-				@Override
-				protected T createObject() {
-					return detail;
-				}
-				
-				@Override
-				protected T save(T object) {
-					return Backend.save(object);
-				}
-				
-				@Override
-				protected void finished(T result) {
-					SimpleTablePageWithDetail.this.refresh();
-					SimpleTablePageWithDetail.this.action(result);
-				}
-			}	
-		}
-		
-		@Override
-		protected DetailPage createDetailPage(T detail) {
-			return new DetailPage(detail);
-		}
-		
-		@Override
-		protected DetailPage updateDetailPage(SimpleTablePageWithDetail<T>.DetailPage detailPage, T mainObject) {
-			detailPage.setDetail(mainObject);
-			return detailPage;
-		}
-	}
 	
 }
