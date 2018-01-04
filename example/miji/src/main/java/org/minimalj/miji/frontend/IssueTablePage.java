@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.TableEditorPage;
+import org.minimalj.frontend.page.SimpleTableEditorPage;
 import org.minimalj.miji.model.Jira.Issue;
 import org.minimalj.security.Subject;
 
-public class IssueTablePage extends TableEditorPage<Issue> {
+public class IssueTablePage extends SimpleTableEditorPage<Issue> {
 
 	private static final Object[] keys = new Object[] { Issue.$.key, Issue.$.summary };
 	

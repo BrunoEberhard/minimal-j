@@ -12,6 +12,10 @@ import java.util.Map;
 public class GenericUtils {
 
 	public static Class<?> getGenericClass(Class<?> c) {
+		return getGenericClass(c, 0);
+	}
+	
+	public static Class<?> getGenericClass(Class<?> c, int index) {
 		ParameterizedType type = null;
 		while (c != Object.class) {
 			Type genericSuperclass = c.getGenericSuperclass();
@@ -26,7 +30,7 @@ public class GenericUtils {
 			throw new IllegalArgumentException(c.toString() + " must be parameterized!");
 		}
 		Type[] actualTypeArguments = type.getActualTypeArguments();
-		return actualTypeArguments.length > 0 ? getClass(actualTypeArguments[0]) : null;
+		return actualTypeArguments.length > index ? getClass(actualTypeArguments[index]) : null;
 	}
 	
 	/**
