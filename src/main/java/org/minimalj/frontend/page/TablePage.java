@@ -14,6 +14,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
@@ -27,8 +28,8 @@ import org.minimalj.util.resources.Resources;
  */
 public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
-	private final boolean multiSelect;
-	private final Object[] keys;
+	private transient boolean multiSelect;
+	private transient Object[] columns;
 	private final ClassHolder<T> clazz;
 	private transient ITable<T> table;
 	private transient List<T> objects;
@@ -42,24 +43,26 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	 * the page and doesn't want to see the old data. 
 	 */
 	private transient boolean reloadFlag;
-	
+
 	@SuppressWarnings("unchecked")
-	public TablePage(Object[] keys) {
+	public TablePage() {
 		this.multiSelect = allowMultiselect();
-		this.keys = keys;
 
 		this.clazz = new ClassHolder<T>((Class<T>) GenericUtils.getGenericClass(getClass()));
 		this.nameArguments = new Object[] { Resources.getString(Resources.getResourceName(clazz.getClazz())) };
 	}
+	
+	public TablePage(Object[] columns) {
+		this();
+		this.columns = columns;
+	}
 
-	/**
-	 * To create a table with multiselection override this method an return true.
-	 * This method is called once at construction time of the TablePage and must
-	 * be constant for a class. It must not depend on the displayed values.
-	 * @return true if table should allow multi selection
-	 */
 	protected boolean allowMultiselect() {
 		return false;
+	}
+	
+	protected Object[] getColumns() {
+		return columns;
 	}
 	
 	protected abstract List<T> load();
@@ -75,9 +78,17 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
+	private ITable<T> createTable() {
+		columns = getColumns();
+		multiSelect = allowMultiselect();
+		return Frontend.getInstance().createTable(columns, multiSelect, this);
+	}
+	
 	@Override
 	public IContent getContent() {
-		table = Frontend.getInstance().createTable(keys, multiSelect, this);
+		if (table == null || multiSelect != allowMultiselect() || !Arrays.equals(columns, getColumns())) {
+			table = createTable();
+		}
 		if (objects == null || reloadFlag) {
 			objects = load();
 			reloadFlag = true;
@@ -106,16 +117,20 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
-	protected Form<T> createForm(boolean editable) {
+	protected Form<T> createForm(boolean editable, boolean newObject) {
 		throw new RuntimeException("createForm not implemented in " + this.getClass().getName());
 	}
 	
 	protected boolean hasForm() {
 		try {
-			return getClass().getDeclaredMethod("createForm", new Class<?>[] { Boolean.TYPE }) != null;
+			return getClass().getDeclaredMethod("createForm", new Class<?>[] { Boolean.TYPE, Boolean.TYPE }) != null;
 		} catch (NoSuchMethodException e) {
 			return false;
 		}
+	}
+	
+	protected void validate(T object, boolean newObject, List<ValidationMessage> validationMessages) {
+		// to be overridden
 	}
 	
 	@Override
@@ -157,7 +172,12 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		
 		@Override
 		protected Form<T> createForm() {
-			return TablePage.this.createForm(Form.EDITABLE);
+			return TablePage.this.createForm(Form.EDITABLE, false);
+		}
+		
+		@Override
+		protected void validate(T object, List<ValidationMessage> validationMessages) {
+			TablePage.this.validate(object, false, validationMessages);
 		}
 		
 		@Override
@@ -188,8 +208,18 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	public class NewDetailEditor extends TablePageEditor {
 
 		@Override
+		protected Form<T> createForm() {
+			return TablePage.this.createForm(Form.EDITABLE, true);
+		}
+		
+		@Override
 		protected T createObject() {
 			return CloneHelper.newInstance(clazz.getClazz());
+		}
+		
+		@Override
+		protected void validate(T object, List<ValidationMessage> validationMessages) {
+			TablePage.this.validate(object, true, validationMessages);
 		}
 	}
 	
@@ -323,7 +353,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			
 			public IContent getContent() {
 				if (form == null) {
-					form = createForm(Form.READ_ONLY);
+					form = createForm(Form.READ_ONLY, false);
 				}
 				form.setObject(detail);
 				return form.getContent();
@@ -345,7 +375,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 				
 				@Override
 				protected Form<T> createForm() {
-					return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE);
+					return SimpleTablePageWithDetail.this.createForm(Form.EDITABLE, false);
 				}
 				
 				@Override
