@@ -17,9 +17,17 @@ import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Shows a table of objects of one class. 
+ * A page containing a table of objects of class T. There are some
+ * specializations for this class:
+ * <UL>
+ * <LI>TableDetailPage: An object in the table can have a page where the details
+ * for the object is show</LI>
+ * <LI>TableEditorPage: An object in the table can be edited (or created or
+ * deleted)
+ * </UL>
  *
- * @param <T> Class of objects in this TablePage. Must be specified.
+ * @param <T>
+ *            Class of objects in this TablePage. Must be specified.
  */
 public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
@@ -128,10 +136,16 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	}
 	
 	//
-	
+
 	public interface TableSelectionAction<T> {
 		
 		public abstract void selectionChanged(List<T> selectedObjects);
+	}
+	
+	protected void delete(List<T> selectedObjects) {
+		for (T object : selectedObjects) {
+			Backend.delete(object.getClass(), IdUtils.getId(object));
+		}
 	}
 
 	public class DeleteDetailAction extends Action implements TableSelectionAction<T> {
@@ -148,9 +162,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		
 		@Override
 		public void action() {
-			for (T object : selectedObjects) {
-				Backend.delete(object.getClass(), IdUtils.getId(object));
-			}
+			delete(selectedObjects);
 			TablePage.this.refresh();
 			TablePage.this.selectionChanged(Collections.emptyList());
 		}
