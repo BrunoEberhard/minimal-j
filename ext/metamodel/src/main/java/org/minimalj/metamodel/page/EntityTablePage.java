@@ -8,7 +8,7 @@ import org.minimalj.frontend.page.TablePage;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjModel;
 
-public class EntityTablePage extends TableDetailPage<MjEntity, TablePage<?>> {
+public class EntityTablePage extends TableDetailPage<MjEntity> {
 
 	private final MjModel model;
 
@@ -22,18 +22,13 @@ public class EntityTablePage extends TableDetailPage<MjEntity, TablePage<?>> {
 	}
 	
 	@Override
-	protected TablePage<?> createDetailPage(MjEntity entity) {
+	protected TablePage<?> getDetailPage(MjEntity entity) {
 		Class<?> clazz = entity.getClazz();
 		if (Enum.class.isAssignableFrom(clazz)) {
 			return new EnumTablePage(clazz);
 		} else {
 			return new PropertyTablePage(entity);
 		}
-	}
-
-	@Override
-	protected TablePage<?> updateDetailPage(TablePage<?> page, MjEntity entity) {
-		return createDetailPage(entity);
 	}
 
 	@Override

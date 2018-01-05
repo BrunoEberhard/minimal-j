@@ -6,9 +6,9 @@ import java.util.List;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.TableActionListener;
 
-public abstract class TableDetailPage<T, DETAIL_PAGE extends Page> extends TablePage<T> implements TableActionListener<T> {
+public abstract class TableDetailPage<T> extends TablePage<T> implements TableActionListener<T> {
 	
-	private DETAIL_PAGE detailPage;
+	private Page detailPage;
 
 	public TableDetailPage() {
 		super();
@@ -18,15 +18,13 @@ public abstract class TableDetailPage<T, DETAIL_PAGE extends Page> extends Table
 		super(keys);
 	}
 
-	protected abstract DETAIL_PAGE createDetailPage(T mainObject);
+	protected abstract Page getDetailPage(T mainObject);
 
-	protected abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject);
-
-	protected DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, List<T> selectedObjects) {
+	protected Page getDetailPage(List<T> selectedObjects) {
 		if (selectedObjects == null || selectedObjects.size() != 1) {
 			return null;
 		} else {
-			return updateDetailPage(page, selectedObjects.get(0));
+			return getDetailPage(selectedObjects.get(0));
 		}
 	}
 	
@@ -35,7 +33,7 @@ public abstract class TableDetailPage<T, DETAIL_PAGE extends Page> extends Table
 		if (detailPage != null) {
 			updateDetailPage(Collections.singletonList(selectedObject));
 		} else {
-			detailPage = createDetailPage(selectedObject);
+			detailPage = getDetailPage(selectedObject);
 			if (detailPage != null) {
 				Frontend.showDetail(TableDetailPage.this, detailPage);
 			}
@@ -60,7 +58,7 @@ public abstract class TableDetailPage<T, DETAIL_PAGE extends Page> extends Table
 	}
 	
 	private void updateDetailPage(List<T> selectedObjects) {
-		DETAIL_PAGE updatedDetailPage = updateDetailPage(detailPage, selectedObjects);
+		Page updatedDetailPage = getDetailPage(selectedObjects);
 		if (Frontend.isDetailShown(detailPage)) {
 			if (updatedDetailPage == null || updatedDetailPage != detailPage) {
 				Frontend.hideDetail(detailPage);

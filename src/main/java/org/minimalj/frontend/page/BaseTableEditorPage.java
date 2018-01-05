@@ -11,10 +11,12 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.resources.Resources;
 
-abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW, BaseTableEditorPage<VIEW, T>.DetailPage> {
+abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
 	// generic mystery: how to do this static without warning
 	public final BaseTableEditorPage<VIEW, T>.DetailPage NO_DETAIL_PAGE = null;
+	
+	private DetailPage detailPage;
 	
 	public BaseTableEditorPage() {
 		super();
@@ -28,6 +30,10 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW, BaseTa
 	
 	protected void validate(T object, boolean newObject, List<ValidationMessage> validationMessages) {
 		// to be overridden
+	}
+	
+	protected T save(T object) {
+		return Backend.save(object);
 	}
 	
 	@Override
@@ -56,15 +62,13 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW, BaseTa
 	}
 	
 	@Override
-	protected DetailPage createDetailPage(VIEW view) {
+	protected Page getDetailPage(VIEW view) {
 		T object = viewed(view);
-		return new DetailPage(object);
-	}
-	
-	@Override
-	protected DetailPage updateDetailPage(BaseTableEditorPage<VIEW, T>.DetailPage detailPage, VIEW view) {
-		T object = viewed(view);
-		detailPage.setObject(object);
+		if (detailPage != null) {
+			detailPage.setObject(object);
+		} else {
+			detailPage = new DetailPage(object);
+		}
 		return detailPage;
 	}
 
@@ -143,7 +147,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW, BaseTa
 		
 		@Override
 		protected T save(T object) {
-			return Backend.save(object);
+			return BaseTableEditorPage.this.save(object);
 		}
 		
 		@Override
