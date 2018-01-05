@@ -96,10 +96,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			reloadFlag = true;
 		}
 		table.setObjects(objects);
-		// for hidden/reshown detail it can happen that getContent is called
-		// for a second time. Then the selection has to be cleared not to keep the old selection
-		// (or table could be reused but than every Frontend has to take care about selection state)
-		selectionChanged(null); // TODO should table.setObjects takes care of this?
 		return table;
 	}
 	
