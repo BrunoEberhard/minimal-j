@@ -10,7 +10,7 @@ import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.util.resources.Resources;
 
-public class PropertyTablePage extends TableDetailPage<MjProperty, TablePage<?>> {
+public class PropertyTablePage extends TableDetailPage<MjProperty> {
 
 	private final MjEntity entity;
 	
@@ -30,7 +30,7 @@ public class PropertyTablePage extends TableDetailPage<MjProperty, TablePage<?>>
 	}
 
 	@Override
-	protected TablePage<?> createDetailPage(MjProperty property) {
+	protected TablePage<?> getDetailPage(MjProperty property) {
 		if (property.propertyType.isPrimitive()) {
 			return null;
 		}
@@ -40,11 +40,6 @@ public class PropertyTablePage extends TableDetailPage<MjProperty, TablePage<?>>
 			MjEntity entity = property.getModel().getEntity(property.type.getClazz());
 			return new PropertyTablePage(entity);
 		}
-	}
-
-	@Override
-	protected TablePage<?> updateDetailPage(TablePage<?> page, MjProperty property) {
-		return createDetailPage(property);
 	}
 
 }
