@@ -9,6 +9,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.resources.Resources;
 
 abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
@@ -30,6 +31,10 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	
 	protected void validate(T object, boolean newObject, List<ValidationMessage> validationMessages) {
 		// to be overridden
+	}
+	
+	protected T save(T editedObject, T originalObject) {
+		return save(editedObject);
 	}
 	
 	protected T save(T object) {
@@ -117,7 +122,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
 			@Override
 			protected T save(T object) {
-				return Backend.save(object);
+				return BaseTableEditorPage.this.save(object, DetailPageEditor.this.getObject());
 			}
 			
 			@Override
@@ -172,7 +177,12 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
 		@Override
 		protected T createObject() {
-			return selection;
+			return CloneHelper.clone(selection);
+		}
+		
+		@Override
+		protected T save(T object) {
+			return BaseTableEditorPage.this.save(object, selection);
 		}
 		
 		@Override
