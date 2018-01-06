@@ -5,11 +5,11 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
+import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.repository.query.By;
 
 
-public class CustomerTablePage extends SimpleTablePageWithDetail<Customer> {
+public class CustomerTablePage extends TableDetailPage<Customer> {
 
 	public CustomerTablePage() {
 		super(CustomerSearchPage.FIELDS);
@@ -21,7 +21,7 @@ public class CustomerTablePage extends SimpleTablePageWithDetail<Customer> {
 	}
 
 	@Override
-	protected ObjectPage<Customer> createDetailPage(Customer customer) {
+	protected ObjectPage<Customer> getDetailPage(Customer customer) {
 		return new CustomerPage(customer);
 	}
 

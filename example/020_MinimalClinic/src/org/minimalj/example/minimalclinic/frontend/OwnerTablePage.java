@@ -4,12 +4,13 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.example.minimalclinic.model.Owner;
-import org.minimalj.frontend.page.TablePage;
+import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.repository.query.By;
 
-public class OwnerTablePage extends TablePage.TablePageWithDetail<Owner, OwnerPage> {
+public class OwnerTablePage extends TableDetailPage<Owner> {
 
 	private static final Object[] keys = {Owner.$.person.getName(), Owner.$.address, Owner.$.city};
+	private OwnerPage page;
 	
 	public OwnerTablePage() {
 		super(keys);
@@ -21,13 +22,12 @@ public class OwnerTablePage extends TablePage.TablePageWithDetail<Owner, OwnerPa
 	}
 
 	@Override
-	protected OwnerPage createDetailPage(Owner owner) {
-		return new OwnerPage(owner);
-	}
-
-	@Override
-	protected OwnerPage updateDetailPage(OwnerPage page, Owner owner) {
-		page.setObject(owner);
+	protected OwnerPage getDetailPage(Owner owner) {
+		if (page == null) {
+			page = new OwnerPage(owner);
+		} else {
+			page.setObject(owner);
+		}
 		return page;
 	}
 }
