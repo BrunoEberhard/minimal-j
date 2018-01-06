@@ -17,6 +17,7 @@ import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
+import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
@@ -275,11 +276,11 @@ public class Vaadin extends UI implements PageManager {
 	private void show(Page page, Boolean replaceState) {
 		String pageId = pageStore.put(page);
 		components.clear();
-		Component component = (Component) page.getContent();
+		Component component = (Component) PageAccess.getContent(page);
 		component.setId(pageId);
 		components.add(component);
 		
-		String route = page.getRoute();
+		String route = PageAccess.getRoute(page);
 		if (!Page.validateRoute(route)) {
 			route = "/";
 		}
@@ -301,7 +302,7 @@ public class Vaadin extends UI implements PageManager {
 		}
 
 		String detailId = pageStore.put(detail);
-		Component component = (Component) detail.getContent();
+		Component component = (Component) PageAccess.getContent(detail);
 		component.setId(detailId);
 		components.add(component);
 
@@ -343,7 +344,7 @@ public class Vaadin extends UI implements PageManager {
 				content = new Panel(content);
 			}
 			content.setSizeFull();
-			createMenu((AbstractComponent) content, page.getActions());
+			createMenu((AbstractComponent) content, PageAccess.getActions(page));
 			
 			VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
 			decoratedContent.setSizeFull();
@@ -357,7 +358,7 @@ public class Vaadin extends UI implements PageManager {
 			for (Component content : components) {
 				String pageId = content.getId();
 				Page page = pageStore.get(pageId);
-				createMenu((AbstractComponent) content, page.getActions());
+				createMenu((AbstractComponent) content, PageAccess.getActions(page));
 				
 				VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
 				verticalLayout.addComponent(decoratedContent);

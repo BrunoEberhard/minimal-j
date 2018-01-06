@@ -43,6 +43,7 @@ import org.minimalj.frontend.impl.swing.toolkit.SwingProgressInternalFrame;
 import org.minimalj.frontend.impl.swing.toolkit.SwingSearchPanel;
 import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
+import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
@@ -154,7 +155,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		if (getVisiblePage() != null) {
 			previousAction.setEnabled(hasPast());
 			nextAction.setEnabled(hasFuture());
-			String route = getVisiblePage().getRoute();
+			String route = PageAccess.getRoute(getVisiblePage());
 			if (route != null) {
 				favoriteAction.setEnabled(true);
 				boolean favorite = frame.favorites.isFavorite(route);
@@ -217,8 +218,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Page page = getVisiblePage();
-			if (page != null && Page.validateRoute(page.getRoute())) {
-				frame.favorites.toggleFavorite(page.getRoute(), page.getTitle());
+			if (page != null && Page.validateRoute(PageAccess.getRoute(page))) {
+				frame.favorites.toggleFavorite(PageAccess.getRoute(page), page.getTitle());
 			}
 		}
 	}
@@ -406,17 +407,12 @@ public class SwingTab extends EditablePanel implements PageManager {
 		visiblePageAndDetailsList.add(page);
 		ActionListener closeListener = null;
 		if (visiblePageAndDetailsList.size() > 1) {
-			closeListener = new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					hideDetail(page);
-				}
-			};
+			closeListener = event -> hideDetail(page);
 		}
 	
-		JComponent content = (JComponent) page.getContent();
+		JComponent content = (JComponent) PageAccess.getContent(page);
 		if (content != null) {
-			JPopupMenu menu = createMenu(page.getActions());
+			JPopupMenu menu = createMenu(PageAccess.getActions(page));
 			content.setComponentPopupMenu(menu);
 			setInheritMenu(content);
 		} else {

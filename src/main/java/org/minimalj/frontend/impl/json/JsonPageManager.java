@@ -16,6 +16,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
+import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageList;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.IDialog;
@@ -268,12 +269,12 @@ public class JsonPageManager implements PageManager, LoginListener {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
-		String route = page.getRoute();
+		String route = PageAccess.getRoute(page);
 		if (Page.validateRoute(route)) {
 			json.put("route", route.endsWith("/") ? route : route + "/");
 		}
 
-		JsonComponent content = (JsonComponent) page.getContent();
+		JsonComponent content = (JsonComponent) PageAccess.getContent(page);
 		register(content);
 		json.put("content", content);
 
@@ -322,7 +323,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	}
 
 	private List<Object> createActionMenu(Page page) {
-		List<Action> actions = page.getActions();
+		List<Action> actions = PageAccess.getActions(page);
 		if (actions != null && actions.size() > 0) {
 			return createActions(actions);
 		}

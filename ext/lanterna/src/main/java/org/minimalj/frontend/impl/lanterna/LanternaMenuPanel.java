@@ -7,6 +7,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaFrontend;
+import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.util.resources.Resources;
 
@@ -56,8 +57,8 @@ public class LanternaMenuPanel extends Panel {
 
 		createMenu("application", Application.getInstance().getNavigation());
 
-		if (page != null && page.getActions() != null) {
-			createMenu("page", page.getActions());
+		if (page != null && PageAccess.getActions(page) != null) {
+			createMenu("page", PageAccess.getActions(page));
 		}
 		if (focus) {
 			Button button = (Button) bar.getChildren().iterator().next();
