@@ -16,6 +16,12 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+			</extension>
+		</extensions>			
 	</build>
 
 	<dependencies>
@@ -32,4 +38,11 @@
 		</dependency>		
 	</dependencies>
 	
+	<distributionManagement>
+		<repository>
+			<id>openech-repository</id>
+			<url>ftp://ftp.openech.ch/public_html/repository</url>
+		</repository>
+	</distributionManagement>
+		
 </project>
