@@ -98,7 +98,7 @@ public class RestHTTPD extends NanoHTTPD {
 			            return r;
 					}
 					return newChunkedResponse(Status.OK, "text/html",
-							getClass().getResourceAsStream(uriString + "/index.html"));
+							getClass().getResourceAsStream(uriString + "index.html"));
 				} else if (StringUtils.equals("swagger.json", pathElements[1])) {
 					return newFixedLengthResponse(Status.OK, "text/json",
 							new OpenAPIFactory().create(Application.getInstance()));
