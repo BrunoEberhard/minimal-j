@@ -25,6 +25,7 @@ import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.SearchCriteria;
+import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
 
 public class EntityJsonWriter {
@@ -92,6 +93,8 @@ public class EntityJsonWriter {
 						}
 					}
 					values.put(propertyName, list);
+				} else if (value instanceof Type) {
+					values.put(propertyName, ((Type) value).name().toLowerCase());
 				} else if (value instanceof Enum) {
 					values.put(propertyName, ((Enum<?>) value).name());
 				} else if (value != null) {

@@ -111,7 +111,7 @@ public class RestBackend extends Backend {
 					if (connection.getResponseCode() == Status.INTERNAL_ERROR.getRequestStatus()) {
 						throw new RuntimeException(connection.getResponseMessage());
 					} else {
-						throw new RuntimeException("Could not execute " + transaction);
+						throw new RuntimeException("Could not execute " + transaction, e);
 					}
 				}
 			}
