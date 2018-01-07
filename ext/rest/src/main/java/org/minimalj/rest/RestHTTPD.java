@@ -167,7 +167,7 @@ public class RestHTTPD extends NanoHTTPD {
 				return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
 			}
 	
-			if (pathElements.length == 1 && StringUtils.equals("java-transaction", pathElements[0])) {
+			if (pathElements.length >= 1 && StringUtils.equals("java-transaction", pathElements[0])) {
 				return transaction(headers, inputFileName);
 			} else if (clazz != null && pathElements.length == 2) {
 				String id = pathElements[1];
