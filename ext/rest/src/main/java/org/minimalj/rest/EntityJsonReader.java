@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.minimalj.frontend.impl.json.JsonReader;
+import org.minimalj.model.Code;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
@@ -81,12 +83,14 @@ public class EntityJsonReader {
 				convertEnumSet(set, (Class<? extends Enum>) GenericUtils.getGenericClass(property.getType()), (List)value);
 			} else if (value instanceof String) {
 				String string = (String) value;
-				if ("version".equals(property.getName())) {
-					value = Integer.parseInt(string);
-				} else if (!"id".equals(property.getName()) || property.getClazz() != Object.class) {
+				if (!"id".equals(property.getName()) || property.getClazz() != Object.class) {
 					Class<?> propertyClazz = property.getClazz();
 					if (propertyClazz != String.class) {
-						value = FieldUtils.parse(string, propertyClazz);
+						if (Code.class.isAssignableFrom(propertyClazz)) {
+							value = Codes.findCode((Class) propertyClazz, value);
+						} else {
+							value = FieldUtils.parse(string, propertyClazz);
+						}
 					}
 				}
 				property.setValue(entity, value);
@@ -99,7 +103,8 @@ public class EntityJsonReader {
 					property.setValue(entity, ((BigDecimal) value).intValue());
 				}
 			} else if (value instanceof Long) {
-				if (property.getClazz() == Integer.class) {
+				// Integer.Type for version
+				if (property.getClazz() == Integer.class || property.getClazz() == Integer.TYPE) {
 					property.setValue(entity, ((Long) value).intValue());
 				} else if (property.getClazz() == Long.class) {
 					property.setValue(entity, value);
