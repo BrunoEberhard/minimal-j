@@ -1,6 +1,7 @@
 package org.minimalj.rest;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,20 @@ public class EntityJsonReader {
 		Map<String, Object> values = (Map<String, Object>) JsonReader.read(inputStream);
 		return convert(clazz, values);
 	}
-
+	
+	public static <T> T read(T entity, String input) {
+		if (StringUtils.isEmpty(input)) {
+			return entity;
+		}
+		Map<String, Object> values = (Map<String, Object>) JsonReader.read(input);
+		return convert(entity, values);
+	}
+	
+	public static <T> T read(T entity, InputStream inputStream) {
+		Map<String, Object> values = (Map<String, Object>) JsonReader.read(inputStream);
+		return convert(entity, values);
+	}
+	
 	private static <T> List<T> convertList(Class<T> clazz, List list) {
 		List convertedList = new ArrayList<>();
 		for (Object item : list) {
@@ -47,8 +61,11 @@ public class EntityJsonReader {
 
 	private static <T> T convert(Class<T> clazz, Map<String, Object> values) {
 		T entity = CloneHelper.newInstance(clazz);
-
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(clazz);
+		return convert(entity, values);
+	}
+	
+	private static <T> T convert(T entity, Map<String, Object> values) {
+		Map<String, PropertyInterface> properties = FlatProperties.getProperties(entity.getClass());
 		for (Map.Entry<String, Object> entry : values.entrySet()) {
 			PropertyInterface property = properties.get(entry.getKey());
 			if (property == null) {
@@ -73,6 +90,22 @@ public class EntityJsonReader {
 					}
 				}
 				property.setValue(entity, value);
+			} else if (value instanceof BigDecimal) {
+				if (property.getClazz() == BigDecimal.class) {
+					property.setValue(entity, value);
+				} else if (property.getClazz() == Long.class) {
+					property.setValue(entity, ((BigDecimal) value).longValue());
+				} else if (property.getClazz() == Integer.class) {
+					property.setValue(entity, ((BigDecimal) value).intValue());
+				}
+			} else if (value instanceof Long) {
+				if (property.getClazz() == Integer.class) {
+					property.setValue(entity, ((Long) value).intValue());
+				} else if (property.getClazz() == Long.class) {
+					property.setValue(entity, value);
+				} else if (property.getClazz() == BigDecimal.class) {
+					property.setValue(entity, BigDecimal.valueOf((Long) value));
+				}   		
 			} else if (value instanceof Boolean) {
 				property.setValue(entity, value);
 			} else if (value instanceof Map) {
