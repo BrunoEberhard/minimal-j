@@ -138,7 +138,12 @@ public class RestHTTPD extends NanoHTTPD {
 				// GET entity/id (get one)
 				String id = pathElements[1];
 				Object object = Backend.read(clazz, id);
-				return newFixedLengthResponse(Status.OK, "text/json", EntityJsonWriter.write(object));
+				if (object != null) {
+					return newFixedLengthResponse(Status.OK, "text/json", EntityJsonWriter.write(object));
+				} else {
+					return newFixedLengthResponse(Status.NOT_FOUND, "text/plain",
+							clazz.getSimpleName() + " with id " + id + " not found");
+				}
 			}
 		} else if (method == Method.POST) {
 			if (clazz != null) {

@@ -152,6 +152,12 @@ public class OpenAPIFactory {
 		}
 		
 		operation.responses.put("200", response);
+		
+		response = new Response();
+		response.description = "Not found";
+		
+		operation.responses.put("404", response);
+		
 		return operation;
 	}
 
