@@ -1,7 +1,7 @@
 package org.minimalj.frontend.page;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,25 +11,33 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.editor.Editor;
-import org.minimalj.util.CloneHelper;
+import org.minimalj.util.ClassHolder;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Shows a table of objects of one class. 
+ * A page containing a table of objects of class T. There are some
+ * specializations for this class:
+ * <UL>
+ * <LI>TableDetailPage: An object in the table can have a page where the details
+ * for the object is show</LI>
+ * <LI>TableEditorPage: An object in the table can be edited (or created or
+ * deleted)
+ * </UL>
  *
- * @param <T> Class of objects in this overview
+ * @param <T>
+ *            Class of objects in this TablePage. Must be specified.
  */
 public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
-	private final boolean multiSelect;
-	private final Object[] keys;
+	private transient boolean multiSelect;
+	private transient Object[] columns;
+	final ClassHolder<T> clazz;
 	private transient ITable<T> table;
 	private transient List<T> objects;
-	private transient List<TableSelectionAction> actions;
-	private transient List<T> selectedObjects;
+	private transient List<Action> actions;
+	protected final Object[] nameArguments;
 	
 	/*
 	 * this flag indicates if the next call of getContent should trigger a new loading
@@ -37,20 +45,26 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	 * the page and doesn't want to see the old data. 
 	 */
 	private transient boolean reloadFlag;
-	
-	public TablePage(Object[] keys) {
+
+	@SuppressWarnings("unchecked")
+	public TablePage() {
 		this.multiSelect = allowMultiselect();
-		this.keys = keys;
+
+		this.clazz = new ClassHolder<T>((Class<T>) GenericUtils.getGenericClass(getClass()));
+		this.nameArguments = new Object[] { Resources.getString(Resources.getResourceName(clazz.getClazz())) };
+	}
+	
+	public TablePage(Object[] columns) {
+		this();
+		this.columns = columns;
 	}
 
-	/**
-	 * To create a table with multiselection override this method an return true.
-	 * This method is called once at construction time of the TablePage and must
-	 * be constant for a class. It must not depend on the displayed values.
-	 * @return true if table should allow multi selection
-	 */
 	protected boolean allowMultiselect() {
 		return false;
+	}
+	
+	protected Object[] getColumns() {
+		return columns;
 	}
 	
 	protected abstract List<T> load();
@@ -61,27 +75,42 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		if (title != null) {
 			return title;
 		} else {
-			Class<?> tableClazz = GenericUtils.getGenericClass(getClass());
-			String className = Resources.getString(tableClazz);
+			String className = Resources.getString(clazz.getClazz());
 			return MessageFormat.format(Resources.getString(TablePage.class.getSimpleName() + ".title"), className);
 		}
 	}
 	
+	private ITable<T> createTable() {
+		columns = getColumns();
+		multiSelect = allowMultiselect();
+		return Frontend.getInstance().createTable(columns, multiSelect, this);
+	}
+	
 	@Override
 	public IContent getContent() {
-		table = Frontend.getInstance().createTable(keys, multiSelect, this);
+		if (table == null || multiSelect != allowMultiselect() || !Arrays.equals(columns, getColumns())) {
+			table = createTable();
+		}
 		if (objects == null || reloadFlag) {
 			objects = load();
 			reloadFlag = true;
 		}
 		table.setObjects(objects);
-		// for hidden/reshown detail it can happen that getContent is called
-		// for a second time. Then the selection has to be cleared not to keep the old selection
-		// (or table could be reused but than every Frontend has to take care about selection state)
-		selectedObjects = null;
 		return table;
 	}
 	
+	@Override
+	public final List<Action> getActions() {
+		if (actions == null) {
+			actions = getTableActions();
+		}
+		return actions;
+	}
+
+	public List<Action> getTableActions() {
+		return Collections.emptyList();
+	}
+		
 	public void refresh() {
 		if (table != null) {
 			objects = load();
@@ -89,148 +118,56 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			reloadFlag = false;
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public void selectionChanged(List<T> selectedObjects) {
-		this.selectedObjects = selectedObjects;
 		if (actions != null) {
-			actions.stream().forEach(action -> action.selectionChanged(selectedObjects));
-		}
-	}
-	
-	public abstract class NewDetailEditor<DETAIL> extends Editor<DETAIL, T> {
-		
-		@Override
-		protected DETAIL createObject() {
-			@SuppressWarnings("unchecked")
-			Class<DETAIL> clazz = (Class<DETAIL>) GenericUtils.getGenericClass(getClass());
-			DETAIL newInstance = CloneHelper.newInstance(clazz);
-			return newInstance;
-		}
-		
-		@Override
-		protected void finished(T result) {
-			TablePage.this.refresh();
-			if (TablePage.this instanceof TablePageWithDetail) {
-				// after closing the editor the user expects the new object
-				// to be displayed as the detail. This call provides that (opens the detail)
-				TablePage.this.action(result);
+			for (Action action : actions) {
+				if (action instanceof TableSelectionAction) {
+					((TableSelectionAction<T>) action).selectionChanged(selectedObjects);
+				}
 			}
 		}
 	}
 	
-	public abstract class TableSelectionAction extends Action {
-		
-		protected TableSelectionAction() {
-			if (actions == null) {
-				actions = new ArrayList<>();
-			}
-			actions.add(this);
-		}
+	//
+
+	public interface TableSelectionAction<T> {
 		
 		public abstract void selectionChanged(List<T> selectedObjects);
 	}
 	
-	public class DeleteDetailAction extends TableSelectionAction {
+	protected void delete(List<T> selectedObjects) {
+		for (T object : selectedObjects) {
+			Backend.delete(object.getClass(), IdUtils.getId(object));
+		}
+	}
 
+	public class DeleteDetailAction extends Action implements TableSelectionAction<T> {
+		private transient List<T> selectedObjects;
+		
 		public DeleteDetailAction() {
-			selectionChanged(selectedObjects);
+			selectionChanged(null);
 		}
 		
 		@Override
 		protected Object[] getNameArguments() {
-			Class<?> clazz = GenericUtils.getGenericClass(TablePage.this.getClass());
-			if (clazz != null) {
-				String resourceName = Resources.getResourceName(clazz);
-				return new Object[] { Resources.getString(resourceName) };
-			} else {
-				return null;
-			}
+			return nameArguments;
 		}
 		
 		@Override
 		public void action() {
-			for (T object : TablePage.this.selectedObjects) {
-				Backend.delete(object.getClass(), IdUtils.getId(object));
-			}
+			delete(selectedObjects);
+			TablePage.this.refresh();
+			TablePage.this.selectionChanged(Collections.emptyList());
 		}
 
 		@Override
 		public void selectionChanged(List<T> selectedObjects) {
+			this.selectedObjects = selectedObjects;
 			setEnabled(selectedObjects != null && !selectedObjects.isEmpty());
 		}
 	}	
-	
-	public static abstract class TablePageWithDetail<T, DETAIL_PAGE extends Page> extends TablePage<T> {
-		
-		private DETAIL_PAGE detailPage;
-
-		public TablePageWithDetail(Object[] keys) {
-			super(keys);
-		}
-
-		protected abstract DETAIL_PAGE createDetailPage(T mainObject);
-
-		protected abstract DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, T mainObject);
-
-		protected DETAIL_PAGE updateDetailPage(DETAIL_PAGE page, List<T> selectedObjects) {
-			if (selectedObjects == null || selectedObjects.size() != 1) {
-				return null;
-			} else {
-				return updateDetailPage(page, selectedObjects.get(0));
-			}
-		}
-		
-		@Override
-		public void action(T selectedObject) {
-			if (detailPage != null) {
-				updateDetailPage(Collections.singletonList(selectedObject));
-			} else {
-				detailPage = createDetailPage(selectedObject);
-				if (detailPage != null) {
-					Frontend.showDetail(TablePageWithDetail.this, detailPage);
-				}
-			}
-		}
-
-		@Override
-		public void selectionChanged(List<T> selectedObjects) {
-			super.selectionChanged(selectedObjects);
-			boolean detailVisible = detailPage != null && Frontend.isDetailShown(detailPage); 
-			if (detailVisible) {
-				if (selectedObjects != null && !selectedObjects.isEmpty()) {
-					updateDetailPage(selectedObjects);
-				} else {
-					Frontend.hideDetail(detailPage);
-				}
-			}
-		}
-		
-		private void updateDetailPage(List<T> selectedObjects) {
-			DETAIL_PAGE updatedDetailPage = updateDetailPage(detailPage, selectedObjects);
-			if (Frontend.isDetailShown(detailPage)) {
-				if (updatedDetailPage == null || updatedDetailPage != detailPage) {
-					Frontend.hideDetail(detailPage);
-				}
-			}
-			if (updatedDetailPage != null) {
-				Frontend.showDetail(TablePageWithDetail.this, updatedDetailPage);
-				detailPage = updatedDetailPage;
-			}
-		}
-	}
-	
-	public static abstract class SimpleTablePageWithDetail<T> extends TablePageWithDetail<T, ObjectPage<T>> {
-
-		public SimpleTablePageWithDetail(Object[] keys) {
-			super(keys);
-		}
-		
-		@Override
-		protected ObjectPage<T> updateDetailPage(ObjectPage<T> detailPage, T mainObject) {
-			detailPage.setObject(mainObject);
-			return detailPage;
-		}
-	}
 	
 }

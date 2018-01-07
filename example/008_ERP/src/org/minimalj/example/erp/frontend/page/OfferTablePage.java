@@ -8,10 +8,10 @@ import org.minimalj.backend.Backend;
 import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
 import org.minimalj.frontend.page.ObjectPage;
-import org.minimalj.frontend.page.TablePage.SimpleTablePageWithDetail;
+import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.repository.query.By;
 
-public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
+public class OfferTablePage extends TableDetailPage<Offer> {
 
 	private Customer customer;
 	
@@ -50,7 +50,7 @@ public class OfferTablePage extends SimpleTablePageWithDetail<Offer> {
 	}
 
 	@Override
-	protected ObjectPage<Offer> createDetailPage(Offer offer) {
+	protected ObjectPage<Offer> getDetailPage(Offer offer) {
 		return new OfferPage(offer);
 	}
 	

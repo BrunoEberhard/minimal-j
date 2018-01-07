@@ -16,7 +16,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 
 	private final NumberFormat format;
 	
-	public BigDecimalFormElement(Object key, boolean editable) {
+	public BigDecimalFormElement(BigDecimal key, boolean editable) {
 		this(Keys.getProperty(key), editable);
 	}
 	

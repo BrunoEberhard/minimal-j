@@ -111,7 +111,7 @@ public class RestBackend extends Backend {
 					if (connection.getResponseCode() == Status.INTERNAL_ERROR.getRequestStatus()) {
 						throw new RuntimeException(connection.getResponseMessage());
 					} else {
-						throw new RuntimeException("Could not execute " + transaction);
+						throw new RuntimeException("Could not execute " + transaction, e);
 					}
 				}
 			}
@@ -168,9 +168,10 @@ public class RestBackend extends Backend {
 				connection.connect();
 				if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 					try (InputStream inputStream = connection.getInputStream()) {
-						EntityJsonReader read = new EntityJsonReader();
-						return (T) read.read(clazz, inputStream);
+						return (T) EntityJsonReader.read(clazz, inputStream);
 					}
+				} else if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+					return null;
 				} else {
 					// throw new RuntimeException(errorMessage);
 				}

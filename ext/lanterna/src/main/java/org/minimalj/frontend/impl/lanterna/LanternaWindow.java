@@ -6,6 +6,7 @@ import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaSwitchContent;
 import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
+import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.page.Page;
 
 import com.googlecode.lanterna.gui2.BasicWindow;
@@ -57,7 +58,7 @@ public class LanternaWindow extends BasicWindow {
 		}
 
 		private void show(Page page) {
-			Component pageContent = (Component) page.getContent();
+			Component pageContent = (Component) PageAccess.getContent(page);
 			switchLayout.show(pageContent);
 			focusFirstInteractable(LanternaWindow.this.getComponent());
 			focusFirstInteractable(pageContent);

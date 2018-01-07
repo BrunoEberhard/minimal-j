@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,9 +35,12 @@ import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Materialized;
+import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
@@ -46,6 +50,7 @@ import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.list.QueryResultList;
+import org.minimalj.repository.list.SortableList;
 import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Limit;
@@ -261,7 +266,8 @@ public class SqlRepository implements TransactionalRepository {
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (query instanceof Limit || query instanceof AllCriteria) {
 			Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
-			return table.find(query, resultClass);
+			List<T> list = table.find(query, resultClass);
+			return (query instanceof AllCriteria) ? new SortableList<T>(list) : list;
 		} else {
 			return new SqlQueryResultList<>(this, resultClass, (QueryLimitable) query);
 		}
@@ -366,6 +372,16 @@ public class SqlRepository implements TransactionalRepository {
 				columns.put(fieldName, new FieldProperty(field));
 			}
 		}
+		for (Method method: clazz.getMethods()) {
+			if (!Keys.isPublic(method) || Keys.isStatic(method)) continue;
+			if (method.getAnnotation(Searched.class) == null && method.getAnnotation(Materialized.class) == null) continue;
+			String methodName = method.getName();
+			if (!methodName.startsWith("get") || methodName.length() < 4) continue;
+			String fieldName = StringUtils.lowerFirstChar(methodName.substring(3));
+			String columnName = StringUtils.toSnakeCase(fieldName).toUpperCase();
+			columnName = SqlIdentifier.buildIdentifier(columnName, getMaxIdentifierLength(), columns.keySet());
+			columns.put(columnName, new Keys.MethodProperty(method.getReturnType(), fieldName, method, null));
+		}
 		columnsForClass.put(clazz, columns);
 		return columns;
 	}	
@@ -424,6 +440,8 @@ public class SqlRepository implements TransactionalRepository {
 	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		if (clazz == Integer.class) {
 			return (R) Integer.valueOf(resultSet.getInt(1));
+		} else if (clazz == Long.class) {
+			return (R) Long.valueOf(resultSet.getLong(1));
 		} else if (clazz == BigDecimal.class) {
 			return (R) resultSet.getBigDecimal(1);
 		} else if (clazz == String.class) {
@@ -436,7 +454,7 @@ public class SqlRepository implements TransactionalRepository {
 		
 		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
 		
-		// first read the resultSet completly then resolve references
+		// first read the resultSet completely then resolve references
 		// derby db mixes closing of resultSets.
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
@@ -481,7 +499,7 @@ public class SqlRepository implements TransactionalRepository {
 		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
 			Object value = entry.getValue();
 			PropertyInterface property = entry.getKey();
-			if (value != null) {
+			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
@@ -511,6 +529,12 @@ public class SqlRepository implements TransactionalRepository {
 			}
 		}
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <R> R readResultSetRowPrimitive(Class<R> clazz, ResultSet resultSet) throws SQLException {
+		Object value = resultSet.getObject(1);
+		return (R) sqlDialect.convertToFieldClass(clazz, value);
 	}
 	
 	//

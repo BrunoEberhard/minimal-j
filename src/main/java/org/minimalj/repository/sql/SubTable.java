@@ -18,11 +18,13 @@ import org.minimalj.util.LoggingRuntimeException;
 public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
 	protected final PropertyInterface parentIdProperty;
+	private final boolean hasId;
 	
 	public SubTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
 		super(sqlRepository, name, clazz);
 		
 		this.parentIdProperty = parentIdProperty;
+		this.hasId = IdUtils.hasId(clazz);
 	}
 	
 	@Override
@@ -30,7 +32,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
-				int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, IdUtils.getId(parent));
+				int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, IdUtils.getId(parent));
 				insertStatement.setInt(parameterPos++, position);
 				insertStatement.execute();
 			}
@@ -48,7 +50,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 			while (position < Math.max(objects.size(), objectsInDb.size())) {
 				if (position < objects.size()) {
 					ELEMENT object = objects.get(position);
-					if (IdUtils.hasId(object.getClass()) && IdUtils.getId(object) == null) {
+					if (hasId && IdUtils.getId(object) == null) {
 						sqlRepository.insert(object);
 					}
 					if (position < objectsInDb.size()) {
@@ -70,7 +72,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	
 	protected void update(Object parentId, int position, ELEMENT object) throws SQLException {
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
-			int parameterPos = setParameters(updateStatement, object, false, ParameterMode.UPDATE, parentId);
+			int parameterPos = setParameters(updateStatement, object, ParameterMode.UPDATE, parentId);
 			updateStatement.setInt(parameterPos++, position);
 			updateStatement.execute();
 		}
@@ -78,7 +80,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 
 	protected void insert(Object parentId, int position, ELEMENT object) throws SQLException {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
-			int parameterPos = setParameters(insertStatement, object, false, ParameterMode.INSERT, parentId);
+			int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos++, position);
 			insertStatement.execute();
 		}

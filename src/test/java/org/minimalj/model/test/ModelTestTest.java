@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.View;
+import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Size;
 
 /**
@@ -30,6 +31,35 @@ public class ModelTestTest {
 		public Object id;
 
 		public String a;
+	}
+
+	@Test public void 
+	should_test_not_accept_materialized_string_method_without_size() {
+		ModelTest modelTest = new ModelTest(TestClass1b.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass1b {
+		public Object id;
+
+		@Materialized
+		public String getA() {
+			return "";
+		}
+	}
+
+	@Test public void 
+	should_test_accept_not_materialized_string_method_without_size() {
+		ModelTest modelTest = new ModelTest(TestClass1c.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static class TestClass1c {
+		public Object id;
+
+		public String getA() {
+			return "";
+		}
 	}
 
 	//

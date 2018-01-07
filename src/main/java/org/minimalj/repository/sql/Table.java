@@ -91,6 +91,15 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	@Override
+	public void clear() {
+		for (Object object : lists.values()) {
+			AbstractTable subTable = (AbstractTable) object;
+			subTable.clear();
+		}
+		super.clear();
+	}
+	
 	protected Object createId() {
 		return UUID.randomUUID().toString();
 	}
@@ -107,7 +116,7 @@ public class Table<T> extends AbstractTable<T> {
 			} else {
 				id = createId();
 			}
-			setParameters(insertStatement, object, false, ParameterMode.INSERT, id);
+			setParameters(insertStatement, object, ParameterMode.INSERT, id);
 			insertStatement.execute();
 			insertLists(object);
 			if (object instanceof Code) {
@@ -166,7 +175,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	void updateWithId(T object, Object id) {
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
-			int parameterIndex = setParameters(updateStatement, object, false, ParameterMode.UPDATE, id);
+			int parameterIndex = setParameters(updateStatement, object, ParameterMode.UPDATE, id);
 			if (optimisticLocking) {
 				updateStatement.setInt(parameterIndex, IdUtils.getVersion(object));
 				updateStatement.execute();

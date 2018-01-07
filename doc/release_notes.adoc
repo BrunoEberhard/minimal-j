@@ -2,6 +2,12 @@
 
 Every release contains many small fixes.
 
+=== 1.13.0.0
+* Sorting for completely loaded tables
+* SimpleTablePageWithDetail more helper methods
+* HtmlFrontend: more dynamic layout
+* Materialized getters (@Materialized)
+
 === 1.12.0.0
 * Codes: clear cache when write a code
 * Upgrade to Lanterna 3

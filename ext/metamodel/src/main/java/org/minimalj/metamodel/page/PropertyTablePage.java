@@ -3,18 +3,19 @@ package org.minimalj.metamodel.page;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.util.resources.Resources;
 
-public class PropertyTablePage extends TablePage.TablePageWithDetail<MjProperty, TablePage<?>> {
+public class PropertyTablePage extends TableDetailPage<MjProperty> {
 
 	private final MjEntity entity;
 	
 	public PropertyTablePage(MjEntity entity) {
-		super(new Object[]{MjProperty.$.name, MjProperty.$.getFormattedType(), MjProperty.$.size, MjProperty.$.notEmpty, MjProperty.$.searched});
+		super(new Object[]{MjProperty.$.name, MjProperty.$.getFormattedType(), MjProperty.$.notEmpty, MjProperty.$.searched, MjProperty.$.materialized});
 		this.entity = entity;
 	}
 	
@@ -29,7 +30,7 @@ public class PropertyTablePage extends TablePage.TablePageWithDetail<MjProperty,
 	}
 
 	@Override
-	protected TablePage<?> createDetailPage(MjProperty property) {
+	protected TablePage<?> getDetailPage(MjProperty property) {
 		if (property.propertyType.isPrimitive()) {
 			return null;
 		}
@@ -39,11 +40,6 @@ public class PropertyTablePage extends TablePage.TablePageWithDetail<MjProperty,
 			MjEntity entity = property.getModel().getEntity(property.type.getClazz());
 			return new PropertyTablePage(entity);
 		}
-	}
-
-	@Override
-	protected TablePage<?> updateDetailPage(TablePage<?> page, MjProperty property) {
-		return createDetailPage(property);
 	}
 
 }

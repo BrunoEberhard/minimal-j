@@ -2,6 +2,7 @@ package org.minimalj.model.test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -17,9 +18,12 @@ import java.util.logging.Logger;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.EnumUtils;
+import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Materialized;
+import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
@@ -124,6 +128,7 @@ public class ModelTest {
 			testHistorized(clazz);
 			testConstructor(clazz);
 			testFields(clazz);
+			testMethods(clazz);
 			testSelfReferences(clazz);
 			if (!IdUtils.hasId(clazz)) {
 				testNoListFields(clazz);
@@ -294,6 +299,27 @@ public class ModelTest {
 					problems.add("List in " + clazz.getName()  + ": not allowed. Only classes with id (or inlines of classes with id) may contain lists");
 				} else if (FieldUtils.isFinal(field) && !FieldUtils.isAllowedPrimitive(fieldType)) {
 					testNoListFields(fieldType);
+				}
+			}
+		}
+	}
+	
+	private void testMethods(Class<?> clazz) {
+		Method[] methods = clazz.getMethods();
+		for (Method method : methods) {
+			testMethod(method);
+		}
+	}
+
+	private void testMethod(Method method) {
+		if (Keys.isPublic(method) && !Keys.isStatic(method) && method.getName().startsWith("get")) {
+			if (method.getReturnType() == String.class && (method.getAnnotation(Materialized.class) != null || method.getAnnotation(Searched.class) != null)) {
+				String propertyName = StringUtils.lowerFirstChar(method.getName().substring(3));
+				PropertyInterface property = new Keys.MethodProperty(method.getReturnType(), propertyName, method, null);
+				try {
+					AnnotationUtil.getSize(property);
+				} catch (IllegalArgumentException x) {
+					problems.add("Missing size for materialized getter: " + method.getDeclaringClass().getName() + "." + method.getName());
 				}
 			}
 		}

@@ -1,15 +1,18 @@
 package org.minimalj.rest;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.minimalj.frontend.impl.json.JsonReader;
+import org.minimalj.model.Code;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
@@ -29,7 +32,20 @@ public class EntityJsonReader {
 		Map<String, Object> values = (Map<String, Object>) JsonReader.read(inputStream);
 		return convert(clazz, values);
 	}
-
+	
+	public static <T> T read(T entity, String input) {
+		if (StringUtils.isEmpty(input)) {
+			return entity;
+		}
+		Map<String, Object> values = (Map<String, Object>) JsonReader.read(input);
+		return convert(entity, values);
+	}
+	
+	public static <T> T read(T entity, InputStream inputStream) {
+		Map<String, Object> values = (Map<String, Object>) JsonReader.read(inputStream);
+		return convert(entity, values);
+	}
+	
 	private static <T> List<T> convertList(Class<T> clazz, List list) {
 		List convertedList = new ArrayList<>();
 		for (Object item : list) {
@@ -47,8 +63,11 @@ public class EntityJsonReader {
 
 	private static <T> T convert(Class<T> clazz, Map<String, Object> values) {
 		T entity = CloneHelper.newInstance(clazz);
-
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(clazz);
+		return convert(entity, values);
+	}
+	
+	private static <T> T convert(T entity, Map<String, Object> values) {
+		Map<String, PropertyInterface> properties = FlatProperties.getProperties(entity.getClass());
 		for (Map.Entry<String, Object> entry : values.entrySet()) {
 			PropertyInterface property = properties.get(entry.getKey());
 			if (property == null) {
@@ -64,15 +83,34 @@ public class EntityJsonReader {
 				convertEnumSet(set, (Class<? extends Enum>) GenericUtils.getGenericClass(property.getType()), (List)value);
 			} else if (value instanceof String) {
 				String string = (String) value;
-				if ("version".equals(property.getName())) {
-					value = Integer.parseInt(string);
-				} else if (!"id".equals(property.getName()) || property.getClazz() != Object.class) {
+				if (!"id".equals(property.getName()) || property.getClazz() != Object.class) {
 					Class<?> propertyClazz = property.getClazz();
 					if (propertyClazz != String.class) {
-						value = FieldUtils.parse(string, propertyClazz);
+						if (Code.class.isAssignableFrom(propertyClazz)) {
+							value = Codes.findCode((Class) propertyClazz, value);
+						} else {
+							value = FieldUtils.parse(string, propertyClazz);
+						}
 					}
 				}
 				property.setValue(entity, value);
+			} else if (value instanceof Double) {
+				if (property.getClazz() == BigDecimal.class) {
+					property.setValue(entity, BigDecimal.valueOf((Double) value));
+				} else if (property.getClazz() == Long.class) {
+					property.setValue(entity, ((Double) value).longValue());
+				} else if (property.getClazz() == Integer.class) {
+					property.setValue(entity, ((Double) value).intValue());
+				}
+			} else if (value instanceof Long) {
+				// Integer.Type for version
+				if (property.getClazz() == Integer.class || property.getClazz() == Integer.TYPE) {
+					property.setValue(entity, ((Long) value).intValue());
+				} else if (property.getClazz() == Long.class) {
+					property.setValue(entity, value);
+				} else if (property.getClazz() == BigDecimal.class) {
+					property.setValue(entity, BigDecimal.valueOf((Long) value));
+				}   		
 			} else if (value instanceof Boolean) {
 				property.setValue(entity, value);
 			} else if (value instanceof Map) {

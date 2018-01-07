@@ -1,9 +1,8 @@
 package org.minimalj.frontend.impl.vaadin;
 
 import java.net.URI;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +17,7 @@ import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
+import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
@@ -65,7 +65,7 @@ public class Vaadin extends UI implements PageManager {
 	private static final long serialVersionUID = 1L;
 
 	private final PageStore pageStore = new PageStore();
-	private Map<String, String> state; // position -> page id
+	private final List<Component> components = new ArrayList<>();
 
 	private HorizontalSplitPanel splitPanel;
 	
@@ -257,7 +257,7 @@ public class Vaadin extends UI implements PageManager {
 	}
 	
 	protected void updateWindowTitle() {
-		Page visiblePage = getPageAtLevel(0);
+		Page visiblePage = !components.isEmpty() ? pageStore.get(components.get(0).getId()) : null;
 		String title = Application.getInstance().getName();
 		if (visiblePage != null) {
 			String pageTitle = visiblePage.getTitle();
@@ -275,9 +275,12 @@ public class Vaadin extends UI implements PageManager {
 	
 	private void show(Page page, Boolean replaceState) {
 		String pageId = pageStore.put(page);
-		state = new HashMap<>();
-		state.put("0", pageId);
-		String route = page.getRoute();
+		components.clear();
+		Component component = (Component) PageAccess.getContent(page);
+		component.setId(pageId);
+		components.add(component);
+		
+		String route = PageAccess.getRoute(page);
 		if (!Page.validateRoute(route)) {
 			route = "/";
 		}
@@ -294,12 +297,14 @@ public class Vaadin extends UI implements PageManager {
 	@Override
 	public void showDetail(Page mainPage, Page detail) {
 		int pos = indexOfDetail(mainPage);
-		for (int j = state.size()-1; j>pos; j--) {
-			state.remove(String.valueOf(j));
+		for (int j = components.size()-1; j>pos; j--) {
+			components.remove(j);
 		}
 
 		String detailId = pageStore.put(detail);
-		state.put(String.valueOf(state.size()), detailId);
+		Component component = (Component) PageAccess.getContent(detail);
+		component.setId(detailId);
+		components.add(component);
 
 		updateContent();
 	}
@@ -307,8 +312,8 @@ public class Vaadin extends UI implements PageManager {
 	@Override
 	public void hideDetail(Page detail) {
 		int pos = indexOfDetail(detail);
-		for (int j = state.size()-1; j>=pos; j--) {
-			state.remove(String.valueOf(j));
+		for (int j = components.size()-1; j>=pos; j--) {
+			components.remove(j);
 		}
 		
 		updateContent();
@@ -320,8 +325,8 @@ public class Vaadin extends UI implements PageManager {
 	}
 
 	private int indexOfDetail(Page detail) {
-		for (int pos = 0; pos < state.size(); pos++) {
-			String id = state.get(String.valueOf(pos)); 
+		for (int pos = 0; pos < components.size(); pos++) {
+			String id = components.get(pos).getId(); 
 			Page d = pageStore.get(id);
 			if (d == detail) {
 				return pos;
@@ -331,39 +336,35 @@ public class Vaadin extends UI implements PageManager {
 	}
 	
 	private void updateContent() {
-		if (state.size() == 1) {
-			String pageId = state.get(String.valueOf(0));
+		if (components.size() == 1) {
+			Component content = components.get(0);
+			String pageId = content.getId();
 			Page page = pageStore.get(pageId);
-			Component content = (Component) page.getContent();
 			if (content instanceof VaadinGridFormLayout) {
 				content = new Panel(content);
 			}
 			content.setSizeFull();
-			createMenu((AbstractComponent) content, page.getActions());
+			createMenu((AbstractComponent) content, PageAccess.getActions(page));
 			
 			VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
 			decoratedContent.setSizeFull();
 			splitPanel.setSecondComponent(decoratedContent);
-		} else if (state.size() > 1) {
+		} else if (components.size() > 1) {
 			VerticalLayout verticalLayout = new VerticalLayout();
 			verticalLayout.setMargin(false);
 			verticalLayout.setSpacing(false);
 			verticalLayout.setWidth("100%");
 			
-			Component content = null;
-			for (int pos = 0; state.containsKey(String.valueOf(pos)); pos++) {
-				String pageId = state.get(String.valueOf(pos));
+			for (Component content : components) {
+				String pageId = content.getId();
 				Page page = pageStore.get(pageId);
-				content = (Component) page.getContent();
-				createMenu((AbstractComponent) content, page.getActions());
+				createMenu((AbstractComponent) content, PageAccess.getActions(page));
 				
-				if (content != null) {
-					VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
-					verticalLayout.addComponent(decoratedContent);
-				}
+				VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));
+				verticalLayout.addComponent(decoratedContent);
 			}
 			splitPanel.setSecondComponent(verticalLayout);
-			UI.getCurrent().scrollIntoView(content);
+			UI.getCurrent().scrollIntoView(components.get(components.size() - 1));
 		} else {
 			splitPanel.setSecondComponent(null);
 		}
@@ -474,11 +475,6 @@ public class Vaadin extends UI implements PageManager {
 			}
 		});
 		return item;
-	}
-	
-	private Page getPageAtLevel(int level) {
-		String pageId = state.get(String.valueOf(level));
-		return pageId != null ? pageStore.get(pageId) : null;
 	}
 	
 	@Override

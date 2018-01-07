@@ -11,7 +11,7 @@ import org.minimalj.util.mock.Mocking;
 
 public class LongFormElement extends NumberFormElement<Long> implements Mocking {
 
-	public LongFormElement(Object key, boolean editable) {
+	public LongFormElement(Long key, boolean editable) {
 		this(Keys.getProperty(key), editable);
 	}
 	

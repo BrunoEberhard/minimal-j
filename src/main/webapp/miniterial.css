@@ -1,25 +1,51 @@
 body {
-	font-family: 'Robot', sans-serif;
-	font-size: unset;
+	font-family: 'Roboto', sans-serif;
+	font-size: 15px;
 	margin: 0px;
 	height: 100%;
+	color: rgb(21, 21, 21);
 }
 
 #header {
 	border: none;
-	z-index: 2;
-	box-shadow: 1px 1px 4px gray;
+	z-index: 1;
+    box-shadow: rgba(0, 0, 0, 0.26) 0px 2px 5px;
 }
 
 #navigationHeader {
 	border: none;
+	box-shadow: rgba(0, 0, 0, 0.26) 0px 1px 3px;
 }
 
 #navigationContainer {
 	background: rgb(250, 250, 250);
 	z-index: 1;
-	box-shadow: 1px 1px 4px gray;
+	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
 	border: none;
+}
+
+.pageHeader {
+	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
+	border: none;
+}
+
+.pageButton {
+	margin-top: 0.2em;
+	width: 0.9em;
+	height: 0.9em;
+}
+
+ul {
+	padding: 0.7ex 0em .7em 0em;
+}
+
+li {
+	padding: 1em 0em 0em 1em;
+	font-weight: 700;
+}
+
+.action {
+	font-weight: 100;
 }
 
 .pageContentAndActions {
@@ -28,12 +54,6 @@ body {
 
 .page {
 	border: none;
-}
-
-.pageHeader {
-	border: none;
-	z-index: 1;
-	box-shadow: 1px 1px 4px gray;
 }
 
 .actionMenuContainer {
@@ -47,13 +67,29 @@ dialog {
 	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px
 		rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
 	border: none;
+	padding: 1.2em;
+	right: 0em;
+}
+
+.dialogContent {
+	padding: 0.8em;
+	box-sizing: border-box;
 }
 
 .dialogHeader {
-	height: 4em;
-	line-height: 4em;
 	border: none;
-	background: unset;
+	background: transparent;
+	padding: 0em;
+}
+
+@media (max-width: 991px) {
+	.dialogHeader {
+		line-height: unset;
+	}
+
+	.dialogFooter {
+		height: fit-content;
+	}
 }
 
 .dialogContent {
@@ -63,8 +99,7 @@ dialog {
 
 .dialogFooter {
 	border: none;
-	background: unset;
-	padding-right: 2em;
+	background: transparent;
 }
 
 button {
@@ -86,6 +121,14 @@ button:hover {
 	background-color: #aaaaaa;
 }
 
+label {
+	font-weight: unset;
+	color: gray;
+}
+
+
+/* TODO SELECT */
+
 .form input, .form select, .form textarea {
 	font-family: inherit;
 	box-sizing: border-box;
@@ -96,6 +139,20 @@ button:hover {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
+}
+
+/* TODO Checkbox */
+
+.form input[type="checkbox"] {
+	height: 1.2em;
+	-webkit-appearance: checkbox;
+	-moz-appearance: checkbox;
+	appearance: checkbox;
+}
+
+.form input:focus, .form select:focus, .form textarea:focus {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+	outline: none;
 }
 
 .form select:after {

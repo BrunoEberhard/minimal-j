@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>1.12.0.1</version>
+	<version>1.13.0.0</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -34,20 +34,25 @@
 			<name>Minimal-J sonytype Maven 2 repository</name>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
-		<!-- 
+		<snapshotRepository>
+			<id>openech-repository</id>
+			<url>ftp://ftp.openech.ch/public_html/repository</url>
+		</snapshotRepository>
+	<!-- 
+		<snapshotRepository>
+			<id>hispeed-repository</id>
+			<url>ftp://ftp.hispeed.ch/homepage/repository</url>
+		</snapshotRepository>		
 		<snapshotRepository>
 			<id>sonatype-nexus-staging</id>
 			<name>Minimal-J sonytype Snapshot Maven 2 repository</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
-	-->
 		<snapshotRepository>
 			<id>packagecloud-travis</id>
-			<url>
-		      https://packagecloud.io/minimalj/snapshot
-		    </url>
+			<url>https://packagecloud.io/minimalj/snapshot</url>
 		</snapshotRepository>
-  
+	-->
 	</distributionManagement>
 
 	<build>
@@ -60,6 +65,19 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+  
 			<plugin>
 				<groupId>external.atlassian.jgitflow</groupId>
 				<artifactId>jgitflow-maven-plugin</artifactId>
@@ -76,6 +94,12 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ftp</artifactId>
+			</extension>
+		</extensions>		
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

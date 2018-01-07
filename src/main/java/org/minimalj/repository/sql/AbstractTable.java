@@ -319,7 +319,7 @@ public abstract class AbstractTable<T> {
 		INSERT, UPDATE, HISTORIZE;
 	}
 	
-	protected int setParameters(PreparedStatement statement, T object, boolean doubleValues, ParameterMode mode, Object id) throws SQLException {
+	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
 		int parameterPos = 1;
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
@@ -374,10 +374,8 @@ public abstract class AbstractTable<T> {
 				}
 			}
 			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property);
-			if (doubleValues) sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property);
 		}
 		statement.setObject(parameterPos++, id);
-		if (doubleValues) statement.setObject(parameterPos++, id);
 		return parameterPos;
 	}
 

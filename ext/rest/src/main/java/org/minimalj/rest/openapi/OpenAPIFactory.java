@@ -77,8 +77,8 @@ public class OpenAPIFactory {
 				Operation operation = operationGetById(entity);
 				operations.put("get", operation);
 				
-				operation = operationPost(entity);
-				operations.put("post", operation);
+				operation = operationPut(entity);
+				operations.put("put", operation);
 
 				operation = operationDelete(entity);
 				operations.put("delete", operation);
@@ -94,8 +94,8 @@ public class OpenAPIFactory {
 					operations.put("get", operation);
 				}
 				
-				operation = operationPut(entity);
-				operations.put("put", operation);
+				operation = operationPost(entity);
+				operations.put("post", operation);
 				
 				api.paths.put("/" + entityName, operations);
 			}
@@ -152,6 +152,12 @@ public class OpenAPIFactory {
 		}
 		
 		operation.responses.put("200", response);
+		
+		response = new Response();
+		response.description = "Not found";
+		
+		operation.responses.put("404", response);
+		
 		return operation;
 	}
 
@@ -211,7 +217,7 @@ public class OpenAPIFactory {
 		return parameter;
 	}
 	
-	private Operation operationPut(MjEntity entity) {
+	private Operation operationPost(MjEntity entity) {
 		String entityName = entity.getClazz().getSimpleName();
 		
 		Operation operation = new Operation();
@@ -239,7 +245,7 @@ public class OpenAPIFactory {
 		return operation;
 	}
 	
-	private Operation operationPost(MjEntity entity) {
+	private Operation operationPut(MjEntity entity) {
 		String entityName = entity.getClazz().getSimpleName();
 		
 		Operation operation = new Operation();
@@ -285,21 +291,6 @@ public class OpenAPIFactory {
 		parameter.description = entityName + " id";
 		
 		operation.parameters.add(parameter);
-
-		Schema schema = new Schema();
-		schema.$ref = SCHEMAS + entityName;
-		
-		if (api == API.OpenAPI3) {
-			Content content = new Content();
-			content.schema = schema;
-			
-			RequestBody requestBody = new RequestBody();
-			requestBody.content.put("application/json", content);
-
-			operation.requestBody = requestBody;
-		} else {
-			// TODO response.schema = schema;
-		}
 		
 		Response response = new Response();
 		response.description = "Successful operation";
@@ -315,8 +306,10 @@ public class OpenAPIFactory {
 		if (api == API.OpenAPI3 ) {
 			property.nullable = true;
 		}
-		schema.required.add("id");
 		property.type = OpenAPI.Type.STRING;
+		if (!Code.class.isAssignableFrom(entity.getClazz())) {
+			property.readOnly = true;
+		}
 		schema.properties.put("id", property);
 		
 		boolean hasVersion = FieldUtils.hasValidVersionfield(entity.getClazz());
@@ -325,7 +318,7 @@ public class OpenAPIFactory {
 			if (api == API.OpenAPI3 ) {
 				property.nullable = true;
 			}
-			schema.required.add("version");
+			property.readOnly = true;
 			property.type = OpenAPI.Type.INTEGER;
 			schema.properties.put("version", property);
 		}
@@ -336,7 +329,7 @@ public class OpenAPIFactory {
 			if (api == API.OpenAPI3) {
 				property.nullable = true;
 			}
-			schema.required.add("historized");
+			property.readOnly = true;
 			property.type = OpenAPI.Type.BOOLEAN;
 			schema.properties.put("historized", property);
 		}
@@ -348,6 +341,9 @@ public class OpenAPIFactory {
 			}
 			if (mjProperty.notEmpty) {
 				schema.required.add(mjProperty.name);
+			}
+			if (mjProperty.technical) {
+				property.readOnly = true;
 			}
 			property.type = type(mjProperty);
 			
