@@ -77,8 +77,8 @@ public class OpenAPIFactory {
 				Operation operation = operationGetById(entity);
 				operations.put("get", operation);
 				
-				operation = operationPost(entity);
-				operations.put("post", operation);
+				operation = operationPut(entity);
+				operations.put("put", operation);
 
 				operation = operationDelete(entity);
 				operations.put("delete", operation);
@@ -94,8 +94,8 @@ public class OpenAPIFactory {
 					operations.put("get", operation);
 				}
 				
-				operation = operationPut(entity);
-				operations.put("put", operation);
+				operation = operationPost(entity);
+				operations.put("post", operation);
 				
 				api.paths.put("/" + entityName, operations);
 			}
@@ -211,7 +211,7 @@ public class OpenAPIFactory {
 		return parameter;
 	}
 	
-	private Operation operationPut(MjEntity entity) {
+	private Operation operationPost(MjEntity entity) {
 		String entityName = entity.getClazz().getSimpleName();
 		
 		Operation operation = new Operation();
@@ -239,7 +239,7 @@ public class OpenAPIFactory {
 		return operation;
 	}
 	
-	private Operation operationPost(MjEntity entity) {
+	private Operation operationPut(MjEntity entity) {
 		String entityName = entity.getClazz().getSimpleName();
 		
 		Operation operation = new Operation();

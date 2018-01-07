@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -142,18 +142,13 @@ public class RestHTTPD extends NanoHTTPD {
 			}
 		} else if (method == Method.POST) {
 			if (clazz != null) {
-				if (pathElements.length >= 2) {
-					String id = pathElements[1];
-					String inputString = files.get("postData");
-					if (inputString == null) {
-						return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
-					}
-					Object inputObject = EntityJsonReader.read(clazz, inputString);
-					Backend.update(inputObject);
-					return newFixedLengthResponse(Status.OK, "text/json", "success");
- 				} else {
- 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post excepts id in url");
- 				}
+				String inputString = files.get("postData");
+				if (inputString == null) {
+					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
+				}
+				Object inputObject = EntityJsonReader.read(clazz, inputString);
+				Object id = Backend.insert(inputObject);
+				return newFixedLengthResponse(Status.OK, "text/plain", id.toString());
 			}
 			
 		} else if (method == Method.DELETE) {
@@ -171,27 +166,22 @@ public class RestHTTPD extends NanoHTTPD {
 			if (inputFileName == null) {
 				return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input");
 			}
-
-			if (pathElements.length > 0) {
-				if (StringUtils.equals("java-transaction", pathElements[0])) {
-					return transaction(headers, inputFileName);
-				}
-			}
-			
-			if (clazz != null) {
-				String input = "";
-				try {
-					List<String> inputLines = Files.readAllLines(new File(inputFileName).toPath());
-					for (String line : inputLines) {
-						input = input + line;
-					}
-					Object inputObject = EntityJsonReader.read(clazz, input);
-					// IdUtils.setId(inputObject, null);
-					Object id = Backend.insert(inputObject);
-					return newFixedLengthResponse(Status.OK, "text/plain", id.toString());
+	
+			if (pathElements.length == 1 && StringUtils.equals("java-transaction", pathElements[0])) {
+				return transaction(headers, inputFileName);
+			} else if (clazz != null && pathElements.length == 2) {
+				String id = pathElements[1];
+				Object object = Backend.read(clazz, id);
+				try (FileInputStream fis = new FileInputStream(new File(inputFileName))) {
+					Object inputObject = EntityJsonReader.read(object, fis);
+					IdUtils.setId(object, id); // don't let the id be changed
+					object = Backend.save(inputObject);
+					return newFixedLengthResponse(Status.OK, "text/json", EntityJsonWriter.write(object));
 				} catch (IOException x) {
 					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Could not read input");
 				}
+			} else {
+				return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Put excepts class/id in url");
 			}
 		} else if (method == Method.OPTIONS) {
 			Response response = newFixedLengthResponse(Status.OK, "text/plain", null);
