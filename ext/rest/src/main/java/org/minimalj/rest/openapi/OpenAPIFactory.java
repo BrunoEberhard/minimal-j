@@ -300,8 +300,10 @@ public class OpenAPIFactory {
 		if (api == API.OpenAPI3 ) {
 			property.nullable = true;
 		}
-		schema.required.add("id");
 		property.type = OpenAPI.Type.STRING;
+		if (!Code.class.isAssignableFrom(entity.getClazz())) {
+			property.readOnly = true;
+		}
 		schema.properties.put("id", property);
 		
 		boolean hasVersion = FieldUtils.hasValidVersionfield(entity.getClazz());
@@ -310,7 +312,7 @@ public class OpenAPIFactory {
 			if (api == API.OpenAPI3 ) {
 				property.nullable = true;
 			}
-			schema.required.add("version");
+			property.readOnly = true;
 			property.type = OpenAPI.Type.INTEGER;
 			schema.properties.put("version", property);
 		}
@@ -321,7 +323,7 @@ public class OpenAPIFactory {
 			if (api == API.OpenAPI3) {
 				property.nullable = true;
 			}
-			schema.required.add("historized");
+			property.readOnly = true;
 			property.type = OpenAPI.Type.BOOLEAN;
 			schema.properties.put("historized", property);
 		}
