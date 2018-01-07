@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.minimalj</groupId>
   <artifactId>metamodel</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.2.0.0-SNAPSHOT</version>
   <name>MetaModel</name>
   <description>Creates a model of the business entities</description>
   
