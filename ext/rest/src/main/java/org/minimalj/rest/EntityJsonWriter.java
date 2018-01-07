@@ -4,6 +4,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +26,6 @@ import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.StringUtils;
 
 public class EntityJsonWriter {
 
@@ -71,27 +71,29 @@ public class EntityJsonWriter {
 					propertyName = "enum";
 				}
 				
-				if (value instanceof Boolean) {
+				if (value instanceof String || value instanceof Boolean || value instanceof Number) {
 					values.put(propertyName, value);
-				} else if (StringUtils.equals(propertyName, "id", "version", "historized") || FieldUtils.isAllowedPrimitive(property.getClazz())) {
+				} else if (FieldUtils.isAllowedPrimitive(property.getClazz())) {
 					values.put(propertyName, value.toString());
-				} else if (value instanceof List) {
-					List listValue = (List) value;
-					if (listValue.isEmpty()) {
+				} else if (value instanceof Collection) {
+					Collection<?> collection = (Collection<?>) value;
+					if (collection.isEmpty()) {
 						continue;
 					}
 					List list = new ArrayList<>();
-					for (Object element : listValue) {
+					for (Object element : collection) {
 						if (element instanceof String) {
 							// List<String> would be not allowed in MJ but 'required' is such a list
 							list.add(element);
+						} else if (element instanceof Enum) {
+							list.add(((Enum<?>) element).name());
 						} else {
 							list.add(convert(element, ids));
 						}
 					}
 					values.put(propertyName, list);
 				} else if (value instanceof Enum) {
-					values.put(propertyName, value.toString().toLowerCase());
+					values.put(propertyName, ((Enum<?>) value).name());
 				} else if (value != null) {
 					value = convert(value, ids);
 					if (value != null) {

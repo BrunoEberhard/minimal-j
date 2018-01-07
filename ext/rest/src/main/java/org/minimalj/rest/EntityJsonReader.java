@@ -94,13 +94,13 @@ public class EntityJsonReader {
 					}
 				}
 				property.setValue(entity, value);
-			} else if (value instanceof BigDecimal) {
+			} else if (value instanceof Double) {
 				if (property.getClazz() == BigDecimal.class) {
-					property.setValue(entity, value);
+					property.setValue(entity, BigDecimal.valueOf((Double) value));
 				} else if (property.getClazz() == Long.class) {
-					property.setValue(entity, ((BigDecimal) value).longValue());
+					property.setValue(entity, ((Double) value).longValue());
 				} else if (property.getClazz() == Integer.class) {
-					property.setValue(entity, ((BigDecimal) value).intValue());
+					property.setValue(entity, ((Double) value).intValue());
 				}
 			} else if (value instanceof Long) {
 				// Integer.Type for version
