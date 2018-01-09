@@ -134,6 +134,7 @@ public class Vaadin extends UI implements PageManager {
 		outerPanel.setExpandRatio(splitPanel, 1.0f);
 
 		navigationTree = new Tree<>(null, navigationTreeData);
+		navigationTree.setSizeFull();
 		navigationTree.setSelectionMode(SelectionMode.NONE);
 		navigationTree.addItemClickListener(event -> event.getItem().action());
 		navigationTree.setItemCaptionGenerator(action -> action.getName());
