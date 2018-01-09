@@ -138,9 +138,10 @@ public class Vaadin extends UI implements PageManager {
 		navigationTree.addItemClickListener(event -> event.getItem().action());
 		navigationTree.setItemCaptionGenerator(action -> action.getName());
 		
-		updateNavigation();
-		splitPanel.setFirstComponent(navigationTree);
-		splitPanel.setSplitPosition(200, Unit.PIXELS);
+		if (!Frontend.loginAtStart()) {
+			updateNavigation();
+		}
+		splitPanel.setSplitPosition(250, Unit.PIXELS);
 		
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		String route = (String) httpServletRequest.getSession().getAttribute("path");
@@ -187,6 +188,9 @@ public class Vaadin extends UI implements PageManager {
 		navigationTreeData.clear();
 		addNavigationActions(actions, null);
 		navigationTree.setData(navigationTreeData);
+		if (navigationTree.getParent() == null) {
+			splitPanel.setFirstComponent(navigationTree);
+		}
 	}
 
 	private void addNavigationActions(List<Action> actions, Action parent) {
