@@ -76,6 +76,8 @@ $v-font-weight: 100;
   .mjButton {
   	background: none;
   	border: none;
+  	box-shadow: none;
+  	-webkit-box-shadow: none;
   }
   
   .mjButton:focus::after {
