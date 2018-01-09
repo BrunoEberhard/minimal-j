@@ -184,7 +184,9 @@ public class Vaadin extends UI implements PageManager {
 	
 	private void updateNavigation() {
 		List<Action> actions = Application.getInstance().getNavigation();
+		navigationTreeData.clear();
 		addNavigationActions(actions, null);
+		navigationTree.setData(navigationTreeData);
 	}
 
 	private void addNavigationActions(List<Action> actions, Action parent) {
