@@ -284,8 +284,10 @@ public class Vaadin extends UI implements PageManager {
 		String pageId = pageStore.put(page);
 		components.clear();
 		Component component = (Component) PageAccess.getContent(page);
-		component.setId(pageId);
-		components.add(component);
+		if (component != null) {
+			component.setId(pageId);
+			components.add(component);
+		}
 		
 		String route = PageAccess.getRoute(page);
 		if (!Page.validateRoute(route)) {
