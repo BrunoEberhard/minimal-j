@@ -369,7 +369,19 @@ public abstract class SqlDialect {
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
 		if (value == null) return null;
 		
-		if (fieldClass == LocalDate.class) {
+		if (fieldClass == Integer.class) {
+			if (value instanceof Number) {
+				value = ((Number) value).intValue();
+			} else {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
+		} else if (fieldClass == Long.class) {
+			if (value instanceof Number) {
+				value = ((Number) value).longValue();
+			} else {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
+		} else if (fieldClass == LocalDate.class) {
 			if (value instanceof java.sql.Date) {
 				value = ((java.sql.Date) value).toLocalDate();
 			} else if (value instanceof java.sql.Timestamp) {
