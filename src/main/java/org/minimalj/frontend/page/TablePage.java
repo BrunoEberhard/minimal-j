@@ -37,7 +37,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	private transient ITable<T> table;
 	private transient List<T> objects;
 	private transient List<Action> actions;
-	protected final Object[] nameArguments;
+	private Object[] nameArguments;
 	
 	/*
 	 * this flag indicates if the next call of getContent should trigger a new loading
@@ -51,7 +51,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		this.multiSelect = allowMultiselect();
 
 		this.clazz = new ClassHolder<T>((Class<T>) GenericUtils.getGenericClass(getClass()));
-		this.nameArguments = new Object[] { Resources.getString(Resources.getResourceName(clazz.getClazz())) };
 	}
 	
 	public TablePage(Object[] columns) {
@@ -59,6 +58,17 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		this.columns = columns;
 	}
 
+	protected String getResourceName() {
+		return Resources.getResourceName(clazz.getClazz());
+	}
+	
+	protected Object[] getNameArguments() {
+		if (nameArguments == null) {
+			nameArguments = new Object[] { Resources.getString(getResourceName()) };
+		}
+		return nameArguments;
+	}
+	
 	protected boolean allowMultiselect() {
 		return false;
 	}
@@ -153,7 +163,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		
 		@Override
 		protected Object[] getNameArguments() {
-			return nameArguments;
+			return TablePage.this.getNameArguments();
 		}
 		
 		@Override

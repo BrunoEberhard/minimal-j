@@ -89,7 +89,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 			if (title != null) {
 				return title;
 			} else {
-				return MessageFormat.format(Resources.getString(DetailPage.class.getSimpleName() + ".title"), nameArguments);
+				return MessageFormat.format(Resources.getString(DetailPage.class.getSimpleName() + ".title"), BaseTableEditorPage.this.getNameArguments());
 			}
 		}
 		
@@ -107,7 +107,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
 			@Override
 			protected Object[] getNameArguments() {
-				return BaseTableEditorPage.this.nameArguments;
+				return BaseTableEditorPage.this.getNameArguments();
 			}
 			
 			@Override
@@ -137,7 +137,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 		
 		@Override
 		protected Object[] getNameArguments() {
-			return nameArguments;
+			return BaseTableEditorPage.this.getNameArguments();
 		}
 		
 		@Override
