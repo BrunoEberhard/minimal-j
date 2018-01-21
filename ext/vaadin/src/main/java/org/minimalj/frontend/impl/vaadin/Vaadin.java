@@ -134,13 +134,15 @@ public class Vaadin extends UI implements PageManager {
 		outerPanel.setExpandRatio(splitPanel, 1.0f);
 
 		navigationTree = new Tree<>(null, navigationTreeData);
+		navigationTree.setSizeFull();
 		navigationTree.setSelectionMode(SelectionMode.NONE);
 		navigationTree.addItemClickListener(event -> event.getItem().action());
 		navigationTree.setItemCaptionGenerator(action -> action.getName());
 		
-		updateNavigation();
-		splitPanel.setFirstComponent(navigationTree);
-		splitPanel.setSplitPosition(200, Unit.PIXELS);
+		if (!Frontend.loginAtStart()) {
+			updateNavigation();
+		}
+		splitPanel.setSplitPosition(250, Unit.PIXELS);
 		
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		String route = (String) httpServletRequest.getSession().getAttribute("path");
@@ -184,7 +186,12 @@ public class Vaadin extends UI implements PageManager {
 	
 	private void updateNavigation() {
 		List<Action> actions = Application.getInstance().getNavigation();
+		navigationTreeData.clear();
 		addNavigationActions(actions, null);
+		navigationTree.setData(navigationTreeData);
+		if (navigationTree.getParent() == null) {
+			splitPanel.setFirstComponent(navigationTree);
+		}
 	}
 
 	private void addNavigationActions(List<Action> actions, Action parent) {
@@ -277,8 +284,10 @@ public class Vaadin extends UI implements PageManager {
 		String pageId = pageStore.put(page);
 		components.clear();
 		Component component = (Component) PageAccess.getContent(page);
-		component.setId(pageId);
-		components.add(component);
+		if (component != null) {
+			component.setId(pageId);
+			components.add(component);
+		}
 		
 		String route = PageAccess.getRoute(page);
 		if (!Page.validateRoute(route)) {

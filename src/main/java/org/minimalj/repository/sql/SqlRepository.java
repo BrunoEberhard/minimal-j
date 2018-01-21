@@ -639,8 +639,18 @@ public class SqlRepository implements TransactionalRepository {
 	public String column(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
 		Class<?> declaringClass = property.getDeclaringClass();
-		AbstractTable<?> table = getAbstractTable(declaringClass);
-		return table.column(property);
+		if (tables.containsKey(declaringClass)) {
+			AbstractTable<?> table = getAbstractTable(declaringClass);
+			return table.column(property);
+		} else {
+			LinkedHashMap<String, PropertyInterface> columns = findColumns(declaringClass);
+			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+				if (StringUtils.equals(entry.getValue().getPath(), property.getPath())) {
+					return entry.getKey();
+				}
+			}
+			return null;
+		}
 	}
 	
 	public boolean tableExists(Class<?> clazz) {

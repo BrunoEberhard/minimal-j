@@ -12,8 +12,8 @@ import org.minimalj.util.resources.Resources;
  */
 public abstract class Action {
 
-	private final String name;
-	private String description;
+	private String name, description;
+	private Boolean descriptionAvailable;
 	private boolean enabled = true;
 	private ActionChangeListener changeListener;
 
@@ -22,14 +22,10 @@ public abstract class Action {
 	 * class name.
 	 */
 	protected Action() {
-		String resourceName = Resources.getResourceName(getClass());
-		Object[] nameArguments = getNameArguments();
-		this.name = nameArguments != null ?  MessageFormat.format(Resources.getString(resourceName), nameArguments) : Resources.getString(resourceName);
-		
-		String descriptionResourceName = resourceName + ".description";
-		if (Resources.isAvailable(descriptionResourceName)) {
-			this.description = Resources.getString(descriptionResourceName);
-		}
+	}
+	
+	protected String getResourceName() {
+		return Resources.getResourceName(getClass());
 	}
 	
 	protected Object[] getNameArguments() {
@@ -45,6 +41,11 @@ public abstract class Action {
 	 * @return the text normally displayed in the frontend
 	 */
 	public final String getName() {
+		if (name == null) {
+			String resourceName = getResourceName();
+			Object[] nameArguments = getNameArguments();
+			name = nameArguments != null ? MessageFormat.format(Resources.getString(resourceName), nameArguments) : Resources.getString(resourceName);
+		}
 		return name;
 	}
 	
@@ -53,6 +54,14 @@ public abstract class Action {
 	 * @return this could be used by a frontend for a additional information about this action. For example a tooltip.
 	 */
 	public String getDescription() {
+		if (description == null && !Boolean.FALSE.equals(descriptionAvailable)) {
+			String resourceName = getResourceName();
+			String descriptionResourceName = resourceName + ".description";
+			descriptionAvailable = Resources.isAvailable(descriptionResourceName);
+			if (descriptionAvailable) {
+				this.description = Resources.getString(descriptionResourceName);
+			}
+		}
 		return description;
 	}
 	
