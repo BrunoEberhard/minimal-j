@@ -52,7 +52,7 @@ public class Jira {
 		public String url;
 
 		public Issue parent;
-		public User assignee;
+		public User assignee, creator;
 
 		public CommentList comment;
 	}

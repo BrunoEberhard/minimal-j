@@ -18,7 +18,7 @@ public class IssueTablePage extends SimpleTableEditorPage<Issue> {
 	
 	@Override
 	protected List<Issue> load() {
-		return Backend.find(Issue.class, new SimpleCriteria(Issue.$.assignee, Subject.getCurrent().getName()));
+		return Backend.find(Issue.class, new SimpleCriteria(Issue.$.creator, Subject.getCurrent().getName()));
 	}
 
 	@Override
