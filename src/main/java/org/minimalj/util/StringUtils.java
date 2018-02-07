@@ -140,11 +140,20 @@ public class StringUtils {
 		}
 		StringBuilder s = new StringBuilder();
 		s.append(string.charAt(0));
+		boolean nextUpperCase = false;
 		for (int i = 1; i < string.length(); i++) {
-			if (Character.isUpperCase(string.charAt(i))) {
+			char ch = string.charAt(i);
+			if (Character.isUpperCase(ch)) {
 				s.append('_');
+			} else if (Character.isWhitespace(ch)) {
+				nextUpperCase = true;
+				continue;
 			}
-			s.append(string.charAt(i));
+			if (nextUpperCase) {
+				ch = Character.toUpperCase(ch);
+				nextUpperCase = false;
+			}
+			s.append(ch);
 		}
 		return s.toString();
 	}	
