@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.StringUtils;
 
 /**
  * The text of this message should already be localized. You get the current Locale
@@ -46,7 +47,7 @@ public class ValidationMessage {
 		List<String> filteredMessages = new ArrayList<String>();
 		if (validationMessages != null) {
 			for (ValidationMessage validationMessage : validationMessages) {
-				if (validationMessage.getProperty().equals(property)) {
+				if (isEqual(property, validationMessage.getProperty())) {
 					filteredMessages.add(validationMessage.getFormattedText());
 				}
 			}
@@ -54,6 +55,9 @@ public class ValidationMessage {
 		return filteredMessages;
 	}
 
+	public static boolean isEqual(PropertyInterface p1, PropertyInterface p2) {
+		return p1.getClazz() == p2.getClazz() && StringUtils.equals(p1.getPath(), p2.getPath());
+	}
 	
 	public static String formatHtml(List<ValidationMessage> validationMessages) {
 		if (validationMessages != null && validationMessages.size() > 0) {
