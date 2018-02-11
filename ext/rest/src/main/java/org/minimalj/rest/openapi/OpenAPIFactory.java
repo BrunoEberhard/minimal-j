@@ -348,7 +348,7 @@ public class OpenAPIFactory {
 			
 			if (api == API.OpenAPI3) {
 				property.$ref = ref(mjProperty);
-				if (mjProperty.propertyType == MjPropertyType.ENUM) {
+				if (mjProperty.type.type == MjEntityType.ENUM) {
 					property.type = null;
 					property.$ref = SCHEMAS + mjProperty.type.getSimpleClassName();
 				}
@@ -356,7 +356,7 @@ public class OpenAPIFactory {
 			} else {
 				if (property.type == Type.ARRAY) {
 					property.items = schema(mjProperty.type);
-				} else if (mjProperty.propertyType == MjPropertyType.ENUM) {
+				} else if (mjProperty.type.type == MjEntityType.ENUM) {
 					// OpenApi3 has reusable enums
 					property.eNum = new ArrayList<>();
 					property.eNum = mjProperty.type.getValues();
@@ -387,24 +387,18 @@ public class OpenAPIFactory {
 	
 	private OpenAPI.Type type(MjProperty property) {
 		switch (property.propertyType) {
-		case String:
-		case LocalDate:
-		case LocalDateTime:
-		case LocalTime:
-		case REFERENCE:
-			return OpenAPI.Type.STRING;
-		case Integer:
-		case Long:
-			return OpenAPI.Type.INTEGER;
 		case LIST:
 		case ENUM_SET:
 			return OpenAPI.Type.ARRAY;
-		case ENUM:
-			return OpenAPI.Type.STRING;
 		case INLINE:
 		case DEPENDABLE:
 			return OpenAPI.Type.OBJECT;
-
+		case VALUE:
+			if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long) {
+				return OpenAPI.Type.INTEGER;
+			} else {
+				return OpenAPI.Type.STRING;	
+			}
 		default: return null;
 		}
 	}
@@ -418,7 +412,7 @@ public class OpenAPIFactory {
 	}
 	
 	private String format(MjProperty property) {
-		switch(property.propertyType) {
+		switch(property.type.type) {
 		case String : return null;
 		case Integer: return "int32";
 		case Long: return "int64";

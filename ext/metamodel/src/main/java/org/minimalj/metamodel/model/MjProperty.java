@@ -2,10 +2,6 @@ package org.minimalj.metamodel.model;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -27,14 +23,7 @@ public class MjProperty {
 	public static final MjProperty $ = Keys.of(MjProperty.class);
 	
 	public enum MjPropertyType {
-		INLINE, LIST, ENUM, ENUM_SET, DEPENDABLE, REFERENCE,
-		// primitives
-		String, Integer, Long, Boolean, BigDecimal, LocalDate,
-		LocalTime, LocalDateTime, ByteArray;
-		
-		public boolean isPrimitive() {
-			return ordinal() > REFERENCE.ordinal();
-		}
+		INLINE, LIST, ENUM_SET, DEPENDABLE, VALUE;
 	}
 	
 	public Object id;
@@ -110,21 +99,11 @@ public class MjProperty {
 	}
 	
 	private MjPropertyType propertyType(Class<?> fieldType, boolean isFinal) {
-		if (fieldType == String.class) return MjPropertyType.String;
-		else if (fieldType == Integer.class) return MjPropertyType.Integer;
-		else if (fieldType == Long.class) return MjPropertyType.Long;
-		else if (fieldType == Boolean.class) return MjPropertyType.Boolean;
-		else if (fieldType == BigDecimal.class) return MjPropertyType.BigDecimal;
-		else if (fieldType == LocalDate.class) return MjPropertyType.LocalDate;
-		else if (fieldType == LocalTime.class) return MjPropertyType.LocalTime;
-		else if (fieldType == LocalDateTime.class) return MjPropertyType.LocalDateTime;
-
-		else if (fieldType == List.class) return MjPropertyType.LIST;
-		else if (Enum.class.isAssignableFrom(fieldType)) return MjPropertyType.ENUM;
+		if (fieldType == List.class) return MjPropertyType.LIST;
 		else if (fieldType == Set.class) return MjPropertyType.ENUM_SET;
 		else if (isFinal) return MjPropertyType.INLINE;
 		else if (!IdUtils.hasId(fieldType)) return MjPropertyType.DEPENDABLE;
-		else return MjPropertyType.REFERENCE;
+		else return MjPropertyType.VALUE;
 	}
 	
 	public String getFormattedType() {

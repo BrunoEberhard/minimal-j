@@ -6,8 +6,8 @@ import java.util.List;
 import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.metamodel.model.MjEntity;
+import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.metamodel.model.MjProperty;
-import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.util.resources.Resources;
 
 public class PropertyTablePage extends TableDetailPage<MjProperty> {
@@ -31,10 +31,10 @@ public class PropertyTablePage extends TableDetailPage<MjProperty> {
 
 	@Override
 	protected TablePage<?> getDetailPage(MjProperty property) {
-		if (property.propertyType.isPrimitive()) {
+		if (property.type.type.getJavaClass() != null) {
 			return null;
 		}
-		if (property.propertyType == MjPropertyType.ENUM) {
+		if (property.type.type == MjEntityType.ENUM) {
 			return new EnumTablePage(property.type);
 		} else {
 			// warum war das so? Wird da irgendeine referenz aufgelöst?
