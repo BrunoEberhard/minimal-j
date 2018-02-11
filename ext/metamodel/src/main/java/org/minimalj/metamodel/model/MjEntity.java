@@ -34,6 +34,7 @@ public class MjEntity {
 
 	private MjModel model;
 	private Class<?> clazz;
+	private String className, simpleClassName;
 	private List<String> values; // only for enum
 	
 	public MjEntity() {
@@ -43,6 +44,8 @@ public class MjEntity {
 	public MjEntity(MjModel model, Class<?> clazz) {
 		this.model = model;
 		this.clazz = clazz;
+		this.className = clazz.getName();
+		this.simpleClassName = clazz.getSimpleName();
 		
 		model.addEntity(this);
 		name = clazz.getName();
@@ -65,6 +68,8 @@ public class MjEntity {
 		
 		if (Enum.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.ENUM;
+			List<Object> list = EnumUtils.valueList((Class<Enum>) clazz);
+			values = list.stream().map(e -> e.toString()).collect(Collectors.toList());
 		} else if (Code.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.CODE;
 		} else if (IdUtils.hasId(clazz)) {
@@ -75,16 +80,23 @@ public class MjEntity {
 	}
 	
 	public Class<?> getClazz() {
+		if (clazz == null) {
+			throw new IllegalStateException(className + " is not a java class");
+		}
 		return clazz;
+	}
+	
+	public String getClassName() {
+		return className;
+	}
+	
+	public String getSimpleClassName() {
+		return simpleClassName;
 	}
 	
 	public List<String> getValues() {
 		if (type != MjEntityType.ENUM) {
 			throw new IllegalArgumentException();
-		}
-		if (values == null && clazz != null) {
-			List<Object> list = EnumUtils.valueList((Class<Enum>) clazz);
-			values = list.stream().map(e -> e.toString()).collect(Collectors.toList());
 		}
 		return values;
 	}

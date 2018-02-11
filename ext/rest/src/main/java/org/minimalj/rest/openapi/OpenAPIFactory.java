@@ -10,7 +10,6 @@ import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
-import org.minimalj.model.Code;
 import org.minimalj.rest.EntityJsonWriter;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
@@ -67,7 +66,7 @@ public class OpenAPIFactory {
 
 		MjModel model = new MjModel(application.getEntityClasses());
 		for (MjEntity entity : model.entities) {
-			String entityName = entity.getClazz().getSimpleName();
+			String entityName = entity.getSimpleClassName();
 
 			if (IdUtils.hasId(entity.getClazz())) {
 				Map<String, Operation> operations = new HashMap<>();
@@ -87,7 +86,8 @@ public class OpenAPIFactory {
 				
 				operations = new HashMap<>();
 				
-				if (Code.class.isAssignableFrom(entity.getClazz())) {
+				if (entity.type != MjEntityType.CODE) {
+					// the number of codes is expected to be small enough to be loaded at once
 					operation = operationGetAll(entity);
 					operations.put("get", operation);
 				}
@@ -122,7 +122,7 @@ public class OpenAPIFactory {
 
 
 	private Operation operationGetById(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Gets a " + entityName + " by id";
@@ -161,7 +161,7 @@ public class OpenAPIFactory {
 
 
 	private Operation operationGetAll(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 
 		Operation operation = new Operation();
 		operation.summary = "Gets all " + entityName;
@@ -216,7 +216,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationPost(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Add a new " + entityName;
@@ -244,7 +244,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationPut(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Update a " + entityName;
@@ -278,7 +278,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationDelete(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Delete a " + entityName;
@@ -305,7 +305,8 @@ public class OpenAPIFactory {
 			property.nullable = true;
 		}
 		property.type = OpenAPI.Type.STRING;
-		if (!Code.class.isAssignableFrom(entity.getClazz())) {
+		if (entity.type != MjEntityType.CODE) {
+			// for codes the id can be chosen. For normal entites the framework creates the id
 			property.readOnly = true;
 		}
 		schema.properties.put("id", property);
@@ -349,7 +350,7 @@ public class OpenAPIFactory {
 				property.$ref = ref(mjProperty);
 				if (mjProperty.propertyType == MjPropertyType.ENUM) {
 					property.type = null;
-					property.$ref = SCHEMAS + mjProperty.type.getClazz().getSimpleName();
+					property.$ref = SCHEMAS + mjProperty.type.getSimpleClassName();
 				}
 					
 			} else {
@@ -410,7 +411,7 @@ public class OpenAPIFactory {
 	
 	private String ref(MjProperty property) {
 		if (property.propertyType == MjPropertyType.INLINE ||property.propertyType == MjPropertyType.DEPENDABLE) {
-			return SCHEMAS + property.type.getClazz().getSimpleName();
+			return SCHEMAS + property.type.getSimpleClassName();
 		} else {
 			return null;
 		}
@@ -436,7 +437,7 @@ public class OpenAPIFactory {
 		}
 		if (property.propertyType == MjPropertyType.LIST || property.propertyType == MjPropertyType.ENUM_SET) {
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + property.type.getClazz().getSimpleName();
+			schema.$ref = SCHEMAS + property.type.getSimpleClassName();
 			return schema;
 		} else {
 			return null;
