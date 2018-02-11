@@ -35,10 +35,11 @@ public class PropertyTablePage extends TableDetailPage<MjProperty> {
 			return null;
 		}
 		if (property.propertyType == MjPropertyType.ENUM) {
-			return new EnumTablePage(property.type.getClazz());
+			return new EnumTablePage(property.type);
 		} else {
-			MjEntity entity = property.getModel().getEntity(property.type.getClazz());
-			return new PropertyTablePage(entity);
+			// warum war das so? Wird da irgendeine referenz aufgelöst?
+			// MjEntity entity = property.getModel().getEntity(property.type.getClazz());
+			return new PropertyTablePage(property.type);
 		}
 	}
 

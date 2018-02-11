@@ -4,8 +4,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.minimalj.model.Code;
+import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
@@ -18,7 +20,7 @@ import org.minimalj.util.StringUtils;
 public class MjEntity {
 
 	public enum MjEntityType {
-		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE;
+		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE, ENUM;
 	}
 	
 	public static final MjEntity $ = Keys.of(MjEntity.class);
@@ -32,6 +34,7 @@ public class MjEntity {
 
 	private MjModel model;
 	private Class<?> clazz;
+	private List<String> values; // only for enum
 	
 	public MjEntity() {
 		//
@@ -60,7 +63,9 @@ public class MjEntity {
 			properties.add(new MjProperty(model, method));
 		}
 		
-		if (Code.class.isAssignableFrom(clazz)) {
+		if (Enum.class.isAssignableFrom(clazz)) {
+			type = MjEntityType.ENUM;
+		} else if (Code.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.CODE;
 		} else if (IdUtils.hasId(clazz)) {
 			type = MjEntityType.ENTITY;
@@ -71,5 +76,16 @@ public class MjEntity {
 	
 	public Class<?> getClazz() {
 		return clazz;
+	}
+	
+	public List<String> getValues() {
+		if (type != MjEntityType.ENUM) {
+			throw new IllegalArgumentException();
+		}
+		if (values == null && clazz != null) {
+			List<Object> list = EnumUtils.valueList((Class<Enum>) clazz);
+			values = list.stream().map(e -> e.toString()).collect(Collectors.toList());
+		}
+		return values;
 	}
 }

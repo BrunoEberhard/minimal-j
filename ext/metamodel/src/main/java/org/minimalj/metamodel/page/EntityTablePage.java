@@ -6,6 +6,7 @@ import org.minimalj.application.Application;
 import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.metamodel.model.MjEntity;
+import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.metamodel.model.MjModel;
 
 public class EntityTablePage extends TableDetailPage<MjEntity> {
@@ -23,9 +24,8 @@ public class EntityTablePage extends TableDetailPage<MjEntity> {
 	
 	@Override
 	protected TablePage<?> getDetailPage(MjEntity entity) {
-		Class<?> clazz = entity.getClazz();
-		if (Enum.class.isAssignableFrom(clazz)) {
-			return new EnumTablePage(clazz);
+		if (entity.type == MjEntityType.ENUM) {
+			return new EnumTablePage(entity);
 		} else {
 			return new PropertyTablePage(entity);
 		}
