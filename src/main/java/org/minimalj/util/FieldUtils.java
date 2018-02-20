@@ -196,7 +196,7 @@ public class FieldUtils {
 					}
 				}
 			} else {
-				throw new IllegalArgumentException(s);
+				throw new IllegalArgumentException(clazz.getSimpleName() + ": " + s);
 			}
 		}
 		return (T) value;
