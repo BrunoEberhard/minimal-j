@@ -41,15 +41,11 @@ public class MjProperty {
 	public Boolean technical;
 	public String enabled;
 	
-	private MjModel model;
-	
 	public MjProperty() {
 		//
 	}
 	
 	public MjProperty(MjModel model, Field field) {
-		this.model = model;
-		
 		name = field.getName();
 		this.propertyType = propertyType(field);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
@@ -69,8 +65,6 @@ public class MjProperty {
 	}
 	
 	public MjProperty(MjModel model, Method method) {
-		this.model = model;
-		
 		name = StringUtils.lowerFirstChar(method.getName().substring(3));
 		PropertyInterface property = new Keys.MethodProperty(method.getReturnType(), name, method, null);
 		
@@ -108,22 +102,20 @@ public class MjProperty {
 	
 	public String getFormattedType() {
 		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "formattedType");
+		
+		String className = type.getClassName();
+		
 		if (propertyType == MjPropertyType.LIST) {
-			return "List<" + type.name + ">";
+			return "List<" + className + ">";
 		} else if (propertyType == MjPropertyType.ENUM_SET) {
-			return "Set<" + type.name + ">";
-		} else if (type != null) {
-			return type.name;
+			return "Set<" + className + ">";
 		} else {
-			if (size == null) {
-				return propertyType.name();
+			if (size == null || size == 0) {
+				return className;
 			} else {
-				return propertyType.name() + " (" + size + ")";
+				return className + " (" + size + ")";
 			}
 		}
 	}
-	
-	public MjModel getModel() {
-		return model;
-	}
+
 }

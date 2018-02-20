@@ -15,16 +15,16 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
-import org.minimalj.model.annotation.Size;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
+import org.w3c.dom.Element;
 
 public class MjEntity {
 
 	public enum MjEntityType {
-		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE, ENUM,
+		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE,
 		
 		// primitives
 		String(String.class), Integer(Integer.class), Long(Long.class), Boolean(Boolean.class), //
@@ -49,39 +49,42 @@ public class MjEntity {
 	public static final MjEntity $ = Keys.of(MjEntity.class);
 	
 	public Object id;
-	@Size(1024)
-	public String name;
+
 	public MjEntityType type;
+
+	private Class<?> clazz;
+	public String name; // classname without package
+	public String packageName;
+
 	public Boolean validatable;
 	public final List<MjProperty> properties = new ArrayList<>();
 
-	private MjModel model;
-	private Class<?> clazz;
-	private String simpleClassName;
-	
 	// restrictions
-	private List<String> values; // only for enum
-	private String minInclusive, maxInclusive; // only for int / long / temporals
+	public List<String> values; // only for enum
+	public String minInclusive, maxInclusive; // only for int / long / temporals
 	public Integer minLength, maxLength; // only for string / bigDecimal / byte[]
 	
 	public MjEntity() {
-		//
 	}
 	
-	MjEntity(MjModel model, MjEntityType type) {
-		this.model = model;
+	public MjEntity(MjEntityType type) {
+		this(null, type);
+	}
+	
+	public MjEntity(MjModel model, MjEntityType type) {
+		this.type = type;
 		this.clazz = type.getJavaClass();
-		this.name = clazz.getName();
-		this.simpleClassName = clazz.getSimpleName();
+		if (clazz != null) {
+			this.name = clazz.getSimpleName();
+		}
 	}
 	
 	public MjEntity(MjModel model, Class<?> clazz) {
-		this.model = model;
 		this.clazz = clazz;
-		this.simpleClassName = clazz.getSimpleName();
+		this.name = clazz.getSimpleName();
+		this.packageName = clazz.getPackage().getName();
 		
 		model.addEntity(this);
-		name = clazz.getName();
 		validatable = Validation.class.isAssignableFrom(clazz);
 		
 		Field[] fields = clazz.getFields();
@@ -100,7 +103,7 @@ public class MjEntity {
 		}
 		
 		if (Enum.class.isAssignableFrom(clazz)) {
-			type = MjEntityType.ENUM;
+			type = MjEntityType.String;
 			List<Object> list = EnumUtils.valueList((Class<Enum>) clazz);
 			values = list.stream().map(e -> e.toString()).collect(Collectors.toList());
 		} else if (Code.class.isAssignableFrom(clazz)) {
@@ -112,6 +115,11 @@ public class MjEntity {
 		}
 	}
 	
+	public MjEntity(String name) {
+		this.name = name;
+		this.type = MjEntityType.ENTITY;
+	}
+	
 	public Class<?> getClazz() {
 		if (clazz == null) {
 			throw new IllegalStateException(name + " is not a java class");
@@ -120,17 +128,32 @@ public class MjEntity {
 	}
 	
 	public String getClassName() {
+		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "className");
+		
+		if (!isEnumeration() && type.getJavaClass() != null) {
+			return type.getJavaClass().getSimpleName();
+		} else {
+			return name;
+		}
+	}
+	
+	public boolean isEnumeration() {
+		return values != null && !values.isEmpty();
+	}
+
+	public String getSimpleClassName() {
 		return name;
 	}
 	
-	public String getSimpleClassName() {
-		return simpleClassName;
+	// TOOD move
+	
+	private Element element;
+	
+	public Element getElement() {
+		return element;
 	}
 	
-	public List<String> getValues() {
-		if (type != MjEntityType.ENUM) {
-			throw new IllegalArgumentException();
-		}
-		return values;
+	public void setElement(Element element) {
+		this.element = element;
 	}
 }

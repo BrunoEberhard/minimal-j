@@ -1,6 +1,5 @@
 package org.minimalj.rest.openapi;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,7 +98,7 @@ public class OpenAPIFactory {
 			}
 			
 			Schema schema;
-			if (entity.type == MjEntityType.ENUM) {
+			if (entity.isEnumeration()) {
 				if (this.api == API.OpenAPI3) {
 					schema = eNum(entity);
 				} else {
@@ -348,7 +347,7 @@ public class OpenAPIFactory {
 			
 			if (api == API.OpenAPI3) {
 				property.$ref = ref(mjProperty);
-				if (mjProperty.type.type == MjEntityType.ENUM) {
+				if (mjProperty.type.isEnumeration()) {
 					property.type = null;
 					property.$ref = SCHEMAS + mjProperty.type.getSimpleClassName();
 				}
@@ -356,10 +355,9 @@ public class OpenAPIFactory {
 			} else {
 				if (property.type == Type.ARRAY) {
 					property.items = schema(mjProperty.type);
-				} else if (mjProperty.type.type == MjEntityType.ENUM) {
+				} else if (mjProperty.type.isEnumeration()) {
 					// OpenApi3 has reusable enums
-					property.eNum = new ArrayList<>();
-					property.eNum = mjProperty.type.getValues();
+					property.eNum = mjProperty.type.values;
 				} else {
 					property.$ref = ref(mjProperty);
 				}
@@ -380,7 +378,7 @@ public class OpenAPIFactory {
 		Schema schema = new Schema();
 
 		schema.type = OpenAPI.Type.STRING;
-		schema.eNum = entity.getValues();
+		schema.eNum = entity.values;
 		
 		return schema;
 	}

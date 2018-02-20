@@ -6,7 +6,6 @@ import java.util.List;
 import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.metamodel.model.MjEntity;
-import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.util.resources.Resources;
 
@@ -21,7 +20,7 @@ public class PropertyTablePage extends TableDetailPage<MjProperty> {
 	
 	@Override
 	public String getTitle() {
-		return MessageFormat.format(Resources.getString(PropertyTablePage.class), entity.name);
+		return MessageFormat.format(Resources.getString(PropertyTablePage.class), entity.getClassName());
 	}
 	
 	@Override
@@ -34,7 +33,7 @@ public class PropertyTablePage extends TableDetailPage<MjProperty> {
 		if (property.type.type.getJavaClass() != null) {
 			return null;
 		}
-		if (property.type.type == MjEntityType.ENUM) {
+		if (property.type.isEnumeration()) {
 			return new EnumTablePage(property.type);
 		} else {
 			// warum war das so? Wird da irgendeine referenz aufgelöst?

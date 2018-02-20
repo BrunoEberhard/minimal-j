@@ -1,9 +1,9 @@
 package org.minimalj.metamodel.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.model.Model;
 
 public class MjModel {
@@ -15,20 +15,9 @@ public class MjModel {
 	}
 	
 	public MjModel(Class<?>... classes) {
-		initBaseEntities();
-		for (Class<?> clazz : classes) {
-			new MjEntity(this, clazz);
-		}
+		Arrays.stream(classes).forEach(clazz -> entities.add(new MjEntity(this, clazz)));
 	}
 
-	private void initBaseEntities() {
-		for (MjEntityType type : MjEntityType.values()) {
-			if (type.getJavaClass() != null) {
-				entities.add(new MjEntity(this, type));
-			}
-		}
-	}
-	
 	public void addEntity(MjEntity mjEntity) {
 		if (!entities.contains(mjEntity)) {
 			entities.add(mjEntity);
@@ -37,11 +26,20 @@ public class MjModel {
 
 	public MjEntity getEntity(Class<?> clazz) {
 		for (MjEntity entity : entities) {
-			if (entity.name.equals(clazz.getName())) {
+			if (entity.getClazz() == clazz) {
 				return entity;
 			}
 		}
 		return new MjEntity(this, clazz);
+	}
+	
+	public MjEntity getEntity(String name) {
+		for (MjEntity entity : entities) {
+			if (entity.getSimpleClassName().equals(name)) {
+				return entity;
+			}
+		}
+		return null;
 	}
 	
 }

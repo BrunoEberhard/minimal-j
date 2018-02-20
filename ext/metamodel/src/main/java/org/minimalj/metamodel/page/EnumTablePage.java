@@ -2,6 +2,7 @@ package org.minimalj.metamodel.page;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.minimalj.frontend.page.TablePage;
@@ -21,14 +22,13 @@ public class EnumTablePage extends TablePage<MjEnumValue> {
 	
 	@Override
 	public String getTitle() {
-		return MessageFormat.format(Resources.getString(EnumTablePage.class), entity.name);
+		return MessageFormat.format(Resources.getString(EnumTablePage.class), entity.getClassName());
 	}
 	
 	@Override
 	protected List<MjEnumValue> load() {
 		if (enumValues == null) {
-			@SuppressWarnings("unchecked")
-			List<String> values = entity.getValues();
+			Collection<String> values = entity.values;
 			enumValues = new ArrayList<>();
 			int index = 0;
 			for (String s : values) {
