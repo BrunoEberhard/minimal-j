@@ -2,8 +2,8 @@ package org.minimalj.repository.list;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
@@ -16,7 +16,7 @@ import org.minimalj.util.Sortable;
 public class SortableList<T> extends ArrayList<T> implements Sortable, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	public SortableList(List<T> objects) {
+	public SortableList(Collection<T> objects) {
 		super(objects);
 	}
 	
