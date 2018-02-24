@@ -6,6 +6,8 @@
 <!-- $APPLICATION-VERSION -->
 <base href="$BASE">
 
+<!-- $CHEERPJ_IMPORT -->
+<script src="https://cjrtnc.leaningtech.com/loader.js"></script>
 <script src="dialog-polyfill.js"></script>
 
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -949,7 +951,9 @@ $ICON
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
 		
-		$WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
+		// $CHEERPJ
+		sendCheerpj(data, block);
+		// $WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
 	}
 		
 	function sendAjax(data, block) {
@@ -1001,6 +1005,20 @@ $ICON
 			websocket.send(JSON.stringify(data));
 		}
 	}
+		
+	function sendCheerpj(data, block) {
+		var sendStr = JSON.stringify(data);
+		console.log("send");
+		console.log(sendStr);
+		cjCall("org.minimalj.frontend.impl.cheerpj.Cheerpj", "receiveMessage", sendStr).then(receive);
+	}	
+		
+	function receive(e) {
+		var resultStr = cjStringJavaToJs(e);
+		console.log("receive");
+		console.log(resultStr);
+		onMessage(resultStr);
+	}		
 		
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
@@ -1144,6 +1162,12 @@ $ICON
 	    input.setAttribute("type", type);
 	    return input.type == type;
 	}
+	
+	if (true) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN
+		cheerpjInit();
+		cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/h.jar", "org.minimalj.example.helloworld2.GreetingApplication");  
+	}
+	
 </script>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>

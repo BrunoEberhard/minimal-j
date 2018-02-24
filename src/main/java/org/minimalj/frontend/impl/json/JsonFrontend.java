@@ -196,11 +196,12 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$WEB_SOCKET", Boolean.toString(useWebSocket()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
-		result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");
-		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
+		// result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");
+		// result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
-		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
-		result = result.replace("$ICON", getIconLink());
+		// result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
+		// result = result.replace("$ICON", getIconLink());
+		result = result.replace("$ICON", "");
 		result = result.replace("$BASE", base(path));
 		result = result.replace("$PATH", path);
 		result = result.replace("$THEME", THEMES.get(Configuration.get("MjTheme", "")));
