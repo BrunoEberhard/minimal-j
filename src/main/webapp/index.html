@@ -1133,6 +1133,10 @@ $ICON
 		}, true);
 	}
 
+    function init(e) {
+      init();
+      }
+
 	function init() {
 		if (!$LOGIN) {
 			document.getElementById("loginButton").parentNode.removeChild(document.getElementById("loginButton"));
@@ -1165,13 +1169,15 @@ $ICON
 	
 	if (true) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN
 		cheerpjInit();
-		cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/h.jar", "org.minimalj.example.helloworld2.GreetingApplication");  
+		// cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/h.jar", "org.minimalj.example.helloworld2.GreetingApplication");  
+        cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication").then(init);  
+        // cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication", "-DMjRepository=org.minimalj.repository.memory.InMemoryRepository", "-DMjUserFile=users.txt", "-DMjDevMode=true");  
 	}
 	
 </script>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
-<body onload="init();" id="body">
+<body id="body">
 	<div id="header">
 		<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
               <g style="stroke-width:0px"> 		

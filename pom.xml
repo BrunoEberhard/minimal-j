@@ -108,9 +108,11 @@
 					<exclude>**/*.jks</exclude>
 				</excludes>
 			</resource>
+			<!-- 
 			<resource>
 				<directory>src/main/webapp</directory>
 			</resource>
+			 -->
 		</resources>
 		<testResources>
 			<testResource>
