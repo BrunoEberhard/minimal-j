@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -58,7 +57,7 @@ public class HistorizedTable<T> extends Table<T> {
 
 	@Override
 	SubTable createListTable(PropertyInterface property) {
-		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
+		Class<?> elementClass = property.getGenericClass();
 		if (IdUtils.hasId(elementClass)) {
 			throw new RuntimeException("Not yet implemented");
 		} else {
