@@ -1,6 +1,7 @@
 package org.minimalj.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -10,11 +11,14 @@ import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 
 public class GenericUtils {
-
+	private static final Logger logger = Logger.getLogger(GenericUtils.class.getName());
+	
 	public static Class<?> getGenericClass(Class<?> c) {
 		return getGenericClass(c, 0);
 	}
@@ -121,10 +125,15 @@ public class GenericUtils {
 	
 	static {
 		fieldGenerics = new Properties();
-		try {
-			fieldGenerics.load(Application.getInstance().getClass().getResourceAsStream("generics.properties"));
+		try (InputStream genericsProperities = GenericUtils.class.getClassLoader().getResourceAsStream("generics.properties")) {
+			if (genericsProperities != null) {
+				fieldGenerics.load(genericsProperities);
+				logger.info("generics.properties loaded");
+			} else {
+				logger.fine("generics.properties not available");
+			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "generics.properties not loaded", e);
 		}
 	}
 	
@@ -135,8 +144,8 @@ public class GenericUtils {
 	 */
 	public static Class<?> getGenericClass(Field field) {
 		 Type type = field.getGenericType();
-		 ParameterizedType parameterizedType = (ParameterizedType) type;
-		 if (parameterizedType != null) {
+		 if (type instanceof ParameterizedType) {
+			 ParameterizedType parameterizedType = (ParameterizedType) type;
 			 return (Class<?>) parameterizedType.getActualTypeArguments()[0];
 		 } else {
 			 String key = field.getDeclaringClass().getName() + "." + field.getName();
