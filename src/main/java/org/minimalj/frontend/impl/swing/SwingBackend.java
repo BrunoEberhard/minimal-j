@@ -4,6 +4,7 @@ import javax.swing.SwingUtilities;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.repository.Repository;
 import org.minimalj.transaction.Transaction;
 
 public class SwingBackend extends Backend {
@@ -13,6 +14,11 @@ public class SwingBackend extends Backend {
 		this.delegate = delegate;
 	}
 
+	@Override
+	public Repository getRepository() {
+		return delegate.getRepository();
+	}
+	
 	@Override
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (!SwingFrontend.hasContext() || !SwingUtilities.isEventDispatchThread()) {
