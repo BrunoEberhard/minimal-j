@@ -1,7 +1,6 @@
 package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 
 /**
  * Properties can be public fields or getter/setter pairs. This interface is intended
@@ -24,7 +23,7 @@ public interface PropertyInterface {
 
 	public Class<?> getClazz();
 
-	public Type getType();
+	public Class<?> getGenericClass();
 
 	public <T extends Annotation> T getAnnotation(Class<T> annotationClass);
 

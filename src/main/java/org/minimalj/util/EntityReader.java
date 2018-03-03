@@ -157,7 +157,7 @@ public class EntityReader {
 		} else if (value instanceof List) {
 			int size = dis.readInt();
 			List list = (List) value;
-			Class<?> listClass = GenericUtils.getGenericClass(field.getGenericType());
+			Class<?> listClass = GenericUtils.getGenericClass(field);
 			if (list instanceof ArrayList) ((ArrayList) list).ensureCapacity(size);
 			for (int i = 0; i<size; i++) {
 				list.add(read(listClass));

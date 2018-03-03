@@ -1,7 +1,6 @@
 package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 
 public class ChainedProperty implements PropertyInterface {
 	private final PropertyInterface property1;
@@ -55,8 +54,8 @@ public class ChainedProperty implements PropertyInterface {
 	}
 	
 	@Override
-	public Type getType() {
-		return property2.getType();
+	public Class<?> getGenericClass() {
+		return property2.getGenericClass();
 	}
 	
 	@Override

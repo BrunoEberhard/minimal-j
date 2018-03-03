@@ -30,7 +30,6 @@ import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -156,7 +155,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	ListTable createListTable(PropertyInterface property) {
-		Class<?> elementClass = GenericUtils.getGenericClass(property.getType());
+		Class<?> elementClass = property.getGenericClass();
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
 			return new CrossTable<>(sqlRepository, subTableName, elementClass, idProperty);

@@ -367,12 +367,7 @@ public class ModelTest {
 	}
 
 	private void testTypeOfListField(Field field, String messagePrefix) {
-		Class<?> listType = null;
-		try {
-			listType = GenericUtils.getGenericClass(field);
-		} catch (Exception x) {
-			// silent
-		}
+		Class<?> listType = GenericUtils.getGenericClass(field);
 		if (listType != null) {
 			testTypeOfListField(listType, "Generic of " + messagePrefix);
 			if (IdUtils.hasId(listType) && FieldUtils.isFinal(field)) {
@@ -385,12 +380,7 @@ public class ModelTest {
 
 	private void testTypeOfSetField(Field field, String messagePrefix) {
 		@SuppressWarnings("rawtypes")
-		Class setType = null;
-		try {
-			setType = GenericUtils.getGenericClass(field);
-		} catch (Exception x) {
-			// silent
-		}
+		Class setType = GenericUtils.getGenericClass(field);
 		if (setType != null) {
 			if (!Enum.class.isAssignableFrom(setType)) {
 				problems.add("Set type must be an enum class: " + messagePrefix);
