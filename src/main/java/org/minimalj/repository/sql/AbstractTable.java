@@ -28,7 +28,6 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -223,7 +222,7 @@ public abstract class AbstractTable<T> {
 			}
 		}
 		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
-			Class<?> listType = GenericUtils.getGenericClass(property.getType());
+			Class<?> listType = property.getGenericClass();
 			if (IdUtils.hasId(listType) && !View.class.isAssignableFrom(listType)) {
 				sqlRepository.addClass(listType);
 			}

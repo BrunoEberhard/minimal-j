@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 public class Keys {
@@ -279,9 +280,9 @@ public class Keys {
 			return getName();
 		}
 
-		@Override
-		public Type getType() {
-			return getterMethod.getGenericReturnType();
+		public Class<?> getGenericClass() {
+			Type genericType = getterMethod.getGenericReturnType();
+			return genericType != null ? GenericUtils.getGenericClass(genericType) : null;
 		}
 
 		@Override

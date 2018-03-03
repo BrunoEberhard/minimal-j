@@ -61,7 +61,6 @@ import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
 import org.minimalj.util.CsvReader;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
@@ -519,7 +518,7 @@ public class SqlRepository implements TransactionalRepository {
 					value = getTable(fieldClass).read(value);
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
-					Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
+					Class<?> enumClass = property.getGenericClass();
 					EnumUtils.fillSet((int) value, enumClass, set);
 					continue; // skip setValue, it's final
 				} else {

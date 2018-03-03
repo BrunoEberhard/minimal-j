@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
 public class FieldProperty implements PropertyInterface {
@@ -73,8 +74,9 @@ public class FieldProperty implements PropertyInterface {
 	}
 
 	@Override
-	public Type getType() {
-		return field.getGenericType();
+	public Class<?> getGenericClass() {
+		Type genericType = field.getGenericType();
+		return genericType != null ? GenericUtils.getGenericClass(genericType) : null;
 	}
 
 	@Override

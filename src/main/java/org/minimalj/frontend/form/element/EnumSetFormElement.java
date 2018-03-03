@@ -12,7 +12,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
@@ -31,7 +30,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		
 	public EnumSetFormElement(PropertyInterface property, E allowedValues, boolean editable) {
 		super(property, editable);
-		this.enumClass = GenericUtils.getGenericClass(property.getType());
+		this.enumClass = property.getGenericClass();
 		this.allowedValues = allowedValues != null ? allowedValues : EnumUtils.valueList(enumClass);
 	}
 	
@@ -82,7 +81,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		@Override
 		protected Object[] getNameArguments() {
 			// enumClass is not yet available when this method is called
-			return new Object[] { Resources.getString(GenericUtils.getGenericClass(getProperty().getType())) };
+			return new Object[] { Resources.getString(getProperty().getGenericClass()) };
 		}
 		
 		@Override
