@@ -21,4 +21,8 @@ public class PageAction extends Action {
 		Frontend.show(page);
 	}
 	
+	public Page getPage() {
+		return page;
+	}
+	
 }
