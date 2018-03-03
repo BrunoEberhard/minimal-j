@@ -1,5 +1,6 @@
 package org.minimalj.util;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -8,6 +9,9 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import org.minimalj.application.Application;
 
 public class GenericUtils {
 
@@ -113,12 +117,38 @@ public class GenericUtils {
 		return (Class<?>) type.getActualTypeArguments()[0];
 	}
 
-	public static Class<?> getGenericClass(Field field) {
-		Type type = field.getGenericType();
-		if (!(type instanceof ParameterizedType)) {
-			throw new RuntimeException("Unable to evaluate Generic class of " + field);
+	private static Properties fieldGenerics;
+	
+	static {
+		fieldGenerics = new Properties();
+		try {
+			fieldGenerics.load(Application.getInstance().getClass().getResourceAsStream("generics.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		ParameterizedType parameterizedType = (ParameterizedType) type;
-		return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+	}
+	
+	/**
+	 * 
+	 * @param field
+	 * @return generic class or <code>null</code>. Doesn't throw Exception if field is not generic.
+	 */
+	public static Class<?> getGenericClass(Field field) {
+		 Type type = field.getGenericType();
+		 ParameterizedType parameterizedType = (ParameterizedType) type;
+		 if (parameterizedType != null) {
+			 return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+		 } else {
+			 String key = field.getDeclaringClass().getName() + "." + field.getName();
+			 String className = fieldGenerics.getProperty(key);
+			 if (className != null) {
+				 try {
+					 return Application.getInstance().getClass().getClassLoader().loadClass(className);
+				 } catch (ClassNotFoundException e) {
+					 e.printStackTrace();
+				 }
+			 }
+		 }
+		 return null;
 	}
 }

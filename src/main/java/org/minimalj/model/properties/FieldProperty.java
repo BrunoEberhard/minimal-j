@@ -2,7 +2,6 @@ package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -75,8 +74,7 @@ public class FieldProperty implements PropertyInterface {
 
 	@Override
 	public Class<?> getGenericClass() {
-		Type genericType = field.getGenericType();
-		return genericType != null ? GenericUtils.getGenericClass(genericType) : null;
+		return GenericUtils.getGenericClass(field);
 	}
 
 	@Override
