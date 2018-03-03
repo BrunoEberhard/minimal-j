@@ -1,5 +1,7 @@
 package org.minimalj.model;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -9,6 +11,7 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.StringUtils;
 
 public class ViewUtil {
 
@@ -30,10 +33,21 @@ public class ViewUtil {
 
 		for (Map.Entry<String, PropertyInterface> entry : properties.entrySet()) {
 			PropertyInterface property = propertiesOfCompleteObject.get(entry.getKey());
-			Object value = property.getValue(completeObject);
+			Object value = property != null ? property.getValue(completeObject) : readByGetMethod(completeObject, entry.getKey());
 			entry.getValue().setValue(viewObject, value);
 		}
 		return viewObject;
+	}
+
+	private static Object readByGetMethod(Object completeObject, String name) {
+		try {
+			Method method = completeObject.getClass().getMethod("get" + StringUtils.upperFirstChar(name));
+			return method.invoke(completeObject);
+		} catch (NoSuchMethodException e) {
+			throw new IllegalArgumentException("Invalid view field: " + name + " for view on " + completeObject.getClass().getSimpleName());
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
