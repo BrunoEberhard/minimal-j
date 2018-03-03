@@ -19,7 +19,7 @@ public class SerializationContainer implements Serializable {
 	public static Serializable wrap(Object object) {
 		if (object instanceof List && !(object instanceof QueryResultList)) {
 			List list = (List) object;
-			ArrayList arrayList = new ArrayList<>(((List) object).size());
+			ArrayList arrayList = new ArrayList<>(list.size());
 			for (int i = 0; i<list.size(); i++) {
 				arrayList.add(wrap(list.get(i)));
 			}
