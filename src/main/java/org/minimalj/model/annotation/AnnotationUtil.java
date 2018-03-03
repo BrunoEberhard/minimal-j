@@ -30,10 +30,10 @@ public class AnnotationUtil {
 			sizes = declaringClass.getAnnotation(Sizes.class);
 			declaringClass = declaringClass.getEnclosingClass();
 		}
+		/* not working in CheerpJ beta 3
 		if (sizes == null) {
 			sizes = property.getDeclaringClass().getPackage().getAnnotation(Sizes.class);
 		}
-		/* not working in CheerpJ beta 3
 		if (sizes == null) {
 			System.out.print("getSize 4 ");
 			Package package1 = property.getDeclaringClass().getPackage();
