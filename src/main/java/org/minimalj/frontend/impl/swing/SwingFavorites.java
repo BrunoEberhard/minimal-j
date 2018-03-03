@@ -13,6 +13,8 @@ import java.util.prefs.Preferences;
 
 import org.minimalj.application.Application;
 
+// for: java.util.prefs Could not open/create prefs root node Software\JavaSoft\Prefs
+// see: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8139507
 public class SwingFavorites implements PreferenceChangeListener {
 
 	private final Consumer<LinkedHashMap<String, String>> changeListener;
@@ -20,21 +22,28 @@ public class SwingFavorites implements PreferenceChangeListener {
 
 	public SwingFavorites(Consumer<LinkedHashMap<String, String>> changeListener) {
 		Objects.nonNull(changeListener);
+		
+		setUser(null);
+
 		this.changeListener = changeListener;
 	}
 
 	public void setUser(String user) {
 		if (preferences != null) {
 			preferences.removePreferenceChangeListener(this);
-			preferences = null;
 		}
 
 		if (user != null) {
-			preferences = Preferences.userNodeForPackage(Application.getInstance().getClass()).node("favorites").node(user);
-			preferences.addPreferenceChangeListener(this);
-		}
+			preferences = Preferences.userNodeForPackage(Application.getInstance().getClass()).node("favoritesByUser").node(user);
+		} else {
+			preferences = Preferences.userNodeForPackage(Application.getInstance().getClass()).node("favorites");
+		}			
 
-		changeListener.accept(getFavorites());
+		preferences.addPreferenceChangeListener(this);
+		
+		if (changeListener != null) {
+			changeListener.accept(getFavorites());
+		}
 	}
 
 	@Override
@@ -43,9 +52,6 @@ public class SwingFavorites implements PreferenceChangeListener {
 	}
 
 	public LinkedHashMap<String, String> getFavorites() {
-		if (preferences == null) {
-			return new LinkedHashMap<>();
-		}
 		try {
 			String[] keys = preferences.keys();
 			Arrays.sort(keys);
