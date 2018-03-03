@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Model;
@@ -201,14 +200,28 @@ public class InMemoryRepository implements Repository {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T> List find(Class<T> clazz, Criteria criteria) {
 		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
+		List result = new ArrayList();
 		if (View.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
 			Map<Object, Object> objects = objects(viewedClass);
-			return (List) objects.values().stream().filter(predicate).map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
+			for (Object object : objects.values()) {
+				if (predicate.test(object)) {
+					result.add(ViewUtil.view(object, CloneHelper.newInstance(clazz)));
+				}
+			}
+			// Cheerpj doesn't work with Collectors.toList()
+			// return (List) objects.values().stream().filter(predicate).map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
 		} else {
 			Map<Object, Object> objects = objects(clazz);
-			return (List) objects.values().stream().filter(predicate).collect(Collectors.toList());
+			for (Object object : objects.values()) {
+				if (predicate.test(object)) {
+					result.add(object);
+				}
+			}
+			// Cheerpj doesn't work with Collectors.toList()
+			// return (List) objects.values().stream().filter(predicate).collect(Collectors.toList());
 		}
+		return result;
 	}
 	
 	@Override
