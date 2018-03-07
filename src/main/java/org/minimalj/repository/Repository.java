@@ -10,7 +10,10 @@ import org.minimalj.repository.sql.SqlRepository;
 
 /**
  * The common interface of all types of repositories. Note that specific implementations
- * can have more methods. See for example the <code>execute</code> methods in SqlRepository
+ * can have more methods. See for example the <code>execute</code> methods in SqlRepository.
+ * 
+ * A repository may use an arbitrary class for id fields. But it must be able to handle
+ * reads and finds with ids converted to a String.
  *
  */
 public interface Repository {

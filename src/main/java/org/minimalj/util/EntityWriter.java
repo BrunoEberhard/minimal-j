@@ -39,7 +39,7 @@ public class EntityWriter {
 			}
 			Class<?> fieldClass = field.getType();
 			if (fieldClass == Object.class && "id".equals(field.getName())) {
-				// TODO id as String fields?
+				// id values are serialized as String
 				fieldClass = String.class;
 				value = value != null ? value.toString() : null;
 			}
