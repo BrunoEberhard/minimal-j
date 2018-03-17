@@ -11,6 +11,7 @@
 * link:authorization.adoc[Authorization] Security concepts and configuration
 * link:../ext/README.adoc[Extensions] Special implementations of Frontends end Backends
 * link:routing.adoc[Routing] How to enable bookmarks in the Frontend
+* link:../ext/cheerpj/cheerpj.adoc[CheerpJ] Use CheerpJ to convert Frontend to JavaScript
 
 == Examples
 
