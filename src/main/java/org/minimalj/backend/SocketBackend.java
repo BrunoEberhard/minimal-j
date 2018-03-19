@@ -34,7 +34,7 @@ public class SocketBackend extends Backend {
 	public SocketBackend(String url, int port) {
 		this.url = url;
 		this.port = port;
-		setRepository(new SocketBackendRepository());
+		setRepository(new BackendRepository());
 	}
 	
 	@Override
@@ -81,7 +81,7 @@ public class SocketBackend extends Backend {
 		}
 	}
 	
-	protected <T> T readResult(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+	public static <T> T readResult(ObjectInputStream ois) throws IOException, ClassNotFoundException {
 		Object wrappedResult = ois.readObject();
 		@SuppressWarnings("unchecked")
 		T result =  (T) SerializationContainer.unwrap(wrappedResult);
@@ -89,7 +89,7 @@ public class SocketBackend extends Backend {
 	}
 	
 	// send data from frontend to backend (import of data)
-	private void sendStream(ObjectOutputStream oos, InputStream inputStream) throws IOException {
+	public static void sendStream(ObjectOutputStream oos, InputStream inputStream) throws IOException {
 		int b;
 		while ((b = inputStream.read()) >= 0) {
 			oos.write(b);
@@ -98,7 +98,7 @@ public class SocketBackend extends Backend {
 	}
 
 	// send data from backend to frontend (export data)
-	private void receiveStream(ObjectInputStream ois, OutputStream outputStream) throws IOException {
+	public static void receiveStream(ObjectInputStream ois, OutputStream outputStream) throws IOException {
 		int b;
 		while ((b = ois.read()) >= 0) {
 			outputStream.write(b);
@@ -106,7 +106,11 @@ public class SocketBackend extends Backend {
 		return;
 	}
 	
-	public static class SocketBackendRepository implements Repository {
+	/**
+	 * This repository implements all Repository methods by wrapping the call in a
+	 * Transaction and execute them on the Backend.
+	 */
+	public static class BackendRepository implements Repository {
 
 		@Override
 		public <T> T read(Class<T> clazz, Object id) {
