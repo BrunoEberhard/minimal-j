@@ -1,10 +1,10 @@
 package org.minimalj.frontend.editor;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
@@ -25,34 +25,16 @@ public class ObjectValidator {
 		ObjectValidator.validatePropertyValues(object, validationMessages, properties);
 	}
 
-	/*
-	public static Collection<PropertyInterface> not_working_in_cheerpj_filterAvailableProperties(Object object, Collection<PropertyInterface> properties) {
+	public static Collection<PropertyInterface> filterAvailableProperties(Object object, Collection<PropertyInterface> properties) {
 		return properties.stream().filter((PropertyInterface property) -> {
 			if (property instanceof ChainedProperty) {
 				return ((ChainedProperty) property).isAvailableFor(object);
 			} else {
 				return true;
 			}
-		}).collect(Collectors.toList());
-		
-		// Caused by: java.lang.IllegalAccessException: member is private to package: java.util.ArrayList.<init>()void/newInvokeSpecial, from java.util.stream.Collectors
+		}).collect(Collectors.toSet());
 	}
-	*/
 	
-	public static Collection<PropertyInterface> filterAvailableProperties(Object object, Collection<PropertyInterface> properties) {
-		List<PropertyInterface> result = new ArrayList<>();
-		for (PropertyInterface p : properties) {
-			if (p instanceof ChainedProperty) {
-				if (((ChainedProperty) p).isAvailableFor(object)) {
-					result.add(p);
-				}
-			} else {
-				result.add(p);
-			}
-		}
-		return result;
-	}
-
 	public static void validateForEmpty(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
 		for (PropertyInterface property : properties) {
 			if (property.getAnnotation(NotEmpty.class) != null) {
