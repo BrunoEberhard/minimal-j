@@ -10,7 +10,6 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -35,7 +34,7 @@ public class MijiJsonReader {
 					Object value = map.get(p.getKey());
 					Class<?> fieldClass = p.getValue().getClazz();
 					if (FieldUtils.isList(fieldClass)) {
-						Class<?> elementClass = GenericUtils.getGenericClass(p.getValue().getType());
+						Class<?> elementClass = p.getValue().getGenericClass();
 						value = readList(elementClass, value);
 					} else if (!FieldUtils.isAllowedPrimitive(fieldClass)) {
 						value = read(fieldClass, value);
