@@ -3,14 +3,14 @@ package org.minimalj.frontend.impl.cheerpj;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.frontend.impl.nanoserver.MjWebDaemon;
 import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoHTTPD;
 
-public class SimpleServer {
-	private static final Logger LOG = Logger.getLogger(SimpleServer.class.getName());
+public class CheerpjServer {
+	private static final Logger LOG = Logger.getLogger(CheerpjServer.class.getName());
 	
 	private static final boolean SECURE = true;
 	private static final int TIME_OUT = 5 * 60 * 1000;
@@ -19,7 +19,7 @@ public class SimpleServer {
 		int port = getPort(secure);
 		if (port > 0) {
 			LOG.info("Start SimpleServer on port " + port + (secure ? " (Secure)" : ""));
-			NanoHTTPD nanoHTTPD = new MjWebDaemon(port, secure);
+			NanoHTTPD nanoHTTPD = new CheerpjHTTPD(port, secure);
 			try {
 				nanoHTTPD.start(TIME_OUT, false); // false -> this will not start a 'java' daemon, but a normal thread which keeps JVM alive
 			} catch (IOException x) {
@@ -38,8 +38,13 @@ public class SimpleServer {
         start(SECURE);
 	}
 	
-	public static void main(String... args) {
+	public static void start(Application application) {
+		Application.setInstance(application);
 		start();
 	}
-
+	
+	public static void main(String... args) {
+		Application.initApplication(args);
+		start();
+	}
 }
