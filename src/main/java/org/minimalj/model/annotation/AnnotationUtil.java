@@ -33,18 +33,6 @@ public class AnnotationUtil {
 		if (sizes == null) {
 			sizes = property.getDeclaringClass().getPackage().getAnnotation(Sizes.class);
 		}
-		/* not working in CheerpJ beta 3
-		if (sizes == null) {
-			System.out.print("getSize 4 ");
-			Package package1 = property.getDeclaringClass().getPackage();
-			System.out.print("getSize 5 " +  package1);
-			try {
-				sizes = package1.getAnnotation(Sizes.class);
-			} catch (Throwable t) {
-				System.out.println("Throwable: " + t.getMessage());
-			}
-		}
-		*/
 		if (sizes != null) {
 			Class<?> sizeClass = sizes.value();
 			for (Field field : sizeClass.getFields()) {
