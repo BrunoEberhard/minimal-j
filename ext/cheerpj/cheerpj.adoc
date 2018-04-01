@@ -13,5 +13,5 @@ only transactions are sent from the browser to the backend on the server. Someho
 In the second configuration there is no more Java Backend. Only a web server that delivers the resources for the browser. The repository is implemented with a in-memory database.
 Of course in this configuration every time the user refreshes the page all data is lost. So this configuration is only usable for demos.
 
-Have a look a the link:https://www.openech.ch/minimalj_cheerpj_petclinic[Petclinic] deployed in the standalone configuration!
+Have a look a the link:http://www.openech.ch/minimalj_cheerpj_petclinic[Petclinic] deployed in the standalone configuration!
 
