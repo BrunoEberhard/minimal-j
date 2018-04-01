@@ -1,6 +1,5 @@
 package org.minimalj.model;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,20 +17,19 @@ import org.minimalj.util.LocaleContext;
 
 public class EnumUtils {
 
-	@SuppressWarnings({ "restriction", "rawtypes", "unchecked" })
+	@SuppressWarnings({ "restriction", "unchecked" })
 	public static <T extends Enum<T>> T createEnum(Class<T> clazz, String name) {
 		try {
-			// which one is better for jdk9? This?
-			// sun.misc.Unsafe unsafe = getUnsafe();
-			// T e = (T) unsafe.allocateInstance(clazz);
+			// which one is better? This?
+			sun.misc.Unsafe unsafe = getUnsafe();
+			T e = (T) unsafe.allocateInstance(clazz);
 			
-			// or this?
-			sun.reflect.ReflectionFactory f = sun.reflect.ReflectionFactory.getReflectionFactory();
-			Constructor c = f.newConstructorForSerialization(clazz);
-			T e = (T) c.newInstance();
+			// or this? (this one doesn't work with cheerpj beta 3)
+ 			// sun.reflect.ReflectionFactory f = sun.reflect.ReflectionFactory.getReflectionFactory();
+			// Constructor c = f.newConstructorForSerialization(clazz);
+			// T e = (T) c.newInstance();
 			
 			// in jdk9: replace this with VarHandle
-			sun.misc.Unsafe unsafe = getUnsafe();
 			unsafe.putObject(e, unsafe.objectFieldOffset(Enum.class.getDeclaredField("name")), name);
 			unsafe.putInt(e, unsafe.objectFieldOffset(Enum.class.getDeclaredField("ordinal")), Integer.MAX_VALUE);
 			

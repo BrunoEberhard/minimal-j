@@ -57,16 +57,7 @@ public class RestBackend extends Backend {
 	
 	@Override
 	public Authentication createAuthentication() {
-		return execute(new GetAuthentication());
-	}
-	
-	public static class GetAuthentication implements Transaction<Authentication> {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Authentication execute() {
-			return Backend.getInstance().getAuthentication();
-		}
+		return execute(new SocketBackend.GetAuthentication());
 	}
 	
 	@Override
@@ -94,17 +85,17 @@ public class RestBackend extends Backend {
 				oos.writeObject(transaction);
 				oos.flush();
 				if (transaction instanceof InputStreamTransaction) {
-					sendStream(oos, ((InputStreamTransaction<?>) transaction).getStream());
+					SocketBackend.sendStream(oos, ((InputStreamTransaction<?>) transaction).getStream());
 				}
 				
 				outputStream.flush();
 				 
 				try (ObjectInputStream ois = new ObjectInputStream(connection.getInputStream())) {
 					if (transaction instanceof OutputStreamTransaction) {
-						receiveStream(ois, ((OutputStreamTransaction<?>) transaction).getStream());
+						SocketBackend.receiveStream(ois, ((OutputStreamTransaction<?>) transaction).getStream());
 					}
 
-					return (T) SerializationContainer.unwrap(readResult(ois));
+					return (T) SerializationContainer.unwrap(SocketBackend.readResult(ois));
 				} catch (ClassNotFoundException e) {
 					throw new LoggingRuntimeException(e, LOG, "Could not read result from transaction");
 				} catch (IOException e) {
@@ -123,32 +114,7 @@ public class RestBackend extends Backend {
 			}
 		}
 	}
-	
-	protected <T> T readResult(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-		Object wrappedResult = ois.readObject();
-		@SuppressWarnings("unchecked")
-		T result =  (T) SerializationContainer.unwrap(wrappedResult);
-		return result;
-	}
-	
-	// send data from frontend to backend (import of data)
-	private void sendStream(ObjectOutputStream oos, InputStream inputStream) throws IOException {
-		int b;
-		while ((b = inputStream.read()) >= 0) {
-			oos.write(b);
-		}
-		oos.flush();
-	}
-
-	// send data from backend to frontend (export data)
-	private void receiveStream(ObjectInputStream ois, OutputStream outputStream) throws IOException {
-		int b;
-		while ((b = ois.read()) >= 0) {
-			outputStream.write(b);
-		}
-		return;
-	}
-	
+		
 	public class RestBackendRepository implements Repository {
 
 		@Override

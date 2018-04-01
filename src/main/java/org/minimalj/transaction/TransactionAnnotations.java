@@ -49,7 +49,9 @@ public class TransactionAnnotations {
 		if (annotation != null) {
 			return annotation;
 		} else {
-			return clazz.getPackage().getAnnotation(annotationClass);
+			return null;
+			// not working on cheerpj (TODO reactivate after bug closed)
+			// return clazz.getPackage().getAnnotation(annotationClass);
 		}
 	}
 }
