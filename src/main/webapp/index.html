@@ -26,6 +26,7 @@ $ICON
 
 	var pageContainerElement;
 	var titleElement;
+  	var intersectionObserver = new IntersectionObserver(intersectionListener, {threshold: 1});
   
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
@@ -152,10 +153,11 @@ $ICON
 		}
 		if (dataObject.tableExtendContent != undefined) {
 			var table = document.getElementById(dataObject.tableId);
-			var button = table.getElementsByTagName("button")[0];
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
 			if (!dataObject.extendable) {
-				button.parentNode.removeChild(button);			
+				var footer = table.getElementsByTagName("tfoot")[0];
+				intersectionObserver.unobserve(footer);
+				table.removeChild(footer);			
 			}
 		}
 		
@@ -395,11 +397,10 @@ $ICON
 			
 			if (content.extendable) {
 				var footer = document.createElement("tfoot");
-				var button = document.createElement("button");
-				button.appendChild(document.createTextNode(">"));
-				button.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
-				button.setAttribute("style", "width: 10em");
-				footer.appendChild(button);
+				var dots = document.createTextNode("...");
+				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");				
+				footer.appendChild(dots);
+				intersectionObserver.observe(footer);
 				element.appendChild(footer);
 			}
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
@@ -881,6 +882,19 @@ $ICON
 		var tableAction = {"table" : tableId, "column" : column};
 		var data = {"tableSortAction" : tableAction};
 		send(data, true);
+	}
+	
+	function intersectionListener(entries) {
+		for (var i = 0; i<entries.length; i++) {
+			if (entries[i].intersectionRatio > 0) {
+				var table = entries[i].target.parentNode;
+				// only a table in last page should scroll automatically
+				var pages = document.getElementsByClassName("page");
+				if (pages[pages.length-1].contains(table)) {
+					tableExtendContent(table.name);
+				}
+			}
+		}
 	}
 	
 	function tableExtendContent(tableId) {
