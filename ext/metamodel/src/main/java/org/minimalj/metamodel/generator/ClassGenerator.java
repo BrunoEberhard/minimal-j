@@ -59,7 +59,7 @@ public class ClassGenerator {
 	
 	public void generate(Collection<MjEntity> entities) {
 		for (MjEntity entity : entities) {
-			if (entity.type != null && (entity.isEnumeration() || entity.type.getJavaClass() == null)) {
+			if (!entity.isPrimitiv() ||entity.isEnumeration()) {
 				generateEntity(entity);
 			}
 		}
@@ -99,6 +99,7 @@ public class ClassGenerator {
 			first = false;
 			if (startsWithDigit) s.append("_");
 			element = element.replaceAll("\\-", "\\_");
+			element = element.replaceAll("\\.", "\\_");
 			element = StringUtils.toSnakeCase(element);
 			if (element.equals("public")) element = "_public";
 			s.append(element);

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.minimalj.model.Code;
@@ -44,6 +45,10 @@ public class MjEntity {
 		public Class<?> getJavaClass() {
 			return javaClass;
 		}
+		
+		public boolean isPrimitiv() {
+			return javaClass != null;
+		}
 	}
 	
 	public static final MjEntity $ = Keys.of(MjEntity.class);
@@ -72,7 +77,7 @@ public class MjEntity {
 	}
 	
 	public MjEntity(MjModel model, MjEntityType type) {
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
 		this.clazz = type.getJavaClass();
 		if (clazz != null) {
 			this.name = clazz.getSimpleName();
@@ -141,6 +146,10 @@ public class MjEntity {
 		return values != null && !values.isEmpty();
 	}
 
+	public boolean isPrimitiv() {
+		return type.isPrimitiv();
+	}
+	
 	public String getSimpleClassName() {
 		return name;
 	}
