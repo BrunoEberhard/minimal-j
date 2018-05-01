@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 
 import org.minimalj.metamodel.model.MjEntity;
@@ -112,12 +114,15 @@ public class ClassGenerator {
 
 	public String generate(MjEntity entity) {
 		String packageName = entity.packageName;
+		String className = createClassName(entity);
 
 		StringBuilder s = new StringBuilder();
+		Set<String> forbiddenNames = new TreeSet<>();
+		forbiddenNames.add(className);
 		for (MjProperty property : entity.properties) {
-			generate(s, property, packageName);
+			generate(s, property, packageName, forbiddenNames);
 		}
-		s.insert(0, "\npublic class " + createClassName(entity) + " {\n\n");
+		s.insert(0, "\npublic class " + className + " {\n\n");
 		imprts(s);
 		s.insert(0, "package " + packageName + ";\n\n");
 		
@@ -125,7 +130,7 @@ public class ClassGenerator {
 		return s.toString();
 	}
 
-	public void generate(StringBuilder s, MjProperty property, String packageName) {
+	public void generate(StringBuilder s, MjProperty property, String packageName, Set<String> forbiddenNames) {
 		String fieldName = property.name;
 		
 		if (property.type.type == MjEntityType.String) {
@@ -148,7 +153,11 @@ public class ClassGenerator {
 			} else {
 				// no general type, needs inner class
 				className = StringUtils.upperFirstChar(fieldName);
-				generateInnerClass(s, property.type, className, packageName);
+				while (forbiddenNames.contains(className)) {
+					className = className + "_";
+				}
+				forbiddenNames.add(className);
+				generateInnerClass(s, property.type, className, packageName, forbiddenNames);
 			}
  			
 		} else if ((property.type.type.getJavaClass() == null || property.type.isEnumeration()) && !packageName.equals(property.type.packageName)) {
@@ -173,10 +182,10 @@ public class ClassGenerator {
 		}			
 	}
 
-	public String generateInnerClass(StringBuilder s, MjEntity entity, String innerClassName, String packageName) {
+	public String generateInnerClass(StringBuilder s, MjEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
 		s.append("\n  public static class " + innerClassName + " {\n\n");
 		for (MjProperty property : entity.properties) {
-			generate(s, property, packageName);
+			generate(s, property, packageName, forbiddenNames);
 		}
 		s.append("  }\n");
 		return s.toString();
