@@ -182,6 +182,7 @@ public class FieldUtils {
 			} else if (clazz == BigDecimal.class) {
 				value = new BigDecimal(s);
 			} else if (clazz == LocalDate.class) {
+				if (s.length() > 10) s = s.substring(0, 10);
 				value = LocalDate.parse(s);
 			} else if (clazz == LocalTime.class) {
 				value = LocalTime.parse(s);
