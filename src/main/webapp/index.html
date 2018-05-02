@@ -6,8 +6,9 @@
 <!-- $APPLICATION-VERSION -->
 <base href="$BASE">
 
-<!-- $CHEERPJ_IMPORT -->
+<!-- $CHEERPJ_IMPORT 
 <script src="https://cjrtnc.leaningtech.com/loader.js"></script>
+-->
 <script src="dialog-polyfill.js"></script>
 
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -966,8 +967,8 @@ $ICON
 		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
 		
 		// $CHEERPJ
-		sendCheerpj(data, block);
-		// $WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
+		// sendCheerpj(data, block);
+		$WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
 	}
 		
 	function sendAjax(data, block) {
@@ -1148,8 +1149,8 @@ $ICON
 	}
 
     function init(e) {
-      init();
-      }
+   		init();
+	}
 
 	function init() {
 		if (!$LOGIN) {
@@ -1169,10 +1170,11 @@ $ICON
 
 		window.onpopstate = popState;
 
-		send({
-			"showDefaultPage" : "default-" + (new Date().getTime()),
-			"path" : "$PATH"
-		});
+		if (window.history.state != undefined) {
+			send({ "initialize" : window.history.state });
+		} else {
+			send({ "initialize" : "$PATH" });
+		}
 	}
 	
 	function checkInput(type) {
@@ -1180,8 +1182,8 @@ $ICON
 	    input.setAttribute("type", type);
 	    return input.type == type;
 	}
-	
-	if (true) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN
+		
+	if (false) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN
 		cheerpjInit();
 		// cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/h.jar", "org.minimalj.example.helloworld2.GreetingApplication");  
         cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication").then(init);  
@@ -1191,7 +1193,7 @@ $ICON
 </script>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
-<body id="body">
+<body onload="init();" id="body">
 	<div id="header">
 		<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
               <g style="stroke-width:0px"> 		
