@@ -173,17 +173,29 @@ public class ClassGenerator {
 			s.append("  public List<" + className + "> " + fieldName + ";\n");
 		} else {
 			if (property.type.type == MjEntityType.String && !property.type.isEnumeration()) {
-				if (property.type.maxLength != null) {
-					s.append("  @Size(" + property.type.maxLength + ")\n");
-				} else {
-					System.out.println("Missing size for " + fieldName);
+				if (!appendSize(s, property)) {
+					if (property.type.getElement() != null) {
+						System.out.println("Missing size for element " + property.type.getElement().getAttribute("name"));
+					} else {
+						System.out.println("Missing size for property " + property.name);
+					}
 				}
+			} else if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long || property.type.type == MjEntityType.BigDecimal) {
+				appendSize(s, property);
 			}
-			
 			s.append("  public " + className + " " + fieldName + ";\n");
 		}			
 	}
 
+	private boolean appendSize(StringBuilder s, MjProperty property) {
+		if (property.type.maxLength != null) {
+			s.append("  @Size(" + property.type.maxLength + ")\n");
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public String generateInnerClass(StringBuilder s, MjEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
 		s.append("\n  public static class " + innerClassName + " {\n\n");
 		for (MjProperty property : entity.properties) {
