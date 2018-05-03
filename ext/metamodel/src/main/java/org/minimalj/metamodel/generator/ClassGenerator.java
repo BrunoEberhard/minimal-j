@@ -100,9 +100,11 @@ public class ClassGenerator {
 			if (!first) s.append(", ");
 			first = false;
 			if (startsWithDigit) s.append("_");
+			element = element.replaceAll("\\_", "\\_\\_");
+			element = element.replaceAll(" ", "\\_");
 			element = element.replaceAll("\\-", "\\_");
 			element = element.replaceAll("\\.", "\\_");
-			element = StringUtils.toSnakeCase(element);
+			// element = StringUtils.toSnakeCase(element);
 			if (element.equals("public")) element = "_public";
 			s.append(element);
 		}
