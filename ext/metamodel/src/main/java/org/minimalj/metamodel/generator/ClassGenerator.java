@@ -89,6 +89,14 @@ public class ClassGenerator {
 		StringBuilder s = new StringBuilder();
 		s.append("public enum " + createClassName(entity) + " {\n  ");
 		
+		generateEnumValues(s, entity);
+		
+		s.append("\n}");
+		s.insert(0, "package " + entity.packageName + ";\n\n");
+		return s.toString();
+	}
+
+	private void generateEnumValues(StringBuilder s, MjEntity entity) {
 		boolean startsWithDigit = false;
 		
 		for (String element : entity.values) {
@@ -109,9 +117,7 @@ public class ClassGenerator {
 			s.append(element);
 		}
 		
-		s.append(";\n}");
-		s.insert(0, "package " + entity.packageName + ";\n\n");
-		return s.toString();
+		s.append(";");
 	}
 
 	public String generate(MjEntity entity) {
@@ -197,11 +203,17 @@ public class ClassGenerator {
 	}
 	
 	public String generateInnerClass(StringBuilder s, MjEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
-		s.append("\n  public static class " + innerClassName + " {\n\n");
-		for (MjProperty property : entity.properties) {
-			generate(s, property, packageName, forbiddenNames);
+		if (entity.isEnumeration()) {
+			s.append("\n  public enum " + innerClassName + " { ");
+			generateEnumValues(s, entity);			
+			s.append("  }\n");
+		} else {
+			s.append("\n  public static class " + innerClassName + " {\n\n");
+			for (MjProperty property : entity.properties) {
+				generate(s, property, packageName, forbiddenNames);
+			}
+			s.append("  }\n");
 		}
-		s.append("  }\n");
 		return s.toString();
 	}
 
