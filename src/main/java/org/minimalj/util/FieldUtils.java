@@ -188,7 +188,7 @@ public class FieldUtils {
 				value = LocalTime.parse(s);
 			} else if (clazz == LocalDateTime.class) {
 				value = LocalDateTime.parse(s);
-			} else if (Enum.class.isAssignableFrom(clazz)) {
+			} else if (clazz.isEnum()) {
 				List<Enum> values = (List<Enum>) EnumUtils.valueList((Class<Enum>) clazz);
 				for (Enum enumValue : values) {
 					if (enumValue.name().equalsIgnoreCase(s)) {
