@@ -154,20 +154,13 @@ public class ClassGenerator {
 		String className = createClassName(property.type);
 
 		if (StringUtils.isEmpty(className)) {
-			if (property.type.properties.size() == 1) {
-				// inner classes with exact one field can be omitted
-				property = property.type.properties.get(0);
-				className = createClassName(property.type);
-			} else {
-				// no general type, needs inner class
-				className = StringUtils.upperFirstChar(fieldName);
-				while (forbiddenNames.contains(className)) {
-					className = className + "_";
-				}
-				forbiddenNames.add(className);
-				generateInnerClass(s, property.type, className, packageName, forbiddenNames);
+			// no general type, needs inner class
+			className = StringUtils.upperFirstChar(fieldName);
+			while (forbiddenNames.contains(className)) {
+				className = className + "_";
 			}
- 			
+			forbiddenNames.add(className);
+			generateInnerClass(s, property.type, className, packageName, forbiddenNames);
 		} else if ((property.type.type.getJavaClass() == null || property.type.isEnumeration()) && !packageName.equals(property.type.packageName)) {
 			className = property.type.packageName + "." + className;
 		}
