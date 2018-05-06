@@ -165,7 +165,8 @@ public class ClassGenerator {
 			className = property.type.packageName + "." + className;
 		}
 		
-		if (Boolean.TRUE.equals(property.notEmpty)) {
+		boolean notEmpty = Boolean.TRUE.equals(property.notEmpty);
+		if (notEmpty) {
 			s.append("  @NotEmpty\n");
 		}
 		if (property.propertyType == MjPropertyType.LIST) {
@@ -182,7 +183,12 @@ public class ClassGenerator {
 			} else if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long || property.type.type == MjEntityType.BigDecimal) {
 				appendSize(s, property);
 			}
-			s.append("  public " + className + " " + fieldName + ";\n");
+			boolean inline = !property.type.isPrimitiv() && notEmpty;
+			if (inline) {
+				s.append("  public final " + className + " " + fieldName + " = new " + className + "();\n");
+			} else {
+				s.append("  public " + className + " " + fieldName + ";\n");
+			}
 		}			
 	}
 
