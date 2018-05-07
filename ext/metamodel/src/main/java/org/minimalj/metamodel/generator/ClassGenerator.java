@@ -97,27 +97,27 @@ public class ClassGenerator {
 	}
 
 	private void generateEnumValues(StringBuilder s, MjEntity entity) {
-		boolean startsWithDigit = false;
+		boolean startsWithDigit = entity.values.stream().anyMatch(element -> Character.isDigit(element.charAt(0)));
 		
-		for (String element : entity.values) {
-			startsWithDigit |= Character.isDigit(element.charAt(0));
-		}
-
 		boolean first = true;
 		for (String element : entity.values) {
 			if (!first) s.append(", ");
 			first = false;
 			if (startsWithDigit) s.append("_");
-			element = element.replaceAll("\\_", "\\_\\_");
-			element = element.replaceAll(" ", "\\_");
-			element = element.replaceAll("\\-", "\\_");
-			element = element.replaceAll("\\.", "\\_");
-			// element = StringUtils.toSnakeCase(element);
-			if (element.equals("public")) element = "_public";
+			element = toEnum(element);
 			s.append(element);
 		}
 		
 		s.append(";");
+	}
+
+	public static String toEnum(String element) {
+		element = element.replaceAll("\\_", "\\_\\_");
+		element = element.replaceAll(" ", "\\_");
+		element = element.replaceAll("\\-", "\\_");
+		element = element.replaceAll("\\.", "\\_");
+		if (element.equals("public")) element = "_public";
+		return element;
 	}
 
 	public String generate(MjEntity entity) {
