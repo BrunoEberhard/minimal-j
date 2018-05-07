@@ -207,12 +207,12 @@ public class Keys {
 		}
 	}
 
-	private static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
+	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
 		Method[] methods = clazz.getMethods();
 		for (Method method: methods) {
 			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;
 			String name = method.getName();
-			if (!name.startsWith("get") && name.length() > 3) continue; // TODO check
+			if (!name.startsWith("get") || name.length() <= 3) continue; // TODO check
 			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;
 			
 			String setterName = "set" + name.substring(3);
