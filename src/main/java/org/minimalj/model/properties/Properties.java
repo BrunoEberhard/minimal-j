@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 
+import org.minimalj.model.Keys;
 import org.minimalj.util.FieldUtils;
 
 public class Properties {
@@ -15,16 +17,20 @@ public class Properties {
 	private static final Map<Class<?>, Map<String, PropertyInterface>> properties = 
 			new HashMap<Class<?>, Map<String, PropertyInterface>>();
 	
-	public static PropertyInterface getProperty(Class<?> clazz, String fieldName) {
-		if (fieldName == null) throw new NullPointerException();
+	public static PropertyInterface getProperty(Class<?> clazz, String propertyName) {
+		Objects.requireNonNull(propertyName);
 
 		Map<String, PropertyInterface> propertiesForClass = getProperties(clazz);
-		PropertyInterface propertyInterface = propertiesForClass.get(fieldName);
+		PropertyInterface property = propertiesForClass.get(propertyName);
 
-		if (propertyInterface != null) {
-			return propertyInterface;
+		if (property == null) {
+			property = Keys.getMethodProperty(clazz, propertyName);
+		}
+		
+		if (property != null) {
+			return property;
 		} else {
-			logger.severe("No field/setMethod " + fieldName + " in Class " + clazz.getName());
+			logger.severe("No field/access methods for " + propertyName + " in Class " + clazz.getName());
 			return null;
 		}
 	}
