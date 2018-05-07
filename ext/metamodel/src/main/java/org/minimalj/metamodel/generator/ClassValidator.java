@@ -80,13 +80,15 @@ public class ClassValidator {
 	}
 
 	public void validate(Class<?> clazz, MjEntity entity, MjProperty property, Set<String> forbiddenNames) {
-		System.out.println("validate: " + entity.name + " " + property.name + " against " + clazz.getName());
+		// System.out.println("validate: " + entity.name + " " + property.name + " against " + clazz.getName());
 		PropertyInterface p = Properties.getProperty(clazz, property.name);
 		if (p == null) {
 			throw new RuntimeException("Missing property: " + property.name + " on " + clazz.getName());
 		}
-		if (Boolean.TRUE.equals(property.notEmpty)) {
-			if (p.getAnnotation(NotEmpty.class) == null && !p.isFinal()) {
+		// note: it's allowed to omit an NotEmpty
+		// but it's not allowed to have one if the value is not required in the model
+		if (p.getAnnotation(NotEmpty.class) != null) {
+			if (!Boolean.TRUE.equals(property.notEmpty)) {
 				throw new RuntimeException("Property should be marked as NotEmpty: " + property.name + " on " + entity.getClassName());
 			}
 		}
