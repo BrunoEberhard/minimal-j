@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.model.ViewUtil;
-import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.list.RelationList;
 import org.minimalj.util.IdUtils;
@@ -138,7 +138,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	@Override
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
 		s.append(",\n elementId "); 
-		PropertyInterface elementIdProperty = Properties.getProperty(clazz, "id");
+		PropertyInterface elementIdProperty = FlatProperties.getProperty(clazz, "id");
 		dialect.addColumnDefinition(s, elementIdProperty);
 		s.append(" NOT NULL");
 	}
