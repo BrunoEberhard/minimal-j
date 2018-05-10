@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,10 @@ public class MjEntity {
 		}
 	}
 	
+	public static final Map<Class<?>, MjEntity> PRIMITIVES = Arrays.stream(MjEntity.MjEntityType.values())
+			.filter(MjEntityType::isPrimitiv)
+			.collect(Collectors.toMap(MjEntityType::getJavaClass, t -> new MjEntity(t)));
+	
 	public static final MjEntity $ = Keys.of(MjEntity.class);
 	
 	public Object id;
@@ -73,10 +79,6 @@ public class MjEntity {
 	}
 	
 	public MjEntity(MjEntityType type) {
-		this(null, type);
-	}
-	
-	public MjEntity(MjModel model, MjEntityType type) {
 		this.type = Objects.requireNonNull(type);
 		this.clazz = type.getJavaClass();
 		if (clazz != null) {
