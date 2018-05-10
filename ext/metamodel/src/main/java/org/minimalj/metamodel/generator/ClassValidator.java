@@ -1,5 +1,6 @@
 package org.minimalj.metamodel.generator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -64,14 +65,23 @@ public class ClassValidator {
 		List existingValues = (List) EnumUtils.valueList((Class<Enum>) clazz).stream().map(e -> e.toString()).collect(Collectors.toList());
 		
 		for (String element : entity.values) {
-			if (startsWithDigit) element = "_" + ClassGenerator.toEnum(element);
+			element = ClassGenerator.toEnum(element);
+			if (startsWithDigit) element = "_" + element;
 			if (!existingValues.contains(element)) {
 				throw new RuntimeException("Missing enum: " + element + " on " + clazz.getName());
 			}
 		}
 	}
 
+	private List<MjEntity> validated = new ArrayList<>();
+	
 	public void validate(Class<?> clazz, MjEntity entity) {
+		if (validated.contains(entity)) {
+			// System.out.println("Cycle: " + entity.name + " / " + clazz.getName());
+			return;
+		}
+		validated.add(entity);
+		
 		Set<String> forbiddenNames = new TreeSet<>();
 		forbiddenNames.add(clazz.getSimpleName());
 		for (MjProperty property : entity.properties) {
@@ -80,7 +90,7 @@ public class ClassValidator {
 	}
 
 	public void validate(Class<?> clazz, MjEntity entity, MjProperty property, Set<String> forbiddenNames) {
-		// System.out.println("validate: " + entity.name + " " + property.name + " against " + clazz.getName());
+		// System.out.println("validate " + (count++) + " : "+ entity.name + " " + property.name + " against " + clazz.getName());
 		PropertyInterface p = Properties.getProperty(clazz, property.name);
 		if (p == null) {
 			throw new RuntimeException("Missing property: " + property.name + " on " + clazz.getName());
