@@ -52,6 +52,8 @@ public class MjProperty {
 			this.type = model.getEntity(GenericUtils.getGenericClass(field));
 		} else if (!FieldUtils.isAllowedPrimitive(field.getType())) {
 			this.type = model.getEntity(field.getType());
+		} else {
+			this.type = MjEntity.PRIMITIVES.get(field.getType());
 		}
 		notEmpty = field.getAnnotation(NotEmpty.class) != null;
 		searched = field.getAnnotation(Searched.class) != null;
@@ -74,6 +76,8 @@ public class MjProperty {
 			this.type = model.getEntity(GenericUtils.getGenericClass(returnType));
 		} else if (!FieldUtils.isAllowedPrimitive(returnType)) {
 			this.type = model.getEntity(returnType);
+		} else {
+			this.type = MjEntity.PRIMITIVES.get(returnType);
 		}
 		notEmpty = method.getAnnotation(NotEmpty.class) != null;
 		searched = method.getAnnotation(Searched.class) != null;
