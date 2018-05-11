@@ -18,6 +18,7 @@ import org.minimalj.util.StringUtils;
 public class ClassGenerator {
 
 	private final File dir;
+	private int indent = 0;
 	
 	public ClassGenerator(String path) {
 		dir = new File(path);
@@ -77,7 +78,7 @@ public class ClassGenerator {
 
 	private String generateEnum(MjEntity entity) {
 		StringBuilder s = new StringBuilder();
-		s.append("public enum " + createClassName(entity) + " {\n  ");
+		indent(s, indent).append("public enum " + createClassName(entity) + " {\n  ");
 		
 		generateEnumValues(s, entity);
 		
@@ -117,15 +118,22 @@ public class ClassGenerator {
 		StringBuilder s = new StringBuilder();
 		Set<String> forbiddenNames = new TreeSet<>();
 		forbiddenNames.add(className);
-		for (MjProperty property : entity.properties) {
-			generate(s, property, packageName, forbiddenNames);
-		}
+		generateProperties(s, entity, packageName, forbiddenNames);
+		
 		s.insert(0, "\npublic class " + className + " {\n\n");
 		imprts(s);
 		s.insert(0, "package " + packageName + ";\n\n");
 		
 		s.append("}");
 		return s.toString();
+	}
+
+	private void generateProperties(StringBuilder s, MjEntity entity, String packageName, Set<String> forbiddenNames) {
+		indent++;
+		for (MjProperty property : entity.properties) {
+			generate(s, property, packageName, forbiddenNames);
+		}
+		indent--;
 	}
 
 	public void generate(StringBuilder s, MjProperty property, String packageName, Set<String> forbiddenNames) {
@@ -135,7 +143,7 @@ public class ClassGenerator {
 			if (property.type.isEnumeration()) {
 				if (property.type.values.size() == 1) {
 					// for String with exact one possible value the field can be initialized and set to final
-					s.append("  public final String " + fieldName + " = \"" + property.type.values.iterator().next() + "\";\n");
+					indent(s, indent).append("public final String " + fieldName + " = \"" + property.type.values.iterator().next() + "\";\n");
 					return;
 				}
 			}
@@ -159,10 +167,10 @@ public class ClassGenerator {
 		boolean inline = !property.type.isPrimitiv() && notEmpty;
 
 		if (notEmpty && !inline) {
-			s.append("  @NotEmpty\n");
+			indent(s, indent).append("@NotEmpty\n");
 		}
 		if (property.propertyType == MjPropertyType.LIST) {
-			s.append("  public List<" + className + "> " + fieldName + ";\n");
+			indent(s, indent).append("public List<" + className + "> " + fieldName + ";\n");
 		} else {
 			if (property.type.type == MjEntityType.String && !property.type.isEnumeration()) {
 				if (!appendSize(s, property)) {
@@ -176,16 +184,16 @@ public class ClassGenerator {
 				appendSize(s, property);
 			}
 			if (inline) {
-				s.append("  public final " + className + " " + fieldName + " = new " + className + "();\n");
+				indent(s, indent).append("public final " + className + " " + fieldName + " = new " + className + "();\n");
 			} else {
-				s.append("  public " + className + " " + fieldName + ";\n");
+				indent(s, indent).append("public " + className + " " + fieldName + ";\n");
 			}
 		}			
 	}
 
 	private boolean appendSize(StringBuilder s, MjProperty property) {
 		if (property.type.maxLength != null) {
-			s.append("  @Size(" + property.type.maxLength + ")\n");
+			indent(s, indent).append("@Size(" + property.type.maxLength + ")\n");
 			return true;
 		} else {
 			return false;
@@ -194,17 +202,24 @@ public class ClassGenerator {
 	
 	public String generateInnerClass(StringBuilder s, MjEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
 		if (entity.isEnumeration()) {
-			s.append("\n  public enum " + innerClassName + " { ");
+			s.append('\n');
+			indent(s, indent).append("public enum " + innerClassName + " { ");
 			generateEnumValues(s, entity);			
-			s.append("  }\n");
+			indent(s, indent).append("}\n");
 		} else {
-			s.append("\n  public static class " + innerClassName + " {\n\n");
-			for (MjProperty property : entity.properties) {
-				generate(s, property, packageName, forbiddenNames);
-			}
-			s.append("  }\n");
+			indent(s, indent).append("public static class " + innerClassName + " {\n\n");
+			generateProperties(s, entity, packageName, forbiddenNames);
+			indent(s, indent).append("}\n");
 		}
 		return s.toString();
+	}
+	
+	private StringBuilder indent(StringBuilder s, int indent) {
+		while (indent > 0) {
+			s.append('\t');
+			indent--;
+		}
+		return s;
 	}
 
 	
