@@ -120,6 +120,9 @@ public class ClassGenerator {
 		forbiddenNames.add(className);
 		generateProperties(s, entity, packageName, forbiddenNames);
 		
+		if (entity.type == MjEntityType.ENTITY) {
+			s.insert(0, "\tpublic Object id;\n");
+		}
 		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
 		s.insert(0, "\npublic class " + className + " {\n");
 		imprts(s);
