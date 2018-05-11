@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.minimalj.metamodel.model.MjEntity;
@@ -19,22 +18,8 @@ import org.minimalj.model.properties.PropertyInterface;
 
 public class ClassValidator {
 
-	private Function<MjEntity, String> classNameGenerator;
-	
 	public void validate(MjModel model) {
 		validate(model.entities);
-	}
-	
-	public void setClassNameGenerator(Function<MjEntity, String> classNameGenerator) {
-		this.classNameGenerator = classNameGenerator;
-	}
-	
-	private String createClassName(MjEntity entity) {
-		if (classNameGenerator != null) {
-			return classNameGenerator.apply(entity);
-		} else {
-			return entity.getClassName();
-		}
 	}
 	
 	public void validate(Collection<MjEntity> entities) {
@@ -46,7 +31,7 @@ public class ClassValidator {
 	}
 
 	private void validateEntity(MjEntity entity) {
-		String className = createClassName(entity);
+		String className = entity.getClassName();
 		try {
 			Class<?> clazz = Class.forName(entity.packageName + "." + className);
 			if (entity.isEnumeration()) {

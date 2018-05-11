@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjEntity.MjEntityType;
@@ -19,7 +18,6 @@ import org.minimalj.util.StringUtils;
 public class ClassGenerator {
 
 	private final File dir;
-	private Function<MjEntity, String> classNameGenerator;
 	
 	public ClassGenerator(String path) {
 		dir = new File(path);
@@ -43,16 +41,8 @@ public class ClassGenerator {
 		return dir.delete();
 	}
 	
-	public void setClassNameGenerator(Function<MjEntity, String> classNameGenerator) {
-		this.classNameGenerator = classNameGenerator;
-	}
-	
 	private String createClassName(MjEntity entity) {
-		if (classNameGenerator != null) {
-			return classNameGenerator.apply(entity);
-		} else {
-			return entity.getClassName();
-		}
+		return entity.getClassName();
 	}
 	
 	public void generate(MjModel model) {
