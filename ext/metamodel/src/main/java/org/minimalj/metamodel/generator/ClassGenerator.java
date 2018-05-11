@@ -78,7 +78,7 @@ public class ClassGenerator {
 
 	private String generateEnum(MjEntity entity) {
 		StringBuilder s = new StringBuilder();
-		indent(s, indent).append("public enum " + createClassName(entity) + " {\n  ");
+		indent(s, indent).append("public enum " + createClassName(entity) + " {\n");
 		
 		generateEnumValues(s, entity);
 		
@@ -120,7 +120,8 @@ public class ClassGenerator {
 		forbiddenNames.add(className);
 		generateProperties(s, entity, packageName, forbiddenNames);
 		
-		s.insert(0, "\npublic class " + className + " {\n\n");
+		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
+		s.insert(0, "\npublic class " + className + " {\n");
 		imprts(s);
 		s.insert(0, "package " + packageName + ";\n\n");
 		
@@ -224,6 +225,7 @@ public class ClassGenerator {
 
 	
 	protected void imprts(StringBuilder java) {
+		java.insert(0, "import org.minimalj.model.Keys;\n");
 		if (java.indexOf("@NotEmpty") > -1) java.insert(0, "import org.minimalj.model.annotation.NotEmpty;\n");
 		if (java.indexOf("@Size") > -1) java.insert(0, "import org.minimalj.model.annotation.Size;\n");
 		if (java.indexOf("BigDecimal") > -1) java.insert(0, "import java.math.BigDecimal;\n");
