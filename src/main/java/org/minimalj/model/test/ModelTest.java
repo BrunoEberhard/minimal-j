@@ -279,7 +279,7 @@ public class ModelTest {
 				testTypeOfTechnicalField(field, technicalField.value());
 			}
 			Class<?> fieldType = field.getType();
-			if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
+			if (!View.class.isAssignableFrom(field.getDeclaringClass()) && !FieldUtils.isFinal(field)) {
 				if (fieldType == String.class) {
 					testStringSize(field);
 				} else if (fieldType == LocalTime.class || fieldType == LocalDateTime.class) {
