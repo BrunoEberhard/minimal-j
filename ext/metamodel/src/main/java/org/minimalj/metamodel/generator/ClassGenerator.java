@@ -78,7 +78,7 @@ public class ClassGenerator {
 
 	private String generateEnum(MjEntity entity) {
 		StringBuilder s = new StringBuilder();
-		indent(s, indent).append("public enum " + createClassName(entity) + " {\n");
+		indent(s, indent).append("public enum " + createClassName(entity) + " {\n\t");
 		
 		generateEnumValues(s, entity);
 		
