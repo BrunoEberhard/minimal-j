@@ -196,8 +196,14 @@ public class ClassGenerator {
 	}
 
 	private boolean appendSize(StringBuilder s, MjProperty property) {
-		if (property.type.maxLength != null) {
+		if (property.size != null) {
+			indent(s, indent).append("@Size(" + property.size + ")\n");
+			return true;
+		} else if (property.type.maxLength != null) {
 			indent(s, indent).append("@Size(" + property.type.maxLength + ")\n");
+			return true;
+		} else if (property.type.type == MjEntityType.String) {
+			indent(s, indent).append("@Size(255) // unknown\n");
 			return true;
 		} else {
 			return false;
