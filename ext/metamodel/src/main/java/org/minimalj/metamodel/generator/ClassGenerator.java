@@ -2,9 +2,12 @@ package org.minimalj.metamodel.generator;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -17,29 +20,37 @@ import org.minimalj.util.StringUtils;
 
 public class ClassGenerator {
 
-	private final File dir;
+	private final File directory;
 	private int indent = 0;
 	
 	public ClassGenerator(String path) {
-		dir = new File(path);
-		dir.mkdirs();
+		directory = new File(path);
+		directory.mkdirs();
+		delete(directory);
 	}
 	
-	private static boolean deleteDirectory(File dir) {
-		if (!dir.exists() || !dir.isDirectory()) {
-			return false;
-		}
-
-		String[] files = dir.list();
-		for (int i = 0, len = files.length; i < len; i++) {
-			File f = new File(dir, files[i]);
-			if (f.isDirectory()) {
-				deleteDirectory(f);
-			} else {
-				f.delete();
+	private static boolean delete(File directory) {
+		for (File file : directory.listFiles()) {
+			if (file.isDirectory()) {
+				delete(file);
+			} else if (!isHandMade(file)) {
+				file.delete();
 			}
 		}
-		return dir.delete();
+		return directory.delete();
+	}
+	
+	private static boolean isHandMade(File file) {
+		try (Scanner scanner = new Scanner(file)) {
+			while (scanner.hasNextLine()) {
+				if (scanner.nextLine().startsWith("@Generated")) {
+					return false;
+				}
+			}
+		} catch (FileNotFoundException e) {
+			return false;
+		}
+		return true;
 	}
 	
 	private String createClassName(MjEntity entity) {
@@ -59,10 +70,14 @@ public class ClassGenerator {
 	}
 
 	private void generateEntity(MjEntity entity) {
-		File packageDir = new File(dir, entity.packageName.replace('.', File.separatorChar));
+		File packageDir = new File(directory, entity.packageName.replace('.', File.separatorChar));
 		packageDir.mkdirs();
 	
 		File javaFile = new File(packageDir, createClassName(entity) + ".java");
+		if (isHandMade(javaFile)) {
+			System.out.println("Not generated: " + entity.name);
+			return;
+		}
 		String java;
 		if (entity.isEnumeration()) {
 			java = generateEnum(entity);
@@ -78,12 +93,14 @@ public class ClassGenerator {
 
 	private String generateEnum(MjEntity entity) {
 		StringBuilder s = new StringBuilder();
+		s.append("package " + entity.packageName + ";\n\n");
+		s.append("import javax.annotation.Generated;\n\n");
+		s.append("@Generated(value=\"" + this.getClass().getName() + "\", date = \"" + LocalDateTime.now().toString() + "\")\n");
 		indent(s, indent).append("public enum " + createClassName(entity) + " {\n\t");
 		
 		generateEnumValues(s, entity);
 		
 		s.append("\n}");
-		s.insert(0, "package " + entity.packageName + ";\n\n");
 		return s.toString();
 	}
 
@@ -125,6 +142,7 @@ public class ClassGenerator {
 		}
 		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
 		s.insert(0, "\npublic class " + className + " {\n");
+		s.insert(0, "\n@Generated(value=\"" + this.getClass().getName() + "\", date = \"" + LocalDateTime.now().toString() + "\")");
 		imprts(s);
 		s.insert(0, "package " + packageName + ";\n\n");
 		
@@ -235,6 +253,7 @@ public class ClassGenerator {
 	
 	protected void imprts(StringBuilder java) {
 		java.insert(0, "import org.minimalj.model.Keys;\n");
+		if (java.indexOf("@Generated") > -1) java.insert(0, "import javax.annotation.Generated;\n");
 		if (java.indexOf("@NotEmpty") > -1) java.insert(0, "import org.minimalj.model.annotation.NotEmpty;\n");
 		if (java.indexOf("@Size") > -1) java.insert(0, "import org.minimalj.model.annotation.Size;\n");
 		if (java.indexOf("BigDecimal") > -1) java.insert(0, "import java.math.BigDecimal;\n");
