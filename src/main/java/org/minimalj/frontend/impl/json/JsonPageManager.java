@@ -86,21 +86,29 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		Object initialize = input.getObject(JsonInput.INITIALIZE);
 		if (initialize != null) {
-			if (initialize instanceof String) {
-				String path = (String) initialize;
+			onLogin = null;
+			
+			if (initialize instanceof List) {
+				List<String> pageIds = (List<String>) initialize;
+				if (pageStore.valid(pageIds)) {
+					onLogin = () -> show(pageIds);
+				}
+			}
+			
+			if (onLogin == null) {
 				onLogin = () -> {
 					Page page = null;
-					if (!StringUtils.isEmpty(path)) {
-						page = Application.getInstance().createPage(path.substring(1));
+					if (initialize instanceof String) {
+						String path = (String) initialize;
+						if (!StringUtils.isEmpty(path)) {
+							page = Application.getInstance().createPage(path.substring(1));
+						}
 					}
 					if (page == null) {
 						page = Application.getInstance().createDefaultPage();
 					}
 					show(page, null);
 				};
-			} else {
-				List<String> pageIds = (List<String>) initialize;
-				onLogin = () -> show(pageIds);
 			}
 
 			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {

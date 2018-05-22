@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,6 +25,10 @@ public class PageStore {
 		} else {
 			throw new IllegalStateException(pageId);
 		}
+	}
+	
+	public boolean valid(List<String> pageIds) {
+		return pageIds.stream().allMatch(pagesById::containsKey);
 	}
 	
 	private static class PageStoreEntry {
