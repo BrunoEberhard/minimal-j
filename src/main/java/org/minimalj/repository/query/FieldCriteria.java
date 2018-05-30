@@ -5,18 +5,22 @@ import java.math.BigDecimal;
 import java.time.temporal.Temporal;
 
 import org.minimalj.model.Keys;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.sql.EmptyObjects;
+import org.minimalj.util.ClassHolder;
+import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.IdUtils;
 
 public class FieldCriteria extends Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final FieldOperator operator;
+	// maybe value should be enforced to Serializable or SerializationContainer should be used
 	private final Object value;
+	private final ClassHolder<?> classHolder;
+
 	private transient PropertyInterface property;
-	
-	// The key object is not serializable or later the == operator will not work.
-	// But at the moment the only thing needed
-	// from the FieldCriteria is the property - path. And that string is serializable
 	private final String path;
 
 	public FieldCriteria(Object key, Object value) {
@@ -34,13 +38,15 @@ public class FieldCriteria extends Criteria implements Serializable {
 		assertValidOperator(property, operator);
 		assertValidValueClass(property, value);
 
+		this.classHolder = new ClassHolder<>(property.getDeclaringClass());
 		this.path = property.getPath();
 	}
 	
-	private FieldCriteria(String path, FieldOperator operator, Object value) {
+	private FieldCriteria(String path, FieldOperator operator, Object value, ClassHolder<?> classHolder) {
 		this.path = path;
 		this.operator = operator;
 		this.value = value;
+		this.classHolder = classHolder;
 	}
 
 	private void assertValidOperator(PropertyInterface property, FieldOperator operator) {
@@ -70,6 +76,9 @@ public class FieldCriteria extends Criteria implements Serializable {
 	 * Only to be used by InMemoryRepository
 	 */
 	public PropertyInterface getProperty() {
+		if (property == null) {
+			property = Properties.getPropertyByPath(classHolder.getClazz(), path);
+		}
 		return property;
 	}
 	
@@ -77,7 +86,47 @@ public class FieldCriteria extends Criteria implements Serializable {
 		return value;
 	}
 
+	@Override
 	public Criteria negate() {
-		return new FieldCriteria(path, operator.negate(), value);
+		return new FieldCriteria(path, operator.negate(), value, classHolder);
+	}
+	
+	@Override
+	public boolean test(Object object) {
+		PropertyInterface p = getProperty();
+		object = p.getValue(object);
+		Object value = getValue();
+		if (getOperator() == FieldOperator.equal) {
+			if (IdUtils.hasId(p.getClazz())) {
+				Object objectId = object != null ? IdUtils.getId(object) : null;
+				Object valueId = object != null ? IdUtils.getId(value) : null;
+				return EqualsHelper.equals(valueId, objectId);
+			} else {
+				return EqualsHelper.equals(value, object);
+			}
+		} else {
+			if (object == null) {
+				if (value == null) {
+					return true;
+				} else {
+					object = EmptyObjects.getEmptyObject(value.getClass());
+				}
+			} else if (value == null) {
+				value = EmptyObjects.getEmptyObject(object.getClass());
+			}
+			int sign = ((Comparable) object).compareTo(value);
+			switch (getOperator()) {
+			case less:
+				return sign < 0;
+			case greater:
+				return sign > 0;
+			case lessOrEqual:
+				return sign <= 0;
+			case greaterOrEqual:
+				return sign >= 0;
+			default:
+				throw new RuntimeException();
+			}
+		}
 	}
 }

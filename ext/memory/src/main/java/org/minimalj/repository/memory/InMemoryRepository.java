@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
@@ -199,13 +198,12 @@ public class InMemoryRepository implements Repository {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T> List find(Class<T> clazz, Criteria criteria) {
-		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
 		List result = new ArrayList();
 		if (View.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
 			Map<String, Object> objects = objects(viewedClass);
 			for (Object object : objects.values()) {
-				if (predicate.test(object)) {
+				if (criteria.test(object)) {
 					result.add(ViewUtil.view(object, CloneHelper.newInstance(clazz)));
 				}
 			}
@@ -214,7 +212,7 @@ public class InMemoryRepository implements Repository {
 		} else {
 			Map<String, Object> objects = objects(clazz);
 			for (Object object : objects.values()) {
-				if (predicate.test(object)) {
+				if (criteria.test(object)) {
 					result.add(object);
 				}
 			}

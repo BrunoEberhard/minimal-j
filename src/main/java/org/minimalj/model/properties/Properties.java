@@ -35,6 +35,17 @@ public class Properties {
 		}
 	}
 
+	public static PropertyInterface getPropertyByPath(Class<?> clazz, String propertyName) {
+		int pos = propertyName.indexOf('.');
+		if (pos < 0) {
+			return getProperty(clazz, propertyName);
+		} else {
+			PropertyInterface property1 = getProperty(clazz, propertyName.substring(0, pos));
+			PropertyInterface property2 = getPropertyByPath(property1.getClazz(), propertyName.substring(pos + 1));
+			return new ChainedProperty(property1, property2);
+		}
+	}
+	
 	public static PropertyInterface getProperty(Field field) {
 		return getProperty(field.getDeclaringClass(), field.getName());
 	}
