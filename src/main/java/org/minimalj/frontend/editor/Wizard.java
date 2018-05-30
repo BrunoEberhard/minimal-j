@@ -171,7 +171,7 @@ public abstract class Wizard<RESULT> extends Action {
 
 		@Override
 		public boolean isEnabled() {
-			return valid;
+			return valid && step.hasNext();
 		}
 		
 		@Override
