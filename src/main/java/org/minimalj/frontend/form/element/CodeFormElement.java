@@ -1,6 +1,7 @@
 package org.minimalj.frontend.form.element;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -8,6 +9,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Code;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Codes;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.mock.Mocking;
 
 public class CodeFormElement extends AbstractFormElement<Code> implements Enable, Mocking {
@@ -38,6 +40,13 @@ public class CodeFormElement extends AbstractFormElement<Code> implements Enable
 
 	@Override
 	public void setValue(Code value) {
+		// 'contains' uses the default equals method 
+		if (value != null && !codes.contains(value)) {
+			// there could be a different instance with same id.
+			// if yes take it.
+			Object id = IdUtils.getId(value);
+			value = codes.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
+		}
 		comboBox.setValue(value);
 	}
 
