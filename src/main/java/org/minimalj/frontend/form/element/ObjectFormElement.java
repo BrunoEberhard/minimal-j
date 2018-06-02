@@ -1,5 +1,7 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.List;
+
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
@@ -63,6 +65,22 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		@Override
 		protected void finished(Void result) {
 			handleChange();
+		}
+		
+		@Override
+		protected List<Action> createAdditionalActions() {
+			List<Action> actions = super.createAdditionalActions();
+			actions.add(new DeleteObjectAction());
+			return actions;
+		}
+		
+		private class DeleteObjectAction extends Action {
+
+			@Override
+			public void action() {
+				ObjectFormElement.this.setValue(null);
+				cancel();
+			}
 		}
 	}
 	
