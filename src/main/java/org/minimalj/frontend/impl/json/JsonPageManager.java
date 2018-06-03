@@ -49,6 +49,10 @@ public class JsonPageManager implements PageManager, LoginListener {
 		this.subject = subject;
 		Subject.setCurrent(subject);
 
+		initialize();
+	}
+
+	private void initialize() {
 		componentById.clear();
 		navigation = createNavigation();
 		register(navigation);
@@ -57,6 +61,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 		if (onLogin != null) {
 			onLogin.run();
 			onLogin = null;
+		} else {
+			show(Application.getInstance().createDefaultPage(), null);
 		}
 	}
 
@@ -87,39 +93,26 @@ public class JsonPageManager implements PageManager, LoginListener {
 		Object initialize = input.getObject(JsonInput.INITIALIZE);
 		if (initialize != null) {
 			onLogin = null;
-			
 			if (initialize instanceof List) {
 				List<String> pageIds = (List<String>) initialize;
 				if (pageStore.valid(pageIds)) {
 					onLogin = () -> show(pageIds);
 				}
-			}
-			
-			if (onLogin == null) {
-				onLogin = () -> {
-					Page page = null;
-					if (initialize instanceof String) {
-						String path = (String) initialize;
-						if (!StringUtils.isEmpty(path)) {
-							page = Application.getInstance().createPage(path.substring(1));
-						}
+			} else if (initialize instanceof String) {
+				String path = (String) initialize;
+				if (path.length() > 1) {
+					Page page = Application.getInstance().createPage(path.substring(1));
+					if (page != null) {
+						onLogin = () -> show(page, null);
 					}
-					if (page == null) {
-						page = Application.getInstance().createDefaultPage();
-					}
-					show(page, null);
-				};
+				}
 			}
 
 			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
 				updateTitle(null);
 				Backend.getInstance().getAuthentication().login(this);
 			} else {
-				onLogin.run();
-				onLogin = null;
-				navigation = createNavigation();
-				register(navigation);
-				output.add("navigation", navigation);
+				initialize();
 			}
 		}
 
