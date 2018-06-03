@@ -7,6 +7,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.PasswordField;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.security.model.Password;
 
 public class PasswordFormElement extends AbstractFormElement<char[]> {
 
@@ -17,6 +18,10 @@ public class PasswordFormElement extends AbstractFormElement<char[]> {
 		super(Keys.getProperty(key));
 		this.maxLength = AnnotationUtil.getSize(Keys.getProperty(key));
 		this.textField = Frontend.getInstance().createPasswordField(listener(), maxLength);
+	}
+
+	public PasswordFormElement(Password password) {
+		this(password.getPassword());
 	}
 
 	@Override

@@ -34,6 +34,26 @@ public class Password implements Serializable {
 		hash = hash(password, salt);
 	}
 
+	/**
+	 * This getter doesn't return the password. The password is encrypted in the
+	 * setter method. This getter is only useful for creating a user form:<br>
+	 * <pre>
+	 * form.line(new PasswordFormElement(User.$.password));
+	 * </pre>
+	 * The length of the password is set to 32. This is arbitrary. Because the
+	 * password is hashed anyway every length could be accepted.
+	 * 
+	 * @return <code>null</code>
+	 */
+	@Size(32)
+	public char[] getPassword() {
+		if (Keys.isKeyObject(this)) {
+			return Keys.methodOf(this, "password");
+		} else {
+			return null;
+		}
+	}
+
 	public boolean validatePassword(char[] password) {
 		byte[] hashToValidate = hash(password, salt);
 		SecureRandom random = new SecureRandom();
