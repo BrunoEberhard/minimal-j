@@ -144,7 +144,12 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public SwitchContent createSwitchContent() {
-		return new JsonSwitchContent();
+		return new JsonSwitch();
+	}
+	
+	@Override
+	public SwitchComponent createSwitchComponent() {
+		return new JsonSwitch();
 	}
 
 	@Override
