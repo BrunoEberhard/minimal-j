@@ -121,7 +121,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 		splitPane.setRightComponent(contentScrollPane);
 		
 		navigationScrollPane = new JScrollPane();
-		updateNavigation();
 		navigationScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		ActionListener navigationClosedListener = new ActionListener() {
 			@Override
@@ -381,6 +380,10 @@ public class SwingTab extends EditablePanel implements PageManager {
 		history.previous();
 	}
 
+	public void clearHistory() {
+		history.clear();
+	}
+	
 	@Override
 	public void show(Page page) {
 		List<Page> pages = new ArrayList<>();

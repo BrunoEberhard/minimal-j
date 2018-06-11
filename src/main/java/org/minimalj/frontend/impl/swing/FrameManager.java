@@ -58,7 +58,7 @@ public class FrameManager {
 	}
 
 	public void openNavigationFrame(Subject subject) {
-		final SwingFrame frame = new SwingFrame(subject);
+		final SwingFrame frame = new SwingFrame();
 		frame.setVisible(true);
 		navigationFrames.add(frame);
 		if (subject == null && Frontend.loginAtStart()) {
@@ -77,6 +77,8 @@ public class FrameManager {
 			};
 			Backend.getInstance().getAuthentication().login(loginListener);
 			SwingFrame.activeFrameOverride = null;
+		} else {
+			frame.setSubject(subject);
 		}
 	}
 	
