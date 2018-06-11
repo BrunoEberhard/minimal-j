@@ -75,7 +75,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			fireChangeEvent();
+			SwingFrontend.runWithContext(this::fireChangeEvent);
 		}
 	}
 	
