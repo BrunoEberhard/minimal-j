@@ -3,7 +3,7 @@ package org.minimalj.frontend.impl.lanterna;
 import java.util.Arrays;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.impl.lanterna.toolkit.LanternaSwitchContent;
+import org.minimalj.frontend.impl.lanterna.toolkit.LanternaSwitch;
 import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.impl.util.PageAccess;
@@ -22,7 +22,7 @@ public class LanternaWindow extends BasicWindow {
 
 	private final Panel content = new Panel(new BorderLayout());
 	private final LanternaMenuPanel menuPanel;
-	private final LanternaSwitchContent switchLayout;
+	private final LanternaSwitch switchLayout;
 	
 	private final History<Page> history;
 	private final LanternaPageContextHistoryListener historyListener;
@@ -37,7 +37,7 @@ public class LanternaWindow extends BasicWindow {
 		
 		content.addComponent(menuPanel, Location.TOP);
 		
-		switchLayout = new LanternaSwitchContent();
+		switchLayout = new LanternaSwitch();
 		content.addComponent((Component) switchLayout, Location.CENTER);
 		
 		history.add(Application.getInstance().createDefaultPage());

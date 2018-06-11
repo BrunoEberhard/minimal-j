@@ -119,6 +119,11 @@ public abstract class Frontend {
 
 	public abstract Input<byte[]> createImage(int size, InputComponentListener changeListener);
 
+	public interface SwitchComponent extends IComponent {
+		public void show(IComponent component);
+	}
+	
+	public abstract SwitchComponent createSwitchComponent();
 	
 	public interface IList extends IComponent {
 		/**

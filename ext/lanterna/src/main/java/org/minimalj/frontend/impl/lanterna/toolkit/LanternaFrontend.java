@@ -96,7 +96,12 @@ public class LanternaFrontend extends Frontend {
 
 	@Override
 	public SwitchContent createSwitchContent() {
-		return new LanternaSwitchContent();
+		return new LanternaSwitch();
+	}
+	
+	@Override
+	public SwitchComponent createSwitchComponent() {
+		return new LanternaSwitch();
 	}
 
 	@Override
