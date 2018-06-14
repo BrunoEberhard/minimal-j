@@ -119,6 +119,9 @@ public class ModelTest {
 		if (!modelClasses.contains(clazz)) {
 			modelClasses.add(clazz);
 			testName(clazz);
+			if (!clazz.isEnum()) { // it's neither pretty for enum but it should work
+				testNoDuplicateName(clazz);
+			}
 			testNoSuperclass(clazz);
 			if (!testNoSelfMixins(clazz)) {
 				return; // further tests could create a StackOverflowException
@@ -348,6 +351,14 @@ public class ModelTest {
 
 	private boolean isIdentifierChar(char c) {
 		return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9';
+	}
+	
+	private void testNoDuplicateName(Class<?> clazz) {
+		String name = clazz.getSimpleName();
+		boolean duplicate = modelClasses.stream().anyMatch(c -> c != clazz && c.getSimpleName().equals(name));
+		if (duplicate) {
+			problems.add("Two classes with simple name: " + name);
+		}
 	}
 
 	private void testTypeOfField(Field field) {
