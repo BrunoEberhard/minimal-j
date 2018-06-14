@@ -163,7 +163,7 @@ public class ClassGenerator {
 		
 		if (property.type.type == MjEntityType.String) {
 			if (property.type.isEnumeration()) {
-				if (property.type.values.size() == 1) {
+				if (property.type.values.size() == 1 && Boolean.TRUE.equals(property.notEmpty)) {
 					// for String with exact one possible value the field can be initialized and set to final
 					indent(s, indent).append("public final String " + fieldName + " = \"" + property.type.values.iterator().next() + "\";\n");
 					return;
