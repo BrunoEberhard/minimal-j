@@ -193,6 +193,8 @@ public class ClassGenerator {
 		}
 		if (property.propertyType == MjPropertyType.LIST) {
 			indent(s, indent).append("public List<" + className + "> " + fieldName + ";\n");
+		} else if (property.propertyType == MjPropertyType.ENUM_SET) {
+			indent(s, indent).append("public final Set<" + className + "> " + fieldName + " = new TreeSet<>();\n");
 		} else {
 			if (property.type.type == MjEntityType.String && !property.type.isEnumeration()) {
 				if (!appendSize(s, property)) {
@@ -261,6 +263,8 @@ public class ClassGenerator {
 		if (java.indexOf("LocalTime") > -1) java.insert(0, "import java.time.LocalTime;\n");
 		if (java.indexOf("LocalDateTime") > -1) java.insert(0, "import java.time.LocalDateTime;\n");
 		if (java.indexOf("List<") > -1) java.insert(0, "import java.util.List;\n");
+		if (java.indexOf("Set<") > -1) java.insert(0, "import java.util.Set;\n");
+		if (java.indexOf("TreeSet<") > -1) java.insert(0, "import java.util.TreeSet;\n");
 	}
 	
 }
