@@ -30,7 +30,7 @@ public class Properties {
 		if (property != null) {
 			return property;
 		} else {
-			logger.severe("No field/access methods for " + propertyName + " in Class " + clazz.getName());
+			logger.fine("No field/access methods for " + propertyName + " in Class " + clazz.getName());
 			return null;
 		}
 	}
