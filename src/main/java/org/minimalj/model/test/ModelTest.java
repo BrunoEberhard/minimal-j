@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -355,9 +356,9 @@ public class ModelTest {
 	
 	private void testNoDuplicateName(Class<?> clazz) {
 		String name = clazz.getSimpleName();
-		boolean duplicate = modelClasses.stream().anyMatch(c -> c != clazz && c.getSimpleName().equals(name));
-		if (duplicate) {
-			problems.add("Two classes with simple name: " + name);
+		Optional<Class<?>> duplicate = modelClasses.stream().filter(c -> c != clazz && c.getSimpleName().equals(name)).findAny();
+		if (duplicate.isPresent()) {
+			problems.add("Two classes with simple name: " + name + "(" + clazz.getName() + "/" + duplicate.get().getName() + ")");
 		}
 	}
 
