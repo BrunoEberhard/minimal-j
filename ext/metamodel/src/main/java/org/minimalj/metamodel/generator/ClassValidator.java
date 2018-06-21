@@ -15,6 +15,7 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.StringUtils;
 
 public class ClassValidator {
 
@@ -39,7 +40,7 @@ public class ClassValidator {
 			} else {
 				validate(clazz, entity);
 			}
-		} catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException | NoClassDefFoundError e) {
 			throw new RuntimeException(e);
 		}
 		
@@ -76,7 +77,13 @@ public class ClassValidator {
 
 	public void validate(Class<?> clazz, MjEntity entity, MjProperty property, Set<String> forbiddenNames) {
 		// System.out.println("validate " + (count++) + " : "+ entity.name + " " + property.name + " against " + clazz.getName());
-		PropertyInterface p = Properties.getProperty(clazz, property.name);
+		PropertyInterface p = null;
+		if (Properties.getProperties(clazz).containsKey(property.name) || Character.isLowerCase(property.name.charAt(0))) {
+			p = Properties.getProperty(clazz, property.name);
+		}
+		if (p == null) {
+			p = Properties.getProperty(clazz, StringUtils.lowerFirstChar(property.name));
+		}
 		if (p == null) {
 			throw new RuntimeException("Missing property: " + property.name + " on " + clazz.getName());
 		}
