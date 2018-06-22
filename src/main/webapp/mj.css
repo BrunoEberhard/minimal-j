@@ -350,11 +350,13 @@ input[type="checkbox"] {
 	height: inherit;
 	width: 1.2em;
 	margin-bottom: 0px;
-	margin-top: 0px;
 	vertical-align: bottom;
 }
 
 label.checkboxLabel {
+	display: inline;
+	white-space: nowrap; /* important for long labels */
+	margin-top: 0.2em;
 	font-weight: normal;
 }
 
