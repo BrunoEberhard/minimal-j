@@ -369,7 +369,8 @@ hr {
 }
 
 label {
-	display: block;
+	display: inline-flex;
+	overflow: hidden;
 	font-size: x-smaller;
 	font-weight: bolder;
 }
