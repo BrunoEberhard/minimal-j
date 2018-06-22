@@ -21,6 +21,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
+import org.minimalj.frontend.form.element.EmptyFormElement;
 import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
@@ -317,6 +318,7 @@ public class Form<T> {
 	//
 
 	protected String caption(FormElement<?> field) {
+		if (field instanceof EmptyFormElement) return null;
 		return Resources.getPropertyName(field.getProperty());
 	}
 
