@@ -492,7 +492,9 @@ $ICON
 				for ( var id in content.options) {
 					var option = document.createElement("option");
 					option.value = id;
-					option.innerHTML = content.options[id];
+					option.innerHTML = content.options[id].text;
+					var description = content.options[id].description; 
+					if (description != undefined) option.title = description;
 					element.appendChild(option);
 				}
 			}
