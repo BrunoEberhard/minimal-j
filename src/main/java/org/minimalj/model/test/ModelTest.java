@@ -398,7 +398,7 @@ public class ModelTest {
 				problems.add("Set type must be an enum class: " + messagePrefix);
 			}
 			@SuppressWarnings("unchecked")
-			List<?> values = EnumUtils.itemList(setType);
+			List<?> values = EnumUtils.valueList(setType);
 			if (values.size() > 32) {
 				problems.add("Set enum must not have more than 32 elements: " + messagePrefix);
 			}
