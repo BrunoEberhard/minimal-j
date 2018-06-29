@@ -19,7 +19,7 @@ public class EmptyFormElement extends TextFormElement {
 		
 		@Override
 		public String getName() {
-			return null;
+			return ""; // null could cause NPE
 		}
 
 		@Override
