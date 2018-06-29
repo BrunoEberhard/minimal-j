@@ -31,7 +31,7 @@ public class CodeItem<E> implements Rendering {
 	}
 
 	@Override
-	public String renderTooltip(RenderType renderType) {
+	public String renderDescription(RenderType renderType) {
 		return description;
 	}
 
