@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Keys;
+import org.minimalj.repository.sql.EmptyObjects;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 
 public class Properties {
@@ -67,6 +69,59 @@ public class Properties {
 			} 
 		}
 		return properties; 
+	}
+
+	public static void setAndRestructure(PropertyInterface property, Object object, Object value) {
+		boolean empty = EmptyObjects.isEmpty(value);
+		String path = property.getPath();
+		if (!empty) {
+			int index = path.indexOf('.');
+			if (index > -1) {
+				PropertyInterface p1 = Properties.getProperty(object.getClass(), path.substring(0, index));
+				Object fieldObject = populate(object, p1);
+
+				PropertyInterface p2 = Properties.getPropertyByPath(p1.getClazz(), path.substring(index + 1, path.length()));
+				setAndRestructure(p2, fieldObject, value);
+			} else {
+				property.setValue(object, value);
+			}
+		} else {
+			int index = path.lastIndexOf('.');
+			if (index > -1) {
+				String parentPath = path.substring(0, index);
+				PropertyInterface p1 = Properties.getPropertyByPath(object.getClass(), parentPath);
+				Object fieldObject = p1.getValue(object);
+				if (fieldObject == null) {
+					return;
+				}
+				
+				PropertyInterface p2 = Properties.getProperty(p1.getClazz(), path.substring(index + 1));
+				clear(fieldObject, p2);
+				
+				if (EmptyObjects.isEmpty(fieldObject)) {
+					setAndRestructure(p1, object, null);
+				}
+			} else {
+				clear(object, property);
+			}
+		}
+	}
+
+	private static Object populate(Object object, PropertyInterface property) {
+		Object value = property.getValue(object);
+		if (value == null) {
+			value = CloneHelper.newInstance(property.getClazz());
+			property.setValue(object, value);
+		}
+		return value;
+	}
+	
+	private static void clear(Object object, PropertyInterface property) {
+		if (property.isFinal()) {
+			CloneHelper.deepCopy(EmptyObjects.getEmptyObject(property.getClazz()), property.getValue(object));
+		} else {
+			property.setValue(object, null);
+		}
 	}
 	
 }
