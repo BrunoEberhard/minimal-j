@@ -428,6 +428,5 @@ block {
 	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 	table.form, table.form input, table.form select { margin: 0px; }
 	.dialogFooter button { font-size : inherit; }
-	.dialogFooter { height: 1.7em; }
 	.dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}
 }
