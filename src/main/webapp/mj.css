@@ -362,6 +362,7 @@ label.checkboxLabel {
 
 textarea {
 	font-family: inherit;
+	resize: vertical;
 }
 
 hr {
