@@ -40,7 +40,13 @@ public abstract class UserPasswordAuthentication extends Authentication {
 
 		@Override
 		protected Form<UserPassword> createForm() {
-			Form<UserPassword> form = new Form<>();
+			Form<UserPassword> form = new Form<UserPassword>() {
+				@Override
+				protected int getColumnWidthPercentage() {
+					// if anonymous button is show the dialog should be wider
+					return !Application.getInstance().isLoginRequired() ? 150 : 100;
+				}
+			};
 			form.line(UserPassword.$.user);
 			form.line(new PasswordFormElement(UserPassword.$.password));
 			return form;
