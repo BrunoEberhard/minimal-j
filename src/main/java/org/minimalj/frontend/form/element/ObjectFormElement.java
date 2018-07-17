@@ -70,10 +70,12 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		@Override
 		protected List<Action> createAdditionalActions() {
 			List<Action> actions = super.createAdditionalActions();
-			actions.add(new DeleteObjectAction());
+			if (!getProperty().isFinal()) {
+				actions.add(new DeleteObjectAction());
+			}
 			return actions;
 		}
-		
+
 		private class DeleteObjectAction extends Action {
 
 			@Override
