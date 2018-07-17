@@ -24,6 +24,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+/*
+ * On some linux you have to install openjfx additionally to openjdk:
+ * <code>
+ * sudo apt-get install openjfx
+ * </code>
+ */
 @SuppressWarnings("restriction")
 public class SwingHtmlContent extends JFXPanel implements IContent {
 	private static final long serialVersionUID = 1L;
