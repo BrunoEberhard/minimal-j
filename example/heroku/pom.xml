@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.7.0.0,)</version>
+			<version>[1.14.0.0,)</version>
 		</dependency>
 		
 		<dependency>
