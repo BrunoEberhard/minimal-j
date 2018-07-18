@@ -725,6 +725,8 @@ $ICON
 		header.classList.add("dialogHeader");
 		var headerDiv = document.createElement("div");
 		headerDiv.appendChild(document.createTextNode(json.title));
+		var	buttons = document.getElementById("dialogButtons").cloneNode(true);
+		headerDiv.appendChild(buttons);
 		header.appendChild(headerDiv);
 		dialog.appendChild(header);
 
@@ -769,6 +771,12 @@ $ICON
 		updateDialogSizes();
 	}
   
+    function closeDialog(event) {
+		var dialog = event.target;
+		while (dialog.tagName.toUpperCase() != "DIALOG" && (dialog = dialog.parentNode) != null);
+		dialog.close();
+    }
+
     function dialogClosedListener(event) {
           document.getElementById("body").removeChild(event.target); 
           updateDialogSizes();
@@ -1262,6 +1270,12 @@ $ICON
 			</svg><svg class="pageButton button" onclick="closePage(evt);">
 				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
+			</svg>
+		</div>
+		<div id="dialogButtons">
+			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialog(evt)">
+			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
+			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
 			</svg>
 		</div>
 		<span id="tooltip">
