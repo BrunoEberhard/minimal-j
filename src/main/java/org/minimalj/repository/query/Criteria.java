@@ -3,11 +3,12 @@ package org.minimalj.repository.query;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.repository.query.Query.QueryOrderable;
 
-public class Criteria implements QueryLimitable, QueryOrderable {
+public abstract class Criteria implements QueryLimitable, QueryOrderable, Predicate<Object> {
 	private static final long serialVersionUID = 1L;
 
 	// TODO: check for recursion?
@@ -76,6 +77,11 @@ public class Criteria implements QueryLimitable, QueryOrderable {
 			}
 			return this;
 		}
+		
+		@Override
+		public boolean test(Object object) {
+			return getCriterias().stream().anyMatch(c -> c.test(object));
+		}
 	}	
 	
 	public static class AndCriteria extends CompoundCriteria implements Serializable {
@@ -95,6 +101,11 @@ public class Criteria implements QueryLimitable, QueryOrderable {
 				getCriterias().add(other);
 			}
 			return this;
+		}
+		
+		@Override
+		public boolean test(Object object) {
+			return getCriterias().stream().allMatch(c -> c.test(object));
 		}
 	}
 	

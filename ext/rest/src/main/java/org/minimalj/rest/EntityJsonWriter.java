@@ -72,6 +72,10 @@ public class EntityJsonWriter {
 					propertyName = "enum";
 				}
 				
+				if (e.getKey().equals("id") && value != null) {
+					// TODO id as String fields?
+					value = value.toString();
+				}
 				if (value instanceof String || value instanceof Boolean || value instanceof Number) {
 					values.put(propertyName, value);
 				} else if (FieldUtils.isAllowedPrimitive(property.getClazz())) {

@@ -7,7 +7,6 @@ import org.minimalj.frontend.page.TableDetailPage;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjProperty;
-import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.util.resources.Resources;
 
 public class PropertyTablePage extends TableDetailPage<MjProperty> {
@@ -21,7 +20,7 @@ public class PropertyTablePage extends TableDetailPage<MjProperty> {
 	
 	@Override
 	public String getTitle() {
-		return MessageFormat.format(Resources.getString(PropertyTablePage.class), entity.name);
+		return MessageFormat.format(Resources.getString(PropertyTablePage.class), entity.getClassName());
 	}
 	
 	@Override
@@ -31,14 +30,15 @@ public class PropertyTablePage extends TableDetailPage<MjProperty> {
 
 	@Override
 	protected TablePage<?> getDetailPage(MjProperty property) {
-		if (property.propertyType.isPrimitive()) {
+		if (property.type.type.getJavaClass() != null) {
 			return null;
 		}
-		if (property.propertyType == MjPropertyType.ENUM) {
-			return new EnumTablePage(property.type.getClazz());
+		if (property.type.isEnumeration()) {
+			return new EnumTablePage(property.type);
 		} else {
-			MjEntity entity = property.getModel().getEntity(property.type.getClazz());
-			return new PropertyTablePage(entity);
+			// warum war das so? Wird da irgendeine referenz aufgelöst?
+			// MjEntity entity = property.getModel().getEntity(property.type.getClazz());
+			return new PropertyTablePage(property.type);
 		}
 	}
 

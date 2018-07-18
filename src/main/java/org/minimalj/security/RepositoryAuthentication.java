@@ -20,16 +20,24 @@ public class RepositoryAuthentication extends UserPasswordAuthentication {
 	private final transient Repository authenticationRepository;
 	
 	public RepositoryAuthentication() {
-		this(Backend.getInstance().getRepository());
+		this(null);
 	}
 	
 	protected RepositoryAuthentication(Repository authenticationRepository) {
 		this.authenticationRepository = authenticationRepository;
 	}
 	
+	protected Repository getAuthenticationRepository() {
+		if (authenticationRepository != null) {
+			return authenticationRepository;
+		} else {
+			return Backend.getInstance().getRepository();
+		}
+	}
+	
 	@Override
 	protected User retrieveUser(String userName) {
-		List<User> users =  authenticationRepository.find(User.class, By.field(User.$.name, userName));
+		List<User> users =  getAuthenticationRepository().find(User.class, By.field(User.$.name, userName));
 		return users.isEmpty() ? null : users.get(0);
 	}
 }

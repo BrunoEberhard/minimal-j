@@ -2,40 +2,39 @@ package org.minimalj.metamodel.page;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.minimalj.frontend.page.TablePage;
+import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjEnumValue;
-import org.minimalj.model.EnumUtils;
 import org.minimalj.util.resources.Resources;
 
-@SuppressWarnings("rawtypes")
 public class EnumTablePage extends TablePage<MjEnumValue> {
 
-	private final Class enumClass;
+	private final MjEntity entity;
 	private List<MjEnumValue> enumValues;
 	
-	public EnumTablePage(Class<?> enumClass) {
+	public EnumTablePage(MjEntity entity) {
 		super(new Object[]{MjEnumValue.$.ord, MjEnumValue.$.name});
-		this.enumClass = enumClass;
+		this.entity = entity;
 	}
 	
 	@Override
 	public String getTitle() {
-		return MessageFormat.format(Resources.getString(EnumTablePage.class), enumClass.getName());
+		return MessageFormat.format(Resources.getString(EnumTablePage.class), entity.getClassName());
 	}
 	
 	@Override
 	protected List<MjEnumValue> load() {
 		if (enumValues == null) {
-			@SuppressWarnings("unchecked")
-			List<Object> list = EnumUtils.valueList(enumClass);
+			Collection<String> values = entity.values;
 			enumValues = new ArrayList<>();
-			for (Object o : list) {
-				Enum e = (Enum) o;
+			int index = 0;
+			for (String s : values) {
 				MjEnumValue value = new MjEnumValue();
-				value.name = e.name();
-				value.ord = e.ordinal();
+				value.name = s;
+				value.ord = index++;
 				enumValues.add(value);
 			}
 		}

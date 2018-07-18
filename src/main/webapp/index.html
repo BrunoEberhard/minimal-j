@@ -6,6 +6,9 @@
 <!-- $APPLICATION-VERSION -->
 <base href="$BASE">
 
+<!-- $CHEERPJ_IMPORT 
+<script src="https://cjrtnc.leaningtech.com/loader.js"></script>
+-->
 <script src="dialog-polyfill.js"></script>
 
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -26,6 +29,7 @@ $ICON
 
 	var pageContainerElement;
 	var titleElement;
+  	var intersectionObserver = new IntersectionObserver(intersectionListener, {threshold: 1});
   
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
@@ -152,10 +156,11 @@ $ICON
 		}
 		if (dataObject.tableExtendContent != undefined) {
 			var table = document.getElementById(dataObject.tableId);
-			var button = table.getElementsByTagName("button")[0];
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
 			if (!dataObject.extendable) {
-				button.parentNode.removeChild(button);			
+				var footer = table.getElementsByTagName("tfoot")[0];
+				intersectionObserver.unobserve(footer);
+				table.removeChild(footer);			
 			}
 		}
 		
@@ -395,11 +400,10 @@ $ICON
 			
 			if (content.extendable) {
 				var footer = document.createElement("tfoot");
-				var button = document.createElement("button");
-				button.appendChild(document.createTextNode(">"));
-				button.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
-				button.setAttribute("style", "width: 10em");
-				footer.appendChild(button);
+				var dots = document.createTextNode("...");
+				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");				
+				footer.appendChild(dots);
+				intersectionObserver.observe(footer);
 				element.appendChild(footer);
 			}
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
@@ -488,7 +492,9 @@ $ICON
 				for ( var id in content.options) {
 					var option = document.createElement("option");
 					option.value = id;
-					option.innerHTML = content.options[id];
+					option.innerHTML = content.options[id].text;
+					var description = content.options[id].description; 
+					if (description != undefined) option.title = description;
 					element.appendChild(option);
 				}
 			}
@@ -719,6 +725,8 @@ $ICON
 		header.classList.add("dialogHeader");
 		var headerDiv = document.createElement("div");
 		headerDiv.appendChild(document.createTextNode(json.title));
+		var	buttons = document.getElementById("dialogButtons").cloneNode(true);
+		headerDiv.appendChild(buttons);
 		header.appendChild(headerDiv);
 		dialog.appendChild(header);
 
@@ -763,6 +771,12 @@ $ICON
 		updateDialogSizes();
 	}
   
+    function closeDialog(event) {
+		var dialog = event.target;
+		while (dialog.tagName.toUpperCase() != "DIALOG" && (dialog = dialog.parentNode) != null);
+		dialog.close();
+    }
+
     function dialogClosedListener(event) {
           document.getElementById("body").removeChild(event.target); 
           updateDialogSizes();
@@ -883,6 +897,19 @@ $ICON
 		send(data, true);
 	}
 	
+	function intersectionListener(entries) {
+		for (var i = 0; i<entries.length; i++) {
+			if (entries[i].intersectionRatio > 0) {
+				var table = entries[i].target.parentNode;
+				// only a table in last page should scroll automatically
+				var pages = document.getElementsByClassName("page");
+				if (pages[pages.length-1].contains(table)) {
+					tableExtendContent(table.name);
+				}
+			}
+		}
+	}
+	
 	function tableExtendContent(tableId) {
 		var data = {"tableExtendContent" : tableId};
 		send(data, true);
@@ -949,6 +976,8 @@ $ICON
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
 		
+		// $CHEERPJ
+		// sendCheerpj(data, block);
 		$WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
 	}
 		
@@ -1001,6 +1030,20 @@ $ICON
 			websocket.send(JSON.stringify(data));
 		}
 	}
+		
+	function sendCheerpj(data, block) {
+		var sendStr = JSON.stringify(data);
+		console.log("send");
+		console.log(sendStr);
+		cjCall("org.minimalj.frontend.impl.cheerpj.Cheerpj", "receiveMessage", sendStr).then(receive);
+	}	
+		
+	function receive(e) {
+		var resultStr = cjStringJavaToJs(e);
+		console.log("receive");
+		console.log(resultStr);
+		onMessage(resultStr);
+	}		
 		
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
@@ -1115,6 +1158,10 @@ $ICON
 		}, true);
 	}
 
+    function init(e) {
+   		init();
+	}
+
 	function init() {
 		if (!$LOGIN) {
 			document.getElementById("loginButton").parentNode.removeChild(document.getElementById("loginButton"));
@@ -1133,10 +1180,11 @@ $ICON
 
 		window.onpopstate = popState;
 
-		send({
-			"showDefaultPage" : "default-" + (new Date().getTime()),
-			"path" : "$PATH"
-		});
+		if (window.history.state != undefined) {
+			send({ "initialize" : window.history.state });
+		} else {
+			send({ "initialize" : "$PATH" });
+		}
 	}
 	
 	function checkInput(type) {
@@ -1144,6 +1192,14 @@ $ICON
 	    input.setAttribute("type", type);
 	    return input.type == type;
 	}
+		
+	if (false) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN
+		cheerpjInit();
+		// cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/h.jar", "org.minimalj.example.helloworld2.GreetingApplication");  
+        cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication").then(init);  
+        // cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication", "-DMjRepository=org.minimalj.repository.memory.InMemoryRepository", "-DMjUserFile=users.txt", "-DMjDevMode=true");  
+	}
+	
 </script>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
@@ -1216,8 +1272,14 @@ $ICON
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>
 		</div>
+		<div id="dialogButtons">
+			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialog(evt)">
+			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
+			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
+			</svg>
+		</div>
 		<span id="tooltip">
-			<svg width="0.75em" height="0.75em">
+			<svg width="0.75em" height="0.75em" style="padding-left: 0.3em">
 	  		  <circle cx="50%" cy="50%" r="49%" stroke-width="1%" fill="red" />
 	  		  <rect x="38%" y="15%" width="24%" height="37%" style="fill:white;" />
 	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />

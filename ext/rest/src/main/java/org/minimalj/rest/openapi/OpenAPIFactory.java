@@ -1,18 +1,14 @@
 package org.minimalj.rest.openapi;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
 import org.minimalj.metamodel.model.MjEntity;
+import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
-import org.minimalj.model.Code;
-import org.minimalj.model.EnumUtils;
 import org.minimalj.rest.EntityJsonWriter;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
@@ -69,7 +65,7 @@ public class OpenAPIFactory {
 
 		MjModel model = new MjModel(application.getEntityClasses());
 		for (MjEntity entity : model.entities) {
-			String entityName = entity.getClazz().getSimpleName();
+			String entityName = entity.getSimpleClassName();
 
 			if (IdUtils.hasId(entity.getClazz())) {
 				Map<String, Operation> operations = new HashMap<>();
@@ -89,7 +85,8 @@ public class OpenAPIFactory {
 				
 				operations = new HashMap<>();
 				
-				if (Code.class.isAssignableFrom(entity.getClazz())) {
+				if (entity.type != MjEntityType.CODE) {
+					// the number of codes is expected to be small enough to be loaded at once
 					operation = operationGetAll(entity);
 					operations.put("get", operation);
 				}
@@ -101,7 +98,7 @@ public class OpenAPIFactory {
 			}
 			
 			Schema schema;
-			if (Enum.class.isAssignableFrom(entity.getClazz())) {
+			if (entity.isEnumeration()) {
 				if (this.api == API.OpenAPI3) {
 					schema = eNum(entity);
 				} else {
@@ -124,7 +121,7 @@ public class OpenAPIFactory {
 
 
 	private Operation operationGetById(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Gets a " + entityName + " by id";
@@ -163,7 +160,7 @@ public class OpenAPIFactory {
 
 
 	private Operation operationGetAll(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 
 		Operation operation = new Operation();
 		operation.summary = "Gets all " + entityName;
@@ -218,7 +215,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationPost(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Add a new " + entityName;
@@ -246,7 +243,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationPut(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Update a " + entityName;
@@ -280,7 +277,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationDelete(MjEntity entity) {
-		String entityName = entity.getClazz().getSimpleName();
+		String entityName = entity.getSimpleClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Delete a " + entityName;
@@ -307,7 +304,8 @@ public class OpenAPIFactory {
 			property.nullable = true;
 		}
 		property.type = OpenAPI.Type.STRING;
-		if (!Code.class.isAssignableFrom(entity.getClazz())) {
+		if (entity.type != MjEntityType.CODE) {
+			// for codes the id can be chosen. For normal entites the framework creates the id
 			property.readOnly = true;
 		}
 		schema.properties.put("id", property);
@@ -349,20 +347,17 @@ public class OpenAPIFactory {
 			
 			if (api == API.OpenAPI3) {
 				property.$ref = ref(mjProperty);
-				if (mjProperty.propertyType == MjPropertyType.ENUM) {
+				if (mjProperty.type.isEnumeration()) {
 					property.type = null;
-					property.$ref = SCHEMAS + mjProperty.type.getClazz().getSimpleName();
+					property.$ref = SCHEMAS + mjProperty.type.getSimpleClassName();
 				}
 					
 			} else {
 				if (property.type == Type.ARRAY) {
 					property.items = schema(mjProperty.type);
-				} else if (mjProperty.propertyType == MjPropertyType.ENUM) {
+				} else if (mjProperty.type.isEnumeration()) {
 					// OpenApi3 has reusable enums
-					property.eNum = new ArrayList<>();
-					for (Object e : EnumUtils.valueList((Class<? extends Enum>) mjProperty.type.getClazz())) {
-						property.eNum.add(e.toString());
-					}
+					property.eNum = mjProperty.type.values;
 				} else {
 					property.$ref = ref(mjProperty);
 				}
@@ -383,46 +378,39 @@ public class OpenAPIFactory {
 		Schema schema = new Schema();
 
 		schema.type = OpenAPI.Type.STRING;
-		List value = EnumUtils.valueList((Class<? extends Enum>) entity.getClazz());
-		schema.eNum = (List<String>) value.stream().map(e -> e.toString()).collect(Collectors.toList());
+		schema.eNum = entity.values;
 		
 		return schema;
 	}
 	
 	private OpenAPI.Type type(MjProperty property) {
 		switch (property.propertyType) {
-		case String:
-		case LocalDate:
-		case LocalDateTime:
-		case LocalTime:
-		case REFERENCE:
-			return OpenAPI.Type.STRING;
-		case Integer:
-		case Long:
-			return OpenAPI.Type.INTEGER;
 		case LIST:
 		case ENUM_SET:
 			return OpenAPI.Type.ARRAY;
-		case ENUM:
-			return OpenAPI.Type.STRING;
 		case INLINE:
 		case DEPENDABLE:
 			return OpenAPI.Type.OBJECT;
-
+		case VALUE:
+			if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long) {
+				return OpenAPI.Type.INTEGER;
+			} else {
+				return OpenAPI.Type.STRING;	
+			}
 		default: return null;
 		}
 	}
 	
 	private String ref(MjProperty property) {
 		if (property.propertyType == MjPropertyType.INLINE ||property.propertyType == MjPropertyType.DEPENDABLE) {
-			return SCHEMAS + property.type.getClazz().getSimpleName();
+			return SCHEMAS + property.type.getSimpleClassName();
 		} else {
 			return null;
 		}
 	}
 	
 	private String format(MjProperty property) {
-		switch(property.propertyType) {
+		switch(property.type.type) {
 		case String : return null;
 		case Integer: return "int32";
 		case Long: return "int64";
@@ -441,7 +429,7 @@ public class OpenAPIFactory {
 		}
 		if (property.propertyType == MjPropertyType.LIST || property.propertyType == MjPropertyType.ENUM_SET) {
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + property.type.getClazz().getSimpleName();
+			schema.$ref = SCHEMAS + property.type.getSimpleClassName();
 			return schema;
 		} else {
 			return null;

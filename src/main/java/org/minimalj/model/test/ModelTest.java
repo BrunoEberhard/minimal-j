@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -119,6 +120,9 @@ public class ModelTest {
 		if (!modelClasses.contains(clazz)) {
 			modelClasses.add(clazz);
 			testName(clazz);
+			if (!clazz.isEnum()) { // it's neither pretty for enum but it should work
+				testNoDuplicateName(clazz);
+			}
 			testNoSuperclass(clazz);
 			if (!testNoSelfMixins(clazz)) {
 				return; // further tests could create a StackOverflowException
@@ -279,7 +283,7 @@ public class ModelTest {
 				testTypeOfTechnicalField(field, technicalField.value());
 			}
 			Class<?> fieldType = field.getType();
-			if (!View.class.isAssignableFrom(field.getDeclaringClass())) {
+			if (!View.class.isAssignableFrom(field.getDeclaringClass()) && !FieldUtils.isFinal(field)) {
 				if (fieldType == String.class) {
 					testStringSize(field);
 				} else if (fieldType == LocalTime.class || fieldType == LocalDateTime.class) {
@@ -349,6 +353,14 @@ public class ModelTest {
 	private boolean isIdentifierChar(char c) {
 		return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9';
 	}
+	
+	private void testNoDuplicateName(Class<?> clazz) {
+		String name = clazz.getSimpleName();
+		Optional<Class<?>> duplicate = modelClasses.stream().filter(c -> c != clazz && c.getSimpleName().equals(name)).findAny();
+		if (duplicate.isPresent()) {
+			problems.add("Two classes with simple name: " + name + "(" + clazz.getName() + "/" + duplicate.get().getName() + ")");
+		}
+	}
 
 	private void testTypeOfField(Field field) {
 		Class<?> fieldType = field.getType();
@@ -367,12 +379,7 @@ public class ModelTest {
 	}
 
 	private void testTypeOfListField(Field field, String messagePrefix) {
-		Class<?> listType = null;
-		try {
-			listType = GenericUtils.getGenericClass(field);
-		} catch (Exception x) {
-			// silent
-		}
+		Class<?> listType = GenericUtils.getGenericClass(field);
 		if (listType != null) {
 			testTypeOfListField(listType, "Generic of " + messagePrefix);
 			if (IdUtils.hasId(listType) && FieldUtils.isFinal(field)) {
@@ -385,18 +392,13 @@ public class ModelTest {
 
 	private void testTypeOfSetField(Field field, String messagePrefix) {
 		@SuppressWarnings("rawtypes")
-		Class setType = null;
-		try {
-			setType = GenericUtils.getGenericClass(field);
-		} catch (Exception x) {
-			// silent
-		}
+		Class setType = GenericUtils.getGenericClass(field);
 		if (setType != null) {
 			if (!Enum.class.isAssignableFrom(setType)) {
 				problems.add("Set type must be an enum class: " + messagePrefix);
 			}
 			@SuppressWarnings("unchecked")
-			List<?> values = EnumUtils.itemList(setType);
+			List<?> values = EnumUtils.valueList(setType);
 			if (values.size() > 32) {
 				problems.add("Set enum must not have more than 32 elements: " + messagePrefix);
 			}
@@ -504,7 +506,8 @@ public class ModelTest {
 		for (Field field : fields) {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
 				Class<?> fieldType = field.getType();
-				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
+				// cheerpj beta 3 fails for Integer.TYPE.getFields()
+				if (!fieldType.isPrimitive() && !FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
 					if (forbiddenClasses.contains(fieldType)) {
 						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
 					} else {

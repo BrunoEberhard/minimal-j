@@ -25,4 +25,9 @@ public class RelationCriteria extends Criteria {
 	public Object getRelatedId() {
 		return relatedId;
 	}
+	
+	@Override
+	public boolean test(Object t) {
+		throw new RuntimeException("Not supported");
+	}
 }

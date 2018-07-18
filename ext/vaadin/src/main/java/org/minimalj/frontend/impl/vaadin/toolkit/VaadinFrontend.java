@@ -102,9 +102,14 @@ public class VaadinFrontend extends Frontend {
 
 	@Override
 	public SwitchContent createSwitchContent() {
-		return new VaadinSwitchContent();
+		return new VaadinSwitch();
 	}
-	
+
+	@Override
+	public SwitchComponent createSwitchComponent() {
+		return new VaadinSwitch();
+	}
+
 	@Override
 	public IContent createQueryContent() {
 		return new VaadinQueryContent();

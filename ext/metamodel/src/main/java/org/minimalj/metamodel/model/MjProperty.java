@@ -2,10 +2,6 @@ package org.minimalj.metamodel.model;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -27,14 +23,7 @@ public class MjProperty {
 	public static final MjProperty $ = Keys.of(MjProperty.class);
 	
 	public enum MjPropertyType {
-		INLINE, LIST, ENUM, ENUM_SET, DEPENDABLE, REFERENCE,
-		// primitives
-		String, Integer, Long, Boolean, BigDecimal, LocalDate,
-		LocalTime, LocalDateTime, ByteArray;
-		
-		public boolean isPrimitive() {
-			return ordinal() > REFERENCE.ordinal();
-		}
+		INLINE, LIST, ENUM_SET, DEPENDABLE, VALUE;
 	}
 	
 	public Object id;
@@ -52,21 +41,19 @@ public class MjProperty {
 	public Boolean technical;
 	public String enabled;
 	
-	private MjModel model;
-	
 	public MjProperty() {
 		//
 	}
 	
 	public MjProperty(MjModel model, Field field) {
-		this.model = model;
-		
 		name = field.getName();
 		this.propertyType = propertyType(field);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
 			this.type = model.getEntity(GenericUtils.getGenericClass(field));
 		} else if (!FieldUtils.isAllowedPrimitive(field.getType())) {
 			this.type = model.getEntity(field.getType());
+		} else {
+			this.type = MjEntity.PRIMITIVES.get(field.getType());
 		}
 		notEmpty = field.getAnnotation(NotEmpty.class) != null;
 		searched = field.getAnnotation(Searched.class) != null;
@@ -80,8 +67,6 @@ public class MjProperty {
 	}
 	
 	public MjProperty(MjModel model, Method method) {
-		this.model = model;
-		
 		name = StringUtils.lowerFirstChar(method.getName().substring(3));
 		PropertyInterface property = new Keys.MethodProperty(method.getReturnType(), name, method, null);
 		
@@ -91,6 +76,8 @@ public class MjProperty {
 			this.type = model.getEntity(GenericUtils.getGenericClass(returnType));
 		} else if (!FieldUtils.isAllowedPrimitive(returnType)) {
 			this.type = model.getEntity(returnType);
+		} else {
+			this.type = MjEntity.PRIMITIVES.get(returnType);
 		}
 		notEmpty = method.getAnnotation(NotEmpty.class) != null;
 		searched = method.getAnnotation(Searched.class) != null;
@@ -110,41 +97,29 @@ public class MjProperty {
 	}
 	
 	private MjPropertyType propertyType(Class<?> fieldType, boolean isFinal) {
-		if (fieldType == String.class) return MjPropertyType.String;
-		else if (fieldType == Integer.class) return MjPropertyType.Integer;
-		else if (fieldType == Long.class) return MjPropertyType.Long;
-		else if (fieldType == Boolean.class) return MjPropertyType.Boolean;
-		else if (fieldType == BigDecimal.class) return MjPropertyType.BigDecimal;
-		else if (fieldType == LocalDate.class) return MjPropertyType.LocalDate;
-		else if (fieldType == LocalTime.class) return MjPropertyType.LocalTime;
-		else if (fieldType == LocalDateTime.class) return MjPropertyType.LocalDateTime;
-
-		else if (fieldType == List.class) return MjPropertyType.LIST;
-		else if (Enum.class.isAssignableFrom(fieldType)) return MjPropertyType.ENUM;
+		if (fieldType == List.class) return MjPropertyType.LIST;
 		else if (fieldType == Set.class) return MjPropertyType.ENUM_SET;
 		else if (isFinal) return MjPropertyType.INLINE;
 		else if (!IdUtils.hasId(fieldType)) return MjPropertyType.DEPENDABLE;
-		else return MjPropertyType.REFERENCE;
+		else return MjPropertyType.VALUE;
 	}
 	
 	public String getFormattedType() {
 		if (Keys.isKeyObject(this)) return Keys.methodOf(this, "formattedType");
+		
+		String className = type.getClassName();
+		
 		if (propertyType == MjPropertyType.LIST) {
-			return "List<" + type.name + ">";
+			return "List<" + className + ">";
 		} else if (propertyType == MjPropertyType.ENUM_SET) {
-			return "Set<" + type.name + ">";
-		} else if (type != null) {
-			return type.name;
+			return "Set<" + className + ">";
 		} else {
-			if (size == null) {
-				return propertyType.name();
+			if (size == null || size == 0) {
+				return className;
 			} else {
-				return propertyType.name() + " (" + size + ")";
+				return className + " (" + size + ")";
 			}
 		}
 	}
-	
-	public MjModel getModel() {
-		return model;
-	}
+
 }

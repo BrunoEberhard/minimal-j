@@ -15,11 +15,10 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 
 public abstract class SqlDialect {
@@ -100,7 +99,7 @@ public abstract class SqlDialect {
 			}
 		} else {
 			if (IdUtils.hasId(clazz)) {
-				PropertyInterface idProperty = Properties.getProperty(clazz, "id");
+				PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id");
 				addColumnDefinition(s, idProperty);
 			} else {
 				s.append("CHAR(36)");
@@ -328,7 +327,7 @@ public abstract class SqlDialect {
 				value = java.sql.Timestamp.valueOf((LocalDateTime) value);
 			} else if (value instanceof Set<?>) {
 				Set<?> set = (Set<?>) value;
-				Class<?> enumClass = GenericUtils.getGenericClass(property.getType());
+				Class<?> enumClass = property.getGenericClass();
 				value = EnumUtils.getInt(set, enumClass);
 			} else if (value instanceof UUID) {
 				value = value.toString();

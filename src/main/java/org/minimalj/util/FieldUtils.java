@@ -182,12 +182,13 @@ public class FieldUtils {
 			} else if (clazz == BigDecimal.class) {
 				value = new BigDecimal(s);
 			} else if (clazz == LocalDate.class) {
+				if (s.length() > 10) s = s.substring(0, 10);
 				value = LocalDate.parse(s);
 			} else if (clazz == LocalTime.class) {
 				value = LocalTime.parse(s);
 			} else if (clazz == LocalDateTime.class) {
 				value = LocalDateTime.parse(s);
-			} else if (Enum.class.isAssignableFrom(clazz)) {
+			} else if (clazz.isEnum()) {
 				List<Enum> values = (List<Enum>) EnumUtils.valueList((Class<Enum>) clazz);
 				for (Enum enumValue : values) {
 					if (enumValue.name().equalsIgnoreCase(s)) {
@@ -196,7 +197,7 @@ public class FieldUtils {
 					}
 				}
 			} else {
-				throw new IllegalArgumentException(s);
+				throw new IllegalArgumentException(clazz.getSimpleName() + ": " + s);
 			}
 		}
 		return (T) value;

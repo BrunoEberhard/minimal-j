@@ -11,6 +11,7 @@ import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.ubersetzung.frontend.UbersetzungTablePage;
 import org.minimalj.ubersetzung.model.Ubersetzung;
+import org.minimalj.util.resources.MultiResourceBundle;
 
 public class UbersetzungApplication extends Application {
 
@@ -28,7 +29,13 @@ public class UbersetzungApplication extends Application {
 
 	@Override
 	public ResourceBundle getResourceBundle(Locale locale) {
-		return DynamicResources.getResourceBundle(locale);
+		ResourceBundle resourceBundle = super.getResourceBundle(locale);
+		ResourceBundle dynamicResourceBundle = DynamicResources.getResourceBundle(locale);
+		if (dynamicResourceBundle != null) {
+			return new MultiResourceBundle(dynamicResourceBundle, resourceBundle);
+		} else {
+			return resourceBundle;
+		}
 	}
 	
 	public static void main(String[] args) {

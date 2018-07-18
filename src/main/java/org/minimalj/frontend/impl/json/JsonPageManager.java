@@ -33,7 +33,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	private Subject subject;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
-	private Page showOnLogin;
+	private Runnable onLogin;
 	private final PageList visiblePageAndDetailsList = new PageList();
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
@@ -49,14 +49,18 @@ public class JsonPageManager implements PageManager, LoginListener {
 		this.subject = subject;
 		Subject.setCurrent(subject);
 
+		initialize();
+	}
+
+	private void initialize() {
 		componentById.clear();
 		navigation = createNavigation();
 		register(navigation);
 		output.add("navigation", navigation);
 
-		if (showOnLogin != null) {
-			show(showOnLogin);
-			showOnLogin = null;
+		if (onLogin != null) {
+			onLogin.run();
+			onLogin = null;
 		} else {
 			show(Application.getInstance().createDefaultPage(), null);
 		}
@@ -86,28 +90,29 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		output = new JsonOutput();
 
-		if (input.containsObject(JsonInput.SHOW_DEFAULT_PAGE)) {
-			Page page = null;
-			String path = (String) input.getObject("path");
-			if (!StringUtils.isEmpty(path)) {
-				page = Application.getInstance().createPage(path.substring(1));
-			}
-
-			
-			if (page == null) {
-				page = Application.getInstance().createDefaultPage();
+		Object initialize = input.getObject(JsonInput.INITIALIZE);
+		if (initialize != null) {
+			onLogin = null;
+			if (initialize instanceof List) {
+				List<String> pageIds = (List<String>) initialize;
+				if (pageStore.valid(pageIds)) {
+					onLogin = () -> show(pageIds);
+				}
+			} else if (initialize instanceof String) {
+				String path = (String) initialize;
+				if (path.length() > 1) {
+					Page page = Application.getInstance().createPage(path.substring(1));
+					if (page != null) {
+						onLogin = () -> show(page, null);
+					}
+				}
 			}
 
 			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-				showOnLogin = page;
 				updateTitle(null);
 				Backend.getInstance().getAuthentication().login(this);
 			} else {
-				show(page);
-
-				navigation = createNavigation();
-				register(navigation);
-				output.add("navigation", navigation);
+				initialize();
 			}
 		}
 

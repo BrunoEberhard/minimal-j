@@ -2,6 +2,12 @@
 
 Every release contains many small fixes.
 
+=== next
+
+=== 1.14.0.0
+* Allow wizards to have a last step without active next button
+* HtmlFrontend: add close button to dialogs
+
 === 1.13.0.0
 * Sorting for completely loaded tables
 * SimpleTablePageWithDetail more helper methods

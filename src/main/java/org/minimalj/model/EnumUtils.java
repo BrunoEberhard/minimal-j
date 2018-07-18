@@ -1,6 +1,5 @@
 package org.minimalj.model;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,24 +13,24 @@ import java.util.Set;
 
 import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.resources.Resources;
 
 
 public class EnumUtils {
 
-	@SuppressWarnings({ "restriction", "rawtypes", "unchecked" })
+	@SuppressWarnings({ "restriction", "unchecked" })
 	public static <T extends Enum<T>> T createEnum(Class<T> clazz, String name) {
 		try {
-			// which one is better for jdk9? This?
-			// sun.misc.Unsafe unsafe = getUnsafe();
-			// T e = (T) unsafe.allocateInstance(clazz);
+			// which one is better? This?
+			sun.misc.Unsafe unsafe = getUnsafe();
+			T e = (T) unsafe.allocateInstance(clazz);
 			
-			// or this?
-			sun.reflect.ReflectionFactory f = sun.reflect.ReflectionFactory.getReflectionFactory();
-			Constructor c = f.newConstructorForSerialization(clazz);
-			T e = (T) c.newInstance();
+			// or this? (this one doesn't work with cheerpj beta 3)
+ 			// sun.reflect.ReflectionFactory f = sun.reflect.ReflectionFactory.getReflectionFactory();
+			// Constructor c = f.newConstructorForSerialization(clazz);
+			// T e = (T) c.newInstance();
 			
 			// in jdk9: replace this with VarHandle
-			sun.misc.Unsafe unsafe = getUnsafe();
 			unsafe.putObject(e, unsafe.objectFieldOffset(Enum.class.getDeclaredField("name")), name);
 			unsafe.putInt(e, unsafe.objectFieldOffset(Enum.class.getDeclaredField("ordinal")), Integer.MAX_VALUE);
 			
@@ -65,45 +64,55 @@ public class EnumUtils {
 	}
 
 	public static <T extends Enum<T>> String getText(T enumElement) {
+		return getText(enumElement, false);
+	}
+
+	public static <T extends Enum<T>> String getDescription(T enumElement) {
+		return getText(enumElement, true);
+	}
+
+	private static <T extends Enum<T>> String getText(T enumElement, boolean description) {
 		if (enumElement == null) {
 			return null;
 		}
 		
 		if (enumElement instanceof Rendering) {
-			String text = ((Rendering) enumElement).render(RenderType.PLAIN_TEXT);
+			Rendering rendering = (Rendering) enumElement;
+			String text = description ? rendering.renderDescription(RenderType.PLAIN_TEXT) : rendering.render(RenderType.PLAIN_TEXT);
 			if (text != null) {
 				return text;
 			}
 		}
 		
+		String postfix = description ? ".description" : "";
+		
 		String bundleName = enumElement.getClass().getName();
 		while (true) {
 			try {
 				ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName, LocaleContext.getCurrent());
-				return resourceBundle.getString(enumElement.name());
+				return resourceBundle.getString(enumElement.name() + postfix);
 			} catch (MissingResourceException mre) {
 				int pos = bundleName.lastIndexOf('$');
-				if (pos < 0) return enumElement.name();
+				if (pos < 0) break;
 				bundleName = bundleName.substring(0, pos);
 			}
 		}
-	}
-
-	public static <T extends Enum<T>> String getDescription(T enumElement) {
-		if (enumElement == null) {
-			return null;
-		}
 		
-		String bundleName = enumElement.getClass().getName();
-		try {
-			ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName);
-			return resourceBundle.getString(enumElement.name() + ".tooltip");
-		} catch (MissingResourceException mre) {
-			return null;
+		String resourceName = enumElement.getClass().getName() + "." + enumElement.name() + postfix;
+		if (Resources.isAvailable(resourceName)) {
+			return Resources.getString(resourceName);
 		}
+		resourceName = enumElement.getClass().getSimpleName() + "." + enumElement.name() + postfix;
+		if (Resources.isAvailable(resourceName)) {
+			return Resources.getString(resourceName);
+		}
+		resourceName = enumElement.name() + postfix;
+		if (Resources.isAvailable(resourceName)) {
+			return Resources.getString(resourceName);
+		}
+		return description ? null : enumElement.name();
 	}
 
-	
 //	private static <T> Map<Class<T>, List<CodeItem<T>>> itemLists = new HashMap<Class<T>, List<CodeItem<T>>>();
 	@SuppressWarnings("rawtypes")
 	private static Map itemLists = new HashMap();

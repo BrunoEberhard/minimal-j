@@ -141,7 +141,12 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public SwitchContent createSwitchContent() {
-		return new SwingSwitchContent();
+		return new SwingSwitch();
+	}
+	
+	@Override
+	public SwitchComponent createSwitchComponent() {
+		return new SwingSwitch();
 	}
 
 	@Override

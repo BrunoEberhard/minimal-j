@@ -8,9 +8,11 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class GenericUtils {
-
+	private static final Logger logger = Logger.getLogger(GenericUtils.class.getName());
+	
 	public static Class<?> getGenericClass(Class<?> c) {
 		return getGenericClass(c, 0);
 	}
@@ -113,12 +115,17 @@ public class GenericUtils {
 		return (Class<?>) type.getActualTypeArguments()[0];
 	}
 
+	/**
+	 * 
+	 * @param field
+	 * @return generic class or <code>null</code>. Doesn't throw Exception if field is not generic.
+	 */
 	public static Class<?> getGenericClass(Field field) {
-		Type type = field.getGenericType();
-		if (!(type instanceof ParameterizedType)) {
-			throw new RuntimeException("Unable to evaluate Generic class of " + field);
-		}
-		ParameterizedType parameterizedType = (ParameterizedType) type;
-		return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+		 Type type = field.getGenericType();
+		 if (type instanceof ParameterizedType) {
+			 ParameterizedType parameterizedType = (ParameterizedType) type;
+			 return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+		 }
+		 return null;
 	}
 }

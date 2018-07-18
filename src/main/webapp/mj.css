@@ -350,16 +350,20 @@ input[type="checkbox"] {
 	height: inherit;
 	width: 1.2em;
 	margin-bottom: 0px;
-	margin-top: 0px;
 	vertical-align: bottom;
 }
 
 label.checkboxLabel {
+	display: inline;
+	white-space: nowrap; /* important for long labels */
+	margin-top: 0.2em;
 	font-weight: normal;
 }
 
 textarea {
 	font-family: inherit;
+	font-size: inherit;
+	resize: vertical;
 }
 
 hr {
@@ -369,7 +373,9 @@ hr {
 }
 
 label {
-	display: block;
+	display: inline-flex;
+	align-items: center;
+	overflow: hidden;
 	font-size: x-smaller;
 	font-weight: bolder;
 }
@@ -424,6 +430,5 @@ block {
 	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 	table.form, table.form input, table.form select { margin: 0px; }
 	.dialogFooter button { font-size : inherit; }
-	.dialogFooter { height: 1.7em; }
 	.dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}
 }

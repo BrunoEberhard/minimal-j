@@ -14,7 +14,6 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
-import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -76,11 +75,11 @@ public class EntityJsonReader {
 			Object value = entry.getValue();
 			if (property.getClazz() == List.class) {
 				List list = (List) value;
-				value = convertList(GenericUtils.getGenericClass(property.getType()), list);
+				value = convertList(property.getGenericClass(), list);
 				property.setValue(entity, value);
 			} else if (property.getClazz() == Set.class) {
 				Set set = (Set) property.getValue(entity);
-				convertEnumSet(set, (Class<? extends Enum>) GenericUtils.getGenericClass(property.getType()), (List)value);
+				convertEnumSet(set, (Class<? extends Enum>) property.getGenericClass(), (List)value);
 			} else if (value instanceof String) {
 				String string = (String) value;
 				if (!"id".equals(property.getName()) || property.getClazz() != Object.class) {

@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.json;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +46,9 @@ public class JsonSessionManager {
 		boolean validSession = true;
 		String sessionId = (String) data.get("session");
 		if (!sessions.containsKey(sessionId)) {
-			validSession = data.containsKey(JsonInput.SHOW_DEFAULT_PAGE);
 			sessionId = createSession();
-			if (!validSession) {
-				data = new HashMap<>();
-				data.put(JsonInput.SHOW_DEFAULT_PAGE, "");
+			if (!data.containsKey(JsonInput.INITIALIZE)) {
+				data = Collections.singletonMap(JsonInput.INITIALIZE, "");
 			}
 		}
 		JsonPageManager session = getSession(sessionId);

@@ -21,6 +21,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
+import org.minimalj.frontend.form.element.EmptyFormElement;
 import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
@@ -30,11 +31,13 @@ import org.minimalj.frontend.form.element.LocalDateFormElement;
 import org.minimalj.frontend.form.element.LocalDateTimeFormElement;
 import org.minimalj.frontend.form.element.LocalTimeFormElement;
 import org.minimalj.frontend.form.element.LongFormElement;
+import org.minimalj.frontend.form.element.SelectionFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
 import org.minimalj.frontend.form.element.TypeUnknownFormElement;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Selection;
 import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
@@ -145,6 +148,8 @@ public class Form<T> {
 			return editable ? new EnumFormElement(property) : new TextFormElement(property);
 		} else if (fieldClass == Set.class) {
 			return new EnumSetFormElement(property, this.editable); // 'this.editable' instead 'editable': the set field is always final. That doesn't mean its read only.
+		} else if (fieldClass == Selection.class) {
+			return new SelectionFormElement(property);
 		}	
 		logger.severe("No FormElement could be created for: " + property.getName() + " of class " + fieldClass.getName());
 		return new TypeUnknownFormElement(property);
@@ -285,7 +290,6 @@ public class Form<T> {
 		for (PropertyInterface dependency : dependencies) {
 			addDependecy(dependency, field.getProperty());
 		}
-		
 	}
 	
 	public final void mock() {
@@ -314,6 +318,7 @@ public class Form<T> {
 	//
 
 	protected String caption(FormElement<?> field) {
+		if (field instanceof EmptyFormElement) return null;
 		return Resources.getPropertyName(field.getProperty());
 	}
 

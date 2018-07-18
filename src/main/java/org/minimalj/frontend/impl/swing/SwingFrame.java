@@ -22,6 +22,7 @@ import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.component.HideableTabbedPane;
+import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
@@ -39,7 +40,7 @@ public class SwingFrame extends JFrame {
 	private HideableTabbedPane tabbedPane;
 	final Action loginAction, closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction;
 	
-	public SwingFrame(Subject subject) {
+	public SwingFrame() {
 		boolean authenticationActive = Backend.getInstance().isAuthenticationActive();
 		loginAction = authenticationActive ? new SwingLoginAction() : null;
 		
@@ -54,7 +55,6 @@ public class SwingFrame extends JFrame {
 		addWindowListener();
 		createContent();
 
-		setSubject(subject);
 		updateIcon();
 		
 		// TODO still necessary?
@@ -100,7 +100,7 @@ public class SwingFrame extends JFrame {
 		tabbedPane.addTab("", tab);
 		tabbedPane.setSelectedComponent(tab);
 
-		tab.show(Application.getInstance().createDefaultPage());
+		tab.show(new EmptyPage());
 	}
 	
 	public void closeTabActionPerformed() {
@@ -189,7 +189,10 @@ public class SwingFrame extends JFrame {
 		Subject.setCurrent(subject);
 		favorites.setUser(subject != null ? subject.getName() : null);
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
-			((SwingTab) tabbedPane.getTab(i)).updateNavigation();
+			SwingTab swingTab = (SwingTab) tabbedPane.getTab(i);
+			swingTab.clearHistory();
+			swingTab.show(Application.getInstance().createDefaultPage());
+			swingTab.updateNavigation();
 		}
 		updateWindowTitle();
 	}

@@ -12,9 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Model;
@@ -46,7 +44,7 @@ import org.minimalj.util.IdUtils;
 public class InMemoryRepository implements Repository {
 	private static final Logger logger = Logger.getLogger(InMemoryRepository.class.getName());
 	
-	private Map<Class<?>, Map<Object, Object>> memory = new HashMap<>();
+	private Map<Class<?>, Map<String, Object>> memory = new HashMap<>();
 	
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 	
@@ -130,15 +128,15 @@ public class InMemoryRepository implements Repository {
 
 	// read without clone
 	private <T> T read_(Class<T> clazz, Object id) {
-		Map<Object, Object> objects = objects(clazz);
-		return (T) objects.get(id);
+		Map<String, Object> objects = objects(clazz);
+		return (T) objects.get(id.toString());
 	}
 
-	private <T> Map<Object, Object> objects(Class<T> clazz) {
+	private <T> Map<String, Object> objects(Class<T> clazz) {
 		if (!memory.containsKey(clazz)) {
 			memory.put(clazz, new HashMap<>());
 		}
-		Map<Object, Object> objects = memory.get(clazz);
+		Map<String, Object> objects = memory.get(clazz);
 		return objects;
 	}
 
@@ -200,15 +198,28 @@ public class InMemoryRepository implements Repository {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T> List find(Class<T> clazz, Criteria criteria) {
-		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
+		List result = new ArrayList();
 		if (View.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
-			Map<Object, Object> objects = objects(viewedClass);
-			return (List) objects.values().stream().filter(predicate).map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
+			Map<String, Object> objects = objects(viewedClass);
+			for (Object object : objects.values()) {
+				if (criteria.test(object)) {
+					result.add(ViewUtil.view(object, CloneHelper.newInstance(clazz)));
+				}
+			}
+			// Cheerpj doesn't work with Collectors.toList()
+			// return (List) objects.values().stream().filter(predicate).map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
 		} else {
-			Map<Object, Object> objects = objects(clazz);
-			return (List) objects.values().stream().filter(predicate).collect(Collectors.toList());
+			Map<String, Object> objects = objects(clazz);
+			for (Object object : objects.values()) {
+				if (criteria.test(object)) {
+					result.add(object);
+				}
+			}
+			// Cheerpj doesn't work with Collectors.toList()
+			// return (List) objects.values().stream().filter(predicate).collect(Collectors.toList());
 		}
+		return result;
 	}
 	
 	@Override
@@ -245,8 +256,8 @@ public class InMemoryRepository implements Repository {
 			id = UUID.randomUUID();
 			IdUtils.setId(object, id);
 		}
-		Map<Object, Object> objects = objects(object.getClass());
-		objects.put(id, object);
+		Map<String, Object> objects = objects(object.getClass());
+		objects.put(id.toString(), object);
 		
 		apply(object, (o, property, value) -> {
 			if (value != null) {
@@ -337,9 +348,13 @@ public class InMemoryRepository implements Repository {
 	}
 	
 	private boolean memory(Object object) {
-		Map<Object, Object> objects = objects(object.getClass());
 		Object id = IdUtils.getId(object);
-		return objects.containsKey(id);
+		if (id != null) {
+			Map<String, Object> objects = objects(object.getClass());
+			return objects.containsKey(id.toString());
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
@@ -392,7 +407,7 @@ public class InMemoryRepository implements Repository {
 
 	private boolean isReferenced(Object object) {
 		Object id = IdUtils.getId(object);
-		for (Map<Object, Object> m : memory.values()) {
+		for (Map<String, Object> m : memory.values()) {
 			for (Object e : m.values()) {
 				if (object != e && isReferenced(id, e)) {
 					return true;
@@ -434,12 +449,12 @@ public class InMemoryRepository implements Repository {
 	@Override
 	public <T> void delete(Class<T> clazz, Object id) {
 		executeWrite(() -> {
-			Map<Object, Object> objects = objects(clazz);
-			Object object = objects.get(id);
+			Map<String, Object> objects = objects(clazz);
+			Object object = objects.get(id.toString());
 			if (object != null && isReferenced(object)) {
 				throw new IllegalStateException("Referenced objects cannot be deleted");
 			}
-			objects.remove(id);
+			objects.remove(id.toString());
 			return null;
 		});
 	}

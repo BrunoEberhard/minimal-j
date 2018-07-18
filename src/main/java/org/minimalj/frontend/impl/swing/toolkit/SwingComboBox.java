@@ -75,7 +75,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			fireChangeEvent();
+			SwingFrontend.runWithContext(this::fireChangeEvent);
 		}
 	}
 	
@@ -170,7 +170,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 				if (component instanceof JLabel) {
 					String text = renderingValue.render(RenderType.PLAIN_TEXT);
 					((JLabel) component).setText(text);
-					String tooltip = renderingValue.renderTooltip(RenderType.PLAIN_TEXT);
+					String tooltip = renderingValue.renderDescription(RenderType.PLAIN_TEXT);
 					if (tooltip != null) {
 						((JComponent) component).setToolTipText(tooltip);
 					}

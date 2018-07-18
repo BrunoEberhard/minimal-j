@@ -10,22 +10,26 @@ import org.minimalj.metamodel.model.MjModel;
 
 public class EntityTablePage extends TableDetailPage<MjEntity> {
 
-	private final MjModel model;
+	private final List<MjEntity> entities;
 
 	public EntityTablePage() {
 		this(new MjModel(Application.getInstance()));
 	}
 	
 	public EntityTablePage(MjModel model) {
-		super(new Object[]{MjEntity.$.name, MjEntity.$.type, MjEntity.$.validatable});
-		this.model = model;
+		super(new Object[]{MjEntity.$.name, MjEntity.$.type, MjEntity.$.validatable, MjEntity.$.maxInclusive});
+		this.entities = model.entities;
+	}
+	
+	public EntityTablePage(List<MjEntity> entities) {
+		super(new Object[]{MjEntity.$.name, MjEntity.$.type, MjEntity.$.validatable, MjEntity.$.maxInclusive});
+		this.entities = entities;
 	}
 	
 	@Override
 	protected TablePage<?> getDetailPage(MjEntity entity) {
-		Class<?> clazz = entity.getClazz();
-		if (Enum.class.isAssignableFrom(clazz)) {
-			return new EnumTablePage(clazz);
+		if (entity.isEnumeration()) {
+			return new EnumTablePage(entity);
 		} else {
 			return new PropertyTablePage(entity);
 		}
@@ -33,7 +37,7 @@ public class EntityTablePage extends TableDetailPage<MjEntity> {
 
 	@Override
 	protected List<MjEntity> load() {
-		return model.entities;
+		return entities;
 	}
 
 }

@@ -47,6 +47,13 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		}
 	}
 	
+	protected T createEntry() {
+		@SuppressWarnings("unchecked")
+		Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(ListFormElement.this.getClass());
+		T newInstance = CloneHelper.newInstance(clazz);
+		return newInstance;
+	}
+	
 	public class AddListEntryEditor extends ListFormElementEditor {
 		
 		public AddListEntryEditor() {
@@ -58,10 +65,7 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		
 		@Override
 		protected T createObject() {
-			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) org.minimalj.util.GenericUtils.getGenericClass(ListFormElement.this.getClass());
-			T newInstance = CloneHelper.newInstance(clazz);
-			return newInstance;
+			return ListFormElement.this.createEntry();
 		}
 		
 		@Override

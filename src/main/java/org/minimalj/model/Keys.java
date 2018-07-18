@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 public class Keys {
@@ -206,12 +207,12 @@ public class Keys {
 		}
 	}
 
-	private static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
+	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
 		Method[] methods = clazz.getMethods();
 		for (Method method: methods) {
 			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;
 			String name = method.getName();
-			if (!name.startsWith("get") && name.length() > 3) continue; // TODO check
+			if (!name.startsWith("get") || name.length() <= 3) continue; // TODO check
 			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;
 			
 			String setterName = "set" + name.substring(3);
@@ -279,9 +280,9 @@ public class Keys {
 			return getName();
 		}
 
-		@Override
-		public Type getType() {
-			return getterMethod.getGenericReturnType();
+		public Class<?> getGenericClass() {
+			Type genericType = getterMethod.getGenericReturnType();
+			return genericType != null ? GenericUtils.getGenericClass(genericType) : null;
 		}
 
 		@Override

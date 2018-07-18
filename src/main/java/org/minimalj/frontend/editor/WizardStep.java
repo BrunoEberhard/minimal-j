@@ -14,8 +14,13 @@ public interface WizardStep<T> {
 
 	public Form<T> createForm();
 
+	/**
+	 * 
+	 * @return true if getNextStep will not return <code>null</code>
+	 */
+	public boolean hasNext();
+
 	public WizardStep<?> getNextStep();
 
 	public WizardStep<?> getPreviousStep();
-
 }

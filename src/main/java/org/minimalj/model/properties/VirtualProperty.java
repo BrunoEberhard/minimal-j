@@ -1,7 +1,6 @@
 package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 
 /**
  * Base class for properties which don't belong to an existing class.<p>
@@ -26,7 +25,7 @@ public abstract class VirtualProperty implements PropertyInterface {
 	}
 
 	@Override
-	public Type getType() {
+	public Class<?> getGenericClass() {
 		return null;
 	}
 

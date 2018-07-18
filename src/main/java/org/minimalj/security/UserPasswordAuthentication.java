@@ -1,9 +1,9 @@
 package org.minimalj.security;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
@@ -14,6 +14,7 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.security.model.User;
 import org.minimalj.security.model.UserPassword;
+import org.minimalj.security.model.UserRole;
 import org.minimalj.transaction.Transaction;
 
 public abstract class UserPasswordAuthentication extends Authentication {
@@ -39,7 +40,13 @@ public abstract class UserPasswordAuthentication extends Authentication {
 
 		@Override
 		protected Form<UserPassword> createForm() {
-			Form<UserPassword> form = new Form<>();
+			Form<UserPassword> form = new Form<UserPassword>() {
+				@Override
+				protected int getColumnWidthPercentage() {
+					// if anonymous button is show the dialog should be wider
+					return !Application.getInstance().isLoginRequired() ? 150 : 100;
+				}
+			};
 			form.line(UserPassword.$.user);
 			form.line(new PasswordFormElement(UserPassword.$.password));
 			return form;
@@ -114,7 +121,12 @@ public abstract class UserPasswordAuthentication extends Authentication {
 				return null;
 			}
 			Subject subject = Backend.getInstance().getAuthentication().createSubject(userPassword.user);
-			List<String> roleNames = user.roles.stream().map((role) -> role.name).collect(Collectors.toList());
+			List<String> roleNames = new ArrayList<>();
+			for (UserRole role : user.roles) {
+				roleNames.add(role.name);
+			}
+			// Cheerpj doesn't work with Collectors.toList()
+			// user.roles.stream().map((role) -> role.name).collect(Collectors.toList());
 			subject.getRoles().addAll(roleNames);
 			return subject;
 		}

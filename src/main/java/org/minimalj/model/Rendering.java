@@ -21,7 +21,7 @@ public interface Rendering {
 	 */
 	public String render(RenderType renderType);
 	
-	public default String renderTooltip(RenderType renderType) {
+	public default String renderDescription(RenderType renderType) {
 		return null;
 	}
 	
