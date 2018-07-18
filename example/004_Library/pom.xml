@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
 	<artifactId>library</artifactId>
-	<version>1.0.0.0</version>
+	<version>1.0.1.0</version>
 	<name>Example_004_Library</name>
 	<description>This example focuses on the model</description>
 	<build>
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.7.0.0,)</version>
+			<version>[1.14.0.0,)</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -50,4 +50,11 @@
 		    <version>0.8</version>
 		</dependency>		
 	</dependencies>
+	
+	<distributionManagement>
+		<repository>
+			<id>openech-repository</id>
+			<url>ftp://ftp.openech.ch/public_html/repository</url>
+		</repository>
+	</distributionManagement>
 </project>

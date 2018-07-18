@@ -44,38 +44,38 @@
 		<dependency>
 			<groupId>org.minimalj.example</groupId>
 			<artifactId>emptyApplication</artifactId>
-			<version>1.0.0.0</version>
+			<version>1.0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.minimalj.example</groupId>
 			<artifactId>helloWorld</artifactId>
-			<version>1.0.0.0</version>
+			<version>1.0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.minimalj.example</groupId>
 			<artifactId>notes</artifactId>
-			<version>1.0.0.0</version>
+			<version>1.0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.minimalj.example</groupId>
 			<artifactId>library</artifactId>
-			<version>1.0.0.0</version>
+			<version>1.0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.minimalj.example</groupId>
 			<artifactId>numbers</artifactId>
-			<version>1.0.0.0</version>
+			<version>1.0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.minimalj.example</groupId>
 			<artifactId>minimalClinic</artifactId>
-			<version>1.0.0.0</version>
+			<version>1.0.1.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.14.0.0,)</version>
+			<version>[1.14.0.2-SNAPSHOT,)</version>
 		</dependency>
 		
 		<dependency>

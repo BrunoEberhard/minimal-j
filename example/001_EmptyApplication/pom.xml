@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
 	<artifactId>emptyApplication</artifactId>
-	<version>1.0.0.0</version>
+	<version>1.0.1.0</version>
 	<name>Example_001_EmptyApplication</name>
 	<description>The empty application shows how to set up a Minimal-J application</description>
 	<build>
