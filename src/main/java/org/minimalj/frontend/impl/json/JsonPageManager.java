@@ -108,8 +108,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 				}
 			}
 
+			updateTitle(null);
 			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-				updateTitle(null);
 				Backend.getInstance().getAuthentication().login(this);
 			} else {
 				initialize();
