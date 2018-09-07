@@ -22,7 +22,7 @@ public class Visit implements Rendering {
     public String description;
     
     @Override
-    public String render(RenderType renderType) {
+    public String render() {
     	return DateUtils.format(visitDate) + ": " + description;
     }
 

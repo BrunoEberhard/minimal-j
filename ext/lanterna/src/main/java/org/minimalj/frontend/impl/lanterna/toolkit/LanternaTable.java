@@ -10,7 +10,6 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.resources.Resources;
 
@@ -95,7 +94,7 @@ public class LanternaTable<T> extends Table<String> implements ITable<T> {
 			List<String> values = new ArrayList<>();
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
-				values.add(Rendering.render(value, RenderType.PLAIN_TEXT, property));
+				values.add(Rendering.toString(value, property));
 			}
 			getTableModel().addRow(values);
 		}

@@ -26,12 +26,12 @@ public class CodeItem<E> implements Rendering {
 	}
 
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return text;
 	}
 
 	@Override
-	public String renderDescription(RenderType renderType) {
+	public String renderDescription() {
 		return description;
 	}
 

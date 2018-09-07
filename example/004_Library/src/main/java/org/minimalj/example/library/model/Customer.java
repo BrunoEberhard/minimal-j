@@ -20,7 +20,7 @@ public class Customer implements Rendering {
 	public String remarks;
 
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return firstName + " " + name;
 	}
 }

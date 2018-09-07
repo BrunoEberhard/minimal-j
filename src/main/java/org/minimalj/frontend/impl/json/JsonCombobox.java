@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.StringUtils;
 
 public class JsonCombobox<T> extends JsonInputComponent<T> {
@@ -23,15 +22,10 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 		for (T object : objects) {
 			String id = UUID.randomUUID().toString();
 			Map<String, String> option = new HashMap<>();
-			if (object instanceof Rendering) {
-				Rendering rendering = (Rendering) object;
-				option.put("text", rendering.render(RenderType.PLAIN_TEXT));
-				String description = rendering.renderDescription(RenderType.PLAIN_TEXT);
-				if (!StringUtils.isEmpty(description)) {
-					option.put("description", description);
-				}
-			} else {
-				option.put("text", "" + object);
+			option.put("text", Rendering.toString(object));
+			String description = Rendering.toDescriptionString(object);
+			if (!StringUtils.isEmpty(description)) {
+				option.put("description", description);
 			}
 			options.put(id, option);
 			objectById.put(id, object);

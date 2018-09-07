@@ -18,7 +18,6 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.CloneHelper;
 
 public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
@@ -168,9 +167,9 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 			if (value instanceof Rendering) {
 				Rendering renderingValue = (Rendering) value;
 				if (component instanceof JLabel) {
-					String text = renderingValue.render(RenderType.PLAIN_TEXT);
+					String text = Rendering.toString(value);
 					((JLabel) component).setText(text);
-					String tooltip = renderingValue.renderDescription(RenderType.PLAIN_TEXT);
+					String tooltip = Rendering.toDescriptionString(value);
 					if (tooltip != null) {
 						((JComponent) component).setToolTipText(tooltip);
 					}

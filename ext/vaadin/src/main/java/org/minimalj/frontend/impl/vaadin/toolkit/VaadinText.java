@@ -1,11 +1,11 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.impl.util.HtmlString;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
+import org.minimalj.util.StringUtils;
 
 import com.vaadin.shared.ui.ContentMode;
-
 import com.vaadin.ui.Label;
 
 public class VaadinText extends Label implements IComponent {
@@ -17,13 +17,21 @@ public class VaadinText extends Label implements IComponent {
 
 	public VaadinText(Rendering rendering) {
 		if (rendering != null) {
-			RenderType renderType = rendering.getPreferredRenderType(RenderType.HMTL, RenderType.PLAIN_TEXT);
-			String s = rendering.render(renderType);
-			setValue(s);
-			if (renderType == RenderType.HMTL) {
+			CharSequence s = rendering.render();
+			if (s instanceof HtmlString) {
 				setContentMode(ContentMode.HTML);
-			} else {
-				setContentMode(ContentMode.TEXT);
+				setValue(((HtmlString) s).getHtml());
+			} else if (s != null) {
+				String string = s.toString();
+				if (string.contains("\n")) {
+					string = StringUtils.escapeHTML(string);
+					string = string.replaceAll("\n", "<br>");
+					setContentMode(ContentMode.HTML);
+					setValue(string);
+				} else {
+					setContentMode(ContentMode.TEXT);
+					setValue(string);
+				}
 			}
 		}
 	}

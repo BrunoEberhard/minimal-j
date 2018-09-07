@@ -27,7 +27,7 @@ public class Country implements Code, Rendering {
 	public String nameEn, nameDe;
 	
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return getName();
 	}
 	

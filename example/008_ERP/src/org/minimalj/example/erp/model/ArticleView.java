@@ -17,7 +17,7 @@ public class ArticleView implements View<Article>, Rendering {
 	public String description;
 	
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return article;
 	}
 }

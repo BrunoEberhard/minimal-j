@@ -25,8 +25,8 @@ public class Pet implements Rendering {
 	public PetType type;
     
     @Override
-    public String render(RenderType renderType) {
-    	return name + ", " + DateUtils.format(birthDate) + ", " + type.render(renderType);
+    public String render() {
+    	return name + ", " + DateUtils.format(birthDate) + ", " + type.render();
     }
 
 }

@@ -14,7 +14,7 @@ public class PetType implements Code, Rendering {
 	public String name, nameDe;
 	
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		if (LocaleContext.getCurrent().getLanguage().startsWith("de")) {
 			return nameDe;
 		} else {

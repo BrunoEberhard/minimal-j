@@ -11,7 +11,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
@@ -77,8 +76,7 @@ public class EnumUtils {
 		}
 		
 		if (enumElement instanceof Rendering) {
-			Rendering rendering = (Rendering) enumElement;
-			String text = description ? rendering.renderDescription(RenderType.PLAIN_TEXT) : rendering.render(RenderType.PLAIN_TEXT);
+			String text = description ? Rendering.toDescriptionString(enumElement) : Rendering.toString(enumElement);
 			if (text != null) {
 				return text;
 			}

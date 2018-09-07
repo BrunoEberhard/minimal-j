@@ -35,7 +35,7 @@ public class ArticleCategory implements Code, Rendering {
 	}
 	
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return text;
 	}
 

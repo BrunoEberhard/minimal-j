@@ -26,8 +26,8 @@ public class Owner implements Rendering, Mocking {
     public String telephone;
     
     @Override
-    public String render(RenderType renderType) {
-    	return person.render(renderType);
+    public String render() {
+    	return person.render();
     }
     
     @Override

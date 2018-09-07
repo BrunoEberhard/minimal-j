@@ -20,7 +20,7 @@ public class Person implements Rendering, Mocking {
 	}
 	
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return firstName + " " + lastName;
 	}
 	

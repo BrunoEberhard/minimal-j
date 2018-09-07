@@ -9,7 +9,6 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
@@ -179,11 +178,8 @@ public class VaadinFrontend extends Frontend {
 		}
 		
 		protected void display() {
-			if (selectedObject instanceof Rendering) {
-				Rendering rendering = (Rendering) selectedObject;
-				actionLabel.setCaption(rendering.render(RenderType.PLAIN_TEXT));
-			} else if (selectedObject != null) {
-				actionLabel.setCaption(selectedObject.toString());
+			if (selectedObject != null) {
+				actionLabel.setCaption(Rendering.toString(selectedObject));
 			} else {
 				actionLabel.setCaption("[+]");
 			}

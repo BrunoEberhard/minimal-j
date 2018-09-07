@@ -44,7 +44,6 @@ import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -269,11 +268,9 @@ public class SwingFrontend extends Frontend {
 		}
 		
 		protected void display() {
-			if (selectedObject instanceof Rendering) {
-				Rendering rendering = (Rendering) selectedObject;
-				actionLabel.setText(rendering.render(RenderType.PLAIN_TEXT));
-			} else if (selectedObject != null) {
-				actionLabel.setText(selectedObject.toString());
+			// TODO EmptyObjects?
+			if (selectedObject != null) {
+				actionLabel.setText(Rendering.toString(selectedObject));
 			} else {
 				actionLabel.setText("[+]");
 			}

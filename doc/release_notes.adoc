@@ -3,6 +3,7 @@
 Every release contains many small fixes.
 
 === next
+* Remove RenderType. Redesign Rendering conept
 
 === 1.14.0.0
 * Allow wizards to have a last step without active next button

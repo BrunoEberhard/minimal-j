@@ -70,26 +70,29 @@ public class StringUtils {
 
 	public static void appendLine(StringBuilder stringBuilder, String string) {
 		if (!isEmpty(string)) {
-			stringBuilder.append(string);
-			stringBuilder.append("<br>");
+			stringBuilder.append(string).append('\n');
 		}
 	}
 
 	public static void appendLine(StringBuilder stringBuilder, Integer integer) {
 		if (integer != null) {
-			stringBuilder.append(integer);
-			stringBuilder.append("<br>");
+			stringBuilder.append(integer).append('\n');
 		}
 	}
 
 	public static void appendLine(StringBuilder stringBuilder, String... strings) {
 		boolean first = true;
 		for (String string : strings) {
-			if (isEmpty(string)) continue;
-			if (!first) stringBuilder.append(' '); else first = false;
+			if (isEmpty(string))
+				continue;
+			if (!first)
+				stringBuilder.append(' ');
+			else
+				first = false;
 			stringBuilder.append(string);
 		}
-		if (!first) stringBuilder.append("<br>");
+		if (!first)
+			stringBuilder.append('\n');
 	}
 	
 	public static void appendSeparated(StringBuilder stringBuilder, String... strings) {
@@ -101,6 +104,14 @@ public class StringUtils {
 		}
 	}
 	
+	public static void trim(StringBuilder s) {
+		while (s.length() > 0 && Character.isWhitespace(s.charAt(0))) {
+			s.delete(0, 1);
+		}
+		while (Character.isWhitespace(s.charAt(s.length() - 1))) {
+			s.delete(s.length() - 1, s.length());
+		}
+	}
 	
 	public static String lowerFirstChar(String string) {
 		if (string.length() > 1) {

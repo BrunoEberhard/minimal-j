@@ -87,7 +87,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			List<String> rowContent = new ArrayList<>();
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
-				String stringValue = Rendering.render(value, Rendering.RenderType.PLAIN_TEXT, property);
+				String stringValue = Rendering.toString(value, property);
 				rowContent.add(stringValue);
 			}
 			tableContent.add(rowContent);
