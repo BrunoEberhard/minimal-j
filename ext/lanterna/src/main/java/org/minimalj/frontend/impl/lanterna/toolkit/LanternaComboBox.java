@@ -40,11 +40,6 @@ public class LanternaComboBox<T> extends ComboBox<T> implements Input<T> {
 
 	@Override
 	public T getValue() {
-		if (getSelectedIndex() > -1) {
-			// TODO create Lanterna issue, getSelectedItem should return no if no selection not throw ArrayOutOfBoundsException
-			return getSelectedItem();
-		} else {
-			return null;
-		}
+		return getSelectedItem();
 	}
 }
