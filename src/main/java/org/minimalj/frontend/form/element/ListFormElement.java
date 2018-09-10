@@ -27,7 +27,18 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		}
 	}
 
-	protected abstract void showEntry(T entry);
+	protected void showEntry(T entry) {
+		if (isEditable()) {
+			add(entry, new ListEntryEditor(entry), new RemoveEntryAction(entry));
+		} else {
+			add(entry);
+		}
+	}
+
+	@Override
+	protected Action[] getActions() {
+		return new Action[] { new AddListEntryEditor() };
+	}
 	
 	protected abstract Form<T> createForm(boolean edit);
 	
