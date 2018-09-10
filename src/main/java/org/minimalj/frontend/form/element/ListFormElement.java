@@ -89,10 +89,6 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		}
 	}
 
-	protected Action getEditorAction() {
-		throw new RuntimeException(getClass().getSimpleName() + " must not use getEditorAction. Please use an extension of EditListEntryAction");
-	}
-
 	public class ListEntryEditor extends ListFormElementEditor {
 		private final T originalEntry;
 		
