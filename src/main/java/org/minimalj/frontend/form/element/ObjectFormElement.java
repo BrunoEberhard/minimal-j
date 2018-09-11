@@ -7,6 +7,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -22,6 +23,15 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		super(property, editable);
 	}
 	
+	@Override
+	protected void show(T object) {
+		if (isEditable()) {
+			add(object, new ObjectFormElementEditor(), new RemoveObjectAction());
+		} else {
+			add(object);
+		}
+	}
+
 	protected abstract Form<T> createForm();
 
 	public class ObjectFormElementEditor extends Editor<T, Void> {
@@ -126,7 +136,12 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 		
 		@Override
 		public void action() {
-			ObjectFormElement.this.setValue(null);
+			Class<T> editedClass = (Class<T>) GenericUtils.getGenericClass(ObjectFormElement.this.getClass());
+			if (!getProperty().isFinal()) {
+				ObjectFormElement.this.setValue(null);
+			} else {
+				ObjectFormElement.this.setValue(EmptyObjects.getEmptyObject(editedClass));
+			}
 		}
 	}
 }
