@@ -100,7 +100,11 @@ public abstract class AbstractObjectFormElement<T> extends AbstractFormElement<T
 	}
 
 	protected void add(Object object, Action... actions) {
-		add(object.toString(), actions);
+		if (object instanceof Rendering) {
+			add((Rendering) object, actions);
+		} else {
+			add(object.toString(), actions);
+		}
 	}
 
 	protected void add(String text, Action... actions) {
