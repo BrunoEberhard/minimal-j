@@ -26,7 +26,11 @@ public abstract class ObjectFormElement<T> extends AbstractObjectFormElement<T> 
 	@Override
 	protected void show(T object) {
 		if (isEditable()) {
-			add(object, new ObjectFormElementEditor(), new RemoveObjectAction());
+			if (!EmptyObjects.isEmpty(object)) {
+				add(object, getEditorAction(), new RemoveObjectAction());
+			} else {
+				add(object, getEditorAction());
+			}
 		} else {
 			add(object);
 		}
