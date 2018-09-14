@@ -15,7 +15,7 @@ public class SqlHistorizedCrudTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		repository = new SqlHistorizedRepository(DataSourceFactory.embeddedDataSource(), A.class);
+		repository = new SqlHistorizedRepository(DataSourceFactory.embeddedDataSource(), A.class, F.class);
 	}
 	
 	@AfterClass
@@ -75,6 +75,52 @@ public class SqlHistorizedCrudTest {
 		Assert.assertEquals(0, repository.readVersion(A.class, id, 0).b.size());
 	}
 	
+	@Test
+	public void testHistorizedReference() {
+		Object id = writeSimpleA();
+		A a = repository.read(A.class, id);
+
+		a.f = new F();
+		a.f.f = "F";
+		repository.update(a);
+		
+		A a2 = repository.read(A.class, id);
+		F f = a2.f;
+		f.f = "newF";
+		repository.update(f);
+		
+		A a3 = repository.read(A.class, id);
+		Assert.assertEquals("Even when a new version of referenced Object was created still the old one should be referenced", "F", a3.f.f);
+	}
+
+	@Test
+	public void testHistorizedExistingReference() {
+		Object id = writeSimpleA();
+		A a = repository.read(A.class, id);
+
+		// create an referenced entity and change it once
+		// (so that version is not 0 anymore)
+		F f = new F();
+		f.f = "F";
+		Object fId = repository.insert(f);
+		f = repository.read(F.class, fId);
+		f.f = "F2";
+		repository.update(f);
+		f = repository.read(F.class, fId);
+
+		// use second version in a
+		a.f = f;
+		repository.update(a);
+
+		// update f to a third version
+		f.f = "F3";
+		repository.update(f);
+
+		// read a again (should point to 2nd version, not third)
+		A a3 = repository.read(A.class, id);
+		Assert.assertEquals("Even when a new version of referenced Object was created still the old one should be referenced", "F2", a3.f.f);
+	}
+
 	private Object writeSimpleA() {
 		A a = new A("testName1");
 

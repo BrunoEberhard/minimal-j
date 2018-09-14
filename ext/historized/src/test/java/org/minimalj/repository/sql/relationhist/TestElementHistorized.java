@@ -5,13 +5,13 @@ import java.util.List;
 import org.minimalj.model.annotation.Size;
 
 
-public class TestElementB {
+public class TestElementHistorized {
 
-	public TestElementB() {
+	public TestElementHistorized() {
 		// needed for reflection constructor
 	}
 	
-	public TestElementB(String name) {
+	public TestElementHistorized(String name) {
 		this.name = name;
 	}
 	

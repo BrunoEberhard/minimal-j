@@ -24,6 +24,6 @@ public class TestEntity {
 	@Size(30)
 	public String name;
 
-	public List<TestElementB> list;
+	public List<TestElementHistorized> list;
 
 }

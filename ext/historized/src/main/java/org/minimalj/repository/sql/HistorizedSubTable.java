@@ -9,8 +9,6 @@ import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 
 /**
- * Minimal-J internal<p>
- * 
  * HistorizedTable has one version columns, HistorizedSubTable has two.
  * One for startVersion and one for endVersion.<p>
  * 
@@ -21,7 +19,7 @@ import org.minimalj.util.IdUtils;
  * row contains the version from which the entry is active.
  * 
  */
-public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> {
+class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> implements HistorizedListTable<PARENT, ELEMENT> {
 
 	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
@@ -49,9 +47,9 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		}
 	}
 
-	public void replaceAll(PARENT parent, List<ELEMENT> objects, int version) {
+	public void replaceList(PARENT parent, List<ELEMENT> objects, int version) {
 		int oldVersion = version-1;
-		List<ELEMENT> objectsInDb = read(parent, oldVersion);
+		List<ELEMENT> objectsInDb = getList(parent, oldVersion);
 		Object parentId = IdUtils.getId(parent);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
@@ -92,7 +90,8 @@ public class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMEN
 		}
 	}
 
-	public List<ELEMENT> read(PARENT parent, Integer time) {
+	@Override
+	public List<ELEMENT> getList(PARENT parent, Integer time) {
 		if (time == null) {
 			return getList(parent);
 		}

@@ -72,7 +72,7 @@ import org.minimalj.util.StringUtils;
 public class SqlRepository implements TransactionalRepository {
 	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
 	
-	private final SqlDialect sqlDialect;
+	protected final SqlDialect sqlDialect;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<String, AbstractTable<?>>();
@@ -469,9 +469,6 @@ public class SqlRepository implements TransactionalRepository {
 			} else if ("POSITION".equalsIgnoreCase(columnName)) {
 				position = resultSet.getInt(columnIndex);
 				continue;				
-			} else if ("HISTORIZED".equalsIgnoreCase(columnName)) {
-				IdUtils.setHistorized(result, resultSet.getInt(columnIndex));
-				continue;
 			}
 			
 			PropertyInterface property = columns.get(columnName);

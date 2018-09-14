@@ -14,8 +14,7 @@ A Repository that keeps all data in the (VM) memory
 == historized
 
 A sql Repository with support for historized entities. If a main entity has a boolean field 'historized' then
-with every version a new row is created in the database. (limitation: at the moment list fields with
-elements containing an id are not supported.)
+with every version a new row is created in the database.
 
 == servlet
 
