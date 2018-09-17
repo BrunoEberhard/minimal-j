@@ -237,7 +237,8 @@ public class ClassGenerator {
 			generateEnumValues(s, entity);			
 			indent(s, indent).append("}\n");
 		} else {
-			indent(s, indent).append("public static class " + innerClassName + " {\n\n");
+			indent(s, indent).append("public static class " + innerClassName + " {\n");
+			indent(s, indent + 1).append("public static final " + innerClassName + " $ = Keys.of(" + innerClassName + ".class);\n\n");
 			generateProperties(s, entity, packageName, forbiddenNames);
 			indent(s, indent).append("}\n");
 		}
