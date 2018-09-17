@@ -112,6 +112,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 
 		Object id = null;
 		Integer position = 0;
+		Integer version = 0;
 		R result = CloneHelper.newInstance(clazz);
 
 		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
@@ -129,7 +130,8 @@ public class SqlHistorizedRepository extends SqlRepository {
 				IdUtils.setId(result, id);
 				continue;
 			} else if ("VERSION".equalsIgnoreCase(columnName)) {
-				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
+				version = resultSet.getInt(columnIndex);
+				IdUtils.setVersion(result, version);
 				continue;
 			} else if ("POSITION".equalsIgnoreCase(columnName)) {
 				position = resultSet.getInt(columnIndex);
@@ -162,6 +164,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 			loadedReferences.put(clazz, new HashMap<>());
 		}
 		Object key = position == null ? id : id + "-" + position;
+		key = version == null ? key : key + "-" + version;
 		if (loadedReferences.get(clazz).containsKey(key)) {
 			return (R) loadedReferences.get(clazz).get(key);
 		} else {
