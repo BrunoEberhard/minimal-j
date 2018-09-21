@@ -41,9 +41,9 @@ import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.component.QueryLayout;
 import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Rendering;
+import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -221,8 +221,8 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
-		return new SwingLookup<T>(changeListener, index, keys);
+	public <T> Input<T> createLookup(Runnable lookup, InputComponentListener changeListener) {
+		return new SwingLookup<T>(lookup, changeListener);
 	}
 	
 	public File showFileDialog(String title, String approveButtonText) {
@@ -240,20 +240,17 @@ public class SwingFrontend extends Frontend {
 	private static class SwingLookup<T> extends JPanel implements Input<T> {
 		private static final long serialVersionUID = 1L;
 		
+		private final Runnable runnable;
 		private final InputComponentListener changeListener;
-		private final Search<T> search;
-		private final Object[] keys;
 		private final SwingLookupLabel actionLabel;
 		private final SwingRemoveLabel removeLabel;
-		private IDialog dialog;
 		private T selectedObject;
 		
-		public SwingLookup(InputComponentListener changeListener, Search<T> search, Object[] keys) {
+		public SwingLookup(Runnable runnable, InputComponentListener changeListener) {
 			super(new BorderLayout());
 			
 			this.changeListener = changeListener;
-			this.search = search;
-			this.keys = keys;
+			this.runnable = runnable;
 			
 			this.actionLabel = new SwingLookupLabel();
 			this.removeLabel = new SwingRemoveLabel();
@@ -268,8 +265,7 @@ public class SwingFrontend extends Frontend {
 		}
 		
 		protected void display() {
-			// TODO EmptyObjects?
-			if (selectedObject != null) {
+			if (!EmptyObjects.isEmpty(selectedObject)) {
 				actionLabel.setText(Rendering.toString(selectedObject));
 			} else {
 				actionLabel.setText("[+]");
@@ -296,7 +292,7 @@ public class SwingFrontend extends Frontend {
 				addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						dialog = Frontend.showSearchDialog(search, keys, new LookupClickListener());
+						runnable.run();
 					}
 				});
 			}
@@ -316,15 +312,6 @@ public class SwingFrontend extends Frontend {
 						changeListener.changed(SwingLookup.this);
 					}
 				});
-			}
-		}
-		
-		private class LookupClickListener implements TableActionListener<T> {
-			@Override
-			public void action(T selectedObject) {
-				SwingLookup.this.setValue(selectedObject);
-				dialog.closeDialog();
-				changeListener.changed(SwingLookup.this);
 			}
 		}
 	}

@@ -18,7 +18,7 @@ import org.minimalj.example.minimalclinic.model.Pet;
 import org.minimalj.example.minimalclinic.model.Vet;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.impl.swing.Swing;
+import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
@@ -67,6 +67,6 @@ public class MinimalClinicApplication extends Application {
 	public static void main(String[] args) {
 		Configuration.set("MjRepository", "org.minimalj.repository.memory.InMemoryRepository");
 		Configuration.set("MjDevMode", "true");
-		Swing.main(MinimalClinicApplication.class.getName());
+		NanoWebServer.start(new MinimalClinicApplication());
 	}
 }

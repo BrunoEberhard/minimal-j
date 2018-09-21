@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.repository.sql.EmptyObjects;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
@@ -143,26 +143,23 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
-		return new VaadinLookup<T>(changeListener, index, keys);
+	public <T> Input<T> createLookup(Runnable lookup, InputComponentListener changeListener) {
+		return new VaadinLookup<T>(lookup, changeListener);
 	}
 	
 	private static class VaadinLookup<T> extends GridLayout implements Input<T> {
 		private static final long serialVersionUID = 1L;
 		
 		private final InputComponentListener changeListener;
-		private final Search<T> search;
-		private final Object[] keys;
+		private final Runnable lookup;
 		private final VaadinLookupLabel actionLabel;
-		private IDialog dialog;
 		private T selectedObject;
 		
-		public VaadinLookup(InputComponentListener changeListener, Search<T> search, Object[] keys) {
+		public VaadinLookup(Runnable lookup, InputComponentListener changeListener) {
 			super(2, 1);
 			
 			this.changeListener = changeListener;
-			this.search = search;
-			this.keys = keys;
+			this.lookup = lookup;
 			
 			this.actionLabel = new VaadinLookupLabel();
 			addComponent(actionLabel);
@@ -178,7 +175,7 @@ public class VaadinFrontend extends Frontend {
 		}
 		
 		protected void display() {
-			if (selectedObject != null) {
+			if (!EmptyObjects.isEmpty(selectedObject)) {
 				actionLabel.setCaption(Rendering.toString(selectedObject));
 			} else {
 				actionLabel.setCaption("[+]");
@@ -205,7 +202,7 @@ public class VaadinFrontend extends Frontend {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						dialog = Frontend.showSearchDialog(search, keys, new LookupClickListener());
+						lookup.run();
 					}
 				});
 			}
@@ -228,16 +225,6 @@ public class VaadinFrontend extends Frontend {
 				});
 			}
 		}
-		
-		private class LookupClickListener implements TableActionListener<T> {
-			@Override
-			public void action(T selectedObject) {
-				VaadinLookup.this.selectedObject = selectedObject;
-				dialog.closeDialog();
-				changeListener.changed(VaadinLookup.this);
-			}
-		}
-
 	}
 	
 //	@Override

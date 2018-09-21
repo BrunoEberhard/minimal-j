@@ -226,7 +226,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		@Override
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) GenericUtils.getGenericClass(NewObjectEditor.this.getClass());
+			Class<T> clazz = (Class<T>) getEditedClass();
 			T newInstance = CloneHelper.newInstance(clazz);
 			return newInstance;
 		}
