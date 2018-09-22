@@ -142,8 +142,12 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<T> createLookup(Runnable lookup, InputComponentListener changeListener) {
-		// TODO Auto-generated method stub
-		return null;
+	public Input<String> createLookup(Runnable lookup) {
+		return new LanternaLabelLookup(lookup);
+	}
+
+	@Override
+	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
+		return new LanternaLookup(lookup, changeListener);
 	}
 }
