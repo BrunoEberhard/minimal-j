@@ -65,7 +65,9 @@ public class LanternaForm extends Panel implements FormContent, LayoutManager {
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
 		LanternaCaption caption = captionByComponent.get(component);
-		caption.setValidationMessages(validationMessages);
+		if (caption != null) {
+			caption.setValidationMessages(validationMessages);
+		}
 	}
 	
 	@Override
