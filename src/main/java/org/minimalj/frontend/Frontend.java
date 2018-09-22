@@ -145,8 +145,12 @@ public abstract class Frontend {
 
 		public List<S> search(String query);
 	}
+
+	public Input<String> createLookup(Runnable lookup) {
+		return createLookup(lookup, null);
+	}
 	
-	public abstract <T> Input<T> createLookup(Runnable lookup, InputComponentListener changeListener);
+	public abstract Input<String> createLookup(Runnable lookup, InputComponentListener changeListener);
 	
 	public abstract IComponent createComponentGroup(IComponent... components);
 

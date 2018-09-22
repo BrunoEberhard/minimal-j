@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
@@ -21,6 +22,7 @@ import javax.swing.AbstractAction;
 import javax.swing.FocusManager;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -43,7 +45,6 @@ import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstra
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Rendering;
-import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -221,8 +222,13 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public <T> Input<T> createLookup(Runnable lookup, InputComponentListener changeListener) {
-		return new SwingLookup<T>(lookup, changeListener);
+	public Input<String> createLookup(Runnable lookup) {
+		return new SwingLabelLookup(lookup);
+	}
+
+	@Override
+	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
+		return new SwingLookup(lookup, changeListener);
 	}
 	
 	public File showFileDialog(String title, String approveButtonText) {
@@ -237,82 +243,74 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 	
-	private static class SwingLookup<T> extends JPanel implements Input<T> {
+	private static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
+
+	private static class SwingLookup extends JPanel implements Input<String> {
 		private static final long serialVersionUID = 1L;
 		
-		private final Runnable runnable;
-		private final InputComponentListener changeListener;
-		private final SwingLookupLabel actionLabel;
-		private final SwingRemoveLabel removeLabel;
-		private T selectedObject;
+		private final SwingTextField textField;
+		private final JButton lookupButton;
 		
 		public SwingLookup(Runnable runnable, InputComponentListener changeListener) {
 			super(new BorderLayout());
 			
-			this.changeListener = changeListener;
-			this.runnable = runnable;
-			
-			this.actionLabel = new SwingLookupLabel();
-			this.removeLabel = new SwingRemoveLabel();
-			add(actionLabel, BorderLayout.CENTER);
-			add(removeLabel, BorderLayout.LINE_END);
+			this.textField = new SwingTextField(changeListener, Integer.MAX_VALUE);
+			add(textField, BorderLayout.CENTER);
+
+			this.lookupButton = new JButton("...");
+			lookupButton.setMargin(EMPTY_INSETS);
+			lookupButton.addActionListener(event -> runnable.run());
+			add(lookupButton, BorderLayout.AFTER_LINE_ENDS);
 		}
 
 		@Override
-		public void setValue(T value) {
-			this.selectedObject = value;
-			display();
-		}
-		
-		protected void display() {
-			if (!EmptyObjects.isEmpty(selectedObject)) {
-				actionLabel.setText(Rendering.toString(selectedObject));
-			} else {
-				actionLabel.setText("[+]");
-			}
+		public void setValue(String value) {
+			textField.setText(value);
 		}
 
 		@Override
-		public T getValue() {
-			return selectedObject;
+		public String getValue() {
+			return textField.getText();
 		}
 		
 		@Override
 		public void setEditable(boolean editable) {
-			actionLabel.setEnabled(editable);
-			removeLabel.setEnabled(editable);
+			textField.setEditable(editable);
+			lookupButton.setVisible(editable);
 		}
-		
-		private class SwingLookupLabel extends JLabel {
-			private static final long serialVersionUID = 1L;
+	}
 
-			public SwingLookupLabel() {
-				setForeground(Color.BLUE);
-				setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						runnable.run();
-					}
-				});
-			}
+	private static class SwingLabelLookup extends JPanel implements Input<String> {
+		private static final long serialVersionUID = 1L;
+		
+		private final JLabel label;
+		private final JButton lookupButton;
+
+		public SwingLabelLookup(Runnable runnable) {
+			super(new BorderLayout());
+
+			this.label = new JLabel();
+			add(label, BorderLayout.CENTER);
+
+			this.lookupButton = new JButton("...");
+			lookupButton.setMargin(EMPTY_INSETS);
+			lookupButton.addActionListener(event -> runnable.run());
+			add(lookupButton, BorderLayout.AFTER_LINE_ENDS);
 		}
-		
-		private class SwingRemoveLabel extends JLabel {
-			private static final long serialVersionUID = 1L;
 
-			public SwingRemoveLabel() {
-				super("[x]");
-				setForeground(Color.BLUE);
-				setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						SwingLookup.this.setValue(null);
-						changeListener.changed(SwingLookup.this);
-					}
-				});
-			}
+		@Override
+		public void setValue(String value) {
+			label.setText(value);
+		}
+
+		@Override
+		public String getValue() {
+			return label.getText();
+		}
+
+		@Override
+		public void setEditable(boolean editable) {
+			lookupButton.setVisible(editable);
 		}
 	}
 

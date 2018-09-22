@@ -3,56 +3,35 @@ package org.minimalj.frontend.form.element;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.properties.VirtualProperty;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class SmallListFormElement<T> extends AbstractFormElement<List<T>> /* implements Enable, */ {
-	private final boolean editable;
-	private final Input<List<T>> lookup;
+public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<List<T>> /* implements Enable, */ {
 	
-	public SmallListFormElement(PropertyInterface property) {
-		this(property, true);
+	public SmallListFormElement(List<T> key) {
+		this(key, false, true);
 	}
 
-	public SmallListFormElement(PropertyInterface property, boolean editable) {
-		super(property);
-		this.editable = editable;
-		this.lookup = Frontend.getInstance().createLookup(this::show, listener());
+	public SmallListFormElement(List<T> key, boolean textEditable, boolean editable) {
+		super(key, textEditable, editable);
 	}
 
-	public void show() {
+	@Override
+	protected List<T> parse(String text) {
+		return null;
+	}
+
+	public void lookup() {
 		if (getValue() == null || getValue().isEmpty()) {
 			new AddListEntryEditor().action();
 		} else {
 			new SmallListFormElementEditor().action();
 		}
-	}
-
-	public IComponent getComponent() {
-		return lookup;
-	};
-
-	@Override
-	public List<T> getValue() {
-		List<T> list = lookup.getValue();
-		if (list == null) {
-			list = new ArrayList<>();
-		}
-		return list;
-	}
-
-	@Override
-	public void setValue(List<T> list) {
-		lookup.setValue(list);
 	}
 
 	protected abstract Form<T> createForm();
@@ -72,8 +51,10 @@ public abstract class SmallListFormElement<T> extends AbstractFormElement<List<T
 		@Override
 		protected T save(T object) {
 			List list = SmallListFormElement.this.getValue();
+			if (list == null)
+				list = new ArrayList<>();
 			list.add(object);
-			SmallListFormElement.this.setValue(list);
+			SmallListFormElement.this.setValueInternal(list);
 			return object;
 		}
 	}
@@ -93,13 +74,13 @@ public abstract class SmallListFormElement<T> extends AbstractFormElement<List<T
 
 		@Override
 		protected List<T> save(List<T> object) {
-			SmallListFormElement.this.setValue(object);
+			SmallListFormElement.this.setValueInternal(object);
 			return object;
 		}
 
 		@Override
 		protected List<T> createObject() {
-			return SmallListFormElement.this.getValue();
+			return new ArrayList<>(SmallListFormElement.this.getValue());
 		}
 	}
 

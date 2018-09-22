@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -110,4 +111,11 @@ public class InvalidValues {
 		return bigDecimal;
 	}
 	
+	public static void markInvalid(Collection<?> object, String string) {
+		values.put(object, string);
+	}
+
+	public static void markValid(Collection<?> object) {
+		values.remove(object);
+	}
 }
