@@ -178,11 +178,8 @@ public class InMemoryRepository implements Repository {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void order(Order order, List l) {
 		String path = order.getPath();
-		if (path.contains(".")) {
-			throw new IllegalArgumentException();
-		}
 		int factor = order.isAscending() ? 1 : -1;
-		PropertyInterface property = Properties.getProperty(l.get(0).getClass(), path);
+		PropertyInterface property = Properties.getPropertyByPath(l.get(0).getClass(), path);
 		Collections.sort(l, (a, b) -> {
 			Object value1 = property.getValue(a);
 			Object value2 = property.getValue(b);
