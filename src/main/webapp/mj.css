@@ -385,6 +385,12 @@ label {
 	font-weight: bolder;
 }
 
+.lookup {
+	display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
 .hide {
 	visibility: hidden;
 }

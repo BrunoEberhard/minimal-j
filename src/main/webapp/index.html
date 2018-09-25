@@ -522,8 +522,8 @@ $ICON
 			element.className = "lookup";
 			var objectElement = document.createElement("span");
 			element.appendChild(objectElement);
-			var button = document.createElement("span");
-			button.className = "action";
+			var button = document.createElement("button");
+			button.appendChild(document.createTextNode(".."));
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
 			element.appendChild(button);
 			updateLookup(element, content.value);
@@ -919,7 +919,6 @@ $ICON
 	
 	function updateLookup(lookup, value) {
 		lookup.childNodes[0].innerHTML = value;
-		lookup.childNodes[1].innerHTML = "[+]";
 	}
 	
 	function search() {
