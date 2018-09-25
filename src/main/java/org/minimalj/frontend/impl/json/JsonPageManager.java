@@ -11,8 +11,6 @@ import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.Frontend.Search;
-import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
@@ -184,14 +182,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		String openLookupDialog = (String) input.getObject("openLookupDialog");
 		if (openLookupDialog != null) {
-			JsonLookup<?> lookup = (JsonLookup<?>) componentById.get(openLookupDialog);
+			JsonLookup lookup = (JsonLookup) componentById.get(openLookupDialog);
 			lookup.showLookupDialog();
-		}
-
-		String removeReference = (String) input.getObject("removeReference");
-		if (removeReference != null) {
-			JsonLookup<?> lookup = (JsonLookup<?>) componentById.get(removeReference);
-			lookup.setValue(null);
 		}
 
 		String login = (String) input.getObject("login");
@@ -303,12 +295,9 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 	@Override
 	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		return new JsonDialog(title, content, saveAction, actions);
-	}
-
-	@Override
-	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
-		return new JsonDialog.JsonSearchDialog(index, keys, listener);
+		JsonDialog dialog = new JsonDialog(title, content, saveAction, actions);
+		openDialog(dialog);
+		return dialog;
 	}
 
 	@Override

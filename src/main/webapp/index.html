@@ -521,13 +521,11 @@ $ICON
 			element = document.createElement("div");
 			element.className = "lookup";
 			var objectElement = document.createElement("span");
-			objectElement.className = "action";
-			objectElement.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
 			element.appendChild(objectElement);
-			var removeElement = document.createElement("span");
-			removeElement.className = "action";
-			removeElement.setAttribute("onclick", "removeReference(\"" + content.id + "\");");
-			element.appendChild(removeElement);
+			var button = document.createElement("span");
+			button.className = "action";
+			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
+			element.appendChild(button);
 			updateLookup(element, content.value);
 		} else if (type == "List") {
 			element = document.createElement("div");
@@ -919,18 +917,9 @@ $ICON
 		send({"openLookupDialog" : lookup}, true);
 	}	
 	
-	function removeReference(lookup) {
-		send({"removeReference" : lookup}, true);
-	}	
-	
 	function updateLookup(lookup, value) {
-		if (value != null) {
-			lookup.childNodes[0].innerHTML = value;
-			lookup.childNodes[1].innerHTML = "[x]";
-		} else {
-			lookup.childNodes[0].innerHTML = "[+]";
-			lookup.childNodes[1].innerHTML = "";
-		}
+		lookup.childNodes[0].innerHTML = value;
+		lookup.childNodes[1].innerHTML = "[+]";
 	}
 	
 	function search() {

@@ -246,9 +246,7 @@ public abstract class Frontend {
 		return getInstance().getPageManager().showDialog(title, content, saveAction, closeAction, actions);
 	}
 
-	public static <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
-		return getInstance().getPageManager().showSearchDialog(index, keys, listener);
-	}
+	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
 	public static void showMessage(String text) {
 		getInstance().getPageManager().showMessage(text);

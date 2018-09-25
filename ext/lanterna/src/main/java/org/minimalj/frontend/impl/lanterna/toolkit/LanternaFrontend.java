@@ -110,6 +110,12 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
 		// TODO Auto-generated method stub
 		return null;

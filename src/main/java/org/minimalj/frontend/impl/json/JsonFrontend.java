@@ -122,8 +122,13 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<T> createLookup(Runnable lookup, InputComponentListener changeListener) {
-		return new JsonLookup<T>(lookup, changeListener);
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new JsonSearchTable<T>(search, keys, multiSelect, listener);
+	}
+
+	@Override
+	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
+		return new JsonLookup(lookup, changeListener);
 	}
 
 	@Override

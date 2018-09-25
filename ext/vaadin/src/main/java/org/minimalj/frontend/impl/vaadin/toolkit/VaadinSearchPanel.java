@@ -2,7 +2,7 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 
@@ -14,21 +14,21 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-public class VaadinSearchPanel<T> extends VerticalLayout implements IComponent, VaadinComponentWithWidth {
+public class VaadinSearchPanel<T> extends VerticalLayout implements IContent, VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
 	private final TextField text;
 	private final Button searchButton;
 	private final VaadinTable<T> table;
 	private final int width;
 	
-	public VaadinSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public VaadinSearchPanel(final Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		setMargin(false);
 		setSpacing(false);
 		setSizeFull();
 		
 		text = new TextField();
 		searchButton = new Button("Search");
-		table = new VaadinTable<T>(keys, false, listener);
+		table = new VaadinTable<T>(keys, multiSelect, listener);
 
 		HorizontalLayout northPanel = new HorizontalLayout();
 		northPanel.setWidth("100%");

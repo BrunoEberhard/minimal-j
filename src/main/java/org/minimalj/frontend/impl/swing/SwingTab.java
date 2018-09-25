@@ -31,8 +31,6 @@ import javax.swing.UIManager;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.Frontend.Search;
-import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
@@ -40,7 +38,6 @@ import org.minimalj.frontend.impl.swing.toolkit.SwingEditorPanel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingInternalFrame;
 import org.minimalj.frontend.impl.swing.toolkit.SwingProgressInternalFrame;
-import org.minimalj.frontend.impl.swing.toolkit.SwingSearchPanel;
 import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.impl.util.PageAccess;
@@ -509,12 +506,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 		JOptionPane.showMessageDialog(window, text, "Information", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
-	@Override
-	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
-		SwingSearchPanel<T> panel = new SwingSearchPanel<T>(index, keys, listener);
-		return createDialog(null, panel, null, null);
-	}
-
 	@Deprecated
 	public ProgressListener showProgress(String text) {
 		SwingProgressInternalFrame frame = new SwingProgressInternalFrame(text);

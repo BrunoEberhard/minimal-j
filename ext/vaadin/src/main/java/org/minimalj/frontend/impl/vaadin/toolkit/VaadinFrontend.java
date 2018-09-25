@@ -8,13 +8,13 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.repository.sql.EmptyObjects;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -143,90 +143,91 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<T> createLookup(Runnable lookup, InputComponentListener changeListener) {
-		return new VaadinLookup<T>(lookup, changeListener);
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new VaadinSearchPanel<T>(search, keys, multiSelect, listener);
+	}
+
+	@Override
+	public Input<String> createLookup(Runnable lookup) {
+		return new VaadinLabelLookup(lookup);
+	}
+
+	@Override
+	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
+		return new VaadinLookup(lookup, changeListener);
 	}
 	
-	private static class VaadinLookup<T> extends GridLayout implements Input<T> {
+	private static class VaadinLookup extends GridLayout implements Input<String> {
 		private static final long serialVersionUID = 1L;
 		
-		private final InputComponentListener changeListener;
-		private final Runnable lookup;
-		private final VaadinLookupLabel actionLabel;
-		private T selectedObject;
+		private final VaadinTextField textField;
+		private final Button lookupButton;
 		
-		public VaadinLookup(Runnable lookup, InputComponentListener changeListener) {
+		public VaadinLookup(Runnable runnable, InputComponentListener changeListener) {
 			super(2, 1);
 			
-			this.changeListener = changeListener;
-			this.lookup = lookup;
+			this.textField = new VaadinTextField(changeListener, Integer.MAX_VALUE);
+			addComponent(textField);
+
+			this.lookupButton = new Button("...", event -> runnable.run());
+			addComponent(lookupButton);
 			
-			this.actionLabel = new VaadinLookupLabel();
-			addComponent(actionLabel);
-			addComponent(new VaadinRemoveLabel());
 			setColumnExpandRatio(0, 1.0f);
 			setColumnExpandRatio(1, 0.0f);
 		}
 
 		@Override
-		public void setValue(T value) {
-			this.selectedObject = value;
-			display();
+		public void setValue(String value) {
+			textField.setValue(value);
 		}
 		
-		protected void display() {
-			if (!EmptyObjects.isEmpty(selectedObject)) {
-				actionLabel.setCaption(Rendering.toString(selectedObject));
-			} else {
-				actionLabel.setCaption("[+]");
-			}
-		}
-
 		@Override
-		public T getValue() {
-			return selectedObject;
+		public String getValue() {
+			return textField.getValue();
 		}
 		
 		@Override
 		public void setEditable(boolean editable) {
-			throw new RuntimeException("Not yet implemented");
-		}
-		
-		private class VaadinLookupLabel extends Button {
-			private static final long serialVersionUID = 1L;
-
-			public VaadinLookupLabel() {
-				setStyleName(ValoTheme.BUTTON_LINK);
-				addClickListener(new ClickListener() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						lookup.run();
-					}
-				});
-			}
-		}
-		
-		private class VaadinRemoveLabel extends Button {
-			private static final long serialVersionUID = 1L;
-
-			public VaadinRemoveLabel() {
-				super("[x]");
-				setStyleName(ValoTheme.BUTTON_LINK);
-				addClickListener(new ClickListener() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						VaadinLookup.this.selectedObject = null;
-						changeListener.changed(VaadinLookup.this);
-					}
-				});
-			}
+			textField.setEditable(editable);
+			lookupButton.setVisible(editable);
 		}
 	}
-	
+
+	private static class VaadinLabelLookup extends GridLayout implements Input<String> {
+		private static final long serialVersionUID = 1L;
+
+		private final Label label;
+		private final Button lookupButton;
+
+		public VaadinLabelLookup(Runnable runnable) {
+			super(2, 1);
+
+			this.label = new Label();
+			addComponent(label);
+
+			this.lookupButton = new Button("...", event -> runnable.run());
+			addComponent(lookupButton);
+
+			setColumnExpandRatio(0, 1.0f);
+			setColumnExpandRatio(1, 0.0f);
+		}
+
+		@Override
+		public void setValue(String value) {
+			label.setValue(value);
+		}
+
+		@Override
+		public String getValue() {
+			return label.getValue();
+		}
+
+		@Override
+		public void setEditable(boolean editable) {
+			lookupButton.setVisible(editable);
+		}
+	}
+
 //	@Override
 //	public OutputStream store(String buttonText) {
 //		return new VaadinExportDialog("Export").getOutputStream();

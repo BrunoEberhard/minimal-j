@@ -10,8 +10,6 @@ import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.Frontend.Search;
-import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
@@ -22,7 +20,6 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinGridFormLayout;
-import org.minimalj.frontend.impl.vaadin.toolkit.VaadinSearchPanel;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
@@ -492,11 +489,10 @@ public class Vaadin extends UI implements PageManager {
 		return new VaadinDialog((ComponentContainer) component, title, saveAction, closeAction);
 	}
 
-	@Override
-	public <T> IDialog showSearchDialog(Search<T> search, Object[] keys, TableActionListener<T> listener) {
-		Component component = new VaadinSearchPanel<>(search, keys, listener);
-		VaadinDialog dialog = new VaadinDialog((ComponentContainer) component, "Search", null, null);
-		dialog.setHeight("25em");
-		return dialog;
-	}
+//	public <T> IDialog showSearchDialog(Search<T> search, Object[] keys, TableActionListener<T> listener) {
+//		Component component = new VaadinSearchPanel<>(search, keys, listener);
+//		VaadinDialog dialog = new VaadinDialog((ComponentContainer) component, "Search", null, null);
+//		dialog.setHeight("25em");
+//		return dialog;
+//	}
 }

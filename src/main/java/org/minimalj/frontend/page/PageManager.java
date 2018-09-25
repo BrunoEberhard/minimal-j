@@ -1,8 +1,6 @@
 package org.minimalj.frontend.page;
 
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.Frontend.Search;
-import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 
 public interface PageManager {
@@ -24,8 +22,6 @@ public interface PageManager {
 	//
 
 	public abstract IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions);
-
-	public abstract <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener);
 
 	//
 	

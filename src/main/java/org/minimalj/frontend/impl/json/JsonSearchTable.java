@@ -1,20 +1,21 @@
 package org.minimalj.frontend.impl.json;
 
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 
-public class JsonSearchPanel<T> extends JsonList {
+public class JsonSearchTable<T> extends JsonList implements IContent {
 
 	private final Search<T> search;
 	private final JsonTable<T> table;
 	
-	public JsonSearchPanel(Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public JsonSearchTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super();
 		this.search = search;
 		addComponent(new JsonTextField("SearchTextField", new JsonSearchInputListener()));
-		table = new JsonTable<T>(keys, false, listener);
+		table = new JsonTable<T>(keys, multiSelect, listener);
 		addComponent(table);
 	}
 

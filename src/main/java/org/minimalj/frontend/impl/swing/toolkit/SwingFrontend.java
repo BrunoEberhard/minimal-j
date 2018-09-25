@@ -189,6 +189,11 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new SwingSearchPanel<T>(search, keys, multiSelect, listener);
+	}
+
+	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
 		return new SwingHtmlContent(htmlOrUrl);
 	}

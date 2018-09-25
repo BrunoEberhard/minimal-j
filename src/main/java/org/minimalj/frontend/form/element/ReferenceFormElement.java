@@ -3,18 +3,20 @@ package org.minimalj.frontend.form.element;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.editor.SearchDialog;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.repository.query.By;
+import org.minimalj.repository.sql.EmptyObjects;
 
 // To make this class generic is a little bit senseless as
 // there are no checks at all
 public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> {
 	private final Class<T> fieldClazz;
 	private final Object[] searchColumns;
-	private IDialog dialog;
+	private SearchDialog<T> dialog;
 
 	public ReferenceFormElement(T key, Object... searchColumns) {
 		this(key, false, searchColumns);
@@ -29,7 +31,22 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> {
 
 	@Override
 	protected void lookup() {
-		dialog = Frontend.showSearchDialog(new ReferenceFieldSearch(), searchColumns, new SearchDialogActionListener());
+		boolean required = getProperty().getAnnotation(NotEmpty.class) != null;
+		if (!required && !EmptyObjects.isEmpty(getValue())) {
+			dialog = new SearchDialog<>(new ReferenceFieldSearch(), searchColumns, false, new SearchDialogActionListener(), new ClearAction());
+		} else {
+			dialog = new SearchDialog<>(new ReferenceFieldSearch(), searchColumns, false, new SearchDialogActionListener());
+		}
+		dialog.show();
+	}
+
+	private class ClearAction extends Action {
+
+		@Override
+		public void action() {
+			setValue(null);
+			dialog.closeDialog();
+		}
 	}
 
 	@Override

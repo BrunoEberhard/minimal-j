@@ -12,21 +12,22 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 
-public class SwingSearchPanel<T> extends JPanel {
+public class SwingSearchPanel<T> extends JPanel implements IContent {
 	private static final long serialVersionUID = 1L;
 	private final JTextField text;
 	private final JButton searchButton;
 	private final SwingTable<T> table;
 	
-	public SwingSearchPanel(final Search<T> search, Object[] keys, TableActionListener<T> listener) {
+	public SwingSearchPanel(final Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super(new BorderLayout());
 		
 		text = new JTextField();
 		searchButton = new JButton("Search");
-		table = new SwingTable<T>(keys, false, listener);
+		table = new SwingTable<T>(keys, multiSelect, listener);
 
 		JPanel northPanel = new JPanel(new BorderLayout());
 		northPanel.add(text, BorderLayout.CENTER);
