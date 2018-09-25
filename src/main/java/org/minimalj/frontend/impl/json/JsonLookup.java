@@ -5,8 +5,6 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 public class JsonLookup extends JsonInputComponent<String> {
 	private final Runnable lookup;
 
-	private boolean set = false;
-	
 	public JsonLookup(Runnable lookup, InputComponentListener changeListener) {
 		super("Lookup", changeListener);
 		this.lookup = lookup;
