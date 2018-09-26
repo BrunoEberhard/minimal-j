@@ -6,7 +6,7 @@ public class JsonLookup extends JsonInputComponent<String> {
 	private final Runnable lookup;
 
 	public JsonLookup(Runnable lookup, InputComponentListener changeListener) {
-		super("Lookup", changeListener);
+		super(changeListener != null ? "Lookup" : "LookupLabel", changeListener);
 		this.lookup = lookup;
 	}
 

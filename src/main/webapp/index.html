@@ -106,9 +106,7 @@ $ICON
 							} else {
 								element.setAttribute("disabled", "true");
 							}
-						} else if (property == "value" && element.className == "lookup") {
-							updateLookup(element, value);
-						} else if (property == "value" && element.tagName == "DIV") {
+						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
 							element.innerHTML = value;
 						} else {
                             if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
@@ -517,16 +515,23 @@ $ICON
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
-		} else if (type == "Lookup") {
-			element = document.createElement("div");
-			element.className = "lookup";
-			var objectElement = document.createElement("span");
-			element.appendChild(objectElement);
+		} else if (type == "Lookup" || type == "LookupLabel") {
+			var elementGroup = document.createElement("div");
+			elementGroup.className = "lookup";
+			if (type == "Lookup") {
+				element = document.createElement("input");
+				element.setAttribute("onchange", "sendchange(this);");
+				// element.setAttribute("maxlength", content.maxLength);
+			} else {
+				element = document.createElement("span");
+			}
+			elementGroup.appendChild(element);
 			var button = document.createElement("button");
 			button.appendChild(document.createTextNode(".."));
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
-			element.appendChild(button);
-			updateLookup(element, content.value);
+			elementGroup.appendChild(button);
+			element.id = content.id;
+			return elementGroup;
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;
@@ -916,10 +921,6 @@ $ICON
 	function openLookupDialog(lookup) {
 		send({"openLookupDialog" : lookup}, true);
 	}	
-	
-	function updateLookup(lookup, value) {
-		lookup.childNodes[0].innerHTML = value;
-	}
 	
 	function search() {
 		var searchElement = document.getElementById("search");

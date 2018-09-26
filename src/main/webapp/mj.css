@@ -387,8 +387,17 @@ label {
 
 .lookup {
 	display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+}
+
+.lookup input {
+	flex-grow: 1;
+	margin: 0px;
+	width: 3em;
+}
+
+.lookup span {
+	flex-grow: 1;
+	align-self: center;
 }
 
 .hide {
