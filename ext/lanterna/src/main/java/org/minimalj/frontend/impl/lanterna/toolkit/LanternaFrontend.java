@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
@@ -156,4 +157,33 @@ public class LanternaFrontend extends Frontend {
 	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
 		return new LanternaLookup(lookup, changeListener);
 	}
+
+	public static Button[] adaptActions(Action[] actions) {
+		Button[] buttons = new Button[actions.length];
+		for (int i = 0; i < actions.length; i++) {
+			buttons[i] = adaptAction(actions[i]);
+		}
+		return buttons;
+	}
+
+	public static Button adaptAction(final Action action) {
+		Button button = new Button(action.getName());
+		button.addListener(b -> LanternaFrontend.run(b, () -> action.action()));
+		action.setChangeListener(new ActionChangeListener() {
+			{
+				update();
+			}
+
+			@Override
+			public void change() {
+				update();
+			}
+
+			protected void update() {
+				button.setEnabled(action.isEnabled());
+			}
+		});
+		return button;
+	}
+
 }

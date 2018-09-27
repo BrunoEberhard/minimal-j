@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
+import java.util.Arrays;
+
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
@@ -20,11 +22,8 @@ public class LanternaEditorLayout extends Panel implements IComponent {
 		addComponent((Component) content, Location.CENTER);
 		
 		Panel panelActions = new Panel(new LinearLayout(Direction.HORIZONTAL));
-		for (final Action action : actions) {
-			Button button = new Button(action.getName());
-			button.addListener(b -> LanternaFrontend.run(b, () -> action.action()));
-			panelActions.addComponent(button);
-		}
+		Button[] buttons = LanternaFrontend.adaptActions(actions);
+		Arrays.stream(buttons).forEach(panelActions::addComponent);
 		addComponent(panelActions, Location.BOTTOM);
 	}
 	
