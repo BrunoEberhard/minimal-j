@@ -48,6 +48,7 @@ public class LanternaComboBox<T> extends ComboBox<CharSequence> implements Input
 
 	@Override
 	public T getValue() {
-		return objects.get(getSelectedIndex());
+		int index = getSelectedIndex();
+		return index > -1 ? objects.get(index) : null;
 	}
 }
