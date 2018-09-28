@@ -167,12 +167,13 @@ public class VaadinFrontend extends Frontend {
 			super(2, 1);
 			
 			this.textField = new VaadinTextField(changeListener, Integer.MAX_VALUE);
+			textField.setSizeFull();
 			addComponent(textField);
 
 			this.lookupButton = new Button("...", event -> runnable.run());
 			addComponent(lookupButton);
 			
-			setColumnExpandRatio(0, 1.0f);
+			setColumnExpandRatio(0, 100.0f);
 			setColumnExpandRatio(1, 0.0f);
 		}
 
@@ -203,12 +204,13 @@ public class VaadinFrontend extends Frontend {
 			super(2, 1);
 
 			this.label = new Label();
+			label.setSizeFull();
 			addComponent(label);
 
 			this.lookupButton = new Button("...", event -> runnable.run());
 			addComponent(lookupButton);
 
-			setColumnExpandRatio(0, 1.0f);
+			setColumnExpandRatio(0, 100.0f);
 			setColumnExpandRatio(1, 0.0f);
 		}
 
