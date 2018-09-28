@@ -45,14 +45,18 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 
 	@Override
 	public void add(IComponent component) {
-		add(null, component, columns);
+		add(component, columns);
 	}
 
 	@Override
 	public void add(String caption, IComponent field, int span) {
+		add(field, span);
+		((Component) field).setCaption(caption);
+	}
+
+	private void add(IComponent field, int span) {
 		Component component = (Component) field;
 		component.setWidth(100, Unit.PERCENTAGE);
-		component.setCaption(caption);
 		
 		setRows(row+1); // addComponent with these arguments doesnt auto grow grid
 		addComponent(component, column, row, column + span -1, row);
