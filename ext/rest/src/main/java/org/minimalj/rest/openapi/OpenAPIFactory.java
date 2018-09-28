@@ -402,7 +402,7 @@ public class OpenAPIFactory {
 	}
 	
 	private String ref(MjProperty property) {
-		if (property.propertyType == MjPropertyType.INLINE ||property.propertyType == MjPropertyType.DEPENDABLE) {
+		if (!property.type.isPrimitiv()) {
 			return SCHEMAS + property.type.getSimpleClassName();
 		} else {
 			return null;
