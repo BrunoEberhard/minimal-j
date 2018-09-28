@@ -181,7 +181,9 @@ public class OpenAPIFactory {
 		if (api == API.OpenAPI3) {
 			Schema schema = new Schema();
 			schema.type = OpenAPI.Type.ARRAY;
-			schema.$ref = SCHEMAS + entityName;
+
+			schema.items = new Schema();
+			schema.items.$ref = SCHEMAS + entityName;
 
 			Content content = new Content();
 			content.schema = schema;
