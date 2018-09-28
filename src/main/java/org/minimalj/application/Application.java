@@ -64,12 +64,16 @@ public abstract class Application implements Model {
 	}
 	
 	/**
-	 * Sets the application of this vm. Can only be called once.
-	 * This method should only be called by a frontend or a backend main class.
+	 * Sets the application of this vm. Can only be called once (except a second
+	 * time with the same application). This method should only be called by a
+	 * frontend or a backend main class.
 	 * 
 	 * @param application normally the created by createApplication method
 	 */
 	public static void setInstance(Application application) {
+		if (application == Application.instance) {
+			return;
+		}
 		if (Application.instance != null) {
 			throw new IllegalStateException("Application cannot be changed");
 		}		
