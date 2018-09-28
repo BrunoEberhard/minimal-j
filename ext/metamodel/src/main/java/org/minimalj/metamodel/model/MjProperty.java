@@ -100,7 +100,8 @@ public class MjProperty {
 		if (fieldType == List.class) return MjPropertyType.LIST;
 		else if (fieldType == Set.class) return MjPropertyType.ENUM_SET;
 		else if (isFinal) return MjPropertyType.INLINE;
-		else if (!IdUtils.hasId(fieldType)) return MjPropertyType.DEPENDABLE;
+		else if (!FieldUtils.isAllowedPrimitive(fieldType) && !IdUtils.hasId(fieldType))
+			return MjPropertyType.DEPENDABLE;
 		else return MjPropertyType.VALUE;
 	}
 	
