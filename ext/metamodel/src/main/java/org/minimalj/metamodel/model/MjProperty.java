@@ -49,9 +49,9 @@ public class MjProperty {
 		name = field.getName();
 		this.propertyType = propertyType(field);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
-			this.type = model.getEntity(GenericUtils.getGenericClass(field));
+			this.type = model.getOrCreateEntity(GenericUtils.getGenericClass(field));
 		} else if (!FieldUtils.isAllowedPrimitive(field.getType())) {
-			this.type = model.getEntity(field.getType());
+			this.type = model.getOrCreateEntity(field.getType());
 		} else {
 			this.type = MjEntity.PRIMITIVES.get(field.getType());
 		}
@@ -73,9 +73,9 @@ public class MjProperty {
 		Class<?> returnType = method.getReturnType();
 		this.propertyType = propertyType(returnType, false);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
-			this.type = model.getEntity(GenericUtils.getGenericClass(returnType));
+			this.type = model.getOrCreateEntity(GenericUtils.getGenericClass(returnType));
 		} else if (!FieldUtils.isAllowedPrimitive(returnType)) {
-			this.type = model.getEntity(returnType);
+			this.type = model.getOrCreateEntity(returnType);
 		} else {
 			this.type = MjEntity.PRIMITIVES.get(returnType);
 		}
