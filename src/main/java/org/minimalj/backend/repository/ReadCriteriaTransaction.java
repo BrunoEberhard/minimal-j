@@ -2,7 +2,6 @@ package org.minimalj.backend.repository;
 
 import java.util.List;
 
-import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Query;
 
 public class ReadCriteriaTransaction<ENTITY> extends ReadTransaction<ENTITY, List<ENTITY>> {
@@ -16,8 +15,8 @@ public class ReadCriteriaTransaction<ENTITY> extends ReadTransaction<ENTITY, Lis
 	}
 
 	@Override
-	public List<ENTITY> execute(Repository repository) {
-		List<ENTITY> result = repository.find(getEntityClazz(), criteria);
+	public List<ENTITY> execute() {
+		List<ENTITY> result = find(getEntityClazz(), criteria);
 		return result;
 	}
 }

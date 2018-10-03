@@ -64,7 +64,7 @@ public class TransactionTest {
 		@Override
 		public TestEntityA execute() {
 			// insert in repository without separate transaction
-			Backend.getInstance().getRepository().insert(new TestEntityA());
+			insert(new TestEntityA());
 			if (Math.random() < 2) {
 				throw new RuntimeException("No wonder happend");
 			}

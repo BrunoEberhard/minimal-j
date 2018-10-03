@@ -31,7 +31,8 @@ public class ReadHistoryTransaction<ENTITY> extends ReadTransaction<ENTITY, List
 	}
 	
 	@Override
-	public List<ENTITY> execute(Repository repository) {
+	public List<ENTITY> execute() {
+		Repository repository = repository();
 		if (repository instanceof SqlHistorizedRepository) {
 			SqlHistorizedRepository sqlRepository = (SqlHistorizedRepository) repository;
 			List<ENTITY> result = sqlRepository.loadHistory(getEntityClazz(), id, maxResults);

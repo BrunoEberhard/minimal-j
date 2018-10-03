@@ -133,9 +133,9 @@ public class Backend {
 		return currentTransaction.get() != null;
 	}
 	
-	// It may seem unnecessary to create Transaction for crud. Especially if
-	// repository is available locally. But the authorization check is done
-	// in the execute method.
+	// These methods are shortcuts for CRUD - Transactions.
+	// note: if they are called within a transaction a nested
+	// transaction is created.
 	
 	public static <T> T read(Class<T> clazz, Object id) {
 		return execute(new ReadEntityTransaction<T>(clazz, id));

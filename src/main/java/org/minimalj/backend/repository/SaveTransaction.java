@@ -12,7 +12,8 @@ public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 	}
 
 	@Override
-	protected ENTITY execute(Repository repository) {
+	public ENTITY execute() {
+		Repository repository = repository();
 		ENTITY unwrapped = getUnwrapped();
 		Object id = IdUtils.getId(unwrapped); 
 		if (id == null) {
