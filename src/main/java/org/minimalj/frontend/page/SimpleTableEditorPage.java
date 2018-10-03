@@ -14,7 +14,7 @@ public abstract class SimpleTableEditorPage<T> extends BaseTableEditorPage<T, T>
 	
 	@Override
 	protected T createObject() {
-		return CloneHelper.newInstance(clazz.getClazz());
+		return CloneHelper.newInstance(getClazz());
 	}
 
 	@Override

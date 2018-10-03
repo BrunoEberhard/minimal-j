@@ -45,7 +45,7 @@ public abstract class TableEditorPage<VIEW extends View<T>, T> extends BaseTable
 	
 	@Override
 	protected VIEW view(T object) {
-		return ViewUtil.view(object, CloneHelper.newInstance(clazz.getClazz()));
+		return ViewUtil.view(object, CloneHelper.newInstance(getClazz()));
 	}
 	
 }
