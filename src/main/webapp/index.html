@@ -442,11 +442,10 @@ $ICON
 						element.step = "0.001";
 					}
 				}
-			} catch (err) {
-				// happens in ie 10 for datetime-local
+			} catch (err) { // happens in ie 10 for datetime-local
 				element.type = "text";
 			}
-			element.setAttribute("onchange", "sendchange(this);");
+			element.setAttribute(element.type == "text" ? "onkeyup" : "onchange", "sendchange(this);");
 			element.setAttribute("onblur", "setDeferredValue(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
@@ -460,7 +459,6 @@ $ICON
 		} else if (type == "AreaField") {
 			element = document.createElement("textarea");
 			element.setAttribute("onkeyup", "sendchange(this);");
-			// element.setAttribute("onchange", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.value = content.value;
