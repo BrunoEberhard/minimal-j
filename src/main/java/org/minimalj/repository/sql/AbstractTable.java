@@ -25,7 +25,6 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
@@ -237,30 +236,6 @@ public abstract class AbstractTable<T> {
 			}
 		}
 	}
-	
-	protected String whereStatement(final String wholeFieldPath, FieldOperator criteriaOperator) {
-		String fieldPath = wholeFieldPath;
-		String column;
-		while (true) {
-			column = findColumn(fieldPath);
-			if (column != null) break;
-			int pos = fieldPath.lastIndexOf('.');
-			if (pos < 0) throw new IllegalArgumentException("FieldPath " + wholeFieldPath + " not even partially found in " + getTableName());
-			fieldPath = fieldPath.substring(0, pos);
-		}
-		if (fieldPath.length() < wholeFieldPath.length()) {
-			String restOfFieldPath = wholeFieldPath.substring(fieldPath.length() + 1);
-			if ("id".equals(restOfFieldPath)) {
-				return column + " " + criteriaOperator.getOperatorAsString() + " ?";
-			} else {
-				PropertyInterface subProperty = columns.get(column);
-				AbstractTable<?> subTable = sqlRepository.getAbstractTable(subProperty.getClazz());
-				return column + " = (select ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
-			}
-		} else {
-			return column + " " + criteriaOperator.getOperatorAsString() + " ?";
-		}
-	}
 
 	// execution helpers
 
@@ -372,7 +347,7 @@ public abstract class AbstractTable<T> {
 					}
 				}
 			}
-			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property);
+			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property.getClazz());
 		}
 		statement.setObject(parameterPos++, id);
 		return parameterPos;

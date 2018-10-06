@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,26 +15,18 @@ import java.util.UUID;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Keys.MethodProperty;
-import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.list.RelationCriteria;
-import org.minimalj.repository.query.AllCriteria;
-import org.minimalj.repository.query.Criteria.AndCriteria;
-import org.minimalj.repository.query.Criteria.OrCriteria;
-import org.minimalj.repository.query.FieldCriteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
 @SuppressWarnings("rawtypes")
 public class Table<T> extends AbstractTable<T> {
-	
-	private static final List<Object> EMPTY_WHERE_CLAUSE = Collections.singletonList("1=1");
 	
 	protected final PropertyInterface idProperty;
 	protected final boolean optimisticLocking;
@@ -224,7 +214,7 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	private List<String> getColumns(Object[] keys) {
+	protected List<String> getColumns(Object[] keys) {
 		List<String> result = new ArrayList<>();
 		PropertyInterface[] properties = Keys.getProperties(keys);
 		for (PropertyInterface p : properties) {
@@ -243,146 +233,29 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		return result;
 	}
-
-	public List<Object> whereClause(Query query) {
-		List<Object> result;
-		if (query instanceof AndCriteria) {
-			AndCriteria andCriteria = (AndCriteria) query;
-			result = combine(andCriteria.getCriterias(), "AND");
-		} else if (query instanceof OrCriteria) {
-			OrCriteria orCriteria = (OrCriteria) query;
-			result = combine(orCriteria.getCriterias(), "OR");
-		} else if (query instanceof FieldCriteria) {
-			FieldCriteria fieldCriteria = (FieldCriteria) query;
-			result = new ArrayList<>();
-			Object value = fieldCriteria.getValue();
-			String term = whereStatement(fieldCriteria.getPath(), fieldCriteria.getOperator());
-			if (value != null && IdUtils.hasId(value.getClass())) {
-				value = IdUtils.getId(value);
-			}
-			result.add(term);
-			result.add(value);
-		} else if (query instanceof SearchCriteria) {
-			SearchCriteria searchCriteria = (SearchCriteria) query;
-			result = new ArrayList<>();
-			String search = convertUserSearch(searchCriteria.getQuery());
-			String clause = "(";
-			List<String> searchColumns = searchCriteria.getKeys() != null ? getColumns(searchCriteria.getKeys()) : findSearchColumns(clazz);
-			boolean first = true;
-			for (String column : searchColumns) {
-				if (!first) {
-					clause += " OR ";
-				} else {
-					first = false;
-				}
-				clause += column + (searchCriteria.isNotEqual() ? " NOT" : "") + " LIKE ?";
-				result.add(search);
-			}
-			clause += ")";
-			if (isHistorized()) {
-				clause += " and historized = 0";
-			}
-			result.add(0, clause); // insert at beginning
-		} else if (query instanceof RelationCriteria) {
-			RelationCriteria relationCriteria = (RelationCriteria) query;
-			result = new ArrayList<>();
-			String crossTableName = relationCriteria.getCrossName();
-			avoidSqlInjection(crossTableName);
-			String clause = "T.id = C.elementId AND C.id = ? ORDER BY C.position";
-			result.add(clause);
-			result.add(relationCriteria.getRelatedId());
-		} else if (query instanceof Limit) {
-			Limit limit = (Limit) query;
-			result = whereClause(limit.getQuery());
-			String s = (String) result.get(0);
-			s = s + " " + sqlRepository.getSqlDialect().limit(limit.getRows(), limit.getOffset());
-			result.set(0, s);
-		} else if (query instanceof Order) {
-			Order order = (Order) query;
-			List<Order> orders = new ArrayList<>();
-			orders.add(order);
-			while (order.getQuery() instanceof Order) {
-				order = (Order) order.getQuery();
-				orders.add(order);
-			}
-			result = whereClause(order.getQuery());
-			String s = (String) result.get(0);
-			s = s + " " + order(orders);
-			result.set(0, s);
-		} else if (query instanceof AllCriteria) {
-			result = new ArrayList<>(EMPTY_WHERE_CLAUSE);
-		} else if (query == null) {
-			result = EMPTY_WHERE_CLAUSE;
-		} else {
-			throw new IllegalArgumentException("Unknown criteria: " + query);
-		}
-		return result;
-	}
-
-	private void avoidSqlInjection(String crossTableName) {
-		if (!sqlRepository.getTableByName().containsKey(crossTableName)) {
-			throw new IllegalArgumentException("Invalid cross name: " + crossTableName);
-		}
-	}
-	
-	private String order(List<Order> orders) {
-		StringBuilder s = new StringBuilder();
-		for (Order order : orders) {
-			if (s.length() == 0) {
-				s.append("ORDER BY ");
-			} else {
-				s.append(", ");
-			}
-			s.append(findColumn(order.getPath()));
-			if (!order.isAscending()) {
-				s.append(" DESC");
-			}
-		}
-		return s.toString();
-	}
-	
-	private List<Object> combine(List<? extends Query> criterias, String operator) {
-		if (criterias.isEmpty()) {
-			return null;
-		} else if (criterias.size() == 1) {
-			return whereClause(criterias.get(0));
-		} else {
-			List<Object> whereClause = whereClause(criterias.get(0));
-			String clause = "(" + whereClause.get(0);
-			for (int i = 1; i<criterias.size(); i++) {
-				List<Object> whereClause2 = whereClause(criterias.get(i));
-				clause += " " + operator + " " + whereClause2.get(0);
-				if (whereClause2.size() > 1) {
-					whereClause.addAll(whereClause2.subList(1, whereClause2.size()));
-				}
-			}
-			clause += ")";
-			whereClause.set(0, clause); // replace
-			return whereClause;
-		}
-	}
 	
 	public long count(Query query) {
 		query = getCriteria(query);
-		String tableName;
-		List<Object> whereClause;
 		if (query instanceof RelationCriteria) {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
-			tableName = relationCriteria.getCrossName();
-			avoidSqlInjection(tableName);
-			whereClause = Arrays.asList("id = ?", relationCriteria.getRelatedId());
-		} else {
-			tableName = getTableName();
-			whereClause = whereClause(query);
-		}
-		String queryString = "SELECT COUNT(*) FROM " + tableName + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
-			for (int i = 1; i<whereClause.size(); i++) {
-				sqlRepository.getSqlDialect().setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
+			String queryString = "SELECT COUNT(*) FROM " + relationCriteria.getCrossName() + " WHERE id = ?";
+			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
+				sqlRepository.getSqlDialect().setParameter(statement, 1, relationCriteria.getRelatedId(), null);
+				return executeSelectCount(statement);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "count failed");
 			}
-			return executeSelectCount(statement);
-		} catch (SQLException e) {
-			throw new LoggingRuntimeException(e, sqlLogger, "count failed");
+		} else {
+			WhereClause<T> whereClause = new WhereClause<>(this, query);
+			String queryString = "SELECT COUNT(*) FROM " + getTableName() + whereClause.getClause();
+			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
+				for (int i = 0; i < whereClause.getValueCount(); i++) {
+					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i), null);
+				}
+				return executeSelectCount(statement);
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "count failed");
+			}
 		}
 	}
 
@@ -397,12 +270,12 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public <S> List<S> find(Query query, Class<S> resultClass) {
-		List<Object> whereClause = whereClause(query);
+		WhereClause<T> whereClause = new WhereClause<>(this, query);
 		String select = getCriteria(query) instanceof RelationCriteria ? select(resultClass, (RelationCriteria) getCriteria(query)) : select(resultClass);
-		String queryString = select + (whereClause != EMPTY_WHERE_CLAUSE ? " WHERE " + whereClause.get(0) : "");
+		String queryString = select + whereClause.getClause();
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
-			for (int i = 1; i<whereClause.size(); i++) {
-				sqlRepository.getSqlDialect().setParameter(statement, i, whereClause.get(i), null); // TODO property is not known here anymore. Set<enum> will fail
+			for (int i = 0; i < whereClause.getValueCount(); i++) {
+				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i), null);
 			}
 			return resultClass == getClazz() ? (List<S>) executeSelectAll(statement) : executeSelectViewAll(resultClass, statement);
 		} catch (SQLException e) {
@@ -473,26 +346,6 @@ public class Table<T> extends AbstractTable<T> {
 			}
 		}
 		return result;
-	}
-
-	public String convertUserSearch(String s) {
-		s = s.replace('*', '%');
-		return s;
-	}
-	
-	private List<String> findSearchColumns(Class<?> clazz) {
-		List<String> searchColumns = new ArrayList<>();
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-			PropertyInterface property = entry.getValue();
-			Searched searchable = property.getAnnotation(Searched.class);
-			if (searchable != null) {
-				searchColumns.add(entry.getKey());
-			}
-		}
-		if (searchColumns.isEmpty()) {
-			throw new IllegalArgumentException("No fields are annotated as 'Searched' in " + clazz.getName());
-		}
-		return searchColumns;
 	}
 	
 	@SuppressWarnings("unchecked")
