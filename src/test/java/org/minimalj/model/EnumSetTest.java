@@ -8,9 +8,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.sql.SqlRepository;
-import org.minimalj.repository.DataSourceFactory;
 
 public class EnumSetTest {
 
@@ -61,7 +61,7 @@ public class EnumSetTest {
 	}
 	
 	private boolean test(Set<E> testSet) {
-		int i = EnumUtils.getInt(testSet, E.class);
+		int i = EnumUtils.getInt(testSet);
 		Set<E> resultSet = new HashSet<>();
 		EnumUtils.fillSet(i, E.class, resultSet);
 		return compareSets(testSet, resultSet);

@@ -135,17 +135,22 @@ public class EnumUtils {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static int getInt(Set set, Class enumClass) {
-		List values = EnumUtils.valueList(enumClass);
-		int bitValue = 1;
-		int result = 0;
-		for (Object v : values) {
-			if (set.contains(v)) {
-				result += bitValue;
+	public static int getInt(Set set) {
+		if (set.isEmpty()) {
+			return 0;
+		} else {
+			Class enumClass = set.iterator().next().getClass();
+			List values = EnumUtils.valueList(enumClass);
+			int bitValue = 1;
+			int result = 0;
+			for (Object v : values) {
+				if (set.contains(v)) {
+					result += bitValue;
+				}
+				bitValue = bitValue << 1;
 			}
-			bitValue = bitValue << 1;
+			return result;
 		}
-		return result;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
