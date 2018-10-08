@@ -7,6 +7,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
+import org.minimalj.backend.repository.EntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
@@ -189,10 +190,10 @@ public class Backend {
 	}
 
 	protected <T> void handleCodeCache(Transaction<T> transaction) {
-		if (transaction instanceof WriteTransaction) {
+		if (transaction instanceof WriteTransaction || transaction instanceof DeleteEntityTransaction) {
 			// we could check if the transaction is about a code class. But the
 			// removeFromCache method is probably faster than to call 'isCode'
-			Codes.removeFromCache(((WriteTransaction<?, ?>) transaction).getEntityClazz());
+			Codes.removeFromCache(((EntityTransaction<?, ?>) transaction).getEntityClazz());
 		}
 	}
 
