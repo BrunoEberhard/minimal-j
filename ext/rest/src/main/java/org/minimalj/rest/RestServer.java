@@ -57,21 +57,4 @@ public class RestServer {
 		start();
 	}
 	
-	/**
-	 * To use inner classes as main class you have to use
-	 * <pre>
-	 * java org.minimalj.rest.RestServer$WithFrontend
-	 * </pre>
-	 * 
-	 * Note the $ instead of .
-	 */
-	public static class WithFrontend {
-
-		public static void main(String[] args) {
-			Application.initApplication(args);
-			NanoWebServer.start();
-			RestServer.start();
-		}
-	}
-
 }
