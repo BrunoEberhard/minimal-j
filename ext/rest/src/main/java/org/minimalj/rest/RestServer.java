@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.util.StringUtils;
 
@@ -24,6 +23,7 @@ public class RestServer {
 			NanoHTTPD nanoHTTPD = new RestHTTPD(port, secure);
 			try {
 				nanoHTTPD.start(TIME_OUT, false); // false -> this will not start a 'java' daemon, but a normal thread which keeps JVM alive
+				LOG.info("Swagger available on http" + (secure ? "s" : "") + "://localhost:" + port + "/swagger-ui/");
 			} catch (IOException x) {
 				throw new RuntimeException(x);
 			}
