@@ -67,6 +67,10 @@ public class MinimalClinicApplication extends Application {
 	public static void main(String[] args) {
 		Configuration.set("MjRepository", "org.minimalj.repository.memory.InMemoryRepository");
 		Configuration.set("MjDevMode", "true");
-		NanoWebServer.start(new MinimalClinicApplication());
+		MinimalClinicApplication application = new MinimalClinicApplication();
+		NanoWebServer.start(application);
+		// RestServer.start(application);
+		// MjVaadinSpringbootApplication.start(application);
+		// Lanterna.start(application);
 	}
 }
