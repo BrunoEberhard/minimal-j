@@ -127,8 +127,8 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
-		return new JsonLookup(lookup, changeListener);
+	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
+		return new JsonLookup(stringInput, lookup);
 	}
 
 	@Override

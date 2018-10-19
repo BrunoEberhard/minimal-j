@@ -18,11 +18,9 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	public AbstractLookupFormElement(Object key, boolean textEditable, boolean editable) {
 		super(key);
 		if (editable) {
-			if (textEditable) {
-				lookup = Frontend.getInstance().createLookup(this::lookup, this::inputChanged);
-			} else {
-				lookup = Frontend.getInstance().createLookup(this::lookup);
-			}
+			Input<String> input = textEditable ? Frontend.getInstance().createTextField(Integer.MAX_VALUE, null, null, this::inputChanged)
+					: Frontend.getInstance().createReadOnlyTextField();
+			lookup = Frontend.getInstance().createLookup(input, this::lookup);
 		} else {
 			lookup = Frontend.getInstance().createReadOnlyTextField();
 		}

@@ -227,13 +227,8 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public Input<String> createLookup(Runnable lookup) {
-		return new SwingLabelLookup(lookup);
-	}
-
-	@Override
-	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
-		return new SwingLookup(lookup, changeListener);
+	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
+		return new SwingLookup(stringInput, lookup);
 	}
 	
 	public File showFileDialog(String title, String approveButtonText) {
@@ -253,68 +248,34 @@ public class SwingFrontend extends Frontend {
 	private static class SwingLookup extends JPanel implements Input<String> {
 		private static final long serialVersionUID = 1L;
 		
-		private final SwingTextField textField;
 		private final JButton lookupButton;
+		private final Input<String> stringInput;
 		
-		public SwingLookup(Runnable runnable, InputComponentListener changeListener) {
+		public SwingLookup(Input<String> stringInput, Runnable lookup) {
 			super(new BorderLayout());
+			this.stringInput = stringInput;
 			
-			this.textField = new SwingTextField(changeListener, Integer.MAX_VALUE);
-			add(textField, BorderLayout.CENTER);
+			add((Component) stringInput, BorderLayout.CENTER);
 
 			this.lookupButton = new JButton("...");
 			lookupButton.setMargin(EMPTY_INSETS);
-			lookupButton.addActionListener(event -> runnable.run());
+			lookupButton.addActionListener(event -> lookup.run());
 			add(lookupButton, BorderLayout.AFTER_LINE_ENDS);
 		}
 
 		@Override
 		public void setValue(String value) {
-			textField.setText(value);
+			stringInput.setValue(value);
 		}
 
 		@Override
 		public String getValue() {
-			return textField.getText();
+			return stringInput.getValue();
 		}
 		
 		@Override
 		public void setEditable(boolean editable) {
-			textField.setEditable(editable);
-			lookupButton.setVisible(editable);
-		}
-	}
-
-	private static class SwingLabelLookup extends JPanel implements Input<String> {
-		private static final long serialVersionUID = 1L;
-		
-		private final JLabel label;
-		private final JButton lookupButton;
-
-		public SwingLabelLookup(Runnable runnable) {
-			super(new BorderLayout());
-
-			this.label = new JLabel();
-			add(label, BorderLayout.CENTER);
-
-			this.lookupButton = new JButton("...");
-			lookupButton.setMargin(EMPTY_INSETS);
-			lookupButton.addActionListener(event -> runnable.run());
-			add(lookupButton, BorderLayout.AFTER_LINE_ENDS);
-		}
-
-		@Override
-		public void setValue(String value) {
-			label.setText(value);
-		}
-
-		@Override
-		public String getValue() {
-			return label.getText();
-		}
-
-		@Override
-		public void setEditable(boolean editable) {
+			stringInput.setEditable(editable);
 			lookupButton.setVisible(editable);
 		}
 	}

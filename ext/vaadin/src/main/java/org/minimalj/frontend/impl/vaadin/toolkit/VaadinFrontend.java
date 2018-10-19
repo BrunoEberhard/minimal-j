@@ -14,7 +14,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -148,29 +147,24 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createLookup(Runnable lookup) {
-		return new VaadinLabelLookup(lookup);
-	}
-
-	@Override
-	public Input<String> createLookup(Runnable lookup, InputComponentListener changeListener) {
-		return new VaadinLookup(lookup, changeListener);
+	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
+		return new VaadinLookup(stringInput, lookup);
 	}
 	
 	private static class VaadinLookup extends GridLayout implements Input<String> {
 		private static final long serialVersionUID = 1L;
 		
-		private final VaadinTextField textField;
+		private final Input<String> stringInput;
 		private final Button lookupButton;
 		
-		public VaadinLookup(Runnable runnable, InputComponentListener changeListener) {
+		public VaadinLookup(Input<String> stringInput, Runnable lookup) {
 			super(2, 1);
+			this.stringInput = stringInput;
 			
-			this.textField = new VaadinTextField(changeListener, Integer.MAX_VALUE);
-			textField.setSizeFull();
-			addComponent(textField);
+			((Component) stringInput).setSizeFull();
+			addComponent((Component) stringInput);
 
-			this.lookupButton = new Button("...", event -> runnable.run());
+			this.lookupButton = new Button("...", event -> lookup.run());
 			addComponent(lookupButton);
 			
 			setColumnExpandRatio(0, 100.0f);
@@ -179,53 +173,17 @@ public class VaadinFrontend extends Frontend {
 
 		@Override
 		public void setValue(String value) {
-			textField.setValue(value);
+			stringInput.setValue(value);
 		}
 		
 		@Override
 		public String getValue() {
-			return textField.getValue();
+			return stringInput.getValue();
 		}
 		
 		@Override
 		public void setEditable(boolean editable) {
-			textField.setEditable(editable);
-			lookupButton.setVisible(editable);
-		}
-	}
-
-	private static class VaadinLabelLookup extends GridLayout implements Input<String> {
-		private static final long serialVersionUID = 1L;
-
-		private final Label label;
-		private final Button lookupButton;
-
-		public VaadinLabelLookup(Runnable runnable) {
-			super(2, 1);
-
-			this.label = new Label();
-			label.setSizeFull();
-			addComponent(label);
-
-			this.lookupButton = new Button("...", event -> runnable.run());
-			addComponent(lookupButton);
-
-			setColumnExpandRatio(0, 100.0f);
-			setColumnExpandRatio(1, 0.0f);
-		}
-
-		@Override
-		public void setValue(String value) {
-			label.setValue(value);
-		}
-
-		@Override
-		public String getValue() {
-			return label.getValue();
-		}
-
-		@Override
-		public void setEditable(boolean editable) {
+			stringInput.setEditable(editable);
 			lookupButton.setVisible(editable);
 		}
 	}

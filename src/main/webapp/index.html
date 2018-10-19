@@ -513,23 +513,14 @@ $ICON
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
-		} else if (type == "Lookup" || type == "LookupLabel") {
-			var elementGroup = document.createElement("div");
-			elementGroup.className = "lookup";
-			if (type == "Lookup") {
-				element = document.createElement("input");
-				element.setAttribute("onchange", "sendchange(this);");
-				// element.setAttribute("maxlength", content.maxLength);
-			} else {
-				element = document.createElement("span");
-			}
-			elementGroup.appendChild(element);
+		} else if (type == "Lookup") {
+			element = document.createElement("div");
+			element.className = "lookup";
+			element.appendChild(createContent(content.input));
 			var button = document.createElement("button");
 			button.appendChild(document.createTextNode(".."));
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
-			elementGroup.appendChild(button);
-			element.id = content.id;
-			return elementGroup;
+			element.appendChild(button);
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;
