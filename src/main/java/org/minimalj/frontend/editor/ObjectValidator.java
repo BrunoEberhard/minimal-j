@@ -47,8 +47,13 @@ public class ObjectValidator {
 		for (PropertyInterface property : properties) {
 			Object value = property.getValue(object);
 			if (InvalidValues.isInvalid(value)) {
-				String caption = Resources.getPropertyName(property);
-				validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
+				String message = InvalidValues.getMessage(value);
+				if (message != null) {
+					validationMessages.add(new ValidationMessage(property, message));
+				} else {
+					String caption = Resources.getPropertyName(property);
+					validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
+				}
 			}
 		}
 	}

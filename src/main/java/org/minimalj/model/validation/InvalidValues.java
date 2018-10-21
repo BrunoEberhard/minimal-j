@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -28,7 +27,9 @@ import org.minimalj.model.EnumUtils;
  */
 public class InvalidValues {
 
-	private static final Map<Object, String> values = new WeakHashMap<Object, String>();
+	private static final Map<Object, String> values = new WeakHashMap<>();
+	private static final Map<Object, String> messages = new WeakHashMap<>();
+
 	private static int counter = Integer.MIN_VALUE + 1;
 	private static LocalDate MIN_DATE = LocalDate.of(0, 1, 1);
 	private static LocalTime MIN_TIME = LocalTime.of(0, 0, 0);
@@ -110,12 +111,22 @@ public class InvalidValues {
 		values.put(bigDecimal, string);
 		return bigDecimal;
 	}
-	
-	public static void markInvalid(Collection<?> object, String string) {
+
+	public static void markInvalid(Object object, String string, String message) {
+		values.put(object, string);
+		messages.put(object, message);
+	}
+
+	public static void markInvalid(Object object, String string) {
 		values.put(object, string);
 	}
 
-	public static void markValid(Collection<?> object) {
+	public static void markValid(Object object) {
 		values.remove(object);
+		messages.remove(object);
+	}
+
+	public static String getMessage(Object object) {
+		return messages.get(object);
 	}
 }
