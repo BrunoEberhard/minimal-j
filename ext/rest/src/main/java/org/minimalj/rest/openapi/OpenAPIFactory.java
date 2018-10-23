@@ -348,17 +348,19 @@ public class OpenAPIFactory {
 			property.type = type(mjProperty);
 			
 			if (api == API.OpenAPI3) {
-				property.$ref = ref(mjProperty);
-				if (mjProperty.type.isEnumeration()) {
+				if (property.type == Type.ARRAY) {
+					property.items = items(mjProperty);
+				} else if (mjProperty.type.isEnumeration()) {
 					property.type = null;
 					property.$ref = SCHEMAS + mjProperty.type.getSimpleClassName();
+				} else {
+					property.$ref = ref(mjProperty);
 				}
-					
 			} else {
 				if (property.type == Type.ARRAY) {
 					property.items = schema(mjProperty.type);
 				} else if (mjProperty.type.isEnumeration()) {
-					// OpenApi3 has reusable enums
+					// OpenApi3 has reusable enums, swagger has not
 					property.eNum = mjProperty.type.values;
 				} else {
 					property.$ref = ref(mjProperty);
@@ -369,7 +371,7 @@ public class OpenAPIFactory {
 			}
 			
 			property.format = format(mjProperty);
-			property.items = items(mjProperty);
+
 			schema.properties.put(mjProperty.name, property);
 		}
 		return schema;
