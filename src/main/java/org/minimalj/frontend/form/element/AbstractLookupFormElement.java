@@ -18,7 +18,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	public AbstractLookupFormElement(Object key, boolean textEditable, boolean editable) {
 		super(key);
 		if (editable) {
-			Input<String> input = textEditable ? Frontend.getInstance().createTextField(Integer.MAX_VALUE, null, null, this::inputChanged)
+			Input<String> input = textEditable ? Frontend.getInstance().createTextField(getAllowedSize(), getAllowedCharacters(), null, this::inputChanged)
 					: Frontend.getInstance().createReadOnlyTextField();
 			lookup = Frontend.getInstance().createLookup(input, this::lookup);
 		} else {
@@ -27,6 +27,14 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 
 		inputValue = render(object);
 		lookup.setValue(inputValue);
+	}
+
+	protected String getAllowedCharacters() {
+		return null;
+	}
+
+	protected int getAllowedSize() {
+		return Integer.MAX_VALUE;
 	}
 
 	@Override
