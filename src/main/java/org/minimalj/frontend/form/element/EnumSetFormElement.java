@@ -42,7 +42,6 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 	public E parse(String text) {
 		E value = (E) getValue();
 		value.clear();
-		InvalidValues.markValid(value);
 		if (!StringUtils.isEmpty(text)) {
 			String[] split = text.split(",");
 			SPLITS: for (String s : split) {
@@ -53,7 +52,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 						continue SPLITS;
 					}
 				}
-				InvalidValues.markInvalid(value, text);
+				((HashSet) value).add(InvalidValues.createInvalidEnum(enumClass, s));
 			}
 		}
 		return value;

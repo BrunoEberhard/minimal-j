@@ -2,7 +2,6 @@ package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
 
@@ -19,7 +18,6 @@ public abstract class FormatLookupFormElement<T> extends AbstractLookupFormEleme
 			if (result == null) {
 				result = createObject();
 			}
-			InvalidValues.markValid(result);
 			parse(result, text);
 			return result;
 		} else {

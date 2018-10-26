@@ -1,13 +1,17 @@
 package org.minimalj.frontend.editor;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.EmptyValidator;
 import org.minimalj.model.validation.InvalidValues;
@@ -21,8 +25,10 @@ public class ObjectValidator {
 	public static void validate(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
 		properties = filterAvailableProperties(object, properties);
 		ObjectValidator.validateForEmpty(object, validationMessages, properties);
+		ObjectValidator.validateForSize(object, validationMessages, properties);
 		ObjectValidator.validateForInvalid(object, validationMessages, properties);
 		ObjectValidator.validatePropertyValues(object, validationMessages, properties);
+		ObjectValidator.validateInnervalues(object, validationMessages, properties);
 	}
 
 	public static Collection<PropertyInterface> filterAvailableProperties(Object object, Collection<PropertyInterface> properties) {
@@ -43,6 +49,20 @@ public class ObjectValidator {
 		}
 	}
 
+	public static void validateForSize(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
+		for (PropertyInterface property : properties) {
+			Object value = property.getValue(object);
+			if (value instanceof String) {
+				String string = (String) value;
+				int maxSize = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
+				if (string.length() > maxSize) {
+					String caption = Resources.getPropertyName(property);
+					validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("SizeValidator.message"), caption)));
+				}
+			}
+		}
+	}
+
 	public static void validateForInvalid(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
 		for (PropertyInterface property : properties) {
 			Object value = property.getValue(object);
@@ -51,6 +71,13 @@ public class ObjectValidator {
 				if (message != null) {
 					validationMessages.add(new ValidationMessage(property, message));
 				} else {
+					String caption = Resources.getPropertyName(property);
+					validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
+				}
+			} else if (value instanceof Set) {
+				Set<?> set = (Set<?>) value; // set of enums
+				boolean invalid = set.stream().anyMatch(InvalidValues::isInvalid);
+				if (invalid) {
 					String caption = Resources.getPropertyName(property);
 					validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
 				}
@@ -67,6 +94,27 @@ public class ObjectValidator {
 					validationMessages.add(new ValidationMessage(property, m.getFormattedText()));
 				}
 			}
+		}
+	}
+
+	public static void validateInnervalues(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
+		for (PropertyInterface property : properties) {
+			Object value = property.getValue(object);
+			if (value instanceof List) {
+				List<?> list = (List<?>) value;
+				list.stream().forEach(o -> validateInnerValue(o, validationMessages, property));
+			} else if (value != null) {
+				validateInnerValue(value, validationMessages, property);
+			}
+		}
+	}
+
+	private static void validateInnerValue(Object value, List<ValidationMessage> validationMessages, PropertyInterface property) {
+		Collection<PropertyInterface> valueProperties = Properties.getProperties(value.getClass()).values();
+		List<ValidationMessage> innerMessages = new ArrayList<>();
+		validate(value, innerMessages, valueProperties);
+		if (!innerMessages.isEmpty()) {
+			innerMessages.stream().forEach(m -> validationMessages.add(new ValidationMessage(property, m.getFormattedText())));
 		}
 	}
 
