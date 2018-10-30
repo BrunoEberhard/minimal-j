@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.NotEmpty;
@@ -21,16 +22,20 @@ import org.minimalj.util.resources.Resources;
 public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());
 
-	public static void validate(Object object, List<ValidationMessage> validationMessages) {
+	public static Stream<ValidationMessage> validate(Object object) {
 		if (InvalidValues.isInvalid(object)) {
 			String caption = Resources.getString(object.getClass());
-			validationMessages.add(new ValidationMessage(null, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
+			return Stream.of(new ValidationMessage(null, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
 		} else if (object instanceof Collection) {
 			Collection<?> list = (Collection<?>) object;
-			list.stream().forEach(o -> validate(o, validationMessages));
+			return list.stream().flatMap(Validator::validate);
 		} else if (object != null) {
 			Collection<PropertyInterface> valueProperties = Properties.getProperties(object.getClass()).values();
+			List<ValidationMessage> validationMessages = new ArrayList<>();
 			validate(object, validationMessages, valueProperties);
+			return validationMessages.stream();
+		} else {
+			return Stream.empty();
 		}
 	}
 
@@ -53,9 +58,7 @@ public class Validator {
 				validationMessages.addAll(validation.validateNullSafe());
 			}
 
-			List<ValidationMessage> innerMessages = new ArrayList<>();
-			validate(value, innerMessages);
-			innerMessages.stream().forEach(m -> validationMessages.add(new ValidationMessage(property, m.getFormattedText())));
+			validate(value).forEach(m -> validationMessages.add(new ValidationMessage(property, m.getFormattedText())));
 		});
 	}
 
