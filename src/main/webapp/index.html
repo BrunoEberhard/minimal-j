@@ -154,12 +154,14 @@ $ICON
 		}
 		if (dataObject.tableExtendContent != undefined) {
 			var table = document.getElementById(dataObject.tableId);
+			var oldScroll = table.parentNode.scrollTop;
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
 			if (!dataObject.extendable) {
 				var footer = table.getElementsByTagName("tfoot")[0];
 				intersectionObserver.unobserve(footer);
 				table.removeChild(footer);			
 			}
+			table.parentNode.scrollTop = oldScroll;
 		}
 		
 		var block = document.getElementById('block');
@@ -401,7 +403,9 @@ $ICON
 				var dots = document.createTextNode("...");
 				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");				
 				footer.appendChild(dots);
-				intersectionObserver.observe(footer);
+				if (intersectionObserver != undefined) {
+					intersectionObserver.observe(footer);
+				}
 				element.appendChild(footer);
 			}
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
