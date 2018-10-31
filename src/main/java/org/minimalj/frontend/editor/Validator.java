@@ -16,6 +16,7 @@ import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.sql.EmptyObjects;
+import org.minimalj.util.FieldUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -23,13 +24,10 @@ public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());
 
 	public static Stream<ValidationMessage> validate(Object object) {
-		if (InvalidValues.isInvalid(object)) {
-			String caption = Resources.getString(object.getClass());
-			return Stream.of(new ValidationMessage(null, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
-		} else if (object instanceof Collection) {
+		if (object instanceof Collection) {
 			Collection<?> list = (Collection<?>) object;
 			return list.stream().flatMap(Validator::validate);
-		} else if (object != null) {
+		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass())) {
 			Collection<PropertyInterface> valueProperties = Properties.getProperties(object.getClass()).values();
 			List<ValidationMessage> validationMessages = new ArrayList<>();
 			validate(object, validationMessages, valueProperties);
