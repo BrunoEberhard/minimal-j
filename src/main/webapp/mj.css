@@ -319,6 +319,7 @@ table tr:nth-child(odd).selected {
 .form > div > div {
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
+	overflow: hidden;
 }
 
 .form input, .form select, .form textarea, .form .lookup, dialog .form .ReadOnlyTextField, dialog .form label, dialog .form div.list, dialog .form .Title {
