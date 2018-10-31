@@ -55,11 +55,7 @@ public abstract class SqlDialect {
 		s.append(" NOT NULL");
 	}
 	
-	/*
-	 * Only public for tests. If this method doesn't throw an IllegalArgumentException
-	 * then a property is valid
-	 */
-	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+	protected void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 		Class<?> clazz = property.getClazz();
 		
 		if (clazz == Integer.class) {
