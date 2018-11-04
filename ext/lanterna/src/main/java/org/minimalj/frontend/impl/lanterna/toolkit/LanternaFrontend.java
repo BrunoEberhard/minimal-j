@@ -59,16 +59,9 @@ public class LanternaFrontend extends Frontend {
 
 	@Override
 	public IComponent createText(final Action action) {
-		LanternaActionText button = new LanternaActionText(action.getName());
-		button.addListener(b -> LanternaFrontend.run(b, () -> action.action()));
-		return button;
+		return new LanternaActionText(action);
 	}
 
-	public static class LanternaActionText extends Button implements IComponent {
-		public LanternaActionText(String name) {
-			super(name);
-		}
-	}
 	
 	@Override
 	public PageManager getPageManager() {
@@ -161,23 +154,30 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	public static Button adaptAction(final Action action) {
-		Button button = new Button(action.getName());
-		button.addListener(b -> LanternaFrontend.run(b, () -> action.action()));
-		action.setChangeListener(new ActionChangeListener() {
-			{
-				update();
-			}
+		return new LanternaActionText(action);
+	}
 
-			@Override
-			public void change() {
-				update();
-			}
+	public static class LanternaActionText extends Button implements IComponent {
 
-			protected void update() {
-				button.setEnabled(action.isEnabled());
-			}
-		});
-		return button;
+		public LanternaActionText(Action action) {
+			super(action.getName());
+			addListener(b -> LanternaFrontend.run(b, () -> action.action()));
+			action.setChangeListener(new ActionChangeListener() {
+				{
+					update();
+				}
+
+				@Override
+				public void change() {
+					update();
+				}
+
+				protected void update() {
+					LanternaActionText.this.setLabel(action.getName());
+					LanternaActionText.this.setEnabled(action.isEnabled());
+				}
+			});
+		}
 	}
 
 }

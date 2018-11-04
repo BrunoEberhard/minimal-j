@@ -2,10 +2,10 @@ package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import java.util.List;
 
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.lanterna.toolkit.LanternaFrontend.LanternaActionText;
 
 import com.googlecode.lanterna.gui2.Component;
 import com.googlecode.lanterna.gui2.Direction;
@@ -20,7 +20,7 @@ public class LanternaList extends Panel implements IList {
 		setLayoutManager(new LinearLayout(Direction.VERTICAL));
 		if (actions != null) {
 			for (Action action : actions) {
-				addComponent((Component) Frontend.getInstance().createText(action));
+				addComponent(new LanternaActionText(action));
 			}
 			actionCount = actions.length;
 		} else {
