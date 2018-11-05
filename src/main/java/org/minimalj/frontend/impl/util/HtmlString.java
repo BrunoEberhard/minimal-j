@@ -11,6 +11,7 @@ public class HtmlString implements CharSequence {
 	private final List<FormatElement> elements = new ArrayList<>();
 	
 	public HtmlString header(String text) {
+		elements.add(new FormatElementHeader(text));
 		return this;
 	}
 	
@@ -112,6 +113,7 @@ public class HtmlString implements CharSequence {
 			this.string = string;
 			
 		}
+
 		@Override
 		public String getString() {
 			return string;
@@ -123,6 +125,23 @@ public class HtmlString implements CharSequence {
 		}
 	}
 	
+	private static class FormatElementHeader extends FormatElementString {
+
+		public FormatElementHeader(String string) {
+			super(string);
+		}
+
+		@Override
+		public String getString() {
+			return super.getString() + "\n";
+		}
+
+		@Override
+		public String getHtml() {
+			return "<h5>" + super.getHtml() + "</h5>";
+		}
+	}
+
 	private static FormatElementNewLine NEW_LINE = new FormatElementNewLine();
 	
 	private static class FormatElementNewLine implements FormatElement {
