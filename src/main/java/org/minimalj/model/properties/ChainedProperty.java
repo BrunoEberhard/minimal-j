@@ -1,6 +1,8 @@
 package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChainedProperty implements PropertyInterface {
 	private final PropertyInterface property1;
@@ -20,6 +22,21 @@ public class ChainedProperty implements PropertyInterface {
 		return property1.getValue(object) != null;
 	}
 	
+	public List<PropertyInterface> getChain() {
+		List<PropertyInterface> chain = new ArrayList<>();
+		if (property1 instanceof ChainedProperty) {
+			chain.addAll(((ChainedProperty) property1).getChain());
+		} else {
+			chain.add(property1);
+		}
+		if (property2 instanceof ChainedProperty) {
+			chain.addAll(((ChainedProperty) property2).getChain());
+		} else {
+			chain.add(property2);
+		}
+		return chain;
+	}
+
 	@Override
 	public Class<?> getDeclaringClass() {
 		return property2.getDeclaringClass();

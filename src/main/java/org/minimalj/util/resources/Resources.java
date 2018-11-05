@@ -22,6 +22,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.LocaleContext;
 
@@ -156,12 +157,34 @@ public class Resources {
 		}
 
 		String getPropertyName(PropertyInterface property, String postfix) {
+			Class<?> fieldClass = property.getClazz();
+
+			if (property instanceof ChainedProperty) {
+				ChainedProperty chainedProperty = (ChainedProperty) property;
+				List<PropertyInterface> chain = chainedProperty.getChain();
+				while (chain.size() > 1) {
+					String fieldName = "";
+					for (PropertyInterface p : chain) {
+						fieldName += p.getName() + ".";
+					}
+					fieldName = fieldName.substring(0, fieldName.length() - 1);
+					if (postfix != null) {
+						fieldName += postfix;
+					}
+					String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(), fieldClass, true);
+					if (result != null) {
+						return result;
+					} else {
+						chain = chain.subList(1, chain.size());
+					}
+				}
+			}
+
 			String fieldName = property.getName();
 			if (postfix != null) {
 				fieldName += postfix;
 			}
 			Class<?> declaringClass = property.getDeclaringClass();
-			Class<?> fieldClass = property.getClazz();
 
 			return getPropertyName(fieldName, declaringClass, fieldClass, postfix != null);
 		}

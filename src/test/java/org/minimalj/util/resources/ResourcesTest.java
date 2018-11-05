@@ -21,8 +21,10 @@ public class ResourcesTest {
 	public ResourcesTest3 byFieldClass;
 	public ResourcesTest4 byFullQualifiedFieldClass;
 
+	public ResourcesTest5 chained;
+
 	public String byFieldName;
-	
+
 	@Test
 	public void should_find_name_of_full_qualified_field() throws Exception {
 		Assert.assertEquals("Test1", getFieldName($.fullQualified));
@@ -46,6 +48,11 @@ public class ResourcesTest {
 	@Test
 	public void should_find_name_by_field_name() throws Exception {
 		Assert.assertEquals("Test5", getFieldName($.byFieldName));
+	}
+
+	@Test
+	public void should_resolve_chained_field() throws Exception {
+		Assert.assertEquals("Chained", getFieldName($.chained.field));
 	}
 	
 	// same in view
@@ -90,7 +97,11 @@ public class ResourcesTest {
 	public static class ResourcesTest4 {
 		
 	}
-	
+
+	public static class ResourcesTest5 {
+		public String field;
+	}
+
 	public static class ResourcesTestView implements View<ResourcesTest> {
 		public static final ResourcesTestView $ = Keys.of(ResourcesTestView.class);
 		
