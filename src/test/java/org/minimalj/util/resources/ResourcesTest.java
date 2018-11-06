@@ -54,7 +54,18 @@ public class ResourcesTest {
 	public void should_resolve_chained_field() throws Exception {
 		Assert.assertEquals("Chained", getFieldName($.chained.field));
 	}
-	
+
+	@Test
+	public void should_resolve_double_chained_field() throws Exception {
+		Assert.assertNotEquals("Full path should win", "Test_wrong_text", getFieldName($.chained.field2.field));
+		Assert.assertEquals("Chained2", getFieldName($.chained.field2.field));
+	}
+
+	@Test
+	public void should_resolve_double_chained_field3() throws Exception {
+		Assert.assertEquals("Chained3", getFieldName($.chained.field3.field));
+	}
+
 	// same in view
 	
 	@Test
@@ -99,6 +110,17 @@ public class ResourcesTest {
 	}
 
 	public static class ResourcesTest5 {
+		public String field;
+
+		public ResourcesTest6 field2;
+		public ResourcesTest7 field3;
+	}
+
+	public static class ResourcesTest6 {
+		public String field;
+	}
+
+	public static class ResourcesTest7 {
 		public String field;
 	}
 

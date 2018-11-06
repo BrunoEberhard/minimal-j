@@ -157,36 +157,35 @@ public class Resources {
 		}
 
 		String getPropertyName(PropertyInterface property, String postfix) {
-			Class<?> fieldClass = property.getClazz();
-
 			if (property instanceof ChainedProperty) {
 				ChainedProperty chainedProperty = (ChainedProperty) property;
-				List<PropertyInterface> chain = chainedProperty.getChain();
-				while (chain.size() > 1) {
-					String fieldName = "";
-					for (PropertyInterface p : chain) {
-						fieldName += p.getName() + ".";
-					}
-					fieldName = fieldName.substring(0, fieldName.length() - 1);
-					if (postfix != null) {
-						fieldName += postfix;
-					}
-					String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(), fieldClass, true);
-					if (result != null) {
-						return result;
-					} else {
-						chain = chain.subList(1, chain.size());
-					}
-				}
+				return getProperty(chainedProperty, postfix);
 			}
 
+			Class<?> fieldClass = property.getClazz();
 			String fieldName = property.getName();
-			if (postfix != null) {
+			if (postfix != null)
 				fieldName += postfix;
-			}
 			Class<?> declaringClass = property.getDeclaringClass();
 
 			return getPropertyName(fieldName, declaringClass, fieldClass, postfix != null);
+		}
+
+		private String getProperty(ChainedProperty chainedProperty, String postfix) {
+			List<PropertyInterface> chain = chainedProperty.getChain();
+			String fieldName = chainedProperty.getPath();
+			if (postfix != null)
+				fieldName += postfix;
+			while (chain.size() > 1) {
+				String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(), chainedProperty.getClazz(), true);
+				if (result != null) {
+					return result;
+				} else {
+					chain = chain.subList(1, chain.size());
+					fieldName = fieldName.substring(fieldName.indexOf('.') + 1, fieldName.length());
+				}
+			}
+			return getPropertyName(chain.get(0), postfix);
 		}
 
 		String getPropertyName(String fieldName, Class<?> declaringClass, Class<?> fieldClass, boolean optional) {
