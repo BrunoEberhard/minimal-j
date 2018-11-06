@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.javafx.toolkit.FxAction;
 import org.minimalj.frontend.impl.javafx.toolkit.FxCheckbox;
 import org.minimalj.frontend.impl.javafx.toolkit.FxComboBox;
 import org.minimalj.frontend.impl.javafx.toolkit.FxText;
@@ -20,8 +21,7 @@ public class FxFrontend extends Frontend {
 
 	@Override
 	public IComponent createText(Action action) {
-		// TODO Auto-generated method stub
-		return null;
+		return new FxAction(action);
 	}
 
 	@Override
