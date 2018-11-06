@@ -1,17 +1,37 @@
 package org.minimalj.frontend.impl.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.util.StringUtils;
 
 // experimental
 public class HtmlString implements CharSequence {
+	private static final Set<String> allowedHtmlTags = new TreeSet<>();
 
 	private final List<FormatElement> elements = new ArrayList<>();
+
+	static {
+		String allowedHtmlTagConfiguration = Configuration.get("MjAllowedHtmlTags");
+		if (!StringUtils.isEmpty(allowedHtmlTagConfiguration)) {
+			Arrays.stream(allowedHtmlTagConfiguration.split(",")).forEach(allowedHtmlTags::add);
+		} else {
+			Arrays.stream(Frontend.ALLOWED_HTML_TAGS).forEach(allowedHtmlTags::add);
+		}
+	}
+
 	
-	public HtmlString header(String text) {
-		elements.add(new FormatElementHeader(text));
+	public HtmlString format(String tag, String text) {
+		if (allowedHtmlTags.contains(tag)) {
+			elements.add(new FormatElementTag(tag, text));
+		} else {
+			append(text);
+		}
 		return this;
 	}
 	
@@ -125,20 +145,17 @@ public class HtmlString implements CharSequence {
 		}
 	}
 	
-	private static class FormatElementHeader extends FormatElementString {
+	private static class FormatElementTag extends FormatElementString {
+		private final String tag;
 
-		public FormatElementHeader(String string) {
+		public FormatElementTag(String tag, String string) {
 			super(string);
-		}
-
-		@Override
-		public String getString() {
-			return super.getString() + "\n";
+			this.tag = tag;
 		}
 
 		@Override
 		public String getHtml() {
-			return "<h5>" + super.getHtml() + "</h5>";
+			return "<" + tag + ">" + super.getHtml() + "</" + tag + ">";
 		}
 	}
 
