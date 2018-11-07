@@ -18,7 +18,7 @@ public class MailService {
 	
 	private static final Logger LOGGER = Logger.getLogger(MailService.class.getName());
 
-	public static void sendMail(Mail mail) throws MessagingException {
+	public static void sendMail(Mail mail)  {
 		Properties props = new Properties();
 		try {
 			props.load(MailService.class.getClassLoader().getResourceAsStream("mail.properties"));
@@ -28,13 +28,16 @@ public class MailService {
 			props.put("mail.smtp.port", 2500);
 		}
 
-		Session session = Session.getInstance(props, null);
+		Session session = javax.mail.Session.getInstance(props, null);
 		Message msg = new MimeMessage(session);
-		msg.setFrom(new InternetAddress(mail.from.address));
-		msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.to.address, false));
-		msg.setText(mail.text);
-		msg.setSubject(mail.subject);
-		Transport.send(msg);
+		try {
+			msg.setFrom(new InternetAddress(mail.from.address));
+			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.to.address, false));
+			msg.setSubject(mail.subject);
+			msg.setText(mail.text);
+			Transport.send(msg);
+		} catch (MessagingException e) {
+			LOGGER.log(Level.SEVERE, "unable to send email", e);
+		}
 	}
-
 }
