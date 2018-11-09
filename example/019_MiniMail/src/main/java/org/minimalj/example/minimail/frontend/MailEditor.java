@@ -1,6 +1,7 @@
 package org.minimalj.example.minimail.frontend;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.example.minimail.backend.MailService;
 import org.minimalj.example.minimail.model.Mail;
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
@@ -35,6 +36,7 @@ public class MailEditor extends SimpleEditor<Mail> {
 
 	@Override
 	protected Mail save(Mail object) {
+		MailService.sendMail(object);
 		return Backend.save(object);
 	}
 
