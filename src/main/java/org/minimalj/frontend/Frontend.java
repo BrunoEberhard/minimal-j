@@ -106,8 +106,8 @@ public abstract class Frontend {
 	public static final String[] ALLOWED_HTML_TAGS = { "b", "i", "u", "sub", "sup" };
 	
 	public abstract IComponent createText(String string);
-	public abstract IComponent createText(Action action);
 	public abstract IComponent createText(Rendering rendering);
+	public abstract IComponent createText(Action action);
 	public abstract IComponent createTitle(String string);
 	public abstract Input<String> createReadOnlyTextField();
 	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener);
@@ -133,8 +133,11 @@ public abstract class Frontend {
 		public void setEnabled(boolean enabled);
 		
 		public void clear();
-		
-		public void add(IComponent component, Action... actions);
+
+		public void add(Object object, Action... actions);
+
+		public void add(String title, Object object, Action... actions);
+
 	}
 	
 	public interface InputComponentListener {

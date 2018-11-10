@@ -3,9 +3,9 @@ package org.minimalj.frontend.impl.json;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.model.Rendering;
 
 public class JsonList extends JsonComponent implements IList {
 
@@ -31,9 +31,21 @@ public class JsonList extends JsonComponent implements IList {
 	}
 
 	@Override
-	public void add(IComponent component, Action... actions) {
-		JsonFrontend.getClientSession().addContent(getId(), (JsonComponent) component);
-		
+	public void add(String title, Object object, Action... actions) {
+		add(new JsonText(title));
+		add(object, actions);
+	}
+
+	@Override
+	public void add(Object object, Action... actions) {
+		if (object != null) {
+			if (object instanceof Rendering) {
+				add(new JsonText((Rendering) object));
+			} else {
+				add(new JsonText(object));
+			}
+		}
+
 		for (Action action : actions) {
 			JsonFrontend.getClientSession().addContent(getId(), new JsonAction(action));
 		}

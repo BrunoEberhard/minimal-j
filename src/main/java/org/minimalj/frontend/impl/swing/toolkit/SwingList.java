@@ -9,13 +9,14 @@ import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
+import org.minimalj.model.Rendering;
 
 
 public class SwingList extends JPanel implements IList {
@@ -73,12 +74,27 @@ public class SwingList extends JPanel implements IList {
 	}
 
 	@Override
-	public void add(IComponent component, Action... actions) {
+	public void add(String title, Object object, Action... actions) {
+		// TODO title
+		add(object, actions);
+	}
+
+	@Override
+	public void add(Object object, Action... actions) {
+		Component component;
+		if (object instanceof Rendering) {
+			component = new SwingText((Rendering) object);
+		} else if (object != null) {
+			component = new SwingText(object.toString());
+		} else {
+			component = new JLabel();
+		}
+
 		boolean enabled = isEnabled();
 		setEnabled(true);
 		
 		int existingComponents = getComponentCount();
-		super.add((Component) component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
+		super.add(component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
 		for (Action action : actions) {
 			super.add(new SwingActionText(action), "", getComponentCount() - actionCount);
 		}

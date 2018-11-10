@@ -3,10 +3,10 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.VaadinActionLabel;
+import org.minimalj.model.Rendering;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
@@ -58,24 +58,23 @@ public class VaadinList extends VerticalLayout implements IList {
 	}
 
 	@Override
-	public void add(IComponent component, Action... actions) {
+	public void add(String title, Object object, Action... actions) {
+		add(new VaadinText(title));
+		add(object, actions);
+	}
+
+	@Override
+	public void add(Object object, Action... actions) {
 		boolean enabled = isEnabled();
 		setEnabled(true);
 		
-		int existingComponents = getComponentCount();
-		super.addComponent((Component) component, getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
+		if (object != null) {
+			Component component = object instanceof Rendering ? new VaadinText((Rendering) object) : new VaadinText(object.toString());
+			super.addComponent((Component) component, getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
+		}
 		for (Action action : actions) {
 			super.addComponent(new VaadinActionLabel(action), getComponentCount() - actionCount);
 		}
-//		if (actionCount > 0) {
-//			// if global actions exist: create border at the end of this component+actions
-//			JComponent lastLabel = (JComponent) super.getComponent(getComponentCount() - actionCount - 1);
-//			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-//		} else if (existingComponents > 0) {
-//			// no global actions, but not the first add: create border at the end of the previous component+actions 
-//			JComponent lastLabel = (JComponent) super.getComponent(existingComponents - 1);
-//			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-//		}
 		
 		setEnabled(enabled);
 	}

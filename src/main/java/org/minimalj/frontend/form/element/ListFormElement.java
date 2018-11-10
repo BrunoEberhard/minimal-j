@@ -1,7 +1,12 @@
 package org.minimalj.frontend.form.element;
 
 import java.util.List;
+import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
@@ -9,22 +14,57 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 
-public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<T>> {
-	// private static final Logger logger = Logger.getLogger(ObjectField.class.getName());
+public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
+	private static final Logger logger = Logger.getLogger(ListFormElement.class.getName());
 	
+	private final boolean editable;
+	private final IList list;
+	private List<T> object;
+
 	public ListFormElement(PropertyInterface property) {
 		this(property, true);
 	}
 
 	public ListFormElement(PropertyInterface property, boolean editable) {
-		super(property, editable);
+		super(property);
+		this.editable = editable;
+		list = editable ? Frontend.getInstance().createList(getActions()) : Frontend.getInstance().createList();
 	}
 	
+	protected final boolean isEditable() {
+		return editable;
+	}
+
 	@Override
-	protected void show(List<T> objects) {
-		for (T entry : objects) {
-			showEntry(entry);
+	public List<T> getValue() {
+		return object;
+	}
+
+	@Override
+	public void setValue(List<T> object) {
+		this.object = object;
+		handleChange();
+	}
+
+	@Override
+	public IComponent getComponent() {
+		return list;
+	}
+
+	protected void handleChange() {
+		display();
+		super.fireChange();
+	}
+
+	protected void display() {
+		list.clear();
+		if (object != null) {
+			show(object);
 		}
+	}
+
+	protected void show(List<T> objects) {
+		objects.forEach(this::showEntry);
 	}
 
 	protected void showEntry(T entry) {
@@ -35,7 +75,18 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		}
 	}
 
-	@Override
+	protected void add(String text, Action... actions) {
+		add((Object) text, actions);
+	}
+
+	protected void add(Object object, Action... actions) {
+		list.add(object, actions);
+	}
+
+	protected void add(String title, Object object, Action... actions) {
+		list.add(title, object, actions);
+	}
+
 	protected Action[] getActions() {
 		return new Action[] { new AddListEntryEditor() };
 	}
@@ -58,6 +109,17 @@ public abstract class ListFormElement<T> extends AbstractObjectFormElement<List<
 		}
 	}
 	
+	protected void assertEditable(Object object) {
+		if (!isEditable()) {
+			String msg = object.getClass().getSimpleName() + " should not be used if " + ListFormElement.class.getSimpleName() + " is not editable";
+			if (Configuration.isDevModeActive()) {
+				throw new IllegalArgumentException(msg);
+			} else {
+				logger.warning(msg);
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	protected Class<T> getEditedClass() {
 		return (Class<T>) GenericUtils.getGenericClass(getClass());

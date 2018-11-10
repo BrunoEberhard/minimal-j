@@ -6,9 +6,9 @@ import java.util.Set;
 
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.frontend.form.element.AbstractLookupFormElement.LookupParser;
 import org.minimalj.frontend.form.element.CheckBoxFormElement.CheckBoxProperty;
 import org.minimalj.model.EnumUtils;
-import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
@@ -17,24 +17,16 @@ import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFormElement<E> implements /* Enable, */ Mocking {
+public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFormElement implements LookupParser, /* Enable, */ Mocking {
 	private final Class enumClass;
 	private final Collection allowedValues;
 	
 	public EnumSetFormElement(PropertyInterface property, boolean editable) {
-		this(property, true, editable);
-	}
-
-	public EnumSetFormElement(E key, E allowedValues) {
-		this(Keys.getProperty(key), true, allowedValues, true);
-	}
-		
-	public EnumSetFormElement(PropertyInterface property, boolean textEditable, boolean editable) {
-		this(property, textEditable, null, editable);
+		this(property, null, editable);
 	}
 	
-	public EnumSetFormElement(PropertyInterface property, boolean textEditable, E allowedValues, boolean editable) {
-		super(property, textEditable, editable);
+	public EnumSetFormElement(PropertyInterface property, E allowedValues, boolean editable) {
+		super(property, editable);
 		this.enumClass = property.getGenericClass();
 		this.allowedValues = allowedValues != null ? allowedValues : EnumUtils.valueList(enumClass);
 	}
@@ -60,6 +52,11 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 
 	public void lookup() {
 		new EnumSetFormElementEditor().action();
+	}
+
+	@Override
+	public E getValue() {
+		return (E) super.getValue();
 	}
 
 	public class EnumSetFormElementEditor extends SimpleEditor<E> {

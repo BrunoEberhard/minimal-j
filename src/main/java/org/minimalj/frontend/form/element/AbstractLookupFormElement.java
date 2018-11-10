@@ -7,19 +7,25 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Rendering;
 
-public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> {
+// Framework internal. Only use specializations
+public abstract class AbstractLookupFormElement extends AbstractFormElement<Object> {
 	private static Logger logger = Logger.getLogger(AbstractLookupFormElement.class.getSimpleName());
 
 	protected final Input<String> lookup;
-	private T object;
+	private Object object;
 	private String inputValue;
 	private boolean internal = false;
 
-	public AbstractLookupFormElement(Object key, boolean textEditable, boolean editable) {
+	AbstractLookupFormElement(Object key, boolean editable) {
 		super(key);
 		if (editable) {
-			Input<String> input = textEditable ? Frontend.getInstance().createTextField(getAllowedSize(), getAllowedCharacters(), null, this::inputChanged)
-					: Frontend.getInstance().createReadOnlyTextField();
+			Input<String> input;
+			if (this instanceof LookupParser) {
+				input = Frontend.getInstance().createTextField(((LookupParser) this).getAllowedSize(), ((LookupParser) this).getAllowedCharacters(), null,
+						this::inputChanged);
+			} else {
+				input = Frontend.getInstance().createReadOnlyTextField();
+			}
 			lookup = Frontend.getInstance().createLookup(input, this::lookup);
 		} else {
 			lookup = Frontend.getInstance().createReadOnlyTextField();
@@ -29,13 +35,19 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		lookup.setValue(inputValue);
 	}
 
-	protected String getAllowedCharacters() {
-		return null;
+	public static interface LookupParser {
+
+		public default String getAllowedCharacters() {
+			return null;
+		}
+
+		public default int getAllowedSize() {
+			return Integer.MAX_VALUE;
+		}
+
+		public abstract Object parse(String text);
 	}
 
-	protected int getAllowedSize() {
-		return Integer.MAX_VALUE;
-	}
 
 	@Override
 	public IComponent getComponent() {
@@ -43,18 +55,18 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	}
 
 	@Override
-	public T getValue() {
+	public Object getValue() {
 		return object;
 	}
 
 	@Override
-	public void setValue(T object) {
+	public void setValue(Object object) {
 		this.object = object;
 		inputValue = render(object);
 		lookup.setValue(inputValue);
 	}
 
-	protected void setValueInternal(T object) {
+	protected void setValueInternal(Object object) {
 		internal = true;
 		try {
 			if (getProperty().isFinal() && object != this.object) {
@@ -67,16 +79,17 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		}
 	}
 
-	protected String render(T value) {
+	protected String render(Object value) {
 		return Rendering.toString(value);
 	}
-
-	protected abstract T parse(String text);
 
 	public void inputChanged(IComponent source) {
 		if (!internal) {
 			String newInputValue = lookup.getValue();
-			object = parse(newInputValue);
+			object = ((LookupParser) this).parse(newInputValue);
+			if (object != null && object.getClass() != getProperty().getClazz()) {
+				throw new IllegalStateException("Parser result of wrong class: " + object.getClass().getName() + " instead of " + getProperty().getClazz());
+			}
 			listener().changed(source);
 		}
 	}

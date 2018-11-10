@@ -13,18 +13,14 @@ import org.minimalj.repository.sql.EmptyObjects;
 
 // To make this class generic is a little bit senseless as
 // there are no checks at all
-public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> {
+public class ReferenceFormElement<T> extends AbstractLookupFormElement {
 	private final Class<T> fieldClazz;
 	private final Object[] searchColumns;
 	private SearchDialog<T> dialog;
 
-	public ReferenceFormElement(T key, Object... searchColumns) {
-		this(key, false, searchColumns);
-	}
-
 	@SuppressWarnings("unchecked")
-	public ReferenceFormElement(T key, boolean textEditable, Object... searchColumns) {
-		super(key, textEditable, true);
+	public ReferenceFormElement(T key, Object... searchColumns) {
+		super(key, true);
 		fieldClazz = (Class<T>) getProperty().getClazz();
 		this.searchColumns = searchColumns;
 	}
@@ -47,11 +43,6 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> {
 			setValue(null);
 			dialog.closeDialog();
 		}
-	}
-
-	@Override
-	protected T parse(String text) {
-		return null;
 	}
 
 	private class SearchDialogActionListener implements TableActionListener<T> {
