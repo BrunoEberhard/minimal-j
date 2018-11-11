@@ -1,5 +1,6 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.minimalj.frontend.Frontend;
@@ -87,7 +88,7 @@ public abstract class AbstractLookupFormElement extends AbstractFormElement<Obje
 		if (!internal) {
 			String newInputValue = lookup.getValue();
 			object = ((LookupParser) this).parse(newInputValue);
-			if (object != null && object.getClass() != getProperty().getClazz()) {
+			if (object != null && !(object instanceof Collection) && object.getClass() != getProperty().getClazz()) {
 				throw new IllegalStateException("Parser result of wrong class: " + object.getClass().getName() + " instead of " + getProperty().getClazz());
 			}
 			listener().changed(source);
