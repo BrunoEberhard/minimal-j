@@ -107,7 +107,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		if (object instanceof Validation) {
 			validationMessages.addAll(((Validation) object).validateNullSafe());
 		}
-		Validator.validate(object, validationMessages, form.getProperties());
+		validationMessages.addAll(Validator.validate(object));
 		validate(object, validationMessages);
 		form.indicate(validationMessages);
 		saveAction.setValidationMessages(validationMessages);

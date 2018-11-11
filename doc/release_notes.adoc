@@ -6,7 +6,7 @@ Every release contains many small fixes.
 * historized sql repository: completely support historized references (and lists)
 * Remove RenderType. Redesign Rendering concept
 * Redesign Lookup UI concept
-* validation of inner values
+* validation refactoring
 
 === 1.14.0.0
 * Allow wizards to have a last step without active next button

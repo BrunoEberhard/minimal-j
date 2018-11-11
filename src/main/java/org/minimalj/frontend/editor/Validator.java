@@ -3,9 +3,9 @@ package org.minimalj.frontend.editor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.NotEmpty;
@@ -28,59 +28,47 @@ import org.minimalj.util.resources.Resources;
 public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());
 
-	/**
-	 * Framework internal
-	 * 
-	 * @param object object to be validated
-	 * @return the Stream of the found validation problems.
-	 */
-	public static Stream<ValidationMessage> validate(Object object) {
+	public static List<ValidationMessage> validate(Object object) {
 		if (InvalidValues.isInvalid(object)) {
-			return Stream.of(new ValidationMessage(null, Resources.getString("ObjectValidator.message")));
+			return Validation.message(null, Resources.getString("ObjectValidator.message"));
 		} else if (object instanceof Collection) {
 			Collection<?> list = (Collection<?>) object;
-			return list.stream().flatMap(Validator::validate);
+			// TODO java 8
+			// list.stream().flatMap(Validator::validate).toList(Collectors.toList());
+			List<ValidationMessage> messages = new ArrayList<>();
+			for (Object element : list) {
+				messages.addAll(validate(element));
+			}
+			return messages;
 		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass())) {
 			Collection<PropertyInterface> valueProperties = Properties.getProperties(object.getClass()).values();
 			List<ValidationMessage> validationMessages = new ArrayList<>();
-			validate(object, validationMessages, valueProperties);
-			return validationMessages.stream();
+			valueProperties.stream().forEach(property -> {
+				Object value = property.getValue(object);
+
+				validateEmpty(validationMessages, value, property);
+				validateSize(validationMessages, value, property);
+				validateInvalid(validationMessages, value, property);
+
+				List<ValidationMessage> innerMessages = validate(value);
+				innerMessages.forEach(m -> validationMessages.add(new ValidationMessage(chain(property, m.getProperty()), m.getFormattedText())));
+			});
+			if (object instanceof Validation) {
+				Validation validation = (Validation) object;
+				validationMessages.addAll(validation.validateNullSafe());
+			}
+			return validationMessages;
 		} else {
-			return Stream.empty();
+			return Collections.emptyList();
 		}
 	}
 
-	/**
-	 * Framework internal. This should only be called from an Editor.
-	 * 
-	 * @param object             the object of which the properties should be
-	 *                           validated. This is normally the object edited by
-	 *                           the Editor
-	 * @param validationMessages found problems should be added to this list
-	 * @param properties         the properties of the object to be validated. These
-	 *                           normally match to the FormElement in an Editor.
-	 */
-	public static void validate(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
-		properties.stream().filter(property -> {
-			if (property instanceof ChainedProperty) {
-				return ((ChainedProperty) property).isAvailableFor(object);
-			} else {
-				return true;
-			}
-		}).forEach(property -> {
-			Object value = property.getValue(object);
-
-			validateEmpty(validationMessages, value, property);
-			validateSize(validationMessages, value, property);
-			validateInvalid(validationMessages, value, property);
-
-			if (value instanceof Validation) {
-				Validation validation = (Validation) value;
-				validation.validateNullSafe().forEach(m -> validationMessages.add(new ValidationMessage(property, m.getFormattedText())));
-			}
-
-			validate(value).forEach(m -> validationMessages.add(new ValidationMessage(property, m.getFormattedText())));
-		});
+	private static PropertyInterface chain(PropertyInterface p1, PropertyInterface p2) {
+		if (p2 == null) {
+			return p1;
+		} else {
+			return new ChainedProperty(p1, p2);
+		}
 	}
 
 	private static void validateEmpty(List<ValidationMessage> resultList, Object value, PropertyInterface property) {

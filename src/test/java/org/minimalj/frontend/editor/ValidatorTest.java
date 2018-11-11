@@ -1,7 +1,6 @@
 package org.minimalj.frontend.editor;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,39 +24,39 @@ public class ValidatorTest {
 	public void testValid() {
 		TestClassA a = new TestClassA();
 		a.s = "String";
-		Stream<ValidationMessage> messages = Validator.validate(a);
-		Assert.assertTrue("There should be not validation message", messages.count() == 0);
+		List<ValidationMessage> messages = Validator.validate(a);
+		Assert.assertTrue("There should be not validation message", messages.size() == 0);
 	}
 
 	@Test
 	public void testEmpty() {
 		TestClassA a = new TestClassA();
-		Stream<ValidationMessage> messages = Validator.validate(a);
-		Assert.assertTrue("There should be a validation message about not empty", messages.count() > 0);
+		List<ValidationMessage> messages = Validator.validate(a);
+		Assert.assertTrue("There should be a validation message about not empty", messages.size() > 0);
 	}
 
 	@Test
 	public void testStringSize() {
 		TestClassA a = new TestClassA();
 		a.s = "123456789012345678901";
-		Stream<ValidationMessage> messages = Validator.validate(a);
-		Assert.assertTrue("There should be a validation message about size", messages.count() > 0);
+		List<ValidationMessage> messages = Validator.validate(a);
+		Assert.assertTrue("There should be a validation message about size", messages.size() > 0);
 	}
 
 	@Test
 	public void testInvalidString() {
 		TestClassA a = new TestClassA();
 		a.s = InvalidValues.createInvalidString("invalid");
-		Stream<ValidationMessage> messages = Validator.validate(a);
-		Assert.assertTrue("There should be a validation message about invalid value", messages.count() > 0);
+		List<ValidationMessage> messages = Validator.validate(a);
+		Assert.assertTrue("There should be a validation message about invalid value", messages.size() > 0);
 	}
 
 	@Test
 	public void testInnterEmpty() {
 		TestClassB b = new TestClassB();
 		b.a = new TestClassA();
-		Stream<ValidationMessage> messages = Validator.validate(b);
-		Assert.assertTrue("There should be a validation message about not empty", messages.count() > 0);
+		List<ValidationMessage> messages = Validator.validate(b);
+		Assert.assertTrue("There should be a validation message about not empty", messages.size() > 0);
 	}
 
 	@Test
@@ -65,8 +64,8 @@ public class ValidatorTest {
 		TestClassB b = new TestClassB();
 		b.a = new TestClassA();
 		b.a.s = "123456789012345678901";
-		Stream<ValidationMessage> messages = Validator.validate(b);
-		Assert.assertTrue("There should be a validation message about size", messages.count() > 0);
+		List<ValidationMessage> messages = Validator.validate(b);
+		Assert.assertTrue("There should be a validation message about size", messages.size() > 0);
 	}
 
 	@Test
@@ -74,8 +73,8 @@ public class ValidatorTest {
 		TestClassB b = new TestClassB();
 		b.a = new TestClassA();
 		b.a.s = InvalidValues.createInvalidString("invalid");
-		Stream<ValidationMessage> messages = Validator.validate(b);
-		Assert.assertTrue("There should be a validation message about invalid value", messages.count() > 0);
+		List<ValidationMessage> messages = Validator.validate(b);
+		Assert.assertTrue("There should be a validation message about invalid value", messages.size() > 0);
 	}
 
 	@Test
@@ -83,8 +82,8 @@ public class ValidatorTest {
 		TestClassB b = new TestClassB();
 		b.a = new TestClassA();
 		b.a.s = "x";
-		Stream<ValidationMessage> messages = Validator.validate(b);
-		Assert.assertTrue("There should be a validation message about validation", messages.count() > 0);
+		List<ValidationMessage> messages = Validator.validate(b);
+		Assert.assertTrue("There should be a validation message about validation", messages.size() > 0);
 	}
 
 	public static class TestClassA implements Validation {

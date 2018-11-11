@@ -56,7 +56,7 @@ public class ValidationMessage {
 	}
 
 	private static boolean equalsOrParent(PropertyInterface p1, PropertyInterface p2) {
-		if (p1 != null && p2 != null && p1.getClazz() == p2.getClazz()) {
+		if (p1 != null && p2 != null) {
 			String path1 = p1.getPath();
 			String path2 = p2.getPath();
 			return StringUtils.equals(path1, path2) || path2.startsWith(path1) && path2.charAt(path1.length()) == '.';

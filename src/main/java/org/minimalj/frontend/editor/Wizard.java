@@ -98,7 +98,7 @@ public abstract class Wizard<RESULT> extends Action {
 		if (stepObject instanceof Validation) {
 			validationMessages.addAll(((Validation) stepObject).validateNullSafe());
 		}
-		Validator.validate(stepObject, validationMessages, form.getProperties());
+		validationMessages.addAll(Validator.validate(stepObject));
 		if (step instanceof Validation) {
 			validationMessages.addAll(((Validation) step).validateNullSafe());
 		}
