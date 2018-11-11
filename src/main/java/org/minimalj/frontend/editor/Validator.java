@@ -24,7 +24,9 @@ public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());
 
 	public static Stream<ValidationMessage> validate(Object object) {
-		if (object instanceof Collection) {
+		if (InvalidValues.isInvalid(object)) {
+			return Stream.of(new ValidationMessage(null, Resources.getString("ObjectValidator.message")));
+		} else if (object instanceof Collection) {
 			Collection<?> list = (Collection<?>) object;
 			return list.stream().flatMap(Validator::validate);
 		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass())) {
@@ -53,7 +55,7 @@ public class Validator {
 
 			if (value instanceof Validation) {
 				Validation validation = (Validation) value;
-				validationMessages.addAll(validation.validateNullSafe());
+				validation.validateNullSafe().forEach(m -> validationMessages.add(new ValidationMessage(property, m.getFormattedText())));
 			}
 
 			validate(value).forEach(m -> validationMessages.add(new ValidationMessage(property, m.getFormattedText())));
