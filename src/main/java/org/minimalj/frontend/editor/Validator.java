@@ -20,9 +20,20 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
+/**
+ * Framework internal. To do validation use the Annotations Size or NotEmpty or
+ * implement Validation interface on your business entities or override validate
+ * in the Editor.
+ */
 public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());
 
+	/**
+	 * Framework internal
+	 * 
+	 * @param object object to be validated
+	 * @return the Stream of the found validation problems.
+	 */
 	public static Stream<ValidationMessage> validate(Object object) {
 		if (InvalidValues.isInvalid(object)) {
 			return Stream.of(new ValidationMessage(null, Resources.getString("ObjectValidator.message")));
@@ -39,6 +50,16 @@ public class Validator {
 		}
 	}
 
+	/**
+	 * Framework internal. This should only be called from an Editor.
+	 * 
+	 * @param object             the object of which the properties should be
+	 *                           validated. This is normally the object edited by
+	 *                           the Editor
+	 * @param validationMessages found problems should be added to this list
+	 * @param properties         the properties of the object to be validated. These
+	 *                           normally match to the FormElement in an Editor.
+	 */
 	public static void validate(Object object, List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties) {
 		properties.stream().filter(property -> {
 			if (property instanceof ChainedProperty) {
