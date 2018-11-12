@@ -72,10 +72,10 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		} else if (!validationMessages.isEmpty()) {
 			StringBuilder s = new StringBuilder();
 			for (int i = 0; i<validationMessages.size()-1; i++) {
-				s.append(validationMessages.get(i));
-				s.append("<BR>");
+				s.append(validationMessages.get(i)).append("\n");
 			}
 			s.append(validationMessages.get(validationMessages.size()-1));
+			jsonComponent.put(VALIDATION_MESSAGE, s.toString());
 		} else {
 			jsonComponent.put(VALIDATION_MESSAGE, "");
 		}
