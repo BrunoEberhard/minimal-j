@@ -29,15 +29,17 @@ public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());
 
 	public static List<ValidationMessage> validate(Object object) {
-		if (InvalidValues.isInvalid(object)) {
-			return Validation.message(null, Resources.getString("ObjectValidator.message"));
-		} else if (object instanceof Collection) {
+		if (object instanceof Collection) {
 			Collection<?> list = (Collection<?>) object;
 			// TODO java 8
 			// list.stream().flatMap(Validator::validate).toList(Collectors.toList());
 			List<ValidationMessage> messages = new ArrayList<>();
 			for (Object element : list) {
-				messages.addAll(validate(element));
+				if (InvalidValues.isInvalid(element)) {
+					messages.add(new ValidationMessage(null, Resources.getString("ObjectValidator.message")));
+				} else {
+					messages.addAll(validate(element));
+				}
 			}
 			return messages;
 		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass())) {
