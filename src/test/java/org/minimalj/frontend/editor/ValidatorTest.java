@@ -2,6 +2,7 @@ package org.minimalj.frontend.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -117,7 +118,6 @@ public class ValidatorTest {
 		Assert.assertTrue("There should be a validation message for a invalid element", messages.size() == 1);
 	}
 
-
 	@Test
 	public void testListWithTwoInvalidElement() {
 		TestClassB b = new TestClassB();
@@ -131,7 +131,18 @@ public class ValidatorTest {
 		Assert.assertTrue("There should be a validation message for each invalid element", messages.size() == 2);
 	}
 
+	@Test
+	public void testIdStringShouldNoBeValidated() {
+		TestClassA a = new TestClassA();
+		a.id = UUID.randomUUID().toString();
+		a.s = "ValidString";
+		List<ValidationMessage> messages = Validator.validate(a);
+		Assert.assertTrue("id should not be validated", messages.isEmpty());
+	}
+
 	public static class TestClassA implements Validation {
+		public Object id;
+
 		@NotEmpty
 		@Size(20)
 		public String s;

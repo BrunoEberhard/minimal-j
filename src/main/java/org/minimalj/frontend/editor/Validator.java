@@ -45,7 +45,7 @@ public class Validator {
 		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass())) {
 			Collection<PropertyInterface> valueProperties = Properties.getProperties(object.getClass()).values();
 			List<ValidationMessage> validationMessages = new ArrayList<>();
-			valueProperties.stream().forEach(property -> {
+			valueProperties.stream().filter(p -> !StringUtils.equals(p.getName(), "id", "version", "historized")).forEach(property -> {
 				Object value = property.getValue(object);
 
 				validateEmpty(validationMessages, value, property);
