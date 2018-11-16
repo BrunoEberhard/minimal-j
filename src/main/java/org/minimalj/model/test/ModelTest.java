@@ -506,8 +506,7 @@ public class ModelTest {
 		for (Field field : fields) {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
 				Class<?> fieldType = field.getType();
-				// cheerpj beta 3 fails for Integer.TYPE.getFields()
-				if (!fieldType.isPrimitive() && !FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
+				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
 					if (forbiddenClasses.contains(fieldType)) {
 						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
 					} else {
