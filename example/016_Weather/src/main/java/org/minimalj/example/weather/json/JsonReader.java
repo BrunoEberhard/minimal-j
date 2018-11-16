@@ -14,7 +14,6 @@ import java.util.Map;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
-import org.minimalj.util.GenericUtils;
 
 // extended version of the Minimal-J class. When finished could be moved to Minimal-J
 // Missing: LocalDate, LocalTime, some Tests
@@ -182,7 +181,7 @@ public class JsonReader {
 			}
 			Class<?> fieldClass = property.getClazz();
 			if (fieldClass == List.class) {
-				fieldClass = GenericUtils.getGenericClass(property.getType());
+				fieldClass = property.getGenericClass();
 			}
 			read(); // should be a colon
 			if (token != OBJECT_END) {
