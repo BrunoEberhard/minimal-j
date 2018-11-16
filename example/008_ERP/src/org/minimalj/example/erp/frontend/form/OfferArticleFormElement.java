@@ -24,7 +24,7 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 	@Override
 	protected Form<OfferArticle> createForm(boolean edit) {
 		Form<OfferArticle> form = new Form<>();
-		form.line(new ReferenceFormElement<Article>(OfferArticle.$.article, Article.$.article, Article.$.articleNr));
+		form.line(new ReferenceFormElement<>(OfferArticle.$.article, Article.$.article, Article.$.articleNr));
 		form.line(OfferArticle.$.numberof);
 		form.line(OfferArticle.$.price);
 		return form;
