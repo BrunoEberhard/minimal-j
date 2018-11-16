@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractListModel;
@@ -86,7 +87,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		private boolean setObjectInObjects;
 		
 		public NullableComboBoxModel(List<T> objects) {
-			this.objects = objects;
+			this.objects = Objects.requireNonNull(objects);
 		}
 
 		@Override
@@ -94,7 +95,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 			if (setObjectInObjects) {
 				return objects.size() + 1;
 			} else {
-				return objects.size() + 2;			
+				return objects.size() + 2;
 			}
 		}
 
