@@ -13,7 +13,7 @@ public class AddPetEditor extends NewObjectEditor<Pet> {
 	@Override
 	protected Form<Pet> createForm() {
 		Form<Pet> form = new Form<>();
-		form.line(new ReferenceFormElement<>(Pet.$.owner, Owner.$.person.firstName, Owner.$.person.lastName));
+		form.line(new ReferenceFormElement<>(Pet.$.owner, Owner.$.person.firstName, Owner.$.person.lastName).newForm(new OwnerForm(true)));
 		form.line(Pet.$.type);
 		form.line(Pet.$.name);
 		form.line(Pet.$.birthDate);
