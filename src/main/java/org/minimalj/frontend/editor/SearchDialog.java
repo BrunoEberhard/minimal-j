@@ -1,7 +1,6 @@
 package org.minimalj.frontend.editor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend;
@@ -13,7 +12,7 @@ import org.minimalj.frontend.page.IDialog;
 
 public class SearchDialog<T> {
 	private final Object[] keys;
-	private final Search search;
+	private final Search<T> search;
 	private final boolean multiSelect;
 	private final TableActionListener<T> listener;
 	private final SaveAction saveAction;
@@ -23,7 +22,7 @@ public class SearchDialog<T> {
 
 	private IDialog dialog;
 	
-	public SearchDialog(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener, Action... actions) {
+	public SearchDialog(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener, List<Action> additionalActions) {
 		this.search = search;
 		this.keys = keys;
 		this.multiSelect = multiSelect;
@@ -35,8 +34,8 @@ public class SearchDialog<T> {
 		this.saveAction.setEnabled(false);
 
 		List<Action> actionList = new ArrayList<>();
-		if (actions != null) {
-			actionList.addAll(Arrays.asList(actions));
+		if (additionalActions != null) {
+			actionList.addAll(additionalActions);
 		}
 		actionList.add(closeAction);
 		actionList.add(saveAction);

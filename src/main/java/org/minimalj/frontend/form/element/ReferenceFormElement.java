@@ -1,5 +1,6 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
@@ -27,13 +28,17 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement {
 
 	@Override
 	protected void lookup() {
+		dialog = new SearchDialog<>(new ReferenceFieldSearch(), searchColumns, false, new SearchDialogActionListener(), createAdditionalActions());
+		dialog.show();
+	}
+
+	protected List<Action> createAdditionalActions() {
+		List<Action> additionalActions = new ArrayList<>();
 		boolean required = getProperty().getAnnotation(NotEmpty.class) != null;
 		if (!required && !EmptyObjects.isEmpty(getValue())) {
-			dialog = new SearchDialog<>(new ReferenceFieldSearch(), searchColumns, false, new SearchDialogActionListener(), new ClearAction());
-		} else {
-			dialog = new SearchDialog<>(new ReferenceFieldSearch(), searchColumns, false, new SearchDialogActionListener());
+			additionalActions.add(new ClearAction());
 		}
-		dialog.show();
+		return additionalActions;
 	}
 
 	private class ClearAction extends Action {
