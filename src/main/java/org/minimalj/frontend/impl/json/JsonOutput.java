@@ -56,6 +56,14 @@ public class JsonOutput {
 		output.put(name, object);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void addElement(String name, Object object) {
+		if (!output.containsKey(name)) {
+			output.put(name, new ArrayList());
+		}
+		((List) output.get(name)).add(object);
+	}
+
 	@Override
 	public String toString() {
 		return writer.write(output);

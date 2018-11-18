@@ -73,8 +73,10 @@ $ICON
 			showDialog(dataObject.dialog);
 		}
 		if (dataObject.closeDialog != undefined) {
-			var dialog = document.getElementById(dataObject.closeDialog);
-			dialog.close();
+			for (var i = 0; i<dataObject.closeDialog.length; i++) {
+				var dialog = document.getElementById(dataObject.closeDialog[i]);
+				dialog.close();
+			}
 		}
 		if (dataObject.propertyChanges != undefined) {
 			var propertyChanges = dataObject.propertyChanges;

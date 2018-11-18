@@ -380,7 +380,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	}
 
 	public void closeDialog(String id) {
-		output.add("closeDialog", id);
+		output.addElement("closeDialog", id);
 	}
 
 	public void clearContent(String elementId) {
