@@ -15,8 +15,6 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
 
-// To make this class generic is a little bit senseless as
-// there are no checks at all
 public class ReferenceFormElement<T> extends AbstractLookupFormElement {
 	private final Class<T> fieldClazz;
 	private final Object[] searchColumns;
