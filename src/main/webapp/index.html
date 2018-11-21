@@ -568,13 +568,6 @@ $ICON
 		return element;
 	}
 	
-	function createFormRows(rows, columnWidth) {
-		var element = document.createElement("div");
-		for (var i = 0; i < rows.length; i++) {
-			element.appendChild(createFormRow(rows[i], columnWidth));
-		}
-		return element;
-	}
 	function createFormRow(row, columnWidth) {
 		var element = document.createElement("div");
 		for (var i = 0; i < row.length; i++) {
