@@ -797,11 +797,16 @@ $ICON
 		} else if (source.type == "file") {
 			var reader = new FileReader();
 			reader.onload = function(e) {
-		        changedValue[source.id] = btoa(e.target.result);
+				var binary = "";
+				var bytes = new Uint8Array(reader.result);
+           		for (var i = 0; i < bytes.byteLength; i++) {
+               		binary += String.fromCharCode(bytes[i]);
+           		}
+		        changedValue[source.id] = btoa(binary);
 		        data.changedValue = changedValue;
 		        send(data, false);
 		    }
-			reader.readAsBinaryString(source.files[0]);
+			reader.readAsArrayBuffer(source.files[0]); // readAsBinaryString would be shorter but not supported on IE
 			return;
 		} else {
 			changedValue[source.id] = source.value;
