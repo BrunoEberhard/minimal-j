@@ -1,7 +1,6 @@
 package org.minimalj.example.helloworld2;
 
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
 
@@ -20,9 +19,7 @@ public class GreetingPage extends Page {
 
 	@Override
 	public IContent getContent() {
-		FormContent form = Frontend.getInstance().createFormContent(1, 100);
-		form.add(Frontend.getInstance().createText("Hello " + user.name));
-		return form;
+		return Frontend.getInstance().createHtmlContent("Hello " + user.name);
 	}
 	
 }

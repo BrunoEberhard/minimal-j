@@ -10,25 +10,26 @@ import org.minimalj.model.properties.PropertyInterface;
 
 public class StringFormElement extends  AbstractFormElement<String> implements Enable {
 
-	public static final Boolean MULTI_LINE = Boolean.TRUE;
-	public static final Boolean SINGLE_LINE = Boolean.FALSE;
-	public static final Boolean AUTOMATIC = false;
-	
+	public static final int MULTI_LINE = 3;
+	public static final int SINGLE_LINE = 1;
+
+	private final int lines;
 	private final int maxLength;
 	private final Input<String> textField;
 
-	public StringFormElement(String key, Boolean multiLine) {
-		this(Keys.getProperty(key), multiLine);
+	public StringFormElement(String key, int lines) {
+		this(Keys.getProperty(key), lines);
 	}
 
 	public StringFormElement(PropertyInterface property) {
-		this(property, null);
+		this(property, AnnotationUtil.getSize(property) < 256 ? SINGLE_LINE : MULTI_LINE);
 	}
 	
-	public StringFormElement(PropertyInterface property, Boolean multiLine) {
+	public StringFormElement(PropertyInterface property, int lines) {
 		super(property);
+		this.lines = lines;
 		this.maxLength = AnnotationUtil.getSize(property);
-		if (maxLength < 256 && !Boolean.TRUE.equals(multiLine) || Boolean.FALSE.equals(multiLine)) {
+		if (lines == 1) {
 			this.textField = Frontend.getInstance().createTextField(maxLength, null, null, listener());
 		} else {
 			this.textField = Frontend.getInstance().createAreaField(maxLength, null, listener());
@@ -38,6 +39,15 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 	@Override
 	public IComponent getComponent() {
 		return textField;
+	}
+
+	@Override
+	public FormElementConstraint getConstraint() {
+		if (lines != 1) {
+			return new FormElementConstraint(lines, lines, false);
+		} else {
+			return null;
+		}
 	}
 
 	@Override

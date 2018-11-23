@@ -221,8 +221,8 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
-		return new VaadinImage(size, changeListener);
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
+		return new VaadinImage(changeListener);
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
@@ -117,7 +118,7 @@ public abstract class Frontend {
 	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
-	public abstract Input<byte[]> createImage(int size, InputComponentListener changeListener);
+	public abstract Input<byte[]> createImage(InputComponentListener changeListener);
 
 	public interface SwitchComponent extends IComponent {
 		public void show(IComponent component);
@@ -160,8 +161,8 @@ public abstract class Frontend {
 	}
 
 	public interface FormContent extends IContent {
-		public void add(IComponent component);
-		public void add(String caption, IComponent component, int span);
+		public void add(IComponent component, FormElementConstraint constraint);
+		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);
 	}
 	

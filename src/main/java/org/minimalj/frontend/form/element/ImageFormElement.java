@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 public class ImageFormElement extends AbstractFormElement<byte[]> {
 
 	private final Input<byte[]> input;
+	private final FormElementConstraint constraint;
 
 	public ImageFormElement(Object key) {
 		this(key, 3);
@@ -15,7 +16,13 @@ public class ImageFormElement extends AbstractFormElement<byte[]> {
 	
 	public ImageFormElement(Object key, int size) {
 		super(key);
-		input = Frontend.getInstance().createImage(size, new ImageFieldChangeListener());
+		this.constraint = new FormElementConstraint(size, size, false);
+		input = Frontend.getInstance().createImage(new ImageFieldChangeListener());
+	}
+
+	@Override
+	public FormElementConstraint getConstraint() {
+		return constraint;
 	}
 
 	@Override

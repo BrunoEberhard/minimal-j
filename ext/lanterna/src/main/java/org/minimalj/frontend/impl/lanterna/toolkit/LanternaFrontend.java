@@ -84,7 +84,7 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
 		throw new RuntimeException("Image not yet implemented in JsonFrontend");
 	};
 

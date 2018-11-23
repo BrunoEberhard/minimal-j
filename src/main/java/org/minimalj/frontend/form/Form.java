@@ -188,13 +188,13 @@ public class Form<T> {
 	 */
 	public void lineWithoutCaption(Object key) {
 		FormElement<?> element = createElement(key);
-		formContent.add(element.getComponent());
+		formContent.add(element.getComponent(), element.getConstraint());
 		registerNamedElement(element);
 	}
 	
 	private void add(FormElement<?> element, int span) {
 		String captionText = caption(element);
-		formContent.add(captionText, element.getComponent(), span);
+		formContent.add(captionText, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
@@ -203,12 +203,12 @@ public class Form<T> {
 
 	public void text(String text) {
 		IComponent label = Frontend.getInstance().createText(text);
-		formContent.add(label);
+		formContent.add(label, null);
 	}
 
 	public void addTitle(String text) {
 		IComponent label = Frontend.getInstance().createTitle(text);
-		formContent.add(label);
+		formContent.add(label, null);
 	}
 
 	//

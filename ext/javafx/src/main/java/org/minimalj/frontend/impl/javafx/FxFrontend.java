@@ -76,7 +76,7 @@ public class FxFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
 		// TODO Auto-generated method stub
 		return null;
 	}

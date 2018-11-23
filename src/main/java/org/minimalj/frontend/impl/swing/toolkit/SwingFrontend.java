@@ -3,7 +3,6 @@ package org.minimalj.frontend.impl.swing.toolkit;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Insets;
@@ -29,7 +28,6 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
@@ -115,8 +113,8 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
-		return new SwingImage(size, changeListener);
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
+		return new SwingImage(changeListener);
 	}
 	
 	@Override
@@ -280,21 +278,6 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 
-	public static boolean verticallyGrowing(Component component) {
-		if (component instanceof SwingList || component instanceof JTable || component instanceof SwingTextAreaField || component instanceof SwingImage) {
-			return true;
-		}
-		if (component instanceof Container) {
-			Container container = (Container) component;
-			for (Component c : container.getComponents()) {
-				if (verticallyGrowing(c)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	public static javax.swing.Action[] adaptActions(Action[] actions) {
 		javax.swing.Action[] swingActions = new javax.swing.Action[actions.length];
 		for (int i = 0; i<actions.length; i++) {

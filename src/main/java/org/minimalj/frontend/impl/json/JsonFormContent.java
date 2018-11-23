@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.form.element.FormElementConstraint;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 
@@ -38,7 +39,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	}
 	
 	@Override
-	public void add(IComponent component) {
+	public void add(IComponent component, FormElementConstraint constraint) {
 		JsonComponent jsonComponent = (JsonComponent) component;
 		if (actualColumn > 0) {
 			createNewRow();
@@ -51,7 +52,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	}
 
 	@Override
-	public void add(String caption, IComponent component, int span) {
+	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
 		JsonComponent jsonComponent = (JsonComponent) component;
 		jsonComponent.put(CAPTION, caption);
 		if (actualColumn >= columns) {

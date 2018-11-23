@@ -54,4 +54,8 @@ public class TextFormElement implements FormElement<Object> {
 		textField.setValue(Rendering.toString(object));
 	}
 
+	@Override
+	public FormElementConstraint getConstraint() {
+		return null;
+	}
 }

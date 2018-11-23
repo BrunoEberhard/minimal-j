@@ -13,6 +13,8 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	private InputComponentListener forwardingChangeListener;
 	private ChangeListener<FormElement<?>> changeListener;
 
+	private FormElementConstraint constraint;
+
 	protected AbstractFormElement(Object key) {
 		this(Keys.getProperty(key));
 	}
@@ -28,6 +30,16 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 		return property;
 	}
 	
+	@Override
+	public FormElementConstraint getConstraint() {
+		return constraint;
+	}
+
+	public AbstractFormElement<T> height(int height) {
+		constraint = new FormElementConstraint(height, height, false);
+		return this;
+	}
+
 	// Listener
 	
 	protected InputComponentListener listener() {

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaCaption;
 
 import com.googlecode.lanterna.TerminalPosition;
@@ -40,7 +41,7 @@ public class LanternaForm extends Panel implements FormContent, LayoutManager {
 	}
 
 	@Override
-	public void add(IComponent component) {
+	public void add(IComponent component, FormElementConstraint constraint) {
 		createNewRow();
 		Component lanternaComponent = (Component) component;
 		actualRow.add(lanternaComponent);
@@ -50,7 +51,7 @@ public class LanternaForm extends Panel implements FormContent, LayoutManager {
 	}
 
 	@Override
-	public void add(String caption, IComponent component, int span) {
+	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
 		LanternaCaption lanternaComponent = new LanternaCaption((Component) component, caption);
 		captionByComponent.put(component, lanternaComponent);
 		if (actualColumn >= columns) {
