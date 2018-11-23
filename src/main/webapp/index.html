@@ -110,6 +110,8 @@ $ICON
 							}
 						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
 							element.innerHTML = value;
+						} else if (property == "value" && element.tagName == "IMG") {
+							element.src = "data:image;base64, " + atob(value);
 						} else {
                             if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
 								value = value.join("");
@@ -555,6 +557,17 @@ $ICON
 			element = document.createElement("div");
 			element.className = "htmlpage";
 			element.innerHTML = content.htmlOrUrl;
+		} else if (type == "Image") {
+		    if (editable) {
+				element = document.createElement("input");
+				element.type = "file";
+				element.setAttribute("onchange", "sendchange(this);");
+		    } else {
+		    	element = document.createElement("img");
+		    	if (content.value != undefined) {
+			    	element.src = "data:image;base64, " + content.value;
+			    }
+		    }
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
@@ -781,6 +794,15 @@ $ICON
 			changedValue[source.id] = source.checked.toString();
 		} else if (source.type == "password") {
 			changedValue[source.id] = source.value.split("");		
+		} else if (source.type == "file") {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+		        changedValue[source.id] = btoa(e.target.result);
+		        data.changedValue = changedValue;
+		        send(data, false);
+		    }
+			reader.readAsBinaryString(source.files[0]);
+			return;
 		} else {
 			changedValue[source.id] = source.value;
 			source.valueOnBlur = undefined;
