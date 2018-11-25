@@ -175,6 +175,7 @@ public class Backend {
 			Authorization.check(transaction);
 		}
 
+		Transaction<?> outerTransaction = currentTransaction.get();
 		try {
 			currentTransaction.set(transaction);
 			if (getRepository() instanceof TransactionalRepository) {
@@ -184,7 +185,7 @@ public class Backend {
 				return transaction.execute();
 			}
 		} finally {
-			currentTransaction.set(null);
+			currentTransaction.set(outerTransaction);
 			handleCodeCache(transaction);
 		}
 	}
