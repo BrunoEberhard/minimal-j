@@ -13,12 +13,13 @@ import org.minimalj.example.minimalclinic.frontend.OwnerTablePage;
 import org.minimalj.example.minimalclinic.frontend.PetTablePage;
 import org.minimalj.example.minimalclinic.frontend.VetSearchPage;
 import org.minimalj.example.minimalclinic.frontend.VetTablePage;
+import org.minimalj.example.minimalclinic.model.MinimalClinicDemoDataAction;
 import org.minimalj.example.minimalclinic.model.Owner;
 import org.minimalj.example.minimalclinic.model.Pet;
 import org.minimalj.example.minimalclinic.model.Vet;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
+import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
@@ -46,6 +47,8 @@ public class MinimalClinicApplication extends Application {
 		groupVet.add(new AddVetEditor());
 		menu.add(groupVet);
 
+		menu.add(new MinimalClinicDemoDataAction());
+
 		return menu;
 	}
 	
@@ -68,9 +71,10 @@ public class MinimalClinicApplication extends Application {
 		Configuration.set("MjRepository", "org.minimalj.repository.memory.InMemoryRepository");
 		Configuration.set("MjDevMode", "true");
 		MinimalClinicApplication application = new MinimalClinicApplication();
-		NanoWebServer.start(application);
+		// NanoWebServer.start(application);
 		// RestServer.start(application);
 		// MjVaadinSpringbootApplication.start(application);
 		// Lanterna.start(application);
+		Swing.start(application);
 	}
 }
