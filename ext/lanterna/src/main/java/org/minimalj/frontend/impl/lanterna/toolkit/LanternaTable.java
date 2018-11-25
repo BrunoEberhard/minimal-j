@@ -100,10 +100,11 @@ public class LanternaTable<T> extends Table<String> implements ITable<T> {
 		}
 	}
 
-    @Override
-    public synchronized Table<String> setSize(TerminalSize size) {
-    	setVisibleRows(size.getRows() - 1);
-    	return super.setSize(size);
-    }
+	// TODO remove when Lanterna 3.1.0 is released
+	@Override
+	public synchronized Table<String> setSize(TerminalSize size) {
+		setVisibleRows(size.getRows() - 1);
+		return super.setSize(size);
+	}
 	
 }
