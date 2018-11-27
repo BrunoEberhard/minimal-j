@@ -120,6 +120,9 @@ public class Keys {
 	private static <T> void fillFields(T object, PropertyInterface enclosingProperty, int depth) {
 		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (PropertyInterface property : propertiesOfObject.values()) {
+			if (StringUtils.equals(property.getName(), "version", "historized"))
+				continue;
+
 			Object value = null;
 			Class<?> clazz = property.getClazz();
 
@@ -146,14 +149,14 @@ public class Keys {
 	private static Object createKey(Class<?> clazz, String fieldName, Class<?> declaringClass) {
 		if (clazz == String.class) {
 			return new String(fieldName);
-		} else if (clazz == Integer.class || clazz == Integer.TYPE) {
+		} else if (clazz == Integer.class) {
 			return new Integer(0);
-		} else if (clazz == Long.class || clazz == Long.TYPE) {
+		} else if (clazz == Long.class) {
 			return new Long(0);
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			Class<Enum> enumClass = (Class<Enum>) clazz;
 			return EnumUtils.createEnum(enumClass, fieldName);
-		} else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
+		} else if (clazz == Boolean.class) {
 			return new Boolean(false);
 		} else if (clazz == BigDecimal.class) {
 			return new BigDecimal(0);
