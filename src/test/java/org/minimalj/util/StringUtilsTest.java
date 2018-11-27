@@ -105,19 +105,6 @@ public class StringUtilsTest {
 	}
 	
 	@Test
-	public void sanitizeHtml() {
-		String[] allowedHtmlTags = new String[] {"b"};
-		Assert.assertEquals(null, StringUtils.sanitizeHtml(null, allowedHtmlTags));
-		Assert.assertEquals("", StringUtils.sanitizeHtml("", allowedHtmlTags));
-		Assert.assertEquals("s", StringUtils.sanitizeHtml("s", allowedHtmlTags));
-		Assert.assertEquals("text <b>bold</b>", StringUtils.sanitizeHtml("text <b>bold</b>", allowedHtmlTags));
-		Assert.assertEquals("<b>bold</b> text", StringUtils.sanitizeHtml("<b>bold</b> text", allowedHtmlTags));
-		Assert.assertEquals("<b>bold</b>", StringUtils.sanitizeHtml("<b>bold</b>", allowedHtmlTags));
-		Assert.assertEquals("<b>bold special bold2</b>", StringUtils.sanitizeHtml("<b>bold <x>special<x> bold2</b>", allowedHtmlTags));
-		Assert.assertEquals("text special", StringUtils.sanitizeHtml("text <x>special</x>", allowedHtmlTags));
-	}
-	
-	@Test
 	public void stripHtml() {
 		Assert.assertEquals(null, StringUtils.stripHtml(null));
 		Assert.assertEquals("", StringUtils.stripHtml(""));

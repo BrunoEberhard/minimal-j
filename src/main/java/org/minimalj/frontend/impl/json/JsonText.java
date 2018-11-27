@@ -6,16 +6,10 @@ import org.minimalj.util.StringUtils;
 
 public class JsonText extends JsonComponent {
 
-	public JsonText(Object object) {
+	public JsonText(String value) {
 		super("Text");
-		if (object != null) {
-			String string = object.toString();
-			if (StringUtils.isHtml(string)) {
-				string = StringUtils.sanitizeHtml(string);
-				put("htmlValue", string);
-			} else {
-				put(JsonInputComponent.VALUE, string);
-			}
+		if (value != null) {
+			put(JsonInputComponent.VALUE, value);
 		}
 	}
 

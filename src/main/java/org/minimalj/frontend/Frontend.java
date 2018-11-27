@@ -99,13 +99,6 @@ public abstract class Frontend {
 		return Optional.empty();
 	}
 	
-	/**
-	 * In text and titles html is supported (text has to start with &lt;html&gt; and
-	 * end with &lt;/html&gt; but only a limited set of tags to prevent code
-	 * injection. This can be overriden by configuration MjAllowedHtmlTags.
-	 */
-	public static final String[] ALLOWED_HTML_TAGS = { "b", "i", "u", "sub", "sup" };
-	
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createText(Action action);

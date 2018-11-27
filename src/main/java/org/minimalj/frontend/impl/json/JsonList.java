@@ -42,7 +42,7 @@ public class JsonList extends JsonComponent implements IList {
 			if (object instanceof Rendering) {
 				add(new JsonText((Rendering) object));
 			} else {
-				add(new JsonText(object));
+				add(new JsonText(object.toString()));
 			}
 		}
 

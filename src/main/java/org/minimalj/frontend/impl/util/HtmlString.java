@@ -7,24 +7,17 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.minimalj.application.Configuration;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.util.StringUtils;
 
-// experimental
 public class HtmlString implements CharSequence {
 	private static final Set<String> allowedHtmlTags = new TreeSet<>();
 
 	private final List<FormatElement> elements = new ArrayList<>();
 
 	static {
-		String allowedHtmlTagConfiguration = Configuration.get("MjAllowedHtmlTags");
-		if (!StringUtils.isEmpty(allowedHtmlTagConfiguration)) {
-			Arrays.stream(allowedHtmlTagConfiguration.split(",")).forEach(allowedHtmlTags::add);
-		} else {
-			Arrays.stream(Frontend.ALLOWED_HTML_TAGS).forEach(allowedHtmlTags::add);
-		}
+		String allowedHtmlTagConfiguration = Configuration.get("MjAllowedHtmlTags", "b, i, u, sub, sup");
+		Arrays.stream(allowedHtmlTagConfiguration.split(",")).forEach(allowedHtmlTags::add);
 	}
-
 	
 	public HtmlString format(String tag, String text) {
 		if (allowedHtmlTags.contains(tag)) {
