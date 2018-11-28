@@ -154,14 +154,14 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 			return null;
 		}
 
-		protected void addEntry(T entry) {
-			getValue().add(entry);
-		}
-
 		@Override
 		protected void finished(Void result) {
 			handleChange();
 		}
+	}
+
+	protected void addEntry(T entry) {
+		getValue().add(entry);
 	}
 
 	public class ListEntryEditor extends ListFormElementEditor {
@@ -187,16 +187,16 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 			return null;
 		}
 
-		protected void editEntry(T originalEntry, T entry) {
-			CloneHelper.deepCopy(entry, originalEntry);
-		}
-
 		@Override
 		protected void finished(Void result) {
 			handleChange();
 		}
 	}
 	
+	protected void editEntry(T originalEntry, T entry) {
+		CloneHelper.deepCopy(entry, originalEntry);
+	}
+
 	protected class RemoveEntryAction extends Action {
 		private final T entry;
 		
