@@ -39,7 +39,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 	@Override
 	public void add(IComponent c, FormElementConstraint constraint) {
 		Component component = (Component) c;
-		add(component, new GridFormLayoutConstraint(1, constraint));
+		add(component, new GridFormLayoutConstraint(-1, constraint));
 	}
 
 	@Override
