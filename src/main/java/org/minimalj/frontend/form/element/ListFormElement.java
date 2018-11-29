@@ -1,5 +1,6 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -161,7 +162,10 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 	}
 
 	protected void addEntry(T entry) {
-		getValue().add(entry);
+		if (object == null) {
+			object = new ArrayList<>();
+		}
+		object.add(entry);
 	}
 
 	public class ListEntryEditor extends ListFormElementEditor {
