@@ -40,9 +40,9 @@ public class JsonList extends JsonComponent implements IList {
 	public void add(Object object, Action... actions) {
 		if (object != null) {
 			if (object instanceof Rendering) {
-				add(new JsonText((Rendering) object));
+				JsonFrontend.getClientSession().addContent(getId(), new JsonText((Rendering) object));
 			} else {
-				add(new JsonText(object.toString()));
+				JsonFrontend.getClientSession().addContent(getId(), new JsonText(object.toString()));
 			}
 		}
 
