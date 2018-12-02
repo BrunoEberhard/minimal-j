@@ -15,7 +15,7 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
 
-public class ReferenceFormElement<T> extends AbstractLookupFormElement {
+public class ReferenceFormElement<T> extends AbstractLookupFormElement implements Search<T> {
 	private final Class<T> fieldClazz;
 	private final Object[] searchColumns;
 	private Form<T> newForm;
@@ -24,15 +24,15 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement {
 	@SuppressWarnings("unchecked")
 	public ReferenceFormElement(T key, Object... searchColumns) {
 		super(key, true);
-		fieldClazz = (Class<T>) getProperty().getClazz();
 		this.searchColumns = searchColumns;
+		fieldClazz = (Class<T>) getProperty().getClazz();
 	}
 
 	@Override
 	protected void lookup() {
 		List<Action> additionalActions = createAdditionalActions();
 		additionalActions = additionalActions.stream().filter(Action::isEnabled).collect(Collectors.toList());
-		dialog = new SearchDialog<>(new ReferenceFieldSearch(), searchColumns, false, new SearchDialogActionListener(), additionalActions);
+		dialog = new SearchDialog<>(this, searchColumns, false, new SearchDialogActionListener(), additionalActions);
 		dialog.show();
 	}
 
@@ -92,11 +92,8 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement {
 		}
 	}
 
-	private class ReferenceFieldSearch implements Search<T> {
-
-		@Override
-		public List<T> search(String searchText) {
-			return (List<T>) Backend.find(fieldClazz, By.search(searchText, searchColumns));
-		}
+	@Override
+	public List<T> search(String searchText) {
+		return (List<T>) Backend.find(fieldClazz, By.search(searchText, searchColumns));
 	}
 }
