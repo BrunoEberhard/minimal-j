@@ -30,6 +30,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		super(property);
 		this.editable = editable;
 		list = editable ? Frontend.getInstance().createList(getActions()) : Frontend.getInstance().createList();
+		height(1, 3, true);
 	}
 	
 	protected final boolean isEditable() {

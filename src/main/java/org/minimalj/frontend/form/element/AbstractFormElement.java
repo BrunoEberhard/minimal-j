@@ -40,6 +40,11 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 		return this;
 	}
 
+	public AbstractFormElement<T> height(int min, int max, boolean grow) {
+		constraint = new FormElementConstraint(min, max, grow);
+		return this;
+	}
+
 	// Listener
 	
 	protected InputComponentListener listener() {
