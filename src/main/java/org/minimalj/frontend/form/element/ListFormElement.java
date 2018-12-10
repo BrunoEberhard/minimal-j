@@ -11,6 +11,7 @@ import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
@@ -71,9 +72,17 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 
 	protected void showEntry(T entry) {
 		if (isEditable()) {
-			add(entry, new ListEntryEditor(entry), new RemoveEntryAction(entry));
+			add(render(entry), new ListEntryEditor(entry), new RemoveEntryAction(entry));
 		} else {
-			add(entry);
+			add(render(entry));
+		}
+	}
+
+	protected Object render(T value) {
+		if (value instanceof Rendering) {
+			return value;
+		} else {
+			return Rendering.toString(value);
 		}
 	}
 
