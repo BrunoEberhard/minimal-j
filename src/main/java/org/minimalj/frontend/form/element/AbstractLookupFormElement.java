@@ -14,7 +14,6 @@ public abstract class AbstractLookupFormElement extends AbstractFormElement<Obje
 
 	protected final Input<String> lookup;
 	private Object object;
-	private String inputValue;
 	private boolean internal = false;
 
 	AbstractLookupFormElement(Object key, boolean editable) {
@@ -32,8 +31,7 @@ public abstract class AbstractLookupFormElement extends AbstractFormElement<Obje
 			lookup = Frontend.getInstance().createReadOnlyTextField();
 		}
 
-		inputValue = render(object);
-		lookup.setValue(inputValue);
+		lookup.setValue(render(object));
 	}
 
 	public static interface LookupParser {
@@ -63,8 +61,7 @@ public abstract class AbstractLookupFormElement extends AbstractFormElement<Obje
 	@Override
 	public void setValue(Object object) {
 		this.object = object;
-		inputValue = render(object);
-		lookup.setValue(inputValue);
+		lookup.setValue(render(object));
 	}
 
 	protected void setValueInternal(Object object) {
