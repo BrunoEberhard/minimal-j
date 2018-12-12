@@ -12,19 +12,25 @@ import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.editor.SearchDialog;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.annotation.NotEmpty;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
 
 public class ReferenceFormElement<T> extends AbstractLookupFormElement implements Search<T> {
 	private final Class<T> fieldClazz;
-	private final Object[] searchColumns;
+	private Object[] columns;
 	private Form<T> newForm;
 	private SearchDialog<T> dialog;
 
+	public ReferenceFormElement(T key) {
+		this(key, (Object[]) null);
+	}
+
 	@SuppressWarnings("unchecked")
-	public ReferenceFormElement(T key, Object... searchColumns) {
+	public ReferenceFormElement(T key, Object... columns) {
 		super(key, true);
-		this.searchColumns = searchColumns;
+		this.columns = columns;
+		this.columns = columns != null && columns.length > 0 ? columns : Properties.getProperties(getProperty().getClazz()).values().toArray();
 		fieldClazz = (Class<T>) getProperty().getClazz();
 	}
 
@@ -32,7 +38,7 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement implement
 	protected void lookup() {
 		List<Action> additionalActions = createAdditionalActions();
 		additionalActions = additionalActions.stream().filter(Action::isEnabled).collect(Collectors.toList());
-		dialog = new SearchDialog<>(this, searchColumns, false, new SearchDialogActionListener(), additionalActions);
+		dialog = new SearchDialog<>(this, columns, false, new SearchDialogActionListener(), additionalActions);
 		dialog.show();
 	}
 
@@ -94,6 +100,6 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement implement
 
 	@Override
 	public List<T> search(String searchText) {
-		return (List<T>) Backend.find(fieldClazz, By.search(searchText, searchColumns));
+		return (List<T>) Backend.find(fieldClazz, By.search(searchText));
 	}
 }
