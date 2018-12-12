@@ -44,7 +44,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	 */
 	private transient boolean reloadFlag;
 
-	@SuppressWarnings("unchecked")
 	public TablePage() {
 		this.multiSelect = allowMultiselect();
 	}
@@ -54,6 +53,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		this.columns = columns;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Class<T> getClazz() {
 		return (Class<T>) GenericUtils.getGenericClass(getClass());
 	}
