@@ -39,10 +39,11 @@ import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Test some restricitions on model classes.<p>
+ * Test some restrictions on model classes.
+ * <p>
  * 
- * These tests are called by JUnit tests but also by the Repository.
- * They are fast and its better to see problems at startup of an application.
+ * These tests are called by JUnit tests but also by the Repository. They are
+ * fast and its better to see problems at startup of an application.
  */
 public class ModelTest {
 	private static final Logger logger = Logger.getLogger(ModelTest.class.getName());
@@ -439,10 +440,6 @@ public class ModelTest {
 		}
 		if (fieldType.isArray()) {
 			problems.add(messagePrefix + " is an array which is not allowed");
-			return;
-		}
-		if (Codes.isCode(fieldType)) {
-			problems.add(messagePrefix + " is a list of codes which is not allowed");
 			return;
 		}
 		testClass(fieldType);
