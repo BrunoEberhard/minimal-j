@@ -89,7 +89,7 @@ public class Validator {
 	private static void validateSize(List<ValidationMessage> validationMessages, Object value, PropertyInterface property) {
 		if (value instanceof String) {
 			String string = (String) value;
-			int maxSize = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
+			int maxSize = AnnotationUtil.getSize(property, !AnnotationUtil.OPTIONAL);
 			if (string.length() > maxSize) {
 				String caption = Resources.getPropertyName(property);
 				validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("SizeValidator.message"), caption)));
