@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import org.minimalj.model.View;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
@@ -16,7 +18,7 @@ public class FieldProperty implements PropertyInterface {
 
 	private final Field field;
 	private final boolean isFinal;
-	
+
 	public FieldProperty(Field field) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
@@ -44,7 +46,8 @@ public class FieldProperty implements PropertyInterface {
 				field.set(object, value);
 			} else {
 				Object finalObject = field.get(object);
-				if (finalObject == value) return;
+				if (finalObject == value)
+					return;
 				if (finalObject instanceof Collection) {
 					Collection finalCollection = (Collection) finalObject;
 					finalCollection.clear();
@@ -82,10 +85,17 @@ public class FieldProperty implements PropertyInterface {
 	public Class<?> getClazz() {
 		return field.getType();
 	}
-	
+
 	@Override
 	public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-		return field.getAnnotation(annotationClass);
+		T annotation = field.getAnnotation(annotationClass);
+		if (annotation == null && View.class.isAssignableFrom(getDeclaringClass())) {
+			Class<?> viewedClass = ViewUtil.getViewedClass(getDeclaringClass());
+			PropertyInterface propertyInterface = Properties.getProperty(viewedClass, getName());
+			return propertyInterface.getAnnotation(annotationClass);
+		} else {
+			return annotation;
+		}
 	}
 
 	@Override

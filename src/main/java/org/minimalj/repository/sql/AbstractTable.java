@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
-import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
@@ -205,7 +204,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (Code.class.isAssignableFrom(fieldClazz) && fieldClazz != clazz) {
-				sqlRepository.addClass(fieldClazz);
+				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
 			}
 		}
 	}
@@ -215,15 +214,13 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (isDependable(property) && fieldClazz != clazz) {
-				if (!View.class.isAssignableFrom(property.getClazz())) {
-					sqlRepository.addClass(fieldClazz);
-				}
+				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
 			}
 		}
 		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
 			Class<?> listType = property.getGenericClass();
-			if (IdUtils.hasId(listType) && !View.class.isAssignableFrom(listType)) {
-				sqlRepository.addClass(listType);
+			if (IdUtils.hasId(listType)) {
+				sqlRepository.addClass(ViewUtil.resolve(listType));
 			}
 		}
 	}

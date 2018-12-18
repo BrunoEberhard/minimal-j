@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.minimalj.TestApplication;
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.util.Codes;
 
 public class SqlCodeListTest {
@@ -53,6 +54,19 @@ public class SqlCodeListTest {
 		// the id of the new code is already set.
 		// But only if a list element has no Id the element is created
 		Backend.insert(entity);
+	}
+
+	@Test
+	public void testInsertAndReadView() {
+		TestEntity entity = new TestEntity("aName");
+
+		entity.codeViews = new ArrayList<>();
+		entity.codeViews.add(ViewUtil.view(Codes.findCode(TestElementCode.class, 1), new TestElementCodeView()));
+		entity.codeViews.add(ViewUtil.view(Codes.findCode(TestElementCode.class, 3), new TestElementCodeView()));
+
+		Object id = Backend.insert(entity);
+		entity = Backend.read(TestEntity.class, id);
+		Assert.assertEquals("Both codes should be read", 2, entity.codeViews.size());
 	}
 
 }

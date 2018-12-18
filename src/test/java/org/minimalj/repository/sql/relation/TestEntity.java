@@ -26,4 +26,6 @@ public class TestEntity {
 
 	public List<TestElementCode> codes;
 
+	public List<TestElementCodeView> codeViews;
+
 }

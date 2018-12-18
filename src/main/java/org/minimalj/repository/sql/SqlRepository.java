@@ -497,13 +497,18 @@ public class SqlRepository implements TransactionalRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass)) {
+				if (View.class.isAssignableFrom(fieldClass)) {
+					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
+					if (Code.class.isAssignableFrom(viewedClass)) {
+						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
+						value = ViewUtil.view(getCode(codeClass, value), CloneHelper.newInstance(fieldClass));
+					} else {
+						Table<?> referenceTable = getTable(viewedClass);
+						value = referenceTable.readView(fieldClass, value, loadedReferences);
+					}
+				} else if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value);
-				} else if (View.class.isAssignableFrom(fieldClass)) {
-					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
-					Table<?> referenceTable = getTable(viewedClass);
-					value = referenceTable.readView(fieldClass, value, loadedReferences);
 				} else if (IdUtils.hasId(fieldClass)) {
 					if (loadedReferences.containsKey(fieldClass) && loadedReferences.get(fieldClass).containsKey(value)) {
 						value = loadedReferences.get(fieldClass).get(value);
@@ -537,6 +542,9 @@ public class SqlRepository implements TransactionalRepository {
 	
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
+			if (clazz.getSimpleName().startsWith("Swiss")) {
+				System.out.println("Hallo");
+			}
 			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
 			Table<U> table = createTable(clazz);
 			tables.put(table.getClazz(), table);
