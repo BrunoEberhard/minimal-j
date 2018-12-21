@@ -16,7 +16,7 @@ import org.minimalj.model.properties.Properties;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
 
-public class ReferenceFormElement<T> extends AbstractLookupFormElement implements Search<T> {
+public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
 	private final Class<T> fieldClazz;
 	private Object[] columns;
 	private Form<T> newForm;

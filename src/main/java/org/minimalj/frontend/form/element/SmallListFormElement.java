@@ -11,7 +11,7 @@ import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class SmallListFormElement<T> extends AbstractLookupFormElement /* implements Enable, */ {
+public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<List<T>> /* implements Enable, */ {
 	
 	public SmallListFormElement(List<T> key) {
 		this(key, true);
@@ -21,10 +21,7 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement 
 		super(key, editable);
 	}
 
-	protected String render(Object value) {
-		return render((List<T>) value);
-	}
-
+	@Override
 	protected abstract String render(List<T> value);
 
 	public void lookup() {
@@ -33,10 +30,6 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement 
 		} else {
 			new SmallListFormElementEditor().action();
 		}
-	}
-
-	public List<T> getValue() {
-		return (List<T>) super.getValue();
 	}
 
 	protected abstract Form<T> createForm();
@@ -55,7 +48,7 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement 
 
 		@Override
 		protected T save(T object) {
-			List list = SmallListFormElement.this.getValue();
+			List<T> list = SmallListFormElement.this.getValue();
 			if (list == null)
 				list = new ArrayList<>();
 			list.add(object);

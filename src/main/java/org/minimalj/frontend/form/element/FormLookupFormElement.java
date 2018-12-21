@@ -4,7 +4,7 @@ import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.util.CloneHelper;
 
-public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement {
+public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement<T> {
 
 	public FormLookupFormElement(Object key, boolean editable) {
 		super(key, editable);
@@ -13,12 +13,6 @@ public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement
 	@Override
 	protected void lookup() {
 		new ParserFormElementEditor().action();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public T getValue() {
-		return (T) super.getValue();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -9,11 +9,11 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Rendering;
 
 // Framework internal. Only use specializations
-public abstract class AbstractLookupFormElement extends AbstractFormElement<Object> {
+public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> {
 	private static Logger logger = Logger.getLogger(AbstractLookupFormElement.class.getSimpleName());
 
 	protected final Input<String> lookup;
-	private Object object;
+	private T object;
 	private boolean internal = false;
 
 	AbstractLookupFormElement(Object key, boolean editable) {
@@ -54,17 +54,17 @@ public abstract class AbstractLookupFormElement extends AbstractFormElement<Obje
 	}
 
 	@Override
-	public Object getValue() {
+	public T getValue() {
 		return object;
 	}
 
 	@Override
-	public void setValue(Object object) {
+	public void setValue(T object) {
 		this.object = object;
 		lookup.setValue(render(object));
 	}
 
-	protected void setValueInternal(Object object) {
+	protected void setValueInternal(T object) {
 		internal = true;
 		try {
 			if (getProperty().isFinal() && object != this.object) {
@@ -77,14 +77,14 @@ public abstract class AbstractLookupFormElement extends AbstractFormElement<Obje
 		}
 	}
 
-	protected String render(Object value) {
+	protected String render(T value) {
 		return Rendering.toString(value);
 	}
 
 	public void inputChanged(IComponent source) {
 		if (!internal) {
 			String newInputValue = lookup.getValue();
-			object = ((LookupParser) this).parse(newInputValue);
+			object = (T) ((LookupParser) this).parse(newInputValue);
 			if (object != null && !(object instanceof Collection) && object.getClass() != getProperty().getClazz()) {
 				throw new IllegalStateException("Parser result of wrong class: " + object.getClass().getName() + " instead of " + getProperty().getClazz());
 			}
