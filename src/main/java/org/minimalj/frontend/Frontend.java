@@ -181,6 +181,10 @@ public abstract class Frontend {
 		}
 	}
 	
+	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+		return table;
+	}
+
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
 	/**

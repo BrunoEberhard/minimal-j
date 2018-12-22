@@ -399,6 +399,11 @@ $ICON
 			if (content.multiSelect) {
 				element.classList.add("multiSelect");
 			}
+			if (content.overview != null) {
+				var overview = document.createElement("thead");
+				overview.appendChild(createContent(content.overview));
+				element.appendChild(overview);
+			}
 			element.appendChild(createTableHeaders(content.id, content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 			

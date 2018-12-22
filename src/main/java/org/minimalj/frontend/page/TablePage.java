@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -71,6 +72,10 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	
 	protected abstract List<T> load();
 
+	protected FormContent getOverview() {
+		return null;
+	}
+
 	@Override
 	public String getTitle() {
 		String title = Resources.getStringOrNull(getClass());
@@ -94,7 +99,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 			table = createTable();
 		}
 		table.setObjects(load());
-		return table;
+
+		FormContent overview = getOverview();
+		if (overview != null) {
+			return Frontend.getInstance().createFormTableContent(overview, table);
+		} else {
+			return table;
+		}
 	}
 	
 	@Override

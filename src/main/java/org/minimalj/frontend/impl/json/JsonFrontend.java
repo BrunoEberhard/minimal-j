@@ -127,6 +127,12 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
+	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+		((JsonTable<?>) table).put("overview", form);
+		return table;
+	}
+
+	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
 		return new JsonLookup(stringInput, lookup);
 	}
