@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.nanoserver;
+package org.minimalj.frontend.impl.web;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -13,8 +13,8 @@ import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoHTTPD;
 
-public class NanoWebServer {
-	private static final Logger LOG = Logger.getLogger(NanoWebServer.class.getName());
+public class WebServer {
+	private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
 	
 	private static final boolean SECURE = true;
 	private static final int TIME_OUT = 5 * 60 * 1000;

@@ -6,7 +6,7 @@ import java.util.List;
 import org.minimalj.application.Application;
 import org.minimalj.example.openapiclient.page.MjModelPage;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.Page;
 
 public class OpenApiClient extends Application {
@@ -29,7 +29,7 @@ public class OpenApiClient extends Application {
 	}
 
 	public static void main(String[] args) {
-		NanoWebServer.start(new OpenApiClient());
+		WebServer.start(new OpenApiClient());
 	}
 
 }

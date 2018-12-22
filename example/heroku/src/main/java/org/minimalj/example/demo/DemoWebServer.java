@@ -9,14 +9,14 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.nanoserver.MjWebDaemon;
+import org.minimalj.frontend.impl.web.MjWebDaemon;
 import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
-public class DemoNanoWebServer {
-	private static final Logger LOG = Logger.getLogger(DemoNanoWebServer.class.getName());
+public class DemoWebServer {
+	private static final Logger LOG = Logger.getLogger(DemoWebServer.class.getName());
 	
 	private static final boolean SECURE = true;
 	private static final int TIME_OUT = 5 * 60 * 1000;
@@ -42,7 +42,7 @@ public class DemoNanoWebServer {
 	}
 	
 	public static void start(ExamplesApplication application) {
-		DemoNanoWebServer.application = application;
+		DemoWebServer.application = application;
 
 		Application.setInstance(application);
 		Frontend.setInstance(new JsonFrontend());

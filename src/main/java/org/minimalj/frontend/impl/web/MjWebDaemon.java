@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.nanoserver;
+package org.minimalj.frontend.impl.web;
 
 import java.io.IOException;
 import java.io.InputStream;

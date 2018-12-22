@@ -29,8 +29,8 @@ import java.util.ResourceBundle.Control;
 import java.util.logging.Logger;
 
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.nanoserver.NanoWebServer;
 import org.minimalj.frontend.impl.swing.Swing;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Model;
@@ -46,7 +46,7 @@ import org.minimalj.util.resources.Resources;
  * 
  * The specific application can be started with the provided main method.<p>
  * 
- * @see NanoWebServer NanoWebServer - Start the class as stand alone web application
+ * @see WebServer NanoWebServer - Start the class as stand alone web application
  * @see Swing Swing - Start the application as desktop application
  */
 public abstract class Application implements Model {
@@ -275,7 +275,7 @@ public abstract class Application implements Model {
 		} else if (Application.class.getName().equals(mainClass)) {
 			logger.severe("and starting the Application class doesn't work at all. Nothing started.");
 		} else {
-			NanoWebServer.main(mainClass);
+			WebServer.main(mainClass);
 		}
 	}
 	

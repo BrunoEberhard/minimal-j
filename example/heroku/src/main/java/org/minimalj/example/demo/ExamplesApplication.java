@@ -35,6 +35,6 @@ public class ExamplesApplication extends ThreadLocalApplication {
 	}
 	
 	public static void main(String[] args) {
-		DemoNanoWebServer.start(new ExamplesApplication());
+		DemoWebServer.start(new ExamplesApplication());
 	}
 }
