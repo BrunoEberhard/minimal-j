@@ -30,8 +30,8 @@ public class Pet implements Rendering {
     public final List<Visit> visits = new ArrayList<>();
         
     @Override
-    public String render(RenderType renderType) {
-    	return name + ", " + DateUtils.format(birthDate) + ", " + type.render(renderType);
+    public String render() {
+    	return name + ", " + DateUtils.format(birthDate) + ", " + type.render();
     }
 
 }

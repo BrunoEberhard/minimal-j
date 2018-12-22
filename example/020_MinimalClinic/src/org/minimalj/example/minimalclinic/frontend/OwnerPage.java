@@ -12,7 +12,6 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.DetailPageAction;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.frontend.page.TablePage;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.repository.query.By;
 import org.minimalj.util.resources.Resources;
 
@@ -28,7 +27,7 @@ public class OwnerPage extends ObjectPage<Owner> {
 	
 	@Override
 	public String getTitle() {
-		return Resources.getString(Owner.class) + ": " + getObject().render(RenderType.PLAIN_TEXT);
+		return Resources.getString(Owner.class) + ": " + getObject().render();
 	}
 	
 	@Override

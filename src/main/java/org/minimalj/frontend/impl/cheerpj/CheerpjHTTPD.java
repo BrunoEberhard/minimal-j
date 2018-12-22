@@ -19,7 +19,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.nanoserver.MjWebDaemon;
+import org.minimalj.frontend.impl.web.MjWebDaemon;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;

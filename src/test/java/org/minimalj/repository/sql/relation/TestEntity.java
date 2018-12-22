@@ -23,4 +23,9 @@ public class TestEntity {
 	public String name;
 
 	public List<TestElementB> list;
+
+	public List<TestElementCode> codes;
+
+	public List<TestElementCodeView> codeViews;
+
 }

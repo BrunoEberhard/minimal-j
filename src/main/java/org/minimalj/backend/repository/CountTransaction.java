@@ -1,6 +1,5 @@
 package org.minimalj.backend.repository;
 
-import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Query;
 
 public class CountTransaction<ENTITY> extends ReadTransaction<ENTITY, Long> {
@@ -14,7 +13,7 @@ public class CountTransaction<ENTITY> extends ReadTransaction<ENTITY, Long> {
 	}
 
 	@Override
-	public Long execute(Repository repository) {
-		return repository.count(getEntityClazz(), criteria);
+	public Long execute() {
+		return count(getEntityClazz(), criteria);
 	}
 }

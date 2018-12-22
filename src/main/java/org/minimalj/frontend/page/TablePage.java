@@ -11,7 +11,6 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.util.ClassHolder;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
@@ -33,7 +32,6 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 
 	private transient boolean multiSelect;
 	private transient Object[] columns;
-	final ClassHolder<T> clazz;
 	private transient ITable<T> table;
 	private transient List<T> objects;
 	private transient List<Action> actions;
@@ -46,11 +44,8 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	 */
 	private transient boolean reloadFlag;
 
-	@SuppressWarnings("unchecked")
 	public TablePage() {
 		this.multiSelect = allowMultiselect();
-
-		this.clazz = new ClassHolder<T>((Class<T>) GenericUtils.getGenericClass(getClass()));
 	}
 	
 	public TablePage(Object[] columns) {
@@ -58,8 +53,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		this.columns = columns;
 	}
 
+	@SuppressWarnings("unchecked")
+	protected Class<T> getClazz() {
+		return (Class<T>) GenericUtils.getGenericClass(getClass());
+	}
+
 	protected String getResourceName() {
-		return Resources.getResourceName(clazz.getClazz());
+		return Resources.getResourceName(getClazz());
 	}
 	
 	protected Object[] getNameArguments() {
@@ -85,7 +85,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		if (title != null) {
 			return title;
 		} else {
-			String className = Resources.getString(clazz.getClazz());
+			String className = Resources.getString(getClazz());
 			return MessageFormat.format(Resources.getString(TablePage.class.getSimpleName() + ".title"), className);
 		}
 	}

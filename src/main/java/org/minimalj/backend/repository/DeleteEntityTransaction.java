@@ -2,7 +2,6 @@ package org.minimalj.backend.repository;
 
 import java.util.Objects;
 
-import org.minimalj.repository.Repository;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.IdUtils;
 
@@ -36,8 +35,8 @@ public class DeleteEntityTransaction<ENTITY> extends EntityTransaction<ENTITY, V
 	}
 
 	@Override
-	public Void execute(Repository repository) {
-		repository.delete(getEntityClazz(), id);
+	public Void execute() {
+		delete(getEntityClazz(), id);
 		return null;
 	}
 }

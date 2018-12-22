@@ -151,7 +151,7 @@ public class OpenAPI {
 		public Map<String, Property> properties = new LinkedHashMap<>();
 		public String $ref;
 		
-		// V2
+		// V2 / V3 for arrays
 		public Schema items;
 		// V3
 		public List<String> eNum;

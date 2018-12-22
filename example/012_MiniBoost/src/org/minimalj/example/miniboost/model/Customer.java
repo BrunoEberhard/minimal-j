@@ -31,7 +31,7 @@ public class Customer implements Mocking, Rendering {
 	public String debtNo;
 
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return name1;
 	}
 	

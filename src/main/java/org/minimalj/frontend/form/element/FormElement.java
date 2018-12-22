@@ -27,4 +27,5 @@ public interface FormElement<T> {
 	
 	public PropertyInterface getProperty();
 
+	public FormElementConstraint getConstraint();
 }

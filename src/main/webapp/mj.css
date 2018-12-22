@@ -319,6 +319,7 @@ table tr:nth-child(odd).selected {
 .form > div > div {
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
+	overflow: hidden;
 }
 
 .form input, .form select, .form textarea, .form .lookup, dialog .form .ReadOnlyTextField, dialog .form label, dialog .form div.list, dialog .form .Title {
@@ -383,6 +384,21 @@ label {
 .title {
 	font-size: larger;
 	font-weight: bolder;
+}
+
+.lookup {
+	display: flex;
+}
+
+.lookup input {
+	flex-grow: 1;
+	margin: 0px;
+	width: 3em;
+}
+
+.lookup span {
+	flex-grow: 1;
+	align-self: center;
 }
 
 .hide {

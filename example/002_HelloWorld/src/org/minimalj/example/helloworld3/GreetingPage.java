@@ -4,6 +4,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.page.Page;
 
 public class GreetingPage extends Page {
@@ -22,11 +23,11 @@ public class GreetingPage extends Page {
 	@Override
 	public IContent getContent() {
 		FormContent form = Frontend.getInstance().createFormContent(1, 100);
-		form.add(Frontend.getInstance().createText("Hello " + user.name));
+		form.add(Frontend.getInstance().createText("Hello " + user.name), null);
 		if (user.image != null) {
-			Input<byte[]> image = Frontend.getInstance().createImage(10, null);
+			Input<byte[]> image = Frontend.getInstance().createImage(null);
 			image.setValue(user.image);
-			form.add(image);
+			form.add(image, new FormElementConstraint(3, FormElementConstraint.MAX, true));
 		}
 		return form;
 	}

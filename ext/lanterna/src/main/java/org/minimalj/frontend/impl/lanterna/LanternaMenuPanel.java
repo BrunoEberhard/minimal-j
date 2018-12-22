@@ -16,12 +16,17 @@ import com.googlecode.lanterna.gui2.BorderLayout;
 import com.googlecode.lanterna.gui2.BorderLayout.Location;
 import com.googlecode.lanterna.gui2.Button;
 import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.Container;
 import com.googlecode.lanterna.gui2.Direction;
 import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
+import com.googlecode.lanterna.gui2.Window;
+import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
+import com.googlecode.lanterna.gui2.dialogs.DialogWindow;
 import com.googlecode.lanterna.gui2.menu.Menu;
 import com.googlecode.lanterna.gui2.menu.MenuBar;
+import com.googlecode.lanterna.gui2.menu.MenuListDialog;
 
 public class LanternaMenuPanel extends Panel {
 	private MenuBar bar;
@@ -103,6 +108,7 @@ public class LanternaMenuPanel extends Panel {
 		@Override
 		public void run() {
 			LanternaFrontend.run(component, () -> action.action());
+			closeWindows((WindowBasedTextGUI) component.getTextGUI());
 		}
 		
 		@Override
@@ -134,6 +140,29 @@ public class LanternaMenuPanel extends Panel {
 			String query = textFieldSearch.getText();
 			Page searchPage = Application.getInstance().createSearchPage(query);
 			Frontend.show(searchPage);
+		}
+	}
+
+	private void closeWindows(WindowBasedTextGUI textGUI) {
+		for (Window window : textGUI.getWindows()) {
+			if (window instanceof MenuListDialog)
+			window.close();
+		}
+	}
+
+	private void closeWindows(Component component) {
+//		if (component.getParent() != null) {
+//			closeWindows(component.getParent());
+//		}
+		System.out.println(component.getClass().getSimpleName());
+		if (component instanceof Container) {
+			Container container = (Container) component;
+			for (Component c : container.getChildren()) {
+				closeWindows(c);
+			}
+		}
+		if (component instanceof DialogWindow) {
+			((DialogWindow) component).close();
 		}
 	}
 

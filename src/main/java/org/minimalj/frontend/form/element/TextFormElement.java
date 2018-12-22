@@ -3,10 +3,8 @@ package org.minimalj.frontend.form.element;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
-import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.ChangeListener;
 
@@ -51,19 +49,13 @@ public class TextFormElement implements FormElement<Object> {
 		// ignored
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void setValue(Object object) {
-		if (object instanceof Rendering) {
-			Rendering rendering = (Rendering) object;
-			textField.setValue(rendering.render(RenderType.PLAIN_TEXT));
-		} else if (object instanceof Enum) {
-			textField.setValue(EnumUtils.getText((Enum) object));
-		} else if (object != null) {
-			textField.setValue(object.toString());
-		} else {
-			textField.setValue("");
-		}
+		textField.setValue(Rendering.toString(object));
 	}
 
+	@Override
+	public FormElementConstraint getConstraint() {
+		return null;
+	}
 }

@@ -1,7 +1,5 @@
 package org.minimalj.backend.repository;
 
-import org.minimalj.repository.Repository;
-
 public class ReadEntityTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTITY> {
 	private static final long serialVersionUID = 1L;
 
@@ -13,8 +11,8 @@ public class ReadEntityTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTIT
 	}
 
 	@Override
-	protected ENTITY execute(Repository repository) {
-		ENTITY result = repository.read(getEntityClazz(), id);
+	public ENTITY execute() {
+		ENTITY result = read(getEntityClazz(), id);
 		return result;
 	}
 

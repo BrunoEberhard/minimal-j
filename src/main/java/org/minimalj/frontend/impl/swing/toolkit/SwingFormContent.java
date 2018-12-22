@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingCaption;
 
 public class SwingFormContent extends JPanel implements FormContent {
@@ -36,17 +37,17 @@ public class SwingFormContent extends JPanel implements FormContent {
 	}
 
 	@Override
-	public void add(IComponent c) {
+	public void add(IComponent c, FormElementConstraint constraint) {
 		Component component = (Component) c;
-		add(component, new GridFormLayoutConstraint(SwingFrontend.verticallyGrowing(component)));
+		add(component, new GridFormLayoutConstraint(-1, constraint));
 	}
 
 	@Override
-	public void add(String caption, IComponent c, int span) {
+	public void add(String caption, IComponent c, FormElementConstraint constraint, int span) {
 		Component component = (Component) c;
 		SwingCaption swingCaption = new SwingCaption(component, caption);
 		captionByComponent.put(c, swingCaption);
-		add(swingCaption, new GridFormLayoutConstraint(span, SwingFrontend.verticallyGrowing(component)));
+		add(swingCaption, new GridFormLayoutConstraint(span, constraint));
 	}
 	
 	@Override
@@ -60,16 +61,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 	private static class GridFormLayoutConstraint {
 	
 		private final int span;
-		private final boolean verticallyGrowing;
+		private final FormElementConstraint formElementConstraint;
 		
-		public GridFormLayoutConstraint(boolean verticallyGrowing) {
-			this(0, verticallyGrowing);
-		}
-
-		public GridFormLayoutConstraint(int span, boolean verticallyGrowing) {
+		public GridFormLayoutConstraint(int span, FormElementConstraint formElementConstraint) {
 			super();
 			this.span = span;
-			this.verticallyGrowing = verticallyGrowing;
+			this.formElementConstraint = formElementConstraint;
 		}
 
 		protected int getSpan() {
@@ -77,7 +74,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		}
 
 		protected boolean isVerticallyGrowing() {
-			return verticallyGrowing;
+			return formElementConstraint != null && formElementConstraint.grow;
 		}
 
 		public boolean isCompleteRow() {
@@ -192,7 +189,8 @@ public class SwingFormContent extends JPanel implements FormContent {
 			int height = 0;
 			for (List<Component> row : rows) {
 				for (Component component : row) {
-					if (!SwingFrontend.verticallyGrowing(component)) {
+					GridFormLayoutConstraint constraint = constraints.get(component);
+					if (!constraint.isVerticallyGrowing()) {
 						boolean hasCaption = component instanceof SwingCaption;
 						if (hasCaption == caption) {
 							height = Math.max(height, component.getPreferredSize().height);

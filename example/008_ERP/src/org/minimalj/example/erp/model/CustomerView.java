@@ -14,7 +14,7 @@ public class CustomerView implements View<Customer>, Rendering {
 	public String firstname, surname;
 	
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		if (!StringUtils.isBlank(firstname)) {
 			return firstname + " " + surname;
 		} else {

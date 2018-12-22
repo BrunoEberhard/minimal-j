@@ -65,8 +65,8 @@ public class Owner implements Rendering, Mocking {
 	}
     
     @Override
-    public String render(RenderType renderType) {
-    	return person.render(renderType);
+    public String render() {
+    	return person.render();
     }
     
     @Override
@@ -191,7 +191,7 @@ public class PetType implements Code, Rendering {
 	public String name;
 	
 	@Override
-	public String render(RenderType renderType) {
+	public String render() {
 		return name;
 	}
 }

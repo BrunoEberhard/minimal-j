@@ -34,8 +34,8 @@ public class Owner implements Rendering, Mocking {
 	}
     
     @Override
-    public String render(RenderType renderType) {
-    	return person.render(renderType);
+    public String render() {
+    	return person.render();
     }
     
     @Override

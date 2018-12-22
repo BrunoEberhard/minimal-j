@@ -18,14 +18,12 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
-import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
@@ -206,7 +204,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (Code.class.isAssignableFrom(fieldClazz) && fieldClazz != clazz) {
-				sqlRepository.addClass(fieldClazz);
+				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
 			}
 		}
 	}
@@ -216,15 +214,13 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (isDependable(property) && fieldClazz != clazz) {
-				if (!View.class.isAssignableFrom(property.getClazz())) {
-					sqlRepository.addClass(fieldClazz);
-				}
+				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
 			}
 		}
 		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
 			Class<?> listType = property.getGenericClass();
-			if (IdUtils.hasId(listType) && !View.class.isAssignableFrom(listType)) {
-				sqlRepository.addClass(listType);
+			if (IdUtils.hasId(listType)) {
+				sqlRepository.addClass(ViewUtil.resolve(listType));
 			}
 		}
 	}
@@ -235,30 +231,6 @@ public abstract class AbstractTable<T> {
 			if (IdUtils.hasId(property.getClazz())) {
 				createIndex(property, property.getPath());
 			}
-		}
-	}
-	
-	protected String whereStatement(final String wholeFieldPath, FieldOperator criteriaOperator) {
-		String fieldPath = wholeFieldPath;
-		String column;
-		while (true) {
-			column = findColumn(fieldPath);
-			if (column != null) break;
-			int pos = fieldPath.lastIndexOf('.');
-			if (pos < 0) throw new IllegalArgumentException("FieldPath " + wholeFieldPath + " not even partially found in " + getTableName());
-			fieldPath = fieldPath.substring(0, pos);
-		}
-		if (fieldPath.length() < wholeFieldPath.length()) {
-			String restOfFieldPath = wholeFieldPath.substring(fieldPath.length() + 1);
-			if ("id".equals(restOfFieldPath)) {
-				return column + " " + criteriaOperator.getOperatorAsString() + " ?";
-			} else {
-				PropertyInterface subProperty = columns.get(column);
-				AbstractTable<?> subTable = sqlRepository.getAbstractTable(subProperty.getClazz());
-				return column + " = (select ID from " + subTable.getTableName() + " where " + subTable.whereStatement(restOfFieldPath, criteriaOperator) + ")";
-			}
-		} else {
-			return column + " " + criteriaOperator.getOperatorAsString() + " ?";
 		}
 	}
 
@@ -372,7 +344,7 @@ public abstract class AbstractTable<T> {
 					}
 				}
 			}
-			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property);
+			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property.getClazz());
 		}
 		statement.setObject(parameterPos++, id);
 		return parameterPos;

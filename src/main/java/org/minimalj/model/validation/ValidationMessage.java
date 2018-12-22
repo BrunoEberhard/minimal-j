@@ -47,7 +47,7 @@ public class ValidationMessage {
 		List<String> filteredMessages = new ArrayList<String>();
 		if (validationMessages != null) {
 			for (ValidationMessage validationMessage : validationMessages) {
-				if (isEqual(property, validationMessage.getProperty())) {
+				if (equalsOrParent(property, validationMessage.getProperty())) {
 					filteredMessages.add(validationMessage.getFormattedText());
 				}
 			}
@@ -55,8 +55,14 @@ public class ValidationMessage {
 		return filteredMessages;
 	}
 
-	public static boolean isEqual(PropertyInterface p1, PropertyInterface p2) {
-		return p1.getClazz() == p2.getClazz() && StringUtils.equals(p1.getPath(), p2.getPath());
+	private static boolean equalsOrParent(PropertyInterface p1, PropertyInterface p2) {
+		if (p1 != null && p2 != null) {
+			String path1 = p1.getPath();
+			String path2 = p2.getPath();
+			return StringUtils.equals(path1, path2) || path2.startsWith(path1) && path2.charAt(path1.length()) == '.';
+		} else {
+			return false;
+		}
 	}
 	
 	public static String formatHtml(List<ValidationMessage> validationMessages) {

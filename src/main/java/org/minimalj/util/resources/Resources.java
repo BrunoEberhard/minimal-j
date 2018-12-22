@@ -22,6 +22,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.LocaleContext;
 
@@ -156,14 +157,35 @@ public class Resources {
 		}
 
 		String getPropertyName(PropertyInterface property, String postfix) {
-			String fieldName = property.getName();
-			if (postfix != null) {
-				fieldName += postfix;
+			if (property instanceof ChainedProperty) {
+				ChainedProperty chainedProperty = (ChainedProperty) property;
+				return getProperty(chainedProperty, postfix);
 			}
-			Class<?> declaringClass = property.getDeclaringClass();
+
 			Class<?> fieldClass = property.getClazz();
+			String fieldName = property.getName();
+			if (postfix != null)
+				fieldName += postfix;
+			Class<?> declaringClass = property.getDeclaringClass();
 
 			return getPropertyName(fieldName, declaringClass, fieldClass, postfix != null);
+		}
+
+		private String getProperty(ChainedProperty chainedProperty, String postfix) {
+			List<PropertyInterface> chain = chainedProperty.getChain();
+			String fieldName = chainedProperty.getPath();
+			if (postfix != null)
+				fieldName += postfix;
+			while (chain.size() > 1) {
+				String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(), chainedProperty.getClazz(), true);
+				if (result != null) {
+					return result;
+				} else {
+					chain = chain.subList(1, chain.size());
+					fieldName = fieldName.substring(fieldName.indexOf('.') + 1, fieldName.length());
+				}
+			}
+			return getPropertyName(chain.get(0), postfix);
 		}
 
 		String getPropertyName(String fieldName, Class<?> declaringClass, Class<?> fieldClass, boolean optional) {

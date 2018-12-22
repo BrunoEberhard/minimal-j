@@ -4,8 +4,8 @@
 	<groupId>org.minimalj</groupId>
 	<artifactId>historized</artifactId>
 	<version>0.1.0.0-SNAPSHOT</version>
-	<name>In Memory Repository</name>
-	<description>A Repository that keeps all data in the (VM) memory</description>
+	<name>Historized sql repository</name>
+	<description>A repository that keeps a history of all entity states</description>
 
 	<build>
 		<extensions>

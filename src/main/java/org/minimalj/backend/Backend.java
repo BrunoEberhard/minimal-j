@@ -7,6 +7,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
+import org.minimalj.backend.repository.EntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
@@ -133,9 +134,9 @@ public class Backend {
 		return currentTransaction.get() != null;
 	}
 	
-	// It may seem unnecessary to create Transaction for crud. Especially if
-	// repository is available locally. But the authorization check is done
-	// in the execute method.
+	// These methods are shortcuts for CRUD - Transactions.
+	// note: if they are called within a transaction a nested
+	// transaction is created.
 	
 	public static <T> T read(Class<T> clazz, Object id) {
 		return execute(new ReadEntityTransaction<T>(clazz, id));
@@ -174,6 +175,7 @@ public class Backend {
 			Authorization.check(transaction);
 		}
 
+		Transaction<?> outerTransaction = currentTransaction.get();
 		try {
 			currentTransaction.set(transaction);
 			if (getRepository() instanceof TransactionalRepository) {
@@ -183,16 +185,16 @@ public class Backend {
 				return transaction.execute();
 			}
 		} finally {
-			currentTransaction.set(null);
+			currentTransaction.set(outerTransaction);
 			handleCodeCache(transaction);
 		}
 	}
 
 	protected <T> void handleCodeCache(Transaction<T> transaction) {
-		if (transaction instanceof WriteTransaction) {
+		if (transaction instanceof WriteTransaction || transaction instanceof DeleteEntityTransaction) {
 			// we could check if the transaction is about a code class. But the
 			// removeFromCache method is probably faster than to call 'isCode'
-			Codes.removeFromCache(((WriteTransaction<?, ?>) transaction).getEntityClazz());
+			Codes.removeFromCache(((EntityTransaction<?, ?>) transaction).getEntityClazz());
 		}
 	}
 

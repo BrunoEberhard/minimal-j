@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
@@ -58,16 +59,9 @@ public class LanternaFrontend extends Frontend {
 
 	@Override
 	public IComponent createText(final Action action) {
-		LanternaActionText button = new LanternaActionText(action.getName());
-		button.addListener(b -> LanternaFrontend.run(b, () -> action.action()));
-		return button;
+		return new LanternaActionText(action);
 	}
 
-	public static class LanternaActionText extends Button implements IComponent {
-		public LanternaActionText(String name) {
-			super(name);
-		}
-	}
 	
 	@Override
 	public PageManager getPageManager() {
@@ -90,7 +84,7 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
 		throw new RuntimeException("Image not yet implemented in JsonFrontend");
 	};
 
@@ -107,6 +101,11 @@ public class LanternaFrontend extends Frontend {
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		return new LanternaTable<T>(keys, multiSelect, listener);
+	}
+
+	@Override
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new LanternaSearchTable(search, keys, multiSelect, listener);
 	}
 
 	@Override
@@ -142,9 +141,43 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
-		// TODO Auto-generated method stub
-		return null;
+	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
+		return new LanternaLookup(stringInput, lookup);
+	}
+
+	public static Button[] adaptActions(Action[] actions) {
+		Button[] buttons = new Button[actions.length];
+		for (int i = 0; i < actions.length; i++) {
+			buttons[i] = adaptAction(actions[i]);
+		}
+		return buttons;
+	}
+
+	public static Button adaptAction(final Action action) {
+		return new LanternaActionText(action);
+	}
+
+	public static class LanternaActionText extends Button implements IComponent {
+
+		public LanternaActionText(Action action) {
+			super(action.getName());
+			addListener(b -> LanternaFrontend.run(b, () -> action.action()));
+			action.setChangeListener(new ActionChangeListener() {
+				{
+					update();
+				}
+
+				@Override
+				public void change() {
+					update();
+				}
+
+				protected void update() {
+					LanternaActionText.this.setLabel(action.getName());
+					LanternaActionText.this.setEnabled(action.isEnabled());
+				}
+			});
+		}
 	}
 
 }

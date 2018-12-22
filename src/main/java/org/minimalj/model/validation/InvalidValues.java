@@ -7,27 +7,34 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.minimalj.model.EnumUtils;
 
 /**
- * Invalid values represent strings that cannot be converted in valid objects
- * as defined by their field classes.<p>
+ * Invalid values represent strings that cannot be converted in valid objects as
+ * defined by their field classes.
+ * <p>
  * 
- * For example '42A' cannot be converted to an Integer. But temporarly it should
- * be stored in an Integer field because it's entered by the user.<p>
+ * For example '42A' cannot be converted to an Integer. But temporarily it
+ * should be stored in an Integer field because it's entered by the user or was
+ * imported from an invalid source.
+ * <p>
  * 
- * The form class converts the String in an InvalidValues object. So the
- * value can be stored in the Integer field. All validators should check for
- * invalid values when validating. And when a form field displays a value
- * it should check with the 'isInvalid' method if the value represents an
- * invalid value.
+ * Invalid values <b>cannot</b> be persisted. They are only temporary objects in
+ * the vm.
+ * <p>
+ * 
+ * The form class converts the String in an InvalidValues object. So the value
+ * can be stored in the Integer field. All validators should check for invalid
+ * values when validating. And when a form field displays a value it should
+ * check with the 'isInvalid' method if the value represents an invalid value.
  *
  */
 public class InvalidValues {
 
-	private static final Map<Object, String> values = new WeakHashMap<Object, String>();
+	private static final Map<Object, String> values = new WeakIdentityHashMap<>();
+	private static final Map<Object, String> messages = new WeakIdentityHashMap<>();
+
 	private static int counter = Integer.MIN_VALUE + 1;
 	private static LocalDate MIN_DATE = LocalDate.of(0, 1, 1);
 	private static LocalTime MIN_TIME = LocalTime.of(0, 0, 0);
@@ -57,7 +64,7 @@ public class InvalidValues {
 	}
 
 	public static String createInvalidString(String string) {
-		String s = new String("INVALID" + (counter++)); // dont change
+		String s = new String("INVALID " + string); // new instance needed
 		values.put(s, string);
 		return s;
 	}
@@ -75,7 +82,7 @@ public class InvalidValues {
 	}
 	
 	public static <T extends Enum<T>> T createInvalidEnum(Class<T> enumClass, String value) {
-		T e = EnumUtils.createEnum(enumClass, "INVALID" + (counter++));
+		T e = EnumUtils.createEnum(enumClass, "INVALID " + value );
 		values.put(e, value);
 		return e;
 	}
@@ -109,5 +116,9 @@ public class InvalidValues {
 		values.put(bigDecimal, string);
 		return bigDecimal;
 	}
-	
+
+	public static String getMessage(Object object) {
+		return messages.get(object);
+	}
+
 }

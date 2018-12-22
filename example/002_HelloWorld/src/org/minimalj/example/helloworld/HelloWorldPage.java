@@ -15,7 +15,7 @@ public class HelloWorldPage extends Page {
 	@Override
 	public IContent getContent() {
 		FormContent form = Frontend.getInstance().createFormContent(1, 100);
-		form.add(Frontend.getInstance().createText("Hello World"));
+		form.add(Frontend.getInstance().createText("Hello World"), null);
 		return form;
 	}
 

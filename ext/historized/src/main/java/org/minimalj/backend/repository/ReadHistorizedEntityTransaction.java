@@ -17,7 +17,8 @@ public class ReadHistorizedEntityTransaction<ENTITY> extends ReadTransaction<ENT
 	}
 
 	@Override
-	protected ENTITY execute(Repository repository) {
+	public ENTITY execute() {
+		Repository repository = repository();
 		ENTITY result;
 		if (time == null) {
 			result = repository.read(getEntityClazz(), id);

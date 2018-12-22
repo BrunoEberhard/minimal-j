@@ -71,8 +71,8 @@ public class Codes {
 		
 		@Override
 		public int compare(Code o1, Code o2) {
-			String string1 = Rendering.render(o1, Rendering.RenderType.PLAIN_TEXT);
-			String string2 = Rendering.render(o2, Rendering.RenderType.PLAIN_TEXT);
+			String string1 = Rendering.toString(o1);
+			String string2 = Rendering.toString(o2);
 			return collator.compare(string1, string2);
 		}
 	}

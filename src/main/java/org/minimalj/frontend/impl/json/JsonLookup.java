@@ -1,63 +1,38 @@
 package org.minimalj.frontend.impl.json;
 
 import org.minimalj.frontend.Frontend.Input;
-import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.frontend.Frontend.Search;
-import org.minimalj.frontend.Frontend.TableActionListener;
-import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
-import org.minimalj.util.EqualsHelper;
 
-public class JsonLookup<T> extends JsonInputComponent<T> implements Input<T> {
-	private final Object[] keys;
-	private final Search<T> search;
+public class JsonLookup extends JsonComponent implements Input<String> {
+	private final Input<String> stringInput;
+	private final Runnable lookup;
 
-	private T selectedObject;
-	
-	private JsonDialog dialog;
-	
-	public JsonLookup(InputComponentListener listener, Search<T> search, Object[] keys) {
-		super("Lookup", listener);
-		this.search = search;
-		this.keys = keys;
+	public JsonLookup(Input<String> stringInput, Runnable lookup) {
+		super("Lookup");
+		this.stringInput = stringInput;
+		this.lookup = lookup;
+
+		put("input", stringInput);
+		// click on the caption label should focus first component, not the group
+		put("firstId", ((JsonComponent) stringInput).get("id"));
 	}
-	
-	public JsonDialog showLookupDialog() {
-		dialog = new JsonDialog.JsonSearchDialog<T>(search, keys, new JsonLookupTableListener());
-		return dialog;
-	}
-	
-	private class JsonLookupTableListener implements TableActionListener<T> {
-		
-		@Override
-		public void action(T selectedObject) {
-			setValue(selectedObject);
-			dialog.closeDialog();
-		}
+
+	public void showLookupDialog() {
+		lookup.run();
 	}
 	
 	@Override
-	public void setValue(T object) {
-		if (!EqualsHelper.equals(selectedObject, object)) {
-			this.selectedObject = object;
-			put(VALUE, render(selectedObject));
-			fireChange();
-		}
-	}
-
-	protected String render(T object) {
-		if (object instanceof Rendering) {
-			Rendering rendering = (Rendering) object;
-			return rendering.render(RenderType.PLAIN_TEXT);
-		} else if (object != null) {
-			return object.toString();
-		} else {
-			return null;
-		}
+	public void setValue(String text) {
+		stringInput.setValue(text);
 	}
 
 	@Override
-	public T getValue() {
-		return selectedObject;
+	public String getValue() {
+		return stringInput.getValue();
+	}
+
+	@Override
+	public void setEditable(boolean editable) {
+		stringInput.setEditable(editable);
+		put(JsonInputComponent.EDITABLE, editable);
 	}
 }

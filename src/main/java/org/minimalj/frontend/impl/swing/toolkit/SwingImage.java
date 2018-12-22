@@ -3,7 +3,6 @@ package org.minimalj.frontend.impl.swing.toolkit;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -16,7 +15,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.minimalj.frontend.Frontend.Input;
@@ -27,8 +25,6 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 
 	private final InputComponentListener changeListener;
 	
-	private final int size;
-
 	private final JLabel image;
 	
 	private final JPanel controlPanel;
@@ -38,10 +34,9 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 	private byte[] imageData;
 	private ImageIcon icon;
 	
-	public SwingImage(int size, InputComponentListener changeListener) {
+	public SwingImage(InputComponentListener changeListener) {
 		super(new BorderLayout(6, 0));
 		this.changeListener = changeListener;
-		this.size = size;
 		
 		image = new JLabel();
 		add(image, BorderLayout.LINE_START);
@@ -75,7 +70,7 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 		if (imageData != null) {
 			icon = new ImageIcon(imageData);
 			int preferredHeight = getPreferredSize().height;
-			if (icon.getIconHeight() > preferredHeight) {
+			if (preferredHeight != 0 && icon.getIconHeight() > preferredHeight) {
 				int newWidth = icon.getIconWidth() * preferredHeight / icon.getIconHeight();
 				icon = new ImageIcon(icon.getImage().getScaledInstance(newWidth, preferredHeight,  Image.SCALE_SMOOTH));
 			}
@@ -117,22 +112,6 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 		return controlPanel != null && controlPanel.getParent() == this;
 	}
 	
-	@Override
-	public Dimension getPreferredSize() {
-		Dimension d = new Dimension(super.getPreferredSize());
-		if (icon != null) {
-			JTextField textField = new JTextField();
-			int textFieldHeight = textField.getPreferredSize().height;
-			d.height = textFieldHeight * size;
-		}
-		return d;
-	}
-	
-	@Override
-	public Dimension getMaximumSize() {
-		return super.getPreferredSize();
-	}
-
 	private class SwingRemoveActionLabel extends JLabel {
 		private static final long serialVersionUID = 1L;
 

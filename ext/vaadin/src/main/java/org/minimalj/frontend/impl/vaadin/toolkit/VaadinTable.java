@@ -174,7 +174,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 				}
 			}
 			
-			value = Rendering.render(value, Rendering.RenderType.PLAIN_TEXT, property);
+			value = Rendering.toString(value, property);
 			return super.encode(value);
 		}
 	}

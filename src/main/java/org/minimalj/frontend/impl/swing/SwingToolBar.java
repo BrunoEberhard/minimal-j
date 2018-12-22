@@ -51,8 +51,10 @@ public class SwingToolBar extends JToolBar {
 	
 	protected void fillToolBarSearch() {
 		textFieldSearch = new JTextField();
-		textFieldSearch.setPreferredSize(new Dimension(200, textFieldSearch.getPreferredSize().height));
-		textFieldSearch.setMaximumSize(textFieldSearch.getPreferredSize());
+		Dimension size = new Dimension(200, textFieldSearch.getPreferredSize().height);
+		textFieldSearch.setMinimumSize(size);
+		textFieldSearch.setPreferredSize(size);
+		textFieldSearch.setMaximumSize(size);
 		add(textFieldSearch);
 		Dimension rightFillerDimension = new Dimension(6, 0);
 		add(new Box.Filler(rightFillerDimension, rightFillerDimension, rightFillerDimension));

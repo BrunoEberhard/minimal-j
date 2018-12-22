@@ -3,9 +3,9 @@ package org.minimalj.frontend.impl.swing.toolkit;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
@@ -21,13 +21,13 @@ import javax.swing.AbstractAction;
 import javax.swing.FocusManager;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
@@ -41,10 +41,8 @@ import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.component.QueryLayout;
 import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -115,8 +113,8 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
-		return new SwingImage(size, changeListener);
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
+		return new SwingImage(changeListener);
 	}
 	
 	@Override
@@ -189,6 +187,11 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new SwingSearchPanel<T>(search, keys, multiSelect, listener);
+	}
+
+	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
 		return new SwingHtmlContent(htmlOrUrl);
 	}
@@ -222,8 +225,8 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
-		return new SwingLookup<T>(changeListener, index, keys);
+	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
+		return new SwingLookup(stringInput, lookup);
 	}
 	
 	public File showFileDialog(String title, String approveButtonText) {
@@ -238,115 +241,43 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 	
-	private static class SwingLookup<T> extends JPanel implements Input<T> {
+	private static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
+
+	private static class SwingLookup extends JPanel implements Input<String> {
 		private static final long serialVersionUID = 1L;
 		
-		private final InputComponentListener changeListener;
-		private final Search<T> search;
-		private final Object[] keys;
-		private final SwingLookupLabel actionLabel;
-		private final SwingRemoveLabel removeLabel;
-		private IDialog dialog;
-		private T selectedObject;
+		private final JButton lookupButton;
+		private final Input<String> stringInput;
 		
-		public SwingLookup(InputComponentListener changeListener, Search<T> search, Object[] keys) {
+		public SwingLookup(Input<String> stringInput, Runnable lookup) {
 			super(new BorderLayout());
+			this.stringInput = stringInput;
 			
-			this.changeListener = changeListener;
-			this.search = search;
-			this.keys = keys;
-			
-			this.actionLabel = new SwingLookupLabel();
-			this.removeLabel = new SwingRemoveLabel();
-			add(actionLabel, BorderLayout.CENTER);
-			add(removeLabel, BorderLayout.LINE_END);
+			add((Component) stringInput, BorderLayout.CENTER);
+
+			this.lookupButton = new JButton("...");
+			lookupButton.setMargin(EMPTY_INSETS);
+			lookupButton.addActionListener(event -> lookup.run());
+			add(lookupButton, BorderLayout.AFTER_LINE_ENDS);
 		}
 
 		@Override
-		public void setValue(T value) {
-			this.selectedObject = value;
-			display();
-		}
-		
-		protected void display() {
-			if (selectedObject instanceof Rendering) {
-				Rendering rendering = (Rendering) selectedObject;
-				actionLabel.setText(rendering.render(RenderType.PLAIN_TEXT));
-			} else if (selectedObject != null) {
-				actionLabel.setText(selectedObject.toString());
-			} else {
-				actionLabel.setText("[+]");
-			}
+		public void setValue(String value) {
+			stringInput.setValue(value);
 		}
 
 		@Override
-		public T getValue() {
-			return selectedObject;
+		public String getValue() {
+			return stringInput.getValue();
 		}
 		
 		@Override
 		public void setEditable(boolean editable) {
-			actionLabel.setEnabled(editable);
-			removeLabel.setEnabled(editable);
-		}
-		
-		private class SwingLookupLabel extends JLabel {
-			private static final long serialVersionUID = 1L;
-
-			public SwingLookupLabel() {
-				setForeground(Color.BLUE);
-				setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						dialog = Frontend.showSearchDialog(search, keys, new LookupClickListener());
-					}
-				});
-			}
-		}
-		
-		private class SwingRemoveLabel extends JLabel {
-			private static final long serialVersionUID = 1L;
-
-			public SwingRemoveLabel() {
-				super("[x]");
-				setForeground(Color.BLUE);
-				setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						SwingLookup.this.setValue(null);
-						changeListener.changed(SwingLookup.this);
-					}
-				});
-			}
-		}
-		
-		private class LookupClickListener implements TableActionListener<T> {
-			@Override
-			public void action(T selectedObject) {
-				SwingLookup.this.setValue(selectedObject);
-				dialog.closeDialog();
-				changeListener.changed(SwingLookup.this);
-			}
+			stringInput.setEditable(editable);
+			lookupButton.setVisible(editable);
 		}
 	}
 
-	public static boolean verticallyGrowing(Component component) {
-		if (component instanceof SwingList || component instanceof JTable || component instanceof SwingTextAreaField || component instanceof SwingImage) {
-			return true;
-		}
-		if (component instanceof Container) {
-			Container container = (Container) component;
-			for (Component c : container.getComponents()) {
-				if (verticallyGrowing(c)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	public static javax.swing.Action[] adaptActions(Action[] actions) {
 		javax.swing.Action[] swingActions = new javax.swing.Action[actions.length];
 		for (int i = 0; i<actions.length; i++) {

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -187,13 +188,13 @@ public class Form<T> {
 	 */
 	public void lineWithoutCaption(Object key) {
 		FormElement<?> element = createElement(key);
-		formContent.add(element.getComponent());
+		formContent.add(element.getComponent(), element.getConstraint());
 		registerNamedElement(element);
 	}
 	
 	private void add(FormElement<?> element, int span) {
 		String captionText = caption(element);
-		formContent.add(captionText, element.getComponent(), span);
+		formContent.add(captionText, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
@@ -202,12 +203,12 @@ public class Form<T> {
 
 	public void text(String text) {
 		IComponent label = Frontend.getInstance().createText(text);
-		formContent.add(label);
+		formContent.add(label, null);
 	}
 
 	public void addTitle(String text) {
 		IComponent label = Frontend.getInstance().createTitle(text);
-		formContent.add(label);
+		formContent.add(label, null);
 	}
 
 	//
@@ -369,9 +370,7 @@ public class Form<T> {
 	}
 	
 	public void setChangeListener(ChangeListener<Form<?>> changeListener) {
-		if (changeListener == null) throw new IllegalArgumentException("Listener on Form must not be null");
-		if (this.changeListener != null) throw new IllegalStateException("Listener on Form cannot be changed");
-		this.changeListener = changeListener;
+		this.changeListener = Objects.requireNonNull(changeListener);
 	}
 
 	private class FormPanelChangeListener implements ChangeListener<FormElement<?>> {

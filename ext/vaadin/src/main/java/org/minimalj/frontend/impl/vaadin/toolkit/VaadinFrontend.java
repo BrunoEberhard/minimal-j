@@ -6,10 +6,8 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
@@ -144,106 +142,52 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
-		return new VaadinLookup<T>(changeListener, index, keys);
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new VaadinSearchPanel<T>(search, keys, multiSelect, listener);
+	}
+
+	@Override
+	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
+		return new VaadinLookup(stringInput, lookup);
 	}
 	
-	private static class VaadinLookup<T> extends GridLayout implements Input<T> {
+	private static class VaadinLookup extends GridLayout implements Input<String> {
 		private static final long serialVersionUID = 1L;
 		
-		private final InputComponentListener changeListener;
-		private final Search<T> search;
-		private final Object[] keys;
-		private final VaadinLookupLabel actionLabel;
-		private IDialog dialog;
-		private T selectedObject;
+		private final Input<String> stringInput;
+		private final Button lookupButton;
 		
-		public VaadinLookup(InputComponentListener changeListener, Search<T> search, Object[] keys) {
+		public VaadinLookup(Input<String> stringInput, Runnable lookup) {
 			super(2, 1);
+			this.stringInput = stringInput;
 			
-			this.changeListener = changeListener;
-			this.search = search;
-			this.keys = keys;
+			((Component) stringInput).setSizeFull();
+			addComponent((Component) stringInput);
+
+			this.lookupButton = new Button("...", event -> lookup.run());
+			addComponent(lookupButton);
 			
-			this.actionLabel = new VaadinLookupLabel();
-			addComponent(actionLabel);
-			addComponent(new VaadinRemoveLabel());
-			setColumnExpandRatio(0, 1.0f);
+			setColumnExpandRatio(0, 100.0f);
 			setColumnExpandRatio(1, 0.0f);
 		}
 
 		@Override
-		public void setValue(T value) {
-			this.selectedObject = value;
-			display();
+		public void setValue(String value) {
+			stringInput.setValue(value);
 		}
 		
-		protected void display() {
-			if (selectedObject instanceof Rendering) {
-				Rendering rendering = (Rendering) selectedObject;
-				actionLabel.setCaption(rendering.render(RenderType.PLAIN_TEXT));
-			} else if (selectedObject != null) {
-				actionLabel.setCaption(selectedObject.toString());
-			} else {
-				actionLabel.setCaption("[+]");
-			}
-		}
-
 		@Override
-		public T getValue() {
-			return selectedObject;
+		public String getValue() {
+			return stringInput.getValue();
 		}
 		
 		@Override
 		public void setEditable(boolean editable) {
-			throw new RuntimeException("Not yet implemented");
+			stringInput.setEditable(editable);
+			lookupButton.setVisible(editable);
 		}
-		
-		private class VaadinLookupLabel extends Button {
-			private static final long serialVersionUID = 1L;
-
-			public VaadinLookupLabel() {
-				setStyleName(ValoTheme.BUTTON_LINK);
-				addClickListener(new ClickListener() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						dialog = Frontend.showSearchDialog(search, keys, new LookupClickListener());
-					}
-				});
-			}
-		}
-		
-		private class VaadinRemoveLabel extends Button {
-			private static final long serialVersionUID = 1L;
-
-			public VaadinRemoveLabel() {
-				super("[x]");
-				setStyleName(ValoTheme.BUTTON_LINK);
-				addClickListener(new ClickListener() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						VaadinLookup.this.selectedObject = null;
-						changeListener.changed(VaadinLookup.this);
-					}
-				});
-			}
-		}
-		
-		private class LookupClickListener implements TableActionListener<T> {
-			@Override
-			public void action(T selectedObject) {
-				VaadinLookup.this.selectedObject = selectedObject;
-				dialog.closeDialog();
-				changeListener.changed(VaadinLookup.this);
-			}
-		}
-
 	}
-	
+
 //	@Override
 //	public OutputStream store(String buttonText) {
 //		return new VaadinExportDialog("Export").getOutputStream();
@@ -277,8 +221,8 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
-		return new VaadinImage(size, changeListener);
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
+		return new VaadinImage(changeListener);
 	}
 
 	@Override

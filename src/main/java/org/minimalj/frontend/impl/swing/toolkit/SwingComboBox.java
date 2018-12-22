@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractListModel;
@@ -18,7 +19,6 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.util.CloneHelper;
 
 public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
@@ -87,7 +87,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		private boolean setObjectInObjects;
 		
 		public NullableComboBoxModel(List<T> objects) {
-			this.objects = objects;
+			this.objects = Objects.requireNonNull(objects);
 		}
 
 		@Override
@@ -95,7 +95,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 			if (setObjectInObjects) {
 				return objects.size() + 1;
 			} else {
-				return objects.size() + 2;			
+				return objects.size() + 2;
 			}
 		}
 
@@ -168,9 +168,9 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 			if (value instanceof Rendering) {
 				Rendering renderingValue = (Rendering) value;
 				if (component instanceof JLabel) {
-					String text = renderingValue.render(RenderType.PLAIN_TEXT);
+					String text = Rendering.toString(value);
 					((JLabel) component).setText(text);
-					String tooltip = renderingValue.renderDescription(RenderType.PLAIN_TEXT);
+					String tooltip = Rendering.toDescriptionString(value);
 					if (tooltip != null) {
 						((JComponent) component).setToolTipText(tooltip);
 					}

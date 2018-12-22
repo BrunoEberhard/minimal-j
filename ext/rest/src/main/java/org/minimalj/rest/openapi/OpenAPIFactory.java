@@ -181,7 +181,9 @@ public class OpenAPIFactory {
 		if (api == API.OpenAPI3) {
 			Schema schema = new Schema();
 			schema.type = OpenAPI.Type.ARRAY;
-			schema.$ref = SCHEMAS + entityName;
+
+			schema.items = new Schema();
+			schema.items.$ref = SCHEMAS + entityName;
 
 			Content content = new Content();
 			content.schema = schema;
@@ -346,17 +348,19 @@ public class OpenAPIFactory {
 			property.type = type(mjProperty);
 			
 			if (api == API.OpenAPI3) {
-				property.$ref = ref(mjProperty);
-				if (mjProperty.type.isEnumeration()) {
+				if (property.type == Type.ARRAY) {
+					property.items = items(mjProperty);
+				} else if (mjProperty.type.isEnumeration()) {
 					property.type = null;
 					property.$ref = SCHEMAS + mjProperty.type.getSimpleClassName();
+				} else {
+					property.$ref = ref(mjProperty);
 				}
-					
 			} else {
 				if (property.type == Type.ARRAY) {
 					property.items = schema(mjProperty.type);
 				} else if (mjProperty.type.isEnumeration()) {
-					// OpenApi3 has reusable enums
+					// OpenApi3 has reusable enums, swagger has not
 					property.eNum = mjProperty.type.values;
 				} else {
 					property.$ref = ref(mjProperty);
@@ -367,7 +371,7 @@ public class OpenAPIFactory {
 			}
 			
 			property.format = format(mjProperty);
-			property.items = items(mjProperty);
+
 			schema.properties.put(mjProperty.name, property);
 		}
 		return schema;
@@ -402,7 +406,7 @@ public class OpenAPIFactory {
 	}
 	
 	private String ref(MjProperty property) {
-		if (property.propertyType == MjPropertyType.INLINE ||property.propertyType == MjPropertyType.DEPENDABLE) {
+		if (!property.type.isPrimitiv()) {
 			return SCHEMAS + property.type.getSimpleClassName();
 		} else {
 			return null;

@@ -73,8 +73,10 @@ $ICON
 			showDialog(dataObject.dialog);
 		}
 		if (dataObject.closeDialog != undefined) {
-			var dialog = document.getElementById(dataObject.closeDialog);
-			dialog.close();
+			for (var i = 0; i<dataObject.closeDialog.length; i++) {
+				var dialog = document.getElementById(dataObject.closeDialog[i]);
+				dialog.close();
+			}
 		}
 		if (dataObject.propertyChanges != undefined) {
 			var propertyChanges = dataObject.propertyChanges;
@@ -106,10 +108,10 @@ $ICON
 							} else {
 								element.setAttribute("disabled", "true");
 							}
-						} else if (property == "value" && element.className == "lookup") {
-							updateLookup(element, value);
-						} else if (property == "value" && element.tagName == "DIV") {
+						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
 							element.innerHTML = value;
+						} else if (property == "value" && element.tagName == "IMG") {
+							element.src = "data:image;base64, " + atob(value);
 						} else {
                             if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
 								value = value.join("");
@@ -156,12 +158,14 @@ $ICON
 		}
 		if (dataObject.tableExtendContent != undefined) {
 			var table = document.getElementById(dataObject.tableId);
+			var oldScroll = table.parentNode.scrollTop;
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
 			if (!dataObject.extendable) {
 				var footer = table.getElementsByTagName("tfoot")[0];
 				intersectionObserver.unobserve(footer);
 				table.removeChild(footer);			
 			}
+			table.parentNode.scrollTop = oldScroll;
 		}
 		
 		var block = document.getElementById('block');
@@ -403,7 +407,9 @@ $ICON
 				var dots = document.createTextNode("...");
 				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");				
 				footer.appendChild(dots);
-				intersectionObserver.observe(footer);
+				if (intersectionObserver != undefined) {
+					intersectionObserver.observe(footer);
+				}
 				element.appendChild(footer);
 			}
 		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
@@ -444,11 +450,10 @@ $ICON
 						element.step = "0.001";
 					}
 				}
-			} catch (err) {
-				// happens in ie 10 for datetime-local
+			} catch (err) { // happens in ie 10 for datetime-local
 				element.type = "text";
 			}
-			element.setAttribute("onchange", "sendchange(this);");
+			element.setAttribute(element.type == "text" ? "onkeyup" : "onchange", "sendchange(this);");
 			element.setAttribute("onblur", "setDeferredValue(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
@@ -462,7 +467,6 @@ $ICON
 		} else if (type == "AreaField") {
 			element = document.createElement("textarea");
 			element.setAttribute("onkeyup", "sendchange(this);");
-			// element.setAttribute("onchange", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value != undefined) {
 				element.value = content.value;
@@ -471,16 +475,16 @@ $ICON
 			element = document.createElement("input");
 			element.type = "text";
 			element.id = content.id;
-			element.setAttribute("style", "width: calc(100% - 15em);"); // TODO width of search field
+			element.setAttribute("style", "flex-grow: 1;");
 			element.setAttribute("onkeydown", "if (event.keyCode == 13) sendchange(this);");
 
 			var button = document.createElement("button");
 			button.appendChild(document.createTextNode("$SEARCH"));
 			button.setAttribute("onclick", "sendchange(this.previousSibling);");
-			button.setAttribute("style", "width: 10em");
+			button.setAttribute("style", "width: 10em;");
 
 			var div = document.createElement("div");
-			div.setAttribute("style", "width: 100%;");
+			div.setAttribute("style", "display: flex;");
 			div.appendChild(element);
 			div.appendChild(button);
 			return div; /* ! */
@@ -520,15 +524,11 @@ $ICON
 		} else if (type == "Lookup") {
 			element = document.createElement("div");
 			element.className = "lookup";
-			var objectElement = document.createElement("span");
-			objectElement.className = "action";
-			objectElement.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
-			element.appendChild(objectElement);
-			var removeElement = document.createElement("span");
-			removeElement.className = "action";
-			removeElement.setAttribute("onclick", "removeReference(\"" + content.id + "\");");
-			element.appendChild(removeElement);
-			updateLookup(element, content.value);
+			element.appendChild(createContent(content.input));
+			var button = document.createElement("button");
+			button.appendChild(document.createTextNode(".."));
+			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
+			element.appendChild(button);
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;
@@ -557,6 +557,17 @@ $ICON
 			element = document.createElement("div");
 			element.className = "htmlpage";
 			element.innerHTML = content.htmlOrUrl;
+		} else if (type == "Image") {
+		    if (editable) {
+				element = document.createElement("input");
+				element.type = "file";
+				element.setAttribute("onchange", "sendchange(this);");
+		    } else {
+		    	element = document.createElement("img");
+		    	if (content.value != undefined) {
+			    	element.src = "data:image;base64, " + content.value;
+			    }
+		    }
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
@@ -570,13 +581,6 @@ $ICON
 		return element;
 	}
 	
-	function createFormRows(rows, columnWidth) {
-		var element = document.createElement("div");
-		for (var i = 0; i < rows.length; i++) {
-			element.appendChild(createFormRow(rows[i], columnWidth));
-		}
-		return element;
-	}
 	function createFormRow(row, columnWidth) {
 		var element = document.createElement("div");
 		for (var i = 0; i < row.length; i++) {
@@ -790,6 +794,20 @@ $ICON
 			changedValue[source.id] = source.checked.toString();
 		} else if (source.type == "password") {
 			changedValue[source.id] = source.value.split("");		
+		} else if (source.type == "file") {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var binary = "";
+				var bytes = new Uint8Array(reader.result);
+           		for (var i = 0; i < bytes.byteLength; i++) {
+               		binary += String.fromCharCode(bytes[i]);
+           		}
+		        changedValue[source.id] = btoa(binary);
+		        data.changedValue = changedValue;
+		        send(data, false);
+		    }
+			reader.readAsArrayBuffer(source.files[0]); // readAsBinaryString would be shorter but not supported on IE
+			return;
 		} else {
 			changedValue[source.id] = source.value;
 			source.valueOnBlur = undefined;
@@ -918,20 +936,6 @@ $ICON
 	function openLookupDialog(lookup) {
 		send({"openLookupDialog" : lookup}, true);
 	}	
-	
-	function removeReference(lookup) {
-		send({"removeReference" : lookup}, true);
-	}	
-	
-	function updateLookup(lookup, value) {
-		if (value != null) {
-			lookup.childNodes[0].innerHTML = value;
-			lookup.childNodes[1].innerHTML = "[x]";
-		} else {
-			lookup.childNodes[0].innerHTML = "[+]";
-			lookup.childNodes[1].innerHTML = "";
-		}
-	}
 	
 	function search() {
 		var searchElement = document.getElementById("search");

@@ -1,7 +1,6 @@
 package org.minimalj.security.permissiontest;
 
 import org.minimalj.backend.repository.EntityTransaction;
-import org.minimalj.repository.Repository;
 import org.minimalj.security.permissiontest.pkgrole.TestEntityH;
 
 public class TestTransaction<RETURN> extends EntityTransaction<TestEntityH, RETURN> {
@@ -11,7 +10,7 @@ public class TestTransaction<RETURN> extends EntityTransaction<TestEntityH, RETU
 	}
 
 	@Override
-	protected RETURN execute(Repository repository) {
+	public RETURN execute() {
 		return null;
 	}
 	

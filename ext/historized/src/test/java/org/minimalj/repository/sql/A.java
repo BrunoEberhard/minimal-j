@@ -27,6 +27,7 @@ public class A {
 	public final List<B> b = new ArrayList<B>();
 	public final List<C> c = new ArrayList<C>();
 	public E e;
+	public F f;
 	
 	@Size(5)
 	public Integer int1;

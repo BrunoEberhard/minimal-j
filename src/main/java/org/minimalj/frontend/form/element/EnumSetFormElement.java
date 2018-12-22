@@ -4,76 +4,57 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.frontend.form.element.AbstractLookupFormElement.LookupParser;
 import org.minimalj.frontend.form.element.CheckBoxFormElement.CheckBoxProperty;
 import org.minimalj.model.EnumUtils;
-import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.validation.InvalidValues;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElement<E> implements Enable, Mocking {
+public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFormElement<E> implements LookupParser, /* Enable, */ Mocking {
 	private final Class enumClass;
 	private final Collection allowedValues;
 	
 	public EnumSetFormElement(PropertyInterface property, boolean editable) {
 		this(property, null, editable);
 	}
-
-	public EnumSetFormElement(E key, E allowedValues) {
-		this(Keys.getProperty(key), allowedValues, true);
-	}
-		
+	
 	public EnumSetFormElement(PropertyInterface property, E allowedValues, boolean editable) {
 		super(property, editable);
 		this.enumClass = property.getGenericClass();
 		this.allowedValues = allowedValues != null ? allowedValues : EnumUtils.valueList(enumClass);
 	}
-	
-	@Override
-	public void mock() {
-		E newValues = (E) new HashSet();
-		for (Object object : allowedValues) {
-			if (Math.random() <0.5) {
-				Enum<?> value = (Enum<?>) object;
-				newValues.add(value);
+
+	public E parse(String text) {
+		E value = (E) getValue();
+		value.clear();
+		if (!StringUtils.isEmpty(text)) {
+			String[] split = text.split(",");
+			SPLITS: for (String s : split) {
+				s = s.trim();
+				for (Object c : allowedValues) {
+					if (Rendering.render(c).equals(s)) {
+						((HashSet) value).add(c);
+						continue SPLITS;
+					}
+				}
+				((HashSet) value).add(InvalidValues.createInvalidEnum(enumClass, s));
 			}
 		}
-		setValue(newValues);
+		return value;
 	}
 
-	@Override
-	protected Form<E> createForm() {
-		Form<E> form = new Form<E>(true);
-		for (Object object : allowedValues) {
-			Enum<?> value = (Enum<?>) object;
-			form.lineWithoutCaption(new CheckBoxFormElement(new EnumSetFormElementProperty(value), EnumUtils.getText((Enum) object), true));
-		}
-		return form;
+	public void lookup() {
+		new EnumSetFormElementEditor().action();
 	}
 
-	@Override
-	protected void show(E objects) {
-		for (Object object : objects) {
-			if (object instanceof Rendering) {
-				add((Rendering) object);
-			} else {
-				add(Rendering.render(object, RenderType.PLAIN_TEXT));
-			}
-		}
-	}
-
-	@Override
-	protected Action[] getActions() {
-		return new Action[] { new EnumSetFormElementEditor() };
-	}
-	
-	// EnumSetFormElementEditor is needed because the CloneHelper doesn't clone / copy Set<Enum> 
-	public class EnumSetFormElementEditor extends ObjectFormElementEditor {
+	public class EnumSetFormElementEditor extends SimpleEditor<E> {
 		@Override
 		protected Object[] getNameArguments() {
 			// enumClass is not yet available when this method is called
@@ -86,10 +67,22 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 		}
 
 		@Override
-		public Void save(E edited) {
-			getValue().clear();
-			getValue().addAll(edited);
-			return null;
+		public Form<E> createForm() {
+			Form<E> form = new Form<>(true);
+			for (Object object : allowedValues) {
+				Enum<?> value = (Enum<?>) object;
+				form.lineWithoutCaption(new CheckBoxFormElement(new EnumSetFormElementProperty(value), EnumUtils.getText((Enum) object), true));
+			}
+			return form;
+		}
+
+		@Override
+		protected E save(E object) {
+			E values = getValue();
+			values.clear();
+			values.addAll(object);
+			EnumSetFormElement.this.setValueInternal(values);
+			return values;
 		}
 	}
 	
@@ -135,6 +128,19 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends ObjectFormElemen
 				set.remove(value);
 			}
 		}
+	}
+
+	@Override
+	public void mock() {
+		E values = getValue();
+		values.clear();
+		for (Object object : allowedValues) {
+			if (Math.random() <0.5) {
+				Enum<?> value = (Enum<?>) object;
+				values.add(value);
+			}
+		}
+		setValueInternal(values);
 	}
 
 }

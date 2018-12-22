@@ -35,7 +35,6 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.RenderType;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
@@ -277,7 +276,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				int column) {
 			
 			PropertyInterface property = properties.get(column);
-			value = Rendering.render(value, RenderType.PLAIN_TEXT, property);
+			value = Rendering.toString(value, property);
 
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}

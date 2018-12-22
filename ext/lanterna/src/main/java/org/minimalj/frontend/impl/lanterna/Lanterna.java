@@ -3,8 +3,6 @@ package org.minimalj.frontend.impl.lanterna;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.Frontend.Search;
-import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaDialog;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaFrontend;
@@ -44,12 +42,6 @@ public class Lanterna extends MultiWindowTextGUI implements PageManager {
 	@Override
 	public void showMessage(String text) {
 		MessageDialog.showMessageDialog(this, "Message", text);
-	}
-
-	@Override
-	public <T> IDialog showSearchDialog(Search<T> index, Object[] keys, TableActionListener<T> listener) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

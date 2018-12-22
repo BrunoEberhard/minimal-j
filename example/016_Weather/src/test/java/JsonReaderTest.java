@@ -3,9 +3,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
 import org.junit.Test;
-import org.minimalj.example.weather.json.JsonReader;
 import org.minimalj.example.weather.model.Weather;
+import org.minimalj.rest.EntityJsonReader;
 
 public class JsonReaderTest {
 
@@ -14,9 +15,8 @@ public class JsonReaderTest {
 		String out = Files.readAllLines(
 			    Paths.get(this.getClass().getResource("zurich.json").toURI()), Charset.defaultCharset()).stream().collect(Collectors.joining());
 	
-		JsonReader reader = new JsonReader(Weather.class);
-		Weather weather = reader.read(out);
+		Weather weather = EntityJsonReader.read(Weather.class, out);
 		
-		System.out.println(weather);
+		Assert.assertEquals("Zurich", weather.city.name);
 	}
 }

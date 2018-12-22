@@ -75,9 +75,6 @@ public class ViewUtil {
 	}
 	
 	public static Class<?> getViewedClass(Class<?> clazz) {
-		if (Code.class.isAssignableFrom(clazz)) {
-			return clazz;
-		}
 		for (Type type : clazz.getGenericInterfaces()) {
 			if (type instanceof ParameterizedType) {
 				ParameterizedType parameterizedType = (ParameterizedType) type;
@@ -91,9 +88,7 @@ public class ViewUtil {
 	}
 
 	public static Class<?> resolve(Class<?> clazz) {
-		if (Code.class.isAssignableFrom(clazz)) {
-			return clazz;
-		} else if (View.class.isAssignableFrom(clazz)) {
+		if (View.class.isAssignableFrom(clazz)) {
 			Class<?> viewedClass = getViewedClass(clazz);
 			return viewedClass;
 		} else {

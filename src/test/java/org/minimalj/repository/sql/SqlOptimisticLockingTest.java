@@ -46,11 +46,27 @@ public class SqlOptimisticLockingTest {
 		repository.update(entity);
 		// here the read is forgotten
 		
-		// this tries to update an old version of q
+		// this tries to update an old version
 		entity.string = "C";
 		repository.update(entity);
 	}
-	
+
+	@Test(expected = Exception.class)
+	public void testOptimisticLockingFailDependingEntity() {
+		TestEntity entity = new TestEntity();
+		entity.b = new B("step1");
+		Object id = repository.insert(entity);
+		entity = repository.read(TestEntity.class, id);
+
+		entity.b.bName = "step2a";
+		repository.update(entity);
+		// here the read is forgotten
+
+		// this tries to update an old version
+		entity.b.bName = "step2b";
+		repository.update(entity);
+	}
+
 	public static class TestEntity {
 		public static final TestEntity $ = Keys.of(TestEntity.class);
 		
@@ -59,6 +75,9 @@ public class SqlOptimisticLockingTest {
 
 		@Size(255)
 		public String string;
+
+		// depending (without id)
+		public B b;
 	}
 	
 }

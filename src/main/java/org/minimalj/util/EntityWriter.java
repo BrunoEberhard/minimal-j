@@ -106,13 +106,8 @@ public class EntityWriter {
 			}
 		} else if (value instanceof Set<?>) {
 			Set<?> set = (Set<?>) value;
-			if (set.isEmpty()) {
-				dos.writeInt(0);
-			} else {
-				Class<?> enumClass = set.iterator().next().getClass();
-				int asInt = EnumUtils.getInt(set, enumClass);
-				dos.writeInt(asInt);
-			}
+			int asInt = EnumUtils.getInt(set);
+			dos.writeInt(asInt);
 		} else if (value instanceof LocalDate) {
 			dos.write(1); // ok, year is probably not 0 but still
 			write((LocalDate) value);

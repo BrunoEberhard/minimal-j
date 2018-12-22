@@ -97,8 +97,8 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<byte[]> createImage(int size, InputComponentListener changeListener) {
-		throw new RuntimeException("Image not yet implemented in JsonFrontend");
+	public Input<byte[]> createImage(InputComponentListener changeListener) {
+		return new JsonImage(changeListener);
 	};
 	
 	@Override
@@ -122,8 +122,13 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<T> createLookup(InputComponentListener changeListener, Search<T> index, Object[] keys) {
-		return new JsonLookup<T>(changeListener, index, keys);
+	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		return new JsonSearchTable<T>(search, keys, multiSelect, listener);
+	}
+
+	@Override
+	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
+		return new JsonLookup(stringInput, lookup);
 	}
 
 	@Override

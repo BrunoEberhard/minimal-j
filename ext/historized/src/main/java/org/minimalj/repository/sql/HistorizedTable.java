@@ -3,23 +3,24 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
 /**
- * Minimal-J internal<p>
- *
  * A HistorizedTable contains a column named version. In the actual valid row this
  * column is &gt; 0. After updates the row with the version -1 is the oldest row
  * the row with version -2 the second oldest and so on.
  * 
  */
-@SuppressWarnings("rawtypes")
-public class HistorizedTable<T> extends Table<T> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+class HistorizedTable<T> extends Table<T> {
 
 	private final String selectByIdAndTimeQuery;
 	private final String endQuery;
@@ -38,6 +39,22 @@ public class HistorizedTable<T> extends Table<T> {
 		return true;
 	}
 	
+	@Override
+	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
+		LinkedHashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		int parameterPos = super.setParameters(statement, object, mode, id);
+		for (Map.Entry<String, PropertyInterface> column : columnsWithVersion.entrySet()) {
+			Object referencedObject = column.getValue().getValue(object);
+			if (referencedObject != null) {
+				Integer version = IdUtils.getVersion(referencedObject);
+				statement.setInt(parameterPos++, version);
+			} else {
+				statement.setInt(parameterPos++, 0);
+			}
+		}
+		return parameterPos;
+	}
+
 	@Override
 	public Object insert(T object) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
@@ -59,7 +76,11 @@ public class HistorizedTable<T> extends Table<T> {
 	SubTable createListTable(PropertyInterface property) {
 		Class<?> elementClass = property.getGenericClass();
 		if (IdUtils.hasId(elementClass)) {
-			throw new RuntimeException("Not yet implemented");
+			if (FieldUtils.hasValidHistorizedField(elementClass)) {
+				return new HistorizedCrossHistorizedTable(sqlRepository, buildSubTableName(property), elementClass, idProperty);
+			} else {
+				return new HistorizedCrossTable(sqlRepository, buildSubTableName(property), elementClass, idProperty);
+			}
 		} else {
 			return new HistorizedSubTable(sqlRepository, buildSubTableName(property), elementClass, idProperty);
 		}
@@ -92,7 +113,7 @@ public class HistorizedTable<T> extends Table<T> {
 			
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
-				((HistorizedSubTable) listTableEntry.getValue()).replaceAll(object, list, newVersion);
+				((HistorizedListTable) listTableEntry.getValue()).replaceList(object, list, newVersion);
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
@@ -140,6 +161,20 @@ public class HistorizedTable<T> extends Table<T> {
 		}
 	}
 	
+	public T read(Object id, int time, Map<Class<?>, Map<Object, Object>> loadedReferences) {
+		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
+			selectByIdAndTimeStatement.setObject(1, id);
+			selectByIdAndTimeStatement.setInt(2, time);
+			T object = executeSelect(selectByIdAndTimeStatement, loadedReferences);
+			if (object != null) {
+				loadLists(object);
+			}
+			return object;
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id + " in version " + time);
+		}
+	}
+
 	@Override
 	public void delete(Object id) {
 		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
@@ -155,10 +190,9 @@ public class HistorizedTable<T> extends Table<T> {
 		loadLists(object, null);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void loadLists(T object, Integer time) {
 		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
-			List values = ((HistorizedSubTable) listTableEntry.getValue()).read(object, time);
+			List values = ((HistorizedListTable) listTableEntry.getValue()).getList(object, time);
 			PropertyInterface listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
 				List list = (List) listProperty.getValue(object);
@@ -195,39 +229,36 @@ public class HistorizedTable<T> extends Table<T> {
 		return query.toString();
 	}
 	
-	@Override
-	protected String insertQuery() {
+	private String insertQuery(boolean withVersion) {
+		LinkedHashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (String columnName : getColumns().keySet()) {
 			s.append(columnName).append(", ");
 		}
-		s.append("id, version, historized) VALUES (");
-		for (int i = 0; i<getColumns().size(); i++) {
+		s.append("id, ");
+		for (String columnName : columnsWithVersion.keySet()) {
+			s.append(columnName).append(", ");
+		}
+		s.append("version, historized) VALUES (");
+		for (int i = 0; i < getColumns().size() + columnsWithVersion.size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?, 0, 0)");
+		s.append(withVersion ? "?, ?, 0)" : "?, 0, 0)");
 
 		return s.toString();
 	}
 	
 	@Override
-	protected String updateQuery() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("INSERT INTO ").append(getTableName()).append(" (");
-		for (String name : getColumns().keySet()) {
-			s.append(name);
-			s.append(", ");
-		}
-		s.append("id, version, historized) VALUES (");
-		for (int i = 0; i<getColumns().size(); i++) {
-			s.append("?, ");
-		}
-		s.append("?, ?, 0)");
+	protected String insertQuery() {
+		return insertQuery(false);
+	}
 
-		return s.toString();
+	@Override
+	protected String updateQuery() {
+		return insertQuery(true);
 	}
 	
 	private String selectMaxVersionQuery() {
@@ -256,6 +287,10 @@ public class HistorizedTable<T> extends Table<T> {
 	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
 		super.addSpecialColumns(dialect, s);
 		s.append(",\n historized INTEGER NOT NULL");
+		LinkedHashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		for (String columnName : columnsWithVersion.keySet()) {
+			s.append(",\n ").append(columnName).append(" INTEGER DEFAULT 0");
+		}
 	}
 	
 	@Override

@@ -55,11 +55,7 @@ public abstract class SqlDialect {
 		s.append(" NOT NULL");
 	}
 	
-	/*
-	 * Only public for tests. If this method doesn't throw an IllegalArgumentException
-	 * then a property is valid
-	 */
-	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+	protected void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 		Class<?> clazz = property.getClazz();
 		
 		if (clazz == Integer.class) {
@@ -173,7 +169,7 @@ public abstract class SqlDialect {
 		
 		@Override
 		protected void addCreateStatementEnd(StringBuilder s) {
-			s.append("\n) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED\n");
+			s.append("\n) CHARSET=utf8\n");
 		}
 
 		@Override
@@ -254,20 +250,19 @@ public abstract class SqlDialect {
 	public static class OracleSqlDialect extends SqlDialect {
 
 		@Override
-		public void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
+		public void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
 			if (value instanceof Temporal && !InvalidValues.isInvalid(value)) {
 				value = value.toString();
 			}
-			super.setParameter(preparedStatement, param, value, property);
+			super.setParameter(preparedStatement, param, value, clazz);
 		}
 		
 		@Override
-		public void setParameterNull(PreparedStatement preparedStatement, int param, PropertyInterface property) throws SQLException {
-			Class<?> clazz = property.getClazz();
+		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
 			if (clazz == LocalTime.class || clazz == LocalDate.class || clazz == LocalDateTime.class) {
 				preparedStatement.setNull(param, Types.CHAR);
 			} else {
-				super.setParameterNull(preparedStatement, param, property);
+				super.setParameterNull(preparedStatement, param, clazz);
 			}
 		}
 		
@@ -312,9 +307,9 @@ public abstract class SqlDialect {
 		}
 	}
 	
-	public void setParameter(PreparedStatement preparedStatement, int param, Object value, PropertyInterface property) throws SQLException {
+	public void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
 		if (value == null || InvalidValues.isInvalid(value)) {
-			setParameterNull(preparedStatement, param, property);
+			setParameterNull(preparedStatement, param, clazz);
 		} else {
 			if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
@@ -326,9 +321,7 @@ public abstract class SqlDialect {
 			} else if (value instanceof LocalDateTime) {
 				value = java.sql.Timestamp.valueOf((LocalDateTime) value);
 			} else if (value instanceof Set<?>) {
-				Set<?> set = (Set<?>) value;
-				Class<?> enumClass = property.getGenericClass();
-				value = EnumUtils.getInt(set, enumClass);
+				value = EnumUtils.getInt((Set<?>) value);
 			} else if (value instanceof UUID) {
 				value = value.toString();
 			}
@@ -336,8 +329,7 @@ public abstract class SqlDialect {
 		} 
 	}
 	
-	public void setParameterNull(PreparedStatement preparedStatement, int param, PropertyInterface property) throws SQLException {
-		Class<?> clazz = property.getClazz();
+	public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
 		if (clazz == String.class) {
 			preparedStatement.setNull(param, Types.VARCHAR);
 		} else if (clazz == UUID.class) {
@@ -358,7 +350,7 @@ public abstract class SqlDialect {
 			preparedStatement.setNull(param, Types.DATE);
 		} else if (IdUtils.hasId(clazz)) {
 			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (property.getClazz().isArray()) {
+		} else if (clazz.isArray()) {
 			preparedStatement.setNull(param, Types.BLOB);			
 		} else {
 			preparedStatement.setNull(param, Types.INTEGER);

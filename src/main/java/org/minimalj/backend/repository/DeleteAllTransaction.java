@@ -1,6 +1,5 @@
 package org.minimalj.backend.repository;
 
-import org.minimalj.repository.Repository;
 import org.minimalj.repository.sql.SqlRepository;
 
 public class DeleteAllTransaction<ENTITY> extends DeleteEntityTransaction<ENTITY> {
@@ -11,9 +10,9 @@ public class DeleteAllTransaction<ENTITY> extends DeleteEntityTransaction<ENTITY
 	}
 	
 	@Override
-	public Void execute(Repository repository) {
-		if (repository instanceof SqlRepository) {
-			SqlRepository sqlRepository = (SqlRepository) repository;
+	public Void execute() {
+		if (repository() instanceof SqlRepository) {
+			SqlRepository sqlRepository = (SqlRepository) repository();
 			sqlRepository.deleteAll(getEntityClazz());
 			return null;
 		} else {

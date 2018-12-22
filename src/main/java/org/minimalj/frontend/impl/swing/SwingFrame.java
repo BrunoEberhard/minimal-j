@@ -99,7 +99,9 @@ public class SwingFrame extends JFrame {
 		SwingTab tab = new SwingTab(this);	
 		tabbedPane.addTab("", tab);
 		tabbedPane.setSelectedComponent(tab);
-
+		if (tabbedPane.getTabCount() > 1) {
+			tab.updateNavigation();
+		}
 		tab.show(new EmptyPage());
 	}
 	

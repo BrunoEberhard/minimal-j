@@ -11,7 +11,6 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
-import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.GenericUtils;
@@ -66,9 +65,9 @@ public abstract class Editor<T, RESULT> extends Action {
 		
 		saveAction = new SaveAction();
 		
-		validate();
+		validate(form);
 
-		form.setChangeListener(new EditorChangeListener());
+		form.setChangeListener(this::validate);
 		form.setObject(object);
 		
 		dialog = Frontend.showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
@@ -102,12 +101,12 @@ public abstract class Editor<T, RESULT> extends Action {
 	
 	protected abstract Form<T> createForm();
 	
-	private void validate() {
+	private void validate(Form<?> form) {
 		List<ValidationMessage> validationMessages = new ArrayList<>();
 		if (object instanceof Validation) {
 			validationMessages.addAll(((Validation) object).validateNullSafe());
 		}
-		ObjectValidator.validate(object, validationMessages, form.getProperties());
+		validationMessages.addAll(Validator.validate(object));
 		validate(object, validationMessages);
 		form.indicate(validationMessages);
 		saveAction.setValidationMessages(validationMessages);
@@ -141,14 +140,6 @@ public abstract class Editor<T, RESULT> extends Action {
 	protected void finished(RESULT result) {
 		//
 	}
-
-	private class EditorChangeListener implements ChangeListener<Form<?>> {
-
-		@Override
-		public void changed(Form<?> form) {
-			validate();
-		}
-	}	
 
 	protected final class SaveAction extends Action {
 		private String description;
@@ -191,7 +182,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		@Override
 		public void action() {
 			fillWithDemoData();
-			validate();
+			validate(form);
 		}
 	}
 	
@@ -226,7 +217,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		@Override
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
-			Class<T> clazz = (Class<T>) GenericUtils.getGenericClass(NewObjectEditor.this.getClass());
+			Class<T> clazz = (Class<T>) getEditedClass();
 			T newInstance = CloneHelper.newInstance(clazz);
 			return newInstance;
 		}
