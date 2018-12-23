@@ -57,7 +57,7 @@ $ICON
 			var pageElement = document.getElementById(pageId);
 			if (pageElement != null) {
 				var pageTitleElement = pageElement.querySelector(".pageTitle");
-				pageTitleElement.innerHTML = title;
+				pageTitleElement.textContent = title;
 			}
 		}
 		if (dataObject.hideDetail != undefined) {
@@ -109,7 +109,7 @@ $ICON
 								element.setAttribute("disabled", "true");
 							}
 						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
-							element.innerHTML = value;
+							element.innerHTML = escapeText(value);
 						} else if (property == "value" && element.tagName == "IMG") {
 							element.src = "data:image;base64, " + atob(value);
 						} else {
@@ -352,7 +352,7 @@ $ICON
 		
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
-		titleElement.innerHTML = title;
+		titleElement.textContent = title;
 		element.appendChild(titleElement);
 		
 		var b = document.getElementById("pageHeaderButtons");
@@ -412,13 +412,11 @@ $ICON
 				}
 				element.appendChild(footer);
 			}
-		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
+		} else if (type == "Text" || type == "Title") {
 			element = document.createElement("div");
 			element.classList.add(type);
-			if (content.htmlValue != undefined) {
-				element.innerHTML = content.htmlValue;
-			} else if (content.value != undefined) {
-				element.appendChild(document.createTextNode(content.value));
+			if (content.value != undefined) {
+				element.innerHTML = escapeText(content.value);
 			} else {
 				element.innerHTML = "&nbsp;";
 			}
@@ -437,7 +435,7 @@ $ICON
 		} else if (type == "Action") {
 			element = document.createElement("div");
 			element.className = "action";
-			element.innerHTML = content.name;
+			element.textContent = content.name;
 			element.setAttribute("onclick", "action(\"" + content.id + "\");");
 		} else if (type == "TextField") {
 			element = document.createElement("input");
@@ -496,7 +494,7 @@ $ICON
 				for ( var id in content.options) {
 					var option = document.createElement("option");
 					option.value = id;
-					option.innerHTML = content.options[id].text;
+					option.textContent = content.options[id].text;
 					var description = content.options[id].description; 
 					if (description != undefined) option.title = description;
 					element.appendChild(option);
@@ -1195,6 +1193,10 @@ $ICON
 	    var input = document.createElement("input");
 	    input.setAttribute("type", type);
 	    return input.type == type;
+	}
+	
+	function escapeText(s) {
+	  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/\n/g, "<br>");
 	}
 		
 	if (false) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN

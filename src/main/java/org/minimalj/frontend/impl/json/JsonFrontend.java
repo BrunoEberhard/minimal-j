@@ -69,7 +69,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public Input<String> createReadOnlyTextField() {
-		return new JsonTextField("ReadOnlyTextField");
+		return new JsonText((String) null);
 	}
 
 	@Override
