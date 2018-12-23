@@ -85,7 +85,7 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 
 		@Override
 		protected void finished(T result) {
-			ReferenceFormElement.this.setValue(result);
+			ReferenceFormElement.this.setValueInternal(result);
 			dialog.closeDialog();
 		}
 	}

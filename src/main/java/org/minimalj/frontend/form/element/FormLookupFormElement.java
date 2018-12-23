@@ -36,7 +36,7 @@ public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement
 
 		@Override
 		protected T save(T object) {
-			FormLookupFormElement.this.setValue(object);
+			FormLookupFormElement.this.setValueInternal(object);
 			return object;
 		}
 	}
