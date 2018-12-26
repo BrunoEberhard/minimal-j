@@ -36,12 +36,12 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 
 	public AbstractFormElement<T> height(int height) {
-		constraint = new FormElementConstraint(height, height, false);
+		constraint = new FormElementConstraint(height, height);
 		return this;
 	}
 
-	public AbstractFormElement<T> height(int min, int max, boolean grow) {
-		constraint = new FormElementConstraint(min, max, grow);
+	public AbstractFormElement<T> height(int min, int max) {
+		constraint = new FormElementConstraint(min, max);
 		return this;
 	}
 

@@ -27,7 +27,7 @@ public class GreetingPage extends Page {
 		if (user.image != null) {
 			Input<byte[]> image = Frontend.getInstance().createImage(null);
 			image.setValue(user.image);
-			form.add(image, new FormElementConstraint(3, FormElementConstraint.MAX, true));
+			form.add(image, new FormElementConstraint(3, FormElementConstraint.MAX));
 		}
 		return form;
 	}

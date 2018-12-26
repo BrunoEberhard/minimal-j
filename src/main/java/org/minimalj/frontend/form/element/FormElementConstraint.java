@@ -7,12 +7,10 @@ public class FormElementConstraint {
 	public static final int MAX = 1000;
 
 	public final int min, max;
-	public final boolean grow;
 
-	public FormElementConstraint(int min, int max, boolean grow) {
+	public FormElementConstraint(int min, int max) {
 		this.min = min;
 		this.max = max;
-		this.grow = grow;
 
 		if (min < 0 || min > MAX) {
 			throw new IllegalArgumentException("Invalid min height: " + min);
@@ -28,15 +26,12 @@ public class FormElementConstraint {
 	public FormElementConstraint(Collection<FormElementConstraint> constraints) {
 		int min = 0;
 		int max = 0;
-		boolean grow = false;
 		for (FormElementConstraint c : constraints) {
 			min = Math.max(min, c.min);
 			max = Math.max(max, c.max);
-			grow |= c.grow;
 		}
 		this.min = min;
 		this.max = max;
-		this.grow = grow;
 	}	 
 
 }

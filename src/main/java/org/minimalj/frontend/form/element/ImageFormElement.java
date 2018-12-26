@@ -16,7 +16,7 @@ public class ImageFormElement extends AbstractFormElement<byte[]> {
 	
 	public ImageFormElement(Object key, int size) {
 		super(key);
-		this.constraint = new FormElementConstraint(size, size, false);
+		this.constraint = new FormElementConstraint(size, size);
 		input = Frontend.getInstance().createImage(new ImageFieldChangeListener());
 	}
 

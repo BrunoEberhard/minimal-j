@@ -44,7 +44,7 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 	@Override
 	public FormElementConstraint getConstraint() {
 		if (lines != 1) {
-			return new FormElementConstraint(lines, lines, false);
+			return new FormElementConstraint(lines, lines);
 		} else {
 			return null;
 		}

@@ -74,7 +74,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		}
 
 		protected boolean isVerticallyGrowing() {
-			return formElementConstraint != null && formElementConstraint.grow;
+			return formElementConstraint != null && formElementConstraint.max > 1;
 		}
 
 		public boolean isCompleteRow() {
