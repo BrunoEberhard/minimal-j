@@ -33,17 +33,9 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	private transient boolean multiSelect;
 	private transient Object[] columns;
 	private transient ITable<T> table;
-	private transient List<T> objects;
 	private transient List<Action> actions;
 	private Object[] nameArguments;
 	
-	/*
-	 * this flag indicates if the next call of getContent should trigger a new loading
-	 * of the data. A second call of getContent probably means that the user revisits
-	 * the page and doesn't want to see the old data. 
-	 */
-	private transient boolean reloadFlag;
-
 	public TablePage() {
 		this.multiSelect = allowMultiselect();
 	}
@@ -101,11 +93,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		if (table == null || multiSelect != allowMultiselect() || !Arrays.equals(columns, getColumns())) {
 			table = createTable();
 		}
-		if (objects == null || reloadFlag) {
-			objects = load();
-			reloadFlag = true;
-		}
-		table.setObjects(objects);
+		table.setObjects(load());
 		return table;
 	}
 	
@@ -123,9 +111,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		
 	public void refresh() {
 		if (table != null) {
-			objects = load();
-			table.setObjects(objects);
-			reloadFlag = false;
+			table.setObjects(load());
 		}
 	}
 
