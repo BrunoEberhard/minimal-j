@@ -30,11 +30,11 @@ public class JsonText extends JsonComponent implements Input<String> {
 
 	@Override
 	public String getValue() {
-		throw new IllegalStateException(JsonText.class.getSimpleName() + " is only meant for displaying text");
+		return (String) get(JsonInputComponent.VALUE);
 	}
 
 	@Override
 	public void setEditable(boolean editable) {
-		throw new IllegalStateException(JsonText.class.getSimpleName() + " is only meant for displaying text");
+		// ignored
 	}
 }
