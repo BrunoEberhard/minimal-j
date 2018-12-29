@@ -20,7 +20,7 @@ public class UserNameEditor extends SimpleEditor<User> {
 	protected Form<User> createForm() {
 		Form<User> form = new Form<>();
 		form.line(User.$.name);
-		form.line(new ImageFormElement(User.$.image));
+		form.line(new ImageFormElement(User.$.image, Form.EDITABLE));
 		return form;
 	}
 

@@ -12,6 +12,8 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public static final String CAPTION = "caption";
 	public static final String VALIDATION_MESSAGE = "validationMessage";
 	public static final String SPAN = "span";
+	public static final String MIN_HEIGHT = "minHeight";
+	public static final String MAX_HEIGHT = "maxHeight";
 
 	private final List<List<JsonComponent>> rows = new ArrayList<>();
 	private final int columns;
@@ -47,6 +49,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		if (columns > 1) {
 			jsonComponent.put(SPAN, columns);
 		}
+		setHeights(constraint, jsonComponent);
 		actualRow.add(jsonComponent);
 		actualColumn = columns;
 	}
@@ -61,8 +64,18 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		if (span > 1) {
 			jsonComponent.put(SPAN, span);
 		}
+		setHeights(constraint, jsonComponent);
 		actualRow.add(jsonComponent);
 		actualColumn += span;
+	}
+
+	private void setHeights(FormElementConstraint constraint, JsonComponent jsonComponent) {
+		if (constraint != null && constraint.min != 1) {
+			jsonComponent.put(MIN_HEIGHT, constraint.min);
+		}
+		if (constraint != null && constraint.max != 1) {
+			jsonComponent.put(MAX_HEIGHT, constraint.max);
+		}
 	}
 
 	@Override

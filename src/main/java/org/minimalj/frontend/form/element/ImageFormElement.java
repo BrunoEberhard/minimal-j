@@ -10,14 +10,14 @@ public class ImageFormElement extends AbstractFormElement<byte[]> {
 	private final Input<byte[]> input;
 	private final FormElementConstraint constraint;
 
-	public ImageFormElement(Object key) {
-		this(key, 3);
+	public ImageFormElement(Object key, boolean editable) {
+		this(key, editable, 3);
 	}
 	
-	public ImageFormElement(Object key, int size) {
+	public ImageFormElement(Object key, boolean editable, int size) {
 		super(key);
 		this.constraint = new FormElementConstraint(size, size);
-		input = Frontend.getInstance().createImage(new ImageFieldChangeListener());
+		input = Frontend.getInstance().createImage(editable ? new ImageFieldChangeListener() : null);
 	}
 
 	@Override

@@ -570,6 +570,9 @@ $ICON
 		    	if (content.value != undefined) {
 			    	element.src = "data:image;base64, " + content.value;
 			    }
+			    if (content.maxHeight != undefined) {
+			    	element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
+			    }
 		    }
 		} else {
 			element = document.createElement("div");

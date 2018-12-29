@@ -317,6 +317,7 @@ table tr:nth-child(odd).selected {
 }
 
 .form > div > div {
+	display: grid;
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
 	overflow: hidden;
