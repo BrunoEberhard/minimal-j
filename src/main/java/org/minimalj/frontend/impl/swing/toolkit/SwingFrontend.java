@@ -280,7 +280,9 @@ public class SwingFrontend extends Frontend {
 			this.lookupButton = new JButton("...");
 			lookupButton.setMargin(EMPTY_INSETS);
 			lookupButton.addActionListener(event -> lookup.run());
-			add(lookupButton, BorderLayout.AFTER_LINE_ENDS);
+			JPanel buttonPanel = new JPanel(new BorderLayout());
+			buttonPanel.add(lookupButton, BorderLayout.PAGE_START);
+			add(buttonPanel, BorderLayout.AFTER_LINE_ENDS);
 		}
 
 		@Override
