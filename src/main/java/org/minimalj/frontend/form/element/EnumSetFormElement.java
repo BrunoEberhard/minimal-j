@@ -40,11 +40,11 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 				s = s.trim();
 				for (Object c : allowedValues) {
 					if (Rendering.render(c).equals(s)) {
-						((HashSet) value).add(c);
+						((Set) value).add(c);
 						continue SPLITS;
 					}
 				}
-				((HashSet) value).add(InvalidValues.createInvalidEnum(enumClass, s));
+				((Set) value).add(InvalidValues.createInvalidEnum(enumClass, s));
 			}
 		}
 		return value;
