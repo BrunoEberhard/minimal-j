@@ -111,7 +111,8 @@ $ICON
 						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
 							element.innerHTML = escapeText(value);
 						} else if (property == "value" && element.tagName == "IMG") {
-							element.src = "data:image;base64, " + atob(value);
+							element.style.display = value ? "block" : "none";
+							element.src = "data:image;base64, " + value;
 						} else {
                             if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
 								value = value.join("");
