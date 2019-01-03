@@ -13,6 +13,7 @@ import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.List;
 import java.util.Stack;
@@ -47,6 +48,7 @@ import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
 public class SwingFrontend extends Frontend {
+
 	@Override
 	public IComponent createText(String string) {
 		return new SwingText(string);
@@ -213,9 +215,21 @@ public class SwingFrontend extends Frontend {
 		return new SwingSearchPanel<T>(search, keys, multiSelect, listener);
 	}
 
+	public static final String FX_HTML_CLASS = "org.minimalj.frontend.impl.swing.component.FxHtmlContent";
+
 	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
-		return new SwingHtmlContent(htmlOrUrl);
+		try {
+			Class<?> c = Class.forName(FX_HTML_CLASS);
+			@SuppressWarnings("unchecked")
+			Constructor<IContent> con = (Constructor<IContent>) c.getConstructor(String.class);
+			return con.newInstance(htmlOrUrl);
+		} catch (ClassNotFoundException x) {
+			// swingfxbrowser not available
+			return new SwingHtmlContent(htmlOrUrl);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static class QueryContent extends JPanel implements IContent {
