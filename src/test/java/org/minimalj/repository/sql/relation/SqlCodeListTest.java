@@ -1,6 +1,8 @@
 package org.minimalj.repository.sql.relation;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -53,7 +55,12 @@ public class SqlCodeListTest {
 		// Ad hoc creation of new code should fail
 		// the id of the new code is already set.
 		// But only if a list element has no Id the element is created
+
+		Logger logger = Logger.getLogger("SQL");
+		Level oldLevel = logger.getLevel();
+		logger.setLevel(Level.OFF);
 		Backend.insert(entity);
+		logger.setLevel(oldLevel);
 	}
 
 	@Test
