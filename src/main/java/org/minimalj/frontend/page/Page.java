@@ -59,11 +59,12 @@ public abstract class Page {
 	 * Route String must obey some rules to be valid:
 	 * <UL>
 	 * <LI>no '/' at start or end
-	 * <LI>Only characters or digits or the four characters .-_/ are allowed
-	 * <LI>Before a '/' no '.' is allowed
-	 * </UL> 
+	 * <LI>Only characters or digits or the three characters -_/ are allowed
+	 * </UL>
+	 * 
 	 * @param route String provided by a page
 	 * @return Frontend will accept route or not
+	 * @see java.util.Base64.getUrlEncoder
 	 */
 	public static boolean validateRoute(String route) {
 		if (StringUtils.isBlank(route)) {
@@ -74,14 +75,8 @@ public abstract class Page {
 		}
 		for (int i = 0; i<route.length(); i++) {
 			char c = route.charAt(i);
-			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '.' || c == '-' || c == '_')) {
-				if (c == '/') {
-					if (route.charAt(i - 1) == '.') {
-						return false;
-					}
-				} else {
-					return false;
-				}
+			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '/' || c == '-' || c == '_')) {
+				return false;
 			}
 		}
 		return true;
