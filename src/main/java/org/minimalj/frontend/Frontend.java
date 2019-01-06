@@ -190,15 +190,17 @@ public abstract class Frontend {
 	/**
 	 * Allows several types of input:
 	 * <UL>
-	 * <LI>if it starts with a '&lt;html&gt;' and ends with &lt;/html&gt; it's supposed to be a html document
+	 * <LI>if it starts with a '&lt;html&gt;' and ends with &lt;/html&gt; it's
+	 * supposed to be a html document
 	 * <LI>if it is a valid url the content of that url is loaded
 	 * <LI>if it ends with '.html' the content is loaded from the classpath
 	 * <LI>if none of the above the input is used as plain String
 	 * </UL>
-	 * <strong>note:</strong> If any user input is used as html content the input should be considered
-	 * dangerous as some Frontends could execute injected code.<p>
+	 * <strong>note:</strong> If any user input is used as html content the input
+	 * should be considered dangerous as some Frontends could execute injected code.
+	 * <p>
 	 * 
-	 * @see StringUtils#sanitizeHtml(String)
+	 * @see StringUtils#escapeHTML(String)
 	 * 
 	 * @param htmlOrUrl html, url, classpath location or string
 	 * @return html content

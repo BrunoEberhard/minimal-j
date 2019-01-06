@@ -8,7 +8,7 @@ import org.minimalj.util.StringUtils;
  * <b>note:</b> for security reasons read the JavaDoc in the Frontend class
  * 
  * @see Frontend#createHtmlContent(String)
- * @see StringUtils#sanitizeHtml(String)
+ * @see StringUtils#escapeHTML(String)
  */
 public class HtmlPage extends Page {
 
