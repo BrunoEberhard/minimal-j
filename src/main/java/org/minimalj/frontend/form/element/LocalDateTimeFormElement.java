@@ -3,6 +3,7 @@ package org.minimalj.frontend.form.element;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 import org.minimalj.frontend.Frontend.InputType;
@@ -48,12 +49,11 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 					return LocalDateTime.parse(string);
 				} else {
 					String[] parts = string.split(" ");
-					return LocalDateTime.of(DateUtils.parse(parts[0]), LocalTime.parse(parts[1], formatter));
+					return LocalDateTime.of(DateUtils.parse_(parts[0]), LocalTime.parse(parts[1], formatter));
 				}
-			} catch (Exception x) {
-				// ignore
+			} catch (DateTimeParseException x) {
+				return InvalidValues.createInvalidLocalDateTime(string);
 			}
-			return InvalidValues.createInvalidLocalDateTime(string);
 		} else {
 			return null;
 		}
