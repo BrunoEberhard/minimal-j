@@ -1,5 +1,8 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.Objects;
+import java.util.Set;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -58,4 +61,30 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> {
 		@Override
 		public abstract void setValue(Object object, Object newValue);
 	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static class SetElementFormElementProperty extends CheckBoxProperty {
+		private final Object value;
+
+		public SetElementFormElementProperty(Object value) {
+			this.value = Objects.requireNonNull(value);
+		}
+
+		@Override
+		public Boolean getValue(Object object) {
+			Set set = (Set) object;
+			return set.contains(value);
+		}
+
+		@Override
+		public void setValue(Object object, Object newValue) {
+			Set set = (Set) object;
+			if (Boolean.TRUE.equals(newValue)) {
+				set.add(value);
+			} else {
+				set.remove(value);
+			}
+		}
+	}
+
 }

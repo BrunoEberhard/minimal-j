@@ -2,6 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
@@ -86,31 +87,21 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 		}
 	}
 	
-	private class EnumSetFormElementProperty extends CheckBoxProperty {
+	public static class EnumSetFormElementProperty extends CheckBoxProperty {
 		private final Enum<?> value;
 
 		public EnumSetFormElementProperty(Enum<?> value) {
-			this.value = value;
+			this.value = Objects.requireNonNull(value);
 		}
 
 		@Override
 		public Class<?> getDeclaringClass() {
-			return enumClass;
+			return value.getClass();
 		}
 
 		@Override
 		public String getName() {
 			return value.name();
-		}
-
-		@Override
-		public String getPath() {
-			return value.name();
-		}
-
-		@Override
-		public Class<?> getClazz() {
-			return enumClass;
 		}
 
 		@Override
