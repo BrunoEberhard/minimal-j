@@ -20,7 +20,7 @@ import org.minimalj.model.validation.InvalidValues;
 
 public class DateUtils {
 	private static final Map<Locale, DateTimeFormatter> dateFormatByLocale = new HashMap<>();
-	private static final Map<Locale, Boolean> allowSpecialParser = new HashMap<>();
+	private static final Map<Locale, Boolean> germanDateStyle = new HashMap<>();
 
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -31,7 +31,7 @@ public class DateUtils {
 		if (!dateFormatByLocale.containsKey(locale)) {
 			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
 			dateFormatByLocale.put(locale, formatter);
-			allowSpecialParser.put(locale,
+			germanDateStyle.put(locale,
 					"dd.MM.yyyy".equals(DateTimeFormatterBuilder.getLocalizedDateTimePattern(FormatStyle.MEDIUM, null, IsoChronology.INSTANCE, locale)));
 		}
 		return dateFormatByLocale.get(locale);
@@ -198,12 +198,17 @@ public class DateUtils {
 	// framework internal, only used by LocalDateTimeFormElement
 	public static LocalDate parse_(String date) {
 		DateTimeFormatter dateTimeFormatter = getDateTimeFormatter();
-		if (allowSpecialParser.get(LocaleContext.getCurrent())) {
+		if (germanDateStyle()) {
 			date = parseCH(date, false);
 			return LocalDate.parse(date);
 		} else {
 			return LocalDate.parse(date, dateTimeFormatter);
 		}
+	}
+
+	public static boolean germanDateStyle() {
+		getDateTimeFormatter();
+		return germanDateStyle.get(LocaleContext.getCurrent());
 	}
 	
 	/**

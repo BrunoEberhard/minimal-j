@@ -2,7 +2,6 @@ package org.minimalj.frontend.form.element;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Locale;
 
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.properties.PropertyInterface;
@@ -12,7 +11,7 @@ import org.minimalj.util.mock.MockDate;
 
 public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 
-	private static final boolean german = Locale.getDefault().getLanguage().equals(new Locale("de").getLanguage());
+	private static final boolean german = DateUtils.germanDateStyle();
 	
 	public LocalDateFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
