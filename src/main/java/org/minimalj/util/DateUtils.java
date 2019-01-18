@@ -37,10 +37,6 @@ public class DateUtils {
 		return dateFormatByLocale.get(locale);
 	}
 	
-	public static void main(String[] args) {
-		getDateTimeFormatter();
-	}
-
 	public static class TrippleString {
 		public String s1, s2, s3;
 		
