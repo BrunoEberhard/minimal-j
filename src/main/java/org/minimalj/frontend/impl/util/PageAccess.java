@@ -1,9 +1,12 @@
 package org.minimalj.frontend.impl.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
@@ -26,9 +29,21 @@ public class PageAccess {
 			return page.getContent();
 		} catch (Exception exception) {
 			ExceptionUtils.logReducedStackTrace(logger, exception);
-			String text = exception.getClass().getSimpleName() + ": " + exception.getMessage();
+			String text;
+			if (Configuration.isDevModeActive()) {
+				text = getStackTrace(exception);
+				text = text.replace("\n", "<br>");
+			} else {
+				text = exception.toString();
+			}
 			return Frontend.getInstance().createHtmlContent("<html>" + text + "</html>");
 		}
+	}
+
+	public static String getStackTrace(Throwable t) {
+		StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
 	}
 
 	public static List<Action> getActions(Page page) {
