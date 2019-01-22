@@ -23,8 +23,6 @@ import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
-	private static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
-	
 	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
 	private static ThreadLocal<Boolean> useInputTypesByThread = new ThreadLocal<>();
 
@@ -176,12 +174,6 @@ public class JsonFrontend extends Frontend {
 	
 	//
 	
-	public static boolean useWebSocket() {
-		return useWebSocket;
-	}
-
-	//
-	
 	public static String readStream(InputStream inputStream) {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 			return reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
@@ -209,7 +201,6 @@ public class JsonFrontend extends Frontend {
 		LocaleContext.setCurrent(locale);
 		String result = html.replace("$LOCALE", locale.getLanguage());
 		result = result.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
-		result = result.replace("$WEB_SOCKET", Boolean.toString(useWebSocket()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
 		result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");
@@ -220,6 +211,8 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$BASE", base(path));
 		result = result.replace("$PATH", path);
 		result = result.replace("$THEME", THEMES.get(Configuration.get("MjTheme", "")));
+		result = result.replace("$IMPORT", "");
+		result = result.replace("$INIT", "");
 		return result;
 	}
 	

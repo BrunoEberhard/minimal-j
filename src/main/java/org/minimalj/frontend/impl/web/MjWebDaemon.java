@@ -20,6 +20,7 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class MjWebDaemon extends NanoHTTPD {
 	private static final Logger logger = Logger.getLogger(MjWebDaemon.class.getName());
+	private static final boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
 	private JsonSessionManager sessionManager = new JsonSessionManager();
 	
@@ -85,6 +86,7 @@ public class MjWebDaemon extends NanoHTTPD {
 		} else {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			Locale locale = getLocale(headers.get("accept-language"));
+			htmlTemplate = htmlTemplate.replace("$SEND", useWebSocket ? "sendWebSocket" : "sendAjax");
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		}

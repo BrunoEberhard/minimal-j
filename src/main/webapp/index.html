@@ -6,9 +6,7 @@
 <!-- $APPLICATION-VERSION -->
 <base href="$BASE">
 
-<!-- $CHEERPJ_IMPORT 
-<script src="https://cjrtnc.leaningtech.com/loader.js"></script>
--->
+$IMPORT
 <script src="dialog-polyfill.js"></script>
 
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -986,10 +984,8 @@ $ICON
 	    	
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
-		
-		// $CHEERPJ
-		// sendCheerpj(data, block);
-		$WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
+
+		$SEND(data, block);
 	}
 		
 	function sendAjax(data, block) {
@@ -1207,13 +1203,8 @@ $ICON
 	function escapeText(s) {
 	  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/\n/g, "<br>");
 	}
-		
-	if (false) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN
-		cheerpjInit();
-		// cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/h.jar", "org.minimalj.example.helloworld2.GreetingApplication");  
-        cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication").then(init);  
-        // cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication", "-DMjRepository=org.minimalj.repository.memory.InMemoryRepository", "-DMjUserFile=users.txt", "-DMjDevMode=true");  
-	}
+
+	$INIT		
 	
 </script>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
