@@ -106,6 +106,8 @@ $ICON
 							} else {
 								element.setAttribute("disabled", "true");
 							}
+						} else if (property == "value" && element.tagName == "INPUT" && element.type == "checkbox") {
+							element.checked = value == "true" ? "checked" : "";
 						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
 							element.innerHTML = escapeText(value);
 						} else if (property == "value" && element.tagName == "IMG") {
