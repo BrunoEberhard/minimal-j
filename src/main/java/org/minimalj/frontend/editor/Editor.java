@@ -178,20 +178,25 @@ public abstract class Editor<T, RESULT> extends Action {
 		dialog.closeDialog();
 	}
 
+	protected void objectChanged() {
+		form.setObject(object);
+		validate(form);
+	}
+
 	private class FillWithDemoDataAction extends Action {
 		@Override
 		public void action() {
 			fillWithDemoData();
-			validate(form);
 		}
 	}
 	
 	protected void fillWithDemoData() {
 		if (object instanceof Mocking) {
 			((Mocking) object).mock();
-			form.setObject(object);
+			objectChanged();
 		} else {
 			form.mock();
+			validate(form);
 		}
 	}
 
