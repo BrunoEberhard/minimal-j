@@ -39,29 +39,19 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		rows.add(actualRow);
 		actualColumn = 0;
 	}
-	
-	@Override
-	public void add(IComponent component, FormElementConstraint constraint) {
-		JsonComponent jsonComponent = (JsonComponent) component;
-		if (actualColumn > 0) {
-			createNewRow();
-		}
-		if (columns > 1) {
-			jsonComponent.put(SPAN, columns);
-		}
-		setHeights(constraint, jsonComponent);
-		actualRow.add(jsonComponent);
-		actualColumn = columns;
-	}
 
 	@Override
 	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
 		JsonComponent jsonComponent = (JsonComponent) component;
-		jsonComponent.put(CAPTION, caption);
+		if (caption != null) {
+			jsonComponent.put(CAPTION, caption);
+		}
 		if (actualColumn >= columns) {
 			createNewRow();
 		}
-		if (span > 1) {
+		if (span < 1) {
+			jsonComponent.put(SPAN, columns);
+		} else if (span > 1) {
 			jsonComponent.put(SPAN, span);
 		}
 		setHeights(constraint, jsonComponent);

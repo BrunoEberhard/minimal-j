@@ -66,7 +66,7 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 		@Override
 		protected Form<List<T>> createForm() {
 			Form<List<T>> form = new Form<>();
-			form.lineWithoutCaption(new InnerSmallListFormElement());
+			form.line(new InnerSmallListFormElement());
 			return form;
 		}
 
@@ -86,6 +86,11 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 
 		public InnerSmallListFormElement() {
 			super(new SmallListFormElementProperty());
+		}
+
+		@Override
+		public String getCaption() {
+			return null;
 		}
 
 		@Override

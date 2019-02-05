@@ -154,7 +154,6 @@ public abstract class Frontend {
 	}
 
 	public interface FormContent extends IContent {
-		public void add(IComponent component, FormElementConstraint constraint);
 		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);
 	}

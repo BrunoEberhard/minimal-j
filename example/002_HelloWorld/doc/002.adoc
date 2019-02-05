@@ -25,7 +25,6 @@ public class HelloWorldApplication extends Application {
 package org.minimalj.example.helloworld;
 
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
 
@@ -38,9 +37,7 @@ public class HelloWorldPage extends Page {
 
 	@Override
 	public IContent getContent() {
-		FormContent form = Frontend.getInstance().createFormContent(1, 100);
-		form.add(Frontend.getInstance().createText("Hello World"));
-		return form;
+		return Frontend.getInstance().createHtmlContent("Hello World");
 	}
 
 }
@@ -48,17 +45,13 @@ public class HelloWorldPage extends Page {
 
 The page defines its title and its content. Later a page can also define its actions.
 
-There are only three classes of IContent: Forms, Tables and HTML. A Text is not a IContent but a IComponent. 
-That is the reason why the 'Hello World' Text must be put in a form and cannot be
-returned as result for the getContent method.
-
 Note that the getContent method does construct the return value but doesn't save it for
 later calls of getContent. It can be expected that getContent is only called once.
 You should not create the content in the constructor and return the reference in getContent.
-Pages are meant to be light weight. So it's not recommanded to prepare all the content before
+Pages are meant to be light weight. So it's not recommended to prepare all the content before
 it is requested by a call of getContent.
 
-The two arguments in createFormContent specifiy the number of columns (1) and the width of a
+The two arguments in createFormContent specify the number of columns (1) and the width of a
 column. 100 means 'just a normal size'.
 
 === Result

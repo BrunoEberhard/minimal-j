@@ -41,23 +41,20 @@ public class LanternaForm extends Panel implements FormContent, LayoutManager {
 	}
 
 	@Override
-	public void add(IComponent component, FormElementConstraint constraint) {
-		createNewRow();
-		Component lanternaComponent = (Component) component;
-		actualRow.add(lanternaComponent);
-		actualColumn = columns;
-		spans.put((Component) component, columns);
-		super.addComponent((Component) component);
-	}
-
-	@Override
 	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
-		LanternaCaption lanternaComponent = new LanternaCaption((Component) component, caption);
-		captionByComponent.put(component, lanternaComponent);
+		Component lanternaComponent;
+		if (caption != null) {
+			lanternaComponent = new LanternaCaption((Component) component, caption);
+			captionByComponent.put(component, (LanternaCaption) lanternaComponent);
+		} else {
+			lanternaComponent = (Component) component;
+		}
 		if (actualColumn >= columns) {
 			createNewRow();
 		}
 		actualRow.add(lanternaComponent);
+		if (span < 1)
+			span = columns;
 		actualColumn += span;
 		spans.put(lanternaComponent, span);
 		super.addComponent(lanternaComponent);

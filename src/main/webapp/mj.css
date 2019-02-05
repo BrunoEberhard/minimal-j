@@ -241,6 +241,7 @@ dialog.fullscreen {
 	padding-left: 1em;
 	border-bottom: 1px rgb(160,160,160) solid;
 	background: rgb(240,240,240);
+	overflow: hidden;
 }
 
 .dialogContent {
@@ -317,16 +318,21 @@ table tr:nth-child(odd).selected {
 }
 
 .form > div > div {
-	display: grid;
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
 	overflow: hidden;
 }
 
-.form input, .form select, .form textarea, .form .lookup, dialog .form .Text, dialog .form label, dialog .form div.list, dialog .form .Title {
+.form input, .form select, .form textarea, .form .lookup, dialog .form label, dialog .form div.list, dialog .form .Title {
 	width: calc(100% - 1em);
 	margin-left: 0.5em;
 	margin-right: 0.5em;
+}
+
+.form .Text {
+	width: 100%;
+	align-self: flex-end;
+	margin-bottom: 0.4em;
 }
 
 dialog .form div.list {

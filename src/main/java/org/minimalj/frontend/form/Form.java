@@ -22,7 +22,6 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
-import org.minimalj.frontend.form.element.EmptyFormElement;
 import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
@@ -48,14 +47,15 @@ import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
-import org.minimalj.util.resources.Resources;
 
 public class Form<T> {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName().toUpperCase());
 
 	public static final boolean EDITABLE = true;
 	public static final boolean READ_ONLY = false;
-	
+
+	public static final Object GROW_FIRST_ELEMENT = new Object();
+
 	protected final boolean editable;
 	
 	private final int columns;
@@ -102,8 +102,8 @@ public class Form<T> {
 		return formContent;
 	}
 
-	public FormElement<?> createElement(Object key) {
-		FormElement<?> element;
+	protected FormElement<?> createElement(Object key) {
+		FormElement<?> element = null;
 		PropertyInterface property;
 		if (key == null) {
 			throw new NullPointerException("Key must not be null");
@@ -113,11 +113,10 @@ public class Form<T> {
 			if (property == null) throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
 		} else {
 			property = Keys.getProperty(key);
-			// if ths happens for a getter-method there is the special line missing
-			if (property == null) throw new IllegalArgumentException("" + key);
-			element = createElement(property);
+			if (property != null) {
+				element = createElement(property);
+			}
 		}
-
 		return element;
 	}
 	
@@ -158,57 +157,53 @@ public class Form<T> {
 	
 	// 
 
-	public void line(Object key) {
-		FormElement<?> element = createElement(key);
-		add(element, columns);
-	}
-	
 	public void line(Object... keys) {
-		if (keys.length > columns) {
-			logger.severe("This form was constructed for " + columns + " column(s) but should be filled with " + keys.length + " form elements");
+		if (keys[0] == GROW_FIRST_ELEMENT) {
+			assertColumnCount(keys.length - 1);
+			for (int i = 1; i < keys.length; i++) {
+				int elementSpan = i == 1 ? columns - keys.length + 2 : 1;
+				add(keys[i], elementSpan);
+			}
+		} else {
+			assertColumnCount(keys.length);
+			int span = columns / keys.length;
+			int rest = columns;
+			for (int i = 0; i < keys.length; i++) {
+				int elementSpan = i < keys.length - 1 ? span : rest;
+				add(keys[i], elementSpan);
+				rest = rest - span;
+			}
+		}
+	}
+
+	private void assertColumnCount(int elementCount) {
+		if (elementCount > columns) {
+			logger.severe("This form was constructed for " + columns + " column(s) but should be filled with " + elementCount + " form elements");
 			logger.fine("The solution is most probably to add/set the correct number of columns when calling the Form constructor");
-			throw new IllegalArgumentException("Not enough columns (" + columns + ") for form elements (" + keys.length + ")");
-		}
-		int span = columns / keys.length;
-		int rest = columns;
-		for (int i = 0; i<keys.length; i++) {
-			Object key = keys[i];
-			FormElement<?> element = createElement(key);
-			add(element, i < keys.length - 1 ? span : rest);
-			rest = rest - span;
+			throw new IllegalArgumentException("Not enough columns (" + columns + ") for form elements (" + elementCount + ")");
 		}
 	}
-	
-	/**
-	 * Use with care. Validation messages cannot be displayed without caption.
-	 * At the moment this method is only meant to be used for the selection
-	 * of elements in a Set of Enum.
-	 * 
-	 * @param key field that should be in the form without caption
-	 */
-	public void lineWithoutCaption(Object key) {
+
+	private void add(Object key, int elementSpan) {
 		FormElement<?> element = createElement(key);
-		formContent.add(element.getComponent(), element.getConstraint());
-		registerNamedElement(element);
+		if (element != null) {
+			add(element, elementSpan);
+		} else {
+			formContent.add(null, Frontend.getInstance().createText("" + key), null, elementSpan);
+		}
 	}
-	
+
 	private void add(FormElement<?> element, int span) {
-		String captionText = caption(element);
-		formContent.add(captionText, element.getComponent(), element.getConstraint(), span);
+		formContent.add(element.getCaption(), element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
 	
 	// 
 
-	public void text(String text) {
-		IComponent label = Frontend.getInstance().createText(text);
-		formContent.add(label, null);
-	}
-
 	public void addTitle(String text) {
 		IComponent label = Frontend.getInstance().createTitle(text);
-		formContent.add(label, null);
+		formContent.add(null, label, null, -1);
 	}
 
 	//
@@ -316,13 +311,6 @@ public class Form<T> {
 		}		
 	}
 	
-	//
-
-	protected String caption(FormElement<?> field) {
-		if (field instanceof EmptyFormElement) return null;
-		return Resources.getPropertyName(field.getProperty());
-	}
-
 	//
 	
 	/**

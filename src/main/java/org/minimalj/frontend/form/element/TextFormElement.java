@@ -35,6 +35,11 @@ public class TextFormElement implements FormElement<Object> {
 	}
 
 	@Override
+	public String getCaption() {
+		return null;
+	}
+
+	@Override
 	public IComponent getComponent() {
 		return textField;
 	}
