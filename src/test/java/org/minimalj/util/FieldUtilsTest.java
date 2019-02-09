@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Base64;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,12 +18,14 @@ public class FieldUtilsTest {
 		Assert.assertEquals(null, FieldUtils.parse("", BigDecimal.class));
 		Assert.assertEquals(null, FieldUtils.parse("", LocalDate.class));
 		Assert.assertEquals("", FieldUtils.parse("", String.class));
+		Assert.assertEquals(null, FieldUtils.parse("", byte[].class));
 
 		Assert.assertEquals(null, FieldUtils.parse(null, Long.class));
 		Assert.assertEquals(null, FieldUtils.parse(null, Integer.class));
 		Assert.assertEquals(null, FieldUtils.parse(null, BigDecimal.class));
 		Assert.assertEquals(null, FieldUtils.parse(null, LocalDate.class));
 		Assert.assertEquals(null, FieldUtils.parse(null, String.class));
+		Assert.assertEquals(null, FieldUtils.parse(null, byte[].class));
 	}
 
 	@Test
@@ -54,4 +57,10 @@ public class FieldUtilsTest {
 		Assert.assertEquals(LocalDateTime.of(2014, 12, 31, 23, 59, 58), FieldUtils.parse("2014-12-31T23:59:58", LocalDateTime.class));
 	}
 
+	@Test
+	public void parse_base64() {
+		byte[] bytes = new byte[] { 1, 2, 3, 4 };
+		String s = Base64.getEncoder().encodeToString(bytes);
+		Assert.assertArrayEquals(bytes, FieldUtils.parse(s, byte[].class));
+	}
 }

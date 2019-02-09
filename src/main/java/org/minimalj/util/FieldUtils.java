@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -196,6 +197,8 @@ public class FieldUtils {
 						break;
 					}
 				}
+			} else if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
+				value = Base64.getDecoder().decode(s);
 			} else {
 				throw new IllegalArgumentException(clazz.getSimpleName() + ": " + s);
 			}
