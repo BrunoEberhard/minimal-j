@@ -6,9 +6,7 @@
 <!-- $APPLICATION-VERSION -->
 <base href="$BASE">
 
-<!-- $CHEERPJ_IMPORT 
-<script src="https://cjrtnc.leaningtech.com/loader.js"></script>
--->
+$IMPORT
 <script src="dialog-polyfill.js"></script>
 
 <link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
@@ -57,7 +55,7 @@ $ICON
 			var pageElement = document.getElementById(pageId);
 			if (pageElement != null) {
 				var pageTitleElement = pageElement.querySelector(".pageTitle");
-				pageTitleElement.innerHTML = title;
+				pageTitleElement.textContent = title;
 			}
 		}
 		if (dataObject.hideDetail != undefined) {
@@ -108,10 +106,13 @@ $ICON
 							} else {
 								element.setAttribute("disabled", "true");
 							}
+						} else if (property == "value" && element.tagName == "INPUT" && element.type == "checkbox") {
+							element.checked = value == "true" ? "checked" : "";
 						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
-							element.innerHTML = value;
+							element.innerHTML = escapeText(value);
 						} else if (property == "value" && element.tagName == "IMG") {
-							element.src = "data:image;base64, " + atob(value);
+							element.style.display = value ? "block" : "none";
+							element.src = "data:image;base64, " + value;
 						} else {
                             if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
 								value = value.join("");
@@ -352,7 +353,7 @@ $ICON
 		
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
-		titleElement.innerHTML = title;
+		titleElement.textContent = title;
 		element.appendChild(titleElement);
 		
 		var b = document.getElementById("pageHeaderButtons");
@@ -399,6 +400,11 @@ $ICON
 			if (content.multiSelect) {
 				element.classList.add("multiSelect");
 			}
+			if (content.overview != null) {
+				var overview = document.createElement("thead");
+				overview.appendChild(createContent(content.overview));
+				element.appendChild(overview);
+			}
 			element.appendChild(createTableHeaders(content.id, content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 			
@@ -412,13 +418,11 @@ $ICON
 				}
 				element.appendChild(footer);
 			}
-		} else if (type == "Text" || type == "Gap" || type == "Title" || type == "ReadOnlyTextField") {
+		} else if (type == "Text" || type == "Title") {
 			element = document.createElement("div");
 			element.classList.add(type);
-			if (content.htmlValue != undefined) {
-				element.innerHTML = content.htmlValue;
-			} else if (content.value != undefined) {
-				element.appendChild(document.createTextNode(content.value));
+			if (content.value != undefined) {
+				element.innerHTML = escapeText(content.value);
 			} else {
 				element.innerHTML = "&nbsp;";
 			}
@@ -437,7 +441,7 @@ $ICON
 		} else if (type == "Action") {
 			element = document.createElement("div");
 			element.className = "action";
-			element.innerHTML = content.name;
+			element.textContent = content.name;
 			element.setAttribute("onclick", "action(\"" + content.id + "\");");
 		} else if (type == "TextField") {
 			element = document.createElement("input");
@@ -496,7 +500,7 @@ $ICON
 				for ( var id in content.options) {
 					var option = document.createElement("option");
 					option.value = id;
-					option.innerHTML = content.options[id].text;
+					option.textContent = content.options[id].text;
 					var description = content.options[id].description; 
 					if (description != undefined) option.title = description;
 					element.appendChild(option);
@@ -567,6 +571,9 @@ $ICON
 		    	if (content.value != undefined) {
 			    	element.src = "data:image;base64, " + content.value;
 			    }
+			    if (content.maxHeight != undefined) {
+			    	element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
+			    }
 		    }
 		} else {
 			element = document.createElement("div");
@@ -610,7 +617,7 @@ $ICON
 			caption.appendChild(tooltip);
 			cellElement.appendChild(caption);
 		} else {
-			cellElement.style.verticalAlign = "bottom";
+			cellElement.style.display = "flex";
 		}
 		var cellContent = createContent(cell);
 		setWidths(cellElement, cellContent, span, width);
@@ -979,10 +986,8 @@ $ICON
 	    	
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
-		
-		// $CHEERPJ
-		// sendCheerpj(data, block);
-		$WEB_SOCKET ? sendWebSocket(data, block) : sendAjax(data, block);
+
+		$SEND(data, block);
 	}
 		
 	function sendAjax(data, block) {
@@ -1196,13 +1201,12 @@ $ICON
 	    input.setAttribute("type", type);
 	    return input.type == type;
 	}
-		
-	if (false) { // $CHEERPJ, $CHEERPJ_PATH, $CHEERPJ_MAIN
-		cheerpjInit();
-		// cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/h.jar", "org.minimalj.example.helloworld2.GreetingApplication");  
-        cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication").then(init);  
-        // cheerpjRunMain("org.minimalj.frontend.impl.cheerpj.Cheerpj", "/app/m.jar:/app/mem.jar:/app/ech.jar", "ch.openech.OpenEchApplication", "-DMjRepository=org.minimalj.repository.memory.InMemoryRepository", "-DMjUserFile=users.txt", "-DMjDevMode=true");  
+	
+	function escapeText(s) {
+	  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/\n/g, "<br>");
 	}
+
+	$INIT		
 	
 </script>
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />

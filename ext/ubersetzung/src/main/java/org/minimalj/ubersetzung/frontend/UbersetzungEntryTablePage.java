@@ -51,7 +51,7 @@ public class UbersetzungEntryTablePage extends SimpleTableEditorPage<Ubersetzung
 	@Override
 	protected Form<UbersetzungEntry> createForm(boolean editable, boolean newObject) {
 		Form<UbersetzungEntry> form = new Form<>(editable);
-		form.text(ubersetzung.lang + " / " + ubersetzung.country);
+		form.line(ubersetzung.lang + " / " + ubersetzung.country);
 
 		if (newObject) {
 			form.line(UbersetzungEntry.$.key);

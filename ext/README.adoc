@@ -16,6 +16,13 @@ A Repository that keeps all data in the (VM) memory
 A sql Repository with support for historized entities. If a main entity has a boolean field 'historized' then
 with every version a new row is created in the database.
 
+== swingfxbrowser
+
+Enables the browser of JavaFx for the Swing Frontend.
+As JavaFx is not part of OpenJDK (only in Oracle JDK) or Java 11 this class is separated in special artifact
+to avoid the bunch of dependencies needed to run JavaFx. Just at this artifact to your application pom.xml.
+If you then start the Swing Frontend the system browser will be used to display html content.
+
 == servlet
 
 This project allows to deploy Minimal-J applictions to a java application server like tomcat.

@@ -9,8 +9,10 @@ import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 
+import com.googlecode.lanterna.gui2.BorderLayout;
 import com.googlecode.lanterna.gui2.Button;
 import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox.Style;
 
 public class LanternaFrontend extends Frontend {
@@ -85,7 +87,7 @@ public class LanternaFrontend extends Frontend {
 
 	@Override
 	public Input<byte[]> createImage(InputComponentListener changeListener) {
-		throw new RuntimeException("Image not yet implemented in JsonFrontend");
+		throw new RuntimeException("Not possible in Lanterna to display or upload an image");
 	};
 
 	@Override
@@ -106,6 +108,20 @@ public class LanternaFrontend extends Frontend {
 	@Override
 	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		return new LanternaSearchTable(search, keys, multiSelect, listener);
+	}
+
+	@Override
+	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+		LanternaBorderLayoutContent panel = new LanternaBorderLayoutContent();
+		panel.addComponent((Component) form, BorderLayout.Location.TOP);
+		panel.addComponent((Component) table, BorderLayout.Location.CENTER);
+		return panel;
+	}
+
+	private static class LanternaBorderLayoutContent extends Panel implements IContent {
+		private LanternaBorderLayoutContent() {
+			super(new BorderLayout());
+		}
 	}
 
 	@Override

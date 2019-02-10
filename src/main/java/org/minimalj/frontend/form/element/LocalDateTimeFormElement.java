@@ -3,7 +3,7 @@ package org.minimalj.frontend.form.element;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+import java.time.format.DateTimeParseException;
 
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.Size;
@@ -14,7 +14,7 @@ import org.minimalj.util.mock.MockDate;
 
 public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 
-	private static final boolean german = Locale.getDefault().getLanguage().equals(new Locale("de").getLanguage());
+	private static final boolean german = DateUtils.germanDateStyle();
 	private final DateTimeFormatter formatter;
 	private final int size;
 	
@@ -48,12 +48,11 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 					return LocalDateTime.parse(string);
 				} else {
 					String[] parts = string.split(" ");
-					return LocalDateTime.of(DateUtils.parse(parts[0]), LocalTime.parse(parts[1], formatter));
+					return LocalDateTime.of(DateUtils.parse_(parts[0]), LocalTime.parse(parts[1], formatter));
 				}
-			} catch (Exception x) {
-				// ignore
+			} catch (DateTimeParseException x) {
+				return InvalidValues.createInvalidLocalDateTime(string);
 			}
-			return InvalidValues.createInvalidLocalDateTime(string);
 		} else {
 			return null;
 		}

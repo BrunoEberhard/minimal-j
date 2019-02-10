@@ -154,7 +154,6 @@ public abstract class Frontend {
 	}
 
 	public interface FormContent extends IContent {
-		public void add(IComponent component, FormElementConstraint constraint);
 		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);
 	}
@@ -181,20 +180,26 @@ public abstract class Frontend {
 		}
 	}
 	
+	// experimental. Signature may change. Idea is to have a header or filter above
+	// a table. But the header/filter must not be a growing content
+	public abstract IContent createFormTableContent(FormContent form, ITable<?> table);
+
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
 	/**
 	 * Allows several types of input:
 	 * <UL>
-	 * <LI>if it starts with a '&lt;html&gt;' and ends with &lt;/html&gt; it's supposed to be a html document
+	 * <LI>if it starts with a '&lt;html&gt;' and ends with &lt;/html&gt; it's
+	 * supposed to be a html document
 	 * <LI>if it is a valid url the content of that url is loaded
 	 * <LI>if it ends with '.html' the content is loaded from the classpath
 	 * <LI>if none of the above the input is used as plain String
 	 * </UL>
-	 * <strong>note:</strong> If any user input is used as html content the input should be considered
-	 * dangerous as some Frontends could execute injected code.<p>
+	 * <strong>note:</strong> If any user input is used as html content the input
+	 * should be considered dangerous as some Frontends could execute injected code.
+	 * <p>
 	 * 
-	 * @see StringUtils#sanitizeHtml(String)
+	 * @see StringUtils#escapeHTML(String)
 	 * 
 	 * @param htmlOrUrl html, url, classpath location or string
 	 * @return html content

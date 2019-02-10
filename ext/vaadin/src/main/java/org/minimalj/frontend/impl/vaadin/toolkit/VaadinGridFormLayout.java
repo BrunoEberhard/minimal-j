@@ -6,6 +6,7 @@ import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.form.element.FormElementConstraint;
+import org.minimalj.util.StringUtils;
 
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;
@@ -45,20 +46,22 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 	}
 
 	@Override
-	public void add(IComponent component, FormElementConstraint constraint) {
-		add(component, columns);
-	}
-
-	@Override
 	public void add(String caption, IComponent field, FormElementConstraint constraint, int span) {
 		add(field, span);
 		((Component) field).setCaption(caption);
+		if (StringUtils.isBlank(caption)) {
+			((Component) field).addStyleName("noCaption");
+		}
 	}
 
 	private void add(IComponent field, int span) {
 		Component component = (Component) field;
 		component.setWidth(100, Unit.PERCENTAGE);
 		
+		if (span < 1) {
+			span = columns;
+		}
+
 		setRows(row+1); // addComponent with these arguments doesnt auto grow grid
 		addComponent(component, column, row, column + span -1, row);
 		

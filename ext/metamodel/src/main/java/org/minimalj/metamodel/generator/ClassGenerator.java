@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Scanner;
 import java.util.Set;
@@ -19,6 +20,8 @@ import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.util.StringUtils;
 
 public class ClassGenerator {
+
+	public static final Collection<String> FORBIDDEN_NAMES = Arrays.asList("List", "Size", "NotEmpty", "Generated", "Keys");
 
 	private final File directory;
 	private int indent = 0;
@@ -133,7 +136,7 @@ public class ClassGenerator {
 		String className = createClassName(entity);
 
 		StringBuilder s = new StringBuilder();
-		Set<String> forbiddenNames = new TreeSet<>();
+		Set<String> forbiddenNames = new TreeSet<>(FORBIDDEN_NAMES);
 		forbiddenNames.add(className);
 		generateProperties(s, entity, packageName, forbiddenNames);
 		

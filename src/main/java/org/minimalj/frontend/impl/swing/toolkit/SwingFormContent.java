@@ -37,17 +37,15 @@ public class SwingFormContent extends JPanel implements FormContent {
 	}
 
 	@Override
-	public void add(IComponent c, FormElementConstraint constraint) {
-		Component component = (Component) c;
-		add(component, new GridFormLayoutConstraint(-1, constraint));
-	}
-
-	@Override
 	public void add(String caption, IComponent c, FormElementConstraint constraint, int span) {
 		Component component = (Component) c;
-		SwingCaption swingCaption = new SwingCaption(component, caption);
-		captionByComponent.put(c, swingCaption);
-		add(swingCaption, new GridFormLayoutConstraint(span, constraint));
+		if (caption != null) {
+			SwingCaption swingCaption = new SwingCaption(component, caption);
+			captionByComponent.put(c, swingCaption);
+			add(swingCaption, new GridFormLayoutConstraint(span, constraint));
+		} else {
+			add(component, new GridFormLayoutConstraint(span, constraint));
+		}
 	}
 	
 	@Override
@@ -74,7 +72,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		}
 
 		protected boolean isVerticallyGrowing() {
-			return formElementConstraint != null && formElementConstraint.grow;
+			return formElementConstraint != null && formElementConstraint.max > 1;
 		}
 
 		public boolean isCompleteRow() {

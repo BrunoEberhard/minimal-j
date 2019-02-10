@@ -33,13 +33,13 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class CheerpjHTTPD extends NanoHTTPD {
 
-	public CheerpjHTTPD( int port, boolean secure) {
+	public CheerpjHTTPD(int port, boolean secure) {
 		super(port);
 		if (secure) {
 			try {
 				String keyAndTrustStoreClasspathPath = Configuration.get("MjKeystore"); // in example '/mjdevkeystore.jks'
-				char[] passphrase = Configuration.get("MjKeystorePassphrase").toCharArray(); //  ub example 'mjdev1'
-				
+				char[] passphrase = Configuration.get("MjKeystorePassphrase").toCharArray(); // ub example 'mjdev1'
+
 				makeSecure(makeSSLSocketFactory(keyAndTrustStoreClasspathPath, passphrase), null);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -60,17 +60,20 @@ public class CheerpjHTTPD extends NanoHTTPD {
 		}
 		return super.serve(session);
 	}
-	
+
 	@Override
-    public Response serve(String uriString, Method method, Map<String, String> headers, Map<String, String> parameters,
-            Map<String, String> files) {
-    	
+	public Response serve(String uriString, Method method, Map<String, String> headers, Map<String, String> parameters, Map<String, String> files) {
+
 		URI uri = URI.create(uriString);
+		System.out.println("Looking for: " + uriString);
 		String path = uri.getPath();
-		
+
 		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			Locale locale = getLocale(headers.get("accept-language"));
+			htmlTemplate = htmlTemplate.replace("$SEND", "sendCheerpj");
+			htmlTemplate = htmlTemplate.replace("$IMPORT", "<script src=\"https://cjrtnc.leaningtech.com/1.3/loader.js\"></script>");
+			htmlTemplate = htmlTemplate.replace("$INIT", getInit());
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		} else if (method == Method.PUT && path.startsWith("/java-transaction/")) {
@@ -79,20 +82,35 @@ public class CheerpjHTTPD extends NanoHTTPD {
 				return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "No Input (content)");
 			}
 			return transaction(headers, inputFileName);
-		} else if (path.equals("/application.png")) {			
+		} else if (path.equals("/application.png")) {
 			return newChunkedResponse(Status.OK, "png", Application.getInstance().getIcon());
 		} else {
 			int index = uriString.lastIndexOf('.');
-			if (index > -1 && index < uriString.length()-1) {
-				String postfix = uriString.substring(index+1);
+			if (index > -1 && index < uriString.length() - 1) {
+				String postfix = uriString.substring(index + 1);
 				String mimeType = Resources.getMimeType(postfix);
 				if (mimeType != null) {
 					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uriString);
-					return newChunkedResponse(Status.OK, mimeType, inputStream);
+					if (inputStream != null) {
+						try {
+							return newFixedLengthResponse(Status.OK, mimeType, inputStream, inputStream.available());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 			}
 		}
 		return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
+	}
+
+	private static String getInit() {
+		String applicationClassName = Application.getInstance().getName();
+		return "cheerpjInit();\n"
+				+ "cheerpjRunMain(\"org.minimalj.frontend.impl.cheerpj.Cheerpj\", \"/app/m.jar:/app/h.jar\", \"" + applicationClassName + "\");\n";
+
+		// "-DMjRepository=org.minimalj.repository.memory.InMemoryRepository",
+		// "-DMjUserFile=users.txt", "-DMjDevMode=true");
 	}
 
 	private Response transaction(Map<String, String> headers, String inputFileName) {
@@ -102,7 +120,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 			return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", e.getMessage());
 		}
 	}
-	
+
 	private Response transaction(Map<String, String> headers, InputStream is) {
 		if (Backend.getInstance().isAuthenticationActive()) {
 			String token = headers.get("token");
@@ -111,7 +129,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 			return transaction(is);
 		}
 	}
-	
+
 	private Response transaction(String token, InputStream is) {
 		if (!StringUtils.isEmpty(token)) {
 			Subject subject = Backend.getInstance().getAuthentication().getUserByToken(UUID.fromString(token));
@@ -127,7 +145,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 			Subject.setCurrent(null);
 		}
 	}
-	
+
 	private Response transaction(InputStream inputStream) {
 		try (ObjectInputStream ois = new ObjectInputStream(inputStream)) {
 			Object input = ois.readObject();
@@ -151,7 +169,8 @@ public class CheerpjHTTPD extends NanoHTTPD {
 				return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", e.getMessage());
 			}
 
-			try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)) {
+			try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+					ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)) {
 				oos.writeObject(SerializationContainer.wrap(output));
 				oos.flush();
 				byte[] bytes = byteArrayOutputStream.toByteArray();
@@ -163,16 +182,16 @@ public class CheerpjHTTPD extends NanoHTTPD {
 			return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", e.getMessage());
 		}
 	}
-	
-    private static Locale getLocale(String userLocale) {
-    	final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
-    	if (ranges != null) {
-    		for (LanguageRange languageRange : ranges) {
-    			final String localeString = languageRange.getRange();
-    			final Locale locale = Locale.forLanguageTag(localeString);
-    			return locale;
-    		}
-    	}
-    	return null;
-    }
+
+	private static Locale getLocale(String userLocale) {
+		final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
+		if (ranges != null) {
+			for (LanguageRange languageRange : ranges) {
+				final String localeString = languageRange.getRange();
+				final Locale locale = Locale.forLanguageTag(localeString);
+				return locale;
+			}
+		}
+		return null;
+	}
 }

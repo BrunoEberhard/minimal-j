@@ -3,8 +3,10 @@ package org.minimalj.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +20,7 @@ import org.minimalj.model.validation.InvalidValues;
 
 public class DateUtils {
 	private static final Map<Locale, DateTimeFormatter> dateFormatByLocale = new HashMap<>();
+	private static final Map<Locale, Boolean> germanDateStyle = new HashMap<>();
 
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -28,6 +31,8 @@ public class DateUtils {
 		if (!dateFormatByLocale.containsKey(locale)) {
 			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
 			dateFormatByLocale.put(locale, formatter);
+			germanDateStyle.put(locale,
+					"dd.MM.yyyy".equals(DateTimeFormatterBuilder.getLocalizedDateTimePattern(FormatStyle.MEDIUM, null, IsoChronology.INSTANCE, locale)));
 		}
 		return dateFormatByLocale.get(locale);
 	}
@@ -175,20 +180,35 @@ public class DateUtils {
 	}
 
 	/**
-	 * Tries to be a little bit more clever than the normal
-	 * parsing. Accept dates like 1.2.2013 or 010214
+	 * Tries to be a little bit more clever than the normal parsing. Accept dates
+	 * like 1.2.2013 or 010214
 	 * 
 	 * @param date date as a String or <code>null</code>
-	 * @return LocalDate date object or <code>null</code>
+	 * @return LocalDate date object (valid or invalid) or <code>null</code>
 	 */
 	public static LocalDate parse(String date) {
 		if (StringUtils.isEmpty(date)) return null;
-		if (date.contains(".")) {
+		try {
+			return parse_(date);
+		} catch (DateTimeParseException x) {
+			return InvalidValues.createInvalidLocalDate(date);
+		}
+	}
+
+	// framework internal, only used by LocalDateTimeFormElement
+	public static LocalDate parse_(String date) {
+		DateTimeFormatter dateTimeFormatter = getDateTimeFormatter();
+		if (germanDateStyle()) {
 			date = parseCH(date, false);
 			return LocalDate.parse(date);
 		} else {
-			return LocalDate.parse(date, getDateTimeFormatter());
+			return LocalDate.parse(date, dateTimeFormatter);
 		}
+	}
+
+	public static boolean germanDateStyle() {
+		getDateTimeFormatter();
+		return germanDateStyle.get(LocaleContext.getCurrent());
 	}
 	
 	/**

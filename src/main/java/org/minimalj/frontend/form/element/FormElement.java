@@ -28,4 +28,6 @@ public interface FormElement<T> {
 	public PropertyInterface getProperty();
 
 	public FormElementConstraint getConstraint();
+
+	public String getCaption();
 }

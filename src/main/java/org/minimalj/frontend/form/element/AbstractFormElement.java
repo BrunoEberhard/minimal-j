@@ -5,6 +5,7 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.ChangeListener;
+import org.minimalj.util.resources.Resources;
 
 public abstract class AbstractFormElement<T> implements FormElement<T> {
 
@@ -31,17 +32,22 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 	
 	@Override
+	public String getCaption() {
+		return Resources.getPropertyName(getProperty());
+	}
+
+	@Override
 	public FormElementConstraint getConstraint() {
 		return constraint;
 	}
 
 	public AbstractFormElement<T> height(int height) {
-		constraint = new FormElementConstraint(height, height, false);
+		constraint = new FormElementConstraint(height, height);
 		return this;
 	}
 
-	public AbstractFormElement<T> height(int min, int max, boolean grow) {
-		constraint = new FormElementConstraint(min, max, grow);
+	public AbstractFormElement<T> height(int min, int max) {
+		constraint = new FormElementConstraint(min, max);
 		return this;
 	}
 

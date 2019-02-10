@@ -17,7 +17,7 @@ public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement
 
 	@SuppressWarnings("unchecked")
 	protected T createObject() {
-		return (T) CloneHelper.newInstance(getProperty().getClazz());
+		return getValue() != null ? CloneHelper.clone(getValue()) : (T) CloneHelper.newInstance(getProperty().getClazz());
 	}
 
 	protected abstract Form<T> createForm();
@@ -26,7 +26,7 @@ public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement
 
 		@Override
 		public T createObject() {
-			return getValue() != null ? CloneHelper.clone(getValue()) : FormLookupFormElement.this.createObject();
+			return FormLookupFormElement.this.createObject();
 		}
 
 		@Override
@@ -36,7 +36,7 @@ public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement
 
 		@Override
 		protected T save(T object) {
-			FormLookupFormElement.this.setValue(object);
+			FormLookupFormElement.this.setValueInternal(object);
 			return object;
 		}
 	}

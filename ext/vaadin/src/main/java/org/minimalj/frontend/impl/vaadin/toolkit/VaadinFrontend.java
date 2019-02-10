@@ -15,6 +15,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class VaadinFrontend extends Frontend {
@@ -139,6 +140,23 @@ public class VaadinFrontend extends Frontend {
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		return new VaadinTable<T>(keys, multiSelect, listener);
+	}
+
+	@Override
+	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+		LanternaBorderLayoutContent content = new LanternaBorderLayoutContent();
+		content.addComponent((Component) form);
+		content.addComponent((Component) table);
+		content.setExpandRatio((Component) table, 1f);
+		return content;
+	}
+
+	private static class LanternaBorderLayoutContent extends VerticalLayout implements IContent {
+		private static final long serialVersionUID = 1L;
+
+		public LanternaBorderLayoutContent() {
+			setMargin(false);
+		}
 	}
 
 	@Override

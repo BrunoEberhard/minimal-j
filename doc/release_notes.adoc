@@ -3,6 +3,14 @@
 Every release contains many small fixes.
 
 === next
+
+=== 1.16.0.0
+* Extract use of JavaFx in ext project
+* Material design: dropdown triangle
+* more consistent date parsing
+* Redesign form interface, add GROW_FIRST (column)
+
+=== 1.15.0.0
 * historized sql repository: complete support historized references (and lists)
 * Remove RenderType. Redesign Rendering concept
 * Redesign Lookup UI concept

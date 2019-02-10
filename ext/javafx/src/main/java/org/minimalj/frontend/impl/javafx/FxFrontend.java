@@ -118,6 +118,12 @@ public class FxFrontend extends Frontend {
 	}
 
 	@Override
+	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public IContent createHtmlContent(String htmlOrUrl) {
 		// TODO Auto-generated method stub
 		return null;

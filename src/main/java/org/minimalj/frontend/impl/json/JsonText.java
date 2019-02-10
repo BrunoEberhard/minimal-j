@@ -1,16 +1,14 @@
 package org.minimalj.frontend.impl.json;
 
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.impl.util.HtmlString;
 import org.minimalj.model.Rendering;
-import org.minimalj.util.StringUtils;
 
-public class JsonText extends JsonComponent {
+public class JsonText extends JsonComponent implements Input<String> {
 
 	public JsonText(String value) {
 		super("Text");
-		if (value != null) {
-			put(JsonInputComponent.VALUE, value);
-		}
+		setValue(value);
 	}
 
 	public JsonText(Rendering rendering) {
@@ -18,17 +16,25 @@ public class JsonText extends JsonComponent {
 		if (rendering != null) {
 			CharSequence c = rendering.render();
 			if (c instanceof HtmlString) {
-				put("htmlValue", ((HtmlString) c).getHtml());
+				setValue(((HtmlString) c).getHtml());
 			} else if (c != null) {
-				String string = c.toString();
-				if (string.contains("\n")) {
-					string = StringUtils.escapeHTML(string);
-					string = string.replaceAll("\n", "<br>");
-					put("htmlValue", string);
-				} else {
-					put(JsonInputComponent.VALUE, Rendering.toString(c));
-				}
+				setValue(c.toString());
 			}
 		}
+	}
+
+	@Override
+	public void setValue(String string) {
+		put(JsonInputComponent.VALUE, string);
+	}
+
+	@Override
+	public String getValue() {
+		return (String) get(JsonInputComponent.VALUE);
+	}
+
+	@Override
+	public void setEditable(boolean editable) {
+		// ignored
 	}
 }

@@ -20,6 +20,7 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class MjWebDaemon extends NanoHTTPD {
 	private static final Logger logger = Logger.getLogger(MjWebDaemon.class.getName());
+	private static final boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
 	private JsonSessionManager sessionManager = new JsonSessionManager();
 	
@@ -58,30 +59,38 @@ public class MjWebDaemon extends NanoHTTPD {
             Map<String, String> files) {
     	URI uri = URI.create(uriString);
 		String path = uri.getPath();
-		if (path.endsWith("/")) {
-			String htmlTemplate = JsonFrontend.getHtmlTemplate();
-			Locale locale = getLocale(headers.get("accept-language"));
-			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
-			return newFixedLengthResponse(Status.OK, "text/html", html);
-		} else if (path.equals("/ajax_request.xml")) {
+		if (path.equals("/ajax_request.xml")) {
 			String data = files.get("postData");
 			String result = sessionManager.handle(data);
 			return newFixedLengthResponse(Status.OK, "text/xml", result);
 		} else if (path.equals("/application.png")) {			
 			return newChunkedResponse(Status.OK, "png", Application.getInstance().getIcon());
-		} else {
+		} else if (path.contains(".")) {
+			if (path.contains("..")) {
+				return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", uri + " bad request");
+			}
+
 			int index = uriString.lastIndexOf('.');
-			if (index > -1 && index < uriString.length()-1) {
-				String postfix = uriString.substring(index+1);
+			if (index > -1 && index < uriString.length() - 1) {
+				String postfix = uriString.substring(index + 1);
 				String mimeType = Resources.getMimeType(postfix);
 				if (mimeType != null) {
 					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uriString);
-					return newChunkedResponse(Status.OK, mimeType, inputStream);
+					if (inputStream != null) {
+						return newChunkedResponse(Status.OK, mimeType, inputStream);
+					}
 				}
 			}
+
+			return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
+		} else {
+			String htmlTemplate = JsonFrontend.getHtmlTemplate();
+			Locale locale = getLocale(headers.get("accept-language"));
+			htmlTemplate = htmlTemplate.replace("$SEND", useWebSocket ? "sendWebSocket" : "sendAjax");
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
+			return newFixedLengthResponse(Status.OK, "text/html", html);
 		}
-		logger.warning("Could not serve: " + uri);
-		return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
+
 	}
     
     private static Locale getLocale(String userLocale) {

@@ -41,26 +41,20 @@ public class PageTest {
 	public void slashInMiddleRouteValid() {
 		Assert.assertTrue(Page.validateRoute("a/b"));
 	}
-
-	@Test
-	public void pathsNotValid() {
-		Assert.assertFalse(Page.validateRoute("a./b"));
-		Assert.assertFalse(Page.validateRoute("a/../b"));
-	}
-
 	
 	@Test
 	public void validCharactersRouteValid() {
-		Assert.assertTrue(Page.validateRoute("a._-/b"));
+		Assert.assertTrue(Page.validateRoute("_-/b"));
 	}
 
 	@Test
 	public void invalidCharactersRouteNotValid() {
 		Assert.assertFalse(Page.validateRoute("ä"));
+		Assert.assertFalse(Page.validateRoute("."));
 	}
 	
 	@Test
-	public void uuidRouteNotValid() {
+	public void uuidRouteValid() {
 		Assert.assertTrue(Page.validateRoute("class/" + UUID.randomUUID()));
 	}
 

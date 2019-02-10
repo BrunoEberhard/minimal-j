@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -39,7 +40,6 @@ public class FieldUtils {
 		return Modifier.isInterface(field.getModifiers());
 	}
 	
-	
 	public static boolean isList(Field field) {
 		return isList(field.getType());
 	}
@@ -72,31 +72,6 @@ public class FieldUtils {
 		char fieldFirstChar = fieldName.charAt(0);
 		char classFirstChar = className.charAt(0);
 		return Character.toUpperCase(fieldFirstChar) == classFirstChar;
-	}
-	
-	public static Field getValueField(Class<?> clazz) {
-		for (Field field : clazz.getFields()) {
-			if (FieldUtils.isFinal(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field) || !FieldUtils.isPublic(field)) continue;
-			if (field.getDeclaringClass() != clazz) continue;
-			return field;
-		}
-		throw new IllegalArgumentException("Class should have at least one Field: " + clazz.getName());
-	}
-	
-	public static void setValue(Object object, Object value) {
-		try {
-			getValueField(object.getClass()).set(object, value);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public static Object getValue(Object object) {
-		try {
-			return getValueField(object.getClass()).get(object);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	public static boolean isAllowedPrimitive(Class<?> fieldType) {
@@ -168,6 +143,7 @@ public class FieldUtils {
 	 * @param clazz the target class
 	 * @return null or the parsed input. If class is a time class the iso format is used (not the locale format)
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> T parse(String s, Class<T> clazz) {
 		Object value = null;
 		if (clazz == String.class) {
@@ -196,6 +172,8 @@ public class FieldUtils {
 						break;
 					}
 				}
+			} else if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
+				value = Base64.getDecoder().decode(s);
 			} else {
 				throw new IllegalArgumentException(clazz.getSimpleName() + ": " + s);
 			}
