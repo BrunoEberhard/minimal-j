@@ -15,7 +15,7 @@ public class CurrencyTablePage extends TablePage<Currency> {
 
 	@Override
 	protected List<Currency> load() {
-		return Backend.read(Currency.class, By.all(), 1000);
+		return Backend.find(Currency.class, By.all());
 	}
 
 }
