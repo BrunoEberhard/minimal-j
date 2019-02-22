@@ -235,7 +235,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	private static boolean createTablesOnInitialize(DataSource dataSource) {
+	private boolean createTablesOnInitialize(DataSource dataSource) throws SQLException {
 		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
 		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
 			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
@@ -244,8 +244,9 @@ public class SqlRepository implements TransactionalRepository {
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
 			}
-			String databaseFile = url.substring("jdbc:h2:".length());
-			return !new File(databaseFile).exists();
+			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, null, null, new String[] {"TABLE"})) {
+				return !tableDescriptions.next();
+			}
 		}
 		return false;
 	}
