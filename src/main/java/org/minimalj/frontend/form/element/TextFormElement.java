@@ -5,8 +5,10 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.ChangeListener;
+import org.minimalj.util.resources.Resources;
 
 /**
  * Read only FormElement. This element is used as a complement
@@ -18,14 +20,24 @@ public class TextFormElement implements FormElement<Object> {
 
 	private final PropertyInterface property;
 
+	private final int lines;
 	protected final Input<String> textField;
 
 	public TextFormElement(Object key) {
 		this(Keys.getProperty(key));
 	}
 	
+	public TextFormElement(String key, int lines) {
+		this(Keys.getProperty(key), lines);
+	}
+	
 	public TextFormElement(PropertyInterface property) {
+		this(property, AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL) < 256 ? StringFormElement.SINGLE_LINE : StringFormElement.MULTI_LINE);
+	}
+	
+	public TextFormElement(PropertyInterface property, int lines) {
 		this.property = property;
+		this.lines = lines;
 		this.textField = Frontend.getInstance().createReadOnlyTextField();
 	}
 
@@ -36,12 +48,21 @@ public class TextFormElement implements FormElement<Object> {
 
 	@Override
 	public String getCaption() {
-		return null;
+		return Resources.getPropertyName(getProperty());
 	}
 
 	@Override
 	public IComponent getComponent() {
 		return textField;
+	}
+	
+	@Override
+	public FormElementConstraint getConstraint() {
+		if (lines != 1) {
+			return new FormElementConstraint(lines, lines);
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -57,10 +78,5 @@ public class TextFormElement implements FormElement<Object> {
 	@Override
 	public void setValue(Object object) {
 		textField.setValue(Rendering.toString(object));
-	}
-
-	@Override
-	public FormElementConstraint getConstraint() {
-		return null;
 	}
 }
