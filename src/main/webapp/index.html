@@ -420,7 +420,7 @@ $ICON
 			}
 		} else if (type == "Text" || type == "Title") {
 			element = document.createElement("div");
-			element.classList.add(type);
+			element.classList.add(type.toLowerCase());
 			if (content.value != undefined) {
 				element.innerHTML = escapeText(content.value);
 			} else {
