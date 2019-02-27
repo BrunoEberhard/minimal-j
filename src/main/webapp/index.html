@@ -946,18 +946,12 @@ $ICON
 	
 	function search() {
 		var searchElement = document.getElementById("search");
-		if (searchElement.style.display == "none") {
-			searchElement.style.display = "";
-			searchElement.value = "";
-			searchElement.focus();
+		var search = searchElement.value;
+		if (search != undefined && search.length > 0) {
+			var data = {"search" : search};
+			send(data, true);
 		} else {
-			var search = searchElement.value;
-			if (search != undefined && search.length > 0) {
-				var data = {"search" : search};
-				send(data, true);
-			} else {
-				searchElement.style.display = "none";
-			}
+			searchElement.style.display = "none";
 		}
 	}
 
@@ -974,6 +968,7 @@ $ICON
 		var searchElement = document.getElementById("search");
 		if (searchElement.style.display == "inline") {
 			searchElement.style.display = "none";
+			searchElement.value = "";
 		} else {
 			searchElement.style.display = "inline";
 			searchElement.focus();

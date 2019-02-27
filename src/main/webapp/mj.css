@@ -438,6 +438,7 @@ block {
 }
 
 @media (min-width: 992px) {
+	#search { display: inline !important; }
 	#searchButton { display: none; }
 	#actionMenuButton { display: none; }
 }
