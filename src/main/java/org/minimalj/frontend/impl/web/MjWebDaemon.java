@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -19,9 +18,6 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class MjWebDaemon extends NanoHTTPD {
-	private static final Logger logger = Logger.getLogger(MjWebDaemon.class.getName());
-	private static final boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
-
 	private JsonSessionManager sessionManager = new JsonSessionManager();
 	
 	public MjWebDaemon(int port, boolean secure) {
@@ -86,7 +82,7 @@ public class MjWebDaemon extends NanoHTTPD {
 		} else {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			Locale locale = getLocale(headers.get("accept-language"));
-			htmlTemplate = htmlTemplate.replace("$SEND", useWebSocket ? "sendWebSocket" : "sendAjax");
+			htmlTemplate = htmlTemplate.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		}

@@ -19,7 +19,7 @@ public class WebServer {
 	private static final boolean SECURE = true;
 	private static final int TIME_OUT = 5 * 60 * 1000;
 	
-	private static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
+	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 	
 	private static void start(boolean secure) {
 		int port = getPort(secure);
