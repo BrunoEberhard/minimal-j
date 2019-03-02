@@ -117,6 +117,8 @@ public class SqlRepository implements TransactionalRepository {
 		String databaseProductName = connection.getMetaData().getDatabaseProductName();
 		if (StringUtils.equals(databaseProductName, "MySQL")) {
 			return new SqlDialect.MariaSqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "PostgreSQL")) {
+			return new SqlDialect.PostgresqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
 			return new SqlDialect.DerbySqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "H2")) {
@@ -459,15 +461,15 @@ public class SqlRepository implements TransactionalRepository {
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			if ("ID".equalsIgnoreCase(columnName)) {
+			String columnName = resultSet.getMetaData().getColumnName(columnIndex).toUpperCase();
+			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
 				continue;
-			} else if ("VERSION".equalsIgnoreCase(columnName)) {
+			} else if ("VERSION".equals(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
 				continue;
-			} else if ("POSITION".equalsIgnoreCase(columnName)) {
+			} else if ("POSITION".equals(columnName)) {
 				position = resultSet.getInt(columnIndex);
 				continue;				
 			}
