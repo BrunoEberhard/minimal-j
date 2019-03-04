@@ -64,7 +64,7 @@ public abstract class Page {
 	 * 
 	 * @param route String provided by a page
 	 * @return Frontend will accept route or not
-	 * @see java.util.Base64.getUrlEncoder
+	 * @see java.util.Base64#getUrlEncoder
 	 */
 	public static boolean validateRoute(String route) {
 		if (StringUtils.isBlank(route)) {
