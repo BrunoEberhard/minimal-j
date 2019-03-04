@@ -323,15 +323,16 @@ table tr:nth-child(odd).selected {
 	overflow: hidden;
 }
 
-.form input, .form select, .form textarea, .form .lookup, dialog .form label, dialog .form div.list, dialog .form .Title {
+.form input, .form select, .form textarea, .form .lookup, dialog .form .text, dialog .form label, dialog .form div.list, dialog .form .title {
 	width: calc(100% - 1em);
 	margin-left: 0.5em;
 	margin-right: 0.5em;
 }
 
-.form .Text {
+.form .lookup .text {
 	width: 100%;
 	align-self: flex-end;
+	margin: 0em;
 	margin-bottom: 0.4em;
 }
 
@@ -437,6 +438,7 @@ block {
 }
 
 @media (min-width: 992px) {
+	#search { display: inline !important; }
 	#searchButton { display: none; }
 	#actionMenuButton { display: none; }
 }

@@ -420,7 +420,7 @@ $ICON
 			}
 		} else if (type == "Text" || type == "Title") {
 			element = document.createElement("div");
-			element.classList.add(type);
+			element.classList.add(type.toLowerCase());
 			if (content.value != undefined) {
 				element.innerHTML = escapeText(content.value);
 			} else {
@@ -653,8 +653,8 @@ $ICON
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
-			rowElement.setAttribute("onmousedown", "tableSelection(event, this, " + i + ");");
-			rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", " + i + " );");
+			rowElement.setAttribute("onmousedown", "tableSelection(event, this);");
+			rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", this);");
 			element.appendChild(rowElement);
 		}
 		return element;
@@ -858,7 +858,7 @@ $ICON
 	var lastSelectedTable;
 	var lastSelectedRow;
 	
-	function tableSelection(event, rowElement, row) {
+	function tableSelection(event, rowElement) {
 		if (event.button != 0) return; // only 'left' mouse button should select
 		var tableElement = rowElement;
 		while ((tableElement = tableElement.parentNode) && tableElement.tagName.toUpperCase() != "TABLE");
@@ -866,6 +866,7 @@ $ICON
 		var pageElement = tableElement;
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 		
+		var row = rowElement.rowIndex;
 		var multiSelect = tableElement.classList.contains("multiSelect");
 		var rows = [];
 		if (multiSelect && lastSelectedTable == tableElement && event.shiftKey) {
@@ -902,12 +903,12 @@ $ICON
 		}
 	}
 
-	function tableAction(tableId, row) {
+	function tableAction(tableId, rowElement) {
 		var tableElement = document.getElementById(tableId);
 		var pageElement = tableElement;
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 		
-		var tableAction = {"table" : tableId, "row" : row};
+		var tableAction = {"table" : tableId, "row" : rowElement.rowIndex};
 		var data = {"tableAction" : tableAction};
 		send(data, true);
 	}
@@ -946,18 +947,12 @@ $ICON
 	
 	function search() {
 		var searchElement = document.getElementById("search");
-		if (searchElement.style.display == "none") {
-			searchElement.style.display = "";
-			searchElement.value = "";
-			searchElement.focus();
+		var search = searchElement.value;
+		if (search != undefined && search.length > 0) {
+			var data = {"search" : search};
+			send(data, true);
 		} else {
-			var search = searchElement.value;
-			if (search != undefined && search.length > 0) {
-				var data = {"search" : search};
-				send(data, true);
-			} else {
-				searchElement.style.display = "none";
-			}
+			searchElement.style.display = "none";
 		}
 	}
 
@@ -974,6 +969,7 @@ $ICON
 		var searchElement = document.getElementById("search");
 		if (searchElement.style.display == "inline") {
 			searchElement.style.display = "none";
+			searchElement.value = "";
 		} else {
 			searchElement.style.display = "inline";
 			searchElement.focus();

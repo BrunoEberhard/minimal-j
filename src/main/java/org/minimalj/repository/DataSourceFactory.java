@@ -14,6 +14,7 @@ import org.mariadb.jdbc.MariaDbDataSource;
 import org.minimalj.application.Configuration;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
+import org.postgresql.ds.PGSimpleDataSource;
 
 public class DataSourceFactory {
 	public static final Logger logger = Logger.getLogger(DataSourceFactory.class.getName());
@@ -91,6 +92,8 @@ public class DataSourceFactory {
 			return oracleDbDataSource(url, user, password);
 		} else if (url.startsWith("jdbc:mariadb")) {
 			return mariaDbDataSource(url, user, password);
+		} else if (url.startsWith("jdbc:postgresql")) {
+			return postgresqlDataSource(url, user, password);
 		} else {
 			throw new RuntimeException("Unknown jdbc URL: " + url);
 		}
@@ -108,6 +111,19 @@ public class DataSourceFactory {
 		} catch (NoClassDefFoundError e) {
 			logger.severe("Missing MariaDbDataSource. Please ensure to have mariadb-java-client in the classpath");
 			throw new IllegalStateException("Configuration error: Missing MariaDbDataSource");
+		}
+	}
+	
+	public static DataSource postgresqlDataSource(String url, String user, String password) {
+		try {
+			PGSimpleDataSource dataSource = new PGSimpleDataSource();
+			dataSource.setUrl(url);
+			dataSource.setUser(user);
+			dataSource.setPassword(password);
+			return dataSource;
+		} catch (NoClassDefFoundError e) {
+			logger.severe("Missing PGSimpleDataSource. Please ensure to have postgresql driver in the classpath");
+			throw new IllegalStateException("Configuration error: Missing PGSimpleDataSource");
 		}
 	}
 

@@ -9,9 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.List;
 import java.util.Locale;
-import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.UUID;
 
@@ -70,7 +68,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 
 		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
-			Locale locale = getLocale(headers.get("accept-language"));
+			Locale locale = MjWebDaemon.getLocale(headers.get("accept-language"));
 			htmlTemplate = htmlTemplate.replace("$SEND", "sendCheerpj");
 			htmlTemplate = htmlTemplate.replace("$IMPORT", "<script src=\"https://cjrtnc.leaningtech.com/1.3/loader.js\"></script>");
 			htmlTemplate = htmlTemplate.replace("$INIT", getInit());
@@ -183,15 +181,4 @@ public class CheerpjHTTPD extends NanoHTTPD {
 		}
 	}
 
-	private static Locale getLocale(String userLocale) {
-		final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
-		if (ranges != null) {
-			for (LanguageRange languageRange : ranges) {
-				final String localeString = languageRange.getRange();
-				final Locale locale = Locale.forLanguageTag(localeString);
-				return locale;
-			}
-		}
-		return null;
-	}
 }

@@ -204,6 +204,46 @@ public abstract class SqlDialect {
 		}
 	}
 	
+	public static class PostgresqlDialect extends SqlDialect {
+		
+		@Override
+		protected void addCreateStatementEnd(StringBuilder s) {
+			s.append("\n)");
+		}
+
+		@Override
+		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+			Class<?> clazz = property.getClazz();
+			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
+				s.append("BYTEA");	
+			} else if (clazz == Boolean.class) {
+				s.append("BOOLEAN");				
+			} else  {
+				super.addColumnDefinition(s, property);
+			}
+		}
+		
+		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
+			if (clazz.isArray()) {
+				preparedStatement.setNull(param, Types.ARRAY);			
+			} else if (clazz == Boolean.class) {
+				preparedStatement.setNull(param, Types.BOOLEAN);
+			} else {
+				super.setParameterNull(preparedStatement, param, clazz);
+			}
+		}
+		
+		@Override
+		public int getMaxIdentifierLength() {
+			return 63;
+		}
+		
+		@Override
+		public String limit(int rows, Integer offset) {
+			return "LIMIT " + rows + (offset != null ? " OFFSET " + offset.toString() : "");
+		}
+	}
+	
 	public static class H2SqlDialect extends SqlDialect {
 	
 		@Override
@@ -337,6 +377,8 @@ public abstract class SqlDialect {
 		} else if (clazz == Integer.class) {
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (clazz == Boolean.class) {
+			// TODO should this be BIT or BOOLEAN?
+			// if change, adjust PostgresqlDialect and check for all dialects
 			preparedStatement.setNull(param, Types.INTEGER);
 		} else if (clazz == BigDecimal.class || clazz == Long.class) {
 			preparedStatement.setNull(param, Types.DECIMAL);

@@ -105,6 +105,11 @@ public class Form<T> {
 	protected FormElement<?> createElement(Object key) {
 		FormElement<?> element = null;
 		PropertyInterface property;
+		boolean forcedReadonly = false;
+		if (key instanceof ReadOnlyWrapper) {
+			forcedReadonly = true;
+			key = ((ReadOnlyWrapper) key).key;
+		}
 		if (key == null) {
 			throw new NullPointerException("Key must not be null");
 		} else if (key instanceof FormElement) {
@@ -114,17 +119,16 @@ public class Form<T> {
 		} else {
 			property = Keys.getProperty(key);
 			if (property != null) {
-				element = createElement(property);
+				boolean editable = !forcedReadonly && this.editable && !property.isFinal();
+				element = createElement(property, editable);
 			}
 		}
 		return element;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	protected FormElement<?> createElement(PropertyInterface property) {
+	protected FormElement<?> createElement(PropertyInterface property, boolean editable) {
 		Class<?> fieldClass = property.getClazz();
-		
-		boolean editable = this.editable && !property.isFinal();
 
 		if (fieldClass == String.class) {
 			return editable ? new StringFormElement(property) : new TextFormElement(property);
@@ -200,7 +204,17 @@ public class Form<T> {
 	}
 	
 	// 
-
+	
+	public static Object readonly(Object key) {
+		ReadOnlyWrapper wrapper = new ReadOnlyWrapper();
+		wrapper.key = key;
+		return wrapper;
+	}
+	
+	private static class ReadOnlyWrapper {
+		private Object key;
+	}
+	
 	public void addTitle(String text) {
 		IComponent label = Frontend.getInstance().createTitle(text);
 		formContent.add(null, label, null, -1);

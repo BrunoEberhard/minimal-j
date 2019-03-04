@@ -117,6 +117,8 @@ public class SqlRepository implements TransactionalRepository {
 		String databaseProductName = connection.getMetaData().getDatabaseProductName();
 		if (StringUtils.equals(databaseProductName, "MySQL")) {
 			return new SqlDialect.MariaSqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "PostgreSQL")) {
+			return new SqlDialect.PostgresqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
 			return new SqlDialect.DerbySqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "H2")) {
@@ -235,7 +237,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	private static boolean createTablesOnInitialize(DataSource dataSource) {
+	private boolean createTablesOnInitialize(DataSource dataSource) throws SQLException {
 		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
 		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
 			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
@@ -244,8 +246,9 @@ public class SqlRepository implements TransactionalRepository {
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
 			}
-			String databaseFile = url.substring("jdbc:h2:".length());
-			return !new File(databaseFile).exists();
+			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, null, null, new String[] {"TABLE"})) {
+				return !tableDescriptions.next();
+			}
 		}
 		return false;
 	}
@@ -458,15 +461,15 @@ public class SqlRepository implements TransactionalRepository {
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			if ("ID".equalsIgnoreCase(columnName)) {
+			String columnName = resultSet.getMetaData().getColumnName(columnIndex).toUpperCase();
+			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
 				continue;
-			} else if ("VERSION".equalsIgnoreCase(columnName)) {
+			} else if ("VERSION".equals(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
 				continue;
-			} else if ("POSITION".equalsIgnoreCase(columnName)) {
+			} else if ("POSITION".equals(columnName)) {
 				position = resultSet.getInt(columnIndex);
 				continue;				
 			}
