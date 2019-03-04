@@ -89,7 +89,10 @@ public class MjWebDaemon extends NanoHTTPD {
 
 	}
     
-    private static Locale getLocale(String userLocale) {
+	public static Locale getLocale(String userLocale) {
+		if (userLocale == null) {
+			return Locale.getDefault();
+		}
     	final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
     	if (ranges != null) {
     		for (LanguageRange languageRange : ranges) {
@@ -98,7 +101,7 @@ public class MjWebDaemon extends NanoHTTPD {
     			return locale;
     		}
     	}
-    	return null;
+		return Locale.getDefault();
     }
 
 }
