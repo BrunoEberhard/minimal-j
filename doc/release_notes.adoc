@@ -3,6 +3,8 @@
 Every release contains many small fixes.
 
 === next
+
+=== 1.17.0.0
 * Form: read only wrapper
 * Backend: support for PostgreSql
 
