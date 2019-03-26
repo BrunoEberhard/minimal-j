@@ -2,14 +2,12 @@ package org.minimalj.repository.ignite;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.cache.Cache;
@@ -17,8 +15,6 @@ import javax.cache.Cache;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CacheMode;
-import org.apache.ignite.cache.affinity.AffinityKey;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.cache.query.SqlQuery;
 import org.apache.ignite.configuration.CacheConfiguration;
@@ -46,8 +42,8 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class IgniteRepository implements Repository {
-	private static final Logger logger = Logger.getLogger(IgniteRepository.class.getName());
 
 	private static Ignite ignite;
 
@@ -223,7 +219,6 @@ public class IgniteRepository implements Repository {
 		return l;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T> List find(Class<T> clazz, Criteria criteria) {
 		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
 		IgniteBiPredicate filter = (k, v) -> predicate.test(v);
@@ -240,7 +235,6 @@ public class IgniteRepository implements Repository {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void order(Order order, List l) {
 		String path = order.getPath();
 		if (path.contains(".")) {
