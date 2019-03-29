@@ -5,10 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.minimalj.repository.query.Query.QueryLimitable;
-import org.minimalj.repository.query.Query.QueryOrderable;
-
-public abstract class Criteria implements QueryLimitable, QueryOrderable, Predicate<Object> {
+public abstract class Criteria extends Query implements Predicate<Object> {
 	private static final long serialVersionUID = 1L;
 
 	// TODO: check for recursion?

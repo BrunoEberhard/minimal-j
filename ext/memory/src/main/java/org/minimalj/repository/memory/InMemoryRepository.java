@@ -32,7 +32,6 @@ import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.CloneHelper;
@@ -145,7 +144,7 @@ public class InMemoryRepository implements Repository {
 		return executeRead(() -> {
 			if (query instanceof Limit) {
 				Limit limit = (Limit) query;
-				List l = find(clazz, limit.getQuery());
+				List l = findAndOrder(clazz, limit.getQuery());
 				if (limit.getOffset() == null) {
 					return l.subList(0, Math.min(limit.getRows(), l.size()));
 				} else {
@@ -153,14 +152,14 @@ public class InMemoryRepository implements Repository {
 				}
 			} else if (query instanceof AllCriteria) {
 				AllCriteria allCriteria = (AllCriteria) query;
-				return find(clazz, allCriteria);
+				return findAndOrder(clazz, allCriteria);
 			} else {
-				return new QueryResultList(this, clazz, (QueryLimitable) query);
+				return new QueryResultList(this, clazz, query);
 			}
 		});
 	}
 
-	private <T> List find(Class<T> clazz, QueryLimitable query) {
+	private <T> List findAndOrder(Class<T> clazz, Query query) {
 		List<Order> orders = new ArrayList<>();
 		while (query instanceof Order) {
 			Order order = (Order) query;
@@ -168,7 +167,6 @@ public class InMemoryRepository implements Repository {
 			query = order.getQuery();
 		}
 		List l = find(clazz, (Criteria) query);
-		Collections.reverse(orders);
 		for (Order order : orders) {
 			order(order, l);
 		}

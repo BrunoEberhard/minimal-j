@@ -1,6 +1,5 @@
 package org.minimalj.repository.sql;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -55,7 +54,6 @@ import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCacheItem;
@@ -271,14 +269,14 @@ public class SqlRepository implements TransactionalRepository {
 			List<T> list = table.find(query, resultClass);
 			return (query instanceof AllCriteria) ? new SortableList<T>(list) : list;
 		} else {
-			return new SqlQueryResultList<>(this, resultClass, (QueryLimitable) query);
+			return new SqlQueryResultList<>(this, resultClass, query);
 		}
 	}
 	
 	private static class SqlQueryResultList<T> extends QueryResultList<T> {
 		private static final long serialVersionUID = 1L;
 
-		public SqlQueryResultList(Repository repository, Class<T> clazz, QueryLimitable query) {
+		public SqlQueryResultList(Repository repository, Class<T> clazz, Query query) {
 			super(repository, clazz, query);
 		}
 		

@@ -22,7 +22,6 @@ import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.rest.openapi.OpenAPIFactory;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
@@ -125,7 +124,7 @@ public class RestHTTPD extends NanoHTTPD {
 					}
 					try {
 						int size = Integer.valueOf(sizeParameter);
-						query = ((QueryLimitable) query).limit(offset, size);
+						query = query.limit(offset, size);
 					} catch (NumberFormatException e) {
 						return newFixedLengthResponse(Status.BAD_REQUEST, "text/json",
 								"size parameter invalid: " + sizeParameter);
