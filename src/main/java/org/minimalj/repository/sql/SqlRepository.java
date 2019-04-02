@@ -52,6 +52,7 @@ import org.minimalj.repository.list.QueryResultList;
 import org.minimalj.repository.list.SortableList;
 import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Query;
 import org.minimalj.util.CloneHelper;
@@ -294,12 +295,12 @@ public class SqlRepository implements TransactionalRepository {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> long count(Class<T> clazz, Query query) {
+	public <T> long count(Class<T> clazz, Criteria criteria) {
 		if (View.class.isAssignableFrom(clazz)) {
 			clazz = (Class<T>) ViewUtil.getViewedClass(clazz);
 		}
 		Table<?> table = getTable(clazz);
-		return table.count(query);
+		return table.count(criteria);
 	}
 
 	@Override
@@ -318,15 +319,16 @@ public class SqlRepository implements TransactionalRepository {
 		table.update(object);
 	}
 
+	@Override
 	public <T> void delete(T object) {
-		delete(object.getClass(), IdUtils.getId(object));
+		Table<T> table = getTable((Class<T>) object.getClass());
+		table.delete(object);
 	}
 
 	@Override
-	public <T> void delete(Class<T> clazz, Object id) {
+	public <T> int delete(Class<T> clazz, Criteria criteria) {
 		Table<T> table = getTable(clazz);
-		// TODO do in transaction and merge with insert/update
-		table.delete(id);
+		return table.delete(clazz, criteria);
 	}
 	
 	public <T> void deleteAll(Class<T> clazz) {

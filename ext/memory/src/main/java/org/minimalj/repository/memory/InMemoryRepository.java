@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.list.QueryResultList;
 import org.minimalj.repository.query.AllCriteria;
+import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
@@ -218,16 +220,9 @@ public class InMemoryRepository implements Repository {
 	}
 	
 	@Override
-	public <T> long count(Class<T> clazz, Query q) {
+	public <T> long count(Class<T> clazz, Criteria criteria) {
 		return executeRead(() -> {
-			Query query = q;
-			if (query instanceof Limit) {
-				query = ((Limit) query).getQuery();
-			}
-			while (query instanceof Order) {
-				query = ((Order) query).getQuery();
-			}
-			return find(clazz, (Criteria) query).size();
+			return find(clazz, criteria).size();
 		});
 	}
 
@@ -442,24 +437,32 @@ public class InMemoryRepository implements Repository {
 	}
 	
 	@Override
-	public <T> void delete(Class<T> clazz, Object id) {
-		executeWrite(() -> {
+	public <T> int delete(Class<T> clazz, Criteria criteria) {
+		return executeWrite(() -> {
 			Map<String, Object> objects = objects(clazz);
-			Object object = objects.get(id.toString());
-			if (object != null && isReferenced(object)) {
-				throw new IllegalStateException("Referenced objects cannot be deleted");
+			Iterator<Object> iterator = objects.values().iterator();
+			int count = 0;
+			while (iterator.hasNext()) {
+				Object next = iterator.next();
+				if (criteria.test(next)) {
+					if (isReferenced(next)) {
+						throw new IllegalStateException("Referenced objects cannot be deleted");
+					}
+					iterator.remove();
+					count++;
+				}
 			}
-			objects.remove(id.toString());
-			return null;
+			return count;
 		});
 	}
 
-	public <T> void delete(Object object) {
+	@Override
+	public <T> void delete(T object) {
 		Object id = IdUtils.getId(object);
 		if (id == null) {
 			throw new IllegalArgumentException();
 		}
-		delete(object.getClass(), id);
+		delete(object.getClass(), By.field(Properties.getProperty(object.getClass(), "id"), id));
 	}
 
 }

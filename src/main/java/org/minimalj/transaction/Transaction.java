@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.repository.Repository;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 
 /**
@@ -41,8 +42,8 @@ public interface Transaction<RETURN> extends Serializable {
 		return repository().find(clazz, query);
 	}
 
-	default <T> long count(Class<T> clazz, Query query) {
-		return repository().count(clazz, query);
+	default <T> long count(Class<T> clazz, Criteria criteria) {
+		return repository().count(clazz, criteria);
 	}
 
 	default <T> Object insert(T object) {
@@ -53,8 +54,8 @@ public interface Transaction<RETURN> extends Serializable {
 		repository().update(object);
 	}
 
-	default <T> void delete(Class<T> clazz, Object id) {
-		repository().delete(clazz, id);
+	default <T> void delete(Class<T> clazz, Criteria criteria) {
+		repository().delete(clazz, criteria);
 	}
 
 }

@@ -60,7 +60,7 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 		this.clazz = new ClassHolder<>(clazz);
 		this.query = query;
 		
-		this.size = (int) repository.count(clazz, query);
+		this.size = (int) repository.count(clazz, query.getCriteria());
 	}
 	
 	@Override

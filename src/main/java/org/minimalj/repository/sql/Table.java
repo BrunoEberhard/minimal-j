@@ -18,6 +18,7 @@ import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.list.RelationCriteria;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
@@ -126,7 +127,12 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	public void delete(Object id) {
+	public void delete(Object object) {
+		Object id = IdUtils.getId(object);
+		deleteById(id);
+	}
+
+	public void deleteById(Object id) {
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
@@ -134,7 +140,21 @@ public class Table<T> extends AbstractTable<T> {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't delete " + getTableName() + " with ID " + id);
 		}
 	}
-	
+
+	public int delete(Class<?> clazz, Criteria criteria) {
+		WhereClause<T> whereClause = new WhereClause<>(this, criteria);
+		String deleteString = "DELETE FROM " + getTableName() + whereClause.getClause();
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), deleteString, false)) {
+			for (int i = 0; i < whereClause.getValueCount(); i++) {
+				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i), null);
+			}
+			statement.execute();
+			return statement.getUpdateCount();
+		} catch (SQLException e) {
+			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+		}
+	}
+
 	private LinkedHashMap<PropertyInterface, ListTable> createListTables(List<PropertyInterface> listProperties) {
 		LinkedHashMap<PropertyInterface, ListTable> lists = new LinkedHashMap<>();
 		for (PropertyInterface listProperty : listProperties) {

@@ -3,6 +3,7 @@
 Every release contains many small fixes.
 
 === next
+* Repository: delete by criteria. Change signature of 'count'
 
 === 1.17.0.0
 * Form: read only wrapper

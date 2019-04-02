@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Model;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.SqlRepository;
 
@@ -33,12 +34,14 @@ public interface Repository {
 
 	public <T> List<T> find(Class<T> clazz, Query query);
 	
-	public <T> long count(Class<T> clazz, Query query);
+	public <T> long count(Class<T> clazz, Criteria criteria);
 
 	public <T> Object insert(T object);
 
 	public <T> void update(T object);
 
-	public <T> void delete(Class<T> clazz, Object id);
+	public <T> void delete(T object);
+
+	public <T> int delete(Class<T> clazz, Criteria criteria);
 
 }

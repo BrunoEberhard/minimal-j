@@ -1,13 +1,13 @@
 package org.minimalj.backend.repository;
 
-import org.minimalj.repository.query.Query;
+import org.minimalj.repository.query.Criteria;
 
 public class CountTransaction<ENTITY> extends ReadTransaction<ENTITY, Long> {
 	private static final long serialVersionUID = 1L;
 
-	private final Query criteria;
+	private final Criteria criteria;
 	
-	public CountTransaction(Class<ENTITY> clazz, Query criteria) {
+	public CountTransaction(Class<ENTITY> clazz, Criteria criteria) {
 		super(clazz);
 		this.criteria = criteria;
 	}

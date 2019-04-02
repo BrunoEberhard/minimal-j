@@ -13,11 +13,13 @@ import java.util.logging.Logger;
 
 import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
+import org.minimalj.backend.repository.DeleteTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.repository.Repository;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.rest.EntityJsonReader;
 import org.minimalj.security.Authentication;
@@ -157,8 +159,8 @@ public class RestBackend extends Backend {
 		}
 
 		@Override
-		public <T> long count(Class<T> clazz, Query query) {
-			return execute(new CountTransaction<T>(clazz, query));
+		public <T> long count(Class<T> clazz, Criteria criteria) {
+			return execute(new CountTransaction<T>(clazz, criteria));
 		}
 		
 		@Override
@@ -174,9 +176,13 @@ public class RestBackend extends Backend {
 		}
 
 		@Override
-		public <T> void delete(Class<T> clazz, Object id) {
-			// TODO use DELETE
-			execute(new DeleteEntityTransaction<T>(clazz, id));
+		public <T> int delete(Class<T> clazz, Criteria criteria) {
+			return execute(new DeleteTransaction<T>(clazz, criteria));
+		}
+
+		@Override
+		public <T> void delete(T object) {
+			execute(new DeleteEntityTransaction<>(object));
 		}
 	}
 

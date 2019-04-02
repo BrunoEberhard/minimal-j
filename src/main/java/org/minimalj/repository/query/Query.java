@@ -26,4 +26,14 @@ public abstract class Query implements Serializable {
 		return new Order(this, path, ascending);
 	}
 
+	public Criteria getCriteria() {
+		Query query = this;
+		if (query instanceof Limit) {
+			query = ((Limit) query).getQuery();
+		}
+		while (query instanceof Order) {
+			query = ((Order) query).getQuery();
+		}
+		return (Criteria) query;
+	}
 }

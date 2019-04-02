@@ -13,7 +13,6 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.util.GenericUtils;
-import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -147,7 +146,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	
 	protected void delete(List<T> selectedObjects) {
 		for (T object : selectedObjects) {
-			Backend.delete(object.getClass(), IdUtils.getId(object));
+			Backend.delete(object);
 		}
 	}
 

@@ -150,14 +150,17 @@ public class IgniteRepository implements Repository {
 	}
 
 	@Override
-	public <T> void delete(Class<T> clazz, Object id) {
-		IgniteCache cache = getCache(clazz);
-		cache.remove(id);
-	}
-
 	public void delete(Object object) {
 		IgniteCache cache = getCache(object.getClass());
 		cache.remove(IdUtils.getId(object));
+	}
+
+	@Override
+	public <T> int delete(Class<T> clazz, Criteria criteria) {
+		// TODO optimize this not to load all objects
+		List list = find(clazz, criteria);
+		list.forEach(this::delete);
+		return list.size();
 	}
 
 	@Override
@@ -179,14 +182,8 @@ public class IgniteRepository implements Repository {
 	}
 
 	@Override
-	public <T> long count(Class<T> clazz, Query query) {
-		if (query instanceof Limit) {
-			query = ((Limit) query).getQuery();
-		}
-		while (query instanceof Order) {
-			query = ((Order) query).getQuery();
-		}
-		return find(clazz, (Criteria) query).size();
+	public <T> long count(Class<T> clazz, Criteria criteria) {
+		return find(clazz, criteria).size();
 	}
 
 	public String name(Object classOrKey) {
