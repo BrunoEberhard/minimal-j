@@ -31,6 +31,7 @@ import org.minimalj.frontend.form.element.LocalDateFormElement;
 import org.minimalj.frontend.form.element.LocalDateTimeFormElement;
 import org.minimalj.frontend.form.element.LocalTimeFormElement;
 import org.minimalj.frontend.form.element.LongFormElement;
+import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.form.element.SelectionFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
@@ -43,6 +44,7 @@ import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
@@ -152,6 +154,8 @@ public class Form<T> {
 			return editable ? new EnumFormElement(property) : new TextFormElement(property);
 		} else if (fieldClass == Set.class) {
 			return new EnumSetFormElement(property, this.editable); // 'this.editable' instead 'editable': the set field is always final. That doesn't mean its read only.
+		} else if (fieldClass == Password.class) {
+			return new PasswordFormElement(new ChainedProperty(property, Keys.getProperty(Password.$.getPassword())));
 		} else if (fieldClass == Selection.class) {
 			return new SelectionFormElement(property);
 		}	

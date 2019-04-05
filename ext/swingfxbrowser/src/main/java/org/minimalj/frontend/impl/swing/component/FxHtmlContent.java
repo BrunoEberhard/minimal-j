@@ -80,7 +80,11 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 							public void handleEvent(Event ev) {
 								String domEventType = ev.getType();
 								if (domEventType.equals(EVENT_TYPE_CLICK)) {
-									String href = ((Element) ev.getTarget()).getAttribute("href");
+									String href = findHref(ev);
+									if (href == null) {
+										return;
+									}
+
 									if (href.startsWith("/")) {
 										href = href.substring(1);
 									}
@@ -92,6 +96,7 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 									}
 								}
 							}
+
 						};
 
 						Document doc = webBrowser.getEngine().getDocument();
@@ -104,6 +109,22 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 
 			}
 		});
+	}
+
+	/*
+	 * If the 'A' tag contains inner tags the click doesn't report the 'A' Element
+	 * but the inner tag as target. This method tries to find the 'hyper reference'
+	 */
+	private static String findHref(Event ev) {
+		Element element = (Element) ev.getTarget();
+		while (element != null && !element.hasAttribute("href")) {
+			element = (Element) element.getParentNode();
+		}
+		if (element == null) {
+			return null;
+		}
+		String href = element.getAttribute("href");
+		return href;
 	}
 
 }

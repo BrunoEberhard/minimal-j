@@ -22,12 +22,12 @@ import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.rest.openapi.OpenAPIFactory;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.StringUtils;
@@ -125,7 +125,7 @@ public class RestHTTPD extends NanoHTTPD {
 					}
 					try {
 						int size = Integer.valueOf(sizeParameter);
-						query = ((QueryLimitable) query).limit(offset, size);
+						query = query.limit(offset, size);
 					} catch (NumberFormatException e) {
 						return newFixedLengthResponse(Status.BAD_REQUEST, "text/json",
 								"size parameter invalid: " + sizeParameter);
@@ -160,7 +160,9 @@ public class RestHTTPD extends NanoHTTPD {
 			if (clazz != null) {
 				if (pathElements.length >= 2) {
 					String id = pathElements[1];
-					Backend.delete(clazz, id);
+					Object idOnlyObject = CloneHelper.newInstance(clazz);
+					IdUtils.setId(idOnlyObject, id);
+					Backend.delete(idOnlyObject);
  				} else {
  					return newFixedLengthResponse(Status.BAD_REQUEST, "text/plain", "Post expects id in url");
  				}

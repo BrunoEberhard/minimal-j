@@ -2,7 +2,9 @@
 
 Every release contains many small fixes.
 
-=== next
+=== 1.18.0.0
+* Repository: delete by criteria. Change signature of 'count'
+* Form: support for PasswordFormElement
 
 === 1.17.0.0
 * Form: read only wrapper

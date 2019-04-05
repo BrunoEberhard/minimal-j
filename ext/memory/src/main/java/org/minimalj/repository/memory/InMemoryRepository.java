@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,11 +29,11 @@ import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.list.QueryResultList;
 import org.minimalj.repository.query.AllCriteria;
+import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.CloneHelper;
@@ -145,7 +146,7 @@ public class InMemoryRepository implements Repository {
 		return executeRead(() -> {
 			if (query instanceof Limit) {
 				Limit limit = (Limit) query;
-				List l = find(clazz, limit.getQuery());
+				List l = findAndOrder(clazz, limit.getQuery());
 				if (limit.getOffset() == null) {
 					return l.subList(0, Math.min(limit.getRows(), l.size()));
 				} else {
@@ -153,14 +154,14 @@ public class InMemoryRepository implements Repository {
 				}
 			} else if (query instanceof AllCriteria) {
 				AllCriteria allCriteria = (AllCriteria) query;
-				return find(clazz, allCriteria);
+				return findAndOrder(clazz, allCriteria);
 			} else {
-				return new QueryResultList(this, clazz, (QueryLimitable) query);
+				return new QueryResultList(this, clazz, query);
 			}
 		});
 	}
 
-	private <T> List find(Class<T> clazz, QueryLimitable query) {
+	private <T> List findAndOrder(Class<T> clazz, Query query) {
 		List<Order> orders = new ArrayList<>();
 		while (query instanceof Order) {
 			Order order = (Order) query;
@@ -168,7 +169,6 @@ public class InMemoryRepository implements Repository {
 			query = order.getQuery();
 		}
 		List l = find(clazz, (Criteria) query);
-		Collections.reverse(orders);
 		for (Order order : orders) {
 			order(order, l);
 		}
@@ -220,16 +220,9 @@ public class InMemoryRepository implements Repository {
 	}
 	
 	@Override
-	public <T> long count(Class<T> clazz, Query q) {
+	public <T> long count(Class<T> clazz, Criteria criteria) {
 		return executeRead(() -> {
-			Query query = q;
-			if (query instanceof Limit) {
-				query = ((Limit) query).getQuery();
-			}
-			while (query instanceof Order) {
-				query = ((Order) query).getQuery();
-			}
-			return find(clazz, (Criteria) query).size();
+			return find(clazz, criteria).size();
 		});
 	}
 
@@ -444,24 +437,32 @@ public class InMemoryRepository implements Repository {
 	}
 	
 	@Override
-	public <T> void delete(Class<T> clazz, Object id) {
-		executeWrite(() -> {
+	public <T> int delete(Class<T> clazz, Criteria criteria) {
+		return executeWrite(() -> {
 			Map<String, Object> objects = objects(clazz);
-			Object object = objects.get(id.toString());
-			if (object != null && isReferenced(object)) {
-				throw new IllegalStateException("Referenced objects cannot be deleted");
+			Iterator<Object> iterator = objects.values().iterator();
+			int count = 0;
+			while (iterator.hasNext()) {
+				Object next = iterator.next();
+				if (criteria.test(next)) {
+					if (isReferenced(next)) {
+						throw new IllegalStateException("Referenced objects cannot be deleted");
+					}
+					iterator.remove();
+					count++;
+				}
 			}
-			objects.remove(id.toString());
-			return null;
+			return count;
 		});
 	}
 
-	public <T> void delete(Object object) {
+	@Override
+	public <T> void delete(T object) {
 		Object id = IdUtils.getId(object);
 		if (id == null) {
 			throw new IllegalArgumentException();
 		}
-		delete(object.getClass(), id);
+		delete(object.getClass(), By.field(Properties.getProperty(object.getClass(), "id"), id));
 	}
 
 }

@@ -2,14 +2,12 @@ package org.minimalj.repository.ignite;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.cache.Cache;
@@ -17,8 +15,6 @@ import javax.cache.Cache;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CacheMode;
-import org.apache.ignite.cache.affinity.AffinityKey;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.cache.query.SqlQuery;
 import org.apache.ignite.configuration.CacheConfiguration;
@@ -40,14 +36,13 @@ import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.Query.QueryLimitable;
 import org.minimalj.security.Subject;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class IgniteRepository implements Repository {
-	private static final Logger logger = Logger.getLogger(IgniteRepository.class.getName());
 
 	private static Ignite ignite;
 
@@ -155,21 +150,24 @@ public class IgniteRepository implements Repository {
 	}
 
 	@Override
-	public <T> void delete(Class<T> clazz, Object id) {
-		IgniteCache cache = getCache(clazz);
-		cache.remove(id);
-	}
-
 	public void delete(Object object) {
 		IgniteCache cache = getCache(object.getClass());
 		cache.remove(IdUtils.getId(object));
 	}
 
 	@Override
+	public <T> int delete(Class<T> clazz, Criteria criteria) {
+		// TODO optimize this not to load all objects
+		List list = find(clazz, criteria);
+		list.forEach(this::delete);
+		return list.size();
+	}
+
+	@Override
 	public <T> List<T> find(Class<T> clazz, Query query) {
 		if (query instanceof Limit) {
 			Limit limit = (Limit) query;
-			List l = find(clazz, limit.getQuery());
+			List l = findAndOrder(clazz, limit.getQuery());
 			if (limit.getOffset() == null) {
 				return l.subList(0, Math.min(limit.getRows(), l.size()));
 			} else {
@@ -177,21 +175,15 @@ public class IgniteRepository implements Repository {
 			}
 		} else if (query instanceof AllCriteria) {
 			AllCriteria allCriteria = (AllCriteria) query;
-			return find(clazz, allCriteria);
+			return findAndOrder(clazz, allCriteria);
 		} else {
-			return new QueryResultList(this, clazz, (QueryLimitable) query);
+			return new QueryResultList(this, clazz, query);
 		}
 	}
 
 	@Override
-	public <T> long count(Class<T> clazz, Query query) {
-		if (query instanceof Limit) {
-			query = ((Limit) query).getQuery();
-		}
-		while (query instanceof Order) {
-			query = ((Order) query).getQuery();
-		}
-		return find(clazz, (Criteria) query).size();
+	public <T> long count(Class<T> clazz, Criteria criteria) {
+		return find(clazz, criteria).size();
 	}
 
 	public String name(Object classOrKey) {
@@ -208,7 +200,7 @@ public class IgniteRepository implements Repository {
 		return entry.getValue();
 	}
 
-	private <T> List find(Class<T> clazz, QueryLimitable query) {
+	private <T> List findAndOrder(Class<T> clazz, Query query) {
 		List<Order> orders = new ArrayList<>();
 		while (query instanceof Order) {
 			Order order = (Order) query;
@@ -216,14 +208,12 @@ public class IgniteRepository implements Repository {
 			query = order.getQuery();
 		}
 		List l = find(clazz, (Criteria) query);
-		Collections.reverse(orders);
 		for (Order order : orders) {
 			order(order, l);
 		}
 		return l;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T> List find(Class<T> clazz, Criteria criteria) {
 		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
 		IgniteBiPredicate filter = (k, v) -> predicate.test(v);
@@ -240,7 +230,6 @@ public class IgniteRepository implements Repository {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void order(Order order, List l) {
 		String path = order.getPath();
 		if (path.contains(".")) {

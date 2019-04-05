@@ -7,6 +7,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.repository.CountTransaction;
 import org.minimalj.backend.repository.DeleteEntityTransaction;
+import org.minimalj.backend.repository.DeleteTransaction;
 import org.minimalj.backend.repository.EntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
@@ -16,6 +17,7 @@ import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.backend.repository.WriteTransaction;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
@@ -146,8 +148,8 @@ public class Backend {
 		return execute(new ReadCriteriaTransaction<T>(clazz, query));
 	}
 
-	public static <T> long count (Class<T> clazz, Query query) {
-		return execute(new CountTransaction<T>(clazz, query));
+	public static <T> long count(Class<T> clazz, Criteria criteria) {
+		return execute(new CountTransaction<T>(clazz, criteria));
 	}
 	
 	public static <T> Object insert(T object) {
@@ -162,10 +164,14 @@ public class Backend {
 		return execute(new SaveTransaction<T>(object));
 	}
 
-	public static <T> void delete(Class<T> clazz, Object id) {
-		execute(new DeleteEntityTransaction<T>(clazz, id));
+	public static <T> int delete(Class<T> clazz, Criteria criteria) {
+		return execute(new DeleteTransaction<T>(clazz, criteria));
 	}
-	
+
+	public static <T> void delete(T object) {
+		execute(new DeleteEntityTransaction<T>(object));
+	}
+
 	public static <T> T execute(Transaction<T> transaction) {
 		return getInstance().doExecute(transaction);
 	}

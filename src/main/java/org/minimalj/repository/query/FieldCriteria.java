@@ -52,7 +52,8 @@ public class FieldCriteria extends Criteria implements Serializable {
 	private void assertValidOperator(PropertyInterface property, FieldOperator operator) {
 		Class<?> clazz = property.getClazz();
 		if (clazz == Integer.class || clazz == Long.class || clazz == BigDecimal.class || Temporal.class.isAssignableFrom(clazz)) return;
-		if (operator == FieldOperator.equal) return;
+		if (operator == FieldOperator.equal || operator == FieldOperator.notEqual)
+			return;
 		throw new IllegalArgumentException(operator + " only allowed for Integer, Long and BigDecimal fields");
 	}
 

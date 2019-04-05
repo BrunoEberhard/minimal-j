@@ -7,12 +7,11 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.model.Keys;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.query.Query.QueryLimitable;
-import org.minimalj.repository.query.Query.QueryOrderable;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.Sortable;
 
@@ -53,28 +52,38 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 
 	private final ClassHolder<T> clazz;
 
-	private QueryLimitable query;
+	private Query query;
 	private final int size;
 	
-	public QueryResultList(Repository repository, Class<T> clazz, QueryLimitable query) {
+	public QueryResultList(Repository repository, Class<T> clazz, Query query) {
 		this.repository = repository;
 		this.clazz = new ClassHolder<>(clazz);
 		this.query = query;
 		
-		this.size = (int) repository.count(clazz, query);
+		this.size = (int) repository.count(clazz, query.getCriteria());
 	}
 	
 	@Override
 	public T get(int index) {
-		Query limtedCriteria = query.limit(index, 1);
+		Query limtedCriteria = makeOrdered(query).limit(index, 1);
 		List<T> result = find(limtedCriteria);
 		return result.isEmpty() ? null : result.get(0);
 	}
 
 	@Override
 	public List<T> subList(int fromIndex, int toIndex) {
-		Query limtedCriteria = query.limit(fromIndex, toIndex - fromIndex);
+		Query limtedCriteria = makeOrdered(query).limit(fromIndex, toIndex - fromIndex);
 		return find(limtedCriteria);
+	}
+
+	private Query makeOrdered(Query query) {
+		if (!(query instanceof RelationCriteria)) {
+			// some db (postgresql) change order of elements if no unique sort order is
+			// specified
+			return query.order(Properties.getProperty(clazz.getClazz(), "id"));
+		} else {
+			return query;
+		}
 	}
 
 	private List<T> find(Query limtedCriteria) {
@@ -94,10 +103,10 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 		}
 		for (int i = 0; i<sortKeys.length; i++) {
 			PropertyInterface property = Keys.getProperty(sortKeys[i]);
-			query = ((QueryOrderable) query).order(property, sortDirections[i]);
+			query = query.order(property, sortDirections[i]);
 		}
 	}
-	
+
 	@Override
 	public boolean canSortBy(Object sortKey) {
 		return true;

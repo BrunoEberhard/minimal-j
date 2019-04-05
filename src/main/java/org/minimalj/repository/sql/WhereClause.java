@@ -79,7 +79,7 @@ public class WhereClause<T> {
 			orders.add(order);
 			while (order.getQuery() instanceof Order) {
 				order = (Order) order.getQuery();
-				orders.add(order);
+				orders.add(0, order); // most significant first
 			}
 			WhereClause<T> whereClause = new WhereClause<>(table, order.getQuery());
 			add(whereClause);
@@ -215,7 +215,7 @@ public class WhereClause<T> {
 			} else {
 				s.append(", ");
 			}
-			s.append(table.findColumn(order.getPath()));
+			s.append("id".equalsIgnoreCase(order.getPath()) ? "ID" : table.findColumn(order.getPath()));
 			if (!order.isAscending()) {
 				s.append(" DESC");
 			}

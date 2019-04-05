@@ -19,10 +19,9 @@ public class ViewUtil {
 	 * Creates a view to a complete object. Meaning all fields existing on view and
 	 * the complete object are copied from the complete object to the view.
 	 * 
-	 * @param completeObject
-	 *            the source
-	 * @param viewObject
-	 *            the filled view object
+	 * @param <T>            type of the view object
+	 * @param completeObject the source
+	 * @param viewObject     the filled view object
 	 * @return the view object (same as input)
 	 */
 	public static <T> T view(Object completeObject, T viewObject) {
@@ -55,8 +54,8 @@ public class ViewUtil {
 	 * asking the Backend to read the complete object. This method expects the view
 	 * to have an id.
 	 * 
-	 * @param viewObject
-	 *            the view object
+	 * @param <T>        type of the complete object
+	 * @param viewObject the view object
 	 * @return the complete object (could be newer as the view object as the Backend
 	 *         is asked)
 	 */

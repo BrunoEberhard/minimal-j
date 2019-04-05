@@ -19,7 +19,6 @@ import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.EqualsHelper;
-import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
 /*
@@ -28,6 +27,7 @@ import org.minimalj.util.IdUtils;
  * not necessary part of Criteria. The memory db is not the normal use case. This
  * is why I try to separate this in a factory.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class PredicateFactory {
 
 	static Predicate createPredicate(Class clazz, Criteria query) {

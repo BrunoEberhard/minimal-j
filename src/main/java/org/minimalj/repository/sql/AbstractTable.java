@@ -326,7 +326,7 @@ public abstract class AbstractTable<T> {
 							// reference constraint to 'deferred'. But this 'deferred' is more
 							// expensive for database and doesn't work with maria db (TODO: really?)
 							setColumnToNull(id, dependableColumnName);
-							dependableTable.delete(dependableId);
+							dependableTable.deleteById(dependableId);
 						}
 					}
 				}
