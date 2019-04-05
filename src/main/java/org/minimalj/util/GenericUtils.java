@@ -117,8 +117,9 @@ public class GenericUtils {
 
 	/**
 	 * 
-	 * @param field
-	 * @return generic class or <code>null</code>. Doesn't throw Exception if field is not generic.
+	 * @param field field of a class
+	 * @return generic class or <code>null</code>. Doesn't throw Exception if field
+	 *         is not generic.
 	 */
 	public static Class<?> getGenericClass(Field field) {
 		 Type type = field.getGenericType();

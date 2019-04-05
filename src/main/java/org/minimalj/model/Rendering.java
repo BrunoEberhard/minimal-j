@@ -12,14 +12,16 @@ import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 
 /**
+ * <p>
  * normally render and renderDescription (= Tooltip) will return a String (or a
  * StringBuilder). The only allowed / supported formatting character in this
  * String is the newline ('\n').
- * <p>
+ * </p>
  * 
+ * <p>
  * If you would like to use some html tags you can return a HtmlString. Only
  * some basic html tags are allowed.
- * <p>
+ * </p>
  *
  */
 public interface Rendering {
