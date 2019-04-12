@@ -28,10 +28,10 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> {
 
 	@Override
 	public void setValue(Selection<T> selection) {
-		List<T> values = selection.values != null ? selection.values : Collections.emptyList();
+		List<T> values = selection != null && selection.values != null ? selection.values : Collections.emptyList();
 		component.show(input = Frontend.getInstance().createComboBox(values, listener()));
-		T selectedValue = selection.selectedValue;
-		if (selectedValue != null && !values.contains(selectedValue)) {
+		T selectedValue = selection != null ? selection.selectedValue : null;
+		if (selectedValue != null && !values.contains(selectedValue) && IdUtils.hasId(selectedValue.getClass())) {
 			Object id = IdUtils.getId(selectedValue);
 			selectedValue = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
 			input.setValue(selectedValue);
