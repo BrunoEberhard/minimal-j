@@ -179,7 +179,7 @@ public class Form<T> {
 			for (int i = 0; i < keys.length; i++) {
 				int elementSpan = i < keys.length - 1 ? span : rest;
 				add(keys[i], elementSpan);
-				rest = rest - span;
+				rest = rest - elementSpan;
 			}
 		}
 	}
