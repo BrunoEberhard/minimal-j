@@ -57,6 +57,9 @@ public class ChainedProperty implements PropertyInterface {
 		Object value1 = property1.getValue(object);
 		if (value1 != null) {
 			property2.setValue(value1, value);
+		} else {
+			throw new NullPointerException(
+					property1.getName() + " on " + property1.getDeclaringClass().getSimpleName() + " is null");
 		}
 	}
 
