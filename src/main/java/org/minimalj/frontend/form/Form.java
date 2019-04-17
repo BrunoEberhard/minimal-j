@@ -48,6 +48,7 @@ import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
+import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
 
 public class Form<T> {
@@ -121,7 +122,8 @@ public class Form<T> {
 		} else {
 			property = Keys.getProperty(key);
 			if (property != null) {
-				boolean editable = !forcedReadonly && this.editable && !property.isFinal();
+				boolean editable = !forcedReadonly && this.editable
+						&& !(FieldUtils.isAllowedPrimitive(property.getClazz()) && property.isFinal());
 				element = createElement(property, editable);
 			}
 		}
