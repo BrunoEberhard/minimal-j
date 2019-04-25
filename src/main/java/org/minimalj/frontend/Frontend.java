@@ -108,7 +108,7 @@ public abstract class Frontend {
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
 	public abstract IList createList(Action... actions);
-	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
+	public abstract <T> Input<T> createComboBox(List<T> items, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
 	public abstract Input<byte[]> createImage(InputComponentListener changeListener);
