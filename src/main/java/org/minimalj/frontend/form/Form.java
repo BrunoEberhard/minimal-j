@@ -35,7 +35,7 @@ import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.form.element.SelectionFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
-import org.minimalj.frontend.form.element.TypeUnknownFormElement;
+import org.minimalj.frontend.form.element.UnknownFormElement;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Selection;
@@ -162,7 +162,7 @@ public class Form<T> {
 			return new SelectionFormElement(property);
 		}	
 		logger.severe("No FormElement could be created for: " + property.getName() + " of class " + fieldClass.getName());
-		return new TypeUnknownFormElement(property);
+		return new UnknownFormElement(property);
 	}
 	
 	// 
