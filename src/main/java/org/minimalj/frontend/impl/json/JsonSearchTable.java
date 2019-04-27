@@ -6,13 +6,13 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 
-public class JsonSearchTable<T> extends JsonList implements IContent {
+public class JsonSearchTable<T> extends JsonComponent implements IContent {
 
 	private final Search<T> search;
 	private final JsonTable<T> table;
 	
 	public JsonSearchTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		super();
+		super("List");
 		this.search = search;
 		addComponent(new JsonTextField("SearchTextField", new JsonSearchInputListener()));
 		table = new JsonTable<T>(keys, multiSelect, listener);
@@ -28,4 +28,9 @@ public class JsonSearchTable<T> extends JsonList implements IContent {
 			table.setObjects(search.search(query));
 		}
 	}
+
+	public void addComponent(JsonComponent c) {
+		JsonFrontend.getClientSession().addContent(getId(), c);
+	}
+
 }

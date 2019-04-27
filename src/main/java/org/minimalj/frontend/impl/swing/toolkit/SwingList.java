@@ -4,38 +4,37 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
-import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
+import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.model.Rendering;
 
 
-public class SwingList extends JPanel implements IList {
+public class SwingList<T> extends JPanel implements Input<List<T>> {
 	private static final long serialVersionUID = 1L;
 	
-	private final int actionCount;
-
-	private Component[] disabledChildren;
+	private final Function<T, CharSequence> renderer;
+	private final Function<T, List<Action>> itemActions;
+	private final Action[] listActions;
+	private List<T> value;
 	
-	public SwingList(Action... actions) {
+	public SwingList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions, Action... listActions) {
 		super(null, true);
 		setLayout(new VerticalLayoutManager());
-		if (actions != null) {
-			for (Action action : actions) {
-				add(new SwingActionText(action), "");
-			}
-			actionCount = actions.length;
-		} else {
-			actionCount = 0;
+		this.renderer = renderer != null ? renderer : Rendering::toString;
+		this.itemActions = itemActions;
+		this.listActions = listActions;
+
+		if (listActions != null) {
+			setComponentPopupMenu(SwingTab.createMenu(Arrays.asList(listActions)));
 		}
 	}
 	
@@ -47,76 +46,46 @@ public class SwingList extends JPanel implements IList {
 	}
 
 	@Override
-	public void setEnabled(boolean enabled) {
-		if (isEnabled() && !enabled) {
-			disabledChildren = getComponents();
-			removeAll();
-		} else if (!isEnabled() && enabled) {
-			for (Component c: disabledChildren) {
-				add(c, "");
+	public void setValue(List<T> value) {
+		this.value = value;
+		if (value != null && !value.isEmpty()) {
+			super.removeAll();
+			for (T item : value) {
+				CharSequence rendered = renderer.apply(item);
+				SwingText text = new SwingText(rendered.toString());
+
+				List<Action> actions = new ArrayList<>();
+				if (this.itemActions != null) {
+					actions.addAll(this.itemActions.apply(item));
+				}
+				if (listActions != null) {
+					Arrays.stream(listActions).forEach(actions::add);
+				}
+				text.setComponentPopupMenu(SwingTab.createMenu(actions));
+
+				add(text);
 			}
 		} else {
-			return; // avoid fireChange in super
+			super.removeAll();
 		}
+
 		revalidate();
-		super.setEnabled(enabled);
-	}
-
-	@Override
-	public void clear() {
-		for (int i = getComponentCount() - actionCount - 1; i >= 0; i--) {
-			remove(i);
-		}
-		if (disabledChildren != null) {
-			disabledChildren = Arrays.copyOfRange(disabledChildren, disabledChildren.length - actionCount, disabledChildren.length);
-		}
-		revalidate();
-	}
-
-	@Override
-	public void add(String title, Object object, Action... actions) {
-		// TODO title
-		add(object, actions);
-	}
-
-	@Override
-	public void add(Object object, Action... actions) {
-		Component component;
-		if (object instanceof Rendering) {
-			component = new SwingText((Rendering) object);
-		} else if (object != null) {
-			component = new SwingText(object.toString());
-		} else {
-			component = new JLabel();
-		}
-
-		boolean enabled = isEnabled();
-		setEnabled(true);
-		
-		int existingComponents = getComponentCount();
-		super.add(component, "", getComponentCount() - actionCount); // empty string need otherwise LayoutManager doesn't get the component
-		for (Action action : actions) {
-			super.add(new SwingActionText(action), "", getComponentCount() - actionCount);
-		}
-		if (actionCount > 0) {
-			// if global actions exist: create border at the end of this component+actions
-			JComponent lastLabel = (JComponent) super.getComponent(getComponentCount() - actionCount - 1);
-			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-		} else if (existingComponents > 0) {
-			// no global actions, but not the first add: create border at the end of the previous component+actions 
-			JComponent lastLabel = (JComponent) super.getComponent(existingComponents - 1);
-			lastLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-		}
-		
-		setEnabled(enabled);
 		repaint();
-		revalidate();
 	}
 
-	private class VerticalLayoutManager implements LayoutManager {
+	@Override
+	public List<T> getValue() {
+		return value;
+	}
+
+	@Override
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
+	}
+
+	private static class VerticalLayoutManager implements LayoutManager {
 
 		private Dimension preferredSize;
-		private Rectangle lastParentBounds = null;
 		
 		public VerticalLayoutManager() {
 		}
@@ -135,11 +104,8 @@ public class SwingList extends JPanel implements IList {
 
 		@Override
 		public void layoutContainer(Container parent) {
-			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds())) return;
-			lastParentBounds = parent.getBounds();
-
 			int preferredHeight = 0;
-			for (Component component : getComponents()) {
+			for (Component component : parent.getComponents()) {
 				int height = component.getPreferredSize().height;
 				preferredHeight += height;
 			}
@@ -149,7 +115,7 @@ public class SwingList extends JPanel implements IList {
 			int x = verticalInset > 0 ? 1 : 0;
 			int width = parent.getWidth();
 			int widthWithoutIns = width - x;
-			for (Component component : getComponents()) {
+			for (Component component : parent.getComponents()) {
 				int height = component.getPreferredSize().height;
 				component.setBounds(x, y, widthWithoutIns, height);
 				y += height;
@@ -159,12 +125,10 @@ public class SwingList extends JPanel implements IList {
 
 		@Override
 		public void addLayoutComponent(String name, Component comp) {
-			lastParentBounds = null;
 		}
 
 		@Override
 		public void removeLayoutComponent(Component comp) {
-			lastParentBounds = null;
 		}
 	}
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.frontend.Frontend.IList;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.util.StringUtils;
 
@@ -19,7 +18,6 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 	private final int columnWidth;
 	private final int dialogWidth;
 	private int column, row;
-	private boolean isVerticallyGrowing;
 	
 	public VaadinGridFormLayout(int columns, int columnWidthPercentage) {
 		super(columns, 1);
@@ -39,10 +37,6 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 	@Override
 	public int getDialogWidth() {
 		return dialogWidth;
-	}
-
-	public boolean isVerticallyGrowing() {
-		return isVerticallyGrowing;
 	}
 
 	@Override
@@ -69,10 +63,6 @@ public class VaadinGridFormLayout extends GridLayout implements FormContent, Vaa
 		if (column >= columns) {
 			column = 0;
 			row++;
-		}
-		
-		if (field instanceof IList) {
-			isVerticallyGrowing = true;
 		}
 	}
 

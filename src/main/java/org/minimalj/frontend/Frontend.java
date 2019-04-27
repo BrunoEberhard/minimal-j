@@ -2,6 +2,7 @@ package org.minimalj.frontend;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -107,7 +108,7 @@ public abstract class Frontend {
 	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
-	public abstract IList createList(Action... actions);
+	public abstract <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions, Action... listActions);
 	public abstract <T> Input<T> createComboBox(List<T> items, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
@@ -118,21 +119,6 @@ public abstract class Frontend {
 	}
 	
 	public abstract SwitchComponent createSwitchComponent();
-	
-	public interface IList extends IComponent {
-		/**
-		 * @param enabled if false no content should be shown (or
-		 * only in gray) and all actions must get disabled
-		 */
-		public void setEnabled(boolean enabled);
-		
-		public void clear();
-
-		public void add(Object object, Action... actions);
-
-		public void add(String title, Object object, Action... actions);
-
-	}
 	
 	public interface InputComponentListener {
 	    void changed(IComponent source);

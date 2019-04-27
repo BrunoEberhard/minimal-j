@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -75,8 +76,9 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public IList createList(Action... actions) {
-		return new VaadinList(actions);
+	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
+			Action... listActions) {
+		return new VaadinList<T>(renderer, itemActions, listActions);
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
@@ -98,10 +99,11 @@ public class JsonFrontend extends Frontend {
 	public Input<byte[]> createImage(InputComponentListener changeListener) {
 		return new JsonImage(changeListener);
 	};
-	
+
 	@Override
-	public IList createList(Action... actions) {
-		return new JsonList(actions);
+	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
+			Action... listActions) {
+		return new JsonList<T>(renderer, itemActions, listActions);
 	}
 
 	@Override

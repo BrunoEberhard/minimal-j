@@ -536,21 +536,38 @@ $ICON
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;
-			if (content.actions != undefined) {
-				element.className = "listContent";
-				var actionElement = document.createElement("div");
-				for (var i = 0; i < content.actions.length; i++) {
-					actionElement.appendChild(createContent(content.actions[i]));
-				}
-				var elementWithActions = document.createElement("div");
-				elementWithActions.appendChild(element);
-				elementWithActions.appendChild(actionElement);
-				element = elementWithActions;
+			for (var i = 0; i < content.length; i++) {
+				var item = createContent(content[i]);
+				element.appendChild(item);
 			}
 			element.className = "list";
 			var enabled = content.enabled == undefined || content.enabled;
 			element.style.display = enabled ? "block" : "none";
 			return element;
+		} else if (type == "ListItem") {
+			element = document.createElement("div");
+			element.classList.add("listItem");
+			if (content.text != undefined && content.text != "") {
+				element.innerHTML = escapeText(content.text);
+			} else {
+				element.innerHTML = "&nbsp;";
+			}
+			if (content.actions != undefined) {
+				var actionElement = document.createElement("select");
+				actionElement.className = "listItemActionSelect";
+				actionElement.onchange = e => action(e.srcElement.value);
+				var option = document.createElement("option");
+				actionElement.appendChild(option);
+				for (var i = 0; i < content.actions.length; i++) {
+					var a = content.actions[i];
+					var option = document.createElement("option");
+					option.innerHTML = escapeText(a.name);
+					option.value = a.id;
+					actionElement.appendChild(option);
+				}
+				element.appendChild(actionElement);
+			}
+			
 		} else if (type == "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);

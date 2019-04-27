@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.javafx;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -60,8 +61,8 @@ public class FxFrontend extends Frontend {
 	}
 
 	@Override
-	public IList createList(Action... actions) {
-		// TODO Auto-generated method stub
+	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
+			Action... listActions) {
 		return null;
 	}
 

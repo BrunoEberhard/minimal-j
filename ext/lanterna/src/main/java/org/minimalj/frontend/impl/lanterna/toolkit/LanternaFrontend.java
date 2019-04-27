@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -45,8 +46,9 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public IList createList(Action... actions) {
-		return new LanternaList(actions);
+	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
+			Action... listActions) {
+		return new LanternaList<T>(renderer, itemActions, listActions);
 	}
 
 	@Override

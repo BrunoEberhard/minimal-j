@@ -17,6 +17,7 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Function;
 
 import javax.swing.AbstractAction;
 import javax.swing.FocusManager;
@@ -120,8 +121,9 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public IList createList(Action... actions) {
-		return new SwingList(actions);
+	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
+			Action... listActions) {
+		return new SwingList<T>(renderer, itemActions, listActions);
 	}
 
 	@Override
