@@ -426,9 +426,9 @@ $ICON
 			} else {
 				element.innerHTML = "&nbsp;";
 			}
-		} else if (type == "Group") {
+		} else if (type == "groupHorizontal" || type == "groupVertical") {
 			element = document.createElement("div");
-			element.classList.add("group");
+			element.classList.add(type);
 			var components = content.components;
 			for (var i = 0; i < components.length; i++) {
 				var item = document.createElement("div");
@@ -533,6 +533,24 @@ $ICON
 			button.appendChild(document.createTextNode(".."));
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
 			element.appendChild(button);
+		} else if (type == "LookupActions") {
+			element = document.createElement("div");
+			element.className = "lookup";
+			element.appendChild(createContent(content.input));
+			
+			var actionElement = document.createElement("select");
+			actionElement.onfocus = e => actionElement.value = -1;
+			actionElement.onchange = e => action(e.srcElement.value);
+			var option = document.createElement("option");
+			actionElement.appendChild(option);
+			for (var i = 0; i < content.actions.length; i++) {
+				var a = content.actions[i];
+				var option = document.createElement("option");
+				option.innerHTML = escapeText(a.name);
+				option.value = a.id;
+				actionElement.appendChild(option);
+			}
+			element.appendChild(actionElement);
 		} else if (type == "List") {
 			element = document.createElement("div");
 			element.id = content.id;
@@ -544,30 +562,6 @@ $ICON
 			var enabled = content.enabled == undefined || content.enabled;
 			element.style.display = enabled ? "block" : "none";
 			return element;
-		} else if (type == "ListItem") {
-			element = document.createElement("div");
-			element.classList.add("listItem");
-			if (content.text != undefined && content.text != "") {
-				element.innerHTML = escapeText(content.text);
-			} else {
-				element.innerHTML = "&nbsp;";
-			}
-			if (content.actions != undefined) {
-				var actionElement = document.createElement("select");
-				actionElement.className = "listItemActionSelect";
-				actionElement.onchange = e => action(e.srcElement.value);
-				var option = document.createElement("option");
-				actionElement.appendChild(option);
-				for (var i = 0; i < content.actions.length; i++) {
-					var a = content.actions[i];
-					var option = document.createElement("option");
-					option.innerHTML = escapeText(a.name);
-					option.value = a.id;
-					actionElement.appendChild(option);
-				}
-				element.appendChild(actionElement);
-			}
-			
 		} else if (type == "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);
@@ -647,7 +641,7 @@ $ICON
 		cellElement.style.flexShrink = span;
 		cellElement.style.flexGrow = span;
 
-		if (cellContent.classList.contains("group")) {
+		if (cellContent.classList.contains("groupHorizontal")) {
 			var childCount = cellContent.children.length;
 			for (var i = 0; i < childCount; i++) {
 				var groupItem = cellContent.children[i];

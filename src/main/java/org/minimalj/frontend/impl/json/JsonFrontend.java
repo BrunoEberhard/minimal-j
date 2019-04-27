@@ -18,6 +18,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
@@ -101,12 +102,6 @@ public class JsonFrontend extends Frontend {
 	};
 
 	@Override
-	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
-			Action... listActions) {
-		return new JsonList<T>(renderer, itemActions, listActions);
-	}
-
-	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
 		return new JsonCombobox<T>(objects, changeListener);
 	}
@@ -133,13 +128,27 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
-		return new JsonLookup(stringInput, lookup);
+	public Input<String> createLookup(Input<String> input, Runnable lookup) {
+		return new JsonLookup(input, lookup);
 	}
 
 	@Override
-	public IComponent createComponentGroup(IComponent... components) {
-		JsonComponent group = new JsonComponent("Group");
+	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
+		return new JsonLookupActions(input, actions);
+	}
+
+	@Override
+	public IComponent createVerticalGroup(IComponent... components) {
+		return createComponentGroup("groupVertical", components);
+	}
+
+	@Override
+	public IComponent createHorizontalGroup(IComponent... components) {
+		return createComponentGroup("groupHorizontal", components);
+	}
+
+	private IComponent createComponentGroup(String type, IComponent... components) {
+		JsonComponent group = new JsonComponent(type);
 		if (components.length > 0) {
 			// click on the caption label should focus first component, not the group
 			group.put("firstId", ((JsonComponent) components[0]).get("id"));

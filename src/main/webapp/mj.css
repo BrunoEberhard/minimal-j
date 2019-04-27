@@ -334,7 +334,10 @@ table tr:nth-child(odd).selected {
 	padding: 3.5px;
 	border: lightgray solid 1px;
 	margin: 0em;
-	margin-bottom: 0.4em;
+}
+
+.form .groupItem:first-child .lookup .text {
+	border-top: lightgray solid 1px;
 }
 
 dialog .form div.list {
@@ -343,9 +346,13 @@ dialog .form div.list {
 
 /* group (of form elements) must not double the paddings and keep background pattern */
 
-.group {
+.groupHorizontal {
 	display: flex;
 	flex-wrap: wrap;	
+}
+
+.groupVertical {
+	display: block;
 }
 
 /* various elements */
@@ -405,7 +412,7 @@ label {
 	width: 3em;
 }
 
-.lookup button {
+.lookup button, .lookup select {
 	align-self: start;
 }
 
@@ -414,27 +421,16 @@ label {
 	align-self: center;
 }
 
-.form .listItemActionSelect {
-	position: absolute;
+.lookup select {
 	width: 1.8em;
-	border: none;
-	right: 0;
-	margin: 0;
+	height: 1.8em;
 	padding: 0;
-	top: 0;
-	bottom: 0;
 	vertical-align: middle;
+	margin: 0;
 }
 
-.listItem {
-	position: relative;
-	border: lightgray solid 1px;
-	border-top: none;
-	padding: 0.3em;
-}
-
-.listItem:first-child {
-	border-top: lightgray solid 1px;
+.lookup select option:first-child {
+	display: none;
 }
 
 .hide {

@@ -7,10 +7,10 @@ import com.googlecode.lanterna.gui2.Direction;
 import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 
-public class LanternaHorizontalLayout extends Panel implements IComponent {
+public class LanternaLayout extends Panel implements IComponent {
 
-	public LanternaHorizontalLayout(IComponent[] components) {
-		setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
+	public LanternaLayout(Direction direction, IComponent[] components) {
+		setLayoutManager(new LinearLayout(direction));
 		for (IComponent component : components) {
 			Component c = (Component) component;
 			addComponent(c);

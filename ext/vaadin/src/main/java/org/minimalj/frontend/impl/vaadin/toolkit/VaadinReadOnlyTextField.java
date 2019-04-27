@@ -20,9 +20,17 @@ public class VaadinReadOnlyTextField extends VerticalLayout implements Input<Str
 	@Override
 	public void setValue(String text) {
 		removeAllComponents();
-		Label label = !StringUtils.isEmpty(text) ? new Label(text, ContentMode.TEXT) : new Label("&nbsp;", ContentMode.HTML);
-		label.addStyleName("v-html-readonly");
-		addComponent(label);
+		if (!StringUtils.isEmpty(text)) {
+			for (String line : text.split("\n")) {
+				Label label = new Label(line, ContentMode.TEXT);
+				label.addStyleName("v-html-readonly");
+				addComponent(label);
+			}
+		} else {
+			Label label = new Label("&nbsp;", ContentMode.HTML);
+			label.addStyleName("v-html-readonly");
+			addComponent(label);
+		}
 	}
 
 	@Override

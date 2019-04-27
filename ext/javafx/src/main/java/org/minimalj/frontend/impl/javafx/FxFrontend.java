@@ -1,10 +1,10 @@
 package org.minimalj.frontend.impl.javafx;
 
 import java.util.List;
-import java.util.function.Function;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.javafx.toolkit.FxAction;
 import org.minimalj.frontend.impl.javafx.toolkit.FxCheckbox;
 import org.minimalj.frontend.impl.javafx.toolkit.FxComboBox;
@@ -61,12 +61,6 @@ public class FxFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
-			Action... listActions) {
-		return null;
-	}
-
-	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
 		return new FxComboBox(objects, changeListener);
 	}
@@ -95,7 +89,19 @@ public class FxFrontend extends Frontend {
 	}
 
 	@Override
-	public IComponent createComponentGroup(IComponent... components) {
+	public Input<String> createLookup(Input<String> stringInput, ActionGroup actions) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IComponent createHorizontalGroup(IComponent... components) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IComponent createVerticalGroup(IComponent... components) {
 		// TODO Auto-generated method stub
 		return null;
 	}

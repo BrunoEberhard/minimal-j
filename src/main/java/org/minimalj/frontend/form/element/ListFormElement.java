@@ -6,7 +6,9 @@ import java.util.List;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.Rendering;
@@ -15,7 +17,7 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 
 public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
-	private final Input<List<T>> list; // only used when editable
+	private final SwitchComponent component;
 	private final Input<String> text; // only used when read only
 	private List<T> object;
 
@@ -25,13 +27,13 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 
 	public ListFormElement(PropertyInterface property, boolean editable) {
 		super(property);
-		list = editable ? Frontend.getInstance().createList(this::render, this::getActions, getActions()) : null;
+		component = Frontend.getInstance().createSwitchComponent();
 		text = editable ? null : Frontend.getInstance().createReadOnlyTextField();
 		height(1, 3);
 	}
 	
 	protected final boolean isEditable() {
-		return list != null;
+		return text == null;
 	}
 
 	@Override
@@ -47,7 +49,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 
 	@Override
 	public IComponent getComponent() {
-		return list != null ? list : text;
+		return component;
 	}
 
 	protected void handleChange() {
@@ -56,9 +58,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 	}
 
 	private void display() {
-		if (list != null) {
-			list.setValue(object);
-		} else {
+		if (text != null) {
 			text.setValue("");
 			if (object != null) {
 				for (T item : object) {
@@ -66,20 +66,38 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 					text.setValue(newValue.trim());
 				}
 			}
+			component.show(text);
+		} else if (object != null && object.size() > 0) {
+			IComponent[] components = new IComponent[object.size()];
+			int index = 0;
+			for (T item : object) {
+				// editable
+				ActionGroup actionGroup = new ActionGroup(null);
+				for (Action a : getActions()) {
+					actionGroup.add(a);
+				}
+				for (Action a : getActions(item)) {
+					actionGroup.add(a);
+				}
+				Input<String> text = Frontend.getInstance().createReadOnlyTextField();
+				text.setValue(render(item).toString());
+				components[index++] = Frontend.getInstance().createLookup(text, actionGroup);
+			}
+			component.show(Frontend.getInstance().createVerticalGroup(components));
+		} else {
+			ActionGroup actionGroup = new ActionGroup(null);
+			for (Action a : getActions()) {
+				actionGroup.add(a);
+			}
+			Input<String> text = Frontend.getInstance().createReadOnlyTextField();
+			text.setValue("");
+			component.show(Frontend.getInstance().createLookup(text, actionGroup));
 		}
 	}
 
 	protected CharSequence render(T item) {
 		return Rendering.render(item);
 	}
-
-//	protected Object render(T value) {
-//		if (value instanceof Rendering) {
-//			return value;
-//		} else {
-//			return Rendering.toString(value);
-//		}
-//	}
 
 	protected Action[] getActions() {
 		return new Action[] { new AddListEntryEditor() };

@@ -2,12 +2,12 @@ package org.minimalj.frontend;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
@@ -108,7 +108,6 @@ public abstract class Frontend {
 	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
-	public abstract <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions, Action... listActions);
 	public abstract <T> Input<T> createComboBox(List<T> items, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
@@ -129,9 +128,15 @@ public abstract class Frontend {
 		public List<S> search(String query);
 	}
 
+	// decorate?
 	public abstract Input<String> createLookup(Input<String> stringInput, Runnable lookup);
-	
-	public abstract IComponent createComponentGroup(IComponent... components);
+
+	public abstract Input<String> createLookup(Input<String> stringInput, ActionGroup actions);
+
+	// createHorizontalGroup
+	public abstract IComponent createHorizontalGroup(IComponent... components);
+
+	public abstract IComponent createVerticalGroup(IComponent... components);
 
 	/**
 	 * Content means the content of a dialog or of a page

@@ -1,11 +1,11 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import java.util.List;
-import java.util.function.Function;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
@@ -13,6 +13,7 @@ import org.minimalj.model.Rendering;
 import com.googlecode.lanterna.gui2.BorderLayout;
 import com.googlecode.lanterna.gui2.Button;
 import com.googlecode.lanterna.gui2.Component;
+import com.googlecode.lanterna.gui2.Direction;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox.Style;
 
@@ -46,19 +47,18 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> Input<List<T>> createList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
-			Action... listActions) {
-		return new LanternaList<T>(renderer, itemActions, listActions);
-	}
-
-	@Override
 	public FormContent createFormContent(int columns, int columnWidth) {
 		return new LanternaForm(columns);
 	}
 
 	@Override
-	public IComponent createComponentGroup(IComponent... components) {
-		return new LanternaHorizontalLayout(components);
+	public IComponent createHorizontalGroup(IComponent... components) {
+		return new LanternaLayout(Direction.HORIZONTAL, components);
+	}
+
+	@Override
+	public IComponent createVerticalGroup(IComponent... components) {
+		return new LanternaLayout(Direction.VERTICAL, components);
 	}
 
 	@Override
@@ -161,6 +161,12 @@ public class LanternaFrontend extends Frontend {
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
 		return new LanternaLookup(stringInput, lookup);
+	}
+
+	@Override
+	public Input<String> createLookup(Input<String> stringInput, ActionGroup actions) {
+		// TODO create runnable that displays actions in popup menu
+		return stringInput;
 	}
 
 	public static Button[] adaptActions(Action[] actions) {

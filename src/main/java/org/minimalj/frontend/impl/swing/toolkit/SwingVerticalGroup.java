@@ -4,37 +4,21 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
 
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import org.minimalj.frontend.Frontend.Input;
-import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.swing.SwingTab;
-import org.minimalj.model.Rendering;
+import org.minimalj.frontend.Frontend.IComponent;
 
 
-public class SwingList<T> extends JPanel implements Input<List<T>> {
+public class SwingVerticalGroup extends JPanel implements IComponent {
 	private static final long serialVersionUID = 1L;
 	
-	private final Function<T, CharSequence> renderer;
-	private final Function<T, List<Action>> itemActions;
-	private final Action[] listActions;
-	private List<T> value;
-	
-	public SwingList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions, Action... listActions) {
-		super(null, true);
+	public SwingVerticalGroup(IComponent... components) {
 		setLayout(new VerticalLayoutManager());
-		this.renderer = renderer != null ? renderer : Rendering::toString;
-		this.itemActions = itemActions;
-		this.listActions = listActions;
 
-		if (listActions != null) {
-			setComponentPopupMenu(SwingTab.createMenu(Arrays.asList(listActions)));
+		for (IComponent component : components) {
+			add((Component) component);
 		}
 	}
 	
@@ -43,44 +27,6 @@ public class SwingList<T> extends JPanel implements Input<List<T>> {
 		super.updateUI();
 		setBackground(UIManager.getColor("TextField.background"));
 		setOpaque(true);
-	}
-
-	@Override
-	public void setValue(List<T> value) {
-		this.value = value;
-		if (value != null && !value.isEmpty()) {
-			super.removeAll();
-			for (T item : value) {
-				CharSequence rendered = renderer.apply(item);
-				SwingText text = new SwingText(rendered.toString());
-
-				List<Action> actions = new ArrayList<>();
-				if (this.itemActions != null) {
-					actions.addAll(this.itemActions.apply(item));
-				}
-				if (listActions != null) {
-					Arrays.stream(listActions).forEach(actions::add);
-				}
-				text.setComponentPopupMenu(SwingTab.createMenu(actions));
-
-				add(text);
-			}
-		} else {
-			super.removeAll();
-		}
-
-		revalidate();
-		repaint();
-	}
-
-	@Override
-	public List<T> getValue() {
-		return value;
-	}
-
-	@Override
-	public void setEditable(boolean editable) {
-		// TODO Auto-generated method stub
 	}
 
 	private static class VerticalLayoutManager implements LayoutManager {
