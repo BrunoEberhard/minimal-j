@@ -108,7 +108,7 @@ Even if all the objects in the table must be of the same class the Pages used to
 The method createDetailPage() should construct a page that can be used to display the details of the object 'mainObject'.
 
 Now if the user selects an other entity the method updateDetailPage() method. This method can decide if the already
-existing page can be reused with new values or of a completly new Page should be constructed. In other words the
+existing page can be reused with new values or of a completely new Page should be constructed. In other words the
 method can return the page it gets as input argument or go the more expensive way and throw away the existing page.
 
 ===== SimpleTablePageWithDetail
@@ -162,7 +162,7 @@ FormatFormElements are visualized as text fields. But their input is an Object. 
 	protected abstract int getAllowedSize(PropertyInterface property);
 ----
 
-With 'render' you determin how a object should be rendered as text. The method 'parse' should be able
+With 'render' you determine how a object should be rendered as text. The method 'parse' should be able
 to take that output and revert it back to the original object. Of course you have to take care that these
 two methods correspond well! The rest of the methods restrict the used text field. 'getAllowedCharacters'
 may also return null.
@@ -234,7 +234,7 @@ a search Dialog. You have to specify the used columns in the search dialog.
 ===== SelectionFormElement
 
 Sometimes the possible choice for a field depends on the content of an other field. With SelectionFormElement you can dynamically adapt the 
-options provided to thes user. Normally the selection is provided by a getter method on the entity.
+options provided to the user. Normally the selection is provided by a getter method on the entity.
 
 ==== Form (as factory)
 
@@ -282,7 +282,7 @@ In this method exists an if case for every field class known to the Minimal-J fr
 ----
 
 It's a good idea to subclass Form and override the createElement(PropertyInterface) method. You can add your own
-FormElement classes. Here the exmaple from the Open-eCH project:
+FormElement classes. Here the example from the Open-eCH project:
 
 [source,java,title="EchForm.java"]
 ----
@@ -341,7 +341,7 @@ needs is provided when the Input is created. Some of the factory methods:
 
 So you can provide a max string length for a text the user may enter. Or restrict the allowed characters. With InputType you
 can specify that the input must be for example a phone number (InputType of course comes from the HTML5 tag).
-Remeber that normally you don't actually call these methods directly but through creating FormElements. There you have
+Remember that normally you don't actually call these methods directly but through creating FormElements. There you have
 to provide all these parameters. But that's only once.
 
 The InputComponentListener parameter must be the listener that gets informed if the user enters some new value in the Input.
