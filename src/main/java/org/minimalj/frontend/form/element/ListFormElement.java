@@ -110,7 +110,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		return list;
 	}
 
-	protected abstract Form<T> createForm(boolean edit);
+	protected abstract Form<T> createForm();
 	
 	private abstract class ListFormElementEditor extends Editor<T, Void> {
 		public ListFormElementEditor() {
@@ -151,7 +151,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		@Override
 		protected Form<T> createForm() {
-			return ListFormElement.this.createForm(true);
+			return ListFormElement.this.createForm();
 		}
 		
 		@Override
@@ -187,7 +187,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		@Override
 		protected Form<T> createForm() {
-			return ListFormElement.this.createForm(true);
+			return ListFormElement.this.createForm();
 		}
 
 		@Override
