@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.minimalj.repository.list.RelationList;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CloneHelper {
 
 	/*
@@ -39,7 +40,6 @@ public class CloneHelper {
 			return (T) copies.get(pos);
 		}
 			
-		@SuppressWarnings("unchecked")
 		Class<T> clazz = (Class<T>) object.getClass();
 		try {
 			T copy = newInstance(clazz);
@@ -71,7 +71,6 @@ public class CloneHelper {
 		}
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void _deepCopy(Object from, Object to, List originals, List copies) throws IllegalArgumentException, IllegalAccessException {
 		for (Field field : from.getClass().getDeclaredFields()) {
 			if (FieldUtils.isStatic(field) || !FieldUtils.isPublic(field)) continue;
@@ -133,7 +132,6 @@ public class CloneHelper {
 	}
 	
 	public static <T> T newInstance(Class<T> clazz) {
-		@SuppressWarnings("unchecked")
 		Constructor<T> constructor = (Constructor<T>) contructors.get(clazz);
 		if (constructor == null) {
 			try {
