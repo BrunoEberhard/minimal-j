@@ -25,7 +25,6 @@ import org.minimalj.util.StringUtils;
  * </OL>
  *
  */
-
 public abstract class Frontend {
 
 	private static Frontend instance;
@@ -133,7 +132,6 @@ public abstract class Frontend {
 
 	public abstract Input<String> createLookup(Input<String> stringInput, ActionGroup actions);
 
-	// createHorizontalGroup
 	public abstract IComponent createHorizontalGroup(IComponent... components);
 
 	public abstract IComponent createVerticalGroup(IComponent... components);
