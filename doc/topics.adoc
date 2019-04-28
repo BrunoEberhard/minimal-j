@@ -29,4 +29,5 @@ These small examples are currently deployed on CloudFoundry as online demo.
 
 == Real applications (german)
 * http://www.openech.ch/[Open-eCH]. Source Code available on https://github.com/BrunoEberhard/open-ech[github].
+* https://paartanz.herokuapp.com/[Paartanz Eventliste]. Source Code available on https://github.com/BrunoEberhard/dancer[github].
 * https://openech-taxstatement.herokuapp.com/[eCH 0196 implementation]. Source Code on https://github.com/BrunoEberhard/open-ech-taxstatement[github].

@@ -35,7 +35,7 @@ import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.form.element.SelectionFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
-import org.minimalj.frontend.form.element.TypeUnknownFormElement;
+import org.minimalj.frontend.form.element.UnknownFormElement;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Selection;
@@ -48,6 +48,7 @@ import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
+import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
 
 public class Form<T> {
@@ -121,7 +122,8 @@ public class Form<T> {
 		} else {
 			property = Keys.getProperty(key);
 			if (property != null) {
-				boolean editable = !forcedReadonly && this.editable && !property.isFinal();
+				boolean editable = !forcedReadonly && this.editable
+						&& !(FieldUtils.isAllowedPrimitive(property.getClazz()) && property.isFinal());
 				element = createElement(property, editable);
 			}
 		}
@@ -160,7 +162,7 @@ public class Form<T> {
 			return new SelectionFormElement(property);
 		}	
 		logger.severe("No FormElement could be created for: " + property.getName() + " of class " + fieldClass.getName());
-		return new TypeUnknownFormElement(property);
+		return new UnknownFormElement(property);
 	}
 	
 	// 
@@ -179,7 +181,7 @@ public class Form<T> {
 			for (int i = 0; i < keys.length; i++) {
 				int elementSpan = i < keys.length - 1 ? span : rest;
 				add(keys[i], elementSpan);
-				rest = rest - span;
+				rest = rest - elementSpan;
 			}
 		}
 	}

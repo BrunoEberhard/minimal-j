@@ -1,64 +1,67 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import java.util.List;
+import java.util.function.Function;
 
-import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaFrontend.LanternaActionText;
 import org.minimalj.model.Rendering;
 
-import com.googlecode.lanterna.gui2.Component;
 import com.googlecode.lanterna.gui2.Direction;
 import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 
-public class LanternaList extends Panel implements IList {
+public class LanternaList<T> extends Panel implements Input<List<T>> {
 	
-	private final int actionCount;
+	private final Function<T, CharSequence> renderer;
+	private final Function<T, List<Action>> itemActions;
+	private final Action[] listActions;
+	private List<T> value;
 	
-	public LanternaList(Action... actions) {
+	public LanternaList(Function<T, CharSequence> renderer, Function<T, List<Action>> itemActions,
+			Action... listActions) {
 		setLayoutManager(new LinearLayout(Direction.VERTICAL));
-		if (actions != null) {
-			for (Action action : actions) {
+		this.renderer = renderer != null ? renderer : Rendering::toString;
+		this.itemActions = itemActions;
+		this.listActions = listActions;
+
+		if (listActions != null) {
+			// alle listActions hinzufügen
+		}
+	}
+
+	@Override
+	public void setValue(List<T> value) {
+		this.value = value;
+		if (value != null && !value.isEmpty()) {
+			super.removeAllComponents();
+			for (T item : value) {
+				CharSequence rendered = renderer.apply(item);
+				addComponent(new LanternaText(rendered.toString()));
+
+				for (Action action : this.itemActions.apply(item)) {
+					addComponent(new LanternaActionText(action));
+				}
+			}
+		} else {
+			super.removeAllComponents();
+		}
+		if (listActions != null) {
+			for (Action action : listActions) {
 				addComponent(new LanternaActionText(action));
 			}
-			actionCount = actions.length;
-		} else {
-			actionCount = 0;
 		}
+	}
+
+	@Override
+	public List<T> getValue() {
+		return value;
+	}
+
+	@Override
+	public void setEditable(boolean editable) {
+		// TODO Auto-generated method stub
 	}
 	
-	@Override
-	public void clear() {
-		List<Component> children = (List<Component>) getChildren();
-		for (int i = children.size() - actionCount - 1; i>=0; i--) {
-			removeComponent(children.get(i));
-		}
-	}
-
-	@Override
-	public void setEnabled(boolean enabled) {	
-		// TODO
-	}
-
-	@Override
-	public void add(Object object, Action... actions) {
-		if (object != null) {
-			if (object instanceof Rendering) {
-				add(new LanternaText((Rendering) object));
-			} else {
-				add(new LanternaText(object.toString()));
-			}
-		}
-		for (Action action : actions) {
-			addComponent(new LanternaActionText(action));
-		}
-	}
-
-	@Override
-	public void add(String title, Object object, Action... actions) {
-		add(new LanternaText(title));
-		add(object, actions);
-	}
-
 }

@@ -403,7 +403,7 @@ public class Vaadin extends UI implements PageManager {
 		}
 	}
 	
-	private ContextMenu createMenu(AbstractComponent parentComponent, List<Action> actions) {
+	public static ContextMenu createMenu(AbstractComponent parentComponent, List<Action> actions) {
 		if (actions != null && actions.size() > 0) {
 			ContextMenu menu = new ContextMenu(parentComponent, true);
 			addActions(menu, actions);

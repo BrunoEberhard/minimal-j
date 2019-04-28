@@ -13,13 +13,13 @@ public class JsonSwitch extends JsonComponent implements SwitchContent, SwitchCo
 
 	@Override
 	public void show(IContent content) {
-		JsonFrontend.getClientSession().clearContent(getId());
+		JsonFrontend.getClientSession().clearContent(this);
 		JsonFrontend.getClientSession().addContent(getId(), (JsonComponent) content);
 	}
 
 	@Override
 	public void show(IComponent component) {
-		JsonFrontend.getClientSession().clearContent(getId());
+		JsonFrontend.getClientSession().clearContent(this);
 		JsonFrontend.getClientSession().addContent(getId(), (JsonComponent) component);
 	}
 }

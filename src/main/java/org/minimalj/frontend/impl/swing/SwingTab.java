@@ -514,7 +514,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		return frame;
 	}
 	
-	private JPopupMenu createMenu(List<org.minimalj.frontend.action.Action> actions) {
+	public static JPopupMenu createMenu(List<org.minimalj.frontend.action.Action> actions) {
 		if (actions != null && actions.size() > 0) {
 			JPopupMenu menu = new JPopupMenu();
 			addActions(menu, actions);

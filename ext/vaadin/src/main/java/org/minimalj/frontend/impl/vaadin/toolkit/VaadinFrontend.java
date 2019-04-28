@@ -6,9 +6,12 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.impl.vaadin.Vaadin;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -75,11 +78,6 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public IList createList(Action... actions) {
-		return new VaadinList(actions);
-	}
-
-	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
 		return new VaadinComboBox<T>(objects, changeListener);
 	}
@@ -90,8 +88,13 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public IComponent createComponentGroup(IComponent... components) {
+	public IComponent createHorizontalGroup(IComponent... components) {
 		return new VaadinHorizontalLayout(components);
+	}
+
+	@Override
+	public IComponent createVerticalGroup(IComponent... components) {
+		return new VaadinVerticalLayout(components);
 	}
 
 	@Override
@@ -169,6 +172,14 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinLookup(stringInput, lookup);
 	}
 	
+	@Override
+	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
+		if (!actions.getItems().isEmpty()) {
+			Vaadin.createMenu((AbstractComponent) input, actions.getItems());
+		}
+		return input;
+	}
+
 	private static class VaadinLookup extends GridLayout implements Input<String> {
 		private static final long serialVersionUID = 1L;
 		

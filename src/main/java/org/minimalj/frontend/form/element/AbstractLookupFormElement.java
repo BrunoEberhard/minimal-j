@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.model.Rendering;
 
 // Framework internal. Only use specializations
@@ -21,7 +22,8 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		if (editable) {
 			Input<String> input;
 			if (this instanceof LookupParser) {
-				input = Frontend.getInstance().createTextField(((LookupParser) this).getAllowedSize(), ((LookupParser) this).getAllowedCharacters(), null,
+				input = Frontend.getInstance().createTextField(((LookupParser) this).getAllowedSize(),
+						((LookupParser) this).getAllowedCharacters(), getSearch(),
 						this::inputChanged);
 			} else {
 				input = Frontend.getInstance().createReadOnlyTextField();
@@ -93,5 +95,9 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	}
 
 	protected abstract void lookup();
+
+	protected Search<String> getSearch() {
+		return null;
+	}
 
 }

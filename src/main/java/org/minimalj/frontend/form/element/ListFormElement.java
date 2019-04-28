@@ -2,13 +2,13 @@ package org.minimalj.frontend.form.element;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
-import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.frontend.Frontend.IList;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.Rendering;
@@ -17,25 +17,23 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 
 public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
-	private static final Logger logger = Logger.getLogger(ListFormElement.class.getName());
-	
-	private final boolean editable;
-	private final IList list;
+	private final SwitchComponent component;
+	private final Input<String> text; // only used when read only
 	private List<T> object;
 
 	public ListFormElement(PropertyInterface property) {
-		this(property, true);
+		this(property, Form.EDITABLE);
 	}
 
 	public ListFormElement(PropertyInterface property, boolean editable) {
 		super(property);
-		this.editable = editable;
-		list = editable ? Frontend.getInstance().createList(getActions()) : Frontend.getInstance().createList();
+		component = Frontend.getInstance().createSwitchComponent();
+		text = editable ? null : Frontend.getInstance().createReadOnlyTextField();
 		height(1, 3);
 	}
 	
 	protected final boolean isEditable() {
-		return editable;
+		return text == null;
 	}
 
 	@Override
@@ -51,7 +49,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 
 	@Override
 	public IComponent getComponent() {
-		return list;
+		return component;
 	}
 
 	protected void handleChange() {
@@ -59,59 +57,67 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		super.fireChange();
 	}
 
-	protected void display() {
-		list.clear();
-		if (object != null) {
-			show(object);
-		}
-	}
-
-	protected void show(List<T> objects) {
-		objects.forEach(this::showEntry);
-	}
-
-	protected void showEntry(T entry) {
-		if (isEditable()) {
-			add(render(entry), new ListEntryEditor(entry), new RemoveEntryAction(entry));
+	private void display() {
+		if (text != null) {
+			text.setValue("");
+			if (object != null) {
+				for (T item : object) {
+					String newValue = text.getValue() + "\n" + render(item);
+					text.setValue(newValue.trim());
+				}
+			}
+			component.show(text);
+		} else if (object != null && object.size() > 0) {
+			IComponent[] components = new IComponent[object.size()];
+			int index = 0;
+			for (T item : object) {
+				// editable
+				ActionGroup actionGroup = new ActionGroup(null);
+				for (Action a : getActions()) {
+					actionGroup.add(a);
+				}
+				for (Action a : getActions(item)) {
+					actionGroup.add(a);
+				}
+				Input<String> text = Frontend.getInstance().createReadOnlyTextField();
+				text.setValue(render(item).toString());
+				components[index++] = Frontend.getInstance().createLookup(text, actionGroup);
+			}
+			component.show(Frontend.getInstance().createVerticalGroup(components));
 		} else {
-			add(render(entry));
+			ActionGroup actionGroup = new ActionGroup(null);
+			for (Action a : getActions()) {
+				actionGroup.add(a);
+			}
+			Input<String> text = Frontend.getInstance().createReadOnlyTextField();
+			text.setValue("");
+			component.show(Frontend.getInstance().createLookup(text, actionGroup));
 		}
 	}
 
-	protected Object render(T value) {
-		if (value instanceof Rendering) {
-			return value;
-		} else {
-			return Rendering.toString(value);
-		}
-	}
-
-	protected void add(String text, Action... actions) {
-		add((Object) text, actions);
-	}
-
-	protected void add(Object object, Action... actions) {
-		list.add(object, actions);
-	}
-
-	protected void add(String title, Object object, Action... actions) {
-		list.add(title, object, actions);
+	protected CharSequence render(T item) {
+		return Rendering.render(item);
 	}
 
 	protected Action[] getActions() {
 		return new Action[] { new AddListEntryEditor() };
 	}
 	
-	protected abstract Form<T> createForm(boolean edit);
+	protected List<Action> getActions(T entry) {
+		List<Action> list = new ArrayList<>();
+		list.add(new ListEntryEditor(entry));
+		list.add(new RemoveEntryAction(entry));
+		return list;
+	}
+
+	protected abstract Form<T> createForm();
 	
 	private abstract class ListFormElementEditor extends Editor<T, Void> {
 		public ListFormElementEditor() {
-			assertEditable(this);
 		}
 
 		public ListFormElementEditor(String name) {
 			super(name);
-			assertEditable(this);
 		}
 
 		@Override
@@ -120,17 +126,6 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 	}
 	
-	protected void assertEditable(Object object) {
-		if (!isEditable()) {
-			String msg = object.getClass().getSimpleName() + " should not be used if " + ListFormElement.class.getSimpleName() + " is not editable";
-			if (Configuration.isDevModeActive()) {
-				throw new IllegalArgumentException(msg);
-			} else {
-				logger.warning(msg);
-			}
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	protected Class<T> getEditedClass() {
 		return (Class<T>) GenericUtils.getGenericClass(getClass());
@@ -156,7 +151,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		@Override
 		protected Form<T> createForm() {
-			return ListFormElement.this.createForm(true);
+			return ListFormElement.this.createForm();
 		}
 		
 		@Override
@@ -192,7 +187,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		@Override
 		protected Form<T> createForm() {
-			return ListFormElement.this.createForm(true);
+			return ListFormElement.this.createForm();
 		}
 
 		@Override

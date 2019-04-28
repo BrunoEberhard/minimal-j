@@ -7,6 +7,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
@@ -24,7 +25,6 @@ import org.minimalj.util.StringUtils;
  * </OL>
  *
  */
-
 public abstract class Frontend {
 
 	private static Frontend instance;
@@ -107,8 +107,7 @@ public abstract class Frontend {
 	public abstract Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener);
 	public abstract Input<String> createAreaField(int maxLength, String allowedCharacters, InputComponentListener changeListener);
 	public abstract PasswordField createPasswordField(InputComponentListener changeListener, int maxLength);
-	public abstract IList createList(Action... actions);
-	public abstract <T> Input<T> createComboBox(List<T> object, InputComponentListener changeListener);
+	public abstract <T> Input<T> createComboBox(List<T> items, InputComponentListener changeListener);
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
 	public abstract Input<byte[]> createImage(InputComponentListener changeListener);
@@ -119,21 +118,6 @@ public abstract class Frontend {
 	
 	public abstract SwitchComponent createSwitchComponent();
 	
-	public interface IList extends IComponent {
-		/**
-		 * @param enabled if false no content should be shown (or
-		 * only in gray) and all actions must get disabled
-		 */
-		public void setEnabled(boolean enabled);
-		
-		public void clear();
-
-		public void add(Object object, Action... actions);
-
-		public void add(String title, Object object, Action... actions);
-
-	}
-	
 	public interface InputComponentListener {
 	    void changed(IComponent source);
 	}
@@ -143,9 +127,14 @@ public abstract class Frontend {
 		public List<S> search(String query);
 	}
 
+	// decorate?
 	public abstract Input<String> createLookup(Input<String> stringInput, Runnable lookup);
-	
-	public abstract IComponent createComponentGroup(IComponent... components);
+
+	public abstract Input<String> createLookup(Input<String> stringInput, ActionGroup actions);
+
+	public abstract IComponent createHorizontalGroup(IComponent... components);
+
+	public abstract IComponent createVerticalGroup(IComponent... components);
 
 	/**
 	 * Content means the content of a dialog or of a page

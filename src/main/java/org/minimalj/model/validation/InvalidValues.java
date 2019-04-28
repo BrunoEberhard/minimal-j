@@ -80,7 +80,13 @@ public class InvalidValues {
 		values.put(key, string);
 		return key;
 	}
-	
+
+	public static Boolean createInvalidBoolean(String string) {
+		Boolean b = new Boolean(false);
+		values.put(b, string);
+		return b;
+	}
+
 	public static <T extends Enum<T>> T createInvalidEnum(Class<T> enumClass, String value) {
 		T e = EnumUtils.createEnum(enumClass, "INVALID " + value );
 		values.put(e, value);

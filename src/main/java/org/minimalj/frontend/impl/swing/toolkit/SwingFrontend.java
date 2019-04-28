@@ -36,6 +36,7 @@ import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
@@ -120,11 +121,6 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public IList createList(Action... actions) {
-		return new SwingList(actions);
-	}
-
-	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
 		return new SwingComboBox<T>(objects, changeListener);
 	}
@@ -135,8 +131,13 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public IComponent createComponentGroup(IComponent... components) {
+	public IComponent createHorizontalGroup(IComponent... components) {
 		return new SwingHorizontalLayout(components);
+	}
+
+	@Override
+	public IComponent createVerticalGroup(IComponent... components) {
+		return new SwingVerticalGroup(components);
 	}
 
 	@Override
@@ -263,6 +264,13 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
 		return new SwingLookup(stringInput, lookup);
+	}
+
+	@Override
+	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
+		((JComponent) input).setComponentPopupMenu(SwingTab.createMenu(actions.getItems()));
+		Runnable l = () -> ((JComponent) input).getComponentPopupMenu().setVisible(true);
+		return new SwingLookup(input, l);
 	}
 
 	public File showFileDialog(String title, String approveButtonText) {

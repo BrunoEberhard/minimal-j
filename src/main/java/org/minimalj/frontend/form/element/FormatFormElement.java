@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
+import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
@@ -50,6 +51,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		return InputType.TEXT;
 	}
 
+	protected Search<String> getSearch(PropertyInterface property) {
+		return null;
+	}
+
 	@Override
 	public IComponent getComponent() {
 		if (textField == null) {
@@ -60,7 +65,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 					textField = typeTextField.get();
 				} else {
 					textField = Frontend.getInstance().createTextField(getAllowedSize(getProperty()), getAllowedCharacters(getProperty()),
-							null, new TextFormatFieldChangeListener());
+							getSearch(getProperty()), new TextFormatFieldChangeListener());
 				}
 				
 			} else {

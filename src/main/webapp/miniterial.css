@@ -126,7 +126,7 @@ label {
 	color: gray;
 }
 
-.form input, .form select, .form textarea {
+.form input, .form select, .form textarea, .form .lookup .text {
 	font-family: inherit;
 	box-sizing: border-box;
 	background-color: transparent;

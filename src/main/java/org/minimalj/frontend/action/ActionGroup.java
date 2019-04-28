@@ -1,6 +1,7 @@
 package org.minimalj.frontend.action;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.frontend.page.DetailPageAction;
@@ -37,7 +38,7 @@ public class ActionGroup extends Action {
 	}
 
 	public List<Action> getItems() {
-		return items;
+		return Collections.unmodifiableList(items);
 	}
 	
 	public ActionGroup addGroup(String name) {

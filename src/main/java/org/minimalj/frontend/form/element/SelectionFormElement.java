@@ -28,16 +28,23 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> {
 
 	@Override
 	public void setValue(Selection<T> selection) {
-		List<T> values = selection.values != null ? selection.values : Collections.emptyList();
-		component.show(input = Frontend.getInstance().createComboBox(values, listener()));
-		T selectedValue = selection.selectedValue;
-		if (selectedValue != null && !values.contains(selectedValue)) {
-			Object id = IdUtils.getId(selectedValue);
-			selectedValue = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
-			input.setValue(selectedValue);
-			fireChange();
+		if (selection != null) {
+			List<T> values = selection.values != null ? selection.values : Collections.emptyList();
+			component.show(input = Frontend.getInstance().createComboBox(values, listener()));
+			T selectedValue = selection.selectedValue;
+			if (selectedValue != null && !values.contains(selectedValue) && IdUtils.hasId(selectedValue.getClass())) {
+				Object id = IdUtils.getId(selectedValue);
+				selectedValue = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst()
+						.orElse(null);
+				input.setValue(selectedValue);
+				fireChange();
+			} else {
+				input.setValue(selectedValue);
+			}
 		} else {
-			input.setValue(selectedValue);
+			input = Frontend.getInstance().createComboBox(Collections.emptyList(), listener());
+			input.setEditable(false);
+			component.show(input);
 		}
 	}
 
