@@ -136,31 +136,105 @@ Fields can depend on each other. This could mean if a checkbox is selected some 
 There are no things like 'LayoutManagers'. Of course the order in which you add the fields define somehow
 the later layout of the form. But you cannot set horizontal weights to a field. This makes all forms look very regular.
 
-===== FormElement
+==== FormElement
 
 FormElement objects represent the _business_ side. Fields of an entity are 'bound' to a FormElement.
-Minimal-J doesn't emphasize much on binding. There is no thing like BindingContext. Forms have their
-elements. If an entity is set to the form by calling setObject then the fields from which the
+Minimal-J doesn't emphasize much on binding. There is no thing like BindingContext. Forms have their elements.
+If an entity is set to the form by calling setObject then the fields from which the
 elements were created are forwarded to the FormElements.
 
 Note that a FormElement is _not_ a IComponent but _provides_ one. This
 is necessary as the specific implementations of the components depend on the chosen Frontend.
 
 The framework provides the basic form elements like the ones for formatted strings, dates, numbers and enumerations. But
-for more complex types you will define your one FormElement classes. Look at the existing examples how to do this!
+for more complex types you will define your own FormElement classes. There are two base classes for that.
 
-==== ObjectFormElement and ListFormElement
+===== FormatFormElement
 
-ObjectFormElement and ListFormElement are very useful for an entity that contains one or many depending entities.
+FormatFormElement ist the abstract base class for all temporal FormElements. But it is not limited to that.
+FormatFormElements are visualized as text fields. But their input is an Object. You have to override these methods:
+
+[source,java,title="FormatFormElement methods"]
+----
+	protected abstract String render(T value);
+	protected abstract T parse(String text);
+	protected abstract String getAllowedCharacters(PropertyInterface property);
+	protected abstract int getAllowedSize(PropertyInterface property);
+----
+
+With 'render' you determin how a object should be rendered as text. The method 'parse' should be able
+to take that output and revert it back to the original object. Of course you have to take care that these
+two methods correspond well! The rest of the methods restrict the used text field. 'getAllowedCharacters'
+may also return null.
+
+link:https://github.com/BrunoEberhard/open-ech/blob/master/src/main/java/ch/openech/frontend/ech0011/ReligionFormElement.java[An example in open-ech]
+
+===== FormLookupFormElement
+
+When a entity is too complex it's not possible to render is as text. Or it is very hard to implement
+parse in a correct way. FormLookupFormElement visualizes as a read only text field. The changes are made
+in a separate form dialog which is opened when the user clicks a button on the right of the text field.
+You can override these methods of FormLookupFormElement
+
+[source,java,title="FormLookupFormElement methods"]
+----
+	protected String render(T value);
+	protected abstract Form<T> createForm();
+	protected Form<T> createObject();
+----
+
+'render' means the same as for FormatFormElement. Here the default behavior is to render with 
+'Rendering.toString' but you can override this. The most important method is of course 'createForm' which
+should provide a form to edit the entity.
+
+link:https://github.com/BrunoEberhard/open-ech/blob/master/src/main/java/ch/openech/frontend/ech0011/MaritalDataFormElement.java[An example in open-ech]
+
+===== LookupParser
+
+Sometimes a form should be provided but still the text field should be editable. For example the user may enter
+the values with the form dialog the first time. After he sees how the values can be entered in the text field
+directly he will choose that possibility from now an.
+
+FormLookupFormElement may implement the interface 'LookupParser' to allow that:
+
+[source,java,title="LookupParser methods"]
+----
+	protected abstract T parse(String text);
+	protected abstract String getAllowedCharacters();
+	protected abstract int getAllowedSize();
+----
+
+As expected these methods are quite similar that the ones from FormatFormElement.
+
+link:https://github.com/BrunoEberhard/open-ech/blob/master/src/main/java/ch/openech/frontend/ech0011/ReligionDataFormElement.java[An example in open-ech]
+
+===== ListFormElement
+
+If a entity field contains a list of (a few) depending entities you may use ListFormElement.
 Depending entities don't have an id field of their own. They cannot be saved or loaded without the main entity.
-To display and edit such depending entities you can use the ObjectFormElement or ListFormElement. ListFormElement
-will not display a list as you may know from html. The meaning is that you see a list of the depending entities
-as text lines.
 
-Such a FormElement can provide Actions. Often these Actions will open a new Dialog where you can modify the depending
-entity. Also you can allow the user to remove a depending entity.
+[source,java,title="LookupParser methods"]
+----
+	protected abstract Form<T> createForm();
+	protected CharSequence render(T item);
+	protected List<Action> getActions(T entry);
+	protected Action[] getActions();
+----
+You have to provide the form to edit an entity. You may also override the way the entities are rendered ('render')
+which actions are provided for a specific entity 'getActions(T)' or which actions should be offered for
+every entry (or even the empty entry if the list is empty).
 
-These special FormElements will be a great part of your work with Minimal-J.
+link:https://github.com/BrunoEberhard/open-ech/blob/master/src/main/java/ch/openech/frontend/ech0011/PlaceOfOriginAddonFormElement.java[An example in open-ech]
+
+===== ReferenceFormElement
+
+ReferenceFormElement is used if a field contains an other identifiable entity. This means the user has to choose one in
+a search Dialog. You have to specify the used columns in the search dialog.
+
+===== SelectionFormElement
+
+Sometimes the possible choice for a field depends on the content of an other field. With SelectionFormElement you can dynamically adapt the 
+options provided to thes user. Normally the selection is provided by a getter method on the entity.
 
 ==== Form (as factory)
 
