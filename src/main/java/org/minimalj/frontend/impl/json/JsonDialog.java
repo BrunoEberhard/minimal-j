@@ -33,7 +33,7 @@ public class JsonDialog extends JsonComponent implements IDialog {
 
 	@Override
 	public void closeDialog() {
-		JsonFrontend.getClientSession().closeDialog((String) get("id"));
+		JsonFrontend.getClientSession().closeDialog(this);
 	}
 
 	protected class CancelAction extends Action {

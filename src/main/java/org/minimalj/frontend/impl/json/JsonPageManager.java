@@ -2,10 +2,12 @@ package org.minimalj.frontend.impl.json;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
@@ -350,27 +352,29 @@ public class JsonPageManager implements PageManager, LoginListener {
 	}
 
 	public void register(Object o) {
-		if (o instanceof JsonComponent) {
-			JsonComponent component = (JsonComponent) o;
+		travers(o, component -> {
 			String id = component.getId();
 			if (id != null) {
 				componentById.put(component.getId(), component);
 			}
 			component.setPropertyListener(propertyListener);
+		});
+	}
+
+	public void unregister(Object o) {
+		travers(o, component -> componentById.remove(component.getId()));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void travers(Object o, Consumer<JsonComponent> c) {
+		if (o instanceof JsonComponent) {
+			c.accept((JsonComponent) o);
 		}
 		if (o instanceof Map) {
-			@SuppressWarnings("rawtypes")
-			Map map = (Map) o;
-			for (Object o2 : map.values()) {
-				register(o2);
-			}
+			((Map) o).values().forEach(v -> travers(v, c));
 		}
-		if (o instanceof List) {
-			@SuppressWarnings("rawtypes")
-			List list = (List) o;
-			for (Object o2 : list) {
-				register(o2);
-			}
+		if (o instanceof Collection) {
+			((Collection) o).forEach(v -> travers(v, c));
 		}
 	}
 
@@ -379,12 +383,13 @@ public class JsonPageManager implements PageManager, LoginListener {
 		output.add("dialog", jsonDialog);
 	}
 
-	public void closeDialog(String id) {
-		output.addElement("closeDialog", id);
+	public void closeDialog(JsonDialog dialog) {
+		unregister(dialog);
+		output.addElement("closeDialog", dialog.getId());
 	}
 
-	public void clearContent(String elementId) {
-		output.removeContent(elementId);
+	public void clearContent(JsonSwitch jsonSwitch) {
+		output.removeContent(jsonSwitch.getId());
 	}
 
 	public void addContent(String elementId, JsonComponent content) {
