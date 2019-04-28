@@ -389,6 +389,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	}
 
 	public void clearContent(JsonSwitch jsonSwitch) {
+		jsonSwitch.values().forEach(this::unregister);
 		output.removeContent(jsonSwitch.getId());
 	}
 
