@@ -14,7 +14,6 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.EqualsHelper;
-import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
 	
