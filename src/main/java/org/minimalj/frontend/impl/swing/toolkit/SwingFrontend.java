@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
@@ -263,14 +264,18 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
-		return new SwingLookup(stringInput, lookup);
+		return new SwingLookup(stringInput, event -> lookup.run());
 	}
 
 	@Override
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
 		((JComponent) input).setComponentPopupMenu(SwingTab.createMenu(actions.getItems()));
-		Runnable l = () -> ((JComponent) input).getComponentPopupMenu().setVisible(true);
-		return new SwingLookup(input, l);
+		ActionListener actionListener = event -> {
+			JPopupMenu popupMenu = ((JComponent) input).getComponentPopupMenu();
+			JComponent c = (JComponent) event.getSource();
+			popupMenu.show(c, 0, c.getHeight());
+		};
+		return new SwingLookup(input, actionListener);
 	}
 
 	public File showFileDialog(String title, String approveButtonText) {
@@ -293,7 +298,7 @@ public class SwingFrontend extends Frontend {
 		private final JButton lookupButton;
 		private final Input<String> stringInput;
 
-		public SwingLookup(Input<String> stringInput, Runnable lookup) {
+		public SwingLookup(Input<String> stringInput, ActionListener actionListener) {
 			super(new BorderLayout());
 			this.stringInput = stringInput;
 
@@ -301,7 +306,7 @@ public class SwingFrontend extends Frontend {
 
 			this.lookupButton = new JButton("...");
 			lookupButton.setMargin(EMPTY_INSETS);
-			lookupButton.addActionListener(event -> lookup.run());
+			lookupButton.addActionListener(actionListener);
 			JPanel buttonPanel = new JPanel(new BorderLayout());
 			buttonPanel.add(lookupButton, BorderLayout.PAGE_START);
 			add(buttonPanel, BorderLayout.AFTER_LINE_ENDS);
