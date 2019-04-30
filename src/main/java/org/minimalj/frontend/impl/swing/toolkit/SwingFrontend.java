@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FocusTraversalPolicy;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Stack;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -31,6 +31,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.Application;
@@ -290,8 +291,6 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 
-	private static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
-
 	private static class SwingLookup extends JPanel implements Input<String> {
 		private static final long serialVersionUID = 1L;
 
@@ -304,12 +303,11 @@ public class SwingFrontend extends Frontend {
 
 			add((Component) stringInput, BorderLayout.CENTER);
 
-			this.lookupButton = new JButton("...");
-			lookupButton.setMargin(EMPTY_INSETS);
+			this.lookupButton = new JButton(" ... ");
+			lookupButton.setContentAreaFilled(false);
 			lookupButton.addActionListener(actionListener);
-			JPanel buttonPanel = new JPanel(new BorderLayout());
-			buttonPanel.add(lookupButton, BorderLayout.PAGE_START);
-			add(buttonPanel, BorderLayout.AFTER_LINE_ENDS);
+			lookupButton.setBorder(BorderFactory.createLineBorder(UIManager.getColor("TextField.shadow"), 1));
+			add(lookupButton, BorderLayout.LINE_END);
 		}
 
 		@Override
