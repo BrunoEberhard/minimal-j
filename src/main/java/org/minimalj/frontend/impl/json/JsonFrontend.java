@@ -217,6 +217,8 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
 		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
+		result = result.replace("$TITLE", Application.getInstance().getName());
+		result = result.replace("$META", getMeta());
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$BASE", base(path));
 		result = result.replace("$PATH", path);
@@ -243,4 +245,18 @@ public class JsonFrontend extends Frontend {
 		}
 	}
 
+	private static String getMeta() {
+		// <meta name="keywords" content="HTML,CSS,XML,JavaScript">
+		StringBuilder s = new StringBuilder();
+		if (Resources.isAvailable("Application.description")) {
+			s.append("<meta name=\"description\" content=\"").append(Resources.getString("Application.description")).append("\">");
+		}
+		if (Resources.isAvailable("Application.keywords")) {
+			if (s.length() > 0) {
+				s.append('\n');
+			}
+			s.append("<meta name=\"keywords\" content=\"").append(Resources.getString("Application.keywords")).append("\">");
+		}
+		return s.toString();
+	}
 }
