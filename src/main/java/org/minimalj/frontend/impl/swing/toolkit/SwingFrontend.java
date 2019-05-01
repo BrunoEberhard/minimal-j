@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -139,7 +140,11 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public IComponent createVerticalGroup(IComponent... components) {
-		return new SwingVerticalGroup(components);
+		if (components.length == 1) {
+			return components[0];
+		} else {
+			return new SwingVerticalGroup(components);
+		}
 	}
 
 	@Override
@@ -303,11 +308,24 @@ public class SwingFrontend extends Frontend {
 
 			add((Component) stringInput, BorderLayout.CENTER);
 
-			this.lookupButton = new JButton(" ... ");
+			// TODO momentan der Button einfach quadratisch gemacht
+			// es sollte wohl das Form Layout angepasst werden
+			this.lookupButton = new JButton(" ... ") {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Dimension getPreferredSize() {
+					Dimension d = super.getPreferredSize();
+					d.height = d.width;
+					return d;
+				}
+			};
 			lookupButton.setContentAreaFilled(false);
 			lookupButton.addActionListener(actionListener);
 			lookupButton.setBorder(BorderFactory.createLineBorder(UIManager.getColor("TextField.shadow"), 1));
-			add(lookupButton, BorderLayout.LINE_END);
+			JPanel buttonPanel = new JPanel(new BorderLayout());
+			buttonPanel.add(lookupButton, BorderLayout.PAGE_START);
+			add(buttonPanel, BorderLayout.AFTER_LINE_ENDS);
 		}
 
 		@Override
