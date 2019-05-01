@@ -4,8 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Stack;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -29,7 +30,9 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.Application;
@@ -137,7 +140,11 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public IComponent createVerticalGroup(IComponent... components) {
-		return new SwingVerticalGroup(components);
+		if (components.length == 1) {
+			return components[0];
+		} else {
+			return new SwingVerticalGroup(components);
+		}
 	}
 
 	@Override
@@ -263,14 +270,18 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
-		return new SwingLookup(stringInput, lookup);
+		return new SwingLookup(stringInput, event -> lookup.run());
 	}
 
 	@Override
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
 		((JComponent) input).setComponentPopupMenu(SwingTab.createMenu(actions.getItems()));
-		Runnable l = () -> ((JComponent) input).getComponentPopupMenu().setVisible(true);
-		return new SwingLookup(input, l);
+		ActionListener actionListener = event -> {
+			JPopupMenu popupMenu = ((JComponent) input).getComponentPopupMenu();
+			JComponent c = (JComponent) event.getSource();
+			popupMenu.show(c, 0, c.getHeight());
+		};
+		return new SwingLookup(input, actionListener);
 	}
 
 	public File showFileDialog(String title, String approveButtonText) {
@@ -285,23 +296,33 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 
-	private static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
-
 	private static class SwingLookup extends JPanel implements Input<String> {
 		private static final long serialVersionUID = 1L;
 
 		private final JButton lookupButton;
 		private final Input<String> stringInput;
 
-		public SwingLookup(Input<String> stringInput, Runnable lookup) {
+		public SwingLookup(Input<String> stringInput, ActionListener actionListener) {
 			super(new BorderLayout());
 			this.stringInput = stringInput;
 
 			add((Component) stringInput, BorderLayout.CENTER);
 
-			this.lookupButton = new JButton("...");
-			lookupButton.setMargin(EMPTY_INSETS);
-			lookupButton.addActionListener(event -> lookup.run());
+			// TODO momentan der Button einfach quadratisch gemacht
+			// es sollte wohl das Form Layout angepasst werden
+			this.lookupButton = new JButton(" ... ") {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Dimension getPreferredSize() {
+					Dimension d = super.getPreferredSize();
+					d.height = d.width;
+					return d;
+				}
+			};
+			lookupButton.setContentAreaFilled(false);
+			lookupButton.addActionListener(actionListener);
+			lookupButton.setBorder(BorderFactory.createLineBorder(UIManager.getColor("TextField.shadow"), 1));
 			JPanel buttonPanel = new JPanel(new BorderLayout());
 			buttonPanel.add(lookupButton, BorderLayout.PAGE_START);
 			add(buttonPanel, BorderLayout.AFTER_LINE_ENDS);
