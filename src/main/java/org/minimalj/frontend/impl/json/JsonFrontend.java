@@ -257,6 +257,13 @@ public class JsonFrontend extends Frontend {
 			}
 			s.append("<meta name=\"keywords\" content=\"").append(Resources.getString("Application.keywords")).append("\">");
 		}
+		if (Resources.isAvailable("Application.google-site-verification")) {
+			if (s.length() > 0) {
+				s.append('\n');
+			}
+			s.append("<meta name=\"google-site-verification\" content=\"").append(Resources.getString("Application.google-site-verification")).append("\">");
+		}
+
 		return s.toString();
 	}
 }
