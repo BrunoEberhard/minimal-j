@@ -344,7 +344,11 @@ public abstract class AbstractTable<T> {
 					}
 				}
 			}
-			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property.getClazz());
+			if (value != null) {
+				sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value);
+			} else {
+				sqlRepository.getSqlDialect().setParameterNull(statement, parameterPos++, property.getClazz());
+			}
 		}
 		statement.setObject(parameterPos++, id);
 		return parameterPos;

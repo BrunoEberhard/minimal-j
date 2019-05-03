@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.Temporal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -290,11 +291,11 @@ public abstract class SqlDialect {
 	public static class OracleSqlDialect extends SqlDialect {
 
 		@Override
-		public void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
+		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
 			if (value instanceof Temporal && !InvalidValues.isInvalid(value)) {
 				value = value.toString();
 			}
-			super.setParameter(preparedStatement, param, value, clazz);
+			super.setParameter(preparedStatement, param, value);
 		}
 		
 		@Override
@@ -347,9 +348,10 @@ public abstract class SqlDialect {
 		}
 	}
 	
-	public void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
-		if (value == null || InvalidValues.isInvalid(value)) {
-			setParameterNull(preparedStatement, param, clazz);
+	public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
+		Objects.requireNonNull(value);
+		if (InvalidValues.isInvalid(value)) {
+			setParameterNull(preparedStatement, param, value.getClass());
 		} else {
 			if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
