@@ -11,6 +11,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
@@ -23,6 +24,14 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 
 	public ListFormElement(PropertyInterface property) {
 		this(property, Form.EDITABLE);
+	}
+
+	public ListFormElement(List<T> key) {
+		this(Keys.getProperty(key), Form.EDITABLE);
+	}
+
+	public ListFormElement(List<T> key, boolean editable) {
+		this(Keys.getProperty(key), editable);
 	}
 
 	public ListFormElement(PropertyInterface property, boolean editable) {
