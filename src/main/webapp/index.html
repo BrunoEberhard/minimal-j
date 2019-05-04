@@ -540,8 +540,8 @@ $ICON
 			element.appendChild(createContent(content.input));
 			
 			var actionElement = document.createElement("select");
-			actionElement.onfocus = e => actionElement.value = -1;
-			actionElement.onchange = e => action(e.srcElement.value);
+			actionElement.onfocus = function(e) { actionElement.value = -1; }
+			actionElement.onchange = function(e) { action(e.srcElement.value); actionElement.value = -1; }
 			var option = document.createElement("option");
 			actionElement.appendChild(option);
 			for (var i = 0; i < content.actions.length; i++) {
