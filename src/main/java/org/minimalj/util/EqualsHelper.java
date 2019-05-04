@@ -23,7 +23,7 @@ public class EqualsHelper {
 		}
 	}
 	
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static boolean _equals(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
 		for (Field field : from.getClass().getDeclaredFields()) {
 			if (FieldUtils.isStatic(field)) continue;
@@ -47,6 +47,10 @@ public class EqualsHelper {
 				}
 			} else if (IdUtils.hasId(fromValue.getClass())) {
 				if (!IdUtils.equals(fromValue, toValue)) {
+					return false;
+				}
+			} else if (fromValue instanceof Comparable) {
+				if (((Comparable) fromValue).compareTo(toValue) != 0) {
 					return false;
 				}
 			} else {
