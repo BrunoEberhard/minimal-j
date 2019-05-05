@@ -176,16 +176,6 @@ class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	public void delete(Object id) {
-		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
-			deleteStatement.setObject(1, id);
-			deleteStatement.execute();
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with id " + id);
-		}
-	}
-
-	@Override
 	protected void loadLists(T object) {
 		loadLists(object, null);
 	}
