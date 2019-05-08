@@ -30,8 +30,8 @@ import org.minimalj.util.resources.Resources;
  */
 public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
-	private transient boolean multiSelect;
-	private transient Object[] columns;
+	private boolean multiSelect;
+	private Object[] columns;
 	private transient ITable<T> table;
 	private transient List<Action> actions;
 	private Object[] nameArguments;
