@@ -1,5 +1,6 @@
 package org.minimalj.frontend.page;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public abstract class SearchPage<T> extends Page implements TableActionListener<
 	private final String query;
 	private final Object[] keys;
 
-	private transient List<T> list;
+	private SoftReference<List<T>> list;
 	
 	public SearchPage(String query, Object[] keys) {
 		this.keys = keys;
@@ -49,9 +50,11 @@ public abstract class SearchPage<T> extends Page implements TableActionListener<
 	}
 
 	private List<T> getList() {
+		List<T> list = this.list != null ? this.list.get() : null;
 		if (list == null) {
 			list = load(query);
 		}
+		this.list = new SoftReference<>(list);
 		return list;
 	}
 
@@ -97,7 +100,7 @@ public abstract class SearchPage<T> extends Page implements TableActionListener<
 		if (searchPagesWithResult.size() == 1) {
 			SearchPage searchPage = searchPagesWithResult.get(0);
 			if (searchPage.getCount() == 1) {
-				Object singleSearchResult = searchPage.list.get(0);
+				Object singleSearchResult = searchPage.getList().get(0);
 				Page detailPage = searchPage.createDetailPage(singleSearchResult);
 				return detailPage != null ? detailPage : searchPage;
 			} else {

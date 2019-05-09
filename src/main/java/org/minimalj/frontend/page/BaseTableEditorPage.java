@@ -164,7 +164,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	}	
 	
 	public class TableEditor extends AbstractTableEditor implements TableSelectionAction<T> {
-		private transient T selection;
+		private T selection;
 
 		public TableEditor() {
 			selectionChanged(null);

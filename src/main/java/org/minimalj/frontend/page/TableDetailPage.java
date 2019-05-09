@@ -7,7 +7,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 
 public abstract class TableDetailPage<T> extends TablePage<T> implements TableActionListener<T> {
 
-	private transient Page detailPage;
+	private Page detailPage;
 
 	public TableDetailPage() {
 		super();
