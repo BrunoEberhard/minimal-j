@@ -7,11 +7,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MjVaadinSpringbootApplication {
+public class VaadinSpringboot {
 
 	private static void start() {
 		Frontend.setInstance(new VaadinFrontend());
-		SpringApplication.run(MjVaadinSpringbootApplication.class);
+		SpringApplication.run(VaadinSpringboot.class);
 	}
 	
 	public static void start(Application application) {
