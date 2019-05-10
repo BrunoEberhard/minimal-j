@@ -27,54 +27,56 @@ public class EntityReader {
 		dis = new DataInputStream(inputStream);
 	}
 	
-	private Object read(Class<?> fieldClazz) throws IOException {
-		if (fieldClazz == Byte.TYPE) {
+	public Object readValue(Class<?> clazz) throws IOException {
+		if (clazz == Byte.TYPE) {
 			return new Byte(dis.readByte());
-		} else if (fieldClazz == Short.TYPE) {
+		} else if (clazz == Short.TYPE) {
 			return new Short(dis.readShort());
-		} else if (fieldClazz == Integer.TYPE) {
+		} else if (clazz == Integer.TYPE) {
 			return new Integer(dis.readInt());
-		} else if (fieldClazz == Long.TYPE) {
+		} else if (clazz == Long.TYPE) {
 			return new Long(dis.readLong());
-		} else if (fieldClazz == Boolean.TYPE) {
+		} else if (clazz == Boolean.TYPE) {
 			return Boolean.valueOf(dis.read() != 0);
-		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
+		} else if (Enum.class.isAssignableFrom(clazz)) {
 			byte b = dis.readByte();
 			if (b == 0) return null;
-			return EnumUtils.valueList((Class) fieldClazz).get(b - 1);
+			return EnumUtils.valueList((Class) clazz).get(b - 1);
+		} else if (List.class.isAssignableFrom(clazz)) {
+			throw new IllegalArgumentException();
 		}
 		
 		int b = dis.read();
 		if (b == 0) {
 			return null;
 		}
-		if (fieldClazz == String.class) {
+		if (clazz == String.class) {
 			return readString(b);
-		} else if (fieldClazz == Byte.class) {
+		} else if (clazz == Byte.class) {
 			return (byte) dis.read();
-		} else if (fieldClazz == Short.class) {
+		} else if (clazz == Short.class) {
 			return (short) dis.readShort();
-		} else if (fieldClazz == Integer.class) {
+		} else if (clazz == Integer.class) {
 			return (int) dis.readInt();
-		} else if (fieldClazz == Long.class) {
+		} else if (clazz == Long.class) {
 			return (long) dis.readLong();
-		} else if (fieldClazz == Boolean.class) {
+		} else if (clazz == Boolean.class) {
 			return dis.read() != 0;
-		} else if (LocalDate.class.isAssignableFrom(fieldClazz)) {
+		} else if (LocalDate.class.isAssignableFrom(clazz)) {
 			return readLocalDate(dis);
-		} else if (LocalTime.class.isAssignableFrom(fieldClazz)) {
+		} else if (LocalTime.class.isAssignableFrom(clazz)) {
 			return readLocalTime(dis);
-		} else if (LocalDateTime.class.isAssignableFrom(fieldClazz)) {
+		} else if (LocalDateTime.class.isAssignableFrom(clazz)) {
 			return readLocalDateTime(dis);
-		} else if (fieldClazz.isArray()) {
+		} else if (clazz.isArray()) {
 			int length = dis.readInt();
-			Object objects = Array.newInstance(fieldClazz, length);
+			Object objects = Array.newInstance(clazz, length);
 			for (int i = 0; i<length; i++) {
-				Array.set(objects, i, read(fieldClazz));
+				Array.set(objects, i, readValue(clazz));
 			}
 			return objects;
 		} else {
-			return readObject(fieldClazz);
+			return readEntity(clazz);
 		}
 	}
 
@@ -114,19 +116,16 @@ public class EntityReader {
         return LocalDateTime.of(date, time);
 	}
 	
-	public Object readObject(Class<?> fieldClazz) throws IOException {
-		Object object = CloneHelper.newInstance(fieldClazz);
-		Field[] fields = fieldClazz.getDeclaredFields();
+	private Object readEntity(Class<?> clazz) throws IOException {
+		Object object = CloneHelper.newInstance(clazz);
+		Field[] fields = clazz.getDeclaredFields();
 		Arrays.sort(fields, new FlatProperties.FieldComparator());
 		for (Field field : fields) {
-			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
-			if (!FieldUtils.isFinal(field)) {
-				Class<?> fieldClass = field.getType();
-				if (fieldClass == Object.class && "id".equals(field.getName())) {
-					// at the moment strings are used as id
-					fieldClass = String.class;
-				}
-				Object value = read(fieldClass);
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field))
+				continue;
+
+			if (!FieldUtils.isFinal(field) && field.getType() == Object.class && "id".equals(field.getName())) {
+				Object value = readValue(String.class);
 				try {
 					field.setAccessible(true);
 					field.set(object, value);
@@ -134,37 +133,56 @@ public class EntityReader {
 					e.printStackTrace();
 				}
 			} else {
-				read(object, field);
+				readField(object, field);
 			}
 		}
 		return object;
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void read(Object object, Field field) throws IOException {
+	public void readField(Object object, Field field) throws IOException {
 		Class<?> fieldClazz = field.getType();
 		
-		Object value = null;
+		Object value;
+		Object originalValue;
 		try {
-			value = field.get(object);
+			field.setAccessible(true);
+			originalValue = value = field.get(object);
 		} catch (Exception x) {
-			x.printStackTrace();
+			throw new RuntimeException(x);
 		}
 		
 		if (value instanceof Set) {
 			int asInt = dis.readInt();
 			EnumUtils.fillSet(asInt, fieldClazz, (Set) value);
-		} else if (value instanceof List) {
+		} else if (List.class.isAssignableFrom(fieldClazz)) {
 			int size = dis.readInt();
+			if (value == null) {
+				value = new ArrayList<>(size);
+			} else {
+				if (value instanceof ArrayList)
+					((ArrayList) value).ensureCapacity(size);
+			}
 			List list = (List) value;
 			Class<?> listClass = GenericUtils.getGenericClass(field);
-			if (list instanceof ArrayList) ((ArrayList) list).ensureCapacity(size);
 			for (int i = 0; i<size; i++) {
-				list.add(read(listClass));
+				list.add(readValue(listClass));
 			}
 		} else {
-			Object readValue = read(fieldClazz);
-			CloneHelper.deepCopy(readValue, value);
+			Object readValue = readValue(fieldClazz);
+			if (value != null) {
+				CloneHelper.deepCopy(readValue, value);
+			} else {
+				value = readValue;
+			}
+		}
+
+		if (originalValue != value) {
+			try {
+				field.set(object, value);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -187,7 +205,7 @@ public class EntityReader {
 		String className = readString();
 		if (className != null) {
 			try {
-				return read(Class.forName(className));
+				return readValue(Class.forName(className));
 			} catch (ClassNotFoundException e) {
 				throw new LoggingRuntimeException(e, logger, "readArguments failed");
 			}
