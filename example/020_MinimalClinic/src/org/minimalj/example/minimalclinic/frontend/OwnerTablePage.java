@@ -9,11 +9,11 @@ import org.minimalj.repository.query.By;
 
 public class OwnerTablePage extends TableDetailPage<Owner> {
 
-	private static final Object[] keys = {Owner.$.person.getName(), Owner.$.address, Owner.$.city};
 	private OwnerPage page;
 	
-	public OwnerTablePage() {
-		super(keys);
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { Owner.$.person.getName(), Owner.$.address, Owner.$.city };
 	}
 
 	@Override

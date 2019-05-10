@@ -54,14 +54,5 @@ public class PageAccess {
 			return Collections.emptyList();
 		}
 	}
-
-	public static String getRoute(Page page) {
-		try {
-			return page.getRoute();
-		} catch (Exception exception) {
-			ExceptionUtils.logReducedStackTrace(logger, exception);
-			return null;
-		}
-	}
 	
 }

@@ -35,15 +35,8 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	private Object[] columns;
 	private SoftReference<ITable<T>> table;
 	private SoftReference<List<Action>> actions;
-	private Object[] nameArguments;
 	
 	public TablePage() {
-		this.multiSelect = allowMultiselect();
-	}
-	
-	public TablePage(Object[] columns) {
-		this();
-		this.columns = columns;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,19 +49,14 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	}
 	
 	protected Object[] getNameArguments() {
-		if (nameArguments == null) {
-			nameArguments = new Object[] { Resources.getString(getResourceName()) };
-		}
-		return nameArguments;
+		return new Object[] { Resources.getString(getResourceName()) };
 	}
 	
 	protected boolean allowMultiselect() {
 		return false;
 	}
 	
-	protected Object[] getColumns() {
-		return columns;
-	}
+	protected abstract Object[] getColumns();
 	
 	protected abstract List<T> load();
 
@@ -87,17 +75,13 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
-	private ITable<T> createTable() {
-		columns = getColumns();
-		multiSelect = allowMultiselect();
-		return Frontend.getInstance().createTable(columns, multiSelect, this);
-	}
-	
 	@Override
 	public IContent getContent() {
 		ITable<T> table = this.table != null ? this.table.get() : null;
 		if (table == null || multiSelect != allowMultiselect() || !Arrays.equals(columns, getColumns())) {
-			table = createTable();
+			this.columns = getColumns();
+			this.multiSelect = allowMultiselect();
+			table = Frontend.getInstance().createTable(getColumns(), multiSelect, this);
 			this.table = new SoftReference<>(table);
 		}
 		table.setObjects(load());

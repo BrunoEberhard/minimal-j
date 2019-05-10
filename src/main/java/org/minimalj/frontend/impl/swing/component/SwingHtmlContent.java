@@ -8,11 +8,11 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.util.StringUtils;
 
 public class SwingHtmlContent extends JTextPane implements IContent {
@@ -61,7 +61,7 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 					if (href.startsWith("/")) {
 						href = href.substring(1);
 					}
-					Page page = Application.getInstance().createPage(href);
+					Page page = Routing.createPageSafe(href);
 					if (page != null) {
 						SwingFrontend.runWithContext(() -> Frontend.show(page));
 					}

@@ -424,12 +424,4 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 
-	public static boolean applicationHasRouting() {
-		try {
-			return Application.getInstance().getClass().getMethod("createPage", new Class<?>[] { String.class }).getDeclaringClass() != Application.class;
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 }

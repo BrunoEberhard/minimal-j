@@ -9,8 +9,9 @@ import org.minimalj.repository.query.By;
 
 public class CurrencyTablePage extends TablePage<Currency> {
 	
-	public CurrencyTablePage() {
-		super(new Object[]{Currency.$.number, Currency.$.id, Currency.$.name, Currency.$.fund, Currency.$.minorUnits});
+	@Override
+	public Object[] getColumns() {
+		return new Object[] { Currency.$.number, Currency.$.id, Currency.$.name, Currency.$.fund, Currency.$.minorUnits };
 	}
 
 	@Override

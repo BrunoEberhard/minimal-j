@@ -22,6 +22,7 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
@@ -101,7 +102,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 			} else if (initialize instanceof String) {
 				String path = (String) initialize;
 				if (path.length() > 1) {
-					Page page = Application.getInstance().createPage(path.substring(1));
+					Page page = Routing.createPageSafe(path.substring(1));
 					if (page != null) {
 						onLogin = () -> show(page, null);
 					}
@@ -241,14 +242,18 @@ public class JsonPageManager implements PageManager, LoginListener {
 		List<JsonComponent> jsonList = new ArrayList<>();
 		visiblePageAndDetailsList.clear();
 		String previousId = null;
+		Page firstPage = null;
 		for (String pageId : pageIds) {
 			Page page = pageStore.get(pageId);
 			visiblePageAndDetailsList.put(pageId, page);
 			jsonList.add(createJson(page, pageId, previousId));
+			if (previousId == null) {
+				firstPage = page;
+			}
 			previousId = pageId;
 		}
 		output.add("showPages", jsonList);
-		updateTitle(!pageIds.isEmpty() ? pageStore.get(pageIds.get(0)) : null);
+		updateTitle(firstPage != null ? firstPage : null);
 	}
 
 	private void updateTitle(Page page) {
@@ -268,8 +273,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
-		String route = PageAccess.getRoute(page);
-		if (Page.validateRoute(route)) {
+		String route = Routing.getRouteSafe(page);
+		if (route != null) {
 			json.put("route", route.endsWith("/") ? route : route + "/");
 		}
 

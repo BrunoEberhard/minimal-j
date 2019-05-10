@@ -13,10 +13,6 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		super();
 	}
 
-	public TableDetailPage(Object[] keys) {
-		super(keys);
-	}
-
 	// better: createDetailPage
 	protected abstract Page getDetailPage(T mainObject);
 

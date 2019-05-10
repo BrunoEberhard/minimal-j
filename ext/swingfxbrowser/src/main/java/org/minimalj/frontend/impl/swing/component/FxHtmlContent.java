@@ -4,11 +4,11 @@ import java.net.URL;
 
 import javax.swing.SwingUtilities;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -88,7 +88,7 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 									if (href.startsWith("/")) {
 										href = href.substring(1);
 									}
-									Page page = Application.getInstance().createPage(href);
+									Page page = Routing.createPageSafe(href);
 									if (page != null) {
 										SwingUtilities.invokeLater(() -> {
 											SwingFrontend.runWithContext(() -> Frontend.show(page));

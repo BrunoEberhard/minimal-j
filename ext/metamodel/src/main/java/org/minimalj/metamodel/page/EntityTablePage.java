@@ -17,15 +17,18 @@ public class EntityTablePage extends TableDetailPage<MjEntity> {
 	}
 	
 	public EntityTablePage(MjModel model) {
-		super(new Object[]{MjEntity.$.name, MjEntity.$.type, MjEntity.$.validatable, MjEntity.$.maxInclusive});
 		this.entities = model.entities;
 	}
 	
 	public EntityTablePage(List<MjEntity> entities) {
-		super(new Object[]{MjEntity.$.name, MjEntity.$.type, MjEntity.$.validatable, MjEntity.$.maxInclusive});
 		this.entities = entities;
 	}
 	
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { MjEntity.$.name, MjEntity.$.type, MjEntity.$.validatable, MjEntity.$.maxInclusive };
+	}
+
 	@Override
 	protected TablePage<?> getDetailPage(MjEntity entity) {
 		if (entity.isEnumeration()) {

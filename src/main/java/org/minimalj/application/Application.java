@@ -33,6 +33,7 @@ import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.model.Model;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
@@ -193,15 +194,7 @@ public abstract class Application implements Model {
 		return icon;
 	}
 	
-	/**
-	 * Create a page for a given route, for example "person/42" A frontend
-	 * may support links or bookmarks. 
-	 * @see org.minimalj.frontend.page.Page#getRoute()
-	 * 
-	 * @param route String returned by getRoute of a Page
-	 * @return the (valid) page for this route
-	 */
-	public Page createPage(String route) {
+	public Routing createRouting() {
 		return null;
 	}
 	

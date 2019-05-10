@@ -45,6 +45,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
+import org.minimalj.frontend.page.Routing;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -152,7 +153,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		if (getVisiblePage() != null) {
 			previousAction.setEnabled(hasPast());
 			nextAction.setEnabled(hasFuture());
-			String route = PageAccess.getRoute(getVisiblePage());
+			String route = Routing.getRouteSafe(getVisiblePage());
 			if (route != null) {
 				favoriteAction.setEnabled(true);
 				boolean favorite = frame.favorites.isFavorite(route);
@@ -215,8 +216,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Page page = getVisiblePage();
-			if (page != null && Page.validateRoute(PageAccess.getRoute(page))) {
-				frame.favorites.toggleFavorite(PageAccess.getRoute(page), page.getTitle());
+			String route = Routing.getRouteSafe(page);
+			if (route != null) {
+				frame.favorites.toggleFavorite(route, page.getTitle());
 			}
 		}
 	}

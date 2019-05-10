@@ -15,10 +15,6 @@ public abstract class TableFormPage<T> extends TableDetailPage<T> {
 		super();
 	}
 
-	public TableFormPage(Object[] keys) {
-		super(keys);
-	}
-
 	@Override
 	protected Page getDetailPage(T detail) {
 		return new DetailPage(detail);

@@ -2,6 +2,10 @@
 
 Every release contains many small fixes.
 
+=== 1.20.0.0
+* Refactor Routing
+* Table Pages: no need to pass columns in constructor
+
 === 1.19.1.0
 * JsonFrontend: better meta information and title
 * SwingFrontend: Lookup button fix

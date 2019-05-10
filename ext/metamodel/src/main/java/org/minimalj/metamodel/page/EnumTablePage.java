@@ -16,10 +16,14 @@ public class EnumTablePage extends TablePage<MjEnumValue> {
 	private List<MjEnumValue> enumValues;
 	
 	public EnumTablePage(MjEntity entity) {
-		super(new Object[]{MjEnumValue.$.ord, MjEnumValue.$.name});
 		this.entity = entity;
 	}
 	
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { MjEnumValue.$.ord, MjEnumValue.$.name };
+	}
+
 	@Override
 	public String getTitle() {
 		return MessageFormat.format(Resources.getString(EnumTablePage.class), entity.getClassName());

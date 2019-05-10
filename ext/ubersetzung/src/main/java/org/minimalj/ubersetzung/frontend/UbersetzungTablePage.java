@@ -11,8 +11,9 @@ import org.minimalj.ubersetzung.model.UbersetzungView;
 
 public class UbersetzungTablePage extends TableEditorPage<UbersetzungView, Ubersetzung> {
 
-	public UbersetzungTablePage() {
-		super(new Object[] { UbersetzungView.$.lang, UbersetzungView.$.country });
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { UbersetzungView.$.lang, UbersetzungView.$.country };
 	}
 
 	@Override

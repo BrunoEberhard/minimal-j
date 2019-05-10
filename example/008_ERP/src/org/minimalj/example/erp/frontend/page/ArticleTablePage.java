@@ -11,8 +11,9 @@ import org.minimalj.repository.query.By;
 
 public class ArticleTablePage extends TableDetailPage<Article> {
 
-	public ArticleTablePage() {
-		super(ArticleSearchPage.FIELDS);
+	@Override
+	protected Object[] getColumns() {
+		return ArticleSearchPage.FIELDS;
 	}
 	
 	@Override
