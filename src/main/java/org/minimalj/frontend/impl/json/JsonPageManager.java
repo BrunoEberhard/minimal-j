@@ -239,6 +239,10 @@ public class JsonPageManager implements PageManager, LoginListener {
 	}
 
 	private void show(List<String> pageIds) {
+		if (!pageStore.valid(pageIds)) {
+			show(Application.getInstance().createDefaultPage());
+			return;
+		}
 		List<JsonComponent> jsonList = new ArrayList<>();
 		visiblePageAndDetailsList.clear();
 		String previousId = null;
