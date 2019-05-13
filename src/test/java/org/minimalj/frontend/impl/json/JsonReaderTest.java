@@ -67,7 +67,6 @@ public class JsonReaderTest {
 		String complicatedString = "Happy \"get\" Lucky";
 		Map<String, Object> input = Collections.singletonMap("test", complicatedString);
 		String s = new JsonWriter().write(input);
-		System.out.println(s);
 		Map<String, Object> result = (Map<String, Object>) JsonReader.read(s);
 		Assert.assertEquals(complicatedString, result.get("test"));
 	}
