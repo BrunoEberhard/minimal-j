@@ -58,7 +58,7 @@ public class InMemoryDbCrudTest {
 		Assert.assertEquals("The count of the B's attached to A should match", 2, a2.b.size());
 		Assert.assertEquals("The count of the C's attached to A should match", 3, a2.c.size());
 	}
-		
+	
 	@Test
 	public void testDependable() throws Exception {
 		H h = new H();
@@ -131,33 +131,6 @@ public class InMemoryDbCrudTest {
 		Assert.assertEquals("Content of byte array should be stored", 3, m.bytes.length);
 		
 		repository.delete(m);
-	}
-
-	private Object writeSimpleA() {
-		A a = new A("testName1");
-
-		Object id = repository.insert(a);
-		return id;
-	}
-
-	private void readTheAandAddBandE(Object id) {
-		A a2 = repository.read(A.class, id);
-		a2.b.add(new B("testNameB1"));
-		a2.e = new E();
-		a2.e.e = "AddedE";
-		
-		repository.update(a2);
-	}
-
-	private void addAnotherB(final A a4) {
-		a4.b.add(new B("testNameB2"));
-		repository.update(a4);
-	}
-
-	private void removeFirstB(final Object id) {
-		A a5 = repository.read(A.class, id);
-		a5.b.remove(0);
-		repository.update(a5);
 	}
 
 	//
