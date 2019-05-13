@@ -255,6 +255,7 @@ public class SqlRepository implements TransactionalRepository {
 	@Override
 	public <T> T read(Class<T> clazz, Object id) {
 		if (View.class.isAssignableFrom(clazz)) {
+			@SuppressWarnings("unchecked")
 			Table<T> table = (Table<T>) getTable(ViewUtil.getViewedClass(clazz));
 			return table.readView(clazz, id, new HashMap<>());
 		} else {
@@ -266,6 +267,7 @@ public class SqlRepository implements TransactionalRepository {
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (query instanceof Limit || query instanceof AllCriteria) {
+			@SuppressWarnings("unchecked")
 			Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
 			List<T> list = table.find(query, resultClass);
 			return (query instanceof AllCriteria) ? new SortableList<T>(list) : list;
@@ -306,8 +308,12 @@ public class SqlRepository implements TransactionalRepository {
 	@Override
 	public <T> Object insert(T object) {
 		if (object == null) throw new NullPointerException();
+		Object originalId = IdUtils.getId(object);
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
+		// all repositories should behave to same and not save the new id in the
+		// original object.
+		IdUtils.setId(object, originalId);
 		return table.insert(object);
 	}
 
@@ -321,6 +327,7 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public <T> void delete(T object) {
+		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
 		table.delete(object);
 	}
@@ -621,10 +628,11 @@ public class SqlRepository implements TransactionalRepository {
 		return (Table<U>) table;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <U> Table<U> getTable(String className) {
 		for (Entry<Class<?>, AbstractTable<?>> entry : tables.entrySet()) {
 			if (entry.getKey().getName().equals(className)) {
-				return (Table) entry.getValue();
+				return (Table<U>) entry.getValue();
 			}
 		}
 		return null;
