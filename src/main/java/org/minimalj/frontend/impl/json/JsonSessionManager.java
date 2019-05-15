@@ -6,13 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 
 public class JsonSessionManager {
-	private static final Logger logger = Logger.getLogger(JsonSessionManager.class.getName());
 	private static final int MAX_SESSIONS = Integer.valueOf(Configuration.get("MjMaxSessions", "30"));
 
 	private final Map<String, JsonPageManager> sessions = new HashMap<>();
@@ -53,17 +50,8 @@ public class JsonSessionManager {
 		}
 		JsonPageManager session = getSession(sessionId);
 		
-		JsonOutput output;
-		try {
-			JsonInput input = new JsonInput(data);
-			output = session.handle(input);
-		} catch (Exception x) {
-			output = new JsonOutput();
-			output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
-			logger.log(Level.SEVERE, "Internal Error", x);
-			// why does logger not work here?
-			x.printStackTrace();
-		}
+		JsonInput input = new JsonInput(data);
+		JsonOutput output = session.handle(input);
 
 		if (!validSession) {
 			output.add("error", "Invalid session. Please close and reopen tab.");

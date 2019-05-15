@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,5 +95,9 @@ public class PageList {
 			pages.remove(i);
 			pageIds.remove(i);
 		}
+	}
+
+	public List<String> getPageIds() {
+		return Collections.unmodifiableList(pageIds);
 	}
 }

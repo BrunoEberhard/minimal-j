@@ -38,6 +38,7 @@ $ICON
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
 		if ("showPage" in dataObject) {
+			closeDialogs();
 			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
 			saveStateInHistory();
@@ -801,9 +802,19 @@ $ICON
     }
 
     function dialogClosedListener(event) {
-          document.getElementById("body").removeChild(event.target); 
-          updateDialogSizes();
+        document.getElementById("body").removeChild(event.target); 
+        updateDialogSizes();
     }
+
+	function closeDialogs() {
+		var dialogElements = document.getElementsByTagName("dialog");
+		if (dialogElements) {
+	        for (var i = 0; i < dialogElements.length; i++) {
+	            var dialog = dialogElements[i];
+		        document.getElementById("body").removeChild(dialog); 
+			}
+		}
+	}
 
 	function sendchange(source, saveAction) {
 		var data = {};
