@@ -7,8 +7,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.SearchCriteria;
 
 public class SqlCriteriaTest {
@@ -51,7 +51,7 @@ public class SqlCriteriaTest {
 		s1 = By.search("y");
 		s2 = By.search("z");
 		Criteria s3 = By.search("d");
-		SearchCriteria s4 = By.search("y");
+		SearchCriteria s4 = (SearchCriteria) By.search("y");
 		g = respository.find(G.class, s1.and(s2).or(s3.and(s4.negate())));
 		Assert.assertEquals(2, g.size());
 	}
