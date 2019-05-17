@@ -225,6 +225,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$THEME", THEMES.get(Configuration.get("MjTheme", "")));
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
+		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));
 		return result;
 	}
 	
