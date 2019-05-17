@@ -34,7 +34,7 @@ $ICON
 		var dataObject = JSON.parse(data);
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
-		if (dataObject.title != undefined) {
+		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
 		if ("showPage" in dataObject) {
@@ -55,34 +55,34 @@ $ICON
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
 			var pageElement = document.getElementById(pageId);
-			if (pageElement != null) {
+			if (pageElement) {
 				var pageTitleElement = pageElement.querySelector(".pageTitle");
 				pageTitleElement.textContent = title;
 			}
 		}
-		if (dataObject.hideDetail != undefined) {
+		if (dataObject.hideDetail) {
 			addNewStateToHistory();
 			var pageId = dataObject.hideDetail;
 			hideDetail(pageId);
 			saveStateInHistory();
 		}		
-		if (dataObject.navigation != undefined) {
+		if (dataObject.navigation) {
 			updateNavigation(dataObject.navigation);
 		}
-		if (dataObject.dialog != undefined) {
+		if (dataObject.dialog) {
 			showDialog(dataObject.dialog);
 		}
-		if (dataObject.closeDialog != undefined) {
+		if (dataObject.closeDialog) {
 			for (var i = 0; i<dataObject.closeDialog.length; i++) {
 				var dialog = document.getElementById(dataObject.closeDialog[i]);
 				dialog.close();
 			}
 		}
-		if (dataObject.propertyChanges != undefined) {
+		if (dataObject.propertyChanges) {
 			var propertyChanges = dataObject.propertyChanges;
 			for ( var id in propertyChanges) {
 				var element = document.getElementById(id);
-				if (element != undefined) {
+				if (element) {
 					for ( var property in propertyChanges[id]) {
 						var value = propertyChanges[id][property];
 						if (property == "tableContent") {
@@ -130,11 +130,11 @@ $ICON
 				}
 			}
 		}
-		if (dataObject.contentChanges != undefined) {
+		if (dataObject.contentChanges) {
 			var contentChanges = dataObject.contentChanges;
 			for ( var id in contentChanges) {
 				var element = document.getElementById(id);
-				if (element != undefined) {
+				if (element) {
 					for (var i = 0; i < contentChanges[id].length; i++) {
 						var c = contentChanges[id][i];
 						if (c == "clear") {
@@ -149,17 +149,17 @@ $ICON
 			}
 			updateDialogSizes();
 		}
-		if (dataObject.message != undefined) {
+		if (dataObject.message) {
 			alert(dataObject.message);
 		}
-		if (dataObject.error != undefined) {
+		if (dataObject.error) {
 			alert(dataObject.error);
 		}
-		if (dataObject.loadSuggestions != undefined) {
+		if (dataObject.loadSuggestions) {
 			var id = dataObject.loadSuggestions;
 			createSuggestions(id, dataObject.suggestions);
 		}
-		if (dataObject.tableExtendContent != undefined) {
+		if (dataObject.tableExtendContent) {
 			var table = document.getElementById(dataObject.tableId);
 			var oldScroll = table.parentNode.scrollTop;
 			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
@@ -176,7 +176,7 @@ $ICON
 	}
 	
 	function setDeferredValue(element) {
-		if (element != undefined && element.valueOnBlur != undefined) {
+		if (element && element.valueOnBlur) {
 			element.value = element.valueOnBlur;
 			element.valueOnBlur = undefined;
 		}
@@ -185,7 +185,7 @@ $ICON
 	function addNewStateToHistory(fragment) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText, fragment != undefined ? fragment : "/"); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, fragment ? fragment : "/"); // second argument is ignored by browsers (!)
 		}
 	}
 	
@@ -236,7 +236,7 @@ $ICON
 		var pageContentAndActionsElement = document.createElement("div");
 		pageContentAndActionsElement.className = "pageContentAndActions";
 
-		if (page.content != null) {
+		if (page.content) {
 			var pageContentElement = document.createElement("div");
 			pageContentElement.className = "pageContent";
 			
@@ -287,9 +287,9 @@ $ICON
 	function togglePageActionMenu(event) {
 		var element = event.target;
 		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
-		if (element != null) {
+		if (element) {
 			var actionMenuElement = element.querySelector(".actionMenuContainer");
-			if (actionMenuElement != null) {
+			if (actionMenuElement) {
 				if (actionMenuElement.style.display != "none") {
 					actionMenuElement.style.display = "none";
 				} else {
@@ -314,7 +314,7 @@ $ICON
 	function closeActionMenu() {
         var actionMenuElements = document.getElementsByClassName("actionMenuContainer")
 		var actionMenuElement = actionMenuElements[actionMenuElements.length - 1];
-		if (actionMenuElement != undefined) {
+		if (actionMenuElement) {
 			actionMenuElement.style.display = "none";
 		}
 	}
@@ -402,7 +402,7 @@ $ICON
 			if (content.multiSelect) {
 				element.classList.add("multiSelect");
 			}
-			if (content.overview != null) {
+			if (content.overview) {
 				var overview = document.createElement("thead");
 				overview.appendChild(createContent(content.overview));
 				element.appendChild(overview);
@@ -415,7 +415,7 @@ $ICON
 				var dots = document.createTextNode("...");
 				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");				
 				footer.appendChild(dots);
-				if (intersectionObserver != undefined) {
+				if (intersectionObserver) {
 					intersectionObserver.observe(footer);
 				}
 				element.appendChild(footer);
@@ -423,7 +423,7 @@ $ICON
 		} else if (type == "Text" || type == "Title") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());
-			if (content.value != undefined) {
+			if (content.value) {
 				element.innerHTML = escapeText(content.value);
 			} else {
 				element.innerHTML = "&nbsp;";
@@ -462,10 +462,10 @@ $ICON
 			element.setAttribute(element.type == "text" ? "onkeyup" : "onchange", "sendchange(this);");
 			element.setAttribute("onblur", "setDeferredValue(this);");
 			element.setAttribute("maxlength", content.maxLength);
-			if (content.value != undefined) {
+			if (content.value) {
 				element.value = content.value;
 			}
-			if (content.suggestions != undefined) {
+			if (content.suggestions) {
 				element.setAttribute("autocomplete", "off");
 				element.setAttribute("list", content.id + "-list");
 				element.setAttribute("onkeydown", "if (event.keyCode == 40) loadSuggestions(this);");
@@ -474,7 +474,7 @@ $ICON
 			element = document.createElement("textarea");
 			element.setAttribute("onkeyup", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
-			if (content.value != undefined) {
+			if (content.value) {
 				element.value = content.value;
 			}
 		} else if (type == "SearchTextField") {
@@ -498,13 +498,13 @@ $ICON
 			element = document.createElement("select");
 			var option = document.createElement("option");
 			element.appendChild(option);
-			if (content.options != undefined) {
+			if (content.options) {
 				for ( var id in content.options) {
 					var option = document.createElement("option");
 					option.value = id;
 					option.textContent = content.options[id].text;
 					var description = content.options[id].description; 
-					if (description != undefined) option.title = description;
+					if (description) option.title = description;
 					element.appendChild(option);
 				}
 			}
@@ -581,10 +581,10 @@ $ICON
 				element.setAttribute("onchange", "sendchange(this);");
 		    } else {
 		    	element = document.createElement("img");
-		    	if (content.value != undefined) {
+		    	if (content.value) {
 			    	element.src = "data:image;base64, " + content.value;
 			    }
-			    if (content.maxHeight != undefined) {
+			    if (content.maxHeight) {
 			    	element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
 			    }
 		    }
@@ -595,7 +595,7 @@ $ICON
 		if (!editable) {
 			element.setAttribute("disabled", "true");
 		}
-		if (content.id != undefined) {
+		if (content.id) {
 			element.id = content.id;
 		}
 		return element;
@@ -614,14 +614,14 @@ $ICON
 	function createFormCell(cell, span, width) {
 		var cellElement = document.createElement("div");
 		var isTitle = cell.type == "Title";
-		if (!isTitle && cell.caption != undefined) {
+		if (!isTitle && cell.caption) {
 			var caption = document.createElement("label");
-			caption.setAttribute("for", cell.firstId != undefined ? cell.firstId : cell.id);
+			caption.setAttribute("for", cell.firstId ? cell.firstId : cell.id);
 			caption.appendChild(document.createTextNode(cell.caption));
 			var tooltipTemplate = document.getElementById("tooltip");
 			var tooltip = tooltipTemplate.cloneNode(true);
 			tooltip.id = cell.id + "-validation";
-			if (cell.validationMessage != undefined && cell.validationMessage.length > 0) {
+			if (cell.validationMessage && cell.validationMessage.length > 0) {
 				tooltip.setAttribute("title", cell.validationMessage);
 				caption.setAttribute("title", cell.validationMessage);
 			} else {
@@ -681,7 +681,7 @@ $ICON
 	}
 	function createTableCell(cell) {
 		var td = document.createElement("td");
-		if (cell != undefined) {
+		if (cell) {
 			td.appendChild(document.createTextNode(cell));
 		}
 		return td;
@@ -709,11 +709,11 @@ $ICON
 			var item = items[i];
 			var li = document.createElement("li");
 			ul.appendChild(li);
-			if (item.name != undefined) {
-				if (item.items != undefined) {
+			if (item.name) {
+				if (item.items) {
 					li.appendChild(document.createTextNode(item.name));
 					li.appendChild(createMenu(item.items));
-				} else if (item.id != undefined) {
+				} else if (item.id) {
 					li.id = item.id;
 					li.classList.add("action");
 					li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id + "\");");
@@ -759,7 +759,7 @@ $ICON
 		dialog.appendChild(content);
 		
 		var actions = json["actions"];
-		if (actions != undefined) {
+		if (actions) {
 			var footer = document.createElement("div");
 			footer.classList.add("dialogFooter");
 			for (var i = 0; i < actions.length; i++) {
@@ -776,10 +776,10 @@ $ICON
 		}
 		
 		var saveAction = json.saveAction;
-		if (saveAction != null) {
+		if (saveAction) {
 			var inputs = content.getElementsByTagName("input");
 			var lastInput = inputs[inputs.length - 1]; 
-			if (lastInput != undefined && (lastInput.type == "text" || lastInput.type == "password")) {
+			if (lastInput && (lastInput.type == "text" || lastInput.type == "password")) {
 				lastInput.setAttribute("onkeyup", "sendchange(this, event.keyCode == 13  ? \"" + saveAction.id + "\" : undefined);");
 			}
 		}
@@ -797,7 +797,7 @@ $ICON
   
     function closeDialog(event) {
 		var dialog = event.target;
-		while (dialog.tagName.toUpperCase() != "DIALOG" && (dialog = dialog.parentNode) != null);
+		while (dialog.tagName.toUpperCase() != "DIALOG" && (dialog = dialog.parentNode));
 		dialog.close();
     }
 
@@ -843,7 +843,7 @@ $ICON
 			source.valueOnBlur = undefined;
 		}
 		data.changedValue = changedValue;
-		if (saveAction != undefined) {
+		if (saveAction) {
 			data.activatedAction = saveAction;
 			send(data, true);
 		} else {
@@ -971,7 +971,7 @@ $ICON
 	function search() {
 		var searchElement = document.getElementById("search");
 		var search = searchElement.value;
-		if (search != undefined && search.length > 0) {
+		if (search && search.length > 0) {
 			var data = {"search" : search};
 			send(data, true);
 		} else {
@@ -982,7 +982,7 @@ $ICON
 	function querySearch() {
 		var searchElement = document.getElementById("querySearch");
 		var search = searchElement.value;
-		if (search != undefined && search.length > 0) {
+		if (search && search.length > 0) {
 			var data = {"search" : search};
 			send(data, true);
 		}
@@ -1004,7 +1004,7 @@ $ICON
 	    data.inputTypes = isMobile && checkInput("date");
 	    	
 		var dialogElements = document.getElementsByTagName("dialog");
-		data.dialogVisible = dialogElements != undefined && dialogElements.length > 0;
+		data.dialogVisible = dialogElements && dialogElements.length > 0;
 
 		$SEND(data, block);
 	}
@@ -1075,12 +1075,12 @@ $ICON
 		
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
-		if (dialogElements != undefined && dialogElements.length > 0) {
+		if (dialogElements && dialogElements.length > 0) {
             var maxDialogWidth = 0;
             for (var i = 0; i < dialogElements.length; i++) {
                 var dialogElement = dialogElements[i];
 				var maxWidthElement = dialogElement.querySelector(".form");
-				if (maxWidthElement != undefined) {
+				if (maxWidthElement) {
                       var columns = maxWidthElement.dataset.columns;
                       dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3) + "em";
                       maxDialogWidth = Math.max(maxDialogWidth, parseInt(window.getComputedStyle(dialogElement).maxWidth));
@@ -1110,7 +1110,7 @@ $ICON
 					
                     var headerHeight = document.getElementById("header").clientHeight;
                     var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-                    var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") != null ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
+                    var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
                     var top = parseInt(window.getComputedStyle(dialogElement).top);
                     var dialogPadding = parseInt(window.getComputedStyle(dialogElement).marginTop) + parseInt(window.getComputedStyle(dialogElement).marginBottom);
 					var contentElement = dialogElement.querySelector(".dialogContent");
@@ -1145,7 +1145,7 @@ $ICON
 				dialogElement.style.maxWidth = null;
         
                 var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-                var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") != null ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
+                var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
 
                 var dialogPadding = parseInt(window.getComputedStyle(dialogElement).padding);
                 var contentElement = dialogElement.querySelector(".dialogContent");
@@ -1208,7 +1208,7 @@ $ICON
 
 		window.onpopstate = popState;
 
-		if (window.history.state != undefined) {
+		if (window.history.state) {
 			send({ "initialize" : window.history.state });
 		} else {
 			send({ "initialize" : "$PATH" });
