@@ -29,11 +29,27 @@ $ICON
 	var pageContainerElement;
 	var titleElement;
   	var intersectionObserver = new IntersectionObserver(intersectionListener, {threshold: 1});
-  
+  	
+  	var blockStyle = document.createElement('style');
+  	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
+  	var focusElement;
+  	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
+
+		if (dataObject.wait) {
+			var data = {"retry" : dataObject.wait};
+			document.getElementById("wait").style.width = (1 + (dataObject.wait - 1) % 3) + "em";
+			send(data, true);
+			return;
+		} else {
+			document.getElementById("wait").style.width = 0;
+			blockStyle.parentNode.removeChild(blockStyle);
+			if (focusElement) focusElement.focus();
+		}
+
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
@@ -170,9 +186,6 @@ $ICON
 			}
 			table.parentNode.scrollTop = oldScroll;
 		}
-		
-		var block = document.getElementById('block');
-		block.classList.remove("is-blocked"); 
 	}
 	
 	function setDeferredValue(element) {
@@ -745,6 +758,10 @@ $ICON
 		dialog.id = json.id;
 		dialog.setAttribute("type", json.type);
 
+		var block = document.createElement("div");
+		block.classList.add("is-blocked");
+		dialog.appendChild(block);
+
 		var header = document.createElement("div");
 		header.classList.add("dialogHeader");
 		var headerDiv = document.createElement("div");
@@ -1013,28 +1030,27 @@ $ICON
 		data.session = session;
 
 		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("POST", "ajax_request.xml", !block);
+		xmlhttp.open("POST", "ajax_request.xml", true);
 		
-		if (block) {
-			xmlhttp.send(JSON.stringify(data));
-			if (xmlhttp.readyState == 4) {
-				if (xmlhttp.status == 200) {
-					onMessage(xmlhttp.responseText);
-				} else {
-					alert('Something is wrong !!');
-				}
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				onMessage(xmlhttp.responseText);
 			}
-		} else {
-			xmlhttp.onreadystatechange = function() {
-				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-					onMessage(xmlhttp.responseText);
-				}
-			}
-			xmlhttp.send(JSON.stringify(data));
 		}
+		if (!blockStyle.parentElement) {		
+			document.body.appendChild(blockStyle);
+			focusElement = document.activeElement;
+			if (focusElement) focusElement.blur();
+		}
+		xmlhttp.send(JSON.stringify(data));
 	}
 	
 	function sendWebSocket(data, block) {
+		if (!blockStyle.parentElement) {		
+			document.body.appendChild(blockStyle);
+			focusElement = document.activeElement;
+			if (focusElement) focusElement.blur();
+		}
 		if (websocket == null || websocket.readyState > 1) {
 			var pathname = location.pathname;
 			var index = pathname.lastIndexOf("/");
@@ -1051,10 +1067,6 @@ $ICON
 				send(data, block);
 			}
 		} else {
-			if (block) {
-				var block = document.getElementById("block");
-				block.classList.add("is-blocked");
-			}
 			websocket.send(JSON.stringify(data));
 		}
 	}
@@ -1252,6 +1264,11 @@ $ICON
 				<line x1="40%" y1="70%" x2="60%" y2="50%" />
 			</g>
 		</svg>
+		<svg id="wait" class="button headerButton" style="width: 0em;">
+			<g style="stroke-width:3px;stroke-linecap:square"> 	
+				<line x1="6%" y1="93%" x2="93%" y2="93%" />
+			</g>
+		</svg>
 		<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
 		<div class="button" id="searchSpan">
 			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
@@ -1319,7 +1336,7 @@ $ICON
 	</div>
 			
 
-	<div id="block">
+	<div class="is-blocked">
 		
 	</div>
 </body>

@@ -7,6 +7,7 @@ Every release contains many small fixes.
 * Table Pages: no need to pass columns in constructor
 * PageStore: limit history length
 * Html Frontend: Exception handling
+* Html Frontend: handling of long during actions
 
 === 1.19.1.0
 * JsonFrontend: better meta information and title

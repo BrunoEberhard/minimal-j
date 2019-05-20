@@ -83,27 +83,50 @@ public class JsonPageManager implements PageManager, LoginListener {
 		return output.toString();
 	}
 
+	private Thread thread;
+
 	public JsonOutput handle(JsonInput input) {
+		Long retry = (Long) input.getObject("retry");
+		if (retry == null) {
+			retry = 0L;
+			thread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						JsonFrontend.setSession(JsonPageManager.this);
+						Subject.setCurrent(subject);
+						String locale = (String) input.getObject("locale");
+						if (locale != null) {
+							LocaleContext.setCurrent(Locale.forLanguageTag(locale));
+						}
+						// Thread.sleep(10000);
+						handle_(input);
+					} catch (ComponentUnknowException x) {
+						output = new JsonOutput();
+						show(visiblePageAndDetailsList.getPageIds());
+					} catch (Exception x) {
+						output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
+						logger.log(Level.SEVERE, x.getMessage(), x);
+					} finally {
+						LocaleContext.setCurrent(null);
+						Subject.setCurrent(null);
+						JsonFrontend.setSession(null);
+					}
+				}
+			});
+			thread.start();
+		}
+
 		try {
-			JsonFrontend.setSession(this);
-			Subject.setCurrent(subject);
-			String locale = (String) input.getObject("locale");
-			if (locale != null) {
-				LocaleContext.setCurrent(Locale.forLanguageTag(locale));
-			}
-			return handle_(input);
-		} catch (ComponentUnknowException x) {
-			output = new JsonOutput();
-			show(visiblePageAndDetailsList.getPageIds());
+			thread.join(2000);
+		} catch (InterruptedException t) {
+		}
+
+		if (!thread.isAlive()) {
 			return output;
-		} catch (Exception x) {
-			output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
-			logger.log(Level.SEVERE, x.getMessage(), x);
+		} else {
+			JsonOutput output = new JsonOutput();
+			output.add("wait", ++retry);
 			return output;
-		} finally {
-			LocaleContext.setCurrent(null);
-			Subject.setCurrent(null);
-			JsonFrontend.setSession(null);
 		}
 	}
 

@@ -442,21 +442,6 @@ iframe {
 	font-family: inherit;
 }
 
-block {
-	display: none;
-}
-
-.is-blocked {
-	display: block;
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background: rgba(0, 0, 0, 0.1);
-	z-index: 90;
-}
-
 @media (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
