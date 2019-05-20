@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.util.resources.Resources;
 
@@ -27,7 +26,7 @@ public abstract class TableFormPage<T> extends TableDetailPage<T> {
 	 * details could also be depending entities. Depending entities don't have an id
 	 * an cannot be loaded separately.
 	 */
-	public class DetailPage extends Page implements TableActionListener<T> {
+	public class DetailPage extends Page implements ChangeableDetailPage<T> {
 
 		private final Form<T> form;
 
@@ -52,12 +51,7 @@ public abstract class TableFormPage<T> extends TableDetailPage<T> {
 		}
 
 		@Override
-		public void action(T selectedObject) {
-			form.setObject(selectedObject);
-		}
-
-		@Override
-		public void selectionChanged(List<T> selectedObjects) {
+		public void setObjects(List<T> selectedObjects) {
 			if (selectedObjects != null && !selectedObjects.isEmpty()) {
 				action(selectedObjects.get(selectedObjects.size() - 1));
 			}

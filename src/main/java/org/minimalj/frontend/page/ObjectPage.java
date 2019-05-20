@@ -1,11 +1,13 @@
 package org.minimalj.frontend.page;
 
 import java.lang.ref.SoftReference;
+import java.util.List;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.frontend.page.TableDetailPage.ChangeableDetailPage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -35,7 +37,7 @@ import org.minimalj.util.resources.Resources;
  *
  * But be careful as this pattern keeps the complete object in the memory.
  */
-public abstract class ObjectPage<T> extends Page {
+public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage<T> {
 
 	private final Class<T> objectClass;
 	private Object objectId;
@@ -137,6 +139,15 @@ public abstract class ObjectPage<T> extends Page {
 		@Override
 		protected void finished(T result) {
 			setObject(result);
+		}
+	}
+
+	@Override
+	public void setObjects(List<T> objects) {
+		if (!objects.isEmpty()) {
+			setObject(objects.get(0));
+		} else {
+			setObject(null);
 		}
 	}
 
