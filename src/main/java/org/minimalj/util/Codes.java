@@ -36,7 +36,7 @@ public class Codes {
 	public static <T extends Code> T findCode(List<T> codes, Object codeId) {
 		for (T code : codes) {
 			Object aCodeId = IdUtils.getId(code);
-			if (aCodeId == null && codeId == null || aCodeId.equals(codeId)) {
+			if (aCodeId == null && codeId == null || aCodeId != null && aCodeId.equals(codeId)) {
 				return code;
 			}
 		}

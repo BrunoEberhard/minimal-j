@@ -32,8 +32,7 @@ public class EqualsHelper {
 			Object toValue = field.get(to);
 			
 			if (fromValue == null && toValue == null) continue;
-			if (fromValue == null && toValue != null) return false;
-			if (fromValue != null && toValue == null) return false;
+			if (fromValue == null || toValue == null) return false;
 			
 			if (fromValue instanceof Collection) {
 				Collection fromCollection = (Collection) fromValue;
