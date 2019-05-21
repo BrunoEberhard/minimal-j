@@ -118,17 +118,9 @@ public abstract class SqlDialect {
 		String name = "FK_" + tableName + "_" + column;
 		name = SqlIdentifier.buildIdentifier(name, getMaxIdentifierLength(), foreignKeyNames);
 		foreignKeyNames.add(name);
-		
-		StringBuilder s = new StringBuilder();
-		s.append("ALTER TABLE ").append(tableName);
-		s.append(" ADD CONSTRAINT ");
-		s.append(name);
-		s.append(" FOREIGN KEY (");
-		s.append(column);
-		s.append(") REFERENCES ");
-		s.append(referencedTableName);
-		s.append(" (ID)"); // not used at the moment: INITIALLY DEFERRED
-		return s.toString();
+
+		// not used at the moment: INITIALLY DEFERRED
+		return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + name + " FOREIGN KEY (" + column + ") REFERENCES " + referencedTableName + " (ID)";
 	}
 	
 	public String createIndex(String tableName, String column, boolean withVersion) {
@@ -151,15 +143,7 @@ public abstract class SqlDialect {
 	}
 	
 	public String createUniqueIndex(String tableName, String column) {
-		StringBuilder s = new StringBuilder();
-		s.append("ALTER TABLE ");
-		s.append(tableName);
-		s.append(" ADD UNIQUE INDEX ");
-		s.append(column);
-		s.append(" (");
-		s.append(column);
-		s.append(')');
-		return s.toString();
+		return "ALTER TABLE " + tableName + " ADD UNIQUE INDEX " + column + " (" + column + ')';
 	}
 	
 	public String limit(int rows, Integer offset) {
@@ -271,15 +255,7 @@ public abstract class SqlDialect {
 		
 		@Override
 		public String createUniqueIndex(String tableName, String column) {
-			StringBuilder s = new StringBuilder();
-			s.append("ALTER TABLE ");
-			s.append(tableName);
-			s.append(" ADD CONSTRAINT ");
-			s.append(column);
-			s.append("_UNIQUE UNIQUE (");
-			s.append(column);
-			s.append(')');
-			return s.toString();
+			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
 		}
 
 		@Override
@@ -331,15 +307,7 @@ public abstract class SqlDialect {
 		
 		@Override
 		public String createUniqueIndex(String tableName, String column) {
-			StringBuilder s = new StringBuilder();
-			s.append("ALTER TABLE ");
-			s.append(tableName);
-			s.append(" ADD CONSTRAINT ");
-			s.append(column);
-			s.append("_UNIQUE UNIQUE (");
-			s.append(column);
-			s.append(')');
-			return s.toString();
+			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
 		}
 
 		@Override

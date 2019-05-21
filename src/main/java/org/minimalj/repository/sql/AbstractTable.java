@@ -424,9 +424,7 @@ public abstract class AbstractTable<T> {
 	protected abstract String selectByIdQuery();
 
 	protected String clearQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("DELETE FROM ").append(getTableName()); 
-		return query.toString();
+		return "DELETE FROM " + getTableName();
 	}
 	
 	protected final Object getOrCreateId(Object object) {

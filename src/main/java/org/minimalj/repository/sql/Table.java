@@ -394,15 +394,11 @@ public class Table<T> extends AbstractTable<T> {
 
 	@Override
 	protected String selectByIdQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE id = ?");
-		return query.toString();
+        return "SELECT * FROM " + getTableName() + " WHERE id = ?";
 	}
 	
 	protected String selectAllQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM ").append(getTableName()); 
-		return query.toString();
+        return "SELECT * FROM " + getTableName();
 	}
 	
 	@Override
@@ -444,9 +440,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected String deleteQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("DELETE FROM ").append(getTableName()).append(" WHERE id = ?");
-		return s.toString();
+        return "DELETE FROM " + getTableName() + " WHERE id = ?";
 	}
 	
 	@Override
