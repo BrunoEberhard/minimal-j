@@ -14,8 +14,7 @@ public class DeleteTransaction<ENTITY> implements Transaction<Integer> {
 	private final Criteria criteria;
 
 	public DeleteTransaction(Class<ENTITY> clazz, Criteria criteria) {
-		Objects.nonNull(criteria);
-		this.criteria = criteria;
+		this.criteria = Objects.requireNonNull(criteria);
 		this.classHolder = new ClassHolder<>(clazz);
 	}
 

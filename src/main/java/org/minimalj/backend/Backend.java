@@ -75,7 +75,7 @@ public class Backend {
 	private InheritableThreadLocal<Transaction<?>> currentTransaction = new InheritableThreadLocal<>();
 	
 	public static void setInstance(Backend instance) {
-		Objects.nonNull(instance);
+		Objects.requireNonNull(instance);
 		if (Backend.instance != null) {
 			throw new IllegalStateException("Not allowed to change instance of " + Backend.class.getSimpleName());
 		}

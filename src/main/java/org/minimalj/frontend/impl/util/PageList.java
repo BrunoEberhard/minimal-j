@@ -16,8 +16,8 @@ public class PageList {
 	 * @param page page to add
 	 */
 	public void put(String pageId, Page page) {
-		Objects.nonNull(pageId);
-		Objects.nonNull(page);
+		Objects.requireNonNull(pageId);
+		Objects.requireNonNull(page);
 		pageIds.add(pageId);
 		pages.add(page);
 	}

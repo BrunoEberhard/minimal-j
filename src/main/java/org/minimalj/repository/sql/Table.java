@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.model.Code;
@@ -44,7 +43,6 @@ public class Table<T> extends AbstractTable<T> {
 		super(sqlRepository, name, clazz);
 		
 		this.idProperty = FlatProperties.getProperty(clazz, "id", true);
-		Objects.nonNull(idProperty);
 		
 		this.optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
