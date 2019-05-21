@@ -90,7 +90,7 @@ public class EntityWriter {
 			dos.writeLong((Long) value);
 		} else if (clazz == Boolean.class) {
 			dos.write(1);
-			dos.write(((Boolean) value).booleanValue() ? 1 : 0);
+			dos.write((Boolean) value ? 1 : 0);
 		} else if (clazz == List.class) {
 			@SuppressWarnings("rawtypes")
 			List list = (List) value;

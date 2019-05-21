@@ -452,7 +452,7 @@ public abstract class SqlDialect {
 			if (value instanceof Boolean) {
 				return value;
 			} else if (value instanceof Integer) {
-				value = Boolean.valueOf(((int) value) == 1);
+				value = ((int) value) == 1;
 			} else if (value != null) {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}

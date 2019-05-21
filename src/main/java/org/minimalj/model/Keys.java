@@ -23,6 +23,7 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
+@SuppressWarnings("UnnecessaryBoxing")
 public class Keys {
 
 	private static final Logger logger = Logger.getLogger(Keys.class.getName());

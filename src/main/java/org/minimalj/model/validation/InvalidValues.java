@@ -30,6 +30,7 @@ import org.minimalj.model.EnumUtils;
  * check with the 'isInvalid' method if the value represents an invalid value.
  *
  */
+@SuppressWarnings("UnnecessaryBoxing")
 public class InvalidValues {
 
 	private static final Map<Object, String> values = new WeakIdentityHashMap<>();

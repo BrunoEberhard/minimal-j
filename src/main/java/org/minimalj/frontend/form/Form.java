@@ -492,7 +492,7 @@ public class Form<T> {
 	private Object findParentObject(PropertyInterface property) {
 		Object result = object;
 		String fieldPath = property.getPath();
-		while (fieldPath.indexOf(".") > -1) {
+		while (fieldPath.contains(".")) {
 			int pos = property.getPath().indexOf(".");
 			PropertyInterface p2 = Properties.getProperty(result.getClass(), fieldPath.substring(0, pos));
 			result = p2.getValue(result);

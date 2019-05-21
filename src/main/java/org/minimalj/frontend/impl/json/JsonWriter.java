@@ -71,7 +71,7 @@ public class JsonWriter {
 		} else {
 			calls.push(object);
 			if (object instanceof Boolean)
-				bool(((Boolean) object).booleanValue());
+				bool((Boolean) object);
 			else if (object instanceof Number || object instanceof Temporal)
 				add(object);
 			else if (object instanceof String || object instanceof Character)

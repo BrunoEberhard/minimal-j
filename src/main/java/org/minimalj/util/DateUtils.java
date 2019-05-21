@@ -86,7 +86,7 @@ public class DateUtils {
 		
 		// Nun hat der String sicher keinen Punkt mehr am Anfang oder Ende
 		
-		if (inputText.indexOf(".") > -1) {
+		if (inputText.contains(".")) {
 			return parseCHWithDot(inputText, partialAllowed);
 		} else {
 			return parseCHWithoutDot(inputText, partialAllowed);

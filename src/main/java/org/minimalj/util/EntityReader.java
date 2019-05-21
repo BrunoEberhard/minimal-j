@@ -29,15 +29,15 @@ public class EntityReader {
 	
 	public Object readValue(Class<?> clazz) throws IOException {
 		if (clazz == Byte.TYPE) {
-			return new Byte(dis.readByte());
+			return dis.readByte();
 		} else if (clazz == Short.TYPE) {
-			return new Short(dis.readShort());
+			return dis.readShort();
 		} else if (clazz == Integer.TYPE) {
-			return new Integer(dis.readInt());
+			return dis.readInt();
 		} else if (clazz == Long.TYPE) {
-			return new Long(dis.readLong());
+			return dis.readLong();
 		} else if (clazz == Boolean.TYPE) {
-			return Boolean.valueOf(dis.read() != 0);
+			return dis.read() != 0;
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			byte b = dis.readByte();
 			if (b == 0) return null;
