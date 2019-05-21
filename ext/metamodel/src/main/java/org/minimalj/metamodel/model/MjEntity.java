@@ -31,6 +31,7 @@ public class MjEntity {
 		
 		// primitives
 		String(String.class), Integer(Integer.class), Long(Long.class), Boolean(Boolean.class), //
+		Enum(Enum.class), //
 		BigDecimal(BigDecimal.class), LocalDate(LocalDate.class), //
 		LocalTime(LocalTime.class), LocalDateTime(LocalDateTime.class), ByteArray(byte[].class);
 		
@@ -110,7 +111,7 @@ public class MjEntity {
 		}
 		
 		if (Enum.class.isAssignableFrom(clazz)) {
-			type = MjEntityType.String;
+			type = MjEntityType.Enum;
 			List<Object> list = EnumUtils.valueList((Class<Enum>) clazz);
 			values = list.stream().map(e -> e.toString()).collect(Collectors.toList());
 		} else if (Code.class.isAssignableFrom(clazz)) {

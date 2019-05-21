@@ -164,13 +164,12 @@ public class ClassGenerator {
 	public void generate(StringBuilder s, MjProperty property, String packageName, Set<String> forbiddenNames) {
 		String fieldName = property.name;
 		
-		if (property.type.type == MjEntityType.String) {
-			if (property.type.isEnumeration()) {
-				if (property.type.values.size() == 1 && Boolean.TRUE.equals(property.notEmpty)) {
-					// for String with exact one possible value the field can be initialized and set to final
-					indent(s, indent).append("public final String " + fieldName + " = \"" + property.type.values.iterator().next() + "\";\n");
-					return;
-				}
+		if (property.type.type == MjEntityType.Enum) {
+			if (property.type.values.size() == 1 && Boolean.TRUE.equals(property.notEmpty)) {
+				// for String with exact one possible value the field can be initialized and set
+				// to final
+				indent(s, indent).append("public final String " + fieldName + " = \"" + property.type.values.iterator().next() + "\";\n");
+				return;
 			}
 		}
 		
