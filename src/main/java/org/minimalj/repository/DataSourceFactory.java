@@ -40,8 +40,7 @@ public class DataSourceFactory {
 	public static DataSource getJndiDataSource() {
 		try {
 			Context initContext = new InitialContext();
-			DataSource dataSource = (DataSource) initContext.lookup("java:/comp/env/jdbc");
-			return dataSource;
+			return (DataSource) initContext.lookup("java:/comp/env/jdbc");
 		} catch (NamingException e) {
 			logger.fine("Exception while retrieving JNDI datasource (" + e.getMessage() + ")");
 			return null;

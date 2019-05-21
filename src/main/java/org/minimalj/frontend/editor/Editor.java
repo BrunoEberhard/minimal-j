@@ -223,8 +223,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
 			Class<T> clazz = (Class<T>) getEditedClass();
-			T newInstance = CloneHelper.newInstance(clazz);
-			return newInstance;
+			return CloneHelper.newInstance(clazz);
 		}
 	}
 

@@ -54,8 +54,7 @@ public class Codes {
 			updateCode(clazz);
 		}
 		cacheItem = (CodeCacheItem<T>) cache.get(clazz);
-		List<T> codes = cacheItem.getCodes(LocaleContext.getCurrent());
-		return codes;
+		return cacheItem.getCodes(LocaleContext.getCurrent());
 	}
 	
 	public static <T extends Code> void removeFromCache(Class<?> clazz) {

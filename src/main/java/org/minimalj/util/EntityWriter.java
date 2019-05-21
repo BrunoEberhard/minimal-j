@@ -95,8 +95,8 @@ public class EntityWriter {
 			@SuppressWarnings("rawtypes")
 			List list = (List) value;
 			dos.writeInt(list.size());
-			for (int i = 0; i<list.size(); i++) {
-				writeIfNotNull(list.get(i));
+			for (Object o : list) {
+				writeIfNotNull(o);
 			}
 		} else if (clazz.isArray()) {
 			int arrayLength = Array.getLength(value);
