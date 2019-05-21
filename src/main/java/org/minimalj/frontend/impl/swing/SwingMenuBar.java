@@ -102,7 +102,7 @@ public class SwingMenuBar extends JMenuBar {
 		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(2)));
 		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_UNLIMITED)));
 		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_ADPATIV)));
-		Collections.list(group.getElements()).forEach((abstractButton) -> menu.add(abstractButton));
+		Collections.list(group.getElements()).forEach(menu::add);
 		menu.addSeparator();
 		menu.add(new JCheckBoxMenuItem(Resources.getString("ScrollToNewPageAction")));
 		return menu;

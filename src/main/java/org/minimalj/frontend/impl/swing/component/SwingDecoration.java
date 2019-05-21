@@ -65,13 +65,10 @@ public class SwingDecoration extends JPanel {
 			JButton button = createDecorationButton(Part.WP_MINBUTTON);
 			bar.add(button);
 			
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					content.setVisible(!content.isShowing());
-					content.getParent().revalidate();
-					content.getParent().repaint();
-				}
+			button.addActionListener(e -> {
+				content.setVisible(!content.isShowing());
+				content.getParent().revalidate();
+				content.getParent().repaint();
 			});
 		}
 		

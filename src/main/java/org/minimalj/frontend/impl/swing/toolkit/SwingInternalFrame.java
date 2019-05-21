@@ -103,14 +103,14 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 	@Override
 	public void show() {
 		super.show();
-		SwingUtilities.invokeLater(() -> showModal());
+		SwingUtilities.invokeLater(this::showModal);
 	}
 
 	@Override
 	public void setVisible(boolean value) {
 		super.setVisible(value);
 		if (value) {
-			SwingUtilities.invokeLater(() -> showModal());
+			SwingUtilities.invokeLater(this::showModal);
 		}
 	}
 

@@ -80,7 +80,7 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					runWithContext(() -> action.action());
+					runWithContext(action::action);
 				}
 			});
 		}
@@ -254,16 +254,11 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public IContent createQueryContent() {
 		JTextField field = new JTextField();
-		field.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingFrontend.runWithContext(() -> {
-					String query = ((JTextField) field).getText();
-					Page page = Application.getInstance().createSearchPage(query);
-					show(page);
-				});
-			}
-		});
+		field.addActionListener(e -> SwingFrontend.runWithContext(() -> {
+			String query = ((JTextField) field).getText();
+			Page page = Application.getInstance().createSearchPage(query);
+			show(page);
+		}));
 
 		return new QueryContent(Resources.getString("Application.queryCaption"), (JTextField) field);
 	}
@@ -359,7 +354,7 @@ public class SwingFrontend extends Frontend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				runWithContext(() -> action.action());
+				runWithContext(action::action);
 			}
 		};
 		swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());

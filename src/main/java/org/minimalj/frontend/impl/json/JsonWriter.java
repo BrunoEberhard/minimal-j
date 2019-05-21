@@ -93,9 +93,7 @@ public class JsonWriter {
 	}
 
 	private boolean cyclic(Object object) {
-		Iterator<Object> it = calls.iterator();
-		while (it.hasNext()) {
-			Object called = it.next();
+		for (Object called : calls) {
 			if (object == called)
 				return true;
 		}

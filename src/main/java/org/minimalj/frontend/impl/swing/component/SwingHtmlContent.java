@@ -53,18 +53,15 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 			}
 		}
 
-		HyperlinkListener listener = new HyperlinkListener() {
-			@Override
-			public void hyperlinkUpdate(HyperlinkEvent e) {
-				if (e.getEventType() == EventType.ACTIVATED) {
-					String href = e.getDescription();
-					if (href.startsWith("/")) {
-						href = href.substring(1);
-					}
-					Page page = Routing.createPageSafe(href);
-					if (page != null) {
-						SwingFrontend.runWithContext(() -> Frontend.show(page));
-					}
+		HyperlinkListener listener = e -> {
+			if (e.getEventType() == EventType.ACTIVATED) {
+				String href = e.getDescription();
+				if (href.startsWith("/")) {
+					href = href.substring(1);
+				}
+				Page page = Routing.createPageSafe(href);
+				if (page != null) {
+					SwingFrontend.runWithContext(() -> Frontend.show(page));
 				}
 			}
 		};

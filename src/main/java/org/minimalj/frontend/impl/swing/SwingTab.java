@@ -120,12 +120,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 		
 		navigationScrollPane = new JScrollPane();
 		navigationScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		ActionListener navigationClosedListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				navigationAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
-				navigationAction.actionPerformed(e);
-			}
+		ActionListener navigationClosedListener = e -> {
+			navigationAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
+			navigationAction.actionPerformed(e);
 		};
 		decoratedNavigationPane = new SwingDecoration(Application.getInstance().getName(), navigationScrollPane, SwingDecoration.HIDE_MINIMIZE, navigationClosedListener);
 		splitPane.setLeftComponent(decoratedNavigationPane);
@@ -185,7 +182,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			SwingFrontend.runWithContext(() -> previous());
+			SwingFrontend.runWithContext(SwingTab.this::previous);
 		}
 	}
 	
@@ -194,7 +191,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			SwingFrontend.runWithContext(() -> next());
+			SwingFrontend.runWithContext(SwingTab.this::next);
 		}
 	}
 

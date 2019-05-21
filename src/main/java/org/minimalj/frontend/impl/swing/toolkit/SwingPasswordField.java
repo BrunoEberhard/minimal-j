@@ -16,15 +16,12 @@ public class SwingPasswordField extends JPasswordField implements PasswordField 
 	private static final long serialVersionUID = 1L;
 	
 	public SwingPasswordField(InputComponentListener changeListener, int maxLength) {
-		addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingInternalFrame frame = findFrame();
-				if (frame != null) {
-					Action saveAction = frame.getSaveAction();
-					if (saveAction.isEnabled()) {
-						SwingFrontend.runWithContext(saveAction::action);
-					}
+		addActionListener(e -> {
+			SwingInternalFrame frame = findFrame();
+			if (frame != null) {
+				Action saveAction = frame.getSaveAction();
+				if (saveAction.isEnabled()) {
+					SwingFrontend.runWithContext(saveAction::action);
 				}
 			}
 		});

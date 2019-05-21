@@ -60,16 +60,11 @@ public class SwingToolBar extends JToolBar {
 		Dimension rightFillerDimension = new Dimension(6, 0);
 		add(new Box.Filler(rightFillerDimension, rightFillerDimension, rightFillerDimension));
 		if (Application.getInstance().hasSearchPages()) {
-			textFieldSearch.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					SwingFrontend.runWithContext(() -> {
-						String query = textFieldSearch.getText();
-						Page page = Application.getInstance().createSearchPage(query);
-						tab.show(page);
-					});
-				}
-			});
+			textFieldSearch.addActionListener(e -> SwingFrontend.runWithContext(() -> {
+				String query = textFieldSearch.getText();
+				Page page = Application.getInstance().createSearchPage(query);
+				tab.show(page);
+			}));
 		} else {
 			textFieldSearch.setEnabled(false);
 		}

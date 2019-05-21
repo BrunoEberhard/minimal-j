@@ -38,15 +38,12 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 		
 		setInheritsPopupMenu(true);
 		
-		addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingInternalFrame frame = findFrame();
-				if (frame != null) {
-					Action saveAction = frame.getSaveAction();
-					if (saveAction.isEnabled()) {
-						SwingFrontend.runWithContext(saveAction::action);
-					}
+		addActionListener(e -> {
+			SwingInternalFrame frame = findFrame();
+			if (frame != null) {
+				Action saveAction = frame.getSaveAction();
+				if (saveAction.isEnabled()) {
+					SwingFrontend.runWithContext(saveAction::action);
 				}
 			}
 		});

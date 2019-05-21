@@ -48,9 +48,7 @@ public class Keys {
 			keyObjects.add(object);
 			fillFields(object, null, 0);
 			return object;
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 	}
