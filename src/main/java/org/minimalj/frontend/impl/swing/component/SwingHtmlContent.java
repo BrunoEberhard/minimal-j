@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.JTextPane;
-import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
