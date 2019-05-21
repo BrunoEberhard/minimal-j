@@ -78,9 +78,6 @@ public abstract class Application implements Model {
 		if (Application.instance != null) {
 			throw new IllegalStateException("Application cannot be changed");
 		}		
-		if (application == null) {
-			throw new IllegalArgumentException("Application cannot be null");
-		}
 		Application.instance = application;
 	}
 	
@@ -90,6 +87,7 @@ public abstract class Application implements Model {
 	 * 
 	 * @param application the application for current thread and all its children
 	 */
+	@SuppressWarnings("unused")
 	public static void setThreadInstance(Application application) {
 		if (instance == null) {
 			instance = new ThreadLocalApplication();
@@ -218,7 +216,7 @@ public abstract class Application implements Model {
 	 */
 	public boolean hasSearchPages() {
 		try {
-			return this.getClass().getMethod("createSearchPage", new Class<?>[] { String.class }).getDeclaringClass() != Application.class;
+			return this.getClass().getMethod("createSearchPage", String.class).getDeclaringClass() != Application.class;
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
