@@ -31,7 +31,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 		String s = dialect.createConstraint(getTableName(), "elementId", referencedTable.getTableName());
 		if (s != null) {
-			execute(s.toString());
+			execute(s);
 		}
 	}
 

@@ -104,10 +104,10 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void execute(String s) {
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), s.toString(), false)) {
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), s, false)) {
 			statement.execute();
 		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Statement failed: \n" + s.toString());
+			throw new LoggingRuntimeException(x, sqlLogger, "Statement failed: \n" + s);
 		}
 	}
 
@@ -142,7 +142,7 @@ public abstract class AbstractTable<T> {
 	protected void createIndexes(SqlDialect dialect) {
 		for (String index : indexes) {
 			String s = dialect.createIndex(getTableName(), index, isHistorized());
-			execute(s.toString());
+			execute(s);
 		}
 	}
 	
@@ -160,7 +160,7 @@ public abstract class AbstractTable<T> {
 
 				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
 				if (s != null) {
-					execute(s.toString());
+					execute(s);
 				}
 			}
 		}

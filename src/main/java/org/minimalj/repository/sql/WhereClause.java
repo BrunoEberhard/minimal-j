@@ -122,8 +122,7 @@ public class WhereClause<T> {
 
 	private void combine(List<? extends Query> criterias, String operator) {
 		if (criterias.isEmpty()) {
-			return;
-		} else if (criterias.size() == 1) {
+        } else if (criterias.size() == 1) {
 			add(new WhereClause<>(table, criterias.get(0)));
 		} else {
 			for (Query criteria : criterias) {

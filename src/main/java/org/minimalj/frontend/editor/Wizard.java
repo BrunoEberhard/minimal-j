@@ -131,7 +131,6 @@ public abstract class Wizard<RESULT> extends Action {
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
 			Frontend.showError(x.getLocalizedMessage());
-			return;
 		}
 	}
 	

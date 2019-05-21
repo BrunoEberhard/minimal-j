@@ -105,8 +105,7 @@ public class SocketBackend extends Backend {
 		while ((b = ois.read()) >= 0) {
 			outputStream.write(b);
 		}
-		return;
-	}
+    }
 	
 	/**
 	 * This repository implements all Repository methods by wrapping the call in a
