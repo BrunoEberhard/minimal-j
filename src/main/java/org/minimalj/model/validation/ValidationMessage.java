@@ -44,7 +44,7 @@ public class ValidationMessage {
 	}
 
 	public static List<String> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
-		List<String> filteredMessages = new ArrayList<String>();
+		List<String> filteredMessages = new ArrayList<>();
 		if (validationMessages != null) {
 			for (ValidationMessage validationMessage : validationMessages) {
 				if (equalsOrParent(property, validationMessage.getProperty())) {

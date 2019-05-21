@@ -152,7 +152,7 @@ public class JsonReader {
 	}
 
 	private Object array() {
-		List<Object> ret = new ArrayList<Object>();
+		List<Object> ret = new ArrayList<>();
 		Object value = read();
 		while (value != ARRAY_END) {
 			ret.add(value);

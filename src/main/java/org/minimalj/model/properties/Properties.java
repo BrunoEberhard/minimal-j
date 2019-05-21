@@ -14,8 +14,8 @@ import org.minimalj.util.FieldUtils;
 public class Properties {
 	private static final Logger logger = Logger.getLogger(Properties.class.getName());
 
-	private static final Map<Class<?>, Map<String, PropertyInterface>> properties = 
-			new HashMap<Class<?>, Map<String, PropertyInterface>>();
+	private static final Map<Class<?>, Map<String, PropertyInterface>> properties =
+            new HashMap<>();
 	
 	public static PropertyInterface getProperty(Class<?> clazz, String propertyName) {
 		Objects.requireNonNull(propertyName);
@@ -59,7 +59,7 @@ public class Properties {
 	}
 	
 	private static Map<String, PropertyInterface> properties(Class<?> clazz) {
-		Map<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
+		Map<String, PropertyInterface> properties = new LinkedHashMap<>();
 		
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isStatic(field)) {

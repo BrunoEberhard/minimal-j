@@ -9,7 +9,7 @@ import org.minimalj.util.EqualsHelper;
 
 @SuppressWarnings("unchecked")
 public class EmptyObjects {
-	private static Map<Class<?>, Object> emptyObjects = new HashMap<Class<?>, Object>();
+	private static Map<Class<?>, Object> emptyObjects = new HashMap<>();
 
 	public static <T> boolean isEmpty(T object) {
 		if (object == null || object.equals("")) {

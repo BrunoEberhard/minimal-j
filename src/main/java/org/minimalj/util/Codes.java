@@ -77,7 +77,7 @@ public class Codes {
 	}
 	
 	private static <T extends Code> void updateCode(Class<T> clazz) {
-		CodeCacheItem<T> codeItem = new CodeCacheItem<T>();
+		CodeCacheItem<T> codeItem = new CodeCacheItem<>();
 		cache.put(clazz, codeItem);
 		List<T> codes = Backend.find(clazz, By.all());
 		codeItem.setCodes(codes);
@@ -124,7 +124,7 @@ public class Codes {
 	}
 
 	public static <T extends Code> List<T> getConstants(Class<T> clazz) {
-		List<T> constants = new ArrayList<T>();
+		List<T> constants = new ArrayList<>();
 		for (Field field : clazz.getDeclaredFields()) {
 			if (!FieldUtils.isStatic(field)) continue;
 			if (!FieldUtils.isFinal(field)) continue;

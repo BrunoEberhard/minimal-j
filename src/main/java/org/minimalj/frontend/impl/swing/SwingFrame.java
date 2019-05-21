@@ -171,7 +171,7 @@ public class SwingFrame extends JFrame {
 	}
 	
 	public List<Page> getPages() {
-		List<Page> result = new ArrayList<Page>();
+		List<Page> result = new ArrayList<>();
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
 			SwingTab tab = (SwingTab) tabbedPane.getComponent(i); // myst: getTabComponent returns allways null
 			Page page = tab.getVisiblePage();

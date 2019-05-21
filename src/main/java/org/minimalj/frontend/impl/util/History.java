@@ -5,7 +5,7 @@ import java.util.List;
 
 public class History<T> {
 
-	private final List<T> history = new ArrayList<T>();
+	private final List<T> history = new ArrayList<>();
 	private final HistoryListener historyListener;
 	private T present;
 	private int presentIndex = -1;

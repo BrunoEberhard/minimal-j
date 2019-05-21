@@ -27,11 +27,11 @@ import org.minimalj.util.StringUtils;
 public class Keys {
 
 	private static final Logger logger = Logger.getLogger(Keys.class.getName());
-	private static final Map<Object, PropertyInterface> properties = new IdentityHashMap<Object, PropertyInterface>();
+	private static final Map<Object, PropertyInterface> properties = new IdentityHashMap<>();
 	private static final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 
 	private static final List<Object> keyObjects = new ArrayList<>();
-	private static final Map<String, Object> methodKeyByName = new HashMap<String, Object>();
+	private static final Map<String, Object> methodKeyByName = new HashMap<>();
 	
 	
 	/**

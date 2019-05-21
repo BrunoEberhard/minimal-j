@@ -141,35 +141,35 @@ public class Backend {
 	// transaction is created.
 	
 	public static <T> T read(Class<T> clazz, Object id) {
-		return execute(new ReadEntityTransaction<T>(clazz, id));
+		return execute(new ReadEntityTransaction<>(clazz, id));
 	}
 
 	public static <T> List<T> find(Class<T> clazz, Query query) {
-		return execute(new ReadCriteriaTransaction<T>(clazz, query));
+		return execute(new ReadCriteriaTransaction<>(clazz, query));
 	}
 
 	public static <T> long count(Class<T> clazz, Criteria criteria) {
-		return execute(new CountTransaction<T>(clazz, criteria));
+		return execute(new CountTransaction<>(clazz, criteria));
 	}
 	
 	public static <T> Object insert(T object) {
-		return execute(new InsertTransaction<T>(object));
+		return execute(new InsertTransaction<>(object));
 	}
 
 	public static <T> void update(T object) {
-		execute(new UpdateTransaction<T>(object));
+		execute(new UpdateTransaction<>(object));
 	}
 
 	public static <T> T save(T object) {
-		return execute(new SaveTransaction<T>(object));
+		return execute(new SaveTransaction<>(object));
 	}
 
 	public static <T> int delete(Class<T> clazz, Criteria criteria) {
-		return execute(new DeleteTransaction<T>(clazz, criteria));
+		return execute(new DeleteTransaction<>(clazz, criteria));
 	}
 
 	public static <T> void delete(T object) {
-		execute(new DeleteEntityTransaction<T>(object));
+		execute(new DeleteEntityTransaction<>(object));
 	}
 
 	public static <T> T execute(Transaction<T> transaction) {

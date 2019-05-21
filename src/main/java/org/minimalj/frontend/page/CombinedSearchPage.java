@@ -14,7 +14,7 @@ public class CombinedSearchPage extends TablePage<SearchResult> {
 	@SuppressWarnings("rawtypes")
 	public CombinedSearchPage(List<SearchPage> searchPages) {
 		super();
-		searchResults = new ArrayList<CombinedSearchPage.SearchResult>(searchPages.size());
+		searchResults = new ArrayList<>(searchPages.size());
 		for (SearchPage searchPage : searchPages) {
 			searchResults.add(new SearchResult(searchPage));
 		}

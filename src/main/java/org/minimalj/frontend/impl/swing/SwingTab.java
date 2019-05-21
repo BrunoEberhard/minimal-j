@@ -83,7 +83,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		SwingTabHistoryListener historyListener = new SwingTabHistoryListener();
 		history = new History<>(historyListener);
 
-		visiblePageAndDetailsList = new ArrayList<Page>();
+		visiblePageAndDetailsList = new ArrayList<>();
 		
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();

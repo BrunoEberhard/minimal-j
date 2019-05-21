@@ -124,10 +124,10 @@ public class WhereClause<T> {
 		if (criterias.isEmpty()) {
 			return;
 		} else if (criterias.size() == 1) {
-			add(new WhereClause<T>(table, criterias.get(0)));
+			add(new WhereClause<>(table, criterias.get(0)));
 		} else {
 			for (Query criteria : criterias) {
-				WhereClause<T> whereClause = new WhereClause<T>(table, criteria);
+				WhereClause<T> whereClause = new WhereClause<>(table, criteria);
 				if (this.clause == null) {
 					this.clause = "(";
 				} else {

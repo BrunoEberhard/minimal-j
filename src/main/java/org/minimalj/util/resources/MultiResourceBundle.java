@@ -43,14 +43,14 @@ public class MultiResourceBundle extends ResourceBundle {
 	
 	@Override
 	public Enumeration<String> getKeys() {
-		LinkedHashSet<String> resultKeys = new LinkedHashSet<String>();
+		LinkedHashSet<String> resultKeys = new LinkedHashSet<>();
 		for (ResourceBundle resourceBundle : resourceBundles) {
 			Enumeration<String> keys = resourceBundle.getKeys();
 			while (keys.hasMoreElements()) {
 				resultKeys.add(keys.nextElement());
 			}
 		}
-		return new IteratorEnumeration<String>(resultKeys.iterator());
+		return new IteratorEnumeration<>(resultKeys.iterator());
 	}
 
 	@Override

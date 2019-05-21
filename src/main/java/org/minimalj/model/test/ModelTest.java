@@ -49,9 +49,9 @@ public class ModelTest {
 	private static final Logger logger = Logger.getLogger(ModelTest.class.getName());
 
 	private final Collection<Class<?>> mainClasses;
-	private Set<Class<?>> modelClasses = new HashSet<Class<?>>();
+	private Set<Class<?>> modelClasses = new HashSet<>();
 	
-	private final List<String> problems = new ArrayList<String>();
+	private final List<String> problems = new ArrayList<>();
 
 	public ModelTest(Model model) {
 		this(model.getEntityClasses());

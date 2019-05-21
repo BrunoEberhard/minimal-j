@@ -64,7 +64,7 @@ public class Form<T> {
 	private final int columns;
 	private final FormContent formContent;
 	
-	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<PropertyInterface, FormElement<?>>();
+	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<>();
 	
 	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
 	
@@ -240,7 +240,7 @@ public class Form<T> {
 	public void addDependecy(Object from, Object... to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
 		if (!dependencies.containsKey(fromProperty.getPath())) {
-			dependencies.put(fromProperty.getPath(), new ArrayList<PropertyInterface>());
+			dependencies.put(fromProperty.getPath(), new ArrayList<>());
 		}
 		List<PropertyInterface> list = dependencies.get(fromProperty.getPath());
 		for (Object key : to) {
@@ -250,7 +250,7 @@ public class Form<T> {
 
 	private void addDependecy(PropertyInterface fromProperty, PropertyInterface to) {
 		if (!dependencies.containsKey(fromProperty.getPath())) {
-			dependencies.put(fromProperty.getPath(), new ArrayList<PropertyInterface>());
+			dependencies.put(fromProperty.getPath(), new ArrayList<>());
 		}
 		List<PropertyInterface> list = dependencies.get(fromProperty.getPath());
 		list.add(to);
@@ -273,7 +273,7 @@ public class Form<T> {
 	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
 		if (!propertyUpdater.containsKey(fromProperty)) {
-			propertyUpdater.put(fromProperty, new HashMap<PropertyInterface, PropertyUpdater>());
+			propertyUpdater.put(fromProperty, new HashMap<>());
 		}
 		PropertyInterface toProperty = Keys.getProperty(to);
 		propertyUpdater.get(fromProperty).put(toProperty, updater);

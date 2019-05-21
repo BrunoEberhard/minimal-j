@@ -29,7 +29,7 @@ public class FrameManager {
 	private static Logger logger = Logger.getLogger(FrameManager.class.getName());
 	private static FrameManager instance = new FrameManager();
 	
-	private List<SwingFrame> navigationFrames = new ArrayList<SwingFrame>();
+	private List<SwingFrame> navigationFrames = new ArrayList<>();
 	
 	private FrameManager() {
 	}

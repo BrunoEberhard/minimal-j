@@ -116,37 +116,37 @@ public class SocketBackend extends Backend {
 
 		@Override
 		public <T> T read(Class<T> clazz, Object id) {
-			return execute(new ReadEntityTransaction<T>(clazz, id));
+			return execute(new ReadEntityTransaction<>(clazz, id));
 		}
 
 		@Override
 		public <T> List<T> find(Class<T> clazz, Query query) {
-			return execute(new ReadCriteriaTransaction<T>(clazz, query));
+			return execute(new ReadCriteriaTransaction<>(clazz, query));
 		}
 
 		@Override
 		public <T> long count(Class<T> clazz, Criteria criteria) {
-			return execute(new CountTransaction<T>(clazz, criteria));
+			return execute(new CountTransaction<>(clazz, criteria));
 		}
 		
 		@Override
 		public <T> Object insert(T object) {
-			return execute(new InsertTransaction<T>(object));
+			return execute(new InsertTransaction<>(object));
 		}
 
 		@Override
 		public <T> void update(T object) {
-			execute(new UpdateTransaction<T>(object));
+			execute(new UpdateTransaction<>(object));
 		}
 
 		@Override
 		public <T> void delete(T object) {
-			execute(new DeleteEntityTransaction<T>(object));
+			execute(new DeleteEntityTransaction<>(object));
 		}
 
 		@Override
 		public <T> int delete(Class<T> clazz, Criteria criteria) {
-			return execute(new DeleteTransaction<T>(clazz, criteria));
+			return execute(new DeleteTransaction<>(clazz, criteria));
 		}
 	}
 

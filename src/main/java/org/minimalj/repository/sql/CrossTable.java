@@ -90,7 +90,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent) {
-		return new RelationList<PARENT, ELEMENT>(sqlRepository, getClazz(), parent, name);
+		return new RelationList<>(sqlRepository, getClazz(), parent, name);
 	}
 	
 	public List<ELEMENT> readAll(Object parentId) {

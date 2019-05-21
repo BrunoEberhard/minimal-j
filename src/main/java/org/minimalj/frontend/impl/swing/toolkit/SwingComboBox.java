@@ -32,7 +32,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		setRenderer(new CodeItemRenderer(getRenderer()));
 		addItemListener(new ComboBoxChangeListener());
 		setInheritsPopupMenu(true);
-		model = new NullableComboBoxModel<T>(objects);
+		model = new NullableComboBoxModel<>(objects);
 		setModel(model);
 	}
 	

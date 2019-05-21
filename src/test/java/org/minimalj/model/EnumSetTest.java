@@ -34,7 +34,7 @@ public class EnumSetTest {
 
 	@Test
 	public void testEnumToIntSomeElements() {
-		Set<E> set = new HashSet<E>();
+		Set<E> set = new HashSet<>();
 		set.add(E.e1);
 		set.add(E.e5);
 		set.add(E.e14);
@@ -43,7 +43,7 @@ public class EnumSetTest {
 	
 	@Test
 	public void testEnumToIntAllElements() {
-		Set<E> set = new HashSet<E>();
+		Set<E> set = new HashSet<>();
 		set.addAll(Arrays.asList(E.values()));
 		testConversionAndRepository(set);
 	}

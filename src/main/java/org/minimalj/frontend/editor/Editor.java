@@ -86,7 +86,7 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
  	
 	protected List<Action> createAdditionalActions() {
-		List<Action> actions = new ArrayList<Action>();
+		List<Action> actions = new ArrayList<>();
 		if (Configuration.isDevModeActive()) {
 			actions.add(new FillWithDemoDataAction());
 		}

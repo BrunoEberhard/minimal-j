@@ -34,7 +34,7 @@ public class CsvReader {
 
 	public <T> List<T> readValues(Class<T> clazz) {
 		List<String> fields = readRecord();
-		List<PropertyInterface> properties = new ArrayList<PropertyInterface>(fields.size());
+		List<PropertyInterface> properties = new ArrayList<>(fields.size());
 		for (String field : fields) {
 			try {
 				field = field.trim();

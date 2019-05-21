@@ -125,7 +125,7 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new SwingComboBox<T>(objects, changeListener);
+		return new SwingComboBox<>(objects, changeListener);
 	}
 
 	@Override
@@ -215,12 +215,12 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new SwingTable<T>(keys, multiSelect, listener);
+		return new SwingTable<>(keys, multiSelect, listener);
 	}
 
 	@Override
 	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new SwingSearchPanel<T>(search, keys, multiSelect, listener);
+		return new SwingSearchPanel<>(search, keys, multiSelect, listener);
 	}
 
 	public static final String FX_HTML_CLASS = "org.minimalj.frontend.impl.swing.component.FxHtmlContent";

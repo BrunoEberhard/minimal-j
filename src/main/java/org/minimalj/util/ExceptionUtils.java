@@ -53,7 +53,7 @@ public class ExceptionUtils {
 	private static String[] getStackFrames(final String stackTrace) {
 		final String linebreak = System.lineSeparator();
 		final StringTokenizer frames = new StringTokenizer(stackTrace, linebreak);
-		final List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<>();
 		while (frames.hasMoreTokens()) {
 			list.add(frames.nextToken());
 		}

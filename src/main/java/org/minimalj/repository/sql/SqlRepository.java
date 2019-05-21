@@ -73,8 +73,8 @@ public class SqlRepository implements TransactionalRepository {
 	
 	protected final SqlDialect sqlDialect;
 	
-	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<Class<?>, AbstractTable<?>>();
-	private final Map<String, AbstractTable<?>> tableByName = new HashMap<String, AbstractTable<?>>();
+	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<>();
+	private final Map<String, AbstractTable<?>> tableByName = new HashMap<>();
 	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
 	
 	private final DataSource dataSource;
@@ -215,7 +215,7 @@ public class SqlRepository implements TransactionalRepository {
 	 * be used for JUnit tests.
 	 */
 	public void clear() {
-		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			table.clear();
 		}
@@ -270,7 +270,7 @@ public class SqlRepository implements TransactionalRepository {
 			@SuppressWarnings("unchecked")
 			Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
 			List<T> list = table.find(query, resultClass);
-			return (query instanceof AllCriteria) ? new SortableList<T>(list) : list;
+			return (query instanceof AllCriteria) ? new SortableList<>(list) : list;
 		} else {
 			return new SqlQueryResultList<>(this, resultClass, query);
 		}
@@ -359,7 +359,7 @@ public class SqlRepository implements TransactionalRepository {
 			return columnsForClass.get(clazz);
 		}
 		
-		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<String, PropertyInterface>();
+		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<>();
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = StringUtils.toSnakeCase(field.getName()).toUpperCase();
@@ -562,11 +562,11 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	<U> Table<U> createTable(Class<U> clazz) {
-		return new Table<U>(this, clazz);
+		return new Table<>(this, clazz);
 	}
 	
 	void createTables() {
-		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			table.createTable(sqlDialect);
 		}
@@ -598,7 +598,7 @@ public class SqlRepository implements TransactionalRepository {
 
 	@SuppressWarnings("unchecked")
 	private void createCsvCodes() {
-		List<AbstractTable<?>> tableList = new ArrayList<AbstractTable<?>>(tables.values());
+		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
 		for (AbstractTable<?> table : tableList) {
 			if (Code.class.isAssignableFrom(table.getClazz())) {
 				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
@@ -701,7 +701,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	private <T extends Code> void updateCode(Class<T> clazz) {
-		CodeCacheItem<T> codeCacheItem = new CodeCacheItem<T>();
+		CodeCacheItem<T> codeCacheItem = new CodeCacheItem<>();
 		codeCache.put(clazz, codeCacheItem);
 		List<T> codes = find(clazz, By.all());
 		codeCacheItem.setCodes(codes);

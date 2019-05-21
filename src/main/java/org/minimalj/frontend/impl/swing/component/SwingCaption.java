@@ -55,7 +55,7 @@ public class SwingCaption extends JPanel {
 	private static class CaptionLabel extends JLabel {
 
 		private static final long serialVersionUID = 1L;
-		private static WeakHashMap<Font, Font> boldFonts = new WeakHashMap<Font, Font>();
+		private static WeakHashMap<Font, Font> boldFonts = new WeakHashMap<>();
 		
 		public CaptionLabel(String caption) {
 			super(caption);
