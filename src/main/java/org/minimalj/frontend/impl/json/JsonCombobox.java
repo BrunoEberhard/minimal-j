@@ -14,11 +14,11 @@ import org.minimalj.util.StringUtils;
 public class JsonCombobox<T> extends JsonInputComponent<T> {
 
 	private final Map<String, T> objectById = new LinkedHashMap<>();
-	private final Map<String, Object> options = new LinkedHashMap<>();
-	
+
 	public JsonCombobox(List<T> objects, InputComponentListener changeListener) {
 		super("Combobox", changeListener);
-		
+
+		Map<String, Object> options = new LinkedHashMap<>();
 		for (T object : objects) {
 			String id = UUID.randomUUID().toString();
 			Map<String, String> option = new HashMap<>();

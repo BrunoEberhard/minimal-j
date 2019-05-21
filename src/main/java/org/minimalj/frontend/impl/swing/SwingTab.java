@@ -68,7 +68,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 	private final JScrollPane navigationScrollPane;
 	
 	private final History<List<Page>> history;
-	private final SwingTabHistoryListener historyListener;
 
 	private final List<Page> visiblePageAndDetailsList;
 	
@@ -81,7 +80,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		super();
 		this.frame = frame;
 
-		historyListener = new SwingTabHistoryListener();
+		SwingTabHistoryListener historyListener = new SwingTabHistoryListener();
 		history = new History<>(historyListener);
 
 		visiblePageAndDetailsList = new ArrayList<Page>();

@@ -28,7 +28,6 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 	private final JLabel image;
 	
 	private final JPanel controlPanel;
-	private final JLabel selectActionLabel;
 	private final JLabel removeActionLabel;
 	
 	private byte[] imageData;
@@ -42,6 +41,7 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 		add(image, BorderLayout.LINE_START);
 
 		boolean editable = changeListener != null;
+		JLabel selectActionLabel;
 		if (editable) {
 			controlPanel = new JPanel();
 			controlPanel.setLayout(new GridLayout(2, 1));
