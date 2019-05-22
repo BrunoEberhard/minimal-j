@@ -286,16 +286,12 @@ public abstract class SqlDialect {
 		@Override
 		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 			Class<?> clazz = property.getClazz();
-			if (clazz == LocalDateTime.class) {
-				s.append("TIMESTAMP");
-			} else if (clazz == LocalDate.class) {
+			if (clazz == LocalDate.class) {
 				s.append("CHAR(10)");
 			} else if (clazz == LocalTime.class) {
 				s.append("CHAR(").append(DateUtils.getTimeSize(property)).append(")");				
-			} else if (clazz == LocalTime.class) {
+			} else if (clazz == LocalDateTime.class) {
 				s.append("CHAR(30)");
-			} else if (clazz == LocalDate.class) {
-				s.append("DATE");
 			} else if (clazz == Boolean.class) {
 				s.append("SMALLINT");
 			} else if (clazz == Long.class) {

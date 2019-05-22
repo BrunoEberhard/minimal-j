@@ -255,12 +255,12 @@ public class SwingFrontend extends Frontend {
 	public IContent createQueryContent() {
 		JTextField field = new JTextField();
 		field.addActionListener(e -> SwingFrontend.runWithContext(() -> {
-			String query = ((JTextField) field).getText();
+			String query = field.getText();
 			Page page = Application.getInstance().createSearchPage(query);
 			show(page);
 		}));
 
-		return new QueryContent(Resources.getString("Application.queryCaption"), (JTextField) field);
+		return new QueryContent(Resources.getString("Application.queryCaption"), field);
 	}
 
 	@Override

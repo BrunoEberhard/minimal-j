@@ -100,6 +100,6 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 
 	@Override
 	public List<T> search(String searchText) {
-		return (List<T>) Backend.find(fieldClazz, By.search(searchText));
+		return Backend.find(fieldClazz, By.search(searchText));
 	}
 }

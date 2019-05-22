@@ -55,11 +55,11 @@ public class EntityReader {
 		} else if (clazz == Byte.class) {
 			return (byte) dis.read();
 		} else if (clazz == Short.class) {
-			return (short) dis.readShort();
+			return dis.readShort();
 		} else if (clazz == Integer.class) {
-			return (int) dis.readInt();
+			return dis.readInt();
 		} else if (clazz == Long.class) {
-			return (long) dis.readLong();
+			return dis.readLong();
 		} else if (clazz == Boolean.class) {
 			return dis.read() != 0;
 		} else if (LocalDate.class.isAssignableFrom(clazz)) {

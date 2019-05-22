@@ -183,7 +183,7 @@ public class WhereClause<T> {
 			if ("id".equals(restOfFieldPath)) {
 				return column + " " + criteriaString;
 			} else {
-				PropertyInterface subProperty = (PropertyInterface) table.getColumns().get(column);
+				PropertyInterface subProperty = table.getColumns().get(column);
 				AbstractTable<?> subTable = table.sqlRepository.getAbstractTable(subProperty.getClazz());
 				return column + " = (SELECT id FROM " + subTable.getTableName() + " WHERE " + whereStatement(subTable, restOfFieldPath, criteriaString) + ")";
 			}

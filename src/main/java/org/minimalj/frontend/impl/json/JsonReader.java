@@ -212,9 +212,9 @@ public class JsonReader {
 				if (c == 'u') {
 					c = add(unicode());
 				} else {
-					Object value = escapes.get(c);
+					Character value = escapes.get(c);
 					if (value != null) {
-						c = add((Character) value);
+						c = add(value);
 					} else {
 						c = next();
 					}

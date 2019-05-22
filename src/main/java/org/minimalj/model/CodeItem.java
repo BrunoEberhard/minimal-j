@@ -49,7 +49,7 @@ public class CodeItem<E> implements Rendering {
 	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
-		} else if (obj == null || !(obj instanceof CodeItem)) {
+		} else if (!(obj instanceof CodeItem)) {
 			return false;
 		}
 		CodeItem other = (CodeItem) obj;
