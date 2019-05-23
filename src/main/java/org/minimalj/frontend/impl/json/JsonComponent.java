@@ -60,7 +60,7 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 		this.propertyListener = propertyListener;
 	}
 	
-	public static interface JsonPropertyListener {
+	public interface JsonPropertyListener {
 		
 		public void propertyChange(String componentId, String property, Object value);
 	}

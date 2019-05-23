@@ -160,7 +160,7 @@ public abstract class Frontend {
 		public void setObjects(List<T> objects);
 	}
 
-	public static interface TableActionListener<U> {
+	public interface TableActionListener<U> {
 
 		public default void selectionChanged(List<U> selectedObjects) {
 		}

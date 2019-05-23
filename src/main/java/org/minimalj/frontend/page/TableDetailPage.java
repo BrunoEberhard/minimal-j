@@ -65,7 +65,7 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		return detailPage != null && Frontend.isDetailShown(detailPage);
 	}
 
-	public static interface ChangeableDetailPage<T> {
+	public interface ChangeableDetailPage<T> {
 		public void setObjects(List<T> objects);
 	}
 }
