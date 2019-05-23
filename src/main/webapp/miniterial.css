@@ -121,6 +121,10 @@ button:hover {
 	background-color: #aaaaaa;
 }
 
+button:hover[disabled="true"] {
+	background-color: #888888;
+}
+
 label {
 	font-weight: unset;
 	color: gray;
