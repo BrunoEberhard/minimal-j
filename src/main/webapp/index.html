@@ -101,12 +101,12 @@ $ICON
 				if (element) {
 					for ( var property in propertyChanges[id]) {
 						var value = propertyChanges[id][property];
-						if (property == "tableContent") {
+						if (property === "tableContent") {
 							while (element.getElementsByTagName("tbody").length > 0) {
 								element.removeChild(element.getElementsByTagName("tbody")[0]);
 							}
 							element.appendChild(createTableRows(id, value));
-						} else if (property == "validationMessage") {
+						} else if (property === "validationMessage") {
 							var validationElement = document.getElementById(id + "-validation");
 							if (value == undefined || value == "") {
 								validationElement.className = "hide";
@@ -114,25 +114,25 @@ $ICON
 								validationElement.className = "";
 								validationElement.title = value;
 							}
-						} else if (property == "enabled" && element.className == "list") {
+						} else if (property === "enabled" && element.className === "list") {
 							element.style.display = value ? "block" : "none";						
-						} else if (property == "enabled" && element.className == "listContent") {
+						} else if (property === "enabled" && element.className === "listContent") {
 							element.parentElement.style.display = value ? "block" : "none";		
-						} else if (property == "editable" || property == "enabled") {
+						} else if (property === "editable" || property === "enabled") {
 							if (value) {
 								element.removeAttribute("disabled");
 							} else {
 								element.setAttribute("disabled", "true");
 							}
-						} else if (property == "value" && element.tagName == "INPUT" && element.type == "checkbox") {
-							element.checked = value == "true" ? "checked" : "";
-						} else if (property == "value" && (element.tagName == "DIV" || element.tagName == "SPAN")) {
+						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
+							element.checked = value === "true" ? "checked" : "";
+						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
 							element.innerHTML = escapeText(value);
-						} else if (property == "value" && element.tagName == "IMG") {
+						} else if (property === "value" && element.tagName === "IMG") {
 							element.style.display = value ? "block" : "none";
 							element.src = "data:image;base64, " + value;
 						} else {
-                            if (property == "value" && element.tagName == "INPUT" && element.type == "password") {
+                            if (property === "value" && element.tagName === "INPUT" && element.type === "password") {
 								value = value.join("");
                             }
 							if (document.activeElement != element || element.id != dataObject.source) {
@@ -153,7 +153,7 @@ $ICON
 				if (element) {
 					for (var i = 0; i < contentChanges[id].length; i++) {
 						var c = contentChanges[id][i];
-						if (c == "clear") {
+						if (c === "clear") {
 							while (element.firstChild) {
 								element.removeChild(element.firstChild);
 							}
@@ -316,7 +316,7 @@ $ICON
 	function toggleActionMenu() {
         var actionMenuElements = document.getElementsByClassName("actionMenuContainer")
 		var actionMenuElement = actionMenuElements[actionMenuElements.length - 1];
-		if (actionMenuElement.style.display == "block") {
+		if (actionMenuElement.style.display === "block") {
 			actionMenuElement.style.display = "none";
 		} else {
 			actionMenuElement.style.display = "block";
@@ -336,7 +336,7 @@ $ICON
 		var element = event.target;
 		while ((element = element.parentNode) && element.className != "page");
 		var pageContentElement = element.querySelector(".pageContentAndActions");
-		if (pageContentElement.style.display == "none") {
+		if (pageContentElement.style.display === "none") {
 			pageContentElement.style.display = null;
 			element.scrollIntoView();
 		} else {
@@ -393,7 +393,7 @@ $ICON
 		var type = content.type;
 		var element;
 		var editable = content.editable == undefined || content.editable;
-		if (type == "Form") {
+		if (type === "Form") {
 			element = document.createElement("div");
 			element.classList.add("form")	
 			element.dataset.columns = content.columns ? content.columns : 1;
@@ -403,12 +403,12 @@ $ICON
 			for (var i = 0; i < rows.length; i++) {
 				element.appendChild(createFormRow(rows[i], content.columnWidth));
 			}
-		} else if (type == "Query") {
+		} else if (type === "Query") {
 			element = document.getElementById("queryCaption");
 			removeChildren(element);
 			element.appendChild(document.createTextNode(content.caption));
 			element = document.getElementById("query").cloneNode(true);
-		} else if (type == "Table") {
+		} else if (type === "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
 			element.classList.add("table");
@@ -433,7 +433,7 @@ $ICON
 				}
 				element.appendChild(footer);
 			}
-		} else if (type == "Text" || type == "Title") {
+		} else if (type === "Text" || type === "Title") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());
 			if (content.value) {
@@ -441,7 +441,7 @@ $ICON
 			} else {
 				element.innerHTML = "&nbsp;";
 			}
-		} else if (type == "groupHorizontal" || type == "groupVertical") {
+		} else if (type === "groupHorizontal" || type === "groupVertical") {
 			element = document.createElement("div");
 			element.classList.add(type);
 			var components = content.components;
@@ -451,18 +451,18 @@ $ICON
 				item.appendChild(createContent(components[i]));
 				element.appendChild(item);
 			}
-		} else if (type == "Switch") {
+		} else if (type === "Switch") {
 			element = document.createElement("div");
-		} else if (type == "Action") {
+		} else if (type === "Action") {
 			element = document.createElement("div");
 			element.className = "action";
 			element.textContent = content.name;
 			element.setAttribute("onclick", "action(\"" + content.id + "\");");
-		} else if (type == "TextField") {
+		} else if (type === "TextField") {
 			element = document.createElement("input");
 			try {
 				element.type = content.inputType;
-				if (content.inputType == "time") {
+				if (content.inputType === "time") {
 					if (content.maxLength == 8) {
 						element.step = 1;
 					} else if (content.maxLength == 12) {
@@ -472,7 +472,7 @@ $ICON
 			} catch (err) { // happens in ie 10 for datetime-local
 				element.type = "text";
 			}
-			element.setAttribute(element.type == "text" ? "onkeyup" : "onchange", "sendchange(this);");
+			element.setAttribute(element.type === "text" ? "onkeyup" : "onchange", "sendchange(this);");
 			element.setAttribute("onblur", "setDeferredValue(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value) {
@@ -483,14 +483,14 @@ $ICON
 				element.setAttribute("list", content.id + "-list");
 				element.setAttribute("onkeydown", "if (event.keyCode == 40) loadSuggestions(this);");
 			}
-		} else if (type == "AreaField") {
+		} else if (type === "AreaField") {
 			element = document.createElement("textarea");
 			element.setAttribute("onkeyup", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value) {
 				element.value = content.value;
 			}
-		} else if (type == "SearchTextField") {
+		} else if (type === "SearchTextField") {
 			element = document.createElement("input");
 			element.type = "text";
 			element.id = content.id;
@@ -507,7 +507,7 @@ $ICON
 			div.appendChild(element);
 			div.appendChild(button);
 			return div; /* ! */
-		} else if (type == "Combobox") {
+		} else if (type === "Combobox") {
 			element = document.createElement("select");
 			var option = document.createElement("option");
 			element.appendChild(option);
@@ -523,7 +523,7 @@ $ICON
 			}
 			element.value = content.value;
 			element.setAttribute("onchange", "sendchange(this);");
-		} else if (type == "CheckBox") {
+		} else if (type === "CheckBox") {
 			element = document.createElement("input");
 			element.type = "checkbox";
 			if (editable) {
@@ -532,7 +532,7 @@ $ICON
 				element.setAttribute("disabled", "true");
 			}
 			element.id = content.id;
-			if (content.value == "true") {
+			if (content.value === "true") {
 				element.setAttribute("checked", "checked");
 			}
 			var label = document.createElement("label");
@@ -540,7 +540,7 @@ $ICON
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
-		} else if (type == "Lookup") {
+		} else if (type === "Lookup") {
 			element = document.createElement("div");
 			element.className = "lookup";
 			element.appendChild(createContent(content.input));
@@ -548,7 +548,7 @@ $ICON
 			button.appendChild(document.createTextNode(".."));
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
 			element.appendChild(button);
-		} else if (type == "LookupActions") {
+		} else if (type === "LookupActions") {
 			element = document.createElement("div");
 			element.className = "lookup";
 			element.appendChild(createContent(content.input));
@@ -566,7 +566,7 @@ $ICON
 				actionElement.appendChild(option);
 			}
 			element.appendChild(actionElement);
-		} else if (type == "List") {
+		} else if (type === "List") {
 			element = document.createElement("div");
 			element.id = content.id;
 			for (var i = 0; i < content.length; i++) {
@@ -577,17 +577,17 @@ $ICON
 			var enabled = content.enabled == undefined || content.enabled;
 			element.style.display = enabled ? "block" : "none";
 			return element;
-		} else if (type == "Url") {
+		} else if (type === "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);
 			element.setAttribute("scrolling", "no");
 			element.className = "urlpage";
 			element.setAttribute("onload", "this.height = this.contentWindow.document.body.scrollHeight + \"px\"");
-		} else if (type == "Html") {
+		} else if (type === "Html") {
 			element = document.createElement("div");
 			element.className = "htmlpage";
 			element.innerHTML = content.htmlOrUrl;
-		} else if (type == "Image") {
+		} else if (type === "Image") {
 		    if (editable) {
 				element = document.createElement("input");
 				element.type = "file";
@@ -626,7 +626,7 @@ $ICON
 	}
 	function createFormCell(cell, span, width) {
 		var cellElement = document.createElement("div");
-		var isTitle = cell.type == "Title";
+		var isTitle = cell.type === "Title";
 		if (!isTitle && cell.caption) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.firstId ? cell.firstId : cell.id);
@@ -744,8 +744,8 @@ $ICON
 
 	function toggleNavigation(openOrClose) {
 		var navigationElement = document.getElementById("navigationContainer");
-		var isClosed = navigationElement.style.display == "none";
-		if (isClosed && (openOrClose == undefined || openOrClose == "open")) {
+		var isClosed = navigationElement.style.display === "none";
+		if (isClosed && (openOrClose == undefined || openOrClose === "open")) {
 			navigationElement.style.display = "block";
 			closeActionMenu();
 		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
