@@ -122,10 +122,10 @@ $ICON
 							if (value) {
 								element.removeAttribute("disabled");
 							} else {
-								element.setAttribute("disabled", "true");
+								element.setAttribute("disabled", true);
 							}
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
-							element.checked = value === "true" ? "checked" : "";
+							element.checked = value ? "checked" : "";
 						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
 							element.innerHTML = escapeText(value);
 						} else if (property === "value" && element.tagName === "IMG") {
@@ -532,7 +532,7 @@ $ICON
 				element.setAttribute("disabled", "true");
 			}
 			element.id = content.id;
-			if (content.value === "true") {
+			if (content.value) {
 				element.setAttribute("checked", "checked");
 			}
 			var label = document.createElement("label");
@@ -838,7 +838,7 @@ $ICON
 		var changedValue = {};
 		if (source.type == "checkbox") {
 			/* for checkboxes value is always true */
-			changedValue[source.id] = source.checked.toString();
+			changedValue[source.id] = source.checked;
 		} else if (source.type == "password") {
 			changedValue[source.id] = source.value.split("");		
 		} else if (source.type == "file") {

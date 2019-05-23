@@ -11,11 +11,11 @@ public class JsonCheckBox extends JsonInputComponent<Boolean> {
 
 	@Override
 	public void setValue(Boolean selected) {
-		put(VALUE, Boolean.toString(selected));
+		put(VALUE, selected);
 	}
 
 	@Override
 	public Boolean getValue() {
-		return Boolean.TRUE.toString().equals(get(VALUE));
+		return (Boolean) get(VALUE);
 	}
 }
