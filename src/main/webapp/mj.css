@@ -191,6 +191,7 @@ li {
 .pageContent iframe {
 	padding: 0em;
 	width: 100%;
+	height: 100%;
 }
 
 table.table tr td {
