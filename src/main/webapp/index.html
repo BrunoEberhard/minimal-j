@@ -581,12 +581,18 @@ $ICON
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);
 			element.setAttribute("scrolling", "no");
-			element.className = "urlpage";
 			element.setAttribute("onload", "this.height = this.contentWindow.document.body.scrollHeight + \"px\"");
 		} else if (type === "Html") {
-			element = document.createElement("div");
-			element.className = "htmlpage";
-			element.innerHTML = content.htmlOrUrl;
+			element = document.createElement("iframe");
+			if ("srcdoc" in element) {
+				element.setAttribute("srcdoc", content.htmlOrUrl);		
+				element.setAttribute("scrolling", "no");
+				element.setAttribute("onload", "this.height = this.contentWindow.document.body.scrollHeight + \"px\"");
+			} else {
+			    // IE
+				element = document.createElement("div");
+				element.innerHTML = content.htmlOrUrl;
+			}
 		} else if (type === "Image") {
 		    if (editable) {
 				element = document.createElement("input");
