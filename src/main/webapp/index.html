@@ -248,12 +248,23 @@ $ICON
 		
 		var pageContentAndActionsElement = document.createElement("div");
 		pageContentAndActionsElement.className = "pageContentAndActions";
+		pageElement.appendChild(pageContentAndActionsElement);
+
+		pageContainerElement.appendChild(pageElement);
 
 		if (page.content) {
-			var contentElement = createContent(page.content);
+			var contentElement;
+			if (page.content.type === "Html") {
+				contentElement = document.createElement("iframe");
+				pageContentAndActionsElement.appendChild(contentElement);
+				// the iframe must be already attached to have the document
+				contentElement.contentWindow.document.write(page.content.htmlOrUrl); // srcdoc not available before chrome-IE
+				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
+			} else {
+				var contentElement = createContent(page.content);
+				pageContentAndActionsElement.appendChild(contentElement);
+			}
 			contentElement.classList.add("pageContent")	
-
-			pageContentAndActionsElement.appendChild(contentElement);
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
@@ -273,9 +284,6 @@ $ICON
 			actionMenuContainer.appendChild(actionMenuElement);
 			pageContentAndActionsElement.appendChild(actionMenuContainer);
 		}
-		
-		pageElement.appendChild(pageContentAndActionsElement);
-		pageContainerElement.appendChild(pageElement);
     
         if (window.innerWidth < 992) toggleNavigation("close");
     
@@ -576,11 +584,12 @@ $ICON
 			return element;
 		} else if (type === "Url") {
 			element = document.createElement("iframe");
-			element.setAttribute("src", content.htmlOrUrl);
+			element.src = content.htmlOrUrl;
 			element.height = "50%"; // cross origin doesn't allow to get childs height
 		} else if (type === "Html") {
-			element = document.createElement("div");
-			element.innerHTML = content.htmlOrUrl;
+		    // this is not used at the moment as IE (before chrome) doesn't support it
+			element = document.createElement("iframe");
+			element.srcdoc = content.htmlOrUrl;
 		} else if (type === "Image") {
 		    if (editable) {
 				element = document.createElement("input");
