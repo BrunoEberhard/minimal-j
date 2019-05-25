@@ -250,13 +250,10 @@ $ICON
 		pageContentAndActionsElement.className = "pageContentAndActions";
 
 		if (page.content) {
-			var pageContentElement = document.createElement("div");
-			pageContentElement.className = "pageContent";
-			
 			var contentElement = createContent(page.content);
-			pageContentElement.appendChild(contentElement);
+			contentElement.classList.add("pageContent")	
 
-			pageContentAndActionsElement.appendChild(pageContentElement);
+			pageContentAndActionsElement.appendChild(contentElement);
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
@@ -580,19 +577,10 @@ $ICON
 		} else if (type === "Url") {
 			element = document.createElement("iframe");
 			element.setAttribute("src", content.htmlOrUrl);
-			element.setAttribute("scrolling", "no");
-			element.setAttribute("onload", "this.height = this.contentWindow.document.body.scrollHeight + \"px\"");
+			element.height = "50%"; // cross origin doesn't allow to get childs height
 		} else if (type === "Html") {
-			element = document.createElement("iframe");
-			if ("srcdoc" in element) {
-				element.setAttribute("srcdoc", content.htmlOrUrl);		
-				element.setAttribute("scrolling", "no");
-				element.setAttribute("onload", "this.height = this.contentWindow.document.body.scrollHeight + \"px\"");
-			} else {
-			    // IE
-				element = document.createElement("div");
-				element.innerHTML = content.htmlOrUrl;
-			}
+			element = document.createElement("div");
+			element.innerHTML = content.htmlOrUrl;
 		} else if (type === "Image") {
 		    if (editable) {
 				element = document.createElement("input");
