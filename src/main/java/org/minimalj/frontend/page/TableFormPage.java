@@ -53,7 +53,7 @@ public abstract class TableFormPage<T> extends TableDetailPage<T> {
 		@Override
 		public void setObjects(List<T> selectedObjects) {
 			if (selectedObjects != null && !selectedObjects.isEmpty()) {
-				action(selectedObjects.get(selectedObjects.size() - 1));
+				form.setObject(selectedObjects.get(0));
 			}
 		}
 	}
