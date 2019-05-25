@@ -183,10 +183,6 @@ li {
 	padding-top: 0.5ex;
 	overflow: auto;
 }
-
-.page:only-child .pageContent {
-	height: 100%;
-}
 	
 iframe.pageContent {
 	padding-top: 0;
