@@ -68,7 +68,7 @@ $ICON
 			hidePage(dataObject.hidePage);
 			saveStateInHistory();
 		} else if ("showUrl" in dataObject) {
-			window.location = dataObject.showUrl;
+			window.location.href = dataObject.showUrl;
 		} else if (dataObject.pageId) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
