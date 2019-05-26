@@ -1,8 +1,5 @@
 package org.minimalj.util;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 public class StringUtils {
 
 	public static boolean equals(String s1, String s2) {
@@ -183,22 +180,6 @@ public class StringUtils {
 				builder.append(c);
 			}
 		}
-	}
-
-	public static boolean isUrl(String text) {
-		try {
-			new URL(text);
-			return true;
-		} catch (MalformedURLException e) {
-			return false;
-		}
-	}
-	
-	public static boolean isHtml(String text) {
-		if (text != null) {
-			return text.startsWith("<html>") && text.endsWith("</html>");
-		}
-		return false;
 	}
 
 	public static String stripHtml(String html) {

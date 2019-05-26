@@ -22,47 +22,36 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
-import org.minimalj.util.StringUtils;
 
 public class SwingHtmlContent extends JTextPane implements IContent {
 	private static final long serialVersionUID = 1L;
 	public static final String EVENT_TYPE_CLICK = "click";
 
-	public SwingHtmlContent(String htmlOrUrl) {
+	public SwingHtmlContent(URL url) {
 		setEditorKit(new MjHtmlEditorKit());
 		setContentType("text/html");
 		setEditable(false);
 
-		String url, html;
-		if (StringUtils.isHtml(htmlOrUrl)) {
-			url = null;
-			html = htmlOrUrl;
-		} else if (StringUtils.isUrl(htmlOrUrl)) {
-			url = htmlOrUrl;
-			html = null;
-		} else if (htmlOrUrl.endsWith(".html")) {
-			URL resource = getClass().getClassLoader().getResource(htmlOrUrl);
-			if (resource != null) {
-				url = resource.toExternalForm();
-				html = null;
-			} else {
-				throw new IllegalArgumentException("Invalid content: " + htmlOrUrl);
-			}
-		} else {
-			url = null;
-			html = "<html>" + StringUtils.escapeHTML(htmlOrUrl) + "</html>";
+		try {
+			setPage(url);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
-		if (html != null) {
-			setText(html);
-		} else {
-			try {
-				setPage(url);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		addLinkListener();
+	}
 
+	public SwingHtmlContent(String html) {
+		setEditorKit(new MjHtmlEditorKit());
+		setContentType("text/html");
+		setEditable(false);
+
+		setText(html);
+
+		addLinkListener();
+	}
+
+	private void addLinkListener() {
 		HyperlinkListener listener = e -> {
 			if (e.getEventType() == EventType.ACTIVATED) {
 				String href = e.getDescription();

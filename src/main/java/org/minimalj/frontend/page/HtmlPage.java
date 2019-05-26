@@ -1,5 +1,8 @@
 package org.minimalj.frontend.page;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.util.StringUtils;
@@ -12,14 +15,31 @@ import org.minimalj.util.StringUtils;
  */
 public class HtmlPage extends Page {
 
-	private final String htmlOrUrl;
+	private final String html;
+	private final URL url;
 	private final String title;
 	
-	public HtmlPage(String htmlOrUrl, String title) {
-		this.htmlOrUrl = htmlOrUrl;
+	public HtmlPage(String html, String title) {
+		this.html = html;
 		this.title = title;
+		this.url = null;
 	}
-	
+
+	public HtmlPage(URL url, String title) {
+		this.html = null;
+		this.title = title;
+		this.url = url;
+	}
+
+	public static HtmlPage fromUrl(String urlString, String title) {
+		try {
+			URL url = new URL(urlString);
+			return new HtmlPage(url, title);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public String getTitle() {
 		return title;
@@ -27,6 +47,10 @@ public class HtmlPage extends Page {
 	
 	@Override
 	public IContent getContent() {
-		return Frontend.getInstance().createHtmlContent(htmlOrUrl);
+		if (html != null) {
+			return Frontend.getInstance().createHtmlContent(html);
+		} else {
+			return Frontend.getInstance().createHtmlContent(url);
+		}
 	}
 }

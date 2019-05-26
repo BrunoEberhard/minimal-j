@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -172,10 +173,15 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createHtmlContent(String htmlOrUrl) {
-		return new JsonHtmlContent(htmlOrUrl);
+	public IContent createHtmlContent(String html) {
+		return new JsonHtmlContent(html);
 	}
-	
+
+	@Override
+	public IContent createHtmlContent(URL url) {
+		return new JsonHtmlContent(url);
+	}
+
 	@Override
 	public IContent createQueryContent() {
 		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);

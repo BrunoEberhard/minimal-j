@@ -240,6 +240,21 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 
+	@Override
+	public IContent createHtmlContent(URL url) {
+		try {
+			Class<?> c = Class.forName(FX_HTML_CLASS);
+			@SuppressWarnings("unchecked")
+			Constructor<IContent> con = (Constructor<IContent>) c.getConstructor(URL.class);
+			return con.newInstance(url);
+		} catch (ClassNotFoundException x) {
+			// swingfxbrowser not available
+			return new SwingHtmlContent(url);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private static class QueryContent extends JPanel implements IContent {
 		private static final long serialVersionUID = 1L;
 
