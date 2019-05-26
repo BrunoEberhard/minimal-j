@@ -462,6 +462,10 @@ public class JsonPageManager implements PageManager, LoginListener {
 		output.addContent(elementId, content);
 	}
 
+	public void show(String url) {
+		output.add("showUrl", url);
+	}
+
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {
 
 		@Override

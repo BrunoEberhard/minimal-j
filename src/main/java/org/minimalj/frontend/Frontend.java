@@ -191,6 +191,14 @@ public abstract class Frontend {
 
 	public abstract IContent createHtmlContent(URL url);
 
+	public void showBrowser(URL url) {
+		showBrowser(url.toExternalForm());
+	}
+
+	public void showBrowser(String url) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
 	/**
 	 * Create a content with a caption and a large search field. Something like
 	 * what a really big search engine show.

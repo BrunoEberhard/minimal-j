@@ -183,6 +183,11 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
+	public void showBrowser(String url) {
+		getClientSession().show(url);
+	}
+
+	@Override
 	public IContent createQueryContent() {
 		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);
 		return new JsonQueryContent(caption);
