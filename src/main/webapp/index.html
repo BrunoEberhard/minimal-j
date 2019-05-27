@@ -32,7 +32,7 @@ $ICON
   	
   	var blockStyle = document.createElement('style');
   	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
-  	var focusElement;
+  	var blockCount = 0;
   	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
@@ -46,8 +46,6 @@ $ICON
 			return;
 		} else {
 			document.getElementById("wait").style.width = 0;
-			blockStyle.parentNode.removeChild(blockStyle);
-			if (focusElement) focusElement.focus();
 		}
 
 		if (dataObject.title) {
@@ -1022,33 +1020,45 @@ $ICON
 
 		$SEND(data, block);
 	}
-		
+	
+	function blockUi() {
+		blockCount++;
+		if (!blockStyle.parentNode) {
+			document.body.appendChild(blockStyle);
+		}		
+	}
+
+	function unblockUi() {
+		blockCount--;
+		if (blockCount < 1 && blockStyle.parentNode) {
+			blockStyle.parentNode.removeChild(blockStyle);
+			blockCount = 0;
+		}		
+	}
+
 	function sendAjax(data, block) {
 		data.session = session;
 
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.open("POST", "ajax_request.xml", true);
-		
+
+		blockUi();
 		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-				onMessage(xmlhttp.responseText);
+			if (xmlhttp.readyState == 4) {
+				unblockUi();
+				if (xmlhttp.status == 200) {
+					onMessage(xmlhttp.responseText);
+				}
 			}
-		}
-		if (!blockStyle.parentElement) {		
-			document.body.appendChild(blockStyle);
-			focusElement = document.activeElement;
-			if (focusElement) focusElement.blur();
 		}
 		xmlhttp.send(JSON.stringify(data));
 	}
-	
+		
 	function sendWebSocket(data, block) {
-		if (!blockStyle.parentElement) {		
-			document.body.appendChild(blockStyle);
-			focusElement = document.activeElement;
-			if (focusElement) focusElement.blur();
-		}
 		if (websocket == null || websocket.readyState > 1) {
+			if (websocket) {
+				console.log("websocket: " + websocket.readyState);
+			}
 			var pathname = location.pathname;
 			var index = pathname.lastIndexOf("/");
 			pathname = pathname.substring(0, index + 1);
@@ -1058,12 +1068,14 @@ $ICON
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
+				unblockUi();
 				onMessage(evt.data)
 			};
 			websocket.onopen = function(evt) {
 				send(data, block);
 			}
 		} else {
+			blockUi();
 			websocket.send(JSON.stringify(data));
 		}
 	}
@@ -1332,8 +1344,6 @@ $ICON
 	</div>
 			
 
-	<div class="is-blocked">
-		
-	</div>
+	<div class="is-blocked"></div>
 </body>
 </html>
