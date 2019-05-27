@@ -80,7 +80,7 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					runWithContext(() -> action.action());
+					runWithContext(action::action);
 				}
 			});
 		}
@@ -125,7 +125,7 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new SwingComboBox<T>(objects, changeListener);
+		return new SwingComboBox<>(objects, changeListener);
 	}
 
 	@Override
@@ -215,12 +215,12 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new SwingTable<T>(keys, multiSelect, listener);
+		return new SwingTable<>(keys, multiSelect, listener);
 	}
 
 	@Override
 	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new SwingSearchPanel<T>(search, keys, multiSelect, listener);
+		return new SwingSearchPanel<>(search, keys, multiSelect, listener);
 	}
 
 	public static final String FX_HTML_CLASS = "org.minimalj.frontend.impl.swing.component.FxHtmlContent";
@@ -240,6 +240,21 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 
+	@Override
+	public IContent createHtmlContent(URL url) {
+		try {
+			Class<?> c = Class.forName(FX_HTML_CLASS);
+			@SuppressWarnings("unchecked")
+			Constructor<IContent> con = (Constructor<IContent>) c.getConstructor(URL.class);
+			return con.newInstance(url);
+		} catch (ClassNotFoundException x) {
+			// swingfxbrowser not available
+			return new SwingHtmlContent(url);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private static class QueryContent extends JPanel implements IContent {
 		private static final long serialVersionUID = 1L;
 
@@ -254,18 +269,13 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public IContent createQueryContent() {
 		JTextField field = new JTextField();
-		field.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingFrontend.runWithContext(() -> {
-					String query = ((JTextField) field).getText();
-					Page page = Application.getInstance().createSearchPage(query);
-					show(page);
-				});
-			}
-		});
+		field.addActionListener(e -> SwingFrontend.runWithContext(() -> {
+			String query = field.getText();
+			Page page = Application.getInstance().createSearchPage(query);
+			show(page);
+		}));
 
-		return new QueryContent(Resources.getString("Application.queryCaption"), (JTextField) field);
+		return new QueryContent(Resources.getString("Application.queryCaption"), field);
 	}
 
 	@Override
@@ -359,7 +369,7 @@ public class SwingFrontend extends Frontend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				runWithContext(() -> action.action());
+				runWithContext(action::action);
 			}
 		};
 		swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());
@@ -421,14 +431,6 @@ public class SwingFrontend extends Frontend {
 			return SwingFrame.getActiveWindow().getVisibleTab();
 		} else {
 			return null;
-		}
-	}
-
-	public static boolean applicationHasRouting() {
-		try {
-			return Application.getInstance().getClass().getMethod("createPage", new Class<?>[] { String.class }).getDeclaringClass() != Application.class;
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
 		}
 	}
 

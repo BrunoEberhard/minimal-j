@@ -1,5 +1,6 @@
 package org.minimalj.frontend.page;
 
+import java.lang.ref.SoftReference;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,19 +31,12 @@ import org.minimalj.util.resources.Resources;
  */
 public abstract class TablePage<T> extends Page implements TableActionListener<T> {
 
-	private transient boolean multiSelect;
-	private transient Object[] columns;
-	private transient ITable<T> table;
-	private transient List<Action> actions;
-	private Object[] nameArguments;
+	private boolean multiSelect;
+	private Object[] columns;
+	private SoftReference<ITable<T>> table;
+	private SoftReference<List<Action>> actions;
 	
 	public TablePage() {
-		this.multiSelect = allowMultiselect();
-	}
-	
-	public TablePage(Object[] columns) {
-		this();
-		this.columns = columns;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -55,19 +49,14 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	}
 	
 	protected Object[] getNameArguments() {
-		if (nameArguments == null) {
-			nameArguments = new Object[] { Resources.getString(getResourceName()) };
-		}
-		return nameArguments;
+		return new Object[] { Resources.getString(getResourceName()) };
 	}
 	
 	protected boolean allowMultiselect() {
 		return false;
 	}
 	
-	protected Object[] getColumns() {
-		return columns;
-	}
+	protected abstract Object[] getColumns();
 	
 	protected abstract List<T> load();
 
@@ -86,16 +75,14 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 	
-	private ITable<T> createTable() {
-		columns = getColumns();
-		multiSelect = allowMultiselect();
-		return Frontend.getInstance().createTable(columns, multiSelect, this);
-	}
-	
 	@Override
 	public IContent getContent() {
+		ITable<T> table = this.table != null ? this.table.get() : null;
 		if (table == null || multiSelect != allowMultiselect() || !Arrays.equals(columns, getColumns())) {
-			table = createTable();
+			this.columns = getColumns();
+			this.multiSelect = allowMultiselect();
+			table = Frontend.getInstance().createTable(getColumns(), multiSelect, this);
+			this.table = new SoftReference<>(table);
 		}
 		table.setObjects(load());
 
@@ -109,8 +96,10 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	
 	@Override
 	public final List<Action> getActions() {
+		List<Action> actions = this.actions != null ? this.actions.get() : null;
 		if (actions == null) {
 			actions = getTableActions();
+			this.actions = new SoftReference<>(actions);
 		}
 		return actions;
 	}
@@ -120,6 +109,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	}
 		
 	public void refresh() {
+		ITable<T> table = this.table != null ? this.table.get() : null;
 		if (table != null) {
 			table.setObjects(load());
 		}
@@ -128,6 +118,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	@SuppressWarnings("unchecked")
 	@Override
 	public void selectionChanged(List<T> selectedObjects) {
+		List<Action> actions = this.actions != null ? this.actions.get() : null;
 		if (actions != null) {
 			for (Action action : actions) {
 				if (action instanceof TableSelectionAction) {
@@ -151,7 +142,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	}
 
 	public class DeleteDetailAction extends Action implements TableSelectionAction<T> {
-		private transient List<T> selectedObjects;
+		private List<T> selectedObjects;
 		
 		public DeleteDetailAction() {
 			selectionChanged(null);

@@ -11,41 +11,34 @@ state could not be serialized in a readable String for the URL.
 
 == Principle
 
-In Minimal-J a page can signify that it can addressed with a route. This route is a String which
-the application object should be able to parse the String a show redisplay the same page.
+In Application class the createRouting method can be overridden to enable routing.
+The routing object  must be able to create route String for some pages and in reverse
+parse a route and generate a Page of it.
 
-Not all a pages must have a route. The pages displaing main entites are better candidates than detail
+Not all a pages must have a route. The pages displaying main entities are better candidates than detail
 pages.
 
-== Route
+== Route Strings
 
-The Route - String of a page must fulfill certain rules:
+The Route String of a page must fulfill certain rules:
  * no '/' at start or end
  * Only characters or digits or the four characters .-_/ are allowed
  * Before a '/' no '.' is allowed
 
 This rules are validated with the Page.validateRoute method.
-If a page provides a invalid route the route is ignored without warning.
+If a page creates an invalid route the route is ignored without warning.
 
 These rules are a security measure because routes are used in the URL.
 
 == Example
-Here a simplified example from OpenEch. First the page showing a person:
+Here a an example of a Routing class
 
-[source,java,title="PersonPage.java"]
+[source,java]
 ----
+public class OpenEchRouting extends Routing {
+
 	@Override
-	public String getRoute() {
-		return "person/" + getObjectId();
-	}
-----
-
-and now the relevant method in the application class:
-
-[source,java,title="OpenEchApplication.java"]
-----
-	@Override
-	public Page createPage(String route) {
+	protected Page createPage(String route) {
 		String[] elements = route.split("/");
 		if (elements.length >= 2) {
 			switch (elements[0]) {
@@ -54,6 +47,16 @@ and now the relevant method in the application class:
 		}
 		return null;
 	}
+
+	@Override
+	protected String getRoute(Page page) {
+		if (page instanceof PersonPage) {
+			return "person/" + ((PersonPage) page).getObjectId();
+		}
+		return null;
+	}
+
+}
 ----
 
 When displaying a person you may notice the changing URL:

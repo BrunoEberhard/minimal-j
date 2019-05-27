@@ -40,7 +40,7 @@ public class ScrollablePanel extends JPanel implements Scrollable {
     @Override
     public boolean getScrollableTracksViewportHeight() {
 		if (getParent() instanceof JViewport) {
-			return (((JViewport) getParent()).getHeight() > getPreferredSize().height);
+			return (getParent().getHeight() > getPreferredSize().height);
 		}
 		return false;
     }

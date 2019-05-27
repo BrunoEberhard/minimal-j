@@ -71,7 +71,7 @@ public class JsonWriter {
 		} else {
 			calls.push(object);
 			if (object instanceof Boolean)
-				bool(((Boolean) object).booleanValue());
+				bool((Boolean) object);
 			else if (object instanceof Number || object instanceof Temporal)
 				add(object);
 			else if (object instanceof String || object instanceof Character)
@@ -93,9 +93,7 @@ public class JsonWriter {
 	}
 
 	private boolean cyclic(Object object) {
-		Iterator<Object> it = calls.iterator();
-		while (it.hasNext()) {
-			Object called = it.next();
+		for (Object called : calls) {
 			if (object == called)
 				return true;
 		}

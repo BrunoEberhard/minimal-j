@@ -9,10 +9,9 @@ import org.minimalj.repository.query.By;
 
 public class VetTablePage extends TablePage<Vet> {
 
-	private static final Object[] keys = {Vet.$.person.getName(), Vet.$.specialties};
-	
-	public VetTablePage() {
-		super(keys);
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { Vet.$.person.getName(), Vet.$.specialties };
 	}
 
 	@Override

@@ -104,10 +104,10 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void execute(String s) {
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), s.toString(), false)) {
+		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), s, false)) {
 			statement.execute();
 		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Statement failed: \n" + s.toString());
+			throw new LoggingRuntimeException(x, sqlLogger, "Statement failed: \n" + s);
 		}
 	}
 
@@ -142,7 +142,7 @@ public abstract class AbstractTable<T> {
 	protected void createIndexes(SqlDialect dialect) {
 		for (String index : indexes) {
 			String s = dialect.createIndex(getTableName(), index, isHistorized());
-			execute(s.toString());
+			execute(s);
 		}
 	}
 	
@@ -160,7 +160,7 @@ public abstract class AbstractTable<T> {
 
 				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
 				if (s != null) {
-					execute(s.toString());
+					execute(s);
 				}
 			}
 		}
@@ -270,7 +270,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) {
-		List<T> result = new ArrayList<T>();
+		List<T> result = new ArrayList<>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next()) {
@@ -344,7 +344,11 @@ public abstract class AbstractTable<T> {
 					}
 				}
 			}
-			sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value, property.getClazz());
+			if (value != null) {
+				sqlRepository.getSqlDialect().setParameter(statement, parameterPos++, value);
+			} else {
+				sqlRepository.getSqlDialect().setParameterNull(statement, parameterPos++, property.getClazz());
+			}
 		}
 		statement.setObject(parameterPos++, id);
 		return parameterPos;
@@ -420,9 +424,7 @@ public abstract class AbstractTable<T> {
 	protected abstract String selectByIdQuery();
 
 	protected String clearQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("DELETE FROM ").append(getTableName()); 
-		return query.toString();
+		return "DELETE FROM " + getTableName();
 	}
 	
 	protected final Object getOrCreateId(Object object) {

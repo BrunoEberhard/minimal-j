@@ -416,6 +416,7 @@ public class OpenAPIFactory {
 	private String format(MjProperty property) {
 		switch(property.type.type) {
 		case String : return null;
+		case Enum : return null;
 		case Integer: return "int32";
 		case Long: return "int64";
 		case LocalDate: return "date";

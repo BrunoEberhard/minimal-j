@@ -1,5 +1,7 @@
 package org.minimalj.frontend.page;
 
+import java.util.Objects;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.util.StringUtils;
@@ -12,14 +14,14 @@ import org.minimalj.util.StringUtils;
  */
 public class HtmlPage extends Page {
 
-	private final String htmlOrUrl;
+	private final String html;
 	private final String title;
 	
-	public HtmlPage(String htmlOrUrl, String title) {
-		this.htmlOrUrl = htmlOrUrl;
+	public HtmlPage(String html, String title) {
+		this.html = Objects.requireNonNull(html);
 		this.title = title;
 	}
-	
+
 	@Override
 	public String getTitle() {
 		return title;
@@ -27,6 +29,6 @@ public class HtmlPage extends Page {
 	
 	@Override
 	public IContent getContent() {
-		return Frontend.getInstance().createHtmlContent(htmlOrUrl);
+		return Frontend.getInstance().createHtmlContent(html);
 	}
 }

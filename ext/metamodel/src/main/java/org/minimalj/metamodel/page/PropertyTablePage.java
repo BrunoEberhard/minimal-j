@@ -14,10 +14,14 @@ public class PropertyTablePage extends TableDetailPage<MjProperty> {
 	private final MjEntity entity;
 	
 	public PropertyTablePage(MjEntity entity) {
-		super(new Object[]{MjProperty.$.name, MjProperty.$.getFormattedType(), MjProperty.$.notEmpty, MjProperty.$.searched, MjProperty.$.materialized});
 		this.entity = entity;
 	}
 	
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { MjProperty.$.name, MjProperty.$.getFormattedType(), MjProperty.$.notEmpty, MjProperty.$.searched, MjProperty.$.materialized };
+	}
+
 	@Override
 	public String getTitle() {
 		return MessageFormat.format(Resources.getString(PropertyTablePage.class), entity.getClassName());

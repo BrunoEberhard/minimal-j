@@ -31,7 +31,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 public class EditablePanel extends JDesktopPane {
 	private static final long serialVersionUID = 1L;
     private static final Logger LOG = Logger.getLogger(EditablePanel.class.getName());
-	private List<JInternalFrame> openFrames = new ArrayList<JInternalFrame>();
+	private List<JInternalFrame> openFrames = new ArrayList<>();
 	
 	public EditablePanel() {
 		setOpaque(false);

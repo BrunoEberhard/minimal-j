@@ -9,12 +9,11 @@ import org.minimalj.repository.query.By;
 
 public class PetTablePage extends TablePage<Pet> {
 
-	private static final Object[] keys = {Pet.$.name, Pet.$.type, Pet.$.owner.person.firstName, Pet.$.owner.person.lastName};
-	
-	public PetTablePage() {
-		super(keys);
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { Pet.$.name, Pet.$.type, Pet.$.owner.person.firstName, Pet.$.owner.person.lastName };
 	}
-
+	
 	@Override
 	protected List<Pet> load() {
 		return Backend.find(Pet.class, By.all());

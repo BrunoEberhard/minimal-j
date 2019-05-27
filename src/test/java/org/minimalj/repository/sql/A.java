@@ -23,8 +23,8 @@ public class A {
 
 	@Size(30)
 	public String aName;
-	public final List<B> b = new ArrayList<B>();
-	public final List<C> c = new ArrayList<C>();
+	public final List<B> b = new ArrayList<>();
+	public final List<C> c = new ArrayList<>();
 	public E e;
 	
 	@Size(5)

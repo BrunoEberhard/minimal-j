@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
@@ -22,6 +24,7 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
@@ -29,6 +32,7 @@ import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 
 public class JsonPageManager implements PageManager, LoginListener {
+	private static final Logger logger = Logger.getLogger(JsonPageManager.class.getName());
 
 	private Subject subject;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
@@ -79,13 +83,67 @@ public class JsonPageManager implements PageManager, LoginListener {
 		return output.toString();
 	}
 
+	private Thread thread;
+
 	public JsonOutput handle(JsonInput input) {
-		JsonFrontend.setSession(this);
-		Subject.setCurrent(subject);
-		String locale = (String) input.getObject("locale");
-		if (locale != null) {
-			LocaleContext.setCurrent(Locale.forLanguageTag(locale));
+		Long retry = (Long) input.getObject("retry");
+		if (retry == null) {
+			retry = 0L;
+			thread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						JsonFrontend.setSession(JsonPageManager.this);
+						Subject.setCurrent(subject);
+						String locale = (String) input.getObject("locale");
+						if (locale != null) {
+							LocaleContext.setCurrent(Locale.forLanguageTag(locale));
+						}
+						// Thread.sleep(10000);
+						handle_(input);
+					} catch (ComponentUnknowException x) {
+						output = new JsonOutput();
+						show(visiblePageAndDetailsList.getPageIds());
+					} catch (Exception x) {
+						output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
+						logger.log(Level.SEVERE, x.getMessage(), x);
+					} finally {
+						LocaleContext.setCurrent(null);
+						Subject.setCurrent(null);
+						JsonFrontend.setSession(null);
+					}
+				}
+			});
+			thread.start();
 		}
+
+		try {
+			thread.join(2000);
+		} catch (InterruptedException t) {
+		}
+
+		if (!thread.isAlive()) {
+			return output;
+		} else {
+			JsonOutput output = new JsonOutput();
+			output.add("wait", ++retry);
+			return output;
+		}
+	}
+
+	private static class ComponentUnknowException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+	}
+
+	private JsonComponent getComponentById(Object id) throws ComponentUnknowException {
+		JsonComponent result = componentById.get(id);
+		if (result == null) {
+			throw new ComponentUnknowException();
+		}
+		return result;
+	}
+
+	private JsonOutput handle_(JsonInput input) throws ComponentUnknowException {
 		JsonFrontend.setUseInputTypes(Boolean.TRUE.equals(input.getObject("inputTypes")));
 
 		output = new JsonOutput();
@@ -101,7 +159,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 			} else if (initialize instanceof String) {
 				String path = (String) initialize;
 				if (path.length() > 1) {
-					Page page = Application.getInstance().createPage(path.substring(1));
+					Page page = Routing.createPageSafe(path.substring(1));
 					if (page != null) {
 						onLogin = () -> show(page, null);
 					}
@@ -127,41 +185,41 @@ public class JsonPageManager implements PageManager, LoginListener {
 			Object newValue = entry.getValue(); // most of the time a String,
 												// but not for password
 
-			JsonComponent component = componentById.get(componentId);
+			JsonComponent component = getComponentById(componentId);
 			((JsonInputComponent<?>) component).changedValue(newValue);
 			output.add("source", componentId);
 		}
 
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
 		if (actionId != null) {
-			JsonAction action = (JsonAction) componentById.get(actionId);
+			JsonAction action = (JsonAction) getComponentById(actionId);
 			action.action();
 		}
 
 		Map<String, Object> tableAction = input.get(JsonInput.TABLE_ACTION);
 		if (tableAction != null && !tableAction.isEmpty()) {
-			JsonTable<?> table = (JsonTable<?>) componentById.get(tableAction.get("table"));
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableAction.get("table"));
 			int row = ((Long) tableAction.get("row")).intValue();
 			table.action(row);
 		}
 
 		Map<String, Object> tableSortAction = input.get("tableSortAction");
 		if (tableSortAction != null && !tableSortAction.isEmpty()) {
-			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSortAction.get("table"));
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableSortAction.get("table"));
 			int column = ((Long) tableSortAction.get("column")).intValue();
 			table.sort(column);
 		}
 
 		Map<String, Object> tableSelection = input.get("tableSelection");
 		if (tableSelection != null && !tableSelection.isEmpty()) {
-			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSelection.get("table"));
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableSelection.get("table"));
 			List<Number> rows = ((List<Number>) tableSelection.get("rows"));
 			table.selection(rows);
 		}
 
 		String tableExtendContent = (String) input.getObject("tableExtendContent");
 		if (tableExtendContent != null) {
-			JsonTable<?> table = (JsonTable<?>) componentById.get(tableExtendContent);
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableExtendContent);
 			output.add("tableId", tableExtendContent);
 			output.add("tableExtendContent", table.extendContent());
 			output.add("extendable", table.isExtendable());
@@ -175,7 +233,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		String loadSuggestions = (String) input.getObject("loadSuggestions");
 		if (loadSuggestions != null) {
-			JsonTextField textField = (JsonTextField) componentById.get(loadSuggestions);
+			JsonTextField textField = (JsonTextField) getComponentById(loadSuggestions);
 			String searchText = (String) input.getObject("searchText");
 			List<String> suggestions = textField.getSuggestions().search(searchText);
 			output.add("suggestions", suggestions);
@@ -184,7 +242,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		String openLookupDialog = (String) input.getObject("openLookupDialog");
 		if (openLookupDialog != null) {
-			JsonLookup lookup = (JsonLookup) componentById.get(openLookupDialog);
+			JsonLookup lookup = (JsonLookup) getComponentById(openLookupDialog);
 			lookup.showLookupDialog();
 		}
 
@@ -199,8 +257,6 @@ public class JsonPageManager implements PageManager, LoginListener {
 			show(pageIds);
 		}
 
-		Subject.setCurrent(null);
-		JsonFrontend.setSession(null);
 		return output;
 	}
 
@@ -238,17 +294,25 @@ public class JsonPageManager implements PageManager, LoginListener {
 	}
 
 	private void show(List<String> pageIds) {
+		if (!pageStore.valid(pageIds)) {
+			show(Application.getInstance().createDefaultPage());
+			return;
+		}
 		List<JsonComponent> jsonList = new ArrayList<>();
 		visiblePageAndDetailsList.clear();
 		String previousId = null;
+		Page firstPage = null;
 		for (String pageId : pageIds) {
 			Page page = pageStore.get(pageId);
 			visiblePageAndDetailsList.put(pageId, page);
 			jsonList.add(createJson(page, pageId, previousId));
+			if (previousId == null) {
+				firstPage = page;
+			}
 			previousId = pageId;
 		}
 		output.add("showPages", jsonList);
-		updateTitle(!pageIds.isEmpty() ? pageStore.get(pageIds.get(0)) : null);
+		updateTitle(firstPage != null ? firstPage : null);
 	}
 
 	private void updateTitle(Page page) {
@@ -268,8 +332,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
-		String route = PageAccess.getRoute(page);
-		if (Page.validateRoute(route)) {
+		String route = Routing.getRouteSafe(page);
+		if (route != null) {
 			json.put("route", route.endsWith("/") ? route : route + "/");
 		}
 
@@ -396,6 +460,10 @@ public class JsonPageManager implements PageManager, LoginListener {
 	public void addContent(String elementId, JsonComponent content) {
 		register(content);
 		output.addContent(elementId, content);
+	}
+
+	public void show(String url) {
+		output.add("showUrl", url);
 	}
 
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {

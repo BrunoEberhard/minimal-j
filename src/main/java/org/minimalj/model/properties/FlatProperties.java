@@ -16,8 +16,8 @@ import org.minimalj.util.StringUtils;
 public class FlatProperties {
 	private static final Logger logger = Logger.getLogger(FlatProperties.class.getName());
 
-	private static final Map<Class<?>, Map<String, PropertyInterface>> properties = 
-			new HashMap<Class<?>, Map<String, PropertyInterface>>();
+	private static final Map<Class<?>, Map<String, PropertyInterface>> properties =
+			new HashMap<>();
 
 	public static PropertyInterface getProperty(Class<?> clazz, String fieldName) {
 		return getProperty(clazz, fieldName, false);
@@ -73,7 +73,7 @@ public class FlatProperties {
 	private static Map<String, PropertyInterface> properties(Class<?> clazz) {
 		// Java doesn't guarantee the field / property order but most of the time the
 		// order is as in the class described. Keep it that way for json/xml/yaml... serialization stuff.
-		Map<String, PropertyInterface> properties = new LinkedHashMap<String, PropertyInterface>();
+		Map<String, PropertyInterface> properties = new LinkedHashMap<>();
 		
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {

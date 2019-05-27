@@ -2,8 +2,6 @@ package org.minimalj.frontend.impl.swing.toolkit;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -27,7 +25,7 @@ public class SwingSearchPanel<T> extends JPanel implements IContent {
 		
 		text = new JTextField();
 		searchButton = new JButton("Search");
-		table = new SwingTable<T>(keys, multiSelect, listener);
+		table = new SwingTable<>(keys, multiSelect, listener);
 
 		JPanel northPanel = new JPanel(new BorderLayout());
 		northPanel.add(text, BorderLayout.CENTER);
@@ -36,19 +34,11 @@ public class SwingSearchPanel<T> extends JPanel implements IContent {
 		add(border(northPanel, 5, 5, 5, 5), BorderLayout.NORTH);
 		add(table, BorderLayout.CENTER);
 
-		text.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				searchButton.doClick();
-			}
-		});
+		text.addActionListener(e -> searchButton.doClick());
 		
-		searchButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				List<T> objects = search.search(text.getText());
-				table.setObjects(objects);
-			}
+		searchButton.addActionListener(e -> {
+			List<T> objects = search.search(text.getText());
+			table.setObjects(objects);
 		});
 	}
 

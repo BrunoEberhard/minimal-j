@@ -182,7 +182,7 @@ public class Resources {
 					return result;
 				} else {
 					chain = chain.subList(1, chain.size());
-					fieldName = fieldName.substring(fieldName.indexOf('.') + 1, fieldName.length());
+					fieldName = fieldName.substring(fieldName.indexOf('.') + 1);
 				}
 			}
 			return getPropertyName(chain.get(0), postfix);

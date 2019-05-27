@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -61,4 +62,12 @@ public class JsonReaderTest {
 		Assert.assertEquals(Long.MAX_VALUE, result.get("value"));
 	}
 	
+	@Test
+	public void testEscaping() {
+		String complicatedString = "Happy \"get\" Lucky";
+		Map<String, Object> input = Collections.singletonMap("test", complicatedString);
+		String s = new JsonWriter().write(input);
+		Map<String, Object> result = (Map<String, Object>) JsonReader.read(s);
+		Assert.assertEquals(complicatedString, result.get("test"));
+	}
 }

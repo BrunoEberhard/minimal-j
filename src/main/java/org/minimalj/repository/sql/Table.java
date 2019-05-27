@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.model.Code;
@@ -44,7 +43,6 @@ public class Table<T> extends AbstractTable<T> {
 		super(sqlRepository, name, clazz);
 		
 		this.idProperty = FlatProperties.getProperty(clazz, "id", true);
-		Objects.nonNull(idProperty);
 		
 		this.optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
@@ -146,7 +144,7 @@ public class Table<T> extends AbstractTable<T> {
 		String deleteString = "DELETE FROM " + getTableName() + whereClause.getClause();
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), deleteString, false)) {
 			for (int i = 0; i < whereClause.getValueCount(); i++) {
-				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i), null);
+				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 			}
 			statement.execute();
 			return statement.getUpdateCount();
@@ -260,7 +258,7 @@ public class Table<T> extends AbstractTable<T> {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
 			String queryString = "SELECT COUNT(*) FROM " + relationCriteria.getCrossName() + " WHERE id = ?";
 			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
-				sqlRepository.getSqlDialect().setParameter(statement, 1, relationCriteria.getRelatedId(), null);
+				sqlRepository.getSqlDialect().setParameter(statement, 1, relationCriteria.getRelatedId());
 				return executeSelectCount(statement);
 			} catch (SQLException e) {
 				throw new LoggingRuntimeException(e, sqlLogger, "count failed");
@@ -270,7 +268,7 @@ public class Table<T> extends AbstractTable<T> {
 			String queryString = "SELECT COUNT(*) FROM " + getTableName() + whereClause.getClause();
 			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
 				for (int i = 0; i < whereClause.getValueCount(); i++) {
-					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i), null);
+					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 				}
 				return executeSelectCount(statement);
 			} catch (SQLException e) {
@@ -295,7 +293,7 @@ public class Table<T> extends AbstractTable<T> {
 		String queryString = select + whereClause.getClause();
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
 			for (int i = 0; i < whereClause.getValueCount(); i++) {
-				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i), null);
+				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 			}
 			return resultClass == getClazz() ? (List<S>) executeSelectAll(statement) : executeSelectViewAll(resultClass, statement);
 		} catch (SQLException e) {
@@ -396,15 +394,11 @@ public class Table<T> extends AbstractTable<T> {
 
 	@Override
 	protected String selectByIdQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE id = ?");
-		return query.toString();
+        return "SELECT * FROM " + getTableName() + " WHERE id = ?";
 	}
 	
 	protected String selectAllQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM ").append(getTableName()); 
-		return query.toString();
+        return "SELECT * FROM " + getTableName();
 	}
 	
 	@Override
@@ -446,9 +440,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected String deleteQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("DELETE FROM ").append(getTableName()).append(" WHERE id = ?");
-		return s.toString();
+        return "DELETE FROM " + getTableName() + " WHERE id = ?";
 	}
 	
 	@Override

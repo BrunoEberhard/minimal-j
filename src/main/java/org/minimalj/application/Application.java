@@ -33,6 +33,7 @@ import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.model.Model;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
@@ -77,9 +78,6 @@ public abstract class Application implements Model {
 		if (Application.instance != null) {
 			throw new IllegalStateException("Application cannot be changed");
 		}		
-		if (application == null) {
-			throw new IllegalArgumentException("Application cannot be null");
-		}
 		Application.instance = application;
 	}
 	
@@ -89,6 +87,7 @@ public abstract class Application implements Model {
 	 * 
 	 * @param application the application for current thread and all its children
 	 */
+	@SuppressWarnings("unused")
 	public static void setThreadInstance(Application application) {
 		if (instance == null) {
 			instance = new ThreadLocalApplication();
@@ -193,15 +192,7 @@ public abstract class Application implements Model {
 		return icon;
 	}
 	
-	/**
-	 * Create a page for a given route, for example "person/42" A frontend
-	 * may support links or bookmarks. 
-	 * @see org.minimalj.frontend.page.Page#getRoute()
-	 * 
-	 * @param route String returned by getRoute of a Page
-	 * @return the (valid) page for this route
-	 */
-	public Page createPage(String route) {
+	public Routing createRouting() {
 		return null;
 	}
 	
@@ -225,7 +216,7 @@ public abstract class Application implements Model {
 	 */
 	public boolean hasSearchPages() {
 		try {
-			return this.getClass().getMethod("createSearchPage", new Class<?>[] { String.class }).getDeclaringClass() != Application.class;
+			return this.getClass().getMethod("createSearchPage", String.class).getDeclaringClass() != Application.class;
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}

@@ -128,7 +128,7 @@ public class EnumUtils {
 	public static <T extends Enum<T>> List<CodeItem<T>> itemList(List<T> values) {
 		List<CodeItem<T>> itemList = new ArrayList<>(values.size());
 		for (T value : values) {
-			CodeItem<T> item = new CodeItem<T>(value, getText(value), getDescription(value));
+			CodeItem<T> item = new CodeItem<>(value, getText(value), getDescription(value));
 			itemList.add(item);
 		}
 		return itemList;

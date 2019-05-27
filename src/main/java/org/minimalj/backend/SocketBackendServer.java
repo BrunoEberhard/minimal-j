@@ -30,7 +30,7 @@ public class SocketBackendServer {
 	
 	public SocketBackendServer(int port) {
 		this.port = port;
-		this.executor = new ThreadPoolExecutor(10, 30, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+		this.executor = new ThreadPoolExecutor(10, 30, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 	}
 	
 	public void run() {

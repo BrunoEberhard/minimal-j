@@ -45,6 +45,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
+import org.minimalj.frontend.page.Routing;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -67,7 +68,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 	private final JScrollPane navigationScrollPane;
 	
 	private final History<List<Page>> history;
-	private final SwingTabHistoryListener historyListener;
 
 	private final List<Page> visiblePageAndDetailsList;
 	
@@ -80,10 +80,10 @@ public class SwingTab extends EditablePanel implements PageManager {
 		super();
 		this.frame = frame;
 
-		historyListener = new SwingTabHistoryListener();
+		SwingTabHistoryListener historyListener = new SwingTabHistoryListener();
 		history = new History<>(historyListener);
 
-		visiblePageAndDetailsList = new ArrayList<Page>();
+		visiblePageAndDetailsList = new ArrayList<>();
 		
 		previousAction = new PreviousPageAction();
 		nextAction = new NextPageAction();
@@ -120,12 +120,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 		
 		navigationScrollPane = new JScrollPane();
 		navigationScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		ActionListener navigationClosedListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				navigationAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
-				navigationAction.actionPerformed(e);
-			}
+		ActionListener navigationClosedListener = e -> {
+			navigationAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
+			navigationAction.actionPerformed(e);
 		};
 		decoratedNavigationPane = new SwingDecoration(Application.getInstance().getName(), navigationScrollPane, SwingDecoration.HIDE_MINIMIZE, navigationClosedListener);
 		splitPane.setLeftComponent(decoratedNavigationPane);
@@ -152,7 +149,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		if (getVisiblePage() != null) {
 			previousAction.setEnabled(hasPast());
 			nextAction.setEnabled(hasFuture());
-			String route = PageAccess.getRoute(getVisiblePage());
+			String route = Routing.getRouteSafe(getVisiblePage());
 			if (route != null) {
 				favoriteAction.setEnabled(true);
 				boolean favorite = frame.favorites.isFavorite(route);
@@ -185,7 +182,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			SwingFrontend.runWithContext(() -> previous());
+			SwingFrontend.runWithContext(SwingTab.this::previous);
 		}
 	}
 	
@@ -194,7 +191,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			SwingFrontend.runWithContext(() -> next());
+			SwingFrontend.runWithContext(SwingTab.this::next);
 		}
 	}
 
@@ -215,8 +212,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Page page = getVisiblePage();
-			if (page != null && Page.validateRoute(PageAccess.getRoute(page))) {
-				frame.favorites.toggleFavorite(PageAccess.getRoute(page), page.getTitle());
+			String route = Routing.getRouteSafe(page);
+			if (route != null) {
+				frame.favorites.toggleFavorite(route, page.getTitle());
 			}
 		}
 	}

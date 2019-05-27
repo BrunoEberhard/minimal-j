@@ -29,9 +29,9 @@ public class HideableTabbedPane extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private JTabbedPane tabbedPane;
-	private final Map<Component, String> titles = new HashMap<Component, String>();
-	private final Map<Component, String> tooltips = new HashMap<Component, String>();
-	private final Map<Component, Icon> icons = new HashMap<Component, Icon>();
+	private final Map<Component, String> titles = new HashMap<>();
+	private final Map<Component, String> tooltips = new HashMap<>();
+	private final Map<Component, Icon> icons = new HashMap<>();
 	
 	public HideableTabbedPane() {
 		super(new BorderLayout());

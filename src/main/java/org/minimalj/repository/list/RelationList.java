@@ -57,7 +57,7 @@ public class RelationList<PARENT, ELEMENT> extends AbstractList<ELEMENT> impleme
 	private void loadComplete() {
 		if (list instanceof QueryResultList) {
 			QueryResultList<ELEMENT> queryResultList = (QueryResultList<ELEMENT>) list;
-			list = new ArrayList<ELEMENT>(queryResultList.subList(0, size));
+			list = new ArrayList<>(queryResultList.subList(0, size));
 		}
 	}
 	

@@ -7,13 +7,13 @@ import java.util.logging.Level;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
 	
@@ -42,14 +42,14 @@ public class SqlCrudTest {
 		Assert.assertNull(g3);
 	}
 	
-	@Test @Ignore // TODO define if insert really may change input. If yes, BackendRepository should do it too.
+	@Test
 	public void testInsertShouldNotChangeInput() {
 		G g = new G("testName1");
 		G g_clone = CloneHelper.clone(g);
-		repository.insert(g);
-
-		boolean equals = EqualsHelper.equals(g, g_clone);
-		Assert.assertTrue(equals);
+		Object id = repository.insert(g);
+		Assert.assertFalse("Insert should not update the id Field", EqualsHelper.equals(g, g_clone));
+		IdUtils.setId(g_clone, id);
+		Assert.assertTrue("Insert should update only the id Field", EqualsHelper.equals(g, g_clone));
 	}
 	
 	@Test

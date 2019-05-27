@@ -36,7 +36,7 @@ public class Codes {
 	public static <T extends Code> T findCode(List<T> codes, Object codeId) {
 		for (T code : codes) {
 			Object aCodeId = IdUtils.getId(code);
-			if (aCodeId == null && codeId == null || aCodeId.equals(codeId)) {
+			if (aCodeId == null && codeId == null || aCodeId != null && aCodeId.equals(codeId)) {
 				return code;
 			}
 		}
@@ -54,8 +54,7 @@ public class Codes {
 			updateCode(clazz);
 		}
 		cacheItem = (CodeCacheItem<T>) cache.get(clazz);
-		List<T> codes = cacheItem.getCodes(LocaleContext.getCurrent());
-		return codes;
+		return cacheItem.getCodes(LocaleContext.getCurrent());
 	}
 	
 	public static <T extends Code> void removeFromCache(Class<?> clazz) {
@@ -78,7 +77,7 @@ public class Codes {
 	}
 	
 	private static <T extends Code> void updateCode(Class<T> clazz) {
-		CodeCacheItem<T> codeItem = new CodeCacheItem<T>();
+		CodeCacheItem<T> codeItem = new CodeCacheItem<>();
 		cache.put(clazz, codeItem);
 		List<T> codes = Backend.find(clazz, By.all());
 		codeItem.setCodes(codes);
@@ -125,7 +124,7 @@ public class Codes {
 	}
 
 	public static <T extends Code> List<T> getConstants(Class<T> clazz) {
-		List<T> constants = new ArrayList<T>();
+		List<T> constants = new ArrayList<>();
 		for (Field field : clazz.getDeclaredFields()) {
 			if (!FieldUtils.isStatic(field)) continue;
 			if (!FieldUtils.isFinal(field)) continue;

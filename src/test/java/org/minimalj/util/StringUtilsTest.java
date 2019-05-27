@@ -85,25 +85,7 @@ public class StringUtilsTest {
 	public void toConstantNull() {
 		Assert.assertEquals(null, StringUtils.toConstant(null));
 	}
-	
-	@Test
-	public void isUrl() {
-		Assert.assertTrue(StringUtils.isUrl("http://www.notrealaddress.com/"));
-		Assert.assertTrue(StringUtils.isUrl("https://www.notrealaddress.com/"));
-		Assert.assertFalse(StringUtils.isUrl("<html><body>hi</body></html>"));
-		Assert.assertFalse(StringUtils.isUrl("Hi"));
-		Assert.assertFalse(StringUtils.isUrl(null));
-	}
 
-	@Test
-	public void isHtml() {
-		Assert.assertFalse(StringUtils.isHtml("http://www.notrealaddress.com/"));
-		Assert.assertFalse(StringUtils.isHtml("https://www.notrealaddress.com/"));
-		Assert.assertTrue(StringUtils.isHtml("<html><body>hi</body></html>"));
-		Assert.assertFalse(StringUtils.isHtml("Hi"));
-		Assert.assertFalse(StringUtils.isHtml(null));
-	}
-	
 	@Test
 	public void stripHtml() {
 		Assert.assertEquals(null, StringUtils.stripHtml(null));

@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
 
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -255,8 +256,13 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createHtmlContent(String htmlOrUrl) {
-		return new VaadinHtmlContent(htmlOrUrl);
+	public IContent createHtmlContent(String html) {
+		return new VaadinHtmlContent(html);
+	}
+
+	@Override
+	public IContent createHtmlContent(URL url) {
+		return new VaadinHtmlContent(url);
 	}
 
 	@Override

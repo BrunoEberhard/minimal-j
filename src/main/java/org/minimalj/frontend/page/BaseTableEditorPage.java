@@ -14,19 +14,12 @@ import org.minimalj.util.resources.Resources;
 
 abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
-	// generic mystery: how to do this static without warning
-	public final BaseTableEditorPage<VIEW, T>.DetailPage NO_DETAIL_PAGE = null;
-	
 	private DetailPage detailPage;
 	
 	public BaseTableEditorPage() {
 		super();
 	}
 
-	public BaseTableEditorPage(Object[] columns) {
-		super(columns);
-	}
-	
 	protected abstract Form<T> createForm(boolean editable, boolean newObject);
 	
 	protected void validate(T object, boolean newObject, List<ValidationMessage> validationMessages) {
@@ -164,7 +157,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	}	
 	
 	public class TableEditor extends AbstractTableEditor implements TableSelectionAction<T> {
-		private transient T selection;
+		private T selection;
 
 		public TableEditor() {
 			selectionChanged(null);

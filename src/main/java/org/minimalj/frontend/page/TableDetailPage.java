@@ -1,5 +1,6 @@
 package org.minimalj.frontend.page;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend;
@@ -7,14 +8,10 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 
 public abstract class TableDetailPage<T> extends TablePage<T> implements TableActionListener<T> {
 
-	private transient Page detailPage;
+	private Page detailPage;
 
 	public TableDetailPage() {
 		super();
-	}
-
-	public TableDetailPage(Object[] keys) {
-		super(keys);
 	}
 
 	// better: createDetailPage
@@ -31,8 +28,8 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 	@SuppressWarnings("unchecked")
 	@Override
 	public void action(T selectedObject) {
-		if (detailPage instanceof TableActionListener) {
-			((TableActionListener<T>) detailPage).action(selectedObject);
+		if (detailPage instanceof ChangeableDetailPage) {
+			((ChangeableDetailPage<T>) detailPage).setObjects(Collections.singletonList(selectedObject));
 			setDetailPage(detailPage);
 		} else {
 			Page newDetailPage = getDetailPage(selectedObject);
@@ -46,8 +43,8 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		super.selectionChanged(selectedObjects);
 		boolean detailVisible = isDetailVisible();
 		if (detailVisible && !selectedObjects.isEmpty()) {
-			if (detailPage instanceof TableActionListener) {
-				((TableActionListener<T>) detailPage).selectionChanged(selectedObjects);
+			if (detailPage instanceof ChangeableDetailPage) {
+				((ChangeableDetailPage<T>) detailPage).setObjects(selectedObjects);
 			} else {
 				Page newDetailPage = getDetailPage(selectedObjects);
 				setDetailPage(newDetailPage);
@@ -68,4 +65,7 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		return detailPage != null && Frontend.isDetailShown(detailPage);
 	}
 
+	public interface ChangeableDetailPage<T> {
+		public void setObjects(List<T> objects);
+	}
 }

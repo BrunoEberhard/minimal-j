@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.lanterna.toolkit;
 
+import java.net.URL;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend;
@@ -127,7 +128,13 @@ public class LanternaFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createHtmlContent(String htmlOrUrl) {
+	public IContent createHtmlContent(String html) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IContent createHtmlContent(URL url) {
 		// TODO Auto-generated method stub
 		return null;
 	}

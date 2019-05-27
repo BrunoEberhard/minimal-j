@@ -1,5 +1,6 @@
 package org.minimalj.frontend;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
@@ -160,7 +161,7 @@ public abstract class Frontend {
 		public void setObjects(List<T> objects);
 	}
 
-	public static interface TableActionListener<U> {
+	public interface TableActionListener<U> {
 
 		public default void selectionChanged(List<U> selectedObjects) {
 		}
@@ -176,25 +177,28 @@ public abstract class Frontend {
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
 	/**
-	 * Allows several types of input:
-	 * <UL>
-	 * <LI>if it starts with a '&lt;html&gt;' and ends with &lt;/html&gt; it's
-	 * supposed to be a html document
-	 * <LI>if it is a valid url the content of that url is loaded
-	 * <LI>if it ends with '.html' the content is loaded from the classpath
-	 * <LI>if none of the above the input is used as plain String
-	 * </UL>
+	 * <p>
 	 * <strong>note:</strong> If any user input is used as html content the input
 	 * should be considered dangerous as some Frontends could execute injected code.
-	 * <p>
+	 * </p>
 	 * 
 	 * @see StringUtils#escapeHTML(String)
 	 * 
-	 * @param htmlOrUrl html, url, classpath location or string
+	 * @param html valid html
 	 * @return html content
 	 */
-	public abstract IContent createHtmlContent(String htmlOrUrl);
-		
+	public abstract IContent createHtmlContent(String html);
+
+	public abstract IContent createHtmlContent(URL url);
+
+	public void showBrowser(URL url) {
+		showBrowser(url.toExternalForm());
+	}
+
+	public void showBrowser(String url) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
 	/**
 	 * Create a content with a caption and a large search field. Something like
 	 * what a really big search engine show.

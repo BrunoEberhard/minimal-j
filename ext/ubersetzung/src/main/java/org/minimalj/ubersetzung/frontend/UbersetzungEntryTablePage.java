@@ -15,8 +15,12 @@ public class UbersetzungEntryTablePage extends SimpleTableEditorPage<Ubersetzung
 	private Ubersetzung ubersetzung;
 
 	public UbersetzungEntryTablePage(Ubersetzung ubersetzung) {
-		super(new Object[] { UbersetzungEntry.$.key, UbersetzungEntry.$.value });
 		this.ubersetzung = ubersetzung;
+	}
+
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { UbersetzungEntry.$.key, UbersetzungEntry.$.value };
 	}
 
 	@Override

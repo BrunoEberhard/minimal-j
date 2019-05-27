@@ -102,7 +102,7 @@ public class FlatPropertiesTest {
 	
 	public static class TestEntityC {
 		public Object id;
-		public final Set<TestEnum> e = new TreeSet<TestEnum>();
+		public final Set<TestEnum> e = new TreeSet<>();
 	}
 
 }

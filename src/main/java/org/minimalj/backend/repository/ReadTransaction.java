@@ -8,7 +8,7 @@ public abstract class ReadTransaction<ENTITY, RETURN> extends EntityTransaction<
 	private final ClassHolder<ENTITY> classHolder;
 
 	public ReadTransaction(Class<ENTITY> clazz) {
-		this.classHolder = new ClassHolder<ENTITY>(clazz);
+		this.classHolder = new ClassHolder<>(clazz);
 	}
 
 	@Override

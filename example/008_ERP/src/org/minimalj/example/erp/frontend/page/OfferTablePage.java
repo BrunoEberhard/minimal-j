@@ -30,8 +30,12 @@ public class OfferTablePage extends TableDetailPage<Offer> {
 	};
 	
 	public OfferTablePage(Customer customer) {
-		super(FIELDS);
 		this.customer = customer;
+	}
+
+	@Override
+	protected Object[] getColumns() {
+		return FIELDS;
 	}
 
 	public void setCustomer(Customer customer) {

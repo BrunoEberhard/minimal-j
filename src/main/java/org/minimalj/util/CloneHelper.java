@@ -82,7 +82,7 @@ public class CloneHelper {
 				if (fromList instanceof RelationList) {
 					// RelationList doesn't need to be cloned
 					field.set(to, fromList);
-				} else if (fromList != null) {
+				} else {
 					if (FieldUtils.isFinal(field)) {
 						toList.clear();
 					} else {
@@ -142,8 +142,7 @@ public class CloneHelper {
 			}
 		}
 		try {
-			T newInstance = constructor.newInstance();
-			return newInstance;
+			return constructor.newInstance();
 		} catch (IllegalArgumentException | //
 				InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);

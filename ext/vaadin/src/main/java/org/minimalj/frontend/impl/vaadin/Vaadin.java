@@ -23,6 +23,7 @@ import org.minimalj.frontend.impl.vaadin.toolkit.VaadinGridFormLayout;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
@@ -62,7 +63,7 @@ public class Vaadin extends UI implements PageManager {
 	private static final long serialVersionUID = 1L;
 
 	private final PageStore pageStore = new PageStore();
-	private final List<Component> components = new ArrayList<>();
+	private final List<AbstractComponent> components = new ArrayList<>();
 
 	private HorizontalSplitPanel splitPanel;
 	
@@ -236,7 +237,7 @@ public class Vaadin extends UI implements PageManager {
 	private Page getPage(String route) {
 		Page page = null;
 		if (!StringUtils.isEmpty(route)) {
-			page = Application.getInstance().createPage(route.substring(1));
+			page = Routing.createPageSafe(route.substring(1));
 		}
 		if (page == null) {
 			page = Application.getInstance().createDefaultPage();
@@ -261,7 +262,7 @@ public class Vaadin extends UI implements PageManager {
 	}
 	
 	protected void updateWindowTitle() {
-		Page visiblePage = !components.isEmpty() ? pageStore.get(components.get(0).getId()) : null;
+		Page visiblePage = !components.isEmpty() ? (Page) components.get(0).getData() : null;
 		String title = Application.getInstance().getName();
 		if (visiblePage != null) {
 			String pageTitle = visiblePage.getTitle();
@@ -280,14 +281,14 @@ public class Vaadin extends UI implements PageManager {
 	private void show(Page page, Boolean replaceState) {
 		String pageId = pageStore.put(page);
 		components.clear();
-		Component component = (Component) PageAccess.getContent(page);
+		AbstractComponent component = (AbstractComponent) PageAccess.getContent(page);
 		if (component != null) {
-			component.setId(pageId);
+			component.setData(page);
 			components.add(component);
 		}
 		
-		String route = PageAccess.getRoute(page);
-		if (!Page.validateRoute(route)) {
+		String route = Routing.getRouteSafe(page);
+		if (route == null) {
 			route = "/";
 		}
 		route = route + "#" + pageId;
@@ -307,9 +308,9 @@ public class Vaadin extends UI implements PageManager {
 			components.remove(j);
 		}
 
-		String detailId = pageStore.put(detail);
-		Component component = (Component) PageAccess.getContent(detail);
-		component.setId(detailId);
+		pageStore.put(detail);
+		AbstractComponent component = (AbstractComponent) PageAccess.getContent(detail);
+		component.setData(detail);
 		components.add(component);
 
 		updateContent();
@@ -332,8 +333,7 @@ public class Vaadin extends UI implements PageManager {
 
 	private int indexOfDetail(Page detail) {
 		for (int pos = 0; pos < components.size(); pos++) {
-			String id = components.get(pos).getId(); 
-			Page d = pageStore.get(id);
+			Page d = (Page) components.get(pos).getData();
 			if (d == detail) {
 				return pos;
 			}
@@ -343,9 +343,8 @@ public class Vaadin extends UI implements PageManager {
 	
 	private void updateContent() {
 		if (components.size() == 1) {
-			Component content = components.get(0);
-			String pageId = content.getId();
-			Page page = pageStore.get(pageId);
+			AbstractComponent content = components.get(0);
+			Page page = (Page) content.getData();
 			if (content instanceof VaadinGridFormLayout) {
 				content = new Panel(content);
 			}
@@ -361,9 +360,8 @@ public class Vaadin extends UI implements PageManager {
 			verticalLayout.setSpacing(false);
 			verticalLayout.setWidth("100%");
 			
-			for (Component content : components) {
-				String pageId = content.getId();
-				Page page = pageStore.get(pageId);
+			for (AbstractComponent content : components) {
+				Page page = (Page) content.getData();
 				createMenu((AbstractComponent) content, PageAccess.getActions(page));
 				
 				VaadinDecoration decoratedContent = new VaadinDecoration(page.getTitle(), content, SwingDecoration.SHOW_MINIMIZE, event -> hideDetail(page));

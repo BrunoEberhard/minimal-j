@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +103,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new JsonCombobox<T>(objects, changeListener);
+		return new JsonCombobox<>(objects, changeListener);
 	}
 
 	@Override
@@ -112,12 +113,12 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new JsonTable<T>(keys, multiSelect, listener);
+		return new JsonTable<>(keys, multiSelect, listener);
 	}
 
 	@Override
 	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new JsonSearchTable<T>(search, keys, multiSelect, listener);
+		return new JsonSearchTable<>(search, keys, multiSelect, listener);
 	}
 
 	@Override
@@ -172,10 +173,20 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createHtmlContent(String htmlOrUrl) {
-		return new JsonHtmlContent(htmlOrUrl);
+	public IContent createHtmlContent(String html) {
+		return new JsonHtmlContent(html);
 	}
-	
+
+	@Override
+	public IContent createHtmlContent(URL url) {
+		return new JsonHtmlContent(url);
+	}
+
+	@Override
+	public void showBrowser(String url) {
+		getClientSession().show(url);
+	}
+
 	@Override
 	public IContent createQueryContent() {
 		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);
@@ -225,6 +236,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$THEME", THEMES.get(Configuration.get("MjTheme", "")));
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
+		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));
 		return result;
 	}
 	
@@ -257,6 +269,13 @@ public class JsonFrontend extends Frontend {
 			}
 			s.append("<meta name=\"keywords\" content=\"").append(Resources.getString("Application.keywords")).append("\">");
 		}
+		if (Resources.isAvailable("Application.google-site-verification")) {
+			if (s.length() > 0) {
+				s.append('\n');
+			}
+			s.append("<meta name=\"google-site-verification\" content=\"").append(Resources.getString("Application.google-site-verification")).append("\">");
+		}
+
 		return s.toString();
 	}
 }

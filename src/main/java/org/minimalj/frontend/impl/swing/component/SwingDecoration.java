@@ -8,7 +8,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
 
@@ -65,13 +64,10 @@ public class SwingDecoration extends JPanel {
 			JButton button = createDecorationButton(Part.WP_MINBUTTON);
 			bar.add(button);
 			
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					content.setVisible(!content.isShowing());
-					content.getParent().revalidate();
-					content.getParent().repaint();
-				}
+			button.addActionListener(e -> {
+				content.setVisible(!content.isShowing());
+				content.getParent().revalidate();
+				content.getParent().repaint();
 			});
 		}
 		

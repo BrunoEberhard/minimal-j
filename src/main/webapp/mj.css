@@ -184,13 +184,14 @@ li {
 	overflow: auto;
 }
 
-.page:only-child .pageContent {
+.page:only-child > .pageContentAndActions > iframe.pageContent {
 	height: 100%;
 }
-	
-.pageContent iframe {
-	padding: 0em;
-	width: 100%;
+
+iframe.pageContent {
+	padding-top: 0;
+	border: 0;
+	font-family: inherit;
 }
 
 table.table tr td {
@@ -435,26 +436,6 @@ label {
 
 .hide {
 	visibility: hidden;
-}
-
-iframe {
-	border: 0px;
-	font-family: inherit;
-}
-
-block {
-	display: none;
-}
-
-.is-blocked {
-	display: block;
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background: rgba(0, 0, 0, 0.1);
-	z-index: 90;
 }
 
 @media (min-width: 992px) {

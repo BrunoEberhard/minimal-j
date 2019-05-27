@@ -71,7 +71,7 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 		
 	protected List<Action> createAdditionalActions() {
-		List<Action> actions = new ArrayList<Action>();
+		List<Action> actions = new ArrayList<>();
 		if (Configuration.isDevModeActive()) {
 			actions.add(new FillWithDemoDataAction());
 		}
@@ -131,7 +131,6 @@ public abstract class Wizard<RESULT> extends Action {
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
 			Frontend.showError(x.getLocalizedMessage());
-			return;
 		}
 	}
 	

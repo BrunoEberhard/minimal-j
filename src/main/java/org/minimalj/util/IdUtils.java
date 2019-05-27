@@ -51,7 +51,7 @@ public class IdUtils {
 	 * @return the value of the <code>id</code> field
 	 */
 	public static Object getId(Object object) {
-		Objects.nonNull(object);
+		Objects.requireNonNull(object);
 		try {
 			Field idField = getIdField(object.getClass());
 			if (idField == null) throw new IllegalArgumentException(object.getClass().getName() + " has no id field to get");
@@ -140,7 +140,7 @@ public class IdUtils {
 	public static void setHistorized(Object object, int historized) {
 		try {
 			Field historizedField = object.getClass().getField("historized");
-			historizedField.set(object, Boolean.valueOf(historized > 0));
+			historizedField.set(object, historized > 0);
 		} catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

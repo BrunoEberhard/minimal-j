@@ -4,18 +4,18 @@ import java.net.URL;
 
 import javax.swing.SwingUtilities;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.util.StringUtils;
+import org.minimalj.frontend.page.Routing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.html.HTMLImageElement;
 
 import com.sun.javafx.application.PlatformImpl;
 
@@ -29,29 +29,17 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 	private static final long serialVersionUID = 1L;
 	public static final String EVENT_TYPE_CLICK = "click";
 
-	public FxHtmlContent(String htmlOrUrl) {
+	public FxHtmlContent(String html) {
 		Platform.setImplicitExit(false);
+		startBrowser(null, html);
+	}
 
-		String url, html;
-		if (StringUtils.isHtml(htmlOrUrl)) {
-			url = null;
-			html = htmlOrUrl;
-		} else if (StringUtils.isUrl(htmlOrUrl)) {
-			url = htmlOrUrl;
-			html = null;
-		} else if (htmlOrUrl.endsWith(".html")) {
-			URL resource = getClass().getClassLoader().getResource(htmlOrUrl);
-			if (resource != null) {
-				url = resource.toExternalForm();
-				html = null;
-			} else {
-				throw new IllegalArgumentException("Invalid content: " + htmlOrUrl);
-			}
-		} else {
-			url = null;
-			html = "<html>" + StringUtils.escapeHTML(htmlOrUrl) + "</html>";
-		}
+	public FxHtmlContent(URL url) {
+		Platform.setImplicitExit(false);
+		startBrowser(url.toExternalForm(), null);
+	}
 
+	private void startBrowser(String url, String html) {
 		PlatformImpl.startup(new Runnable() {
 			@Override
 			public void run() {
@@ -88,7 +76,7 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 									if (href.startsWith("/")) {
 										href = href.substring(1);
 									}
-									Page page = Application.getInstance().createPage(href);
+									Page page = Routing.createPageSafe(href);
 									if (page != null) {
 										SwingUtilities.invokeLater(() -> {
 											SwingFrontend.runWithContext(() -> Frontend.show(page));
@@ -104,9 +92,16 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 						for (int i = 0; i < nodeList.getLength(); i++) {
 							((EventTarget) nodeList.item(i)).addEventListener(EVENT_TYPE_CLICK, listener, true);
 						}
+
+						if (url == null) {
+							nodeList = doc.getElementsByTagName("img");
+							for (int i = 0; i < nodeList.getLength(); i++) {
+								HTMLImageElement n = (HTMLImageElement) nodeList.item(i);
+								n.setSrc(getClass().getClassLoader().getResource(n.getSrc()).toExternalForm());
+							}
+						}
 					}
 				});
-
 			}
 		});
 	}

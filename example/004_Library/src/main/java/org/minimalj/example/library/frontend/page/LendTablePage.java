@@ -23,8 +23,12 @@ public class LendTablePage extends TablePage<Lend> {
 	};
 	
 	public LendTablePage(Customer customer) {
-		super(FIELDS);
 		this.customer = customer;
+	}
+
+	@Override
+	protected Object[] getColumns() {
+		return FIELDS;
 	}
 
 	@Override

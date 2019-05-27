@@ -8,10 +8,6 @@ public abstract class SimpleTableEditorPage<T> extends BaseTableEditorPage<T, T>
 		super();
 	}
 
-	public SimpleTableEditorPage(Object[] columns) {
-		super(columns);
-	}
-	
 	@Override
 	protected T createObject() {
 		return CloneHelper.newInstance(getClazz());

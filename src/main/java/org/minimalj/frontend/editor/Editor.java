@@ -86,7 +86,7 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
  	
 	protected List<Action> createAdditionalActions() {
-		List<Action> actions = new ArrayList<Action>();
+		List<Action> actions = new ArrayList<>();
 		if (Configuration.isDevModeActive()) {
 			actions.add(new FillWithDemoDataAction());
 		}
@@ -127,8 +127,7 @@ public abstract class Editor<T, RESULT> extends Action {
 			ExceptionUtils.logReducedStackTrace(logger, x);
 			// TODO clever error handling, for example at login if jdbc is wrong
 			Frontend.showError(x.getLocalizedMessage() != null ? x.getLocalizedMessage() : x.getClass().getSimpleName());
-			return;
-		}
+        }
 	}
 
 	protected boolean closeWith(RESULT result) {
@@ -223,8 +222,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		protected T createObject() {
 			@SuppressWarnings("unchecked")
 			Class<T> clazz = (Class<T>) getEditedClass();
-			T newInstance = CloneHelper.newInstance(clazz);
-			return newInstance;
+			return CloneHelper.newInstance(clazz);
 		}
 	}
 

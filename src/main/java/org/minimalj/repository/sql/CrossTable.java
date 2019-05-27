@@ -31,7 +31,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 		String s = dialect.createConstraint(getTableName(), "elementId", referencedTable.getTableName());
 		if (s != null) {
-			execute(s.toString());
+			execute(s);
 		}
 	}
 
@@ -90,7 +90,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent) {
-		return new RelationList<PARENT, ELEMENT>(sqlRepository, getClazz(), parent, name);
+		return new RelationList<>(sqlRepository, getClazz(), parent, name);
 	}
 	
 	public List<ELEMENT> readAll(Object parentId) {
@@ -114,30 +114,22 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	
 	@Override
 	protected String selectByIdQuery() {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT elementId FROM ").append(getTableName()).append(" WHERE id = ? ORDER BY position");
-		return query.toString();
+		return "SELECT elementId FROM " + getTableName() + " WHERE id = ? ORDER BY position";
 	}
-	
+
 	@Override
 	protected String insertQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("INSERT INTO ").append(getTableName());
-		s.append(" (elementId, id, position) VALUES (?, ?, ?)");
-		return s.toString();
+		return "INSERT INTO " + getTableName() + " (elementId, id, position) VALUES (?, ?, ?)";
 	}
 
 	@Override
 	protected String updateQuery() {
-		StringBuilder s = new StringBuilder();
-		s.append("UPDATE ").append(getTableName()).append(" SET ");
-		s.append("elementId = ? WHERE id = ? AND position = ?");
-		return s.toString();
+		return "UPDATE " + getTableName() + " SET " + "elementId = ? WHERE id = ? AND position = ?";
 	}
 
 	@Override
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
-		s.append(",\n elementId "); 
+		s.append(",\n elementId ");
 		PropertyInterface elementIdProperty = FlatProperties.getProperty(clazz, "id");
 		dialect.addColumnDefinition(s, elementIdProperty);
 		s.append(" NOT NULL");

@@ -122,12 +122,11 @@ public class WhereClause<T> {
 
 	private void combine(List<? extends Query> criterias, String operator) {
 		if (criterias.isEmpty()) {
-			return;
-		} else if (criterias.size() == 1) {
-			add(new WhereClause<T>(table, criterias.get(0)));
+        } else if (criterias.size() == 1) {
+			add(new WhereClause<>(table, criterias.get(0)));
 		} else {
 			for (Query criteria : criterias) {
-				WhereClause<T> whereClause = new WhereClause<T>(table, criteria);
+				WhereClause<T> whereClause = new WhereClause<>(table, criteria);
 				if (this.clause == null) {
 					this.clause = "(";
 				} else {
@@ -184,7 +183,7 @@ public class WhereClause<T> {
 			if ("id".equals(restOfFieldPath)) {
 				return column + " " + criteriaString;
 			} else {
-				PropertyInterface subProperty = (PropertyInterface) table.getColumns().get(column);
+				PropertyInterface subProperty = table.getColumns().get(column);
 				AbstractTable<?> subTable = table.sqlRepository.getAbstractTable(subProperty.getClazz());
 				return column + " = (SELECT id FROM " + subTable.getTableName() + " WHERE " + whereStatement(subTable, restOfFieldPath, criteriaString) + ")";
 			}

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.Temporal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -117,17 +118,9 @@ public abstract class SqlDialect {
 		String name = "FK_" + tableName + "_" + column;
 		name = SqlIdentifier.buildIdentifier(name, getMaxIdentifierLength(), foreignKeyNames);
 		foreignKeyNames.add(name);
-		
-		StringBuilder s = new StringBuilder();
-		s.append("ALTER TABLE ").append(tableName);
-		s.append(" ADD CONSTRAINT ");
-		s.append(name);
-		s.append(" FOREIGN KEY (");
-		s.append(column);
-		s.append(") REFERENCES ");
-		s.append(referencedTableName);
-		s.append(" (ID)"); // not used at the moment: INITIALLY DEFERRED
-		return s.toString();
+
+		// not used at the moment: INITIALLY DEFERRED
+		return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + name + " FOREIGN KEY (" + column + ") REFERENCES " + referencedTableName + " (ID)";
 	}
 	
 	public String createIndex(String tableName, String column, boolean withVersion) {
@@ -150,15 +143,7 @@ public abstract class SqlDialect {
 	}
 	
 	public String createUniqueIndex(String tableName, String column) {
-		StringBuilder s = new StringBuilder();
-		s.append("ALTER TABLE ");
-		s.append(tableName);
-		s.append(" ADD UNIQUE INDEX ");
-		s.append(column);
-		s.append(" (");
-		s.append(column);
-		s.append(')');
-		return s.toString();
+		return "ALTER TABLE " + tableName + " ADD UNIQUE INDEX " + column + " (" + column + ')';
 	}
 	
 	public String limit(int rows, Integer offset) {
@@ -270,15 +255,7 @@ public abstract class SqlDialect {
 		
 		@Override
 		public String createUniqueIndex(String tableName, String column) {
-			StringBuilder s = new StringBuilder();
-			s.append("ALTER TABLE ");
-			s.append(tableName);
-			s.append(" ADD CONSTRAINT ");
-			s.append(column);
-			s.append("_UNIQUE UNIQUE (");
-			s.append(column);
-			s.append(')');
-			return s.toString();
+			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
 		}
 
 		@Override
@@ -290,11 +267,11 @@ public abstract class SqlDialect {
 	public static class OracleSqlDialect extends SqlDialect {
 
 		@Override
-		public void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
+		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
 			if (value instanceof Temporal && !InvalidValues.isInvalid(value)) {
 				value = value.toString();
 			}
-			super.setParameter(preparedStatement, param, value, clazz);
+			super.setParameter(preparedStatement, param, value);
 		}
 		
 		@Override
@@ -309,16 +286,12 @@ public abstract class SqlDialect {
 		@Override
 		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 			Class<?> clazz = property.getClazz();
-			if (clazz == LocalDateTime.class) {
-				s.append("TIMESTAMP");
-			} else if (clazz == LocalDate.class) {
+			if (clazz == LocalDate.class) {
 				s.append("CHAR(10)");
 			} else if (clazz == LocalTime.class) {
 				s.append("CHAR(").append(DateUtils.getTimeSize(property)).append(")");				
-			} else if (clazz == LocalTime.class) {
+			} else if (clazz == LocalDateTime.class) {
 				s.append("CHAR(30)");
-			} else if (clazz == LocalDate.class) {
-				s.append("DATE");
 			} else if (clazz == Boolean.class) {
 				s.append("SMALLINT");
 			} else if (clazz == Long.class) {
@@ -330,15 +303,7 @@ public abstract class SqlDialect {
 		
 		@Override
 		public String createUniqueIndex(String tableName, String column) {
-			StringBuilder s = new StringBuilder();
-			s.append("ALTER TABLE ");
-			s.append(tableName);
-			s.append(" ADD CONSTRAINT ");
-			s.append(column);
-			s.append("_UNIQUE UNIQUE (");
-			s.append(column);
-			s.append(')');
-			return s.toString();
+			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
 		}
 
 		@Override
@@ -347,9 +312,10 @@ public abstract class SqlDialect {
 		}
 	}
 	
-	public void setParameter(PreparedStatement preparedStatement, int param, Object value, Class<?> clazz) throws SQLException {
-		if (value == null || InvalidValues.isInvalid(value)) {
-			setParameterNull(preparedStatement, param, clazz);
+	public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
+		Objects.requireNonNull(value);
+		if (InvalidValues.isInvalid(value)) {
+			setParameterNull(preparedStatement, param, value.getClass());
 		} else {
 			if (value instanceof Enum<?>) {
 				Enum<?> e = (Enum<?>) value;
@@ -450,7 +416,7 @@ public abstract class SqlDialect {
 			if (value instanceof Boolean) {
 				return value;
 			} else if (value instanceof Integer) {
-				value = Boolean.valueOf(((int) value) == 1);
+				value = ((int) value) == 1;
 			} else if (value != null) {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}

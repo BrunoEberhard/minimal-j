@@ -1,26 +1,33 @@
 package org.minimalj.frontend.impl.util;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.page.Page;
 
 public class PageStore {
 
-	private final Map<String, PageStoreEntry> pagesById = new HashMap<>();
+	private final static int HISTORY_LENGTH = Integer.parseInt(Configuration.get("MjHistoryLength", "20"));
+	private final ArrayBlockingQueue<PageStoreEntry> queue = new ArrayBlockingQueue<>(HISTORY_LENGTH);
 	
 	public String put(Page page) {
-		String pageId = UUID.randomUUID().toString();
 		PageStoreEntry entry = new PageStoreEntry(page);
-		pagesById.put(pageId, entry);
-		return pageId;
+		if (queue.remainingCapacity() == 0) {
+			queue.poll();
+		}
+		queue.add(entry);
+		return entry.getId();
 	}
 	
 	public Page get(String pageId) {
-		if (pagesById.containsKey(pageId)) {
-			PageStoreEntry entry = pagesById.get(pageId);
+		Optional<PageStoreEntry> optional = queue.stream().filter(entry -> entry.getId().equals(pageId)).findFirst();
+		if (optional.isPresent()) {
+			PageStoreEntry entry = optional.get();
+			queue.remove(entry);
+			queue.add(entry);
 			return entry.getPage();
 		} else {
 			throw new IllegalStateException(pageId);
@@ -28,24 +35,24 @@ public class PageStore {
 	}
 	
 	public boolean valid(List<String> pageIds) {
-		return pageIds.stream().allMatch(pagesById::containsKey);
+		return pageIds.stream().allMatch(pageId -> queue.stream().anyMatch(entry -> entry.getId().equals(pageId)));
 	}
 	
 	private static class PageStoreEntry {
+		private final String id;
 		private final Page page;
-		private long lastUsed;
 
 		public PageStoreEntry(Page page) {
+			this.id = UUID.randomUUID().toString();
 			this.page = page;
-			updateLastUsed();
-		}
-		
-		public void updateLastUsed() {
-			lastUsed = System.currentTimeMillis();
 		}
 		
 		public Page getPage() {
 			return page;
+		}
+
+		public String getId() {
+			return id;
 		}
 	}
 }

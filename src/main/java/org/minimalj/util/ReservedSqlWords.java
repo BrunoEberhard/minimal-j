@@ -25,9 +25,7 @@ public class ReservedSqlWords {
 					String line = r.readLine();
 					if (!line.startsWith("#")) {
 						String[] words = line.split(" ");
-						for (String word : words) {
-							reservedSqlWords.add(word);
-						}
+						Collections.addAll(reservedSqlWords, words);
 					}
 				}
 			} 

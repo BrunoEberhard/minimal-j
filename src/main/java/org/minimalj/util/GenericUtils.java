@@ -72,7 +72,7 @@ public class GenericUtils {
 	 * @return the class the interface had in type argument
 	 */
 	public static Class<?> getTypeArgument(Class<?> clazz, Class<?> interfce) {
-		Map<Type, Type> resolvedTypes = new HashMap<Type, Type>();
+		Map<Type, Type> resolvedTypes = new HashMap<>();
 		Type type = clazz;
 		
 		while (!declaresInterface(getClass(type), interfce)) {

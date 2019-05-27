@@ -7,11 +7,10 @@ import org.minimalj.frontend.page.TablePage;
 import org.minimalj.repository.query.By;
 
 public class NoteTablePage extends TablePage<Note> {
-
-	private static final Object[] columns = new Object[]{Note.$.date, Note.$.text};
 	
-	public NoteTablePage() {
-		super(columns);
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { Note.$.date, Note.$.text };
 	}
 
 	@Override

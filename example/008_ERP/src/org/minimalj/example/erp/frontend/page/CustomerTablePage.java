@@ -11,8 +11,9 @@ import org.minimalj.repository.query.By;
 
 public class CustomerTablePage extends TableDetailPage<Customer> {
 
-	public CustomerTablePage() {
-		super(CustomerSearchPage.FIELDS);
+	@Override
+	protected Object[] getColumns() {
+		return CustomerSearchPage.FIELDS;
 	}
 	
 	@Override

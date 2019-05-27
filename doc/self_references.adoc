@@ -41,7 +41,7 @@ situations. It's allowed to reference itself if the reference is a View:
 ----
 public class Node {
 	public Object id;
-	public Node left, right;
+	public NodeView left, right;
 }
 
 public class NodeView implements View<Node> {
@@ -49,14 +49,23 @@ public class NodeView implements View<Node> {
 }
 ----
 
-If you want to access the parent you have to do a special read to convert the ValidView3 to a
-Valid3:
+If you want to access 'left' you have to do a special read to convert the NodeView to a
+Node:
 
 [source,java,title"Read tree nodes"]
 ----
 	Node node = Backend.read(Node.class, id);
 	Node left = node.left != null ? Backend.read(Node.class, node.left.id) : null;
 ----
+
+or the same with a helper method:
+
+[source,java,title"Use of ViewUtils"]
+----
+	Node node = Backend.read(Node.class, id);
+	Node left = ViewUtils.viewed(node.left);
+----
+
 
 In this way you can build trees in your models. Minimal-J just prevents that you accidentally read
 more objects than you really wanted. You have to read them explicit and are aware of what is happening.

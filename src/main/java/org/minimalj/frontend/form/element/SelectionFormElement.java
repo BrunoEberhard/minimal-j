@@ -50,6 +50,6 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> {
 
 	@Override
 	public Selection<T> getValue() {
-		return new Selection<T>(input.getValue());
+		return new Selection<>(input.getValue());
 	}
 }

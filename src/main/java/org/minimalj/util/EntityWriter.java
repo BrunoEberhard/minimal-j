@@ -43,7 +43,7 @@ public class EntityWriter {
 				fieldClass = String.class;
 				value = value != null ? value.toString() : null;
 			}
-			if (!writePrimitiv(value, fieldClass)) {
+			if (!writeValue(value, fieldClass)) {
 	    		writeIfNotNull(value);	
 			}
 		}
@@ -58,47 +58,47 @@ public class EntityWriter {
 		}
 	}
 
-	private boolean writePrimitiv(Object value, Class<?> fieldClazz) throws IOException {
+	public boolean writeValue(Object value, Class<?> clazz) throws IOException {
 		if (value == null) {
     		dos.write(0);
     		return true;
 		}
 
-		if (fieldClazz == String.class) {
+		if (clazz == String.class) {
 			writeString((String) value);
-		} else  if (fieldClazz == Byte.TYPE) {
+		} else  if (clazz == Byte.TYPE) {
 			dos.write((Byte) value);
-		} else if (fieldClazz == Short.TYPE) {
+		} else if (clazz == Short.TYPE) {
 			dos.writeShort((Short) value);
-		} else if (fieldClazz == Integer.TYPE) {
+		} else if (clazz == Integer.TYPE) {
 			dos.writeInt((Integer) value);
-		} else if (fieldClazz == Long.TYPE) {
+		} else if (clazz == Long.TYPE) {
 			dos.writeLong((Long) value);
-		} else if (fieldClazz == Boolean.TYPE) {
+		} else if (clazz == Boolean.TYPE) {
 			dos.write(((boolean) value) ? 1 : 0);
-		} else if (fieldClazz == Byte.class) {
+		} else if (clazz == Byte.class) {
 			dos.write(1);
 			dos.write((Byte) value);
-		} else if (fieldClazz == Short.class) {
+		} else if (clazz == Short.class) {
 			dos.write(1);
 			dos.writeShort((Short) value);
-		} else if (fieldClazz == Integer.class) {
+		} else if (clazz == Integer.class) {
 			dos.write(1);
 			dos.writeInt((Integer) value);
-		} else if (fieldClazz == Long.class) {
+		} else if (clazz == Long.class) {
 			dos.write(1);
 			dos.writeLong((Long) value);
-		} else if (fieldClazz == Boolean.class) {
+		} else if (clazz == Boolean.class) {
 			dos.write(1);
-			dos.write(((Boolean) value).booleanValue() ? 1 : 0);
-		} else if (fieldClazz == List.class) {
+			dos.write((Boolean) value ? 1 : 0);
+		} else if (clazz == List.class) {
 			@SuppressWarnings("rawtypes")
 			List list = (List) value;
 			dos.writeInt(list.size());
-			for (int i = 0; i<list.size(); i++) {
-				writeIfNotNull(list.get(i));
+			for (Object o : list) {
+				writeIfNotNull(o);
 			}
-		} else if (fieldClazz.isArray()) {
+		} else if (clazz.isArray()) {
 			int arrayLength = Array.getLength(value);
 			dos.writeInt(arrayLength);
 			for (int i = 0; i<arrayLength; i++) {
@@ -117,7 +117,7 @@ public class EntityWriter {
 		} else if (value instanceof LocalDateTime) {
 			dos.write(1);
 			write((LocalDateTime) value);
-		} else if (Enum.class.isAssignableFrom(fieldClazz)) {
+		} else if (Enum.class.isAssignableFrom(clazz)) {
 			dos.writeByte(((Enum<?>) value).ordinal() + 1);
 		} else {
 			return false;

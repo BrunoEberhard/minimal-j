@@ -15,7 +15,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.text.DefaultEditorKit;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.lookAndFeel.LookAndFeelAction;
@@ -23,6 +22,7 @@ import org.minimalj.frontend.impl.swing.lookAndFeel.PrintLookAndFeel;
 import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
 import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLookAndFeel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -39,7 +39,7 @@ public class SwingMenuBar extends JMenuBar {
 		add(createWindowMenu());
 		add(createEditMenu());
 		add(createViewMenu());
-		if (SwingFrontend.applicationHasRouting()) {
+		if (Routing.available()) {
 			add(createFavoriteMenu());
 		}
 	}
@@ -102,7 +102,7 @@ public class SwingMenuBar extends JMenuBar {
 		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(2)));
 		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_UNLIMITED)));
 		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_ADPATIV)));
-		Collections.list(group.getElements()).forEach((abstractButton) -> menu.add(abstractButton));
+		Collections.list(group.getElements()).forEach(menu::add);
 		menu.addSeparator();
 		menu.add(new JCheckBoxMenuItem(Resources.getString("ScrollToNewPageAction")));
 		return menu;
@@ -156,7 +156,7 @@ public class SwingMenuBar extends JMenuBar {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			tab.show(Application.getInstance().createPage(route));
+			tab.show(Routing.createPageSafe(route));
 		}
 	}
 	

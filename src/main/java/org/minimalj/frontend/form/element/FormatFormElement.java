@@ -98,8 +98,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		public void changed(IComponent source) {
 			// Redo format
 			T value = getValue();
-			boolean valid = true;
-			valid &= !InvalidValues.isInvalid(value);
+			boolean valid = !InvalidValues.isInvalid(value);
 			if (value instanceof Validation) {
 				List<ValidationMessage> validationMessages = ((Validation) value).validateNullSafe();
 				valid &= validationMessages.isEmpty();

@@ -99,7 +99,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 	
 	private List<PropertyInterface> convert(Object[] keys) {
-		List<PropertyInterface> properties = new ArrayList<PropertyInterface>(keys.length);
+		List<PropertyInterface> properties = new ArrayList<>(keys.length);
 		for (Object key : keys) {
 			PropertyInterface property = Keys.getProperty(key);
 			if (property != null) {

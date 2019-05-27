@@ -43,10 +43,10 @@ public class PreferencesHelper {
 				value = preferences.get(key, presetValue);
 			} else if (Integer.class.equals(clazz) || Integer.TYPE.equals(clazz)) {
 				Integer presetValue = (Integer) FlatProperties.getValue(data, key);
-				value = preferences.getInt(key, presetValue != null ? presetValue.intValue() : 0);
+				value = preferences.getInt(key, presetValue != null ? presetValue : 0);
 			} else if (Boolean.class.equals(clazz) || Boolean.TYPE.equals(clazz)) {
 				Boolean presetValue = (Boolean) FlatProperties.getValue(data, key);
-				value = preferences.getBoolean(key, presetValue != null ? presetValue.booleanValue() : false);
+				value = preferences.getBoolean(key, presetValue != null ? presetValue : false);
 			} else if (clazz == LocalDate.class) {
 				LocalDate presetValue = (LocalDate) FlatProperties.getValue(data, key);
 				String formattedDate = preferences.get(key, presetValue != null ? presetValue.toString() : null);

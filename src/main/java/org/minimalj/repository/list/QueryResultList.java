@@ -88,7 +88,7 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 
 	private List<T> find(Query limtedCriteria) {
 		return repository != null ? repository.find(clazz.getClazz(), limtedCriteria)
-				: Backend.execute(new ReadCriteriaTransaction<T>(clazz.getClazz(), limtedCriteria));
+				: Backend.execute(new ReadCriteriaTransaction<>(clazz.getClazz(), limtedCriteria));
 	}
 	
 	@Override

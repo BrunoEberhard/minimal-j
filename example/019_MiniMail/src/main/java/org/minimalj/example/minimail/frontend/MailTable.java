@@ -9,12 +9,11 @@ import org.minimalj.repository.query.By;
 
 public class MailTable extends TablePage<Mail> {
 
-	public static final Object[] keys = new Object[]{Mail.$.from.address, Mail.$.to.address, Mail.$.date, Mail.$.subject};
-	
-	public MailTable() {
-		super(keys);
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { Mail.$.from.address, Mail.$.to.address, Mail.$.date, Mail.$.subject };
 	}
-
+	
 	@Override
 	protected List<Mail> load() {
 		return Backend.find(Mail.class, By.all());

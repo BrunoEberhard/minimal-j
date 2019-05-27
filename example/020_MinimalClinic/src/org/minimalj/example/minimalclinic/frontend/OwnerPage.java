@@ -82,13 +82,15 @@ public class OwnerPage extends ObjectPage<Owner> {
 	
 	public static class PetByOwnerTablePage extends TablePage<Pet> {
 
-		private static final Object[] keys = {Pet.$.name, Pet.$.type};
-		
 		private final Owner owner;
 		
 		public PetByOwnerTablePage(Owner owner) {
-			super(keys);
 			this.owner = owner;
+		}
+
+		@Override
+		protected Object[] getColumns() {
+			return new Object[] { Pet.$.name, Pet.$.type };
 		}
 
 		@Override

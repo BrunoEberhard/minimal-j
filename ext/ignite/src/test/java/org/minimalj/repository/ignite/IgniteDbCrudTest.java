@@ -134,33 +134,6 @@ public class IgniteDbCrudTest {
 		repository.delete(m);
 	}
 
-	private Object writeSimpleA() {
-		A a = new A("testName1");
-
-		Object id = repository.insert(a);
-		return id;
-	}
-
-	private void readTheAandAddBandE(Object id) {
-		A a2 = repository.read(A.class, id);
-		a2.b.add(new B("testNameB1"));
-		a2.e = new E();
-		a2.e.e = "AddedE";
-		
-		repository.update(a2);
-	}
-
-	private void addAnotherB(final A a4) {
-		a4.b.add(new B("testNameB2"));
-		repository.update(a4);
-	}
-
-	private void removeFirstB(final Object id) {
-		A a5 = repository.read(A.class, id);
-		a5.b.remove(0);
-		repository.update(a5);
-	}
-
 	//
 	
 	public static class TestElement {

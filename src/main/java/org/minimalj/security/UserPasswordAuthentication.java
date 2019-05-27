@@ -104,8 +104,8 @@ public abstract class UserPasswordAuthentication extends Authentication {
 		private final UserPassword userPassword;
 		
 		public LoginTransaction(UserPassword userPassword) {
-			Objects.nonNull(userPassword);
-			Objects.nonNull(userPassword.user);
+			Objects.requireNonNull(userPassword);
+			Objects.requireNonNull(userPassword.user);
 			
 			this.userPassword = userPassword;
 		}

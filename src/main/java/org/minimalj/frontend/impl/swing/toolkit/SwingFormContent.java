@@ -21,12 +21,11 @@ import org.minimalj.frontend.impl.swing.component.SwingCaption;
 
 public class SwingFormContent extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
-	
-	private final int columnWidth;
+
 	private final Map<IComponent, SwingCaption> captionByComponent = new HashMap<>();
 	
 	public SwingFormContent(int columns, int columnWidthPercentage) {
-		columnWidth = getColumnWidth() * columnWidthPercentage / 100;
+		int columnWidth = getColumnWidth() * columnWidthPercentage / 100;
 		setLayout(new GridFormLayoutManager(columns, columnWidth, 5));
 		setBorder(null);
 	}

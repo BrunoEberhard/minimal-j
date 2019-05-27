@@ -21,6 +21,10 @@ public class SqlSimpleCriteriaTest {
 		insertA(5);
 		insertA(7);
 		insertA(8);
+
+		repository.insert(new G("a"));
+		repository.insert(new G("b"));
+		repository.insert(new G(null));
 	}
 	
 	private static void insertA(int int1) {
@@ -53,4 +57,15 @@ public class SqlSimpleCriteriaTest {
 		repository.find(A.class, By.field(A.$.e, FieldOperator.greaterOrEqual, 7));
 	}
 
+	@Test
+	public void testFindByNull() {
+		List<G> g = repository.find(G.class, By.field(G.$.g, null));
+		Assert.assertEquals(1, g.size());
+	}
+
+	@Test
+	public void testFindByNotNull() {
+		List<G> g = repository.find(G.class, By.field(G.$.g, FieldOperator.notEqual, null));
+		Assert.assertEquals(2, g.size());
+	}
 }

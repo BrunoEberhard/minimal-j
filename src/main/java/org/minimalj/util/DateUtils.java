@@ -37,10 +37,10 @@ public class DateUtils {
 		return dateFormatByLocale.get(locale);
 	}
 	
-	public static class TrippleString {
-		public String s1, s2, s3;
+	private static class TrippleString {
+		private String s1, s2, s3;
 		
-		public TrippleString(String text) {
+		private TrippleString(String text) {
 			int index = 0;
 			s1 = "";
 			while (index < text.length() && Character.isDigit(text.charAt(index))) {
@@ -86,7 +86,7 @@ public class DateUtils {
 		
 		// Nun hat der String sicher keinen Punkt mehr am Anfang oder Ende
 		
-		if (inputText.indexOf(".") > -1) {
+		if (inputText.contains(".")) {
 			return parseCHWithDot(inputText, partialAllowed);
 		} else {
 			return parseCHWithoutDot(inputText, partialAllowed);

@@ -13,11 +13,16 @@ public class CombinedSearchPage extends TablePage<SearchResult> {
 	
 	@SuppressWarnings("rawtypes")
 	public CombinedSearchPage(List<SearchPage> searchPages) {
-		super(new Object[]{SearchResult.$.pageName, SearchResult.$.resultCount});
-		searchResults = new ArrayList<CombinedSearchPage.SearchResult>(searchPages.size());
+		super();
+		searchResults = new ArrayList<>(searchPages.size());
 		for (SearchPage searchPage : searchPages) {
 			searchResults.add(new SearchResult(searchPage));
 		}
+	}
+
+	@Override
+	protected Object[] getColumns() {
+		return new Object[] { SearchResult.$.pageName, SearchResult.$.resultCount };
 	}
 
 	@Override

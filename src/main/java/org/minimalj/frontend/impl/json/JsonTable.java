@@ -43,7 +43,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	private static List<PropertyInterface> convert(Object[] keys) {
-		List<PropertyInterface> properties = new ArrayList<PropertyInterface>(keys.length);
+		List<PropertyInterface> properties = new ArrayList<>(keys.length);
 		for (Object key : keys) {
 			PropertyInterface property = Keys.getProperty(key);
 			if (property != null) {

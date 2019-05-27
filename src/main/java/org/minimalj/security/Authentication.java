@@ -12,7 +12,7 @@ import org.minimalj.transaction.Transaction;
 public abstract class Authentication implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final transient Map<UUID, Subject> subjectByToken = new HashMap<>();
+	private final transient Map<Serializable, Subject> subjectByToken = new HashMap<>();
 
 	public static Authentication create() {
 		String userFile = Configuration.get("MjUserFile");
@@ -29,7 +29,7 @@ public abstract class Authentication implements Serializable {
 	
 	public abstract void login(LoginListener loginListener);
 	
-	public static interface LoginListener {
+	public interface LoginListener {
 		
 		public void loginSucceded(Subject subject);
 		

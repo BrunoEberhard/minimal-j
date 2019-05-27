@@ -152,7 +152,7 @@ public class JsonReader {
 	}
 
 	private Object array() {
-		List<Object> ret = new ArrayList<Object>();
+		List<Object> ret = new ArrayList<>();
 		Object value = read();
 		while (value != ARRAY_END) {
 			ret.add(value);
@@ -212,9 +212,9 @@ public class JsonReader {
 				if (c == 'u') {
 					c = add(unicode());
 				} else {
-					Object value = escapes.get(Character.valueOf(c));
+					Character value = escapes.get(c);
 					if (value != null) {
-						c = add(((Character) value).charValue());
+						c = add(value);
 					} else {
 						c = next();
 					}

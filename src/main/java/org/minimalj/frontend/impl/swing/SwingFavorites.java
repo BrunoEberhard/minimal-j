@@ -21,7 +21,7 @@ public class SwingFavorites implements PreferenceChangeListener {
 	private Preferences preferences;
 
 	public SwingFavorites(Consumer<LinkedHashMap<String, String>> changeListener) {
-		Objects.nonNull(changeListener);
+		Objects.requireNonNull(changeListener);
 		
 		setUser(null);
 

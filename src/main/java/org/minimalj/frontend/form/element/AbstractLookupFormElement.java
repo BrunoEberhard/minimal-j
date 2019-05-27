@@ -36,7 +36,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		lookup.setValue(render(object));
 	}
 
-	public static interface LookupParser {
+	public interface LookupParser {
 
 		public default String getAllowedCharacters() {
 			return null;

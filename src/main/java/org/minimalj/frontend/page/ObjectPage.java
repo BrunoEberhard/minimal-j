@@ -1,9 +1,13 @@
 package org.minimalj.frontend.page;
 
+import java.lang.ref.SoftReference;
+import java.util.List;
+
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.frontend.page.TableDetailPage.ChangeableDetailPage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -33,12 +37,12 @@ import org.minimalj.util.resources.Resources;
  *
  * But be careful as this pattern keeps the complete object in the memory.
  */
-public abstract class ObjectPage<T> extends Page {
+public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage<T> {
 
 	private final Class<T> objectClass;
 	private Object objectId;
-	private transient T object;
-	private transient Form<T> form;
+	private SoftReference<T> object;
+	private SoftReference<Form<T>> form;
 	
 	@SuppressWarnings("unchecked")
 	public ObjectPage(T object) {
@@ -57,7 +61,8 @@ public abstract class ObjectPage<T> extends Page {
 			throw new IllegalArgumentException("Object is " + object.getClass() + " instead of " + objectClass);
 		} else {
 			objectId = IdUtils.getId(object);
-			this.object = object;
+			this.object = new SoftReference<>(object);
+			Form<T> form = this.form != null ? this.form.get() : null;
 			if (form != null) {
 				form.setObject(object);
 			}
@@ -86,16 +91,20 @@ public abstract class ObjectPage<T> extends Page {
 	}
 
 	public T getObject() {
+		T object = this.object != null ? this.object.get() : null;
 		if (object == null) {
 			object = load();
+			this.object = new SoftReference<>(object);
 		}
 		return object;
 	}
 	
 	@Override
 	public IContent getContent() {
+		Form<T> form = this.form != null ? this.form.get() : null;
 		if (form == null) {
 			form = createForm();
+			this.form = new SoftReference<>(form);
 		}
 		unload();
 		// TODO try catch around getObject to catch load problems and display stack trace
@@ -130,6 +139,15 @@ public abstract class ObjectPage<T> extends Page {
 		@Override
 		protected void finished(T result) {
 			setObject(result);
+		}
+	}
+
+	@Override
+	public void setObjects(List<T> objects) {
+		if (!objects.isEmpty()) {
+			setObject(objects.get(0));
+		} else {
+			setObject(null);
 		}
 	}
 

@@ -121,9 +121,14 @@ button:hover {
 	background-color: #aaaaaa;
 }
 
+button:hover[disabled="true"] {
+	background-color: #888888;
+}
+
 label {
 	font-weight: unset;
 	color: gray;
+	font-size: small;
 }
 
 .form input, .form select, .form textarea, .form .lookup .text {
@@ -136,6 +141,10 @@ label {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
+}
+
+.form .groupItem:first-child .lookup .text {
+	border-top: none;
 }
 
 .form select {

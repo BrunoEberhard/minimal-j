@@ -21,8 +21,8 @@ public class DeleteEntityTransaction<ENTITY> extends EntityTransaction<ENTITY, V
 	}
 	
 	public DeleteEntityTransaction(ENTITY object) {
-		Objects.nonNull(object);
-		this.classHolder = new ClassHolder<ENTITY>((Class<ENTITY>) object.getClass());
+		Objects.requireNonNull(object);
+		this.classHolder = new ClassHolder<>((Class<ENTITY>) object.getClass());
 		this.object = object;
 		this.id = IdUtils.getId(object);
 		this.version = FieldUtils.hasValidHistorizedField(object.getClass()) ? IdUtils.getVersion(object) : null;

@@ -7,11 +7,11 @@ public class By {
 	public static final AllCriteria ALL = new AllCriteria();
 	public static final boolean ADD_WILDCARDS = true;
 	
-	public static SearchCriteria search(String query) {
+	public static Criteria search(String query) {
 		return search(query, ADD_WILDCARDS);
 	}
 	
-	public static SearchCriteria search(String query, boolean addWildcards) {
+	public static Criteria search(String query, boolean addWildcards) {
 		if (!StringUtils.isEmpty(query)) {
 			if (addWildcards && !query.contains("*")) {
 				if (!query.startsWith("*")) {
@@ -23,7 +23,7 @@ public class By {
 			}
 			return new SearchCriteria(query);
 		} else {
-			return null;
+			return all();
 		}
 	}
 	

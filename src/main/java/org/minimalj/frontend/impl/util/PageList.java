@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,8 +16,8 @@ public class PageList {
 	 * @param page page to add
 	 */
 	public void put(String pageId, Page page) {
-		Objects.nonNull(pageId);
-		Objects.nonNull(page);
+		Objects.requireNonNull(pageId);
+		Objects.requireNonNull(page);
 		pageIds.add(pageId);
 		pages.add(page);
 	}
@@ -94,5 +95,9 @@ public class PageList {
 			pages.remove(i);
 			pageIds.remove(i);
 		}
+	}
+
+	public List<String> getPageIds() {
+		return Collections.unmodifiableList(pageIds);
 	}
 }

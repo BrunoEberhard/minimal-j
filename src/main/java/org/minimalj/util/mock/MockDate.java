@@ -31,9 +31,9 @@ public class MockDate {
 			int second = (int) (Math.random() * 60);
 			if (size == Size.TIME_WITH_SECONDS) {
 				return LocalTime.of(hour, minute, second);
-			} else if (size == Size.TIME_WITH_SECONDS) {
-				int milis = (int) (Math.random() * 1000);
-				return LocalTime.of(hour, minute, second, milis);
+			} else if (size == Size.TIME_WITH_MILLIS) {
+				int millis = (int) (Math.random() * 1000);
+				return LocalTime.of(hour, minute, second, millis);
 			} else {
 				throw new IllegalArgumentException(String.valueOf(size));
 			}
