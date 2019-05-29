@@ -136,9 +136,9 @@ $ICON
 								value = value.join("");
                             }
 							if (document.activeElement != element || element.id != dataObject.source) {
+								// a date (formatted input) should not change while user is entering more characters
 								element[property] = value;
 							} else {
-								// a date (formatted input) should not change while user is entering more characters. Wait for blur
 								element.valueOnBlur = value;
 							}
 						}
@@ -189,10 +189,39 @@ $ICON
 	}
 	
 	function setDeferredValue(element) {
-		if (element && element.valueOnBlur) {
+		if (element.valueOnBlur) {
 			element.value = element.valueOnBlur;
 			element.valueOnBlur = undefined;
 		}
+	}	
+	
+	var timer = null;
+	var last = null;
+	
+	function ontextchange(element) {
+		if (timer) {
+			clearTimeout(timer);
+			timer = null;
+			sendchange(element);
+		}
+		last = null;
+	}
+	
+	function ontextinput(element) {
+		element.valueOnBlur = null;
+		if (element !== last) {
+			ontextchange(last);
+			sendchange(element);
+			last = element;
+		} else {
+			clearTimeout(timer);
+			timer = setTimeout(ontimeout, 500);
+		}
+	}
+	
+	function ontimeout() {
+		sendchange(last);
+		timer = null;
 	}
 	
 	function addNewStateToHistory(fragment) {
@@ -477,8 +506,11 @@ $ICON
 			} catch (err) { // happens in ie 10 for datetime-local
 				element.type = "text";
 			}
-			element.setAttribute(element.type === "text" ? "onkeyup" : "onchange", "sendchange(this);");
-			element.setAttribute("onblur", "setDeferredValue(this);");
+			if (element.type === "text") {
+				element.setAttribute("oninput", "ontextinput(this);");
+				element.setAttribute("onblur", "setDeferredValue(this);");
+			}
+			element.setAttribute("onchange", "ontextchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value) {
 				element.value = content.value;
@@ -800,7 +832,7 @@ $ICON
 			var inputs = content.getElementsByTagName("input");
 			var lastInput = inputs[inputs.length - 1]; 
 			if (lastInput && (lastInput.type == "text" || lastInput.type == "password")) {
-				lastInput.setAttribute("onkeyup", "sendchange(this, event.keyCode == 13  ? \"" + saveAction.id + "\" : undefined);");
+				lastInput.setAttribute("onkeyup", "if (event.keyCode == 13) { sendchange(this, \"" + saveAction.id + "\"); }");
 			}
 		}
 
@@ -860,7 +892,6 @@ $ICON
 			return;
 		} else {
 			changedValue[source.id] = source.value;
-			source.valueOnBlur = undefined;
 		}
 		data.changedValue = changedValue;
 		if (saveAction) {
