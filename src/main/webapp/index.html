@@ -258,8 +258,6 @@ $ICON
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
 		
-        closeActionMenus();
-    
 		var pageElement = document.createElement("div");
 		pageElement.className = "page";
 		pageElement.id = page.pageId;
@@ -302,16 +300,12 @@ $ICON
 		document.getElementById("actionMenuButton").style.display = hasActionMenu ? null : "none";
 
 		if (hasActionMenu) {
-			var actionMenuContainer = document.createElement("div");
-			actionMenuContainer.className = "actionMenuContainer";
-			
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.className = "actionMenu";
+			actionMenuElement.style.display = "none";
 			
-			if (pageContainerElement.offsetWidth < 1200) actionMenuContainer.style.display = "none";
-			
-			actionMenuContainer.appendChild(actionMenuElement);
-			pageContentAndActionsElement.appendChild(actionMenuContainer);
+			pageContentAndActionsElement.appendChild(actionMenuElement);
+			pageElement.actionMenu = actionMenuElement;
 		}
     
         if (window.innerWidth < 992) toggleNavigation("close");
@@ -332,38 +326,58 @@ $ICON
 	}
 
 	function togglePageActionMenu(event) {
-		var element = event.target;
-		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
-		if (element) {
-			var actionMenuElement = element.querySelector(".actionMenuContainer");
-			if (actionMenuElement) {
-				if (actionMenuElement.style.display != "none") {
-					actionMenuElement.style.display = "none";
-				} else {
-					actionMenuElement.style.display = "block";
-				}
+		for (var i = 0; i<pageContainerElement.childNodes.length; i++) {
+			var page = pageContainerElement.childNodes[i];
+			if (page.actionMenu && page.actionMenu.style.display === "block") {
+				page.actionMenu.style.display = "none";
 				event.preventDefault();
+				return;
 			}
 		}
-	}
-
-	function toggleActionMenu() {
-        var actionMenuElements = document.getElementsByClassName("actionMenuContainer")
-		var actionMenuElement = actionMenuElements[actionMenuElements.length - 1];
-		if (actionMenuElement.style.display === "block") {
-			actionMenuElement.style.display = "none";
-		} else {
-			actionMenuElement.style.display = "block";
+		
+		var pageElement = event.target;
+		while ((pageElement.classList == null || !pageElement.classList.contains("page")) && (pageElement = pageElement.parentNode));
+		if (!pageElement) {
+			pageElement = document.getElementsByClassName("page")[0];
 		}
-		event.preventDefault();
+		
+		if (pageElement && pageElement.actionMenu) {		
+		    var pageActionContainer = pageElement.actionMenu;
+			pageActionContainer.style.display = "block";
+			
+			if (event.type === "contextmenu") {
+				pageActionContainer.style.left = event.x;
+				if (event.x + pageActionContainer.offsetWidth > window.innerWidth) {
+					pageActionContainer.style.left =  Math.max(0, window.innerWidth - pageActionContainer.offsetWidth);
+				}
+				pageActionContainer.style.top = event.y;
+				pageActionContainer.style.maxHeight = "unset";
+				if (event.y + pageActionContainer.offsetHeight > window.innerHeight - 30) {
+					pageActionContainer.style.top = Math.max(30, window.innerHeight - pageActionContainer.offsetHeight);
+					pageActionContainer.style.maxHeight = window.innerHeight - 70;
+				}
+				event.preventDefault();
+			} else {
+				pageActionContainer.style.left =event.target.getBoundingClientRect().right - pageActionContainer.offsetWidth;
+				pageActionContainer.style.top = event.target.getBoundingClientRect().bottom;
+			}
+			
+			pageActionContainer.onmousedown = function(e) { e.stopPropagation(); }
+		}
 	}
 	
+	document.onmousewheel = closeActionMenu;
+	document.onmousedown = closeActionMenu;
+	window.onblur = closeActionMenu;
+	document.onkeydown = function(e) { if (e.keyCode === 27) { closeActionMenu(); } };
+
 	function closeActionMenu() {
-        var actionMenuElements = document.getElementsByClassName("actionMenuContainer")
-		var actionMenuElement = actionMenuElements[actionMenuElements.length - 1];
-		if (actionMenuElement) {
-			actionMenuElement.style.display = "none";
-		}
+		for (var i = 0; i<pageContainerElement.childNodes.length; i++) {
+			var page = pageContainerElement.childNodes[i];
+			if (page.actionMenu && page.actionMenu.style.display === "block") {
+				page.actionMenu.style.display = "none";
+			}
+		}	
 	}
 	
 	function togglePage(event) {
@@ -750,7 +764,7 @@ $ICON
 		navigationElement.appendChild(menuElement);		
 	}
 
-	function createMenu(items, pageId) {
+	function createMenu(items) {
 		var ul = document.createElement("ul");
 
 		for (var i = 0; i < items.length; i++) {
@@ -933,7 +947,6 @@ $ICON
 	var lastSelectedRow;
 	
 	function tableSelection(event, rowElement) {
-		if (event.button != 0) return; // only 'left' mouse button should select
 		var tableElement = rowElement;
 		while ((tableElement = tableElement.parentNode) && tableElement.tagName.toUpperCase() != "TABLE");
 
@@ -1210,14 +1223,6 @@ $ICON
 		}
 	}
 
-    function closeActionMenus() {
-        var actionMenuElements = document.getElementsByClassName("actionMenuContainer"); 
-        for (var i = 0; i < actionMenuElements.length; i++) {
-          var actionMenuElement = actionMenuElements[i];
-          actionMenuElement.style.display = "none";
-        }
-    }
-    
     var lastWidth = 10000;
     
     function resizeNavigation() {
@@ -1253,7 +1258,7 @@ $ICON
 		if (window.innerWidth >= 992) toggleNavigation("open");
     
 		window.addEventListener("resize", updateDialogSizes);
-        window.addEventListener("resize", closeActionMenus);
+        window.addEventListener("resize", closeActionMenu);
         window.addEventListener("resize", resizeNavigation);
 
         if ("$DISABLED_SEARCH" == "disabled") document.getElementById("searchButton").style.display = "none";
@@ -1318,7 +1323,7 @@ $ICON
 					<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
 				</g>
 			</svg>
-			<svg id="actionMenuButton" class="headerButton" onclick="toggleActionMenu();">
+			<svg id="actionMenuButton" class="headerButton" onclick="togglePageActionMenu(evt);">
 				<g style="stroke-width:0px"> 		
 					<rect x="12px" y="5%" width="3px" height="3px"/>
 					<rect x="12px" y="40%" width="3px" height="3px"/>
@@ -1339,7 +1344,8 @@ $ICON
 			</div>
 		</div>
 		<noscript style="display: block; margin: 2em;">$NOSCRIPT</noscript>
-		<div id="pageContainer" onContextmenu="togglePageActionMenu(event);" />
+		<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
+		</div>	
 	</div>
 
 	<div id="templates" style="display: none">
