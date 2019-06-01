@@ -195,33 +195,33 @@ $ICON
 		}
 	}	
 	
-	var timer = null;
-	var last = null;
+	var timerTextFieldChange = null;
+	var lastChangedTextField = null;
 	
 	function ontextchange(element) {
-		if (timer) {
-			clearTimeout(timer);
-			timer = null;
+		if (timerTextFieldChange) {
+			clearTimeout(timerTextFieldChange);
+			timerTextFieldChange = null;
 			sendchange(element);
 		}
-		last = null;
+		lastChangedTextField = null;
 	}
 	
 	function ontextinput(element) {
 		element.valueOnBlur = null;
-		if (element !== last) {
-			ontextchange(last);
+		if (element !== lastChangedTextField) {
+			ontextchange(lastChangedTextField);
 			sendchange(element);
-			last = element;
+			lastChangedTextField = element;
 		} else {
-			clearTimeout(timer);
-			timer = setTimeout(ontimeout, 500);
+			clearTimeout(timerTextFieldChange);
+			timerTextFieldChange = setTimeout(ontimeout, 500);
 		}
 	}
 	
 	function ontimeout() {
-		sendchange(last);
-		timer = null;
+		sendchange(lastChangedTextField);
+		timerTextFieldChange = null;
 	}
 	
 	function addNewStateToHistory(fragment) {
@@ -1088,9 +1088,9 @@ $ICON
 
 		blockUi();
 		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState == 4) {
+			if (xmlhttp.readyState === 4) {
 				unblockUi();
-				if (xmlhttp.status == 200) {
+				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
 			}
@@ -1107,7 +1107,7 @@ $ICON
 			var index = pathname.lastIndexOf("/");
 			pathname = pathname.substring(0, index + 1);
 			
-			var wsProtocol = window.location.protocol == "https:" ? "wss" : "ws";
+			var wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 			var hostAndPort = location.host + "$PORT";
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
@@ -1183,7 +1183,7 @@ $ICON
 					contentElement.style.maxHeight = height + "px";
 
 					var type = dialogElement.getAttribute("type");
-					if (type == "SearchDialog") {
+					if (type === "SearchDialog") {
 						contentElement.style.height = height + "px";
 						dialogElement.style.marginRight = "3em";
 						contentElement.style.paddingRight = "0em";
@@ -1261,7 +1261,7 @@ $ICON
         window.addEventListener("resize", closeActionMenu);
         window.addEventListener("resize", resizeNavigation);
 
-        if ("$DISABLED_SEARCH" == "disabled") document.getElementById("searchButton").style.display = "none";
+        if ("$DISABLED_SEARCH" === "disabled") document.getElementById("searchButton").style.display = "none";
 
 		window.onpopstate = popState;
 
