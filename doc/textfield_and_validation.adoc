@@ -11,7 +11,7 @@ To be slowed down when entering text in a UI feels very bad.
 Minimal-J tries to guess at which point it is really necessary or helpful to send the change of a text field to server. The strategy
 when to send changes to the server is this:
 
-* When to focus gets to a new text field the first change is sent to server. This updates the validation when the field
+* When the focus gets to a new text field the first change is sent to server. This updates the validation when the field
 is mandatory and was previously empty.
 * When a text field looses the focus the changes are sent to the server. This validates the final entered value.
 * In between it's the most complicated. Beginning with the second keystroke MJ waits for about half a second. If in this
