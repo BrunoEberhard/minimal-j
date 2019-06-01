@@ -1,0 +1,38 @@
+== Updates and validation on text fields
+
+For normal text fields the validation may be very simple. If a field is mandatory there is only a check if the field is not empty.
+But text fields can also contain formatted text for example a date or a business specific number. There could be an arbitrary
+logic for the validation. This is why the validation in the web frontend can be a problem.
+
+The logic resides on the server. To give the user immediate response every keystroke must send to the server. This leads to several
+problems. It generates much load on the net and on the server and it probably slows down the user when entering a long text.
+To be slowed down when entering text in a UI feels very bad.
+
+Minimal-J tries to guess at which point it is really necessary or helpful to send the change of a text field to server. The strategy
+when to send changes to the server is this:
+
+* When to focus gets to a new text field the first change is sent to server. This updates the validation when the field
+is mandatory and was previously empty.
+* When a text field looses the focus the changes are sent to the server. This validates the final entered value.
+* In between it's the most complicated. Beginning with the second keystroke MJ waits for about half a second. If in this
+time there is another keystroke the change is not sent. And the half second timer is reset. So while the user keeps
+typing there will be no change call to the server. When he stops or the text field looses the focus the changes are sent.
+
+With this strategy most of the time there are only 3 server calls per text field.
+
+=== CheerpJ
+
+It may sound illogical to do this small validations on the server. If you really want to do it all on the client you have
+to switch to the CheerpJ setup. This means you translate the application to JavaScript and deploy it on the client. In that
+setup only calls to the Backend will go over the net.
+
+=== WebSockets
+
+Another possibility to ease this problem is the use of WebSockets. With WebSockets the line to the server is always open
+and a call is much cheaper than with an Ajax call.
+
+=== Formatted fields
+
+Formatted text fields have structured content. For example 01.01.2018 for a date. But the user may enter 1.1.2018. While
+the text field has the focus there should not be a reformatting of the content. This would disturb the user. The formatting
+is only done whe the text field looses the focus.
