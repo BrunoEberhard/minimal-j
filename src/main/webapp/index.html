@@ -1086,7 +1086,7 @@ $ICON
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.open("POST", "ajax_request.xml", true);
 
-		blockUi();
+		if (block) blockUi();
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
 				unblockUi();
@@ -1100,9 +1100,6 @@ $ICON
 		
 	function sendWebSocket(data, block) {
 		if (websocket == null || websocket.readyState > 1) {
-			if (websocket) {
-				console.log("websocket: " + websocket.readyState);
-			}
 			var pathname = location.pathname;
 			var index = pathname.lastIndexOf("/");
 			pathname = pathname.substring(0, index + 1);
@@ -1119,7 +1116,7 @@ $ICON
 				send(data, block);
 			}
 		} else {
-			blockUi();
+			if (block) blockUi();
 			websocket.send(JSON.stringify(data));
 		}
 	}
@@ -1379,7 +1376,6 @@ $ICON
 			<div style="text-align: center; margin-top: 1em; margin-bottom: 8em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:600px; max-width: 600px; height: 2em;"></div>
 		</div>
 	</div>
-			
 
 	<div class="is-blocked"></div>
 </body>
