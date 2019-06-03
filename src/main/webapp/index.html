@@ -53,6 +53,7 @@ $ICON
 		}
 		if ("showPage" in dataObject) {
 			closeDialogs();
+			dataObject.closeDialog = undefined;
 			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
 			saveStateInHistory();
