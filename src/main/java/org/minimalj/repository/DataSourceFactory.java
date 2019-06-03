@@ -162,31 +162,5 @@ public class DataSourceFactory {
 			throw new LoggingRuntimeException(e, logger, "Cannot connect to oracle db");
 		}
 	}
-	
-//	private void connectToCloudFoundry() throws ClassNotFoundException, SQLException, JSONException {
-//		String vcap_services = System.getenv("VCAP_SERVICES");
-//		
-//		if (vcap_services != null && vcap_services.length() > 0) {
-//			JSONObject root = new JSONObject(vcap_services);
-//
-//			JSONArray mysqlNode = (JSONArray) root.get("mysql-5.1");
-//			JSONObject firstSqlNode = (JSONObject) mysqlNode.get(0);
-//			JSONObject credentials = (JSONObject) firstSqlNode.get("credentials");
-//
-//			String dbname = credentials.getString("name");
-//			String hostname = credentials.getString("hostname");
-//			String user = credentials.getString("user");
-//			String password = credentials.getString("password");
-//			String port = credentials.getString("port");
-//			
-//			String dbUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbname;
-//
-//			Class.forName("com.mysql.jdbc.Driver");
-//			connection = DriverManager.getConnection(dbUrl, user, password);
-//			
-//			isDerbyDb = false;
-//			isDerbyMemoryDb = false;
-//			isMySqlDb = true;
-//		}
-//	}
+
 }
