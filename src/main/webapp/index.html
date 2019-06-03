@@ -1313,15 +1313,15 @@ $ICON
 			</g>
 		</svg>
 		<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
-		<div class="button" id="searchSpan">
+		<div id="searchSpan">
 			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
-			<svg id="searchButton" class="headerButton" onclick="searchButtonAction();">
+			<svg id="searchButton" class="button headerButton" onclick="searchButtonAction();">
 				<g style="stroke-width:16%;stroke-linecap:square"> 		
 					<line x1="59%" y1="59%" x2="91%" y2="91%" />
 					<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
 				</g>
 			</svg>
-			<svg id="actionMenuButton" class="headerButton" onclick="togglePageActionMenu(evt);">
+			<svg id="actionMenuButton" class="button headerButton" onclick="togglePageActionMenu(evt);">
 				<g style="stroke-width:0px"> 		
 					<rect x="12px" y="5%" width="3px" height="3px"/>
 					<rect x="12px" y="40%" width="3px" height="3px"/>
