@@ -32,8 +32,8 @@ Minimal applications may not always look the same. But the UI concepts never cha
 
 == Releases
 
- * Current released version: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.minimalj/minimalj/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.minimalj/minimalj)
- * Build status: [![Build Status](https://api.travis-ci.org/BrunoEberhard/minimal-j.png)](https://travis-ci.org/BrunoEberhard/minimal-j)
+ * Current released version: image:https://maven-badges.herokuapp.com/maven-central/org.minimalj/minimalj/badge.svg[https://mvnrepository.com/artifact/org.minimalj/minimalj/latest]
+ * Build status: image:https://api.travis-ci.org/BrunoEberhard/minimal-j.png[https://travis-ci.org/BrunoEberhard/minimal-j]
 
 == Video
 
