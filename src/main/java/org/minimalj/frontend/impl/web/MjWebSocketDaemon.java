@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
-import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
 
 import fi.iki.elonen.NanoWSD;
@@ -18,9 +17,6 @@ import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 public class MjWebSocketDaemon extends NanoWSD {
 	private static final Logger logger = Logger.getLogger(MjWebSocketDaemon.class.getName());
 
-	// sessionManager could also be ommitted. With WebSocket the SessionManagement is
-	// done by keeping a session per connection. This sessionManager would only be used
-	// for ajax calls which should not occur in this setup
 	private JsonSessionManager sessionManager = new JsonSessionManager();
 	
 	public MjWebSocketDaemon(int port, boolean secure) {
@@ -52,8 +48,6 @@ public class MjWebSocketDaemon extends NanoWSD {
 
 	public class MjWebSocket extends WebSocket {
 		
-		private JsonPageManager pageManager = new JsonPageManager();
-		
 		public MjWebSocket(IHTTPSession handshakeRequest) {
 			super(handshakeRequest);
 		}
@@ -65,7 +59,7 @@ public class MjWebSocketDaemon extends NanoWSD {
 
 		@Override
 		protected void onMessage(WebSocketFrame message) {
-			String result = pageManager.handle(message.getTextPayload());
+			String result = sessionManager.handle(message.getTextPayload());
 			try {
 				send(result);
 			} catch (IOException e) {

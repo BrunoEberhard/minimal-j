@@ -1059,6 +1059,7 @@ $ICON
 	function send(data, block) {
 		data.locale = "$LOCALE";
 	    data.inputTypes = isMobile && checkInput("date");
+	    data.session = session;
 	    	
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements && dialogElements.length > 0;
@@ -1082,8 +1083,6 @@ $ICON
 	}
 
 	function sendAjax(data, block) {
-		data.session = session;
-
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.open("POST", "ajax_request.xml", true);
 
