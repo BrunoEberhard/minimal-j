@@ -40,7 +40,6 @@ public class JsonSessionManager {
 	public String handle(String json) {
 		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
 
-		boolean validSession = true;
 		String sessionId = (String) data.get("session");
 		if (!sessions.containsKey(sessionId)) {
 			sessionId = createSession();
@@ -53,10 +52,6 @@ public class JsonSessionManager {
 		JsonInput input = new JsonInput(data);
 		JsonOutput output = session.handle(input);
 
-		if (!validSession) {
-			output.add("error", "Invalid session. Please close and reopen tab.");
-		}
-		
 		output.add("session", sessionId);
 		
 		return output.toString();
