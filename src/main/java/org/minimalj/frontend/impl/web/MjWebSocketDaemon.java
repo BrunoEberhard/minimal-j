@@ -6,7 +6,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.impl.json.JsonInput;
+import org.minimalj.frontend.impl.json.JsonPageManager;
+import org.minimalj.frontend.impl.json.JsonReader;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
+import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoWSD;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
@@ -47,6 +51,7 @@ public class MjWebSocketDaemon extends NanoWSD {
 	}
 
 	public class MjWebSocket extends WebSocket {
+		private JsonPageManager session;
 		
 		public MjWebSocket(IHTTPSession handshakeRequest) {
 			super(handshakeRequest);
@@ -59,7 +64,14 @@ public class MjWebSocketDaemon extends NanoWSD {
 
 		@Override
 		protected void onMessage(WebSocketFrame message) {
-			String result = sessionManager.handle(message.getTextPayload());
+			Map<String, Object> data = (Map<String, Object>) JsonReader.read(message.getTextPayload());
+			String sessionId = (String) data.get("session");
+			if (session == null || !StringUtils.equals(sessionId, session.getSessionId())) {
+				session = sessionManager.getSession(data);
+			} else {
+				sessionManager.refreshSession(session);
+			}
+			String result = session.handle(new JsonInput(data)).toString();
 			try {
 				send(result);
 			} catch (IOException e) {

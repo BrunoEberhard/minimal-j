@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +35,9 @@ import org.minimalj.util.StringUtils;
 public class JsonPageManager implements PageManager, LoginListener {
 	private static final Logger logger = Logger.getLogger(JsonPageManager.class.getName());
 
+	private final String sessionId;
+	private long lastUsed = System.currentTimeMillis();
+	
 	private Subject subject;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
@@ -45,7 +49,15 @@ public class JsonPageManager implements PageManager, LoginListener {
 	private final PageStore pageStore = new PageStore();
 
 	public JsonPageManager() {
-		//
+		sessionId = UUID.randomUUID().toString();
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+	
+	public long getLastUsed() {
+		return lastUsed;
 	}
 
 	@Override
@@ -86,6 +98,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 	private Thread thread;
 
 	public JsonOutput handle(JsonInput input) {
+		lastUsed = System.currentTimeMillis();
+		
 		Long retry = (Long) input.getObject("retry");
 		if (retry == null) {
 			retry = 0L;
@@ -120,6 +134,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 			thread.join(2000);
 		} catch (InterruptedException t) {
 		}
+
+		output.add("session", sessionId);
 
 		if (!thread.isAlive()) {
 			return output;

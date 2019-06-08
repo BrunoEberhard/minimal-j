@@ -1,59 +1,66 @@
 package org.minimalj.frontend.impl.json;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 
-public class JsonSessionManager {
-	private static final int MAX_SESSIONS = Integer.valueOf(Configuration.get("MjMaxSessions", "30"));
+public class JsonSessionManager extends TimerTask {
+	private static final Logger logger = Logger.getLogger(JsonSessionManager.class.getName());
+
+	private static final int MAX_SESSIONS = Integer.valueOf(Configuration.get("MjMaxSessions", "200"));
 
 	private final Map<String, JsonPageManager> sessions = new HashMap<>();
-	private final List<String> sessionList = new ArrayList<>();
-	
-	private JsonPageManager getSession(String sessionId) {
-		// update last access (move it at the end of the list)
-		sessionList.remove(sessionId);
-		sessionList.add(sessionId);
-		
-		return sessions.get(sessionId);
-	}
-	
-	private String createSession() {
-		if (sessionList.size() >= MAX_SESSIONS) {
-			String sessionId = sessionList.get(0);
-			sessions.remove(sessionId);
-			sessionList.remove(sessionId);
-		}
-		
-		String sessionId = UUID.randomUUID().toString();
-		JsonPageManager session = new JsonPageManager();
-		sessions.put(sessionId, session);
 
-		return sessionId;
+	public JsonSessionManager() {
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(this, 1 * 60 * 1000, 1 * 60 * 1000);
 	}
-	
-	public String handle(String json) {
-		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
 
-		String sessionId = (String) data.get("session");
-		if (!sessions.containsKey(sessionId)) {
-			sessionId = createSession();
-			if (!data.containsKey(JsonInput.INITIALIZE)) {
-				data = Collections.singletonMap(JsonInput.INITIALIZE, "");
+	@Override
+	public void run() {
+		logger.fine("Check unused sessions");
+		Set<String> old = new HashSet<>();
+		long limit = System.currentTimeMillis() - 10 * 60 * 1000;
+		for (Map.Entry<String, JsonPageManager> entry : sessions.entrySet()) {
+			if (entry.getValue().getLastUsed() < limit) {
+				logger.fine("Drop session: " + entry.getKey());
+				old.add(entry.getKey());
 			}
 		}
-		JsonPageManager session = getSession(sessionId);
-		
+		old.forEach(key -> sessions.remove(key));
+	}
+	
+	public JsonPageManager getSession(Map<String, Object> input) {
+		String sessionId = (String) input.get("session");
+		JsonPageManager session = sessions.get(sessionId);
+		if (session == null) {
+			session = new JsonPageManager();
+			input.clear();
+			// input.put(JsonInput.INITIALIZE, sessionId != null ? UNKNOWN_SESSION :
+			// NEW_SESSION);
+			sessions.put(session.getSessionId(), session);
+			if (sessions.size() > MAX_SESSIONS) {
+				logger.warning("Session count too high: " + sessions.size());
+			}
+		}
+		return session;
+	}
+
+	public void refreshSession(JsonPageManager session) {
+		sessions.put(session.getSessionId(), session);
+	}
+
+	public String handle(String json) {
+		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
+		JsonPageManager session = getSession(data);
 		JsonInput input = new JsonInput(data);
 		JsonOutput output = session.handle(input);
-
-		output.add("session", sessionId);
-		
 		return output.toString();
 	}
 
