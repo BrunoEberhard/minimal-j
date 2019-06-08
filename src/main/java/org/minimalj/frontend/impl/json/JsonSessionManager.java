@@ -42,6 +42,7 @@ public class JsonSessionManager extends TimerTask {
 		if (session == null) {
 			session = new JsonPageManager();
 			input.clear();
+			input.put(JsonInput.INITIALIZE, "");
 			// input.put(JsonInput.INITIALIZE, sessionId != null ? UNKNOWN_SESSION :
 			// NEW_SESSION);
 			sessions.put(session.getSessionId(), session);
