@@ -30,6 +30,11 @@ Minimal applications may not always look the same. But the UI concepts never cha
 * link:doc/topics.adoc[Tutorial and examples] Informations for developers.
 * link:doc/release_notes.adoc[Release Notes]
 
+== Releases
+
+ * Current released version: image:https://maven-badges.herokuapp.com/maven-central/org.minimalj/minimalj/badge.svg["Latest Version", link="https://mvnrepository.com/artifact/org.minimalj/minimalj/latest"]
+ * Development build status: image:https://travis-ci.org/BrunoEberhard/minimal-j.svg?branch=develop["Build Status", link="https://travis-ci.org/BrunoEberhard/minimal-j"]
+
 == Video
 
 link:http://www.youtube.com/watch?v=0VHz7gv6TpA[How to implement Hello World in Minimal-J]

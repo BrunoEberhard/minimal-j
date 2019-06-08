@@ -16,7 +16,7 @@ public class HtmlString implements CharSequence {
 
 	static {
 		String allowedHtmlTagConfiguration = Configuration.get("MjAllowedHtmlTags", "b, i, u, sub, sup");
-		Arrays.stream(allowedHtmlTagConfiguration.split(",")).forEach(allowedHtmlTags::add);
+		allowedHtmlTags.addAll(Arrays.asList(allowedHtmlTagConfiguration.split(",")));
 	}
 	
 	public HtmlString format(String tag, String text) {
@@ -89,13 +89,13 @@ public class HtmlString implements CharSequence {
 	
 	public String getString() {
 		StringBuilder s = new StringBuilder();
-		elements.stream().forEach(str -> s.append(str.getString()));
+		elements.forEach(str -> s.append(str.getString()));
 		return s.toString();
 	}
 	
 	public String getHtml() {
 		StringBuilder s = new StringBuilder();
-		elements.stream().forEach(str -> s.append(str.getHtml()));
+		elements.forEach(str -> s.append(str.getHtml()));
 		return s.toString();
 	}
 	

@@ -35,32 +35,32 @@ body {
 	height: 0.9em;
 }
 
-ul {
+#navigation ul {
 	padding: 0.7ex 0em .7em 0em;
 }
 
-li {
+#navigation li {
 	padding: 1em 0em 0em 1em;
-	font-weight: 700;
 }
 
 .action {
 	font-weight: 100;
 }
 
-.pageContentAndActions {
-	z-index: 1;
-}
-
 .page {
 	border: none;
 }
 
-.actionMenuContainer {
-	background: rgb(250, 250, 250);
-	border: none;
-	z-index: 1;
-	box-shadow: 1px 1px 4px gray;
+.actionMenu {
+	padding: 1ex 2ex 1ex 2ex;
+	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
+}
+
+.actionMenu ul {
+}
+
+.actionMenu li {
+	padding: 0.5em;
 }
 
 dialog {

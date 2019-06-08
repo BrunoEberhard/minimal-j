@@ -40,7 +40,7 @@ public class PageAccess {
 		}
 	}
 
-	public static String getStackTrace(Throwable t) {
+	private static String getStackTrace(Throwable t) {
 		StringWriter sw = new StringWriter();
 		t.printStackTrace(new PrintWriter(sw));
 		return sw.toString();

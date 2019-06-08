@@ -202,11 +202,7 @@ public class Keys {
 	}
 	
 	public static List<PropertyInterface> getDependencies(PropertyInterface property) {
-		if (dependencies.containsKey(property)) {
-			return dependencies.get(property);
-		} else {
-			return Collections.emptyList();
-		}
+		return dependencies.getOrDefault(property, Collections.emptyList());
 	}
 
 	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {

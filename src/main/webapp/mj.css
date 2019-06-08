@@ -85,15 +85,14 @@ body {
 	overflow: auto;
 }
 
-
-ul {
+#navigation ul {
 	padding: 1ex 0ex 1ex 1ex;
 }
 
-li {
+#navigation li, .actionMenu li {
 	list-style: none;
-	padding-top: 0.2em;
-	padding-bottom: 0.2em;
+	padding-top: 0.3em;
+	padding-bottom: 0.3em;
 }
 
 .action {
@@ -199,21 +198,13 @@ table.table tr td {
 	line-height: 1.6em;
 }
 
-.actionMenuContainer {
-	position: absolute;
-	top: 0em;
-	right: 0em;
-	bottom: 0em;
-	z-index: 1;
-	border-left: 1px rgb(160,160,160) solid;
-	min-width: 15em;
+.actionMenu {
+	position: fixed;
+	z-index: 20;
+	padding: 0.5ex 1ex 0.5ex 1ex;
+	border: 1px rgb(160,160,160) solid;
 	background: white;
 	overflow: auto;
-}
-
-ul.actionMenu {
-	margin: 0em;
-	padding-right: 2ex;
 }
 
 /* dialog */

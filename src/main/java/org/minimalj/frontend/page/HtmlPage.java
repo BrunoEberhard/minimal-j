@@ -16,7 +16,11 @@ public class HtmlPage extends Page {
 
 	private final String html;
 	private final String title;
-	
+
+	public HtmlPage(String html) {
+		this(html, null);
+	}
+
 	public HtmlPage(String html, String title) {
 		this.html = Objects.requireNonNull(html);
 		this.title = title;
@@ -24,7 +28,7 @@ public class HtmlPage extends Page {
 
 	@Override
 	public String getTitle() {
-		return title;
+		return title != null ? title : super.getTitle();
 	}
 	
 	@Override

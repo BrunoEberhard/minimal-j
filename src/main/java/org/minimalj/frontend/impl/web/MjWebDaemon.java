@@ -93,14 +93,11 @@ public class MjWebDaemon extends NanoHTTPD {
 		if (userLocale == null) {
 			return Locale.getDefault();
 		}
-    	final List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
-    	if (ranges != null) {
-    		for (LanguageRange languageRange : ranges) {
-    			final String localeString = languageRange.getRange();
-    			final Locale locale = Locale.forLanguageTag(localeString);
-    			return locale;
-    		}
-    	}
+    	List<LanguageRange> ranges = Locale.LanguageRange.parse(userLocale);
+		for (LanguageRange languageRange : ranges) {
+			String localeString = languageRange.getRange();
+			return Locale.forLanguageTag(localeString);
+		}
 		return Locale.getDefault();
     }
 

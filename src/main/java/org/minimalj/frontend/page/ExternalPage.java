@@ -15,6 +15,10 @@ public class ExternalPage extends Page {
 
 	private final URL url;
 	private final String title;
+
+	public ExternalPage(String urlString) {
+		this(urlString, null);
+	}
 	
 	public ExternalPage(String urlString, String title) {
 		this.title = title;
@@ -32,7 +36,7 @@ public class ExternalPage extends Page {
 
 	@Override
 	public String getTitle() {
-		return title;
+		return title != null ? title : super.getTitle();
 	}
 	
 	@Override

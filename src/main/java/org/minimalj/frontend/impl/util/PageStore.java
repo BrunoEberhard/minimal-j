@@ -42,7 +42,7 @@ public class PageStore {
 		private final String id;
 		private final Page page;
 
-		public PageStoreEntry(Page page) {
+		private PageStoreEntry(Page page) {
 			this.id = UUID.randomUUID().toString();
 			this.page = page;
 		}
