@@ -112,7 +112,7 @@ public class MjEntity {
 		
 		if (Enum.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.Enum;
-			List<Object> list = EnumUtils.valueList((Class<Enum>) clazz);
+			List<Object> list = EnumUtils.valueList((Class) clazz);
 			values = list.stream().map(e -> e.toString()).collect(Collectors.toList());
 		} else if (Code.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.CODE;
