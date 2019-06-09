@@ -38,16 +38,7 @@
 			<id>openech-repository</id>
 			<url>ftp://ftp.openech.ch/public_html/repository</url>
 		</snapshotRepository>
-	<!-- 
-		<snapshotRepository>
-			<id>hispeed-repository</id>
-			<url>ftp://ftp.hispeed.ch/homepage/repository</url>
-		</snapshotRepository>		
-		<snapshotRepository>
-			<id>sonatype-nexus-staging</id>
-			<name>Minimal-J sonytype Snapshot Maven 2 repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
+	<!-- 	
 		<snapshotRepository>
 			<id>packagecloud-travis</id>
 			<url>https://packagecloud.io/minimalj/snapshot</url>
