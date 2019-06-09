@@ -53,7 +53,10 @@ public class EntityJsonReader {
 		return convertedList;
 	}
 
-	private static <T extends Enum> void convertEnumSet(Set<T> set, Class<T> clazz, List list) {
+	// only works with eclipse compiler
+	// private static <T extends Enum> void convertEnumSet(Set<T> set, Class<T>
+	// clazz, List list) {
+	private static void convertEnumSet(Set set, Class clazz, List list) {
 		set.clear();
 		for (Object item : list) {
 			set.add(Enum.valueOf(clazz, (String) item));
@@ -79,7 +82,7 @@ public class EntityJsonReader {
 				property.setValue(entity, value);
 			} else if (property.getClazz() == Set.class) {
 				Set set = (Set) property.getValue(entity);
-				convertEnumSet(set, (Class<? extends Enum>) property.getGenericClass(), (List)value);
+				convertEnumSet(set, property.getGenericClass(), (List) value);
 			} else if (value instanceof String) {
 				String string = (String) value;
 				if (!"id".equals(property.getName()) || property.getClazz() != Object.class) {

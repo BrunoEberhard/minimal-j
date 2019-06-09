@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>1.21.0.0</version>
+	<version>1.21.1.0</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -38,16 +38,7 @@
 			<id>openech-repository</id>
 			<url>ftp://ftp.openech.ch/public_html/repository</url>
 		</snapshotRepository>
-	<!-- 
-		<snapshotRepository>
-			<id>hispeed-repository</id>
-			<url>ftp://ftp.hispeed.ch/homepage/repository</url>
-		</snapshotRepository>		
-		<snapshotRepository>
-			<id>sonatype-nexus-staging</id>
-			<name>Minimal-J sonytype Snapshot Maven 2 repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
+	<!-- 	
 		<snapshotRepository>
 			<id>packagecloud-travis</id>
 			<url>https://packagecloud.io/minimalj/snapshot</url>
@@ -59,6 +50,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>

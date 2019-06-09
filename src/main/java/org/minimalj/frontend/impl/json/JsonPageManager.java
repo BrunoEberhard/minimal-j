@@ -135,9 +135,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 		} catch (InterruptedException t) {
 		}
 
-		output.add("session", sessionId);
-
 		if (!thread.isAlive()) {
+			output.add("session", sessionId);
 			return output;
 		} else {
 			JsonOutput output = new JsonOutput();

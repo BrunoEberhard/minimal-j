@@ -36,8 +36,6 @@ $ICON
   	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
-		session = dataObject["session"];
-		sessionStorage.sessionId = session;
 
 		if (dataObject.wait) {
 			var data = {"retry" : dataObject.wait};
@@ -47,6 +45,9 @@ $ICON
 		} else {
 			document.getElementById("wait").style.width = 0;
 		}
+
+		session = dataObject["session"];
+		sessionStorage.sessionId = session;
 
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
@@ -524,8 +525,10 @@ $ICON
 			if (element.type === "text") {
 				element.setAttribute("oninput", "ontextinput(this);");
 				element.setAttribute("onblur", "setDeferredValue(this);");
+				element.setAttribute("onchange", "ontextchange(this);");
+			} else {
+				element.setAttribute("onchange", "sendchange(this);");
 			}
-			element.setAttribute("onchange", "ontextchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.value) {
 				element.value = content.value;
