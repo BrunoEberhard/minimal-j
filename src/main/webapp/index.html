@@ -36,8 +36,6 @@ $ICON
   	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
-		session = dataObject["session"];
-		sessionStorage.sessionId = session;
 
 		if (dataObject.wait) {
 			var data = {"retry" : dataObject.wait};
@@ -47,6 +45,9 @@ $ICON
 		} else {
 			document.getElementById("wait").style.width = 0;
 		}
+
+		session = dataObject["session"];
+		sessionStorage.sessionId = session;
 
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
