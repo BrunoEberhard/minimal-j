@@ -1,6 +1,7 @@
 package org.minimalj.repository.sql;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -29,6 +30,10 @@ public abstract class SqlDialect {
 	private final Set<String> indexNames = new HashSet<>();
 
 	public abstract int getMaxIdentifierLength();
+
+	public boolean isValid(Connection connection) throws SQLException {
+		return connection.isValid(0);
+	}
 
 	protected void addCreateStatementBegin(StringBuilder s, String tableName) {
 		s.append("CREATE TABLE ").append(tableName).append(" (\n");
@@ -191,6 +196,16 @@ public abstract class SqlDialect {
 	
 	public static class PostgresqlDialect extends SqlDialect {
 		
+		public boolean isValid(Connection connection) throws SQLException {
+			// Postgres sometimes blocks when calling isValid() from different threads
+			try {
+				connection.createStatement().execute("select 1");
+			} catch (Exception e) {
+				return false;
+			}
+			return true;
+		}
+
 		@Override
 		protected void addCreateStatementEnd(StringBuilder s) {
 			s.append("\n)");

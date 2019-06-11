@@ -131,7 +131,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	private Connection getAutoCommitConnection() {
 		try {
-			if (autoCommitConnection == null || !autoCommitConnection.isValid(0)) {
+			if (autoCommitConnection == null || !sqlDialect.isValid(autoCommitConnection)) {
 				autoCommitConnection = dataSource.getConnection();
 				autoCommitConnection.setAutoCommit(true);
 			}
