@@ -188,6 +188,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 			} else {
 				initialize();
 			}
+
+			return output;
 		}
 
 		if (input.containsObject("closePage")) {

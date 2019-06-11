@@ -41,10 +41,7 @@ public class JsonSessionManager extends TimerTask {
 		JsonPageManager session = sessions.get(sessionId);
 		if (session == null) {
 			session = new JsonPageManager();
-			input.clear();
 			input.put(JsonInput.INITIALIZE, "");
-			// input.put(JsonInput.INITIALIZE, sessionId != null ? UNKNOWN_SESSION :
-			// NEW_SESSION);
 			sessions.put(session.getSessionId(), session);
 			if (sessions.size() > MAX_SESSIONS) {
 				logger.warning("Session count too high: " + sessions.size());
