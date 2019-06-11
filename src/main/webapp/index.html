@@ -733,7 +733,7 @@ $ICON
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
 			rowElement.setAttribute("onmousedown", "tableSelection(event, this);");
-			rowElement.setAttribute("ondblclick", "tableAction(\"" + tableId + "\", this);");
+			rowElement.setAttribute("ondblclick", "tableAction(event, \"" + tableId + "\", this);");
 			element.appendChild(rowElement);
 		}
 		return element;
@@ -989,15 +989,15 @@ $ICON
 		var data = {"tableSelection" : tableAction};
 		send(data, false);
 		
-		if (event.shiftKey || event.ctrlKey) {
-			event.preventDefault();
-		}
+		event.preventDefault();
 	}
 
-	function tableAction(tableId, rowElement) {
+	function tableAction(event, tableId, rowElement) {
 		var tableAction = {"table" : tableId, "row" : rowElement.rowIndex};
 		var data = {"tableAction" : tableAction};
 		send(data, true);
+
+		event.preventDefault();
 	}
 
 	function tableSortAction(tableId, column) {
