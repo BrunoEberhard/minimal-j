@@ -43,6 +43,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 	private List<Object> navigation;
 	private Runnable onLogin;
 	private final PageList visiblePageAndDetailsList = new PageList();
+	// this makes this class not thread safe. Caller of handle have to synchronize.
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
 
@@ -187,6 +188,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 			} else {
 				initialize();
 			}
+
+			return output;
 		}
 
 		if (input.containsObject("closePage")) {

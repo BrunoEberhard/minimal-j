@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.json.JsonInput;
+import org.minimalj.frontend.impl.json.JsonOutput;
 import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.impl.json.JsonReader;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
@@ -71,9 +72,13 @@ public class MjWebSocketDaemon extends NanoWSD {
 			} else {
 				sessionManager.refreshSession(session);
 			}
-			String result = session.handle(new JsonInput(data)).toString();
+			JsonInput input = new JsonInput(data);
+			JsonOutput output;
+			synchronized (session) {
+				output = session.handle(input);
+			}
 			try {
-				send(result);
+				send(output.toString());
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Send response failed", e);
 			}

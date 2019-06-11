@@ -14,10 +14,17 @@ import org.minimalj.util.resources.Resources;
 
 abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
+	protected final boolean hasDetailPage;
+
 	private DetailPage detailPage;
-	
-	public BaseTableEditorPage() {
+
+	protected BaseTableEditorPage() {
+		this(false);
+	}
+
+	protected BaseTableEditorPage(boolean hasDetailPage) {
 		super();
+		this.hasDetailPage = hasDetailPage;
 	}
 
 	protected abstract Form<T> createForm(boolean editable, boolean newObject);
@@ -41,9 +48,9 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	
 	@Override
 	public void action(VIEW selectedView) {
-		boolean detailVisibleBefore = isDetailVisible();
-		super.action(selectedView);
-		if (detailVisibleBefore || !isDetailVisible()) {
+		if (hasDetailPage) {
+			super.action(selectedView);
+		} else {
 			T selectedObject = viewed(selectedView);
 			openEditor(selectedObject);
 		}
