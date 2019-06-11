@@ -18,14 +18,15 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
 	private static final int PAGE_SIZE = 50;
-	
+
 	private final Object[] keys;
 	private final List<PropertyInterface> properties;
 	private final TableActionListener<T> listener;
 	private List<T> objects;
 	private int visibleRows = PAGE_SIZE;
-	private Integer sortColumn = null;
-	
+	private final List<Object> sortColumns = new ArrayList<>();
+	private final List<Boolean> sortDirections = new ArrayList<>();
+
 	public JsonTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
 		this.keys = keys;
@@ -61,13 +62,34 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	@Override
 	public void setObjects(List<T> objects) {
 		this.objects = objects;
+		checkSortDirections();
+		if (!sortColumns.isEmpty()) {
+			((Sortable) objects).sort(sortColumns.toArray(), convert(sortDirections));
+		}
 
 		visibleRows = 0;
 		List<List<String>> tableContent = extendContent();
-		
+
 		put("tableContent", tableContent);
 		put("size", objects.size());
 		put("extendable", isExtendable());
+	}
+
+	private void checkSortDirections() {
+		boolean sortable = ((objects) instanceof Sortable) && //
+				sortColumns.stream().allMatch(key -> ((Sortable) objects).canSortBy(key));
+		if (!sortable) {
+			sortColumns.clear();
+			sortDirections.clear();
+		}
+	}
+
+	private boolean[] convert(List<Boolean> booleans) {
+		boolean[] result = new boolean[booleans.size()];
+		for (int i = 0; i < booleans.size(); i++) {
+			result[i] = booleans.get(i);
+		}
+		return result;
 	}
 
 	public List<List<String>> extendContent() {
@@ -76,11 +98,11 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		visibleRows = newVisibleRows;
 		return createTableContent(newVisibleObjects);
 	}
-	
+
 	public boolean isExtendable() {
 		return visibleRows < objects.size();
 	}
-	
+
 	private List<List<String>> createTableContent(List<T> objects) {
 		List<List<String>> tableContent = new ArrayList<>();
 		for (T object : objects) {
@@ -111,20 +133,21 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	public void sort(int column) {
 		if (objects instanceof Sortable) {
 			Sortable sortable = (Sortable) objects;
-			if (sortable.canSortBy(keys[column])) {
-				
-				column = column + 1;
-				if (sortColumn == null) {
-					sortColumn = column;
-				} else if (sortColumn == column) {
-					sortColumn = -sortColumn;
+			Object key = keys[column];
+			int size = sortColumns.size();
+			if (sortable.canSortBy(key)) {
+				int pos = sortColumns.indexOf(key);
+				if (size > 0 && pos == 0) {
+					sortDirections.set(0, !sortDirections.get(0));
 				} else {
-					sortColumn = column;
+					if (pos >= 0) {
+						sortDirections.remove(pos);
+						sortColumns.remove(pos);
+					}
+					sortColumns.add(0, key);
+					sortDirections.add(0, true);
 				}
-				if (objects instanceof Sortable) {
-					Object[] keys = new Object[] { this.keys[Math.abs(sortColumn) - 1] };
-					sortable.sort(keys, new boolean[] { sortColumn > 0 });
-				}
+
 				setObjects(objects);
 			}
 		}
