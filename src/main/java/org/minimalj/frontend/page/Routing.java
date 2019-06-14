@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.util.ExceptionUtils;
+import org.minimalj.util.resources.Resources;
 
 /**
  * Allows the Frontend to make a bookmark or a link for a Page. Note that the
@@ -40,10 +41,23 @@ public abstract class Routing {
 	}
 
 	public static final Page createPageSafe(String route) {
-		if (routing == null || !Page.validateRoute(route)) {
-			return null;
+		Page page = null;
+		if (routing != null && Page.validateRoute(route)) {
+			try {
+				page = routing.createPage(route);
+			} catch (Exception exception) {
+				ExceptionUtils.logReducedStackTrace(logger, exception);
+				return new ExceptionPage(exception);
+			}
 		}
-		return routing.createPage(route);
+		if (page == null) {
+			page = createNotAvailablePage(route);
+		}
+		return page;
+	}
+
+	private static Page createNotAvailablePage(String route) {
+		return new HtmlPage(Resources.getString("NotAvailablePage.message"), Resources.getString("NotAvailablePage.title"));
 	}
 
 	public static boolean available() {
@@ -52,6 +66,11 @@ public abstract class Routing {
 
 	protected abstract String getRoute(Page page);
 
+	/**
+	 * @param route valid route string
+	 * @return Page or <code>null</code> if route does not exist.
+	 * @throws RuntimeException Don't try to catch everything in the implementation.
+	 */
 	protected abstract Page createPage(String route);
 
 }
