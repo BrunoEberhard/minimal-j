@@ -36,7 +36,7 @@ public class ExceptionUtils {
 	}
 
 	// from apache ExceptionUtil
-	private static String getStackTrace(final Throwable throwable) {
+	public static String getStackTrace(final Throwable throwable) {
 		final StringWriter sw = new StringWriter();
 		final PrintWriter pw = new PrintWriter(sw, true);
 		throwable.printStackTrace(pw);
