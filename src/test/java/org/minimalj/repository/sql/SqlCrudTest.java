@@ -13,7 +13,6 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.EqualsHelper;
-import org.minimalj.util.IdUtils;
 
 public class SqlCrudTest {
 	
@@ -46,10 +45,8 @@ public class SqlCrudTest {
 	public void testInsertShouldNotChangeInput() {
 		G g = new G("testName1");
 		G g_clone = CloneHelper.clone(g);
-		Object id = repository.insert(g);
-		Assert.assertFalse("Insert should not update the id Field", EqualsHelper.equals(g, g_clone));
-		IdUtils.setId(g_clone, id);
-		Assert.assertTrue("Insert should update only the id Field", EqualsHelper.equals(g, g_clone));
+		repository.insert(g);
+		Assert.assertTrue("Insert should not update the id Field", EqualsHelper.equals(g, g_clone));
 	}
 	
 	@Test

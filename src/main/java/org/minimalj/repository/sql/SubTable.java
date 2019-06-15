@@ -51,7 +51,9 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 				if (position < objects.size()) {
 					ELEMENT object = objects.get(position);
 					if (hasId && IdUtils.getId(object) == null) {
-						sqlRepository.insert(object);
+						// don't call insert on sqlRepository directly because we need the id set on the
+						// object.
+						sqlRepository.getTable((Class<ELEMENT>) object.getClass()).insert(object);
 					}
 					if (position < objectsInDb.size()) {
 						update(parentId, position, object);
