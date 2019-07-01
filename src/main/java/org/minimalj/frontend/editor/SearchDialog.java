@@ -9,6 +9,7 @@ import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
+import org.minimalj.util.resources.Resources;
 
 public class SearchDialog<T> {
 	private final Object[] keys;
@@ -45,7 +46,7 @@ public class SearchDialog<T> {
 	public void show() {
 		IContent content = Frontend.getInstance().createTable(search, keys, multiSelect, new SearchTableListener());
 
-		dialog = Frontend.showDialog("Suche", content, saveAction, closeAction, actions);
+		dialog = Frontend.showDialog(Resources.getString("SearchAction"), content, saveAction, closeAction, actions);
 	}
 
 	private class SearchTableListener implements TableActionListener<T> {
