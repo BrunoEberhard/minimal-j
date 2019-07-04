@@ -188,7 +188,7 @@ public class ClassGenerator {
 		}
 		
 		boolean notEmpty = Boolean.TRUE.equals(property.notEmpty);
-		boolean inline = !property.type.isPrimitiv() && property.type.type == MjEntityType.DEPENDING_ENTITY && notEmpty;
+		boolean inline = property.propertyType == MjPropertyType.INLINE || !property.type.isPrimitiv() && property.type.type == MjEntityType.DEPENDING_ENTITY && notEmpty;
 
 		if (notEmpty && !inline) {
 			indent(s, indent).append("@NotEmpty\n");
