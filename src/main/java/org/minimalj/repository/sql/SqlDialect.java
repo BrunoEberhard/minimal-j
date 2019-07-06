@@ -217,7 +217,9 @@ public abstract class SqlDialect {
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				s.append("BYTEA");	
 			} else if (clazz == Boolean.class) {
-				s.append("BOOLEAN");				
+				s.append("BOOLEAN");	
+			} else if (clazz == LocalDateTime.class) {
+				s.append("TIMESTAMP");		
 			} else  {
 				super.addColumnDefinition(s, property);
 			}

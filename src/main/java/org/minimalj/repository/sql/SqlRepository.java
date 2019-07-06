@@ -311,10 +311,13 @@ public class SqlRepository implements TransactionalRepository {
 		Object originalId = IdUtils.getId(object);
 		@SuppressWarnings("unchecked")
 		Table<T> table = getTable((Class<T>) object.getClass());
-		// all repositories should behave to same and not save the new id in the
-		// original object.
-		IdUtils.setId(object, originalId);
-		return table.insert(object);
+		try {
+			return table.insert(object);
+		} finally {
+			// all repositories should behave to same and not set the new id in the
+			// original object.
+			IdUtils.setId(object, originalId);
+		}
 	}
 
 	@Override

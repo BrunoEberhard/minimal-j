@@ -67,8 +67,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			((Sortable) objects).sort(sortColumns.toArray(), convert(sortDirections));
 		}
 
-		visibleRows = 0;
-		List<List<String>> tableContent = extendContent();
+		visibleRows = Math.min(objects.size(), Math.max(visibleRows, PAGE_SIZE));
+		List<List<String>> tableContent = createTableContent(objects.subList(0, visibleRows));
 
 		put("tableContent", tableContent);
 		put("size", objects.size());
