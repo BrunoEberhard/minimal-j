@@ -25,6 +25,11 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 	}
 
 	@Override
+	protected void createConstraints(SqlDialect dialect) {
+		// skip, doesn't work on most database because of composed keys
+	}
+
+	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		int version = 0;
 		Object parentId = IdUtils.getId(parent);

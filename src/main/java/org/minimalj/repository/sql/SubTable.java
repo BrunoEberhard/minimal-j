@@ -28,6 +28,17 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 	
 	@Override
+	protected void createConstraints(SqlDialect dialect) {
+		super.createConstraints(dialect);
+		Class<?> parentClass = parentIdProperty.getDeclaringClass();
+		Table<?> parentTable = sqlRepository.getTable(parentClass);
+		String s = dialect.createConstraint(getTableName(), "ID", parentTable.getTableName());
+		if (s != null) {
+			execute(s);
+		}
+	}
+
+	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
