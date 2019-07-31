@@ -86,7 +86,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 			int index = uriString.lastIndexOf('.');
 			if (index > -1 && index < uriString.length() - 1) {
 				String postfix = uriString.substring(index + 1);
-				String mimeType = Resources.getMimeType(postfix);
+				String mimeType = StringUtils.equals("jar", postfix) ? "application/java" : Resources.getMimeType(postfix);
 				if (mimeType != null) {
 					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uriString);
 					if (inputStream != null) {
