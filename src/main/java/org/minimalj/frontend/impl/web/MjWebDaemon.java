@@ -12,6 +12,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.util.resources.Resources;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -80,6 +81,9 @@ public class MjWebDaemon extends NanoHTTPD {
 
 			return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
 		} else {
+			if (!Page.validateRoute(path.substring(1))) {
+				return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", uri + " bad request");
+			}
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			Locale locale = getLocale(headers.get("accept-language"));
 			htmlTemplate = htmlTemplate.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
