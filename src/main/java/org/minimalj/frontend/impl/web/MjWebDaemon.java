@@ -81,7 +81,7 @@ public class MjWebDaemon extends NanoHTTPD {
 
 			return newFixedLengthResponse(Status.NOT_FOUND, "text/html", uri + " not found");
 		} else {
-			if (!Page.validateRoute(path.substring(1))) {
+			if (path.length() > 1 && !Page.validateRoute(path.substring(1))) {
 				return newFixedLengthResponse(Status.BAD_REQUEST, "text/html", uri + " bad request");
 			}
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
