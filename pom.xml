@@ -49,11 +49,11 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.8.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<release>12</release>
 				</configuration>
 			</plugin>
 
@@ -192,6 +192,31 @@
 							<serverId>ossrh</serverId>
 							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>cheerpj</id>
+			<activation>
+				<property>
+					<name>cheerpj</name>
+				</property>
+			</activation>
+			<build>
+				<finalName>minimalj_cheerp.jar</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>3.1.2</version>
+						<configuration>
+							<excludes>
+								<exclude>**/frontend/impl/swing/**</exclude>
+								<exclude>**/frontend/impl/web/**</exclude>
+								<exclude>**/frontend/impl/cheerpj/CheerpjHTTPD</exclude>
+							</excludes>
 						</configuration>
 					</plugin>
 				</plugins>

@@ -55,7 +55,12 @@ public class JsonSessionManager extends TimerTask {
 	}
 
 	public String handle(String json) {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
+		return handle(data);
+	}
+
+	public String handle(Map<String, Object> data) {
 		JsonPageManager session = getSession(data);
 		JsonInput input = new JsonInput(data);
 		JsonOutput output;
