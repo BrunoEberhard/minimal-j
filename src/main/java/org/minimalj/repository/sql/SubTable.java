@@ -30,6 +30,10 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	@Override
 	protected void createConstraints(SqlDialect dialect) {
 		super.createConstraints(dialect);
+		createIdConstraint(dialect);
+	}
+
+	protected void createIdConstraint(SqlDialect dialect) {
 		Class<?> parentClass = parentIdProperty.getDeclaringClass();
 		Table<?> parentTable = sqlRepository.getTable(parentClass);
 		String s = dialect.createConstraint(getTableName(), "ID", parentTable.getTableName());
