@@ -31,7 +31,7 @@ public class MjModel {
 	}
 	
 	public MjEntity getEntity(String name) {
-		return entities.stream().filter(e -> e.getSimpleClassName().equals(name)).findFirst().orElse(null);
+		return entities.stream().filter(e -> e.getClassName().equals(name)).findFirst().orElse(null);
 	}
 	
 }

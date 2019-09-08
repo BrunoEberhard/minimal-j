@@ -22,7 +22,6 @@ import org.minimalj.model.validation.Validation;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
-import org.w3c.dom.Element;
 
 public class MjEntity {
 
@@ -64,9 +63,7 @@ public class MjEntity {
 
 	public MjEntityType type;
 
-	private Class<?> clazz;
-	public String name; // classname without package
-	public String packageName;
+	private final Class<?> clazz;
 
 	public Boolean validatable;
 	public final List<MjProperty> properties = new ArrayList<>();
@@ -77,20 +74,17 @@ public class MjEntity {
 	public Integer minLength, maxLength; // only for string / bigDecimal / byte[]
 	
 	public MjEntity() {
+		// nur für Keys - Klasse
+		this.clazz = null;
 	}
-	
+
 	public MjEntity(MjEntityType type) {
 		this.type = Objects.requireNonNull(type);
 		this.clazz = type.getJavaClass();
-		if (clazz != null) {
-			this.name = clazz.getSimpleName();
-		}
 	}
 	
 	public MjEntity(MjModel model, Class<?> clazz) {
 		this.clazz = clazz;
-		this.name = clazz.getSimpleName();
-		this.packageName = clazz.getPackage().getName();
 		
 		model.addEntity(this);
 		validatable = Validation.class.isAssignableFrom(clazz);
@@ -113,7 +107,8 @@ public class MjEntity {
 		if (Enum.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.Enum;
 			List<Object> list = EnumUtils.valueList((Class) clazz);
-			values = list.stream().map(e -> e.toString()).collect(Collectors.toList());
+			values = list.stream().map(e -> e.toString()).map(MjEntity::cutUnderlinePrefix).collect(Collectors.toList());
+
 		} else if (Code.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.CODE;
 		} else if (IdUtils.hasId(clazz)) {
@@ -123,16 +118,12 @@ public class MjEntity {
 		}
 	}
 	
-	public MjEntity(String name) {
-		this.name = name;
-		this.type = MjEntityType.ENTITY;
-	}
-	
-	public Class<?> getClazz() {
-		if (clazz == null) {
-			throw new IllegalStateException(name + " is not a java class");
+	private static String cutUnderlinePrefix(String s) {
+		if (s.startsWith("_")) {
+			return s.substring(1);
+		} else {
+			return s;
 		}
-		return clazz;
 	}
 	
 	public String getClassName() {
@@ -141,10 +132,14 @@ public class MjEntity {
 		if (!isEnumeration() && type.getJavaClass() != null) {
 			return type.getJavaClass().getSimpleName();
 		} else {
-			return name;
+			return clazz.getSimpleName();
 		}
 	}
 	
+	public String getPackageName() {
+		return clazz.getPackage().getName();
+	}
+
 	public boolean isEnumeration() {
 		return values != null && !values.isEmpty();
 	}
@@ -152,20 +147,9 @@ public class MjEntity {
 	public boolean isPrimitiv() {
 		return type.isPrimitiv();
 	}
-	
-	public String getSimpleClassName() {
-		return name;
+
+	public Class<?> getClazz() {
+		return clazz;
 	}
-	
-	// TOOD move
-	
-	private Element element;
-	
-	public Element getElement() {
-		return element;
-	}
-	
-	public void setElement(Element element) {
-		this.element = element;
-	}
+
 }
