@@ -16,6 +16,7 @@ public class SwingVerticalGroup extends JPanel implements IComponent {
 	
 	public SwingVerticalGroup(IComponent... components) {
 		setLayout(new VerticalLayoutManager());
+		setOpaque(false);
 
 		for (IComponent component : components) {
 			add((Component) component);
@@ -55,15 +56,11 @@ public class SwingVerticalGroup extends JPanel implements IComponent {
 				int height = component.getPreferredSize().height;
 				preferredHeight += height;
 			}
-			int verticalRest = parent.getHeight() - preferredHeight;
-			int verticalInset = verticalRest > 8 ? 4 : verticalRest / 2;
-			int y = verticalInset;
-			int x = verticalInset > 0 ? 1 : 0;
+			int y = 0;
 			int width = parent.getWidth();
-			int widthWithoutIns = width - x;
 			for (Component component : parent.getComponents()) {
 				int height = component.getPreferredSize().height;
-				component.setBounds(x, y, widthWithoutIns, height);
+				component.setBounds(0, y, width, height);
 				y += height;
 			}
 			preferredSize = new Dimension(width, preferredHeight);
