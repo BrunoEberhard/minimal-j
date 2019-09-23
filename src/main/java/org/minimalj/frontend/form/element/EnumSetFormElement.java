@@ -18,7 +18,7 @@ import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFormElement<E> implements LookupParser, /* Enable, */ Mocking {
+public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFormElement<E> implements LookupParser, Mocking {
 	private final Class enumClass;
 	private final Collection allowedValues;
 	
