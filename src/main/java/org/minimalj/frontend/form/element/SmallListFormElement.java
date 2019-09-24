@@ -11,7 +11,7 @@ import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<List<T>> /* implements Enable, */ {
+public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<List<T>> {
 	
 	public SmallListFormElement(List<T> key) {
 		this(key, true);

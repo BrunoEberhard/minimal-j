@@ -7,19 +7,39 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.model.Rendering;
 
 // Framework internal. Only use specializations
-public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> {
+public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> implements Enable {
 	private static Logger logger = Logger.getLogger(AbstractLookupFormElement.class.getSimpleName());
 
-	protected final Input<String> lookup;
+	protected final SwitchComponent switchComponent;
+	protected Input<String> lookup;
+	protected Input<String> readOnlyInput;
+
 	private T object;
 	private boolean internal = false;
 
 	AbstractLookupFormElement(Object key, boolean editable) {
 		super(key);
 		if (editable) {
+			switchComponent = Frontend.getInstance().createSwitchComponent();
+			switchComponent.show(getLookup());
+		} else {
+			switchComponent = null;
+		}
+	}
+
+	@Override
+	public final void setEnabled(boolean enabled) {
+		if (switchComponent != null) {
+			switchComponent.show(enabled ? getLookup() : getReadOnlyInput());
+		}
+	}
+
+	private Input<String> getLookup() {
+		if (lookup == null) {
 			Input<String> input;
 			if (this instanceof LookupParser) {
 				input = Frontend.getInstance().createTextField(((LookupParser) this).getAllowedSize(),
@@ -29,11 +49,17 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 				input = Frontend.getInstance().createReadOnlyTextField();
 			}
 			lookup = Frontend.getInstance().createLookup(input, this::lookup);
-		} else {
-			lookup = Frontend.getInstance().createReadOnlyTextField();
+			lookup.setValue(render(object));
 		}
+		return lookup;
+	}
 
-		lookup.setValue(render(object));
+	private Input<String> getReadOnlyInput() {
+		if (readOnlyInput == null) {
+			readOnlyInput = Frontend.getInstance().createReadOnlyTextField();
+			readOnlyInput.setValue(render(object));
+		}
+		return readOnlyInput;
 	}
 
 	public interface LookupParser {
@@ -52,7 +78,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 
 	@Override
 	public IComponent getComponent() {
-		return lookup;
+		return switchComponent != null ? switchComponent : getReadOnlyInput();
 	}
 
 	@Override
@@ -63,7 +89,12 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	@Override
 	public void setValue(T object) {
 		this.object = object;
-		lookup.setValue(render(object));
+		if (lookup != null) {
+			lookup.setValue(render(object));
+		}
+		if (readOnlyInput != null) {
+			readOnlyInput.setValue(render(object));
+		}
 	}
 
 	protected void setValueInternal(T object) {
