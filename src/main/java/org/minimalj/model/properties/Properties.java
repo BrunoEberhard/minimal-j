@@ -14,9 +14,9 @@ import org.minimalj.util.FieldUtils;
 public class Properties {
 	private static final Logger logger = Logger.getLogger(Properties.class.getName());
 
-	private static final Map<Class<?>, Map<String, PropertyInterface>> properties =
-            new HashMap<>();
-	
+	private static final Map<Class<?>, Map<String, PropertyInterface>> properties = new HashMap<>();
+	private static final Map<Class<?>, Map<String, PropertyInterface>> methodProperties = new HashMap<>();
+
 	public static PropertyInterface getProperty(Class<?> clazz, String propertyName) {
 		Objects.requireNonNull(propertyName);
 
@@ -24,15 +24,28 @@ public class Properties {
 		PropertyInterface property = propertiesForClass.get(propertyName);
 
 		if (property == null) {
-			property = Keys.getMethodProperty(clazz, propertyName);
+			property = getMethodProperty(clazz, propertyName);
 		}
-		
+
 		if (property != null) {
 			return property;
 		} else {
 			logger.fine("No field/access methods for " + propertyName + " in Class " + clazz.getName());
 			return null;
 		}
+	}
+
+	public static PropertyInterface getMethodProperty(Class<?> clazz, String propertyName) {
+		PropertyInterface property;
+		if (!methodProperties.containsKey(clazz)) {
+			methodProperties.put(clazz, new HashMap<>());
+		}
+		Map<String, PropertyInterface> methodPropertiesForClass = methodProperties.get(clazz);
+		if (!methodPropertiesForClass.containsKey(propertyName)) {
+			methodProperties.get(clazz).put(propertyName, Keys.getMethodProperty(clazz, propertyName));
+		}
+		property = methodProperties.get(clazz).get(propertyName);
+		return property;
 	}
 
 	public static PropertyInterface getPropertyByPath(Class<?> clazz, String propertyName) {
@@ -45,11 +58,11 @@ public class Properties {
 			return new ChainedProperty(property1, property2);
 		}
 	}
-	
+
 	public static PropertyInterface getProperty(Field field) {
 		return getProperty(field.getDeclaringClass(), field.getName());
 	}
-	
+
 	public static Map<String, PropertyInterface> getProperties(Class<?> clazz) {
 		if (!properties.containsKey(clazz)) {
 			properties.put(clazz, Collections.unmodifiableMap(properties(clazz)));
@@ -57,16 +70,16 @@ public class Properties {
 		Map<String, PropertyInterface> propertiesForClass = properties.get(clazz);
 		return propertiesForClass;
 	}
-	
+
 	private static Map<String, PropertyInterface> properties(Class<?> clazz) {
 		Map<String, PropertyInterface> properties = new LinkedHashMap<>();
-		
+
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isStatic(field)) {
 				properties.put(field.getName(), new FieldProperty(field));
-			} 
+			}
 		}
-		return properties; 
+		return properties;
 	}
-	
+
 }
