@@ -3,6 +3,8 @@ package org.minimalj.model.properties;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.model.View;
@@ -18,10 +20,12 @@ public class FieldProperty implements PropertyInterface {
 
 	private final Field field;
 	private final boolean isFinal;
+	private final Class<?> type;
 
 	public FieldProperty(Field field) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
+		this.type = field.getType();
 	}
 
 	@Override
@@ -83,11 +87,18 @@ public class FieldProperty implements PropertyInterface {
 
 	@Override
 	public Class<?> getClazz() {
-		return field.getType();
+		return type;
 	}
 
 	@Override
 	public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+		if (!annotations.containsKey(annotationClass)) {
+			annotations.put(annotationClass, _getAnnotation(annotationClass));
+		}
+		return (T) annotations.get(annotationClass);
+	}
+
+	private <T extends Annotation> T _getAnnotation(Class<T> annotationClass) {
 		T annotation = field.getAnnotation(annotationClass);
 		if (annotation == null && View.class.isAssignableFrom(getDeclaringClass())) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(getDeclaringClass());
@@ -97,6 +108,8 @@ public class FieldProperty implements PropertyInterface {
 			return annotation;
 		}
 	}
+
+	private Map<Class<?>, Annotation> annotations = new HashMap<>();
 
 	@Override
 	public boolean isFinal() {
