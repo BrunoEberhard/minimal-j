@@ -39,11 +39,11 @@ public class StringUtils {
 	}
 	
 	public static boolean isEmpty(String s) {
-		return s == null || s.length() == 0;
+		return s == null || s.isEmpty();
 	}
 	
 	public static boolean isBlank(String s) {
-		return s == null || s.trim().length() == 0;
+		return s == null || s.trim().isEmpty();
 	}
 	
 	public static String emptyIfNull(String s) {
@@ -108,10 +108,14 @@ public class StringUtils {
 	}
 	
 	public static String lowerFirstChar(String string) {
-		if (string.length() > 1) {
-			return string.substring(0, 1).toLowerCase() + string.substring(1);
+		if (Character.isLowerCase(string.charAt(0))) {
+			return string;
 		} else {
-			return string.substring(0, 1).toLowerCase();
+			if (string.length() > 1) {
+				return string.substring(0, 1).toLowerCase() + string.substring(1);
+			} else {
+				return string.substring(0, 1).toLowerCase();
+			}
 		}
 	}
 
