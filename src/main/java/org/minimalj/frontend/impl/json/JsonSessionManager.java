@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,8 +55,17 @@ public class JsonSessionManager extends TimerTask {
 		sessions.put(session.getSessionId(), session);
 	}
 
+	public String handle(InputStream inputStream) {
+		Map<String, Object> data = (Map<String, Object>) JsonReader.read(inputStream);
+		return handle(data);
+	}
+
 	public String handle(String json) {
 		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
+		return handle(data);
+	}
+
+	private String handle(Map<String, Object> data) {
 		JsonPageManager session = getSession(data);
 		JsonInput input = new JsonInput(data);
 		JsonOutput output;
