@@ -47,3 +47,7 @@ Generate a browseable metamodel from the entity classes of an application.
 == rest
 
 Expose the content of the repository as REST api.
+
+== undertow
+
+Uses undertow as server infrastructure.
