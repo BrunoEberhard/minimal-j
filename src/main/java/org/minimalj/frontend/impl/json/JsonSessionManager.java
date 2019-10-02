@@ -51,10 +51,6 @@ public class JsonSessionManager extends TimerTask {
 		return session;
 	}
 
-	public void refreshSession(JsonPageManager session) {
-		sessions.put(session.getSessionId(), session);
-	}
-
 	public String handle(InputStream inputStream) {
 		Map<String, Object> data = (Map<String, Object>) JsonReader.read(inputStream);
 		return handle(data);

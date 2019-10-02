@@ -69,8 +69,6 @@ public class MjWebSocketDaemon extends NanoWSD {
 			String sessionId = (String) data.get("session");
 			if (session == null || !StringUtils.equals(sessionId, session.getSessionId())) {
 				session = sessionManager.getSession(data);
-			} else {
-				sessionManager.refreshSession(session);
 			}
 			JsonInput input = new JsonInput(data);
 			JsonOutput output;
