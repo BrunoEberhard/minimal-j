@@ -1,16 +1,17 @@
-package org.minimalj.frontend.impl.web;
+package org.minimal.nanohttpd;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimal.nanohttpd.MjWebDaemon.NanoHttpExchange;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.json.JsonInput;
 import org.minimalj.frontend.impl.json.JsonOutput;
 import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.impl.json.JsonReader;
-import org.minimalj.frontend.impl.json.JsonSessionManager;
+import org.minimalj.frontend.impl.web.MjHttpHandler;
 import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoWSD;
@@ -22,7 +23,7 @@ import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 public class MjWebSocketDaemon extends NanoWSD {
 	private static final Logger logger = Logger.getLogger(MjWebSocketDaemon.class.getName());
 
-	private JsonSessionManager sessionManager = new JsonSessionManager();
+	private MjHttpHandler handler = new MjHttpHandler();
 	
 	public MjWebSocketDaemon(int port, boolean secure) {
 		super(port);
@@ -46,9 +47,10 @@ public class MjWebSocketDaemon extends NanoWSD {
 	}
 	
 	@Override
-    public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
-            Map<String, String> files) {
-		return MjWebDaemon.serve(sessionManager, uri, method, headers, parms, files);
+	public Response serveHttp(IHTTPSession session) {
+		NanoHttpExchange exchange = new NanoHttpExchange(session);
+		handler.handle(exchange);
+		return exchange.getResponse();
 	}
 
 	public class MjWebSocket extends WebSocket {
@@ -68,7 +70,7 @@ public class MjWebSocketDaemon extends NanoWSD {
 			Map<String, Object> data = (Map<String, Object>) JsonReader.read(message.getTextPayload());
 			String sessionId = (String) data.get("session");
 			if (session == null || !StringUtils.equals(sessionId, session.getSessionId())) {
-				session = sessionManager.getSession(data);
+				session = handler.getSessionManager().getSession(data);
 			}
 			JsonInput input = new JsonInput(data);
 			JsonOutput output;

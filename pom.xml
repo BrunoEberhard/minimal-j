@@ -225,22 +225,6 @@
 	</profiles>
 
 	<dependencies>
-		<!-- nanohttpd could be marked as optional or in provided scope. But that's 
-			very annoying for beginners -->
-		<!-- It's a small jar and if you really don't need it in your project exclude 
-			it -->
-		<dependency>
-			<groupId>org.nanohttpd</groupId>
-			<artifactId>nanohttpd</artifactId>
-			<version>2.3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.nanohttpd</groupId>
-			<artifactId>nanohttpd-websocket</artifactId>
-			<version>2.3.1</version>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>

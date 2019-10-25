@@ -17,7 +17,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.web.MjWebDaemon;
+import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
@@ -68,7 +68,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 
 		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
-			Locale locale = MjWebDaemon.getLocale(headers.get("accept-language"));
+			Locale locale = MjHttpExchange.getLocale(headers.get("accept-language"));
 			htmlTemplate = htmlTemplate.replace("$SEND", "sendCheerpj");
 			htmlTemplate = htmlTemplate.replace("$IMPORT", "<script src=\"https://cjrtnc.leaningtech.com/1.3/loader.js\"></script>");
 			htmlTemplate = htmlTemplate.replace("$INIT", getInit());
@@ -88,7 +88,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 				String postfix = uriString.substring(index + 1);
 				String mimeType = StringUtils.equals("jar", postfix) ? "application/java" : Resources.getMimeType(postfix);
 				if (mimeType != null) {
-					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uriString);
+					InputStream inputStream = CheerpjHTTPD.class.getResourceAsStream(uriString);
 					if (inputStream != null) {
 						try {
 							return newFixedLengthResponse(Status.OK, mimeType, inputStream, inputStream.available());
