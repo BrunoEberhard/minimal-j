@@ -2,11 +2,14 @@ package org.minimalj.frontend.impl.web;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
@@ -38,27 +41,36 @@ public class WebServer {
 			}
 
 			@Override
-			public InputStream getRequest() throws IOException {
+			public InputStream getRequest() {
 				return exchange.getRequestBody();
+			}
+
+			@Override
+			public Map<String, List<String>> getParameters() {
+				if (exchange.getRequestMethod().equals("GET")) {
+					return MjHttpExchange.decodeParameters(exchange.getRequestURI().getQuery());
+				} else {
+					String requestBody = convertStreamToString(exchange.getRequestBody());
+					return MjHttpExchange.decodeParameters(requestBody);
+				}
 			}
 
 			public Locale getLocale() {
 				return MjHttpExchange.getLocale(exchange.getRequestHeaders().getFirst("accept-language"));
 			}
 
-			public void sendResponse(byte[] bytes) throws IOException {
-				OutputStream os = exchange.getResponseBody();
-				send(200);
-				os.write(bytes);
-				os.close();
+			public void sendResponse(byte[] bytes, String contentType) {
+				try (OutputStream os = exchange.getResponseBody()) {
+					exchange.getResponseHeaders().add("Content-Type", contentType);
+					exchange.sendResponseHeaders(200, bytes.length);
+					os.write(bytes);
+				} catch (IOException x) {
+					throw new RuntimeException(x);
+				}
 			}
 
-			public void sendResponse(String response) throws IOException {
-				OutputStream os = exchange.getResponseBody();
-				byte[] bytes = response.getBytes(Charset.forName("UTF-8"));
-				exchange.sendResponseHeaders(200, bytes.length);
-				os.write(bytes);
-				os.close();
+			public void sendResponse(String response, String contentType) {
+				sendResponse(response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
 			}
 
 			@Override
@@ -77,8 +89,9 @@ public class WebServer {
 			private void send(int statusCode) {
 				try {
 					exchange.sendResponseHeaders(statusCode, 0);
+					exchange.close();
 				} catch (IOException x) {
-					LOG.log(Level.WARNING, "Could not send status code", x);
+					throw new RuntimeException(x);
 				}
 			}
 		};
@@ -87,19 +100,31 @@ public class WebServer {
 	private static void start(boolean secure) {
 		int port = getPort(secure);
 		if (port > 0) {
-			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web "
-					+ (useWebSocket ? "socket " : "") + "frontend on port " + port + (secure ? " (Secure)" : ""));
+			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web " + (useWebSocket ? "socket " : "") + "frontend on port " + port + (secure ? " (Secure)" : ""));
 			try {
 				InetSocketAddress addr = new InetSocketAddress(port);
 				HttpServer server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
 				HttpContext context = server.createContext("/");
-				MjHttpHandler handler = new MjHttpHandler();
-				context.setHandler(e -> handler.handle(adapt(e)));
+				context.setHandler(e -> WebApplication.handle(adapt(e)));
 				server.start();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	// https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
+	// Java 9: remove
+	public static String convertStreamToString(InputStream is) {
+		StringBuilder sb = new StringBuilder(1024);
+		char[] read = new char[128];
+		try (InputStreamReader ir = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+			for (int i; -1 != (i = ir.read(read)); sb.append(read, 0, i))
+				;
+		} catch (IOException x) {
+			throw new RuntimeException(x);
+		}
+		return sb.toString();
 	}
 
 	private static int getPort(boolean secure) {

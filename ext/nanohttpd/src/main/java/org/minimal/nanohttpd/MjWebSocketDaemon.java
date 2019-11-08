@@ -11,7 +11,7 @@ import org.minimalj.frontend.impl.json.JsonInput;
 import org.minimalj.frontend.impl.json.JsonOutput;
 import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.impl.json.JsonReader;
-import org.minimalj.frontend.impl.web.MjHttpHandler;
+import org.minimalj.frontend.impl.web.ApplicationHttpHandler;
 import org.minimalj.util.StringUtils;
 
 import fi.iki.elonen.NanoWSD;
@@ -23,7 +23,7 @@ import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 public class MjWebSocketDaemon extends NanoWSD {
 	private static final Logger logger = Logger.getLogger(MjWebSocketDaemon.class.getName());
 
-	private MjHttpHandler handler = new MjHttpHandler();
+	private ApplicationHttpHandler handler = new ApplicationHttpHandler();
 	
 	public MjWebSocketDaemon(int port, boolean secure) {
 		super(port);

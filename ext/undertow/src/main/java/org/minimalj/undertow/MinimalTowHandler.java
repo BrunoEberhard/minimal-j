@@ -3,6 +3,7 @@ package org.minimalj.undertow;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -10,12 +11,15 @@ import org.minimalj.frontend.impl.json.JsonInput;
 import org.minimalj.frontend.impl.json.JsonOutput;
 import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.impl.json.JsonReader;
+import org.minimalj.frontend.impl.web.ApplicationHttpHandler;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
-import org.minimalj.frontend.impl.web.MjHttpHandler;
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.util.StringUtils;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HttpString;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedTextMessage;
@@ -25,24 +29,33 @@ import io.undertow.websockets.spi.WebSocketHttpExchange;
 
 public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallback {
 
-	private MjHttpHandler handler = new MjHttpHandler();
+	private static final HttpString CONTENT_TYPE = HttpString.tryFromString("Content-Type");
+
+	private ApplicationHttpHandler handler = new ApplicationHttpHandler();
+	private ResourcesHttpHandler resourcesHandler = new ResourcesHttpHandler();
 
 	@Override
 	public void handleRequest(HttpServerExchange exchange) throws Exception {
 		MjHttpExchange mjExchange = new MjHttpExchange() {
 
 			@Override
-			public void sendResponse(String body) throws IOException {
+			public void sendResponse(String body, String contentType) {
+				exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
 				exchange.getResponseSender().send(body);
 			}
 
 			@Override
-			public void sendResponse(byte[] bytes) throws IOException {
+			public void sendResponse(byte[] bytes, String contentType) {
 				exchange.setResponseContentLength(bytes.length);
+				exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
 				exchange.startBlocking();
-				OutputStream os = exchange.getOutputStream();
-				os.write(bytes);
-				exchange.getResponseSender().close();
+				try {
+					OutputStream os = exchange.getOutputStream();
+					os.write(bytes);
+					exchange.getResponseSender().close();
+				} catch (IOException x) {
+					throw new RuntimeException(x);
+				}
 			}
 
 			@Override
@@ -61,8 +74,18 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 			}
 
 			@Override
-			public InputStream getRequest() throws IOException {
+			public InputStream getRequest() {
 				return exchange.getInputStream();
+			}
+
+			@Override
+			public Map<String, List<String>> getParameters() {
+				if (exchange.getRequestMethod().equalToString("GET")) {
+					return MjHttpExchange.decodeParameters(exchange.getQueryString());
+				} else {
+					String requestBody = WebServer.convertStreamToString(getRequest());
+					return MjHttpExchange.decodeParameters(requestBody);
+				}
 			}
 
 			@Override
@@ -77,7 +100,9 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		};
 
 		exchange.dispatch(() -> {
-			handler.handle(mjExchange);
+			if (!handler.handle(mjExchange)) {
+				resourcesHandler.handle(mjExchange);
+			}
 		});
 	}
 

@@ -4,17 +4,20 @@ package org.minimal.nanohttpd;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
-import org.minimalj.frontend.impl.web.MjHttpHandler;
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
+import org.minimalj.frontend.impl.web.WebServer;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class MjWebDaemon extends NanoHTTPD {
-	private MjHttpHandler handler = new MjHttpHandler();
+	private ResourcesHttpHandler handler = new ResourcesHttpHandler();
 	
 	public MjWebDaemon(int port, boolean secure) {
 		super(port);
@@ -54,13 +57,13 @@ public class MjWebDaemon extends NanoHTTPD {
 		}
 
 		@Override
-		public void sendResponse(String body) throws IOException {
-			response = newFixedLengthResponse(body);
+		public void sendResponse(String body, String contentType) {
+			response = newFixedLengthResponse(Status.OK, contentType, body);
 		}
 
 		@Override
-		public void sendResponse(byte[] bytes) throws IOException {
-			response = newChunkedResponse(Status.OK, "png", new ByteArrayInputStream(bytes));
+		public void sendResponse(byte[] bytes, String contentType) {
+			response = newChunkedResponse(Status.OK, contentType, new ByteArrayInputStream(bytes));
 		}
 
 		@Override
@@ -84,8 +87,18 @@ public class MjWebDaemon extends NanoHTTPD {
 		}
 
 		@Override
-		public InputStream getRequest() throws IOException {
+		public InputStream getRequest() {
 			return session.getInputStream();
+		}
+
+		@Override
+		public Map<String, List<String>> getParameters() {
+			if (session.getMethod() == Method.GET) {
+				return session.getParameters();
+			} else {
+				String requestBody = WebServer.convertStreamToString(getRequest());
+				return MjHttpExchange.decodeParameters(requestBody);
+			}
 		}
 
 		@Override
