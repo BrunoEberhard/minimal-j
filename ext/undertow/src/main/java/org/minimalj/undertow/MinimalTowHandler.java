@@ -39,13 +39,15 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		MjHttpExchange mjExchange = new MjHttpExchange() {
 
 			@Override
-			public void sendResponse(String body, String contentType) {
+			public void sendResponse(int statusCode, String body, String contentType) {
+				exchange.setStatusCode(statusCode);
 				exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
 				exchange.getResponseSender().send(body);
 			}
 
 			@Override
-			public void sendResponse(byte[] bytes, String contentType) {
+			public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+				exchange.setStatusCode(statusCode);
 				exchange.setResponseContentLength(bytes.length);
 				exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
 				exchange.startBlocking();
@@ -59,21 +61,6 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 			}
 
 			@Override
-			public void sendNotfound() {
-				exchange.setStatusCode(404);
-			}
-
-			@Override
-			public void sendForbidden() {
-				exchange.setStatusCode(400);
-			}
-
-			@Override
-			public void sendError() {
-				exchange.setStatusCode(500);
-			}
-
-			@Override
 			public InputStream getRequest() {
 				return exchange.getInputStream();
 			}
@@ -81,10 +68,10 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 			@Override
 			public Map<String, List<String>> getParameters() {
 				if (exchange.getRequestMethod().equalToString("GET")) {
-					return MjHttpExchange.decodeParameters(exchange.getQueryString());
+					return decodeParameters(exchange.getQueryString());
 				} else {
 					String requestBody = WebServer.convertStreamToString(getRequest());
-					return MjHttpExchange.decodeParameters(requestBody);
+					return decodeParameters(requestBody);
 				}
 			}
 
@@ -95,7 +82,7 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 
 			@Override
 			public Locale getLocale() {
-				return MjHttpExchange.getLocale(exchange.getRequestHeaders().get("accept-language").getFirst());
+				return getLocale(exchange.getRequestHeaders().get("accept-language").getFirst());
 			}
 		};
 

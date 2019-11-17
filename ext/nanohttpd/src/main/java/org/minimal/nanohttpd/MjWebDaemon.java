@@ -44,7 +44,7 @@ public class MjWebDaemon extends NanoHTTPD {
 		}
 	}
 
-	static class NanoHttpExchange implements MjHttpExchange {
+	static class NanoHttpExchange extends MjHttpExchange {
 		private final IHTTPSession session;
 		private Response response;
 
@@ -57,28 +57,13 @@ public class MjWebDaemon extends NanoHTTPD {
 		}
 
 		@Override
-		public void sendResponse(String body, String contentType) {
-			response = newFixedLengthResponse(Status.OK, contentType, body);
+		public void sendResponse(int statusCode, String body, String contentType) {
+			response = newFixedLengthResponse(Status.lookup(statusCode), contentType, body);
 		}
 
 		@Override
-		public void sendResponse(byte[] bytes, String contentType) {
-			response = newChunkedResponse(Status.OK, contentType, new ByteArrayInputStream(bytes));
-		}
-
-		@Override
-		public void sendError() {
-			response = newFixedLengthResponse(Status.INTERNAL_ERROR, "text/html", session.getUri() + " not found");
-		}
-
-		@Override
-		public void sendNotfound() {
-			response = newFixedLengthResponse(Status.NOT_FOUND, "text/html", session.getUri() + " not found");
-		}
-
-		@Override
-		public void sendForbidden() {
-			response = newFixedLengthResponse(Status.FORBIDDEN, "text/html", session.getUri() + " not found");
+		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+			response = newChunkedResponse(Status.lookup(statusCode), contentType, new ByteArrayInputStream(bytes));
 		}
 
 		@Override
@@ -97,13 +82,13 @@ public class MjWebDaemon extends NanoHTTPD {
 				return session.getParameters();
 			} else {
 				String requestBody = WebServer.convertStreamToString(getRequest());
-				return MjHttpExchange.decodeParameters(requestBody);
+				return decodeParameters(requestBody);
 			}
 		}
 
 		@Override
 		public Locale getLocale() {
-			return MjHttpExchange.getLocale(session.getHeaders().get("accept-language"));
+			return getLocale(session.getHeaders().get("accept-language"));
 
 		}
 

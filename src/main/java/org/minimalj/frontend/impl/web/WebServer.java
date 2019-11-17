@@ -48,42 +48,29 @@ public class WebServer {
 			@Override
 			public Map<String, List<String>> getParameters() {
 				if (exchange.getRequestMethod().equals("GET")) {
-					return MjHttpExchange.decodeParameters(exchange.getRequestURI().getQuery());
+					return decodeParameters(exchange.getRequestURI().getQuery());
 				} else {
 					String requestBody = convertStreamToString(exchange.getRequestBody());
-					return MjHttpExchange.decodeParameters(requestBody);
+					return decodeParameters(requestBody);
 				}
 			}
 
 			public Locale getLocale() {
-				return MjHttpExchange.getLocale(exchange.getRequestHeaders().getFirst("accept-language"));
+				return getLocale(exchange.getRequestHeaders().getFirst("accept-language"));
 			}
 
-			public void sendResponse(byte[] bytes, String contentType) {
+			public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 				try (OutputStream os = exchange.getResponseBody()) {
 					exchange.getResponseHeaders().add("Content-Type", contentType);
-					exchange.sendResponseHeaders(200, bytes.length);
+					exchange.sendResponseHeaders(statusCode, bytes.length);
 					os.write(bytes);
 				} catch (IOException x) {
 					throw new RuntimeException(x);
 				}
 			}
 
-			public void sendResponse(String response, String contentType) {
-				sendResponse(response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
-			}
-
-			@Override
-			public void sendError() {
-				send(500);
-			}
-
-			public void sendForbidden() {
-				send(400);
-			}
-
-			public void sendNotfound() {
-				send(404);
+			public void sendResponse(int statusCode, String response, String contentType) {
+				sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
 			}
 
 			private void send(int statusCode) {

@@ -46,14 +46,14 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> data = (Map<String, Object>) JsonReader.read(exchange.getRequest());
 			String response = sessionManager.handle(data);
-			exchange.sendResponse(response, "application/json");
+			exchange.sendResponse(200, response, "application/json");
 			return true;
 		} else if (RESOURCES.contains(path.substring(1))) {
 			String type = Resources.getMimeType(path.substring(path.lastIndexOf('.') + 1));
-			exchange.sendResponse(resourceHandler.getResource(path.substring(1)), type);
+			exchange.sendResponse(200, resourceHandler.getResource(path), type);
 			return true;
 		} else if (path.equals("/application.png")) {
-			exchange.sendResponse(read(Application.getInstance().getIcon()), "image/png");
+			exchange.sendResponse(200, read(Application.getInstance().getIcon()), "image/png");
 			return true;
 		} else {
 			if (path.length() > 1 && !Page.validateRoute(path.substring(1))) {
@@ -64,7 +64,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			Locale locale = exchange.getLocale();
 			htmlTemplate = htmlTemplate.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
-			exchange.sendResponse(html, null);
+			exchange.sendResponse(200, html, null);
 			return true;
 		}
 	}

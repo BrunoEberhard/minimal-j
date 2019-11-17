@@ -14,16 +14,17 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.util.LocaleContext;
 
 public class ThymePage extends Page {
-
 	private final String path;
+	private final String title;
 
-	public ThymePage(String path) {
+	public ThymePage(String path, String title) {
 		this.path = path;
+		this.title = title;
 	}
 
 	@Override
 	public String getTitle() {
-		return "Page";
+		return title;
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class ThymePage extends Page {
 		return Frontend.getInstance().createHtmlContent(exchange.getResult());
 	}
 
-	public class ThymePageExchange implements MjHttpExchange {
+	public class ThymePageExchange extends MjHttpExchange {
 		private final String path;
 		private String result;
 
@@ -67,30 +68,14 @@ public class ThymePage extends Page {
 		}
 
 		@Override
-		public void sendResponse(byte[] bytes, String contentType) {
+		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 			// not implemented
 		}
 
 		@Override
-		public void sendResponse(String body, String contentType) {
+		public void sendResponse(int statusCode, String body, String contentType) {
 			this.result = body;
 		}
-
-		@Override
-		public void sendError() {
-			this.result = "error: " + path;
-		}
-
-		@Override
-		public void sendForbidden() {
-			this.result = "forbidden: " + path;
-		}
-
-		@Override
-		public void sendNotfound() {
-			this.result = "not found: " + path;
-		}
-
 	}
 
 }

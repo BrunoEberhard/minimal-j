@@ -11,24 +11,26 @@ import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.Map;
 
-public interface MjHttpExchange {
-	public String getPath();
+public abstract class MjHttpExchange {
+	public abstract String getPath();
 
-	public Locale getLocale();
+	public abstract Locale getLocale();
 
-	public InputStream getRequest();
+	public abstract InputStream getRequest();
 
-	public Map<String, List<String>> getParameters();
+	public abstract Map<String, List<String>> getParameters();
 
-	public void sendResponse(byte[] bytes, String contentType);
+	public abstract void sendResponse(int statusCode, byte[] bytes, String contentType);
 
-	public void sendResponse(String body, String contentType);
+	public abstract void sendResponse(int statusCode, String body, String contentType);
 
-	public void sendError();
+	public void sendForbidden() {
+		sendResponse(403, "Forbidden", "text/plain");
+	}
 
-	public void sendForbidden();
-
-	public void sendNotfound();
+	public void sendNotfound() {
+		sendResponse(404, "Not found", "text/plain");
+	}
 
 	public static Locale getLocale(String userLocale) {
 		if (userLocale == null) {
@@ -42,7 +44,7 @@ public interface MjHttpExchange {
 		return Locale.getDefault();
 	}
 
-	public static Map<String, List<String>> decodeParameters(String input) {
+	protected Map<String, List<String>> decodeParameters(String input) {
 		if (input == null) {
 			return Collections.emptyMap();
 		}
