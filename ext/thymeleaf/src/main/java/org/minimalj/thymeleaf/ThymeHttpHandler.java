@@ -52,9 +52,7 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 
 	public Map<String, Object> createContext(MjHttpExchange exchange) {
 		Map<String, Object> variables = new HashMap<>();
-		Object input = exchange.getParameters();
 
-		variables.put("input", input);
 		variables.put("application", Application.getInstance());
 		variables.put("subject", Subject.getCurrent());
 		variables.put("metas", JsonFrontend.getMetas());
