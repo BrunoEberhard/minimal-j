@@ -3,7 +3,7 @@ package org.minimalj.frontend.impl.web;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,7 +58,7 @@ public abstract class WebApplication extends Application {
 					return webApplication.createHttpHandlers();
 				}
 			} else {
-				handlers = Collections.singletonList(new ResourcesHttpHandler());
+				handlers = Arrays.asList(new ApplicationHttpHandler(), new ResourcesHttpHandler());
 			}
 		}
 		return handlers;
