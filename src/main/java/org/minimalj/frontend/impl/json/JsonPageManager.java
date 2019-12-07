@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -29,7 +28,6 @@ import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
-import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 
 public class JsonPageManager implements PageManager, LoginListener {
@@ -109,10 +107,6 @@ public class JsonPageManager implements PageManager, LoginListener {
 					try {
 						JsonFrontend.setSession(JsonPageManager.this);
 						Subject.setCurrent(subject);
-						String locale = (String) input.getObject("locale");
-						if (locale != null) {
-							LocaleContext.setCurrent(Locale.forLanguageTag(locale));
-						}
 						// Thread.sleep(10000);
 						handle_(input);
 					} catch (ComponentUnknowException x) {
@@ -122,7 +116,6 @@ public class JsonPageManager implements PageManager, LoginListener {
 						output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
 						logger.log(Level.SEVERE, x.getMessage(), x);
 					} finally {
-						LocaleContext.setCurrent(null);
 						Subject.setCurrent(null);
 						JsonFrontend.setSession(null);
 					}

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Map;
 
 import org.minimalj.application.Application;
@@ -61,9 +60,8 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 				return true;
 			}
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
-			Locale locale = exchange.getLocale();
 			htmlTemplate = htmlTemplate.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
-			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 			exchange.sendResponse(200, html, null);
 			return true;
 		}

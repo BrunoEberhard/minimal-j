@@ -14,8 +14,6 @@ import java.util.Map;
 public abstract class MjHttpExchange {
 	public abstract String getPath();
 
-	public abstract Locale getLocale();
-
 	public abstract InputStream getRequest();
 
 	public abstract Map<String, List<String>> getParameters();

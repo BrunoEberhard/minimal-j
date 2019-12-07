@@ -8,7 +8,6 @@ import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -17,6 +16,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 
 import com.sun.net.httpserver.HttpContext;
@@ -33,55 +33,56 @@ public class WebServer {
 
 	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
-	public static MjHttpExchange adapt(HttpExchange exchange) {
-		return new MjHttpExchange() {
-			@Override
-			public String getPath() {
-				return exchange.getRequestURI().getPath();
-			}
+	private static class WebServerHttpExchange extends MjHttpExchange {
+		private final HttpExchange exchange;
 
-			@Override
-			public InputStream getRequest() {
-				return exchange.getRequestBody();
-			}
+		private WebServerHttpExchange(HttpExchange exchange) {
+			this.exchange = exchange;
+		}
 
-			@Override
-			public Map<String, List<String>> getParameters() {
-				if (exchange.getRequestMethod().equals("GET")) {
-					return decodeParameters(exchange.getRequestURI().getQuery());
-				} else {
-					String requestBody = convertStreamToString(exchange.getRequestBody());
-					return decodeParameters(requestBody);
-				}
-			}
+		@Override
+		public String getPath() {
+			return exchange.getRequestURI().getPath();
+		}
 
-			public Locale getLocale() {
-				return getLocale(exchange.getRequestHeaders().getFirst("accept-language"));
-			}
+		@Override
+		public InputStream getRequest() {
+			return exchange.getRequestBody();
+		}
 
-			public void sendResponse(int statusCode, byte[] bytes, String contentType) {
-				try (OutputStream os = exchange.getResponseBody()) {
-					exchange.getResponseHeaders().add("Content-Type", contentType);
-					exchange.sendResponseHeaders(statusCode, bytes.length);
-					os.write(bytes);
-				} catch (IOException x) {
-					throw new RuntimeException(x);
-				}
+		@Override
+		public Map<String, List<String>> getParameters() {
+			if (exchange.getRequestMethod().equals("GET")) {
+				return decodeParameters(exchange.getRequestURI().getQuery());
+			} else {
+				String requestBody = convertStreamToString(exchange.getRequestBody());
+				return decodeParameters(requestBody);
 			}
+		}
 
-			public void sendResponse(int statusCode, String response, String contentType) {
-				sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
+		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+			try (OutputStream os = exchange.getResponseBody()) {
+				exchange.getResponseHeaders().add("Content-Type", contentType);
+				exchange.sendResponseHeaders(statusCode, bytes.length);
+				os.write(bytes);
+			} catch (IOException x) {
+				throw new RuntimeException(x);
 			}
+		}
 
-			private void send(int statusCode) {
-				try {
-					exchange.sendResponseHeaders(statusCode, 0);
-					exchange.close();
-				} catch (IOException x) {
-					throw new RuntimeException(x);
-				}
-			}
-		};
+		public void sendResponse(int statusCode, String response, String contentType) {
+			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
+		}
+	}
+
+	private static void handle(HttpExchange exchange) {
+		try {
+			LocaleContext.setCurrent(MjHttpExchange.getLocale(exchange.getRequestHeaders().getFirst("accept-language")));
+			MjHttpExchange mjHttpExchange = new WebServerHttpExchange(exchange);
+			WebApplication.handle(mjHttpExchange);
+		} finally {
+			LocaleContext.setCurrent(null);
+		}
 	}
 
 	private static void start(boolean secure) {
@@ -92,7 +93,7 @@ public class WebServer {
 				InetSocketAddress addr = new InetSocketAddress(port);
 				HttpServer server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
 				HttpContext context = server.createContext("/");
-				context.setHandler(e -> WebApplication.handle(adapt(e)));
+				context.setHandler(WebServer::handle);
 				server.start();
 			} catch (IOException e) {
 				throw new RuntimeException(e);

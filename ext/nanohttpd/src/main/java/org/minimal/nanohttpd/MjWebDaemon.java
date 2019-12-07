@@ -5,13 +5,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.util.LocaleContext;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -85,20 +85,18 @@ public class MjWebDaemon extends NanoHTTPD {
 				return decodeParameters(requestBody);
 			}
 		}
-
-		@Override
-		public Locale getLocale() {
-			return getLocale(session.getHeaders().get("accept-language"));
-
-		}
-
 	}
 
 	@Override
 	public Response serve(IHTTPSession session) {
 		NanoHttpExchange exchange = new NanoHttpExchange(session);
-		handler.handle(exchange);
-		return exchange.getResponse();
+		try {
+			LocaleContext.setCurrent(MjHttpExchange.getLocale(session.getHeaders().get("accept-language")));
+			handler.handle(exchange);
+			return exchange.getResponse();
+		} finally {
+			LocaleContext.setCurrent(null);
+		}
 	}
 
 }

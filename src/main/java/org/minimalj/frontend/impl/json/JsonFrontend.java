@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,7 +20,6 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
@@ -218,10 +216,8 @@ public class JsonFrontend extends Frontend {
 		*/
 	}
 	
-	public static String fillPlaceHolder(String html, Locale locale, String path) {
-		LocaleContext.setCurrent(locale);
-		String result = html.replace("$LOCALE", locale.getLanguage());
-		result = result.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
+	public static String fillPlaceHolder(String html, String path) {
+		String result = html.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
 		result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");

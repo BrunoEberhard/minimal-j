@@ -9,7 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
@@ -68,11 +66,10 @@ public class CheerpjHTTPD extends NanoHTTPD {
 
 		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
-			Locale locale = MjHttpExchange.getLocale(headers.get("accept-language"));
 			htmlTemplate = htmlTemplate.replace("$SEND", "sendCheerpj");
 			htmlTemplate = htmlTemplate.replace("$IMPORT", "<script src=\"https://cjrtnc.leaningtech.com/1.3/loader.js\"></script>");
 			htmlTemplate = htmlTemplate.replace("$INIT", getInit());
-			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		} else if (method == Method.PUT && path.startsWith("/java-transaction/")) {
 			String inputFileName = files.get("content");

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.minimalj.frontend.impl.json.JsonInput;
@@ -15,6 +14,7 @@ import org.minimalj.frontend.impl.web.ApplicationHttpHandler;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 
 import io.undertow.server.HttpHandler;
@@ -34,61 +34,69 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 	private ApplicationHttpHandler handler = new ApplicationHttpHandler();
 	private ResourcesHttpHandler resourcesHandler = new ResourcesHttpHandler();
 
+	private class TowHttpExchange extends MjHttpExchange {
+		private final HttpServerExchange exchange;
+
+		private TowHttpExchange(HttpServerExchange exchange) {
+			this.exchange = exchange;
+		}
+
+		@Override
+		public void sendResponse(int statusCode, String body, String contentType) {
+			exchange.setStatusCode(statusCode);
+			exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
+			exchange.getResponseSender().send(body);
+		}
+
+		@Override
+		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+			exchange.setStatusCode(statusCode);
+			exchange.setResponseContentLength(bytes.length);
+			exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
+			exchange.startBlocking();
+			try {
+				OutputStream os = exchange.getOutputStream();
+				os.write(bytes);
+				exchange.getResponseSender().close();
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
+		}
+
+		@Override
+		public InputStream getRequest() {
+			exchange.startBlocking();
+			return exchange.getInputStream();
+		}
+
+		@Override
+		public Map<String, List<String>> getParameters() {
+			if (exchange.getRequestMethod().equalToString("GET")) {
+				return decodeParameters(exchange.getQueryString());
+			} else {
+				String requestBody = WebServer.convertStreamToString(getRequest());
+				return decodeParameters(requestBody);
+			}
+		}
+
+		@Override
+		public String getPath() {
+			return exchange.getRelativePath();
+		}
+	}
+
 	@Override
 	public void handleRequest(HttpServerExchange exchange) throws Exception {
-		MjHttpExchange mjExchange = new MjHttpExchange() {
-
-			@Override
-			public void sendResponse(int statusCode, String body, String contentType) {
-				exchange.setStatusCode(statusCode);
-				exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
-				exchange.getResponseSender().send(body);
-			}
-
-			@Override
-			public void sendResponse(int statusCode, byte[] bytes, String contentType) {
-				exchange.setStatusCode(statusCode);
-				exchange.setResponseContentLength(bytes.length);
-				exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
-				exchange.startBlocking();
-				try {
-					OutputStream os = exchange.getOutputStream();
-					os.write(bytes);
-					exchange.getResponseSender().close();
-				} catch (IOException x) {
-					throw new RuntimeException(x);
-				}
-			}
-
-			@Override
-			public InputStream getRequest() {
-				return exchange.getInputStream();
-			}
-
-			@Override
-			public Map<String, List<String>> getParameters() {
-				if (exchange.getRequestMethod().equalToString("GET")) {
-					return decodeParameters(exchange.getQueryString());
-				} else {
-					String requestBody = WebServer.convertStreamToString(getRequest());
-					return decodeParameters(requestBody);
-				}
-			}
-
-			@Override
-			public String getPath() {
-				return exchange.getRelativePath();
-			}
-
-			@Override
-			public Locale getLocale() {
-				return getLocale(exchange.getRequestHeaders().get("accept-language").getFirst());
-			}
-		};
+		MjHttpExchange mjExchange = new TowHttpExchange(exchange);
 
 		exchange.dispatch(() -> {
-			if (!handler.handle(mjExchange)) {
-				resourcesHandler.handle(mjExchange);
+			try {
+				LocaleContext.setCurrent(MjHttpExchange.getLocale(exchange.getRequestHeaders().get("accept-language").getFirst()));
+				if (!handler.handle(mjExchange)) {
+					resourcesHandler.handle(mjExchange);
+				}
+			} finally {
+				LocaleContext.setCurrent(null);
 			}
 		});
 	}

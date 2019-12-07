@@ -3,7 +3,6 @@ package org.minimalj.thymeleaf.page;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.minimalj.frontend.Frontend;
@@ -11,7 +10,6 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.util.LocaleContext;
 
 public class ThymePage extends Page {
 	private final String path;
@@ -50,11 +48,6 @@ public class ThymePage extends Page {
 		@Override
 		public String getPath() {
 			return path;
-		}
-
-		@Override
-		public Locale getLocale() {
-			return LocaleContext.getCurrent();
 		}
 
 		@Override
