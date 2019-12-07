@@ -11,6 +11,7 @@ import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.MjHttpHandler;
 import org.minimalj.security.Subject;
 import org.minimalj.thymeleaf.page.ThymePage.ThymePageExchange;
+import org.minimalj.util.LocaleContext;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -32,8 +33,17 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 		templateEngine.setMessageResolver(new MjMessageResolver());
 	}
 
-	public boolean exists(String path) {
-		TemplateResolution templateResolution = templateResolver.resolveTemplate(templateEngine.getConfiguration(), null, path, null);
+	protected String getTemplateName(MjHttpExchange exchange) {
+		String templateName = exchange.getPath();
+		if (templateName.endsWith("/")) {
+			return templateName + "index.html";
+		} else {
+			return templateName;
+		}
+	}
+
+	protected boolean exists(String templateName) {
+		TemplateResolution templateResolution = templateResolver.resolveTemplate(templateEngine.getConfiguration(), null, templateName, null);
 		if (templateResolution != null) {
 			ClassLoaderTemplateResource resource = (ClassLoaderTemplateResource) templateResolution.getTemplateResource();
 			return resource != null && resource.exists();
@@ -41,16 +51,7 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 		return false;
 	}
 
-	public String resolveTemplate(MjHttpExchange exchange) {
-		String path = exchange.getPath();
-		if (exists(path)) {
-			return path;
-		} else {
-			return null;
-		}
-	}
-
-	public Map<String, Object> createContext(MjHttpExchange exchange) {
+	protected Map<String, Object> createContext(MjHttpExchange exchange) {
 		Map<String, Object> variables = new HashMap<>();
 
 		variables.put("application", Application.getInstance());
@@ -71,14 +72,14 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 
 	@Override
 	public final boolean handle(MjHttpExchange exchange) {
-		String template = resolveTemplate(exchange);
-		if (template == null) {
+		String templateName = getTemplateName(exchange);
+		if (templateName == null || !exists(templateName)) {
 			return false;
 		}
 
 		Map<String, Object> variables = createContext(exchange);
-		Context context = new Context(exchange.getLocale(), variables);
-		String response = templateEngine.process(template, context);
+		Context context = new Context(LocaleContext.getCurrent(), variables);
+		String response = templateEngine.process(templateName, context);
 		exchange.sendResponse(200, response, "text/html");
 
 		return true;
