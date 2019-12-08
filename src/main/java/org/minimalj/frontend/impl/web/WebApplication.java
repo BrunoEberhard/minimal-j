@@ -12,9 +12,9 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 
 /**
- * You only need to extend from WebApplication if you want to serve special html
+ * You only need to extend from WebApplication if you want to serve custom html
  * pages. If you only want to use the regular html Minimal-J UI you can extend
- * from Application directly.
+ * from Application directly even if you use the web frontend.
  *
  */
 public abstract class WebApplication extends Application {
@@ -33,7 +33,7 @@ public abstract class WebApplication extends Application {
 		return (WebApplication) Application.getInstance();
 	}
 
-	public static String mjHandlerPath() {
+	static String mjHandlerPath() {
 		if (Application.getInstance() instanceof WebApplication) {
 			WebApplication webApplication = (WebApplication) Application.getInstance();
 			return webApplication.getMjHandlerPath();
@@ -42,7 +42,7 @@ public abstract class WebApplication extends Application {
 		}
 	}
 
-	public abstract List<MjHttpHandler> createHttpHandlers();
+	protected abstract MjHttpHandler createHttpHandler();
 
 	private static List<MjHttpHandler> handlers;
 
@@ -50,12 +50,11 @@ public abstract class WebApplication extends Application {
 		if (handlers == null) {
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
+				handlers = new ArrayList<>();
+				handlers.add(webApplication.createHttpHandler());
 				if (webApplication.getMjHandlerPath() != null) {
-					handlers = new ArrayList<>();
-					handlers.addAll(webApplication.createHttpHandlers());
 					handlers.add(new ApplicationHttpHandler());
-				} else {
-					return webApplication.createHttpHandlers();
+					handlers.add(new ResourcesHttpHandler());
 				}
 			} else {
 				handlers = Arrays.asList(new ApplicationHttpHandler(), new ResourcesHttpHandler());
