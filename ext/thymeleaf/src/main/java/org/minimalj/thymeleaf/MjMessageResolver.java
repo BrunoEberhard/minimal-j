@@ -9,7 +9,12 @@ import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.messageresolver.AbstractMessageResolver;
 import org.thymeleaf.util.Validate;
 
-public class MjMessageResolver extends AbstractMessageResolver {
+/**
+ * Makes Minimal-J Resources accessible to Thymeleaf. Internal.
+ * 
+ * @author bruno
+ */
+class MjMessageResolver extends AbstractMessageResolver {
 
 	// copied from StandardMessageResolutionUtils
 	private static final Object[] EMPTY_MESSAGE_PARAMETERS = new Object[0];

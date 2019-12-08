@@ -11,6 +11,13 @@ import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.page.Page;
 
+/**
+ * This page is only needed if you want to use Thymeleaf in Minimal-J pages. It
+ * is not needed if you just want to render templates for a WebApplication.
+ * 
+ * @author bruno
+ *
+ */
 public class ThymePage extends Page {
 	private final String path;
 	private final String title;
