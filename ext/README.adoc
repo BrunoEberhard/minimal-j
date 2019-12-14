@@ -50,4 +50,12 @@ Expose the content of the repository as REST api.
 
 == undertow
 
-Uses undertow as server infrastructure.
+Uses undertow as server infrastructure. Supports WebSockets.
+
+== nanohttpd
+
+Uses nanoHttpd as server infrastructure. Supports WebSockets.
+
+== thymeleaf
+
+Use thymeleaf for custom web pages
