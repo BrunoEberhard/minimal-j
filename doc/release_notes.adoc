@@ -3,6 +3,8 @@
 Every release contains many small fixes.
 
 === next
+* Use JDK web server and remove dependency to NanoHttpd
+* add ext projects thymeleaf, MinimalTow, NanoHttpd
 * SmallCodeListFormElement: comma separated code list in a row
 
 === 1.21.0.0
