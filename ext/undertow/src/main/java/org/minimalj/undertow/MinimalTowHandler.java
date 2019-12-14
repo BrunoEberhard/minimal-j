@@ -3,6 +3,7 @@ package org.minimalj.undertow;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +11,9 @@ import org.minimalj.frontend.impl.json.JsonInput;
 import org.minimalj.frontend.impl.json.JsonOutput;
 import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.impl.json.JsonReader;
-import org.minimalj.frontend.impl.web.ApplicationHttpHandler;
+import org.minimalj.frontend.impl.json.JsonSessionManager;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
-import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
@@ -31,9 +32,6 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 
 	private static final HttpString CONTENT_TYPE = HttpString.tryFromString("Content-Type");
 
-	private ApplicationHttpHandler handler = new ApplicationHttpHandler();
-	private ResourcesHttpHandler resourcesHandler = new ResourcesHttpHandler();
-
 	private class TowHttpExchange extends MjHttpExchange {
 		private final HttpServerExchange exchange;
 
@@ -42,10 +40,8 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		}
 
 		@Override
-		public void sendResponse(int statusCode, String body, String contentType) {
-			exchange.setStatusCode(statusCode);
-			exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
-			exchange.getResponseSender().send(body);
+		public void sendResponse(int statusCode, String response, String contentType) {
+			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
 		}
 
 		@Override
@@ -61,6 +57,7 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 			} catch (IOException x) {
 				throw new RuntimeException(x);
 			}
+			exchange.endExchange();
 		}
 
 		@Override
@@ -92,9 +89,7 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		exchange.dispatch(() -> {
 			try {
 				LocaleContext.setCurrent(MjHttpExchange.getLocale(exchange.getRequestHeaders().get("accept-language").getFirst()));
-				if (!handler.handle(mjExchange)) {
-					resourcesHandler.handle(mjExchange);
-				}
+				WebApplication.handle(mjExchange);
 			} finally {
 				LocaleContext.setCurrent(null);
 			}
@@ -112,7 +107,7 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 				Map<String, Object> data = (Map<String, Object>) JsonReader.read(message.getData());
 				String sessionId = (String) data.get("session");
 				if (session == null || !StringUtils.equals(sessionId, session.getSessionId())) {
-					session = handler.getSessionManager().getSession(data);
+					session = JsonSessionManager.getInstance().getSession(data);
 				}
 				JsonInput input = new JsonInput(data);
 				JsonOutput output;

@@ -100,7 +100,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		lastUsed = System.currentTimeMillis();
 		
 		Long retry = (Long) input.getObject("retry");
-		if (retry == null) {
+		if (retry == null || thread == null) {
 			retry = 0L;
 			thread = new Thread(new Runnable() {
 				public void run() {
@@ -167,8 +167,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 				}
 			} else if (initialize instanceof String) {
 				String path = (String) initialize;
-				if (path.length() > 1) {
-					Page page = Routing.createPageSafe(path.substring(1));
+				if (!path.isEmpty()) {
+					Page page = Routing.createPageSafe(path);
 					if (page != null) {
 						onLogin = () -> show(page, null);
 					}
@@ -345,7 +345,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		json.put("title", page.getTitle());
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
-			json.put("route", route.endsWith("/") ? route : route + "/");
+			json.put("route", route);
 		}
 
 		JsonComponent content = (JsonComponent) PageAccess.getContent(page);

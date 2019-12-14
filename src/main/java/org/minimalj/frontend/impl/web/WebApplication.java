@@ -3,7 +3,7 @@ package org.minimalj.frontend.impl.web;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,10 +54,9 @@ public abstract class WebApplication extends Application {
 				handlers.add(webApplication.createHttpHandler());
 				if (webApplication.getMjHandlerPath() != null) {
 					handlers.add(new ApplicationHttpHandler());
-					handlers.add(new ResourcesHttpHandler());
 				}
 			} else {
-				handlers = Arrays.asList(new ApplicationHttpHandler(), new ResourcesHttpHandler());
+				handlers = Collections.singletonList(new ApplicationHttpHandler());
 			}
 		}
 		return handlers;
@@ -71,6 +70,7 @@ public abstract class WebApplication extends Application {
 				}
 			} catch (Exception x) {
 				webApplication().sendError(exchange, x);
+				logger.log(Level.SEVERE,x.getLocalizedMessage(), x);
 			}
 		}
 		webApplication().sendNotFound(exchange);

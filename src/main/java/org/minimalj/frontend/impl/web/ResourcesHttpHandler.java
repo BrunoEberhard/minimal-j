@@ -25,8 +25,13 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 		return Arrays.asList("html", "css", "js", "png", "jpg", "svg");
 	}
 
+	@Override
 	public boolean handle(MjHttpExchange exchange) {
 		String path = exchange.getPath();
+		return handle(exchange, path);
+	}
+
+	public boolean handle(MjHttpExchange exchange, String path) {
 		int pos = path.lastIndexOf('.');
 		if (pos > 0 && pos < path.length() - 1) {
 			String suffix = path.substring(pos + 1);

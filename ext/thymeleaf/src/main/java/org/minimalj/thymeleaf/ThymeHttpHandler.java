@@ -9,6 +9,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.MjHttpHandler;
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.security.Subject;
 import org.minimalj.thymeleaf.page.ThymePage.ThymePageExchange;
@@ -29,22 +30,12 @@ import org.thymeleaf.templateresource.ClassLoaderTemplateResource;
 public abstract class ThymeHttpHandler implements MjHttpHandler {
 	private final ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
 	private final TemplateEngine templateEngine = new TemplateEngine();
+	private final ResourcesHttpHandler resourcesHttpHandler = new ResourcesHttpHandler();
 
 	public ThymeHttpHandler() {
-		templateResolver.setPrefix(getTemplatesPrefix());
 		templateResolver.setCacheable(!Configuration.isDevModeActive());
 		templateEngine.setTemplateResolver(templateResolver);
 		templateEngine.setMessageResolver(new MjMessageResolver());
-	}
-
-	/**
-	 * Configuration of the location of the templates. Normally default value should
-	 * be ok but method can be overridden.
-	 * 
-	 * @return package in classpath where the template files are located
-	 */
-	protected String getTemplatesPrefix() {
-		return "templates/";
 	}
 
 	/**
@@ -60,9 +51,8 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 		String templateName = exchange.getPath();
 		if (templateName.endsWith("/")) {
 			return templateName + "index.html";
-		} else {
-			return templateName;
 		}
+		return templateName.endsWith(".html") ? templateName : null;
 	}
 
 	private boolean exists(String templateName) {
@@ -105,7 +95,7 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 	public final boolean handle(MjHttpExchange exchange) {
 		String templateName = getTemplateName(exchange);
 		if (templateName == null || !exists(templateName)) {
-			return false;
+			return resourcesHttpHandler.handle(exchange);
 		}
 
 		Map<String, Object> variables = createContext(exchange);

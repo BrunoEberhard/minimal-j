@@ -90,7 +90,7 @@ public class WebServer {
 	private static void start(boolean secure) {
 		int port = getPort(secure);
 		if (port > 0) {
-			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web " + (useWebSocket ? "socket " : "") + "frontend on port " + port + (secure ? " (Secure)" : ""));
+			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web frontend on port " + port + (secure ? " (Secure)" : ""));
 			try {
 				InetSocketAddress addr = new InetSocketAddress(port);
 				HttpServer server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
@@ -123,6 +123,11 @@ public class WebServer {
 	}
 
 	public static void start() {
+		if (useWebSocket) {
+			System.err.println("WebSockets are not supported in JDK Server. Please use MinimalTow or NanoHttp ext - projects for WebSockets.");
+			System.exit(-1);
+		}
+
 		ModelTest.exitIfProblems();
 		Frontend.setInstance(new JsonFrontend());
 

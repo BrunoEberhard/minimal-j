@@ -18,9 +18,15 @@ public class JsonSessionManager extends TimerTask {
 
 	private final Map<String, JsonPageManager> sessions = new HashMap<>();
 
-	public JsonSessionManager() {
+	private static final JsonSessionManager instance = new JsonSessionManager();
+
+	private JsonSessionManager() {
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(this, 1 * 60 * 1000, 1 * 60 * 1000);
+	}
+
+	public static JsonSessionManager getInstance() {
+		return instance;
 	}
 
 	@Override
@@ -42,7 +48,6 @@ public class JsonSessionManager extends TimerTask {
 		JsonPageManager session = sessions.get(sessionId);
 		if (session == null) {
 			session = new JsonPageManager();
-			input.put(JsonInput.INITIALIZE, "");
 			sessions.put(session.getSessionId(), session);
 			if (sessions.size() > MAX_SESSIONS) {
 				logger.warning("Session count too high: " + sessions.size());
@@ -52,6 +57,7 @@ public class JsonSessionManager extends TimerTask {
 	}
 
 	public String handle(InputStream inputStream) {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> data = (Map<String, Object>) JsonReader.read(inputStream);
 		return handle(data);
 	}
