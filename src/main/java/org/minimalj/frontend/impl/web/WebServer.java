@@ -60,6 +60,7 @@ public class WebServer {
 			}
 		}
 
+		@Override
 		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 			try (OutputStream os = exchange.getResponseBody()) {
 				exchange.getResponseHeaders().add("Content-Type", contentType);
@@ -70,6 +71,7 @@ public class WebServer {
 			}
 		}
 
+		@Override
 		public void sendResponse(int statusCode, String response, String contentType) {
 			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
 		}
