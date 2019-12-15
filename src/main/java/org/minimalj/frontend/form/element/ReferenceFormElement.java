@@ -13,8 +13,10 @@ import org.minimalj.frontend.editor.SearchDialog;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
+import org.minimalj.util.StringUtils;
 
 public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
 	private final Class<T> fieldClazz;
@@ -30,8 +32,16 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 	public ReferenceFormElement(T key, Object... columns) {
 		super(key, true);
 		this.columns = columns;
-		this.columns = columns != null && columns.length > 0 ? columns : Properties.getProperties(getProperty().getClazz()).values().toArray();
 		fieldClazz = (Class<T>) getProperty().getClazz();
+		this.columns = columns != null && columns.length > 0 ? columns : getDefaultColumns(fieldClazz).toArray();
+		if (this.columns.length == 0) {
+			throw new IllegalArgumentException(getProperty().getPath() + ": no columns defined");
+		}
+	}
+
+	protected List<PropertyInterface> getDefaultColumns(Class<T> clazz) {
+		return Properties.getProperties(getProperty().getClazz()).values(). //
+				stream().filter(p -> !StringUtils.equals(p.getName(), "id", "version", "historized")).collect(Collectors.toList());
 	}
 
 	@Override

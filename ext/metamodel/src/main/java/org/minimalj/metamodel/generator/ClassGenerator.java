@@ -57,22 +57,29 @@ public class ClassGenerator {
 	}
 	
 	private String createClassName(MjEntity entity) {
-		return entity.getClassName();
+		if (entity.type == MjEntityType.ByteArray) {
+			return "byte[]";
+		} else if (entity.isPrimitiv() && !entity.isEnumeration()) {
+			return entity.type.getJavaClass().getSimpleName();
+		} else {
+			return entity.getClassName();
+		}
 	}
 	
 	public void generate(MjModel model) {
 		generate(model.entities);
 	}
 	
-	public void generate(Collection<MjEntity> entities) {
+	public void generate(Collection<? extends MjEntity> entities) {
 		for (MjEntity entity : entities) {
-			if (!entity.isPrimitiv() ||entity.isEnumeration()) {
-				generateEntity(entity);
+			GeneratorEntity generatorEntity = (GeneratorEntity) entity;
+			if (!generatorEntity.isPrimitiv() || generatorEntity.isEnumeration()) {
+				generateEntity(generatorEntity);
 			}
 		}
 	}
 
-	private void generateEntity(MjEntity entity) {
+	private void generateEntity(GeneratorEntity entity) {
 		File packageDir = new File(directory, entity.packageName.replace('.', File.separatorChar));
 		packageDir.mkdirs();
 	
@@ -94,7 +101,7 @@ public class ClassGenerator {
 		}
 	}
 
-	private String generateEnum(MjEntity entity) {
+	private String generateEnum(GeneratorEntity entity) {
 		StringBuilder s = new StringBuilder();
 		s.append("package " + entity.packageName + ";\n\n");
 		s.append("import javax.annotation.Generated;\n\n");
@@ -107,7 +114,7 @@ public class ClassGenerator {
 		return s.toString();
 	}
 
-	private void generateEnumValues(StringBuilder s, MjEntity entity) {
+	private void generateEnumValues(StringBuilder s, GeneratorEntity entity) {
 		boolean startsWithDigit = entity.values.stream().anyMatch(element -> Character.isDigit(element.charAt(0)));
 		
 		boolean first = true;
@@ -131,7 +138,7 @@ public class ClassGenerator {
 		return element;
 	}
 
-	public String generate(MjEntity entity) {
+	public String generate(GeneratorEntity entity) {
 		String packageName = entity.packageName;
 		String className = createClassName(entity);
 
@@ -153,7 +160,7 @@ public class ClassGenerator {
 		return s.toString();
 	}
 
-	private void generateProperties(StringBuilder s, MjEntity entity, String packageName, Set<String> forbiddenNames) {
+	private void generateProperties(StringBuilder s, GeneratorEntity entity, String packageName, Set<String> forbiddenNames) {
 		indent++;
 		for (MjProperty property : entity.properties) {
 			generate(s, property, packageName, forbiddenNames);
@@ -182,9 +189,9 @@ public class ClassGenerator {
 				className = className + "_";
 			}
 			forbiddenNames.add(className);
-			generateInnerClass(s, property.type, className, packageName, forbiddenNames);
-		} else if ((property.type.type.getJavaClass() == null || property.type.isEnumeration()) && !packageName.equals(property.type.packageName)) {
-			className = property.type.packageName + "." + className;
+			generateInnerClass(s, (GeneratorEntity) property.type, className, packageName, forbiddenNames);
+		} else if ((property.type.type.getJavaClass() == null || property.type.isEnumeration()) && !packageName.equals(property.type.getPackageName())) {
+			className = property.type.getPackageName() + "." + className;
 		}
 		
 		boolean notEmpty = Boolean.TRUE.equals(property.notEmpty);
@@ -200,11 +207,7 @@ public class ClassGenerator {
 		} else {
 			if (property.type.type == MjEntityType.String && !property.type.isEnumeration()) {
 				if (!appendSize(s, property)) {
-					if (property.type.getElement() != null) {
-						System.out.println("Missing size for element " + property.type.getElement().getAttribute("name"));
-					} else {
-						System.out.println("Missing size for property " + property.name);
-					}
+					System.out.println("Missing size for property " + property.name);
 				}
 			} else if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long || property.type.type == MjEntityType.BigDecimal) {
 				appendSize(s, property);
@@ -232,7 +235,7 @@ public class ClassGenerator {
 		}
 	}
 	
-	public String generateInnerClass(StringBuilder s, MjEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
+	public String generateInnerClass(StringBuilder s, GeneratorEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
 		if (entity.isEnumeration()) {
 			s.append('\n');
 			indent(s, indent).append("public enum " + innerClassName + " { ");

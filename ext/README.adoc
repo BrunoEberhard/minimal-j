@@ -20,12 +20,12 @@ with every version a new row is created in the database.
 
 Enables the browser of JavaFx for the Swing Frontend.
 As JavaFx is not part of OpenJDK (only in Oracle JDK) or Java 11 this class is separated in special artifact
-to avoid the bunch of dependencies needed to run JavaFx. Just at this artifact to your application pom.xml.
+to avoid the bunch of dependencies needed to run JavaFx. Just add this artifact to your application pom.xml.
 If you then start the Swing Frontend the system browser will be used to display html content.
 
 == servlet
 
-This project allows to deploy Minimal-J applictions to a java application server like tomcat.
+This project allows to deploy Minimal-J applications to a java application server like tomcat.
 
 == vaadin_springboot
 
@@ -47,3 +47,15 @@ Generate a browseable metamodel from the entity classes of an application.
 == rest
 
 Expose the content of the repository as REST api.
+
+== undertow
+
+Uses undertow as server infrastructure. Supports WebSockets.
+
+== nanohttpd
+
+Uses nanoHttpd as server infrastructure. Supports WebSockets.
+
+== thymeleaf
+
+Use thymeleaf for custom web pages

@@ -19,8 +19,6 @@ import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
 
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-
 public class CheerpjBackend extends Backend {
 	private static final Logger LOG = Logger.getLogger(CheerpjBackend.class.getName());
 
@@ -78,7 +76,7 @@ public class CheerpjBackend extends Backend {
 				} catch (ClassNotFoundException e) {
 					throw new LoggingRuntimeException(e, LOG, "Could not read result from transaction");
 				} catch (IOException e) {
-					if (connection.getResponseCode() == Status.INTERNAL_ERROR.getRequestStatus()) {
+					if (connection.getResponseCode() == 500) {
 						throw new RuntimeException(connection.getResponseMessage());
 					} else {
 						throw new RuntimeException("Could not execute " + transaction, e);

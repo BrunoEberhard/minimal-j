@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>1.21.3.0</version>
+	<version>1.22.0.4</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -49,11 +49,12 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.8.0</version>
 				<configuration>
 					<source>1.8</source>
-					<target>1.8</target>
+          <target>1.8</target>
 				</configuration>
 			</plugin>
 
@@ -147,7 +148,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.9.1</version>
+						<version>3.1.1</version>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -197,25 +198,34 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>cheerpj</id>
+			<activation>
+				<property>
+					<name>cheerpj</name>
+				</property>
+			</activation>
+			<build>
+				<finalName>minimalj_cheerp.jar</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>3.1.2</version>
+						<configuration>
+							<excludes>
+								<exclude>**/frontend/impl/swing/**</exclude>
+								<exclude>**/frontend/impl/web/**</exclude>
+								<exclude>**/frontend/impl/cheerpj/CheerpjHTTPD</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 	<dependencies>
-		<!-- nanohttpd could be marked as optional or in provided scope. But that's 
-			very annoying for beginners -->
-		<!-- It's a small jar and if you really don't need it in your project exclude 
-			it -->
-		<dependency>
-			<groupId>org.nanohttpd</groupId>
-			<artifactId>nanohttpd</artifactId>
-			<version>2.3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.nanohttpd</groupId>
-			<artifactId>nanohttpd-websocket</artifactId>
-			<version>2.3.1</version>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>

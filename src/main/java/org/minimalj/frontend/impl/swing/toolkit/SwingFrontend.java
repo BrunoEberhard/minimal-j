@@ -140,11 +140,7 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public IComponent createVerticalGroup(IComponent... components) {
-		if (components.length == 1) {
-			return components[0];
-		} else {
-			return new SwingVerticalGroup(components);
-		}
+		return new SwingVerticalGroup(components);
 	}
 
 	@Override

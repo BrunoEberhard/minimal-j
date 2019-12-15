@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,9 +18,15 @@ public class JsonSessionManager extends TimerTask {
 
 	private final Map<String, JsonPageManager> sessions = new HashMap<>();
 
-	public JsonSessionManager() {
+	private static final JsonSessionManager instance = new JsonSessionManager();
+
+	private JsonSessionManager() {
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(this, 1 * 60 * 1000, 1 * 60 * 1000);
+	}
+
+	public static JsonSessionManager getInstance() {
+		return instance;
 	}
 
 	@Override
@@ -41,7 +48,6 @@ public class JsonSessionManager extends TimerTask {
 		JsonPageManager session = sessions.get(sessionId);
 		if (session == null) {
 			session = new JsonPageManager();
-			input.put(JsonInput.INITIALIZE, "");
 			sessions.put(session.getSessionId(), session);
 			if (sessions.size() > MAX_SESSIONS) {
 				logger.warning("Session count too high: " + sessions.size());
@@ -50,12 +56,19 @@ public class JsonSessionManager extends TimerTask {
 		return session;
 	}
 
-	public void refreshSession(JsonPageManager session) {
-		sessions.put(session.getSessionId(), session);
+	public String handle(InputStream inputStream) {
+		@SuppressWarnings("unchecked")
+		Map<String, Object> data = (Map<String, Object>) JsonReader.read(inputStream);
+		return handle(data);
 	}
 
 	public String handle(String json) {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
+		return handle(data);
+	}
+
+	public String handle(Map<String, Object> data) {
 		JsonPageManager session = getSession(data);
 		JsonInput input = new JsonInput(data);
 		JsonOutput output;

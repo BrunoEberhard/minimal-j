@@ -37,8 +37,8 @@ public class SqlTechnicalFieldTest {
 		LocalDateTime after = LocalDateTime.now();
 
 		Assert.assertEquals("A", entity.createUser);
-		Assert.assertTrue(before.compareTo(entity.createDate) <= 0);
-		Assert.assertTrue(after.compareTo(entity.createDate) >= 0);
+		Assert.assertTrue("Date of create " + entity.createDate + " must not be before start " + before, before.minusSeconds(1).compareTo(entity.createDate) <= 0);
+		Assert.assertTrue("Date of create " + entity.createDate + " must not be after now " + after, after.plusSeconds(1).compareTo(entity.createDate) >= 0);
 	}
 
 	@Test
@@ -50,11 +50,10 @@ public class SqlTechnicalFieldTest {
 		subject.setName("B");
 		Subject.setCurrent(subject);
 
-		LocalDateTime before = LocalDateTime.now();
-
 		Object id = repository.insert(entity);
 		entity = repository.read(TestEntity.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
+		LocalDateTime createDate = entity.createDate;
 
 		subject = new Subject();
 		subject.setName("C");
@@ -65,35 +64,35 @@ public class SqlTechnicalFieldTest {
 		entity = repository.read(TestEntity.class, id);
 		LocalDateTime afterEdit = LocalDateTime.now();
 
-		// create time / user should not be changed
 		Assert.assertEquals("B", entity.createUser);
-		Assert.assertTrue(before.compareTo(entity.createDate) <= 0);
-		Assert.assertTrue(afterInsert.compareTo(entity.createDate) >= 0);
+		Assert.assertTrue("Date of create " + createDate + "must not be changed to " + entity.createDate, createDate.compareTo(entity.createDate) == 0);
 
 		Assert.assertEquals("C", entity.editUser);
-		Assert.assertTrue(afterInsert.compareTo(entity.editDate) <= 0);
-		Assert.assertTrue(afterEdit.compareTo(entity.editDate) >= 0);
+		Assert.assertTrue("Date of edit " + entity.editDate + " must not be after start " + afterInsert, afterInsert.minusSeconds(1).compareTo(entity.editDate) <= 0);
+		Assert.assertTrue("Date of edit " + entity.editDate + " must not be before start " + afterEdit, afterEdit.plusSeconds(1).compareTo(entity.editDate) >= 0);
 	}
 
 	public static class TestEntity {
 		public static final TestEntity $ = Keys.of(TestEntity.class);
-		
+
 		public Object id;
 		public int version;
 
 		@Size(255)
 		public String string;
-		
-		@TechnicalField(TechnicalFieldType.CREATE_DATE) 
+
+		@TechnicalField(TechnicalFieldType.CREATE_DATE)
 		public LocalDateTime createDate;
-		
-		@TechnicalField(TechnicalFieldType.CREATE_USER) @Size(255)
+
+		@TechnicalField(TechnicalFieldType.CREATE_USER)
+		@Size(255)
 		public String createUser;
 
 		@TechnicalField(TechnicalFieldType.EDIT_DATE)
 		public LocalDateTime editDate;
-		
-		@TechnicalField(TechnicalFieldType.EDIT_USER) @Size(255)
+
+		@TechnicalField(TechnicalFieldType.EDIT_USER)
+		@Size(255)
 		public String editUser;
 
 	}

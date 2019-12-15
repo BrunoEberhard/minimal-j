@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -29,7 +28,6 @@ import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
-import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 
 public class JsonPageManager implements PageManager, LoginListener {
@@ -102,17 +100,13 @@ public class JsonPageManager implements PageManager, LoginListener {
 		lastUsed = System.currentTimeMillis();
 		
 		Long retry = (Long) input.getObject("retry");
-		if (retry == null) {
+		if (retry == null || thread == null) {
 			retry = 0L;
 			thread = new Thread(new Runnable() {
 				public void run() {
 					try {
 						JsonFrontend.setSession(JsonPageManager.this);
 						Subject.setCurrent(subject);
-						String locale = (String) input.getObject("locale");
-						if (locale != null) {
-							LocaleContext.setCurrent(Locale.forLanguageTag(locale));
-						}
 						// Thread.sleep(10000);
 						handle_(input);
 					} catch (ComponentUnknowException x) {
@@ -122,7 +116,6 @@ public class JsonPageManager implements PageManager, LoginListener {
 						output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
 						logger.log(Level.SEVERE, x.getMessage(), x);
 					} finally {
-						LocaleContext.setCurrent(null);
 						Subject.setCurrent(null);
 						JsonFrontend.setSession(null);
 					}
@@ -174,8 +167,8 @@ public class JsonPageManager implements PageManager, LoginListener {
 				}
 			} else if (initialize instanceof String) {
 				String path = (String) initialize;
-				if (path.length() > 1) {
-					Page page = Routing.createPageSafe(path.substring(1));
+				if (!path.isEmpty()) {
+					Page page = Routing.createPageSafe(path);
 					if (page != null) {
 						onLogin = () -> show(page, null);
 					}
@@ -352,7 +345,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		json.put("title", page.getTitle());
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
-			json.put("route", route.endsWith("/") ? route : route + "/");
+			json.put("route", route);
 		}
 
 		JsonComponent content = (JsonComponent) PageAccess.getContent(page);

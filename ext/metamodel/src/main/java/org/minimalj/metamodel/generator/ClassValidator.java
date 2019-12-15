@@ -23,7 +23,7 @@ public class ClassValidator {
 		validate(model.entities);
 	}
 	
-	public void validate(Collection<MjEntity> entities) {
+	public void validate(Collection<? extends MjEntity> entities) {
 		for (MjEntity entity : entities) {
 			if (!entity.isPrimitiv() ||entity.isEnumeration()) {
 				validateEntity(entity);
@@ -32,18 +32,25 @@ public class ClassValidator {
 	}
 
 	private void validateEntity(MjEntity entity) {
-		String className = entity.getClassName();
-		try {
-			Class<?> clazz = Class.forName(entity.packageName + "." + className);
+		if (entity.getClazz() != null) {
 			if (entity.isEnumeration()) {
-				validateEnum(clazz, entity);
+				validateEnum(entity.getClazz(), entity);
 			} else {
-				validate(clazz, entity);
+				validate(entity.getClazz(), entity);
 			}
-		} catch (ClassNotFoundException | NoClassDefFoundError e) {
-			throw new RuntimeException(e);
+		} else {
+			String className = entity.getClassName();
+			try {
+				Class<?> clazz = Class.forName(entity.getPackageName() + "." + className);
+				if (entity.isEnumeration()) {
+					validateEnum(clazz, entity);
+				} else {
+					validate(clazz, entity);
+				}
+			} catch (ClassNotFoundException | NoClassDefFoundError e) {
+				throw new RuntimeException(e);
+			}
 		}
-		
 	}
 
 	private void validateEnum(Class<?> clazz, MjEntity entity) {
@@ -52,7 +59,8 @@ public class ClassValidator {
 		
 		for (String element : entity.values) {
 			element = ClassGenerator.toEnum(element);
-			if (startsWithDigit) element = "_" + element;
+			if (startsWithDigit)
+				element = "_" + element;
 			if (!existingValues.contains(element)) {
 				throw new RuntimeException("Missing enum: " + element + " on " + clazz.getName());
 			}

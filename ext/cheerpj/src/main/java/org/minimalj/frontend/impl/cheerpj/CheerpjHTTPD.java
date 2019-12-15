@@ -9,7 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.web.MjWebDaemon;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
@@ -68,11 +66,10 @@ public class CheerpjHTTPD extends NanoHTTPD {
 
 		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
-			Locale locale = MjWebDaemon.getLocale(headers.get("accept-language"));
 			htmlTemplate = htmlTemplate.replace("$SEND", "sendCheerpj");
 			htmlTemplate = htmlTemplate.replace("$IMPORT", "<script src=\"https://cjrtnc.leaningtech.com/1.3/loader.js\"></script>");
 			htmlTemplate = htmlTemplate.replace("$INIT", getInit());
-			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, locale, path);
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
 		} else if (method == Method.PUT && path.startsWith("/java-transaction/")) {
 			String inputFileName = files.get("content");
@@ -86,9 +83,9 @@ public class CheerpjHTTPD extends NanoHTTPD {
 			int index = uriString.lastIndexOf('.');
 			if (index > -1 && index < uriString.length() - 1) {
 				String postfix = uriString.substring(index + 1);
-				String mimeType = Resources.getMimeType(postfix);
+				String mimeType = StringUtils.equals("jar", postfix) ? "application/java" : Resources.getMimeType(postfix);
 				if (mimeType != null) {
-					InputStream inputStream = MjWebDaemon.class.getResourceAsStream(uriString);
+					InputStream inputStream = CheerpjHTTPD.class.getResourceAsStream(uriString);
 					if (inputStream != null) {
 						try {
 							return newFixedLengthResponse(Status.OK, mimeType, inputStream, inputStream.available());

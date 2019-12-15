@@ -65,7 +65,7 @@ public class OpenAPIFactory {
 
 		MjModel model = new MjModel(application.getEntityClasses());
 		for (MjEntity entity : model.entities) {
-			String entityName = entity.getSimpleClassName();
+			String entityName = entity.getClassName();
 
 			if (IdUtils.hasId(entity.getClazz())) {
 				Map<String, Operation> operations = new HashMap<>();
@@ -121,7 +121,7 @@ public class OpenAPIFactory {
 
 
 	private Operation operationGetById(MjEntity entity) {
-		String entityName = entity.getSimpleClassName();
+		String entityName = entity.getClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Gets a " + entityName + " by id";
@@ -160,7 +160,7 @@ public class OpenAPIFactory {
 
 
 	private Operation operationGetAll(MjEntity entity) {
-		String entityName = entity.getSimpleClassName();
+		String entityName = entity.getClassName();
 
 		Operation operation = new Operation();
 		operation.summary = "Gets all " + entityName;
@@ -217,7 +217,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationPost(MjEntity entity) {
-		String entityName = entity.getSimpleClassName();
+		String entityName = entity.getClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Add a new " + entityName;
@@ -245,7 +245,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationPut(MjEntity entity) {
-		String entityName = entity.getSimpleClassName();
+		String entityName = entity.getClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Update a " + entityName;
@@ -279,7 +279,7 @@ public class OpenAPIFactory {
 	}
 	
 	private Operation operationDelete(MjEntity entity) {
-		String entityName = entity.getSimpleClassName();
+		String entityName = entity.getClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Delete a " + entityName;
@@ -352,7 +352,7 @@ public class OpenAPIFactory {
 					property.items = items(mjProperty);
 				} else if (mjProperty.type.isEnumeration()) {
 					property.type = null;
-					property.$ref = SCHEMAS + mjProperty.type.getSimpleClassName();
+					property.$ref = SCHEMAS + mjProperty.type.getClassName();
 				} else {
 					property.$ref = ref(mjProperty);
 				}
@@ -407,7 +407,7 @@ public class OpenAPIFactory {
 	
 	private String ref(MjProperty property) {
 		if (!property.type.isPrimitiv()) {
-			return SCHEMAS + property.type.getSimpleClassName();
+			return SCHEMAS + property.type.getClassName();
 		} else {
 			return null;
 		}
@@ -434,7 +434,7 @@ public class OpenAPIFactory {
 		}
 		if (property.propertyType == MjPropertyType.LIST || property.propertyType == MjPropertyType.ENUM_SET) {
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + property.type.getSimpleClassName();
+			schema.$ref = SCHEMAS + property.type.getClassName();
 			return schema;
 		} else {
 			return null;

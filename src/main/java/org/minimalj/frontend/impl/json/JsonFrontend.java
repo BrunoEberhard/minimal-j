@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,7 +20,6 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
@@ -218,10 +216,8 @@ public class JsonFrontend extends Frontend {
 		*/
 	}
 	
-	public static String fillPlaceHolder(String html, Locale locale, String path) {
-		LocaleContext.setCurrent(locale);
-		String result = html.replace("$LOCALE", locale.getLanguage());
-		result = result.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
+	public static String fillPlaceHolder(String html, String path) {
+		String result = html.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
 		result = result.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
 		result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");
@@ -239,7 +235,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));
 		return result;
 	}
-	
+
     private static String base(String path) {
     	String base = "./";
     	int level = path.split("/").length - 1;
@@ -257,25 +253,25 @@ public class JsonFrontend extends Frontend {
 		}
 	}
 
-	private static String getMeta() {
-		// <meta name="keywords" content="HTML,CSS,XML,JavaScript">
-		StringBuilder s = new StringBuilder();
+	public static Map<String, String> getMetas() {
+		Map<String, String> metas = new HashMap<>();
 		if (Resources.isAvailable("Application.description")) {
-			s.append("<meta name=\"description\" content=\"").append(Resources.getString("Application.description")).append("\">");
+			metas.put("description", Resources.getString("Application.description"));
 		}
 		if (Resources.isAvailable("Application.keywords")) {
-			if (s.length() > 0) {
-				s.append('\n');
-			}
-			s.append("<meta name=\"keywords\" content=\"").append(Resources.getString("Application.keywords")).append("\">");
+			metas.put("keywords", Resources.getString("Application.keywords"));
 		}
 		if (Resources.isAvailable("Application.google-site-verification")) {
-			if (s.length() > 0) {
-				s.append('\n');
-			}
-			s.append("<meta name=\"google-site-verification\" content=\"").append(Resources.getString("Application.google-site-verification")).append("\">");
+			metas.put("google-site-verification", Resources.getString("Application.google-site-verification"));
 		}
+		return metas;
+	}
 
+	private static String getMeta() {
+		StringBuilder s = new StringBuilder(400);
+		for (Map.Entry<String, String> entry : getMetas().entrySet()) {
+			s.append("<meta name=\"").append(entry.getKey()).append("\" content=\"").append(entry.getValue()).append("\">");
+		}
 		return s.toString();
 	}
 }

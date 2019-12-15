@@ -1,6 +1,7 @@
 package org.minimalj.frontend.page;
 
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
@@ -66,6 +67,9 @@ public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage
 			if (form != null) {
 				form.setObject(object);
 			}
+		}
+		if (editors != null) {
+			editors.forEach(c -> c.setObject(object));
 		}
 	}
 	
@@ -139,6 +143,29 @@ public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage
 		@Override
 		protected void finished(T result) {
 			setObject(result);
+		}
+	}
+
+	private List<ObjectPageEditor<?>> editors;
+
+	// experimental
+	public abstract class ObjectPageEditor<EDIT> extends Editor<EDIT, T> {
+		protected T object;
+
+		public ObjectPageEditor() {
+			if (editors == null) {
+				editors = new ArrayList<>();
+			}
+			editors.add(this);
+		}
+
+		public void setObject(T object) {
+			this.object = object;
+		}
+
+		@Override
+		protected void finished(T result) {
+			ObjectPage.this.setObject(result);
 		}
 	}
 

@@ -59,7 +59,7 @@ public class RestHTTPD extends NanoHTTPD {
 		Map<String, Class<?>> classByName = new HashMap<>();
 		MjModel model = new MjModel(Application.getInstance().getEntityClasses());
 		for (MjEntity entity : model.entities) {
-			classByName.put(entity.getSimpleClassName(), entity.getClazz());
+			classByName.put(entity.getClassName(), entity.getClazz());
 		}
 		
 		return classByName;

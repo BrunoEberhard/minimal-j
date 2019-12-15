@@ -229,7 +229,7 @@ $ICON
 	function addNewStateToHistory(fragment) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText, fragment ? fragment : "/"); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, "$BASE" + (fragment ? fragment : "")); // second argument is ignored by browsers (!)
 		}
 	}
 	
@@ -1060,7 +1060,6 @@ $ICON
 	}
 	
 	function send(data, block) {
-		data.locale = "$LOCALE";
 	    data.inputTypes = isMobile && checkInput("date");
 	    data.session = session;
 	    	
@@ -1265,7 +1264,7 @@ $ICON
 
 		window.onpopstate = popState;
 
-		if (window.history.state) {
+		if (window.history.state && window.history.state != "") {
 			send({ "initialize" : window.history.state });
 		} else {
 			send({ "initialize" : "$PATH" });

@@ -271,8 +271,6 @@ public class Resources {
 		mimeTypeByPostfix.put("js", "application/javascript");
 		mimeTypeByPostfix.put("jpg", "image/jpg");
 		mimeTypeByPostfix.put("png", "image/png");
-		// TODO restrict to cheerpj?
-		mimeTypeByPostfix.put("jar", "application/java");
 	}
 	
 	public static void addMimeType(String postfix, String contentType) {

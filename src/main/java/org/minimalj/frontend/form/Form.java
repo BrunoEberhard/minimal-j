@@ -22,6 +22,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
+import org.minimalj.frontend.form.element.SmallCodeListFormElement;
 import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
@@ -47,6 +48,7 @@ import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.Codes;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
@@ -156,6 +158,8 @@ public class Form<T> {
 			return editable ? new EnumFormElement(property) : new TextFormElement(property);
 		} else if (fieldClass == Set.class) {
 			return new EnumSetFormElement(property, this.editable); // 'this.editable' instead 'editable': the set field is always final. That doesn't mean its read only.
+		} else if (fieldClass == List.class && Codes.isCode(property.getGenericClass())) {
+			return new SmallCodeListFormElement(property, editable);
 		} else if (fieldClass == Password.class) {
 			return new PasswordFormElement(new ChainedProperty(property, Keys.getProperty(Password.$.getPassword())));
 		} else if (fieldClass == Selection.class) {
