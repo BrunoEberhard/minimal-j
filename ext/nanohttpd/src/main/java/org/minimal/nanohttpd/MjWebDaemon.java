@@ -58,6 +58,11 @@ public class MjWebDaemon extends NanoWSD {
 		}
 
 		@Override
+		public boolean isResponseSent() {
+			return response != null;
+		}
+
+		@Override
 		public void sendResponse(int statusCode, String body, String contentType) {
 			response = newFixedLengthResponse(Status.lookup(statusCode), contentType, body);
 		}

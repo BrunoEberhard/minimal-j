@@ -17,28 +17,24 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 
 	private final Collection<String> allowedSuffixes;
 
-	public ResourcesHttpHandler() {
-		this.allowedSuffixes = allowedSuffixes();
-	}
-
-	protected Collection<String> allowedSuffixes() {
-		return Arrays.asList("html", "css", "js", "png", "jpg", "svg");
+	public ResourcesHttpHandler(String... allowedSuffixes) {
+		this.allowedSuffixes = Arrays.asList(allowedSuffixes);
 	}
 
 	@Override
-	public boolean handle(MjHttpExchange exchange) {
+	public void handle(MjHttpExchange exchange) {
 		String path = exchange.getPath();
-		return handle(exchange, path);
+		handle(exchange, path);
 	}
 
-	public boolean handle(MjHttpExchange exchange, String path) {
+	public void handle(MjHttpExchange exchange, String path) {
 		int pos = path.lastIndexOf('.');
 		if (pos > 0 && pos < path.length() - 1) {
 			String suffix = path.substring(pos + 1);
 			if (allowedSuffixes.contains(suffix)) {
 				if (path.contains("..")) {
 					exchange.sendForbidden();
-					return true;
+					return;
 				}
 
 				String mimeType = Resources.getMimeType(suffix);
@@ -46,12 +42,10 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 					byte[] bytes = getResource(path);
 					if (bytes != null) {
 						exchange.sendResponse(200, bytes, mimeType);
-						return true;
 					}
 				}
 			}
 		}
-		return false;
 	}
 
 	public static byte[] read(InputStream inputStream) {

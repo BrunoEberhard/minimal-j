@@ -75,6 +75,11 @@ public class WebServer {
 		public void sendResponse(int statusCode, String response, String contentType) {
 			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
 		}
+
+		@Override
+		public boolean isResponseSent() {
+			return exchange.getResponseCode() >= 0;
+		}
 	}
 
 	private static void handle(HttpExchange exchange) {

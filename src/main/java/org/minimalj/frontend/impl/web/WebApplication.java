@@ -65,7 +65,8 @@ public abstract class WebApplication extends Application {
 	public static final void handle(MjHttpExchange exchange) {
 		for (MjHttpHandler handler : getHandlers()) {
 			try {
-				if (handler.handle(exchange)) {
+				handler.handle(exchange);
+				if (exchange.isResponseSent()) {
 					return;
 				}
 			} catch (Exception x) {

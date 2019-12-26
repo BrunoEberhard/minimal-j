@@ -61,6 +61,11 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		}
 
 		@Override
+		public boolean isResponseSent() {
+			return exchange.isResponseStarted();
+		}
+
+		@Override
 		public InputStream getRequest() {
 			exchange.startBlocking();
 			return exchange.getInputStream();

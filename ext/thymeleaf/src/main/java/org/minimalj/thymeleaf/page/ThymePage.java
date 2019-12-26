@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
@@ -74,7 +75,12 @@ public class ThymePage extends Page {
 
 		@Override
 		public void sendResponse(int statusCode, String body, String contentType) {
-			this.result = body;
+			this.result = Objects.requireNonNull(body);
+		}
+
+		@Override
+		public boolean isResponseSent() {
+			return result != null;
 		}
 	}
 
