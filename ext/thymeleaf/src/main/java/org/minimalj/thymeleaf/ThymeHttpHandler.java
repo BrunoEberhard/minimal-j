@@ -24,7 +24,7 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 		templateEngine.setTemplateResolver(templateResolver);
 		templateEngine.setMessageResolver(new MjMessageResolver());
 
-		this.resourcesHttpHandler = new ResourcesHttpHandler();
+		this.resourcesHttpHandler = createResourcesHttpHandler();
 	}
 
 	protected ResourcesHttpHandler createResourcesHttpHandler() {
