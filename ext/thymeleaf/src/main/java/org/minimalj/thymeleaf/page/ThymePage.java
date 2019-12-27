@@ -70,7 +70,7 @@ public class ThymePage extends Page {
 
 		@Override
 		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
-			// not implemented
+			this.result = new String(Objects.requireNonNull(bytes));
 		}
 
 		@Override
