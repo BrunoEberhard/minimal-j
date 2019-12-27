@@ -51,10 +51,10 @@ public abstract class WebApplication extends Application {
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
 				handlers = new ArrayList<>();
-				handlers.add(webApplication.createHttpHandler());
 				if (webApplication.getMjHandlerPath() != null) {
 					handlers.add(new ApplicationHttpHandler());
 				}
+				handlers.add(webApplication.createHttpHandler());
 			} else {
 				handlers = Collections.singletonList(new ApplicationHttpHandler());
 			}
