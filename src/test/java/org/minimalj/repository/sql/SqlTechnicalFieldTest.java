@@ -26,8 +26,7 @@ public class SqlTechnicalFieldTest {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("A");
+		Subject subject = new Subject("A");
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -46,8 +45,7 @@ public class SqlTechnicalFieldTest {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("B");
+		Subject subject = new Subject("B");
 		Subject.setCurrent(subject);
 
 		Object id = repository.insert(entity);
@@ -55,8 +53,7 @@ public class SqlTechnicalFieldTest {
 		LocalDateTime afterInsert = LocalDateTime.now();
 		LocalDateTime createDate = entity.createDate;
 
-		subject = new Subject();
-		subject.setName("C");
+		subject = new Subject("C");
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";

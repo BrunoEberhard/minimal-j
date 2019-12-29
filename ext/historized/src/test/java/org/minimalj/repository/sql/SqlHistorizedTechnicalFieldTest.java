@@ -26,8 +26,7 @@ public class SqlHistorizedTechnicalFieldTest {
 		TestEntityHistorized entity = new TestEntityHistorized();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("A");
+		Subject subject = new Subject("A");
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -46,8 +45,7 @@ public class SqlHistorizedTechnicalFieldTest {
 		TestEntityHistorized entity = new TestEntityHistorized();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("B");
+		Subject subject = new Subject("B");
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -56,8 +54,7 @@ public class SqlHistorizedTechnicalFieldTest {
 		entity = repository.read(TestEntityHistorized.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 
-		subject = new Subject();
-		subject.setName("C");
+		subject = new Subject("C");
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";

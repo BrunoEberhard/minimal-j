@@ -23,27 +23,23 @@ public class SecurityTest {
 
 	@Test
 	public void testEntityWithSingleRole() throws Exception {
-		Subject subject = new Subject();
-		subject.getRoles().add("RoleA");
-		Subject.setCurrent(subject);
+		Subject.setCurrent(new Subject("A", null, Collections.singletonList("RoleA")));
 		try {
 			Authorization.check(new ReadEntityTransaction<>(TestEntityB.class, 1));
 			Assert.fail("RoleA should not allow access to TestEntityB");
 		} catch (Exception e) {
 			// expected
 		}
-		subject.getRoles().add("RoleB");
+		Subject.setCurrent(new Subject("B", null, Collections.singletonList("RoleB")));
 		Authorization.check(new ReadEntityTransaction<>(TestEntityB.class, 1));
 	}
 
 	@Test
 	public void testEntityView() throws Exception {
-		Subject subject = new Subject();
-		subject.getRoles().add("RoleA");
+		Subject subject = new Subject("A", null, Collections.singletonList("RoleA"));
 		Subject.setCurrent(subject);
 		Authorization.check(new ReadEntityTransaction<>(TestEntityBView.class, 1));
-		subject.getRoles().remove("RoleA");
-		subject.getRoles().add("RoleB");
+		Subject.setCurrent(new Subject("B", null, Collections.singletonList("RoleB")));
 		try {
 			Authorization.check(new ReadEntityTransaction<>(TestEntityBView.class, 1));
 			Assert.fail("RoleB should not allow access to TestEntityBView");
