@@ -25,8 +25,10 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
+import org.minimalj.security.Authentication;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.AuthenticationFailedPage;
+import org.minimalj.security.RememberMeAuthentication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
@@ -34,9 +36,11 @@ public class JsonPageManager implements PageManager, LoginListener {
 	private static final Logger logger = Logger.getLogger(JsonPageManager.class.getName());
 
 	private final String sessionId;
+	private final Authentication authentication;
 	private long lastUsed = System.currentTimeMillis();
 	
 	private Subject subject;
+	private String rememberMeCookie;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
 	private Runnable onLogin;
@@ -49,6 +53,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 	public JsonPageManager() {
 		sessionId = UUID.randomUUID().toString();
+		authentication = Backend.getInstance().getAuthentication();
 	}
 
 	public String getSessionId() {
@@ -131,6 +136,9 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		if (!thread.isAlive()) {
 			output.add("session", sessionId);
+			if (rememberMeCookie != null) {
+				output.add("rememberMeToken", rememberMeCookie);
+			}
 			return output;
 		} else {
 			JsonOutput output = new JsonOutput();
@@ -176,8 +184,17 @@ public class JsonPageManager implements PageManager, LoginListener {
 			}
 
 			updateTitle(null);
+
+			if (subject == null && authentication instanceof RememberMeAuthentication) {
+				rememberMeCookie = (String) input.getObject("rememberMeToken");
+				if (rememberMeCookie != null) {
+					subject = ((RememberMeAuthentication) authentication).remember(rememberMeCookie);
+					Subject.setCurrent(subject);
+				}
+			}
+
 			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-				Backend.getInstance().getAuthentication().login(this);
+				authentication.login(this);
 			} else {
 				initialize();
 			}
@@ -260,7 +277,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 		String login = (String) input.getObject("login");
 		if (login != null || subject == null && Frontend.loginAtStart()
 				&& !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-			Backend.getInstance().getAuthentication().login(this);
+			authentication.login(this);
 		}
 
 		List<String> pageIds = (List<String>) input.getObject("showPages");
@@ -475,6 +492,10 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 	public void show(String url) {
 		output.add("showUrl", url);
+	}
+
+	public void setRememberMeCookie(String rememberMeCookie) {
+		this.rememberMeCookie = rememberMeCookie;
 	}
 
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {

@@ -2,6 +2,7 @@ package org.minimalj.security.model;
 
 import java.io.Serializable;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
@@ -16,5 +17,7 @@ public class UserPassword implements Serializable {
 
 	@Size(255)
 	public char[] password;
+
+	public transient Boolean rememberMe = Configuration.isDevModeActive();
 
 }

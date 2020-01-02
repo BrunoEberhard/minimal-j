@@ -2,6 +2,7 @@ package org.minimalj.security;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -53,12 +54,9 @@ public abstract class Authentication implements Serializable {
 		return subjectByToken.get(token);
 	}
 
-	public Subject createSubject(String name) {
-		Subject subject = new Subject();
-		subject.setName(name);
-		UUID token = UUID.randomUUID();
-		subject.setToken(token);
-		subjectByToken.put(token, subject);
+	public Subject createSubject(String name, List<String> roleNames) {
+		Subject subject = new Subject(name, UUID.randomUUID(), roleNames);
+		subjectByToken.put(subject.getToken(), subject);
 		return subject;
 	}
 }

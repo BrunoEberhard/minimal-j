@@ -49,6 +49,8 @@ $ICON
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
 
+		localStorage.rememberMeToken = dataObject.rememberMeToken;
+
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
@@ -1264,11 +1266,10 @@ $ICON
 
 		window.onpopstate = popState;
 
-		if (window.history.state && window.history.state != "") {
-			send({ "initialize" : window.history.state });
-		} else {
-			send({ "initialize" : "$PATH" });
-		}
+		var initParameters = {};
+		initParameters["initialize"] = window.history.state ? window.history.state : "$PATH";
+		initParameters["rememberMeToken"] = localStorage.rememberMeToken ? localStorage.rememberMeToken : null;
+		send(initParameters);
 	}
 	
 	function checkInput(type) {
