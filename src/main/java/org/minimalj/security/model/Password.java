@@ -9,6 +9,7 @@ import java.util.Arrays;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
@@ -32,6 +33,14 @@ public class Password implements Serializable {
 	public void setPassword(char[] password) {
 		salt = new byte[SALT_SIZE];
 		random.nextBytes(salt);
+		hash = hash(password, salt);
+	}
+
+	public void setPasswordWithoutSalt(char[] password) {
+		if (!Configuration.isDevModeActive()) {
+			throw new IllegalStateException("Passwords without salt are only allow with configured develop mode");
+		}
+		salt = new byte[SALT_SIZE];
 		hash = hash(password, salt);
 	}
 
