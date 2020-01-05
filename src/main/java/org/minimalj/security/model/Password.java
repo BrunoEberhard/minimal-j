@@ -21,6 +21,8 @@ public class Password implements Serializable {
 	public static final int HASH_SIZE = 24;
 	public static final int SALT_SIZE = 24;
 	
+	private static final SecureRandom random = new SecureRandom();
+
 	@Size(HASH_SIZE)
 	public byte[] hash;
 
@@ -29,7 +31,6 @@ public class Password implements Serializable {
 	
 	public void setPassword(char[] password) {
 		salt = new byte[SALT_SIZE];
-		SecureRandom random = new SecureRandom();
 		random.nextBytes(salt);
 		hash = hash(password, salt);
 	}
