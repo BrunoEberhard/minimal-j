@@ -28,6 +28,7 @@ import org.minimalj.security.model.User;
 import org.minimalj.security.model.UserPassword;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public abstract class UserPasswordAuthentication extends Authentication implements RememberMeAuthentication {
 	private static final long serialVersionUID = 1L;
@@ -64,7 +65,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			form.line(UserPassword.$.user);
 			form.line(new PasswordFormElement(UserPassword.$.password));
 			if (REMEMBER_ME) {
-				form.line(new CheckBoxFormElement(Keys.getProperty(UserPassword.$.rememberMe), "Remember me", true, false));
+				form.line(new CheckBoxFormElement(Keys.getProperty(UserPassword.$.rememberMe), Resources.getString("UserPassword.rememberMe"), true, false));
 			}
 			return form;
 		}
@@ -188,6 +189,8 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	private static String sign(User user, String timestamp) {
 		String key = getRememberMeKey();
 		String data = user.name + ":" + timestamp + ":" + Base64.getEncoder().encodeToString(user.password.hash) + ":" + key;
+
+		System.out.println("sign data: " + data);
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			return Base64.getEncoder().encodeToString(digest.digest(data.getBytes()));
