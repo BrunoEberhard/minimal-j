@@ -177,9 +177,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 				String path = (String) initialize;
 				if (!path.isEmpty()) {
 					Page page = Routing.createPageSafe(path);
-					if (page != null) {
-						onLogin = () -> show(page, null);
-					}
+					onLogin = () -> show(page, null);
 				}
 			}
 

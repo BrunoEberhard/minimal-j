@@ -77,11 +77,9 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 										href = href.substring(1);
 									}
 									Page page = Routing.createPageSafe(href);
-									if (page != null) {
-										SwingUtilities.invokeLater(() -> {
-											SwingFrontend.runWithContext(() -> Frontend.show(page));
-										});
-									}
+									SwingUtilities.invokeLater(() -> {
+										SwingFrontend.runWithContext(() -> Frontend.show(page));
+									});
 								}
 							}
 

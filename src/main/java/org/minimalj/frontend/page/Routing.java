@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.util.ExceptionUtils;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -40,9 +41,11 @@ public abstract class Routing {
 		}
 	}
 
-	public static final Page createPageSafe(String route) {
+	public static final /* NonNull */ Page createPageSafe(String route) {
 		Page page = null;
-		if (routing != null && Page.validateRoute(route)) {
+		if (StringUtils.isEmpty(route) || StringUtils.equals(route, "/")) {
+			page = Application.getInstance().createDefaultPage();
+		} else if (routing != null && Page.validateRoute(route)) {
 			try {
 				page = routing.createPage(route);
 			} catch (Exception exception) {
