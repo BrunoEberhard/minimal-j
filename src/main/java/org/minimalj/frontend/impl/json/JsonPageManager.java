@@ -273,9 +273,16 @@ public class JsonPageManager implements PageManager, LoginListener {
 		}
 
 		String login = (String) input.getObject("login");
-		if (login != null || subject == null && Frontend.loginAtStart()
+		if (login != null) {
+			if (subject == null && Frontend.loginAtStart()
 				&& !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-			authentication.login(this);
+				authentication.login(this);
+			} else if (subject != null) {
+				subject = null;
+				Subject.setCurrent(subject);
+				setRememberMeCookie(null);
+				initialize();
+			}
 		}
 
 		List<String> pageIds = (List<String>) input.getObject("showPages");
