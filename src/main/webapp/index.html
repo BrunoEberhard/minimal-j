@@ -850,8 +850,12 @@ $ICON
 		var saveAction = json.saveAction;
 		if (saveAction) {
 			var inputs = content.getElementsByTagName("input");
-			var lastInput = inputs[inputs.length - 1]; 
-			if (lastInput && (lastInput.type == "text" || lastInput.type == "password")) {
+			var lastInput;
+			var i = inputs.length - 1;
+			do {
+				lastInput = inputs[i--];
+			} while (lastInput && i > 0 && !(lastInput.type == "text" || lastInput.type == "password")) 
+			if (lastInput) {
 				lastInput.setAttribute("onkeyup", "if (event.keyCode == 13) { sendchange(this, \"" + saveAction.id + "\"); }");
 			}
 		}
