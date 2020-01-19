@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
@@ -46,6 +47,9 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.frontend.page.Routing;
+import org.minimalj.security.Authentication.LoginListener;
+import org.minimalj.security.Authorization;
+import org.minimalj.security.Subject;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -379,12 +383,33 @@ public class SwingTab extends EditablePanel implements PageManager {
 	public void clearHistory() {
 		history.clear();
 	}
-	
+
 	@Override
 	public void show(Page page) {
-		List<Page> pages = new ArrayList<>();
-		pages.add(page);
-		history.add(pages);
+		show(page, false);
+	}
+
+	public void show(Page page, boolean closeWithoutAuthentication) {
+		if (Authorization.hasAccess(Subject.getCurrent(), page)) {
+			List<Page> pages = new ArrayList<>();
+			pages.add(page);
+			history.add(pages);
+		} else {
+			Backend.getInstance().getAuthentication().login(new LoginListener() {
+				@Override
+				public void loginSucceded(Subject subject) {
+					frame.intialize(subject, page, false);
+					show(page);
+				}
+
+				@Override
+				public void loginCancelled() {
+					if (closeWithoutAuthentication) {
+						FrameManager.getInstance().lastTabClosed(frame);
+					}
+				}
+			});
+		}
 	}
 
 	@Override

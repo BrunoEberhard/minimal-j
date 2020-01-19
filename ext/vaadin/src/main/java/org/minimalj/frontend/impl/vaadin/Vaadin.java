@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
@@ -25,7 +24,6 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
-import org.minimalj.security.AuthenticationFailedPage;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
@@ -136,20 +134,12 @@ public class Vaadin extends UI implements PageManager {
 		navigationTree.setSelectionMode(SelectionMode.NONE);
 		navigationTree.addItemClickListener(event -> event.getItem().action());
 		navigationTree.setItemCaptionGenerator(action -> action.getName());
-		
-		if (!Frontend.loginAtStart()) {
-			updateNavigation();
-		}
+		updateNavigation();
 		splitPanel.setSplitPosition(250, Unit.PIXELS);
 		
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		String route = (String) httpServletRequest.getSession().getAttribute("path");
-		if (getSubject() == null && Frontend.loginAtStart()) {
-			Backend.getInstance().getAuthentication().login(new VaadinLoginListener(route));
-		} else {
-			Page page = getPage(route);
-			show(page, true);
-		}
+		show(getPage(route), true);
 		
 		com.vaadin.server.Page.getCurrent().addPopStateListener(event -> {
 			URI uri = URI.create(event.getUri());
@@ -225,13 +215,6 @@ public class Vaadin extends UI implements PageManager {
 			Page page = getPage(route);
 			show(page, true);
 		}
-	
-		@Override
-		public void loginCancelled() {
-			if (getSubject() == null && Application.getInstance().isLoginRequired()) {
-				show(new AuthenticationFailedPage());
-			}
-		};
 	}
 	
 	private Page getPage(String route) {

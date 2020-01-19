@@ -34,7 +34,8 @@ public abstract class Authentication implements Serializable {
 		
 		public void loginSucceded(Subject subject);
 		
-		public void loginCancelled();
+		public default void loginCancelled() {
+		}
 		
 	}
 	

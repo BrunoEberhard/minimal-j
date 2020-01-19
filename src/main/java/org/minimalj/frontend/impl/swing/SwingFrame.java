@@ -184,16 +184,14 @@ public class SwingFrame extends JFrame {
 		updateTitle();
 	}
 	
-	public void setSubject(Subject subject) {
+	public void intialize(Subject subject, Page initialPage, boolean closeWithoutAuthentication) {
 		this.subject = subject;
-		// Maybe getNavigation in Application should be extended by a subject parameter
-		// then next line would not be needed
 		Subject.setCurrent(subject);
 		favorites.setUser(subject != null ? subject.getName() : null);
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
 			SwingTab swingTab = (SwingTab) tabbedPane.getTab(i);
 			swingTab.clearHistory();
-			swingTab.show(Application.getInstance().createDefaultPage());
+			swingTab.show(initialPage, closeWithoutAuthentication);
 			swingTab.updateNavigation();
 		}
 		updateWindowTitle();
@@ -257,12 +255,7 @@ public class SwingFrame extends JFrame {
 			LoginListener listener = new LoginListener() {
 				@Override
 				public void loginSucceded(Subject subject) {
-					setSubject(subject);
-				}
-				
-				@Override
-				public void loginCancelled() {
-					// nothing to do. just go on.
+					intialize(subject, Application.getInstance().createDefaultPage(), false);
 				}
 			};
 			Backend.getInstance().getAuthentication().login(listener);

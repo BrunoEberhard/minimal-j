@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.security.Authorization;
+import org.minimalj.security.AccessControl;
+import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -17,7 +20,7 @@ import org.minimalj.util.resources.Resources;
  * getContent(). 
  *
  */
-public abstract class Page {
+public abstract class Page implements AccessControl {
 	
 	public String getTitle() {
 		return Resources.getString(getClass());
@@ -64,4 +67,8 @@ public abstract class Page {
 		return true;
 	}
 
+	@Override
+	public boolean hasAccess(Subject subject) {
+		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, getClass()));
+	}
 }

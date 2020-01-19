@@ -80,6 +80,22 @@ public class AnnotationUtil {
 	public static boolean isSigned(PropertyInterface property) {
 		return property.getAnnotation(Signed.class) != null;
 	}
+
+	/**
+	 * @param clazz inspected class
+	 * @param annotationClass the annotation to get
+	 * @param <A> type
+	 * @return the annotation on the class itself or if not available the
+	 *         annotation for the (direct) package of the class
+	 */
+	public static <A extends Annotation> A getAnnotationOfClassOrPackage(Class<?> clazz, Class<A> annotationClass) {
+		A annotation = clazz.getAnnotation(annotationClass);
+		if (annotation != null) {
+			return annotation;
+		} else {
+			return clazz.getPackage().getAnnotation(annotationClass);
+		}
+	}
 	
 
 }

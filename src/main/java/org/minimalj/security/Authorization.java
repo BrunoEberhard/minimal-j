@@ -1,25 +1,32 @@
 package org.minimalj.security;
 
-import java.util.Collections;
 import java.util.List;
 
-import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.TransactionAnnotations;
+import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.transaction.Role;
 
 public class Authorization {
 
-	public static void check(Transaction<?> transaction) {
-		if (!isAllowed(transaction)) {
-			throw new IllegalStateException(transaction + " forbidden");
+	public static boolean hasAccess(Subject subject, Object object) {
+		if (object instanceof AccessControl) {
+			return ((AccessControl) object).hasAccess(subject);
 		}
-	}
-	
-	public static boolean isAllowed(Transaction<?> transaction) {
-		return isAllowed(getCurrentRoles(), transaction);
+		return true;
 	}
 
-	public static boolean isAllowed(List<String> currentRoles, Transaction<?> transaction) {
-		String[] roles = TransactionAnnotations.getRoles(transaction);
+	public static Boolean hasAccessByAnnotation(Subject subject, Class<?> clazz) {
+		Role role = AnnotationUtil.getAnnotationOfClassOrPackage(clazz, Role.class);
+		if (role != null) {
+			if (subject != null) {
+				return hasAccess(subject.getRoles(), role.value());
+			} else {
+				return false;
+			}
+		}
+		return null;
+	}
+
+	private static boolean hasAccess(List<String> currentRoles, String[] roles) {
 		if (roles != null) {
 			for (String allowingRole : roles) {
 				if (currentRoles.contains(allowingRole)) {
@@ -30,10 +37,5 @@ public class Authorization {
 		}
 		return true;
 	}
-	
-	public static List<String> getCurrentRoles() {
-		Subject subject = Subject.getCurrent();
-		return subject != null ? subject.getRoles() : Collections.emptyList();
-	}
-	
+
 }

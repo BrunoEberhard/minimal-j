@@ -55,13 +55,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 
 		@Override
 		protected Form<UserPassword> createForm() {
-			Form<UserPassword> form = new Form<UserPassword>() {
-				@Override
-				protected int getColumnWidthPercentage() {
-					// if anonymous button is show the dialog should be wider
-					return !Application.getInstance().isLoginRequired() ? 150 : 100;
-				}
-			};
+			Form<UserPassword> form = new Form<UserPassword>();
 			form.line(UserPassword.$.user);
 			form.line(new PasswordFormElement(UserPassword.$.password));
 			if (REMEMBER_ME) {
@@ -69,23 +63,11 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			}
 			return form;
 		}
-
+		
 		@Override
 		protected List<Action> createAdditionalActions() {
-			if (!Application.getInstance().isLoginRequired()) {
-				Action action = new AnonymousLoginAction();
-				return Collections.singletonList(action);
-			} else {
-				return Collections.emptyList();
-			}
-		}
-		
-		private class AnonymousLoginAction extends Action {
-			@Override
-			public void action() {
-				listener.loginSucceded(null);
-				UserPasswordAction.super.cancel(); // close dialog but don't call loginCancelled
-			}
+			// no demo button in Login Dialog
+			return Collections.emptyList();
 		}
 
 		@Override

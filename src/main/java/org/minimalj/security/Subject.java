@@ -3,9 +3,10 @@ package org.minimalj.security;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.transaction.Role;
-import org.minimalj.transaction.TransactionAnnotations;
 
 public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -30,7 +31,7 @@ public class Subject implements Serializable {
 		super();
 		this.name = name;
 		this.token = token;
-		this.roles = roles;
+		this.roles = Objects.requireNonNull(roles);
 	}
 
 	public String getName() {
@@ -68,7 +69,7 @@ public class Subject implements Serializable {
 	}
 
 	public static boolean currentCanAccess(Class<?> clazz) {
-		Role role = TransactionAnnotations.getAnnotationOfClassOrPackage(clazz, Role.class);
+		Role role = AnnotationUtil.getAnnotationOfClassOrPackage(clazz, Role.class);
 		if (role == null) {
 			return true;
 		} else {

@@ -4,9 +4,13 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
+import org.minimalj.security.Authorization;
+import org.minimalj.security.AccessControl;
+import org.minimalj.security.Subject;
 
 /**
  * The transaction is the action the frontend passes to the backend for
@@ -20,7 +24,7 @@ import org.minimalj.repository.query.Query;
  *        because Void is not Serializable!)
  */
 @FunctionalInterface
-public interface Transaction<RETURN> extends Serializable {
+public interface Transaction<RETURN> extends AccessControl, Serializable {
 
 	/**
 	 * The invocation method for the backend. Application code should not need
@@ -58,4 +62,12 @@ public interface Transaction<RETURN> extends Serializable {
 		repository().delete(clazz, criteria);
 	}
 
+	default Isolation.Level getIsolation() {
+		Isolation isolation = AnnotationUtil.getAnnotationOfClassOrPackage(getClass(), Isolation.class);
+		return isolation != null ? isolation.value() : Isolation.Level.SERIALIZABLE;
+	}
+
+	default boolean hasAccess(Subject subject) {
+		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, this.getClass()));
+	}
 }

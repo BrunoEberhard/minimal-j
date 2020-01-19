@@ -8,10 +8,8 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend;
-import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -61,25 +59,7 @@ public class FrameManager {
 		final SwingFrame frame = new SwingFrame();
 		frame.setVisible(true);
 		navigationFrames.add(frame);
-		if (subject == null && Frontend.loginAtStart()) {
-			SwingFrame.activeFrameOverride = frame;
-			LoginListener loginListener = new LoginListener() {
-				@Override
-				public void loginSucceded(Subject subject) {
-					frame.setSubject(subject);
-				}
-				
-				@Override
-				public void loginCancelled() {
-					frame.closeWindow();
-					removeNavigationFrameView(frame);
-				}
-			};
-			Backend.getInstance().getAuthentication().login(loginListener);
-			SwingFrame.activeFrameOverride = null;
-		} else {
-			frame.setSubject(subject);
-		}
+		frame.intialize(subject, Application.getInstance().createDefaultPage(), true);
 	}
 	
 	public List<SwingFrame> getNavigationFrames() {

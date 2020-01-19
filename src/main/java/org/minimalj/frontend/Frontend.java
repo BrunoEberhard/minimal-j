@@ -4,9 +4,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import org.minimalj.application.Application;
-import org.minimalj.application.Configuration;
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.element.FormElementConstraint;
@@ -51,15 +48,6 @@ public abstract class Frontend {
 		return Frontend.instance != null;
 	}
 
-	// just a helper method for all frontends. Is it at the right place here?
-	public static boolean loginAtStart() {
-		boolean loginAtStart = Application.getInstance().isLoginRequired() || Configuration.get("MjLoginAtStart", "false").equals("true");
-		if (loginAtStart && !Backend.getInstance().isAuthenticationActive()) {
-			throw new IllegalStateException("Login required but authorization is not configured!");
-		}
-		return loginAtStart;
-	}
-	
 	/**
 	 * Components are the smallest part of the gui. Things like textfields
 	 * and comboboxes. A form is filled with components.

@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -27,12 +26,12 @@ import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authentication.LoginListener;
-import org.minimalj.security.AuthenticationFailedPage;
+import org.minimalj.security.Authorization;
 import org.minimalj.security.RememberMeAuthentication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
-public class JsonPageManager implements PageManager, LoginListener {
+public class JsonPageManager implements PageManager {
 	private static final Logger logger = Logger.getLogger(JsonPageManager.class.getName());
 
 	private final String sessionId;
@@ -43,7 +42,6 @@ public class JsonPageManager implements PageManager, LoginListener {
 	private String rememberMeCookie;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
-	private Runnable onLogin;
 	private final PageList visiblePageAndDetailsList = new PageList();
 	// this makes this class not thread safe. Caller of handle have to synchronize.
 	private JsonOutput output;
@@ -64,34 +62,12 @@ public class JsonPageManager implements PageManager, LoginListener {
 		return lastUsed;
 	}
 
-	@Override
-	public void loginSucceded(Subject subject) {
-		this.subject = subject;
-		Subject.setCurrent(subject);
-
-		initialize();
-	}
-
 	private void initialize() {
 		componentById.clear();
 		navigation = createNavigation();
 		register(navigation);
 		output.add("navigation", navigation);
-
-		if (onLogin != null) {
-			onLogin.run();
-			onLogin = null;
-		} else {
-			show(Application.getInstance().createDefaultPage(), null);
-		}
 	}
-
-	@Override
-	public void loginCancelled() {
-		if (subject == null && Application.getInstance().isLoginRequired()) {
-			show(new AuthenticationFailedPage());
-		}
-	};
 
 	public String handle(String inputString) {
 		JsonInput input = new JsonInput(inputString);
@@ -112,7 +88,6 @@ public class JsonPageManager implements PageManager, LoginListener {
 					try {
 						JsonFrontend.setSession(JsonPageManager.this);
 						Subject.setCurrent(subject);
-						// Thread.sleep(10000);
 						handle_(input);
 					} catch (ComponentUnknowException x) {
 						output = new JsonOutput();
@@ -167,22 +142,6 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		Object initialize = input.getObject(JsonInput.INITIALIZE);
 		if (initialize != null) {
-			onLogin = null;
-			if (initialize instanceof List) {
-				List<String> pageIds = (List<String>) initialize;
-				if (pageStore.valid(pageIds)) {
-					onLogin = () -> show(pageIds);
-				}
-			} else if (initialize instanceof String) {
-				String path = (String) initialize;
-				if (!path.isEmpty()) {
-					Page page = Routing.createPageSafe(path);
-					onLogin = () -> show(page, null);
-				}
-			}
-
-			updateTitle(null);
-
 			if (subject == null && authentication instanceof RememberMeAuthentication) {
 				rememberMeCookie = (String) input.getObject("rememberMeToken");
 				if (rememberMeCookie != null) {
@@ -191,12 +150,22 @@ public class JsonPageManager implements PageManager, LoginListener {
 				}
 			}
 
-			if (subject == null && Frontend.loginAtStart() && !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-				authentication.login(this);
-			} else {
-				initialize();
-			}
+			initialize();
 
+			if (initialize instanceof List) {
+				List<String> pageIds = (List<String>) initialize;
+				if (pageStore.valid(pageIds)) {
+					show(pageIds);
+					return output;
+				}
+			} else if (initialize instanceof String) {
+				String path = (String) initialize;
+				Page page = Routing.createPageSafe(path);
+				show(page, null);
+				return output;
+			} 
+			
+			show(Application.getInstance().createDefaultPage());
 			return output;
 		}
 
@@ -274,14 +243,15 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 		String login = (String) input.getObject("login");
 		if (login != null) {
-			if (subject == null && Frontend.loginAtStart()
-				&& !Boolean.TRUE.equals(input.getObject("dialogVisible"))) {
-				authentication.login(this);
-			} else if (subject != null) {
+			if (subject == null) {
+				authentication.login(new PageLoginListener(() -> {
+				}));
+			} else {
 				subject = null;
 				Subject.setCurrent(subject);
 				setRememberMeCookie(null);
 				initialize();
+				show(Application.getInstance().createDefaultPage());
 			}
 		}
 
@@ -313,6 +283,10 @@ public class JsonPageManager implements PageManager, LoginListener {
 	}
 
 	private void show(Page page, String masterPageId) {
+		if (!Authorization.hasAccess(subject, page)) {
+			authentication.login(new PageLoginListener(() -> show(page, masterPageId)));
+			return;
+		}
 		if (masterPageId == null) {
 			visiblePageAndDetailsList.clear();
 			componentById.clear();
@@ -335,17 +309,43 @@ public class JsonPageManager implements PageManager, LoginListener {
 		visiblePageAndDetailsList.clear();
 		String previousId = null;
 		Page firstPage = null;
+		boolean authorized = true;
 		for (String pageId : pageIds) {
 			Page page = pageStore.get(pageId);
-			visiblePageAndDetailsList.put(pageId, page);
-			jsonList.add(createJson(page, pageId, previousId));
-			if (previousId == null) {
-				firstPage = page;
+			if (Authorization.hasAccess(subject, page)) {
+				visiblePageAndDetailsList.put(pageId, page);
+				jsonList.add(createJson(page, pageId, previousId));
+				if (previousId == null) {
+					firstPage = page;
+				}
+				previousId = pageId;
+			} else {
+				authorized = false;
 			}
-			previousId = pageId;
 		}
-		output.add("showPages", jsonList);
-		updateTitle(firstPage != null ? firstPage : null);
+		if (authorized) {
+			output.add("showPages", jsonList);
+			updateTitle(firstPage != null ? firstPage : null);
+		} else {
+			authentication.login(new PageLoginListener(() -> show(pageIds)));
+		}
+	}
+
+	private class PageLoginListener implements LoginListener {
+		private final Runnable onLogin;
+	
+		public PageLoginListener(Runnable onLogin) {
+			this.onLogin = onLogin;
+		}
+	
+		@Override
+		public void loginSucceded(Subject subject) {
+			JsonPageManager.this.subject = subject;
+			Subject.setCurrent(subject);
+	
+			initialize();
+			onLogin.run();
+		}
 	}
 
 	private void updateTitle(Page page) {
@@ -394,7 +394,7 @@ public class JsonPageManager implements PageManager, LoginListener {
 
 	@Override
 	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		JsonDialog dialog = new JsonDialog(title, content, saveAction, actions);
+		JsonDialog dialog = new JsonDialog(title, content, saveAction, closeAction, actions);
 		openDialog(dialog);
 		return dialog;
 	}

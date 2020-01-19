@@ -3,6 +3,9 @@
 Every release contains many small fixes.
 
 === next
+* Refactor Page authorization
+
+=== 1.22.0.0
 * Use JDK web server and remove dependency to NanoHttpd
 * add ext projects thymeleaf, MinimalTow, NanoHttpd
 * SmallCodeListFormElement: comma separated code list in a row
