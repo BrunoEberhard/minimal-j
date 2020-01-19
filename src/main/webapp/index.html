@@ -866,7 +866,7 @@ $ICON
 			dialogPolyfill.registerDialog(dialog);
         }
         
-        dialog.addEventListener("close", dialogClosedListener); 
+        dialog.addEventListener("close", event => dialogClosedListener(event, json.closeAction)); 
 		dialog.showModal();
 		updateDialogSizes();
 	}
@@ -877,9 +877,10 @@ $ICON
 		dialog.close();
     }
 
-    function dialogClosedListener(event) {
+    function dialogClosedListener(event, closeAction) {
         document.getElementById("body").removeChild(event.target); 
         updateDialogSizes();
+        action(closeAction.id);
     }
 
 	function closeDialogs() {
