@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.swing.toolkit;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -87,7 +88,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		private boolean setObjectInObjects;
 		
 		public NullableComboBoxModel(List<T> objects) {
-			this.objects = Objects.requireNonNull(objects);
+			this.objects = new ArrayList<>(Objects.requireNonNull(objects));
 		}
 
 		@Override
