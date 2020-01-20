@@ -24,6 +24,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
+import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
@@ -32,6 +33,7 @@ import com.vaadin.annotations.Widgetset;
 import com.vaadin.contextmenu.ContextMenu;
 import com.vaadin.contextmenu.MenuItem;
 import com.vaadin.data.TreeData;
+import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
@@ -41,6 +43,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -66,7 +69,6 @@ public class Vaadin extends UI implements PageManager {
 	private HorizontalSplitPanel splitPanel;
 	
 	private Tree<Action> navigationTree;
-	private TreeData<Action> navigationTreeData = new TreeData<>();
 	private float lastSplitPosition = -1;
 	
 	public Vaadin() {
@@ -111,7 +113,17 @@ public class Vaadin extends UI implements PageManager {
 		if (Backend.getInstance().isAuthenticationActive()) {
 			Button buttonLogin = new Button(VaadinIcons.SIGN_IN);
 			buttonLogin.addStyleName("mjButton");
-			buttonLogin.addClickListener(e -> Backend.getInstance().getAuthentication().login(new VaadinLoginListener(null)));
+			buttonLogin.addClickListener(new ClickListener() {
+				@Override
+				public void buttonClick(ClickEvent event) {
+					if (Subject.getCurrent() == null) {
+						Backend.getInstance().getAuthentication().login(new VaadinLoginListener(null));
+					} else {
+						setSubject(null);
+						show(Application.getInstance().createDefaultPage());
+					}
+				}
+			});
 			topbar.addComponent(buttonLogin);
 			topbar.setComponentAlignment(buttonLogin, Alignment.MIDDLE_LEFT);
 		}
@@ -129,7 +141,7 @@ public class Vaadin extends UI implements PageManager {
 		outerPanel.addComponent(splitPanel);
 		outerPanel.setExpandRatio(splitPanel, 1.0f);
 
-		navigationTree = new Tree<>(null, navigationTreeData);
+		navigationTree = new Tree<>();
 		navigationTree.setSizeFull();
 		navigationTree.setSelectionMode(SelectionMode.NONE);
 		navigationTree.addItemClickListener(event -> event.getItem().action());
@@ -174,51 +186,56 @@ public class Vaadin extends UI implements PageManager {
 	
 	private void updateNavigation() {
 		List<Action> actions = Application.getInstance().getNavigation();
-		navigationTreeData.clear();
-		addNavigationActions(actions, null);
-		navigationTree.setData(navigationTreeData);
+		TreeData<Action> treeData = new TreeData<>();
+		navigationTree.setDataProvider(new TreeDataProvider<>(treeData));
+		addNavigationActions(treeData, actions, null);
 		if (navigationTree.getParent() == null) {
 			splitPanel.setFirstComponent(navigationTree);
 		}
 	}
 
-	private void addNavigationActions(List<Action> actions, Action parent) {
+	private void addNavigationActions(TreeData<Action> treeData, List<Action> actions, Action parent) {
 		for (Action action : actions) {
-			addNavigationAction(action, parent);
+			addNavigationAction(treeData, action, parent);
 			if (action instanceof ActionGroup) {
 				ActionGroup actionGroup = (ActionGroup) action;
-				addNavigationActions(actionGroup.getItems(), actionGroup);
+				addNavigationActions(treeData, actionGroup.getItems(), actionGroup);
 				navigationTree.expand(actionGroup);
 			}
 		}
 
 	}
 	
-	private void addNavigationAction(Action action, Action parent) {
-		navigationTreeData.addItem(parent, action);
+	private void addNavigationAction(TreeData<Action> treeData, Action action, Action parent) {
+		treeData.addItem(parent, action);
 	}
 	
 	private class VaadinLoginListener implements LoginListener {
-		private final String route;
+		private final Page page;
 
-		public VaadinLoginListener(String route) {
-			this.route = route;
+		public VaadinLoginListener(Page page) {
+			this.page = page;
 		}
-		
+
 		@Override
 		public void loginSucceded(Subject subject) {
-			getSession().setAttribute("subject", subject);
-			Subject.setCurrent(subject);
-			VaadinService.getCurrentRequest().getWrappedSession().setAttribute("subject", subject);
-			
-			updateNavigation();
-			Page page = getPage(route);
-			show(page, true);
+			setSubject(subject);
+			if (page != null) {
+				show(page);
+			}
 		}
 	}
 	
+	private void setSubject(Subject subject) {
+		getSession().setAttribute("subject", subject);
+		Subject.setCurrent(subject);
+		VaadinService.getCurrentRequest().getWrappedSession().setAttribute("subject", subject);
+
+		updateNavigation();
+	}
+
 	private Page getPage(String route) {
-		return Routing.createPageSafe(route.substring(1));
+		return Routing.createPageSafe(!StringUtils.isEmpty(route) ? route.substring(1) : route);
 	}
 	
 	public Subject getSubject() {
@@ -255,6 +272,10 @@ public class Vaadin extends UI implements PageManager {
 	}
 	
 	private void show(Page page, Boolean replaceState) {
+		if (!Authorization.hasAccess(Subject.getCurrent(), page)) {
+			Backend.getInstance().getAuthentication().login(new VaadinLoginListener(page));
+			return;
+		}
 		String pageId = pageStore.put(page);
 		components.clear();
 		AbstractComponent component = (AbstractComponent) PageAccess.getContent(page);
