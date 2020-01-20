@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.security.Authorization;
 import org.minimalj.security.AccessControl;
+import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -67,6 +67,14 @@ public abstract class Page implements AccessControl {
 		return true;
 	}
 
+	/**
+	 * This default implementation handles access by annotations. This can be
+	 * overridden to grant access not only by the page class but also by the data
+	 * the page will show.
+	 * 
+	 * @param subject the current subject
+	 * @return true if the current subject can access this page.
+	 */
 	@Override
 	public boolean hasAccess(Subject subject) {
 		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, getClass()));
