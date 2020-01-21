@@ -141,7 +141,8 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 
 	// RememberMe
 
-	private static final boolean REMEMBER_ME = Frontend.getInstance() instanceof JsonFrontend && ("true".equals(Configuration.get("MjRememberMe")) || Configuration.isDevModeActive());
+	private static final boolean REMEMBER_ME = Frontend.isAvailable() && Frontend.getInstance() instanceof JsonFrontend
+			&& ("true".equals(Configuration.get("MjRememberMe")) || Configuration.isDevModeActive());
 	private static final boolean PERSISTENT_REMEMBER_ME = Arrays.stream(Application.getInstance().getEntityClasses()).anyMatch(c -> c == RememberMeToken.class);
 	private static final SecureRandom random = new SecureRandom();
 
