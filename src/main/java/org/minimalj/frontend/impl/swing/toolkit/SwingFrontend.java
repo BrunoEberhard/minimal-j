@@ -194,19 +194,19 @@ public class SwingFrontend extends Frontend {
 		private SwingBorderLayoutContent() {
 			super(new BorderLayout());
 		}
-
-		private void add(IContent content, String constraint) {
-			if (content != null) {
-				add((Component) content, constraint);
-			}
-		}
 	}
 
 	@Override
 	public IContent createFormTableContent(FormContent form, ITable<?> table) {
 		SwingBorderLayoutContent content = new SwingBorderLayoutContent();
-		content.add(form, BorderLayout.NORTH);
-		content.add(table, BorderLayout.CENTER);
+		if (form != null) {
+			JPanel northPanel = new JPanel(new BorderLayout());
+			northPanel.add((Component) form, BorderLayout.LINE_START);
+			content.add(northPanel, BorderLayout.NORTH);
+		}
+		if (table != null) {
+			content.add((Component) table, BorderLayout.CENTER);
+		}
 		return content;
 	}
 
