@@ -106,7 +106,9 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 				if (reference != null) {
 					return new URL(reference, src);
 				} else {
-					// this is the line
+					if (src.startsWith("/")) {
+						src = src.substring(1);
+					}
 					return getClass().getClassLoader().getResource(src);
 				}
 			} catch (MalformedURLException e) {
