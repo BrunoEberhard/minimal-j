@@ -59,7 +59,7 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 					href = href.substring(1);
 				}
 				Page page = Routing.createPageSafe(href);
-				SwingFrontend.runWithContext(() -> Frontend.show(page));
+				SwingFrontend.run(SwingHtmlContent.this, () -> Frontend.show(page));
 			}
 		};
 		addHyperlinkListener(listener);

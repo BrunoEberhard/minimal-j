@@ -164,7 +164,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		        int row = table.rowAtPoint(e.getPoint());
 		        if (e.getClickCount() == 2 && row >= 0) {
 		        	int rowInModel = table.convertRowIndexToModel(row);
-		        	SwingFrontend.runWithContext(() -> listener.action(tableModel.getObject(rowInModel)));
+					SwingFrontend.run(SwingTable.this, () -> listener.action(tableModel.getObject(rowInModel)));
 		        }
 			}
 		}
@@ -174,7 +174,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (!e.getValueIsAdjusting() && table.isShowing()) {
-				SwingFrontend.runWithContext(() -> listener.selectionChanged(getSelectedObjects()));
+				SwingFrontend.run(SwingTable.this, () -> listener.selectionChanged(getSelectedObjects()));
 			}
 		}
 	}
