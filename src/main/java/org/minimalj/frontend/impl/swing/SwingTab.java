@@ -121,7 +121,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 	public void updateFavorites(LinkedHashMap<String, String> newFavorites) {
 		updateActions();
-//		menuBar.updateFavorites(newFavorites);
 	}
  
 	//
@@ -149,7 +148,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			List<Page> pages = new ArrayList<Page>(visiblePageAndDetailsList);
+			List<Page> pages = new ArrayList<>(visiblePageAndDetailsList);
 			verticalPanel.removeAll();
 			visiblePageAndDetailsList.clear();
 			for (Page page : pages) {
@@ -357,8 +356,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 			JTabbedPane tabbedPane = new JTabbedPane();
 			tabbedPane.addTab(page.getTitle(), content);
 			verticalPanel.add(tabbedPane, "");
-			verticalPanel.revalidate();
 		}
+		verticalPanel.revalidate();
 	}
 	
 	private void removeDetailsOf(Page page) {
