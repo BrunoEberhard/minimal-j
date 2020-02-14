@@ -235,6 +235,7 @@ public class SwingFrame extends JFrame {
 	}
 	
 	private void onFavoritesChange(LinkedHashMap<String, String> newFavorites) {
+		menuBar.updateFavorites(newFavorites);
 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
 			SwingTab tab = (SwingTab) tabbedPane.getComponentAt(i);
 			tab.updateFavorites(newFavorites);
