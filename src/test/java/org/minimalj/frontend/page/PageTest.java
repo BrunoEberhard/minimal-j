@@ -23,39 +23,45 @@ public class PageTest {
 	}
 
 	@Test
-	public void slashRouteNotValid() {
-		Assert.assertFalse(Page.validateRoute("/"));
+	public void slashRouteValid() {
+		Assert.assertTrue(Page.validateRoute("/"));
 	}
 
 	@Test
-	public void startWithSlashRouteNotValid() {
-		Assert.assertFalse(Page.validateRoute("/a"));
+	public void startWithSlashRouteValid() {
+		Assert.assertTrue(Page.validateRoute("/a"));
+	}
+
+	@Test
+	public void startWithoutSlashRouteNotValid() {
+		Assert.assertFalse(Page.validateRoute("a"));
 	}
 
 	@Test
 	public void endWithSlashRouteNotValid() {
-		Assert.assertFalse(Page.validateRoute("a/"));
+		Assert.assertFalse(Page.validateRoute("/a/"));
 	}
 
 	@Test
 	public void slashInMiddleRouteValid() {
-		Assert.assertTrue(Page.validateRoute("a/b"));
+		Assert.assertTrue(Page.validateRoute("/a/b"));
 	}
 	
 	@Test
 	public void validCharactersRouteValid() {
-		Assert.assertTrue(Page.validateRoute("_-/b"));
+		Assert.assertTrue(Page.validateRoute("/_-/b"));
 	}
 
 	@Test
 	public void invalidCharactersRouteNotValid() {
-		Assert.assertFalse(Page.validateRoute("ä"));
-		Assert.assertFalse(Page.validateRoute("."));
+		Assert.assertFalse(Page.validateRoute("/../a.html"));
+		Assert.assertFalse(Page.validateRoute("/../b"));
+		Assert.assertFalse(Page.validateRoute("/ä"));
 	}
 	
 	@Test
 	public void uuidRouteValid() {
-		Assert.assertTrue(Page.validateRoute("class/" + UUID.randomUUID()));
+		Assert.assertTrue(Page.validateRoute("/class/" + UUID.randomUUID()));
 	}
 
 }

@@ -235,7 +235,7 @@ public class Vaadin extends UI implements PageManager {
 	}
 
 	private Page getPage(String route) {
-		return Routing.createPageSafe(!StringUtils.isEmpty(route) ? route.substring(1) : route);
+		return Routing.createPageSafe(route);
 	}
 	
 	public Subject getSubject() {

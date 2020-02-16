@@ -60,7 +60,7 @@ public abstract class Routing {
 	}
 
 	private static Page createNotAvailablePage(String route) {
-		return new HtmlPage(Resources.getString("NotAvailablePage.message"), Resources.getString("NotAvailablePage.title"));
+		return new HtmlPage(Resources.getString("NotAvailablePage.message")).title(Resources.getString("NotAvailablePage.title"));
 	}
 
 	public static boolean available() {

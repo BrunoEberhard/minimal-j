@@ -55,9 +55,6 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 		HyperlinkListener listener = e -> {
 			if (e.getEventType() == EventType.ACTIVATED) {
 				String href = e.getDescription();
-				if (href.startsWith("/")) {
-					href = href.substring(1);
-				}
 				Page page = Routing.createPageSafe(href);
 				SwingFrontend.run(SwingHtmlContent.this, () -> Frontend.show(page));
 			}

@@ -73,9 +73,6 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 										return;
 									}
 
-									if (href.startsWith("/")) {
-										href = href.substring(1);
-									}
 									Page page = Routing.createPageSafe(href);
 									SwingUtilities.invokeLater(() -> {
 										SwingFrontend.run(FxHtmlContent.this, () -> Frontend.show(page));
@@ -95,7 +92,11 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 							nodeList = doc.getElementsByTagName("img");
 							for (int i = 0; i < nodeList.getLength(); i++) {
 								HTMLImageElement n = (HTMLImageElement) nodeList.item(i);
-								n.setSrc(getClass().getClassLoader().getResource(n.getSrc()).toExternalForm());
+								String src = n.getSrc();
+								if (src.startsWith("/")) {
+									src = src.substring(1);
+								}
+								n.setSrc(getClass().getClassLoader().getResource(src).toExternalForm());
 							}
 						}
 					}

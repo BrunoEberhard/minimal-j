@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
-import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.HtmlPage;
 
 /**
  * This page is only needed if you want to use Thymeleaf in Minimal-J pages. It
@@ -19,29 +17,19 @@ import org.minimalj.frontend.page.Page;
  * @author bruno
  *
  */
-public class ThymePage extends Page {
-	private final String path;
-	private final String title;
+public class ThymePage extends HtmlPage {
 
-	public ThymePage(String path, String title) {
-		this.path = path;
-		this.title = title;
+	public ThymePage(String route) {
+		super(null, Objects.requireNonNull(route));
 	}
 
-	@Override
-	public String getTitle() {
-		return title;
-	}
-
-	@Override
-	public IContent getContent() {
-		ThymePageExchange exchange = new ThymePageExchange(path);
+	protected String getHtml() {
+		ThymePageExchange exchange = new ThymePageExchange(getRoute());
 		WebApplication.handle(exchange);
-
-		return Frontend.getInstance().createHtmlContent(exchange.getResult());
+		return exchange.getResult();
 	}
 
-	public class ThymePageExchange extends MjHttpExchange {
+	public static class ThymePageExchange extends MjHttpExchange {
 		private final String path;
 		private String result;
 

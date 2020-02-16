@@ -31,7 +31,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			exchange.sendResponse(200, response, "application/json");
 		} else if (path.equals("/application.png")) {
 			exchange.sendResponse(200, ResourcesHttpHandler.read(Application.getInstance().getIcon()), "image/png");
-		} else if (path.length() <= 1 || Page.validateRoute(path.substring(1))) {
+		} else if (Page.validateRoute(path)) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			htmlTemplate = htmlTemplate.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path.length() < 2 ? "/" : path.substring(1));
