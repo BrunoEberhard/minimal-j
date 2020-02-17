@@ -141,10 +141,6 @@ public abstract class WebApplication extends Application {
 			return body;
 		}
 
-		public String getUrl() {
-			return url;
-		}
-
 		@Override
 		public boolean isResponseSent() {
 			return body != null;
