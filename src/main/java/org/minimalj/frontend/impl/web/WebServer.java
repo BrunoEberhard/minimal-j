@@ -29,14 +29,14 @@ import com.sun.net.httpserver.HttpsServer;
 public class WebServer {
 	private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
 
-	private static final boolean SECURE = true;
+	public static final boolean SECURE = true;
 
 	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
-	private static class WebServerHttpExchange extends MjHttpExchange {
+	public static class WebServerHttpExchange extends MjHttpExchange {
 		private final HttpExchange exchange;
 
-		private WebServerHttpExchange(HttpExchange exchange) {
+		protected WebServerHttpExchange(HttpExchange exchange) {
 			this.exchange = exchange;
 		}
 
