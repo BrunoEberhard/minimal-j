@@ -57,7 +57,7 @@ public abstract class Page implements AccessControl {
 	 */
 	public static boolean validateRoute(String route) {
 		if (StringUtils.isBlank(route)) {
-			return false;
+			return true;
 		}
 		if (route.charAt(0) != '/' || route.length() > 1 && route.endsWith("/")) {
 			return false;

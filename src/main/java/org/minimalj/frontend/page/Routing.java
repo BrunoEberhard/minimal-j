@@ -3,6 +3,7 @@ package org.minimalj.frontend.page;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -30,7 +31,7 @@ public abstract class Routing {
 		}
 		try {
 			String route = routing.getRoute(page);
-			if (Page.validateRoute(route)) {
+			if (route != null && Page.validateRoute(route)) {
 				return route;
 			} else {
 				return null;
@@ -43,7 +44,7 @@ public abstract class Routing {
 
 	public static final /* NonNull */ Page createPageSafe(String route) {
 		Page page = null;
-		if (StringUtils.isEmpty(route) || StringUtils.equals(route, "/")) {
+		if (StringUtils.isEmpty(route) || route.equals(WebApplication.mjHandlerPath())) {
 			page = Application.getInstance().createDefaultPage();
 		} else if (routing != null && Page.validateRoute(route)) {
 			try {

@@ -5,7 +5,6 @@ $META
 
 <!-- $MINIMALJ-VERSION -->
 <!-- $APPLICATION-VERSION -->
-<base href="$BASE">
 
 $IMPORT
 <script src="dialog-polyfill.js"></script>
@@ -231,7 +230,7 @@ $ICON
 	function addNewStateToHistory(fragment) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText, "$BASE" + (fragment ? fragment : "")); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, fragment ? "." + fragment : ""); // second argument is ignored by browsers (!)
 		}
 	}
 	
@@ -287,9 +286,15 @@ $ICON
 			var contentElement;
 			if (page.content.type === "Html") {
 				contentElement = document.createElement("iframe");
-				pageContentAndActionsElement.appendChild(contentElement);
 				// the iframe must be already attached to have the document
-				contentElement.contentWindow.document.write(page.content.htmlOrUrl); // srcdoc not available before chrome-IE
+				pageContentAndActionsElement.appendChild(contentElement);
+				if (!!("srcdoc" in contentElement)) {
+				  // in chrome this works best
+					contentElement.srcdoc = page.content.htmlOrUrl;			
+				} else {
+				  // in IE before chromium this allows back after a link in the content was clicked
+				  contentElement.contentWindow.document.write(page.content.htmlOrUrl);
+				}				
 				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
 			} else {
 				var contentElement = createContent(page.content);

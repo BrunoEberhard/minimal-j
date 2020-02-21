@@ -25,7 +25,7 @@ public class ThymePage extends HtmlPage {
 
 	protected String getHtml() {
 		ThymePageExchange exchange = new ThymePageExchange(getRoute());
-		WebApplication.handle(exchange);
+		WebApplication.getWebApplicationHandler().handle(exchange);
 		return exchange.getResult();
 	}
 

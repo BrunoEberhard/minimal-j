@@ -1,6 +1,9 @@
 package org.minimalj.frontend.impl.web;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,9 +30,9 @@ public abstract class WebApplication extends Application {
 	private static final Logger logger = Logger.getLogger(WebApplication.class.getName());
 
 	/**
-	 * @return path where minimal session handling is located. Must start with a '/'
-	 *         and end with a '/'. Return <code>null</code> if minimal session
-	 *         handling should be disabled.
+	 * @return path where minimal session handling is located. Return
+	 *         <code>null</code> if minimal session handling should be disabled and
+	 *         only a custom web application should be served.
 	 */
 	public String getMjHandlerPath() {
 		return "/";
@@ -39,10 +42,15 @@ public abstract class WebApplication extends Application {
 		return (WebApplication) Application.getInstance();
 	}
 
-	static String mjHandlerPath() {
+	public static String mjHandlerPath() {
 		if (Application.getInstance() instanceof WebApplication) {
 			WebApplication webApplication = (WebApplication) Application.getInstance();
-			return webApplication.getMjHandlerPath();
+			String path = webApplication.getMjHandlerPath();
+			if (path != null && !path.endsWith("/")) {
+				return path + "/";
+			} else {
+				return path;
+			}
 		} else {
 			return "/";
 		}
@@ -50,6 +58,24 @@ public abstract class WebApplication extends Application {
 
 	protected abstract MjHttpHandler createHttpHandler();
 
+	protected MjHttpHandler createResourcesHttpHandler() {
+		File web = new File("./web");
+		if (web.exists() && web.isDirectory()) {
+			return new ResourcesHttpHandler() {
+				@Override
+				protected InputStream getInputStream(String path) throws IOException {
+					return new FileInputStream(new File(web, path));
+				}
+			};
+		} else {
+			if (!Configuration.isDevModeActive()) {
+				logger.warning("In production the web resources should be in separated directory");
+			}
+			return new ResourcesHttpHandler();
+		}
+	}
+
+	private static MjHttpHandler webApplicationHandler;
 	private static List<MjHttpHandler> handlers;
 
 	private static List<MjHttpHandler> getHandlers() {
@@ -57,12 +83,20 @@ public abstract class WebApplication extends Application {
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
 				handlers = new ArrayList<>();
-				if (webApplication.getMjHandlerPath() != null) {
-					handlers.add(new ApplicationHttpHandler());
+
+				if (WebApplication.mjHandlerPath() != null) {
+					handlers.add(new ApplicationHttpHandler(WebApplication.mjHandlerPath()));
 				}
-				handlers.add(webApplication.createHttpHandler());
+
+				webApplicationHandler = webApplication.createHttpHandler();
+				handlers.add(webApplicationHandler);
+
+				MjHttpHandler resourcesHttpHandler = webApplication.createResourcesHttpHandler();
+				if (resourcesHttpHandler != null) {
+					handlers.add(resourcesHttpHandler);
+				}
 			} else {
-				handlers = Collections.singletonList(new ApplicationHttpHandler());
+				handlers = Collections.singletonList(new ApplicationHttpHandler("/"));
 			}
 		}
 		return handlers;
@@ -81,6 +115,10 @@ public abstract class WebApplication extends Application {
 			}
 		}
 		webApplication().sendNotFound(exchange);
+	}
+
+	public static MjHttpHandler getWebApplicationHandler() {
+		return webApplicationHandler;
 	}
 
 	protected void sendError(MjHttpExchange exchange, Exception x) {

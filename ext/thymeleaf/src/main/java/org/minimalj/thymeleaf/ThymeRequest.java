@@ -9,6 +9,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.security.Subject;
+import org.minimalj.thymeleaf.page.ThymePage.ThymePageExchange;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 import org.thymeleaf.TemplateEngine;
@@ -38,6 +39,8 @@ public class ThymeRequest {
 
 			context.put("MINIMALJ-VERSION", Application.class.getPackage().getImplementationVersion());
 			context.put("APPLICATION-VERSION", Application.getInstance().getClass().getPackage().getImplementationVersion());
+
+			context.put("thymePage", exchange instanceof ThymePageExchange);
 
 			context.put("parameters", exchange.getParameters());
 
