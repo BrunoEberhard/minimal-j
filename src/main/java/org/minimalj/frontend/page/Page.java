@@ -56,8 +56,8 @@ public abstract class Page implements AccessControl {
 	 * @see java.util.Base64#getUrlEncoder
 	 */
 	public static boolean validateRoute(String route) {
-		if (StringUtils.isBlank(route)) {
-			return true;
+		if (StringUtils.isEmpty(route)) {
+			return false;
 		}
 		if (route.charAt(0) != '/' || route.length() > 1 && route.endsWith("/")) {
 			return false;
