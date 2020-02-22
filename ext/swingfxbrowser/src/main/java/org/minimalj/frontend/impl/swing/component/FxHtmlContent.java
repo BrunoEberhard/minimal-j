@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing.component;
 
+import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.SwingUtilities;
@@ -7,6 +8,7 @@ import javax.swing.SwingUtilities;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 import org.w3c.dom.Document;
@@ -93,10 +95,11 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 							for (int i = 0; i < nodeList.getLength(); i++) {
 								HTMLImageElement n = (HTMLImageElement) nodeList.item(i);
 								String src = n.getSrc();
-								if (src.startsWith("/")) {
-									src = src.substring(1);
+								try {
+									n.setSrc(WebApplication.getResourceHandler().getUrl(src).toExternalForm());
+								} catch (IOException e) {
+									throw new RuntimeException(e);
 								}
-								n.setSrc(getClass().getClassLoader().getResource(src).toExternalForm());
 							}
 						}
 					}
