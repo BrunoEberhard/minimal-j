@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.web;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -17,9 +18,10 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 	private static final List<String> RESOURCES = Arrays.asList(new String[] { "/dialog-polyfill.css", "/dialog-polyfill.js", "/miniterial.css", "/mj.css" });
 	
 	private static final ResourcesHttpHandler resourcesHttpHandler = new ResourcesHttpHandler() {
-		protected InputStream getInputStream(String path) {
-			return getClass().getResourceAsStream(path);
-		};
+		@Override
+		public URL getUrl(String path) throws IOException {
+			return Application.getInstance().getClass().getResource(path);
+		}
 	};
 	
 	public ApplicationHttpHandler(String path) {

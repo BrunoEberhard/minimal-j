@@ -57,7 +57,8 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 	}
 
 	private InputStream getInputStream(String path) throws IOException {
-		return getUrl(path).openStream();
+		URL url = getUrl(path);
+		return url != null ? url.openStream() : null;
 	}
 
 	private byte[] getResource(String path) {
