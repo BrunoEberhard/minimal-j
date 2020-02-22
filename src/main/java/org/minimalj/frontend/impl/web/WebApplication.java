@@ -2,11 +2,11 @@ package org.minimalj.frontend.impl.web;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,13 +58,13 @@ public abstract class WebApplication extends Application {
 
 	protected abstract MjHttpHandler createHttpHandler();
 
-	protected MjHttpHandler createResourcesHttpHandler() {
+	protected ResourcesHttpHandler createResourcesHttpHandler() {
 		File web = new File("./web");
 		if (web.exists() && web.isDirectory()) {
 			return new ResourcesHttpHandler() {
 				@Override
-				protected InputStream getInputStream(String path) throws IOException {
-					return new FileInputStream(new File(web, path));
+				public URL getUrl(String path) throws MalformedURLException {
+					return new File(web, path).toURI().toURL();
 				}
 			};
 		} else {
@@ -75,7 +75,9 @@ public abstract class WebApplication extends Application {
 		}
 	}
 
+	// TODO clean up
 	private static MjHttpHandler webApplicationHandler;
+	private static ResourcesHttpHandler resourceHandler;
 	private static List<MjHttpHandler> handlers;
 
 	private static List<MjHttpHandler> getHandlers() {
@@ -88,8 +90,7 @@ public abstract class WebApplication extends Application {
 					handlers.add(new ApplicationHttpHandler(WebApplication.mjHandlerPath()));
 				}
 
-				webApplicationHandler = webApplication.createHttpHandler();
-				handlers.add(webApplicationHandler);
+				handlers.add(getWebApplicationHandler());
 
 				MjHttpHandler resourcesHttpHandler = webApplication.createResourcesHttpHandler();
 				if (resourcesHttpHandler != null) {
@@ -118,7 +119,19 @@ public abstract class WebApplication extends Application {
 	}
 
 	public static MjHttpHandler getWebApplicationHandler() {
+		if (webApplicationHandler == null && Application.getInstance() instanceof WebApplication) {
+			WebApplication webApplication = (WebApplication) Application.getInstance();
+			webApplicationHandler = webApplication.createHttpHandler();
+		}
 		return webApplicationHandler;
+	}
+
+	public static ResourcesHttpHandler getResourceHandler() {
+		if (resourceHandler == null && Application.getInstance() instanceof WebApplication) {
+			WebApplication webApplication = (WebApplication) Application.getInstance();
+			resourceHandler = webApplication.createResourcesHttpHandler();
+		}
+		return resourceHandler;
 	}
 
 	protected void sendError(MjHttpExchange exchange, Exception x) {

@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.web;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -51,8 +52,12 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 		}
 	}
 
-	protected InputStream getInputStream(String path) throws IOException {
-		return Application.getInstance().getClass().getResourceAsStream("web/" + path);
+	public URL getUrl(String path) throws IOException {
+		return Application.getInstance().getClass().getResource("web/" + path);
+	}
+
+	private InputStream getInputStream(String path) throws IOException {
+		return getUrl(path).openStream();
 	}
 
 	private byte[] getResource(String path) {
