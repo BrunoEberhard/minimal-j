@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.Enumeration;
@@ -106,6 +107,7 @@ public class MjServlet extends HttpServlet implements javax.servlet.ServletConta
 	@Override
 	public void onStartup(Set<Class<?>> applicationClasses, ServletContext servletContext) throws ServletException {
 		applicationClasses.remove(ThreadLocalApplication.class);
+		applicationClasses = applicationClasses.stream().filter(c -> !Modifier.isAbstract(c.getModifiers())).collect(Collectors.toSet());
 		if (applicationClasses.size() == 0) {
 			throw new IllegalStateException("No application found");
 		} else if (applicationClasses.size() > 1) {
