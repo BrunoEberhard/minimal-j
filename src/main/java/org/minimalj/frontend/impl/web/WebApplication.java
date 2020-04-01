@@ -1,24 +1,19 @@
 package org.minimalj.frontend.impl.web;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.frontend.page.HtmlPage;
-import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.Routing;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.impl.json.JsonFrontend;
 
 /**
  * You only need to extend from WebApplication if you want to serve custom html
@@ -34,7 +29,7 @@ public abstract class WebApplication extends Application {
 	 *         <code>null</code> if minimal session handling should be disabled and
 	 *         only a custom web application should be served.
 	 */
-	public String getMjHandlerPath() {
+	protected String getMjHandlerPath() {
 		return "/";
 	}
 
@@ -42,6 +37,13 @@ public abstract class WebApplication extends Application {
 		return (WebApplication) Application.getInstance();
 	}
 
+	/**
+	 * Framework internal
+	 * 
+	 * @return location of Minimal-J application. Format like '/path/'. Slash at end
+	 *         and beginning. Return <code>null</code> if there is no MJ application
+	 *         (pure WebApplication).<br>
+	 */
 	public static String mjHandlerPath() {
 		if (Application.getInstance() instanceof WebApplication) {
 			WebApplication webApplication = (WebApplication) Application.getInstance();
@@ -82,11 +84,11 @@ public abstract class WebApplication extends Application {
 
 	private static List<MjHttpHandler> getHandlers() {
 		if (handlers == null) {
+			handlers = new ArrayList<>();
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
-				handlers = new ArrayList<>();
 
-				if (WebApplication.mjHandlerPath() != null) {
+				if (Frontend.getInstance() instanceof JsonFrontend && WebApplication.mjHandlerPath() != null) {
 					handlers.add(new ApplicationHttpHandler(WebApplication.mjHandlerPath()));
 				}
 
@@ -97,8 +99,16 @@ public abstract class WebApplication extends Application {
 					handlers.add(resourcesHttpHandler);
 				}
 			} else {
-				handlers = Collections.singletonList(new ApplicationHttpHandler("/"));
+				handlers.add(new ApplicationHttpHandler("/"));
 			}
+			handlers.add(new ResourcesHttpHandler() {
+				@Override
+				public void handle(MjHttpExchange exchange, String path) {
+					if (WebApplication.mjHandlerPath() == null || path.startsWith(WebApplication.mjHandlerPath())) {
+						super.handle(exchange, path);
+					}
+				}
+			});
 		}
 		return handlers;
 	}
@@ -150,78 +160,6 @@ public abstract class WebApplication extends Application {
 
 	protected void sendNotFound(MjHttpExchange exchange) {
 		exchange.sendResponse(404, "Not found", "text/plain");
-	}
-
-	@Override
-	public Routing createRouting() {
-		return new WebRouting();
-	}
-
-	public static class WebRouting extends Routing {
-
-		@Override
-		protected String getRoute(Page page) {
-			if (page instanceof HtmlPage) {
-				return ((HtmlPage) page).getRoute();
-			}
-			return null;
-		}
-
-		@Override
-		protected Page createPage(String route) {
-			RoutingHttpExchange exchange = new RoutingHttpExchange(route);
-			handle(exchange);
-			if (exchange.isResponseSent()) {
-				return new HtmlPage(exchange.getBody(), route);
-			} else {
-				return null;
-			}
-		}
-
-	}
-
-	private static class RoutingHttpExchange extends MjHttpExchange {
-		private final String url;
-		private String body, contentType;
-
-		public RoutingHttpExchange(String url) {
-			this.url = url;
-		}
-
-		public String getBody() {
-			return body;
-		}
-
-		@Override
-		public boolean isResponseSent() {
-			return body != null;
-		}
-
-		@Override
-		public void sendResponse(int statusCode, String body, String contentType) {
-			this.body = body;
-			this.contentType = contentType;
-		}
-
-		@Override
-		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
-			sendResponse(statusCode, new String(bytes), contentType);
-		}
-
-		@Override
-		public String getPath() {
-			return url;
-		}
-
-		@Override
-		public InputStream getRequest() {
-			return new ByteArrayInputStream(new byte[0]);
-		}
-
-		@Override
-		public Map<String, List<String>> getParameters() {
-			return Collections.emptyMap();
-		}
 	}
 
 }

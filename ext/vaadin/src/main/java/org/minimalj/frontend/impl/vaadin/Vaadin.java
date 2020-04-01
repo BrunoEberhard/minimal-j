@@ -1,8 +1,14 @@
 package org.minimalj.frontend.impl.vaadin;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,6 +25,9 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinGridFormLayout;
+import org.minimalj.frontend.impl.web.MjHttpExchange;
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
@@ -37,8 +46,11 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.RequestHandler;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
@@ -74,12 +86,95 @@ public class Vaadin extends UI implements PageManager {
 	public Vaadin() {
 	}
 	
+	public static final String IMAGE_URL = "myimage.png";
+
+	private static class VaadinHttpExchange extends MjHttpExchange {
+		private final VaadinRequest request;
+		private final VaadinResponse response;
+		private boolean responseSent;
+
+		public VaadinHttpExchange(VaadinRequest request, VaadinResponse response) {
+			this.request = request;
+			this.response = response;
+		}
+
+		@Override
+		public String getPath() {
+			return request.getPathInfo();
+		}
+
+		@Override
+		public InputStream getRequest() {
+			try {
+				return request.getInputStream();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public Map<String, List<String>> getParameters() {
+			// TODO Parameter conversion in HttpServletHttpExchange
+			return Collections.emptyMap();
+		}
+
+		@Override
+		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+			response.setStatus(statusCode);
+			try {
+				OutputStream os = response.getOutputStream();
+				responseSent = true;
+				os.write(bytes);
+				os.close();
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
+		}
+
+		@Override
+		public void sendResponse(int statusCode, String body, String contentType) {
+			sendResponse(statusCode, body.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
+		}
+
+		@Override
+		public boolean isResponseSent() {
+			return responseSent;
+		}
+	}
+
+	private final ResourcesHttpHandler resourcesHttpHandler = new ResourcesHttpHandler();
+
+	private final RequestHandler requestHandler = new RequestHandler() {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response) throws IOException {
+			if (request.getPathInfo() != null) {
+				VaadinHttpExchange vaadinHttpExchange = new VaadinHttpExchange(request, response);
+				resourcesHttpHandler.handle(vaadinHttpExchange);
+				return vaadinHttpExchange.responseSent;
+			} else {
+				return false;
+			}
+		}
+	};
+
+	@Override
+	public void detach() {
+		super.detach();
+
+		// Clean up
+		getSession().removeRequestHandler(requestHandler);
+	}
+
 	@Override
 	protected void init(VaadinRequest request) {
+		getSession().addRequestHandler(requestHandler);
+
 		VerticalLayout outerPanel = new VerticalLayout();
 		outerPanel.setMargin(false);
 		outerPanel.setSpacing(false);
-		
+
 		setContent(outerPanel);
 		setSizeFull();
 		outerPanel.setSizeFull();
@@ -227,7 +322,6 @@ public class Vaadin extends UI implements PageManager {
 	}
 	
 	private void setSubject(Subject subject) {
-		getSession().setAttribute("subject", subject);
 		Subject.setCurrent(subject);
 		VaadinService.getCurrentRequest().getWrappedSession().setAttribute("subject", subject);
 
@@ -236,10 +330,6 @@ public class Vaadin extends UI implements PageManager {
 
 	private Page getPage(String route) {
 		return Routing.createPageSafe(route);
-	}
-	
-	public Subject getSubject() {
-		return (Subject) getSession().getAttribute("subject");
 	}
 	
 	@Override
@@ -288,7 +378,9 @@ public class Vaadin extends UI implements PageManager {
 		if (route == null) {
 			route = "/";
 		}
-		route = route + "#" + pageId;
+		String mjHandlerPath = WebApplication.mjHandlerPath();
+		route = mjHandlerPath.substring(mjHandlerPath.length() - 1) + route + "#" + pageId;
+
 		if (replaceState != null && replaceState) {
 			com.vaadin.server.Page.getCurrent().replaceState(route);
 		} else if (replaceState != null && !replaceState) {

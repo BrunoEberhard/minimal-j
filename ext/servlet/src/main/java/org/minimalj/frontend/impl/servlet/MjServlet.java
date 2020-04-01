@@ -55,7 +55,7 @@ public class MjServlet extends HttpServlet implements javax.servlet.ServletConta
 			session.setAttribute("MjPageManager", new JsonPageManager());
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			String path = URI.create(requestURI).getPath();
-			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, request.getLocale(), path);
+			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 			response.getWriter().write(html);
 			response.setContentType("text/html");
 			return;
