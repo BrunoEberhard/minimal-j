@@ -40,7 +40,7 @@ public abstract class Page implements AccessControl {
 		return null;
 	}
 	
-	private static final String ALLOWED_CHARS = "-._~:/?#[]@!$&'()*+,;=%";
+	private static final String ALLOWED_CHARS = "-._~:/?#[]@!$&'()*+,;=%"; // #% additional to URL Fragment
 
 	/**
 	 * Route String must obey some rules to be valid:
