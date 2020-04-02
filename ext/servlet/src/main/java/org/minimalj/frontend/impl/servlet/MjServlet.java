@@ -111,8 +111,7 @@ public class MjServlet extends HttpServlet implements javax.servlet.ServletConta
 		if (applicationClasses.size() == 0) {
 			throw new IllegalStateException("No application found");
 		} else if (applicationClasses.size() > 1) {
-			return;
-			// throw new IllegalStateException("There should be only one Application in classpath");
+			throw new IllegalStateException("There should be only one Application in classpath");
 		}
 		Application.initApplication(applicationClasses.iterator().next().getName());
 	}
