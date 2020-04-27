@@ -174,7 +174,7 @@ public class ModelTestTest {
 	//
 	
 	@Test public void 
-	should_accept_eager_list_in_lazy_list() {
+	should_not_accept_eager_list_in_lazy_list() {
 		ModelTest modelTest = new ModelTest(TestClass10b.class);
 		Assert.assertFalse(modelTest.isValid());
 	}
