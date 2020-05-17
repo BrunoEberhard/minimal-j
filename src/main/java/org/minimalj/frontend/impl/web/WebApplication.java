@@ -29,7 +29,7 @@ public abstract class WebApplication extends Application {
 	 *         <code>null</code> if minimal session handling should be disabled and
 	 *         only a custom web application should be served.
 	 */
-	protected String getMjHandlerPath() {
+	protected String getMjPath() {
 		return "/";
 	}
 
@@ -47,7 +47,7 @@ public abstract class WebApplication extends Application {
 	public static String mjHandlerPath() {
 		if (Application.getInstance() instanceof WebApplication) {
 			WebApplication webApplication = (WebApplication) Application.getInstance();
-			String path = webApplication.getMjHandlerPath();
+			String path = webApplication.getMjPath();
 			if (path != null && !path.endsWith("/")) {
 				return path + "/";
 			} else {
@@ -125,7 +125,11 @@ public abstract class WebApplication extends Application {
 				logger.log(Level.SEVERE,x.getLocalizedMessage(), x);
 			}
 		}
-		webApplication().sendNotFound(exchange);
+		if (Application.getInstance() instanceof WebApplication) {
+			webApplication().sendNotFound(exchange);
+		} else {
+			sendNotFoundDefault(exchange);
+		}
 	}
 
 	public static MjHttpHandler getWebApplicationHandler() {
@@ -159,6 +163,10 @@ public abstract class WebApplication extends Application {
 	}
 
 	protected void sendNotFound(MjHttpExchange exchange) {
+		sendNotFoundDefault(exchange);
+	}
+	
+	private static void sendNotFoundDefault(MjHttpExchange exchange) {
 		exchange.sendResponse(404, "Not found", "text/plain");
 	}
 
