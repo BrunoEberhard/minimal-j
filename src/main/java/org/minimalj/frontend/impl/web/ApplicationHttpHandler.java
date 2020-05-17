@@ -59,7 +59,6 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 
 	public static void handleTemplate(MjHttpExchange exchange) {
 		String htmlTemplate = JsonFrontend.getHtmlTemplate();
-		htmlTemplate = htmlTemplate.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
 		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, exchange.getPath());
 		exchange.sendResponse(200, html, "text/html");
 	}

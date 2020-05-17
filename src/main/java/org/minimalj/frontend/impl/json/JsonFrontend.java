@@ -18,6 +18,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.resources.Resources;
@@ -232,6 +233,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
 		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));
+		result = result.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
 		return result;
 	}
 
