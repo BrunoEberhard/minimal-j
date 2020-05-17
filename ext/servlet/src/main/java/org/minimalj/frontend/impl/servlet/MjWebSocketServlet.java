@@ -11,11 +11,9 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
 
 import org.minimalj.frontend.impl.json.JsonPageManager;
 
-@ServerEndpoint(value = "/ws")
 public class MjWebSocketServlet {
 	private static final Logger logger = Logger.getLogger(MjWebSocketServlet.class.getName());
 
