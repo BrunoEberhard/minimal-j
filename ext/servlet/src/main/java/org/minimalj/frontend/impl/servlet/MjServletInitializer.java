@@ -5,7 +5,6 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
