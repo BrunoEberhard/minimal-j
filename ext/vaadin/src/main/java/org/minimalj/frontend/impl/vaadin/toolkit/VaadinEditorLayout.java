@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.StringUtils;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.action.Action;
@@ -9,7 +7,7 @@ import org.minimalj.frontend.action.Action;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,7 +22,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		setPadding(false);
 		setSizeFull();
 		
-		add(new Label(title));
+		add(new H4(title));
 		((HasSize) component).setSizeFull();
 		add(component);	
 		Component buttonBar = createButtonBar(saveAction, closeAction, actions);
@@ -37,13 +35,14 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		setWidthFull();
 		horizontalLayout.addClassName("buttonBar");
 		
-		Arrays.stream(actions).forEach(action -> {
-			if (action == closeAction) {
+		// TODO change method parameters for dialogs
+		for (int i = 0; i < actions.length; i++) {
+			if (i == actions.length - 2) {
 				Span span = new Span();
 				horizontalLayout.addAndExpand(span);
 			}
-			addActionButton(horizontalLayout, action);
-		});
+			addActionButton(horizontalLayout, actions[i]);
+		}
 		return horizontalLayout;
 	}
 	
