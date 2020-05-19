@@ -7,8 +7,10 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -59,10 +61,26 @@ public class VaadinGridFormLayout extends FormLayout implements FormContent, Vaa
 		add(field, span);
 	}
 
+	boolean first = true;
+	KeyNotifier lastField = null;
+
+	public KeyNotifier getLastField() {
+		return lastField;
+	}
+
 	private void add(IComponent field, int span) {
 		Component component = (Component) field;
 		((HasSize) component).setWidthFull();
+
+		if (first && field instanceof HasElement) {
+			((HasElement) field).getElement().setAttribute("autofocus", "true");
+			first = false;
+		}
 		
+		if (field instanceof KeyNotifier) {
+			lastField = (KeyNotifier) field;
+		}
+
 		if (span < 1) {
 			span = columns;
 		}

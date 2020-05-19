@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.StringUtils;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.action.Action;
@@ -8,6 +10,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -15,7 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
-	public VaadinEditorLayout(String title, Component component, Action saveAction, Action closeAction) {
+	public VaadinEditorLayout(String title, Component component, Action saveAction, Action closeAction, Action... actions) {
 		setMargin(false);
 		setSpacing(true);
 		setPadding(false);
@@ -24,31 +27,28 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		add(new Label(title));
 		((HasSize) component).setSizeFull();
 		add(component);	
-		Component buttonBar = createButtonBar(saveAction, closeAction);
+		Component buttonBar = createButtonBar(saveAction, closeAction, actions);
 		add(buttonBar);
 	}
 
-	private Component createButtonBar(Action... actions) {
+	private Component createButtonBar(Action saveAction, Action closeAction, Action... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		setSpacing(true);
 		setWidthFull();
 		horizontalLayout.addClassName("buttonBar");
 		
-		addButtons(horizontalLayout, actions);
+		Arrays.stream(actions).forEach(action -> {
+			if (action == closeAction) {
+				Span span = new Span();
+				horizontalLayout.addAndExpand(span);
+			}
+			addActionButton(horizontalLayout, action);
+		});
 		return horizontalLayout;
 	}
 	
-	private void addButtons(HorizontalLayout buttonBar, Action... actions) {
-		for (Action action: actions) {
-			addActionButton(buttonBar, action);
-		}
-//		if (buttonBar.getComponentCount() > 0) {
-//			buttonBar.setExpandRatio(buttonBar.getComponentAt(0), 1.0F);
-//		}
-	}
-
 	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
-		final Button button = new Button(action.getName());
+		Button button = new Button(action.getName());
 		button.setEnabled(action.isEnabled());
 		if (!StringUtils.isEmpty(action.getDescription())) {
 			button.getElement().setAttribute("title", action.getDescription());
@@ -59,6 +59,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		installActionListener(action, button);
 		buttonBar.add(button);
 		buttonBar.setAlignItems(Alignment.END);
+		buttonBar.setFlexGrow(0, button);
 	}
 	
 //	private static void installShortcut(Button button, Action action) {

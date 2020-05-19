@@ -13,11 +13,12 @@ import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
-import org.minimalj.security.Subject;
 import org.minimalj.security.Authentication.LoginListener;
+import org.minimalj.security.Subject;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -29,6 +30,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -57,7 +59,19 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			});
 			addToNavbar(buttonLogin);
 		}
-		 
+		
+		if (Application.getInstance().hasSearchPages()) {
+			TextField textFieldSearch = new TextField();
+			textFieldSearch.getStyle().set("margin-left", "auto");
+			textFieldSearch.getStyle().set("margin-right", "1em");
+			textFieldSearch.addKeyPressListener(Key.ENTER, event -> {
+				String query = textFieldSearch.getValue();
+				Page page = Application.getInstance().createSearchPage(query);
+				show(page);
+			});
+			addToNavbar(textFieldSearch); 
+		}
+		
 		addToDrawer(menuLayout);
 		updateNavigation();
 		show(Application.getInstance().createDefaultPage());
@@ -138,7 +152,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 
 	@Override
 	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		return new VaadinDialog(title, (Component) content,  saveAction, closeAction);
+		return new VaadinDialog(title, (Component) content, saveAction, closeAction, actions);
 	}
 
 	@Override

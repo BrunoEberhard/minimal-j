@@ -5,6 +5,7 @@ import org.minimalj.frontend.page.IDialog;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.dialog.Dialog;
 
 public class VaadinDialog extends Dialog implements IDialog {
@@ -13,8 +14,8 @@ public class VaadinDialog extends Dialog implements IDialog {
 	private final Action saveAction, closeAction;
 	private static int styleCount;
 	
-	public VaadinDialog(String title, Component component, Action saveAction, Action closeAction) {
-		super(new VaadinEditorLayout(title, component, saveAction, closeAction));
+	public VaadinDialog(String title, Component component, Action saveAction, Action closeAction, Action... actions) {
+		super(new VaadinEditorLayout(title, component, saveAction, closeAction, actions));
 
 		this.saveAction = saveAction;
 		this.closeAction = closeAction;
@@ -26,6 +27,17 @@ public class VaadinDialog extends Dialog implements IDialog {
 
 		if (closeAction != null) {
 			addDialogCloseActionListener(new VaadinDialogListener());
+		}
+
+		if (component instanceof VaadinGridFormLayout) {
+			VaadinGridFormLayout form = (VaadinGridFormLayout) component;
+			if (form.getLastField() != null) {
+				form.getLastField().addKeyPressListener(Key.ENTER, event -> {
+					if (saveAction.isEnabled()) {
+						saveAction.action();
+					}
+				});
+			}
 		}
 
 		open();
