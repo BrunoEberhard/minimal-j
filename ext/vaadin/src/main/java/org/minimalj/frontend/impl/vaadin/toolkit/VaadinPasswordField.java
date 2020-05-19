@@ -3,16 +3,24 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.PasswordField;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
 import com.vaadin.flow.component.HasValue.ValueChangeListener;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.KeyDownEvent;
+import com.vaadin.flow.component.KeyModifier;
+import com.vaadin.flow.component.KeyNotifier;
+import com.vaadin.flow.component.KeyPressEvent;
+import com.vaadin.flow.component.KeyUpEvent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.shared.Registration;
 
 /**
- * 
- * @author Bruno
+ * Cannot extends com.vaadin.flow.component.textfield.PasswordField because of
+ * clash in getValue() method.
  *
  */
-public class VaadinPasswordField extends HorizontalLayout implements PasswordField {
+public class VaadinPasswordField extends HorizontalLayout implements PasswordField, KeyNotifier {
 	private static final long serialVersionUID = 1L;
 
 	private ValueChangeEvent<String> event;
@@ -24,7 +32,6 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 		field.setMaxLength(maxLength);
 		if (changeListener != null) {
 			field.addValueChangeListener(new VaadinTextFieldTextChangeListener(changeListener));
-//			Shortcuts.addShortcutListener(lifecycleOwner, command, key, keyModifiers)
 		} else {
 			setEditable(false);
 		}
@@ -65,6 +72,30 @@ public class VaadinPasswordField extends HorizontalLayout implements PasswordFie
 		} else {
 			return field.getValue().toCharArray();
 		}
+	}
+
+	public Registration addKeyDownListener(ComponentEventListener<KeyDownEvent> listener) {
+		return field.addKeyDownListener(listener);
+	}
+
+	public Registration addKeyPressListener(ComponentEventListener<KeyPressEvent> listener) {
+		return field.addKeyPressListener(listener);
+	}
+
+	public Registration addKeyUpListener(ComponentEventListener<KeyUpEvent> listener) {
+		return field.addKeyUpListener(listener);
+	}
+
+	public Registration addKeyDownListener(Key key, ComponentEventListener<KeyDownEvent> listener, KeyModifier... modifiers) {
+		return field.addKeyDownListener(key, listener, modifiers);
+	}
+
+	public Registration addKeyPressListener(Key key, ComponentEventListener<KeyPressEvent> listener, KeyModifier... modifiers) {
+		return field.addKeyPressListener(key, listener, modifiers);
+	}
+
+	public Registration addKeyUpListener(Key key, ComponentEventListener<KeyUpEvent> listener, KeyModifier... modifiers) {
+		return field.addKeyUpListener(key, listener, modifiers);
 	}
 
 }
