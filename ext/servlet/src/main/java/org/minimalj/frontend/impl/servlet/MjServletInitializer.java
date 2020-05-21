@@ -20,7 +20,7 @@ public class MjServletInitializer implements javax.servlet.ServletContainerIniti
 	public void onStartup(Set<Class<?>> applicationClasses, ServletContext servletContext) throws ServletException {
 		copyInitParametersToConfiguration(servletContext);
 		
-		if (!hasMjServletRegistration(servletContext)) {
+		if (!hasMjServletRegistration(servletContext) && !Configuration.get("MjServletInitializer", "true").equals("false")) {
 			applicationClasses.remove(ThreadLocalApplication.class);
 			applicationClasses = applicationClasses.stream().filter(c -> !Modifier.isAbstract(c.getModifiers())).collect(Collectors.toSet());
 			if (applicationClasses.size() == 0) {
