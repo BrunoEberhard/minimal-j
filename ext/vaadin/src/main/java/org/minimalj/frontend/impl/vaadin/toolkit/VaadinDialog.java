@@ -46,9 +46,6 @@ public class VaadinDialog extends Dialog implements IDialog {
 //		if (componentWithWidth != null) {
 //			setWidth(componentWithWidth.getDialogWidth() + "ex");
 //		}
-//		
-//		UI.getCurrent().addWindow(this);
-//		VaadinFrontend.focusFirstComponent(getContent());
 	}
 	
 	private class VaadinDialogListener implements ComponentEventListener<DialogCloseActionEvent> {

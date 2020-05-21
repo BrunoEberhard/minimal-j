@@ -7,6 +7,7 @@ import org.minimalj.frontend.action.Action;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -41,18 +42,21 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 				Span span = new Span();
 				horizontalLayout.addAndExpand(span);
 			}
-			addActionButton(horizontalLayout, actions[i]);
+			addActionButton(horizontalLayout, actions[i], i == actions.length - 1);
 		}
 		return horizontalLayout;
 	}
 	
-	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
+	private void addActionButton(HorizontalLayout buttonBar, final Action action, boolean save) {
 		Button button = new Button(action.getName());
 		button.setEnabled(action.isEnabled());
 		if (!StringUtils.isEmpty(action.getDescription())) {
 			button.getElement().setAttribute("title", action.getDescription());
 		}
-		button.setWidth((action.getName().length() + 5) + "ex");
+		button.setMinWidth("10em");
+		if (save) {
+			button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		}
 		// installShortcut(button, action);
 		button.addClickListener(event -> action.action());
 		installActionListener(action, button);
