@@ -25,7 +25,7 @@ public class HttpServletHttpExchange extends MjHttpExchange {
 
 	@Override
 	public String getPath() {
-		String contextPath = request.getServletPath();
+		String contextPath = request.getContextPath();
 		String requestURI = request.getRequestURI();
 		String uri = requestURI.substring(contextPath.length());
 		return uri;
