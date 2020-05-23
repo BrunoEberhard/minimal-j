@@ -18,7 +18,7 @@ public class JsonDialog extends JsonComponent implements IDialog {
 	}
 
 	protected void setActions(Action saveAction, Action closeAction, Action[] actions) {
-		List<Object> jsonActions = JsonFrontend.getClientSession().createActions(actions);
+		List<Object> jsonActions = JsonPageManager.createActions(actions);
 		put("actions", jsonActions);
 		
 		if (saveAction != null) {
@@ -26,12 +26,12 @@ public class JsonDialog extends JsonComponent implements IDialog {
 			// (there can be only one listener on the Minimal-J action, if there were two
 			// one would not get the notifications for enable / disable)
 			int index = Arrays.asList(actions).indexOf(saveAction);
-			Object jsonSaveAction = index > -1 ? jsonActions.get(index) : JsonFrontend.getClientSession().createAction(saveAction);
+			Object jsonSaveAction = index > -1 ? jsonActions.get(index) : JsonPageManager.createAction(saveAction);
 			put("saveAction", jsonSaveAction);
 		}
 		if (closeAction != null) {
 			int index = Arrays.asList(actions).indexOf(closeAction);
-			Object jsonCloseAction = index > -1 ? jsonActions.get(index) : JsonFrontend.getClientSession().createAction(closeAction);
+			Object jsonCloseAction = index > -1 ? jsonActions.get(index) : JsonPageManager.createAction(closeAction);
 			put("closeAction", jsonCloseAction);
 		}
 	}

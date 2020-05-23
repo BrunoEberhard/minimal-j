@@ -423,7 +423,7 @@ public class JsonPageManager implements PageManager {
 		return null;
 	}
 
-	List<Object> createActions(List<Action> actions) {
+	static List<Object> createActions(List<Action> actions) {
 		List<Object> items = new ArrayList<>();
 		for (Action action : actions) {
 			items.add(createAction(action));
@@ -431,11 +431,11 @@ public class JsonPageManager implements PageManager {
 		return items;
 	}
 
-	List<Object> createActions(Action[] actions) {
+	static List<Object> createActions(Action[] actions) {
 		return createActions(Arrays.asList(actions));
 	}
 
-	JsonComponent createAction(Action action) {
+	static JsonComponent createAction(Action action) {
 		JsonComponent item;
 		if (action instanceof ActionGroup) {
 			ActionGroup actionGroup = (ActionGroup) action;
