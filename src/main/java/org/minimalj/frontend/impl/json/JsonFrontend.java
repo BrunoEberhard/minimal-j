@@ -19,7 +19,6 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.web.WebServer;
-import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.resources.Resources;
 
@@ -40,7 +39,7 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public PageManager getPageManager() {
+	public JsonPageManager getPageManager() {
 		return getClientSession();
 	}
 	

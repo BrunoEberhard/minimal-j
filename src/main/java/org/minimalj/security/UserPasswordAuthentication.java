@@ -154,12 +154,12 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			rememberMeToken.lastUsed = LocalDateTime.now();
 			rememberMeToken.userName = userPassword.user;
 			Backend.save(rememberMeToken);
-			JsonFrontend.getClientSession().setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
+			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
 		} else {
 			User user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
 			String timestamp = String.valueOf(System.currentTimeMillis());
 			String rememberMeCookie = user.name + ":" + timestamp + ":" + sign(user, timestamp);
-			JsonFrontend.getClientSession().setRememberMeCookie(rememberMeCookie);
+			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeCookie);
 		}
 	}
 
