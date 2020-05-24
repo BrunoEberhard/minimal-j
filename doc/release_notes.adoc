@@ -3,6 +3,9 @@
 Every release contains many small fixes.
 
 === next
+* Push for WebSocket Frontend (for Switch and Text component)
+
+=== 1.23.0.0
 * Refactor Page authorization
 
 === 1.22.0.0

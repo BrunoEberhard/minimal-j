@@ -49,9 +49,16 @@ public class JsonPageManager implements PageManager {
 
 	private final PageStore pageStore = new PageStore();
 
+	private final JsonPush push;
+
 	public JsonPageManager() {
+		this(null);
+	}
+
+	public JsonPageManager(JsonPush push) {
 		sessionId = UUID.randomUUID().toString();
 		authentication = Backend.getInstance().getAuthentication();
+		this.push = push;
 	}
 
 	public String getSessionId() {
@@ -485,9 +492,25 @@ public class JsonPageManager implements PageManager {
 		output.addElement("closeDialog", dialog.getId());
 	}
 
-	public void clearContent(JsonSwitch jsonSwitch) {
-		jsonSwitch.values().forEach(this::unregister);
-		output.removeContent(jsonSwitch.getId());
+	public void replaceContent(JsonSwitch jsonSwitch, JsonComponent content) {
+		if (JsonFrontend.getClientSession() != null) {
+			replaceContent(output, jsonSwitch, content);
+		} else {
+			JsonOutput output = new JsonOutput();
+			replaceContent(output, jsonSwitch, content);
+			push.push(output.toString());
+		}
+	}
+
+	private void replaceContent(JsonOutput output, JsonSwitch jsonSwitch, JsonComponent content) {
+		if (!jsonSwitch.isEmpty()) {
+			jsonSwitch.values().forEach(this::unregister);
+			output.removeContent(jsonSwitch.getId());
+		}
+		if (content != null) {
+			register(content);
+			output.addContent(jsonSwitch.getId(), content);
+		}
 	}
 
 	public void addContent(String elementId, JsonComponent content) {
@@ -506,8 +529,14 @@ public class JsonPageManager implements PageManager {
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {
 
 		@Override
-		public void propertyChange(String componentId, String property, Object value) {
-			output.propertyChange(componentId, property, value);
+		public void propertyChange(JsonComponent component, String property, Object value) {
+			if (JsonFrontend.getClientSession() != null) {
+				output.propertyChange(component.getId(), property, value);
+			} else if (component instanceof JsonText) {
+				JsonOutput output = new JsonOutput();
+				output.propertyChange(component.getId(), property, value);
+				push.push(output.toString());
+			}
 		}
 	}
 

@@ -162,12 +162,12 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public SwitchContent createSwitchContent() {
-		return new JsonSwitch();
+		return new JsonSwitch(getClientSession());
 	}
 	
 	@Override
 	public SwitchComponent createSwitchComponent() {
-		return new JsonSwitch();
+		return new JsonSwitch(getClientSession());
 	}
 
 	@Override
