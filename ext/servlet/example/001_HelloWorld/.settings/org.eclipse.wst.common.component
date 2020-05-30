@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+            
+    
+    <wb-module deploy-name="example1_${noVer}">
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+                        
+        
+        <dependent-module archiveName="minimalj_servlet-0.1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/Minimal-J Servlet/Minimal-J Servlet">
+                                    
+            
+            <dependency-type>uses</dependency-type>
+                                
+        
+        </dependent-module>
+                        
+        
+        <dependent-module archiveName="minimalj-1.23.0.6-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/Minimal-J/Minimal-J">
+                                    
+            
+            <dependency-type>uses</dependency-type>
+                                
+        
+        </dependent-module>
+                        
+        
+        <property name="java-output-path" value="/Minimal-J Servlet Example 1/build/classes"/>
+        <property name="context-root" value="/example1"/>
+                    
+    
+    </wb-module>
+        
+
+</project-modules>
