@@ -100,7 +100,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 	}
 
 	private static String getInit() {
-		String applicationClassName = Application.getInstance().getName();
+		String applicationClassName = Application.getInstance().getClass().getName();
 		return "cheerpjInit();\n"
 				+ "cheerpjRunMain(\"org.minimalj.frontend.impl.cheerpj.Cheerpj\", \"/app/m.jar:/app/h.jar\", \"" + applicationClassName + "\");\n";
 
