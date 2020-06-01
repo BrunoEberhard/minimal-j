@@ -67,7 +67,7 @@ public class CheerpjHTTPD extends NanoHTTPD {
 		if (path.endsWith("/")) {
 			String htmlTemplate = JsonFrontend.getHtmlTemplate();
 			htmlTemplate = htmlTemplate.replace("$SEND", "sendCheerpj");
-			htmlTemplate = htmlTemplate.replace("$IMPORT", "<script src=\"https://cjrtnc.leaningtech.com/1.3/loader.js\"></script>");
+			htmlTemplate = htmlTemplate.replace("$IMPORT", "<script src=\"https://cjrtnc.leaningtech.com/2.1/loader.js\"></script>");
 			htmlTemplate = htmlTemplate.replace("$INIT", getInit());
 			String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 			return newFixedLengthResponse(Status.OK, "text/html", html);
