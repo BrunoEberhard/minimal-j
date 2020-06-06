@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.cache.Cache;
@@ -215,8 +214,7 @@ public class IgniteRepository implements Repository {
 	}
 
 	private <T> List find(Class<T> clazz, Criteria criteria) {
-		Predicate predicate = PredicateFactory.createPredicate(clazz, criteria);
-		IgniteBiPredicate filter = (k, v) -> predicate.test(v);
+        IgniteBiPredicate filter = (k, v) -> criteria.test(v);
 
 		if (View.class.isAssignableFrom(clazz)) {
 			IgniteCache cache = getCache(ViewUtil.getViewedClass(clazz));
