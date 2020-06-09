@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.HasCaption;
 
 import com.vaadin.flow.component.textfield.TextArea;
 
@@ -10,7 +11,7 @@ import com.vaadin.flow.component.textfield.TextArea;
  * Maybe some code could be deduplicated.
  * 
  */
-public class VaadinTextAreaField extends TextArea implements Input<String> {
+public class VaadinTextAreaField extends TextArea implements Input<String>, HasCaption {
 	private static final long serialVersionUID = 1L;
 
 	private Runnable commitListener;

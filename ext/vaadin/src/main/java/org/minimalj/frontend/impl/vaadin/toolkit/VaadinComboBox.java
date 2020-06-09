@@ -5,12 +5,13 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.HasCaption;
 import org.minimalj.model.Rendering;
 
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.combobox.ComboBox;
 
-public class VaadinComboBox<T> extends ComboBox<T> implements Input<T> {
+public class VaadinComboBox<T> extends ComboBox<T> implements Input<T>, HasCaption {
 	private static final long serialVersionUID = 1L;
 	
 	private final List<T> objects;
