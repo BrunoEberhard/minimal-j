@@ -29,8 +29,8 @@ public class VaadinDialog extends Dialog implements IDialog {
 			addDialogCloseActionListener(new VaadinDialogListener());
 		}
 
-		if (component instanceof VaadinGridFormLayout) {
-			VaadinGridFormLayout form = (VaadinGridFormLayout) component;
+        if (component instanceof VaadinFormContent) {
+            VaadinFormContent form = (VaadinFormContent) component;
 			if (form.getLastField() != null) {
 				form.getLastField().addKeyPressListener(Key.ENTER, event -> {
 					if (saveAction.isEnabled()) {

@@ -16,7 +16,7 @@ import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.formlayout.FormLayout;
 
-public class VaadinGridFormLayout extends FormLayout implements FormContent, VaadinComponentWithWidth {
+public class VaadinFormContent extends FormLayout implements FormContent, VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
 	
 	private final int columns;
@@ -26,7 +26,7 @@ public class VaadinGridFormLayout extends FormLayout implements FormContent, Vaa
 	private boolean first = true;
 	private KeyNotifier lastField = null;
 	
-	public VaadinGridFormLayout(int columns, int columnWidthPercentage) {
+    public VaadinFormContent(int columns, int columnWidthPercentage) {
 		addClassName("form");
 		
 		this.columns = columns;

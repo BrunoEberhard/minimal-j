@@ -170,7 +170,7 @@ public class VaadinFrontend extends Frontend {
 
 	@Override
 	public FormContent createFormContent(int columns, int columnWidthPercentage) {
-		return new VaadinGridFormLayout(columns, columnWidthPercentage);
+        return new VaadinFormContent(columns, columnWidthPercentage);
 	}
 
 	@Override
