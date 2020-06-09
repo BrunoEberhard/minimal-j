@@ -1,9 +1,7 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.frontend.impl.util.HtmlString;
 import org.minimalj.model.Rendering;
-import org.minimalj.util.StringUtils;
 
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
