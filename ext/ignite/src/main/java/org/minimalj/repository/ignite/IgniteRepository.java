@@ -219,12 +219,11 @@ public class IgniteRepository implements Repository {
 		if (View.class.isAssignableFrom(clazz)) {
 			IgniteCache cache = getCache(ViewUtil.getViewedClass(clazz));
 			List<Cache.Entry> entries = cache.query(new ScanQuery(filter)).getAll();
-			return entries.stream().map(e -> e.getValue()).collect(Collectors.toList());
+            return entries.stream().map(e -> e.getValue()).map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
 		} else {
 			IgniteCache cache = getCache(clazz);
 			List<Cache.Entry> entries = cache.query(new ScanQuery(filter)).getAll();
-			return entries.stream().map(e -> e.getValue())
-					.map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
+            return entries.stream().map(e -> e.getValue()).collect(Collectors.toList());
 		}
 	}
 
