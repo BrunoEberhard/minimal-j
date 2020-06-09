@@ -5,18 +5,16 @@ import java.util.List;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.FormElementConstraint;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.HasCaption;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.HasComponent;
+import org.minimalj.util.StringUtils;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.KeyNotifier;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
 
 public class VaadinGridFormLayout extends FormLayout implements FormContent, VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
@@ -43,45 +41,34 @@ public class VaadinGridFormLayout extends FormLayout implements FormContent, Vaa
 
 	@Override
 	public void add(String caption, IComponent field, FormElementConstraint constraint, int span) {
-		if (field instanceof TextField) {
-			((TextField) field).setLabel(caption);
-		} else if (field instanceof PasswordField) {
-			((PasswordField) field).setLabel(caption);
-		} else if (field instanceof Checkbox) {
-			((Checkbox) field).setLabel(caption);
-		} else if (field instanceof ComboBox) {
-			((ComboBox<?>) field).setLabel(caption);
-		} else if (field instanceof TextArea) {
-			((TextArea) field).setLabel(caption);
-		}
-//		if (StringUtils.isBlank(caption)) {
-//			((Component) field).addClassName("noCaption");
-//		}
-		add(field, span);
+        Component component = field instanceof HasComponent ? ((HasComponent) field).getComponent() : (Component) field;
+        if (component instanceof HasSize) {
+            ((HasSize) component).setWidthFull();
+        }
+
+        if (first && component instanceof HasElement && !(component instanceof VaadinReadOnlyTextField)) {
+            ((HasElement) field).getElement().setAttribute("autofocus", "true");
+            first = false;
+        }
+
+        if (component instanceof KeyNotifier) {
+            lastField = (KeyNotifier) field;
+        }
+
+        if (span < 1) {
+            span = columns;
+        }
+
+        if (field instanceof HasCaption) {
+            if (!StringUtils.isEmpty(caption)) {
+                ((HasCaption) field).setLabel(caption);
+            }
+        }
+        super.add(component, span);
 	}
 
 	public KeyNotifier getLastField() {
 		return lastField;
-	}
-
-	private void add(IComponent field, int span) {
-		Component component = (Component) field;
-		((HasSize) component).setWidthFull();
-
-		if (first && field instanceof HasElement) {
-			((HasElement) field).getElement().setAttribute("autofocus", "true");
-			first = false;
-		}
-		
-		if (field instanceof KeyNotifier) {
-			lastField = (KeyNotifier) field;
-		}
-
-		if (span < 1) {
-			span = columns;
-		}
-
-		add(component, span);
 	}
 
 	@Override

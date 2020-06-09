@@ -14,15 +14,17 @@ import org.minimalj.model.Rendering;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasOrderedComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.HasPrefixAndSuffix;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.dom.Element;
 
 public class VaadinFrontend extends Frontend {
 
@@ -40,6 +42,14 @@ public class VaadinFrontend extends Frontend {
 	public IComponent createText(Action action) {
 		return new VaadinActionLabel(action);
 	}
+
+    public static interface HasCaption {
+        public void setLabel(String label);
+    }
+
+    public static interface HasComponent {
+        public Component getComponent();
+    }
 
 	public static class VaadinActionLabel extends Anchor implements IComponent {
 
@@ -67,7 +77,7 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinTextField(changeListener, maxLength);
 	}
 	
-	private static class VaadinEmailField extends EmailField implements Input<String> {
+    private static class VaadinEmailField extends EmailField implements Input<String>, HasCaption {
 		private static final long serialVersionUID = 1L;
 
 		public VaadinEmailField(InputComponentListener changeListener, int maxLength) {
@@ -82,13 +92,11 @@ public class VaadinFrontend extends Frontend {
 		}
 	}
 	
-	private static class VaadinDateField extends HorizontalLayout implements Input<String> {
-		private static final long serialVersionUID = 1L;
-		private final DatePicker picker = new DatePicker();
+    private static class VaadinDateField implements Input<String>, HasCaption, HasComponent, HasElement {
+        private static final long serialVersionUID = 1L;
+        private final DatePicker picker = new DatePicker();
 		
 		public VaadinDateField(InputComponentListener changeListener) {
-			picker.setWidthFull();
-			add(picker);
 			picker.addValueChangeListener(event -> changeListener.changed(VaadinDateField.this));
 		}
 		
@@ -107,6 +115,21 @@ public class VaadinFrontend extends Frontend {
 		public void setValue(String value) {
 			picker.setValue(value != null ? LocalDate.parse(value) : null);
 		}
+
+        @Override
+        public void setLabel(String label) {
+            picker.setLabel(label);
+        }
+
+        @Override
+        public Component getComponent() {
+            return picker;
+        }
+
+        @Override
+        public Element getElement() {
+            return picker.getElement();
+        }
 	}
 	
 	@Override
@@ -221,19 +244,15 @@ public class VaadinFrontend extends Frontend {
 		return input;
 	}
 
-	private static class VaadinLookup extends HorizontalLayout implements Input<String> {
-		private static final long serialVersionUID = 1L;
-		
+    private static class VaadinLookup implements Input<String>, HasComponent {
 		private final Input<String> stringInput;
 		private final Button lookupButton;
 		
 		public VaadinLookup(Input<String> stringInput, Runnable lookup) {
-			this.stringInput = stringInput;
-			
-			addAndExpand((Component) stringInput);
+            this.stringInput = stringInput;
 
 			this.lookupButton = new Button("...", event -> lookup.run());
-			add(lookupButton);
+            ((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 
 		@Override
@@ -251,6 +270,11 @@ public class VaadinFrontend extends Frontend {
 			stringInput.setEditable(editable);
 			lookupButton.setVisible(editable);
 		}
+
+        @Override
+        public Component getComponent() {
+            return (Component) stringInput;
+        }
 	}
 
 //	@Override
