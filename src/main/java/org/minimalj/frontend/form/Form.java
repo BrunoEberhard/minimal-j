@@ -157,7 +157,7 @@ public class Form<T> {
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
 			return editable ? new EnumFormElement(property) : new TextFormElement(property);
 		} else if (fieldClass == Set.class) {
-			return new EnumSetFormElement(property, this.editable); // 'this.editable' instead 'editable': the set field is always final. That doesn't mean its read only.
+            return new EnumSetFormElement(property, editable);
 		} else if (fieldClass == List.class && Codes.isCode(property.getGenericClass())) {
 			return new SmallCodeListFormElement(property, editable);
 		} else if (fieldClass == Password.class) {
