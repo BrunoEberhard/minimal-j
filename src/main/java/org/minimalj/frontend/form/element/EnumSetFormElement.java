@@ -74,7 +74,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 				Enum<?> value = (Enum<?>) object;
 				form.line(new CheckBoxFormElement(new EnumSetFormElementProperty(value), EnumUtils.getText((Enum) object), true, false));
 			}
-			return form;
+			return form; 
 		}
 
 		@Override
