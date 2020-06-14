@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend.FormContent;
@@ -20,7 +21,6 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
 	private static final long serialVersionUID = 1L;
 	
 	private final int columns;
-	private final int columnWidth;
 	private final int dialogWidth;
 
 	private boolean first = true;
@@ -28,12 +28,28 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
 	
     public VaadinFormContent(int columns, int columnWidthPercentage) {
 		addClassName("form");
+		dialogWidth = columns * getColumnWidthInEx(columnWidthPercentage);
+		setMaxWidth(dialogWidth * 140 / 100 + "ex");
+		setResponsiveSteps(columns, columnWidthPercentage);
 		
 		this.columns = columns;
-		columnWidth = columnWidthPercentage / 2; // Math.max(columnWidthPercentage, 60 / columns);
-		dialogWidth = columnWidth * columns;
 	}
-	
+
+	private int getColumnWidthInEx(int size) {
+		return size / 3;
+	}
+
+	private void setResponsiveSteps(int columns, int columnWidthPercentage) {
+		List<ResponsiveStep> steps = new ArrayList<>();
+		steps.add(new ResponsiveStep("0px", 1));
+		for (int i = 2; i <= columns; i++) {
+			if (columns % i == 0) {
+				steps.add(new ResponsiveStep(i * getColumnWidthInEx(columnWidthPercentage) + "ex", i));
+			}
+		}
+		setResponsiveSteps(steps);
+	}
+
 	@Override
 	public int getDialogWidth() {
 		return dialogWidth;
