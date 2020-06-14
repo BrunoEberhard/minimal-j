@@ -74,7 +74,7 @@ public class MjEntity {
 	public Integer minLength, maxLength; // only for string / bigDecimal / byte[]
 	
 	public MjEntity() {
-		// nur fÃ¼r Keys - Klasse
+		// nur für Keys - Klasse
 		this.clazz = null;
 	}
 
