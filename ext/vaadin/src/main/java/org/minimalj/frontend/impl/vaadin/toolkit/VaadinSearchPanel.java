@@ -23,6 +23,7 @@ public class VaadinSearchPanel<T> extends VerticalLayout implements IContent, Va
     public VaadinSearchPanel(final Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
         setMargin(false);
         setSpacing(false);
+		setPadding(false);
 
         text = new TextField();
         text.focus();
