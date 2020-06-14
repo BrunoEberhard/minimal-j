@@ -3,7 +3,7 @@ package org.minimalj.frontend.impl.vaadin;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +47,7 @@ public class HttpServletHttpExchange extends MjHttpExchange {
 
 	@Override
 	public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+        response.setContentType(contentType);
 		response.setStatus(statusCode);
 		try {
 			OutputStream os = response.getOutputStream();
@@ -60,7 +61,7 @@ public class HttpServletHttpExchange extends MjHttpExchange {
 
 	@Override
 	public void sendResponse(int statusCode, String body, String contentType) {
-		sendResponse(statusCode, body.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
+        sendResponse(statusCode, body.getBytes(StandardCharsets.UTF_8), contentType + "; charset=utf-8");
 	}
 
 	@Override
