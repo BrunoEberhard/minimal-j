@@ -11,6 +11,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.LocaleContext;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
@@ -25,8 +26,13 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.HasPrefixAndSuffix;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.server.VaadinSession;
 
 public class VaadinFrontend extends Frontend {
+
+	public VaadinFrontend() {
+		LocaleContext.setLocale(() -> VaadinSession.getCurrent() != null ? VaadinSession.getCurrent().getLocale() : null);
+	}
 
 	@Override
 	public IComponent createText(String string) {

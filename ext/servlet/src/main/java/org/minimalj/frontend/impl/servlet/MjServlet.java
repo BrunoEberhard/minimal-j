@@ -15,6 +15,8 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 
 public class MjServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -33,7 +35,12 @@ public class MjServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		WebApplication.handle(new HttpServletHttpExchange(request, response));
+		try {
+			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(request.getHeader(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
+			WebApplication.handle(new HttpServletHttpExchange(request, response));
+		} finally {
+			LocaleContext.resetLocale();
+		}
 	}
 
 	private void copyInitParametersToConfiguration(ServletConfig config) {

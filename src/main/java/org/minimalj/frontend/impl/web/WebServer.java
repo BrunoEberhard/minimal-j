@@ -17,6 +17,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 import org.minimalj.util.StringUtils;
 
 import com.sun.net.httpserver.HttpContext;
@@ -84,11 +85,11 @@ public class WebServer {
 
 	private static void handle(HttpExchange exchange) {
 		try {
-			LocaleContext.setCurrent(MjHttpExchange.getLocale(exchange.getRequestHeaders().getFirst("accept-language")));
+			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().getFirst(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
 			MjHttpExchange mjHttpExchange = new WebServerHttpExchange(exchange);
 			WebApplication.handle(mjHttpExchange);
 		} finally {
-			LocaleContext.setCurrent(null);
+			LocaleContext.resetLocale();
 		}
 	}
 
