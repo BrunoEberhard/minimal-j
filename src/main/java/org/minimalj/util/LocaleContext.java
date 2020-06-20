@@ -26,7 +26,7 @@ public class LocaleContext {
 		locale.set(null);
 	}
 
-	// internal, used for web interfaces where http request header detemines the
+	// internal, used for web frontends where http request header determines the
 	// locale
 	public static class AcceptedLanguageLocaleSupplier implements Supplier<Locale> {
 		public static final String ACCEPTED_LANGUAGE_HEADER = "accept-language";
