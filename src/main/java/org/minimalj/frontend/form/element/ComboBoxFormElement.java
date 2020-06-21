@@ -1,5 +1,6 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,8 +18,8 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 
 	public ComboBoxFormElement(PropertyInterface property, List<T> values) {
 		super(property);
-		this.values = values;
-		comboBox = Frontend.getInstance().createComboBox(values, listener());
+		this.values = this instanceof CodeFormElement ? values : new ArrayList<>(values);
+		comboBox = Frontend.getInstance().createComboBox(this.values, listener());
 	}
 	
 	@Override
