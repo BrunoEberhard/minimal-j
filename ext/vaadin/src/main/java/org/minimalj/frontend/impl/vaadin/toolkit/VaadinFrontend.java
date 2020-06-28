@@ -19,6 +19,7 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasOrderedComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -241,13 +242,48 @@ public class VaadinFrontend extends Frontend {
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
 		return new VaadinLookup(stringInput, lookup);
 	}
-	
+
 	@Override
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
 		if (!actions.getItems().isEmpty()) {
-			VaadinMenu.createMenu((Component) input, actions.getItems());
+			return new VaadinLookupWithMenu(input, actions.getItems());
 		}
 		return input;
+	}
+
+	private static class VaadinLookupWithMenu implements Input<String>, HasComponent {
+		private final Input<String> stringInput;
+		private final Button lookupButton;
+
+		public VaadinLookupWithMenu(Input<String> stringInput, List<Action> actions) {
+			this.stringInput = stringInput;
+
+			this.lookupButton = new Button("...");
+			ContextMenu menu = VaadinMenu.createMenu(lookupButton, actions);
+			menu.setOpenOnClick(true);
+			((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
+		}
+
+		@Override
+		public void setValue(String value) {
+			stringInput.setValue(value);
+		}
+
+		@Override
+		public String getValue() {
+			return stringInput.getValue();
+		}
+
+		@Override
+		public void setEditable(boolean editable) {
+			stringInput.setEditable(editable);
+			lookupButton.setVisible(editable);
+		}
+
+		@Override
+		public Component getComponent() {
+			return (Component) stringInput;
+		}
 	}
 
     private static class VaadinLookup implements Input<String>, HasComponent {
