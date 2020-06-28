@@ -38,7 +38,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 		
 		// TODO change method parameters for dialogs
 		for (int i = 0; i < actions.length; i++) {
-			if (i == actions.length - 2 && i != 0) {
+			if (i == actions.length - 2) {
 				Span span = new Span();
 				horizontalLayout.addAndExpand(span);
 			}
