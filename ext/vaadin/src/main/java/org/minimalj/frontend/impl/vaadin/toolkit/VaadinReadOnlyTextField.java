@@ -7,9 +7,22 @@ import com.vaadin.flow.component.textfield.TextField;
 
 public class VaadinReadOnlyTextField extends TextField implements Input<String>, HasCaption {
 	private static final long serialVersionUID = 1L;
+	private String value;
 	
 	public VaadinReadOnlyTextField() {
         setReadonly(true);
+		value = getValue();
+	}
+
+	@Override
+	public void setValue(String value) {
+		this.value = value;
+		super.setValue(value != null ? value : "");
+	}
+
+	@Override
+	public String getValue() {
+		return value;
 	}
 
 	@Override
