@@ -13,6 +13,8 @@ public class VaadinVerticalLayout extends VerticalLayout implements IComponent {
 
 	public VaadinVerticalLayout(IComponent[] components) {
 		addAll(this, components);
+		setPadding(false);
+		setSpacing(false);
 	}
 
 	static void addAll(HasComponents hasComponents, IComponent[] components) {
