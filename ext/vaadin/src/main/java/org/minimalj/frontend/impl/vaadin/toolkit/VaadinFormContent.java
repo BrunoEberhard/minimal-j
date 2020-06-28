@@ -68,7 +68,7 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
         }
 
         if (component instanceof KeyNotifier) {
-            lastField = (KeyNotifier) field;
+			lastField = (KeyNotifier) component;
         }
 
         if (span < 1) {
