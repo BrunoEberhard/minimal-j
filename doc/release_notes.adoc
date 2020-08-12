@@ -3,6 +3,8 @@
 Every release contains many small fixes.
 
 === next
+
+=== 1.24.0.0
 * Push for WebSocket Frontend (for Switch and Text component)
 
 === 1.23.0.0
