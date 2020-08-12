@@ -44,7 +44,7 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 
 	protected void fireChange(String property, Object value, Object oldValue) {
 		if (!Objects.equals(oldValue, value) && propertyListener != null) {
-			propertyListener.propertyChange(getId(), property, value);
+			propertyListener.propertyChange(this, property, value);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 	
 	public interface JsonPropertyListener {
 		
-		public void propertyChange(String componentId, String property, Object value);
+		public void propertyChange(JsonComponent component, String property, Object value);
 	}
 
 	@Override

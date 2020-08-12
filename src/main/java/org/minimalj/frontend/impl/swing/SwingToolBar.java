@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.swing;
 import java.awt.Dimension;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
@@ -14,17 +15,27 @@ import org.minimalj.frontend.page.Routing;
 public class SwingToolBar extends JToolBar {
 	private static final long serialVersionUID = 1L;
 	
-	private final SwingTab tab;
-	private JTextField textFieldSearch;
+	private final JTextField textFieldSearch = new JTextField();
+	private final JButton buttonPrevious = new JButton();
+	private final JButton buttonNext = new JButton();
+	private final JButton buttonRefresh = new JButton();
+	private final JButton buttonFavorite = new JButton();
+	private SwingTab activeTab;
 
-	public SwingToolBar(SwingTab tab) {
-		super();
-		this.tab = tab;
-		
+	public SwingToolBar() {
 		setFloatable(false);
 		fillToolBar();
 	}
 	
+	public void setActiveTab(SwingTab tab) {
+		this.activeTab = tab;
+
+		buttonPrevious.setAction(tab.previousAction);
+		buttonNext.setAction(tab.nextAction);
+		buttonRefresh.setAction(tab.refreshAction);
+		buttonFavorite.setAction(tab.favoriteAction);
+	}
+
 	protected void fillToolBar() {
 		fillToolBarNavigation();
 		fillToolBarRefresh();
@@ -36,20 +47,19 @@ public class SwingToolBar extends JToolBar {
 	}
 	
 	protected void fillToolBarNavigation() {
-		add(tab.previousAction);
-		add(tab.nextAction);
+		add(buttonPrevious);
+		add(buttonNext);
 	}
 	
 	protected void fillToolBarRefresh() {
-		add(tab.refreshAction);
+		add(buttonRefresh);
 	}
 	
 	protected void fillToolBarFavorite() {
-		add(tab.favoriteAction);
+		add(buttonFavorite);
 	}
 	
 	protected void fillToolBarSearch() {
-		textFieldSearch = new JTextField();
 		Dimension size = new Dimension(200, textFieldSearch.getPreferredSize().height);
 		textFieldSearch.setMinimumSize(size);
 		textFieldSearch.setPreferredSize(size);
@@ -58,18 +68,14 @@ public class SwingToolBar extends JToolBar {
 		Dimension rightFillerDimension = new Dimension(6, 0);
 		add(new Box.Filler(rightFillerDimension, rightFillerDimension, rightFillerDimension));
 		if (Application.getInstance().hasSearchPages()) {
-			textFieldSearch.addActionListener(e -> SwingFrontend.runWithContext(() -> {
+			textFieldSearch.addActionListener(e -> SwingFrontend.run(e, () -> {
 				String query = textFieldSearch.getText();
 				Page page = Application.getInstance().createSearchPage(query);
-				tab.show(page);
+				activeTab.show(page);
 			}));
 		} else {
 			textFieldSearch.setEnabled(false);
 		}
-	}
-	
-	void onHistoryChanged() {
-		// nothing to do right now
 	}
 	
 }

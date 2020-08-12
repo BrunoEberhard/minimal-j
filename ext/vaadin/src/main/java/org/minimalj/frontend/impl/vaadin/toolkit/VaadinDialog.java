@@ -1,52 +1,60 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
-import java.util.Iterator;
-
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.IDialog;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.dom.ElementConstants;
 
-public class VaadinDialog extends Window implements IDialog {
+public class VaadinDialog extends Dialog implements IDialog {
 	private static final long serialVersionUID = 1L;
 	
-	private CloseListener closeListener;
 	private final Action saveAction, closeAction;
-	private static int styleCount;
 	
-	public VaadinDialog(ComponentContainer content, String title, Action saveAction, Action closeAction) {
-		super(title, content);
+	public VaadinDialog(String title, Component component, Action saveAction, Action closeAction, Action... actions) {
+		super(new VaadinEditorLayout(title, component, saveAction, closeAction, actions));
+
 		this.saveAction = saveAction;
 		this.closeAction = closeAction;
-		
-		setModal(true);
-		addCloseListener(new VaadinDialogListener());
-		
-		VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
-		if (componentWithWidth != null) {
-			setWidth(componentWithWidth.getDialogWidth() + "ex");
+
+		setCloseOnEsc(true);
+		setCloseOnOutsideClick(false);
+        setDraggable(true);
+        setResizable(true);
+
+        getElement().executeJs("this.$.overlay.$.overlay.style[$0]=$1", ElementConstants.STYLE_MAX_HEIGHT, "97%");
+
+		if (closeAction != null) {
+			addDialogCloseActionListener(new VaadinDialogListener());
 		}
-		
-		UI.getCurrent().addWindow(this);
-		VaadinFrontend.focusFirstComponent(getContent());
+
+//		TODO: VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
+        if (component instanceof VaadinFormContent) {
+            VaadinFormContent form = (VaadinFormContent) component;
+			if (form.getLastField() != null) {
+				form.getLastField().addKeyPressListener(Key.ENTER, event -> {
+					if (saveAction.isEnabled()) {
+						saveAction.action();
+					}
+				});
+			}
+			setWidth((form.getDialogWidth() + 10) + "ex");
+			getElement().executeJs("this.$.overlay.$.overlay.style[$0]=$1", ElementConstants.STYLE_MIN_WIDTH, "50ex");
+		}
+
+		open();
 	}
 	
-	private class VaadinDialogListener implements com.vaadin.ui.Window.CloseListener {
+	private class VaadinDialogListener implements ComponentEventListener<DialogCloseActionEvent> {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public void windowClose(CloseEvent e) {
-			// if (closeListener == null || closeListener.close()) {
-				VaadinDialog.super.close();
-				if (closeAction != null) {
-					closeAction.action();
-				}
-			// }
+		public void onComponentEvent(DialogCloseActionEvent event) {
+			closeAction.action();
 		}
 	}
 	
@@ -56,32 +64,32 @@ public class VaadinDialog extends Window implements IDialog {
 	
 	@Override
 	public void closeDialog() {
-		setVisible(false);
+		super.close();
 	}
 	
-	private static VaadinComponentWithWidth findComponentWithWidth(Component c) {
-		if (c instanceof VaadinComponentWithWidth) {
-			return (VaadinComponentWithWidth) c;
-		} else if (c instanceof Panel) {
-			Panel panel = (Panel) c;
-			return findComponentWithWidth(panel.getContent());
-		} else if (c instanceof ComponentContainer) {
-			ComponentContainer container = (ComponentContainer) c;
-			Iterator<Component> componentIterator = container.getComponentIterator();
-			while (componentIterator.hasNext()) {
-				VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(componentIterator.next());
-				if (componentWithWidth != null) {
-					return componentWithWidth;
-				}
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public void close() {
-		// super.close(); DONT, would always close without ask
-		fireClose();
-	}
+//	private static VaadinComponentWithWidth findComponentWithWidth(Component c) {
+//		if (c instanceof VaadinComponentWithWidth) {
+//			return (VaadinComponentWithWidth) c;
+//		} else if (c instanceof Panel) {
+//			Panel panel = (Panel) c;
+//			return findComponentWithWidth(panel.getContent());
+//		} else if (c instanceof ComponentContainer) {
+//			ComponentContainer container = (ComponentContainer) c;
+//			Iterator<Component> componentIterator = container.getComponentIterator();
+//			while (componentIterator.hasNext()) {
+//				VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(componentIterator.next());
+//				if (componentWithWidth != null) {
+//					return componentWithWidth;
+//				}
+//			}
+//		}
+//		return null;
+//	}
+//
+//	@Override
+//	public void close() {
+//		// super.close(); DONT, would always close without ask
+//		fireClose();
+//	}
 
 }

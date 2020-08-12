@@ -205,6 +205,19 @@ In this case you need the RepositoryAuthentication or a similar extension of the
 
 === Login Dialog
 If the application is started without authentication then the Frontend will not show the user the menu entry (or icon)
-to log in. If the authentication is active the Frontend must decide if it should confront the user with a login dialog
-right on the start or if it is possible to look around without any authentication. This specification is done
-by an override of the _isLoginRequired_ method in the Application class.
+to log in. If the authentication is active and a page that should be displayed is not accessible from the
+current user a login dialog will be opened. A correct login will show the desired page. If the login is
+cancelled the displayed page does not change.
+
+=== Remember me
+The web frontends support a "Remember me" functionality. This means a cookie is stored when the user successfully logs in.
+Next the the user visits the application he doesn't need to login. There are two ways implement "Remember me". The server
+can store the token in the repository. Or the token can be calculated from user name and password in a deterministic way.
+
+To choose the first way the Application method getEntityClasses must contain the class RememberMeToken . If this is not
+the case the calculated token is used.
+
+To activate "Remember me" you have to set the Configuration MjRememberMe to 'true'. And in the development mode the
+"Remember me" is always active. This is very nice if you often have to login to your application in development. 
+Note: if you don't persist the token and your development user is generated at startup time then "Remember Me" will not
+work because the hashed password changes with every startup.

@@ -6,16 +6,22 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.websocket.DeploymentException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
+import javax.websocket.server.ServerContainer;
+import javax.websocket.server.ServerEndpointConfig;
 
 import org.minimalj.frontend.impl.json.JsonPageManager;
+import org.minimalj.frontend.impl.json.JsonPush;
+import org.minimalj.frontend.impl.web.WebApplication;
+import org.minimalj.frontend.impl.web.WebServer;
 
-@ServerEndpoint(value = "/ws")
 public class MjWebSocketServlet {
 	private static final Logger logger = Logger.getLogger(MjWebSocketServlet.class.getName());
 
@@ -26,7 +32,8 @@ public class MjWebSocketServlet {
 
     @OnOpen
     public void start(Session session) {
-    	pageManagers.put(session, new JsonPageManager());
+		JsonPageManager pageManager = new JsonPageManager(WebServer.useWebSocket ? new MjWebSocketServletPush(session) : null);
+		pageManagers.put(session, pageManager);
     }
 
     @OnClose
@@ -49,4 +56,45 @@ public class MjWebSocketServlet {
     public void onError(Throwable t) throws Throwable {
         logger.severe("Error: " + t);
     }
+
+	public static class MjWebSocketServletPush implements JsonPush {
+		private final Session session;
+
+		public MjWebSocketServletPush(Session session) {
+			this.session = session;
+		}
+
+		@Override
+		public void push(String message) {
+			try {
+				session.getBasicRemote().sendText(message);
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Push failed", e);
+			}
+		}
+	}
+
+	static void addWebSocketEndpoint(ServletConfig servletConfig) {
+		ServletContext servletContext = servletConfig.getServletContext();
+		Object serverContainerAttribute = servletContext.getAttribute("javax.websocket.server.ServerContainer");
+		if (serverContainerAttribute instanceof ServerContainer) {
+			ServerContainer serverContainer = (ServerContainer) serverContainerAttribute;
+			for (String mapping : servletConfig.getServletContext().getServletRegistration(servletConfig.getServletName()).getMappings()) {
+				if (mapping.endsWith("*")) {
+					mapping = mapping.substring(0, mapping.length() - 1);
+				}
+				if (mapping.endsWith("/")) {
+					mapping = mapping.substring(0, mapping.length() - 1);
+				}
+				ServerEndpointConfig config = ServerEndpointConfig.Builder.create(MjWebSocketServlet.class, mapping + WebApplication.mjHandlerPath() + "ws").build();
+				try {
+					serverContainer.addEndpoint(config);
+				} catch (DeploymentException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		} else {
+			logger.warning("WebSockets should be activated but no ServerContainer available on server");
+		}
+	}
 }

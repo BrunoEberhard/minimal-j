@@ -3,7 +3,9 @@ package org.minimalj.frontend.page;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.util.ExceptionUtils;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -29,7 +31,7 @@ public abstract class Routing {
 		}
 		try {
 			String route = routing.getRoute(page);
-			if (Page.validateRoute(route)) {
+			if (route != null && Page.validateRoute(route)) {
 				return route;
 			} else {
 				return null;
@@ -40,9 +42,11 @@ public abstract class Routing {
 		}
 	}
 
-	public static final Page createPageSafe(String route) {
+	public static final /* NonNull */ Page createPageSafe(String route) {
 		Page page = null;
-		if (routing != null && Page.validateRoute(route)) {
+		if (StringUtils.isEmpty(route) || route.equals(WebApplication.mjHandlerPath())) {
+			page = Application.getInstance().createDefaultPage();
+		} else if (routing != null && Page.validateRoute(route)) {
 			try {
 				page = routing.createPage(route);
 			} catch (Exception exception) {
@@ -57,7 +61,7 @@ public abstract class Routing {
 	}
 
 	private static Page createNotAvailablePage(String route) {
-		return new HtmlPage(Resources.getString("NotAvailablePage.message"), Resources.getString("NotAvailablePage.title"));
+		return new HtmlPage(Resources.getString("NotAvailablePage.message")).title(Resources.getString("NotAvailablePage.title"));
 	}
 
 	public static boolean available() {

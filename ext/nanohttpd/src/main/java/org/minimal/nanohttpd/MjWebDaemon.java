@@ -11,6 +11,7 @@ import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.NanoWSD;
@@ -58,6 +59,11 @@ public class MjWebDaemon extends NanoWSD {
 		}
 
 		@Override
+		public boolean isResponseSent() {
+			return response != null;
+		}
+
+		@Override
 		public void sendResponse(int statusCode, String body, String contentType) {
 			response = newFixedLengthResponse(Status.lookup(statusCode), contentType, body);
 		}
@@ -99,13 +105,13 @@ public class MjWebDaemon extends NanoWSD {
 
 	@Override
 	protected Response serveHttp(final IHTTPSession session) {
-		NanoHttpExchange exchange = new NanoHttpExchange(session);
 		try {
-			LocaleContext.setCurrent(MjHttpExchange.getLocale(session.getHeaders().get("accept-language")));
+			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(session.getHeaders().get(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
+			NanoHttpExchange exchange = new NanoHttpExchange(session);
 			WebApplication.handle(exchange);
 			return exchange.getResponse();
 		} finally {
-			LocaleContext.setCurrent(null);
+			LocaleContext.resetLocale();
 		}
 	}
 

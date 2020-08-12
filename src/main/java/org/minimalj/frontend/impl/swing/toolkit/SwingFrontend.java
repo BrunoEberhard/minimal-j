@@ -15,8 +15,8 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.util.EventObject;
 import java.util.List;
-import java.util.Stack;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -80,13 +80,13 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					runWithContext(action::action);
+					run(e, action::action);
 				}
 			});
 		}
 	}
 
-	public static final Stack<SwingTab> browserStack = new Stack<>();
+//	public static final Stack<SwingTab> browserStack = new Stack<>();
 
 	@Override
 	public IComponent createTitle(String string) {
@@ -193,19 +193,19 @@ public class SwingFrontend extends Frontend {
 		private SwingBorderLayoutContent() {
 			super(new BorderLayout());
 		}
-
-		private void add(IContent content, String constraint) {
-			if (content != null) {
-				add((Component) content, constraint);
-			}
-		}
 	}
 
 	@Override
 	public IContent createFormTableContent(FormContent form, ITable<?> table) {
 		SwingBorderLayoutContent content = new SwingBorderLayoutContent();
-		content.add(form, BorderLayout.NORTH);
-		content.add(table, BorderLayout.CENTER);
+		if (form != null) {
+			JPanel northPanel = new JPanel(new BorderLayout());
+			northPanel.add((Component) form, BorderLayout.LINE_START);
+			content.add(northPanel, BorderLayout.NORTH);
+		}
+		if (table != null) {
+			content.add((Component) table, BorderLayout.CENTER);
+		}
 		return content;
 	}
 
@@ -265,7 +265,7 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public IContent createQueryContent() {
 		JTextField field = new JTextField();
-		field.addActionListener(e -> SwingFrontend.runWithContext(() -> {
+		field.addActionListener(e -> SwingFrontend.run(e, () -> {
 			String query = field.getText();
 			Page page = Application.getInstance().createSearchPage(query);
 			show(page);
@@ -276,7 +276,7 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
-		return new SwingLookup(stringInput, event -> lookup.run());
+		return new SwingLookup(stringInput, event -> SwingFrontend.run(event, lookup::run));
 	}
 
 	@Override
@@ -365,7 +365,7 @@ public class SwingFrontend extends Frontend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				runWithContext(action::action);
+				run(e, action::action);
 			}
 		};
 		swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());
@@ -398,36 +398,47 @@ public class SwingFrontend extends Frontend {
 		return null;
 	}
 
-	/**
-	 * As the current subject can be different for each Swing Window this method
-	 * ensure that no wrong subject stays as current subject
-	 * 
-	 * @param r a runnable (normally a lambda is used)
-	 */
-	public static void runWithContext(Runnable r) {
-		try {
-			browserStack.push(SwingFrame.getActiveWindow().getVisibleTab());
-			Subject.setCurrent(SwingFrame.getActiveWindow().getSubject());
+	private static SwingTab pageManager;
+
+	public static void run(Object source, Runnable r) {
+		if (!hasContext()) {
+			try {
+				SwingFrame frame = findFrame(source);
+				pageManager = frame.getVisibleTab();
+				Subject.setCurrent(frame.getSubject());
+				r.run();
+			} finally {
+				pageManager = null;
+				Subject.setCurrent(null);
+			}
+		} else {
 			r.run();
-		} finally {
-			Subject.setCurrent(null);
-			browserStack.pop();
 		}
 	}
 
+	private static SwingFrame findFrame(Object object) {
+		if (object instanceof EventObject) {
+			object = ((EventObject) object).getSource();
+		}
+		while (!(object instanceof SwingFrame)) {
+			if (object instanceof JPopupMenu) {
+				object = ((JPopupMenu) object).getInvoker();
+			} else if (object instanceof Component) {
+				object = ((Component) object).getParent();
+			} else {
+				throw new IllegalStateException("Not allowed: " + object);
+			}
+		}
+		return (SwingFrame) object;
+	}
+
 	public static boolean hasContext() {
-		return !browserStack.isEmpty() && browserStack.peek() != null;
+		return pageManager != null;
 	}
 
 	@Override
 	public SwingTab getPageManager() {
-		if (hasContext()) {
-			return browserStack.peek();
-		} else if (SwingFrame.getActiveWindow() != null) {
-			return SwingFrame.getActiveWindow().getVisibleTab();
-		} else {
-			return null;
-		}
+		return pageManager;
 	}
 
 }

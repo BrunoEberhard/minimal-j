@@ -2,27 +2,38 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 
 import java.net.URL;
-import java.util.Iterator;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.impl.vaadin.Vaadin;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.LocaleContext;
 
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.HasOrderedComponents;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.HasPrefixAndSuffix;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.server.VaadinSession;
 
 public class VaadinFrontend extends Frontend {
+
+	public VaadinFrontend() {
+		LocaleContext.setLocale(() -> VaadinSession.getCurrent() != null ? VaadinSession.getCurrent().getLocale() : null);
+	}
 
 	@Override
 	public IComponent createText(String string) {
@@ -39,22 +50,22 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinActionLabel(action);
 	}
 
-	public static class VaadinActionLabel extends Button implements IComponent {
+    public static interface HasCaption {
+        public void setLabel(String label);
+    }
+
+    public static interface HasComponent {
+        public Component getComponent();
+    }
+
+	public static class VaadinActionLabel extends Anchor implements IComponent {
 
 		private static final long serialVersionUID = 1L;
 
 		public VaadinActionLabel(final Action action) {
 			super(action.getName());
-//			button.setDescription((String) action.getValue(Action.LONG_DESCRIPTION));
-			setStyleName(ValoTheme.BUTTON_LINK);
-			addClickListener(new ClickListener() {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void buttonClick(ClickEvent event) {
-					action.action();
-				}
-			});
+			getElement().setProperty("title", action.getDescription());
+			getElement().addEventListener("click", e -> action.action());
 		}
 	}
 	
@@ -71,6 +82,72 @@ public class VaadinFrontend extends Frontend {
 	@Override
 	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
 		return new VaadinTextField(changeListener, maxLength);
+	}
+	
+    private static class VaadinEmailField extends EmailField implements Input<String>, HasCaption {
+		private static final long serialVersionUID = 1L;
+
+		public VaadinEmailField(InputComponentListener changeListener, int maxLength) {
+			setMaxLength(maxLength);
+			addValueChangeListener(event -> changeListener.changed(VaadinEmailField.this));
+			setValueChangeMode(ValueChangeMode.TIMEOUT);
+		}
+		
+		@Override
+		public void setEditable(boolean editable) {
+			setReadOnly(!editable);
+		}
+	}
+	
+    private static class VaadinDateField implements Input<String>, HasCaption, HasComponent, HasElement {
+        private static final long serialVersionUID = 1L;
+        private final DatePicker picker = new DatePicker();
+		
+		public VaadinDateField(InputComponentListener changeListener) {
+			picker.addValueChangeListener(event -> changeListener.changed(VaadinDateField.this));
+		}
+		
+		@Override
+		public void setEditable(boolean editable) {
+			picker.setReadOnly(!editable);
+		}
+
+		@Override
+		public String getValue() {
+			LocalDate value = picker.getValue();
+			return value != null ? value.toString() : null;
+		}
+
+		@Override
+		public void setValue(String value) {
+			picker.setValue(value != null ? LocalDate.parse(value) : null);
+		}
+
+        @Override
+        public void setLabel(String label) {
+            picker.setLabel(label);
+        }
+
+        @Override
+        public Component getComponent() {
+            return picker;
+        }
+
+        @Override
+        public Element getElement() {
+            return picker.getElement();
+        }
+	}
+	
+	@Override
+	public Optional<Input<String>> createInput(int maxLength, InputType inputType, InputComponentListener changeListener) {
+		if (inputType == InputType.DATE) {
+			return Optional.of(new VaadinDateField(changeListener));
+		} else if (inputType == InputType.EMAIL) {
+			return Optional.of(new VaadinEmailField(changeListener, maxLength));
+		} else {
+			return super.createInput(maxLength, inputType, changeListener);
+		}
 	}
 	
 	@Override
@@ -100,7 +177,7 @@ public class VaadinFrontend extends Frontend {
 
 	@Override
 	public FormContent createFormContent(int columns, int columnWidthPercentage) {
-		return new VaadinGridFormLayout(columns, columnWidthPercentage);
+        return new VaadinFormContent(columns, columnWidthPercentage);
 	}
 
 	@Override
@@ -119,24 +196,18 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	public static void focusFirstComponent(Component component) {
-		AbstractField<?> field = findAbstractField(component);
+		Focusable<?> field = findFocusable(component);
 		if (field != null) {
 			field.focus();
 		}
 	}
 	
-	private static AbstractField<?> findAbstractField(Component c) {
-		if (c instanceof AbstractField) {
-			return ((AbstractField<?>) c);
-		} else if (c instanceof ComponentContainer) {
-			ComponentContainer container = (ComponentContainer) c;
-			Iterator<Component> components = container.iterator();
-			while (components.hasNext()) {
-				AbstractField<?> field = findAbstractField(components.next());
-				if (field != null) {
-					return field;
-				}
-			}
+	private static Focusable<?> findFocusable(Component c) {
+		if (c instanceof Focusable) {
+			return ((Focusable<?>) c);
+		} else if (c instanceof HasOrderedComponents) {
+			HasOrderedComponents container = (HasOrderedComponents) c;
+			return container.getChildren().map(child -> findFocusable(child)).findFirst().orElse(null);
 		}
 		return null;
 	}
@@ -148,17 +219,16 @@ public class VaadinFrontend extends Frontend {
 
 	@Override
 	public IContent createFormTableContent(FormContent form, ITable<?> table) {
-		LanternaBorderLayoutContent content = new LanternaBorderLayoutContent();
-		content.addComponent((Component) form);
-		content.addComponent((Component) table);
-		content.setExpandRatio((Component) table, 1f);
+		VaadinBorderLayoutContent content = new VaadinBorderLayoutContent();
+		content.add((Component) form);
+		content.addAndExpand((Component) table);
 		return content;
 	}
 
-	private static class LanternaBorderLayoutContent extends VerticalLayout implements IContent {
+	private static class VaadinBorderLayoutContent extends VerticalLayout implements IContent {
 		private static final long serialVersionUID = 1L;
 
-		public LanternaBorderLayoutContent() {
+		public VaadinBorderLayoutContent() {
 			setMargin(false);
 		}
 	}
@@ -172,33 +242,59 @@ public class VaadinFrontend extends Frontend {
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
 		return new VaadinLookup(stringInput, lookup);
 	}
-	
+
 	@Override
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
 		if (!actions.getItems().isEmpty()) {
-			Vaadin.createMenu((AbstractComponent) input, actions.getItems());
+			return new VaadinLookupWithMenu(input, actions.getItems());
 		}
 		return input;
 	}
 
-	private static class VaadinLookup extends GridLayout implements Input<String> {
-		private static final long serialVersionUID = 1L;
-		
+	private static class VaadinLookupWithMenu implements Input<String>, HasComponent {
+		private final Input<String> stringInput;
+		private final Button lookupButton;
+
+		public VaadinLookupWithMenu(Input<String> stringInput, List<Action> actions) {
+			this.stringInput = stringInput;
+
+			this.lookupButton = new Button("...");
+			ContextMenu menu = VaadinMenu.createMenu(lookupButton, actions);
+			menu.setOpenOnClick(true);
+			((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
+		}
+
+		@Override
+		public void setValue(String value) {
+			stringInput.setValue(value);
+		}
+
+		@Override
+		public String getValue() {
+			return stringInput.getValue();
+		}
+
+		@Override
+		public void setEditable(boolean editable) {
+			stringInput.setEditable(editable);
+			lookupButton.setVisible(editable);
+		}
+
+		@Override
+		public Component getComponent() {
+			return (Component) stringInput;
+		}
+	}
+
+    private static class VaadinLookup implements Input<String>, HasComponent {
 		private final Input<String> stringInput;
 		private final Button lookupButton;
 		
 		public VaadinLookup(Input<String> stringInput, Runnable lookup) {
-			super(2, 1);
-			this.stringInput = stringInput;
-			
-			((Component) stringInput).setSizeFull();
-			addComponent((Component) stringInput);
+            this.stringInput = stringInput;
 
 			this.lookupButton = new Button("...", event -> lookup.run());
-			addComponent(lookupButton);
-			
-			setColumnExpandRatio(0, 100.0f);
-			setColumnExpandRatio(1, 0.0f);
+            ((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 
 		@Override
@@ -216,6 +312,11 @@ public class VaadinFrontend extends Frontend {
 			stringInput.setEditable(editable);
 			lookupButton.setVisible(editable);
 		}
+
+        @Override
+        public Component getComponent() {
+            return (Component) stringInput;
+        }
 	}
 
 //	@Override
@@ -267,7 +368,7 @@ public class VaadinFrontend extends Frontend {
 
 	@Override
 	public PageManager getPageManager() {
-		return (PageManager) UI.getCurrent();
+		return (PageManager) UI.getCurrent().getSession().getAttribute("pageManager");
 	}
 	
 	

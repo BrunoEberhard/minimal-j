@@ -5,7 +5,6 @@ $META
 
 <!-- $MINIMALJ-VERSION -->
 <!-- $APPLICATION-VERSION -->
-<base href="$BASE">
 
 $IMPORT
 <script src="dialog-polyfill.js"></script>
@@ -48,6 +47,8 @@ $ICON
 
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
+
+		localStorage.rememberMeToken = dataObject.rememberMeToken;
 
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
@@ -229,7 +230,7 @@ $ICON
 	function addNewStateToHistory(fragment) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText, "$BASE" + (fragment ? fragment : "")); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, fragment ? "." + fragment : ""); // second argument is ignored by browsers (!)
 		}
 	}
 	
@@ -285,9 +286,15 @@ $ICON
 			var contentElement;
 			if (page.content.type === "Html") {
 				contentElement = document.createElement("iframe");
-				pageContentAndActionsElement.appendChild(contentElement);
 				// the iframe must be already attached to have the document
-				contentElement.contentWindow.document.write(page.content.htmlOrUrl); // srcdoc not available before chrome-IE
+				pageContentAndActionsElement.appendChild(contentElement);
+				if (!!("srcdoc" in contentElement)) {
+				  // in chrome this works best
+					contentElement.srcdoc = page.content.htmlOrUrl;			
+				} else {
+				  // in IE before chromium this allows back after a link in the content was clicked
+				  contentElement.contentWindow.document.write(page.content.htmlOrUrl);
+				}				
 				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
 			} else {
 				var contentElement = createContent(page.content);
@@ -848,8 +855,12 @@ $ICON
 		var saveAction = json.saveAction;
 		if (saveAction) {
 			var inputs = content.getElementsByTagName("input");
-			var lastInput = inputs[inputs.length - 1]; 
-			if (lastInput && (lastInput.type == "text" || lastInput.type == "password")) {
+			var lastInput;
+			var i = inputs.length - 1;
+			do {
+				lastInput = inputs[i--];
+			} while (lastInput && i > 0 && !(lastInput.type == "text" || lastInput.type == "password")) 
+			if (lastInput) {
 				lastInput.setAttribute("onkeyup", "if (event.keyCode == 13) { sendchange(this, \"" + saveAction.id + "\"); }");
 			}
 		}
@@ -860,7 +871,7 @@ $ICON
 			dialogPolyfill.registerDialog(dialog);
         }
         
-        dialog.addEventListener("close", dialogClosedListener); 
+        dialog.addEventListener("close", event => dialogClosedListener(event, json.closeAction)); 
 		dialog.showModal();
 		updateDialogSizes();
 	}
@@ -871,9 +882,10 @@ $ICON
 		dialog.close();
     }
 
-    function dialogClosedListener(event) {
+    function dialogClosedListener(event, closeAction) {
         document.getElementById("body").removeChild(event.target); 
         updateDialogSizes();
+        action(closeAction.id);
     }
 
 	function closeDialogs() {
@@ -1264,11 +1276,10 @@ $ICON
 
 		window.onpopstate = popState;
 
-		if (window.history.state && window.history.state != "") {
-			send({ "initialize" : window.history.state });
-		} else {
-			send({ "initialize" : "$PATH" });
-		}
+		var initParameters = {};
+		initParameters["initialize"] = window.history.state ? window.history.state : "$PATH";
+		initParameters["rememberMeToken"] = localStorage.rememberMeToken ? localStorage.rememberMeToken : null;
+		send(initParameters);
 	}
 	
 	function checkInput(type) {
@@ -1298,14 +1309,9 @@ $ICON
 		</svg>
 		<svg id="loginButton" class="button headerButton" onclick="changeLogin()">
 			<g style="stroke-width:16%;stroke-linecap:square"> 	
-                  <title>Login</title>	
-				<line x1="70%" y1="8%" x2="91%" y2="8%" />
-				<line x1="70%" y1="91%" x2="91%" y2="91%" />
-				<line x1="91%" y1="8%" x2="91%" y2="91%" />
-				
-				<line x1="0%" y1="50%" x2="55%" y2="50%" />
-				<line x1="40%" y1="30%" x2="60%" y2="50%" />
-				<line x1="40%" y1="70%" x2="60%" y2="50%" />
+                  <title>Login / Logout</title>	
+  			<circle cx="50%" cy="27%" r="21%" stroke-width="0.18em" fill="none"></circle>
+  			<circle cx="50%" cy="100%" r="40%" stroke-width="0.18em" fill="none"></circle>
 			</g>
 		</svg>
 		<svg id="wait" class="button headerButton" style="width: 0em;">

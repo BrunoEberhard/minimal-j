@@ -22,7 +22,6 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
-import org.minimalj.frontend.form.element.SmallCodeListFormElement;
 import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
@@ -34,6 +33,7 @@ import org.minimalj.frontend.form.element.LocalTimeFormElement;
 import org.minimalj.frontend.form.element.LongFormElement;
 import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.form.element.SelectionFormElement;
+import org.minimalj.frontend.form.element.SmallCodeListFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
 import org.minimalj.frontend.form.element.UnknownFormElement;
@@ -157,7 +157,7 @@ public class Form<T> {
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
 			return editable ? new EnumFormElement(property) : new TextFormElement(property);
 		} else if (fieldClass == Set.class) {
-			return new EnumSetFormElement(property, this.editable); // 'this.editable' instead 'editable': the set field is always final. That doesn't mean its read only.
+            return new EnumSetFormElement(property, editable);
 		} else if (fieldClass == List.class && Codes.isCode(property.getGenericClass())) {
 			return new SmallCodeListFormElement(property, editable);
 		} else if (fieldClass == Password.class) {
@@ -273,7 +273,6 @@ public class Form<T> {
 	 * @param updater the updater doing the change of the to field
 	 * @param to the changed field by the updater
 	 */
-	@SuppressWarnings("rawtypes")
 	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
 		if (!propertyUpdater.containsKey(fromProperty)) {

@@ -25,8 +25,7 @@ public class InMemoryDbTechnicalFieldTest {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("A");
+		Subject subject = new Subject("A");
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -45,8 +44,7 @@ public class InMemoryDbTechnicalFieldTest {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("B");
+		Subject subject = new Subject("B");
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -55,8 +53,7 @@ public class InMemoryDbTechnicalFieldTest {
 		entity = repository.read(TestEntity.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 
-		subject = new Subject();
-		subject.setName("C");
+		subject = new Subject("C");
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";

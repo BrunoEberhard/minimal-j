@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.minimalj</groupId>
+	<artifactId>minimalj_vaadin</artifactId>
+	<version>1.9.0.0-SNAPSHOT</version>
+	<name>Minimal-J Vaadin 8</name>
+	<repositories>
+		<repository>
+		   <id>vaadin-addons</id>
+		   <url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>		
+	</repositories>	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+    			<groupId>com.vaadin</groupId>
+    			<artifactId>vaadin-maven-plugin</artifactId>
+    			<version>8.5.2</version>			
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/webapp</directory>
+			</resource>
+		</resources>
+	</build>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>8.5.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.minimalj</groupId>
+			<artifactId>minimalj</artifactId>
+			<version>[1.14.0.6-SNAPSHOT,)</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client</artifactId>
+		</dependency> 
+		<!-- 
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client-compiled</artifactId>
+		</dependency> 
+		 -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-themes</artifactId>
+		</dependency>		 
+		<dependency>
+		  <groupId>com.vaadin</groupId>
+		  <artifactId>vaadin-server</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.vaadin</groupId>
+            <artifactId>vaadin-context-menu</artifactId>
+		</dependency>
+		<!-- 
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>history</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		 -->
+
+		<!-- 
+		<dependency>
+		  <groupId>com.vaadin.addon</groupId>
+		  <artifactId>easyuploads</artifactId>
+		  <version>7.4.10</version>
+		</dependency>
+		 -->
+	</dependencies>
+	<description>Use Vaadin for Minimal-J.
+
+In earlier versions Minimal-J based on Vaadin. With version 7 of vaadin this should be possible again.</description>
+</project>

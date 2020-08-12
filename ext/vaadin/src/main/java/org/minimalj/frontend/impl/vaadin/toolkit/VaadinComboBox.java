@@ -5,12 +5,13 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.HasCaption;
 import org.minimalj.model.Rendering;
 
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.ItemCaptionGenerator;
+import com.vaadin.flow.component.ItemLabelGenerator;
+import com.vaadin.flow.component.combobox.ComboBox;
 
-public class VaadinComboBox<T> extends ComboBox<T> implements Input<T> {
+public class VaadinComboBox<T> extends ComboBox<T> implements Input<T>, HasCaption {
 	private static final long serialVersionUID = 1L;
 	
 	private final List<T> objects;
@@ -22,7 +23,7 @@ public class VaadinComboBox<T> extends ComboBox<T> implements Input<T> {
 		updateChoice();
 		addValueChangeListener(event -> listener.changed(VaadinComboBox.this));
 		
-		setItemCaptionGenerator(new RenderingItemCaptionGenerator());
+		setItemLabelGenerator(new RenderingItemLabelGenerator());
 	}
 
 	private void updateChoice() {
@@ -37,7 +38,7 @@ public class VaadinComboBox<T> extends ComboBox<T> implements Input<T> {
 	}
 
 //		Tooltip not yet supported. Maybe easy with ItemDescriptionGenerator
-	private class RenderingItemCaptionGenerator implements ItemCaptionGenerator<T> {
+	private class RenderingItemLabelGenerator implements ItemLabelGenerator<T> {
 		private static final long serialVersionUID = 1L;
 
 		@Override

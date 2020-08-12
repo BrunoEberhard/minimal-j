@@ -22,6 +22,8 @@ public abstract class MjHttpExchange {
 
 	public abstract void sendResponse(int statusCode, String body, String contentType);
 
+	public abstract boolean isResponseSent();
+
 	public void sendForbidden() {
 		sendResponse(403, "Forbidden", "text/plain");
 	}

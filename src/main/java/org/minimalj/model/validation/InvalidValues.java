@@ -30,11 +30,9 @@ import org.minimalj.model.EnumUtils;
  * check with the 'isInvalid' method if the value represents an invalid value.
  *
  */
-@SuppressWarnings("UnnecessaryBoxing")
 public class InvalidValues {
 
 	private static final Map<Object, String> values = new WeakIdentityHashMap<>();
-	private static final Map<Object, String> messages = new WeakIdentityHashMap<>();
 
 	private static int counter = Integer.MIN_VALUE + 1;
 	private static LocalDate MIN_DATE = LocalDate.of(0, 1, 1);
@@ -122,10 +120,6 @@ public class InvalidValues {
 		BigDecimal bigDecimal = new BigDecimal(counter++);
 		values.put(bigDecimal, string);
 		return bigDecimal;
-	}
-
-	public static String getMessage(Object object) {
-		return messages.get(object);
 	}
 
 }

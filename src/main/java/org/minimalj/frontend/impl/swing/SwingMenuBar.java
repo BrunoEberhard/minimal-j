@@ -1,19 +1,15 @@
 package org.minimalj.frontend.impl.swing;
 
 import java.awt.event.ActionEvent;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.text.DefaultEditorKit;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Separator;
@@ -29,58 +25,61 @@ import org.minimalj.util.resources.Resources;
 public class SwingMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	
-	private final SwingTab tab;
+	private final SwingFrame frame;
 	private JMenu menuFavorite;
-	
-	public SwingMenuBar(SwingTab tab) {
+	private final JMenuItem itemPrevious = new JMenuItem();
+	private final JMenuItem itemNext = new JMenuItem();
+	private final JMenuItem itemRefresh = new JMenuItem();
+	private final JMenuItem itemFavorite = new JMenuItem();
+	private SwingTab activeTab;
+
+	public SwingMenuBar(SwingFrame frame) {
 		super();
-		this.tab = tab;
+		this.frame = frame;
 
 		add(createWindowMenu());
-		add(createEditMenu());
 		add(createViewMenu());
 		if (Routing.available()) {
 			add(createFavoriteMenu());
 		}
 	}
 	
+	public void setActiveTab(SwingTab tab) {
+		this.activeTab = tab;
+
+		itemPrevious.setAction(tab.previousAction);
+		itemNext.setAction(tab.nextAction);
+		itemRefresh.setAction(tab.refreshAction);
+		itemFavorite.setAction(tab.favoriteAction);
+	}
+
 	private JMenu createWindowMenu() {
 		JMenu menu = menu("window");
 		
-		menu.add(new JMenuItem(tab.frame.newWindowAction));
-		if (tab.frame.newWindowWithLoginAction != null) {
-			menu.add(new JMenuItem(tab.frame.newWindowWithLoginAction));
+		menu.add(new JMenuItem(frame.newWindowAction));
+		if (frame.newWindowWithLoginAction != null) {
+			menu.add(new JMenuItem(frame.newWindowWithLoginAction));
 		}
-		menu.add(new JMenuItem(tab.frame.closeWindowAction));
+		menu.add(new JMenuItem(frame.closeWindowAction));
 		menu.addSeparator();		
-		menu.add(new JMenuItem(tab.frame.newTabAction));
-		menu.add(new JMenuItem(tab.closeTabAction));
-		if (tab.frame.loginAction != null) {
+		menu.add(new JMenuItem(frame.newTabAction));
+		menu.add(new JMenuItem(frame.closeTabAction));
+		if (frame.loginAction != null) {
 			menu.addSeparator();
-			menu.add(new JMenuItem(tab.frame.loginAction));
+			menu.add(new JMenuItem(frame.loginAction));
 		}
 		menu.addSeparator();
-		menu.add(new JMenuItem(tab.frame.exitAction));
-		return menu;
-	}
-	
-	private JMenu createEditMenu() {
-		JMenu menu = menu("edit");
-		menu.add(new JMenuItem(SwingResourceAction.initProperties(new DefaultEditorKit.CutAction(), "cut")));
-		menu.add(new JMenuItem(SwingResourceAction.initProperties(new DefaultEditorKit.CopyAction(), "copy")));
-		menu.add(new JMenuItem(SwingResourceAction.initProperties(new DefaultEditorKit.PasteAction(), "paste")));
+		menu.add(new JMenuItem(frame.exitAction));
 		return menu;
 	}
 	
 	private JMenu createViewMenu() {
 		JMenu menu = menu("view");
-		menu.add(new JMenuItem(tab.previousAction));
-		menu.add(new JMenuItem(tab.nextAction));
-		menu.add(new JMenuItem(tab.refreshAction));
+		menu.add(itemPrevious);
+		menu.add(itemNext);
+		menu.add(itemRefresh);
 		menu.addSeparator();
-		menu.add(new JCheckBoxMenuItem(tab.navigationAction));
-		menu.addSeparator();
-		menu.add(createPagesMenu());		
+		menu.add(new JCheckBoxMenuItem(frame.navigationAction));
 		menu.addSeparator();
 		menu.add(createLookAndFeeldMenu());
 		return menu;
@@ -95,37 +94,9 @@ public class SwingMenuBar extends JMenuBar {
 		return menu;
 	}
 
-	private JMenu createPagesMenu() {
-		JMenu menu = menu("pages");
-		ButtonGroup group = new ButtonGroup();
-		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(1)));
-		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(2)));
-		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_UNLIMITED)));
-		group.add(new JRadioButtonMenuItem(new MaxVisiblePagesAction(SwingTab.MAX_PAGES_ADPATIV)));
-		Collections.list(group.getElements()).forEach(menu::add);
-		menu.addSeparator();
-		menu.add(new JCheckBoxMenuItem(Resources.getString("ScrollToNewPageAction")));
-		return menu;
-	}
-	
-	private class MaxVisiblePagesAction extends SwingResourceAction {
-		private static final long serialVersionUID = 1L;
-		private final int maxPages;
-		
-		public MaxVisiblePagesAction(int maxPages) {
-			super(MaxVisiblePagesAction.class.getSimpleName() + "." + maxPages);
-			this.maxPages = maxPages;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			tab.setMaxPages(maxPages);
-		}
-	}
-	
 	private JMenu createFavoriteMenu() {
 		menuFavorite = menu("favorites");
-		LinkedHashMap<String, String> favorites = tab.frame.favorites.getFavorites();
+		LinkedHashMap<String, String> favorites = frame.favorites.getFavorites();
 		updateFavorites(favorites);
 		return menuFavorite;
 	}
@@ -156,7 +127,7 @@ public class SwingMenuBar extends JMenuBar {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			tab.show(Routing.createPageSafe(route));
+			activeTab.show(Routing.createPageSafe(route));
 		}
 	}
 	

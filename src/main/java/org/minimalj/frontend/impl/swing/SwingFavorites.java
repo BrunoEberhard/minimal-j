@@ -6,16 +6,20 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.page.Page;
 
 // for: java.util.prefs Could not open/create prefs root node Software\JavaSoft\Prefs
 // see: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8139507
 public class SwingFavorites implements PreferenceChangeListener {
+	private static final Logger LOG = Logger.getLogger(SwingFavorites.class.getName());
 
 	private final Consumer<LinkedHashMap<String, String>> changeListener;
 	private Preferences preferences;
@@ -59,13 +63,20 @@ public class SwingFavorites implements PreferenceChangeListener {
 			for (String key : keys) {
 				try {
 					String route = key.substring(key.indexOf("@") + 1);
-					favorites.put(route, preferences.get(key, "Page"));
+					if (Page.validateRoute(route)) {
+						favorites.put(route, preferences.get(key, "Page"));
+					} else {
+						LOG.warning("Invalid favorite: " + key);
+						preferences.remove(key);
+					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOG.log(Level.WARNING, "Invalid favorite: " + key, e);
+					preferences.remove(key);
 				}
 			}
 			return favorites;
 		} catch (BackingStoreException e) {
+			LOG.log(Level.WARNING, "Favorites not available", e);
 			// do nothing, favorites not available
 			return new LinkedHashMap<>();
 		}

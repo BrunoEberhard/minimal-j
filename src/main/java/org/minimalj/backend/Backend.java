@@ -21,9 +21,9 @@ import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
+import org.minimalj.security.Subject;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
-import org.minimalj.transaction.TransactionAnnotations;
 import org.minimalj.util.Codes;
 
 /**
@@ -178,7 +178,9 @@ public class Backend {
 	
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (isAuthenticationActive()) {
-			Authorization.check(transaction);
+			if (!transaction.hasAccess(Subject.getCurrent())) {
+				throw new IllegalStateException(transaction + " forbidden");
+			}
 		}
 
 		Transaction<?> outerTransaction = currentTransaction.get();
@@ -205,7 +207,7 @@ public class Backend {
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
-		Isolation.Level isolationLevel = TransactionAnnotations.getIsolation(transaction);
+		Isolation.Level isolationLevel = transaction.getIsolation();
 		T result;
 		boolean commit = false;
 		try {

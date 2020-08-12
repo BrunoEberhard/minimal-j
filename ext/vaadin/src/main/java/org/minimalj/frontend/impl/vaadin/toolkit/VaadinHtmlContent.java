@@ -4,28 +4,24 @@ import java.net.URL;
 
 import org.minimalj.frontend.Frontend.IContent;
 
-import com.vaadin.server.ExternalResource;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.BrowserFrame;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.IFrame;
 
-public class VaadinHtmlContent extends CustomComponent implements IContent {
+public class VaadinHtmlContent extends IFrame implements IContent {
 	private static final long serialVersionUID = 1L;
 
-	public VaadinHtmlContent(String htmlOrUrl) {
-		Label label = new Label(htmlOrUrl, ContentMode.HTML);
-		label.setSizeFull();
-		setCompositionRoot(label);
+	private VaadinHtmlContent() {
+		setSizeFull();
+		getElement().getStyle().set("border-width", "0");
+	}
+	
+	public VaadinHtmlContent(String html) {
+		this();
+		setSrcdoc(html);
 	}
 
 	public VaadinHtmlContent(URL url) {
-		// TODO can this make local images work?
-		// BrowserFrame embedded = new BrowserFrame(null, new ClassResource("/" + htmlOrUrl));
-
-		BrowserFrame embedded = new BrowserFrame(null, new ExternalResource(url));
-		embedded.setSizeFull();
-		setCompositionRoot(embedded);
+		this();
+		setSrc(url.toString());
 	}
 
 }

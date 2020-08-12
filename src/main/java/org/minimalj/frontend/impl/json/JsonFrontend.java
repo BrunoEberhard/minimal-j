@@ -18,7 +18,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.page.PageManager;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.resources.Resources;
 
@@ -39,7 +39,7 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public PageManager getPageManager() {
+	public JsonPageManager getPageManager() {
 		return getClientSession();
 	}
 	
@@ -162,12 +162,12 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public SwitchContent createSwitchContent() {
-		return new JsonSwitch();
+		return new JsonSwitch(getClientSession());
 	}
 	
 	@Override
 	public SwitchComponent createSwitchComponent() {
-		return new JsonSwitch();
+		return new JsonSwitch(getClientSession());
 	}
 
 	@Override
@@ -227,24 +227,15 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$TITLE", Application.getInstance().getName());
 		result = result.replace("$META", getMeta());
 		result = result.replace("$ICON", getIconLink());
-		result = result.replace("$BASE", base(path));
 		result = result.replace("$PATH", path);
 		result = result.replace("$THEME", THEMES.get(Configuration.get("MjTheme", "")));
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
 		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));
+		result = result.replace("$SEND", WebServer.useWebSocket ? "sendWebSocket" : "sendAjax");
 		return result;
 	}
 
-    private static String base(String path) {
-    	String base = "./";
-    	int level = path.split("/").length - 1;
-    	for (int i = 0; i<level; i++) {
-    		base = base + "../";
-    	}
-    	return base;
-    }
-	
 	private static String getIconLink() {
 		if (Application.getInstance().getIcon() != null) {
 			return "<link rel=\"icon\" href=\"application.png\" type=\"image/png\">";

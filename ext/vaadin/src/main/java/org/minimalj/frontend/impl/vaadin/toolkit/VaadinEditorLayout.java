@@ -1,70 +1,68 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
 
 public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 	private static final long serialVersionUID = 1L;
 
-	public VaadinEditorLayout(IContent content, Action[] actions) {
-		setSpacing(false);
+	public VaadinEditorLayout(String title, Component component, Action saveAction, Action closeAction, Action... actions) {
+		setMargin(false);
+		setSpacing(true);
+		setPadding(false);
+		setSizeFull();
 		
-		Component contentComponent = (Component) content;
-		contentComponent.setWidth("100%");
-		addComponent(contentComponent);
-		setExpandRatio(contentComponent, 1f);
-		
-		Component buttonBar = createButtonBar(actions);
-		addComponent(buttonBar);
-		setExpandRatio(buttonBar, 0f);
+		add(new H4(title));
+		((HasSize) component).setSizeFull();
+		add(component);	
+		Component buttonBar = createButtonBar(saveAction, closeAction, actions);
+		add(buttonBar);
 	}
 
-	private Component createButtonBar(Action... actions) {
+	private Component createButtonBar(Action saveAction, Action closeAction, Action... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.addStyleName("buttonBar");
-		horizontalLayout.setWidth("100%");
-		horizontalLayout.setMargin(false);
+		setSpacing(true);
+		setWidthFull();
+		horizontalLayout.addClassName("buttonBar");
 		
-		addButtons(horizontalLayout, actions);
+		// TODO change method parameters for dialogs
+		for (int i = 0; i < actions.length; i++) {
+			if (i == actions.length - 2) {
+				Span span = new Span();
+				horizontalLayout.addAndExpand(span);
+			}
+			addActionButton(horizontalLayout, actions[i], i == actions.length - 1);
+		}
 		return horizontalLayout;
 	}
 	
-	private void addButtons(HorizontalLayout buttonBar, Action... actions) {
-		for (Action action: actions) {
-			addActionButton(buttonBar, action);
-		}
-		if (buttonBar.getComponentCount() > 0) {
-			buttonBar.setExpandRatio(buttonBar.getComponent(0), 1.0F);
-		}
-	}
-
-	private void addActionButton(HorizontalLayout buttonBar, final Action action) {
-		final Button button = new NativeButton(action.getName());
+	private void addActionButton(HorizontalLayout buttonBar, final Action action, boolean save) {
+		Button button = new Button(action.getName());
 		button.setEnabled(action.isEnabled());
-		button.setDescription(action.getDescription());
-		button.setWidth((action.getName().length() + 5) + "ex");
+		if (!StringUtils.isEmpty(action.getDescription())) {
+			button.getElement().setAttribute("title", action.getDescription());
+		}
+		button.setMinWidth("10em");
+		if (save) {
+			button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		}
 		// installShortcut(button, action);
-		button.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				action.action();
-			}
-		});
+		button.addClickListener(event -> action.action());
 		installActionListener(action, button);
-		buttonBar.addComponent(button);
-		buttonBar.setComponentAlignment(button, Alignment.MIDDLE_RIGHT);
+		buttonBar.add(button);
+		buttonBar.setAlignItems(Alignment.END);
+		buttonBar.setFlexGrow(0, button);
 	}
 	
 //	private static void installShortcut(Button button, Action action) {
@@ -101,8 +99,12 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 			@Override
 			public void change() {
 				button.setEnabled(action.isEnabled());
-				button.setCaption(action.getName());
-				button.setDescription(action.getDescription());
+				button.setText(action.getName());
+				if (!StringUtils.isEmpty(action.getDescription())) {
+					button.getElement().setAttribute("title", action.getDescription());
+				} else {
+					button.getElement().removeAttribute("title");
+				}
 			}
 		});
 	}

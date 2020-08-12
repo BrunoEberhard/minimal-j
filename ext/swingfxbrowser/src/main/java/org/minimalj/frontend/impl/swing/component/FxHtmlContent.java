@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing.component;
 
+import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.SwingUtilities;
@@ -7,6 +8,7 @@ import javax.swing.SwingUtilities;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 import org.w3c.dom.Document;
@@ -73,15 +75,10 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 										return;
 									}
 
-									if (href.startsWith("/")) {
-										href = href.substring(1);
-									}
 									Page page = Routing.createPageSafe(href);
-									if (page != null) {
-										SwingUtilities.invokeLater(() -> {
-											SwingFrontend.runWithContext(() -> Frontend.show(page));
-										});
-									}
+									SwingUtilities.invokeLater(() -> {
+										SwingFrontend.run(FxHtmlContent.this, () -> Frontend.show(page));
+									});
 								}
 							}
 
@@ -97,7 +94,12 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 							nodeList = doc.getElementsByTagName("img");
 							for (int i = 0; i < nodeList.getLength(); i++) {
 								HTMLImageElement n = (HTMLImageElement) nodeList.item(i);
-								n.setSrc(getClass().getClassLoader().getResource(n.getSrc()).toExternalForm());
+								String src = n.getSrc();
+								try {
+									n.setSrc(WebApplication.getResourceHandler().getUrl(src).toExternalForm());
+								} catch (IOException e) {
+									throw new RuntimeException(e);
+								}
 							}
 						}
 					}

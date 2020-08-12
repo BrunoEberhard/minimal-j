@@ -17,6 +17,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 import org.minimalj.util.StringUtils;
 
 import com.sun.net.httpserver.HttpContext;
@@ -29,14 +30,14 @@ import com.sun.net.httpserver.HttpsServer;
 public class WebServer {
 	private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
 
-	private static final boolean SECURE = true;
+	public static final boolean SECURE = true;
 
 	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
-	private static class WebServerHttpExchange extends MjHttpExchange {
+	public static class WebServerHttpExchange extends MjHttpExchange {
 		private final HttpExchange exchange;
 
-		private WebServerHttpExchange(HttpExchange exchange) {
+		protected WebServerHttpExchange(HttpExchange exchange) {
 			this.exchange = exchange;
 		}
 
@@ -75,15 +76,20 @@ public class WebServer {
 		public void sendResponse(int statusCode, String response, String contentType) {
 			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
 		}
+
+		@Override
+		public boolean isResponseSent() {
+			return exchange.getResponseCode() >= 0;
+		}
 	}
 
 	private static void handle(HttpExchange exchange) {
 		try {
-			LocaleContext.setCurrent(MjHttpExchange.getLocale(exchange.getRequestHeaders().getFirst("accept-language")));
+			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().getFirst(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
 			MjHttpExchange mjHttpExchange = new WebServerHttpExchange(exchange);
 			WebApplication.handle(mjHttpExchange);
 		} finally {
-			LocaleContext.setCurrent(null);
+			LocaleContext.resetLocale();
 		}
 	}
 

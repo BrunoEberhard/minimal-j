@@ -41,7 +41,7 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 			if (frame != null) {
 				Action saveAction = frame.getSaveAction();
 				if (saveAction.isEnabled()) {
-					SwingFrontend.runWithContext(saveAction::action);
+					SwingFrontend.run(e, saveAction::action);
 				}
 			}
 		});

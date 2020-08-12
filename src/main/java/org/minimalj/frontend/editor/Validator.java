@@ -99,13 +99,8 @@ public class Validator {
 
 	private static void validateInvalid(List<ValidationMessage> validationMessages, Object value, PropertyInterface property) {
 		if (InvalidValues.isInvalid(value)) {
-			String message = InvalidValues.getMessage(value);
-			if (message != null) {
-				validationMessages.add(new ValidationMessage(property, message));
-			} else {
-				String caption = Resources.getPropertyName(property);
-				validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
-			}
+			String caption = Resources.getPropertyName(property);
+			validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
 		}
 	}
 

@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.swing.toolkit;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -75,7 +76,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			SwingFrontend.runWithContext(this::fireChangeEvent);
+			SwingFrontend.run(SwingComboBox.this, this::fireChangeEvent);
 		}
 	}
 	
@@ -87,7 +88,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		private boolean setObjectInObjects;
 		
 		public NullableComboBoxModel(List<T> objects) {
-			this.objects = Objects.requireNonNull(objects);
+			this.objects = new ArrayList<>(Objects.requireNonNull(objects));
 		}
 
 		@Override
@@ -118,6 +119,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void setSelectedItem(Object anObject) {
 			if (selectedObject != null && !selectedObject.equals(anObject) || selectedObject == null
@@ -165,21 +167,18 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		@Override
 		public Component getListCellRendererComponent(JList<? extends T> list, T value, int index, boolean isSelected, boolean cellHasFocus) {
 			Component component = delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (value instanceof Rendering) {
-				Rendering renderingValue = (Rendering) value;
-				if (component instanceof JLabel) {
-					String text = Rendering.toString(value);
-					((JLabel) component).setText(text);
-					String tooltip = Rendering.toDescriptionString(value);
-					if (tooltip != null) {
-						((JComponent) component).setToolTipText(tooltip);
-					}
+			if (component instanceof JLabel) {
+				String text = Rendering.toString(value);
+				((JLabel) component).setText(text);
+				String tooltip = Rendering.toDescriptionString(value);
+				if (tooltip != null) {
+					((JComponent) component).setToolTipText(tooltip);
+				}
+			} else {
+				if (Configuration.isDevModeActive()) {
+					throw new RuntimeException("Cell component expected to be a JLabel");
 				} else {
-					if (Configuration.isDevModeActive()) {
-						throw new RuntimeException("Cell component expected to be a JLabel");
-					} else {
-						Logger.getLogger(this.getClass().getName()).warning("Cell component expected to be a JLabel");
-					}
+					Logger.getLogger(this.getClass().getName()).warning("Cell component expected to be a JLabel");
 				}
 			}
 			return component;

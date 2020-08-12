@@ -1,35 +1,45 @@
 package org.minimalj.security;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.transaction.Role;
-import org.minimalj.transaction.TransactionAnnotations;
 
 public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private static final InheritableThreadLocal<Subject> subject = new InheritableThreadLocal<>();
-	private String name;
-	private Serializable token;
-	
-	private final List<String> roles = new ArrayList<>();
+	private final String name;
+	private final Serializable token;
+	private final List<String> roles;
+
+	/**
+	 * Only for tests
+	 * 
+	 * @param name
+	 */
+	public Subject(String name) {
+		this.name = name;
+		this.token = null;
+		this.roles = Collections.emptyList();
+	}
+
+	public Subject(String name, Serializable token, List<String> roles) {
+		super();
+		this.name = name;
+		this.token = token;
+		this.roles = Objects.requireNonNull(roles);
+	}
 
 	public String getName() {
 		return name;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public Serializable getToken() {
 		return token;
-	}
-	
-	public void setToken(Serializable token) {
-		this.token = token;
 	}
 	
 	public List<String> getRoles() {
@@ -59,7 +69,7 @@ public class Subject implements Serializable {
 	}
 
 	public static boolean currentCanAccess(Class<?> clazz) {
-		Role role = TransactionAnnotations.getAnnotationOfClassOrPackage(clazz, Role.class);
+		Role role = AnnotationUtil.getAnnotationOfClassOrPackage(clazz, Role.class);
 		if (role == null) {
 			return true;
 		} else {

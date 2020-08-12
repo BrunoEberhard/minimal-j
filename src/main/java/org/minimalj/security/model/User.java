@@ -3,6 +3,7 @@ package org.minimalj.security.model;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
@@ -29,4 +30,9 @@ public class User {
 		}
 		return s.toString();
 	}
+
+	public List<String> getRoleNames() {
+		return roles.stream().map(role -> role.name).collect(Collectors.toList());
+	}
+
 }

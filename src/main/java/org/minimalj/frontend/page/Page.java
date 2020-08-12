@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.security.AccessControl;
+import org.minimalj.security.Authorization;
+import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -17,7 +20,7 @@ import org.minimalj.util.resources.Resources;
  * getContent(). 
  *
  */
-public abstract class Page {
+public abstract class Page implements AccessControl {
 	
 	public String getTitle() {
 		return Resources.getString(getClass());
@@ -37,11 +40,15 @@ public abstract class Page {
 		return null;
 	}
 	
+	private static final String ALLOWED_CHARS = "-._~:/?#[]@!$&'()*+,;=%"; // #% additional to URL Fragment
+
 	/**
 	 * Route String must obey some rules to be valid:
 	 * <UL>
-	 * <LI>no '/' at start or end
-	 * <LI>Only characters or digits or the three characters -_/ are allowed
+	 * <LI>start with a '/'</LI>
+	 * <LI>no '/' at end</LI>
+	 * <LI>contain no '..'</LI>
+	 * <LI>all characters must be letter, digits or in ALLOWED_CHARS</LI>
 	 * </UL>
 	 * 
 	 * @param route String provided by a page
@@ -49,19 +56,34 @@ public abstract class Page {
 	 * @see java.util.Base64#getUrlEncoder
 	 */
 	public static boolean validateRoute(String route) {
-		if (StringUtils.isBlank(route)) {
+		if (StringUtils.isEmpty(route)) {
 			return false;
 		}
-		if (route.startsWith("/") || route.endsWith("/")) {
+		if (route.charAt(0) != '/' || route.length() > 1 && route.endsWith("/")) {
 			return false;
 		}
-		for (int i = 0; i<route.length(); i++) {
+		if (route.contains("..")) {
+			return false;
+		}
+		for (int i = 1; i < route.length(); i++) {
 			char c = route.charAt(i);
-			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '/' || c == '-' || c == '_')) {
+			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || ALLOWED_CHARS.indexOf(c) >= 0)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	/**
+	 * This default implementation handles access by annotations. This can be
+	 * overridden to grant access not only by the page class but also by the data
+	 * the page will show.
+	 * 
+	 * @param subject the current subject
+	 * @return true if the current subject can access this page.
+	 */
+	@Override
+	public boolean hasAccess(Subject subject) {
+		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, getClass()));
+	}
 }

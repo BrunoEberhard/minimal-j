@@ -11,80 +11,69 @@ import org.minimalj.security.permissiontest.TestEntityBView;
 import org.minimalj.security.permissiontest.TestTransaction;
 import org.minimalj.security.permissiontest.TestTransactionU;
 import org.minimalj.security.permissiontest.pkgrole.TestEntityH;
-import org.minimalj.transaction.TransactionAnnotations;
 
 public class SecurityTest {
 
 	@Test
 	public void testEntityWithoutRole() throws Exception {
-		Assert.assertNull("ReadTransaction without Role annotation to class or package should need no role",
-				TransactionAnnotations.getRoles(new ReadEntityTransaction<>(TestEntityA.class, 1)));
+		Assert.assertTrue("ReadTransaction without Role annotation to class or package should need no role",
+				Authorization.hasAccess(new Subject("A"), new ReadEntityTransaction<>(TestEntityA.class, 1)));
 	}
 
 	@Test
 	public void testEntityWithSingleRole() throws Exception {
-		Subject subject = new Subject();
-		subject.getRoles().add("RoleA");
-		Subject.setCurrent(subject);
-		try {
-			Authorization.check(new ReadEntityTransaction<>(TestEntityB.class, 1));
-			Assert.fail("RoleA should not allow access to TestEntityB");
-		} catch (Exception e) {
-			// expected
-		}
-		subject.getRoles().add("RoleB");
-		Authorization.check(new ReadEntityTransaction<>(TestEntityB.class, 1));
+		Subject subject = new Subject("A", null, Collections.singletonList("RoleA"));
+		Assert.assertFalse(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityB.class, 1)));
+		subject = new Subject("B", null, Collections.singletonList("RoleB"));
+		Assert.assertTrue(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityB.class, 1)));
 	}
 
 	@Test
 	public void testEntityView() throws Exception {
-		Subject subject = new Subject();
-		subject.getRoles().add("RoleA");
-		Subject.setCurrent(subject);
-		Authorization.check(new ReadEntityTransaction<>(TestEntityBView.class, 1));
-		subject.getRoles().remove("RoleA");
-		subject.getRoles().add("RoleB");
-		try {
-			Authorization.check(new ReadEntityTransaction<>(TestEntityBView.class, 1));
-			Assert.fail("RoleB should not allow access to TestEntityBView");
-		} catch (Exception e) {
-			// expected
-		}
+		Subject subject = new Subject("A", null, Collections.singletonList("RoleA"));
+		Assert.assertTrue(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityBView.class, 1)));
+		subject = new Subject("B", null, Collections.singletonList("RoleB"));
+		Assert.assertFalse(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityBView.class, 1)));
 	}
 
 	//
 	
+	@Test
 	public void testNotAuthorizedEntity() {
-		Assert.assertFalse(Authorization.isAllowed(Collections.emptyList(), new ReadEntityTransaction<>(TestEntityH.class, 1)));
+		Assert.assertFalse(Authorization.hasAccess(new Subject("A"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
+	}
+
+	private Subject subject(String role) {
+		return new Subject("A", null, Collections.singletonList(role));
 	}
 
 	@Test
 	public void testAuthorizedEntity() {
-		Assert.assertTrue(Authorization.isAllowed(Collections.singletonList("ClassRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
+		Assert.assertTrue(Authorization.hasAccess(subject("ClassRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
 	@Test
 	public void testAuthorizationOnPackageOverruledEntity() {
-		Assert.assertFalse(Authorization.isAllowed(Collections.singletonList("pkgRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
+		Assert.assertFalse(Authorization.hasAccess(subject("pkgRole"), new ReadEntityTransaction<>(TestEntityH.class, 1)));
 	}
 
 	@Test
 	public void testAuthorizedTransaction() {
-		Assert.assertTrue("Without a Role annotation itself an EntityTransaction depends on the Role of its entity", Authorization.isAllowed(Collections.singletonList("ClassRole"), new TestTransaction<>()));
+		Assert.assertTrue("Without a Role annotation itself an EntityTransaction depends on the Role of its entity", Authorization.hasAccess(subject("ClassRole"), new TestTransaction<>()));
 	}
 
 	@Test
 	public void testNotAuthorizedTransaction() {
-		Assert.assertFalse("Without a Role annotation itself an EntityTransaction depends on the Role of its entity", Authorization.isAllowed(Collections.singletonList("guest"), new TestTransaction<>()));
+		Assert.assertFalse("Without a Role annotation itself an EntityTransaction depends on the Role of its entity", Authorization.hasAccess(subject("guest"), new TestTransaction<>()));
 	}
 
 	@Test
 	public void testAuthorizedTransaction2() {
-		Assert.assertTrue("An EntityTransaction can overrule the Role of its Entity", Authorization.isAllowed(Collections.singletonList("transactionRole"), new TestTransactionU<>()));
+		Assert.assertTrue("An EntityTransaction can overrule the Role of its Entity", Authorization.hasAccess(subject("transactionRole"), new TestTransactionU<>()));
 	}
 
 	@Test
 	public void testNotAuthorizedTransaction2() {
-		Assert.assertFalse("An EntityTransaction can overrule the Role of its Entity", Authorization.isAllowed(Collections.singletonList("ClassRole"), new TestTransactionU<>()));
+		Assert.assertFalse("An EntityTransaction can overrule the Role of its Entity", Authorization.hasAccess(subject("ClassRole"), new TestTransactionU<>()));
 	}
 }

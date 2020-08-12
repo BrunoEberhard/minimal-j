@@ -29,7 +29,6 @@ import java.util.ResourceBundle.Control;
 import java.util.logging.Logger;
 
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
@@ -228,14 +227,6 @@ public abstract class Application implements Model {
 	 */
 	public Page createDefaultPage() {
 		return new EmptyPage();
-	}
-	
-	/**
-	 * 
-	 * @return true if this application cannot be accessed without login
-	 */
-	public boolean isLoginRequired() {
-		return false;
 	}
 	
 	/**

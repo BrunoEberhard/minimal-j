@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>thymeleaf</artifactId>
-	<version>0.1.0.0-SNAPSHOT</version>
+	<version>0.6.0.0-SNAPSHOT</version>
 	<name>MinimalJ Thymeleaf</name>
 	<description>Use Thymeleaf as template engine</description>
 
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.21.0.0,)</version>
+			<version>[1.23.0.2-SNPASHOT,)</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.nanohttpd</groupId>

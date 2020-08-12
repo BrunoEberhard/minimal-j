@@ -9,7 +9,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
-import org.minimalj.repository.ignite.IgniteRepository;
 import org.minimalj.security.Subject;
 
 public class IgniteDbTechnicalFieldTest {
@@ -26,8 +25,7 @@ public class IgniteDbTechnicalFieldTest {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("A");
+		Subject subject = new Subject("A");
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -46,8 +44,7 @@ public class IgniteDbTechnicalFieldTest {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 
-		Subject subject = new Subject();
-		subject.setName("B");
+		Subject subject = new Subject("B");
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -56,8 +53,7 @@ public class IgniteDbTechnicalFieldTest {
 		entity = repository.read(TestEntity.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 
-		subject = new Subject();
-		subject.setName("C");
+		subject = new Subject("C");
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";

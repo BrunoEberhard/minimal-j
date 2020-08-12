@@ -16,6 +16,7 @@ import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 import org.minimalj.util.StringUtils;
 
 import io.undertow.server.HttpHandler;
@@ -61,6 +62,11 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		}
 
 		@Override
+		public boolean isResponseSent() {
+			return exchange.isResponseStarted();
+		}
+
+		@Override
 		public InputStream getRequest() {
 			exchange.startBlocking();
 			return exchange.getInputStream();
@@ -88,10 +94,10 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 
 		exchange.dispatch(() -> {
 			try {
-				LocaleContext.setCurrent(MjHttpExchange.getLocale(exchange.getRequestHeaders().get("accept-language").getFirst()));
+				LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().get(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER).getFirst()));
 				WebApplication.handle(mjExchange);
 			} finally {
-				LocaleContext.setCurrent(null);
+				LocaleContext.resetLocale();
 			}
 		});
 	}

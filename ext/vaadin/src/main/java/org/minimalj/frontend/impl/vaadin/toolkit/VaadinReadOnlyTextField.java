@@ -1,46 +1,32 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import org.minimalj.frontend.Frontend.Input;
-import org.minimalj.util.StringUtils;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.HasCaption;
 
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
-public class VaadinReadOnlyTextField extends VerticalLayout implements Input<String> {
+public class VaadinReadOnlyTextField extends TextField implements Input<String>, HasCaption {
 	private static final long serialVersionUID = 1L;
-	private Label label;
+	private String value;
 	
 	public VaadinReadOnlyTextField() {
-		setMargin(false);
-		setSpacing(false);
-		setWidth("100%");
+        setReadonly(true);
+		value = getValue();
 	}
 
 	@Override
-	public void setValue(String text) {
-		removeAllComponents();
-		if (!StringUtils.isEmpty(text)) {
-			for (String line : text.split("\n")) {
-				Label label = new Label(line, ContentMode.TEXT);
-				label.addStyleName("v-html-readonly");
-				addComponent(label);
-			}
-		} else {
-			Label label = new Label("&nbsp;", ContentMode.HTML);
-			label.addStyleName("v-html-readonly");
-			addComponent(label);
-		}
+	public void setValue(String value) {
+		this.value = value;
+		super.setValue(value != null ? value : "");
 	}
 
 	@Override
 	public String getValue() {
-		// not possible
-		return label != null ? (String) label.getValue() : null;
+		return value;
 	}
 
 	@Override
 	public void setEditable(boolean editable) {
-		// read only field cannot be enabled
+        // read only field cannot be editable
 	}
 }

@@ -5,37 +5,36 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.upload.Receiver;
+import com.vaadin.flow.component.upload.Upload;
 
-public class VaadinImportDialog extends Window implements Upload.Receiver {
+public class VaadinImportDialog extends Dialog implements Receiver {
 	private static final long serialVersionUID = 1L;
 
 	private Upload upload;
 	private CloseablePipedInputStream inputStream;
 	
 	public VaadinImportDialog(String title) {
-		super(title);
+		// super(title);
 		inputStream = new CloseablePipedInputStream();
 		
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setSpacing(false);
-		upload = new Upload(null, this);
+		upload = new Upload(this);
 
-		horizontalLayout.addComponent(upload);
-		horizontalLayout.setExpandRatio(upload, 1.0F);
+		horizontalLayout.add(upload);
+		horizontalLayout.setSizeFull();
 
-		setContent(horizontalLayout);
+		add(horizontalLayout);
 		setModal(true);
-		UI.getCurrent().addWindow(this);
+		open();
 		
-		addCloseListener(new CloseListener() {
-			private static final long serialVersionUID = 1L;
-
+		this.addDialogCloseActionListener(new ComponentEventListener<Dialog.DialogCloseActionEvent>() {
 			@Override
-			public void windowClose(CloseEvent e) {
+			public void onComponentEvent(DialogCloseActionEvent event) {
 				try {
 					inputStream.close();
 				} catch (IOException e1) {

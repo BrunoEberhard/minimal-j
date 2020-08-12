@@ -84,7 +84,7 @@ public class MjEntity {
 	}
 	
 	public MjEntity(MjModel model, Class<?> clazz) {
-		this.clazz = clazz;
+        this.clazz = Objects.requireNonNull(clazz);
 		
 		model.addEntity(this);
 		validatable = Validation.class.isAssignableFrom(clazz);
@@ -145,6 +145,9 @@ public class MjEntity {
 	}
 
 	public boolean isPrimitiv() {
+        if (type == null) {
+            System.out.println("Null type: " + clazz.getName());
+        }
 		return type.isPrimitiv();
 	}
 

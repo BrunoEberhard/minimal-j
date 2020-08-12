@@ -1,200 +1,108 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+
+import javax.swing.DefaultRowSorter;
 
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
-import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
 
-import com.vaadin.data.PropertyDefinition;
-import com.vaadin.data.PropertySet;
-import com.vaadin.data.ValueProvider;
-import com.vaadin.event.selection.SelectionEvent;
-import com.vaadin.event.selection.SelectionListener;
-import com.vaadin.server.Setter;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.components.grid.ItemClickListener;
-import com.vaadin.ui.renderers.TextRenderer;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.ItemClickEvent;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.data.renderer.BasicRenderer;
+import com.vaadin.flow.data.renderer.Rendering;
+import com.vaadin.flow.data.selection.SelectionEvent;
+import com.vaadin.flow.data.selection.SelectionListener;
+import com.vaadin.flow.function.ValueProvider;
 
-import elemental.json.JsonValue;
-
-@SuppressWarnings({"unchecked", "rawtypes"})
 public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
+	private final Object[] keys;
 	private final TableActionListener<T> listener;
-	// private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
-	// private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
+	// private Action action_delete = new ShortcutAction("Delete",
+	// ShortcutAction.KeyCode.DELETE, null);
+	// private Action action_enter = new ShortcutAction("Enter",
+	// ShortcutAction.KeyCode.DELETE, null);
 
-	private PropertyInterface[] properties;
-	
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		super(propertySet(keys));
-		addStyleName("table");
+		this.keys = keys;
+		for (Object key : keys) {
+			PropertyInterface p = Keys.getProperty(key);
+			addColumn(new MinimalRenderer(p)).
+				setHeader(Resources.getPropertyName(p)).
+				setComparator((a, b) -> compareMaybeComparables(p.getValue(a), p.getValue(b)));
+		}
+
+		addClassName("table");
 		this.listener = listener;
-		this.properties = Keys.getProperties(keys);
-		
+
 		setSelectionMode(multiSelect ? SelectionMode.MULTI : SelectionMode.SINGLE);
 		setSizeFull();
-		
+
 		VaadinTableListener tableListener = new VaadinTableListener();
 		addItemClickListener(tableListener);
 		addSelectionListener(tableListener);
 	}
 	
-	@Override
-    public Column<T, ?> addColumn(String propertyName) {
-        return addColumn(propertyName, new MjTableRenderer(propertyName));
-    }
-	
-	private static <T> PropertySet<T> propertySet(Object[] keys) {
-		return new MjTablePropertySet(keys);
-	}
-
-	private static class MjTablePropertySet<T> implements PropertySet<T> {
+	private class MinimalRenderer extends BasicRenderer<T, Object> {
 		private static final long serialVersionUID = 1L;
 
-		private final PropertyInterface properties[];
-		private final List<PropertyDefinition<T, ?>> defList = new ArrayList<>();
+		private final PropertyInterface property;
 		
-		public  MjTablePropertySet(Object[] keys) {
-			properties = Keys.getProperties(keys);
-			for (PropertyInterface p : properties) {
-				defList.add(new MjTablePropertyDefinition(p));
-			}
+		protected MinimalRenderer(PropertyInterface property) {
+			super(T -> property.getValue(T));
+			this.property = property;
 		}
 		
-		@Override
-		public Stream<PropertyDefinition<T, ?>> getProperties() {
-			return defList.stream();
-		}
-
-		@Override
-		public Optional<PropertyDefinition<T, ?>> getProperty(String name) {
-			for (PropertyDefinition d : defList) {
-				if (d.getName().equals(name)) {
-					return Optional.of(d);
-				}
-			} 
-			return Optional.empty();
-		}
-		
-		private static class MjTablePropertyDefinition<T> implements PropertyDefinition {
-			private static final long serialVersionUID = 1L;
-
-			private final PropertyInterface property;
-			
-			public MjTablePropertyDefinition(PropertyInterface property) {
-				this.property = property;
-			}
-
-			@Override
-			public ValueProvider getGetter() {
-				return new MjTableValueProvider();
-			}
-
-			@Override
-			public Optional getSetter() {
-				return Optional.of(new MjTableSetter());
-			}
-
-			@Override
-			public Class getType() {
-				return property.getClazz();
-			}
-
-			@Override
-			public String getName() {
-				return property.getPath();
-			}
-
-			@Override
-			public String getCaption() {
-				return Resources.getPropertyName(property);
-			}
-
-			@Override
-			public PropertySet getPropertySet() {
-				return null;
-			}
-
-			@Override
-			public Class getPropertyHolderType() {
-				return property.getDeclaringClass();
-			}
-			
-			private class MjTableValueProvider implements ValueProvider {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Object apply(Object source) {
-					return property.getValue(source);
-				}
-			}
-			
-			private class MjTableSetter implements Setter {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void accept(Object bean, Object fieldvalue) {
-					property.setValue(bean, fieldvalue);
-				}
-			}
-		}
+	    @Override
+	    protected String getFormattedValue(Object object) {
+	        return org.minimalj.model.Rendering.toString(object, property);
+	    }
 	}
-	
+
 	@Override
 	public void setObjects(List<T> objects) {
 		setItems(objects);
+		setSortableColumns(objects);
 	}
-	
-	private class MjTableRenderer extends TextRenderer {
 
-		private final String propertyName;
-
-		public MjTableRenderer(String propertyName) {
-			this.propertyName = propertyName;
+	private void setSortableColumns(List<T> list) {
+		Sortable sortable = null;
+		if (list instanceof Sortable) {
+			sortable = (Sortable) list;
 		}
+		for (int i = 0; i < keys.length; i++) {
+			getColumns().get(i).setSortable(sortable != null && sortable.canSortBy(keys[i]));
+		}
+	}
 
+	private class VaadinTableListener implements ComponentEventListener<ItemClickEvent<T>>, SelectionListener<Grid<T>, T> {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public JsonValue encode(Object value) {
-			PropertyInterface property = null;
-			for (PropertyInterface p : properties) {
-				if (p.getPath().equals(propertyName)) {
-					property = p;
-					break;
-				}
-			}
-			
-			value = Rendering.toString(value, property);
-			return super.encode(value);
-		}
-	}
-	
-	private class VaadinTableListener implements ItemClickListener<T>, SelectionListener<T> {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void itemClick(ItemClick<T> event) {
-			if (event.getMouseEventDetails().isDoubleClick()) {
-				listener.action(event.getItem());
-			}			
-		}
-
-		@Override
-		public void selectionChange(SelectionEvent<T> event) {
+		public void selectionChange(SelectionEvent<Grid<T>, T> event) {
 			listener.selectionChanged(new ArrayList<>(event.getAllSelectedItems()));
 		}
+
+		@Override
+		public void onComponentEvent(ItemClickEvent<T> event) {
+			if (event.getClickCount() == 2) {
+				listener.action(event.getItem());
+			}
+
+		}
 	}
-	
+
 //	private class VaadinTableActionHandler implements Handler {
 //		private static final long serialVersionUID = 1L;
 //

@@ -6,47 +6,37 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import com.vaadin.server.StreamResource;
-import com.vaadin.server.StreamResource.StreamSource;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import javax.xml.transform.stream.StreamSource;
 
-public class VaadinExportDialog extends Window {
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.server.StreamResource;
+
+public class VaadinExportDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
 
-	private Link link;
+	private Anchor link;
 	private PipedOutputStream pipedOutputStream = new PipedOutputStream();
 	
-	public VaadinExportDialog(String title) {
-		super(title);
-		
+	public VaadinExportDialog(String title) {		
 		try {
 			HorizontalLayout horizontalLayout = new HorizontalLayout();
 			horizontalLayout.setMargin(false);
 			final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
             
-    		StreamSource ss = new StreamSource() {
-                private static final long serialVersionUID = 1L;
-                                                            
-				@Override
-                public InputStream getStream() {
-                	VaadinExportDialog.this.close();
-                    return pipedInputStream;
-                }
-            };
-            StreamResource sr = new StreamResource(ss, "export.xml");
-			sr.setMIMEType("application/octet-stream");
-			sr.setCacheTime(0);
-			link = new Link("Link to Download", sr);
+    		StreamSource ss = new StreamSource(pipedInputStream);
+//            StreamResource sr = new StreamResource(ss, "export.xml");
+//			sr.setContentType("application/octet-stream");
+//			sr.setCacheTime(0);
+//			link = new Anchor(sr, "Link to Download");
+//			
+//			horizontalLayout.add(link);
 			
-			horizontalLayout.addComponent(link);
-			
-			setContent(horizontalLayout);
+			add(horizontalLayout);
 			
 			setModal(true);
-			UI.getCurrent().addWindow(this);
+			open();
 		} catch (IOException x) {
         	x.printStackTrace();
         }

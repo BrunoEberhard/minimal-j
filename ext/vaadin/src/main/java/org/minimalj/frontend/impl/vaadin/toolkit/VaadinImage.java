@@ -1,24 +1,31 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 
-import com.vaadin.server.FileResource;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Image;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FinishedEvent;
-import com.vaadin.ui.Upload.StartedEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.upload.FinishedEvent;
+import com.vaadin.flow.component.upload.Receiver;
+import com.vaadin.flow.component.upload.StartedEvent;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.server.InputStreamFactory;
+import com.vaadin.flow.server.StreamResource;
 
-public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[]> {
+public class VaadinImage extends HorizontalLayout implements Input<byte[]> {
 	private static final long serialVersionUID = 1L;
 
 	private final InputComponentListener changeListener;
@@ -31,24 +38,23 @@ public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[
 	private byte[] imageData;
 	
 	public VaadinImage(InputComponentListener changeListener) {
-		super(3, 1);
 		this.changeListener = changeListener;
 		
 		image = new Image();
 		// image.setHeight(size * 3, Unit.EM);
-		addComponent(image, 0, 0);
 		
 		upload = new Upload();
-		addComponent(upload, 1, 0);
+		add(upload);
 		
-		removeButton = new Button(FontAwesome.REMOVE);
-		addComponent(removeButton, 2, 0);
+		Icon icon = new Icon(VaadinIcon.FILE_REMOVE);
+		removeButton = new Button(icon);
+		add(removeButton);
 		
-		upload.setReceiver(new Upload.Receiver() {
+		upload.setReceiver(new Receiver() {
 			private static final long serialVersionUID = 1L;
-
+			
 			@Override
-			public OutputStream receiveUpload(String filename, String mimeType) {
+			public OutputStream receiveUpload(String fileName, String mimeType) {
 				try {
 					return new FileOutputStream(uploadFile);
 				} catch (FileNotFoundException e) {
@@ -57,11 +63,11 @@ public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[
 			}
 		});
 		
-		upload.addFinishedListener(new Upload.FinishedListener() {
+		upload.addFinishedListener(new ComponentEventListener<FinishedEvent>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void uploadFinished(FinishedEvent event) {
+			public void onComponentEvent(FinishedEvent event) {
 				try {
 					setValue(Files.readAllBytes(uploadFile.toPath()));
 					changeListener.changed(VaadinImage.this);
@@ -71,11 +77,11 @@ public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[
 			}
 		});
 		
-		upload.addStartedListener(new Upload.StartedListener() {
+		upload.addStartedListener(new ComponentEventListener<StartedEvent>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void uploadStarted(StartedEvent event) {
+			public void onComponentEvent(StartedEvent event) {
 				try {
 					uploadFile = File.createTempFile("ImageUpload", "xyz");
 				} catch (IOException e) {
@@ -91,24 +97,30 @@ public class VaadinImage extends com.vaadin.ui.GridLayout implements Input<byte[
 	
 	@Override
 	public void setValue(byte[] imageData) {
+		boolean visible = this.imageData != null;
 		this.imageData = imageData;
 		if (imageData != null) {
-			File file;
-			try {
-				file = File.createTempFile("imageDisplay", "png");
-				try (FileOutputStream fis = new FileOutputStream(file)) {
-					fis.write(imageData);
+			image.setVisible(true);
+		    StreamResource streamResource = new StreamResource("isr", new InputStreamFactory() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public InputStream createInputStream() {
+					return new ByteArrayInputStream(imageData);
 				}
-				image.setSource(new FileResource(file));
-			} catch (IOException e) {
-				e.printStackTrace();
-				image.setSource(null);
-			}
+			});
+		    image.setSrc(streamResource);
+		    if (!visible) {
+		    	// add(image);
+		    	addComponentAsFirst(image);
+		    }
 		} else {
-			image.setSource(null);
+			if (visible) {
+				remove(image);
+			}
 		}
 	}
-
+	
 	@Override
 	public byte[] getValue() {
 		return imageData;

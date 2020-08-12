@@ -1,7 +1,6 @@
 package org.minimalj.frontend.impl.swing.component;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.JTextPane;
@@ -20,6 +19,7 @@ import javax.swing.text.html.ImageView;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 
@@ -55,13 +55,8 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 		HyperlinkListener listener = e -> {
 			if (e.getEventType() == EventType.ACTIVATED) {
 				String href = e.getDescription();
-				if (href.startsWith("/")) {
-					href = href.substring(1);
-				}
 				Page page = Routing.createPageSafe(href);
-				if (page != null) {
-					SwingFrontend.runWithContext(() -> Frontend.show(page));
-				}
+				SwingFrontend.run(SwingHtmlContent.this, () -> Frontend.show(page));
 			}
 		};
 		addHyperlinkListener(listener);
@@ -108,10 +103,9 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 				if (reference != null) {
 					return new URL(reference, src);
 				} else {
-					// this is the line
-					return getClass().getClassLoader().getResource(src);
+					return WebApplication.getResourceHandler().getUrl(src);
 				}
-			} catch (MalformedURLException e) {
+			} catch (IOException e) {
 				return null;
 			}
 		}

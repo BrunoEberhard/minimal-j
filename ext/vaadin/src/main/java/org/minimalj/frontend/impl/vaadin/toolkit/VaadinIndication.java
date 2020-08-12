@@ -2,25 +2,23 @@ package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import java.util.List;
 
-import com.vaadin.server.CompositeErrorMessage;
-import com.vaadin.server.ErrorMessage;
-import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.flow.component.HasValidation;
 
 public class VaadinIndication {
 
-	public static void setValidationMessages(List<String> validationMessages, AbstractComponent component) {
+	public static void setValidationMessages(List<String> validationMessages, HasValidation component) {
 		if (validationMessages.isEmpty()) {
-			component.setComponentError(null);
+			component.setInvalid(false);
 		} else if (validationMessages.size() == 1) {
-			component.setComponentError(new UserError(validationMessages.get(0)));
+			component.setInvalid(true);
+			component.setErrorMessage(validationMessages.get(0));
 		} else {
-			ErrorMessage[] errorMessages = new ErrorMessage[validationMessages.size()];
+			component.setInvalid(true);
+			StringBuilder b = new StringBuilder();
 			for (int i = 0; i<validationMessages.size(); i++) {
-				errorMessages[i] = new UserError(validationMessages.get(i));
+				b.append(validationMessages.get(i)).append('\n');
 			}
-			CompositeErrorMessage compositeErrorMessage = new CompositeErrorMessage(errorMessages);
-			component.setComponentError(compositeErrorMessage);
+			component.setErrorMessage(b.toString());
 		}
 	}
 
