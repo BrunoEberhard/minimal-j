@@ -9,10 +9,10 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 import org.minimalj.util.StringUtils;
 
 import com.sun.net.httpserver.HttpContext;
@@ -20,7 +20,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsServer;
 
-@SuppressWarnings("restriction")
 public class DemoWebServer {
 	private static final Logger LOG = Logger.getLogger(DemoWebServer.class.getName());
 
@@ -45,7 +44,7 @@ public class DemoWebServer {
 
 	private static void handle(HttpExchange exchange) {
 		try {
-			LocaleContext.setCurrent(MjHttpExchange.getLocale(exchange.getRequestHeaders().getFirst("accept-language")));
+			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().getFirst(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
 			WebServerHttpExchange mjHttpExchange = new WebServerHttpExchange(exchange);
 
 			URI uri = exchange.getRequestURI();
@@ -68,7 +67,7 @@ public class DemoWebServer {
 
 			WebApplication.handle(mjHttpExchange);
 		} finally {
-			LocaleContext.setCurrent(null);
+			LocaleContext.setLocale(null);
 		}
 	}
 
