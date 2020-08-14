@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +19,10 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
@@ -202,18 +205,23 @@ public class JsonFrontend extends Frontend {
 	}
 
 	public static String getHtmlTemplate() {
-		return readStream(JsonFrontend.class.getResourceAsStream("/index.html"));
+		return readStream(WebApplication.class.getResourceAsStream("index.html"));
 	}
 	
-	static final Map<String, String> THEMES = new HashMap<>();
+	private static String stylesheets;
 	
 	static {
-		THEMES.put("", "");
-		THEMES.put("material", "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"miniterial.css\"/>");
-		/*
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
-		<link rel="stylesheet" type="text/css" href="miniterial.css"/>
-		*/
+		List<String> cssHrefs = new ArrayList<>();
+		if (StringUtils.equals(Configuration.get("MjTheme", ""), "material")) {
+			cssHrefs.add("https://fonts.googleapis.com/css?family=Roboto");
+			cssHrefs.add("material.css");
+		}
+		String[] customCss = Configuration.get("MjCss", "").split(",");
+		cssHrefs.addAll(Arrays.asList(customCss));
+		stylesheets = "";
+		cssHrefs.forEach(css -> {
+			stylesheets += "<link rel=\"stylesheet\" href=\"" + css + "\" />\n";
+		});
 	}
 	
 	public static String fillPlaceHolder(String html, String path) {
@@ -228,7 +236,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$META", getMeta());
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$PATH", path);
-		result = result.replace("$THEME", THEMES.get(Configuration.get("MjTheme", "")));
+		result = result.replace("$THEME", stylesheets);
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
 		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));
