@@ -67,6 +67,7 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 
 		private static ViewFactory mjFactory = new MjHTMLFactory();
 
+		@Override
 		public ViewFactory getViewFactory() {
 			return mjFactory;
 		}
@@ -92,6 +93,7 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 			super(elem);
 		}
 
+		@Override
 		public URL getImageURL() {
 			String src = (String) getElement().getAttributes().getAttribute(HTML.Attribute.SRC);
 			if (src == null) {

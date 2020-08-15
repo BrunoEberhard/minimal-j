@@ -8,8 +8,8 @@ import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
-import org.minimalj.security.Authorization;
 import org.minimalj.security.AccessControl;
+import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 
 /**
@@ -67,6 +67,7 @@ public interface Transaction<RETURN> extends AccessControl, Serializable {
 		return isolation != null ? isolation.value() : Isolation.Level.SERIALIZABLE;
 	}
 
+	@Override
 	default boolean hasAccess(Subject subject) {
 		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, this.getClass()));
 	}

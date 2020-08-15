@@ -23,6 +23,7 @@ public class ThymePage extends HtmlPage {
 		super(null, Objects.requireNonNull(route));
 	}
 
+	@Override
 	protected String getHtml() {
 		ThymePageExchange exchange = new ThymePageExchange(getRoute());
 		WebApplication.getWebApplicationHandler().handle(exchange);
