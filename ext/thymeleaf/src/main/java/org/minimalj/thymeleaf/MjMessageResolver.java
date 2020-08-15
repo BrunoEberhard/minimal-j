@@ -14,7 +14,7 @@ import org.thymeleaf.util.Validate;
  * 
  * @author bruno
  */
-class MjMessageResolver extends AbstractMessageResolver {
+public class MjMessageResolver extends AbstractMessageResolver {
 
 	// copied from StandardMessageResolutionUtils
 	private static final Object[] EMPTY_MESSAGE_PARAMETERS = new Object[0];
