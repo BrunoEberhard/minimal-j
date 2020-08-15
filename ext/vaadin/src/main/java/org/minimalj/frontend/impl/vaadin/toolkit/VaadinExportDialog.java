@@ -1,7 +1,6 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -11,7 +10,6 @@ import javax.xml.transform.stream.StreamSource;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.server.StreamResource;
 
 public class VaadinExportDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
