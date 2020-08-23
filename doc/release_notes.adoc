@@ -4,6 +4,7 @@ Every release contains many small fixes.
 
 === next
 * Custom css for Web Frontend
+* some Thymeleaf refactoring
 
 === 1.24.0.0
 * Push for WebSocket Frontend (for Switch and Text component)
