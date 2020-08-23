@@ -5,6 +5,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.MjHttpHandler;
 import org.minimalj.frontend.impl.web.WebApplication;
+import org.minimalj.frontend.impl.web.WebApplicationPage.WebApplicationPageExchange;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -31,6 +32,7 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 	@Override
 	public final void handle(MjHttpExchange exchange) {
 		ThymeRequest request = new ThymeRequest(templateEngine, exchange);
+		request.put("isApplication", exchange instanceof WebApplicationPageExchange);
 
 		handle(request);
 	}

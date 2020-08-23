@@ -294,6 +294,7 @@ public class VaadinFrontend extends Frontend {
             this.stringInput = stringInput;
 
 			this.lookupButton = new Button("...", event -> lookup.run());
+			lookupButton.setHeight("60%");
             ((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 

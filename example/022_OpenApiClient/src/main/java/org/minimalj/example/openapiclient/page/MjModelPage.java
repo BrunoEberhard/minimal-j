@@ -27,7 +27,7 @@ public class MjModelPage extends TableDetailPage<MjEntity> {
 	
 	@Override
 	protected Object[] getColumns() {
-		return new Object[] { MjEntity.$.name, MjEntity.$.type, MjEntity.$.validatable, MjEntity.$.maxInclusive };
+		return new Object[] { MjEntity.$.getClassName(), MjEntity.$.type, MjEntity.$.validatable, MjEntity.$.maxInclusive };
 	}
 
 	@Override

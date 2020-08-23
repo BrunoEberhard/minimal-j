@@ -14,6 +14,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.page.Routing;
 
 /**
  * You only need to extend from WebApplication if you want to serve custom html
@@ -85,11 +86,13 @@ public abstract class WebApplication extends Application {
 	private static List<MjHttpHandler> getHandlers() {
 		if (handlers == null) {
 			handlers = new ArrayList<>();
+			String mjHandlerPath = null;
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
 
 				if (Frontend.getInstance() instanceof JsonFrontend && WebApplication.mjHandlerPath() != null) {
-					handlers.add(new ApplicationHttpHandler(WebApplication.mjHandlerPath()));
+					mjHandlerPath = WebApplication.mjHandlerPath();
+					handlers.add(new ApplicationHttpHandler(mjHandlerPath));
 				}
 
 				handlers.add(getWebApplicationHandler());
@@ -99,16 +102,22 @@ public abstract class WebApplication extends Application {
 					handlers.add(resourcesHttpHandler);
 				}
 			} else {
+				mjHandlerPath = "/";
 				handlers.add(new ApplicationHttpHandler("/"));
 			}
 			handlers.add(new ResourcesHttpHandler() {
 				@Override
 				public void handle(MjHttpExchange exchange, String path) {
-					if (WebApplication.mjHandlerPath() == null || path.startsWith(WebApplication.mjHandlerPath())) {
+					if (WebApplication.mjHandlerPath() == null) {
 						super.handle(exchange, path);
+					} else if (path.startsWith(WebApplication.mjHandlerPath())) {
+						super.handle(exchange, path.substring(WebApplication.mjHandlerPath().length()));
 					}
 				}
 			});
+			if (Routing.available() && mjHandlerPath != null) {
+				handlers.add(new RoutingHttpHandler(mjHandlerPath));
+			}
 		}
 		return handlers;
 	}

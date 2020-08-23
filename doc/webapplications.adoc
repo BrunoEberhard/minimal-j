@@ -1,0 +1,175 @@
+= Web applications
+
+Minimal-J does a good job in displaying and editing structured data. Also in displaying tables of data.
+But sometimes you may wish to design a page completely different. For example you may want to display
+a scrumm board based on tasks the user entered.
+
+There are different setups in Minimal-J to embed custom pages
+* make one or many pages in a special design but include them in a normal Minimal-J application
+* build a complete web site with custom html
+* build the web site with custom html but include the Minimal-J application
+
+== Thymeleaf
+
+Thymeleaf (https://www.thymeleaf.org/) is a template engine. It's worth knowing it because it's quite common used. For example
+spring supports thymeleaf. The speciality of thymeleaf is described on it's web page:
+"Thymeleaf's main goal is to bring elegant natural templates to your development workflow — HTML that can be correctly
+displayed in browsers and also work as static prototypes".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The proper handling of lists (many to one relations) in the database layer is quite important. Many application have performance
+problems because they load too many objects from the database at the wrong time. For example a search by the
+user may be slow only because for every found result all the depending objects are load too. Even if they
+are not displayed on the result page.
+
+Minimal-J separates two kind of list fields very strictly. The difference in the class definitions may
+look small but the behavior is very different and should be know to developers.
+
+IMPORTANT: It's very crucial if the elements of a list contain an id field or not. If they contain no id
+they are closely tied to the object holding the list. Elements (objects) without id field cannot be changed, saved or
+deleted directly or independently.
+
+== Examples
+
+=== Elements without id
+
+In this example a person must have a first and a last name. But the person can also have many additional
+names.
+
+[source,java,title="Person.java"]
+----
+public class Person {
+	public Object id;
+	@Size(30) @NotEmpty
+	public String lastName, firstName;
+	public List<AdditionalName> additionalNames;
+}
+----
+
+Additional names don't make sense without a person they are added. They don't have an id of their
+own and can only be edited and saved in the context of a person
+
+[source,java,title="AdditionalName.java"]
+----
+public class AdditionalName {
+	@Size(30) @NotEmpty
+	public String name;
+}
+----
+
+=== Elements with an id
+
+Maybe you want the person to have relations. You can for example store the children of
+the person:
+
+[source,java,title="Person.java"]
+----
+public class Person {
+	public Object id;
+	@Size(30) @NotEmpty
+	public String lastName, firstName;
+	public List<Person> children;
+}
+----
+
+This class can be used like this:
+----
+public class PersonExample {
+
+	public static void main(String[] args) {
+		System.setProperty("java.util.logging.SimpleFormatter.format", "%5$s %6$s%n");
+
+		Repository repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), Person.class);
+		
+		AbstractTable.sqlLogger.setLevel(Level.FINEST);
+		AbstractTable.sqlLogger.getParent().getHandlers()[0].setLevel(Level.FINEST);
+		
+		Person child1 = new Person();
+		child1.firstName = "Markus";
+		child1.lastName = "Stadler";
+		
+		child1.id = repository.insert(child1);
+
+		Person parent = new Person();
+		parent.firstName = "Max";
+		parent.lastName = "Stadler";
+		parent.children = Arrays.asList(child1);
+		
+		parent.id = repository.insert(parent);
+		
+		parent = repository.read(Person.class, parent.id);
+		System.err.println(parent.children.getClass());
+		System.err.println(parent.children.size());
+		System.err.println(parent.children.get(0).firstName);
+		System.err.println(parent.children.get(0).lastName);
+	}
+}
+----
+
+and get these results:
+----
+   20ms INSERT INTO PERSON (LAST_NAME, FIRST_NAME, id) VALUES ('Stadler', 'Markus', '52c678cd-1b6f-455b-beca-db71a8844d38') 
+    0ms INSERT INTO PERSON (LAST_NAME, FIRST_NAME, id) VALUES ('Stadler', 'Max', '875e4b0c-cca4-4210-9bc1-a52a6fced3d8') 
+    4ms INSERT INTO PERSON__CHILDREN (elementId, id, position) VALUES ('52c678cd-1b6f-455b-beca-db71a8844d38', '875e4b0c-cca4-4210-9bc1-a52a6fced3d8', 0) 
+    6ms SELECT * FROM PERSON WHERE id = '875e4b0c-cca4-4210-9bc1-a52a6fced3d8' 
+    6ms SELECT COUNT(*) FROM PERSON__CHILDREN WHERE id = '875e4b0c-cca4-4210-9bc1-a52a6fced3d8' 
+class org.minimalj.repository.list.RelationList
+1
+    3ms SELECT T.* FROM PERSON T, PERSON__CHILDREN C WHERE T.id = C.elementId AND C.id = '875e4b0c-cca4-4210-9bc1-a52a6fced3d8' ORDER BY C.position OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY 
+    0ms SELECT COUNT(*) FROM PERSON__CHILDREN WHERE id = '52c678cd-1b6f-455b-beca-db71a8844d38' 
+Markus
+    0ms SELECT T.* FROM PERSON T, PERSON__CHILDREN C WHERE T.id = C.elementId AND C.id = '875e4b0c-cca4-4210-9bc1-a52a6fced3d8' ORDER BY C.position OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY 
+    0ms SELECT COUNT(*) FROM PERSON__CHILDREN WHERE id = '52c678cd-1b6f-455b-beca-db71a8844d38' 
+Stadler
+----
+
+As you see a cross table 'PERSON__CHILDREN' is created. Cross tables don't have a corresponding Java class. the id field of such a table references
+the id of the entity containing elements. The elementId is the id of the contained entity.
+
+The class RelationList is used as a specialized list class for the children of a Person. RelationLists load their content lazy. Not all elements
+are loaded when the parent entity is loaded. When a get method is called on the list the requested element is loaded by the backend. If you want avoid
+too many server roundtrips and you know that a lot of elements will be requested you should use the subList method. The subList method of a RelationList
+will return a unmodifiable List with all elements of the selected range preloaded. This is how such lists are used by the Frontend.
+
+Again note that of course these are not the real sql statements. Prepared statements are use and the question marks are replaced with the
+actual values when the statements are logged.
+
+== Rule
+
+How can you decide if elements should have their own id? This depends on the business needs.
+
+Elements should _not_ have their own id if
+
+* the elements cannot exists without the containing object
+* it makes no sense to display or edit the elements without displaying or editing the containing object
+* the content of the list should be displayed nearly every time the simple fields should be displayed. This
+can also mean the content is displayed on the same page as the containing object. For example in a ListFormElement
+* there will be not too many (about 5 to 10) elements for one containing object
+
+Elements should _have_ their own id if
+
+* elements can be created before creating a containing object or without creating one
+* changing an element doesn't bother the containing object
+* the elements of list will be listed in a DetailPage
+* there will be many (even thousands) of elements for one containing object
+
+NOTE: There is no easy solution like 'we use an id everywhere'. It really depends on many things if you want to
+have an id. Probably there will be more elements with an id. But in some cases the costs for that are simply to
+high and the user will also have to use a unnecessary complicated UI.
+
+WARNING: At the moment elements with an id of a _historized_ list are not yet implemented.

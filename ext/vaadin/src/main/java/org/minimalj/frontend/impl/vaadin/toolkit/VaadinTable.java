@@ -1,10 +1,7 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.DefaultRowSorter;
 
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
@@ -16,13 +13,9 @@ import org.minimalj.util.resources.Resources;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.ItemClickEvent;
-import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
-import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.data.renderer.BasicRenderer;
-import com.vaadin.flow.data.renderer.Rendering;
 import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.selection.SelectionListener;
-import com.vaadin.flow.function.ValueProvider;
 
 public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private static final long serialVersionUID = 1L;
