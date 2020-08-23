@@ -6,6 +6,7 @@ import java.util.Map;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.impl.web.WebApplicationPage;
 import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.security.Subject;
 import org.minimalj.thymeleaf.MjMessageResolver;
@@ -16,7 +17,9 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 /**
  * This page is only needed if you want to use Thymeleaf in Minimal-J pages. It
- * is not needed if you just want to render templates for a WebApplication.
+ * is not needed if you just want to render templates for a WebApplication. If
+ * you want to include pages from a WebApplication use
+ * {@link WebApplicationPage}
  * 
  * @author bruno
  *
