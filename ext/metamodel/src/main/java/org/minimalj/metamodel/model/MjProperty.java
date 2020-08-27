@@ -12,6 +12,7 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
+import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.FieldUtils;
@@ -38,7 +39,7 @@ public class MjProperty {
 	public Boolean notEmpty;
 	public Boolean searched;
 	public Boolean materialized;
-	public Boolean technical;
+	public TechnicalFieldType technical;
 	public String enabled;
 	
 	public MjProperty() {
@@ -63,7 +64,8 @@ public class MjProperty {
 		if (size == -1) {
 			size = null;
 		}
-		this.technical = field.getAnnotation(TechnicalField.class) != null;
+		TechnicalField technicalFieldAnnotation = field.getAnnotation(TechnicalField.class);
+		this.technical = technicalFieldAnnotation != null ? technicalFieldAnnotation.value() : null;
 	}
 	
 	public MjProperty(MjModel model, Method method) {
@@ -88,7 +90,7 @@ public class MjProperty {
 			size = null;
 		}
 		this.materialized = true;
-		this.technical = true;
+		this.technical = null;
 	}
 	
 	private MjPropertyType propertyType(Field field) {

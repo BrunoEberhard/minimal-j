@@ -342,7 +342,7 @@ public class OpenAPIFactory {
 			if (mjProperty.notEmpty) {
 				schema.required.add(mjProperty.name);
 			}
-			if (mjProperty.technical) {
+			if (mjProperty.technical != null) {
 				property.readOnly = true;
 			}
 			property.type = type(mjProperty);
