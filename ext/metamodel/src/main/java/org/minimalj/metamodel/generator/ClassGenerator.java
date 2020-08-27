@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Scanner;
@@ -105,7 +104,7 @@ public class ClassGenerator {
 		StringBuilder s = new StringBuilder();
 		s.append("package " + entity.packageName + ";\n\n");
 		s.append("import javax.annotation.Generated;\n\n");
-		s.append("@Generated(value=\"" + this.getClass().getName() + "\", date = \"" + LocalDateTime.now().toString() + "\")\n");
+		s.append("@Generated(value=\"" + this.getClass().getName() + "\")\n");
 		indent(s, indent).append("public enum " + createClassName(entity) + " {\n\t");
 		
 		generateEnumValues(s, entity);
@@ -152,7 +151,7 @@ public class ClassGenerator {
 		}
 		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
 		s.insert(0, "\npublic class " + className + " {\n");
-		s.insert(0, "\n@Generated(value=\"" + this.getClass().getName() + "\", date = \"" + LocalDateTime.now().toString() + "\")");
+		s.insert(0, "\n@Generated(value=\"" + this.getClass().getName() + "\")");
 		imprts(s);
 		s.insert(0, "package " + packageName + ";\n\n");
 		
@@ -199,6 +198,9 @@ public class ClassGenerator {
 
 		if (notEmpty && !inline) {
 			indent(s, indent).append("@NotEmpty\n");
+		}
+		if (property.technical != null) {
+			indent(s, indent).append("@TechnicalField(TechnicalFieldType." + property.technical.name() + ")\n");			
 		}
 		if (property.propertyType == MjPropertyType.LIST) {
 			indent(s, indent).append("public List<" + className + "> " + fieldName + ";\n");
@@ -264,6 +266,7 @@ public class ClassGenerator {
 		if (java.indexOf("@Generated") > -1) java.insert(0, "import javax.annotation.Generated;\n");
 		if (java.indexOf("@NotEmpty") > -1) java.insert(0, "import org.minimalj.model.annotation.NotEmpty;\n");
 		if (java.indexOf("@Size") > -1) java.insert(0, "import org.minimalj.model.annotation.Size;\n");
+		if (java.indexOf("@TechnicalField") > -1) java.insert(0, "import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;\nimport org.minimalj.model.annotation.TechnicalField;\n");
 		if (java.indexOf("BigDecimal") > -1) java.insert(0, "import java.math.BigDecimal;\n");
 		if (java.indexOf("LocalDate") > -1) java.insert(0, "import java.time.LocalDate;\n");
 		if (java.indexOf("LocalTime") > -1) java.insert(0, "import java.time.LocalTime;\n");
