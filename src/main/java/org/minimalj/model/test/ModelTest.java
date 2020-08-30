@@ -230,7 +230,7 @@ public class ModelTest {
 	private void testVersion(Class<?> clazz) {
 		try {
 			Field fieldVersion = clazz.getField("version");
-			if (isMain(clazz) && !Codes.isCode(clazz)) {
+			if (isMain(clazz)) {
 				if (fieldVersion.getType() == Integer.class) {
 					problems.add(clazz.getName() + ": Domain classes version must be of primitiv type int");
 				}
@@ -250,7 +250,7 @@ public class ModelTest {
 	private void testHistorized(Class<?> clazz) {
 		try {
 			Field fieldHistorized = clazz.getField("historized");
-			if (isMain(clazz) && !Codes.isCode(clazz)) {
+			if (isMain(clazz)) {
 				if (fieldHistorized.getType() != Boolean.TYPE) {
 					problems.add(clazz.getName() + ": Domain classes historized must be of primitiv type boolean");
 				}

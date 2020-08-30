@@ -3,6 +3,9 @@
 Every release contains many small fixes.
 
 === next
+* codes may be historized
+
+=== 1.25.0.0
 * Custom css for Web Frontend
 * some Thymeleaf refactoring
 
