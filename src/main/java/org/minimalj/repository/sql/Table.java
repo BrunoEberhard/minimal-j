@@ -95,17 +95,24 @@ public class Table<T> extends AbstractTable<T> {
 	public Object insert(T object) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
 			Object id;
-			if (IdUtils.hasId(object.getClass())) {
-				id = IdUtils.getId(object);
-				if (id == null) {
+			if (idProperty != null) {
+				id = idProperty.getValue(object);
+				if (id == null && idProperty.getClazz() != Integer.class) {
 					id = createId();
-					IdUtils.setId(object, id);
+					idProperty.setValue(object, id);
 				}
 			} else {
 				id = createId();
 			}
 			setParameters(insertStatement, object, ParameterMode.INSERT, id);
 			insertStatement.execute();
+			if (id == null) {
+				try (ResultSet rs = insertStatement.getGeneratedKeys()) {
+					rs.next();
+					id = rs.getInt(1);
+					idProperty.setValue(object, id);
+				}
+			}
 			insertLists(object);
 			if (object instanceof Code) {
 				sqlRepository.invalidateCodeCache(object.getClass());

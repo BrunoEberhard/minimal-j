@@ -48,7 +48,8 @@ public abstract class SqlDialect {
 	protected void addIdColumn(StringBuilder s, Class<?> idClass, int size) {
 		s.append(" id ");
 		if (idClass == Integer.class) {
-			s.append("INT");
+			s.append("INT ");
+			addAutoIncrement(s);
 		} else if (idClass == String.class) {
 			s.append("VARCHAR(");
 			s.append(size);
@@ -61,6 +62,10 @@ public abstract class SqlDialect {
 		s.append(" NOT NULL");
 	}
 	
+	protected void addAutoIncrement(StringBuilder s) {
+		s.append("AUTO_INCREMENT");
+	}
+
 	protected void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 		Class<?> clazz = property.getClazz();
 		

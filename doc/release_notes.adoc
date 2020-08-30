@@ -3,7 +3,8 @@
 Every release contains many small fixes.
 
 === next
-* codes may be historized
+* Codes may be historized
+* Auto increment for Integer codes
 
 === 1.25.0.0
 * Custom css for Web Frontend
