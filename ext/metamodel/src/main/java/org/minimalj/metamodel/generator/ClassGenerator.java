@@ -31,7 +31,7 @@ public class ClassGenerator {
 		delete(directory);
 	}
 	
-	private static boolean delete(File directory) {
+	static boolean delete(File directory) {
 		for (File file : directory.listFiles()) {
 			if (file.isDirectory()) {
 				delete(file);
@@ -150,7 +150,11 @@ public class ClassGenerator {
 			s.insert(0, "\tpublic Object id;\n");
 		}
 		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
-		s.insert(0, "\npublic class " + className + " {\n");
+		if (entity.type == MjEntityType.CODE) {
+			s.insert(0, "\npublic class " + className + " implements Code {\n");
+		} else {
+			s.insert(0, "\npublic class " + className + " {\n");
+		}
 		s.insert(0, "\n@Generated(value=\"" + this.getClass().getName() + "\")");
 		imprts(s);
 		s.insert(0, "package " + packageName + ";\n\n");
@@ -263,6 +267,7 @@ public class ClassGenerator {
 	
 	protected void imprts(StringBuilder java) {
 		java.insert(0, "import org.minimalj.model.Keys;\n");
+		if (java.indexOf("implements Code ") > -1) java.insert(0, "import org.minimalj.model.Code;\n");
 		if (java.indexOf("@Generated") > -1) java.insert(0, "import javax.annotation.Generated;\n");
 		if (java.indexOf("@NotEmpty") > -1) java.insert(0, "import org.minimalj.model.annotation.NotEmpty;\n");
 		if (java.indexOf("@Size") > -1) java.insert(0, "import org.minimalj.model.annotation.Size;\n");
