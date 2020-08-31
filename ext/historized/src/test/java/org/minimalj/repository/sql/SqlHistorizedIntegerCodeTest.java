@@ -19,6 +19,7 @@ public class SqlHistorizedIntegerCodeTest {
 	@Test
 	public void insertTestCodeWithIntegerId() {
 		TestCode code = new TestCode();
+		code.id = 1;
 		code.text = "Phase 1";
 		Object id = repository.insert(code);
 		Assert.assertEquals("id should be of class Integer", Integer.class, id.getClass());

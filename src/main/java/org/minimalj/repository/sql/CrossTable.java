@@ -29,11 +29,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 		super.createIdConstraint(dialect);
 		Class<?> referencedClass = ViewUtil.resolve(getClazz());
 		AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(referencedClass);
-
-		String s = dialect.createConstraint(getTableName(), "elementId", referencedTable.getTableName());
-		if (s != null) {
-			execute(s);
-		}
+		createConstraint(dialect, "elementId", referencedTable);
 	}
 
 	@Override

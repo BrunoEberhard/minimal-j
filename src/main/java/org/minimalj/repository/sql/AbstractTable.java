@@ -48,7 +48,8 @@ public abstract class AbstractTable<T> {
 	protected final String name;
 
 	protected final List<String> indexes = new ArrayList<>();
-	
+	protected final List<String> constraints = new ArrayList<>();
+
 	protected final String selectByIdQuery;
 	protected final String insertQuery;
 	protected final String updateQuery;
@@ -122,6 +123,19 @@ public abstract class AbstractTable<T> {
 		execute(s.toString());
 	}
 	
+	protected void dropTable(SqlDialect dialect) {
+		StringBuilder s = new StringBuilder();
+		s.append("DROP TABLE ").append(getTableName());
+
+		execute(s.toString());
+	}
+
+	protected void dropConstraints(SqlDialect dialect) {
+		for (String constraint : constraints) {
+			execute("ALTER TABLE " + getTableName() + " DROP CONSTRAINT " + constraint);
+		}
+	}
+
 	protected abstract void addSpecialColumns(SqlDialect dialect, StringBuilder s);
 	
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
@@ -158,14 +172,20 @@ public abstract class AbstractTable<T> {
 					continue;
 				}
 
-				String s = dialect.createConstraint(getTableName(), column.getKey(), referencedTable.getTableName());
-				if (s != null) {
-					execute(s);
-				}
+				createConstraint(dialect, column.getKey(), referencedTable);
 			}
 		}
 	}
-	
+
+	protected final void createConstraint(SqlDialect dialect, String column, AbstractTable<?> referencedTable) {
+		String constraintName = dialect.createConstraintName(getTableName(), column, referencedTable.getTableName());
+		String constraint = dialect.createConstraint(constraintName, getTableName(), column, referencedTable.getTableName());
+		if (constraint != null) {
+			constraints.add(constraintName);
+			execute(constraint);
+		}
+	}
+
 	public void clear() {
 		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), clearQuery, false)) {
 			statement.execute();
@@ -287,11 +307,12 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected enum ParameterMode {
-		INSERT, UPDATE, HISTORIZE;
+		INSERT, UPDATE, HISTORIZE, INSERT_AUTO_INCREMENT;
 	}
 	
 	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
 		int parameterPos = 1;
+		boolean insert = mode == ParameterMode.INSERT || mode == ParameterMode.INSERT_AUTO_INCREMENT;
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
@@ -309,7 +330,7 @@ public abstract class AbstractTable<T> {
 				}
 			} else if (isDependable(property)) {
 				Table dependableTable = sqlRepository.getTable(property.getClazz());
-				if (mode == ParameterMode.INSERT) {
+				if (insert) {
 					if (value != null) {
 						value = dependableTable.insert(value);
 					}							
@@ -334,9 +355,9 @@ public abstract class AbstractTable<T> {
 				TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
 				if (technicalField != null) {
 					TechnicalFieldType type = technicalField.value();
-					if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && mode == ParameterMode.INSERT) {
+					if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && insert) {
 						value = LocalDateTime.now();
-					} else if (type == TechnicalFieldType.EDIT_USER || (type == TechnicalFieldType.CREATE_USER && mode == ParameterMode.INSERT)) {
+					} else if (type == TechnicalFieldType.EDIT_USER || type == TechnicalFieldType.CREATE_USER && insert) {
 						Subject subject = Subject.getCurrent();
 						if (subject != null) {
 							value = subject.getName();
@@ -350,7 +371,9 @@ public abstract class AbstractTable<T> {
 				sqlRepository.getSqlDialect().setParameterNull(statement, parameterPos++, property.getClazz());
 			}
 		}
-		statement.setObject(parameterPos++, id);
+		if (mode != ParameterMode.INSERT_AUTO_INCREMENT) {
+			statement.setObject(parameterPos++, id);
+		}
 		return parameterPos;
 	}
 

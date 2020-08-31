@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -17,6 +19,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
@@ -42,14 +45,16 @@ public abstract class SqlDialect {
 	protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
 		Class<?> fieldClazz = idProperty.getClazz();
 		int size = fieldClazz == String.class ? AnnotationUtil.getSize(idProperty) : 0;
-		addIdColumn(s, fieldClazz, size);
+		addIdColumn(s, fieldClazz, size, idProperty.getAnnotation(AutoIncrement.class) != null);
 	}
 	
-	protected void addIdColumn(StringBuilder s, Class<?> idClass, int size) {
+	protected void addIdColumn(StringBuilder s, Class<?> idClass, int size, boolean autoIncrement) {
 		s.append(" id ");
 		if (idClass == Integer.class) {
 			s.append("INT ");
-			addAutoIncrement(s);
+			if (autoIncrement) {
+				addAutoIncrement(s);
+			}
 		} else if (idClass == String.class) {
 			s.append("VARCHAR(");
 			s.append(size);
@@ -123,16 +128,29 @@ public abstract class SqlDialect {
 	protected void addCreateStatementEnd(StringBuilder s) {
 		s.append("\n)");
 	}
+
 	
-	public String createConstraint(String tableName, String column, String referencedTableName) {
+	public final String createConstraintName(String tableName, String column, String referencedTableName) {
 		String name = "FK_" + tableName + "_" + column;
 		name = SqlIdentifier.buildIdentifier(name, getMaxIdentifierLength(), foreignKeyNames);
 		foreignKeyNames.add(name);
+		return name;
+	}
 
+	public final String createConstraint(String constraintName, String tableName, String column, String referencedTableName) {
 		// not used at the moment: INITIALLY DEFERRED
-		return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + name + " FOREIGN KEY (" + column + ") REFERENCES " + referencedTableName + " (ID)";
+		return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName + " FOREIGN KEY (" + column + ") REFERENCES " + referencedTableName + " (ID)";
 	}
 	
+	public List<String> dropConstraints() {
+		List<String> dropConstraints = new ArrayList<>();
+		for (String name : foreignKeyNames) {
+			dropConstraints.add("DROP CONSTRAINT " + name);
+		}
+		foreignKeyNames.clear();
+		return dropConstraints;
+	}
+
 	public String createIndex(String tableName, String column, boolean withVersion) {
 		String name = "IDX_" + tableName + "_" + column;
 		name = SqlIdentifier.buildIdentifier(name, getMaxIdentifierLength(), indexNames);
@@ -201,6 +219,7 @@ public abstract class SqlDialect {
 	
 	public static class PostgresqlDialect extends SqlDialect {
 		
+		@Override
 		public boolean isValid(Connection connection) throws SQLException {
 			// Postgres sometimes blocks when calling isValid() from different threads
 			try {
@@ -230,6 +249,7 @@ public abstract class SqlDialect {
 			}
 		}
 		
+		@Override
 		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
 			if (clazz.isArray()) {
 				preparedStatement.setNull(param, Types.ARRAY);			
@@ -260,6 +280,34 @@ public abstract class SqlDialect {
 		}
 	}
 	
+	public static class MsSqlDialect extends SqlDialect {
+
+		@Override
+		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+			Class<?> clazz = property.getClazz();
+			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
+				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
+				if (size > 0) {
+					s.append("VARBINARY(" + size + ")");
+				} else {
+					s.append("VARBINARY(max)");
+				}
+			} else {
+				super.addColumnDefinition(s, property);
+			}
+		}
+
+		@Override
+		protected void addAutoIncrement(StringBuilder s) {
+			s.append("IDENTITY(1,1)");
+		}
+
+		@Override
+		public int getMaxIdentifierLength() {
+			return 128;
+		}
+	}
+
 	public static class DerbySqlDialect extends SqlDialect {
 
 		@Override

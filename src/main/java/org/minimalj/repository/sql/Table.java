@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Keys.MethodProperty;
+import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.list.RelationCriteria;
@@ -30,7 +31,8 @@ public class Table<T> extends AbstractTable<T> {
 	
 	protected final PropertyInterface idProperty;
 	protected final boolean optimisticLocking;
-	
+	protected final boolean autoIncrementId;
+
 	protected final String selectAllQuery;
 
 	protected final HashMap<PropertyInterface, ListTable> lists;
@@ -41,9 +43,10 @@ public class Table<T> extends AbstractTable<T> {
 	
 	public Table(SqlRepository sqlRepository, String name, Class<T> clazz) {
 		super(sqlRepository, name, clazz);
-		
+
 		this.idProperty = FlatProperties.getProperty(clazz, "id", true);
-		
+		this.autoIncrementId = idProperty != null && idProperty.getAnnotation(AutoIncrement.class) != null;
+
 		this.optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
 		List<PropertyInterface> lists = FlatProperties.getListProperties(clazz);
@@ -59,6 +62,15 @@ public class Table<T> extends AbstractTable<T> {
 			AbstractTable subTable = (AbstractTable) object;
 			subTable.createTable(dialect);
 		}
+	}
+
+	@Override
+	protected void dropTable(SqlDialect dialect) {
+		for (Object object : lists.values()) {
+			AbstractTable subTable = (AbstractTable) object;
+			subTable.dropTable(dialect);
+		}
+		super.dropTable(dialect);
 	}
 
 	@Override
@@ -97,14 +109,14 @@ public class Table<T> extends AbstractTable<T> {
 			Object id;
 			if (idProperty != null) {
 				id = idProperty.getValue(object);
-				if (id == null && idProperty.getClazz() != Integer.class) {
+				if (id == null && !autoIncrementId) {
 					id = createId();
 					idProperty.setValue(object, id);
 				}
 			} else {
 				id = createId();
 			}
-			setParameters(insertStatement, object, ParameterMode.INSERT, id);
+			setParameters(insertStatement, object, autoIncrementId ? ParameterMode.INSERT_AUTO_INCREMENT : ParameterMode.INSERT, id);
 			insertStatement.execute();
 			if (id == null) {
 				try (ResultSet rs = insertStatement.getGeneratedKeys()) {
@@ -410,17 +422,30 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected String insertQuery() {
+		PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id", true);
+		boolean autoIncrementId = idProperty != null && idProperty.getAnnotation(AutoIncrement.class) != null;
+
 		StringBuilder s = new StringBuilder();
 		
 		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (String columnName : getColumns().keySet()) {
 			s.append(columnName).append(", ");
 		}
-		s.append("id) VALUES (");
+		if (autoIncrementId) {
+			s.delete(s.length() - 2, s.length());
+		} else {
+			s.append("id");
+		}
+		s.append(") VALUES (");
 		for (int i = 0; i<getColumns().size(); i++) {
 			s.append("?, ");
 		}
-		s.append("?)");
+		if (autoIncrementId) {
+			s.delete(s.length() - 2, s.length());
+		} else {
+			s.append("?");
+		}
+		s.append(")");
 
 		return s.toString();
 	}
@@ -455,7 +480,7 @@ public class Table<T> extends AbstractTable<T> {
 		if (idProperty != null) {
 			dialect.addIdColumn(s, idProperty);
 		} else {
-			dialect.addIdColumn(s, Object.class, 36);
+			dialect.addIdColumn(s, Object.class, 36, false);
 		}
 		if (optimisticLocking) {
 			s.append(",\n version INTEGER DEFAULT 0");
