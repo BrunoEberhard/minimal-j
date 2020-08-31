@@ -16,6 +16,8 @@ import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 import org.postgresql.ds.PGSimpleDataSource;
 
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+
 public class DataSourceFactory {
 	public static final Logger logger = Logger.getLogger(DataSourceFactory.class.getName());
 	
@@ -123,6 +125,19 @@ public class DataSourceFactory {
 		} catch (NoClassDefFoundError e) {
 			logger.severe("Missing PGSimpleDataSource. Please ensure to have postgresql driver in the classpath");
 			throw new IllegalStateException("Configuration error: Missing PGSimpleDataSource");
+		}
+	}
+
+	public static DataSource mssqlDataSource(String url, String user, String password) {
+		try {
+			SQLServerDataSource dataSource = new SQLServerDataSource();
+			dataSource.setURL(url);
+			dataSource.setUser(user);
+			dataSource.setPassword(password);
+			return dataSource;
+		} catch (NoClassDefFoundError e) {
+			logger.severe("Missing SQLServerDataSource. Please ensure to have mssql-jdbc in the classpath");
+			throw new IllegalStateException("Configuration error: Missing SQLServerDataSource");
 		}
 	}
 
