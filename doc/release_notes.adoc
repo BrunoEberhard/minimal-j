@@ -5,6 +5,7 @@ Every release contains many small fixes.
 === next
 * Codes may be historized
 * Auto increment for Integer codes
+* MS Sql Server support
 
 === 1.25.0.0
 * Custom css for Web Frontend
