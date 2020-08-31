@@ -1,21 +1,16 @@
 package org.minimalj.repository.sql;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.Repository;
 
-public class SqlBooleanTest {
-
-	private static Repository repository;
+public class SqlBooleanTest extends SqlTest {
 	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntity.class };
 	}
-	
+
 	@Test
 	public void testValidBooleans() {
 		TestEntity entity = new TestEntity();

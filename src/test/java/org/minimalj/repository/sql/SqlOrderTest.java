@@ -5,22 +5,22 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
 
-public class SqlOrderTest {
+public class SqlOrderTest extends SqlTest {
 	
-	private static SqlRepository repository;
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntity.class };
+	}
+
 	private static List<Object> ids = new ArrayList<>();
 	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
-		
+	@Override
+	public void initData() {
 		ids.add(repository.insert(new TestEntity("a", 1)));
 		ids.add(repository.insert(new TestEntity("a", 2)));
 		ids.add(repository.insert(new TestEntity("b", 1)));

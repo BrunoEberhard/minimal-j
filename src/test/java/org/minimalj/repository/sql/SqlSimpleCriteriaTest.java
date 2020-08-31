@@ -2,22 +2,20 @@ package org.minimalj.repository.sql;
 
 import java.util.List;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.FieldOperator;
 
-public class SqlSimpleCriteriaTest {
+public class SqlSimpleCriteriaTest extends SqlTest {
 	
-	private static SqlRepository repository;
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { A.class, G.class, H.class };
+	};
 	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), A.class, G.class, H.class);
-		
+	@Override
+	public void initData() {
 		insertA(5);
 		insertA(7);
 		insertA(8);
@@ -27,14 +25,10 @@ public class SqlSimpleCriteriaTest {
 		repository.insert(new G(null));
 	}
 	
-	private static void insertA(int int1) {
+	private void insertA(int int1) {
 		A a = new A();
 		a.int1 = int1;
 		repository.insert(a);
-	}
-	
-	@AfterClass
-	public static void shutdownRepository() {
 	}
 	
 	@Test 
@@ -46,7 +40,7 @@ public class SqlSimpleCriteriaTest {
 		Assert.assertEquals(5, (int) a.int1);
 	}
 	
-	@Test 
+	@Test
 	public void testMinimumForField() {
 		List<A> list = repository.find(A.class, By.field(A.$.int1, FieldOperator.greaterOrEqual, 7).limit(3));
 		Assert.assertEquals(2, list.size());

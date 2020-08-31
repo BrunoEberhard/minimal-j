@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.minimalj.repository.sql.SqlIdentifier;
 
 public class SqlIdentifierHelperTest {
 

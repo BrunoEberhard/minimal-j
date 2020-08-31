@@ -1,24 +1,15 @@
 package org.minimalj.repository.sql;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 
-public class SqlLongFieldNameTest {
+public class SqlLongFieldNameTest extends SqlTest {
 	
-	private static SqlRepository repository;
-	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
-	}
-	
-	@AfterClass
-	public static void shutdownRepository() {
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntity.class };
 	}
 	
 	@Test

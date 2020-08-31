@@ -1,19 +1,16 @@
 package org.minimalj.repository.sql;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Code;
+import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 
-public class SqlIntegerCodeTest {
-
-	private static SqlRepository repository;
+public class SqlIntegerCodeTest extends SqlTest {
 	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestCode.class);
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestCode.class };
 	}
 	
 	@Test
@@ -24,6 +21,7 @@ public class SqlIntegerCodeTest {
 	}
 
 	public static class TestCode implements Code {
+		@AutoIncrement
 		public Integer id;
 
 		@Size(255)

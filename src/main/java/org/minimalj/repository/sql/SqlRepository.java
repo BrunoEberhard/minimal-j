@@ -90,7 +90,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
-		this.dataSource = DataSourceFactory.create();
+		this.dataSource = dataSource;
 		
 		Connection connection = getAutoCommitConnection();
 		try {
@@ -123,9 +123,12 @@ public class SqlRepository implements TransactionalRepository {
 		} else if (StringUtils.equals(databaseProductName, "H2")) {
 			return new SqlDialect.H2SqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
-			return new SqlDialect.OracleSqlDialect();				
+			return new SqlDialect.OracleSqlDialect();
+		} else if (StringUtils.equals(databaseProductName, "Microsoft SQL Server")) {
+			return new SqlDialect.MsSqlDialect();
 		} else {
-			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
+			return new SqlDialect.H2SqlDialect();
+//			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
 		}
 	}
 	
@@ -555,9 +558,6 @@ public class SqlRepository implements TransactionalRepository {
 	
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			if (clazz.getSimpleName().startsWith("Swiss")) {
-				System.out.println("Hallo");
-			}
 			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
 			Table<U> table = createTable(clazz);
 			tables.put(table.getClazz(), table);
@@ -578,6 +578,16 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		for (AbstractTable<?> table : tableList) {
 			table.createConstraints(sqlDialect);
+		}
+	}
+
+	void dropTables() {
+		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
+		for (AbstractTable<?> table : tableList) {
+			table.dropConstraints(sqlDialect);
+		}
+		for (AbstractTable<?> table : tableList) {
+			table.dropTable(sqlDialect);
 		}
 	}
 

@@ -3,22 +3,18 @@ package org.minimalj.repository.sql;
 import java.time.LocalDateTime;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.security.Subject;
 
-public class SqlTechnicalFieldTest {
+public class SqlTechnicalFieldTest extends SqlTest {
 
-	private static SqlRepository repository;
-
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntity.class };
 	}
 
 	@Test
