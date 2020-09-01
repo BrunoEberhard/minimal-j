@@ -478,11 +478,11 @@ public class ModelTest {
 	private void testTypeOfTechnicalField(Field field, TechnicalFieldType type) {
 		if (type == TechnicalFieldType.CREATE_DATE || type == TechnicalFieldType.EDIT_DATE) {
 			if (field.getType() != LocalDateTime.class) {
-				problems.add("Technical field " + type.name() + " must be of LocalDateTime, not " + field.getType().getName());
+				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of LocalDateTime, not " + field.getType().getName());
 			} 
 		} else if (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.EDIT_USER) {
 			if (field.getType() != String.class) {
-				problems.add("Technical field " + type.name() + " must be of String, not " + field.getType().getName());
+				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of String, not " + field.getType().getName());
 			} 
 		}
 	}
