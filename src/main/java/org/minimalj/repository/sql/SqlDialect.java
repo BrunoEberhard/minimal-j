@@ -9,9 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -29,9 +26,6 @@ import org.minimalj.util.IdUtils;
 public abstract class SqlDialect {
 	public static final Logger sqlLogger = Logger.getLogger("SQL");
 	
-	private final Set<String> foreignKeyNames = new HashSet<>();
-	private final Set<String> indexNames = new HashSet<>();
-
 	public abstract int getMaxIdentifierLength();
 
 	public boolean isValid(Connection connection) throws SQLException {
@@ -48,7 +42,7 @@ public abstract class SqlDialect {
 		addIdColumn(s, fieldClazz, size, idProperty.getAnnotation(AutoIncrement.class) != null);
 	}
 	
-	protected void addIdColumn(StringBuilder s, Class<?> idClass, int size, boolean autoIncrement) {
+	public void addIdColumn(StringBuilder s, Class<?> idClass, int size, boolean autoIncrement) {
 		s.append(" id ");
 		if (idClass == Integer.class) {
 			s.append("INT ");
@@ -71,7 +65,7 @@ public abstract class SqlDialect {
 		s.append("AUTO_INCREMENT");
 	}
 
-	protected void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
 		Class<?> clazz = property.getClazz();
 		
 		if (clazz == Integer.class) {
@@ -119,7 +113,7 @@ public abstract class SqlDialect {
 		}
 	}
 	
-	protected void addPrimaryKey(StringBuilder s, String keys) {
+	public void addPrimaryKey(StringBuilder s, String keys) {
 		s.append(",\n PRIMARY KEY (");
 		s.append(keys);
 		s.append(')');
@@ -129,36 +123,15 @@ public abstract class SqlDialect {
 		s.append("\n)");
 	}
 
-	
-	public final String createConstraintName(String tableName, String column, String referencedTableName) {
-		String name = "FK_" + tableName + "_" + column;
-		name = SqlIdentifier.buildIdentifier(name, getMaxIdentifierLength(), foreignKeyNames);
-		foreignKeyNames.add(name);
-		return name;
-	}
-
 	public final String createConstraint(String constraintName, String tableName, String column, String referencedTableName) {
 		// not used at the moment: INITIALLY DEFERRED
 		return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName + " FOREIGN KEY (" + column + ") REFERENCES " + referencedTableName + " (ID)";
 	}
 	
-	public List<String> dropConstraints() {
-		List<String> dropConstraints = new ArrayList<>();
-		for (String name : foreignKeyNames) {
-			dropConstraints.add("DROP CONSTRAINT " + name);
-		}
-		foreignKeyNames.clear();
-		return dropConstraints;
-	}
-
-	public String createIndex(String tableName, String column, boolean withVersion) {
-		String name = "IDX_" + tableName + "_" + column;
-		name = SqlIdentifier.buildIdentifier(name, getMaxIdentifierLength(), indexNames);
-		indexNames.add(name);
-		
+	public String createIndex(String indexName, String tableName, String column, boolean withVersion) {
 		StringBuilder s = new StringBuilder();
 		s.append("CREATE INDEX ");
-		s.append(name);
+		s.append(indexName);
 		s.append(" ON ");
 		s.append(tableName);
 		s.append('(');

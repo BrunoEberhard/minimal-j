@@ -181,7 +181,7 @@ public class Table<T> extends AbstractTable<T> {
 		return lists;
 	}
 
-	ListTable createListTable(PropertyInterface property) {
+	protected ListTable createListTable(PropertyInterface property) {
 		Class<?> elementClass = property.getGenericClass();
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {

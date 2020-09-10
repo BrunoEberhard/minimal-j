@@ -56,7 +56,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	SubTable createListTable(PropertyInterface property) {
+	protected SubTable createListTable(PropertyInterface property) {
 		Class<?> elementClass = property.getGenericClass();
 		if (IdUtils.hasId(elementClass)) {
 			if (FieldUtils.hasValidHistorizedField(elementClass)) {

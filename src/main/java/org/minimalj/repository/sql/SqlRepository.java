@@ -72,6 +72,7 @@ public class SqlRepository implements TransactionalRepository {
 	private static final Logger logger = Logger.getLogger(SqlRepository.class.getName());
 	
 	protected final SqlDialect sqlDialect;
+	protected final SqlIdentifier sqlIdentifier;
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<>();
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<>();
@@ -95,6 +96,7 @@ public class SqlRepository implements TransactionalRepository {
 		Connection connection = getAutoCommitConnection();
 		try {
 			sqlDialect = findDialect(connection);
+			sqlIdentifier = createSqlIdentifier();
 			for (Class<?> clazz : classes) {
 				addClass(clazz);
 			}
@@ -128,8 +130,12 @@ public class SqlRepository implements TransactionalRepository {
 			return new SqlDialect.MsSqlDialect();
 		} else {
 			return new SqlDialect.H2SqlDialect();
-//			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and Derby DB supported at the moment. ProductName: " + databaseProductName);
+//			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB, SQL Server and Derby DB supported at the moment. ProductName: " + databaseProductName);
 		}
+	}
+	
+	protected SqlIdentifier createSqlIdentifier() {
+		return new SqlIdentifier(sqlDialect.getMaxIdentifierLength());
 	}
 	
 	private Connection getAutoCommitConnection() {
@@ -229,7 +235,7 @@ public class SqlRepository implements TransactionalRepository {
 		return connection != null;
 	}
 	
-	Connection getConnection() {
+	public Connection getConnection() {
 		Connection connection = threadLocalTransactionConnection.get();
 		if (connection != null) {
 			return connection;
@@ -368,8 +374,8 @@ public class SqlRepository implements TransactionalRepository {
 		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<>();
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
-			String fieldName = StringUtils.toSnakeCase(field.getName()).toUpperCase();
-			if (StringUtils.equals(fieldName, "ID", "VERSION", "HISTORIZED")) continue;
+			String fieldName = field.getName();
+			if (StringUtils.equals(fieldName.toUpperCase(), "ID", "VERSION", "HISTORIZED")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
@@ -379,11 +385,11 @@ public class SqlRepository implements TransactionalRepository {
 					if (!hasClassName) {
 						key = fieldName + "_" + inlineKey;
 					}
-					key = SqlIdentifier.buildIdentifier(key, getMaxIdentifierLength(), columns.keySet());
+					key = sqlIdentifier.column(key, columns.keySet(), field.getType());
 					columns.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
 				}
 			} else {
-				fieldName = SqlIdentifier.buildIdentifier(fieldName, getMaxIdentifierLength(), columns.keySet());
+				fieldName = sqlIdentifier.column(fieldName, columns.keySet(), field.getType());
 				columns.put(fieldName, new FieldProperty(field));
 			}
 		}
@@ -393,8 +399,7 @@ public class SqlRepository implements TransactionalRepository {
 			String methodName = method.getName();
 			if (!methodName.startsWith("get") || methodName.length() < 4) continue;
 			String fieldName = StringUtils.lowerFirstChar(methodName.substring(3));
-			String columnName = StringUtils.toSnakeCase(fieldName).toUpperCase();
-			columnName = SqlIdentifier.buildIdentifier(columnName, getMaxIdentifierLength(), columns.keySet());
+			String columnName = sqlIdentifier.column(fieldName, columns.keySet(), method.getReturnType());
 			columns.put(columnName, new Keys.MethodProperty(method.getReturnType(), fieldName, method, null));
 		}
 		columnsForClass.put(clazz, columns);
@@ -474,7 +479,7 @@ public class SqlRepository implements TransactionalRepository {
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex).toUpperCase();
+			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
 			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
@@ -493,7 +498,15 @@ public class SqlRepository implements TransactionalRepository {
 			Class<?> fieldClass = property.getClazz();
 			boolean isByteArray = fieldClass.isArray() && fieldClass.getComponentType() == Byte.TYPE;
 
-			Object value = isByteArray ? resultSet.getBytes(columnIndex) : resultSet.getObject(columnIndex);
+			Object value;
+			if (isByteArray) {
+				value = resultSet.getBytes(columnIndex);
+			} else if (fieldClass == BigDecimal.class) {
+				// MS Sql getObject returns float
+				value = resultSet.getBigDecimal(columnIndex);
+			} else {
+				value = resultSet.getObject(columnIndex);
+			}
 			if (value == null) continue;
 			values.put(property, value);
 		}
@@ -564,7 +577,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	<U> Table<U> createTable(Class<U> clazz) {
+	protected <U> Table<U> createTable(Class<U> clazz) {
 		return new Table<>(this, clazz);
 	}
 	

@@ -37,7 +37,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 	}
 
 	@Override
-	<U> Table<U> createTable(Class<U> clazz) {
+	protected <U> Table<U> createTable(Class<U> clazz) {
 		boolean historized = FieldUtils.hasValidHistorizedField(clazz);
 		if (historized) {
 			return new HistorizedTable<>(this, clazz);
@@ -58,7 +58,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 		Set<String> alreadyUsedIdentifiers = new TreeSet<String>(columns.keySet());
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			if (FieldUtils.hasValidHistorizedField(entry.getValue().getClazz())) {
-				String fieldName = SqlIdentifier.buildIdentifier(entry.getKey() + "_VERSION", getMaxIdentifierLength(), alreadyUsedIdentifiers);
+				String fieldName = sqlIdentifier.column(entry.getKey() + "_VERSION", alreadyUsedIdentifiers);
 				versionColumns.put(fieldName, entry.getValue());
 				alreadyUsedIdentifiers.add(fieldName);
 			}
