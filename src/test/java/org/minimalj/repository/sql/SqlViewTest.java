@@ -5,21 +5,17 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
 
-public class SqlViewTest {
+public class SqlViewTest extends SqlTest {
 
-	private static SqlRepository repository;
-
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestClass.class);
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestClass.class };
 	}
 
 	@Test

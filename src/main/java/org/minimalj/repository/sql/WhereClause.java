@@ -72,6 +72,12 @@ public class WhereClause<T> {
 			Limit limit = (Limit) query;
 			WhereClause<T> whereClause = new WhereClause<>(table, limit.getQuery());
 			add(whereClause);
+			if (!(limit.getQuery() instanceof Order) && !(limit.getQuery() instanceof RelationCriteria)) {
+				// MsSql needs an order to allow limits.
+				// But h2 doesn't allow "order by x order by y"
+				// So only add order by if there is yet no order
+				add("ORDER BY ID");
+			}
 			add(table.sqlRepository.getSqlDialect().limit(limit.getRows(), limit.getOffset()));
 		} else if (query instanceof Order) {
 			Order order = (Order) query;

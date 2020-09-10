@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>1.25.0.0</version>
+	<version>1.26.0.0</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -255,6 +255,12 @@
 		    <version>42.2.5</version>
 		    <scope>provided</scope>
 		</dependency>		
+		<dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>mssql-jdbc</artifactId>
+		    <version>8.4.1.jre8</version>
+		    <scope>provided</scope>
+		</dependency>
 
 		<!-- just for test scope -->
 		<dependency>

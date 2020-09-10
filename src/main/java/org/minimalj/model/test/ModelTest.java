@@ -230,7 +230,7 @@ public class ModelTest {
 	private void testVersion(Class<?> clazz) {
 		try {
 			Field fieldVersion = clazz.getField("version");
-			if (isMain(clazz) && !Codes.isCode(clazz)) {
+			if (isMain(clazz)) {
 				if (fieldVersion.getType() == Integer.class) {
 					problems.add(clazz.getName() + ": Domain classes version must be of primitiv type int");
 				}
@@ -250,7 +250,7 @@ public class ModelTest {
 	private void testHistorized(Class<?> clazz) {
 		try {
 			Field fieldHistorized = clazz.getField("historized");
-			if (isMain(clazz) && !Codes.isCode(clazz)) {
+			if (isMain(clazz)) {
 				if (fieldHistorized.getType() != Boolean.TYPE) {
 					problems.add(clazz.getName() + ": Domain classes historized must be of primitiv type boolean");
 				}
@@ -478,11 +478,11 @@ public class ModelTest {
 	private void testTypeOfTechnicalField(Field field, TechnicalFieldType type) {
 		if (type == TechnicalFieldType.CREATE_DATE || type == TechnicalFieldType.EDIT_DATE) {
 			if (field.getType() != LocalDateTime.class) {
-				problems.add("Technical field " + type.name() + " must be of LocalDateTime, not " + field.getType().getName());
+				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of LocalDateTime, not " + field.getType().getName());
 			} 
 		} else if (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.EDIT_USER) {
 			if (field.getType() != String.class) {
-				problems.add("Technical field " + type.name() + " must be of String, not " + field.getType().getName());
+				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of String, not " + field.getType().getName());
 			} 
 		}
 	}

@@ -1,19 +1,19 @@
 package org.minimalj.repository.sql.view;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.sql.SqlTest;
 
-public class SqlCrudTest {
+public class SqlCrudTest extends SqlTest {
 	
-	private static SqlRepository repository;
-	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntity.class };
+	}
+
+	@Override
+	protected void initData() {
 		TestEntity entity = new TestEntity("aName");
 		repository.insert(entity);
 	}
@@ -32,6 +32,5 @@ public class SqlCrudTest {
 		Assert.assertEquals("aName", view.name);
 		Assert.assertEquals("aName/aName", view.doubleName);
 	}
-
 	
 }

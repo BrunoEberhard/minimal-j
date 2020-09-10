@@ -3,23 +3,14 @@ package org.minimalj.repository.sql;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 
-public class SqlEnumTest {
+public class SqlEnumTest extends SqlTest {
 	
-	private static SqlRepository repository;
-	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
-	}
-	
-	@AfterClass
-	public static void shutdownRepository() {
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntity.class };
 	}
 	
 	@Test

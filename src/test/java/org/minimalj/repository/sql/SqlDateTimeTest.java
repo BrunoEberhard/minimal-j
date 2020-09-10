@@ -4,23 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 
-public class SqlDateTimeTest {
+public class SqlDateTimeTest extends SqlTest {
 	
-	private static SqlRepository repository;
-	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntityDates.class);
-	}
-	
-	@AfterClass
-	public static void shutdownRepository() {
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntityDates.class };
 	}
 	
 	@Test

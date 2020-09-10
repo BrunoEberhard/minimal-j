@@ -56,24 +56,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	public Object insert(T object) {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
-			Object id = IdUtils.getId(object);
-			if (id == null) {
-				id = createId();
-				IdUtils.setId(object, id);
-			}
-			setParameters(insertStatement, object, ParameterMode.INSERT, id);
-			insertStatement.execute();
-			insertLists(object);
-			return id;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert object into " + getTableName() + " / Object: " + object + " ex: " + x);
-		}
-	}
-
-	@Override
-	SubTable createListTable(PropertyInterface property) {
+	protected SubTable createListTable(PropertyInterface property) {
 		Class<?> elementClass = property.getGenericClass();
 		if (IdUtils.hasId(elementClass)) {
 			if (FieldUtils.hasValidHistorizedField(elementClass)) {

@@ -1,14 +1,65 @@
 package org.minimalj.repository.sql;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.minimalj.util.ReservedSqlWords;
 
 public class SqlIdentifier {
 
-	private static String avoidReservedSqlWords(String identifier, int maxLength) {
+	private final int maxIdentifierLength;
+	
+	private final Set<String> foreignKeyNames = new HashSet<>();
+	private final Set<String> indexNames = new HashSet<>();
+
+	public SqlIdentifier(int maxIdentifierLength) {
+		this.maxIdentifierLength = maxIdentifierLength;
+	}
+
+	protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
+		identifier = identifier.toUpperCase();
+		identifier = cutToMaxLength(identifier);
+		identifier = avoidReservedSqlWords(identifier);
+		identifier = resolveIdentifierConflicts(alreadyUsedIdentifiers, identifier);
+		return identifier;
+	}
+	
+	public String table(String identifier, Set<String> alreadyUsedIdentifiers) {
+		return identifier(identifier, alreadyUsedIdentifiers);
+	}
+
+	public final String column(String identifier, Set<String> alreadyUsedIdentifiers) {
+		return column(identifier, alreadyUsedIdentifiers, null);
+	}
+	
+	public String column(String identifier, Set<String> alreadyUsedIdentifiers, Class<?> fieldClass) {
+		return identifier(identifier, alreadyUsedIdentifiers);
+	}
+	
+	public final String constraint(String tableName, String column, String referencedTableName) {
+		String name = "FK_" + tableName + "_" + column;
+		name = identifier(name, foreignKeyNames);
+		foreignKeyNames.add(name);
+		return name;
+	}
+
+	public String index(String tableName, String indexedColumn) {
+		String name = "IDX_" + tableName + "_" + indexedColumn;
+		name = identifier(name, indexNames);
+		indexNames.add(name);
+		return name;
+	}
+	
+	protected String cutToMaxLength(String fieldName) {
+		if (fieldName.length() > maxIdentifierLength) {
+			fieldName = fieldName.substring(0, maxIdentifierLength);
+		}
+		return fieldName;
+	}
+
+	protected String avoidReservedSqlWords(String identifier) {
 		if (ReservedSqlWords.reservedSqlWords.contains(identifier)) {
-			if (identifier.length() == maxLength) {
+			if (identifier.length() == maxIdentifierLength) {
 				identifier = identifier.substring(0, identifier.length() - 1);
 			}
 			identifier = identifier + "_";
@@ -16,22 +67,7 @@ public class SqlIdentifier {
 		return identifier;
 	}
 
-	public static String buildIdentifier(String identifier, int maxLength, Set<String> alreadyUsedIdentifiers) {
-		identifier = identifier.toUpperCase();
-		identifier = cutToMaxLength(identifier, maxLength);
-		identifier = avoidReservedSqlWords(identifier, maxLength);
-		identifier = resolveIdentifierConflicts(alreadyUsedIdentifiers, identifier);
-		return identifier;
-	}
-
-	private static String cutToMaxLength(String fieldName, int maxLength) {
-		if (fieldName.length() > maxLength) {
-			fieldName = fieldName.substring(0, maxLength);
-		}
-		return fieldName;
-	}
-
-	private static String resolveIdentifierConflicts(Set<String> alreadyUsedIdentifiers, String identifier) {
+	protected String resolveIdentifierConflicts(Set<String> alreadyUsedIdentifiers, String identifier) {
 		if (alreadyUsedIdentifiers.contains(identifier)) {
 			int i = 1;
 			do {

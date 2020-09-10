@@ -3,19 +3,15 @@ package org.minimalj.repository.sql.relation;
 import java.util.Collections;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.repository.sql.SqlTest;
 import org.minimalj.util.IdUtils;
 
-public class SqlCrudTest {
+public class SqlCrudTest extends SqlTest {
 	
-	private static SqlRepository repository;
-	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), TestEntity.class);
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { TestEntity.class };
 	}
 	
 	/*

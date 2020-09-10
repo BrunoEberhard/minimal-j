@@ -4,29 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.EqualsHelper;
 
-public class SqlCrudTest {
+public class SqlCrudTest extends SqlTest {
 	
-	private static SqlRepository repository;
-	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class);
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class };
 	}
-	
-	@AfterClass
-	public static void shutdownRepository() {
-	}
-	
+
 	@Test
 	public void testInsertAndDelete() {
 		G g = new G("testName1");

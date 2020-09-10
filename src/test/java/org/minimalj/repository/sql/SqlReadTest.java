@@ -2,24 +2,15 @@ package org.minimalj.repository.sql;
 
 import java.util.List;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.query.By;
 
-public class SqlReadTest {
+public class SqlReadTest extends SqlTest {
 	
-	private static SqlRepository repository;
-	
-	@BeforeClass
-	public static void setupRepository() {
-		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), A.class, G.class, H.class);
-	}
-	
-	@AfterClass
-	public static void shutdownRepository() {
+	@Override
+	public Class<?>[] getEntityClasses() {
+		return new Class<?>[] { A.class, G.class, H.class };
 	}
 	
 	@Test // if fields of class reference are correctly written and read
