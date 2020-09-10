@@ -95,6 +95,8 @@ public class DataSourceFactory {
 			return mariaDbDataSource(url, user, password);
 		} else if (url.startsWith("jdbc:postgresql")) {
 			return postgresqlDataSource(url, user, password);
+		} else if (url.startsWith("jdbc:sqlserver")) {
+			return mssqlDataSource(url, user, password);
 		} else {
 			throw new RuntimeException("Unknown jdbc URL: " + url);
 		}
