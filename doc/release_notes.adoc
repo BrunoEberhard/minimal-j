@@ -2,7 +2,8 @@
 
 Every release contains many small fixes.
 
-=== next
+=== 1.26.0.0
+* Open SqlRepository a little bit for specializations
 * Codes may be historized
 * Auto increment for Integer codes
 * MS Sql Server support
