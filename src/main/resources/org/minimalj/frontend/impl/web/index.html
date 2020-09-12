@@ -1096,7 +1096,14 @@ $ICON
 		}		
 	}
 
+	var heartbeatTimer;
+	
 	function sendAjax(data, block) {
+		if (heartbeatTimer) {
+			clearInterval(heartbeatTimer);
+		}
+		heartbeatTimer = setInterval(heartbeat, 15 * 1000);
+		
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.open("POST", "ajax_request.xml", true);
 
@@ -1110,6 +1117,10 @@ $ICON
 			}
 		}
 		xmlhttp.send(JSON.stringify(data));
+	}
+	
+	function heartbeat() {
+		send({}, false);
 	}
 		
 	function sendWebSocket(data, block) {
