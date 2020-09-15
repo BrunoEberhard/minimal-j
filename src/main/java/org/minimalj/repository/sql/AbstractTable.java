@@ -306,7 +306,7 @@ public abstract class AbstractTable<T> {
 				result.add(object);
 			}
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new RuntimeException(getTableName() + " / " + x.getMessage());
 		}
 		return result;
 	}
