@@ -149,23 +149,16 @@ public class StringUtils {
 		}
 		StringBuilder s = new StringBuilder();
 		s.append(string.charAt(0));
-		boolean nextUpperCase = false;
 		for (int i = 1; i < string.length(); i++) {
 			char ch = string.charAt(i);
 			if (Character.isUpperCase(ch)) {
 				s.append('_');
-			} else if (Character.isWhitespace(ch)) {
-				nextUpperCase = true;
-				continue;
-			}
-			if (nextUpperCase) {
-				ch = Character.toUpperCase(ch);
-				nextUpperCase = false;
+				ch = Character.toLowerCase(ch);
 			}
 			s.append(ch);
 		}
 		return s.toString();
-	}	
+	}
 	
 	public static String escapeHTML(String s) {
 		StringBuilder out = new StringBuilder(Math.max(16, s.length()));
