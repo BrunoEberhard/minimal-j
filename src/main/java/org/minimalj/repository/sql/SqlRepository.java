@@ -135,7 +135,17 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	protected SqlIdentifier createSqlIdentifier() {
-		return new SqlIdentifier(sqlDialect.getMaxIdentifierLength());
+		if (sqlDialect instanceof SqlDialect.PostgresqlDialect) {
+			// https://stackoverflow.com/questions/13409094/why-does-postgresql-default-everything-to-lower-case
+			return new SqlIdentifier(sqlDialect.getMaxIdentifierLength()) {
+				protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
+					identifier = super.identifier(identifier, alreadyUsedIdentifiers);
+					return identifier.toLowerCase();
+				}
+			};
+		} else {
+			return new SqlIdentifier(sqlDialect.getMaxIdentifierLength());
+		}
 	}
 	
 	private Connection getAutoCommitConnection() {
@@ -480,14 +490,14 @@ public class SqlRepository implements TransactionalRepository {
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			if ("ID".equals(columnName)) {
+			if ("ID".equalsIgnoreCase(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
 				continue;
-			} else if ("VERSION".equals(columnName)) {
+			} else if ("VERSION".equalsIgnoreCase(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
 				continue;
-			} else if ("POSITION".equals(columnName)) {
+			} else if ("POSITION".equalsIgnoreCase(columnName)) {
 				position = resultSet.getInt(columnIndex);
 				continue;				
 			}

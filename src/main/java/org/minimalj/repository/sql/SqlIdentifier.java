@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.minimalj.util.ReservedSqlWords;
+import org.minimalj.util.StringUtils;
 
 public class SqlIdentifier {
 
@@ -17,7 +18,7 @@ public class SqlIdentifier {
 	}
 
 	protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
-		identifier = identifier.toUpperCase();
+		identifier = StringUtils.toSnakeCase(identifier).toUpperCase();
 		identifier = cutToMaxLength(identifier);
 		identifier = avoidReservedSqlWords(identifier);
 		identifier = resolveIdentifierConflicts(alreadyUsedIdentifiers, identifier);
