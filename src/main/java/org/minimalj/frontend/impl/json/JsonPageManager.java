@@ -291,6 +291,9 @@ public class JsonPageManager implements PageManager {
 
 	private void show(Page page, String masterPageId) {
 		if (!Authorization.hasAccess(subject, page)) {
+			if (authentication == null) {
+				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
+			}
 			authentication.login(new PageLoginListener(() -> show(page, masterPageId)));
 			return;
 		}
