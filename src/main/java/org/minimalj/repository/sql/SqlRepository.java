@@ -282,7 +282,6 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
-
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		if (query instanceof Limit || query instanceof AllCriteria) {
@@ -432,8 +431,8 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		preparedStatement.setObject(param, value);
 	}
-	
-	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameters) {
+
+	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Serializable... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				List<T> result = new ArrayList<>();
@@ -446,13 +445,21 @@ public class SqlRepository implements TransactionalRepository {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
 		}
 	}
-	
-	public <T> T execute(Class<T> clazz, String query, Serializable... parameters) {
+
+	public void execute(String query, Serializable... parameters) {
+		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+			preparedStatement.executeQuery();
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
+		}
+	}
+
+	public <T> T execute(Class<T> resultClass, String query, Serializable... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				T result = null;
 				if (resultSet.next()) {
-					result = readResultSetRow(clazz, resultSet);
+					result = readResultSetRow(resultClass, resultSet);
 				}
 				return result;
 			}
@@ -460,7 +467,7 @@ public class SqlRepository implements TransactionalRepository {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
 		}
 	}
-	
+
 	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet) throws SQLException {
 		Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 		return readResultSetRow(clazz, resultSet, loadedReferences);
