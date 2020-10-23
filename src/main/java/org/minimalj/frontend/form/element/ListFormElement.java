@@ -70,10 +70,14 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		if (text != null) {
 			text.setValue("");
 			if (object != null) {
+				StringBuilder b = new StringBuilder();
 				for (T item : object) {
-					String newValue = text.getValue() + "\n" + render(item);
-					text.setValue(newValue.trim());
+					if (b.length() > 0) {
+						b.append("\n");
+					}
+					b.append(render(item));
 				}
+				text.setValue(b.toString());
 			}
 			component.show(text);
 		} else if (object != null && object.size() > 0) {
