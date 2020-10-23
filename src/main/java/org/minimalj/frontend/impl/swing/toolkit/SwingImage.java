@@ -94,11 +94,13 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 	}
 
 	private void resize() {
-		int height = getSize().height;
-		if (height != 0 && icon.getIconHeight() > height) {
-			int newWidth = icon.getIconWidth() * height / icon.getIconHeight();
-			icon = new ImageIcon(icon.getImage().getScaledInstance(newWidth, height,  Image.SCALE_SMOOTH));
-			image.setIcon(icon);
+		if (icon != null) {
+			int height = getSize().height;
+			if (height != 0 && icon.getIconHeight() > height) {
+				int newWidth = icon.getIconWidth() * height / icon.getIconHeight();
+				icon = new ImageIcon(icon.getImage().getScaledInstance(newWidth, height,  Image.SCALE_SMOOTH));
+				image.setIcon(icon);
+			}
 		}
 	}
 
