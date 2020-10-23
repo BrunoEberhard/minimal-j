@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -69,11 +70,12 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 		this.imageData = imageData;
 		if (imageData != null) {
 			icon = new ImageIcon(imageData);
-			int preferredHeight = getPreferredSize().height;
-			if (preferredHeight != 0 && icon.getIconHeight() > preferredHeight) {
-				int newWidth = icon.getIconWidth() * preferredHeight / icon.getIconHeight();
-				icon = new ImageIcon(icon.getImage().getScaledInstance(newWidth, preferredHeight,  Image.SCALE_SMOOTH));
-			}
+			resize();
+			image.addComponentListener(new ComponentAdapter() {
+				public void componentResized(java.awt.event.ComponentEvent e) {
+					resize();
+				};
+			});
 		} else {
 			icon = null;
 		}
@@ -88,6 +90,15 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 		if (getParent() != null) {
 			getParent().invalidate();
 			getParent().repaint();
+		}
+	}
+
+	private void resize() {
+		int height = getSize().height;
+		if (height != 0 && icon.getIconHeight() > height) {
+			int newWidth = icon.getIconWidth() * height / icon.getIconHeight();
+			icon = new ImageIcon(icon.getImage().getScaledInstance(newWidth, height,  Image.SCALE_SMOOTH));
+			image.setIcon(icon);
 		}
 	}
 

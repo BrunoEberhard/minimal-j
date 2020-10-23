@@ -78,6 +78,10 @@ public class SwingFormContent extends JPanel implements FormContent {
 			return span < 1;
 		}
 		
+		public int getMax() {
+			return formElementConstraint != null ? formElementConstraint.max : 1;
+		}
+		
 	}
 	
 	private static class GridFormLayoutManager implements LayoutManager2 {
@@ -128,7 +132,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 				int height;
 				boolean hasCaption = hasCaption(row);
 				if (isRowVerticallyGrowing(row)) {
-					height = Math.max(getHeight(row), fixHeight);
+					height = Math.max(getHeight(row, fixHeight), fixHeight);
 				} else {
 					height = hasCaption ? fixHeight : fixHeightWithoutCaption;
 				}
@@ -155,10 +159,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 			}
 		}
 		
-		private int getHeight(List<Component> row) {
+		private int getHeight(List<Component> row, int fixHeight) {
 			int height = 0;
 			for (Component component : row) {
-				height = Math.max(height, component.getPreferredSize().height);
+				GridFormLayoutConstraint constraint = constraints.get(component);
+				int componentHeight = Math.min(component.getPreferredSize().height, constraint.getMax() * fixHeight);
+				height = Math.max(height, componentHeight);
 			}
 			return height;
 		}
