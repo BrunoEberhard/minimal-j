@@ -432,7 +432,7 @@ public class SqlRepository implements TransactionalRepository {
 		preparedStatement.setObject(param, value);
 	}
 
-	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Serializable... parameters) {
+	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				List<T> result = new ArrayList<>();
