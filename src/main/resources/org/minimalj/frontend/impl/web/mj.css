@@ -382,7 +382,7 @@ hr {
 }
 
 label {
-	display: inline-flex;
+	display: block;
 	align-items: center;
 	overflow: hidden;
 	font-size: x-smaller;
