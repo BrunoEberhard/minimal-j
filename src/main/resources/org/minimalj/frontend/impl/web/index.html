@@ -473,9 +473,12 @@ $ICON
 				element.classList.add("multiSelect");
 			}
 			if (content.overview) {
-				var overview = document.createElement("thead");
-				overview.appendChild(createContent(content.overview));
-				element.appendChild(overview);
+				var thead = document.createElement("thead");
+				var th = document.createElement("th");
+				th.setAttribute("colspan", content.headers.length);		
+				th.appendChild(createContent(content.overview));
+				thead.appendChild(th);
+				element.appendChild(thead);
 			}
 			element.appendChild(createTableHeaders(content.id, content.headers));
 			element.appendChild(createTableRows(content.id, content.tableContent));
