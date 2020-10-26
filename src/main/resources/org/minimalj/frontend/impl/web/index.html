@@ -392,12 +392,12 @@ $ICON
 	function togglePage(event) {
 		var element = event.target;
 		while ((element = element.parentNode) && element.className != "page");
-		var pageContentElement = element.querySelector(".pageContentAndActions");
-		if (pageContentElement.style.display === "none") {
-			pageContentElement.style.display = null;
+		var pageElement = element;
+		if (pageElement.style.flexGrow == "0") {
+			pageElement.style.flexGrow = "1";
 			element.scrollIntoView();
 		} else {
-			pageContentElement.style.display = "none";
+			pageElement.style.flexGrow = "0";
 		}
 	}
 	

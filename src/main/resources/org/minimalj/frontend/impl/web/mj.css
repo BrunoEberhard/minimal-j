@@ -127,16 +127,21 @@ body {
 /* pages */
 
 #pageContainer {
-	flex-grow: 10;
 	margin: 0px;
 	overflow: auto;
 	background: white;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
 }
 
 .page {
 	position: relative;
 	border-bottom: 1px rgb(160,160,160) solid;
 	width: 100%;
+	height: 2em;
+	flex-grow: 1;
+	overflow: hidden;
 }
 
 .page:only-child {
@@ -160,6 +165,8 @@ body {
 .pageContentAndActions {
 	position: relative;
 	min-height: 8em;
+	height: calc(100% - 2em);
+	overflow-y: auto;
 }
 
 .page:only-child > .pageContentAndActions {
@@ -167,7 +174,6 @@ body {
 	top: 2em;
 	left: 0em;
 	right: 0em;
-	height: calc(100% - 2em)
 }
 
 .pageButton {
