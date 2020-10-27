@@ -19,27 +19,27 @@ import org.minimalj.util.StringUtils;
 
 public class SwingTextField extends JTextField implements Input<String>, FocusListener {
 	private static final long serialVersionUID = 1L;
-	
+
 	private final InputComponentListener changeListener;
-	
+
 	private String textOnFocusLost;
-	
+
 	public SwingTextField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);
 	}
-	
+
 	public SwingTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
 		super(new FilteredDocument(maxLength, allowedCharacters), null, 0);
-		
+
 		this.changeListener = changeListener;
 		getDocument().addDocumentListener(new TextFieldChangeListener());
-		
+
 		setInheritsPopupMenu(true);
-		
+
 		addActionListener(e -> {
-			SwingInternalFrame frame = findFrame();
-			if (frame != null) {
-				Action saveAction = frame.getSaveAction();
+			SwingDialog dialog = findDialog(this);
+			if (dialog != null) {
+				Action saveAction = dialog.getSaveAction();
 				if (saveAction.isEnabled()) {
 					SwingFrontend.run(e, saveAction::action);
 				}
@@ -47,12 +47,11 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 		});
 		addFocusListener(this);
 	}
-	
-	private SwingInternalFrame findFrame() {
-		Component c = this;
+
+	static SwingDialog findDialog(Component c) {
 		while (c != null) {
-			if (c instanceof SwingInternalFrame) {
-				return (SwingInternalFrame) c;
+			if (c instanceof SwingDialog) {
+				return (SwingDialog) c;
 			}
 			c = c.getParent();
 		}
@@ -61,7 +60,7 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 
 	public class TextFieldChangeListener implements DocumentListener, Runnable {
 		private boolean invokeSet = false;
-		
+
 		@Override
 		public void changedUpdate(DocumentEvent arg0) {
 			fireChangeEvent();
@@ -76,7 +75,7 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 		public void removeUpdate(DocumentEvent arg0) {
 			fireChangeEvent();
 		}
-		
+
 		private void fireChangeEvent() {
 			// gather all remove/insert of document in one change
 			if (!invokeSet) {
@@ -97,7 +96,7 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 		private static final long serialVersionUID = 1L;
 		private final int maxLength;
 		private final String allowedCharacters;
-		
+
 		public FilteredDocument(int maxLength, String allowedCharacters) {
 			this.maxLength = maxLength;
 			this.allowedCharacters = allowedCharacters;
@@ -123,16 +122,19 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 				replace(0, length, filteredString, attr);
 			}
 		}
-		
+
 		private String filter(String s) {
-			if (allowedCharacters == null) return s;
-			
+			if (allowedCharacters == null)
+				return s;
+
 			String result = "";
-			for (int i = 0; i<s.length(); i++) {
+			for (int i = 0; i < s.length(); i++) {
 				char c = s.charAt(i);
 				if (allowedCharacters.indexOf(c) < 0) {
-					if (Character.isLowerCase(c)) c = Character.toUpperCase(c);
-					else if (Character.isUpperCase(c)) c = Character.toLowerCase(c);
+					if (Character.isLowerCase(c))
+						c = Character.toUpperCase(c);
+					else if (Character.isUpperCase(c))
+						c = Character.toLowerCase(c);
 					if (allowedCharacters.indexOf(c) < 0) {
 						continue;
 					}
@@ -146,7 +148,7 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 
 	@Override
 	public void focusGained(FocusEvent e) {
-		//	textOnFocusLost = getText();
+		// textOnFocusLost = getText();
 	}
 
 	@Override
@@ -155,7 +157,7 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 			super.setText(textOnFocusLost);
 		}
 	}
-	
+
 	@Override
 	public void setValue(String value) {
 		textOnFocusLost = value;

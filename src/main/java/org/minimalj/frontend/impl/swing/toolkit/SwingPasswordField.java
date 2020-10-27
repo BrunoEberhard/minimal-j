@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
-import java.awt.Component;
-
 import javax.swing.JPasswordField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -12,66 +10,40 @@ import org.minimalj.frontend.action.Action;
 
 public class SwingPasswordField extends JPasswordField implements PasswordField {
 	private static final long serialVersionUID = 1L;
-	
+
 	public SwingPasswordField(InputComponentListener changeListener, int maxLength) {
 		addActionListener(e -> {
-			SwingInternalFrame frame = findFrame();
-			if (frame != null) {
-				Action saveAction = frame.getSaveAction();
+			SwingDialog dialog = SwingTextField.findDialog(this);
+			if (dialog != null) {
+				Action saveAction = dialog.getSaveAction();
 				if (saveAction.isEnabled()) {
 					SwingFrontend.run(e, saveAction::action);
 				}
 			}
 		});
-		
+
 		getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				changeListener.changed(SwingPasswordField.this);
 			}
-			
+
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				changeListener.changed(SwingPasswordField.this);
 			}
-			
+
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				changeListener.changed(SwingPasswordField.this);
 			}
 		});
 	}
-	
-	private SwingInternalFrame findFrame() {
-		Component c = this;
-		while (c != null) {
-			if (c instanceof SwingInternalFrame) {
-				return (SwingInternalFrame) c;
-			}
-			c = c.getParent();
-		}
-		return null;
-	}
 
-	// the password is not stored in the model object to
-	// prevent security problems
-	
-//	@Override
-//	public void setValue(String value) {
-//		// ignored
-//	}
-//
-//	@Override
-//	public String getValue() {
-//		// only show if the password field is empty to validate
-//		if (getPassword().length > 0) {
-//			return "x";
-//		} else {
-//			return "";
-//		}
-//	}
-	
 	@Override
+	/*
+	 * the password is not stored in the model object to prevent security problems
+	 */
 	public void setValue(char[] value) {
 		// ignored
 	}
