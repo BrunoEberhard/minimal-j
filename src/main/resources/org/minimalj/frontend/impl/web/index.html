@@ -27,7 +27,7 @@ $ICON
 
 	var pageContainerElement;
 	var titleElement;
-  	var intersectionObserver = new IntersectionObserver(intersectionListener, {threshold: 1});
+  	var intersectionObserver = new IntersectionObserver(intersectionListener);
   	
   	var blockStyle = document.createElement('style');
   	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
@@ -1023,13 +1023,9 @@ $ICON
 	
 	function intersectionListener(entries) {
 		for (var i = 0; i<entries.length; i++) {
-			if (entries[i].intersectionRatio > 0) {
+			if (entries[i].isIntersecting) {
 				var table = entries[i].target.parentNode;
-				// only a table in last page should scroll automatically
-				var pages = document.getElementsByClassName("page");
-				if (pages[pages.length-1].contains(table)) {
-					tableExtendContent(table.name);
-				}
+				tableExtendContent(table.name);
 			}
 		}
 	}
