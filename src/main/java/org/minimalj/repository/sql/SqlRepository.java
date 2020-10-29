@@ -65,7 +65,7 @@ import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
- * The Mapper to a relationale Database
+ * The Mapper to a relational Database
  * 
  */
 public class SqlRepository implements TransactionalRepository {
