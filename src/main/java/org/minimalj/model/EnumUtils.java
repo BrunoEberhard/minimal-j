@@ -17,7 +17,7 @@ import org.minimalj.util.resources.Resources;
 
 public class EnumUtils {
 
-	@SuppressWarnings({ "restriction", "unchecked" })
+	@SuppressWarnings("unchecked")
 	public static <T extends Enum<T>> T createEnum(Class<T> clazz, String name) {
 		try {
 			// which one is better? This?
@@ -39,7 +39,6 @@ public class EnumUtils {
 		} 
 	}
 	
-	@SuppressWarnings("restriction")
 	private static sun.misc.Unsafe getUnsafe() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		Field singleoneInstanceField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
 		singleoneInstanceField.setAccessible(true);

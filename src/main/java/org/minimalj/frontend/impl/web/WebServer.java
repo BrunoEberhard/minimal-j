@@ -25,8 +25,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsServer;
 
-//Beginning with JDK 9 this restriction warnings were removed
-@SuppressWarnings("restriction")
 public class WebServer {
 	private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
 
@@ -109,18 +107,12 @@ public class WebServer {
 		}
 	}
 
-	// https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
-	// Java 9: remove
 	public static String convertStreamToString(InputStream is) {
-		StringBuilder sb = new StringBuilder(1024);
-		char[] read = new char[128];
 		try (InputStreamReader ir = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-			for (int i; -1 != (i = ir.read(read)); sb.append(read, 0, i))
-				;
+			return new String(is.readAllBytes(), StandardCharsets.UTF_8);
 		} catch (IOException x) {
 			throw new RuntimeException(x);
 		}
-		return sb.toString();
 	}
 
 	private static int getPort(boolean secure) {
