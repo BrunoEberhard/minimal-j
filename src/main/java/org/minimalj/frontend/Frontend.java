@@ -210,9 +210,13 @@ public abstract class Frontend {
 	}
 
 	public static void showDetail(Page mainPage, Page detail) {
-		getInstance().getPageManager().showDetail(mainPage, detail);
+		getInstance().getPageManager().showDetail(mainPage, detail, false);
 	}
-	
+
+	public static void showDetail(Page mainPage, Page detail, boolean horizontalDetailLayout) {
+		getInstance().getPageManager().showDetail(mainPage, detail, horizontalDetailLayout);
+	}
+
 	public static void hideDetail(Page page) {
 		getInstance().getPageManager().hideDetail(page);
 	}
@@ -220,7 +224,7 @@ public abstract class Frontend {
 	public static boolean isDetailShown(Page page) {
 		return getInstance().getPageManager().isDetailShown(page);
 	}
-
+	
 	public static IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
 		return getInstance().getPageManager().showDialog(title, content, saveAction, closeAction, actions);
 	}

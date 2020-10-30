@@ -68,7 +68,7 @@ $ICON
 			addNewStateToHistory();
 			hidePage(dataObject.hidePage);
 			saveStateInHistory();
-		} else if ("showUrl" in dataObject) {
+	  } else if ("showUrl" in dataObject) {
 			window.location.href = dataObject.showUrl;
 		} else if (dataObject.pageId) {
 			var title = dataObject.title;
@@ -84,6 +84,11 @@ $ICON
 			var pageId = dataObject.hideDetail;
 			hideDetail(pageId);
 			saveStateInHistory();
+		}
+		if ("horizontalDetailLayout" in dataObject) {
+			var horizontalDetailLayout = dataObject.horizontalDetailLayout;
+			var pageContainerElement = document.getElementById("pageContainer");
+			pageContainer.style.flexDirection = horizontalDetailLayout ? "row" : "column";					
 		}		
 		if (dataObject.navigation) {
 			updateNavigation(dataObject.navigation);

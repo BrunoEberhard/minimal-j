@@ -277,7 +277,7 @@ public class JsonPageManager implements PageManager {
 	}
 
 	@Override
-	public void showDetail(Page mainPage, Page detail) {
+	public void showDetail(Page mainPage, Page detail, boolean horizontalDetailLayout) {
 		int pageIndex = visiblePageAndDetailsList.indexOf(detail);
 		if (pageIndex < 0) {
 			String mainPageId = visiblePageAndDetailsList.getId(mainPage);
@@ -287,8 +287,9 @@ public class JsonPageManager implements PageManager {
 			output.add("pageId", pageId);
 			output.add("title", detail.getTitle());
 		}
+		output.add("horizontalDetailLayout", Boolean.valueOf(horizontalDetailLayout));
 	}
-
+	
 	private void show(Page page, String masterPageId) {
 		if (!Authorization.hasAccess(subject, page)) {
 			if (authentication == null) {

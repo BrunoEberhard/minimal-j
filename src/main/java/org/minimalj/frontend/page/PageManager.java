@@ -7,8 +7,12 @@ public interface PageManager {
 	
 	public abstract void show(Page page);
 
-	public default void showDetail(Page mainPage, Page detail) {
+	public default void showDetail(Page mainPage, Page detail, boolean horizontalDetailLayout) {
 		show(detail);
+	}
+
+	public default void showDetail(Page mainPage, Page detail) {
+		showDetail(mainPage, detail, false);
 	}
 	
 	public default void hideDetail(Page page) {
