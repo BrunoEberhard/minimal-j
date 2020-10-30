@@ -20,7 +20,6 @@ body {
 	line-height: 2.45em;
 	text-align: left;
 	background: rgb(224,224,224);
-	border-bottom: 1px rgb(160,160,160) solid;
 	padding-left: 0ex;
 }
 
@@ -66,6 +65,11 @@ body {
 	border-right: 1px rgb(160,160,160) solid;
 }
 
+.secondHeader {
+	border-top: 1px rgb(160,160,160) solid;
+	border-bottom: 1px rgb(160,160,160) solid;
+}
+
 #navigationHeader {
 	position: relative;
 	height: 2em;
@@ -74,7 +78,6 @@ body {
 	padding-left: 1em;
 	width: 100%;
 	background: rgb(240,240,240);
-	border-bottom: 1px rgb(160,160,160) solid;
 }
 
 #navigation {
@@ -137,19 +140,10 @@ body {
 
 .page {
 	position: relative;
-	border-bottom: 1px rgb(160,160,160) solid;
 	width: 100%;
-	height: 2em;
+	height: 100%;
 	flex-grow: 1;
 	overflow: hidden;
-}
-
-.page:only-child {
-	border-bottom: none;
-	top: 0em;
-	right: 0em;
-	min-height: unset;
-	height: 100%;
 }
 
 .pageHeader {
@@ -159,7 +153,6 @@ body {
 	line-height: 2.1em;
 	padding-left: 1em;
 	background: rgb(240,240,240);
-	border-bottom: 1px rgb(160,160,160) solid;
 }
 
 .pageContentAndActions {
@@ -189,11 +182,8 @@ body {
 	overflow: auto;
 }
 
-.page:only-child > .pageContentAndActions > iframe.pageContent {
-	height: 100%;
-}
-
 iframe.pageContent {
+	height: 100%;
 	padding: 0;
 	border: 0;
 	font-family: inherit;

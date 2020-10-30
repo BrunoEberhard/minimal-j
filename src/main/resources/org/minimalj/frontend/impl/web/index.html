@@ -421,7 +421,7 @@ $ICON
 
 	function createPageHeader(title) {
 		var element = document.createElement("div");
-		element.className = "pageHeader";
+		element.className = "pageHeader secondHeader";
 		
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
@@ -1349,7 +1349,7 @@ $ICON
 	</div>
 	<div id="container">
 		<div id="navigationContainer" style="display: none;">
-			<div id="navigationHeader">
+			<div id="navigationHeader" class="secondHeader">
 				<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
 				  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />

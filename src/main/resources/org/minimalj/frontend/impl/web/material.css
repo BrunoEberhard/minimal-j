@@ -7,24 +7,17 @@ body {
 }
 
 #header {
-	border: none;
 	z-index: 1;
-    box-shadow: rgba(0, 0, 0, 0.26) 0px 2px 5px;
-}
-
-#navigationHeader {
-	border: none;
-	box-shadow: rgba(0, 0, 0, 0.26) 0px 1px 3px;
+  box-shadow: rgba(0, 0, 0, 0.26) 0px 2px 5px;
 }
 
 #navigationContainer {
 	background: rgb(250, 250, 250);
 	z-index: 1;
-	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
 	border: none;
 }
 
-.pageHeader {
+.secondHeader {
 	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
 	border: none;
 }
@@ -45,10 +38,6 @@ body {
 
 .action {
 	font-weight: 100;
-}
-
-.page {
-	border: none;
 }
 
 .actionMenu {
