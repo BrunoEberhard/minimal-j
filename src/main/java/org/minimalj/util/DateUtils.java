@@ -31,8 +31,8 @@ public class DateUtils {
 		if (!dateFormatByLocale.containsKey(locale)) {
 			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
 			dateFormatByLocale.put(locale, formatter);
-			germanDateStyle.put(locale,
-					"dd.MM.yyyy".equals(DateTimeFormatterBuilder.getLocalizedDateTimePattern(FormatStyle.MEDIUM, null, IsoChronology.INSTANCE, locale)));
+			String localizedDatePattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(FormatStyle.MEDIUM, null, IsoChronology.INSTANCE, locale);
+			germanDateStyle.put(locale,	StringUtils.equals(localizedDatePattern, "dd.MM.yyyy", "dd.MM.y"));
 		}
 		return dateFormatByLocale.get(locale);
 	}
