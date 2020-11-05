@@ -543,24 +543,30 @@ public class SqlRepository implements TransactionalRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (View.class.isAssignableFrom(fieldClass)) {
-					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
-					if (Code.class.isAssignableFrom(viewedClass)) {
-						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-						value = ViewUtil.view(getCode(codeClass, value), CloneHelper.newInstance(fieldClass));
-					} else {
-						Table<?> referenceTable = getTable(viewedClass);
-						value = referenceTable.readView(fieldClass, value, loadedReferences);
-					}
-				} else if (Code.class.isAssignableFrom(fieldClass)) {
+				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
-					if (loadedReferences.containsKey(fieldClass) && loadedReferences.get(fieldClass).containsKey(value)) {
-						value = loadedReferences.get(fieldClass).get(value);
+					Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());
+					if (loadedReferencesOfClass.containsKey(value)) {
+						value = loadedReferencesOfClass.get(value);
 					} else {
-						Table<?> referenceTable = getTable(fieldClass);
-						value = referenceTable.read(value, loadedReferences);
+						Object referencedValue;
+						if (View.class.isAssignableFrom(fieldClass)) {
+							Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
+							if (Code.class.isAssignableFrom(viewedClass)) {
+								Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
+								referencedValue = ViewUtil.view(getCode(codeClass, value), CloneHelper.newInstance(fieldClass));
+							} else {
+								Table<?> referenceTable = getTable(viewedClass);
+								referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
+							}
+						} else {
+							Table<?> referenceTable = getTable(fieldClass);
+							referencedValue = referenceTable.read(value, loadedReferences);
+						}
+						loadedReferencesOfClass.put(value, referencedValue);
+						value = referencedValue;
 					}
 				} else if (AbstractTable.isDependable(property)) {
 					value = getTable(fieldClass).read(value);
