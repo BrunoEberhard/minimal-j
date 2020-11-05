@@ -228,9 +228,13 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		@Override
 		public void action() {
-			getValue().remove(entry);
+			removeEntry(entry);
 			handleChange();
 		}
     };
+
+	protected void removeEntry(T entry) {
+		getValue().remove(entry);
+	}
 
 }

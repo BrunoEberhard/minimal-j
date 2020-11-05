@@ -59,7 +59,7 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 		return s.toString();
 	}
 
-	private CharSequence render(T element) {
+	protected CharSequence render(T element) {
 		return Rendering.render(element);
 	}
 
