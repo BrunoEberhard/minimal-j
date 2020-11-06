@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend.SwitchContent;
 public class JsonSwitch extends JsonComponent implements SwitchContent, SwitchComponent {
 
 	private final JsonPageManager jsonPageManager;
+	private Object current;
 	
 	public JsonSwitch(JsonPageManager jsonPageManager) {
 		super("Switch");
@@ -16,11 +17,17 @@ public class JsonSwitch extends JsonComponent implements SwitchContent, SwitchCo
 
 	@Override
 	public void show(IContent content) {
-		jsonPageManager.replaceContent(this, (JsonComponent) content);
+		if (content != current) {
+			current = content;
+			jsonPageManager.replaceContent(this, (JsonComponent) content);
+		}
 	}
 
 	@Override
 	public void show(IComponent component) {
-		jsonPageManager.replaceContent(this, (JsonComponent) component);
+		if (component != current) {
+			current = component;
+			jsonPageManager.replaceContent(this, (JsonComponent) component);
+		}
 	}
 }
