@@ -448,34 +448,17 @@ public class Form<T> {
 		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
 			PropertyInterface property = element.getKey();
 
-			Enabled enabledAnnotation = property.getAnnotation(Enabled.class);
-			if (element.getValue() instanceof Enable) {
-				boolean enabled = true;
-				
-				if (property instanceof ChainedProperty) {
-					enabled = ((ChainedProperty) property).isAvailableFor(object);
-				}
+			boolean enabled = true;
+			if (property instanceof ChainedProperty) {
+				enabled = isEnabled(object, (ChainedProperty) property);
+			} else {
+				Enabled enabledAnnotation = property.getAnnotation(Enabled.class);
+				enabled = enabledAnnotation == null || isEnabled(object, property, enabledAnnotation);
+			}
 
-				if (enabled && enabledAnnotation != null) {
-					String methodName = enabledAnnotation.value();
-					boolean invert = methodName.startsWith("!");
-					if (invert) methodName = methodName.substring(1);
-					try {
-						Object o = findParentObject(property);
-						Class<?> clazz = o.getClass();
-						Method method = clazz.getMethod(methodName);
-						enabled = ((Boolean) method.invoke(o) ^ invert);
-					} catch (Exception x) {
-						String fieldName = property.getName();
-						if (!fieldName.equals(property.getPath())) {
-							fieldName += " (" + property.getPath() + ")";
-						}
-						logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed" , x);
-					}
-				}	
-	
+			if (element.getValue() instanceof Enable) {
 				((Enable) element.getValue()).setEnabled(enabled);
-			} else if (enabledAnnotation != null) {
+			} else if (!enabled) {
 				if (editable) {
 					logger.severe("element " + property.getPath() + " should implement Enable");
 				} else {
@@ -484,6 +467,50 @@ public class Form<T> {
 			}
 		}
 	}
+
+	// TODO move to properties package, remove use of getPath, write tests
+	static boolean isEnabled(Object object, ChainedProperty property) {
+		String fieldPath = property.getPath();
+		while (fieldPath.contains(".")) {
+			if (object == null) {
+				return false;
+			}
+			int pos = fieldPath.indexOf(".");
+			PropertyInterface p2 = Properties.getProperty(object.getClass(), fieldPath.substring(0, pos));
+			Enabled enabledAnnotation = p2.getAnnotation(Enabled.class);
+			
+			if (enabledAnnotation != null) {
+				if (!isEnabled(object, p2, enabledAnnotation)) {
+					return false;
+				}
+			}	
+			object = p2.getValue(object);
+			fieldPath = fieldPath.substring(pos + 1);
+		}
+		return true;
+	}
+
+	// TODO move to properties package, write tests
+	static boolean isEnabled(Object object, PropertyInterface property, Enabled enabledAnnotation) {
+		String methodName = enabledAnnotation.value();
+		boolean invert = methodName.startsWith("!");
+		if (invert)
+			methodName = methodName.substring(1);
+		try {
+			Class<?> clazz = object.getClass();
+			Method method = clazz.getMethod(methodName);
+			if (!((Boolean) method.invoke(object) ^ invert)) {
+				return false;
+			}
+		} catch (Exception x) {
+			String fieldName = property.getName();
+			if (!fieldName.equals(property.getPath())) {
+				fieldName += " (" + property.getPath() + ")";
+			}
+			logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed", x);
+		}
+		return true;
+	}
 	
 	public void indicate(List<ValidationMessage> validationMessages) {
 		for (PropertyInterface property : getProperties()) {
@@ -491,17 +518,4 @@ public class Form<T> {
 			setValidationMessage(property, filteredValidationMessages);
 		}
 	}
-
-	private Object findParentObject(PropertyInterface property) {
-		Object result = object;
-		String fieldPath = property.getPath();
-		while (fieldPath.contains(".")) {
-			int pos = property.getPath().indexOf(".");
-			PropertyInterface p2 = Properties.getProperty(result.getClass(), fieldPath.substring(0, pos));
-			result = p2.getValue(result);
-			fieldPath = fieldPath.substring(pos + 1);
-		}
-		return result;
-	}
-
 }

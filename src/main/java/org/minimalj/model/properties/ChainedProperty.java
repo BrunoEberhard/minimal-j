@@ -13,15 +13,6 @@ public class ChainedProperty implements PropertyInterface {
 		this.property2 = property2;
 	}
 	
-	public boolean isAvailableFor(Object object) {
-		if (property1 instanceof ChainedProperty) {
-			if (!((ChainedProperty) property1).isAvailableFor(object)) {
-				return false;
-			}
-		} 
-		return property1.getValue(object) != null;
-	}
-	
 	public List<PropertyInterface> getChain() {
 		List<PropertyInterface> chain = new ArrayList<>();
 		if (property1 instanceof ChainedProperty) {
