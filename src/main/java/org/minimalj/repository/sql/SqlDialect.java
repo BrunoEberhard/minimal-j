@@ -464,7 +464,13 @@ public abstract class SqlDialect {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
-			value = EnumUtils.valueList((Class<Enum>)fieldClass).get((Integer) value);
+			if (value instanceof Integer) {
+				value = EnumUtils.valueList((Class<Enum>)fieldClass).get((Integer) value);
+			} else if (value instanceof String) {
+				value = Enum.valueOf((Class<Enum>)fieldClass, (String) value);
+			} else if (value != null) {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
 		} else if (fieldClass == UUID.class) {
 			value = UUID.fromString((String) value);
 		}
