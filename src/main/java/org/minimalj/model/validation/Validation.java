@@ -38,5 +38,13 @@ public interface Validation {
 		}
 	}
  
+	/**
+	 * @param value primitive value to be checked
+	 * @return true if the value is not null and not a object created by a
+	 *         createInvalid method
+	 */
+	public default boolean isValid(Object value) {
+		return value != null && !InvalidValues.isInvalid(value);
+	}
 	
 }
