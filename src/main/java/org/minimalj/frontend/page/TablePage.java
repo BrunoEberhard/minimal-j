@@ -133,6 +133,10 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	public interface TableSelectionAction<T> {
 		
 		public abstract void selectionChanged(List<T> selectedObjects);
+		
+		public default void setObject(T selectedObject) {
+			selectionChanged(selectedObject != null ? Arrays.asList(selectedObject) : Collections.emptyList());
+		}
 	}
 	
 	protected void delete(List<T> selectedObjects) {
