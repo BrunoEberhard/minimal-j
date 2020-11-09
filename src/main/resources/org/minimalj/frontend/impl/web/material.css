@@ -102,6 +102,10 @@ button {
 	transition: background-color .3s;
 }
 
+button[disabled] {
+	color: #aaaaaa;
+}
+
 .dialogFooter button {
 	margin: 0.5em 1em;
 }
@@ -130,6 +134,10 @@ label {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
+}
+
+.form input[disabled] {
+	border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
 }
 
 .form .groupItem:first-child .lookup .text {
