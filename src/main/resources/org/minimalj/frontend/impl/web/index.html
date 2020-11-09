@@ -1222,7 +1222,7 @@ $ICON
 				var maxWidthElement = dialogElement.querySelector(".form");
 				if (maxWidthElement) {
 					var columns = maxWidthElement.dataset.columns;
-					dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3) + "em";
+					dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3.1) + "em";
 					maxDialogWidth = Math.max(maxDialogWidth, parseInt(window.getComputedStyle(dialogElement).maxWidth));
 				} else {
 					dialogElement.style.maxWidth = "unset";
