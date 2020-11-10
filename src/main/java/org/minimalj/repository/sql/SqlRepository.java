@@ -436,8 +436,9 @@ public class SqlRepository implements TransactionalRepository {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				List<T> result = new ArrayList<>();
+				Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 				while (resultSet.next() && result.size() < maxResults) {
-					result.add(readResultSetRow(clazz, resultSet));
+					result.add(readResultSetRow(clazz, resultSet, loadedReferences));
 				}
 				return result;
 			}
