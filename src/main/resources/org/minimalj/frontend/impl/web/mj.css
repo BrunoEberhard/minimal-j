@@ -139,15 +139,13 @@ body {
 }
 
 .page {
-	position: relative;
 	width: 100%;
-	height: 100%;
 	flex-grow: 1;
+	flex-basis: 2em;
 	overflow: hidden;
 }
 
 .pageHeader {
-	position: relative;
 	height: 2em;
 	box-sizing: border-box;
 	line-height: 2.1em;
@@ -156,17 +154,8 @@ body {
 }
 
 .pageContentAndActions {
-	position: relative;
-	min-height: 8em;
 	height: calc(100% - 2em);
 	overflow-y: auto;
-}
-
-.page:only-child > .pageContentAndActions {
-	position: absolute;
-	top: 2em;
-	left: 0em;
-	right: 0em;
 }
 
 .pageButton {
