@@ -20,7 +20,6 @@ import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
-import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
