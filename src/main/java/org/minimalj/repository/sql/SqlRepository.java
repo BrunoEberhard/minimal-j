@@ -77,6 +77,7 @@ public class SqlRepository implements TransactionalRepository {
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<>();
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<>();
 	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
+	private final Map<Class<?>, HashMap<String, PropertyInterface>> columnsForClassUpperCase = new HashMap<>(200);
 	
 	private final DataSource dataSource;
 	
@@ -384,7 +385,7 @@ public class SqlRepository implements TransactionalRepository {
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = field.getName();
-			if (StringUtils.equals(fieldName.toUpperCase(), "ID", "VERSION", "HISTORIZED")) continue;
+			if (StringUtils.equals(fieldName, "id", "version", "historized")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
@@ -414,6 +415,17 @@ public class SqlRepository implements TransactionalRepository {
 		columnsForClass.put(clazz, columns);
 		return columns;
 	}	
+	
+	private HashMap<String, PropertyInterface> findColumnsUpperCase(Class<?> clazz) {
+		if (columnsForClassUpperCase.containsKey(clazz)) {
+			return columnsForClassUpperCase.get(clazz);
+		}
+		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
+		HashMap<String, PropertyInterface> columnsUpperCase = new HashMap<>(columns.size() * 3);
+		columns.forEach((key, value) -> columnsUpperCase.put(key.toUpperCase(), value));
+		columnsForClassUpperCase.put(clazz, columnsUpperCase);
+		return columnsUpperCase;
+	}
 	
 	/*
 	 * TODO: should be merged with the setParameter in AbstractTable.
@@ -490,22 +502,22 @@ public class SqlRepository implements TransactionalRepository {
 		Integer position = 0;
 		R result = CloneHelper.newInstance(clazz);
 		
-		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
+		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
 		
 		// first read the resultSet completely then resolve references
 		// derby db mixes closing of resultSets.
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
-			if ("ID".equalsIgnoreCase(columnName)) {
+			String columnName = resultSet.getMetaData().getColumnName(columnIndex).toUpperCase();
+			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
 				continue;
-			} else if ("VERSION".equalsIgnoreCase(columnName)) {
+			} else if ("VERSION".equals(columnName)) {
 				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
 				continue;
-			} else if ("POSITION".equalsIgnoreCase(columnName)) {
+			} else if ("POSITION".equals(columnName)) {
 				position = resultSet.getInt(columnIndex);
 				continue;				
 			}

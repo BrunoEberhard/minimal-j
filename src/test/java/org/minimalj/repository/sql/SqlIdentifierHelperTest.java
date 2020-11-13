@@ -11,8 +11,8 @@ public class SqlIdentifierHelperTest {
 
 	@Test
 	public void testReservedSqlWords() {
-		Assert.assertEquals("WHERE_", new SqlIdentifier(128).column("where", Collections.emptySet()));
-		Assert.assertEquals("WHER_", new SqlIdentifier(5).column("where", Collections.emptySet()));
+		Assert.assertEquals("where_", new SqlIdentifier(128).column("where", Collections.emptySet()));
+		Assert.assertEquals("wher_", new SqlIdentifier(5).column("where", Collections.emptySet()));
 	}
 
 	@Test
@@ -20,10 +20,10 @@ public class SqlIdentifierHelperTest {
 		SqlIdentifier sqlIdentifier = new SqlIdentifier(4);
 		
 		Set<String> alreadyUsedNames = new HashSet<>();
-		alreadyUsedNames.add("NAME");
+		alreadyUsedNames.add("name");
 		
-		Assert.assertEquals("NA_1", sqlIdentifier.column("name", alreadyUsedNames));
-		alreadyUsedNames.add("NA_1");
+		Assert.assertEquals("na_1", sqlIdentifier.column("name", alreadyUsedNames));
+		alreadyUsedNames.add("na_1");
 		
 		// add additional 8 'name'
 		for (int i = 2; i<=10; i++) {
@@ -31,7 +31,7 @@ public class SqlIdentifierHelperTest {
 		}
 
 		// the eleventh needs one place at the end more
-		Assert.assertEquals("N_11", sqlIdentifier.column("name", alreadyUsedNames));
+		Assert.assertEquals("n_11", sqlIdentifier.column("name", alreadyUsedNames));
 	}
 
 }
