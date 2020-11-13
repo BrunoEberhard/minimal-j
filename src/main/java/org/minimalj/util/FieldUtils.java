@@ -167,7 +167,11 @@ public class FieldUtils {
 			} else if (clazz.isEnum()) {
 				List<Enum> values = EnumUtils.valueList((Class<Enum>) clazz);
 				for (Enum enumValue : values) {
-					if (enumValue.name().equalsIgnoreCase(s)) {
+					String enumName = enumValue.name();
+					if (enumName.startsWith("_")) {
+						enumName = enumName.substring(1);
+					}
+					if (enumName.equalsIgnoreCase(s)) {
 						value = enumValue;
 						break;
 					}
