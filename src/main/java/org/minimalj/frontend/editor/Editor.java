@@ -87,7 +87,7 @@ public abstract class Editor<T, RESULT> extends Action {
  	
 	protected List<Action> createAdditionalActions() {
 		List<Action> actions = new ArrayList<>();
-		if (Configuration.isDevModeActive()) {
+		if (Configuration.isDevModeActive() && (object instanceof Mocking || this instanceof Mocking)) {
 			actions.add(new FillWithDemoDataAction());
 		}
 		return actions;
@@ -185,15 +185,15 @@ public abstract class Editor<T, RESULT> extends Action {
 	private class FillWithDemoDataAction extends Action {
 		@Override
 		public void action() {
-			fillWithDemoData();
+			mock();
 		}
 	}
 	
-	protected void fillWithDemoData() {
+	protected void mock() {
 		if (object instanceof Mocking) {
 			((Mocking) object).mock();
 			objectChanged();
-		} else {
+		} else if (this instanceof Mocking) {
 			form.mock();
 			validate(form);
 		}
