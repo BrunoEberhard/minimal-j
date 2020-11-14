@@ -73,7 +73,7 @@ public class SwingFrontend extends Frontend {
 
 		public SwingActionText(final Action action) {
 			setText(action.getName());
-//			label.setToolTipText(Resources.getResourceBundle().getString(runnable.getClass().getSimpleName() + ".description"));
+			setToolTipText(action.getDescription());
 
 			setForeground(Color.BLUE);
 			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
