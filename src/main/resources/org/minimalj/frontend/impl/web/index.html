@@ -533,6 +533,7 @@ $ICON
 			element = document.createElement("div");
 			element.className = "action";
 			element.textContent = content.name;
+			if (content.description) element.setAttribute("title", content.description);
 			element.setAttribute("onclick", "action(\"" + content.id + "\");");
 		} else if (type === "TextField") {
 			element = document.createElement("input");
