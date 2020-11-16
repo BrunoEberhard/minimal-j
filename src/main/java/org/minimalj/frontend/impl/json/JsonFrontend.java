@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -225,8 +224,7 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	public static String fillPlaceHolder(String html, String path) {
-		String result = html.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
-		result = result.replace("$PORT", "");
+		String result = html.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
 		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
 		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
