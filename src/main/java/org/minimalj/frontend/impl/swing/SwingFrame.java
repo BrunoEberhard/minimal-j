@@ -24,14 +24,10 @@ import javax.swing.event.ChangeEvent;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -48,11 +44,10 @@ public class SwingFrame extends JFrame {
 
 	public static SwingFrame activeFrameOverride = null;
 	
-	final Action loginAction, closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction, closeTabAction, navigationAction;
+	final Action closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction, closeTabAction, navigationAction;
 	
 	public SwingFrame() {
 		boolean authenticationActive = Backend.getInstance().isAuthenticationActive();
-		loginAction = authenticationActive ? new SwingLoginAction() : null;
 		
 		closeWindowAction = new CloseWindowAction();
 		closeTabAction = new CloseTabAction();
@@ -193,6 +188,10 @@ public class SwingFrame extends JFrame {
 		return tab;
 	}
 	
+	public boolean moreThanOneTabOpen() {
+		return tabbedPane.getTabCount() > 1;
+	}
+	
 	public void closeTab() {
 		closeTab((SwingTab) tabbedPane.getSelectedComponent());
 	}
@@ -270,29 +269,6 @@ public class SwingFrame extends JFrame {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-		}
-	}
-	
-	private class SwingLoginAction extends SwingResourceAction {
-		private static final long serialVersionUID = 1L;
-
-		public SwingLoginAction() {
-			super("LoginAction");
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (tabbedPane.getTabCount() > 1) {
-				SwingFrontend.run(e, () -> Frontend.showMessage(Resources.getString("Login.moreThanOneTab")));
-				return;
-			}
-			LoginListener listener = new LoginListener() {
-				@Override
-				public void loginSucceded(Subject subject) {
-					intialize(subject, Application.getInstance().createDefaultPage(), false);
-				}
-			};
-			SwingFrontend.run(e, () -> Backend.getInstance().getAuthentication().login(listener));
 		}
 	}
 	
@@ -380,6 +356,10 @@ public class SwingFrame extends JFrame {
 				}
 			}
 		}
+	}
+
+	public void setSearchEnabled(boolean hasSearchPages) {
+		toolBar.setSearchEnabled(hasSearchPages);
 	}
 
 }

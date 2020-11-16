@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.lanterna;
 
+import java.util.Optional;
+
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
@@ -10,6 +12,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.test.ModelTest;
+import org.minimalj.security.Subject;
 
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
@@ -49,6 +52,7 @@ public class Lanterna extends MultiWindowTextGUI implements PageManager {
 		// TODO use saveAction (Enter in TextFields should save the dialog)
 		return new LanternaDialog(this, content, title, closeAction, actions);
 	}
+	
 
 	//
 	
@@ -74,5 +78,16 @@ public class Lanterna extends MultiWindowTextGUI implements PageManager {
 	public static void main(String... args) {
 		Application.initApplication(args);
 		start();
+	}
+
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void login(Subject subject) {
+		// TODO Auto-generated method stub
 	}
 }

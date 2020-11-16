@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -21,7 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 
+import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
@@ -40,6 +43,7 @@ import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
+import org.minimalj.util.resources.Resources;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -256,7 +260,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 			pages.add(page);
 			history.add(pages);
 		} else {
-			Backend.getInstance().getAuthentication().login(new LoginListener() {
+			Backend.getInstance().getAuthentication().getLoginAction(new LoginListener() {
 				@Override
 				public void loginSucceded(Subject subject) {
 					frame.intialize(subject, page, false);
@@ -269,7 +273,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 						FrameManager.getInstance().lastTabClosed(frame);
 					}
 				}
-			});
+			}).action();
 		}
 	}
 
@@ -340,6 +344,14 @@ public class SwingTab extends EditablePanel implements PageManager {
 		Window window = findWindow();
 		JOptionPane.showMessageDialog(window, text, "Fehler", JOptionPane.ERROR_MESSAGE);
 	}
+	
+	@Override
+	public void login(Subject subject) {
+		frame.setSearchEnabled(Application.getInstance().hasSearchPages());
+		if (subject == null) {
+			frame.tryToCloseWindow();
+		}
+	}
 
 	private Window findWindow() {
 		Component parentComponent = this;
@@ -358,6 +370,17 @@ public class SwingTab extends EditablePanel implements PageManager {
 		JComponent contentComponent = new SwingEditorPanel(content, actions);
 		SwingDialog dialog = new SwingDialog(frame, title, contentComponent, saveAction, closeAction);
 		return dialog;
+	}
+	
+	@Override
+	public Optional<IDialog> showLogin(IContent content, org.minimalj.frontend.action.Action loginAction, org.minimalj.frontend.action.Action forgetPasswordAction, org.minimalj.frontend.action.Action cancelAction) {
+		if (frame.moreThanOneTabOpen()) {
+			Frontend.showMessage(Resources.getString("Login.moreThanOneTab"));
+			return Optional.empty();
+		}
+		JComponent contentComponent = new SwingEditorPanel(content, new org.minimalj.frontend.action.Action[] {cancelAction, loginAction});
+		SwingDialog dialog = new SwingDialog(frame, Resources.getString("Login.title"), contentComponent, loginAction, null);
+		return Optional.of(dialog);
 	}
 
 	@Override

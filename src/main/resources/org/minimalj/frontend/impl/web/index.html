@@ -50,7 +50,13 @@ $ICON
 		session = dataObject["session"];
 		sessionStorage.sessionId = session;
 	
-		localStorage.rememberMeToken = dataObject.rememberMeToken;
+		if (dataObject.rememberMeToken != undefined) {
+			if (dataObject.rememberMeToken != "") {
+				localStorage.rememberMeToken = dataObject.rememberMeToken;
+			} else {
+				localStorage.removeItem("rememberMeToken");
+			}
+		}
 	
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
@@ -481,6 +487,22 @@ $ICON
 			removeChildren(element);
 			element.appendChild(document.createTextNode(content.caption));
 			element = document.getElementById("query").cloneNode(true);
+		} else if (type === "Login") {
+			element = document.createElement("div");
+			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
+			var formAndActions = document.createElement("div");
+			formAndActions.style = "width: 30em;";
+			element.appendChild(formAndActions);
+			var contentElement = createContent(content.content);
+			formAndActions.appendChild(contentElement);
+			var button = document.createElement("button");
+			button.style="float: right;"
+			button.id = content.loginAction.id;
+			button.appendChild(document.createTextNode(content.loginAction.name));
+			button.setAttribute("onclick", "action(\"" + content.loginAction.id + "\");");
+			if (!content.loginAction.enabled)
+				button.setAttribute("disabled", "true");
+			formAndActions.appendChild(button);
 		} else if (type === "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -1342,8 +1364,8 @@ $ICON
 		window.onpopstate = popState;
 	
 		var initParameters = {};
-		initParameters["initialize"] = window.history.state ? window.history.state : "$PATH";
-		initParameters["rememberMeToken"] = localStorage.rememberMeToken ? localStorage.rememberMeToken : null;
+		initParameters.initialize = window.history.state ? window.history.state : "$PATH";
+		if (localStorage.rememberMeToken != undefined) initParameters.rememberMeToken = localStorage.rememberMeToken;
 		send(initParameters);
 	}
 	

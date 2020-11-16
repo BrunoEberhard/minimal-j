@@ -1,9 +1,9 @@
 package org.minimalj.frontend.impl.vaadin;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.application.Application;
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -15,6 +15,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
+import org.minimalj.util.resources.Resources;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
@@ -22,11 +23,9 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -47,6 +46,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		
 		setPrimarySection(Section.DRAWER);
 		addToNavbar(new DrawerToggle());
+		/*
 		if (Backend.getInstance().isAuthenticationActive()) {
 			Button buttonLogin = new Button(VaadinIcon.USER.create());
 			buttonLogin.addClickListener(event -> {
@@ -59,6 +59,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			});
 			addToNavbar(buttonLogin);
 		}
+		*/
 		
 		if (Application.getInstance().hasSearchPages()) {
 			TextField textFieldSearch = new TextField();
@@ -132,6 +133,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 
 	@Override
 	public void show(Page page) {
+		// TODO access check
 		Component content = (Component) page.getContent();
 		setContent(content);
 		
@@ -163,6 +165,18 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	@Override
 	public void showError(String text) {
 		Notification.show(text).addThemeVariants(NotificationVariant.LUMO_ERROR);
+	}
+
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+		// TODO this should be display a page like in Html Frontend
+		new VaadinDialog(Resources.getString("Login.title"), (Component) content, loginAction, cancelAction);
+		return Optional.empty();
+	}
+
+	@Override
+	public void login(Subject subject) {
+		// not used
 	}	
 	
 }

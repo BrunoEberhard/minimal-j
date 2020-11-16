@@ -11,6 +11,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
 /**
@@ -198,6 +199,10 @@ public abstract class Frontend {
 	 * @return query content
 	 */
 	public abstract IContent createQueryContent();
+
+	public void login(Subject subject) {
+		getPageManager().login(subject);
+	}
 	
 	//
 	
@@ -224,11 +229,15 @@ public abstract class Frontend {
 	public static boolean isDetailShown(Page page) {
 		return getInstance().getPageManager().isDetailShown(page);
 	}
-	
+
 	public static IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
 		return getInstance().getPageManager().showDialog(title, content, saveAction, closeAction, actions);
 	}
 
+	public static Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+		return getInstance().getPageManager().showLogin(content, loginAction, forgetPasswordAction, cancelAction);
+	}
+	
 	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
 	public static void showMessage(String text) {
