@@ -556,6 +556,9 @@ $ICON
 			}
 		} else if (type === "Switch") {
 			element = document.createElement("div");
+			if (content.component != undefined) {
+				element.appendChild(createContent(content.component));
+			}
 		} else if (type === "Action") {
 			element = document.createElement("div");
 			element.className = "action";
