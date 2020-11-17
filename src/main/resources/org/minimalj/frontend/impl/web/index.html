@@ -61,9 +61,9 @@ $ICON
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
-		if (dataObject.hasSearchPages) {
+		if (dataObject.hasSearchPages === true) {
 			document.getElementById("search").removeAttribute("disabled");
-		} else {
+		} else if (dataObject.hasSearchPages === false) {
 			document.getElementById("search").setAttribute("disabled", "true");
 		}		
 		if ("showPage" in dataObject) {
