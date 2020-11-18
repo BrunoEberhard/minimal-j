@@ -56,6 +56,10 @@ Uses nanoHttpd as server infrastructure. Supports WebSockets.
 
 Use thymeleaf for custom web pages
 
+== soft
+
+A css theme is by https://krockds.com/
+
 = Abandoned projects
 
 == Vaadin 8 / Vaadin 8 Servlet / Vaadin 8 Springboot

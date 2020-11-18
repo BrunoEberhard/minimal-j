@@ -1,0 +1,9 @@
+= Soft Theme
+
+This css theme is inspired by https://krockds.com/
+
+image::doc/screenshot_flotte_sohle.png[]
+
+== How to use
+
+Just add -DMjCss=soft.css when you start a Minimal-J application with html frontend.

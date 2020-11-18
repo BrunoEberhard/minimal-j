@@ -19,7 +19,7 @@ body {
 	box-sizing: border-box;
 	line-height: 2.45em;
 	text-align: left;
-	background: rgb(224,224,224);
+	background: rgb(0, 0, 0, 0.125);
 	padding-left: 0ex;
 }
 
@@ -132,7 +132,6 @@ body {
 #pageContainer {
 	margin: 0px;
 	overflow: auto;
-	background: white;
 	display: flex;
 	flex-direction: column;
 	width: 100%;
