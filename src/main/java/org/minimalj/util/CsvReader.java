@@ -6,7 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
+import org.minimalj.model.Code;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 
@@ -28,8 +30,15 @@ public class CsvReader {
 	private final PushbackReader reader;
 	private String commentStart = null;
 
+	private final BiFunction<Class<?>, Object, Object> objectProvier;
+	
 	public CsvReader(InputStream is) {
+		this(is, null);
+	}
+
+	public CsvReader(InputStream is, BiFunction<Class<?>, Object, Object> objectProvier) {
 		reader = new PushbackReader(new InputStreamReader(is));
+		this.objectProvier = objectProvier;
 	}
 
 	public <T> List<T> readValues(Class<T> clazz) {
@@ -51,9 +60,15 @@ public class CsvReader {
 		while (values != null) {
 			T object = CloneHelper.newInstance(clazz);
 			for (int i = 0; i < fields.size(); i++) {
-				String stringValue = values.get(i);
+				String stringValue = values.get(i).trim();
 				PropertyInterface property = properties.get(i);
-				Object value = FieldUtils.parse(stringValue.trim(), property.getClazz());
+				Object value;
+				Class<?> propertyClazz = property.getClazz();
+				if (Code.class.isAssignableFrom(propertyClazz)) {
+					value = objectProvier.apply(propertyClazz, stringValue);
+				} else {
+					value = FieldUtils.parse(stringValue, propertyClazz);
+				}
 				property.setValue(object, value);
 			}
 			objects.add(object);

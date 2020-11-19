@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -666,7 +667,7 @@ public class SqlRepository implements TransactionalRepository {
 				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
 				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
 				if (is != null) {
-					CsvReader reader = new CsvReader(is);
+					CsvReader reader = new CsvReader(is, getObjectProvider());
 					List<? extends Code> values = reader.readValues(clazz);
 					for (Code value : values) {
 						((Table<Code>) table).insert(value);
@@ -674,6 +675,15 @@ public class SqlRepository implements TransactionalRepository {
 				}
 			}
 		}
+	}
+	
+	private BiFunction<Class<?>, Object, Object> getObjectProvider() {
+		return new BiFunction<Class<?>, Object, Object>() {
+			@Override
+			public Object apply(Class<?> clazz, Object id) {
+				return read(clazz, id);
+			}
+		};
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -702,7 +712,8 @@ public class SqlRepository implements TransactionalRepository {
 	
 	public String name(Object classOrKey) {
 		if (classOrKey instanceof Class) {
-			return table((Class<?>) classOrKey);
+			// TODO
+			return tableByName.entrySet().stream().filter(e -> e.getValue().getClazz() == classOrKey).findAny().get().getKey();
 		} else {
 			return column(classOrKey);
 		}
