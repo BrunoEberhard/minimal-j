@@ -1,13 +1,20 @@
 package org.minimalj.frontend.impl.swing.component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
@@ -17,6 +24,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLImageElement;
 
 import com.sun.javafx.application.PlatformImpl;
@@ -101,6 +109,17 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 									throw new RuntimeException(e);
 								}
 							}
+							nodeList = doc.getElementsByTagName("embed");
+							for (int i = 0; i < nodeList.getLength(); i++) {
+								HTMLElement n = (HTMLElement) nodeList.item(i);
+								String src = n.getAttribute("src");
+								WebApplicationPageExchange exchange = new WebApplicationPageExchange(src);
+								WebApplication.getWebApplicationHandler().handle(exchange);
+								StringBuilder s = new StringBuilder();
+								s.append("data:").append(exchange.getContentType()).append(";base64,").append(exchange.getResult());
+								System.out.println(s.toString());
+								n.setAttribute("src", s.toString());
+							}
 						}
 					}
 				});
@@ -124,4 +143,53 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 		return href;
 	}
 
+	public static class WebApplicationPageExchange extends MjHttpExchange {
+		private final String path;
+		private byte[] result;
+		private String contentType;
+
+		public WebApplicationPageExchange(String path) {
+			this.path = path;
+		}
+
+		public String getResult() {
+			return Base64.getEncoder().encodeToString(result);
+		}
+
+		public String getContentType() {
+			return contentType;
+		}
+		
+		@Override
+		public String getPath() {
+			return path;
+		}
+
+		@Override
+		public InputStream getRequest() {
+			return null;
+		}
+
+		@Override
+		public Map<String, List<String>> getParameters() {
+			return Collections.emptyMap();
+		}
+
+		@Override
+		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+			this.result = bytes;
+			this.contentType = contentType;
+		}
+
+		@Override
+		public void sendResponse(int statusCode, String response, String contentType) {
+			this.result = response.getBytes(Charset.forName("utf-8"));
+			this.contentType = contentType;
+		}
+
+		@Override
+		public boolean isResponseSent() {
+			return result != null;
+		}
+	}
 }
