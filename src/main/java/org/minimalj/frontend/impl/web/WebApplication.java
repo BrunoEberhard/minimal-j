@@ -130,8 +130,8 @@ public abstract class WebApplication extends Application {
 					return;
 				}
 			} catch (Exception x) {
-				webApplication().sendError(exchange, x);
 				logger.log(Level.SEVERE,x.getLocalizedMessage(), x);
+				webApplication().sendError(exchange, x);
 			}
 		}
 		if (Application.getInstance() instanceof WebApplication) {
@@ -158,6 +158,9 @@ public abstract class WebApplication extends Application {
 	}
 
 	protected void sendError(MjHttpExchange exchange, Exception x) {
+		x.printStackTrace();
+		
+		
 		if (Configuration.isDevModeActive()) {
 			try (StringWriter sw = new StringWriter()) {
 				try (PrintWriter pw = new PrintWriter(sw)) {
