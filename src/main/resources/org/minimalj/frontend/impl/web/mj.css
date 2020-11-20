@@ -389,7 +389,7 @@ label {
 }
 
 .lookup button, .lookup select {
-	align-self: start;
+	align-self: stretch;
 }
 
 .lookup span {
