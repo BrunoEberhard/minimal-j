@@ -78,6 +78,7 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 	@Override
 	public List<T> subList(int fromIndex, int toIndex) {
 		Query limtedCriteria = makeOrdered(query).limit(fromIndex, toIndex - fromIndex);
+		// TODO check for fromIndex >= toIndex?
 		return find(limtedCriteria);
 	}
 
