@@ -508,6 +508,7 @@ $ICON
 			if (!content.loginAction.enabled)
 				button.setAttribute("disabled", "true");
 			formAndActions.appendChild(button);
+			addEnterAction(content.loginAction, contentElement);
 		} else if (type === "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -912,19 +913,8 @@ $ICON
 			dialog.appendChild(footer);
 		}
 	
-		var saveAction = json.saveAction;
-		if (saveAction) {
-			var inputs = content.getElementsByTagName("input");
-			var lastInput;
-			var i = inputs.length - 1;
-			do {
-				lastInput = inputs[i--];
-			} while (lastInput && i > 0 && !(lastInput.type == "text" || lastInput.type == "password"))
-			if (lastInput) {
-				lastInput.setAttribute("onkeyup", "if (event.keyCode == 13) { sendchange(this, \"" + saveAction.id + "\"); }");
-			}
-		}
-	
+		addEnterAction(json.saveAction, content);
+
 		var parent = document.getElementById("body");
 		parent.appendChild(dialog);
 		if (dialog.show == undefined) {
@@ -934,6 +924,20 @@ $ICON
 		dialog.addEventListener("close", event => dialogClosedListener(event, json.closeAction));
 		dialog.showModal();
 		updateDialogSizes();
+	}
+	
+	function addEnterAction(enterAction, form) {
+		if (enterAction) {
+			var inputs = form.getElementsByTagName("input");
+			var lastInput;
+			var i = inputs.length - 1;
+			do {
+				lastInput = inputs[i--];
+			} while (lastInput && i > 0 && !(lastInput.type == "text" || lastInput.type == "password"))
+			if (lastInput) {
+				lastInput.setAttribute("onkeyup", "if (event.keyCode == 13) { sendchange(this, \"" + enterAction.id + "\"); }");
+			}
+		}
 	}
 	
 	function closeDialog(event) {
