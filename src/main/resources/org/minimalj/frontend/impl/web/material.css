@@ -22,8 +22,11 @@ body {
 	border: none;
 }
 
+.secondHeaderButtons {
+	margin-top: 0.65em;
+}
+
 .pageButton {
-	margin-top: 0.2em;
 	width: 0.9em;
 	height: 0.9em;
 }

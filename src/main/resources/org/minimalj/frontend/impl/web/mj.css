@@ -21,6 +21,7 @@ body {
 	text-align: left;
 	background: rgb(0, 0, 0, 0.125);
 	padding-left: 0ex;
+	border-bottom: 1px rgb(160,160,160) solid;
 }
 
 .headerButton {
@@ -66,8 +67,18 @@ body {
 }
 
 .secondHeader {
-	border-top: 1px rgb(160,160,160) solid;
 	border-bottom: 1px rgb(160,160,160) solid;
+}
+
+.secondHeaderButtons {
+    float: right;
+    margin-top: 0.5em;
+    margin-right: 1em;
+}
+
+.pageButton {
+	width: 1.1em;
+	height: 1.1em;
 }
 
 #navigationHeader {
@@ -157,11 +168,6 @@ body {
 	overflow-y: auto;
 }
 
-.pageButton {
-	width: 1.1em;
-	height: 1.1em;
-}
-
 .pageContent {
 	width: 100%;
 	box-sizing: border-box;
@@ -187,7 +193,6 @@ table.table tr td {
 	z-index: 20;
 	padding: 0.5ex 1ex 0.5ex 1ex;
 	border: 1px rgb(160,160,160) solid;
-	background: white;
 	overflow: auto;
 }
 
@@ -268,10 +273,6 @@ table.selected {
 
 table tr:nth-child(even) {
 	background: #f8f8f8;
-}
-
-table tr:nth-child(odd) {
-	background: white;
 }
 
 table tr:nth-child(even).selected {
@@ -421,7 +422,7 @@ label {
 
 @media (max-width: 991px) {
 	#search { display: none; }
-	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border-right: 1px rgb(160,160,160) solid;}
+	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; border-right: 1px rgb(160,160,160) solid;}
 	#navigationHeader { display: none; }
 	#navigation { max-height: 100%}
 	#pageContainer { height: 100%}
