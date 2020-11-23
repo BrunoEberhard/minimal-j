@@ -236,6 +236,7 @@ public class JsonPageManager implements PageManager {
 			JsonTextField textField = (JsonTextField) getComponentById(loadSuggestions);
 			String searchText = (String) input.getObject("searchText");
 			List<String> suggestions = textField.getSuggestions().search(searchText);
+			suggestions = suggestions != null && suggestions.size() > 50 ? suggestions.subList(0, 50) : suggestions;
 			output.add("suggestions", suggestions);
 			output.add("loadSuggestions", loadSuggestions);
 		}
