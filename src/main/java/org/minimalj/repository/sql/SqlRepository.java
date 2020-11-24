@@ -542,14 +542,16 @@ public class SqlRepository implements TransactionalRepository {
 			values.put(property, value);
 		}
 		
-		if (!loadedReferences.containsKey(clazz)) {
-			loadedReferences.put(clazz, new HashMap<>());
-		}
-		Object key = position == null ? id : id + "-" + position;
-		if (loadedReferences.get(clazz).containsKey(key)) {
-			return (R) loadedReferences.get(clazz).get(key);
-		} else {
-			loadedReferences.get(clazz).put(key, result);
+		if (id != null) {
+			if (!loadedReferences.containsKey(clazz)) {
+				loadedReferences.put(clazz, new HashMap<>());
+			}
+			Object key = position == null ? id : id + "-" + position;
+			if (loadedReferences.get(clazz).containsKey(key)) {
+				return (R) loadedReferences.get(clazz).get(key);
+			} else {
+				loadedReferences.get(clazz).put(key, result);
+			}
 		}
 		
 		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
