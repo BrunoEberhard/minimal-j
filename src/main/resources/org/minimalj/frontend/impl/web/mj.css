@@ -193,6 +193,7 @@ table.table tr td {
 	z-index: 20;
 	padding: 0.5ex 1ex 0.5ex 1ex;
 	border: 1px rgb(160,160,160) solid;
+	background: white;
 	overflow: auto;
 }
 
