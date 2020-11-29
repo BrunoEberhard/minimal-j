@@ -7,32 +7,26 @@ import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.util.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import com.vaadin.flow.spring.RootMappedCondition;
 
 @SpringBootApplication
 public class Vaadin extends SpringBootServletInitializer {
 
-    @Bean(name = "WebApplicationServletRegistration")
-    @Conditional(IsWebApplication.class)
-    public ServletRegistrationBean<MjWebApplicationServlet> servletRegistrationBean() {
-        return new ServletRegistrationBean<>(new MjWebApplicationServlet(), "/*");
-    }
-	
-    public static class IsWebApplication implements Condition {
-
-		@Override
-		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-			return Application.getInstance() instanceof WebApplication;
-		}
-    }
+//    @Bean(name = "WebApplicationServletRegistration")
+//    @Conditional(IsWebApplication.class)
+//    public ServletRegistrationBean<MjWebApplicationServlet> servletRegistrationBean() {
+//        return new ServletRegistrationBean<>(new MjWebApplicationServlet(), "/*");
+//    }
+//	
+//    public static class IsWebApplication implements Condition {
+//
+//		@Override
+//		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+//			return Application.getInstance() instanceof WebApplication;
+//		}
+//    }
     
 	private static void start(String... args) {
 		Frontend.setInstance(new VaadinFrontend());
@@ -43,6 +37,8 @@ public class Vaadin extends SpringBootServletInitializer {
 				mjHandlerPath += "*";
 				System.setProperty(RootMappedCondition.URL_MAPPING_PROPERTY, mjHandlerPath);
 			}
+		} else {
+			System.setProperty(RootMappedCondition.URL_MAPPING_PROPERTY, "/*");
 		}
 
 		SpringApplication.run(Vaadin.class, args);
