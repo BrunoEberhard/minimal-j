@@ -123,24 +123,30 @@ public abstract class WebApplication extends Application {
 	}
 
 	public static final void handle(MjHttpExchange exchange) {
+		if (!callHandlers(exchange)) {
+			if (Application.getInstance() instanceof WebApplication) {
+				webApplication().sendNotFound(exchange);
+			} else {
+				sendNotFoundDefault(exchange);
+			}
+		}
+	}
+
+	public static final boolean callHandlers(MjHttpExchange exchange) {
 		for (MjHttpHandler handler : getHandlers()) {
 			try {
 				handler.handle(exchange);
 				if (exchange.isResponseSent()) {
-					return;
+					return true;
 				}
 			} catch (Exception x) {
 				logger.log(Level.SEVERE,x.getLocalizedMessage(), x);
 				webApplication().sendError(exchange, x);
 			}
 		}
-		if (Application.getInstance() instanceof WebApplication) {
-			webApplication().sendNotFound(exchange);
-		} else {
-			sendNotFoundDefault(exchange);
-		}
+		return false;
 	}
-
+	
 	public static MjHttpHandler getWebApplicationHandler() {
 		if (webApplicationHandler == null && Application.getInstance() instanceof WebApplication) {
 			WebApplication webApplication = (WebApplication) Application.getInstance();

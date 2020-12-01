@@ -49,9 +49,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	private final Authentication authentication = Backend.getInstance().getAuthentication();
 	
 	public VaadinPageManager() {
-		// if (UI.getCurrent() != null) {
-			UI.getCurrent().getSession().setAttribute("pageManager", this);
-		// }
+		UI.getCurrent().getSession().setAttribute("pageManager", this);
 
 		getElement().getStyle().set("overflow", "hidden");
 		
@@ -154,6 +152,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			@Override
 			public IContent getContent() {
 				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) content, loginAction, null, loginAction);
+				editorLayout.setSizeUndefined();
 				VaadinHorizontalLayout centerLayout = new VaadinHorizontalLayout(new IComponent[] {editorLayout});
 				centerLayout.setSizeFull();
 				centerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
