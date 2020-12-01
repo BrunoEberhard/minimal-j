@@ -18,3 +18,6 @@ examples/Minimal-J_Library/.project
 *.cer
 *.jks
 /bin/
+
+/node_modules/
+/dist/
