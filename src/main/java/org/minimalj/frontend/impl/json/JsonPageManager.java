@@ -345,10 +345,6 @@ public class JsonPageManager implements PageManager {
 		Subject.setCurrent(subject);
 
 		initialize();
-		
-		if (subject == null) {
-			show(Application.getInstance().createDefaultPage());
-		}
 	}
 
 	private void updateTitle(Page page) {
