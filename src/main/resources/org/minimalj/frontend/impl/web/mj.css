@@ -296,6 +296,7 @@ table tr:nth-child(odd).selected {
 }
 
 .form > div > div {
+	position: relative;
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
 	overflow: hidden;
@@ -307,11 +308,37 @@ table tr:nth-child(odd).selected {
 	margin-right: 0.5em;
 }
 
-.form .lookup .text {
+.form input, .form select {
+	height: 1.8em;
+}
+
+.form .lookup .text, .form .lookup input {
 	width: 100%;
+	min-height: 1.8em;
+	box-sizing: border-box;
+}
+
+.form .lookup input {
+	width: 100%;
+}
+
+
+.form .lookup .text {
 	padding: 3.5px;
 	border: lightgray solid 1px;
-	margin: 0em;
+	margin: 0em 2em 0em 0em;
+	padding-right: 2em !important;
+	text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.form .lookup select {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	width: fit-content;
+	border: none;
+	background: transparent;
 }
 
 .form .groupItem:first-child .lookup .text {
@@ -381,34 +408,34 @@ label {
 }
 
 .lookup {
-	display: flex;
+	position: relative;
 }
 
 .lookup input {
-	flex-grow: 1;
 	margin: 0px;
-	width: 3em;
-}
-
-.lookup button, .lookup select {
-	align-self: stretch;
-}
-
-.lookup span {
-	flex-grow: 1;
-	align-self: center;
-}
-
-.lookup select {
-	width: 1.8em;
-	height: 1.8em;
-	padding: 0;
-	vertical-align: middle;
-	margin: 0;
 }
 
 .lookup select option:first-child {
 	display: none;
+}
+
+/* https://css-tricks.com/using-svg/
+<svg style="stroke: black; stroke-width:20%">
+<line x1="7%" y1="7%" x2="93%" y2="51%"/>
+<line x1="7%" y1="93%" x2="93%" y2="49%"/>
+</svg>
+*/
+
+.lookupButton {
+	position: absolute;
+	width: 2em;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background-size: 0.5em 0.8em;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='93%25' y2='51%25'/%3E%3Cline x1='7%25' y1='93%25' x2='93%25' y2='49%25'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .hide {
