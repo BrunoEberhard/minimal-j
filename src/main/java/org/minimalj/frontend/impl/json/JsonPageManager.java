@@ -382,8 +382,10 @@ public class JsonPageManager implements PageManager {
 
 	@Override
 	public void hideDetail(Page page) {
-		output.add("hidePage", visiblePageAndDetailsList.getId(page));
-		visiblePageAndDetailsList.removeAllFrom(page);
+		if (isDetailShown(page)) {
+			output.add("hidePage", visiblePageAndDetailsList.getId(page));
+			visiblePageAndDetailsList.removeAllFrom(page);
+		}
 	}
 
 	@Override

@@ -335,8 +335,10 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 	@Override
 	public void hideDetail(Page detail) {
-		int index = visiblePageAndDetailsList.indexOf(detail);
-		removeDetails(index);
+		if (isDetailShown(detail)) {
+			int index = visiblePageAndDetailsList.indexOf(detail);
+			removeDetails(index);
+		}
 	}
 
 	@Override
