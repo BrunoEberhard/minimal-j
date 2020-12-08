@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -43,6 +45,7 @@ public class JsonPageManager implements PageManager {
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
 	private final PageList visiblePageAndDetailsList = new PageList();
+	private final Set<String> horizontalPageIds = new HashSet<>();
 	// this makes this class not thread safe. Caller of handle have to synchronize.
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
@@ -276,24 +279,30 @@ public class JsonPageManager implements PageManager {
 	@Override
 	public void showDetail(Page mainPage, Page detail, boolean horizontalDetailLayout) {
 		int pageIndex = visiblePageAndDetailsList.indexOf(detail);
+		String pageId;
 		if (pageIndex < 0) {
 			String mainPageId = visiblePageAndDetailsList.getId(mainPage);
-			show(detail, mainPageId);
+			pageId = show(detail, mainPageId);
 		} else {
-			String pageId = visiblePageAndDetailsList.getId(pageIndex);
+			pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);
 			output.add("title", detail.getTitle());
+		}
+		if (horizontalDetailLayout) {
+			horizontalPageIds.add(pageId);
+		} else {
+			horizontalPageIds.remove(pageId);
 		}
 		output.add("horizontalDetailLayout", Boolean.valueOf(horizontalDetailLayout));
 	}
 	
-	private void show(Page page, String masterPageId) {
+	private String show(Page page, String masterPageId) {
 		if (!Authorization.hasAccess(Subject.getCurrent(), page)) {
 			if (authentication == null) {
 				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
 			}
 			authentication.getLoginAction(subject -> show(page, masterPageId)).action();
-			return;
+			return null;
 		}
 		if (masterPageId == null) {
 			visiblePageAndDetailsList.clear();
@@ -306,6 +315,7 @@ public class JsonPageManager implements PageManager {
 		String pageId = pageStore.put(page);
 		output.add("showPage", createJson(page, pageId, masterPageId));
 		visiblePageAndDetailsList.put(pageId, page);
+		return pageId;
 	}
 
 	private void show(List<String> pageIds) {
@@ -332,6 +342,7 @@ public class JsonPageManager implements PageManager {
 			}
 		}
 		if (authorized) {
+			output.add("horizontalDetailLayout", horizontalPageIds.contains(pageIds.get(pageIds.size() - 1)));
 			output.add("showPages", jsonList);
 			updateTitle(firstPage != null ? firstPage : null);
 		} else {
