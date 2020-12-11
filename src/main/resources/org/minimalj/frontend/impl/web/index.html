@@ -71,16 +71,19 @@ $ICON
 			dataObject.closeDialog = undefined;
 			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
+			updatePageButtons();
 			saveStateInHistory();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
 			for (var i = 0; i < pages.length; i++) {
 				showPage(pages[i]);
 			}
+			updatePageButtons();
 		} else if ("hidePage" in dataObject) {
 			addNewStateToHistory();
 			hidePage(dataObject.hidePage);
 			saveStateInHistory();
+			updatePageButtons();
 		} else if ("showUrl" in dataObject) {
 			window.location.href = dataObject.showUrl;
 		} else if (dataObject.pageId) {
@@ -297,9 +300,7 @@ $ICON
 		var headerElement = createPageHeader(page.title);
 		pageElement.appendChild(headerElement);
 		if (!hasActionMenu) {
-			var actionMenuButton = headerElement.querySelector(".actionMenuButton");
-			actionMenuButton.removeAttribute("onclick");
-			actionMenuButton.style.display = "none";
+			headerElement.querySelector(".actionMenuButton").style.display = "none";
 		}
 	
 		var pageContentAndActionsElement = document.createElement("div");
@@ -360,6 +361,14 @@ $ICON
 		}
 	}
 	
+	function updatePageButtons() {
+	    var pages = document.getElementsByClassName("page");
+		for (var i = 0; i < pages.length; i++) {
+			pages[i].querySelector(".toggleButton").style.display = i < pages.length - 1 ? "inline-block" : "none";
+			pages[i].querySelector(".closeButton").style.display = i > 0 ? "inline-block" : "none";
+		}
+	}
+
 	function togglePageActionMenu(event) {
 		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
 			var page = pageContainerElement.childNodes[i];
@@ -446,7 +455,9 @@ $ICON
 		}
 	
 		saveStateInHistory();
-	
+		
+		updatePageButtons();
+		
 		var data = {
 			closePage: element.id
 		};
@@ -1464,9 +1475,9 @@ $ICON
 				<rect x="73%" y="13%" width="20%" height="17%"/>
 				<rect x="73%" y="46%" width="20%" height="17%"/>
 				<rect x="73%" y="80%" width="20%" height="17%"/>
-			</svg><svg class="pageButton button" onclick="togglePage(evt);">
+			</svg><svg class="pageButton button toggleButton" onclick="togglePage(evt);">
 			  <rect x="20%" y="80%" width="100%" height="13%" />
-			</svg><svg class="pageButton button" onclick="closePage(evt);">
+			</svg><svg class="pageButton button closeButton" onclick="closePage(evt);">
 				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>
