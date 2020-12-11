@@ -342,7 +342,7 @@ public class JsonPageManager implements PageManager {
 			}
 		}
 		if (authorized) {
-			output.add("horizontalDetailLayout", horizontalPageIds.contains(pageIds.get(pageIds.size() - 1)));
+			output.add("horizontalDetailLayout", pageIds.size() > 0 && horizontalPageIds.contains(pageIds.get(pageIds.size() - 1)));
 			output.add("showPages", jsonList);
 			updateTitle(firstPage != null ? firstPage : null);
 		} else {
