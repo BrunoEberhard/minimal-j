@@ -823,6 +823,7 @@ $ICON
 			var rowElement = createTableRow(rows[i]);
 			rowElement.setAttribute("onmousedown", "tableSelection(event, this);");
 			rowElement.setAttribute("ondblclick", "tableAction(event, \"" + tableId + "\", this);");
+			rowElement.setAttribute("ontouchend", "tableAction(event, \"" + tableId + "\", this);");
 			element.appendChild(rowElement);
 		}
 		return element;
