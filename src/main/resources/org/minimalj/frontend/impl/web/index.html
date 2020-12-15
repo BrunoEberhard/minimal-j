@@ -106,6 +106,7 @@ $ICON
 		if ("horizontalDetailLayout" in dataObject) {
 			var horizontalDetailLayout = dataObject.horizontalDetailLayout;
 			pageContainer.style.flexDirection = horizontalDetailLayout ? "row" : "column";
+			updatePageButtons();
 		}
 		if (dataObject.navigation) {
 			updateNavigation(dataObject.navigation);
@@ -363,9 +364,10 @@ $ICON
 	}
 	
 	function updatePageButtons() {
+		var verticalLayout = pageContainer.style.flexDirection == "column";
 	    var pages = document.getElementsByClassName("page");
 		for (var i = 0; i < pages.length; i++) {
-			pages[i].querySelector(".toggleButton").style.display = i < pages.length - 1 ? "inline-block" : "none";
+			pages[i].querySelector(".toggleButton").style.display = verticalLayout && i < pages.length - 1 ? "inline-block" : "none";
 			pages[i].querySelector(".closeButton").style.display = i > 0 ? "inline-block" : "none";
 		}
 	}
