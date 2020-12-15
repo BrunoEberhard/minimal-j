@@ -630,7 +630,7 @@ $ICON
 			element.setAttribute("onkeydown", "if (event.keyCode == 13) sendchange(this);");
 	
 			var button = document.createElement("button");
-			button.appendChild(document.createTextNode("$SEARCH"));
+			button.appendChild(document.createTextNode(content.textSearch));
 			button.setAttribute("onclick", "sendchange(this.previousSibling);");
 			button.setAttribute("style", "width: 10em;");
 	

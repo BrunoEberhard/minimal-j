@@ -14,7 +14,7 @@ public class JsonSearchTable<T> extends JsonComponent implements IContent {
 	public JsonSearchTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("List");
 		this.search = search;
-		addComponent(new JsonTextField("SearchTextField", new JsonSearchInputListener()));
+		addComponent(JsonTextField.createSearchTextField(new JsonSearchInputListener()));
 		table = new JsonTable<>(keys, multiSelect, listener);
 		addComponent(table);
 	}

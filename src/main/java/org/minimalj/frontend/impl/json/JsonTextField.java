@@ -4,6 +4,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.util.resources.Resources;
 
 public class JsonTextField extends JsonInputComponent<String> implements Input<String> {
 
@@ -11,17 +12,19 @@ public class JsonTextField extends JsonInputComponent<String> implements Input<S
 	public static final String INPUT_TYPE = "inputType";
 	private static final String ALLOWED_CHARACTERS = "allowedCharacters";
 	private static final String SUGGESTIONS = "suggestions";
+	private static final String TEXT_SEARCH = "textSearch";
 	
 	private final Search<String> suggestions;
 	
-	public JsonTextField(String type) {
-		super(type, null);
+	private JsonTextField(String type, InputComponentListener changeListener) {
+		super(type, changeListener);
 		this.suggestions = null;
 	}
 	
-	public JsonTextField(String type, InputComponentListener changeListener) {
-		super(type, changeListener);
-		this.suggestions = null;
+	public static JsonTextField createSearchTextField(InputComponentListener changeListener) {
+		JsonTextField textField = new JsonTextField("SearchTextField", changeListener);
+		textField.put(TEXT_SEARCH, Resources.getString("SearchAction"));
+		return textField;
 	}
 	
 	public JsonTextField(String type, int maxLength, String allowedCharacters, InputType inputType,
