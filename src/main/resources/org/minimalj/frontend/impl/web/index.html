@@ -63,8 +63,10 @@ $ICON
 		}
 		if (dataObject.hasSearchPages === true) {
 			document.getElementById("search").removeAttribute("disabled");
+			document.getElementById("searchButton").classList.remove("hide");
 		} else if (dataObject.hasSearchPages === false) {
 			document.getElementById("search").setAttribute("disabled", "true");
+			document.getElementById("searchButton").classList.add("hide");
 		}		
 		if ("showPage" in dataObject) {
 			closeDialogs();
@@ -1395,8 +1397,6 @@ $ICON
 		window.addEventListener("resize", updateDialogSizes);
 		window.addEventListener("resize", closeActionMenu);
 		window.addEventListener("resize", resizeNavigation);
-	
-		if ("$DISABLED_SEARCH" === "disabled") document.getElementById("searchButton").style.display = "none";
 	
 		window.onpopstate = popState;
 	
