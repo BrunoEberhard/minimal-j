@@ -16,6 +16,10 @@ import org.minimalj.util.Sortable;
 public class SortableList<T> extends ArrayList<T> implements Sortable, Serializable {
 	private static final long serialVersionUID = 1L;
 
+	public SortableList() {
+		super();
+	}
+	
 	public SortableList(Collection<T> objects) {
 		super(objects);
 	}
