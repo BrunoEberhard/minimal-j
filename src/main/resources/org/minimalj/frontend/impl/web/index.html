@@ -949,7 +949,12 @@ $ICON
 			dialogPolyfill.registerDialog(dialog);
 		}
 	
-		dialog.addEventListener("close", event => dialogClosedListener(event, json.closeAction));
+		if (json.closeAction != undefined) {
+		    dialog.closeAction = json.closeAction;
+			dialog.addEventListener("cancel", closeDialogButton);
+		}
+		dialog.addEventListener("close", dialogClosedListener);
+
 		dialog.showModal();
 		updateDialogSizes();
 	}
@@ -968,16 +973,20 @@ $ICON
 		}
 	}
 	
-	function closeDialog(event) {
+	function closeDialogButton(event) {
 		var dialog = event.target;
 		while (dialog.tagName.toUpperCase() != "DIALOG" && (dialog = dialog.parentNode));
-		dialog.close();
+		if (dialog.closeAction != undefined) {
+			action(dialog.closeAction.id);		
+			event.preventDefault();
+		} else {
+			dialog.close();
+		}
 	}
-	
-	function dialogClosedListener(event, closeAction) {
+
+	function dialogClosedListener(event) {
 		document.getElementById("body").removeChild(event.target);
 		updateDialogSizes();
-		action(closeAction.id);
 	}
 	
 	function closeDialogs() {
@@ -1485,7 +1494,7 @@ $ICON
 			</svg>
 		</div>
 		<div id="dialogButtons">
-			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialog(evt)">
+			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialogButton(evt)">
 			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
 			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
 			</svg>
