@@ -11,11 +11,11 @@ public interface PageManager {
 	public abstract void show(Page page);
 
 	public default void showDetail(Page mainPage, Page detail, boolean horizontalDetailLayout) {
-		show(detail);
+		showDetail(mainPage, detail);
 	}
 
 	public default void showDetail(Page mainPage, Page detail) {
-		showDetail(mainPage, detail, false);
+		show(detail);
 	}
 	
 	public default void hideDetail(Page page) {
