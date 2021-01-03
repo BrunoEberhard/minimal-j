@@ -59,6 +59,7 @@ public class Form<T> {
 	public static final boolean EDITABLE = true;
 	public static final boolean READ_ONLY = false;
 
+	public static final int DEFAULT_COLUMN_WIDTH = 100;
 	public static final Object GROW_FIRST_ELEMENT = new Object();
 
 	protected final boolean editable;
@@ -92,15 +93,15 @@ public class Form<T> {
 	}
 
 	public Form(boolean editable, int columns) {
-		this.editable = editable;
-		this.columns = columns;
-		this.formContent = Frontend.getInstance().createFormContent(columns, getColumnWidthPercentage());
-	}
-	
-	protected int getColumnWidthPercentage() {
-		return 100;
+		this(editable, columns, DEFAULT_COLUMN_WIDTH);
 	}
 
+	public Form(boolean editable, int columns, int columnWidth) {
+		this.editable = editable;
+		this.columns = columns;
+		this.formContent = Frontend.getInstance().createFormContent(columns, columnWidth);
+	}
+	
 	// Methods to create the form
 
 	public FormContent getContent() {
