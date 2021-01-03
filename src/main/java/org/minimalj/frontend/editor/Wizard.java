@@ -150,7 +150,6 @@ public abstract class Wizard<RESULT> extends Action {
 	}	
 
 	protected final class NextWizardStepAction extends Action {
-		private String description;
 		private boolean valid = false;
 		
 		@Override
@@ -160,22 +159,12 @@ public abstract class Wizard<RESULT> extends Action {
 		
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
 			valid = validationMessages == null || validationMessages.isEmpty();
-			if (valid) {
-				description = "Speichern und zum nächsten Schritt";
-			} else {
-				description = ValidationMessage.formatHtml(validationMessages);
-			}
 			fireChange();
 		}
 
 		@Override
 		public boolean isEnabled() {
 			return valid && step.hasNext();
-		}
-		
-		@Override
-		public String getDescription() {
-			return description;
 		}
 	}
 	
@@ -195,7 +184,6 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 	
 	protected final class FinishAction extends Action {
-		private String description;
 		private boolean enabled = false;
 		
 		@Override
@@ -205,11 +193,6 @@ public abstract class Wizard<RESULT> extends Action {
 		
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
 			boolean valid = validationMessages == null || validationMessages.isEmpty();
-			if (valid) {
-				description = "Eingaben speichern und Wizard beenden";
-			} else {
-				description = ValidationMessage.formatHtml(validationMessages);
-			}
 			enabled = valid & canFinish();
 			fireChange();
 		}
@@ -217,11 +200,6 @@ public abstract class Wizard<RESULT> extends Action {
 		@Override
 		public boolean isEnabled() {
 			return enabled;
-		}
-		
-		@Override
-		public String getDescription() {
-			return description;
 		}
 	}
 	

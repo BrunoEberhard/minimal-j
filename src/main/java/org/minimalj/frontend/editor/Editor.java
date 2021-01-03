@@ -108,8 +108,8 @@ public abstract class Editor<T, RESULT> extends Action {
 		}
 		validationMessages.addAll(Validator.validate(object));
 		validate(object, validationMessages);
-		form.indicate(validationMessages);
-		saveAction.setValidationMessages(validationMessages);
+		boolean relevantValidationMessage = form.indicate(validationMessages);
+		saveAction.setEnabled(!relevantValidationMessage);
 	}
 	
 	protected void validate(T object, List<ValidationMessage> validationMessages) {
@@ -141,28 +141,9 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
 
 	protected final class SaveAction extends Action {
-		private String description;
-		private boolean valid = false;
-		
 		@Override
 		public void action() {
 			save();
-		}
-		
-		public void setValidationMessages(List<ValidationMessage> validationMessages) {
-			valid = validationMessages == null || validationMessages.isEmpty();
-			description = ValidationMessage.formatHtml(validationMessages);
-			fireChange();
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return valid;
-		}
-		
-		@Override
-		public String getDescription() {
-			return description != null ? description : super.getDescription();
 		}
 	}
 	

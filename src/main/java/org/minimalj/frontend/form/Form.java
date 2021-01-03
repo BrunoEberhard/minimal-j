@@ -513,10 +513,13 @@ public class Form<T> {
 		return true;
 	}
 	
-	public void indicate(List<ValidationMessage> validationMessages) {
+	public boolean indicate(List<ValidationMessage> validationMessages) {
+		boolean relevantValidationMessage = false;
 		for (PropertyInterface property : getProperties()) {
 			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
 			setValidationMessage(property, filteredValidationMessages);
+			relevantValidationMessage |= !filteredValidationMessages.isEmpty();
 		}
+		return relevantValidationMessage;
 	}
 }
