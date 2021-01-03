@@ -54,7 +54,7 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
 
 public class Form<T> {
-	private static Logger logger = Logger.getLogger(Form.class.getSimpleName().toUpperCase());
+	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
 
 	public static final boolean EDITABLE = true;
 	public static final boolean READ_ONLY = false;
@@ -69,7 +69,7 @@ public class Form<T> {
 	
 	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<>();
 	
-	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
+	private final FormChangeListener formChangeListener = new FormChangeListener();
 	
 	private ChangeListener<Form<?>> changeListener;
 	private boolean changeFromOutsite;
@@ -302,7 +302,7 @@ public class Form<T> {
 
 	private void registerNamedElement(FormElement<?> field) {
 		elements.put(field.getProperty(), field);
-		field.setChangeListener(formPanelChangeListener);
+		field.setChangeListener(formChangeListener);
 	}
 
 	private void addDependencies(FormElement<?> field) {
@@ -385,7 +385,7 @@ public class Form<T> {
 		this.changeListener = Objects.requireNonNull(changeListener);
 	}
 
-	private class FormPanelChangeListener implements ChangeListener<FormElement<?>> {
+	private class FormChangeListener implements ChangeListener<FormElement<?>> {
 
 		@Override
 		public void changed(FormElement<?> changedField) {
