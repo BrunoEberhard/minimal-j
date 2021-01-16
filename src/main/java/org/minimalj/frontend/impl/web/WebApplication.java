@@ -74,8 +74,6 @@ public abstract class WebApplication extends Application {
 			} else {
 				handlers.add(new ApplicationHttpHandler("/"));
 			}
-
-			handlers.add(new ResourcesHttpHandler());
 		}
 		return handlers;
 	}

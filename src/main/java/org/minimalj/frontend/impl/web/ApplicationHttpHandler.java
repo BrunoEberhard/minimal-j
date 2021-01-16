@@ -8,11 +8,12 @@ import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.util.StringUtils;
 
 public class ApplicationHttpHandler implements MjHttpHandler {
 
 	private String path;
+
+	private static final ResourcesHttpHandler appResourcesHttpHandler = new ResourcesHttpHandler();
 
 	private static final ResourcesHttpHandler resourcesHttpHandler = new ResourcesHttpHandler() {
 		@Override
@@ -43,16 +44,21 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		if (!path.startsWith("/")) {
 			throw new IllegalArgumentException(path);
 		}
-		if (path.equals("/ajax_request.xml")) {
+		switch (path) {
+		case "/ajax_request.xml":
 			String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
 			exchange.sendResponse(200, response, "application/json");
-		} else if (StringUtils.equals(path, "/", "/index.html")) {
+			break;
+		case "/":
 			handleTemplate(exchange, path);
-		} else if (path.equals("/application.png")) {
+			break;
+		case "/application.png":
 			exchange.sendResponse(200, ResourcesHttpHandler.read(Application.getInstance().getIcon()), "image/png");
-		} else {
+			break;
+		default:
 			resourcesHttpHandler.handle(exchange, path);
-			
+			appResourcesHttpHandler.handle(exchange, path);
+
 			if (!exchange.isResponseSent() && Page.validateRoute(path)) {
 				handleTemplate(exchange, path);
 			}

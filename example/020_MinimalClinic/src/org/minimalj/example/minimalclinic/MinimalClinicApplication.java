@@ -19,8 +19,8 @@ import org.minimalj.example.minimalclinic.model.Pet;
 import org.minimalj.example.minimalclinic.model.Vet;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebApplicationPage;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.frontend.page.Routing;
@@ -77,10 +77,10 @@ public class MinimalClinicApplication extends Application {
 		Configuration.set("MjRepository", "org.minimalj.repository.memory.InMemoryRepository");
 		Configuration.set("MjDevMode", "true");
 		MinimalClinicApplication application = new MinimalClinicApplication();
-		// WebServer.start(application);
+		WebServer.start(application);
 		// RestServer.start(application);
 		// MjVaadinSpringbootApplication.start(application);
 		// Lanterna.start(application);
-		Swing.start(application);
+		// Swing.start(application);
 	}
 }
