@@ -7,13 +7,10 @@ import java.util.Objects;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
-import org.minimalj.frontend.page.Page;
 
 public class ApplicationHttpHandler implements MjHttpHandler {
 
 	private String path;
-
-	private static final ResourcesHttpHandler appResourcesHttpHandler = new ResourcesHttpHandler();
 
 	private static final ResourcesHttpHandler resourcesHttpHandler = new ResourcesHttpHandler() {
 		@Override
@@ -57,15 +54,10 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			break;
 		default:
 			resourcesHttpHandler.handle(exchange, path);
-			appResourcesHttpHandler.handle(exchange, path);
-
-			if (!exchange.isResponseSent() && Page.validateRoute(path)) {
-				handleTemplate(exchange, path);
-			}
 		}
 	}
 
-	private void handleTemplate(MjHttpExchange exchange, String path) {
+	public static void handleTemplate(MjHttpExchange exchange, String path) {
 		String htmlTemplate = JsonFrontend.getHtmlTemplate();
 		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 		exchange.sendResponse(200, html, "text/html");

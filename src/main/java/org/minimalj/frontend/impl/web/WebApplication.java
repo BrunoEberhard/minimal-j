@@ -11,6 +11,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.page.Routing;
 
 /**
  * You only need to extend from WebApplication if you want to serve custom html
@@ -61,18 +62,28 @@ public abstract class WebApplication extends Application {
 
 	private static List<MjHttpHandler> getHandlers() {
 		if (handlers == null) {
+			boolean isJsonFrontend = Frontend.getInstance() instanceof JsonFrontend;
+			String mjHandlerPath = WebApplication.mjHandlerPath();
+			
 			handlers = new ArrayList<>();
+
+			// intial html and ajax calls
+			if (isJsonFrontend && mjHandlerPath != null) {
+				handlers.add(new ApplicationHttpHandler(mjHandlerPath));
+			}
+			
+			// for applications with custom http handler
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
-				
-				if (Frontend.getInstance() instanceof JsonFrontend && WebApplication.mjHandlerPath() != null) {
-					handlers.add(new ApplicationHttpHandler(WebApplication.mjHandlerPath()));
-				}
-
 				handlers.add(webApplication.createHttpHandler());
+			}
+			
+			// serve the application resources (located in web package)
+			handlers.add(new ResourcesHttpHandler());
 
-			} else {
-				handlers.add(new ApplicationHttpHandler("/"));
+			// handle routing paths
+			if (isJsonFrontend && mjHandlerPath != null && Routing.available()) {
+				handlers.add(new RoutingHttpHandler(mjHandlerPath));
 			}
 		}
 		return handlers;

@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.vaadin;
 
 import java.io.IOException;
 
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.LocaleContext;
@@ -27,8 +28,9 @@ public class VaadinSubjectRequestHandler extends SynchronizedRequestHandler impl
 	@Override
 	public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response) throws IOException {
 		Subject.setCurrent((Subject) session.getAttribute("subject"));
-		if (Vaadin.hasUrlMapping()) {
-			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(request.getHeader(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
+		LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(request.getHeader(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
+		
+		if (!Vaadin.hasUrlMapping()) {
 			HttpServletHttpExchange exchange = new HttpServletHttpExchange(((VaadinServletRequest) request).getHttpServletRequest(), ((VaadinServletResponse) response).getHttpServletResponse());
 			return WebApplication.callHandlers(exchange);
 		}
