@@ -23,6 +23,7 @@ import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.util.resources.Resources;
 
@@ -55,6 +56,11 @@ public class MinimalClinicApplication extends Application {
 	@Override
 	public Page createDefaultPage() {
 		return new HtmlPage("intro.html");
+	}
+	
+	@Override
+	public Routing createRouting() {
+		return new MinimalClinicRouting();
 	}
 	
 	@Override
