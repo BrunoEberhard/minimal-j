@@ -70,6 +70,12 @@
 			<artifactId>datafactory</artifactId>
 			<version>0.8</version>
 		</dependency>
+		<dependency>
+			<groupId>org.minimalj</groupId>
+			<artifactId>memory</artifactId>
+			<version>0.2.0.0</version>
+		</dependency>
+
 		<!-- 
 		<dependency>
 			<groupId>org.minimalj</groupId>
