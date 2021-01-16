@@ -232,6 +232,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$META", getMeta());
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$PATH", path);
+		result = result.replace("$BASE", base(path));
 		result = result.replace("$THEME", stylesheets);
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
@@ -240,6 +241,19 @@ public class JsonFrontend extends Frontend {
 		return result;
 	}
 
+   private static String base(String path) {
+	    if ("/".equals(path)) {
+	    	return "";
+	    } else {
+	    	String base = "";
+	    	int level = path.split("/").length - 2;
+	    	for (int i = 0; i<level; i++) {
+	    		base = base + "../";
+	    	}
+	    	return "<base href=\"" + base + "\">";
+	    }
+    }
+	   
 	private static String getIconLink() {
 		if (Application.getInstance().getIcon() != null) {
 			return "<link rel=\"icon\" href=\"application.png\" type=\"image/png\">";
