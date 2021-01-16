@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.minimalj.frontend.page.HtmlPage;
+import org.minimalj.util.resources.Resources;
 
 /**
  * This page is only needed if you want to use pages from the WebApplication in
@@ -15,6 +16,8 @@ import org.minimalj.frontend.page.HtmlPage;
  */
 public class WebApplicationPage extends HtmlPage {
 
+	private String title;
+	
 	public WebApplicationPage(String route) {
 		super(null, Objects.requireNonNull(route));
 	}
@@ -22,10 +25,24 @@ public class WebApplicationPage extends HtmlPage {
 	@Override
 	protected String getHtml() {
 		WebApplicationPageExchange exchange = new WebApplicationPageExchange(getRoute());
-		WebApplication.getWebApplicationHandler().handle(exchange);
+		WebApplication.handle(exchange);
 		return exchange.getResult();
 	}
 
+	public WebApplicationPage title(String title) {
+		this.title = title;
+		return this;
+	}
+	
+	public WebApplicationPage titleResource(String resourceName) {
+		return title(Resources.getString(resourceName));
+	}
+	
+	@Override
+	public String getTitle() {
+		return title;
+	}
+	
 	public static class WebApplicationPageExchange extends MjHttpExchange {
 		private final String path;
 		private String result;

@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.util.StringUtils;
 
 public class ApplicationHttpHandler implements MjHttpHandler {
@@ -16,7 +17,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 	private static final ResourcesHttpHandler resourcesHttpHandler = new ResourcesHttpHandler() {
 		@Override
 		public URL getUrl(String path) throws IOException {
-			return ApplicationHttpHandler.class.getResource(path);
+			return ApplicationHttpHandler.class.getResource(path.substring(1));
 		}
 	};
 
@@ -42,22 +43,25 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		if (!path.startsWith("/")) {
 			throw new IllegalArgumentException(path);
 		}
-		path = path.substring(1);
-		if (path.equals("ajax_request.xml")) {
+		if (path.equals("/ajax_request.xml")) {
 			String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
 			exchange.sendResponse(200, response, "application/json");
-		} else if (StringUtils.equals(path, "", "index.html")) {
-			handleTemplate(exchange);
-		} else if (path.equals("application.png")) {
+		} else if (StringUtils.equals(path, "/", "/index.html")) {
+			handleTemplate(exchange, path);
+		} else if (path.equals("/application.png")) {
 			exchange.sendResponse(200, ResourcesHttpHandler.read(Application.getInstance().getIcon()), "image/png");
 		} else {
 			resourcesHttpHandler.handle(exchange, path);
+			
+			if (!exchange.isResponseSent() && Page.validateRoute(path)) {
+				handleTemplate(exchange, path);
+			}
 		}
 	}
 
-	public static void handleTemplate(MjHttpExchange exchange) {
+	private void handleTemplate(MjHttpExchange exchange, String path) {
 		String htmlTemplate = JsonFrontend.getHtmlTemplate();
-		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, exchange.getPath());
+		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 		exchange.sendResponse(200, html, "text/html");
 	}
 

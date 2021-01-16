@@ -15,7 +15,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
-import org.minimalj.frontend.impl.web.WebApplication;
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 import org.w3c.dom.Document;
@@ -24,7 +24,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
-import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLImageElement;
 
 import com.sun.javafx.application.PlatformImpl;
@@ -39,6 +38,8 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 	private static final long serialVersionUID = 1L;
 	public static final String EVENT_TYPE_CLICK = "click";
 
+	private static ResourcesHttpHandler resourceHandler = new ResourcesHttpHandler();
+	
 	public FxHtmlContent(String html) {
 		Platform.setImplicitExit(false);
 		startBrowser(null, html);
@@ -104,21 +105,10 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 								HTMLImageElement n = (HTMLImageElement) nodeList.item(i);
 								String src = n.getSrc();
 								try {
-									n.setSrc(WebApplication.getResourceHandler().getUrl(src).toExternalForm());
+									n.setSrc(resourceHandler.getUrl(src).toExternalForm());
 								} catch (IOException e) {
 									throw new RuntimeException(e);
 								}
-							}
-							nodeList = doc.getElementsByTagName("embed");
-							for (int i = 0; i < nodeList.getLength(); i++) {
-								HTMLElement n = (HTMLElement) nodeList.item(i);
-								String src = n.getAttribute("src");
-								WebApplicationPageExchange exchange = new WebApplicationPageExchange(src);
-								WebApplication.getWebApplicationHandler().handle(exchange);
-								StringBuilder s = new StringBuilder();
-								s.append("data:").append(exchange.getContentType()).append(";base64,").append(exchange.getResult());
-								System.out.println(s.toString());
-								n.setAttribute("src", s.toString());
 							}
 						}
 					}
