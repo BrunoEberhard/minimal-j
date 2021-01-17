@@ -79,7 +79,7 @@ public class MinimalClinicApplication extends Application {
 		MinimalClinicApplication application = new MinimalClinicApplication();
 		WebServer.start(application);
 		// RestServer.start(application);
-		// MjVaadinSpringbootApplication.start(application);
+		// Vaadin.start(application);
 		// Lanterna.start(application);
 		// Swing.start(application);
 	}
