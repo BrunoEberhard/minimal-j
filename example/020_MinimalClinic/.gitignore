@@ -5,3 +5,11 @@
 /derby.log
 /testdb/
 /target/
+/node_modules/
+/pnpm-lock.yaml
+/pnpmfile.js
+/tsconfig.json
+/types.d.ts
+/webpack.config.js
+/package.json
+/webpack.generated.js
