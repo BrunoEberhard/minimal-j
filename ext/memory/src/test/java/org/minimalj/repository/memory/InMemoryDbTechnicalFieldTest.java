@@ -35,8 +35,8 @@ public class InMemoryDbTechnicalFieldTest {
 		LocalDateTime after = LocalDateTime.now();
 
 		Assert.assertEquals("A", entity.createUser);
-		Assert.assertTrue(before.compareTo(entity.createDate) <= 0);
-		Assert.assertTrue(after.compareTo(entity.createDate) >= 0);
+		Assert.assertTrue("Date of create " + entity.createDate + " must not be before start " + before, before.minusSeconds(1).compareTo(entity.createDate) <= 0);
+		Assert.assertTrue("Date of create " + entity.createDate + " must not be after now " + after, after.plusSeconds(1).compareTo(entity.createDate) >= 0);
 	}
 
 	@Test
@@ -67,8 +67,8 @@ public class InMemoryDbTechnicalFieldTest {
 		Assert.assertTrue(afterInsert.compareTo(entity.createDate) >= 0);
 
 		Assert.assertEquals("C", entity.editUser);
-		Assert.assertTrue(afterInsert.compareTo(entity.editDate) <= 0);
-		Assert.assertTrue(afterEdit.compareTo(entity.editDate) >= 0);
+		Assert.assertTrue("Date of edit " + entity.editDate + " must not be after start " + afterInsert, afterInsert.minusSeconds(1).compareTo(entity.editDate) <= 0);
+		Assert.assertTrue("Date of edit " + entity.editDate + " must not be before start " + afterEdit, afterEdit.plusSeconds(1).compareTo(entity.editDate) >= 0);
 	}
 
 	

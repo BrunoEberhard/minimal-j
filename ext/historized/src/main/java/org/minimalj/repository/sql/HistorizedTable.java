@@ -3,7 +3,7 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,7 +41,7 @@ class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
-		LinkedHashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 		int parameterPos = super.setParameters(statement, object, mode, id);
 		for (Map.Entry<String, PropertyInterface> column : columnsWithVersion.entrySet()) {
 			Object referencedObject = column.getValue().getValue(object);
@@ -203,7 +203,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 	
 	private String insertQuery(boolean withVersion) {
-		LinkedHashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 
 		StringBuilder s = new StringBuilder();
 		
@@ -260,7 +260,7 @@ class HistorizedTable<T> extends Table<T> {
 	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
 		super.addSpecialColumns(dialect, s);
 		s.append(",\n historized INTEGER NOT NULL");
-		LinkedHashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 		for (String columnName : columnsWithVersion.keySet()) {
 			s.append(",\n ").append(columnName).append(" INTEGER DEFAULT 0");
 		}

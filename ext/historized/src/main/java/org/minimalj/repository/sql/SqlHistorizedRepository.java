@@ -26,7 +26,7 @@ import org.minimalj.util.IdUtils;
 
 public class SqlHistorizedRepository extends SqlRepository {
 
-	private Map<Class<?>, LinkedHashMap<String, PropertyInterface>> versionColumnsForClass;
+	private Map<Class<?>, HashMap<String, PropertyInterface>> versionColumnsForClass;
 
 	public SqlHistorizedRepository(DataSource dataSource, Class<?>... classes) {
 		super(dataSource, classes);
@@ -46,15 +46,15 @@ public class SqlHistorizedRepository extends SqlRepository {
 		}
 	}
 	
-	public LinkedHashMap<String, PropertyInterface> findVersionColumns(Class<?> clazz) {
+	public HashMap<String, PropertyInterface> findVersionColumns(Class<?> clazz) {
 		if (versionColumnsForClass == null) {
 			versionColumnsForClass = new HashMap<>(200);
 		}
 		if (versionColumnsForClass.containsKey(clazz)) {
 			return versionColumnsForClass.get(clazz);
 		}
-		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
-		LinkedHashMap<String, PropertyInterface> versionColumns = new LinkedHashMap<>();
+		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
+		HashMap<String, PropertyInterface> versionColumns = new LinkedHashMap<>();
 		Set<String> alreadyUsedIdentifiers = new TreeSet<String>(columns.keySet());
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			if (FieldUtils.hasValidHistorizedField(entry.getValue().getClazz())) {
@@ -115,8 +115,8 @@ public class SqlHistorizedRepository extends SqlRepository {
 		Integer version = 0;
 		R result = CloneHelper.newInstance(clazz);
 
-		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
-		LinkedHashMap<String, PropertyInterface> versionColumns = findVersionColumns(clazz);
+		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
+		HashMap<String, PropertyInterface> versionColumns = findVersionColumns(clazz);
 
 		// first read the resultSet completely then resolve references
 		// derby db mixes closing of resultSets.

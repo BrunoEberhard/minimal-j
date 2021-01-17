@@ -417,7 +417,7 @@ public class SqlRepository implements TransactionalRepository {
 		return columns;
 	}	
 	
-	private HashMap<String, PropertyInterface> findColumnsUpperCase(Class<?> clazz) {
+	protected HashMap<String, PropertyInterface> findColumnsUpperCase(Class<?> clazz) {
 		if (columnsForClassUpperCase.containsKey(clazz)) {
 			return columnsForClassUpperCase.get(clazz);
 		}
