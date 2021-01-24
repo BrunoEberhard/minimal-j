@@ -30,8 +30,6 @@ import org.minimalj.transaction.Transaction;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.SerializationContainer;
 
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-
 /**
  * The RestBackend should rely on the services from a RestServer. CRUD
  * Transaction call special methods, all other Transactions call a generic
@@ -48,7 +46,7 @@ public class RestBackend extends Backend {
 	private final int port;
 	
 	public RestBackend() {
-		this("localhost", 8090);
+		this("localhost", 8080);
 	}
 	
 	public RestBackend(String url, int port) {
@@ -101,7 +99,7 @@ public class RestBackend extends Backend {
 				} catch (ClassNotFoundException e) {
 					throw new LoggingRuntimeException(e, LOG, "Could not read result from transaction");
 				} catch (IOException e) {
-					if (connection.getResponseCode() == Status.INTERNAL_ERROR.getRequestStatus()) {
+					if (connection.getResponseCode() == HttpURLConnection.HTTP_INTERNAL_ERROR) {
 						throw new RuntimeException(connection.getResponseMessage());
 					} else {
 						throw new RuntimeException("Could not execute " + transaction, e);

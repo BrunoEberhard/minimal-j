@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +41,7 @@ public class HttpServletHttpExchange extends MjHttpExchange {
 	}
 
 	@Override
-	public Map<String, List<String>> getParameters() {
+	public Map<String, Collection<String>> getParameters() {
 		return Collections.emptyMap();
 	}
 

@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -45,12 +45,17 @@ public class WebServer {
 		}
 
 		@Override
+		public String getMethod() {
+			return exchange.getRequestMethod();
+		}
+		
+		@Override
 		public InputStream getRequest() {
 			return exchange.getRequestBody();
 		}
 
 		@Override
-		public Map<String, List<String>> getParameters() {
+		public Map<String, Collection<String>> getParameters() {
 			if (exchange.getRequestMethod().equals("GET")) {
 				return decodeParameters(exchange.getRequestURI().getQuery());
 			} else {
@@ -58,7 +63,18 @@ public class WebServer {
 				return decodeParameters(requestBody);
 			}
 		}
+		
+		@Override
+		public String getHeader(String name) {
+			Collection<String> values = exchange.getRequestHeaders().get(name);
+			return values != null ? values.iterator().next() : null;
+		}
 
+		@Override
+		public void addHeader(String key, String value) {
+			exchange.getResponseHeaders().add(key, value);
+		}
+		
 		@Override
 		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 			try (OutputStream os = exchange.getResponseBody()) {

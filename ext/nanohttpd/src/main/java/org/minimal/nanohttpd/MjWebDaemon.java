@@ -3,7 +3,7 @@ package org.minimal.nanohttpd;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import org.minimalj.application.Configuration;
@@ -84,13 +84,23 @@ public class MjWebDaemon extends NanoWSD {
 		}
 
 		@Override
-		public Map<String, List<String>> getParameters() {
+		public Map<String, ? extends Collection<String>> getParameters() {
 			if (session.getMethod() == Method.GET) {
 				return session.getParameters();
 			} else {
 				String requestBody = WebServer.convertStreamToString(getRequest());
 				return decodeParameters(requestBody);
 			}
+		}
+		
+		@Override
+		public String getHeader(String name) {
+			return session.getHeaders().get(name);
+		}
+		
+		@Override
+		public void addHeader(String key, String value) {
+			session.getHeaders().put(key, value);
 		}
 	}
 
