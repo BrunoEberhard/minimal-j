@@ -79,7 +79,7 @@ public class Backend {
 			throw new IllegalStateException("Not allowed to change instance of " + Backend.class.getSimpleName());
 		}
 		Backend.instance = instance;
-		instance.init();
+		Application.getInstance().initBackend();
 	}
 
 	public static Backend getInstance() {
@@ -218,12 +218,4 @@ public class Backend {
 		}
 		return result;
 	}
-	
-	private void init() {
-		if (Configuration.available("MjInit")) {
-			Transaction<?> init = Configuration.getClazz("MjInit", Transaction.class);
-			init.execute();
-		}
-	}
-
 }

@@ -28,7 +28,9 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.logging.Logger;
 
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
@@ -221,6 +223,22 @@ public abstract class Application implements Model {
 		}
 	}
 
+	/** 
+	 * called when a new user arrives or an existing user opens a new tab.
+	 * 
+	 */
+	public void init() {
+		Frontend.show(new EmptyPage());
+	}
+	
+	/** 
+	 * called when a Backend is initialized (once per VM)
+	 * 
+	 */
+	public void initBackend() {
+		// application specific	
+	}
+	
 	/**
 	 * 
 	 * @return The page displayed when the application is started or when a new Tab is opened
