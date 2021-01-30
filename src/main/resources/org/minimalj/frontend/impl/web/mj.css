@@ -204,6 +204,7 @@ dialog {
 	padding: 0em;
 	width: auto;
 	top: 1em;
+	bottom: auto;
 	left: 1em;
 	margin-right: 1em;
 	margin-bottom: 1em;
@@ -215,6 +216,8 @@ dialog.fullscreen {
 	bottom: 0em;
 	box-sizing: border-box;
 	border: none;
+	max-width: none;
+	max-height: none;
 }
 
 .dialogHeader {
