@@ -54,7 +54,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		}
 
 		@Override
-		public void action() {
+		public void run() {
 			userPassword = new UserPassword();
 			userPassword.rememberMe = REMEMBER_ME && Configuration.isDevModeActive();
 			
@@ -88,7 +88,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		protected final class LoginAction extends Action {
 			
 			@Override
-			public void action() {
+			public void run() {
 				if (validate(form)) {
 					Subject subject = save(userPassword);
 					if (subject != null) {
@@ -110,7 +110,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 
 		protected final class CancelAction extends Action {
 			@Override
-			public void action() {
+			public void run() {
 				loginListener.loginCancelled();
 			}
 		}

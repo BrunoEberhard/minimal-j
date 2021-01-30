@@ -192,7 +192,7 @@ public class LanternaFrontend extends Frontend {
 
 		public LanternaActionText(Action action) {
 			super(action.getName());
-			addListener(b -> LanternaFrontend.run(b, () -> action.action()));
+			addListener(b -> LanternaFrontend.run(b, action));
 			action.setChangeListener(new ActionChangeListener() {
 				{
 					update();

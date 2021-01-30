@@ -82,7 +82,7 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 
 	public void lookup() {
 		// kein Editieren, nur hinzufügen
-		new AddListEntryEditor().action();
+		new AddListEntryEditor().run();
 	}
 
 	public class ReferenceHolder {

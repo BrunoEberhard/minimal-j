@@ -65,7 +65,7 @@ public class VaadinFrontend extends Frontend {
 		public VaadinActionLabel(final Action action) {
 			super(action.getName());
 			getElement().setProperty("title", action.getDescription());
-			getElement().addEventListener("click", e -> action.action());
+			getElement().addEventListener("click", e -> action.run());
 		}
 	}
 	

@@ -63,7 +63,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	protected abstract VIEW view(T object);
 	
 	protected void openEditor(T selectedObject) {
-		new TableEditor(selectedObject).action();
+		new TableEditor(selectedObject).run();
 	}
 	
 	@Override

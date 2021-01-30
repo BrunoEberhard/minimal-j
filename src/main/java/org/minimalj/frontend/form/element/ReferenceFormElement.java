@@ -71,7 +71,7 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 
 	private class ClearAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			setValue(null);
 		}
 	}

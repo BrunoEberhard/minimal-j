@@ -17,7 +17,7 @@ public class SwingPasswordField extends JPasswordField implements PasswordField 
 			if (dialog != null) {
 				Action saveAction = dialog.getSaveAction();
 				if (saveAction.isEnabled()) {
-					SwingFrontend.run(e, saveAction::action);
+					SwingFrontend.run(e, saveAction::run);
 				}
 			}
 		});

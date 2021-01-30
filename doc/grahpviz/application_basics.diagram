@@ -10,7 +10,7 @@ Application : getEntityClasses()
 abstract Application <|-- YourApplication
 
 
-Action : {abstract} action()
+Action : {abstract} run()
 
 Editor : {abstract} createObject()
 Editor : {abstract} createForm()

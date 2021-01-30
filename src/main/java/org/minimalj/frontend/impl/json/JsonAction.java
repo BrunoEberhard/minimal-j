@@ -18,11 +18,11 @@ public class JsonAction extends JsonComponent {
 		action.setChangeListener(new JsonActionChangeListener());
 	}
 
-	public void action() {
+	public void run() {
 		// The user should not be able to execute action if it is disabled.
 		// Still he could manipulate the DOM to reactivate the action. Check here again.
 		if (Boolean.TRUE.equals(get("enabled"))) {
-			action.action();
+			action.run();
 		}
 	}
 	

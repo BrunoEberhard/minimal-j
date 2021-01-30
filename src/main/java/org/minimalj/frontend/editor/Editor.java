@@ -59,7 +59,7 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
 
 	@Override
-	public void action() {
+	public void run() {
 		object = createObject();
 		form = createForm();
 		
@@ -142,14 +142,14 @@ public abstract class Editor<T, RESULT> extends Action {
 
 	protected final class SaveAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			save();
 		}
 	}
 	
 	private class CancelAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			cancel();
 		}
 	}
@@ -165,7 +165,7 @@ public abstract class Editor<T, RESULT> extends Action {
 
 	private class FillWithDemoDataAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			mock();
 		}
 	}

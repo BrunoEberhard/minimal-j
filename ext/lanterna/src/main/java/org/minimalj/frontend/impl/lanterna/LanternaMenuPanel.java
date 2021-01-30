@@ -107,7 +107,7 @@ public class LanternaMenuPanel extends Panel {
 		
 		@Override
 		public void run() {
-			LanternaFrontend.run(component, () -> action.action());
+			LanternaFrontend.run(component, action);
 			closeWindows((WindowBasedTextGUI) component.getTextGUI());
 		}
 		

@@ -273,7 +273,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 						FrameManager.getInstance().lastTabClosed(frame);
 					}
 				}
-			}).action();
+			}).run();
 		}
 	}
 

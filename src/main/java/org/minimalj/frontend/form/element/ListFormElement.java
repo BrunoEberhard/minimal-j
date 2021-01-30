@@ -227,7 +227,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 		
 		@Override
-		public void action() {
+		public void run() {
 			removeEntry(entry);
 			handleChange();
 		}

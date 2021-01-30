@@ -26,9 +26,9 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 
 	public void lookup() {
 		if (this instanceof LookupParser || getValue() == null || getValue().isEmpty()) {
-			new AddListEntryEditor().action();
+			new AddListEntryEditor().run();
 		} else {
-			new SmallListFormElementEditor().action();
+			new SmallListFormElementEditor().run();
 		}
 	}
 

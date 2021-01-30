@@ -10,7 +10,7 @@ import org.minimalj.util.resources.Resources;
  * behavior is supported. See the javadoc of the setter for more information.
  *
  */
-public abstract class Action {
+public abstract class Action implements Runnable {
 
 	private String name, description;
 	private Boolean descriptionAvailable;
@@ -97,8 +97,6 @@ public abstract class Action {
 			changeListener.change();
 		}
 	}
-
-	public abstract void action();
 
 	public void setChangeListener(ActionChangeListener changeListener) {
 		this.changeListener = changeListener;

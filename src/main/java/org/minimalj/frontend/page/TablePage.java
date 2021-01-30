@@ -158,7 +158,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 		
 		@Override
-		public void action() {
+		public void run() {
 			delete(selectedObjects);
 			TablePage.this.refresh();
 			TablePage.this.selectionChanged(Collections.emptyList());

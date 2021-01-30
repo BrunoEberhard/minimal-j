@@ -96,7 +96,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			} else {
 				Anchor anchor = new Anchor();
 				anchor.setText(action.getName());
-				anchor.getElement().addEventListener("click", e -> action.action());
+				anchor.getElement().addEventListener("click", e -> action.run());
 				container.add(anchor);
 			}
 		}
@@ -108,7 +108,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			if (authentication == null) {
 				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
 			}
-			authentication.getLoginAction(subject -> show(page)).action();
+			authentication.getLoginAction(subject -> show(page)).run();
 			return;
 		}
 		
@@ -124,7 +124,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 				}
 				Anchor anchor = new Anchor();
 				anchor.setText(action.getName());
-				anchor.getElement().addEventListener("click", e -> {action.action(); menu.close();} );
+				anchor.getElement().addEventListener("click", e -> {action.run(); menu.close();} );
 				menu.add(anchor);
 			}
 		}

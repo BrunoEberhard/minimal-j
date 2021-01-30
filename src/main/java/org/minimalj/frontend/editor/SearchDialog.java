@@ -67,7 +67,7 @@ public class SearchDialog<T> {
 
 	protected class SaveAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			dialog.closeDialog();
 			listener.action(selection.get(0));
 		}
@@ -75,7 +75,7 @@ public class SearchDialog<T> {
 
 	protected class CancelAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			dialog.closeDialog();
 		}
 	}

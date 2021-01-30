@@ -58,7 +58,7 @@ public class VaadinMenu {
 	}
 	
 	public static MenuItem adaptAction(HasMenuItems menu, Action action) {
-		MenuItem item = menu.addItem(action.getName(), e -> action.action());
+		MenuItem item = menu.addItem(action.getName(), e -> action.run());
 		item.setEnabled(action.isEnabled());
 		action.setChangeListener(new ActionChangeListener() {
 			{

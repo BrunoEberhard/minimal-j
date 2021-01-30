@@ -37,7 +37,7 @@ public class VaadinDialog extends Dialog implements IDialog {
 			if (form.getLastField() != null) {
 				form.getLastField().addKeyPressListener(Key.ENTER, event -> {
 					if (saveAction.isEnabled()) {
-						saveAction.action();
+						saveAction.run();
 					}
 				});
 			}
@@ -54,7 +54,7 @@ public class VaadinDialog extends Dialog implements IDialog {
 
 		@Override
 		public void onComponentEvent(DialogCloseActionEvent event) {
-			closeAction.action();
+			closeAction.run();
 		}
 	}
 	

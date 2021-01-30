@@ -13,7 +13,7 @@ public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement
 
 	@Override
 	protected void lookup() {
-		new ParserFormElementEditor().action();
+		new ParserFormElementEditor().run();
 	}
 
 	@SuppressWarnings("unchecked")

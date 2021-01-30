@@ -40,7 +40,7 @@ public abstract class Authentication implements Serializable {
 	
 	public Action getLogoutAction(LoginListener loginListener) {
 		return new Action(Resources.getString("LogoutAction")) {
-			public void action() {
+			public void run() {
 				logout();
 				Frontend.getInstance().login(null);
 			};

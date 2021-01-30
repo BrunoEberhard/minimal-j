@@ -43,7 +43,7 @@ public class JsonDialog extends JsonComponent implements IDialog {
 
 	protected class CancelAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			closeDialog();
 		}
 	}

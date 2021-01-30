@@ -39,7 +39,7 @@ public class SwingDialog extends JDialog implements IDialog {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				if (closeAction != null) {
-					closeAction.action();
+					closeAction.run();
 				} else {
 					setVisible(false);
 				}

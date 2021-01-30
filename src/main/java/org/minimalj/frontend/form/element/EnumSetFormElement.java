@@ -52,7 +52,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 	}
 
 	public void lookup() {
-		new EnumSetFormElementEditor().action();
+		new EnumSetFormElementEditor().run();
 	}
 
 	public class EnumSetFormElementEditor extends SimpleEditor<E> {

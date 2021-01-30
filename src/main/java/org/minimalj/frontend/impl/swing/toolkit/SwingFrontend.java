@@ -80,7 +80,7 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					run(e, action::action);
+					run(e, action);
 				}
 			});
 		}
@@ -365,7 +365,7 @@ public class SwingFrontend extends Frontend {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				run(e, action::action);
+				run(e, action);
 			}
 		};
 		swingAction.putValue(javax.swing.Action.SHORT_DESCRIPTION, action.getDescription());

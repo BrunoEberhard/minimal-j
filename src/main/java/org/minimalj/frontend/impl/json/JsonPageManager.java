@@ -196,7 +196,7 @@ public class JsonPageManager implements PageManager {
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
 		if (actionId != null) {
 			JsonAction action = (JsonAction) getComponentById(actionId);
-			action.action();
+			action.run();
 		}
 
 		Map<String, Object> tableAction = input.get(JsonInput.TABLE_ACTION);
@@ -253,7 +253,7 @@ public class JsonPageManager implements PageManager {
 		String login = (String) input.getObject("login");
 		if (login != null) {
 			if (Subject.getCurrent() == null) {
-				authentication.getLoginAction(subject -> show(Application.getInstance().createDefaultPage())).action();
+				authentication.getLoginAction(subject -> show(Application.getInstance().createDefaultPage())).run();
 			} else {
 				Subject.setCurrent(null);
 				setRememberMeCookie(null);
@@ -301,7 +301,7 @@ public class JsonPageManager implements PageManager {
 			if (authentication == null) {
 				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
 			}
-			authentication.getLoginAction(subject -> show(page, masterPageId)).action();
+			authentication.getLoginAction(subject -> show(page, masterPageId)).run();
 			return null;
 		}
 		if (masterPageId == null) {
@@ -346,7 +346,7 @@ public class JsonPageManager implements PageManager {
 			output.add("showPages", jsonList);
 			updateTitle(firstPage != null ? firstPage : null);
 		} else {
-			authentication.getLoginAction(subject -> show(pageIds)).action();
+			authentication.getLoginAction(subject -> show(pageIds)).run();
 		}
 	}
 	

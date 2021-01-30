@@ -17,7 +17,7 @@ public class PageAction extends Action {
 	}
 
 	@Override
-	public void action() {
+	public void run() {
 		Frontend.show(page);
 	}
 	

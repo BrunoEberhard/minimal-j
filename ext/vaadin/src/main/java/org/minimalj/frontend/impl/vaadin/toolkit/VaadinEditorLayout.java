@@ -58,7 +58,7 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 			button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		}
 		// installShortcut(button, action);
-		button.addClickListener(event -> action.action());
+		button.addClickListener(event -> action.run());
 		installActionListener(action, button);
 		buttonBar.add(button);
 		buttonBar.setAlignItems(Alignment.END);
