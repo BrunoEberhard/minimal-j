@@ -67,7 +67,7 @@ public class Configuration {
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends T> configuredClass = (Class<? extends T>) Class.forName(className);
-			if (parameters == null) {
+			if (parameters == null || parameters.length == 0) {
 				return configuredClass.newInstance();
 			} else {
 				CONSTRUCTOR: for (Constructor<?> constructor : configuredClass.getConstructors()) {
