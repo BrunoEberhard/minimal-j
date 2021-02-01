@@ -25,12 +25,13 @@ import org.minimalj.repository.Repository;
 public class ThreadLocalApplication extends Application {
 
 	private final InheritableThreadLocal<Application> current = new InheritableThreadLocal<>();
+	private boolean backendSet = false;
 	
-	public ThreadLocalApplication() {
-		Backend.setInstance(new ThreadLocalBackend());
-	}
-
 	public void setCurrentApplication(Application application) {
+		if (!backendSet) {
+			Backend.setInstance(new ThreadLocalBackend());
+			backendSet = true;
+		}
 		current.set(application);
 	}
 	
