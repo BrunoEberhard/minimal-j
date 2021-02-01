@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.element.FormElementConstraint;
@@ -201,11 +200,10 @@ public abstract class Frontend {
 	 */
 	public abstract IContent createQueryContent();
 
+	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction);
+	
 	public final void login(Subject subject) {
 		getPageManager().login(subject);
-		if (subject == null) {
-			show(Application.getInstance().createDefaultPage());
-		}
 	}
 	
 	//
@@ -236,10 +234,6 @@ public abstract class Frontend {
 
 	public static IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
 		return getInstance().getPageManager().showDialog(title, content, saveAction, closeAction, actions);
-	}
-
-	public static Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
-		return getInstance().getPageManager().showLogin(content, loginAction, forgetPasswordAction, cancelAction);
 	}
 	
 	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);

@@ -45,7 +45,7 @@ public abstract class Routing {
 	public static final /* NonNull */ Page createPageSafe(String route) {
 		Page page = null;
 		if (StringUtils.isEmpty(route) || route.equals(WebApplication.mjHandlerPath())) {
-			page = Application.getInstance().createDefaultPage();
+			page = new EmptyPage();
 		} else if (routing != null && Page.validateRoute(route)) {
 			try {
 				page = routing.createPage(route);

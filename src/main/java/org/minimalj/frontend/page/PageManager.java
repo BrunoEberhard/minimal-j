@@ -1,7 +1,5 @@
 package org.minimalj.frontend.page;
 
-import java.util.Optional;
-
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.security.Subject;
@@ -29,8 +27,6 @@ public interface PageManager {
 	//
 
 	public abstract IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions);
-
-	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction);	
 
 	//
 	

@@ -34,15 +34,12 @@ public abstract class Authentication implements Serializable {
 	
 	public abstract Action getLoginAction(LoginListener loginListener);
 
-	public final Action getLoginAction() {
-		return getLoginAction(subject -> Frontend.show(Application.getInstance().createDefaultPage()));
-	}
-	
-	public Action getLogoutAction(LoginListener loginListener) {
+	public Action getLogoutAction() {
 		return new Action(Resources.getString("LogoutAction")) {
 			public void run() {
-				logout();
+				forgetMe();
 				Frontend.getInstance().login(null);
+				Application.getInstance().init();
 			};
 		};
 	}
@@ -56,7 +53,7 @@ public abstract class Authentication implements Serializable {
 		
 	}
 	
-	protected void logout() {
+	protected void forgetMe() {
 		Backend.execute(new Transaction<Void>() {
 			private static final long serialVersionUID = 1L;
 

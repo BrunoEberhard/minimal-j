@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.lanterna;
 
-import java.util.Optional;
-
 import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
@@ -65,6 +63,8 @@ public class Lanterna extends MultiWindowTextGUI implements PageManager {
 			screen.startScreen();
 			
 			new Lanterna(screen);
+			
+			Application.getInstance().init();
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}		
@@ -78,12 +78,6 @@ public class Lanterna extends MultiWindowTextGUI implements PageManager {
 	public static void main(String... args) {
 		Application.initApplication(args);
 		start();
-	}
-
-	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

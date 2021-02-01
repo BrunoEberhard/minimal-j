@@ -224,7 +224,7 @@ public abstract class Application implements Model {
 	}
 
 	/** 
-	 * called when a new user arrives or an existing user opens a new tab.
+	 * called when a new user arrives or an existing user opens a new tab or the user logs out.
 	 * 
 	 */
 	public void init() {
@@ -237,14 +237,6 @@ public abstract class Application implements Model {
 	 */
 	public void initBackend() {
 		// application specific	
-	}
-	
-	/**
-	 * 
-	 * @return The page displayed when the application is started or when a new Tab is opened
-	 */
-	public Page createDefaultPage() {
-		return new EmptyPage();
 	}
 	
 	/**

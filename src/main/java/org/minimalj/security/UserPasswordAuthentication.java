@@ -65,8 +65,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			form.setChangeListener(this::validate);
 			form.setObject(userPassword);
 			
-			// einige Frontends müssen unterscheiden können zw normaler "Page" und Login Page
-			dialog = Frontend.showLogin(form.getContent(), loginAction, null, new CancelAction());
+			dialog = Frontend.getInstance().showLogin(form.getContent(), loginAction, null, new CancelAction());
 		}
 		
 		private boolean validate(Form<?> form) {
@@ -148,8 +147,8 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	}
 	
 	@Override
-	protected void logout() {
-		super.logout();
+	protected void forgetMe() {
+		super.forgetMe();
 		if (REMEMBER_ME) {
 			if (PERSISTENT_REMEMBER_ME) {
 				Backend.delete(RememberMeToken.class, By.field(RememberMeToken.$.userName, Subject.getCurrent().getName()));

@@ -20,6 +20,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -191,6 +192,10 @@ public class JsonFrontend extends Frontend {
 	public IContent createQueryContent() {
 		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);
 		return new JsonQueryContent(caption);
+	}
+	
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+		return getClientSession().showLogin(content, loginAction, forgetPasswordAction, cancelAction);
 	}
 	
 	//

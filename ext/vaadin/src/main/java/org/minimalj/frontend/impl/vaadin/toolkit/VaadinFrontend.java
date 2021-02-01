@@ -9,9 +9,12 @@ import java.util.Optional;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.resources.Resources;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
@@ -22,6 +25,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.HasPrefixAndSuffix;
@@ -372,5 +376,27 @@ public class VaadinFrontend extends Frontend {
 		return (PageManager) UI.getCurrent().getSession().getAttribute("pageManager");
 	}
 	
-	
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+		Page page = new Page() {
+			@Override
+			public IContent getContent() {
+				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) content, loginAction, null, loginAction);
+				VaadinHorizontalLayout centerLayout = new VaadinHorizontalLayout(new IComponent[] {editorLayout});
+				editorLayout.setSizeUndefined(); // VaadinHorizontalLayout constructor did set the width
+				centerLayout.setSizeFull();
+				centerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+				centerLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+				return centerLayout;
+			}
+			
+			@Override
+			public String getTitle() {
+				return Resources.getString("Login.title");
+			}
+		};
+		show(page);
+		return Optional.empty();
+	}
+		
 }

@@ -7,9 +7,9 @@ import org.minimalj.application.Application;
 import org.minimalj.example.minimail.frontend.MailEditor;
 import org.minimalj.example.minimail.frontend.MailTable;
 import org.minimalj.example.minimail.model.Mail;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.Swing;
-import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 
 public class MiniMail extends Application {
@@ -28,10 +28,10 @@ public class MiniMail extends Application {
 	}
 
 	@Override
-	public Page createDefaultPage() {
-		return new MailTable();
+	public void init() {
+		Frontend.show(new MailTable());
 	}
-
+	
 	public static void main(String[] args) {
 		Swing.start(new MiniMail());
 	}

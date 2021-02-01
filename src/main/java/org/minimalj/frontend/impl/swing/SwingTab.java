@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -23,7 +22,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 
 import org.minimalj.application.Application;
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Separator;
@@ -40,10 +38,8 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.frontend.page.Routing;
-import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
-import org.minimalj.util.resources.Resources;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -251,29 +247,12 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 	@Override
 	public void show(Page page) {
-		show(page, false);
-	}
-
-	public void show(Page page, boolean closeWithoutAuthentication) {
 		if (Authorization.hasAccess(Subject.getCurrent(), page)) {
 			List<Page> pages = new ArrayList<>();
 			pages.add(page);
 			history.add(pages);
 		} else {
-			Backend.getInstance().getAuthentication().getLoginAction(new LoginListener() {
-				@Override
-				public void loginSucceded(Subject subject) {
-					frame.intialize(subject, page, false);
-					show(page);
-				}
-
-				@Override
-				public void loginCancelled() {
-					if (closeWithoutAuthentication) {
-						FrameManager.getInstance().lastTabClosed(frame);
-					}
-				}
-			}).run();
+			Frontend.showError("No Access to " + page.getClass().getSimpleName());
 		}
 	}
 
@@ -374,17 +353,6 @@ public class SwingTab extends EditablePanel implements PageManager {
 		return dialog;
 	}
 	
-	@Override
-	public Optional<IDialog> showLogin(IContent content, org.minimalj.frontend.action.Action loginAction, org.minimalj.frontend.action.Action forgetPasswordAction, org.minimalj.frontend.action.Action cancelAction) {
-		if (frame.moreThanOneTabOpen()) {
-			Frontend.showMessage(Resources.getString("Login.moreThanOneTab"));
-			return Optional.empty();
-		}
-		JComponent contentComponent = new SwingEditorPanel(content, new org.minimalj.frontend.action.Action[] {cancelAction, loginAction});
-		SwingDialog dialog = new SwingDialog(frame, Resources.getString("Login.title"), contentComponent, loginAction, null);
-		return Optional.of(dialog);
-	}
-
 	@Override
 	public void showMessage(String text) {
 		Window window = findWindow();

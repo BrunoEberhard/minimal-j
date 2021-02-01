@@ -32,8 +32,8 @@ public class VaadinEditorLayout extends VerticalLayout implements IComponent {
 
 	private Component createButtonBar(Action saveAction, Action closeAction, Action... actions) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		setSpacing(true);
-		setWidthFull();
+		horizontalLayout.setSpacing(true);
+		horizontalLayout.setWidthFull();
 		horizontalLayout.addClassName("buttonBar");
 		
 		// TODO change method parameters for dialogs

@@ -23,7 +23,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import org.minimalj.application.Application;
-import org.minimalj.backend.Backend;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Subject;
@@ -44,16 +44,13 @@ public class SwingFrame extends JFrame {
 
 	public static SwingFrame activeFrameOverride = null;
 	
-	final Action closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction, closeTabAction, navigationAction;
+	final Action closeWindowAction, exitAction, newWindowAction, newTabAction, closeTabAction, navigationAction;
 	
 	public SwingFrame() {
-		boolean authenticationActive = Backend.getInstance().isAuthenticationActive();
-		
 		closeWindowAction = new CloseWindowAction();
 		closeTabAction = new CloseTabAction();
 		exitAction = new ExitAction();
 		newWindowAction = new NewWindowAction();
-		newWindowWithLoginAction = authenticationActive ? new NewWindowWithLoginAction() : null;
 		newTabAction = new NewTabAction();
 		navigationAction = new NavigationAction();
 		
@@ -216,14 +213,13 @@ public class SwingFrame extends JFrame {
 		updateTitle();
 	}
 	
-	public void intialize(Subject subject, Page initialPage, boolean closeWithoutAuthentication) {
+	public void intialize(Subject subject) {
 		this.subject = subject;
 		Subject.setCurrent(subject);
 		favorites.setUser(subject != null ? subject.getName() : null);
 		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
 			SwingTab swingTab = (SwingTab) tabbedPane.getComponentAt(i);
 			swingTab.clearHistory();
-			swingTab.show(initialPage, closeWithoutAuthentication);
 		}
 		updateNavigation();
 		updateWindowTitle();
@@ -295,16 +291,8 @@ public class SwingFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			FrameManager.getInstance().openNavigationFrame(subject);
-		}
-	}
-
-	private class NewWindowWithLoginAction extends SwingResourceAction {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			FrameManager.getInstance().openNavigationFrame(null);
+			SwingFrame frame = FrameManager.getInstance().openFrame();
+			SwingFrontend.run(frame, () -> frame.intialize(subject));
 		}
 	}
 

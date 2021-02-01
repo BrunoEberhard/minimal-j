@@ -23,7 +23,7 @@ public class Swing implements Runnable {
 
 		FrameManager.setSystemLookAndFeel();
 		
-		FrameManager.getInstance().openNavigationFrame(null);
+		Application.getInstance().init();
 	}
 
 	public static void start(Application application) {

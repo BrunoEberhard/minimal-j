@@ -171,9 +171,9 @@ public class JsonPageManager implements PageManager {
 				Page page = Routing.createPageSafe(path);
 				show(page, null);
 				return output;
-			} 
+			}
 			
-			show(Application.getInstance().createDefaultPage());
+			Application.getInstance().init();
 			return output;
 		}
 
@@ -250,18 +250,6 @@ public class JsonPageManager implements PageManager {
 			lookup.showLookupDialog();
 		}
 
-		String login = (String) input.getObject("login");
-		if (login != null) {
-			if (Subject.getCurrent() == null) {
-				authentication.getLoginAction(subject -> show(Application.getInstance().createDefaultPage())).run();
-			} else {
-				Subject.setCurrent(null);
-				setRememberMeCookie(null);
-				initialize();
-				show(Application.getInstance().createDefaultPage());
-			}
-		}
-
 		List<String> pageIds = (List<String>) input.getObject("showPages");
 		if (pageIds != null) {
 			show(pageIds);
@@ -320,7 +308,7 @@ public class JsonPageManager implements PageManager {
 
 	private void show(List<String> pageIds) {
 		if (!pageStore.valid(pageIds)) {
-			show(Application.getInstance().createDefaultPage());
+			Application.getInstance().init();
 			return;
 		}
 		List<JsonComponent> jsonList = new ArrayList<>();
@@ -411,7 +399,6 @@ public class JsonPageManager implements PageManager {
 		return dialog;
 	}
 	
-	@Override
 	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
 		// in this frontend cancel is not possible
 		Page page = new Page() {

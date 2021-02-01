@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.javafx;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -11,6 +12,7 @@ import org.minimalj.frontend.impl.javafx.toolkit.FxCheckbox;
 import org.minimalj.frontend.impl.javafx.toolkit.FxComboBox;
 import org.minimalj.frontend.impl.javafx.toolkit.FxText;
 import org.minimalj.frontend.impl.javafx.toolkit.FxTextField;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 
@@ -157,6 +159,12 @@ public class FxFrontend extends Frontend {
 
 	@Override
 	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
 		// TODO Auto-generated method stub
 		return null;
 	}

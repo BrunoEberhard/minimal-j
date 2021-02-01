@@ -1,26 +1,21 @@
 package org.minimalj.frontend.impl.vaadin;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
-import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
-import org.minimalj.frontend.impl.vaadin.toolkit.VaadinEditorLayout;
-import org.minimalj.frontend.impl.vaadin.toolkit.VaadinHorizontalLayout;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
-import org.minimalj.util.resources.Resources;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
@@ -33,7 +28,6 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
@@ -71,7 +65,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		addToDrawer(menuLayout);
 		updateNavigation();
 
-		show(Application.getInstance().createDefaultPage());
+		Application.getInstance().init();
 	}
 	
 	private void updateNavigation() {
@@ -143,30 +137,6 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	@Override
 	public void showError(String text) {
 		Notification.show(text).addThemeVariants(NotificationVariant.LUMO_ERROR);
-	}
-
-	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
-		// in this frontend cancel is not possible
-		Page page = new Page() {
-			@Override
-			public IContent getContent() {
-				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) content, loginAction, null, loginAction);
-				editorLayout.setSizeUndefined();
-				VaadinHorizontalLayout centerLayout = new VaadinHorizontalLayout(new IComponent[] {editorLayout});
-				centerLayout.setSizeFull();
-				centerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-				centerLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-				return centerLayout;
-			}
-			
-			@Override
-			public String getTitle() {
-				return Resources.getString("Login.title");
-			}
-		};
-		show(page);
-		return Optional.empty();
 	}
 
 	@Override
