@@ -409,29 +409,23 @@ $ICON
 				pageActionContainer.style.left = event.target.getBoundingClientRect().right - pageActionContainer.offsetWidth;
 				pageActionContainer.style.top = event.target.getBoundingClientRect().bottom;
 			}
-	
 			pageActionContainer.onmousedown = function(e) {
 				e.stopPropagation();
 			}
 		}
 	}
 	
-	document.onmousewheel = closeActionMenu;
-	document.onmousedown = closeActionMenu;
-	window.onblur = closeActionMenu;
-	document.onkeydown = function(e) {
-		if (e.keyCode === 27) {
-			closeActionMenu();
-		}
-	};
-	
-	function closeActionMenu() {
+	function closeActionMenu(event) {
 		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
 			var page = pageContainerElement.childNodes[i];
 			if (page.actionMenu && page.actionMenu.style.display === "block") {
 				page.actionMenu.style.display = "none";
 			}
 		}
+	    var dropdowns = document.getElementsByClassName("dropdown");
+	    for (var i = 0; i < dropdowns.length; i++) {
+	      dropdowns[i].style.display = "none";
+	    }
 	}
 	
 	function togglePage(event) {
@@ -689,25 +683,31 @@ $ICON
 			element = document.createElement("div");
 			element.className = "lookup";
 			element.appendChild(createContent(content.input));
-	
-			var actionElement = document.createElement("select");
-			actionElement.onfocus = function(e) {
-				actionElement.value = -1;
+			var actionElement = document.createElement("div");
+			actionElement.className = "dropdownButton";
+			element.appendChild(actionElement);
+			var dropdownElement = document.createElement("div");
+			dropdownElement.className = "dropdown";
+			dropdownElement.style.display = "none";
+			element.appendChild(dropdownElement);
+			actionElement.onclick = function(e) {
+				var isOpen = dropdownElement.style.display == "block"; 
+				closeActionMenu();
+				if (!isOpen) {
+					dropdownElement.style.display = "block";
+					var actionElementRect = actionElement.getBoundingClientRect();
+					dropdownElement.style.right = document.body.getBoundingClientRect().right - actionElementRect.right;
+					dropdownElement.style.top = actionElementRect.bottom + 2;			
+				}
+				e.stopPropagation();
 			}
-			actionElement.onchange = function(e) {
-				action(e.srcElement.value);
-				actionElement.value = -1;
-			}
-			var option = document.createElement("option");
-			actionElement.appendChild(option);
 			for (var i = 0; i < content.actions.length; i++) {
 				var a = content.actions[i];
-				var option = document.createElement("option");
-				option.innerHTML = escapeText(a.name);
-				option.value = a.id;
-				actionElement.appendChild(option);
+				var item = document.createElement("div");
+				item.innerHTML = escapeText(a.name);
+				item.setAttribute("onclick", "action(\"" + a.id + "\");");
+				dropdownElement.appendChild(item);
 			}
-			element.appendChild(actionElement);
 		} else if (type === "List") {
 			element = document.createElement("div");
 			element.id = content.id;
@@ -1406,9 +1406,18 @@ $ICON
 	
 		if (window.innerWidth >= 992) toggleNavigation("open");
 	
+		window.addEventListener("resize", resizeNavigation);
 		window.addEventListener("resize", updateDialogSizes);
 		window.addEventListener("resize", closeActionMenu);
-		window.addEventListener("resize", resizeNavigation);
+		window.addEventListener("click", closeActionMenu);
+		window.addEventListener("scroll", closeActionMenu, true); // true -> capture the event on dispatch, even if that event does not normally bubble
+		window.addEventListener("mousewheel", closeActionMenu);
+		window.addEventListener("blur", closeActionMenu);
+		document.onkeydown = function(e) {
+			if (e.keyCode === 27) {
+				closeActionMenu();
+			}
+		};
 	
 		window.onpopstate = popState;
 	

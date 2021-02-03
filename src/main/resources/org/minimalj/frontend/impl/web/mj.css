@@ -302,7 +302,7 @@ table tr:nth-child(odd).selected {
 	position: relative;
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
-	overflow: hidden;
+	// overflow: hidden;
 }
 
 .form input, .form select, .form textarea, .form .lookup, dialog .form .text, dialog .form label, dialog .form div.list, dialog .form .title {
@@ -335,13 +335,35 @@ table tr:nth-child(odd).selected {
     overflow: hidden;
 }
 
-.form .lookup select {
+.dropdownButton {
 	position: absolute;
 	right: 0px;
 	bottom: 0px;
+	top: 0px;
+	width: 2em;
+	background-size: 0.8em 0.5em;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='51%25' y2='93%25'/%3E%3Cline x1='93%25' y1='7%25' x2='49%25' y2='93%25'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* https://css-tricks.com/using-svg/
+<svg style="stroke: black; stroke-width:20%">
+<line x1="7%" y1="7%" x2="51%" y2="93%"/>
+<line x1="93%" y1="7%" x2="49%" y2="93%"/>
+</svg>
+*/
+
+.dropdown {
+	position: fixed;
 	width: fit-content;
-	border: none;
-	background: transparent;
+	border: black solid 1px;
+	background: white;
+	z-index: 1;
+}
+
+.form .lookup .dropdown div {
+	padding: 0.2em;
 }
 
 .form .groupItem:first-child .lookup .text {
@@ -400,6 +422,7 @@ hr {
 label {
 	display: block;
 	align-items: center;
+	white-space: nowrap;
 	overflow: hidden;
 	font-size: x-smaller;
 	font-weight: bolder;
