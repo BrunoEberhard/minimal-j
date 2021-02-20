@@ -404,14 +404,11 @@ $ICON
 					pageActionContainer.style.top = Math.max(30, window.innerHeight - pageActionContainer.offsetHeight);
 					pageActionContainer.style.maxHeight = window.innerHeight - 70;
 				}
-				event.preventDefault();
 			} else {
 				pageActionContainer.style.left = event.target.getBoundingClientRect().right - pageActionContainer.offsetWidth;
 				pageActionContainer.style.top = event.target.getBoundingClientRect().bottom;
 			}
-			pageActionContainer.onmousedown = function(e) {
-				e.stopPropagation();
-			}
+			event.preventDefault();
 		}
 	}
 	
