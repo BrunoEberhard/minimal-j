@@ -643,9 +643,12 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
+	// TODO move someplace where it's available for all kind of repositories (Memory DB for example)
 	void createCodes() {
+		startTransaction(Connection.TRANSACTION_READ_UNCOMMITTED);
 		createConstantCodes();
 		createCsvCodes();
+		endTransaction(true);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -671,9 +674,7 @@ public class SqlRepository implements TransactionalRepository {
 				if (is != null) {
 					CsvReader reader = new CsvReader(is, getObjectProvider());
 					List<? extends Code> values = reader.readValues(clazz);
-					for (Code value : values) {
-						((Table<Code>) table).insert(value);
-					}
+					values.forEach(value -> ((Table<Code>) table).insert(value));
 				}
 			}
 		}
