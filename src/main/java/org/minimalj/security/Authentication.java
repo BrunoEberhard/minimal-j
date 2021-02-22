@@ -44,6 +44,7 @@ public abstract class Authentication implements Serializable {
 		};
 	}
 
+	@FunctionalInterface
 	public interface LoginListener {
 		
 		public void loginSucceded(Subject subject);
