@@ -377,7 +377,7 @@ public class VaadinFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction) {
 		Page page = new Page() {
 			@Override
 			public IContent getContent() {

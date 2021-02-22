@@ -399,7 +399,7 @@ public class JsonPageManager implements PageManager {
 		return dialog;
 	}
 	
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction) {
 		// in this frontend cancel is not possible
 		Page page = new Page() {
 			@Override

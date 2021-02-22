@@ -38,7 +38,7 @@ public abstract class Authentication implements Serializable {
 		return new Action(Resources.getString("LogoutAction")) {
 			public void run() {
 				forgetMe();
-				Frontend.getInstance().login(null);
+				Frontend.getInstance().login(null, null);
 				Application.getInstance().init();
 			};
 		};
@@ -48,10 +48,6 @@ public abstract class Authentication implements Serializable {
 	public interface LoginListener {
 		
 		public void loginSucceded(Subject subject);
-		
-		public default void loginCancelled() {
-		}
-		
 	}
 	
 	protected void forgetMe() {

@@ -11,6 +11,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
@@ -147,6 +148,7 @@ public abstract class Frontend {
 	
 	public interface ITable<T> extends IContent {
 		
+		// must keep selection and call selectionListener
 		public void setObjects(List<T> objects);
 	}
 
@@ -200,10 +202,21 @@ public abstract class Frontend {
 	 */
 	public abstract IContent createQueryContent();
 
-	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction);
+	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction);
 	
-	public final void login(Subject subject) {
+	public void login(Subject subject, LoginListener loginListener) {
 		getPageManager().login(subject);
+		if (loginListener != null) {
+			loginListener.loginSucceded(subject);
+		}
+	}
+	
+	protected void doShowMessage(String text) {
+		getPageManager().showMessage(text);
+	}
+	
+	protected  void doShowError(String text) {
+		getPageManager().showError(text);
 	}
 	
 	//
@@ -239,10 +252,10 @@ public abstract class Frontend {
 	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
 	public static void showMessage(String text) {
-		getInstance().getPageManager().showMessage(text);
+		getInstance().doShowMessage(text);
 	}
 	
 	public static void showError(String text) {
-		getInstance().getPageManager().showError(text);
+		getInstance().doShowError(text);
 	}
 }

@@ -65,7 +65,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			form.setChangeListener(this::validate);
 			form.setObject(userPassword);
 			
-			dialog = Frontend.getInstance().showLogin(form.getContent(), loginAction, null, new CancelAction());
+			dialog = Frontend.getInstance().showLogin(form.getContent(), loginAction, null);
 		}
 		
 		private boolean validate(Form<?> form) {
@@ -95,10 +95,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 						if (userPassword.rememberMe) {
 							setRememberMeCookie(userPassword);
 						}
-						Frontend.getInstance().login(subject);
-						if (loginListener != null) {
-							loginListener.loginSucceded(subject);
-						}
+						Frontend.getInstance().login(subject, loginListener);
 						dialog.ifPresent(IDialog::closeDialog);
 					} else {
 						Frontend.showMessage("User / password invalid");
@@ -107,13 +104,6 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			}
 		}
 
-		protected final class CancelAction extends Action {
-			@Override
-			public void run() {
-				loginListener.loginCancelled();
-			}
-		}
-		
 		protected Subject save(UserPassword userPassword) {
 			LoginTransaction loginTransaction = new LoginTransaction(userPassword);
 			return Backend.execute(loginTransaction);

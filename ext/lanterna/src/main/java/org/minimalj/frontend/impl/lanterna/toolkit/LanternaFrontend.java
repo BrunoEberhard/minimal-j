@@ -215,7 +215,7 @@ public class LanternaFrontend extends Frontend {
 
 
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction, Action cancelAction) {
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction) {
 		// TODO Auto-generated method stub
 		return null;
 	}

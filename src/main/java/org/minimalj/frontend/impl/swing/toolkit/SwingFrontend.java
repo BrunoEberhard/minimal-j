@@ -30,6 +30,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
@@ -50,7 +51,9 @@ import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstra
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -298,7 +301,7 @@ public class SwingFrontend extends Frontend {
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setDialogTitle(title);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(getPageManager(), approveButtonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog((Component) getPageManager(), approveButtonText)) {
 			return chooser.getSelectedFile();
 		} else {
 			return null;
@@ -441,13 +444,45 @@ public class SwingFrontend extends Frontend {
 		return pageManager != null;
 	}
 
+	
 	@Override
-	public SwingTab getPageManager() {
+	public PageManager getPageManager() {
 		return pageManager;
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, org.minimalj.frontend.action.Action loginAction, org.minimalj.frontend.action.Action forgetPasswordAction, org.minimalj.frontend.action.Action cancelAction) {
+	public void login(Subject subject, LoginListener loginListener) {
+		SwingFrame frame = FrameManager.getInstance().openFrame();
+		SwingFrontend.run(frame, () -> {
+			frame.intialize(subject);
+			if (loginListener != null) {
+				loginListener.loginSucceded(subject);
+			}
+		});
+	}
+	
+	@Override
+	protected void doShowError(String text) {
+		if (hasContext()) {
+			super.doShowError(text);
+		} else {
+			JOptionPane.showMessageDialog(null, text, "Fehler", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	@Override
+	protected void doShowMessage(String text) {
+		if (hasContext()) {
+			super.doShowMessage(text);
+		} else {
+			JOptionPane.showMessageDialog(null, text, "Information", JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	
+	@Override
+	public Optional<IDialog> showLogin(IContent content, org.minimalj.frontend.action.Action loginAction, org.minimalj.frontend.action.Action forgetPasswordAction) {
+		CancelAction cancelAction = new CancelAction();
+		SwingDialog dialog;
 		if (pageManager != null) {
 			JCheckBox checkBoxNewWindow = new JCheckBox("Open new Window");
 			JPanel panel = new JPanel(new BorderLayout());
@@ -455,13 +490,30 @@ public class SwingFrontend extends Frontend {
 			panel.add(checkBoxNewWindow, BorderLayout.SOUTH);
 			loginAction = new SwingLoginAction(loginAction, checkBoxNewWindow);
 			JComponent contentComponent = new SwingEditorPanel(panel, new org.minimalj.frontend.action.Action[] {cancelAction, loginAction});
-			SwingDialog dialog = new SwingDialog(findFrame(pageManager), Resources.getString("Login.title"), contentComponent, loginAction, null);
-			return Optional.of(dialog);
+			dialog = new SwingDialog(findFrame(pageManager), Resources.getString("Login.title"), contentComponent, loginAction, null);
+			cancelAction.setDialog(dialog);
 		} else {
 			loginAction = new SwingLoginAction(loginAction, null);
 			JComponent contentComponent = new SwingEditorPanel(content, new org.minimalj.frontend.action.Action[] {cancelAction, loginAction});
-			SwingDialog dialog = new SwingDialog(null, Resources.getString("Login.title"), contentComponent, loginAction, null);
-			return Optional.of(dialog);
+			dialog = new SwingDialog(null, Resources.getString("Login.title"), contentComponent, loginAction, null);
+		}
+		return Optional.of(dialog);
+	}
+	
+	private class CancelAction extends Action {
+		private SwingDialog dialog;
+
+		public void setDialog(SwingDialog dialog) {
+			this.dialog = dialog;
+		}
+		
+		@Override
+		public void run() {
+			if (dialog != null) {
+				dialog.closeDialog();
+			} else {
+				System.exit(0);
+			}
 		}
 	}
 	
@@ -483,15 +535,7 @@ public class SwingFrontend extends Frontend {
 		
 		@Override
 		public void run() {
-			if (checkBoxNewWindow == null || checkBoxNewWindow.isSelected()) {
-				SwingFrame frame = FrameManager.getInstance().openFrame();
-				SwingFrontend.run(frame, () -> {
-					action.run();
-					frame.intialize(Subject.getCurrent());
-				});
-			} else {
-				action.run();
-			}
+			action.run();
 		}
 	}
 }
