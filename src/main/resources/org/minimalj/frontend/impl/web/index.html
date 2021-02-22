@@ -133,6 +133,11 @@ $ICON
 								element.removeChild(element.getElementsByTagName("tbody")[0]);
 							}
 							element.appendChild(createTableRows(id, value));
+						} else if (property === "selectedRows") {
+							var tbody = element.getElementsByTagName("tbody")[0];
+							for (var i = 0; i < tbody.childNodes.length; i++) {
+								tbody.childNodes[i].className = value[i];							
+							}
 						} else if (property === "validationMessage") {
 							var validationElement = document.getElementById(id + "-validation");
 							if (value == undefined || value == "") {
@@ -823,9 +828,6 @@ $ICON
 		var element = document.createElement("tbody");
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
-			rowElement.setAttribute("onmousedown", "tableSelection(event, this);");
-			rowElement.setAttribute("ondblclick", "tableAction(event, \"" + tableId + "\", this);");
-			rowElement.setAttribute("ontouchend", "tableAction(event, \"" + tableId + "\", this);");
 			element.appendChild(rowElement);
 		}
 		return element;
@@ -836,6 +838,9 @@ $ICON
 		for (var i = 0; i < row.length; i++) {
 			element.appendChild(createTableCell(row[i]));
 		}
+		element.setAttribute("onmousedown", "tableSelection(event);");
+		element.setAttribute("ondblclick", "tableAction(event);");
+		element.setAttribute("ontouchend", "tableAction(event);");
 		return element;
 	}
 	
@@ -1071,9 +1076,10 @@ $ICON
 	var lastSelectedTable;
 	var lastSelectedRow;
 	
-	function tableSelection(event, rowElement) {
-		var tableElement = rowElement;
-		while ((tableElement = tableElement.parentNode) && tableElement.tagName.toUpperCase() != "TABLE");
+	function tableSelection(event) {
+		var rowElement = event.target.parentElement;
+		var tbodyElement = rowElement.parentElement;
+		var tableElement = tbodyElement.parentElement;
 	
 		var pageElement = tableElement;
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
@@ -1118,9 +1124,13 @@ $ICON
 		event.preventDefault();
 	}
 	
-	function tableAction(event, tableId, rowElement) {
+	function tableAction(event) {
+		var rowElement = event.target.parentElement;
+		var tbodyElement = rowElement.parentElement;
+		var tableElement = tbodyElement.parentElement;
+		
 		var tableAction = {
-			"table": tableId,
+			"table": tableElement.id,
 			"row": rowElement.rowIndex
 		};
 		var data = {
