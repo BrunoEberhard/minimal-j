@@ -32,6 +32,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
@@ -141,19 +142,31 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	private void setOffset(int offset) {
+		List<T> selectedObjects = getSelectedObjects();
+		
 		this.offset = offset;
 		tableModel.setObjects(list.subList(offset, Math.min(list.size(), offset + PAGE_SIZE)));
 		nextButton.setVisible(list.size() > offset + PAGE_SIZE);
 		prevButton.setVisible(offset > 0);
+		
+		// redo selection
+		for (int i = 0; i < table.getRowCount(); i++) {
+			T object = tableModel.getObject(table.convertRowIndexToModel(i));
+			for (T selectedObject : selectedObjects) {
+				if (JsonTable.equalsByIdOrContent(object, selectedObject)) {
+					table.setRowSelectionInterval(i, i);
+				}
+			}
+		}
 	}
 
-	public List<T> getSelectedObjects() {
-		List<T> selectedIds = new ArrayList<>(table.getSelectedRowCount());
+	private List<T> getSelectedObjects() {
+		List<T> selectedObjects = new ArrayList<>(table.getSelectedRowCount());
 		for (int row : table.getSelectedRows()) {
 			int rowInModel = table.convertRowIndexToModel(row);
-			selectedIds.add(tableModel.getObject(rowInModel));
+			selectedObjects.add(tableModel.getObject(rowInModel));
 		}
-		return selectedIds;
+		return selectedObjects;
 	}
 
 	private class SwingTableMouseListener extends MouseAdapter {
@@ -183,7 +196,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         @Override
         public void sorterChanged(RowSorterEvent e) {
         	if (e.getType() == Type.SORT_ORDER_CHANGED) {
-				@SuppressWarnings("unchecked")
 				List<? extends SortKey> sortKeys = e.getSource().getSortKeys();
         		Object[] keys = new Object[sortKeys.size()];
         		boolean[] directions = new boolean[sortKeys.size()];
