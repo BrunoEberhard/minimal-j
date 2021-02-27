@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -377,11 +379,18 @@ public class VaadinFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions) {
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
 		Page page = new Page() {
 			@Override
 			public IContent getContent() {
-				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) content, loginAction, null, loginAction);
+				Action[] actions;
+				if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+					NoLoginAction noLoginAction = new NoLoginAction();
+					actions = new org.minimalj.frontend.action.Action[] {noLoginAction, loginAction};
+				} else {
+					actions = new org.minimalj.frontend.action.Action[] {loginAction};
+				}
+				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) content, loginAction, null, actions);
 				VaadinHorizontalLayout centerLayout = new VaadinHorizontalLayout(new IComponent[] {editorLayout});
 				editorLayout.setSizeUndefined(); // VaadinHorizontalLayout constructor did set the width
 				centerLayout.setSizeFull();
@@ -398,5 +407,12 @@ public class VaadinFrontend extends Frontend {
 		show(page);
 		return Optional.empty();
 	}
+
+	private class NoLoginAction extends Action {
 		
+		@Override
+		public void run() {
+			Frontend.getInstance().login(null);
+		}
+	}
 }

@@ -3,7 +3,9 @@ package org.minimalj.frontend.impl.vaadin;
 import java.util.List;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -23,9 +25,11 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -41,6 +45,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 
 	private final VerticalLayout menuLayout = new VerticalLayout();
 	private final Authentication authentication = Backend.getInstance().getAuthentication();
+	private final Button loginButton, logoutButton;
 	
 	public VaadinPageManager() {
 		UI.getCurrent().getSession().setAttribute("pageManager", this);
@@ -50,6 +55,22 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		setPrimarySection(Section.DRAWER);
 		addToNavbar(new DrawerToggle());
 		
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+			loginButton = new Button();
+			loginButton.setIcon(VaadinIcon.SIGN_IN.create());
+			loginButton.addClickListener(event -> Backend.getInstance().getAuthentication().showLogin());
+			logoutButton = new Button();
+			logoutButton.setIcon(VaadinIcon.SIGN_OUT.create());
+			logoutButton.addClickListener(event -> login(null));
+			updateAuthenticationButtons();
+
+			addToNavbar(loginButton);
+			addToNavbar(logoutButton);
+		} else {
+			loginButton = null;
+			logoutButton = null;
+		}
+
 		if (Application.getInstance().hasSearchPages()) {
 			TextField textFieldSearch = new TextField();
 			textFieldSearch.getStyle().set("margin-left", "auto");
@@ -63,7 +84,15 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		}
 		
 		addToDrawer(menuLayout);
-		updateNavigation();
+
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+			updateNavigation();
+		}
+		if (Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
+			Backend.getInstance().getAuthentication().showLogin();
+		} else {
+			Frontend.show(Application.getInstance().createDefaultPage());
+		}
 	}
 	
 	private void updateNavigation() {
@@ -72,6 +101,10 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		
 		List<Action> actions = Application.getInstance().getNavigation();
 		addActions(menuLayout, actions);
+	}
+
+	private void clearNavigation() {
+		menuLayout.removeAll();
 	}
 
 	private void addActions(HasComponents container, List<Action> actions) {
@@ -140,8 +173,23 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	@Override
 	public void login(Subject subject) {
 		UI.getCurrent().getSession().setAttribute("subject", subject);
+		Subject.setCurrent(subject);
 		
-		updateNavigation();
+		updateAuthenticationButtons();
+		
+		if (subject == null && Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
+			clearNavigation();
+			Backend.getInstance().getAuthentication().showLogin();
+		} else {
+			updateNavigation();
+			Frontend.show(Application.getInstance().createDefaultPage());
+		}
 	}
 
+	private void updateAuthenticationButtons() {
+		if (loginButton != null) {
+			loginButton.setVisible(Subject.getCurrent() == null);
+			logoutButton.setVisible(Subject.getCurrent() != null);
+		}
+	}
 }

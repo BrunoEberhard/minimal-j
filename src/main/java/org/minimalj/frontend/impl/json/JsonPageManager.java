@@ -422,9 +422,9 @@ public class JsonPageManager implements PageManager {
 	}
 	
 	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
-		NoLoginAction noLoginAction = new NoLoginAction();
 		Action[] actions;
-		if (initializing && Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+			NoLoginAction noLoginAction = new NoLoginAction();
 			actions = new org.minimalj.frontend.action.Action[] {noLoginAction, loginAction};
 		} else {
 			actions = new org.minimalj.frontend.action.Action[] {loginAction};
