@@ -52,7 +52,7 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		}
 	}
 
-	private void setDetailPage(Page newDetailPage) {
+	protected void setDetailPage(Page newDetailPage) {
 		if (newDetailPage != null) {
 			Frontend.showDetail(TableDetailPage.this, newDetailPage);
 		} else if (detailPage != null) {
