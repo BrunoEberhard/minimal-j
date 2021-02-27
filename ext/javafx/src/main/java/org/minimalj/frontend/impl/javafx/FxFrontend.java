@@ -164,7 +164,7 @@ public class FxFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction) {
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions) {
 		// TODO Auto-generated method stub
 		return null;
 	}

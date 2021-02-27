@@ -64,8 +64,6 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		
 		addToDrawer(menuLayout);
 		updateNavigation();
-
-		Application.getInstance().init();
 	}
 	
 	private void updateNavigation() {
@@ -102,7 +100,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			if (authentication == null) {
 				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
 			}
-			authentication.getLoginAction(subject -> show(page)).run();
+			authentication.showLogin();
 			return;
 		}
 		
@@ -142,7 +140,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	@Override
 	public void login(Subject subject) {
 		UI.getCurrent().getSession().setAttribute("subject", subject);
-		Subject.setCurrent(subject);
+		
 		updateNavigation();
 	}
 

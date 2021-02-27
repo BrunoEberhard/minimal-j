@@ -17,7 +17,6 @@ import org.minimalj.example.minimalclinic.model.MinimalClinicDemoDataAction;
 import org.minimalj.example.minimalclinic.model.Owner;
 import org.minimalj.example.minimalclinic.model.Pet;
 import org.minimalj.example.minimalclinic.model.Vet;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.web.WebApplicationPage;
@@ -55,8 +54,8 @@ public class MinimalClinicApplication extends Application {
 	}
 	
 	@Override
-	public void init() {
-		Frontend.show(new WebApplicationPage("/intro.html"));
+	public Page createDefaultPage() {
+		return new WebApplicationPage("/intro.html");
 	}
 	
 	@Override

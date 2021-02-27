@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.logging.Logger;
 
-import org.minimalj.frontend.Frontend;
+import org.minimalj.backend.Backend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebServer;
@@ -223,14 +223,31 @@ public abstract class Application implements Model {
 		}
 	}
 
-	/** 
-	 * called when a new user arrives or an existing user opens a new tab or the user logs out.
-	 * 
-	 */
-	public void init() {
-		Frontend.show(new EmptyPage());
+	public enum AuthenticatonMode {
+		REQUIRED, SUGGESTED, OPTIONAL, NOT_AVAILABLE;
+		
+		public boolean showLoginAtStart() {
+			return this == REQUIRED || this == SUGGESTED;
+		}
 	}
 	
+	public AuthenticatonMode getAuthenticatonMode() {
+		if (Backend.getInstance().isAuthenticationActive()) {
+			return AuthenticatonMode.REQUIRED;
+		} else {
+			return AuthenticatonMode.NOT_AVAILABLE;
+		}
+	}
+	
+	/**
+	 * called for a new User or when the user did login or logout
+	 *
+	 * @return Page to be displayed in (possible new) page container
+	 */
+	public Page createDefaultPage() {
+		return new EmptyPage();
+	}
+
 	/** 
 	 * called when a Backend is initialized (once per VM)
 	 * 

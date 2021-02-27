@@ -63,8 +63,6 @@ public class Lanterna extends MultiWindowTextGUI implements PageManager {
 			screen.startScreen();
 			
 			new Lanterna(screen);
-			
-			Application.getInstance().init();
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}		

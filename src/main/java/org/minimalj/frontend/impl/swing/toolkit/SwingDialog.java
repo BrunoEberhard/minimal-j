@@ -60,7 +60,10 @@ public class SwingDialog extends JDialog implements IDialog {
 		setLocationRelativeTo(frame);
 
 		SwingFrontend.focusFirstComponent((JComponent) this.getContentPane());
-		SwingUtilities.invokeLater(() -> setVisible(true));
+		SwingUtilities.invokeLater(() -> {
+			System.out.println("3");
+			setVisible(true);	
+		});
 	}
 
 	@Override

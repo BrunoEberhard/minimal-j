@@ -55,8 +55,8 @@ public class ThreadLocalApplication extends Application {
 	}
 	
 	@Override
-	public void init() {
-		getCurrentApplication().init();
+	public Page createDefaultPage() {
+		return getCurrentApplication().createDefaultPage();
 	}
 	
 	@Override

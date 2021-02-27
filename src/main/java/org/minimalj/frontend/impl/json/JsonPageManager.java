@@ -15,7 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -42,6 +44,8 @@ public class JsonPageManager implements PageManager {
 	private long lastUsed = System.currentTimeMillis();
 	
 	private Subject subject;
+	private Runnable onLogin;
+	private boolean initializing;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
 	private final PageList visiblePageAndDetailsList = new PageList();
@@ -72,7 +76,7 @@ public class JsonPageManager implements PageManager {
 		return lastUsed;
 	}
 
-	private void initialize() {
+	private void updateNavigation() {
 		componentById.clear();
 		navigation = createNavigation();
 		register(navigation);
@@ -150,31 +154,25 @@ public class JsonPageManager implements PageManager {
 		output = new JsonOutput();
 
 		Object initialize = input.getObject(JsonInput.INITIALIZE);
-		if (initialize != null) {
-			if (Subject.getCurrent() == null && authentication instanceof RememberMeAuthentication) {
-				String rememberMeCookie = (String) input.getObject("rememberMeToken");
-				if (rememberMeCookie != null) {
-					Subject.setCurrent(((RememberMeAuthentication) authentication).remember(rememberMeCookie));
-				}
-			}
-
-			initialize();
-
+		initializing = initialize != null; 
+		if (initializing) {
 			if (initialize instanceof List) {
 				List<String> pageIds = (List<String>) initialize;
 				if (pageStore.valid(pageIds)) {
-					show(pageIds);
-					return output;
+					onLogin = () -> show(pageIds);
 				}
-			} else if (initialize instanceof String) {
-				String path = (String) initialize;
-				Page page = Routing.createPageSafe(path);
-				show(page, null);
-				return output;
 			}
-			
-			Application.getInstance().init();
-			return output;
+
+			Subject subject = null;
+			if (authentication instanceof RememberMeAuthentication) {
+				RememberMeAuthentication rememberMeAuthentication = (RememberMeAuthentication) authentication;
+				String token = (String) input.getObject("rememberMeToken");
+				if (token != null) {
+					subject = rememberMeAuthentication.remember(token);
+				}
+			}
+
+			login(subject);
 		}
 
 		if (input.containsObject("closePage")) {
@@ -249,6 +247,16 @@ public class JsonPageManager implements PageManager {
 			JsonLookup lookup = (JsonLookup) getComponentById(openLookupDialog);
 			lookup.showLookupDialog();
 		}
+		
+		if (input.containsObject("logout")) {
+			Backend.getInstance().getAuthentication().getLogoutAction().run();
+			if (Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
+				Backend.getInstance().getAuthentication().showLogin();
+			}
+		}
+		if (input.containsObject("login")) {
+			Backend.getInstance().getAuthentication().getLoginAction().run();
+		}
 
 		List<String> pageIds = (List<String>) input.getObject("showPages");
 		if (pageIds != null) {
@@ -289,7 +297,8 @@ public class JsonPageManager implements PageManager {
 			if (authentication == null) {
 				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
 			}
-			authentication.getLoginAction(subject -> show(page, masterPageId)).run();
+			onLogin = () -> show(page, masterPageId);
+			authentication.showLogin();
 			return null;
 		}
 		if (masterPageId == null) {
@@ -308,7 +317,7 @@ public class JsonPageManager implements PageManager {
 
 	private void show(List<String> pageIds) {
 		if (!pageStore.valid(pageIds)) {
-			Application.getInstance().init();
+			Frontend.show(Application.getInstance().createDefaultPage());
 			return;
 		}
 		List<JsonComponent> jsonList = new ArrayList<>();
@@ -334,16 +343,29 @@ public class JsonPageManager implements PageManager {
 			output.add("showPages", jsonList);
 			updateTitle(firstPage != null ? firstPage : null);
 		} else {
-			authentication.getLoginAction(subject -> show(pageIds)).run();
+			onLogin = () -> show(pageIds);
+			authentication.showLogin();
 		}
 	}
 	
 	@Override
 	public void login(Subject subject) {
-		JsonPageManager.this.subject = subject;
+		this.subject = subject;
 		Subject.setCurrent(subject);
-
-		initialize();
+		
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+			output.add("canLogin", subject == null);
+			output.add("canLogout", subject != null);
+		}
+		updateNavigation();
+		
+		if (subject == null && initializing && Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
+			Backend.getInstance().getAuthentication().showLogin();
+		} else if (onLogin != null) {
+			onLogin.run();
+		} else {
+			Frontend.show(Application.getInstance().createDefaultPage());
+		}
 	}
 
 	private void updateTitle(Page page) {
@@ -399,12 +421,18 @@ public class JsonPageManager implements PageManager {
 		return dialog;
 	}
 	
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction) {
-		// in this frontend cancel is not possible
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+		NoLoginAction noLoginAction = new NoLoginAction();
+		Action[] actions;
+		if (initializing && Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+			actions = new org.minimalj.frontend.action.Action[] {noLoginAction, loginAction};
+		} else {
+			actions = new org.minimalj.frontend.action.Action[] {loginAction};
+		}
 		Page page = new Page() {
 			@Override
 			public IContent getContent() {
-				return new JsonLoginContent(content, loginAction, forgetPasswordAction);
+				return new JsonLoginContent(content, loginAction, actions);
 			}
 			
 			@Override
@@ -414,6 +442,14 @@ public class JsonPageManager implements PageManager {
 		};
 		show(page);
 		return Optional.empty();
+	}
+	
+	private class NoLoginAction extends Action {
+		
+		@Override
+		public void run() {
+			Frontend.getInstance().login(null);
+		}
 	}
 	
 	@Override

@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Separator;
@@ -52,6 +51,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 	private final JPanel verticalPanel;
 
+	private Subject subject;
 	private final History<List<Page>> history;
 
 	private final List<Page> visiblePageAndDetailsList;
@@ -78,6 +78,10 @@ public class SwingTab extends EditablePanel implements PageManager {
 		setContent(verticalPanel);
 	}
 
+	public SwingFrame getFrame() {
+		return frame;
+	}
+	
 	public Page getVisiblePage() {
 		return visiblePageAndDetailsList.get(0);
 	}
@@ -241,8 +245,12 @@ public class SwingTab extends EditablePanel implements PageManager {
 		history.previous();
 	}
 
-	public void clearHistory() {
-		history.clear();
+	public void setSubject(Subject subject) {
+		if (this.subject != null) {
+			history.restoreSnapshot();
+		}
+		history.takeSnapshot();
+		this.subject = subject;
 	}
 
 	@Override
@@ -328,10 +336,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 	
 	@Override
 	public void login(Subject subject) {
-		frame.setSearchEnabled(Application.getInstance().hasSearchPages());
-		if (subject == null) {
-			frame.tryToCloseWindow();
-		}
+		frame.setSubject(subject);
 	}
 
 	private Window findWindow() {

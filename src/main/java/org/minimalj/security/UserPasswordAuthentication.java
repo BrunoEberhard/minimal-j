@@ -37,20 +37,18 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	private static final Logger logger = Logger.getLogger(UserPasswordAuthentication.class.getName());
 
 	@Override
-	public Action getLoginAction(LoginListener loginListener) {
-		return new UserPasswordLoginAction(loginListener);
+	public Action getLoginAction() {
+		return new UserPasswordLoginAction();
 	}
 	
 	public static class UserPasswordLoginAction extends Action {
-		private final LoginListener loginListener;
 		private UserPassword userPassword;
 		private Form<UserPassword> form;
 		private LoginAction loginAction;
 		private Optional<IDialog> dialog;
 		
-		public UserPasswordLoginAction(LoginListener loginListener) {
+		public UserPasswordLoginAction() {
 			super(Resources.getString("Login.title"));
-			this.loginListener = loginListener;
 		}
 
 		@Override
@@ -65,7 +63,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			form.setChangeListener(this::validate);
 			form.setObject(userPassword);
 			
-			dialog = Frontend.getInstance().showLogin(form.getContent(), loginAction, null);
+			dialog = Frontend.getInstance().showLogin(form.getContent(), loginAction);
 		}
 		
 		private boolean validate(Form<?> form) {
@@ -91,11 +89,10 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 				if (validate(form)) {
 					Subject subject = save(userPassword);
 					if (subject != null) {
-						Subject.setCurrent(subject);
 						if (userPassword.rememberMe) {
 							setRememberMeCookie(userPassword);
 						}
-						Frontend.getInstance().login(subject, loginListener);
+						Frontend.getInstance().login(subject);
 						dialog.ifPresent(IDialog::closeDialog);
 					} else {
 						Frontend.showMessage("User / password invalid");

@@ -11,7 +11,6 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 
@@ -202,13 +201,19 @@ public abstract class Frontend {
 	 */
 	public abstract IContent createQueryContent();
 
-	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction);
+	/**
+	 * A web frontend may show the login like a page. A standalone Frontend may show
+	 * it as a dialog.
+	 * 
+	 * @param content the login form
+	 * @param loginAction the action used for enter key
+	 * @param actions the actions are shown from right to left
+	 * @return dialog if frontend uses a dialog
+	 */
+	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions);
 	
-	public void login(Subject subject, LoginListener loginListener) {
+	public void login(Subject subject) {
 		getPageManager().login(subject);
-		if (loginListener != null) {
-			loginListener.loginSucceded(subject);
-		}
 	}
 	
 	protected void doShowMessage(String text) {

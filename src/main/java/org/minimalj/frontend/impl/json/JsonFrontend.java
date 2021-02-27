@@ -194,8 +194,9 @@ public class JsonFrontend extends Frontend {
 		return new JsonQueryContent(caption);
 	}
 	
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action forgetPasswordAction) {
-		return getClientSession().showLogin(content, loginAction, forgetPasswordAction);
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions) {
+		return getClientSession().showLogin(content, loginAction, actions);
 	}
 	
 	//

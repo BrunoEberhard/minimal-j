@@ -38,6 +38,7 @@ import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
@@ -53,7 +54,6 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -406,6 +406,7 @@ public class SwingFrontend extends Frontend {
 
 	private static SwingTab pageManager;
 
+	// TODO move to SwingFrame
 	public static void run(Object source, Runnable r) {
 		if (!hasContext()) {
 			try {
@@ -451,14 +452,14 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public void login(Subject subject, LoginListener loginListener) {
-		SwingFrame frame = FrameManager.getInstance().openFrame();
-		SwingFrontend.run(frame, () -> {
-			frame.intialize(subject);
-			if (loginListener != null) {
-				loginListener.loginSucceded(subject);
-			}
-		});
+	public void login(Subject subject) {
+		SwingFrame frame;
+		if (hasContext()) {
+			frame = pageManager.getFrame();
+		} else {
+			frame = FrameManager.getInstance().openFrame();
+		}
+		frame.setSubject(subject);
 	}
 	
 	@Override
@@ -480,27 +481,36 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, org.minimalj.frontend.action.Action loginAction, org.minimalj.frontend.action.Action forgetPasswordAction) {
-		CancelAction cancelAction = new CancelAction();
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+		NoLoginAction noLoginAction = new NoLoginAction();
+		Action[] actions;
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED && !hasContext()) {
+			actions = new org.minimalj.frontend.action.Action[] {noLoginAction, loginAction};
+		} else {
+			actions = new org.minimalj.frontend.action.Action[] {loginAction};
+		}
+		
 		SwingDialog dialog;
-		if (pageManager != null) {
+		if (!hasContext()) {
+			// startup of application. no open jframe yet.
+			loginAction = new SwingLoginAction(loginAction, null);
+			JComponent contentComponent = new SwingEditorPanel(content, actions);
+			dialog = new SwingDialog(null, Resources.getString("Login.title"), contentComponent, loginAction, null);
+		} else {
+			// user clicked 'Login' menu
 			JCheckBox checkBoxNewWindow = new JCheckBox("Open new Window");
 			JPanel panel = new JPanel(new BorderLayout());
 			panel.add((Component) content, BorderLayout.CENTER);
 			panel.add(checkBoxNewWindow, BorderLayout.SOUTH);
 			loginAction = new SwingLoginAction(loginAction, checkBoxNewWindow);
-			JComponent contentComponent = new SwingEditorPanel(panel, new org.minimalj.frontend.action.Action[] {cancelAction, loginAction});
+			JComponent contentComponent = new SwingEditorPanel(panel, actions);
 			dialog = new SwingDialog(findFrame(pageManager), Resources.getString("Login.title"), contentComponent, loginAction, null);
-			cancelAction.setDialog(dialog);
-		} else {
-			loginAction = new SwingLoginAction(loginAction, null);
-			JComponent contentComponent = new SwingEditorPanel(content, new org.minimalj.frontend.action.Action[] {cancelAction, loginAction});
-			dialog = new SwingDialog(null, Resources.getString("Login.title"), contentComponent, loginAction, null);
 		}
+		noLoginAction.setDialog(dialog);
 		return Optional.of(dialog);
 	}
 	
-	private class CancelAction extends Action {
+	private class NoLoginAction extends Action {
 		private SwingDialog dialog;
 
 		public void setDialog(SwingDialog dialog) {
@@ -509,11 +519,9 @@ public class SwingFrontend extends Frontend {
 		
 		@Override
 		public void run() {
-			if (dialog != null) {
-				dialog.closeDialog();
-			} else {
-				System.exit(0);
-			}
+			Subject.setCurrent(null);
+			Frontend.getInstance().login(null);
+			dialog.closeDialog();
 		}
 	}
 	
