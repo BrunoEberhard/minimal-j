@@ -32,6 +32,8 @@ public class WebServer {
 
 	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
+	private static HttpServer server;
+	
 	public static class WebServerHttpExchange extends MjHttpExchange {
 		private final HttpExchange exchange;
 
@@ -113,7 +115,7 @@ public class WebServer {
 			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web frontend on port " + port + (secure ? " (Secure)" : ""));
 			try {
 				InetSocketAddress addr = new InetSocketAddress(port);
-				HttpServer server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
+				server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
 				HttpContext context = server.createContext("/");
 				context.setHandler(WebServer::handle);
 				server.start();
@@ -147,6 +149,13 @@ public class WebServer {
 
 		start(!SECURE);
 		start(SECURE);
+	}
+	
+	// only for tests
+	public static void stop() {
+		if (server != null) {
+			server.stop(0);
+		}
 	}
 
 	public static void start(Application application) {
