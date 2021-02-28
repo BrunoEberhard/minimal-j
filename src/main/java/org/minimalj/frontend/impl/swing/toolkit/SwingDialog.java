@@ -61,7 +61,6 @@ public class SwingDialog extends JDialog implements IDialog {
 
 		SwingFrontend.focusFirstComponent((JComponent) this.getContentPane());
 		SwingUtilities.invokeLater(() -> {
-			System.out.println("3");
 			setVisible(true);	
 		});
 	}

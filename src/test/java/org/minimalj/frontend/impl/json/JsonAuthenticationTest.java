@@ -49,6 +49,8 @@ public class JsonAuthenticationTest {
 		
 		clickButton("LoginAction");
 		
+		textShouldBeDisplayed("TestPage");
+		textShouldBeDisplayed("Subject: test");
 		shouldBeVisible("logout", true);
 		shouldBeVisible("login", false);
 	
@@ -91,12 +93,14 @@ public class JsonAuthenticationTest {
 		String id = label.getAttribute("for");
 		WebElement element = driver.findElementById(id);
 		element.clear();
-		element.sendKeys("text");
+		element.sendKeys(text);
 	}
 	
 	private void clickButton(String resourceName) {
 		String caption = Resources.getString(resourceName);
-		driver.findElement(By.xpath("//button[text()='" + caption + "']")).click();
+		WebElement element = driver.findElement(By.xpath("//button[text()='" + caption + "']"));
+		driver.executeScript(element.getAttribute("onclick"));
+		// element.click();
 		waitBlock();
 	}
 	
@@ -113,7 +117,16 @@ public class JsonAuthenticationTest {
 	}
 	
 	private void shouldBeVisible(String id, boolean visible) {
-		Assert.assertEquals(visible, "none".equals(driver.findElementById(id).getCssValue("display")));	
+		Assert.assertEquals(visible, !"none".equals(driver.findElementById(id).getCssValue("display")));	
 	}
 
+	private void textShouldBeDisplayed(String text) {
+		Assert.assertTrue(text + " should be displayed", driver.getPageSource().contains(text));
+//		WebElement iframeElement = driver.findElement(By.xpath("//iframe"));        
+//		driver.switchTo().frame(iframeElement);
+//		
+//		Assert.assertTrue(text + " should be displayed", driver.findElement(By.xpath("//*[text()='"+ text + "']")) != null);
+//		
+//		driver.switchTo().parentFrame();
+	}
 }

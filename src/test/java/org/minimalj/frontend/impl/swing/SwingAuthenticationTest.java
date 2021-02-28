@@ -23,7 +23,11 @@ import org.junit.Test;
 import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.component.SwingCaption;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.security.Subject;
 import org.minimalj.security.UserPasswordAuthentication;
 import org.minimalj.security.model.User;
 import org.minimalj.test.TestUtil;
@@ -176,21 +180,48 @@ public class SwingAuthenticationTest {
 		public AuthenticatonMode getAuthenticatonMode() {
 			return authenticatonMode;
 		}
+		
+		@Override
+		public Page createDefaultPage() {
+			return new TestPage("TestPage");
+		}
 	}
 	
 	public static class TestAuthentication extends UserPasswordAuthentication {
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		protected User retrieveUser(String userName) {
-			return new User();
-		}
-		
-		protected User retrieveUser(String userName, char[] password) {
-			if (password.length >= 2) {
-				return new User();
+			if (userName.length() >= 2) {
+				User user = new User();
+				user.name = userName;
+				return user;
 			} else {
 				return null;
 			}
+		}
+		
+		protected User retrieveUser(String userName, char[] password) {
+			return retrieveUser(userName);
+		}
+	}
+	
+	public static class TestPage extends Page {
+		private final String text;
+
+		public TestPage(String text) {
+			this.text = text;
+		}
+		
+		@Override
+		public String getTitle() {
+			return "Title Test Page";
+		}
+		
+		@Override
+		public IContent getContent() {
+			String subjectName = Subject.getCurrent() != null ? Subject.getCurrent().getName() : "-";
+			return Frontend.getInstance().createHtmlContent("<p>" + text + "</p><p>Subject: " + subjectName + "</p>");
 		}
 		
 	}
