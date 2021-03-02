@@ -498,7 +498,7 @@ public class SwingFrontend extends Frontend {
 			dialog = new SwingDialog(null, Resources.getString("Login.title"), contentComponent, loginAction, null);
 		} else {
 			// user clicked 'Login' menu
-			JCheckBox checkBoxNewWindow = new JCheckBox("Open new Window");
+			JCheckBox checkBoxNewWindow = new JCheckBox(Resources.getString("OpenNewWindow"));
 			JPanel panel = new JPanel(new BorderLayout());
 			panel.add((Component) content, BorderLayout.CENTER);
 			panel.add(checkBoxNewWindow, BorderLayout.SOUTH);
