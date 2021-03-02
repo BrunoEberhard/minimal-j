@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.impl.swing.SwingAuthenticationTest.TestApplication;
@@ -14,6 +15,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
 
+@Ignore("Not working on travis")
 public class JsonAuthenticationTest {
 
 	private EdgeDriver driver;
@@ -51,6 +53,7 @@ public class JsonAuthenticationTest {
 		
 		textShouldBeDisplayed("TestPage");
 		textShouldBeDisplayed("Subject: test");
+		textShouldBeDisplayed("Action with login");
 		shouldBeVisible("logout", true);
 		shouldBeVisible("login", false);
 	
@@ -58,6 +61,7 @@ public class JsonAuthenticationTest {
 		waitBlock();
 		
 		loginShouldBeShown();
+		textShouldBeDisplayed("Action without login");
 	}
 	
 	@Test
@@ -68,7 +72,25 @@ public class JsonAuthenticationTest {
 		loginShouldBeShown();
 		noLoginButtonShouldBeShown();
 	}
-	
+
+	@Test
+	public void testAuthenticatonModeOptional() {
+		WebServer.start(new TestApplication(AuthenticatonMode.OPTIONAL));
+		driver.get("http://localhost:8080");
+		waitBlock();
+		textShouldBeDisplayed("Subject: -");
+	}
+
+	@Test
+	public void testAuthenticatonModeNotAvailable() {
+		WebServer.start(new TestApplication(AuthenticatonMode.NOT_AVAILABLE));
+		driver.get("http://localhost:8080");
+		waitBlock();
+		textShouldBeDisplayed("Subject: -");
+		shouldBeVisible("logout", false);
+		shouldBeVisible("login", false);
+	}
+
 	private void waitBlock() {
 		long start = System.currentTimeMillis();
 		WebElement block = driver.findElementByClassName("is-blocked");
