@@ -131,11 +131,11 @@ public class JsonAuthenticationTest {
 	}
 
 	private void noLoginButtonShouldBeShown() {
-		Assert.assertNotNull(driver.findElement(By.xpath("//button[text()='" + Resources.getString("NoLoginAction") + "']")));
+		Assert.assertNotNull(driver.findElement(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")));
 	}
 
 	private void startWithoutLoginShouldBePossible() {
-		Assert.assertTrue(driver.findElements(By.xpath("//button[text()='" + Resources.getString("NoLoginAction") + "']")).isEmpty());
+		Assert.assertTrue(driver.findElements(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")).isEmpty());
 	}
 	
 	private void shouldBeVisible(String id, boolean visible) {

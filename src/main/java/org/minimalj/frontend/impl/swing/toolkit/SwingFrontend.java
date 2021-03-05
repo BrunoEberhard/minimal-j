@@ -482,10 +482,10 @@ public class SwingFrontend extends Frontend {
 	
 	@Override
 	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
-		NoLoginAction noLoginAction = new NoLoginAction();
+		SkipLoginAction skipLoginAction = new SkipLoginAction();
 		Action[] actions;
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED && !hasContext()) {
-			actions = new org.minimalj.frontend.action.Action[] {noLoginAction, loginAction};
+			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
 		} else {
 			actions = new org.minimalj.frontend.action.Action[] {loginAction};
 		}
@@ -506,11 +506,11 @@ public class SwingFrontend extends Frontend {
 			JComponent contentComponent = new SwingEditorPanel(panel, actions);
 			dialog = new SwingDialog(findFrame(pageManager), Resources.getString("Login.title"), contentComponent, loginAction, null);
 		}
-		noLoginAction.setDialog(dialog);
+		skipLoginAction.setDialog(dialog);
 		return Optional.of(dialog);
 	}
 	
-	private class NoLoginAction extends Action {
+	private class SkipLoginAction extends Action {
 		private SwingDialog dialog;
 
 		public void setDialog(SwingDialog dialog) {

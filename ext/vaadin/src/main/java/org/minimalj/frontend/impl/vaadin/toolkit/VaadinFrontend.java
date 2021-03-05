@@ -385,8 +385,8 @@ public class VaadinFrontend extends Frontend {
 			public IContent getContent() {
 				Action[] actions;
 				if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
-					NoLoginAction noLoginAction = new NoLoginAction();
-					actions = new org.minimalj.frontend.action.Action[] {noLoginAction, loginAction};
+					SkipLoginAction skipLoginAction = new SkipLoginAction();
+					actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
 				} else {
 					actions = new org.minimalj.frontend.action.Action[] {loginAction};
 				}
@@ -408,7 +408,7 @@ public class VaadinFrontend extends Frontend {
 		return Optional.empty();
 	}
 
-	private class NoLoginAction extends Action {
+	private class SkipLoginAction extends Action {
 		
 		@Override
 		public void run() {
