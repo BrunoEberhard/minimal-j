@@ -10,6 +10,7 @@ import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
 
 abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
@@ -177,7 +178,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
 		@Override
 		protected T createObject() {
-			return CloneHelper.clone(selection);
+			return IdUtils.hasId(getClazz()) ? CloneHelper.clone(selection) : selection;
 		}
 		
 		@Override
