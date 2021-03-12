@@ -128,10 +128,14 @@ public class SwingFrame extends JFrame {
 	private void tabSelectionChanged(ChangeEvent event) {
 		toolBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
 		menuBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
+		// TODO resuse NavigationTree
+		updateNavigation();
 	}
 
 	public void updateNavigation() {
-		navigationScrollPane.setViewportView(new NavigationTree(Application.getInstance().getNavigation()));
+		SwingFrontend.run(this, () -> {
+			navigationScrollPane.setViewportView(new NavigationTree(Application.getInstance().getNavigation()));
+		});
 	}
 
 	private void addTab() {
