@@ -9,7 +9,6 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
@@ -103,9 +102,6 @@ public abstract class Editor<T, RESULT> extends Action {
 	
 	private void validate(Form<?> form) {
 		List<ValidationMessage> validationMessages = new ArrayList<>();
-		if (object instanceof Validation) {
-			validationMessages.addAll(((Validation) object).validateNullSafe());
-		}
 		validationMessages.addAll(Validator.validate(object));
 		validate(object, validationMessages);
 		boolean relevantValidationMessage = form.indicate(validationMessages);
