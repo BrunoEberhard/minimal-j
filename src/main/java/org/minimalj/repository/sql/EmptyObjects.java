@@ -39,7 +39,7 @@ public class EmptyObjects {
 	public static <T> T getEmptyObject(Class<T> clazz) {
 		if (!emptyObjects.containsKey(clazz)) {
 			try {
-				Object emptyObject = clazz.newInstance();
+				Object emptyObject = clazz.getConstructor().newInstance();
 				emptyObjects.put(clazz, emptyObject);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
