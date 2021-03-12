@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -150,6 +151,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void deleteById(Object id) {
+		deleteLists(sqlRepository.read(clazz, id));
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
@@ -158,6 +160,13 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	protected void deleteLists(T object) {
+		for (ListTable list : lists.values()) {
+			// TODO implement ListTable.deleteList(parentId) would be more efficient
+			list.replaceList(object, Collections.emptyList());
+		}
+	}
+	
 	public int delete(Class<?> clazz, Criteria criteria) {
 		WhereClause<T> whereClause = new WhereClause<>(this, criteria);
 		String deleteString = "DELETE FROM " + getTableName() + whereClause.getClause();

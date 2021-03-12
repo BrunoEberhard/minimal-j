@@ -112,6 +112,18 @@ public class SqlCrudTest extends SqlTest {
 			AbstractTable.sqlLogger.setLevel(logLevel);
 		}
 	}
+	
+	@Test
+	public void testDeleteWithIdentifiableReference() {
+		TestEntity entity = new TestEntity("testN");
+		TestElement e = new TestElement("testO");
+		entity.testElementList.add(e);
+		
+		Object element_id = repository.insert(entity);
+		entity = repository.read(TestEntity.class, element_id);
+		
+		repository.delete(entity);
+	}
 
 	@Test(expected = RuntimeException.class)
 	public void testDeleteIdentifiableReference() {
