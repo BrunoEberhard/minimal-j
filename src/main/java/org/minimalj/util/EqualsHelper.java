@@ -3,6 +3,7 @@ package org.minimalj.util;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 
 public class EqualsHelper {
 
@@ -13,7 +14,7 @@ public class EqualsHelper {
 		if (to == null) {
 			return false;
 		}
-		if (FieldUtils.isAllowedPrimitive(from.getClass())) {
+		if (FieldUtils.isAllowedPrimitive(from.getClass()) || from instanceof UUID) {
 			return from.equals(to);
 		}
 		try {
@@ -41,7 +42,7 @@ public class EqualsHelper {
 				if (fromCollection.size() != toCollection.size()) return false;
 				Iterator toIterator = toCollection.iterator();
 				for (Object fromObject : fromCollection) {
-					boolean itemEqual = _equals(fromObject, toIterator.next());
+					boolean itemEqual = equals(fromObject, toIterator.next());
 					if (!itemEqual) return false;
 				}
 			} else if (IdUtils.hasId(fromValue.getClass())) {
