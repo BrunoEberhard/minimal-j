@@ -1,17 +1,19 @@
 package org.minimalj.frontend.impl.html;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
-import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.test.ApplicationTestFacade;
 import org.minimalj.frontend.test.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.frontend.test.TestApplication;
 
+@Ignore("TODO: not really a JUnit test. Add a main method.")
 public class HtmlAuthenticationTest extends HtmlTest {
 
 	@Test
 	public void testAuthenticatonModeRequired() {
-		WebServer.start(new TestApplication(AuthenticatonMode.REQUIRED));
+		Application.setInstance(new TestApplication(AuthenticatonMode.REQUIRED));
 
 		ApplicationTestFacade application = new HtmlTestFacade(getDriver());
 

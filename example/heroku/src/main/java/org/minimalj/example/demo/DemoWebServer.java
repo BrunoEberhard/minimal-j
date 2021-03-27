@@ -2,18 +2,25 @@ package org.minimalj.example.demo;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Configuration;
+import org.minimalj.example.empty.EmptyApplication;
+import org.minimalj.example.helloworld.HelloWorldApplication;
+import org.minimalj.example.helloworld2.GreetingApplication;
+import org.minimalj.example.library.MjExampleApplication;
+import org.minimalj.example.minimalclinic.MinimalClinicApplication;
+import org.minimalj.example.notes.NotesApplication;
+import org.minimalj.example.numbers.NumbersApplication;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.frontend.impl.web.WebServer.WebServerHttpExchange;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
-import org.minimalj.util.StringUtils;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -21,58 +28,55 @@ import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsServer;
 
 public class DemoWebServer {
+
+	private static final Map<String, Application> APPLICATIONS = Map.of(
+			"empty", new EmptyApplication(),
+			"notes", new NotesApplication(),
+			"helloWorld", new HelloWorldApplication(),
+			"greeting", new GreetingApplication(),
+			"numbers", new NumbersApplication(),
+			"library", new MjExampleApplication(),
+			// "petClinic", new PetClinicApplication(),
+			"minimalClinic", new MinimalClinicApplication());
+
 	private static final Logger LOG = Logger.getLogger(DemoWebServer.class.getName());
 
-	private static ExamplesApplication application;
+	public static class MultiApplicationWebServerHttpExchange extends WebServerHttpExchange {
 
-	private static class WebServerHttpExchange extends WebServer.WebServerHttpExchange {
-		private String path;
-
-		private WebServerHttpExchange(HttpExchange exchange) {
+		private final int applicationContextLength;
+		
+		protected MultiApplicationWebServerHttpExchange(HttpExchange exchange, int applicationContextLength) {
 			super(exchange);
+			this.applicationContextLength = applicationContextLength;
 		}
 
 		@Override
 		public String getPath() {
-			return path;
-		}
-
-		public void setPath(String path) {
-			this.path = path;
+			return super.getPath().substring(applicationContextLength);
 		}
 	}
 
 	private static void handle(HttpExchange exchange) {
 		try {
 			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().getFirst(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
-			WebServerHttpExchange mjHttpExchange = new WebServerHttpExchange(exchange);
-
-			URI uri = exchange.getRequestURI();
-			String path = uri.getPath();
-			if (path.length() < 2) {
-				mjHttpExchange.sendResponse(400, path + " invalid", "text/plain");
+			String path = exchange.getRequestURI().getPath();
+			int applicationContextLength = path.indexOf('/', 1);
+			String applicationContext = path.substring(1, applicationContextLength);
+			Application currentApplication = APPLICATIONS.get(applicationContext);
+			MjHttpExchange mjHttpExchange = new MultiApplicationWebServerHttpExchange(exchange, applicationContextLength);
+			if (currentApplication == null) {
+				mjHttpExchange.sendNotfound();
 				return;
 			}
-			int applicationNameEnd = path.indexOf('/', 1);
-			if (applicationNameEnd < 0) {
-				mjHttpExchange.sendResponse(400, path + " invalid", "text/plain");
-				return;
-			}
-
-			String applicationName = path.substring(1, applicationNameEnd);
-			application.setCurrentApplication(applicationName);
-
-			String uriWithoutApplicationName = path.substring(applicationNameEnd);
-			mjHttpExchange.setPath(uriWithoutApplicationName);
-
+			ThreadLocalApplication.INSTANCE.setCurrentApplication(currentApplication);
 			WebApplication.handle(mjHttpExchange);
 		} finally {
-			LocaleContext.setLocale(null);
+			LocaleContext.resetLocale();
 		}
 	}
 
 	private static void start(boolean secure) {
-		int port = getPort(secure);
+		int port = WebServer.getPort(secure);
 		if (port > 0) {
 			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web frontend on port " + port + (secure ? " (Secure)" : ""));
 			try {
@@ -87,27 +91,22 @@ public class DemoWebServer {
 		}
 	}
 
-	private static int getPort(boolean secure) {
-		String portString = Configuration.get("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
-		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1;
-	}
-
 	public static void start() {
+		if (WebServer.useWebSocket) {
+			System.err.println("WebSockets are not supported in JDK Server. Please use MinimalTow or NanoHttp ext - projects for WebSockets.");
+			System.exit(-1);
+		}
+
 		Frontend.setInstance(new JsonFrontend());
 
 		start(!WebServer.SECURE);
 		start(WebServer.SECURE);
 	}
 
-	public static void start(ExamplesApplication application) {
-		DemoWebServer.application = application;
-
-		Application.setInstance(application);
-		start();
-	}
-
+	
 	public static void main(String... args) {
-		Application.initApplication(args);
+		ThreadLocalApplication.INSTANCE.setApplications(APPLICATIONS.values());
+		Application.setInstance(ThreadLocalApplication.INSTANCE);
 		start();
 	}
 

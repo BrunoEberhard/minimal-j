@@ -11,7 +11,6 @@ import javax.servlet.ServletRegistration;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.application.ThreadLocalApplication;
 
 @javax.servlet.annotation.HandlesTypes(Application.class)
 public class MjServletInitializer implements javax.servlet.ServletContainerInitializer {
@@ -21,7 +20,6 @@ public class MjServletInitializer implements javax.servlet.ServletContainerIniti
 		copyInitParametersToConfiguration(servletContext);
 		
 		if (!hasMjServletRegistration(servletContext) && !Configuration.get("MjServletInitializer", "true").equals("false")) {
-			applicationClasses.remove(ThreadLocalApplication.class);
 			applicationClasses = applicationClasses.stream().filter(c -> !Modifier.isAbstract(c.getModifiers())).collect(Collectors.toSet());
 			if (applicationClasses.size() == 0) {
 				throw new IllegalStateException("No application found");

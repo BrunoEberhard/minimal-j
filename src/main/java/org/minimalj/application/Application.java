@@ -19,6 +19,7 @@
 package org.minimalj.application;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,23 +82,7 @@ public abstract class Application implements Model {
 		}		
 		Application.instance = application;
 	}
-	
-	/**
-	 * In tests it may be needed to have more than one instance of an application.
-	 * Warning: Use with care. Works only if Frontend and Backend are in the same JVM!
-	 * 
-	 * @param application the application for current thread and all its children
-	 */
-	@SuppressWarnings("unused")
-	public static void setThreadInstance(Application application) {
-		if (instance == null) {
-			instance = new ThreadLocalApplication();
-		} else if (!(instance instanceof ThreadLocalApplication)) {
-			throw new IllegalStateException();
-		}
-		((ThreadLocalApplication) instance).setCurrentApplication(application);
-	}
-	
+		
 	/**
 	 * This is just a shortcut for creating the application from jvm arguments.
 	 * Most frontend main classes use this method
@@ -121,8 +106,8 @@ public abstract class Application implements Model {
 		}
 		Object application;
 		try {
-			application = applicationClass.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+			application = applicationClass.getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new IllegalArgumentException("Could not instantiate Application class: " + applicationClassName, e);
 		}
 		

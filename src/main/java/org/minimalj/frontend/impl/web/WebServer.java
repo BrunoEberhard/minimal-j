@@ -133,7 +133,7 @@ public class WebServer {
 		}
 	}
 
-	private static int getPort(boolean secure) {
+	public static int getPort(boolean secure) {
 		String portString = Configuration.get("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
 		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1;
 	}

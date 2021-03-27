@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.page.Page;
@@ -27,6 +28,7 @@ import org.minimalj.frontend.test.TestApplication.TestPage;
 import org.minimalj.test.TestUtil;
 import org.minimalj.util.resources.Resources;
 
+@Ignore("TODO: not really a JUnit test. Add a main method.")
 public class SwingAuthenticationTest {
 
 	@After
