@@ -68,7 +68,7 @@ public class Configuration {
 			@SuppressWarnings("unchecked")
 			Class<? extends T> configuredClass = (Class<? extends T>) Class.forName(className);
 			if (parameters == null || parameters.length == 0) {
-				return configuredClass.newInstance();
+				return configuredClass.getConstructor().newInstance();
 			} else {
 				CONSTRUCTOR: for (Constructor<?> constructor : configuredClass.getConstructors()) {
 					if (constructor.getParameterCount() != parameters.length) {
@@ -80,7 +80,9 @@ public class Configuration {
 							continue CONSTRUCTOR;
 						}
 					}
-					return (T) constructor.newInstance(parameters);
+					@SuppressWarnings("unchecked")
+					T result = (T) constructor.newInstance(parameters);
+					return result;
 				}
 				throw new NoSuchMethodException();
 			}
