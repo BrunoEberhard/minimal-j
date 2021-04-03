@@ -63,9 +63,17 @@ dialog {
 	right: 0em;
 }
 
+dialog.fullscreen {
+	padding: 0.5em;
+}
+
 .dialogContent {
 	padding: 0.8em;
 	box-sizing: border-box;
+}
+
+dialog.fullscreen .dialogContent {
+	padding: 0em;
 }
 
 .dialogHeader {
@@ -75,10 +83,6 @@ dialog {
 }
 
 @media (max-width: 991px) {
-	.dialogHeader {
-		line-height: unset;
-	}
-
 	.dialogFooter {
 		height: fit-content;
 	}
