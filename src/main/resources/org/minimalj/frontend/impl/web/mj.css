@@ -176,6 +176,10 @@ body {
 	overflow: auto;
 }
 
+.pageContent.contentQuery {
+	padding-right: 1em;
+}
+
 iframe.pageContent {
 	height: 100%;
 	padding: 0;

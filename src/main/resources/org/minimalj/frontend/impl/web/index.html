@@ -342,7 +342,8 @@ $ICON
 				var contentElement = createContent(page.content);
 				pageContentAndActionsElement.appendChild(contentElement);
 			}
-			contentElement.classList.add("pageContent")
+			contentElement.classList.add("pageContent");
+			contentElement.classList.add("content" + page.content.type);
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
@@ -1569,9 +1570,9 @@ $ICON
 	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
 			</svg>		
 		</span>
-		<div id="query">
-			<div id="queryCaption" style="text-align: center; margin-top: 17em"></div>
-			<div style="text-align: center; margin-top: 1em; margin-bottom: 8em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:600px; max-width: 600px; height: 2em;"></div>
+		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: center">
+			<div id="queryCaption" style="text-align: center;"></div>
+			<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
 		</div>
 	</div>
 
