@@ -490,8 +490,6 @@ label {
 	.page:last-child > .pageContentAndActions { top: 0em; height: 100%;}
 	.pageHeader { display: none; }
 	.actionMenu { min-width: 13em;}
-	.pageButton { display: none; }
 	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 	table.form, table.form input, table.form select { margin: 0px; }
-	.dialogFooter button { font-size : inherit; }
 }
