@@ -4,15 +4,18 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.model.annotation.Autocomplete.Autocompletable;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-public class JsonTextField extends JsonInputComponent<String> implements Input<String> {
+public class JsonTextField extends JsonInputComponent<String> implements Input<String>, Autocompletable {
 
 	public static final String MAX_LENGTH = "maxLength";
 	public static final String INPUT_TYPE = "inputType";
 	private static final String ALLOWED_CHARACTERS = "allowedCharacters";
 	private static final String SUGGESTIONS = "suggestions";
 	private static final String TEXT_SEARCH = "textSearch";
+	private static final String AUTOCOMPLETE = "autocomplete";
 	
 	private final Search<String> suggestions;
 	
@@ -58,5 +61,14 @@ public class JsonTextField extends JsonInputComponent<String> implements Input<S
 	@Override
 	public String getValue() {
 		return (String) get(VALUE);
+	}
+	
+	@Override
+	public void setAutocomplete(String autocomplete) {
+		if (!StringUtils.isEmpty(autocomplete)) {
+			put(AUTOCOMPLETE, autocomplete);
+		} else {
+			remove(AUTOCOMPLETE);
+		}
 	}
 }
