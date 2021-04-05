@@ -625,6 +625,9 @@ $ICON
 			if (content.value) {
 				element.value = content.value;
 			}
+			if (content.autocomplete) {
+				element.autocomplete = content.autocomplete;
+			}
 			if (content.suggestions) {
 				element.setAttribute("autocomplete", "off");
 				element.setAttribute("list", content.id + "-list");
@@ -1569,9 +1572,11 @@ $ICON
 	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
 			</svg>		
 		</span>
-		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: center">
+		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
+			<div style="flex-grow: 2;"></div>
 			<div id="queryCaption" style="text-align: center;"></div>
 			<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
+			<div style="flex-grow: 3;"></div>
 		</div>
 	</div>
 
