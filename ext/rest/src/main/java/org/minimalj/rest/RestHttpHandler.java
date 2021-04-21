@@ -69,7 +69,7 @@ public class RestHttpHandler implements MjHttpHandler {
 		if (pathElements.length > 0 && !StringUtils.isEmpty(pathElements[0]) && !Character.isLowerCase(pathElements[0].charAt(0))) {
 			clazz = classByName.get(pathElements[0]);
 			if (clazz == null) {
-				exchange.sendResponse(HttpsURLConnection.HTTP_NOT_FOUND, "Class " + clazz.getName() + " not found", "text/html");
+				exchange.sendResponse(HttpsURLConnection.HTTP_NOT_FOUND, "Class " + pathElements[0] + " not found", "text/html");
 				return;
 			}
 		}
