@@ -32,6 +32,16 @@ public interface Rendering {
 		return null;
 	}
 	
+	public interface Coloring {
+		
+		public enum ColorName {
+			RED, GREEN, BLUE, YELLOW;
+		}
+		
+		public ColorName getColor();
+	}
+	
+
 	// helper methods (framework internal)
 
 	public static String toString(CharSequence c) {

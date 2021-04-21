@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.json;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,6 +12,8 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.Coloring;
+import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
@@ -72,7 +75,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 
 		visibleRows = Math.min(objects.size(), Math.max(visibleRows, PAGE_SIZE));
-		List<List<String>> tableContent = createTableContent(objects.subList(0, visibleRows));
+		List<List> tableContent = createTableContent(objects.subList(0, visibleRows));
 
 		List<String> selectedRows = new ArrayList<>();
 		List<T> newSelectedObjects = new ArrayList<>();
@@ -125,7 +128,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return result;
 	}
 
-	public List<List<String>> extendContent() {
+	@SuppressWarnings("rawtypes")
+	public List<List> extendContent() {
 		int newVisibleRows = Math.min(objects.size(), visibleRows + PAGE_SIZE);
 		List<T> newVisibleObjects = objects.subList(visibleRows, newVisibleRows);
 		visibleRows = newVisibleRows;
@@ -136,19 +140,31 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return visibleRows < objects.size();
 	}
 
-	private List<List<String>> createTableContent(List<T> objects) {
-		List<List<String>> tableContent = new ArrayList<>();
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private List<List> createTableContent(List<T> objects) {
+		List<List> tableContent = new ArrayList<>();
 		for (T object : objects) {
-			List<String> rowContent = new ArrayList<>();
+			List rowContent = new ArrayList();
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
 				String stringValue = Rendering.toString(value, property);
-				rowContent.add(stringValue);
+				ColorName color = value instanceof Coloring ? ((Coloring) value).getColor() : null;
+				if (color == null) {
+					rowContent.add(stringValue);
+				} else {
+					rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+				}
 			}
 			tableContent.add(rowContent);
 		}
 		return tableContent;
 	}
+	
+//	private String toString(Color color) {
+//		return "#" + StringUtils.padLeft(Integer.toHexString(color.getRed()), 2, '0') + 
+//				StringUtils.padLeft(Integer.toHexString(color.getGreen()), 2, '0') + 
+//				StringUtils.padLeft(Integer.toHexString(color.getBlue()), 2, '0');
+//	}
 	
 	public void action(int row) {
 		T object = objects.get(row);
