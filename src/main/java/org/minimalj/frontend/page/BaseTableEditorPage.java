@@ -39,6 +39,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	}
 	
 	protected T save(T object) {
+		// TODO only with ID
 		return Backend.save(object);
 	}
 	
@@ -177,6 +178,11 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 		}
 
 		@Override
+		protected Object[] getNameArguments() {
+			return BaseTableEditorPage.this.getNameArguments();
+		}
+		
+		@Override
 		protected T createObject() {
 			return IdUtils.hasId(getClazz()) ? CloneHelper.clone(selection) : selection;
 		}
@@ -195,6 +201,11 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	
 	public class TableNewObjectEditor extends AbstractTableEditor {
 
+		@Override
+		protected Object[] getNameArguments() {
+			return BaseTableEditorPage.this.getNameArguments();
+		}
+		
 		@Override
 		protected Form<T> createForm() {
 			return BaseTableEditorPage.this.createForm(Form.EDITABLE, true);
