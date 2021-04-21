@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -10,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +38,8 @@ import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.Coloring;
+import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
@@ -288,10 +292,32 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				int column) {
 			
 			PropertyInterface property = properties.get(column);
+
+			Color color = null;
+			if (value instanceof Coloring) {
+				ColorName colorName = ((Coloring) value).getColor();
+				if (colorName != null) {
+					color = getColor(colorName);
+				}
+			}
+			if (!Objects.equals(getForeground(), color)) {
+				setForeground(color);
+			}
+
 			value = Rendering.toString(value, property);
 
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
+	}
+	
+	private static Color getColor(ColorName colorName) {
+		switch (colorName) {
+		case RED: return Color.RED;
+		case YELLOW: return Color.YELLOW;
+		case GREEN: return Color.GREEN;
+		case BLUE: return Color.BLUE;
+		}
+		return null;
 	}
 
 	@Override
