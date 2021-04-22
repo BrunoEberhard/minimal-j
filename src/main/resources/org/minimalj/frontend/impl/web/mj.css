@@ -340,6 +340,10 @@ table tr:nth-child(odd).selected {
     overflow: hidden;
 }
 
+th .form {
+	font-weight: normal;
+}
+
 .dropdownButton {
 	position: absolute;
 	right: 0px;
