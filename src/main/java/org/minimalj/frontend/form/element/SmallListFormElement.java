@@ -94,7 +94,7 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 		}
 
 		@Override
-		protected Form<T> createForm() {
+		protected Form<T> createForm(boolean newObject) {
 			return SmallListFormElement.this.createForm();
 		}
 
