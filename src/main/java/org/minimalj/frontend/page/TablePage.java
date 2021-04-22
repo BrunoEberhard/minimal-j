@@ -152,6 +152,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		
 		@Override
 		public void selectionChanged(List<U> selectedObjects) {
+			this.selectedObjects = selectedObjects;
 			setEnabled(!selectedObjects.isEmpty());
 		}
 	}
