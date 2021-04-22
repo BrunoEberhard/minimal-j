@@ -627,9 +627,10 @@ $ICON
 			}
 			if (content.autocomplete) {
 				element.autocomplete = content.autocomplete;
+			} else {
+				element.autocomplete = "off";
 			}
 			if (content.suggestions) {
-				element.setAttribute("autocomplete", "off");
 				element.setAttribute("list", content.id + "-list");
 				element.setAttribute("onkeydown", "clearSuggestions(this);");
 				element.setAttribute("onkeyup", "loadSuggestions(this);");
