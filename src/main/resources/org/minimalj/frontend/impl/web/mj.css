@@ -9,6 +9,10 @@ body {
 	height: 100%;
 }
 
+::selection {
+	background: rgba(0,0,0,.05);
+}
+
 /* header with search */
 
 #header {

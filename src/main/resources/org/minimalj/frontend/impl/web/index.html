@@ -344,6 +344,8 @@ $ICON
 			}
 			contentElement.classList.add("pageContent");
 			contentElement.classList.add("content" + page.content.type);
+			
+			headerElement.ondblclick = function(e) { selectAll(contentElement); }
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
@@ -375,6 +377,13 @@ $ICON
 		for (var i = pageContainerElement.childNodes.length - 1; i >= start; i--) {
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
+	}
+	
+	function selectAll(element) {
+		var range = document.createRange(); 
+		range.selectNodeContents(element);
+		window.getSelection().removeAllRanges();
+		window.getSelection().addRange(range);
 	}
 	
 	function updatePageButtons() {
@@ -1150,8 +1159,6 @@ $ICON
 			"tableSelection": tableAction
 		};
 		send(data, false);
-	
-		event.preventDefault();
 	}
 	
 	function tableAction(event) {
