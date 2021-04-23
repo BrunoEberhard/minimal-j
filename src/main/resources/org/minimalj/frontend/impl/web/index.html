@@ -1486,7 +1486,7 @@ $ICON
 <meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
 </head>
 <body onload="init();" id="body">
-	<div id="header">
+	<div id="header" class="hidden-print">
 		<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
               <g style="stroke-width:0px"> 		
   				<title>Show or hide navigation</title>
@@ -1541,7 +1541,7 @@ $ICON
 		</div>			
 	</div>
 	<div id="container">
-		<div id="navigationContainer" style="display: none;">
+		<div id="navigationContainer" style="display: none;" class="hidden-print">
 			<div id="navigationHeader" class="secondHeader">
 				<svg class="pageButton button secondHeaderButtons" onclick="toggleNavigation()">
 				  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
@@ -1557,7 +1557,7 @@ $ICON
 	</div>
 
 	<div id="templates" style="display: none">
-		<div id="pageHeaderButtons" class="secondHeaderButtons">
+		<div id="pageHeaderButtons" class="secondHeaderButtons hidden-print">
 			<svg style="stroke-width:0px" class="actionMenuButton pageButton button" onclick="togglePageActionMenu(evt);">
 				<rect x="73%" y="13%" width="20%" height="17%"/>
 				<rect x="73%" y="46%" width="20%" height="17%"/>

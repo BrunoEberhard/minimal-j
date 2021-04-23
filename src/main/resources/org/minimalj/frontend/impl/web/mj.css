@@ -481,13 +481,13 @@ label {
 	visibility: hidden;
 }
 
-@media (min-width: 992px) {
+@media screen (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
 	#actionMenuButton { display: none; }
 }
 
-@media (max-width: 991px) {
+@media screen (max-width: 991px) {
 	#search { display: none; }
 	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; border-right: 1px rgb(160,160,160) solid;}
 	#navigationHeader { display: none; }
@@ -501,4 +501,10 @@ label {
 	.actionMenu { min-width: 13em;}
 	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 	table.form, table.form input, table.form select { margin: 0px; }
+}
+
+@media print {
+  .hidden-print {
+    display: none !important;
+  }
 }
