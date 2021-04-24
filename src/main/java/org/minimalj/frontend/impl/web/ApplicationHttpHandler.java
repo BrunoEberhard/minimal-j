@@ -65,6 +65,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		exchange.addHeader("Content-Security-Policy", "frame-ancestors 'none'");
 		exchange.addHeader("X-Frame-Options", "DENY");
 		exchange.addHeader("X-Content-Type-Options", "nosniff");
+		exchange.addHeader("Strict-Transport-Security", "max-age=63072000");
 		exchange.sendResponse(200, html, "text/html;charset=UTF-8");
 	}
 
