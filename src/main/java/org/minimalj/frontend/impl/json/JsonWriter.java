@@ -70,12 +70,14 @@ public class JsonWriter {
 			add("null");
 		} else {
 			calls.push(object);
-			if (object instanceof Boolean)
-				bool((Boolean) object);
-			else if (object instanceof Number || object instanceof Temporal)
-				add(object);
-			else if (object instanceof String || object instanceof Character)
+			if (object instanceof String || object instanceof Character)
 				string(object);
+			else if (object instanceof Number)
+				add(object);
+			else if (object instanceof Boolean)
+				bool((Boolean) object);
+			else if (object instanceof Temporal)
+				string(object.toString());
 			else if (object instanceof Map)
 				map((Map) object);
 			else if (object.getClass().isArray())
