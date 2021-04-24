@@ -374,6 +374,7 @@ th .form {
 
 .dropdown {
 	position: fixed;
+	width: -moz-fit-content;
 	width: fit-content;
 	border: black solid 1px;
 	background: white;
