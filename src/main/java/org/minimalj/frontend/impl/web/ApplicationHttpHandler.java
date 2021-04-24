@@ -64,7 +64,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
 		exchange.addHeader("Content-Security-Policy", "frame-ancestors 'none'");
 		exchange.addHeader("X-Frame-Options", "DENY");
-		exchange.addHeader("Strict-Transport-Security", "max-age=63072000");
+		exchange.addHeader("X-Content-Type-Options", "nosniff");
 		exchange.sendResponse(200, html, "text/html;charset=UTF-8");
 	}
 
