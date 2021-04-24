@@ -22,6 +22,7 @@ import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -235,6 +236,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
 		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
 		result = result.replace("$TITLE", Application.getInstance().getName());
+		result = result.replace("$LANG", LocaleContext.getCurrent().getLanguage());
 		result = result.replace("$META", getMeta());
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$PATH", path);
