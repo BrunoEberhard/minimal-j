@@ -259,9 +259,9 @@ public class Resources {
 	private static Map<String, String> mimeTypeByPostfix = new HashMap<>();
 
 	static {
-		mimeTypeByPostfix.put("html", "text/html");
-		mimeTypeByPostfix.put("css", "text/css");
-		mimeTypeByPostfix.put("js", "application/javascript");
+		mimeTypeByPostfix.put("html", "text/html;charset=UTF-8");
+		mimeTypeByPostfix.put("css", "text/css;charset=UTF-8");
+		mimeTypeByPostfix.put("js", "application/javascript;charset=UTF-8");
 		mimeTypeByPostfix.put("jpg", "image/jpg");
 		mimeTypeByPostfix.put("png", "image/png");
 	}
