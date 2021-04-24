@@ -115,38 +115,33 @@ public class WebServer {
 		
 		@Override
 		public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
-			try {
-				String protocol = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
-				if (StringUtils.isEmpty(protocol)) {
-					protocol = exchange.getProtocol();
-				}
-				boolean redirect = !protocol.toUpperCase().contains("HTTPS");
-				if (redirect) {
-					if (exchange.getRequestHeaders().containsKey("host")) {
-						String host = exchange.getRequestHeaders().getFirst("host");
-						if (!StringUtils.isEmpty(host)) {
-							int index = host.indexOf(":");
-							if (index > 0) {
-								host = host.substring(0, index - 1);
-							}
-							exchange.getResponseHeaders().add("Location", "https://" + host + exchange.getRequestURI().getPath());
-							exchange.sendResponseHeaders(301, 0);
-							return;
-						} else {
-							LOG.warning("Could not redirect because host header is empty");
-							exchange.sendResponseHeaders(400, 0);
-							return;
+			String protocol = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
+			if (StringUtils.isEmpty(protocol)) {
+				protocol = exchange.getProtocol();
+			}
+			boolean redirect = !protocol.toUpperCase().contains("HTTPS");
+			if (redirect) {
+				if (exchange.getRequestHeaders().containsKey("host")) {
+					String host = exchange.getRequestHeaders().getFirst("host");
+					if (!StringUtils.isEmpty(host)) {
+						int index = host.indexOf(":");
+						if (index > 0) {
+							host = host.substring(0, index - 1);
 						}
+						LOG.info("Redirect to https");
+						exchange.getResponseHeaders().add("Location", "https://" + host + exchange.getRequestURI().getPath());
+						exchange.sendResponseHeaders(301, -1);
+						return;
 					} else {
-						LOG.warning("Could not redirect because missing host header");
-						exchange.sendResponseHeaders(400, 0);
+						LOG.warning("Could not redirect because host header is empty");
+						exchange.sendResponseHeaders(400, -1);
 						return;
 					}
+				} else {
+					LOG.warning("Could not redirect because missing host header");
+					exchange.sendResponseHeaders(400, -1);
+					return;
 				}
-			} catch (Exception x) {
-				LOG.warning("HttpsRedirectFilter failed: " + x.getMessage());
-				exchange.sendResponseHeaders(500, 0);
-				return;
 			}
 			chain.doFilter(exchange);
 		}
