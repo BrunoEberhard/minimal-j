@@ -34,6 +34,7 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 			if (mimeType != null) {
 				byte[] bytes = getResource(path);
 				if (bytes != null) {
+					exchange.addHeader("Cache-Control", "public, max-age=86400");
 					exchange.sendResponse(200, bytes, mimeType);
 				}
 			}
