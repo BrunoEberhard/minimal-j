@@ -62,6 +62,8 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 	public static void handleTemplate(MjHttpExchange exchange, String path) {
 		String htmlTemplate = JsonFrontend.getHtmlTemplate();
 		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
+		exchange.addHeader("frame-ancestors", "frame-ancestors 'none'");
+		exchange.addHeader("frame-X-Frame-Options", "DENY");
 		exchange.sendResponse(200, html, "text/html;charset=UTF-8");
 	}
 
