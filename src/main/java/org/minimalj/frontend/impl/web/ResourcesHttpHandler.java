@@ -34,7 +34,7 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 			if (mimeType != null) {
 				byte[] bytes = getResource(path);
 				if (bytes != null) {
-					exchange.sendResponse(200, bytes, mimeType + ";charset=UTF-8");
+					exchange.sendResponse(200, bytes, mimeType);
 				}
 			}
 		}
