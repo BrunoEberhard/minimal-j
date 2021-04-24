@@ -115,23 +115,27 @@ public class WebServer {
 		
 		@Override
 		public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
- 			String protocol = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
+			String protocol = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
 			if (StringUtils.isEmpty(protocol)) {
 				protocol = exchange.getProtocol();
 			}
-		    boolean redirect = !protocol.toUpperCase().contains("HTTPS");
-		    if (redirect) {
-		    	String uri = exchange.getRequestURI().toString();
-		    	if (uri.startsWith("http://")) {
-			        uri = "https://" + uri.substring(7);
-			        exchange.getResponseHeaders().add("Location", uri);
+			boolean redirect = !protocol.toUpperCase().contains("HTTPS");
+			if (redirect) {
+				String host = exchange.getRequestHeaders().getFirst("host");
+				if (!StringUtils.isEmpty(host)) {
+					int index = host.indexOf(":");
+					if (index > 0) {
+						host = host.substring(0, index - 1);
+					}
+					exchange.getResponseHeaders().add("Location", "https://" + host + exchange.getRequestURI().getPath());
 					exchange.sendResponseHeaders(301, 0);
 					return;
-		    	} else {
-		    		LOG.warning("Could not redirect: " + uri);
-		    	}
-		    }
-		    chain.doFilter(exchange);
+				} else {
+					LOG.warning("Could not redirect: " + exchange.getRequestURI());
+					exchange.sendResponseHeaders(400, 0);
+				}
+			}
+			chain.doFilter(exchange);
 		}
 
 		@Override
