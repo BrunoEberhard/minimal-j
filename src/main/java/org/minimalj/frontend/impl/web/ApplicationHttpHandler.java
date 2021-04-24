@@ -46,7 +46,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
 			// I think the correct mime-type would have beean application/json
 			// but chrome does report a problem if the type is not "text/xml"
-			exchange.sendResponse(200, response, "text/xml");
+			exchange.sendResponse(200, response, "text/xml;charset=UTF-8");
 			break;
 		case "/":
 			handleTemplate(exchange, path);
@@ -62,7 +62,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 	public static void handleTemplate(MjHttpExchange exchange, String path) {
 		String htmlTemplate = JsonFrontend.getHtmlTemplate();
 		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
-		exchange.sendResponse(200, html, "text/html");
+		exchange.sendResponse(200, html, "text/html;charset=UTF-8");
 	}
 
 }

@@ -90,7 +90,7 @@ public class WebServer {
 
 		@Override
 		public void sendResponse(int statusCode, String response, String contentType) {
-			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
+			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType);
 		}
 
 		@Override
