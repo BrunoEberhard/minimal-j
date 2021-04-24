@@ -30,6 +30,8 @@ public class WebServer {
 
 	public static final boolean SECURE = true;
 
+	public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
+	
 	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
 	private static HttpServer server;
@@ -108,6 +110,29 @@ public class WebServer {
 			LocaleContext.resetLocale();
 		}
 	}
+	
+	private static class HttpsRedirectFilter extends com.sun.net.httpserver.Filter {
+		
+		@Override
+		public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
+			String uri = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
+			if (StringUtils.isEmpty(uri)) {
+				uri = exchange.getRequestURI().toString();
+			}
+		    boolean redirect = uri.startsWith("http://");
+		    if (redirect) {
+		        uri = "https://" + uri.substring(7);
+		        exchange.getResponseHeaders().add("Location", uri);
+				exchange.sendResponseHeaders(301, 0);
+		    }
+		    chain.doFilter(exchange);
+		}
+
+		@Override
+		public String description() {
+			return "Redirects non https requests";
+		}
+	}
 
 	private static void start(boolean secure) {
 		int port = getPort(secure);
@@ -117,6 +142,9 @@ public class WebServer {
 				InetSocketAddress addr = new InetSocketAddress(port);
 				server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
 				HttpContext context = server.createContext("/");
+				if (!Configuration.isDevModeActive()) {
+					context.getFilters().add(new HttpsRedirectFilter());
+				}
 				context.setHandler(WebServer::handle);
 				server.start();
 			} catch (IOException e) {
