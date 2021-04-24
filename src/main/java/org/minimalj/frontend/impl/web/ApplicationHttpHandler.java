@@ -44,7 +44,9 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		switch (path) {
 		case "/ajax_request.xml":
 			String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
-			exchange.sendResponse(200, response, "application/json");
+			// I think the correct mime-type would have beean application/json
+			// but chrome does report a problem if the type is not "text/xml"
+			exchange.sendResponse(200, response, "text/xml");
 			break;
 		case "/":
 			handleTemplate(exchange, path);
