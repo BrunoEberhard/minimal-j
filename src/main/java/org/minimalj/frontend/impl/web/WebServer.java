@@ -133,6 +133,7 @@ public class WebServer {
 				} else {
 					LOG.warning("Could not redirect: " + exchange.getRequestURI());
 					exchange.sendResponseHeaders(400, 0);
+					return;
 				}
 			}
 			chain.doFilter(exchange);
