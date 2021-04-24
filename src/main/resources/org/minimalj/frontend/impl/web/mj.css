@@ -314,7 +314,12 @@ table tr:nth-child(odd).selected {
 	// overflow: hidden;
 }
 
-.form input, .form select, .form textarea, .form .lookup, dialog .form .text, dialog .form label, dialog .form div.list, dialog .form .title {
+.form input {
+	width: 100%;
+}
+
+// TODO use flex gap as soon as safari supports it
+dialog .form input, .form select, .form textarea, .form .lookup, dialog .form .text, dialog .form label, dialog .form div.list, dialog .form .title {
 	width: calc(100% - 18px);
 	margin-left: 9px;
 	margin-right: 9px;
