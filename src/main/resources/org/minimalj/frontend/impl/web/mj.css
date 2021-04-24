@@ -486,13 +486,13 @@ label {
 	visibility: hidden;
 }
 
-@media screen (min-width: 992px) {
+@media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
 	#actionMenuButton { display: none; }
 }
 
-@media screen (max-width: 991px) {
+@media screen and (max-width: 991px) {
 	#search { display: none; }
 	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; border-right: 1px rgb(160,160,160) solid;}
 	#navigationHeader { display: none; }
