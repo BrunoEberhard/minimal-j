@@ -112,38 +112,41 @@ public class WebServer {
 	}
 	
 	private static class HttpsRedirectFilter extends com.sun.net.httpserver.Filter {
-		
+
 		@Override
 		public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
-			String protocol = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
-			if (StringUtils.isEmpty(protocol)) {
-				protocol = exchange.getProtocol();
+			if (!isHttps(exchange.getProtocol())) {
+				redirect(exchange);
+			} else {
+				chain.doFilter(exchange);
 			}
-			boolean redirect = !protocol.toUpperCase().contains("HTTPS");
-			if (redirect) {
-				if (exchange.getRequestHeaders().containsKey("host")) {
-					String host = exchange.getRequestHeaders().getFirst("host");
-					if (!StringUtils.isEmpty(host)) {
-						int index = host.indexOf(":");
-						if (index > 0) {
-							host = host.substring(0, index - 1);
-						}
-						LOG.info("Redirect to https");
-						exchange.getResponseHeaders().add("Location", "https://" + host + exchange.getRequestURI().getPath());
-						exchange.sendResponseHeaders(301, -1);
-						return;
-					} else {
-						LOG.warning("Could not redirect because host header is empty");
-						exchange.sendResponseHeaders(400, -1);
-						return;
-					}
-				} else {
-					LOG.warning("Could not redirect because missing host header");
-					exchange.sendResponseHeaders(400, -1);
-					return;
+		}
+
+		protected void redirect(HttpExchange exchange) throws IOException {
+			String host = exchange.getRequestHeaders().getFirst("host");
+			if (!StringUtils.isEmpty(host)) {
+				int index = host.indexOf(":");
+				if (index > 0) {
+					host = host.substring(0, index);
 				}
+				exchange.getResponseHeaders().add("Location", "https://" + host + getPort() + exchange.getRequestURI().getPath());
+				exchange.sendResponseHeaders(301, -1);
+			} else {
+				exchange.sendResponseHeaders(400, -1);
 			}
-			chain.doFilter(exchange);
+		}
+		
+		protected String getPort() {
+			int port = WebServer.getPort(SECURE);
+			if (port != 443) {
+				return ":" + port;
+			} else {
+				return "";
+			}
+		}
+		
+		protected boolean isHttps(String s) {
+			return s.toUpperCase().contains("HTTPS");
 		}
 
 		@Override
@@ -151,6 +154,29 @@ public class WebServer {
 			return "Redirects non https requests";
 		}
 	}
+	
+	private static class FowardedHttpsRedirectFilter extends HttpsRedirectFilter {
+
+		@Override
+		public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
+			String forwardedProtocol = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
+			if (!StringUtils.isEmpty(forwardedProtocol) && !isHttps(forwardedProtocol)) {
+				redirect(exchange);
+			} else {
+				chain.doFilter(exchange);
+			}
+		}
+
+		protected String getPort() {
+			return "";
+		}
+		
+		@Override
+		public String description() {
+			return "Redirects a forwarded request that was not a https request";
+		}
+	}
+
 
 	private static void start(boolean secure) {
 		int port = getPort(secure);
@@ -160,8 +186,14 @@ public class WebServer {
 				InetSocketAddress addr = new InetSocketAddress(port);
 				server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
 				HttpContext context = server.createContext("/");
-				if (!Configuration.isDevModeActive()) {
-					context.getFilters().add(new HttpsRedirectFilter());
+				if (!secure) {
+					boolean secureAvailable = getPort(SECURE) > 0;
+					if (secureAvailable && Boolean.valueOf(Configuration.get("MjForceSsl", "true"))) {
+						context.getFilters().add(new HttpsRedirectFilter());
+					}
+					if (!secureAvailable && !Boolean.valueOf(Configuration.get("MjForceSsl", "false")) && !Configuration.isDevModeActive()) {
+						context.getFilters().add(new FowardedHttpsRedirectFilter());
+					}
 				}
 				context.setHandler(WebServer::handle);
 				server.start();
