@@ -68,18 +68,12 @@ dialog.fullscreen {
 }
 
 .dialogContent {
-	padding: 0.8em;
 	box-sizing: border-box;
-}
-
-dialog.fullscreen .dialogContent {
-	padding: 0em;
 }
 
 .dialogHeader {
 	border: none;
 	background: transparent;
-	padding: 0em;
 }
 
 @media (max-width: 991px) {
