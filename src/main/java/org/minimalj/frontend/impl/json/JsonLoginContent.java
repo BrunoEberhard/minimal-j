@@ -9,6 +9,7 @@ public class JsonLoginContent  extends JsonComponent implements IContent {
 		super("Login");
 		put("content", content);
 		
+		put("loginAction", JsonPageManager.createAction(loginAction));
 		put("actions", JsonPageManager.createActions(actions));
 	}
 }

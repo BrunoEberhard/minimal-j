@@ -992,20 +992,32 @@ $ICON
 		dialog.showModal();
 		updateDialogSizes();
 	}
-	
+
 	function addEnterAction(enterAction, form) {
-		if (enterAction) {
-			var inputs = form.getElementsByTagName("input");
-			var lastInput;
-			var i = inputs.length - 1;
-			do {
-				lastInput = inputs[i--];
-			} while (lastInput && i > 0 && !(lastInput.type == "text" || lastInput.type == "password"))
-			if (lastInput) {
-				lastInput.setAttribute("onkeyup", "if (event.keyCode == 13) { sendchange(this, \"" + enterAction.id + "\"); }");
+		var inputs = form.getElementsByTagName("input");
+		for (var i = 0; i < inputs.length; i++) {
+			inputs[i].onkeyup = function(event) {
+				if (event.keyCode === 13) focusNext(event, form, enterAction);
 			}
 		}
 	}
+	
+	function focusNext(event, form, enterAction) {
+		var inputs = form.querySelectorAll('input, select, textarea');
+		var i = 0;
+		while (inputs[i] != event.target && i < inputs.length - 1) {
+			i++;
+		}
+		var next = i + 1;
+		while (next < inputs.length - 1 && inputs[next].disabled) {
+			next++;
+		}
+		if (next < inputs.length) {
+			inputs[next].focus();			
+		} else if (enterAction != undefined && enterAction.enabled) {
+			action(enterAction.id);
+		}
+	}	
 	
 	function closeDialogButton(event) {
 		var dialog = event.target;
