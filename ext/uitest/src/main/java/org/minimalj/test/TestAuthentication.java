@@ -1,4 +1,4 @@
-package org.minimalj.frontend.test;
+package org.minimalj.test;
 
 import org.minimalj.security.UserPasswordAuthentication;
 import org.minimalj.security.model.User;

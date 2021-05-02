@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.swing;
+package org.minimalj.test.swing;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -17,11 +17,11 @@ import org.junit.Assert;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
-import org.minimalj.frontend.test.ApplicationTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.ActionTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.NavigationTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.html.ApplicationTestFacade;
+import org.minimalj.test.html.FrameTestFacade.ActionTestFacade;
+import org.minimalj.test.html.FrameTestFacade.NavigationTestFacade;
+import org.minimalj.test.html.FrameTestFacade.PageContainerTestFacade;
+import org.minimalj.test.html.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.util.resources.Resources;
 
 public class SwingTestFacade implements ApplicationTestFacade {

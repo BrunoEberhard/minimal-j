@@ -1,12 +1,12 @@
-package org.minimalj.frontend.impl.html;
+package org.minimalj.test.html;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.minimalj.application.Configuration;
-import org.minimalj.frontend.test.ApplicationTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.ApplicationTestFacade;
+import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
+import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.util.resources.Resources;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;

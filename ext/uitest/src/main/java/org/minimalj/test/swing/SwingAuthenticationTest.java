@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.swing;
+package org.minimalj.test.swing;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -17,15 +17,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.test.ApplicationTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.NavigationTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.PageTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.TextPageTestFacade;
-import org.minimalj.frontend.test.FrameTestFacade.UserPasswordLoginTestFacade;
-import org.minimalj.frontend.test.TestApplication;
-import org.minimalj.frontend.test.TestApplication.TestPage;
 import org.minimalj.test.TestUtil;
+import org.minimalj.test.html.ApplicationTestFacade;
+import org.minimalj.test.html.TestApplication;
+import org.minimalj.test.html.FrameTestFacade.NavigationTestFacade;
+import org.minimalj.test.html.FrameTestFacade.PageContainerTestFacade;
+import org.minimalj.test.html.FrameTestFacade.PageTestFacade;
+import org.minimalj.test.html.FrameTestFacade.TextPageTestFacade;
+import org.minimalj.test.html.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.html.TestApplication.TestPage;
 import org.minimalj.util.resources.Resources;
 
 @Ignore("TODO: not really a JUnit test. Add a main method.")

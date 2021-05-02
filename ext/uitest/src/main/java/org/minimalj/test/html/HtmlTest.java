@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.html;
+package org.minimalj.test.html;
 
 import org.junit.After;
 import org.junit.AfterClass;

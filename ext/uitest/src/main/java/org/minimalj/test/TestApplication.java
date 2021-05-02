@@ -1,4 +1,4 @@
-package org.minimalj.frontend.test;
+package org.minimalj.test;
 
 import java.util.ArrayList;
 import java.util.List;

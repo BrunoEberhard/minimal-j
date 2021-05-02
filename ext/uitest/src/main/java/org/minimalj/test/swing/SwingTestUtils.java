@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.swing;
+package org.minimalj.test.swing;
 
 import java.awt.Component;
 import java.awt.Container;
