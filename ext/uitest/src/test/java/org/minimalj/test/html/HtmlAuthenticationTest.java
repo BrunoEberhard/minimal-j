@@ -1,9 +1,10 @@
 package org.minimalj.test.html;
 
 import org.junit.Test;
-import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.test.ApplicationTestFacade;
+import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
 import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.TestApplication;
 
@@ -11,7 +12,7 @@ public class HtmlAuthenticationTest extends HtmlTest {
 
 	@Test
 	public void testAuthenticatonModeRequired() {
-		Application.setInstance(new TestApplication(AuthenticatonMode.REQUIRED));
+		WebServer.start(new TestApplication(AuthenticatonMode.REQUIRED));
 
 		ApplicationTestFacade application = new HtmlTestFacade(getDriver());
 
@@ -22,10 +23,10 @@ public class HtmlAuthenticationTest extends HtmlTest {
 
 		userPasswordLogin.login();
 
-//		PageContainerTestFacade pageContainer = application.getCurrentWindowTestFacade();
+		PageContainerTestFacade pageContainer = application.getCurrentWindowTestFacade();
 //		Assert.assertEquals("test", pageContainer.getSubject().getName());
 
-//		
+		
 //		textShouldBeDisplayed("TestPage");
 //		textShouldBeDisplayed("Subject: test");
 //		textShouldBeDisplayed("Action with login");
