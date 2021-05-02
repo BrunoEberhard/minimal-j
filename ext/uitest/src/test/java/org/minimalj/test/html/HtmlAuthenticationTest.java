@@ -1,6 +1,5 @@
 package org.minimalj.test.html;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
@@ -8,7 +7,6 @@ import org.minimalj.test.ApplicationTestFacade;
 import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.TestApplication;
 
-@Ignore("TODO: not really a JUnit test. Add a main method.")
 public class HtmlAuthenticationTest extends HtmlTest {
 
 	@Test

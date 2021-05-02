@@ -14,14 +14,18 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.junit.Assert;
+import org.minimalj.frontend.impl.swing.NavigationTree;
+import org.minimalj.frontend.impl.swing.SwingFrame;
+import org.minimalj.frontend.impl.swing.SwingTab;
+import org.minimalj.frontend.impl.swing.SwingToolBar;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
-import org.minimalj.test.html.ApplicationTestFacade;
-import org.minimalj.test.html.FrameTestFacade.ActionTestFacade;
-import org.minimalj.test.html.FrameTestFacade.NavigationTestFacade;
-import org.minimalj.test.html.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.test.html.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.ApplicationTestFacade;
+import org.minimalj.test.FrameTestFacade.ActionTestFacade;
+import org.minimalj.test.FrameTestFacade.NavigationTestFacade;
+import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
+import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.util.resources.Resources;
 
 public class SwingTestFacade implements ApplicationTestFacade {
