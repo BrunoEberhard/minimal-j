@@ -137,9 +137,9 @@ label {
 	appearance: none;
 }
 
-.form input[disabled] {
-	border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+.form input[disabled], .form textarea[disabled] {
 	color: #bbb;
+	border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
 }
 
 .form .groupItem:first-child .lookup .text {
