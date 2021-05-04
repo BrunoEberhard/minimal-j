@@ -72,7 +72,7 @@ public class Form<T> {
 	private final FormChangeListener formChangeListener = new FormChangeListener();
 	
 	private ChangeListener<Form<?>> changeListener;
-	private boolean changeFromOutsite;
+	private boolean changeFromOutside;
 
 	private final Map<String, List<PropertyInterface>> dependencies = new HashMap<>();
 	@SuppressWarnings("rawtypes")
@@ -313,14 +313,14 @@ public class Form<T> {
 	}
 	
 	public final void mock() {
-		changeFromOutsite = true;
+		changeFromOutside = true;
 		try {
 			fillWithDemoData(object);
 		} catch (Exception x) {
 			logger.log(Level.SEVERE, "Fill with demo data failed", x);
 		} finally {
 			readValueFromObject();
-			changeFromOutsite = false;
+			changeFromOutside = false;
 		}
 	}
 
@@ -362,10 +362,10 @@ public class Form<T> {
 
 	public void setObject(T object) {
 		if (editable && changeListener == null) throw new IllegalStateException("Listener has to be set on a editable Form");
-		changeFromOutsite = true;
+		changeFromOutside = true;
 		this.object = object;
 		readValueFromObject();
-		changeFromOutsite = false;
+		changeFromOutside = false;
 	}
 
 	private void readValueFromObject() {
@@ -389,7 +389,7 @@ public class Form<T> {
 
 		@Override
 		public void changed(FormElement<?> changedField) {
-			if (changeFromOutsite) return;
+			if (changeFromOutside) return;
 			if (changeListener == null) {
 				if (editable) logger.severe("Editable Form must have a listener");
 				return;
