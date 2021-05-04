@@ -427,6 +427,7 @@ public class Form<T> {
 						if (formElementPath.equals(dependedPath) || formElementPath.startsWith(dependedPath) && formElementPath.charAt(dependedPath.length()) == '.') {
 							Object newDependedValue = formElement.getProperty().getValue(object);
 							formElement.setValue(newDependedValue);
+							changed(formElement);
 						}
 					}
 				}
