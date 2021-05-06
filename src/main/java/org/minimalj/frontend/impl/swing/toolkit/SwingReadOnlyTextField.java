@@ -17,7 +17,7 @@ public class SwingReadOnlyTextField extends JLabel implements Input<String> {
 	public void updateUI() {
 		super.updateUI();
 		setBackground(UIManager.getColor("TextField.background"));
-		setBorder(BorderFactory.createLineBorder(UIManager.getColor("TextField.shadow"), 1));
+		setBorder(BorderFactory.createEmptyBorder());
 		setOpaque(true);
 	}
 
