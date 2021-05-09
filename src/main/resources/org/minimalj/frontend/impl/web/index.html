@@ -346,6 +346,11 @@ $ICON
 			contentElement.classList.add("content" + page.content.type);
 			
 			headerElement.ondblclick = function(e) { selectAll(contentElement); }
+			// :not([type='hidden']) is not supported on old browsers but there shoul be no hidden input anyway
+			var inputs = contentElement.querySelectorAll("input, textarea, select");
+			if (inputs.length > 0) {
+				inputs[0].focus();
+			}
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
