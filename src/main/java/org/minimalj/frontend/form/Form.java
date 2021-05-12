@@ -407,7 +407,7 @@ public class Form<T> {
 			property.setValue(object, newValue);
 			
 			// propagate all possible changed values to the form elements
-			refreshDependendFields(property);
+			updateDependingFormElements(property);
 			
 			// update enable/disable fields
 			updateEnable();
@@ -417,20 +417,28 @@ public class Form<T> {
 
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		private void refreshDependendFields(PropertyInterface property) {
+		private void updateDependingFormElements(PropertyInterface property) {
+			boolean updated = false;
 			if (dependencies.containsKey(property.getPath())) {
-				List<PropertyInterface> dependendProperties = dependencies.get(property.getPath());
-				for (PropertyInterface dependendProperty : dependendProperties) {
+				List<PropertyInterface> dependingProperties = dependencies.get(property.getPath());
+				for (PropertyInterface dependingProperty : dependingProperties) {
 					for (FormElement formElement : elements.values()) {
-						String formElementPath = formElement.getProperty().getPath();
-						String dependedPath = dependendProperty.getPath();
-						if (formElementPath.equals(dependedPath) || formElementPath.startsWith(dependedPath) && formElementPath.charAt(dependedPath.length()) == '.') {
-							Object newDependedValue = formElement.getProperty().getValue(object);
+						PropertyInterface formElementProperty = formElement.getProperty();
+						String formElementPath = formElementProperty.getPath();
+						String dependingPropertyPath = dependingProperty.getPath();
+						if (formElementPath.equals(dependingPropertyPath) || formElementPath.startsWith(dependingPropertyPath) && formElementPath.charAt(dependingPropertyPath.length()) == '.') {
+							Object newDependedValue = formElementProperty.getValue(object);
 							formElement.setValue(newDependedValue);
-							changed(formElement);
+
+							executeUpdater(formElementProperty, formElement.getValue());
+							updateDependingFormElements(formElementProperty);
+							updated = true;
 						}
 					}
 				}
+			}
+			if (updated) {
+				updateEnable();
 			}
 		}
 
