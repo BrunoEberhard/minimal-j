@@ -167,7 +167,7 @@ $ICON
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
 							element.checked = value ? "checked" : "";
 						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
-							element.innerHTML = escapeText(value);
+							element.innerHTML = value != null ? escapeText(value) : "";
 						} else if (property === "value" && element.tagName === "IMG") {
 							element.style.display = value ? "block" : "none";
 							element.src = "data:image;base64, " + value;
@@ -175,7 +175,7 @@ $ICON
 							if (property === "value" && element.tagName === "INPUT" && element.type === "password") {
 								value = value.join("");
 							}
-							if (document.activeElement != element || element.id != dataObject.source) {
+							if (document.activeElement != element || element.id != dataObject.source || element.changeOnFocus) {
 								// a date (formatted input) should not change while user is entering more characters
 								element[property] = value;
 							} else {
@@ -651,6 +651,7 @@ $ICON
 				element.setAttribute("onfocus", "loadSuggestions(this);");
 				element.setAttribute("onblur", "clearSuggestions(this);");
 			}
+			element.changeOnFocus = content.changeOnFocus;
 		} else if (type === "AreaField") {
 			element = document.createElement("textarea");
 			element.setAttribute("onkeyup", "sendchange(this);");
