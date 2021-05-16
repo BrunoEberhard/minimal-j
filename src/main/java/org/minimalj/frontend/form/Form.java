@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
+import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
@@ -254,13 +256,17 @@ public class Form<T> {
 	}
 
 	private void addDependecy(PropertyInterface fromProperty, PropertyInterface to) {
-		if (!dependencies.containsKey(fromProperty.getPath())) {
-			dependencies.put(fromProperty.getPath(), new ArrayList<>());
+		addDependecy(fromProperty.getPath(), to);
+	}
+
+	private void addDependecy(String fromPropertyPath, PropertyInterface to) {
+		if (!dependencies.containsKey(fromPropertyPath)) {
+			dependencies.put(fromPropertyPath, new ArrayList<>());
 		}
-		List<PropertyInterface> list = dependencies.get(fromProperty.getPath());
+		List<PropertyInterface> list = dependencies.get(fromPropertyPath);
 		list.add(to);
 	}
-	
+
 	/**
 	 * Declares that if the key or property <i>from</i> changes the specified
 	 * updater should be called and after its return the <i>to</i> key or property
@@ -284,6 +290,7 @@ public class Form<T> {
 		addDependecy(from, to);
 	}
 
+	@FunctionalInterface
 	public interface PropertyUpdater<FROM, TO, EDIT_OBJECT> {
 		
 		/**
@@ -306,9 +313,18 @@ public class Form<T> {
 	}
 
 	private void addDependencies(FormElement<?> field) {
-		List<PropertyInterface> dependencies = Keys.getDependencies(field.getProperty());
+		PropertyInterface property = field.getProperty();
+		List<PropertyInterface> dependencies = Keys.getDependencies(property);
 		for (PropertyInterface dependency : dependencies) {
 			addDependecy(dependency, field.getProperty());
+		}
+		
+		// a.b.c
+		String path = property.getPath();
+		while (path.contains(".")) {
+			int pos = path.lastIndexOf('.');
+			addDependecy(path.substring(0, pos), property);
+			path = path.substring(0, pos);
 		}
 	}
 	
@@ -400,55 +416,64 @@ public class Form<T> {
 			PropertyInterface property = changedField.getProperty();
 			Object newValue = changedField.getValue();
 
-			// Call updaters before set the new value  (so they also can read the old value)
-			executeUpdater(property, newValue);
+			HashSet<PropertyInterface> changedProperties = new HashSet<>();
 			
-			// now set the new value. method - properties can use it as base
-			property.setValue(object, newValue);
+			setValue(property, newValue, changedProperties);
 			
-			// propagate all possible changed values to the form elements
-			updateDependingFormElements(property);
-			
-			// update enable/disable fields
-			updateEnable();
-			
-			changeListener.changed(Form.this);
+			if (!changedProperties.isEmpty()) {
+				// propagate all possible changed values to the form elements
+				updateDependingFormElements(changedProperties);
+
+				// update enable/disable status of the form elements
+				updateEnable();
+				
+				changeListener.changed(Form.this);
+			}
 		}
 
-
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		private void updateDependingFormElements(PropertyInterface property) {
-			boolean updated = false;
-			if (dependencies.containsKey(property.getPath())) {
-				List<PropertyInterface> dependingProperties = dependencies.get(property.getPath());
-				for (PropertyInterface dependingProperty : dependingProperties) {
-					for (FormElement formElement : elements.values()) {
-						PropertyInterface formElementProperty = formElement.getProperty();
-						String formElementPath = formElementProperty.getPath();
-						String dependingPropertyPath = dependingProperty.getPath();
-						if (formElementPath.equals(dependingPropertyPath) || formElementPath.startsWith(dependingPropertyPath) && formElementPath.charAt(dependingPropertyPath.length()) == '.') {
-							Object newDependedValue = formElementProperty.getValue(object);
-							formElement.setValue(newDependedValue);
-
-							executeUpdater(formElementProperty, formElement.getValue());
-							updateDependingFormElements(formElementProperty);
-							updated = true;
-						}
+		private void updateDependingFormElements(HashSet<PropertyInterface> changedProperties) {
+			for (PropertyInterface changedProperty : changedProperties) {
+				for (FormElement formElement : elements.values()) {
+					PropertyInterface formElementProperty = formElement.getProperty();
+					String formElementPath = formElementProperty.getPath();
+					String changedPropertyPath = changedProperty.getPath();
+					if (formElementPath.equals(changedPropertyPath) || formElementPath.startsWith(changedPropertyPath) && formElementPath.charAt(changedPropertyPath.length()) == '.') {
+						Object newValue = formElementProperty.getValue(object);
+						formElement.setValue(newValue);
 					}
 				}
-			}
-			if (updated) {
-				updateEnable();
 			}
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private void executeUpdater(PropertyInterface property, Object value) {
+		private void executeUpdater(PropertyInterface property, Object updaterInput, Object clonedObject, HashSet<PropertyInterface> changedProperties) {
 			if (propertyUpdater.containsKey(property)) {
 				Map<PropertyInterface, PropertyUpdater> updaters = propertyUpdater.get(property);
 				for (Map.Entry<PropertyInterface, PropertyUpdater> entry : updaters.entrySet()) {
-					Object ret = entry.getValue().update(value, CloneHelper.clone(object));
-					entry.getKey().setValue(object, ret);
+					Object updaterOutput = entry.getValue().update(updaterInput, clonedObject);
+					setValue(entry.getKey(), updaterOutput, changedProperties);
+				}
+			}
+		}
+
+		private void setValue(PropertyInterface property, Object newValue, HashSet<PropertyInterface> changedProperties) {
+			Object oldToValue = property.getValue(object);
+			if (!EqualsHelper.equals(oldToValue, newValue)) {
+				Object clonedObject = CloneHelper.clone(object);
+				property.setValue(object, newValue);
+				executeUpdater(property, newValue, clonedObject, changedProperties);
+				addChangedPropertyRecurive(property, changedProperties);
+			}
+		}
+		
+		private void addChangedPropertyRecurive(PropertyInterface property, HashSet<PropertyInterface> changedProperties) {
+			if (!changedProperties.contains(property)) {
+				changedProperties.add(property);
+				if (dependencies.containsKey(property.getName())) {
+					for (PropertyInterface dependingProperty : dependencies.get(property.getName())) {
+						addChangedPropertyRecurive(dependingProperty, changedProperties);
+					}
 				}
 			}
 		}
