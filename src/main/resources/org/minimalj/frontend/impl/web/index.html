@@ -835,7 +835,7 @@ $ICON
 	}
 	
 	function setWidths(cellElement, cellContent, span, width) {
-		cellElement.style.width = (width * span / 6) + "em";
+		cellElement.style.width = (width * span / 6 + (span - 1)) + "em";
 		cellElement.style.flexShrink = span;
 		cellElement.style.flexGrow = span;
 	
