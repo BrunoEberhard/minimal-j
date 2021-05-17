@@ -1500,7 +1500,7 @@ $ICON
 </head>
 <body onload="init();" id="body">
 	<div id="header" class="hidden-print">
-		<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
+		<svg id="navigationToggle" class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
               <g style="stroke-width:0px"> 		
   				<title>Show or hide navigation</title>
 				<rect x="0" y="5%" width="100%" height="0.25em"/>
@@ -1556,7 +1556,7 @@ $ICON
 	<div id="container">
 		<div id="navigationContainer" style="display: none;" class="hidden-print">
 			<div id="navigationHeader" class="secondHeader">
-				<svg class="pageButton button secondHeaderButtons" onclick="toggleNavigation()">
+				<svg id="closeNavigation" class="pageButton button secondHeaderButtons" onclick="toggleNavigation()">
 				  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 				</svg>

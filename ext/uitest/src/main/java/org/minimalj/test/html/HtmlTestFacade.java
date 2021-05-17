@@ -89,8 +89,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		
 		@Override
 		public NavigationTestFacade getNavigation() {
-			// TODO Auto-generated method stub
-			return null;
+			return new HtmlNavigationTestFacade();
 		}
 
 		@Override
@@ -109,6 +108,24 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			return new FowardTestFacade();
 		}
 	
+		private class HtmlNavigationTestFacade implements NavigationTestFacade {
+
+			@Override
+			public Runnable get(String text) {
+				WebElement divNavigation = driver.findElement(By.id("navigation"));
+				WebElement item = divNavigation.findElement(By.xpath("//*[text()='" + text + "']"));
+				return () -> {
+					if (!divNavigation.isDisplayed()) {
+						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
+						navigationToggle.click();
+					}
+					item.click();
+					waitBlock();
+				};
+			}
+			
+		}
+		
 		private class BackTestFacade implements ActionTestFacade {
 			@Override
 			public void run() {
@@ -139,10 +156,8 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 	
 	@Override
 	public PageContainerTestFacade getCurrentWindowTestFacade() {
-		// TODO Auto-generated method stub
-		return null;
+		return new HtmlPageContainerTestFacade();
 	}
-	
 
 	//
 	

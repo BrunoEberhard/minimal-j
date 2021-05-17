@@ -44,7 +44,7 @@ public interface FrameTestFacade {
 
 	public interface NavigationTestFacade {
 
-		public Runnable get(String resourceName);
+		public Runnable get(String text);
 
 	}
 
