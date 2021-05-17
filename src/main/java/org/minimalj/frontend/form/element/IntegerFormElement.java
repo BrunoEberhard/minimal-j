@@ -6,6 +6,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 
 
@@ -21,7 +22,7 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 
 	@Override
 	public Integer parse(String text) {
-		if (text != null) {
+		if (!StringUtils.isEmpty(text)) {
 			try {
 				int value = Integer.parseInt(text);
 				if (value < 0 && !this.signed) {
