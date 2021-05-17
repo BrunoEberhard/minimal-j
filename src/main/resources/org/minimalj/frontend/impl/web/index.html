@@ -1244,13 +1244,8 @@ $ICON
 	
 	function querySearch() {
 		var searchElement = document.getElementById("querySearch");
-		var search = searchElement.value;
-		if (search && search.length > 0) {
-			var data = {
-				"search": search
-			};
-			send(data, true);
-		}
+		var data = { "search": searchElement.value };
+		send(data, true);
 	}
 	
 	function searchButtonAction() {
