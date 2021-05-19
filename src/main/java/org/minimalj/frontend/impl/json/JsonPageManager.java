@@ -539,12 +539,15 @@ public class JsonPageManager implements PageManager {
 	}
 
 	public void replaceContent(JsonSwitch jsonSwitch, JsonComponent content) {
-		if (JsonFrontend.getClientSession() != null) {
-			replaceContent(output, jsonSwitch, content);
-		} else {
-			JsonOutput output = new JsonOutput();
-			replaceContent(output, jsonSwitch, content);
-			push.push(output.toString());
+		boolean switchIsRegistred = componentById.containsKey(jsonSwitch.getId());
+		if (switchIsRegistred) {
+			if (JsonFrontend.getClientSession() != null) {
+				replaceContent(output, jsonSwitch, content);
+			} else {
+				JsonOutput output = new JsonOutput();
+				replaceContent(output, jsonSwitch, content);
+				push.push(output.toString());
+			}
 		}
 	}
 
