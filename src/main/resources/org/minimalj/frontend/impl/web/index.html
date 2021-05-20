@@ -916,13 +916,16 @@ $ICON
 					li.appendChild(document.createTextNode(item.name));
 					li.appendChild(createMenu(item.items));
 				} else if (item.id) {
-					li.id = item.id;
-					li.classList.add("action");
-					li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id + "\");");
-					li.appendChild(document.createTextNode(item.name));
+					var a = document.createElement("a");
+					a.setAttribute("onclick", "action(\"" + item.id + "\"); return false;");
+					a.setAttribute("href", ".");
 					if (!item.enabled) {
-						li.setAttribute("disabled", "true");
+						a.setAttribute("disabled", "true");
 					}
+					a.id = item.id;
+					a.classList.add("action");
+					a.appendChild(document.createTextNode(item.name));
+					li.appendChild(a);
 				}
 			} else {
 				li.appendChild(document.createElement("hr"));
