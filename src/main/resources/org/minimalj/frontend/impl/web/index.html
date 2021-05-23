@@ -1008,7 +1008,7 @@ $ICON
 	function addEnterAction(enterAction, form) {
 		var inputs = form.getElementsByTagName("input");
 		for (var i = 0; i < inputs.length; i++) {
-			inputs[i].onkeyup = function(event) {
+			inputs[i].onkeydown = function(event) {
 				if (event.keyCode === 13) focusNext(event, form, enterAction);
 			}
 		}
