@@ -34,6 +34,7 @@ $ICON
 	var blockStyle = document.createElement('style');
 	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
 	var blockCount = 0;
+	var pendingRequests = 0;
 	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
@@ -875,6 +876,8 @@ $ICON
 		}
 		element.setAttribute("onmousedown", "tableSelection(event);");
 		element.setAttribute("ondblclick", "tableAction(event);");
+		element.setAttribute("tabindex", "0");
+		element.setAttribute("onkeydown", "tableKeyHandler(event);");
 		return element;
 	}
 	
@@ -1136,8 +1139,19 @@ $ICON
 	var lastSelectedTable;
 	var lastSelectedRow;
 	
+	function tableKeyHandler(event) {
+		if (event.keyCode == 13) {
+			var rowElement = event.target;
+			if (rowElement.classList.contains("selected")) {
+				tableAction(event);
+			} else {
+				tableSelection(event);
+			}
+		}
+	}
+	
 	function tableSelection(event) {
-		var rowElement = event.target.parentElement;
+		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
 		var tbodyElement = rowElement.parentElement;
 		var tableElement = tbodyElement.parentElement;
 	
@@ -1183,7 +1197,7 @@ $ICON
 	}
 	
 	function tableAction(event) {
-		var rowElement = event.target.parentElement;
+		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
 		var tbodyElement = rowElement.parentElement;
 		var tableElement = tbodyElement.parentElement;
 		
@@ -1299,9 +1313,11 @@ $ICON
 		xmlhttp.open("POST", "ajax_request.xml", true);
 	
 		if (block) blockUi();
+		pendingRequests++;
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
 				unblockUi();
+				pendingRequests--;
 				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
@@ -1325,6 +1341,7 @@ $ICON
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
+				pendingRequests--;
 				unblockUi();
 				onMessage(evt.data)
 			};
@@ -1333,6 +1350,7 @@ $ICON
 			}
 		} else {
 			if (block) blockUi();
+			pendingRequests++;
 			websocket.send(JSON.stringify(data));
 		}
 	}
