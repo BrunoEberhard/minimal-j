@@ -30,7 +30,6 @@ public abstract class HtmlTest {
 	
 	@After
 	public void shutdown() {
-		driver.close();
 		TestUtil.shutdown();
 	}
 	
@@ -38,5 +37,5 @@ public abstract class HtmlTest {
 	public static void afterClass() {
 		driver.quit();
 	}
-	
+
 }

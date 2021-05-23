@@ -23,8 +23,12 @@ import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
 import org.minimalj.test.ApplicationTestFacade;
 import org.minimalj.test.FrameTestFacade.ActionTestFacade;
+import org.minimalj.test.FrameTestFacade.DialogTestFacade;
+import org.minimalj.test.FrameTestFacade.FormTestFacade;
 import org.minimalj.test.FrameTestFacade.NavigationTestFacade;
 import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
+import org.minimalj.test.FrameTestFacade.PageTestFacade;
+import org.minimalj.test.FrameTestFacade.TableTestFacade;
 import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.util.resources.Resources;
 
@@ -138,13 +142,22 @@ public class SwingTestFacade implements ApplicationTestFacade {
 				}
 				if (content instanceof SwingHtmlContent) {
 					SwingHtmlContent htmlContent = (SwingHtmlContent) content;
-					pages.add(new TextPageTestFacade(title, htmlContent.getText()));
+//					pages.add(new TextPageTestFacade(title, htmlContent.getText()));
+					pages.add(new SwingPageTestFacade(title, htmlContent));
 				}
 			}
 			
 			return pages;
 		}
 
+		@Override
+		public DialogTestFacade getDialog() {
+			Optional<SwingDialog> dialog = Arrays.stream(JFrame.getWindows()).
+					filter(SwingDialog.class::isInstance).map(SwingDialog.class::cast).
+					filter(d -> d.getOwnedWindows().length == 0).findFirst();
+			
+			return dialog.isPresent() ? new SwingDialogTestFacade(dialog.get()) : null;
+		}
 		
 		@Override
 		public ActionTestFacade getBack() {
@@ -155,6 +168,26 @@ public class SwingTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public ActionTestFacade getForward() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+
+	private static class SwingDialogTestFacade implements DialogTestFacade {
+		private final SwingDialog swingDialog;
+		
+		public SwingDialogTestFacade(SwingDialog swingDialog) {
+			this.swingDialog = swingDialog;
+		}
+
+		@Override
+		public FormTestFacade getForm() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public ActionTestFacade getAction(String caption) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -198,5 +231,53 @@ public class SwingTestFacade implements ApplicationTestFacade {
 		}
 	}
 
+	private static class SwingPageTestFacade implements PageTestFacade {
+		private final String title;
+		private final Component content;
+		
+		public SwingPageTestFacade(String title, Component content) {
+			super();
+			this.title = title;
+			this.content = content;
+		}
+
+		@Override
+		public String getTitle() {
+			return title;
+		}
+
+		@Override
+		public NavigationTestFacade getContextMenu() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void executeQuery(String query) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public TableTestFacade getTable() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public FormTestFacade getForm() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean contains(String string) {
+			if (content instanceof SwingHtmlContent) {
+				SwingHtmlContent htmlContent = (SwingHtmlContent) content;
+				return htmlContent.getText().contains(string);
+			}
+			return false;
+		}
+	}
 
 }

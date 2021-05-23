@@ -24,7 +24,6 @@ import org.minimalj.test.ApplicationTestFacade;
 import org.minimalj.test.FrameTestFacade.NavigationTestFacade;
 import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
 import org.minimalj.test.FrameTestFacade.PageTestFacade;
-import org.minimalj.test.FrameTestFacade.TextPageTestFacade;
 import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.TestApplication;
 import org.minimalj.test.TestApplication.TestPage;
@@ -54,12 +53,11 @@ public class SwingAuthenticationTest {
 		PageContainerTestFacade pageContainer = application.getCurrentWindowTestFacade();
 		
 		NavigationTestFacade navigation = pageContainer.getNavigation();
-		System.out.println(navigation.get("ActionWithLogin"));
 		
 		List<PageTestFacade> pages = pageContainer.getPages();
 		Assert.assertEquals(1, pages.size());
 		
-		TextPageTestFacade textPage = (TextPageTestFacade) pages.get(0);
+		PageTestFacade textPage = pages.get(0);
 		Assert.assertTrue(textPage.contains("Subject: test"));
 		
 		
