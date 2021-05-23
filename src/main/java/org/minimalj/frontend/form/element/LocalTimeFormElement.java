@@ -56,9 +56,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	
 	@Override
 	public String render(LocalTime value) {
-		if (InvalidValues.isInvalid(value)) {
-			return typed ? InvalidValues.getInvalidValue(value) : null;
-		} else if (value != null) {
+		if (value != null) {
 			return formatter.format(value);
 		} else {
 			return null;

@@ -3,7 +3,6 @@ package org.minimalj.frontend.form.element;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.validation.InvalidValues;
 
 
 public abstract class NumberFormElement<T> extends FormatFormElement<T> {
@@ -25,15 +24,7 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 
 	@Override
 	public String render(T number) {
-		String string = null;
-		if (number != null) {
-			if (InvalidValues.isInvalid(number)) {
-				string = InvalidValues.getInvalidValue(number);
-			} else {
-				string = number.toString();
-			}
-		}
-		return string;
+		return number != null ? number.toString() : null;
 	}
 	
 	@Override

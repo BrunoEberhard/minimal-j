@@ -81,16 +81,26 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		return parse(textField.getValue());
 	}
 
+	/**
+	 * @param text input by the user
+	 * @return the parsed value. Or if text cannot be parsed a invalid value.
+	 * @see InvalidValues
+	 */
 	protected abstract T parse(String text);
 	
 	@Override
 	public final void setValue(T value) {
-		String newString = render(value);
+		String newString = InvalidValues.isInvalid(value) ? InvalidValues.getInvalidValue(value) : render(value);
 		if (!StringUtils.equals(newString, textField.getValue())) {
 			textField.setValue(newString);
 		}
 	}
 
+	/**
+	 * @param value valid or null but not invalid (already checked in setValue() )
+	 * @return the formatted value
+	 * @see #setValue(Object)
+	 */
 	protected abstract String render(T value);
 	
 	private class TextFormatFieldChangeListener implements InputComponentListener {
