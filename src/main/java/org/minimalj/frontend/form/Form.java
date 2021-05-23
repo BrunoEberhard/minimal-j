@@ -421,6 +421,9 @@ public class Form<T> {
 			setValue(property, newValue, changedProperties);
 			
 			if (!changedProperties.isEmpty()) {
+				// don't need to update the form where the change comes from
+				changedProperties.remove(property);
+				
 				// propagate all possible changed values to the form elements
 				updateDependingFormElements(changedProperties);
 
