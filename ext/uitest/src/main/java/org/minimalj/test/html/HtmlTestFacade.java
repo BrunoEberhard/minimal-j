@@ -30,21 +30,21 @@ import org.openqa.selenium.support.ui.Select;
 public class HtmlTestFacade implements ApplicationTestFacade {
 
 	private final RemoteWebDriver driver;
-	
+
 	static {
 		// https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium/?tabs=java
 		// https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
 		System.setProperty("webdriver.edge.driver", "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
 	}
-	
+
 	public HtmlTestFacade(RemoteWebDriver driver) {
 		this.driver = driver;
-		
+
 		String portString = Configuration.get("MjFrontendPort", "8080");
 		driver.get("http://localhost:" + portString);
 		waitScript();
 	}
-	
+
 	public void shutdown() {
 		driver.close();
 	}
@@ -52,10 +52,10 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 	@Override
 	public UserPasswordLoginTestFacade getLoginTestFacade() {
 		Assert.assertEquals(Resources.getString("Login.title"), driver.getTitle());
-		
+
 		return new HtmlLoginTestFacade();
 	}
-	
+
 	public class HtmlLoginTestFacade implements UserPasswordLoginTestFacade {
 
 		@Override
@@ -78,13 +78,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		@Override
 		public void cancel() {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void close() {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -96,12 +96,12 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		public void setPassword(String password) {
 			setText(driver.findElement(By.id("pageContainer")), Resources.getString("UserPassword.password"), password);
 		}
-		
+
 	}
 
 	private class HtmlPageContainerTestFacade implements PageContainerTestFacade {
 		private int forwards = 0;
-		
+
 		@Override
 		public NavigationTestFacade getNavigation() {
 			return new HtmlNavigationTestFacade();
@@ -116,7 +116,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			}
 			return pages;
 		}
-		
+
 		@Override
 		public DialogTestFacade getDialog() {
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
@@ -132,13 +132,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		public ActionTestFacade getForward() {
 			return new FowardTestFacade();
 		}
-	
+
 		private class HtmlNavigationTestFacade implements NavigationTestFacade {
 
 			@Override
 			public Runnable get(String text) {
 				WebElement divNavigation = driver.findElement(By.id("navigation"));
-				WebElement item = divNavigation.findElement(By.xpath(".//*[text()='" + text + "']"));
+				WebElement item = divNavigation.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
 				return () -> {
 					if (!divNavigation.isDisplayed()) {
 						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
@@ -148,44 +148,44 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 					waitScript();
 				};
 			}
-			
+
 		}
-		
+
 		private class BackTestFacade implements ActionTestFacade {
 			@Override
 			public void run() {
 				driver.navigate().back();
 				forwards++;
 			}
-			
+
 			@Override
 			public boolean isEnabled() {
 				return (boolean) driver.executeScript("return window.history.length > 0;");
 			}
 		}
-		
+
 		private class FowardTestFacade implements ActionTestFacade {
 			@Override
 			public void run() {
 				driver.navigate().forward();
 				forwards--;
 			}
-			
+
 			@Override
 			public boolean isEnabled() {
 				return forwards > 0;
 			}
 		}
-		
+
 	}
-	
+
 	private class HtmlPageTestFacade implements PageTestFacade {
 		private final WebElement divPage;
-		
+
 		public HtmlPageTestFacade(WebElement divPage) {
 			this.divPage = divPage;
 		}
-		
+
 		@Override
 		public void executeQuery(String query) {
 			try {
@@ -201,7 +201,8 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		@Override
 		public String getTitle() {
 			WebElement spanPageTitle = divPage.findElement(By.className("pageTitle"));
-			// spanPageTitle.getText() only works if title is visible (which it is not on small screens)
+			// spanPageTitle.getText() only works if title is visible (which it is not on
+			// small screens)
 			return spanPageTitle.getAttribute("textContent");
 		}
 
@@ -214,7 +215,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 				throw new IllegalStateException("Page is not a table page", e);
 			}
 		}
-		
+
 		@Override
 		public FormTestFacade getForm() {
 			WebElement form = divPage.findElement(By.className("form"));
@@ -226,14 +227,14 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			// TODO Auto-generated method stub
 			return false;
 		}
-		
+
 		@Override
 		public NavigationTestFacade getContextMenu() {
 			WebElement actionMenu = divPage.findElement(By.className("actionMenu"));
 			return new PageContextMenuTestFacade(divPage, actionMenu);
 		}
 	}
-	
+
 	private class PageContextMenuTestFacade implements NavigationTestFacade {
 		private final WebElement divPage;
 		private final WebElement actionMenu;
@@ -245,7 +246,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public Runnable get(String text) {
-			WebElement item = actionMenu.findElement(By.xpath(".//*[text()='" + text + "']"));
+			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
 			return () -> {
 				if (actionMenu.getCssValue("display").equals("none")) {
 					Actions actions = new Actions(driver);
@@ -256,34 +257,34 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			};
 		}
 	}
-	
+
 	private class HtmlDialogTestFacade implements DialogTestFacade {
 		private final WebElement dialog;
-		
+
 		public HtmlDialogTestFacade(WebElement dialog) {
 			this.dialog = dialog;
 		}
-		
+
 		@Override
 		public FormTestFacade getForm() {
 			WebElement form = dialog.findElement(By.className("form"));
 			return new HtmlFormTestFacade(form);
 		}
-		
+
 		@Override
 		public ActionTestFacade getAction(String caption) {
-			WebElement button = dialog.findElement(By.xpath(".//button[text()='" + caption + "']"));
+			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + HtmlTest.escapeXpath(caption) + "]"));
 			return new HtmlActionTestFacade(button);
 		}
 	}
 
 	private class HtmlActionTestFacade implements ActionTestFacade {
 		private final WebElement button;
-		
+
 		public HtmlActionTestFacade(WebElement button) {
 			this.button = button;
 		}
-		
+
 		@Override
 		public void run() {
 			button.click();
@@ -295,31 +296,30 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			return button.getAttribute("disabled") == null;
 		}
 	}
-	
-	
+
 	private class HtmlFormTestFacade implements FormTestFacade {
 		private final WebElement form;
-		
+
 		public HtmlFormTestFacade(WebElement form) {
 			this.form = form;
 		}
-		
+
 		@Override
 		public FormElementTestFacade getElement(String caption) {
-			WebElement label = form.findElement(By.xpath(".//label[text()='" + caption + "']"));
+			WebElement label = form.findElement(By.xpath(".//label[text()=" + HtmlTest.escapeXpath(caption) + "]"));
 			String id = label.getAttribute("for");
 			WebElement element = form.findElement(By.id(id));
 			return new HtmlFormElementTestFacade(element);
 		}
 	}
-	
+
 	private class HtmlFormElementTestFacade implements FormElementTestFacade {
 		private final WebElement formElement;
-		
+
 		public HtmlFormElementTestFacade(WebElement formElement) {
 			this.formElement = formElement;
 		}
-		
+
 		@Override
 		public String getText() {
 			if (formElement.getTagName().equalsIgnoreCase("select")) {
@@ -330,13 +330,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 				return formElement.getAttribute("value");
 			}
 		}
-		
+
 		@Override
 		public void setText(String value) {
 			HtmlTestFacade.this.setText(formElement, value);
 			waitScript();
 		}
-		
+
 		@Override
 		public String getValidation() {
 			String id = formElement.getAttribute("id");
@@ -348,7 +348,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 				return null;
 			}
 		}
-		
+
 		@Override
 		public SearchTableTestFacade lookup() {
 			WebElement lookupButton = formElement.findElement(By.className("lookupbutton"));
@@ -357,7 +357,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
 			return new HtmlSearchTableTestFacade(dialogs.get(dialogs.size() - 1));
 		}
-		
+
 		@Override
 		public String getLine(int line) {
 			WebElement divGroupVertical = formElement.findElement(By.className("groupVertical"));
@@ -365,7 +365,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			WebElement divText = divGroupItem.findElement(By.className("text"));
 			return divText.getText();
 		}
-		
+
 		@Override
 		public List<ActionTestFacade> getLineActions(int line) {
 			WebElement divGroupVertical = formElement.findElement(By.className("groupVertical"));
@@ -374,7 +374,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			List<WebElement> divActions = divDropdown.findElements(By.tagName("div"));
 			return divActions.stream().map(this::lineAction).collect(Collectors.toList());
 		}
-		
+
 		private ActionTestFacade lineAction(WebElement divAction) {
 			return new ActionTestFacade() {
 				@Override
@@ -382,12 +382,12 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 					driver.executeScript(divAction.getAttribute("onclick"));
 					waitScript();
 				}
-				
+
 				@Override
 				public boolean isEnabled() {
 					return true;
 				}
-				
+
 				@Override
 				public String toString() {
 					return divAction.getText();
@@ -395,10 +395,10 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			};
 		}
 	}
-	
+
 	private class HtmlTableTestFacade implements TableTestFacade {
 		protected final WebElement table;
-		
+
 		public HtmlTableTestFacade(WebElement table) {
 			this.table = table;
 		}
@@ -427,7 +427,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			return tr.findElements(By.tagName("td")).get(column).getText();
 		}
-		
+
 		@Override
 		public void activate(int row) {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
@@ -437,14 +437,14 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			waitScript();
 		}
 	}
-	
+
 	private class HtmlSearchTableTestFacade extends HtmlTableTestFacade implements SearchTableTestFacade {
-		
+
 		public HtmlSearchTableTestFacade(WebElement dialog) {
 			super(dialog);
 			Assert.assertEquals("SearchDialog", dialog.getAttribute("type"));
 		}
-		
+
 		public void search(String text) {
 			WebElement input = table.findElement(By.tagName("input"));
 			setText(input, text);
@@ -452,25 +452,25 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			button.click();
 			waitScript();
 		}
-		
+
 	}
-	
+
 	@Override
 	public PageContainerTestFacade getCurrentWindowTestFacade() {
 		return new HtmlPageContainerTestFacade();
 	}
 
 	//
-	
+
 	private void clickButton(String resourceName) {
 		String caption = Resources.getString(resourceName);
-		WebElement element = driver.findElement(By.xpath(".//button[text()='" + caption + "']"));
+		WebElement element = driver.findElement(By.xpath(".//button[text()=" + HtmlTest.escapeXpath(caption) + "]"));
 		driver.executeScript(element.getAttribute("onclick"));
 		waitScript();
 	}
 
 	private void setText(WebElement container, String caption, String text) {
-		WebElement label = container.findElement(By.xpath(".//label[text()='" + caption + "']"));
+		WebElement label = container.findElement(By.xpath(".//label[text()=" + HtmlTest.escapeXpath(caption) + "]"));
 		String id = label.getAttribute("for");
 		WebElement element = container.findElement(By.id(id));
 		setText(element, text);
@@ -494,7 +494,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 	public void waitScript() {
 		waitScript((JavascriptExecutor) driver);
 	}
-	
+
 	public static void waitScript(JavascriptExecutor driver) {
 		do {
 			try {
