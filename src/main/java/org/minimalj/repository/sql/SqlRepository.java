@@ -118,7 +118,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		
 		String databaseProductName = connection.getMetaData().getDatabaseProductName();
-		if (StringUtils.equals(databaseProductName, "MySQL")) {
+		if (StringUtils.equals(databaseProductName, "MySQL") || StringUtils.equals(databaseProductName, "MariaDB")) {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "PostgreSQL")) {
 			return new SqlDialect.PostgresqlDialect();
