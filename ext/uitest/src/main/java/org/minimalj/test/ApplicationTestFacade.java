@@ -6,6 +6,8 @@ import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
 public interface ApplicationTestFacade {
 
 	UserPasswordLoginTestFacade getLoginTestFacade();
+	
+	void logout();
 
 	PageContainerTestFacade getCurrentWindowTestFacade();
 

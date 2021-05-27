@@ -97,7 +97,11 @@ public class SwingTestFacade implements ApplicationTestFacade {
 		public void setPassword(String password) {
 			SwingTestUtils.setText(swingDialog, "UserPassword.password", password);
 		}
-
+	}
+	
+	@Override
+	public void logout() {
+		// TODO Auto-generated method stub
 	}
 
 	private static class SwingFrameTestFacade implements PageContainerTestFacade {

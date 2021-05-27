@@ -96,7 +96,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		public void setPassword(String password) {
 			setText(driver.findElement(By.id("pageContainer")), Resources.getString("UserPassword.password"), password);
 		}
-
+	}
+	
+	@Override
+	public void logout() {
+		WebElement element = driver.findElement(By.id("logout"));
+		driver.executeScript(element.getAttribute("onclick"));
+		waitScript();
 	}
 
 	private class HtmlPageContainerTestFacade implements PageContainerTestFacade {
