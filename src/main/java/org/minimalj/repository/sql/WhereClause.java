@@ -191,7 +191,7 @@ public class WhereClause<T> {
 			} else {
 				PropertyInterface subProperty = table.getColumns().get(column);
 				AbstractTable<?> subTable = table.sqlRepository.getAbstractTable(subProperty.getClazz());
-				return column + " = (SELECT id FROM " + subTable.getTableName() + " WHERE " + whereStatement(subTable, restOfFieldPath, criteriaString) + ")";
+				return column + " IN (SELECT id FROM " + subTable.getTableName() + " WHERE " + whereStatement(subTable, restOfFieldPath, criteriaString) + ")";
 			}
 		} else {
 			return column + " " + criteriaString;
