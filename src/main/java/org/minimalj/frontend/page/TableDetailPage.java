@@ -25,14 +25,18 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void action(T selectedObject) {
+		showDetail(selectedObject);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void showDetail(T object) {
 		if (detailPage instanceof ChangeableDetailPage) {
-			((ChangeableDetailPage<T>) detailPage).setObjects(Collections.singletonList(selectedObject));
+			((ChangeableDetailPage<T>) detailPage).setObjects(Collections.singletonList(object));
 			setDetailPage(detailPage);
 		} else {
-			Page newDetailPage = getDetailPage(selectedObject);
+			Page newDetailPage = getDetailPage(object);
 			setDetailPage(newDetailPage);
 		}
 	}
