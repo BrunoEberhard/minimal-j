@@ -485,6 +485,11 @@ label {
 	visibility: hidden;
 }
 
+.red { color: red; }
+.green { color: green; }
+.blue { color: blue; }
+.yellow { color: #c1aa1e; }
+
 @media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }

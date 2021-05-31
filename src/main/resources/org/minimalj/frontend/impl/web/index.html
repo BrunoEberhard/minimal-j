@@ -885,7 +885,7 @@ $ICON
 		var td = document.createElement("td");
 		if (cell.color) {
 			td.appendChild(document.createTextNode(cell.value));
-			td.style.color = cell.color;
+			td.classList.add(cell.color);
 		} else if (cell) {
 			td.appendChild(document.createTextNode(cell));
 		}
