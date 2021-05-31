@@ -12,7 +12,6 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.Coloring;
 import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.EqualsHelper;
@@ -148,7 +147,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
 				String stringValue = Rendering.toString(value, property);
-				ColorName color = value instanceof Coloring ? ((Coloring) value).getColor() : null;
+				ColorName color = Rendering.getColor(object, value);
 				if (color == null) {
 					rowContent.add(stringValue);
 				} else {

@@ -7,6 +7,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 
 import org.minimalj.frontend.impl.util.HtmlString;
+import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
@@ -106,6 +107,14 @@ public interface Rendering {
 	public static String toDescriptionString(Object o) {
 		CharSequence c = o instanceof Rendering ? ((Rendering) o).renderDescription() : null;
 		return toString(c);
+	}
+
+	public static ColorName getColor(Object object, Object fieldValue) {				
+		ColorName color = fieldValue instanceof Coloring ? ((Coloring) fieldValue).getColor() : null;
+		if (color == null && object instanceof Coloring) {
+			color = ((Coloring) object).getColor();
+		}
+		return color;
 	}
 
 }
