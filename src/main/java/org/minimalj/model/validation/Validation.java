@@ -1,7 +1,13 @@
 package org.minimalj.model.validation;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+
+import org.minimalj.model.Keys;
+import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public interface Validation {
 	public static final List<ValidationMessage> EMPTY_MESSAGE_LIST = Collections.emptyList();
@@ -23,6 +29,37 @@ public interface Validation {
 		ValidationMessage message = new ValidationMessage(key, formattedText);
 		return Collections.singletonList(message);
 	}
+	
+	/**
+	 * Helper method to indicate a field having an invalid value
+	 * 
+	 * @param key the constant you get from the $ constant (or property)
+	 * @return a ValidationMessage with formatted text
+	 */
+	public static ValidationMessage createInvalidValidationMessage(Object key) {
+		PropertyInterface property = Keys.getProperty(key);
+		String caption = Resources.getPropertyName(property);
+		return new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption));
+	}
+
+	/**
+	 * Helper method to indicate a mandatory field is empty
+	 * 
+	 * @param key the constant you get from the $ constant (or property)
+	 * @return a ValidationMessage with formatted text
+	 */
+	public static ValidationMessage createEmptyValidationMessage(Object key) {
+		PropertyInterface property = Keys.getProperty(key);
+		String caption = Resources.getPropertyName(property);
+		String message;
+		if (StringUtils.isEmpty(caption)) {
+			message = Resources.getString("EmptyValidator.messageNoCaption");
+		} else {
+			message = MessageFormat.format(Resources.getString("EmptyValidator.message"), caption);
+		}
+		return new ValidationMessage(property, message);
+	}
+
 	
 	/**
 	 * Helper method to avoid NPE because of validate() returning null.
