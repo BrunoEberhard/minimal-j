@@ -321,7 +321,7 @@ public class Form<T> {
 		
 		// a.b.c
 		String path = property.getPath();
-		while (path.contains(".")) {
+		while (path != null && path.contains(".")) {
 			int pos = path.lastIndexOf('.');
 			addDependecy(path.substring(0, pos), property);
 			path = path.substring(0, pos);
