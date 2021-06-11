@@ -81,7 +81,7 @@ public class JsonPageManager implements PageManager {
 		navigation = createNavigation();
 		register(navigation);
 		output.add("navigation", navigation);
-		output.add("hasSearchPages", Application.getInstance().hasSearchPages());
+		output.add("hasSearchPages", Application.getInstance().hasSearch());
 	}
 
 	public String handle(String inputString) {
@@ -227,9 +227,8 @@ public class JsonPageManager implements PageManager {
 		}
 
 		String search = (String) input.getObject("search");
-		if (search != null && Application.getInstance().hasSearchPages()) {
-			Page searchPage = Application.getInstance().createSearchPage(search);
-			show(searchPage);
+		if (search != null && Application.getInstance().hasSearch()) {
+			Application.getInstance().search(search);
 		}
 
 		String loadSuggestions = (String) input.getObject("loadSuggestions");

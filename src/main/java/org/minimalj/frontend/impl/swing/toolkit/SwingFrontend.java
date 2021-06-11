@@ -51,7 +51,6 @@ import org.minimalj.frontend.impl.swing.component.QueryLayout;
 import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
@@ -273,8 +272,7 @@ public class SwingFrontend extends Frontend {
 		JTextField field = new JTextField();
 		field.addActionListener(e -> SwingFrontend.run(e, () -> {
 			String query = field.getText();
-			Page page = Application.getInstance().createSearchPage(query);
-			show(page);
+			Application.getInstance().search(query);
 		}));
 
 		return new QueryContent(Resources.getString("Application.queryCaption"), field);

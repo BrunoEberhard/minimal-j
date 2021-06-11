@@ -243,7 +243,7 @@ public class SwingFrame extends JFrame {
 
 		SwingFrontend.run(this, () -> {
 			favorites.setUser(subject != null ? subject.getName() : null);
-			setSearchEnabled(Application.getInstance().hasSearchPages());
+			setSearchEnabled(Application.getInstance().hasSearch());
 
 			updateNavigation();
 			updateWindowTitle();

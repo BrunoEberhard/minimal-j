@@ -71,14 +71,13 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			logoutButton = null;
 		}
 
-		if (Application.getInstance().hasSearchPages()) {
+		if (Application.getInstance().hasSearch()) {
 			TextField textFieldSearch = new TextField();
 			textFieldSearch.getStyle().set("margin-left", "auto");
 			textFieldSearch.getStyle().set("margin-right", "1em");
 			textFieldSearch.addKeyPressListener(Key.ENTER, event -> {
 				String query = textFieldSearch.getValue();
-				Page page = Application.getInstance().createSearchPage(query);
-				show(page);
+				Application.getInstance().search(query);
 			});
 			addToNavbar(textFieldSearch); 
 		}

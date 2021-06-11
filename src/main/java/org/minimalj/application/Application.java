@@ -30,6 +30,7 @@ import java.util.ResourceBundle.Control;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebServer;
@@ -187,10 +188,9 @@ public abstract class Application implements Model {
 	 * SearchPage.handle(SearchPage...)
 	 * 
 	 * @param query the string the user entered in the search field
-	 * @return the page to be displayed for the query string
 	 */
-	public Page createSearchPage(String query) {
-		return new EmptyPage();
+	public void search(String query) {
+		Frontend.show(new EmptyPage());
 	}
 	
 	/**
@@ -198,11 +198,11 @@ public abstract class Application implements Model {
 	 * use of reflection
 	 * 
 	 * @return true if the application overrides createSearchPage meaning the
-	 *         application provides a search page
+	 *         application provides a search page. Can also depend on the current Subject.
 	 */
-	public boolean hasSearchPages() {
+	public boolean hasSearch() {
 		try {
-			return this.getClass().getMethod("createSearchPage", String.class).getDeclaringClass() != Application.class;
+			return this.getClass().getMethod("search", String.class).getDeclaringClass() != Application.class;
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}

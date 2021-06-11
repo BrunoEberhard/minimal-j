@@ -13,7 +13,6 @@ import org.minimalj.example.library.model.Book;
 import org.minimalj.example.library.model.Customer;
 import org.minimalj.example.library.model.Lend;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
 
 public class MjExampleApplication extends Application {
@@ -31,10 +30,10 @@ public class MjExampleApplication extends Application {
 	}
 
 	@Override
-	public Page createSearchPage(String query) {
+	public void search(String query) {
 		BookSearchPage bookSearchPage = new BookSearchPage(query);
 		CustomerSearchPage customerSearchPage = new CustomerSearchPage(query);
-		return SearchPage.handle(bookSearchPage, customerSearchPage);
+		SearchPage.handle(bookSearchPage, customerSearchPage);
 	}
 
 	@Override

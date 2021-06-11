@@ -3,7 +3,6 @@ package org.minimalj.frontend.impl.lanterna;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaFrontend;
@@ -45,7 +44,7 @@ public class LanternaMenuPanel extends Panel {
 
 		panel.addComponent(bar, Location.LEFT);
 		
-		if (Application.getInstance().hasSearchPages()) {
+		if (Application.getInstance().hasSearch()) {
 			panel.addComponent(createSearchField(), Location.RIGHT);
 		}
 
@@ -138,8 +137,7 @@ public class LanternaMenuPanel extends Panel {
 		@Override
 		public void run() {
 			String query = textFieldSearch.getText();
-			Page searchPage = Application.getInstance().createSearchPage(query);
-			Frontend.show(searchPage);
+			Application.getInstance().search(query);
 		}
 	}
 

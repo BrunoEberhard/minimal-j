@@ -9,7 +9,6 @@ import javax.swing.JToolBar;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
-import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 
 public class SwingToolBar extends JToolBar {
@@ -69,10 +68,9 @@ public class SwingToolBar extends JToolBar {
 		add(new Box.Filler(rightFillerDimension, rightFillerDimension, rightFillerDimension));
 		textFieldSearch.addActionListener(e -> SwingFrontend.run(e, () -> {
 			String query = textFieldSearch.getText();
-			Page page = Application.getInstance().createSearchPage(query);
-			activeTab.show(page);
+			Application.getInstance().search(query);
 		}));
-		textFieldSearch.setEnabled(Application.getInstance().hasSearchPages());
+		textFieldSearch.setEnabled(Application.getInstance().hasSearch());
 	}
 
 	public void setSearchEnabled(boolean hasSearchPages) {

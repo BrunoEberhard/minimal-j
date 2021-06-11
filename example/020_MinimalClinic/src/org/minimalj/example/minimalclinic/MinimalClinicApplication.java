@@ -64,8 +64,8 @@ public class MinimalClinicApplication extends Application {
 	}
 	
 	@Override
-	public Page createSearchPage(String query) {
-		return SearchPage.handle(new OwnerSearchPage(query), new VetSearchPage(query));
+	public void search(String query) {
+		SearchPage.handle(new OwnerSearchPage(query), new VetSearchPage(query));
 	}
 	
 	@Override

@@ -67,8 +67,8 @@ public class ThreadLocalApplication extends WebApplication {
 	}
 	
 	@Override
-	public Page createSearchPage(String query) {
-		return getCurrentApplication().createSearchPage(query);
+	public void search(String query) {
+		getCurrentApplication().search(query);
 	}
 	
 	@Override
