@@ -5,6 +5,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public interface FrameTestFacade {
@@ -136,6 +137,35 @@ public interface FrameTestFacade {
 		public String getValue(int row, int column);
 		
 		public void activate(int row);
+		
+		public default void select(int row) {
+			// TODO
+		}
+		
+		public default int findRow(String text) {
+			for (int row = 0; row < getRowCount(); row++) {
+				for (int column = 0; column < getColumnCount(); column++) {
+					String value = getValue(row, column);
+					System.out.println(value);
+					if (StringUtils.equals(text, value)) {
+						return row;
+					}
+				}
+			}
+			return -1;
+		}
+
+		public default int findRow(String text, int column) {
+			for (int row = 0; row < getRowCount(); row++) {
+				String value = getValue(row, column);
+				System.out.println(value);
+				if (StringUtils.equals(text, value)) {
+					return row;
+				}
+			}
+			return -1;
+		}
+
 	}
 	
 	public interface SearchTableTestFacade extends TableTestFacade {

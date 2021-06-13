@@ -236,34 +236,36 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public NavigationTestFacade getContextMenu() {
-			WebElement actionMenu = divPage.findElement(By.className("actionMenu"));
-			return new PageContextMenuTestFacade(divPage, actionMenu);
+			return new PageContextMenuTestFacade(divPage);
 		}
 	}
 
 	private class PageContextMenuTestFacade implements NavigationTestFacade {
 		private final WebElement divPage;
-		private final WebElement actionMenu;
 
-		public PageContextMenuTestFacade(WebElement divPage, WebElement actionMenu) {
+		public PageContextMenuTestFacade(WebElement divPage) {
 			this.divPage = divPage;
-			this.actionMenu = actionMenu;
 		}
 
 		@Override
 		public Runnable get(String text) {
-			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
 			return () -> {
-				if (actionMenu.getCssValue("display").equals("none")) {
-					Actions actions = new Actions(driver);
-					actions.contextClick(divPage).perform();
+				WebElement actionMenu = divPage.findElement(By.className("actionMenu"));
+				if (!actionMenu.isDisplayed()) {
+					WebElement actionMenuButton = divPage.findElement(By.className("actionMenuButton"));
+					if (!actionMenuButton.isDisplayed()) {
+						actionMenuButton = driver.findElementById("actionMenuButton");
+					}
+					actionMenuButton.click();
+					waitScript();
 				}
+				WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
 				item.click();
 				waitScript();
 			};
 		}
 	}
-
+	
 	private class HtmlDialogTestFacade implements DialogTestFacade {
 		private final WebElement dialog;
 
@@ -440,6 +442,15 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			Actions action = new Actions(driver);
 			action.doubleClick(tr).perform();
+			waitScript();
+		}
+
+		@Override
+		public void select(int row) {
+			WebElement tbody = table.findElement(By.tagName("tbody"));
+			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
+			Actions action = new Actions(driver);
+			action.click(tr).perform();
 			waitScript();
 		}
 	}
