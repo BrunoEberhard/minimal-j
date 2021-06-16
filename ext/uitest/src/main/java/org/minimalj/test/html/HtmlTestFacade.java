@@ -251,15 +251,17 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		public Runnable get(String text) {
 			return () -> {
 				WebElement actionMenu = divPage.findElement(By.className("actionMenu"));
-				if (!actionMenu.isDisplayed()) {
+				WebElement item;
+				if (actionMenu.isDisplayed()) {
+					item = actionMenu.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
+				} else {
 					WebElement actionMenuButton = divPage.findElement(By.className("actionMenuButton"));
 					if (!actionMenuButton.isDisplayed()) {
 						actionMenuButton = driver.findElementById("actionMenuButton");
 					}
 					actionMenuButton.click();
-					waitScript();
+					item = divPage.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
 				}
-				WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
 				item.click();
 				waitScript();
 			};
