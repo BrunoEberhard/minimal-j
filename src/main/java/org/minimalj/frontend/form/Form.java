@@ -462,20 +462,25 @@ public class Form<T> {
 
 		private void setValue(PropertyInterface property, Object newValue, HashSet<PropertyInterface> changedProperties) {
 			Object oldToValue = property.getValue(object);
-			if (!EqualsHelper.equals(oldToValue, newValue)) {
-				Object clonedObject = CloneHelper.clone(object);
+			if (!EqualsHelper.equals(oldToValue, newValue) || newValue instanceof Collection) {
+				Object clonedObject = CloneHelper.clone(object); // clone before change!
 				property.setValue(object, newValue);
 				executeUpdater(property, newValue, clonedObject, changedProperties);
-				addChangedPropertyRecurive(property, changedProperties);
+				addChangedPropertyRecursive(property, changedProperties);
+			} else if (newValue instanceof Collection) {
+				// same instance of Collection can have changed content always assume a change. But not need of setValue .
+				Object clonedObject = CloneHelper.clone(object);
+				executeUpdater(property, newValue, clonedObject, changedProperties);
+				addChangedPropertyRecursive(property, changedProperties);
 			}
 		}
 		
-		private void addChangedPropertyRecurive(PropertyInterface property, HashSet<PropertyInterface> changedProperties) {
+		private void addChangedPropertyRecursive(PropertyInterface property, HashSet<PropertyInterface> changedProperties) {
 			if (!changedProperties.contains(property)) {
 				changedProperties.add(property);
 				if (dependencies.containsKey(property.getName())) {
 					for (PropertyInterface dependingProperty : dependencies.get(property.getName())) {
-						addChangedPropertyRecurive(dependingProperty, changedProperties);
+						addChangedPropertyRecursive(dependingProperty, changedProperties);
 					}
 				}
 			}
