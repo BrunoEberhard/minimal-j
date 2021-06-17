@@ -328,6 +328,10 @@ dialog .form > div {
 	height: 1.8em;
 }
 
+.form .text {
+	padding-top: 3.5px;
+}
+
 .form .lookup .text, .form .lookup input {
 	width: 100%;
 	min-height: 1.8em;
