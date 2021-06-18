@@ -455,6 +455,12 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			action.click(tr).perform();
 			waitScript();
 		}
+		
+		@Override
+		public FormTestFacade getFilter() {
+			WebElement form = table.findElement(By.cssSelector(".form"));
+			return new HtmlFormTestFacade(form);
+		}
 	}
 
 	private class HtmlSearchTableTestFacade extends HtmlTableTestFacade implements SearchTableTestFacade {

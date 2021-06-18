@@ -59,6 +59,13 @@ public interface FrameTestFacade {
 	public interface NavigationTestFacade {
 
 		public Runnable get(String text);
+		
+		public default void run(String resourceName) {
+			String text = Resources.getString(resourceName);
+			Runnable runnable = get(text);
+			Assert.assertNotNull("Menu with resourceName " + resourceName +" / text " + text + " should exsist", runnable);
+			runnable.run();
+		}
 
 	}
 	
@@ -109,6 +116,12 @@ public interface FrameTestFacade {
 			String caption = Resources.getPropertyName(property);
 			return getElement(caption);
 		}
+		
+		public default void assertMandatory(Object key) {
+			element(key).setText("");
+			Assert.assertNotNull(Resources.getPropertyName(Keys.getProperty(key)) + " must be mandatory", element(key).getValidation());
+		}
+
 	}
 	
 	public interface FormElementTestFacade {
@@ -140,6 +153,10 @@ public interface FrameTestFacade {
 		
 		public default void select(int row) {
 			// TODO
+		}
+		
+		public default FormTestFacade getFilter() {
+			return null; // TODO
 		}
 		
 		public default int findRow(String text) {

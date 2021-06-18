@@ -1,15 +1,14 @@
 package org.minimalj.test.html;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.minimalj.test.TestUtil;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public abstract class HtmlTest {
 
+	private static final String WEBDRIVER_EDGE_DRIVER = "webdriver.edge.driver";
+	
 	private static RemoteWebDriver driver;
 	
 	protected static RemoteWebDriver getDriver() {
@@ -20,17 +19,8 @@ public abstract class HtmlTest {
 	public static void beforeClass() {
 		// https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium/?tabs=java
 		// https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
-		System.setProperty("webdriver.edge.driver", "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
+		System.setProperty(WEBDRIVER_EDGE_DRIVER, "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
 		driver = new EdgeDriver();
-	}
-	
-	@Before
-	public void before() {
-	}
-	
-	@After
-	public void shutdown() {
-		TestUtil.shutdown();
 	}
 	
 	@AfterClass
