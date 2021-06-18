@@ -74,11 +74,12 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 
 		visibleRows = Math.min(objects.size(), Math.max(visibleRows, PAGE_SIZE));
-		List<List> tableContent = createTableContent(objects.subList(0, visibleRows));
+		List<T> visibleObjects = objects.subList(0, visibleRows);
+		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
 		List<T> newSelectedObjects = new ArrayList<>();
-		for (T object : objects) {
+		for (T object : visibleObjects) {
 			for (T selectedObject : selectedObjects) {
 				if (equalsByIdOrContent(selectedObject, object)) {
 					selectedRows.add("selected");
