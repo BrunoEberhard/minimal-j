@@ -7,16 +7,16 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.minimalj.application.Configuration;
 import org.minimalj.test.ApplicationTestFacade;
-import org.minimalj.test.FrameTestFacade.ActionTestFacade;
-import org.minimalj.test.FrameTestFacade.DialogTestFacade;
-import org.minimalj.test.FrameTestFacade.FormElementTestFacade;
-import org.minimalj.test.FrameTestFacade.FormTestFacade;
-import org.minimalj.test.FrameTestFacade.NavigationTestFacade;
-import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.test.FrameTestFacade.PageTestFacade;
-import org.minimalj.test.FrameTestFacade.SearchTableTestFacade;
-import org.minimalj.test.FrameTestFacade.TableTestFacade;
-import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.PageContainerTestFacade;
+import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
+import org.minimalj.test.PageContainerTestFacade.DialogTestFacade;
+import org.minimalj.test.PageContainerTestFacade.FormElementTestFacade;
+import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
+import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
+import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
+import org.minimalj.test.PageContainerTestFacade.SearchTableTestFacade;
+import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 import org.openqa.selenium.By;
@@ -139,6 +139,19 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			return new FowardTestFacade();
 		}
 
+		@Override
+		public boolean hasLogout() {
+			WebElement logout = driver.findElement(By.id("logout"));
+			return logout != null && logout.isDisplayed();
+		}
+		
+		@Override
+		public void logout() {
+			WebElement logout = driver.findElement(By.id("logout"));
+			driver.executeScript(logout.getAttribute("onclick"));
+			waitScript();
+		}
+		
 		private class HtmlNavigationTestFacade implements NavigationTestFacade {
 
 			@Override
@@ -230,8 +243,12 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public boolean contains(String string) {
-			// TODO Auto-generated method stub
-			return false;
+			WebElement iframe = divPage.findElement(By.tagName("iframe"));
+			driver.switchTo().frame(iframe);
+			WebElement body = driver.findElement(By.tagName("body"));
+			boolean contains = body.getText().contains(string); 
+			driver.switchTo().defaultContent();
+			return contains;
 		}
 
 		@Override
@@ -481,7 +498,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 	}
 
 	@Override
-	public PageContainerTestFacade getCurrentWindowTestFacade() {
+	public PageContainerTestFacade getCurrentPageContainerTestFacade() {
 		return new HtmlPageContainerTestFacade();
 	}
 

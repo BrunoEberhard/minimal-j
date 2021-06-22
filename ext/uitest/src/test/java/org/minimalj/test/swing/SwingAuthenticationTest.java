@@ -21,10 +21,10 @@ import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.test.ApplicationTestFacade;
-import org.minimalj.test.FrameTestFacade.NavigationTestFacade;
-import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.test.FrameTestFacade.PageTestFacade;
-import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.PageContainerTestFacade;
+import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
+import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.TestApplication;
 import org.minimalj.test.TestApplication.TestPage;
 import org.minimalj.test.TestUtil;
@@ -50,7 +50,7 @@ public class SwingAuthenticationTest {
 
 		userPasswordLogin.login();
 
-		PageContainerTestFacade pageContainer = application.getCurrentWindowTestFacade();
+		PageContainerTestFacade pageContainer = application.getCurrentPageContainerTestFacade();
 		
 		NavigationTestFacade navigation = pageContainer.getNavigation();
 		
@@ -106,7 +106,7 @@ public class SwingAuthenticationTest {
 		Swing.start(new TestApplication(AuthenticatonMode.OPTIONAL));
 		
 		ApplicationTestFacade application = new SwingTestFacade();
-		PageContainerTestFacade pageContainer = application.getCurrentWindowTestFacade();
+		PageContainerTestFacade pageContainer = application.getCurrentPageContainerTestFacade();
 		
 		NavigationTestFacade navigation = pageContainer.getNavigation();
 		Assert.assertNotNull(navigation.get("ActionWithoutLogin"));

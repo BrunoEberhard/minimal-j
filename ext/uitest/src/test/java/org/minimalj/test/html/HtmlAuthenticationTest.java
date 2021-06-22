@@ -1,11 +1,13 @@
 package org.minimalj.test.html;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.test.ApplicationTestFacade;
-import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.PageContainerTestFacade;
+import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.TestApplication;
 
 public class HtmlAuthenticationTest extends HtmlTest {
@@ -23,21 +25,14 @@ public class HtmlAuthenticationTest extends HtmlTest {
 
 		userPasswordLogin.login();
 
-		PageContainerTestFacade pageContainer = application.getCurrentWindowTestFacade();
-//		Assert.assertEquals("test", pageContainer.getSubject().getName());
+		PageContainerTestFacade pageContainer = application.getCurrentPageContainerTestFacade();
+
+		PageTestFacade page = pageContainer.getPage();
+		Assert.assertTrue(page.contains("TestPage"));
+		Assert.assertTrue(page.contains("Subject: test"));
 
 		
-//		textShouldBeDisplayed("TestPage");
-//		textShouldBeDisplayed("Subject: test");
-//		textShouldBeDisplayed("Action with login");
-//		shouldBeVisible("logout", true);
-//		shouldBeVisible("login", false);
-//	
-//		driver.executeScript(driver.findElementById("logout").getAttribute("onclick"));
-//		waitBlock();
-//		
-//		loginShouldBeShown();
-//		textShouldBeDisplayed("Action without login");
+		pageContainer.logout();
 	}
 
 //	@Test
@@ -103,11 +98,11 @@ public class HtmlAuthenticationTest extends HtmlTest {
 //
 //	private void textShouldBeDisplayed(String text) {
 //		Assert.assertTrue(text + " should be displayed", driver.getPageSource().contains(text));
-////		WebElement iframeElement = driver.findElement(By.xpath("//iframe"));        
-////		driver.switchTo().frame(iframeElement);
-////		
-////		Assert.assertTrue(text + " should be displayed", driver.findElement(By.xpath("//*[text()='"+ text + "']")) != null);
-////		
-////		driver.switchTo().parentFrame();
+//		WebElement iframeElement = driver.findElement(By.xpath("//iframe"));        
+//		driver.switchTo().frame(iframeElement);
+//		
+//		Assert.assertTrue(text + " should be displayed", driver.findElement(By.xpath("//*[text()='"+ text + "']")) != null);
+//		
+//		driver.switchTo().parentFrame();
 //	}
 }

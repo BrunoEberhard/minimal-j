@@ -1,7 +1,6 @@
 package org.minimalj.test;
 
-import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 
 public interface ApplicationTestFacade {
 
@@ -9,6 +8,6 @@ public interface ApplicationTestFacade {
 	
 	void logout();
 
-	PageContainerTestFacade getCurrentWindowTestFacade();
+	PageContainerTestFacade getCurrentPageContainerTestFacade();
 
 }

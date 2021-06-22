@@ -8,47 +8,30 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-public interface FrameTestFacade {
+public interface PageContainerTestFacade {
+	
+	public NavigationTestFacade getNavigation();
 
-	public interface LoginFrameFacade {
+	public List<PageTestFacade> getPages();
 
-		public boolean hasSkipLogin();
+	public DialogTestFacade getDialog();
 
-		public boolean hasClose();
+	public ActionTestFacade getBack();
 
-		public void login();
+	public ActionTestFacade getForward();
 
-		public void cancel();
-
-		public void close();
+	public default boolean hasLogout() {
+		return false; // TODO implement in Swing Frontend
 	}
 
-	public interface UserPasswordLoginTestFacade extends LoginFrameFacade {
-
-		public void setUser(String name);
-
-		public void setPassword(String password);
-
+	public default void logout() {
+		// TODO implement in Swing Frontend
 	}
 
-	public interface PageContainerTestFacade extends FrameTestFacade {
-
-		public NavigationTestFacade getNavigation();
-
-		public List<PageTestFacade> getPages();
-
-		public DialogTestFacade getDialog();
-
-		public ActionTestFacade getBack();
-
-		public ActionTestFacade getForward();
-		
-		public default PageTestFacade getPage() {
-			List<PageTestFacade> pages = getPages();
-			Assert.assertEquals("Exact one page should be visible", 1, pages.size());
-			return pages.get(0);
-		}
-
+	public default PageTestFacade getPage() {
+		List<PageTestFacade> pages = getPages();
+		Assert.assertEquals("Exact one page should be visible", 1, pages.size());
+		return pages.get(0);
 	}
 
 	public interface ActionTestFacade extends Runnable {

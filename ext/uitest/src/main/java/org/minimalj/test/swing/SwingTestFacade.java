@@ -22,14 +22,14 @@ import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
 import org.minimalj.test.ApplicationTestFacade;
-import org.minimalj.test.FrameTestFacade.ActionTestFacade;
-import org.minimalj.test.FrameTestFacade.DialogTestFacade;
-import org.minimalj.test.FrameTestFacade.FormTestFacade;
-import org.minimalj.test.FrameTestFacade.NavigationTestFacade;
-import org.minimalj.test.FrameTestFacade.PageContainerTestFacade;
-import org.minimalj.test.FrameTestFacade.PageTestFacade;
-import org.minimalj.test.FrameTestFacade.TableTestFacade;
-import org.minimalj.test.FrameTestFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
+import org.minimalj.test.PageContainerTestFacade;
+import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
+import org.minimalj.test.PageContainerTestFacade.DialogTestFacade;
+import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
+import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
+import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
+import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.util.resources.Resources;
 
 public class SwingTestFacade implements ApplicationTestFacade {
@@ -43,7 +43,7 @@ public class SwingTestFacade implements ApplicationTestFacade {
 	}
 	
 	@Override
-	public PageContainerTestFacade getCurrentWindowTestFacade() {
+	public PageContainerTestFacade getCurrentPageContainerTestFacade() {
 		Optional<SwingFrame> frame = Arrays.stream(JFrame.getWindows()).filter(SwingFrame.class::isInstance).map(SwingFrame.class::cast).filter(w -> w.isVisible()).findFirst();
 		Assert.assertTrue(frame.isPresent());
 		
