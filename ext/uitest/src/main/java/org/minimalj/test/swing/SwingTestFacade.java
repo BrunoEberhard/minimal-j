@@ -2,6 +2,7 @@ package org.minimalj.test.swing;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import org.junit.Assert;
 import org.minimalj.frontend.impl.swing.NavigationTree;
@@ -34,8 +36,20 @@ import org.minimalj.util.resources.Resources;
 
 public class SwingTestFacade implements ApplicationTestFacade {
 
+	public static void waitForEDT() {
+		// SwingDialog do invokeLater with setVisible(true)
+		// this methods does wait till that dialog is really visible
+		try {
+			SwingUtilities.invokeAndWait(() -> {});
+		} catch (InvocationTargetException | InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	@Override
 	public UserPasswordLoginTestFacade getLoginTestFacade() {
+		waitForEDT();
+		
 		Optional<SwingDialog> loginDialog = Arrays.stream(JDialog.getWindows()).filter(SwingDialog.class::isInstance).map(SwingDialog.class::cast).filter(w -> w.isVisible()).findFirst();
 		Assert.assertTrue(loginDialog.isPresent());
 		
@@ -156,6 +170,8 @@ public class SwingTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public DialogTestFacade getDialog() {
+			waitForEDT();
+
 			Optional<SwingDialog> dialog = Arrays.stream(JFrame.getWindows()).
 					filter(SwingDialog.class::isInstance).map(SwingDialog.class::cast).
 					filter(d -> d.getOwnedWindows().length == 0).findFirst();
