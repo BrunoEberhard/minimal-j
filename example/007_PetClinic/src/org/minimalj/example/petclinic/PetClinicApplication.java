@@ -13,6 +13,7 @@ import org.minimalj.example.petclinic.model.Owner;
 import org.minimalj.example.petclinic.model.Pet;
 import org.minimalj.example.petclinic.model.Vet;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
@@ -35,12 +36,17 @@ public class PetClinicApplication extends Application {
 	}
 	
 	@Override
-	public Page createSearchPage(String query) {
-		return SearchPage.handle(new OwnerSearchPage(query), new VetSearchPage(query));
+	public void search(String query) {
+		SearchPage.handle(new OwnerSearchPage(query), new VetSearchPage(query));
 	}
 	
 	@Override
 	public Class<?>[] getEntityClasses() {
 		return new Class[]{Owner.class, Pet.class, Vet.class};
 	}
+	
+	public static void main(String[] args) {
+		WebServer.start(new PetClinicApplication());
+	}
+	
 }
