@@ -2,7 +2,6 @@
 /.settings/
 /.classpath
 /.project
-/derby.log
 /testdb/
 /target/
 /node_modules/

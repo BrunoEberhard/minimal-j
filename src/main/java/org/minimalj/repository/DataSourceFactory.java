@@ -8,7 +8,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.mariadb.jdbc.MariaDbDataSource;
 import org.minimalj.application.Configuration;
@@ -74,20 +73,6 @@ public class DataSourceFactory {
 		return dataSource;
 	}
 
-	public static DataSource embeddedDerbyDataSource(String file) {
-		EmbeddedDataSource dataSource;
-		try {
-			dataSource = new EmbeddedDataSource();
-		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing EmbeddedDataSource. Please ensure to have derby in the classpath");
-			throw new IllegalStateException("Configuration error: Missing EmbeddedDataSource");
-		}
-		
-		dataSource.setDatabaseName(file != null ? file : "memory:TempDB" + (memoryDbCount++));
-		dataSource.setCreateDatabase("create");
-		return dataSource;
-	}
-	
 	public static DataSource dataSource(String url, String user, String password) {
 		if (url.startsWith("jdbc:oracle")) {
 			return oracleDbDataSource(url, user, password);

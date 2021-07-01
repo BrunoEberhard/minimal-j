@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
@@ -122,8 +121,6 @@ public class SqlRepository implements TransactionalRepository {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "PostgreSQL")) {
 			return new SqlDialect.PostgresqlDialect();
-		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
-			return new SqlDialect.DerbySqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "H2")) {
 			return new SqlDialect.H2SqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
@@ -132,7 +129,7 @@ public class SqlRepository implements TransactionalRepository {
 			return new SqlDialect.MsSqlDialect();
 		} else {
 			return new SqlDialect.H2SqlDialect();
-//			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB, SQL Server and Derby DB supported at the moment. ProductName: " + databaseProductName);
+//			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and SQL Server supported at the moment. ProductName: " + databaseProductName);
 		}
 	}
 	
@@ -259,9 +256,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	private boolean createTablesOnInitialize(DataSource dataSource) throws SQLException {
 		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
-		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
-			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
-		} else if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
+		if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
 			String url = ((JdbcDataSource) dataSource).getUrl();
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
@@ -506,7 +501,7 @@ public class SqlRepository implements TransactionalRepository {
 		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
 		
 		// first read the resultSet completely then resolve references
-		// derby db mixes closing of resultSets.
+		// some db mixes closing of resultSets.
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {

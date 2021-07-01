@@ -119,7 +119,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 		HashMap<String, PropertyInterface> versionColumns = findVersionColumns(clazz);
 
 		// first read the resultSet completely then resolve references
-		// derby db mixes closing of resultSets.
+		// some db mixes closing of resultSets.
 
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		Map<PropertyInterface, Integer> versions = new HashMap<>();

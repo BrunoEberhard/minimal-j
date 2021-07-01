@@ -81,7 +81,7 @@ public abstract class SqlDialect {
 		} else if (clazz == LocalTime.class) {
 			s.append("TIME");		
 		} else if (clazz == LocalDateTime.class) {
-			s.append("DATETIME"); // MariaDB. DerbyDB is different
+			s.append("DATETIME");
 		} else if (clazz == BigDecimal.class) {
 			s.append("DECIMAL");
 			int size = AnnotationUtil.getSize(property);
@@ -273,32 +273,6 @@ public abstract class SqlDialect {
 		@Override
 		protected void addAutoIncrement(StringBuilder s) {
 			s.append("IDENTITY(1,1)");
-		}
-
-		@Override
-		public int getMaxIdentifierLength() {
-			return 128;
-		}
-	}
-
-	public static class DerbySqlDialect extends SqlDialect {
-
-		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
-			Class<?> clazz = property.getClazz();
-			
-			if (clazz == LocalDateTime.class) {
-				s.append("TIMESTAMP");
-			} else if (clazz == Boolean.class) {
-				s.append("SMALLINT");
-			} else {
-				super.addColumnDefinition(s, property);
-			}
-		}
-		
-		@Override
-		public String createUniqueIndex(String tableName, String column) {
-			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
 		}
 
 		@Override
