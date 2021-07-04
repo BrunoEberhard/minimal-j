@@ -1,6 +1,8 @@
 package org.minimalj.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
@@ -15,9 +17,10 @@ public class EqualsHelper {
 		if (to == null) {
 			return false;
 		}
-		if (FieldUtils.isAllowedPrimitive(from.getClass()) || from instanceof UUID) {
-			return from.equals(to);
+		if (from.getClass() != to.getClass()) {
+			return false;
 		}
+
 		if (from instanceof Collection) {
 			Collection fromCollection = (Collection) from;
 			Collection toCollection = (Collection) to;
@@ -30,15 +33,26 @@ public class EqualsHelper {
 			}
 			return true;
 		} 
-		if (from.getClass() != to.getClass()) {
-			return false;
+		if (from.getClass().isArray()) {
+			if (from instanceof byte[]) {
+				return Arrays.equals((byte[]) from, (byte[]) to);
+			} else if (from instanceof char[]) {
+				return Arrays.equals((char[]) from, (char[]) to);
+			} else {
+				if (Array.getLength(from) != Array.getLength(to)) return false;
+				for (int i = 0; i < Array.getLength(from); i++) {
+					boolean itemEqual = equals(Array.get(from, i), Array.get(to, i));
+					if (!itemEqual) return false;
+				}
+				return true;
+			}
+		}
+		if (FieldUtils.isAllowedPrimitive(from.getClass()) || from instanceof UUID || from.getClass().isEnum()) {
+			return ((Comparable) from).compareTo(to) == 0;
 		}
 		if (IdUtils.hasId(from.getClass()) && !IdUtils.equals(from, to)) {
 			return false;
 		} 
-		if (from instanceof Comparable && ((Comparable) from).compareTo(to) != 0) {
-			return false;
-		}
 		try {
 			return equalsByFields(from, to);
 		} catch (IllegalAccessException | IllegalArgumentException x) {
