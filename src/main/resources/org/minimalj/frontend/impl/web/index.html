@@ -874,7 +874,7 @@ $ICON
 		for (var i = 0; i < row.length; i++) {
 			element.appendChild(createTableCell(row[i]));
 		}
-		element.setAttribute("onmousedown", "tableSelection(event);");
+		element.setAttribute("onclick", "tableSelection(event);");
 		element.setAttribute("ondblclick", "tableAction(event);");
 		element.setAttribute("tabindex", "0");
 		element.setAttribute("onkeydown", "tableKeyHandler(event);");
@@ -1151,6 +1151,9 @@ $ICON
 	}
 	
 	function tableSelection(event) {
+		if (event.type === "contextmenu") {
+			return;
+		}	
 		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
 		var tbodyElement = rowElement.parentElement;
 		var tableElement = tbodyElement.parentElement;
@@ -1171,17 +1174,17 @@ $ICON
 				}
 			}
 		} else {
-			for (var i = 0; i < tableElement.rows.length; i++) {
-				if (tableElement.rows[i].classList.contains("selected")) {
-					if (multiSelect && event.ctrlKey) {
-						rows.push(i);
-					} else {
-						tableElement.rows[i].classList.remove("selected");
-					}
+			if (!(multiSelect && event.ctrlKey)) {
+				for (var i = 0; i < tableElement.rows.length; i++) {
+					tableElement.rows[i].classList.remove("selected");
 				}
 			}
-			rows.push(row);
 			tableElement.rows[row].classList.add("selected");
+			for (var i = 0; i < tableElement.rows.length; i++) {
+				if (tableElement.rows[i].classList.contains("selected")) {
+					rows.push(i);
+				}
+			}
 		}
 		lastSelectedTable = tableElement;
 		lastSelectedRow = row;
