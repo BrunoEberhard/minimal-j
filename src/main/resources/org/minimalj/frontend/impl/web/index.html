@@ -1027,7 +1027,11 @@ $ICON
 		if (next < inputs.length) {
 			inputs[next].focus();			
 		} else if (enterAction != undefined && enterAction.enabled) {
-			action(enterAction.id);
+			if (timerTextFieldChange) {
+				clearTimeout(timerTextFieldChange);
+				timerTextFieldChange = null;
+			}
+			sendchange(event.target, enterAction.id);
 		}
 	}	
 	
