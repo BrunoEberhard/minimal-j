@@ -64,12 +64,16 @@ public class CsvReader {
 				PropertyInterface property = properties.get(i);
 				Object value;
 				Class<?> propertyClazz = property.getClazz();
-				if (Code.class.isAssignableFrom(propertyClazz)) {
-					value = objectProvier.apply(propertyClazz, stringValue);
-				} else {
-					value = FieldUtils.parse(stringValue, propertyClazz);
+				try {
+					if (Code.class.isAssignableFrom(propertyClazz)) {
+						value = objectProvier.apply(propertyClazz, stringValue);
+					} else {
+						value = FieldUtils.parse(stringValue, propertyClazz);
+					}
+					property.setValue(object, value);
+				} catch (Exception x) {
+					throw new RuntimeException("Unparseable value. Field: " + fields.get(i) + " / Value: " + stringValue, x);
 				}
-				property.setValue(object, value);
 			}
 			objects.add(object);
 			values = readRecord();
