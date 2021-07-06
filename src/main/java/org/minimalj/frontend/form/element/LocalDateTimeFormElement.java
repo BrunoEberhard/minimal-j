@@ -15,12 +15,13 @@ import org.minimalj.util.mock.MockDate;
 public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 
 	private static final boolean german = DateUtils.germanDateStyle();
-	private final DateTimeFormatter formatter;
+	private final DateTimeFormatter formatter, parser;
 	private final int size;
 	
 	public LocalDateTimeFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
 		formatter = DateUtils.getTimeFormatter(property);
+		parser = DateUtils.getTimeParser(property);
 		Size sizeAnnotation = property.getAnnotation(Size.class);
 		size = 11 + (sizeAnnotation != null ? sizeAnnotation.value() : Size.TIME_HH_MM);
 	}
@@ -48,7 +49,7 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 					return LocalDateTime.parse(string);
 				} else {
 					String[] parts = string.split(" ");
-					return LocalDateTime.of(DateUtils.parse_(parts[0]), LocalTime.parse(parts[1], formatter));
+					return LocalDateTime.of(DateUtils.parse_(parts[0]), LocalTime.parse(parts[1], parser));
 				}
 			} catch (DateTimeParseException x) {
 				return InvalidValues.createInvalidLocalDateTime(string);

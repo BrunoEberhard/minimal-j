@@ -21,10 +21,14 @@ import org.minimalj.model.validation.InvalidValues;
 public class DateUtils {
 	private static final Map<Locale, DateTimeFormatter> dateFormatByLocale = new HashMap<>();
 	private static final Map<Locale, Boolean> germanDateStyle = new HashMap<>();
-
+	
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final DateTimeFormatter TIME_FORMAT_WITH_MILIS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+
+	public static final DateTimeFormatter TIME_PARSE = DateTimeFormatter.ofPattern("H:mm");
+	public static final DateTimeFormatter TIME_PARSE_WITH_SECONDS = DateTimeFormatter.ofPattern("H:mm:ss");
+	public static final DateTimeFormatter TIME_PARSE_WITH_MILIS = DateTimeFormatter.ofPattern("H:mm:ss.SSS");
 
 	public static DateTimeFormatter getDateTimeFormatter() {
 		Locale locale = LocaleContext.getCurrent();
@@ -270,6 +274,22 @@ public class DateUtils {
 		else if (size.value() == Size.TIME_WITH_MILLIS) return TIME_FORMAT_WITH_MILIS;
 		else {
 			return TIME_FORMAT;
+		}
+	}
+	
+	public static DateTimeFormatter getTimeParser(PropertyInterface property) {
+		if (property == null) {
+			return TIME_PARSE;
+		}
+		Size size = property.getAnnotation(Size.class);
+		if (size == null) {
+			return TIME_PARSE;
+		}
+		if (size.value() == Size.TIME_HH_MM) return TIME_PARSE;
+		else if (size.value() == Size.TIME_WITH_SECONDS) return TIME_PARSE_WITH_SECONDS;
+		else if (size.value() == Size.TIME_WITH_MILLIS) return TIME_PARSE_WITH_MILIS;
+		else {
+			return TIME_PARSE;
 		}
 	}
 

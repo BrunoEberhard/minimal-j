@@ -12,12 +12,13 @@ import org.minimalj.util.DateUtils;
 import org.minimalj.util.mock.MockDate;
 
 public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
-	private final DateTimeFormatter formatter;
+	private final DateTimeFormatter formatter, parser;
 	private final int size;
 	
 	public LocalTimeFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
 		formatter = DateUtils.getTimeFormatter(property);
+		parser = DateUtils.getTimeParser(property);
 		Size sizeAnnotation = property.getAnnotation(Size.class);
 		size = sizeAnnotation != null ? sizeAnnotation.value() : Size.TIME_HH_MM;
 	}
@@ -45,7 +46,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	public LocalTime parse(String string) {
 		if (string != null) {
 			try {
-				return LocalTime.parse(string, formatter);
+				return LocalTime.parse(string, parser);
 			} catch (DateTimeParseException iae) {
 				return InvalidValues.createInvalidLocalTime(string);
 			}
