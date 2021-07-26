@@ -2,6 +2,7 @@ package org.minimalj.repository.list;
 
 import java.io.Serializable;
 import java.util.AbstractList;
+import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.backend.Backend;
@@ -77,8 +78,11 @@ public class QueryResultList<T> extends AbstractList<T> implements Sortable, Ser
 
 	@Override
 	public List<T> subList(int fromIndex, int toIndex) {
+		if (fromIndex == toIndex) {
+			// TODO check for fromIndex > toIndex?
+			return Collections.emptyList();
+		}
 		Query limtedCriteria = makeOrdered(query).limit(fromIndex, toIndex - fromIndex);
-		// TODO check for fromIndex >= toIndex?
 		return find(limtedCriteria);
 	}
 
