@@ -687,7 +687,7 @@ public class SqlRepository implements TransactionalRepository {
 	@SuppressWarnings("unchecked")
 	public <U> AbstractTable<U> getAbstractTable(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			throw new IllegalArgumentException(clazz.getName());
+			throw new IllegalArgumentException("No (Sql)Table available for + " + clazz.getName() + ". May be missing in Application.getEntitiyClasses()");
 		}
 		return (AbstractTable<U>) tables.get(clazz);
 	}
