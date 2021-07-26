@@ -7,6 +7,7 @@ import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.properties.FlatProperties;
@@ -79,6 +80,13 @@ public class CsvReader {
 			values = readRecord();
 		}
 		return objects;
+	}
+	
+	public void readValues(Consumer<List<String>> consumer) {
+		List<String> values;
+		while ((values = readRecord()) != null) {
+			consumer.accept(values);
+		}
 	}
 
 	public List<String> readRecord() {
