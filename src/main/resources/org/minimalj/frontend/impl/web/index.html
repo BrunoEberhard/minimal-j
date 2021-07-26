@@ -51,7 +51,12 @@ $ICON
 		}
 	
 		session = dataObject["session"];
+		var sessionChanged = sessionStorage.sessionId != undefined && session != sessionStorage.sessionId;
 		sessionStorage.sessionId = session;
+		if (sessionChanged) {
+			location.reload();
+			return;
+		}
 	
 		if (dataObject.rememberMeToken != undefined) {
 			if (dataObject.rememberMeToken != "") {
