@@ -223,6 +223,15 @@ public abstract class SqlDialect {
 		}
 		
 		@Override
+		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
+			if (value instanceof Boolean) {
+				preparedStatement.setBoolean(param, (Boolean) value);
+			} else {
+				super.setParameter(preparedStatement, param, value);
+			}
+		}
+		
+		@Override
 		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
 			if (clazz.isArray()) {
 				preparedStatement.setNull(param, Types.ARRAY);			
