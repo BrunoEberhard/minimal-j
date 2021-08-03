@@ -269,7 +269,8 @@ public abstract class SqlDialect {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
-				if (size > 0) {
+				// https://docs.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql
+				if (size > 0 && size <= 8000) {
 					s.append("VARBINARY(" + size + ")");
 				} else {
 					s.append("VARBINARY(max)");
