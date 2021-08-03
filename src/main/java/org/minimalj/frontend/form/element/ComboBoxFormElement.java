@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.mock.Mocking;
@@ -16,6 +17,10 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 	private final List<T> values;
 	private final Input<T> comboBox;
 
+	public ComboBoxFormElement(T key, List<T> values) {
+		this(Keys.getProperty(key), values);
+	}
+	
 	public ComboBoxFormElement(PropertyInterface property, List<T> values) {
 		super(property);
 		this.values = this instanceof CodeFormElement ? values : new ArrayList<>(values);
