@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.json;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.util.StringUtils;
 
 public class JsonAction extends JsonComponent {
@@ -16,6 +17,10 @@ public class JsonAction extends JsonComponent {
 		}
 		put("enabled", action.isEnabled());
 		action.setChangeListener(new JsonActionChangeListener());
+		String route = Routing.getRouteSafe(action);
+		if (route != null) {
+			put("link", route);
+		}
 	}
 
 	public void run() {

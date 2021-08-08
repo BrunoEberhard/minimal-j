@@ -926,7 +926,7 @@ $ICON
 				} else if (item.id) {
 					var a = document.createElement("a");
 					a.setAttribute("onclick", "action(\"" + item.id + "\"); return false;");
-					a.setAttribute("href", ".");
+					a.setAttribute("href", item.link != undefined ? item.link : ".");
 					if (!item.enabled) {
 						a.setAttribute("disabled", "true");
 					}

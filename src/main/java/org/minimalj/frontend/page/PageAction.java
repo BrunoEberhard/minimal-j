@@ -3,7 +3,7 @@ package org.minimalj.frontend.page;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 
-public class PageAction extends Action {
+public final class PageAction extends Action {
 
 	private final Page page;
 	
