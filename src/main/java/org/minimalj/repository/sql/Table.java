@@ -107,35 +107,49 @@ public class Table<T> extends AbstractTable<T> {
 	
 	public Object insert(T object) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
-			Object id;
-			if (idProperty != null) {
-				id = idProperty.getValue(object);
-				if (id == null && !autoIncrementId) {
-					id = createId();
-					idProperty.setValue(object, id);
-				}
-			} else {
-				id = createId();
-			}
-			setParameters(insertStatement, object, autoIncrementId ? ParameterMode.INSERT_AUTO_INCREMENT : ParameterMode.INSERT, id);
-			insertStatement.execute();
-			if (id == null) {
-				try (ResultSet rs = insertStatement.getGeneratedKeys()) {
-					rs.next();
-					id = rs.getInt(1);
-					idProperty.setValue(object, id);
-				}
-			}
-			insertLists(object);
-			if (object instanceof Code) {
-				sqlRepository.invalidateCodeCache(object.getClass());
-			}
-			return id;
+			return insert(object, insertStatement);
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert in " + getTableName() + " with " + object);
 		}
 	}
 
+	public void insert(List<T> objects) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
+			for (T object : objects) {
+				insert(object, insertStatement);
+			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't bulk insert in " + getTableName());
+		}
+	}
+
+	private Object insert(T object, PreparedStatement insertStatement) throws SQLException {
+		Object id;
+		if (idProperty != null) {
+			id = idProperty.getValue(object);
+			if (id == null && !autoIncrementId) {
+				id = createId();
+				idProperty.setValue(object, id);
+			}
+		} else {
+			id = createId();
+		}
+		setParameters(insertStatement, object, autoIncrementId ? ParameterMode.INSERT_AUTO_INCREMENT : ParameterMode.INSERT, id);
+		insertStatement.execute();
+		if (id == null) {
+			try (ResultSet rs = insertStatement.getGeneratedKeys()) {
+				rs.next();
+				id = rs.getInt(1);
+				idProperty.setValue(object, id);
+			}
+		}
+		insertLists(object);
+		if (object instanceof Code) {
+			sqlRepository.invalidateCodeCache(object.getClass());
+		}
+		return id;
+	}
+	
 	protected void insertLists(T object) {
 		for (Entry<PropertyInterface, ListTable> listEntry : lists.entrySet()) {
 			List list = (List) listEntry.getKey().getValue(object);
