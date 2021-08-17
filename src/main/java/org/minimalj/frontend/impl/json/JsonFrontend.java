@@ -233,8 +233,8 @@ public class JsonFrontend extends Frontend {
 	public static String fillPlaceHolder(String html, String path) {
 		String result = html.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
-		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
-		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
+		result = result.replace("$MINIMALJ-VERSION", Application.class.getPackage().getImplementationVersion());
+		result = result.replace("$APPLICATION-VERSION", Application.getInstance().getClass().getPackage().getImplementationVersion());
 		result = result.replace("$TITLE", Application.getInstance().getName());
 		result = result.replace("$LANG", LocaleContext.getCurrent().getLanguage());
 		result = result.replace("$META", getMeta());

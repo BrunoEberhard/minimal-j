@@ -264,6 +264,10 @@ dialog.fullscreen {
 	margin-right: 0.2em;
 }
 
+#applicationVersion {
+	display: none;
+}
+
 /* table */
 
 table {
