@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -230,11 +231,25 @@ public class JsonFrontend extends Frontend {
 		});
 	}
 	
+	private static String MINIMALJ_VERSION, APPLICATION_VERSION;
+	
+	static {
+		MINIMALJ_VERSION = Application.class.getPackage().getImplementationVersion();
+		if (MINIMALJ_VERSION == null) {
+			MINIMALJ_VERSION = "Development";
+		}
+		
+		APPLICATION_VERSION = Application.getInstance().getClass().getPackage().getImplementationVersion();
+		if (APPLICATION_VERSION == null) {
+			APPLICATION_VERSION = "Development " + LocalDateTime.now();
+		}
+	}
+	
 	public static String fillPlaceHolder(String html, String path) {
 		String result = html.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
-		result = result.replace("$MINIMALJ-VERSION", Application.class.getPackage().getImplementationVersion());
-		result = result.replace("$APPLICATION-VERSION", Application.getInstance().getClass().getPackage().getImplementationVersion());
+		result = result.replace("$MINIMALJ-VERSION", MINIMALJ_VERSION);
+		result = result.replace("$APPLICATION-VERSION", APPLICATION_VERSION);
 		result = result.replace("$TITLE", Application.getInstance().getName());
 		result = result.replace("$LANG", LocaleContext.getCurrent().getLanguage());
 		result = result.replace("$META", getMeta());
