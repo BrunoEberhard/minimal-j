@@ -25,6 +25,7 @@ import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
 import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageList;
 import org.minimalj.frontend.impl.util.PageStore;
+import org.minimalj.frontend.page.ExpiredPage;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
@@ -158,7 +159,7 @@ public class JsonPageManager implements PageManager {
 		if (initializing) {
 			if (initialize instanceof List) {
 				List<String> pageIds = (List<String>) initialize;
-				if (pageStore.valid(pageIds)) {
+				if (!pageIds.isEmpty() && pageStore.valid(pageIds)) {
 					onLogin = () -> show(pageIds);
 				}
 			}
@@ -259,9 +260,15 @@ public class JsonPageManager implements PageManager {
 
 		List<String> pageIds = (List<String>) input.getObject("showPages");
 		if (pageIds != null) {
-			show(pageIds);
+			if (pageStore.valid(pageIds)) {
+				show(pageIds);
+			} else {
+				Page page = new ExpiredPage();
+				String pageId = pageStore.put(page);
+				output.add("showPages", List.of(createJson(page, pageId, null)));
+			}
 		}
-
+		
 		return output;
 	}
 
@@ -351,6 +358,7 @@ public class JsonPageManager implements PageManager {
 	public void login(Subject subject) {
 		this.subject = subject;
 		Subject.setCurrent(subject);
+		pageStore.clear();
 		
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
 			output.add("canLogin", subject == null);
