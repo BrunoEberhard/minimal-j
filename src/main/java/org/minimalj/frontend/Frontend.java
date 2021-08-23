@@ -212,6 +212,10 @@ public abstract class Frontend {
 	 */
 	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions);
 	
+	/**
+	 * 
+	 * @param subject new current Subject or <code>null</code> for logout
+	 */
 	public void login(Subject subject) {
 		getPageManager().login(subject);
 	}
