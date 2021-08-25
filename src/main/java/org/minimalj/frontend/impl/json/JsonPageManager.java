@@ -358,7 +358,6 @@ public class JsonPageManager implements PageManager {
 	public void login(Subject subject) {
 		this.subject = subject;
 		Subject.setCurrent(subject);
-		pageStore.clear();
 		
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
 			output.add("canLogin", subject == null);
