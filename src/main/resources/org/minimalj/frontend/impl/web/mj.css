@@ -271,7 +271,6 @@ dialog.fullscreen {
 /* table */
 
 table {
-	width: 100%;
 	table-layout: fixed;
 	font-size: inherit;
 	border-spacing: 0px;
