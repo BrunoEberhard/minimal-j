@@ -312,7 +312,11 @@ $ICON
 		}
 	
 		var pageElement = document.createElement("div");
-		pageElement.className = "page";
+		pageElement.classList.add("page");
+		if (page.pageClass) {
+		    // undefined for login page, see JsonPageManager.showLogin
+			pageElement.classList.add(page.pageClass);
+		}
 		pageElement.id = page.pageId;
 	
 		var hasActionMenu = page.actionMenu != null;
@@ -461,7 +465,7 @@ $ICON
 	
 	function togglePage(event) {
 		var element = event.target;
-		while ((element = element.parentNode) && element.className != "page");
+		while ((element = element.parentNode) && !element.classList.contains("page"));
 		var pageElement = element;
 		if (pageElement.style.flexGrow == "0") {
 			pageElement.style.flexGrow = "1";
@@ -475,7 +479,7 @@ $ICON
 		addNewStateToHistory();
 	
 		var element = event.target;
-		while ((element = element.parentNode) && element.className != "page");
+		while ((element = element.parentNode) && !element.classList.contains("page"));
 	
 		var index = Array.prototype.indexOf.call(pageContainerElement.childNodes, element);
 		for (var i = pageContainerElement.childNodes.length - 1; i >= index; i--) {
@@ -578,7 +582,7 @@ $ICON
 				thead.appendChild(th);
 				element.appendChild(thead);
 			}
-			element.appendChild(createTableHeaders(content.id, content.headers));
+			element.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 	
 			if (content.extendable) {
@@ -854,10 +858,11 @@ $ICON
 		}
 	}
 	
-	function createTableHeaders(tableId, headers) {
+	function createTableHeaders(tableId, headers, headerNames) {
 		var element = document.createElement("thead");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
+			th.className = "col " + headerNames[i]; 
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
 			element.appendChild(th);

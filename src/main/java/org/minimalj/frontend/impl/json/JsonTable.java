@@ -40,11 +40,14 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		this.listener = listener;
 
 		List<String> headers = new ArrayList<>();
+		List<String> headerPathes = new ArrayList<>();
 		for (PropertyInterface property : properties) {
 			String header = Resources.getPropertyName(property);
 			headers.add(header);
+			headerPathes.add(property.getPath());
 		}
 		put("headers", headers);
+		put("headerPathes", headerPathes);
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
 	}
