@@ -15,8 +15,8 @@ import org.minimalj.model.properties.PropertyInterface;
 
 /**
  * This class doesn't replace a library like OpenCSV. It cannot be configured
- * (except for skipping comments) and it does accept only valid files as
- * specified in the rfc and encoded in UTF-8.
+ * (except for separator char and skipping comments) and it does accept only
+ * valid files as specified in the rfc and encoded in UTF-8.
  * <p>
  * 
  * @see <a href=
@@ -25,14 +25,15 @@ import org.minimalj.model.properties.PropertyInterface;
  */
 public class CsvReader {
 
-	private static final char SEPARATOR = ',';
+	public static final char DEFAULT_SEPARATOR = ',';
 	private static final char QUOTE_CHAR = '"';
 
 	private final PushbackReader reader;
 	private String commentStart = null;
+	private char separator = DEFAULT_SEPARATOR;
 
 	private final BiFunction<Class<?>, Object, Object> objectProvier;
-	
+
 	public CsvReader(InputStream is) {
 		this(is, null);
 	}
@@ -40,6 +41,10 @@ public class CsvReader {
 	public CsvReader(InputStream is, BiFunction<Class<?>, Object, Object> objectProvier) {
 		reader = new PushbackReader(new InputStreamReader(is));
 		this.objectProvier = objectProvier;
+	}
+
+	public void setSeparator(char separator) {
+		this.separator = separator;
 	}
 
 	public <T> List<T> readValues(Class<T> clazz) {
@@ -81,7 +86,7 @@ public class CsvReader {
 		}
 		return objects;
 	}
-	
+
 	public void readValues(Consumer<List<String>> consumer) {
 		List<String> values;
 		while ((values = readRecord()) != null) {
@@ -124,7 +129,7 @@ public class CsvReader {
 		values.add(value);
 		while (value != null) {
 			int c = reader.read();
-			if (c == SEPARATOR) {
+			if (c == separator) {
 				value = readField();
 				values.add(value);
 			} else if (c < 0 || c == '\n') {
@@ -188,7 +193,7 @@ public class CsvReader {
 			if (c < 0) {
 				return s.toString().trim();
 			}
-			if (c == SEPARATOR || c == '\n') {
+			if (c == separator || c == '\n') {
 				reader.unread(c);
 				return s.toString().trim();
 			} else {
