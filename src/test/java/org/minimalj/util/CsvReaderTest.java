@@ -82,6 +82,12 @@ public class CsvReaderTest {
 
 		reader = reader("\"ab\",");
 		Assert.assertEquals("ab", reader.readEscaped());
+
+		reader = reader("\"a,b\",");
+		Assert.assertEquals("a,b", reader.readEscaped());
+
+		reader = reader("\"a\"\"b\",");
+		Assert.assertEquals("a\"b", reader.readEscaped());
 	}
 	
 	@Test
