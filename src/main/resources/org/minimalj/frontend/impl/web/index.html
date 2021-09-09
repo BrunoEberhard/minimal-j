@@ -574,15 +574,17 @@ $ICON
 			if (content.multiSelect) {
 				element.classList.add("multiSelect");
 			}
+			var thead = document.createElement("thead");
+			element.appendChild(thead);
 			if (content.overview) {
-				var thead = document.createElement("thead");
+				var tr = document.createElement("tr");
+				thead.appendChild(tr);
 				var th = document.createElement("th");
 				th.setAttribute("colspan", content.headers.length);
 				th.appendChild(createContent(content.overview));
-				thead.appendChild(th);
-				element.appendChild(thead);
+				tr.appendChild(th);
 			}
-			element.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
+			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
 			element.appendChild(createTableRows(content.id, content.tableContent));
 	
 			if (content.extendable) {
@@ -859,7 +861,7 @@ $ICON
 	}
 	
 	function createTableHeaders(tableId, headers, headerNames) {
-		var element = document.createElement("thead");
+		var element = document.createElement("tr");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
 			th.className = "col " + headerNames[i]; 

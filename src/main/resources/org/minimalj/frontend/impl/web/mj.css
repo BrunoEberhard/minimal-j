@@ -198,6 +198,21 @@ table.table tr td {
 	line-height: 1.6em;
 }
 
+table.table thead {
+	position: sticky;
+	top: 0;
+	background: white;
+}
+
+.table .form > div > div {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.table .form {
+	margin-top: 0;
+}
+
 .actionMenu {
 	position: fixed;
 	z-index: 20;
@@ -492,7 +507,7 @@ label {
 .hide {
 	visibility: hidden;
 }
-
+td
 .red { color: red; }
 .green { color: green; }
 .blue { color: blue; }
