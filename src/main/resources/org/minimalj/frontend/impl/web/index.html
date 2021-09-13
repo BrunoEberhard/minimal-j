@@ -136,10 +136,9 @@ $ICON
 					for (var property in propertyChanges[id]) {
 						var value = propertyChanges[id][property];
 						if (property === "tableContent") {
-							while (element.getElementsByTagName("tbody").length > 0) {
-								element.removeChild(element.getElementsByTagName("tbody")[0]);
-							}
-							element.appendChild(createTableRows(id, value));
+							var tbody = element.tBodies[0];
+							removeChildren(tbody);
+							addTableRows(tbody, value);
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
 							for (var i = 0; i < tbody.childNodes.length; i++) {
@@ -224,7 +223,7 @@ $ICON
 		if (dataObject.tableExtendContent) {
 			var table = document.getElementById(dataObject.tableId);
 			var oldScroll = table.parentNode.scrollTop;
-			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
+			addTableRows(table.tBodies[0], dataObject.tableExtendContent);
 			if (!dataObject.extendable) {
 				var footer = table.getElementsByTagName("tfoot")[0];
 				intersectionObserver.unobserve(footer);
@@ -585,7 +584,7 @@ $ICON
 				tr.appendChild(th);
 			}
 			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
-			element.appendChild(createTableRows(content.id, content.tableContent));
+			element.appendChild(createTableRows(content.tableContent));
 	
 			if (content.extendable) {
 				var footer = document.createElement("tfoot");
@@ -871,14 +870,18 @@ $ICON
 		}
 		return element;
 	}
-	
-	function createTableRows(tableId, rows) {
+
+	function createTableRows(rows) {
 		var element = document.createElement("tbody");
+		addTableRows(element, rows);
+		return element;
+	}
+	
+	function addTableRows(tbodyElement, rows) {
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
-			element.appendChild(rowElement);
+			tbodyElement.appendChild(rowElement);
 		}
-		return element;
 	}
 	
 	function createTableRow(row) {
@@ -1231,6 +1234,7 @@ $ICON
 	
 		event.preventDefault();
 	}
+
 	
 	function tableSortAction(tableId, column) {
 		var tableAction = {
