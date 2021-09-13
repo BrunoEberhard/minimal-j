@@ -1180,27 +1180,28 @@ $ICON
 		var pageElement = tableElement;
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 	
-		var row = rowElement.rowIndex;
+		var headerRowCount = tableElement.tHead.childNodes.length;
+		var row = rowElement.rowIndex - headerRowCount;
 		var multiSelect = tableElement.classList.contains("multiSelect");
 		var rows = [];
 		if (multiSelect && lastSelectedTable == tableElement && event.shiftKey) {
-			for (var i = 0; i < tableElement.rows.length; i++) {
+			for (var i = 0; i < tbodyElement.rows.length; i++) {
 				if (i < row && i < lastSelectedRow || i > row && i > lastSelectedRow) {
-					tableElement.rows[i].classList.remove("selected");
+					tbodyElement.rows[i].classList.remove("selected");
 				} else if (i >= row && i <= lastSelectedRow || i >= lastSelectedRow && i <= row) {
 					rows.push(i);
-					tableElement.rows[i].classList.add("selected");
+					tbodyElement.rows[i].classList.add("selected");
 				}
 			}
 		} else {
 			if (!(multiSelect && event.ctrlKey)) {
-				for (var i = 0; i < tableElement.rows.length; i++) {
-					tableElement.rows[i].classList.remove("selected");
+				for (var i = 0; i < tbodyElement.rows.length; i++) {
+					tbodyElement.rows[i].classList.remove("selected");
 				}
 			}
-			tableElement.rows[row].classList.add("selected");
-			for (var i = 0; i < tableElement.rows.length; i++) {
-				if (tableElement.rows[i].classList.contains("selected")) {
+			tbodyElement.rows[row].classList.add("selected");
+			for (var i = 0; i < tbodyElement.rows.length; i++) {
+				if (tbodyElement.rows[i].classList.contains("selected")) {
 					rows.push(i);
 				}
 			}
@@ -1223,9 +1224,10 @@ $ICON
 		var tbodyElement = rowElement.parentElement;
 		var tableElement = tbodyElement.parentElement;
 		
+		var headerRowCount = tableElement.tHead.childNodes.length;
 		var tableAction = {
 			"table": tableElement.id,
-			"row": rowElement.rowIndex
+			"row": rowElement.rowIndex - headerRowCount
 		};
 		var data = {
 			"tableAction": tableAction
