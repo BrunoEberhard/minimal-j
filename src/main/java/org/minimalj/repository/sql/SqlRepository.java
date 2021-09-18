@@ -457,7 +457,7 @@ public class SqlRepository implements TransactionalRepository {
 
 	public void execute(String query, Serializable... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
-			preparedStatement.executeQuery();
+			preparedStatement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
 		}
