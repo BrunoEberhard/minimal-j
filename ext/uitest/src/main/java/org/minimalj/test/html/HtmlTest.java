@@ -2,6 +2,7 @@ package org.minimalj.test.html;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.minimalj.test.TestUtil;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -25,6 +26,7 @@ public abstract class HtmlTest {
 	
 	@AfterClass
 	public static void afterClass() {
+		TestUtil.shutdown();
 		driver.quit();
 	}
 
