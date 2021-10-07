@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.element.FormElementConstraint;
@@ -13,6 +14,7 @@ import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 /**
  * To provide a new kind (Xy) of client you have to implement two things:
@@ -43,6 +45,9 @@ public abstract class Frontend {
 			throw new IllegalArgumentException("Frontend cannot be null");
 		}
 		Frontend.instance = frontend;
+		if (Configuration.isDevModeActive()) {
+			Resources.printMissing();
+		}
 	}
 
 	public static boolean isAvailable() {
