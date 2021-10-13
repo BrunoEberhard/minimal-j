@@ -16,6 +16,7 @@ public class JsonTextField extends JsonInputComponent<String> implements Input<S
 	private static final String SUGGESTIONS = "suggestions";
 	private static final String TEXT_SEARCH = "textSearch";
 	private static final String AUTOCOMPLETE = "autocomplete";
+	private static final String PLACEHOLDER = "placeholder";
 	
 	private final Search<String> suggestions;
 	
@@ -70,5 +71,10 @@ public class JsonTextField extends JsonInputComponent<String> implements Input<S
 		} else {
 			remove(AUTOCOMPLETE);
 		}
+	}
+	
+	// experimental
+	public void setPlaceholder(String placeholder) {
+		putSilent(PLACEHOLDER, placeholder);
 	}
 }
