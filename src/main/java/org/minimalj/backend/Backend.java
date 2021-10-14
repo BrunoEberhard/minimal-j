@@ -81,10 +81,16 @@ public class Backend {
 		Backend.instance = instance;
 		Application.getInstance().initBackend();
 	}
+	
+	private static synchronized void createInstance() {
+		if (instance == null) {
+			setInstance(create());
+		}
+	}
 
 	public static Backend getInstance() {
 		if (instance == null) {
-			setInstance(create());
+			createInstance();
 		}
 		return instance;
 	}
