@@ -43,6 +43,7 @@ public class JsonTextField extends JsonInputComponent<String> implements Input<S
 				put(INPUT_TYPE, inputType.name().toLowerCase());
 			}
 		} else {
+			put(INPUT_TYPE, "text");
 			put(ALLOWED_CHARACTERS, allowedCharacters);
 		}
 		if (suggestions != null) {

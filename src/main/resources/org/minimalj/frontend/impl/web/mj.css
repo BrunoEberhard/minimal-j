@@ -338,7 +338,7 @@ dialog .form > div {
 	// overflow: hidden;
 }
 
-.form > div > div > * {
+.form > div > div > *, .form input[type=text] {
 	width: 100%;
 }
 
@@ -359,7 +359,6 @@ dialog .form > div {
 .form .lookup input {
 	width: 100%;
 }
-
 
 .form .lookup .text {
 	padding: 3.5px;
