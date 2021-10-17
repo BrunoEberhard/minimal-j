@@ -73,12 +73,7 @@ public class Resources {
 	}
 
 	public static String getPropertyName(PropertyInterface property, String postfix) {
-		String result = getAccess().getPropertyName(property, postfix);
-		if (result == null) {
-			// if no resource with postfix try without (need for checkboxes)
-			result = getAccess().getPropertyName(property, null);
-		}
-		return result;
+		return getAccess().getPropertyName(property, postfix);
 	}
 
 	public static String getResourceName(Class<?> clazz) {

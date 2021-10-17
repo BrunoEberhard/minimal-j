@@ -9,12 +9,14 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
+import org.minimalj.util.resources.Resources;
 
 public abstract class FormatFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
 
@@ -70,6 +72,13 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				
 			} else {
 				textField = Frontend.getInstance().createReadOnlyTextField();
+			}
+			// TODO find general concept for placeholer
+			if (textField instanceof JsonTextField) {
+				String placeholder = Resources.getPropertyName(getProperty(), ".placeholder");
+				if (placeholder != null) {
+					((JsonTextField) textField).setPlaceholder(placeholder);
+				}
 			}
 
 		}
