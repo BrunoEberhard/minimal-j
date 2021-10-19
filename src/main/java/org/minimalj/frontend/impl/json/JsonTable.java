@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.Coloring.ColorName;
@@ -150,12 +151,21 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			List rowContent = new ArrayList();
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
-				String stringValue = Rendering.toString(value, property);
-				ColorName color = Rendering.getColor(object, value);
-				if (color == null) {
-					rowContent.add(stringValue);
+				if (value instanceof Action) {
+					Action action = (Action) value;
+					if (action.isEnabled()) {
+						rowContent.add(Map.of("action", new JsonAction(action)));
+					} else {
+						rowContent.add(action.getName());
+					}
 				} else {
-					rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+					String stringValue = Rendering.toString(value, property);
+					ColorName color = Rendering.getColor(object, value);
+					if (color == null) {
+						rowContent.add(stringValue);
+					} else {
+						rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+					}
 				}
 			}
 			tableContent.add(rowContent);

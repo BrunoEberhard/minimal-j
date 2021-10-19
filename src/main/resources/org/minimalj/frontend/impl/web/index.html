@@ -621,10 +621,7 @@ $ICON
 			}
 		} else if (type === "Action") {
 			element = document.createElement("div");
-			element.className = "action";
-			element.textContent = content.name;
-			if (content.description) element.setAttribute("title", content.description);
-			element.setAttribute("onclick", "action(\"" + content.id + "\");");
+			createAction(element, content);
 		} else if (type === "TextField") {
 			element = document.createElement("input");
 			try {
@@ -901,13 +898,22 @@ $ICON
 	
 	function createTableCell(cell) {
 		var td = document.createElement("td");
-		if (cell.color) {
+		if (cell.action) {
+			createAction(td, cell.action);
+		} else if (cell.color) {
 			td.appendChild(document.createTextNode(cell.value));
 			td.classList.add(cell.color);
 		} else if (cell) {
 			td.appendChild(document.createTextNode(cell));
 		}
 		return td;
+	}
+	
+	function createAction(element, config) {
+		element.className = "action";
+		element.textContent = config.name;
+		if (config.description) element.setAttribute("title", config.description);
+		element.setAttribute("onclick", "action(\"" + config.id + "\");");
 	}
 	
 	function removeChildren(element) {
