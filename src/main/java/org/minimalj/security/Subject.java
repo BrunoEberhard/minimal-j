@@ -19,7 +19,7 @@ public class Subject implements Serializable {
 	/**
 	 * Only for tests
 	 * 
-	 * @param name
+	 * @param name name
 	 */
 	public Subject(String name) {
 		this.name = name;
