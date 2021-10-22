@@ -133,6 +133,28 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 	public interface TableSelectionAction<T> {
 		
 		public abstract void selectionChanged(List<T> selectedObjects);
+		
+		public default void setObject(T selectedObject) {
+			selectionChanged(selectedObject != null ? Arrays.asList(selectedObject) : Collections.emptyList());
+		}
+	}
+	
+	public static abstract class BaseTableSelectionAction<U> extends Action implements TableSelectionAction<U> {
+		private List<U> selectedObjects;
+		
+		public BaseTableSelectionAction() {
+			selectionChanged(Collections.emptyList());
+		}
+		
+		public List<U> getSelectedObjects() {
+			return selectedObjects;
+		}
+		
+		@Override
+		public void selectionChanged(List<U> selectedObjects) {
+			this.selectedObjects = selectedObjects;
+			setEnabled(!selectedObjects.isEmpty());
+		}
 	}
 	
 	protected void delete(List<T> selectedObjects) {
@@ -141,12 +163,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 	}
 
-	public class DeleteDetailAction extends Action implements TableSelectionAction<T> {
-		private List<T> selectedObjects;
-		
-		public DeleteDetailAction() {
-			selectionChanged(null);
-		}
+	public class DeleteDetailAction extends BaseTableSelectionAction<T> {
 		
 		@Override
 		protected Object[] getNameArguments() {
@@ -154,16 +171,10 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		}
 		
 		@Override
-		public void action() {
-			delete(selectedObjects);
+		public void run() {
+			delete(getSelectedObjects());
 			TablePage.this.refresh();
 			TablePage.this.selectionChanged(Collections.emptyList());
-		}
-
-		@Override
-		public void selectionChanged(List<T> selectedObjects) {
-			this.selectedObjects = selectedObjects;
-			setEnabled(selectedObjects != null && !selectedObjects.isEmpty());
 		}
 	}	
 	

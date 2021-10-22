@@ -9,19 +9,24 @@ body {
 	height: 100%;
 }
 
+::selection {
+	background: rgba(0,0,0,.05);
+}
+
 /* header with search */
 
 #header {
 	position: fixed;
 	margin: 0px;
-	width: 100%;
+	left: 0px;
+	right: 0px;
 	height: 2.6em;
 	box-sizing: border-box;
 	line-height: 2.45em;
 	text-align: left;
-	background: rgb(224,224,224);
-	border-bottom: 1px rgb(160,160,160) solid;
+	background: rgb(0, 0, 0, 0.125);
 	padding-left: 0ex;
+	border-bottom: 1px rgb(160,160,160) solid;
 }
 
 .headerButton {
@@ -66,6 +71,21 @@ body {
 	border-right: 1px rgb(160,160,160) solid;
 }
 
+.secondHeader {
+	border-bottom: 1px rgb(160,160,160) solid;
+}
+
+.secondHeaderButtons {
+    float: right;
+    margin-top: 0.5em;
+    margin-right: 1em;
+}
+
+.pageButton {
+	width: 1.1em;
+	height: 1.1em;
+}
+
 #navigationHeader {
 	position: relative;
 	height: 2em;
@@ -74,7 +94,6 @@ body {
 	padding-left: 1em;
 	width: 100%;
 	background: rgb(240,240,240);
-	border-bottom: 1px rgb(160,160,160) solid;
 }
 
 #navigation {
@@ -96,8 +115,8 @@ body {
 }
 
 .action {
-	color: blue;
 	color: -moz-hyperlinktext;
+	color: blue;
 	cursor: pointer;
 	text-decoration: none;
 }
@@ -127,52 +146,32 @@ body {
 /* pages */
 
 #pageContainer {
-	flex-grow: 10;
 	margin: 0px;
 	overflow: auto;
-	background: white;
-}
-
-.page {
-	position: relative;
-	border-bottom: 1px rgb(160,160,160) solid;
+	display: flex;
+	flex-direction: column;
 	width: 100%;
 }
 
-.page:only-child {
-	border-bottom: none;
-	top: 0em;
-	right: 0em;
-	min-height: unset;
-	height: 100%;
+.page {
+	width: 100%;
+	flex-grow: 1;
+	flex-basis: 2em;
+	overflow: hidden;
+	box-sizing: border-box;
 }
 
 .pageHeader {
-	position: relative;
 	height: 2em;
 	box-sizing: border-box;
 	line-height: 2.1em;
 	padding-left: 1em;
 	background: rgb(240,240,240);
-	border-bottom: 1px rgb(160,160,160) solid;
 }
 
 .pageContentAndActions {
-	position: relative;
-	min-height: 8em;
-}
-
-.page:only-child > .pageContentAndActions {
-	position: absolute;
-	top: 2em;
-	left: 0em;
-	right: 0em;
-	height: calc(100% - 2em)
-}
-
-.pageButton {
-	width: 1.1em;
-	height: 1.1em;
+	height: calc(100% - 2em);
+	overflow-y: auto;
 }
 
 .pageContent {
@@ -183,11 +182,12 @@ body {
 	overflow: auto;
 }
 
-.page:only-child > .pageContentAndActions > iframe.pageContent {
-	height: 100%;
+.pageContent.contentQuery {
+	padding-right: 1em;
 }
 
 iframe.pageContent {
+	height: 100%;
 	padding: 0;
 	border: 0;
 	font-family: inherit;
@@ -196,6 +196,21 @@ iframe.pageContent {
 table.table tr td {
 	height: 1.7em;
 	line-height: 1.6em;
+}
+
+table.table thead {
+	position: sticky;
+	top: 0;
+	background: white;
+}
+
+.table .form > div > div {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.table .form {
+	margin-top: 0;
 }
 
 .actionMenu {
@@ -214,6 +229,7 @@ dialog {
 	padding: 0em;
 	width: auto;
 	top: 1em;
+	bottom: auto;
 	left: 1em;
 	margin-right: 1em;
 	margin-bottom: 1em;
@@ -225,6 +241,8 @@ dialog.fullscreen {
 	bottom: 0em;
 	box-sizing: border-box;
 	border: none;
+	max-width: none;
+	max-height: none;
 }
 
 .dialogHeader {
@@ -261,10 +279,13 @@ dialog.fullscreen {
 	margin-right: 0.2em;
 }
 
+#applicationVersion {
+	display: none;
+}
+
 /* table */
 
 table {
-	width: 100%;
 	table-layout: fixed;
 	font-size: inherit;
 	border-spacing: 0px;
@@ -286,10 +307,6 @@ table tr:nth-child(even) {
 	background: #f8f8f8;
 }
 
-table tr:nth-child(odd) {
-	background: white;
-}
-
 table tr:nth-child(even).selected {
 	background: #99f;
 }
@@ -309,23 +326,83 @@ table tr:nth-child(odd).selected {
 	flex-wrap: wrap;	
 }
 
-.form > div > div {
-	padding-top: 0.4em;
-	padding-bottom: 0.4em;
-	overflow: hidden;
+dialog .form > div {
+	margin-left: 1em;
 }
 
-.form input, .form select, .form textarea, .form .lookup, dialog .form .text, dialog .form label, dialog .form div.list, dialog .form .title {
-	width: calc(100% - 1em);
-	margin-left: 0.5em;
-	margin-right: 0.5em;
+.form > div > div {
+	position: relative;
+	padding-top: 0.4em;
+	padding-bottom: 0.4em;
+	margin-right: 1em;
+	// overflow: hidden;
+}
+
+.form > div > div > *, .form input[type=text] {
+	width: 100%;
+}
+
+.form input, .form select {
+	height: 1.8em;
+}
+
+.form .text {
+	padding-top: 3.5px;
+}
+
+.form .lookup .text, .form .lookup input {
+	width: 100%;
+	min-height: 1.8em;
+	box-sizing: border-box;
+}
+
+.form .lookup input {
+	width: 100%;
 }
 
 .form .lookup .text {
-	width: 100%;
 	padding: 3.5px;
 	border: lightgray solid 1px;
-	margin: 0em;
+	margin: 0em 2em 0em 0em;
+	padding-right: 2em !important;
+	text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+th .form {
+	font-weight: normal;
+}
+
+.dropdownButton {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	top: 0px;
+	width: 2em;
+	background-size: 0.8em 0.5em;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='51%25' y2='93%25'/%3E%3Cline x1='93%25' y1='7%25' x2='49%25' y2='93%25'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* https://css-tricks.com/using-svg/
+<svg style="stroke: black; stroke-width:20%">
+<line x1="7%" y1="7%" x2="51%" y2="93%"/>
+<line x1="93%" y1="7%" x2="49%" y2="93%"/>
+</svg>
+*/
+
+.dropdown {
+	position: fixed;
+	width: -moz-fit-content;
+	width: fit-content;
+	border: black solid 1px;
+	background: white;
+	z-index: 1;
+}
+
+.form .lookup .dropdown div {
+	padding: 0.2em;
 }
 
 .form .groupItem:first-child .lookup .text {
@@ -382,8 +459,9 @@ hr {
 }
 
 label {
-	display: inline-flex;
+	display: block;
 	align-items: center;
+	white-space: nowrap;
 	overflow: hidden;
 	font-size: x-smaller;
 	font-weight: bolder;
@@ -395,49 +473,54 @@ label {
 }
 
 .lookup {
-	display: flex;
+	position: relative;
 }
 
 .lookup input {
-	flex-grow: 1;
 	margin: 0px;
-	width: 3em;
-}
-
-.lookup button, .lookup select {
-	align-self: start;
-}
-
-.lookup span {
-	flex-grow: 1;
-	align-self: center;
-}
-
-.lookup select {
-	width: 1.8em;
-	height: 1.8em;
-	padding: 0;
-	vertical-align: middle;
-	margin: 0;
 }
 
 .lookup select option:first-child {
 	display: none;
 }
 
+/* https://css-tricks.com/using-svg/
+<svg style="stroke: black; stroke-width:20%">
+<line x1="7%" y1="7%" x2="93%" y2="51%"/>
+<line x1="7%" y1="93%" x2="93%" y2="49%"/>
+</svg>
+*/
+
+.lookupButton {
+	position: absolute;
+	width: 2em;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background-size: 0.5em 0.8em;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='93%25' y2='51%25'/%3E%3Cline x1='7%25' y1='93%25' x2='93%25' y2='49%25'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 .hide {
 	visibility: hidden;
 }
 
-@media (min-width: 992px) {
+.red { color: red; }
+.green { color: green; }
+.blue { color: blue; }
+.yellow { color: #c1aa1e; }
+
+@media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
 	#actionMenuButton { display: none; }
 }
 
-@media (max-width: 991px) {
+@media screen and (max-width: 991px) {
 	#search { display: none; }
-	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; background: white; border-right: 1px rgb(160,160,160) solid;}
+	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; border-right: 1px rgb(160,160,160) solid;}
 	#navigationHeader { display: none; }
 	#navigation { max-height: 100%}
 	#pageContainer { height: 100%}
@@ -447,9 +530,12 @@ label {
 	.page:last-child > .pageContentAndActions { top: 0em; height: 100%;}
 	.pageHeader { display: none; }
 	.actionMenu { min-width: 13em;}
-	.pageButton { display: none; }
 	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 	table.form, table.form input, table.form select { margin: 0px; }
-	.dialogFooter button { font-size : inherit; }
-	.dialogHeader { height: 2.3em; line-Height: 2.3em; font-size: larger;}
+}
+
+@media print {
+  .hidden-print {
+    display: none !important;
+  }
 }

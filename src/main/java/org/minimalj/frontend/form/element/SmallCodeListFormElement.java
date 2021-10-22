@@ -59,7 +59,7 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 		return s.toString();
 	}
 
-	private CharSequence render(T element) {
+	protected CharSequence render(T element) {
 		return Rendering.render(element);
 	}
 
@@ -82,7 +82,7 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 
 	public void lookup() {
 		// kein Editieren, nur hinzufügen
-		new AddListEntryEditor().action();
+		new AddListEntryEditor().run();
 	}
 
 	public class ReferenceHolder {

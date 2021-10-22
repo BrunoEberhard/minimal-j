@@ -9,12 +9,14 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
+import org.minimalj.util.resources.Resources;
 
 public abstract class FormatFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
 
@@ -71,6 +73,13 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 			} else {
 				textField = Frontend.getInstance().createReadOnlyTextField();
 			}
+			// TODO find general concept for placeholer
+			if (textField instanceof JsonTextField) {
+				String placeholder = Resources.getPropertyName(getProperty(), ".placeholder");
+				if (placeholder != null) {
+					((JsonTextField) textField).setPlaceholder(placeholder);
+				}
+			}
 
 		}
 		return textField;
@@ -81,16 +90,26 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		return parse(textField.getValue());
 	}
 
+	/**
+	 * @param text input by the user
+	 * @return the parsed value. Or if text cannot be parsed a invalid value.
+	 * @see InvalidValues
+	 */
 	protected abstract T parse(String text);
 	
 	@Override
 	public final void setValue(T value) {
-		String newString = render(value);
+		String newString = InvalidValues.isInvalid(value) ? InvalidValues.getInvalidValue(value) : render(value);
 		if (!StringUtils.equals(newString, textField.getValue())) {
 			textField.setValue(newString);
 		}
 	}
 
+	/**
+	 * @param value valid or null but not invalid (already checked in setValue() )
+	 * @return the formatted value
+	 * @see #setValue(Object)
+	 */
 	protected abstract String render(T value);
 	
 	private class TextFormatFieldChangeListener implements InputComponentListener {

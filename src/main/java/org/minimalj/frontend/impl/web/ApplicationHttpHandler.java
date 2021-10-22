@@ -7,7 +7,6 @@ import java.util.Objects;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
-import org.minimalj.util.StringUtils;
 
 public class ApplicationHttpHandler implements MjHttpHandler {
 
@@ -16,7 +15,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 	private static final ResourcesHttpHandler resourcesHttpHandler = new ResourcesHttpHandler() {
 		@Override
 		public URL getUrl(String path) throws IOException {
-			return ApplicationHttpHandler.class.getResource(path);
+			return ApplicationHttpHandler.class.getResource(path.substring(1));
 		}
 	};
 
@@ -42,23 +41,32 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		if (!path.startsWith("/")) {
 			throw new IllegalArgumentException(path);
 		}
-		path = path.substring(1);
-		if (path.equals("ajax_request.xml")) {
+		switch (path) {
+		case "/ajax_request.xml":
 			String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
-			exchange.sendResponse(200, response, "application/json");
-		} else if (StringUtils.equals(path, "", "index.html")) {
-			handleTemplate(exchange);
-		} else if (path.equals("application.png")) {
+			// I think the correct mime-type would have beean application/json
+			// but chrome does report a problem if the type is not "text/xml"
+			exchange.sendResponse(200, response, "text/xml;charset=UTF-8");
+			break;
+		case "/":
+			handleTemplate(exchange, path);
+			break;
+		case "/application.png":
 			exchange.sendResponse(200, ResourcesHttpHandler.read(Application.getInstance().getIcon()), "image/png");
-		} else {
+			break;
+		default:
 			resourcesHttpHandler.handle(exchange, path);
 		}
 	}
 
-	public static void handleTemplate(MjHttpExchange exchange) {
+	public static void handleTemplate(MjHttpExchange exchange, String path) {
 		String htmlTemplate = JsonFrontend.getHtmlTemplate();
-		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, exchange.getPath());
-		exchange.sendResponse(200, html, "text/html");
+		String html = JsonFrontend.fillPlaceHolder(htmlTemplate, path);
+		exchange.addHeader("Content-Security-Policy", "frame-ancestors 'none'");
+		exchange.addHeader("X-Frame-Options", "DENY");
+		exchange.addHeader("X-Content-Type-Options", "nosniff");
+		exchange.addHeader("Strict-Transport-Security", "max-age=63072000");
+		exchange.sendResponse(200, html, "text/html;charset=UTF-8");
 	}
 
 }

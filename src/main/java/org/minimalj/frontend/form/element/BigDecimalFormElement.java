@@ -1,6 +1,7 @@
 package org.minimalj.frontend.form.element;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
@@ -29,10 +30,11 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 		NumberFormat format = new DecimalFormat();
 		if (decimalPlaces > 0) {
 			format.setMaximumFractionDigits(decimalPlaces);
+			format.setMinimumFractionDigits(decimalPlaces);
 		} else {
 			format.setMaximumFractionDigits(0);
+			format.setMinimumFractionDigits(0);
 		}
-		format.setMinimumFractionDigits(0);
 		format.setGroupingUsed(false);
 		return format;
 	}
@@ -63,16 +65,12 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	
 	@Override
 	public String render(BigDecimal number) {
-		String string = null;
 		if (number != null) {
-			if (InvalidValues.isInvalid(number)) {
-				string = InvalidValues.getInvalidValue(number);
-			} else {
-				BigDecimal correctScale = number.setScale(format.getMaximumFractionDigits(), BigDecimal.ROUND_DOWN);
-				return format.format(correctScale);
-			}
+			BigDecimal correctScale = number.setScale(format.getMaximumFractionDigits(), RoundingMode.DOWN);
+			return format.format(correctScale);
+		} else {
+			return null;
 		}
-		return string;
 	}
 
 	

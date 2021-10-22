@@ -16,11 +16,17 @@ public class JsonSwitch extends JsonComponent implements SwitchContent, SwitchCo
 
 	@Override
 	public void show(IContent content) {
-		jsonPageManager.replaceContent(this, (JsonComponent) content);
+		if (content != get("component")) {
+			putSilent("component", content);
+			jsonPageManager.replaceContent(this, (JsonComponent) content);
+		}
 	}
 
 	@Override
 	public void show(IComponent component) {
-		jsonPageManager.replaceContent(this, (JsonComponent) component);
+		if (component != get("component")) {
+			putSilent("component", component);
+			jsonPageManager.replaceContent(this, (JsonComponent) component);
+		}
 	}
 }

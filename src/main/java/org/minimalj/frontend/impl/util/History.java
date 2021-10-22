@@ -9,6 +9,7 @@ public class History<T> {
 	private final HistoryListener historyListener;
 	private T present;
 	private int presentIndex = -1;
+	private ArrayList<T> snapshot = new ArrayList<>();
 	
 	public History(HistoryListener historyListener) {
 		this.historyListener = historyListener;
@@ -81,9 +82,18 @@ public class History<T> {
 	public boolean hasPast() {
 		return present != null && presentIndex > 0; 
 	}
+
+	public void takeSnapshot() {
+		snapshot.clear();
+		snapshot.addAll(history);
+	}
 	
-	public void clear() {
-		history.clear();
+	public void restoreSnapshot() {
+		if (!snapshot.equals(history)) {
+			history.clear();
+			history.addAll(snapshot);
+			fireHistoryChanged();
+		}
 	}
 	
 	public interface HistoryListener {

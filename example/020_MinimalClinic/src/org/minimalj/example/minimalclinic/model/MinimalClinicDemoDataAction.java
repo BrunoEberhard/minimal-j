@@ -14,7 +14,7 @@ public class MinimalClinicDemoDataAction extends Action implements Transaction<V
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void action() {
+	public void run() {
 		Backend.execute(this);
 	}
 

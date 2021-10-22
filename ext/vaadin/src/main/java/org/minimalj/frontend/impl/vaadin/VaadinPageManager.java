@@ -3,7 +3,9 @@ package org.minimalj.frontend.impl.vaadin;
 import java.util.List;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -13,7 +15,8 @@ import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
-import org.minimalj.security.Authentication.LoginListener;
+import org.minimalj.security.Authentication;
+import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 
 import com.vaadin.flow.component.Component;
@@ -35,71 +38,60 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-@Route("")
+@Route("/")
 @Theme(value = Lumo.class, variant = Lumo.LIGHT)
 public class VaadinPageManager extends AppLayout implements PageManager {
 	private static final long serialVersionUID = 1L;
 
 	private final VerticalLayout menuLayout = new VerticalLayout();
+	private final Authentication authentication = Backend.getInstance().getAuthentication();
+	private final Button loginButton, logoutButton;
 	
 	public VaadinPageManager() {
+		UI.getCurrent().getSession().setAttribute("pageManager", this);
+
 		getElement().getStyle().set("overflow", "hidden");
 		
 		setPrimarySection(Section.DRAWER);
 		addToNavbar(new DrawerToggle());
-		if (Backend.getInstance().isAuthenticationActive()) {
-			Button buttonLogin = new Button(VaadinIcon.USER.create());
-			buttonLogin.addClickListener(event -> {
-				if (Subject.getCurrent() == null) {
-					Backend.getInstance().getAuthentication().login(new VaadinLoginListener(null));
-				} else {
-					setSubject(null);
-					show(Application.getInstance().createDefaultPage());
-				}
-			});
-			addToNavbar(buttonLogin);
-		}
 		
-		if (Application.getInstance().hasSearchPages()) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+			loginButton = new Button();
+			loginButton.setIcon(VaadinIcon.SIGN_IN.create());
+			loginButton.addClickListener(event -> Backend.getInstance().getAuthentication().showLogin());
+			logoutButton = new Button();
+			logoutButton.setIcon(VaadinIcon.SIGN_OUT.create());
+			logoutButton.addClickListener(event -> login(null));
+			updateAuthenticationButtons();
+
+			addToNavbar(loginButton);
+			addToNavbar(logoutButton);
+		} else {
+			loginButton = null;
+			logoutButton = null;
+		}
+
+		if (Application.getInstance().hasSearch()) {
 			TextField textFieldSearch = new TextField();
 			textFieldSearch.getStyle().set("margin-left", "auto");
 			textFieldSearch.getStyle().set("margin-right", "1em");
 			textFieldSearch.addKeyPressListener(Key.ENTER, event -> {
 				String query = textFieldSearch.getValue();
-				Page page = Application.getInstance().createSearchPage(query);
-				show(page);
+				Application.getInstance().search(query);
 			});
 			addToNavbar(textFieldSearch); 
 		}
 		
 		addToDrawer(menuLayout);
-		updateNavigation();
-		show(Application.getInstance().createDefaultPage());
-		
-		UI.getCurrent().getSession().setAttribute("pageManager", this);
-	}
 
-	private class VaadinLoginListener implements LoginListener {
-		private final Page page;
-
-		public VaadinLoginListener(Page page) {
-			this.page = page;
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+			updateNavigation();
 		}
-
-		@Override
-		public void loginSucceded(Subject subject) {
-			setSubject(subject);
-			if (page != null) {
-				show(page);
-			}
+		if (Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
+			Backend.getInstance().getAuthentication().showLogin();
+		} else {
+			Frontend.show(Application.getInstance().createDefaultPage());
 		}
-	}
-	
-	private void setSubject(Subject subject) {
-		Subject.setCurrent(subject);
-//		UI.getCurrent().getSession().setAttribute("subject", subject);
-
-		updateNavigation();
 	}
 	
 	private void updateNavigation() {
@@ -108,6 +100,10 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		
 		List<Action> actions = Application.getInstance().getNavigation();
 		addActions(menuLayout, actions);
+	}
+
+	private void clearNavigation() {
+		menuLayout.removeAll();
 	}
 
 	private void addActions(HasComponents container, List<Action> actions) {
@@ -124,7 +120,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			} else {
 				Anchor anchor = new Anchor();
 				anchor.setText(action.getName());
-				anchor.getElement().addEventListener("click", e -> action.action());
+				anchor.getElement().addEventListener("click", e -> action.run());
 				container.add(anchor);
 			}
 		}
@@ -132,6 +128,14 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 
 	@Override
 	public void show(Page page) {
+		if (!Authorization.hasAccess(Subject.getCurrent(), page)) {
+			if (authentication == null) {
+				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
+			}
+			authentication.showLogin();
+			return;
+		}
+		
 		Component content = (Component) page.getContent();
 		setContent(content);
 		
@@ -144,7 +148,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 				}
 				Anchor anchor = new Anchor();
 				anchor.setText(action.getName());
-				anchor.getElement().addEventListener("click", e -> {action.action(); menu.close();} );
+				anchor.getElement().addEventListener("click", e -> {action.run(); menu.close();} );
 				menu.add(anchor);
 			}
 		}
@@ -163,6 +167,28 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	@Override
 	public void showError(String text) {
 		Notification.show(text).addThemeVariants(NotificationVariant.LUMO_ERROR);
-	}	
-	
+	}
+
+	@Override
+	public void login(Subject subject) {
+		UI.getCurrent().getSession().setAttribute("subject", subject);
+		Subject.setCurrent(subject);
+		
+		updateAuthenticationButtons();
+		
+		if (subject == null && Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
+			clearNavigation();
+			Backend.getInstance().getAuthentication().showLogin();
+		} else {
+			updateNavigation();
+			Frontend.show(Application.getInstance().createDefaultPage());
+		}
+	}
+
+	private void updateAuthenticationButtons() {
+		if (loginButton != null) {
+			loginButton.setVisible(Subject.getCurrent() == null);
+			logoutButton.setVisible(Subject.getCurrent() != null);
+		}
+	}
 }

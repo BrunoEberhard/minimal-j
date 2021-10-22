@@ -28,7 +28,7 @@ public class RoutingHttpHandler implements MjHttpHandler {
 
 	private void handle(MjHttpExchange exchange, String path) {
 		if (Page.validateRoute(path)) {
-			ApplicationHttpHandler.handleTemplate(exchange);
+			ApplicationHttpHandler.handleTemplate(exchange, path);
 		}
 	}
 }

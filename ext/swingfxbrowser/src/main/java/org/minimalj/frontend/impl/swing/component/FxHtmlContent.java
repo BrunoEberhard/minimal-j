@@ -1,14 +1,21 @@
 package org.minimalj.frontend.impl.swing.component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
-import org.minimalj.frontend.impl.web.WebApplication;
+import org.minimalj.frontend.impl.web.MjHttpExchange;
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 import org.w3c.dom.Document;
@@ -31,6 +38,8 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 	private static final long serialVersionUID = 1L;
 	public static final String EVENT_TYPE_CLICK = "click";
 
+	private static ResourcesHttpHandler resourceHandler = new ResourcesHttpHandler();
+	
 	public FxHtmlContent(String html) {
 		Platform.setImplicitExit(false);
 		startBrowser(null, html);
@@ -96,7 +105,7 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 								HTMLImageElement n = (HTMLImageElement) nodeList.item(i);
 								String src = n.getSrc();
 								try {
-									n.setSrc(WebApplication.getResourceHandler().getUrl(src).toExternalForm());
+									n.setSrc(resourceHandler.getUrl(src).toExternalForm());
 								} catch (IOException e) {
 									throw new RuntimeException(e);
 								}
@@ -124,4 +133,53 @@ public class FxHtmlContent extends javafx.embed.swing.JFXPanel implements IConte
 		return href;
 	}
 
+	public static class WebApplicationPageExchange extends MjHttpExchange {
+		private final String path;
+		private byte[] result;
+		private String contentType;
+
+		public WebApplicationPageExchange(String path) {
+			this.path = path;
+		}
+
+		public String getResult() {
+			return Base64.getEncoder().encodeToString(result);
+		}
+
+		public String getContentType() {
+			return contentType;
+		}
+		
+		@Override
+		public String getPath() {
+			return path;
+		}
+
+		@Override
+		public InputStream getRequest() {
+			return null;
+		}
+
+		@Override
+		public Map<String, List<String>> getParameters() {
+			return Collections.emptyMap();
+		}
+
+		@Override
+		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
+			this.result = bytes;
+			this.contentType = contentType;
+		}
+
+		@Override
+		public void sendResponse(int statusCode, String response, String contentType) {
+			this.result = response.getBytes(Charset.forName("utf-8"));
+			this.contentType = contentType;
+		}
+
+		@Override
+		public boolean isResponseSent() {
+			return result != null;
+		}
+	}
 }

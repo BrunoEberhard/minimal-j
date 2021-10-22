@@ -17,7 +17,6 @@ public class SqlIdentifier {
 	}
 
 	protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
-		identifier = identifier.toUpperCase();
 		identifier = cutToMaxLength(identifier);
 		identifier = avoidReservedSqlWords(identifier);
 		identifier = resolveIdentifierConflicts(alreadyUsedIdentifiers, identifier);
@@ -58,7 +57,7 @@ public class SqlIdentifier {
 	}
 
 	protected String avoidReservedSqlWords(String identifier) {
-		if (ReservedSqlWords.reservedSqlWords.contains(identifier)) {
+		if (ReservedSqlWords.isReservedWord(identifier)) {
 			if (identifier.length() == maxIdentifierLength) {
 				identifier = identifier.substring(0, identifier.length() - 1);
 			}

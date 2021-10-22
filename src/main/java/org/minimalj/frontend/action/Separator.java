@@ -7,7 +7,7 @@ public class Separator extends Action {
 	}
 	
 	@Override
-	public void action() {
+	public void run() {
 		throw new IllegalStateException("Separator should not trigger action");
 	}
 

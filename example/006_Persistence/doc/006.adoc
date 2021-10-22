@@ -48,7 +48,7 @@ oracle https://docs.oracle.com/javase/tutorial/jdbc/basics/sqldatasources.html .
 
 There are even some helper
 methods in Minimal-J that save you all the trouble at the start. In the example an embedded Java DB is used.
-You need the derby.jar and derbyclient.jar for that in your classpath. Otherwise you get an exception when
+You need the h2.jar for that in your classpath. Otherwise you get an exception when
 starting the application.
 
 As second argument the SqlRepository constructor needs an Array of the model entities. Or at least of the main

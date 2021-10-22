@@ -38,6 +38,10 @@ public class PageStore {
 		return pageIds.stream().allMatch(pageId -> queue.stream().anyMatch(entry -> entry.getId().equals(pageId)));
 	}
 	
+	public void clear() {
+		queue.clear();
+	}
+	
 	private static class PageStoreEntry {
 		private final String id;
 		private final Page page;

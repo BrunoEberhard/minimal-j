@@ -16,6 +16,7 @@ import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
+import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
 
 public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
@@ -71,13 +72,18 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 
 	private class ClearAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			setValue(null);
 		}
 	}
 
 	protected class NewReferenceEditor extends NewObjectEditor<T> {
 
+		@Override
+		protected T createObject() {
+			return ReferenceFormElement.this.createObject();
+		}
+		
 		@Override
 		protected Class<T> getEditedClass() {
 			return fieldClazz;
@@ -98,6 +104,10 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 			ReferenceFormElement.this.setValueInternal(result);
 			dialog.closeDialog();
 		}
+	}
+	
+	protected T createObject() {
+		return CloneHelper.newInstance(fieldClazz);
 	}
 
 	private class SearchDialogActionListener implements TableActionListener<T> {

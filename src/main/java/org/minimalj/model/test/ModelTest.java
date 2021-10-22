@@ -67,9 +67,6 @@ public class ModelTest {
 		for (Class<?> clazz : mainClasses) {
 			testClass(clazz);
 		}
-		if (Configuration.isDevModeActive()) {
-			Resources.printMissing();
-		}
 	}
 	
 	/**

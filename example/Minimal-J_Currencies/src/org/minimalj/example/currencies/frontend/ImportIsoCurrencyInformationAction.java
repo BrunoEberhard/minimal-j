@@ -8,7 +8,7 @@ import org.minimalj.frontend.action.Action;
 public class ImportIsoCurrencyInformationAction extends Action {
 
 	@Override
-	public void action() {
+	public void run() {
 		int inserts = Backend.execute(new ImportIsoCurrencyInformation());
 		Frontend.showMessage(inserts + " currencies imported");
 	}

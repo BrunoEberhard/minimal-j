@@ -11,6 +11,6 @@ public class FxAction extends javafx.scene.control.Hyperlink implements ICompone
 			setTooltip(new javafx.scene.control.Tooltip(action.getDescription()));
 		}
 		// todo change to event thread
-		setOnAction(event -> action.action());
+		setOnAction(event -> action.run());
 	}
 }

@@ -75,14 +75,7 @@ public class Validator {
 
 	private static void validateEmpty(List<ValidationMessage> resultList, Object value, PropertyInterface property) {
 		if (property.getAnnotation(NotEmpty.class) != null && EmptyObjects.isEmpty(value)) {
-			String caption = Resources.getPropertyName(property);
-			String message;
-			if (StringUtils.isEmpty(caption)) {
-				message = Resources.getString("EmptyValidator.messageNoCaption");
-			} else {
-				message = MessageFormat.format(Resources.getString("EmptyValidator.message"), caption);
-			}
-			resultList.add(new ValidationMessage(property, message));
+			resultList.add(Validation.createEmptyValidationMessage(property));
 		}
 	}
 
@@ -99,11 +92,10 @@ public class Validator {
 
 	private static void validateInvalid(List<ValidationMessage> validationMessages, Object value, PropertyInterface property) {
 		if (InvalidValues.isInvalid(value)) {
-			String caption = Resources.getPropertyName(property);
-			validationMessages.add(new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption)));
+			validationMessages.add(Validation.createInvalidValidationMessage(property));
 		}
 	}
-
+	
 	public static boolean allUsedFieldsValid(List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties,
 			boolean showWarningIfValidationForUnsuedElement) {
 		for (ValidationMessage validationMessage : validationMessages) {

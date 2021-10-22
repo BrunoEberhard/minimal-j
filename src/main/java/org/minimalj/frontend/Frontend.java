@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.element.FormElementConstraint;
@@ -11,7 +12,9 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 /**
  * To provide a new kind (Xy) of client you have to implement two things:
@@ -42,6 +45,9 @@ public abstract class Frontend {
 			throw new IllegalArgumentException("Frontend cannot be null");
 		}
 		Frontend.instance = frontend;
+		if (Configuration.isDevModeActive()) {
+			Resources.printMissing();
+		}
 	}
 
 	public static boolean isAvailable() {
@@ -146,6 +152,7 @@ public abstract class Frontend {
 	
 	public interface ITable<T> extends IContent {
 		
+		// must keep selection and call selectionListener
 		public void setObjects(List<T> objects);
 	}
 
@@ -198,6 +205,33 @@ public abstract class Frontend {
 	 * @return query content
 	 */
 	public abstract IContent createQueryContent();
+
+	/**
+	 * A web frontend may show the login like a page. A standalone Frontend may show
+	 * it as a dialog.
+	 * 
+	 * @param content the login form
+	 * @param loginAction the action used for enter key
+	 * @param actions the actions are shown from right to left
+	 * @return dialog if frontend uses a dialog
+	 */
+	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions);
+	
+	/**
+	 * 
+	 * @param subject new current Subject or <code>null</code> for logout
+	 */
+	public void login(Subject subject) {
+		getPageManager().login(subject);
+	}
+	
+	protected void doShowMessage(String text) {
+		getPageManager().showMessage(text);
+	}
+	
+	protected  void doShowError(String text) {
+		getPageManager().showError(text);
+	}
 	
 	//
 	
@@ -210,9 +244,13 @@ public abstract class Frontend {
 	}
 
 	public static void showDetail(Page mainPage, Page detail) {
-		getInstance().getPageManager().showDetail(mainPage, detail);
+		getInstance().getPageManager().showDetail(mainPage, detail, false);
 	}
-	
+
+	public static void showDetail(Page mainPage, Page detail, boolean horizontalDetailLayout) {
+		getInstance().getPageManager().showDetail(mainPage, detail, horizontalDetailLayout);
+	}
+
 	public static void hideDetail(Page page) {
 		getInstance().getPageManager().hideDetail(page);
 	}
@@ -224,14 +262,14 @@ public abstract class Frontend {
 	public static IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
 		return getInstance().getPageManager().showDialog(title, content, saveAction, closeAction, actions);
 	}
-
+	
 	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
 	public static void showMessage(String text) {
-		getInstance().getPageManager().showMessage(text);
+		getInstance().doShowMessage(text);
 	}
 	
 	public static void showError(String text) {
-		getInstance().getPageManager().showError(text);
+		getInstance().doShowError(text);
 	}
 }

@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,16 +50,18 @@ import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
+import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
 
 public class Form<T> {
-	private static Logger logger = Logger.getLogger(Form.class.getSimpleName().toUpperCase());
+	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
 
 	public static final boolean EDITABLE = true;
 	public static final boolean READ_ONLY = false;
 
+	public static final int DEFAULT_COLUMN_WIDTH = 100;
 	public static final Object GROW_FIRST_ELEMENT = new Object();
 
 	protected final boolean editable;
@@ -68,10 +71,10 @@ public class Form<T> {
 	
 	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<>();
 	
-	private final FormPanelChangeListener formPanelChangeListener = new FormPanelChangeListener();
+	private final FormChangeListener formChangeListener = new FormChangeListener();
 	
 	private ChangeListener<Form<?>> changeListener;
-	private boolean changeFromOutsite;
+	private boolean changeFromOutside;
 
 	private final Map<String, List<PropertyInterface>> dependencies = new HashMap<>();
 	@SuppressWarnings("rawtypes")
@@ -92,15 +95,15 @@ public class Form<T> {
 	}
 
 	public Form(boolean editable, int columns) {
-		this.editable = editable;
-		this.columns = columns;
-		this.formContent = Frontend.getInstance().createFormContent(columns, getColumnWidthPercentage());
-	}
-	
-	protected int getColumnWidthPercentage() {
-		return 100;
+		this(editable, columns, DEFAULT_COLUMN_WIDTH);
 	}
 
+	public Form(boolean editable, int columns, int columnWidth) {
+		this.editable = editable;
+		this.columns = columns;
+		this.formContent = Frontend.getInstance().createFormContent(columns, columnWidth);
+	}
+	
 	// Methods to create the form
 
 	public FormContent getContent() {
@@ -253,13 +256,17 @@ public class Form<T> {
 	}
 
 	private void addDependecy(PropertyInterface fromProperty, PropertyInterface to) {
-		if (!dependencies.containsKey(fromProperty.getPath())) {
-			dependencies.put(fromProperty.getPath(), new ArrayList<>());
+		addDependecy(fromProperty.getPath(), to);
+	}
+
+	private void addDependecy(String fromPropertyPath, PropertyInterface to) {
+		if (!dependencies.containsKey(fromPropertyPath)) {
+			dependencies.put(fromPropertyPath, new ArrayList<>());
 		}
-		List<PropertyInterface> list = dependencies.get(fromProperty.getPath());
+		List<PropertyInterface> list = dependencies.get(fromPropertyPath);
 		list.add(to);
 	}
-	
+
 	/**
 	 * Declares that if the key or property <i>from</i> changes the specified
 	 * updater should be called and after its return the <i>to</i> key or property
@@ -283,6 +290,7 @@ public class Form<T> {
 		addDependecy(from, to);
 	}
 
+	@FunctionalInterface
 	public interface PropertyUpdater<FROM, TO, EDIT_OBJECT> {
 		
 		/**
@@ -301,25 +309,34 @@ public class Form<T> {
 
 	private void registerNamedElement(FormElement<?> field) {
 		elements.put(field.getProperty(), field);
-		field.setChangeListener(formPanelChangeListener);
+		field.setChangeListener(formChangeListener);
 	}
 
 	private void addDependencies(FormElement<?> field) {
-		List<PropertyInterface> dependencies = Keys.getDependencies(field.getProperty());
+		PropertyInterface property = field.getProperty();
+		List<PropertyInterface> dependencies = Keys.getDependencies(property);
 		for (PropertyInterface dependency : dependencies) {
 			addDependecy(dependency, field.getProperty());
+		}
+		
+		// a.b.c
+		String path = property.getPath();
+		while (path != null && path.contains(".")) {
+			int pos = path.lastIndexOf('.');
+			addDependecy(path.substring(0, pos), property);
+			path = path.substring(0, pos);
 		}
 	}
 	
 	public final void mock() {
-		changeFromOutsite = true;
+		changeFromOutside = true;
 		try {
 			fillWithDemoData(object);
 		} catch (Exception x) {
 			logger.log(Level.SEVERE, "Fill with demo data failed", x);
 		} finally {
 			readValueFromObject();
-			changeFromOutsite = false;
+			changeFromOutside = false;
 		}
 	}
 
@@ -361,10 +378,10 @@ public class Form<T> {
 
 	public void setObject(T object) {
 		if (editable && changeListener == null) throw new IllegalStateException("Listener has to be set on a editable Form");
-		changeFromOutsite = true;
+		changeFromOutside = true;
 		this.object = object;
 		readValueFromObject();
-		changeFromOutsite = false;
+		changeFromOutside = false;
 	}
 
 	private void readValueFromObject() {
@@ -384,11 +401,11 @@ public class Form<T> {
 		this.changeListener = Objects.requireNonNull(changeListener);
 	}
 
-	private class FormPanelChangeListener implements ChangeListener<FormElement<?>> {
+	private class FormChangeListener implements ChangeListener<FormElement<?>> {
 
 		@Override
 		public void changed(FormElement<?> changedField) {
-			if (changeFromOutsite) return;
+			if (changeFromOutside) return;
 			if (changeListener == null) {
 				if (editable) logger.severe("Editable Form must have a listener");
 				return;
@@ -399,46 +416,72 @@ public class Form<T> {
 			PropertyInterface property = changedField.getProperty();
 			Object newValue = changedField.getValue();
 
-			// Call updaters before set the new value  (so they also can read the old value)
-			executeUpdater(property, newValue);
+			HashSet<PropertyInterface> changedProperties = new HashSet<>();
 			
-			// now set the new value. method - properties can use it as base
-			property.setValue(object, newValue);
+			setValue(property, newValue, changedProperties);
 			
-			// propagate all possible changed values to the form elements
-			refreshDependendFields(property);
-			
-			// update enable/disable fields
-			updateEnable();
-			
-			changeListener.changed(Form.this);
+			if (!changedProperties.isEmpty()) {
+				// don't need to update the form where the change comes from
+				changedProperties.remove(property);
+				
+				// propagate all possible changed values to the form elements
+				updateDependingFormElements(changedProperties);
+
+				// update enable/disable status of the form elements
+				updateEnable();
+				
+				changeListener.changed(Form.this);
+			}
 		}
 
-
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		private void refreshDependendFields(PropertyInterface property) {
-			if (dependencies.containsKey(property.getPath())) {
-				List<PropertyInterface> dependendProperties = dependencies.get(property.getPath());
-				for (PropertyInterface dependendProperty : dependendProperties) {
-					for (FormElement formElement : elements.values()) {
-						String formElementPath = formElement.getProperty().getPath();
-						String dependedPath = dependendProperty.getPath();
-						if (formElementPath.equals(dependedPath) || formElementPath.startsWith(dependedPath) && formElementPath.charAt(dependedPath.length()) == '.') {
-							Object newDependedValue = formElement.getProperty().getValue(object);
-							formElement.setValue(newDependedValue);
-						}
+		private void updateDependingFormElements(HashSet<PropertyInterface> changedProperties) {
+			for (PropertyInterface changedProperty : changedProperties) {
+				for (FormElement formElement : elements.values()) {
+					PropertyInterface formElementProperty = formElement.getProperty();
+					String formElementPath = formElementProperty.getPath();
+					String changedPropertyPath = changedProperty.getPath();
+					if (formElementPath.equals(changedPropertyPath) || formElementPath.startsWith(changedPropertyPath) && formElementPath.charAt(changedPropertyPath.length()) == '.') {
+						Object newValue = formElementProperty.getValue(object);
+						formElement.setValue(newValue);
 					}
 				}
 			}
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private void executeUpdater(PropertyInterface property, Object value) {
+		private void executeUpdater(PropertyInterface property, Object updaterInput, Object clonedObject, HashSet<PropertyInterface> changedProperties) {
 			if (propertyUpdater.containsKey(property)) {
 				Map<PropertyInterface, PropertyUpdater> updaters = propertyUpdater.get(property);
 				for (Map.Entry<PropertyInterface, PropertyUpdater> entry : updaters.entrySet()) {
-					Object ret = entry.getValue().update(value, CloneHelper.clone(object));
-					entry.getKey().setValue(object, ret);
+					Object updaterOutput = entry.getValue().update(updaterInput, clonedObject);
+					setValue(entry.getKey(), updaterOutput, changedProperties);
+				}
+			}
+		}
+
+		private void setValue(PropertyInterface property, Object newValue, HashSet<PropertyInterface> changedProperties) {
+			Object oldToValue = property.getValue(object);
+			if (!EqualsHelper.equals(oldToValue, newValue) || newValue instanceof Collection) {
+				Object clonedObject = CloneHelper.clone(object); // clone before change!
+				property.setValue(object, newValue);
+				executeUpdater(property, newValue, clonedObject, changedProperties);
+				addChangedPropertyRecursive(property, changedProperties);
+			} else if (newValue instanceof Collection) {
+				// same instance of Collection can have changed content always assume a change. But not need of setValue .
+				Object clonedObject = CloneHelper.clone(object);
+				executeUpdater(property, newValue, clonedObject, changedProperties);
+				addChangedPropertyRecursive(property, changedProperties);
+			}
+		}
+		
+		private void addChangedPropertyRecursive(PropertyInterface property, HashSet<PropertyInterface> changedProperties) {
+			if (!changedProperties.contains(property)) {
+				changedProperties.add(property);
+				if (dependencies.containsKey(property.getName())) {
+					for (PropertyInterface dependingProperty : dependencies.get(property.getName())) {
+						addChangedPropertyRecursive(dependingProperty, changedProperties);
+					}
 				}
 			}
 		}
@@ -448,34 +491,17 @@ public class Form<T> {
 		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
 			PropertyInterface property = element.getKey();
 
-			Enabled enabledAnnotation = property.getAnnotation(Enabled.class);
-			if (element.getValue() instanceof Enable) {
-				boolean enabled = true;
-				
-				if (property instanceof ChainedProperty) {
-					enabled = ((ChainedProperty) property).isAvailableFor(object);
-				}
+			boolean enabled = true;
+			if (property instanceof ChainedProperty) {
+				enabled = isEnabled(object, (ChainedProperty) property);
+			} else {
+				Enabled enabledAnnotation = property.getAnnotation(Enabled.class);
+				enabled = enabledAnnotation == null || isEnabled(object, property, enabledAnnotation);
+			}
 
-				if (enabled && enabledAnnotation != null) {
-					String methodName = enabledAnnotation.value();
-					boolean invert = methodName.startsWith("!");
-					if (invert) methodName = methodName.substring(1);
-					try {
-						Object o = findParentObject(property);
-						Class<?> clazz = o.getClass();
-						Method method = clazz.getMethod(methodName);
-						enabled = ((Boolean) method.invoke(o) ^ invert);
-					} catch (Exception x) {
-						String fieldName = property.getName();
-						if (!fieldName.equals(property.getPath())) {
-							fieldName += " (" + property.getPath() + ")";
-						}
-						logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed" , x);
-					}
-				}	
-	
+			if (element.getValue() instanceof Enable) {
 				((Enable) element.getValue()).setEnabled(enabled);
-			} else if (enabledAnnotation != null) {
+			} else if (!enabled) {
 				if (editable) {
 					logger.severe("element " + property.getPath() + " should implement Enable");
 				} else {
@@ -484,24 +510,58 @@ public class Form<T> {
 			}
 		}
 	}
+
+	// TODO move to properties package, remove use of getPath, write tests
+	static boolean isEnabled(Object object, ChainedProperty property) {
+		String fieldPath = property.getPath();
+		while (fieldPath.contains(".")) {
+			if (object == null) {
+				return false;
+			}
+			int pos = fieldPath.indexOf(".");
+			PropertyInterface p2 = Properties.getProperty(object.getClass(), fieldPath.substring(0, pos));
+			Enabled enabledAnnotation = p2.getAnnotation(Enabled.class);
+			
+			if (enabledAnnotation != null) {
+				if (!isEnabled(object, p2, enabledAnnotation)) {
+					return false;
+				}
+			}	
+			object = p2.getValue(object);
+			fieldPath = fieldPath.substring(pos + 1);
+		}
+		return true;
+	}
+
+	// TODO move to properties package, write tests
+	static boolean isEnabled(Object object, PropertyInterface property, Enabled enabledAnnotation) {
+		String methodName = enabledAnnotation.value();
+		boolean invert = methodName.startsWith("!");
+		if (invert)
+			methodName = methodName.substring(1);
+		try {
+			Class<?> clazz = object.getClass();
+			Method method = clazz.getMethod(methodName);
+			if (!((Boolean) method.invoke(object) ^ invert)) {
+				return false;
+			}
+		} catch (Exception x) {
+			String fieldName = property.getName();
+			if (!fieldName.equals(property.getPath())) {
+				fieldName += " (" + property.getPath() + ")";
+			}
+			logger.log(Level.SEVERE, "Update enable of " + fieldName + " failed", x);
+		}
+		return true;
+	}
 	
-	public void indicate(List<ValidationMessage> validationMessages) {
+	public boolean indicate(List<ValidationMessage> validationMessages) {
+		boolean relevantValidationMessage = false;
 		for (PropertyInterface property : getProperties()) {
 			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
 			setValidationMessage(property, filteredValidationMessages);
+			relevantValidationMessage |= !filteredValidationMessages.isEmpty();
 		}
+		return relevantValidationMessage;
 	}
-
-	private Object findParentObject(PropertyInterface property) {
-		Object result = object;
-		String fieldPath = property.getPath();
-		while (fieldPath.contains(".")) {
-			int pos = property.getPath().indexOf(".");
-			PropertyInterface p2 = Properties.getProperty(result.getClass(), fieldPath.substring(0, pos));
-			result = p2.getValue(result);
-			fieldPath = fieldPath.substring(pos + 1);
-		}
-		return result;
-	}
-
 }

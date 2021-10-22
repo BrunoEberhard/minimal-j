@@ -8,9 +8,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -55,11 +53,11 @@ public class FrameManager {
 		return instance;
 	}
 
-	public void openNavigationFrame(Subject subject) {
-		final SwingFrame frame = new SwingFrame();
+	public SwingFrame openFrame() {
+		SwingFrame frame = new SwingFrame();
 		frame.setVisible(true);
 		navigationFrames.add(frame);
-		frame.intialize(subject, Application.getInstance().createDefaultPage(), true);
+		return frame;
 	}
 	
 	public List<SwingFrame> getNavigationFrames() {

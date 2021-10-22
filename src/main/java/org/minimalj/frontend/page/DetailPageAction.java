@@ -19,7 +19,7 @@ public class DetailPageAction extends Action {
 	}
 	
 	@Override
-	public void action() {
+	public void run() {
 		Frontend.showDetail(mainPage, detailPage);
 	}
 	

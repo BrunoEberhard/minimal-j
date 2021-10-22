@@ -80,6 +80,10 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
                 ((HasCaption) field).setLabel(caption);
             }
         }
+        
+        if (constraint != null) {
+        	
+        }
         super.add(component, span);
 	}
 

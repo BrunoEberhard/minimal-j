@@ -38,7 +38,7 @@ public class Password implements Serializable {
 
 	public void setPasswordWithoutSalt(char[] password) {
 		if (!Configuration.isDevModeActive()) {
-			throw new IllegalStateException("Passwords without salt are only allow with configured develop mode");
+			throw new IllegalStateException("Passwords without salt are only allowed in develop mode");
 		}
 		salt = new byte[SALT_SIZE];
 		hash = hash(password, salt);

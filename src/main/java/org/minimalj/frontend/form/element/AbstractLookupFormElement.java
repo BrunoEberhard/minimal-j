@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.SwitchComponent;
+import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
 
 // Framework internal. Only use specializations
@@ -45,6 +46,9 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 				input = Frontend.getInstance().createTextField(((LookupParser) this).getAllowedSize(),
 						((LookupParser) this).getAllowedCharacters(), getSearch(),
 						this::inputChanged);
+				if (input instanceof JsonTextField && changeOnFocus()) {
+					((JsonTextField) input).put("changeOnFocus", true);
+				}
 			} else {
 				input = Frontend.getInstance().createReadOnlyTextField();
 			}
@@ -112,6 +116,10 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 
 	protected String render(T value) {
 		return Rendering.toString(value);
+	}
+	
+	protected boolean changeOnFocus() {
+		return false;
 	}
 
 	public void inputChanged(IComponent source) {

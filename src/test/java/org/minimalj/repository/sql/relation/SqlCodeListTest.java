@@ -4,22 +4,21 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.TestApplication;
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.test.TestUtil;
 import org.minimalj.util.Codes;
 
 public class SqlCodeListTest {
 	
 	@BeforeClass
 	public static void setupRepository() {
-		Application.setInstance(TestApplication.INSTANCE);
-
-		TestApplication.INSTANCE.setCurrentApplication(new Application() {
+		Application.setInstance(new Application() {
 			@Override
 			public Class<?>[] getEntityClasses() {
 				return new Class<?>[] { TestEntity.class };
@@ -29,6 +28,11 @@ public class SqlCodeListTest {
 		Backend.insert(new TestElementCode(1, 101));
 		Backend.insert(new TestElementCode(2, 102));
 		Backend.insert(new TestElementCode(3, 103));
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		TestUtil.shutdown();
 	}
 	
 	@Test

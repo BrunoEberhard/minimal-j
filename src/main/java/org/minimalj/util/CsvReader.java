@@ -6,14 +6,17 @@ import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
+import org.minimalj.model.Code;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 
 /**
  * This class doesn't replace a library like OpenCSV. It cannot be configured
- * (except for skipping comments) and it does accept only valid files as
- * specified in the rfc and encoded in UTF-8.
+ * (except for separator char and skipping comments) and it does accept only
+ * valid files as specified in the rfc and encoded in UTF-8.
  * <p>
  * 
  * @see <a href=
@@ -22,14 +25,26 @@ import org.minimalj.model.properties.PropertyInterface;
  */
 public class CsvReader {
 
-	private static final char SEPARATOR = ',';
+	public static final char DEFAULT_SEPARATOR = ',';
 	private static final char QUOTE_CHAR = '"';
 
 	private final PushbackReader reader;
 	private String commentStart = null;
+	private char separator = DEFAULT_SEPARATOR;
+
+	private final BiFunction<Class<?>, Object, Object> objectProvier;
 
 	public CsvReader(InputStream is) {
+		this(is, null);
+	}
+
+	public CsvReader(InputStream is, BiFunction<Class<?>, Object, Object> objectProvier) {
 		reader = new PushbackReader(new InputStreamReader(is));
+		this.objectProvier = objectProvier;
+	}
+
+	public void setSeparator(char separator) {
+		this.separator = separator;
 	}
 
 	public <T> List<T> readValues(Class<T> clazz) {
@@ -51,15 +66,32 @@ public class CsvReader {
 		while (values != null) {
 			T object = CloneHelper.newInstance(clazz);
 			for (int i = 0; i < fields.size(); i++) {
-				String stringValue = values.get(i);
+				String stringValue = values.get(i).trim();
 				PropertyInterface property = properties.get(i);
-				Object value = FieldUtils.parse(stringValue.trim(), property.getClazz());
-				property.setValue(object, value);
+				Object value;
+				Class<?> propertyClazz = property.getClazz();
+				try {
+					if (Code.class.isAssignableFrom(propertyClazz)) {
+						value = objectProvier.apply(propertyClazz, stringValue);
+					} else {
+						value = FieldUtils.parse(stringValue, propertyClazz);
+					}
+					property.setValue(object, value);
+				} catch (Exception x) {
+					throw new RuntimeException("Unparseable value. Field: " + fields.get(i) + " / Value: " + stringValue, x);
+				}
 			}
 			objects.add(object);
 			values = readRecord();
 		}
 		return objects;
+	}
+
+	public void readValues(Consumer<List<String>> consumer) {
+		List<String> values;
+		while ((values = readRecord()) != null) {
+			consumer.accept(values);
+		}
 	}
 
 	public List<String> readRecord() {
@@ -97,7 +129,7 @@ public class CsvReader {
 		values.add(value);
 		while (value != null) {
 			int c = reader.read();
-			if (c == SEPARATOR) {
+			if (c == separator) {
 				value = readField();
 				values.add(value);
 			} else if (c < 0 || c == '\n') {
@@ -161,7 +193,7 @@ public class CsvReader {
 			if (c < 0) {
 				return s.toString().trim();
 			}
-			if (c == SEPARATOR || c == '\n') {
+			if (c == separator || c == '\n') {
 				reader.unread(c);
 				return s.toString().trim();
 			} else {

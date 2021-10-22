@@ -6,9 +6,9 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
@@ -16,12 +16,14 @@ import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.editor.Editor;
+import org.minimalj.frontend.editor.Validator;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Keys;
+import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
 import org.minimalj.security.model.RememberMeToken;
 import org.minimalj.security.model.User;
@@ -32,28 +34,44 @@ import org.minimalj.util.resources.Resources;
 
 public abstract class UserPasswordAuthentication extends Authentication implements RememberMeAuthentication {
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = Logger.getLogger(UserPasswordAuthentication.class.getName());
 
 	@Override
-	public void login(LoginListener loginListener) {
-		new UserPasswordAction(loginListener).action();
+	public Action getLoginAction() {
+		return new UserPasswordLoginAction();
 	}
 	
-	public static class UserPasswordAction extends Editor<UserPassword, Subject> {
-
-		private final LoginListener listener;
+	public static class UserPasswordLoginAction extends Action {
+		private UserPassword userPassword;
+		private Form<UserPassword> form;
+		private LoginAction loginAction;
+		private Optional<IDialog> dialog;
 		
-		public UserPasswordAction(LoginListener listener) {
-			this.listener = listener;
+		public UserPasswordLoginAction() {
+			super(Resources.getString("Login.title"));
 		}
 
 		@Override
-		protected UserPassword createObject() {
-			UserPassword userPassword = new UserPassword();
+		public void run() {
+			userPassword = new UserPassword();
 			userPassword.rememberMe = REMEMBER_ME && Configuration.isDevModeActive();
-			return userPassword;
+			
+			form = createForm();
+			
+			loginAction = new LoginAction();
+			
+			form.setChangeListener(this::validate);
+			form.setObject(userPassword);
+			
+			dialog = Frontend.getInstance().showLogin(form.getContent(), loginAction);
+		}
+		
+		private boolean validate(Form<?> form) {
+			List<ValidationMessage> validationMessages = Validator.validate(userPassword);
+			form.indicate(validationMessages);
+			return validationMessages.isEmpty();
 		}
 
-		@Override
 		protected Form<UserPassword> createForm() {
 			Form<UserPassword> form = new Form<UserPassword>();
 			form.line(UserPassword.$.user);
@@ -64,41 +82,28 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			return form;
 		}
 		
-		@Override
-		protected List<Action> createAdditionalActions() {
-			// no demo button in Login Dialog
-			return Collections.emptyList();
+		protected final class LoginAction extends Action {
+			
+			@Override
+			public void run() {
+				if (validate(form)) {
+					Subject subject = save(userPassword);
+					if (subject != null) {
+						if (userPassword.rememberMe) {
+							setRememberMeCookie(userPassword);
+						}
+						Frontend.getInstance().login(subject);
+						dialog.ifPresent(IDialog::closeDialog);
+					} else {
+						Frontend.showMessage("User / password invalid");
+					}
+				}
+			}
 		}
 
-		@Override
 		protected Subject save(UserPassword userPassword) {
 			LoginTransaction loginTransaction = new LoginTransaction(userPassword);
-			Subject subject = Backend.execute(loginTransaction);
-			if (subject != null && userPassword.rememberMe) {
-				setRememberMeCookie(userPassword);
-			}
-			return subject;
-		}
-
-		@Override
-		protected boolean closeWith(Subject subject) {
-			if (subject != null) {
-				return true;
-			} else {
-				Frontend.showError("Login failed");
-				return false;
-			}
-		}
-		
-		@Override
-		public void cancel() {
-			listener.loginCancelled();
-			super.cancel();
-		}
-		
-		@Override
-		protected void finished(Subject subject) {
-			listener.loginSucceded(subject);
+			return Backend.execute(loginTransaction);
 		}
 	}
 	
@@ -125,6 +130,18 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 				return null;
 			}
 			return Backend.getInstance().getAuthentication().createSubject(userPassword.user, user.getRoleNames());
+		}
+	}
+	
+	@Override
+	protected void forgetMe() {
+		super.forgetMe();
+		if (REMEMBER_ME) {
+			if (PERSISTENT_REMEMBER_ME) {
+				Backend.delete(RememberMeToken.class, By.field(RememberMeToken.$.userName, Subject.getCurrent().getName()));
+			} else {
+				((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(null);
+			}
 		}
 	}
 	

@@ -19,6 +19,7 @@
 package org.minimalj.application;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,10 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.logging.Logger;
 
+import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
@@ -79,23 +83,7 @@ public abstract class Application implements Model {
 		}		
 		Application.instance = application;
 	}
-	
-	/**
-	 * In tests it may be needed to have more than one instance of an application.
-	 * Warning: Use with care. Works only if Frontend and Backend are in the same JVM!
-	 * 
-	 * @param application the application for current thread and all its children
-	 */
-	@SuppressWarnings("unused")
-	public static void setThreadInstance(Application application) {
-		if (instance == null) {
-			instance = new ThreadLocalApplication();
-		} else if (!(instance instanceof ThreadLocalApplication)) {
-			throw new IllegalStateException();
-		}
-		((ThreadLocalApplication) instance).setCurrentApplication(application);
-	}
-	
+		
 	/**
 	 * This is just a shortcut for creating the application from jvm arguments.
 	 * Most frontend main classes use this method
@@ -119,8 +107,8 @@ public abstract class Application implements Model {
 		}
 		Object application;
 		try {
-			application = applicationClass.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+			application = applicationClass.getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new IllegalArgumentException("Could not instantiate Application class: " + applicationClassName, e);
 		}
 		
@@ -200,10 +188,9 @@ public abstract class Application implements Model {
 	 * SearchPage.handle(SearchPage...)
 	 * 
 	 * @param query the string the user entered in the search field
-	 * @return the page to be displayed for the query string
 	 */
-	public Page createSearchPage(String query) {
-		return new EmptyPage();
+	public void search(String query) {
+		Frontend.show(new EmptyPage());
 	}
 	
 	/**
@@ -211,22 +198,47 @@ public abstract class Application implements Model {
 	 * use of reflection
 	 * 
 	 * @return true if the application overrides createSearchPage meaning the
-	 *         application provides a search page
+	 *         application provides a search page. Can also depend on the current Subject.
 	 */
-	public boolean hasSearchPages() {
+	public boolean hasSearch() {
 		try {
-			return this.getClass().getMethod("createSearchPage", String.class).getDeclaringClass() != Application.class;
+			return this.getClass().getMethod("search", String.class).getDeclaringClass() != Application.class;
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	public enum AuthenticatonMode {
+		REQUIRED, SUGGESTED, OPTIONAL, NOT_AVAILABLE;
+		
+		public boolean showLoginAtStart() {
+			return this == REQUIRED || this == SUGGESTED;
+		}
+	}
+	
+	public AuthenticatonMode getAuthenticatonMode() {
+		if (Backend.getInstance().isAuthenticationActive()) {
+			return AuthenticatonMode.REQUIRED;
+		} else {
+			return AuthenticatonMode.NOT_AVAILABLE;
+		}
+	}
+	
 	/**
-	 * 
-	 * @return The page displayed when the application is started or when a new Tab is opened
+	 * called for a new User or when the user did login or logout
+	 *
+	 * @return Page to be displayed in (possible new) page container
 	 */
 	public Page createDefaultPage() {
 		return new EmptyPage();
+	}
+
+	/** 
+	 * called when a Backend is initialized (once per VM)
+	 * 
+	 */
+	public void initBackend() {
+		// application specific	
 	}
 	
 	/**

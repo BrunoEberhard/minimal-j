@@ -2,6 +2,7 @@ package org.minimalj.model;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -23,7 +24,6 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
-@SuppressWarnings("UnnecessaryBoxing")
 public class Keys {
 
 	private static final Logger logger = Logger.getLogger(Keys.class.getName());
@@ -44,11 +44,11 @@ public class Keys {
 	public static <T> T of (Class<T> clazz) {
 		T object;
 		try {
-			object = clazz.newInstance();
+			object = clazz.getConstructor().newInstance();
 			keyObjects.add(object);
 			fillFields(object, null, 0);
 			return object;
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -145,6 +145,7 @@ public class Keys {
 		}
 	}
 	
+	@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
 	private static Object createKey(Class<?> clazz, String fieldName, Class<?> declaringClass) {
 		if (clazz == String.class) {
 			return new String(fieldName);

@@ -103,7 +103,7 @@ public class FieldProperty implements PropertyInterface {
 		if (annotation == null && View.class.isAssignableFrom(getDeclaringClass())) {
 			Class<?> viewedClass = ViewUtil.getViewedClass(getDeclaringClass());
 			PropertyInterface propertyInterface = Properties.getProperty(viewedClass, getName());
-			return propertyInterface.getAnnotation(annotationClass);
+			return propertyInterface != null ? propertyInterface.getAnnotation(annotationClass) : null;
 		} else {
 			return annotation;
 		}

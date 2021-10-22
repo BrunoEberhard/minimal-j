@@ -28,7 +28,6 @@ import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
-import org.minimalj.util.StringUtils;
 
 /**
  * Minimal-J internal<p>
@@ -77,7 +76,7 @@ public abstract class AbstractTable<T> {
 	
 	protected String buildTableName(SqlRepository repository, String name, Class<T> clazz) {
 		if (name == null) {
-			name = StringUtils.toSnakeCase(clazz.getSimpleName());
+			name = clazz.getSimpleName();
 		}
 		
 		name = repository.sqlIdentifier.table(name, repository.getTableByName().keySet());
@@ -306,7 +305,7 @@ public abstract class AbstractTable<T> {
 				result.add(object);
 			}
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new RuntimeException(getTableName() + " / " + x.getMessage());
 		}
 		return result;
 	}

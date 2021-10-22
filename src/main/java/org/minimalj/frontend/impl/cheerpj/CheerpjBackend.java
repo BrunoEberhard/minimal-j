@@ -26,7 +26,7 @@ public class CheerpjBackend extends Backend {
 	private final int port;
 	
 	public CheerpjBackend() {
-		this("localhost", 8090);
+		this("localhost", 8080);
 	}
 	
 	public CheerpjBackend(String url, int port) {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.minimalj.backend.Backend;
 import org.minimalj.example.petclinic.model.Pet;
 import org.minimalj.example.petclinic.model.Visit;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.ListFormElement;
@@ -15,17 +16,10 @@ public class PetListFormElement extends ListFormElement<Pet> {
 	public PetListFormElement(List<Pet> key) {
 		super(Keys.getProperty(key));
 	}
-
+	
 	@Override
-	protected void showEntry(Pet pet) {
-		if (isEditable()) {
-			add(pet, new AddVisitEditor(pet));
-		} else {
-			add(pet);
-		}
-		for (Visit visit : pet.visits) {
-			add(visit);
-		}
+	protected List<Action> getActions(Pet pet) {
+		return List.of(new AddVisitEditor(pet));
 	}
 
 	@Override

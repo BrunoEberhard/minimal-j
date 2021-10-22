@@ -8,7 +8,10 @@ import java.util.UUID;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.transaction.Transaction;
+import org.minimalj.util.resources.Resources;
 
 public abstract class Authentication implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -27,19 +30,24 @@ public abstract class Authentication implements Serializable {
 
 		return null;
 	}
-	
-	public abstract void login(LoginListener loginListener);
-	
-	public interface LoginListener {
-		
-		public void loginSucceded(Subject subject);
-		
-		public default void loginCancelled() {
-		}
-		
+
+	public void showLogin() {
+		getLoginAction().run();
 	}
-	
-	public void logout() {
+
+	public abstract Action getLoginAction();
+
+	public Action getLogoutAction() {
+		return new Action(Resources.getString("LogoutAction")) {
+			public void run() {
+				forgetMe();
+				Subject.setCurrent(null);
+				Frontend.getInstance().login(null);
+			};
+		};
+	}
+
+	protected void forgetMe() {
 		Backend.execute(new Transaction<Void>() {
 			private static final long serialVersionUID = 1L;
 
@@ -60,4 +68,5 @@ public abstract class Authentication implements Serializable {
 		subjectByToken.put(subject.getToken(), subject);
 		return subject;
 	}
+
 }

@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -25,15 +25,17 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsServer;
 
-//Beginning with JDK 9 this restriction warnings were removed
-@SuppressWarnings("restriction")
 public class WebServer {
 	private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
 
 	public static final boolean SECURE = true;
 
+	public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
+	
 	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
+	private static HttpServer server;
+	
 	public static class WebServerHttpExchange extends MjHttpExchange {
 		private final HttpExchange exchange;
 
@@ -47,12 +49,17 @@ public class WebServer {
 		}
 
 		@Override
+		public String getMethod() {
+			return exchange.getRequestMethod();
+		}
+		
+		@Override
 		public InputStream getRequest() {
 			return exchange.getRequestBody();
 		}
 
 		@Override
-		public Map<String, List<String>> getParameters() {
+		public Map<String, Collection<String>> getParameters() {
 			if (exchange.getRequestMethod().equals("GET")) {
 				return decodeParameters(exchange.getRequestURI().getQuery());
 			} else {
@@ -60,7 +67,18 @@ public class WebServer {
 				return decodeParameters(requestBody);
 			}
 		}
+		
+		@Override
+		public String getHeader(String name) {
+			Collection<String> values = exchange.getRequestHeaders().get(name);
+			return values != null ? values.iterator().next() : null;
+		}
 
+		@Override
+		public void addHeader(String key, String value) {
+			exchange.getResponseHeaders().add(key, value);
+		}
+		
 		@Override
 		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 			try (OutputStream os = exchange.getResponseBody()) {
@@ -74,7 +92,7 @@ public class WebServer {
 
 		@Override
 		public void sendResponse(int statusCode, String response, String contentType) {
-			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType + "; charset=utf-8");
+			sendResponse(statusCode, response.getBytes(Charset.forName("utf-8")), contentType);
 		}
 
 		@Override
@@ -92,6 +110,73 @@ public class WebServer {
 			LocaleContext.resetLocale();
 		}
 	}
+	
+	private static class HttpsRedirectFilter extends com.sun.net.httpserver.Filter {
+
+		@Override
+		public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
+			if (!isHttps(exchange.getProtocol())) {
+				redirect(exchange);
+			} else {
+				chain.doFilter(exchange);
+			}
+		}
+
+		protected void redirect(HttpExchange exchange) throws IOException {
+			String host = exchange.getRequestHeaders().getFirst("host");
+			if (!StringUtils.isEmpty(host)) {
+				int index = host.indexOf(":");
+				if (index > 0) {
+					host = host.substring(0, index);
+				}
+				exchange.getResponseHeaders().add("Location", "https://" + host + getPort() + exchange.getRequestURI().getPath());
+				exchange.sendResponseHeaders(301, -1);
+			} else {
+				exchange.sendResponseHeaders(400, -1);
+			}
+		}
+		
+		protected String getPort() {
+			int port = WebServer.getPort(SECURE);
+			if (port != 443) {
+				return ":" + port;
+			} else {
+				return "";
+			}
+		}
+		
+		protected boolean isHttps(String s) {
+			return s.toUpperCase().contains("HTTPS");
+		}
+
+		@Override
+		public String description() {
+			return "Redirects non https requests";
+		}
+	}
+	
+	private static class FowardedHttpsRedirectFilter extends HttpsRedirectFilter {
+
+		@Override
+		public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
+			String forwardedProtocol = exchange.getRequestHeaders().getFirst(X_FORWARDED_PROTO);
+			if (!StringUtils.isEmpty(forwardedProtocol) && !isHttps(forwardedProtocol)) {
+				redirect(exchange);
+			} else {
+				chain.doFilter(exchange);
+			}
+		}
+
+		protected String getPort() {
+			return "";
+		}
+		
+		@Override
+		public String description() {
+			return "Redirects a forwarded request that was not a https request";
+		}
+	}
+
 
 	private static void start(boolean secure) {
 		int port = getPort(secure);
@@ -99,8 +184,17 @@ public class WebServer {
 			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web frontend on port " + port + (secure ? " (Secure)" : ""));
 			try {
 				InetSocketAddress addr = new InetSocketAddress(port);
-				HttpServer server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
+				server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
 				HttpContext context = server.createContext("/");
+				if (!secure) {
+					boolean secureAvailable = getPort(SECURE) > 0;
+					if (secureAvailable && Boolean.valueOf(Configuration.get("MjForceSsl", "true"))) {
+						context.getFilters().add(new HttpsRedirectFilter());
+					}
+					if (!secureAvailable && !Boolean.valueOf(Configuration.get("MjForceSsl", "false")) && !Configuration.isDevModeActive()) {
+						context.getFilters().add(new FowardedHttpsRedirectFilter());
+					}
+				}
 				context.setHandler(WebServer::handle);
 				server.start();
 			} catch (IOException e) {
@@ -109,21 +203,15 @@ public class WebServer {
 		}
 	}
 
-	// https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
-	// Java 9: remove
 	public static String convertStreamToString(InputStream is) {
-		StringBuilder sb = new StringBuilder(1024);
-		char[] read = new char[128];
 		try (InputStreamReader ir = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-			for (int i; -1 != (i = ir.read(read)); sb.append(read, 0, i))
-				;
+			return new String(is.readAllBytes(), StandardCharsets.UTF_8);
 		} catch (IOException x) {
 			throw new RuntimeException(x);
 		}
-		return sb.toString();
 	}
 
-	private static int getPort(boolean secure) {
+	public static int getPort(boolean secure) {
 		String portString = Configuration.get("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
 		return !StringUtils.isEmpty(portString) ? Integer.valueOf(portString) : -1;
 	}
@@ -139,6 +227,13 @@ public class WebServer {
 
 		start(!SECURE);
 		start(SECURE);
+	}
+	
+	// only for tests
+	public static void stop() {
+		if (server != null) {
+			server.stop(0);
+		}
 	}
 
 	public static void start(Application application) {

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import org.minimalj.frontend.impl.json.JsonInput;
@@ -73,7 +73,7 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		}
 
 		@Override
-		public Map<String, List<String>> getParameters() {
+		public Map<String, Collection<String>> getParameters() {
 			if (exchange.getRequestMethod().equalToString("GET")) {
 				return decodeParameters(exchange.getQueryString());
 			} else {

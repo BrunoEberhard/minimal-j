@@ -23,12 +23,12 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
@@ -65,7 +65,7 @@ import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
 
 /**
- * The Mapper to a relationale Database
+ * The Mapper to a relational Database
  * 
  */
 public class SqlRepository implements TransactionalRepository {
@@ -77,6 +77,7 @@ public class SqlRepository implements TransactionalRepository {
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<>();
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<>();
 	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
+	private final Map<Class<?>, HashMap<String, PropertyInterface>> columnsForClassUpperCase = new HashMap<>(200);
 	
 	private final DataSource dataSource;
 	
@@ -116,12 +117,10 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		
 		String databaseProductName = connection.getMetaData().getDatabaseProductName();
-		if (StringUtils.equals(databaseProductName, "MySQL")) {
+		if (StringUtils.equals(databaseProductName, "MySQL") || StringUtils.equals(databaseProductName, "MariaDB")) {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "PostgreSQL")) {
 			return new SqlDialect.PostgresqlDialect();
-		} else if (StringUtils.equals(databaseProductName, "Apache Derby")) {
-			return new SqlDialect.DerbySqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "H2")) {
 			return new SqlDialect.H2SqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
@@ -130,12 +129,22 @@ public class SqlRepository implements TransactionalRepository {
 			return new SqlDialect.MsSqlDialect();
 		} else {
 			return new SqlDialect.H2SqlDialect();
-//			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB, SQL Server and Derby DB supported at the moment. ProductName: " + databaseProductName);
+//			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and SQL Server supported at the moment. ProductName: " + databaseProductName);
 		}
 	}
 	
 	protected SqlIdentifier createSqlIdentifier() {
-		return new SqlIdentifier(sqlDialect.getMaxIdentifierLength());
+		if (sqlDialect instanceof SqlDialect.PostgresqlDialect) {
+			// https://stackoverflow.com/questions/13409094/why-does-postgresql-default-everything-to-lower-case
+			return new SqlIdentifier(sqlDialect.getMaxIdentifierLength()) {
+				protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
+					identifier = super.identifier(identifier, alreadyUsedIdentifiers);
+					return identifier.toLowerCase();
+				}
+			};
+		} else {
+			return new SqlIdentifier(sqlDialect.getMaxIdentifierLength());
+		}
 	}
 	
 	private Connection getAutoCommitConnection() {
@@ -247,9 +256,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	private boolean createTablesOnInitialize(DataSource dataSource) throws SQLException {
 		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
-		if (StringUtils.equals(dataSource.getClass().getName(), "org.apache.derby.jdbc.EmbeddedDataSource")) {
-			return "create".equals(((EmbeddedDataSource) dataSource).getCreateDatabase());
-		} else if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
+		if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
 			String url = ((JdbcDataSource) dataSource).getUrl();
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
@@ -271,7 +278,6 @@ public class SqlRepository implements TransactionalRepository {
 			return getTable(clazz).read(id);
 		}
 	}
-
 
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
@@ -375,7 +381,7 @@ public class SqlRepository implements TransactionalRepository {
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = field.getName();
-			if (StringUtils.equals(fieldName.toUpperCase(), "ID", "VERSION", "HISTORIZED")) continue;
+			if (StringUtils.equals(fieldName, "id", "version", "historized")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
@@ -406,6 +412,17 @@ public class SqlRepository implements TransactionalRepository {
 		return columns;
 	}	
 	
+	protected HashMap<String, PropertyInterface> findColumnsUpperCase(Class<?> clazz) {
+		if (columnsForClassUpperCase.containsKey(clazz)) {
+			return columnsForClassUpperCase.get(clazz);
+		}
+		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
+		HashMap<String, PropertyInterface> columnsUpperCase = new HashMap<>(columns.size() * 3);
+		columns.forEach((key, value) -> columnsUpperCase.put(key.toUpperCase(), value));
+		columnsForClassUpperCase.put(clazz, columnsUpperCase);
+		return columnsUpperCase;
+	}
+	
 	/*
 	 * TODO: should be merged with the setParameter in AbstractTable.
 	 */
@@ -422,13 +439,14 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		preparedStatement.setObject(param, value);
 	}
-	
-	public <T> List<T> execute(Class<T> clazz, String query, int maxResults, Serializable... parameters) {
+
+	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				List<T> result = new ArrayList<>();
+				Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 				while (resultSet.next() && result.size() < maxResults) {
-					result.add(readResultSetRow(clazz, resultSet));
+					result.add(readResultSetRow(clazz, resultSet, loadedReferences));
 				}
 				return result;
 			}
@@ -436,13 +454,22 @@ public class SqlRepository implements TransactionalRepository {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
 		}
 	}
-	
-	public <T> T execute(Class<T> clazz, String query, Serializable... parameters) {
+
+	public int execute(String query, Serializable... parameters) {
+		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+			preparedStatement.execute();
+			return preparedStatement.getUpdateCount();
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
+		}
+	}
+
+	public <T> T execute(Class<T> resultClass, String query, Serializable... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				T result = null;
 				if (resultSet.next()) {
-					result = readResultSetRow(clazz, resultSet);
+					result = readResultSetRow(resultClass, resultSet);
 				}
 				return result;
 			}
@@ -450,7 +477,7 @@ public class SqlRepository implements TransactionalRepository {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
 		}
 	}
-	
+
 	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet) throws SQLException {
 		Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 		return readResultSetRow(clazz, resultSet, loadedReferences);
@@ -472,14 +499,14 @@ public class SqlRepository implements TransactionalRepository {
 		Integer position = 0;
 		R result = CloneHelper.newInstance(clazz);
 		
-		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
+		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
 		
 		// first read the resultSet completely then resolve references
-		// derby db mixes closing of resultSets.
+		// some db mixes closing of resultSets.
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
+			String columnName = resultSet.getMetaData().getColumnName(columnIndex).toUpperCase();
 			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
@@ -511,14 +538,16 @@ public class SqlRepository implements TransactionalRepository {
 			values.put(property, value);
 		}
 		
-		if (!loadedReferences.containsKey(clazz)) {
-			loadedReferences.put(clazz, new HashMap<>());
-		}
-		Object key = position == null ? id : id + "-" + position;
-		if (loadedReferences.get(clazz).containsKey(key)) {
-			return (R) loadedReferences.get(clazz).get(key);
-		} else {
-			loadedReferences.get(clazz).put(key, result);
+		if (id != null) {
+			if (!loadedReferences.containsKey(clazz)) {
+				loadedReferences.put(clazz, new HashMap<>());
+			}
+			Object key = position == null ? id : id + "-" + position;
+			if (loadedReferences.get(clazz).containsKey(key)) {
+				return (R) loadedReferences.get(clazz).get(key);
+			} else {
+				loadedReferences.get(clazz).put(key, result);
+			}
 		}
 		
 		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
@@ -526,24 +555,30 @@ public class SqlRepository implements TransactionalRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (View.class.isAssignableFrom(fieldClass)) {
-					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
-					if (Code.class.isAssignableFrom(viewedClass)) {
-						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-						value = ViewUtil.view(getCode(codeClass, value), CloneHelper.newInstance(fieldClass));
-					} else {
-						Table<?> referenceTable = getTable(viewedClass);
-						value = referenceTable.readView(fieldClass, value, loadedReferences);
-					}
-				} else if (Code.class.isAssignableFrom(fieldClass)) {
+				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
-					if (loadedReferences.containsKey(fieldClass) && loadedReferences.get(fieldClass).containsKey(value)) {
-						value = loadedReferences.get(fieldClass).get(value);
+					Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());
+					if (loadedReferencesOfClass.containsKey(value)) {
+						value = loadedReferencesOfClass.get(value);
 					} else {
-						Table<?> referenceTable = getTable(fieldClass);
-						value = referenceTable.read(value, loadedReferences);
+						Object referencedValue;
+						if (View.class.isAssignableFrom(fieldClass)) {
+							Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
+							if (Code.class.isAssignableFrom(viewedClass)) {
+								Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
+								referencedValue = ViewUtil.view(getCode(codeClass, value), CloneHelper.newInstance(fieldClass));
+							} else {
+								Table<?> referenceTable = getTable(viewedClass);
+								referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
+							}
+						} else {
+							Table<?> referenceTable = getTable(fieldClass);
+							referencedValue = referenceTable.read(value, loadedReferences);
+						}
+						loadedReferencesOfClass.put(value, referencedValue);
+						value = referencedValue;
 					}
 				} else if (AbstractTable.isDependable(property)) {
 					value = getTable(fieldClass).read(value);
@@ -604,9 +639,12 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
+	// TODO move someplace where it's available for all kind of repositories (Memory DB for example)
 	void createCodes() {
+		startTransaction(Connection.TRANSACTION_READ_UNCOMMITTED);
 		createConstantCodes();
 		createCsvCodes();
+		endTransaction(true);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -630,20 +668,27 @@ public class SqlRepository implements TransactionalRepository {
 				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
 				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
 				if (is != null) {
-					CsvReader reader = new CsvReader(is);
+					CsvReader reader = new CsvReader(is, getObjectProvider());
 					List<? extends Code> values = reader.readValues(clazz);
-					for (Code value : values) {
-						((Table<Code>) table).insert(value);
-					}
+					values.forEach(value -> ((Table<Code>) table).insert(value));
 				}
 			}
 		}
 	}
 	
+	private BiFunction<Class<?>, Object, Object> getObjectProvider() {
+		return new BiFunction<Class<?>, Object, Object>() {
+			@Override
+			public Object apply(Class<?> clazz, Object id) {
+				return read(clazz, id);
+			}
+		};
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <U> AbstractTable<U> getAbstractTable(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			throw new IllegalArgumentException(clazz.getName());
+			throw new IllegalArgumentException("No (Sql)Table available for + " + clazz.getName() + ". May be missing in Application.getEntitiyClasses()");
 		}
 		return (AbstractTable<U>) tables.get(clazz);
 	}
@@ -666,7 +711,8 @@ public class SqlRepository implements TransactionalRepository {
 	
 	public String name(Object classOrKey) {
 		if (classOrKey instanceof Class) {
-			return table((Class<?>) classOrKey);
+			// TODO
+			return tableByName.entrySet().stream().filter(e -> e.getValue().getClazz() == classOrKey).findAny().get().getKey();
 		} else {
 			return column(classOrKey);
 		}

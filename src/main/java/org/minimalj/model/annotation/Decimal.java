@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
  * Number of decimal places for BigDecimal
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.METHOD })
 public @interface Decimal {
 
 	int value();
-	
+
 }

@@ -5,6 +5,8 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Autocomplete;
+import org.minimalj.model.annotation.Autocomplete.Autocompletable;
 import org.minimalj.model.properties.PropertyInterface;
 
 
@@ -33,6 +35,12 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 			this.textField = Frontend.getInstance().createTextField(maxLength, null, null, listener());
 		} else {
 			this.textField = Frontend.getInstance().createAreaField(maxLength, null, listener());
+		}
+		if (this.textField instanceof Autocompletable) {
+			Autocomplete autocomplete = property.getAnnotation(Autocomplete.class);
+			if (autocomplete != null) {
+				((Autocompletable) textField).setAutocomplete(autocomplete.value());
+			}
 		}
 	}
 

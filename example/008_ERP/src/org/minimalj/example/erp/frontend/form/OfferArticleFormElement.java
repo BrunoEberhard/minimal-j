@@ -33,7 +33,7 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 	public class RemoveOfferArticlesAction extends Action {
 
 		@Override
-		public void action() {
+		public void run() {
 			getValue().clear();
 			handleChange();
 		}

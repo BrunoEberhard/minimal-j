@@ -6,12 +6,17 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.resources.Resources;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
@@ -22,6 +27,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.HasPrefixAndSuffix;
@@ -65,7 +71,7 @@ public class VaadinFrontend extends Frontend {
 		public VaadinActionLabel(final Action action) {
 			super(action.getName());
 			getElement().setProperty("title", action.getDescription());
-			getElement().addEventListener("click", e -> action.action());
+			getElement().addEventListener("click", e -> action.run());
 		}
 	}
 	
@@ -372,5 +378,41 @@ public class VaadinFrontend extends Frontend {
 		return (PageManager) UI.getCurrent().getSession().getAttribute("pageManager");
 	}
 	
-	
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+		Page page = new Page() {
+			@Override
+			public IContent getContent() {
+				Action[] actions;
+				if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+					SkipLoginAction skipLoginAction = new SkipLoginAction();
+					actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
+				} else {
+					actions = new org.minimalj.frontend.action.Action[] {loginAction};
+				}
+				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) content, loginAction, null, actions);
+				VaadinHorizontalLayout centerLayout = new VaadinHorizontalLayout(new IComponent[] {editorLayout});
+				editorLayout.setSizeUndefined(); // VaadinHorizontalLayout constructor did set the width
+				centerLayout.setSizeFull();
+				centerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+				centerLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+				return centerLayout;
+			}
+			
+			@Override
+			public String getTitle() {
+				return Resources.getString("Login.title");
+			}
+		};
+		show(page);
+		return Optional.empty();
+	}
+
+	private class SkipLoginAction extends Action {
+		
+		@Override
+		public void run() {
+			Frontend.getInstance().login(null);
+		}
+	}
 }

@@ -50,7 +50,7 @@ public class CustomerPage extends ObjectPage<Customer> {
 	private class ShowOffersAction extends Action {
 
 		@Override
-		public void action() {
+		public void run() {
 			if (offerTablePage == null) {
 				offerTablePage = new OfferTablePage(getObject());
 			} else {

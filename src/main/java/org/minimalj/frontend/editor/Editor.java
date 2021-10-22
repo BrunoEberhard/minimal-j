@@ -9,7 +9,6 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.IDialog;
-import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
@@ -59,7 +58,7 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
 
 	@Override
-	public void action() {
+	public void run() {
 		object = createObject();
 		form = createForm();
 		
@@ -87,7 +86,7 @@ public abstract class Editor<T, RESULT> extends Action {
  	
 	protected List<Action> createAdditionalActions() {
 		List<Action> actions = new ArrayList<>();
-		if (Configuration.isDevModeActive()) {
+		if (Configuration.isDevModeActive() && (object instanceof Mocking || this instanceof Mocking)) {
 			actions.add(new FillWithDemoDataAction());
 		}
 		return actions;
@@ -103,13 +102,10 @@ public abstract class Editor<T, RESULT> extends Action {
 	
 	private void validate(Form<?> form) {
 		List<ValidationMessage> validationMessages = new ArrayList<>();
-		if (object instanceof Validation) {
-			validationMessages.addAll(((Validation) object).validateNullSafe());
-		}
 		validationMessages.addAll(Validator.validate(object));
 		validate(object, validationMessages);
-		form.indicate(validationMessages);
-		saveAction.setValidationMessages(validationMessages);
+		boolean relevantValidationMessage = form.indicate(validationMessages);
+		saveAction.setEnabled(!relevantValidationMessage);
 	}
 	
 	protected void validate(T object, List<ValidationMessage> validationMessages) {
@@ -141,34 +137,15 @@ public abstract class Editor<T, RESULT> extends Action {
 	}
 
 	protected final class SaveAction extends Action {
-		private String description;
-		private boolean valid = false;
-		
 		@Override
-		public void action() {
+		public void run() {
 			save();
-		}
-		
-		public void setValidationMessages(List<ValidationMessage> validationMessages) {
-			valid = validationMessages == null || validationMessages.isEmpty();
-			description = ValidationMessage.formatHtml(validationMessages);
-			fireChange();
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return valid;
-		}
-		
-		@Override
-		public String getDescription() {
-			return description != null ? description : super.getDescription();
 		}
 	}
 	
 	private class CancelAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			cancel();
 		}
 	}
@@ -184,16 +161,16 @@ public abstract class Editor<T, RESULT> extends Action {
 
 	private class FillWithDemoDataAction extends Action {
 		@Override
-		public void action() {
-			fillWithDemoData();
+		public void run() {
+			mock();
 		}
 	}
 	
-	protected void fillWithDemoData() {
+	protected void mock() {
 		if (object instanceof Mocking) {
 			((Mocking) object).mock();
 			objectChanged();
-		} else {
+		} else if (this instanceof Mocking) {
 			form.mock();
 			validate(form);
 		}

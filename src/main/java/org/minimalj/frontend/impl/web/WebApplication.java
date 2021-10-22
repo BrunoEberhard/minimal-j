@@ -1,10 +1,7 @@
 package org.minimalj.frontend.impl.web;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -61,61 +58,31 @@ public abstract class WebApplication extends Application {
 
 	protected abstract MjHttpHandler createHttpHandler();
 
-	protected ResourcesHttpHandler createResourcesHttpHandler() {
-		File web = new File("./web");
-		if (web.exists() && web.isDirectory()) {
-			return new ResourcesHttpHandler() {
-				@Override
-				public URL getUrl(String path) throws MalformedURLException {
-					return new File(web, path).toURI().toURL();
-				}
-			};
-		} else {
-			if (!Configuration.isDevModeActive()) {
-				logger.warning("In production the web resources should be in separated directory");
-			}
-			return new ResourcesHttpHandler();
-		}
-	}
-
-	// TODO clean up
-	private static MjHttpHandler webApplicationHandler;
-	private static ResourcesHttpHandler resourceHandler;
 	private static List<MjHttpHandler> handlers;
 
 	private static List<MjHttpHandler> getHandlers() {
 		if (handlers == null) {
+			boolean isJsonFrontend = Frontend.getInstance() instanceof JsonFrontend;
+			String mjHandlerPath = WebApplication.mjHandlerPath();
+			
 			handlers = new ArrayList<>();
-			String mjHandlerPath = null;
+
+			// intial html and ajax calls
+			if (isJsonFrontend && mjHandlerPath != null) {
+				handlers.add(new ApplicationHttpHandler(mjHandlerPath));
+			}
+			
+			// for applications with custom http handler
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
-
-				if (Frontend.getInstance() instanceof JsonFrontend && WebApplication.mjHandlerPath() != null) {
-					mjHandlerPath = WebApplication.mjHandlerPath();
-					handlers.add(new ApplicationHttpHandler(mjHandlerPath));
-				}
-
-				handlers.add(getWebApplicationHandler());
-
-				MjHttpHandler resourcesHttpHandler = webApplication.createResourcesHttpHandler();
-				if (resourcesHttpHandler != null) {
-					handlers.add(resourcesHttpHandler);
-				}
-			} else {
-				mjHandlerPath = "/";
-				handlers.add(new ApplicationHttpHandler("/"));
+				handlers.add(webApplication.createHttpHandler());
 			}
-			handlers.add(new ResourcesHttpHandler() {
-				@Override
-				public void handle(MjHttpExchange exchange, String path) {
-					if (WebApplication.mjHandlerPath() == null) {
-						super.handle(exchange, path);
-					} else if (path.startsWith(WebApplication.mjHandlerPath())) {
-						super.handle(exchange, path.substring(WebApplication.mjHandlerPath().length()));
-					}
-				}
-			});
-			if (Routing.available() && mjHandlerPath != null) {
+			
+			// serve the application resources (located in web package)
+			handlers.add(new ResourcesHttpHandler());
+
+			// handle routing paths
+			if (isJsonFrontend && mjHandlerPath != null && Routing.available()) {
 				handlers.add(new RoutingHttpHandler(mjHandlerPath));
 			}
 		}
@@ -123,38 +90,28 @@ public abstract class WebApplication extends Application {
 	}
 
 	public static final void handle(MjHttpExchange exchange) {
+		if (!callHandlers(exchange)) {
+			if (Application.getInstance() instanceof WebApplication) {
+				webApplication().sendNotFound(exchange);
+			} else {
+				sendNotFoundDefault(exchange);
+			}
+		}
+	}
+
+	public static final boolean callHandlers(MjHttpExchange exchange) {
 		for (MjHttpHandler handler : getHandlers()) {
 			try {
 				handler.handle(exchange);
 				if (exchange.isResponseSent()) {
-					return;
+					return true;
 				}
 			} catch (Exception x) {
-				webApplication().sendError(exchange, x);
 				logger.log(Level.SEVERE,x.getLocalizedMessage(), x);
+				webApplication().sendError(exchange, x);
 			}
 		}
-		if (Application.getInstance() instanceof WebApplication) {
-			webApplication().sendNotFound(exchange);
-		} else {
-			sendNotFoundDefault(exchange);
-		}
-	}
-
-	public static MjHttpHandler getWebApplicationHandler() {
-		if (webApplicationHandler == null && Application.getInstance() instanceof WebApplication) {
-			WebApplication webApplication = (WebApplication) Application.getInstance();
-			webApplicationHandler = webApplication.createHttpHandler();
-		}
-		return webApplicationHandler;
-	}
-
-	public static ResourcesHttpHandler getResourceHandler() {
-		if (resourceHandler == null && Application.getInstance() instanceof WebApplication) {
-			WebApplication webApplication = (WebApplication) Application.getInstance();
-			resourceHandler = webApplication.createResourcesHttpHandler();
-		}
-		return resourceHandler;
+		return false;
 	}
 
 	protected void sendError(MjHttpExchange exchange, Exception x) {

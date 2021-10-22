@@ -8,7 +8,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.mariadb.jdbc.MariaDbDataSource;
 import org.minimalj.application.Configuration;
@@ -63,6 +62,10 @@ public class DataSourceFactory {
 	}
 	
 	public static DataSource embeddedDataSource(String file) {
+		return h2DataSource(file != null ? "jdbc:h2:" + file : "jdbc:h2:mem:TempDB" + (memoryDbCount++));
+	}
+
+	public static DataSource h2DataSource(String url) {
 		JdbcDataSource dataSource;
 		try {
 			dataSource = new JdbcDataSource();
@@ -70,24 +73,10 @@ public class DataSourceFactory {
 			logger.severe("Missing JdbcDataSource. Please ensure to have h2 in the classpath");
 			throw new IllegalStateException("Configuration error: Missing JdbcDataSource");
 		}
-		dataSource.setUrl(file != null ? "jdbc:h2:" + file : "jdbc:h2:mem:TempDB" + (memoryDbCount++));
+		dataSource.setUrl(url);
 		return dataSource;
 	}
 
-	public static DataSource embeddedDerbyDataSource(String file) {
-		EmbeddedDataSource dataSource;
-		try {
-			dataSource = new EmbeddedDataSource();
-		} catch (NoClassDefFoundError e) {
-			logger.severe("Missing EmbeddedDataSource. Please ensure to have derby in the classpath");
-			throw new IllegalStateException("Configuration error: Missing EmbeddedDataSource");
-		}
-		
-		dataSource.setDatabaseName(file != null ? file : "memory:TempDB" + (memoryDbCount++));
-		dataSource.setCreateDatabase("create");
-		return dataSource;
-	}
-	
 	public static DataSource dataSource(String url, String user, String password) {
 		if (url.startsWith("jdbc:oracle")) {
 			return oracleDbDataSource(url, user, password);
@@ -97,6 +86,8 @@ public class DataSourceFactory {
 			return postgresqlDataSource(url, user, password);
 		} else if (url.startsWith("jdbc:sqlserver")) {
 			return mssqlDataSource(url, user, password);
+		} else if (url.startsWith("jdbc:h2")) {
+			return h2DataSource(url);
 		} else {
 			throw new RuntimeException("Unknown jdbc URL: " + url);
 		}

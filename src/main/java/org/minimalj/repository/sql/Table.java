@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -106,35 +107,49 @@ public class Table<T> extends AbstractTable<T> {
 	
 	public Object insert(T object) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
-			Object id;
-			if (idProperty != null) {
-				id = idProperty.getValue(object);
-				if (id == null && !autoIncrementId) {
-					id = createId();
-					idProperty.setValue(object, id);
-				}
-			} else {
-				id = createId();
-			}
-			setParameters(insertStatement, object, autoIncrementId ? ParameterMode.INSERT_AUTO_INCREMENT : ParameterMode.INSERT, id);
-			insertStatement.execute();
-			if (id == null) {
-				try (ResultSet rs = insertStatement.getGeneratedKeys()) {
-					rs.next();
-					id = rs.getInt(1);
-					idProperty.setValue(object, id);
-				}
-			}
-			insertLists(object);
-			if (object instanceof Code) {
-				sqlRepository.invalidateCodeCache(object.getClass());
-			}
-			return id;
+			return insert(object, insertStatement);
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert in " + getTableName() + " with " + object);
 		}
 	}
 
+	public void insert(List<T> objects) {
+		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
+			for (T object : objects) {
+				insert(object, insertStatement);
+			}
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't bulk insert in " + getTableName());
+		}
+	}
+
+	private Object insert(T object, PreparedStatement insertStatement) throws SQLException {
+		Object id;
+		if (idProperty != null) {
+			id = idProperty.getValue(object);
+			if (id == null && !autoIncrementId) {
+				id = createId();
+				idProperty.setValue(object, id);
+			}
+		} else {
+			id = createId();
+		}
+		setParameters(insertStatement, object, autoIncrementId ? ParameterMode.INSERT_AUTO_INCREMENT : ParameterMode.INSERT, id);
+		insertStatement.execute();
+		if (id == null) {
+			try (ResultSet rs = insertStatement.getGeneratedKeys()) {
+				rs.next();
+				id = rs.getInt(1);
+				idProperty.setValue(object, id);
+			}
+		}
+		insertLists(object);
+		if (object instanceof Code) {
+			sqlRepository.invalidateCodeCache(object.getClass());
+		}
+		return id;
+	}
+	
 	protected void insertLists(T object) {
 		for (Entry<PropertyInterface, ListTable> listEntry : lists.entrySet()) {
 			List list = (List) listEntry.getKey().getValue(object);
@@ -150,6 +165,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void deleteById(Object id) {
+		deleteLists(sqlRepository.read(clazz, id));
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
@@ -158,6 +174,13 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	protected void deleteLists(T object) {
+		for (ListTable list : lists.values()) {
+			// TODO implement ListTable.deleteList(parentId) would be more efficient
+			list.replaceList(object, Collections.emptyList());
+		}
+	}
+	
 	public int delete(Class<?> clazz, Criteria criteria) {
 		WhereClause<T> whereClause = new WhereClause<>(this, criteria);
 		String deleteString = "DELETE FROM " + getTableName() + whereClause.getClause();

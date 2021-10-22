@@ -17,7 +17,7 @@ public class ActionGroup extends Action {
 	}
 
 	@Override
-	public void action() {
+	public void run() {
 		// n/a
 	}
 

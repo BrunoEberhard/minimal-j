@@ -1,20 +1,13 @@
 package org.minimalj.util.resources;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
@@ -30,12 +23,12 @@ public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
 
 	public static final boolean OPTIONAL = false;
-	
+
 	public static final String APPLICATION_NAME = "Application.name";
 	public static final String APPLICATION_ICON = "Application.icon";
-	
+
 	private static final Map<Locale, ResourceBundleAccess> resourcesByLocale = new HashMap<>();
-	
+
 	private static ResourceBundleAccess getAccess() {
 		Locale locale = LocaleContext.getCurrent();
 		if (!resourcesByLocale.containsKey(locale)) {
@@ -49,7 +42,7 @@ public class Resources {
 	public static boolean isAvailable(String resourceName) {
 		return getAccess().isAvailable(resourceName);
 	}
-	
+
 	public static Integer getInteger(String resourceName, boolean reportIfMissing) {
 		return getAccess().getInteger(resourceName, reportIfMissing);
 	}
@@ -57,7 +50,7 @@ public class Resources {
 	public static String getString(String resourceName) {
 		return getString(resourceName, true);
 	}
-	
+
 	/**
 	 * @param resourceName the name of the resource. No further prefixes or postfixes are applied
 	 * @param reportIfMissing Use the constant OPTIONAL if its not an application error when the resource is not available
@@ -66,7 +59,7 @@ public class Resources {
 	public static String getString(String resourceName, boolean reportIfMissing) {
 		return getAccess().getString(resourceName, reportIfMissing);
 	}
-	
+
 	public static String getString(Class<?> clazz) {
 		return getAccess().getString(clazz);
 	}
@@ -80,20 +73,15 @@ public class Resources {
 	}
 
 	public static String getPropertyName(PropertyInterface property, String postfix) {
-		String result = getAccess().getPropertyName(property, postfix);
-		if (result == null) {
-			// if no resource with postfix try without (need for checkboxes)
-			result = getAccess().getPropertyName(property, null);
-		}
-		return result;
+		return getAccess().getPropertyName(property, postfix);
 	}
-	
+
 	public static String getResourceName(Class<?> clazz) {
 		return getAccess().getResourceName(clazz);
 	}
 
 	//
-	
+
 	/* test */ static class ResourceBundleAccess {
 		private final ResourceBundle resourceBundle;
 
@@ -246,9 +234,9 @@ public class Resources {
 			return clazz.getSimpleName();
 		}
 	}
-	
+
 	//
-	
+
 	private static final Set<String> missing = new TreeSet<>();
 
 	private static void reportMissing(String resourceName, boolean reportIfMissing) {
@@ -260,58 +248,24 @@ public class Resources {
 	public static void printMissing() {
 		missing.stream().forEach(s -> System.out.println(s + " = "));
 	}
-	
+
 	//
-	
+
 	private static Map<String, String> mimeTypeByPostfix = new HashMap<>();
-	
+
 	static {
-		mimeTypeByPostfix.put("html", "text/html");
-		mimeTypeByPostfix.put("css", "text/css");
-		mimeTypeByPostfix.put("js", "application/javascript");
+		mimeTypeByPostfix.put("html", "text/html;charset=UTF-8");
+		mimeTypeByPostfix.put("css", "text/css;charset=UTF-8");
+		mimeTypeByPostfix.put("js", "application/javascript;charset=UTF-8");
 		mimeTypeByPostfix.put("jpg", "image/jpg");
 		mimeTypeByPostfix.put("png", "image/png");
 	}
-	
+
 	public static void addMimeType(String postfix, String contentType) {
 		mimeTypeByPostfix.put(postfix, contentType);
 	}
-	
+
 	public static String getMimeType(String postfix) {
 		return mimeTypeByPostfix.get(postfix);
-	}
-
-	// combination of NoFallbackControl and EncodingResourceBundleControl (all final)
-	// in Java 9 there are UTF-8 property - files :)
-	private static class NoFallbackUTF8Control extends Control {
-
-		@Override
-		public List<String> getFormats(String baseName) {
-			Objects.requireNonNull(baseName);
-			return Control.FORMAT_PROPERTIES;
-		}
-
-		@Override
-		public Locale getFallbackLocale(String baseName, Locale locale) {
-			Objects.requireNonNull(baseName);
-			Objects.requireNonNull(locale);
-			return null;
-		}
-
-		@Override
-		public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
-				throws IllegalAccessException, InstantiationException, IOException {
-			String bundleName = toBundleName(baseName, locale);
-			String resourceName = toResourceName(bundleName, "properties");
-			URL resourceURL = loader.getResource(resourceName);
-			if (resourceURL != null) {
-				try {
-					return new PropertyResourceBundle(new InputStreamReader(resourceURL.openStream(), Charset.forName("UTF-8")));
-				} catch (Exception z) {
-					logger.log(Level.FINE, "exception thrown during bundle initialization", z);
-				}
-			}
-			return super.newBundle(baseName, locale, format, loader, reload);
-		}
 	}
 }

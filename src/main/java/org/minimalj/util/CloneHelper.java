@@ -117,6 +117,9 @@ public class CloneHelper {
 			} else if (fromValue instanceof byte[]) {
 				toValue = ((byte[]) fromValue).clone();
 				field.set(to, toValue);
+			} else if (fromValue instanceof char[]) {
+				toValue = ((char[]) fromValue).clone();
+				field.set(to, toValue);
 			} else {
 				toValue = clone(fromValue, originals, copies);
 				field.set(to, toValue);
@@ -138,7 +141,7 @@ public class CloneHelper {
 				constructor = clazz.getConstructor();
 				contructors.put(clazz, constructor);
 			} catch (SecurityException | NoSuchMethodException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException("Failed to create new Instance of " + clazz.getName(), e);
 			}
 		}
 		try {

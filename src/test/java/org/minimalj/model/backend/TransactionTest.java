@@ -1,21 +1,16 @@
 package org.minimalj.model.backend;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.TestApplication;
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.repository.query.By;
+import org.minimalj.test.TestUtil;
 import org.minimalj.transaction.Transaction;
 
 public class TransactionTest {
-
-	@BeforeClass
-	public static void initApplication() {
-		Application.setInstance(TestApplication.INSTANCE);
-	}
 
 	public class TransactionTestApplication extends Application {
 		@Override
@@ -26,12 +21,18 @@ public class TransactionTest {
 
 	@Before
 	public void init() {
-		TestApplication.INSTANCE.setCurrentApplication(new TransactionTestApplication());
+		Application.setInstance(new TransactionTestApplication());
 
 		Backend.insert(new TestEntityA());
 		Assert.assertEquals("Initialy there should be 1 entity", 1, Backend.count(TestEntityA.class, By.ALL));
 	}
-
+	
+	@After
+	public void after() {
+		Backend.delete(TestEntityA.class, By.ALL);
+		TestUtil.shutdown();
+	}
+	
 	@Test
 	public void testSameTransaction() {
 		try {

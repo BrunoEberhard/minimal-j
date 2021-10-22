@@ -12,7 +12,7 @@ import org.minimalj.frontend.action.Action;
 public class DemoDataAction extends Action {
 
 	@Override
-	public void action() {
+	public void run() {
 		for (int i = 0; i<5; i++) {
 			Account account = account();
 			Backend.insert(account);

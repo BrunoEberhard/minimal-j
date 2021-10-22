@@ -40,7 +40,7 @@ how you can concat two attributes in the table. With that pattern you can avoid 
 columns need a lot of space in a croweded table.
 
 I think you unterstand what the load method wants to do / say. But what must be done to make this
-work? If nothing else is specified at startup of an application a apache derby database is used
+work? If nothing else is specified at startup of an application a h2 in memory database is used
 for the repository. This is a database included in every JDK (but not in the JRE. You have to include
 it in the classpath yourself!). Without configuration the database lives only in the JVM memory.
 All data will be lost when the application exits.
@@ -116,12 +116,12 @@ Only use the id object to pass it around or compare it with equals to an other.
 === Database in a file
 
 You may find it not practical that at every startup the database is empty again. What sense make such a
-database (except for test classes)? For derby db you can specify a file in which all data is stored. This is implemented by 
-derby db, its not a feature of Minimal-J. You can configure the file VM parameter MjBackendDatabaseFile.
+database (except for test classes)? For h2 db you can specify a file in which all data is stored. This is implemented by 
+h2, its not a feature of Minimal-J. You can configure the file VM parameter MjBackendDatabaseFile.
 
 The benefit of this configuration is quite limited. In development it may be helpful to reuse entered
-data after some change in the code. But note: The derby db file is not meant to be access by two JVM
-at the same time. Derby db forbids this. So you have to stop every other instanceof of an application
+data after some change in the code. But note: The db file is not meant to be access by two JVM
+at the same time. H2 db forbids this. So you have to stop every other instanceof of an application
 before try to start a new one.
 
 And for real life configurations you will use heavier kind of stuff. You will have have a single backend

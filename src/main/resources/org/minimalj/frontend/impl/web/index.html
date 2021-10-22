@@ -1,10 +1,12 @@
-<html>
+<html lang="$LANG">
 <head>
+<meta charset="utf-8">
 <title>$TITLE</title>
 $META
 
-<!-- $MINIMALJ-VERSION -->
-<!-- $APPLICATION-VERSION -->
+<!-- Minimal-J Version: $MINIMALJ-VERSION -->
+<!-- Application Version: $APPLICATION-VERSION -->
+$BASE
 
 $IMPORT
 <script src="dialog-polyfill.js"></script>
@@ -17,57 +19,81 @@ $ICON
 
 <script type="text/javascript">
 	"use strict";
-
+	
 	var navigatorInfo = navigator.userAgent || navigator.vendor || window.opera; // see http://detectmobilebrowsers.com/
-    var isMobile = (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(navigatorInfo) ||
-        /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigatorInfo.substr(0, 4)));
-  
+	var isMobile = (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(navigatorInfo) ||
+		/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigatorInfo.substr(0, 4)));
+	
 	var websocket;
 	var session = sessionStorage.sessionId;
-
+	
 	var pageContainerElement;
 	var titleElement;
-  	var intersectionObserver = new IntersectionObserver(intersectionListener, {threshold: 1});
-  	
-  	var blockStyle = document.createElement('style');
-  	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
-  	var blockCount = 0;
-  	
+	var intersectionObserver = new IntersectionObserver(intersectionListener);
+	
+	var blockStyle = document.createElement('style');
+	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
+	var blockCount = 0;
+	var pendingRequests = 0;
+	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
-
+	
 		if (dataObject.wait) {
-			var data = {"retry" : dataObject.wait};
+			var data = {
+				"retry": dataObject.wait
+			};
 			document.getElementById("wait").style.width = (1 + (dataObject.wait - 1) % 3) + "em";
 			send(data, true);
 			return;
 		} else {
 			document.getElementById("wait").style.width = 0;
 		}
-
+	
 		session = dataObject["session"];
+		var sessionChanged = sessionStorage.sessionId != undefined && session != sessionStorage.sessionId;
 		sessionStorage.sessionId = session;
-
-		localStorage.rememberMeToken = dataObject.rememberMeToken;
-
+		if (sessionChanged) {
+			location.reload();
+			return;
+		}
+	
+		if (dataObject.rememberMeToken != undefined) {
+			if (dataObject.rememberMeToken != "") {
+				localStorage.rememberMeToken = dataObject.rememberMeToken;
+			} else {
+				localStorage.removeItem("rememberMeToken");
+			}
+		}
+	
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
+		if (dataObject.hasSearchPages === true) {
+			document.getElementById("search").removeAttribute("disabled");
+			document.getElementById("searchButton").classList.remove("hide");
+		} else if (dataObject.hasSearchPages === false) {
+			document.getElementById("search").setAttribute("disabled", "true");
+			document.getElementById("searchButton").classList.add("hide");
+		}		
 		if ("showPage" in dataObject) {
 			closeDialogs();
 			dataObject.closeDialog = undefined;
 			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
+			updatePageButtons();
 			saveStateInHistory();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
-			for (var i = 0; i<pages.length; i++) {
+			for (var i = 0; i < pages.length; i++) {
 				showPage(pages[i]);
 			}
+			updatePageButtons();
 		} else if ("hidePage" in dataObject) {
 			addNewStateToHistory();
 			hidePage(dataObject.hidePage);
 			saveStateInHistory();
+			updatePageButtons();
 		} else if ("showUrl" in dataObject) {
 			window.location.href = dataObject.showUrl;
 		} else if (dataObject.pageId) {
@@ -84,7 +110,12 @@ $ICON
 			var pageId = dataObject.hideDetail;
 			hideDetail(pageId);
 			saveStateInHistory();
-		}		
+		}
+		if ("horizontalDetailLayout" in dataObject) {
+			var horizontalDetailLayout = dataObject.horizontalDetailLayout;
+			pageContainer.style.flexDirection = horizontalDetailLayout ? "row" : "column";
+			updatePageButtons();
+		}
 		if (dataObject.navigation) {
 			updateNavigation(dataObject.navigation);
 		}
@@ -92,23 +123,27 @@ $ICON
 			showDialog(dataObject.dialog);
 		}
 		if (dataObject.closeDialog) {
-			for (var i = 0; i<dataObject.closeDialog.length; i++) {
+			for (var i = 0; i < dataObject.closeDialog.length; i++) {
 				var dialog = document.getElementById(dataObject.closeDialog[i]);
 				dialog.close();
 			}
 		}
 		if (dataObject.propertyChanges) {
 			var propertyChanges = dataObject.propertyChanges;
-			for ( var id in propertyChanges) {
+			for (var id in propertyChanges) {
 				var element = document.getElementById(id);
 				if (element) {
-					for ( var property in propertyChanges[id]) {
+					for (var property in propertyChanges[id]) {
 						var value = propertyChanges[id][property];
 						if (property === "tableContent") {
-							while (element.getElementsByTagName("tbody").length > 0) {
-								element.removeChild(element.getElementsByTagName("tbody")[0]);
+							var tbody = element.tBodies[0];
+							removeChildren(tbody);
+							addTableRows(tbody, value);
+						} else if (property === "selectedRows") {
+							var tbody = element.getElementsByTagName("tbody")[0];
+							for (var i = 0; i < tbody.childNodes.length; i++) {
+								tbody.childNodes[i].className = value[i];							
 							}
-							element.appendChild(createTableRows(id, value));
 						} else if (property === "validationMessage") {
 							var validationElement = document.getElementById(id + "-validation");
 							if (value == undefined || value == "") {
@@ -118,27 +153,34 @@ $ICON
 								validationElement.title = value;
 							}
 						} else if (property === "enabled" && element.className === "list") {
-							element.style.display = value ? "block" : "none";						
+							element.style.display = value ? "block" : "none";
 						} else if (property === "enabled" && element.className === "listContent") {
-							element.parentElement.style.display = value ? "block" : "none";		
+							element.parentElement.style.display = value ? "block" : "none";
 						} else if (property === "editable" || property === "enabled") {
+							var label = document.querySelectorAll('[for="' + id + '"]');
 							if (value) {
 								element.removeAttribute("disabled");
+								if (label.length > 0) {
+									label[0].removeAttribute("disabled");
+								}
 							} else {
 								element.setAttribute("disabled", true);
+								if (label.length > 0) {
+									label[0].setAttribute("disabled", true);
+								}
 							}
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
 							element.checked = value ? "checked" : "";
 						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
-							element.innerHTML = escapeText(value);
+							element.innerHTML = value != null ? escapeText(value) : "";
 						} else if (property === "value" && element.tagName === "IMG") {
 							element.style.display = value ? "block" : "none";
 							element.src = "data:image;base64, " + value;
 						} else {
-                            if (property === "value" && element.tagName === "INPUT" && element.type === "password") {
+							if (property === "value" && element.tagName === "INPUT" && element.type === "password") {
 								value = value.join("");
-                            }
-							if (document.activeElement != element || element.id != dataObject.source) {
+							}
+							if (document.activeElement != element || element.id != dataObject.source || element.changeOnFocus) {
 								// a date (formatted input) should not change while user is entering more characters
 								element[property] = value;
 							} else {
@@ -151,7 +193,7 @@ $ICON
 		}
 		if (dataObject.contentChanges) {
 			var contentChanges = dataObject.contentChanges;
-			for ( var id in contentChanges) {
+			for (var id in contentChanges) {
 				var element = document.getElementById(id);
 				if (element) {
 					for (var i = 0; i < contentChanges[id].length; i++) {
@@ -181,13 +223,19 @@ $ICON
 		if (dataObject.tableExtendContent) {
 			var table = document.getElementById(dataObject.tableId);
 			var oldScroll = table.parentNode.scrollTop;
-			table.appendChild(createTableRows(dataObject.tableId, dataObject.tableExtendContent));
+			addTableRows(table.tBodies[0], dataObject.tableExtendContent);
 			if (!dataObject.extendable) {
 				var footer = table.getElementsByTagName("tfoot")[0];
 				intersectionObserver.unobserve(footer);
-				table.removeChild(footer);			
+				table.removeChild(footer);
 			}
 			table.parentNode.scrollTop = oldScroll;
+		}
+		if (dataObject.canLogin != undefined) {
+			document.getElementById("login").style.display = dataObject.canLogin ? "inline-block" : "none";
+		}
+		if (dataObject.canLogout != undefined) {
+			document.getElementById("logout").style.display = dataObject.canLogout ? "inline-block" : "none";
 		}
 	}
 	
@@ -196,7 +244,7 @@ $ICON
 			element.value = element.valueOnBlur;
 			element.valueOnBlur = undefined;
 		}
-	}	
+	}
 	
 	var timerTextFieldChange = null;
 	var lastChangedTextField = null;
@@ -238,7 +286,7 @@ $ICON
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
 			var state = [];
-			for (var i = 0; i<pages.length; i++) {
+			for (var i = 0; i < pages.length; i++) {
 				state.push(pages[i].id);
 			}
 			history.replaceState(state, titleElement.innerText);
@@ -247,41 +295,44 @@ $ICON
 	
 	function popState(event) {
 		if (event.state) {
-			var data = {"showPages" : event.state};
+			var data = {
+				"showPages": event.state
+			};
 			send(data, true);
 		}
 	}
 	
-	function onError(evt) {
-	}
-
+	function onError(evt) {}
+	
 	function showPage(page) {
 		// only on large devices more than one page is displayed at a time
 		while (pageContainerElement.lastChild && pageContainerElement.lastChild.id != page.masterPageId) {
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
 		}
-		
+	
 		var pageElement = document.createElement("div");
-		pageElement.className = "page";
+		pageElement.classList.add("page");
+		if (page.pageClass) {
+		    // undefined for login page, see JsonPageManager.showLogin
+			pageElement.classList.add(page.pageClass);
+		}
 		pageElement.id = page.pageId;
-			
+	
 		var hasActionMenu = page.actionMenu != null;
-		
+	
 		// pageHeader will only be displayed on large displays
 		var headerElement = createPageHeader(page.title);
 		pageElement.appendChild(headerElement);
 		if (!hasActionMenu) {
-			var actionMenuButton = headerElement.querySelector(".actionMenuButton");
-			actionMenuButton.removeAttribute("onclick");
-			actionMenuButton.style.display = "none";
+			headerElement.querySelector(".actionMenuButton").style.display = "none";
 		}
-		
+	
 		var pageContentAndActionsElement = document.createElement("div");
 		pageContentAndActionsElement.className = "pageContentAndActions";
 		pageElement.appendChild(pageContentAndActionsElement);
-
+	
 		pageContainerElement.appendChild(pageElement);
-
+	
 		if (page.content) {
 			var contentElement;
 			if (page.content.type === "Html") {
@@ -289,53 +340,77 @@ $ICON
 				// the iframe must be already attached to have the document
 				pageContentAndActionsElement.appendChild(contentElement);
 				if (!!("srcdoc" in contentElement)) {
-				  // in chrome this works best
-					contentElement.srcdoc = page.content.htmlOrUrl;			
+					// in chrome this works best
+					contentElement.srcdoc = page.content.htmlOrUrl;
 				} else {
-				  // in IE before chromium this allows back after a link in the content was clicked
-				  contentElement.contentWindow.document.write(page.content.htmlOrUrl);
-				}				
+					// in IE before chromium this allows back after a link in the content was clicked
+					contentElement.contentWindow.document.write(page.content.htmlOrUrl);
+				}
 				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
 			} else {
 				var contentElement = createContent(page.content);
 				pageContentAndActionsElement.appendChild(contentElement);
 			}
-			contentElement.classList.add("pageContent")	
+			contentElement.classList.add("pageContent");
+			contentElement.classList.add("content" + page.content.type);
+			
+			headerElement.ondblclick = function(e) { selectAll(contentElement); }
+			// :not([type='hidden']) is not supported on old browsers but there shoul be no hidden input anyway
+			var inputs = contentElement.querySelectorAll("input, textarea, select");
+			if (inputs.length > 0) {
+				inputs[0].focus();
+			}
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
-		
+	
 		// actions
 		document.getElementById("actionMenuButton").style.display = hasActionMenu ? null : "none";
-
+	
 		if (hasActionMenu) {
 			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
 			actionMenuElement.className = "actionMenu";
 			actionMenuElement.style.display = "none";
-			
+	
 			pageContentAndActionsElement.appendChild(actionMenuElement);
 			pageElement.actionMenu = actionMenuElement;
 		}
-    
-        if (window.innerWidth < 992) toggleNavigation("close");
-    
+	
+		if (window.innerWidth < 992) toggleNavigation("close");
+	
 		pageElement.scrollIntoView();
 	}
 	
 	function hidePage(page) {
 		var start = -1;
-		for (var i = 0; i<pageContainerElement.childNodes.length; i++) {
+		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
 			if (pageContainerElement.childNodes[i].id == page) {
 				start = i;
 			}
 		}
-		for (var i = pageContainerElement.childNodes.length -1; i>= start; i--) {
+		for (var i = pageContainerElement.childNodes.length - 1; i >= start; i--) {
 			pageContainerElement.removeChild(pageContainerElement.lastChild);
+		}
+	}
+	
+	function selectAll(element) {
+		var range = document.createRange(); 
+		range.selectNodeContents(element);
+		window.getSelection().removeAllRanges();
+		window.getSelection().addRange(range);
+	}
+	
+	function updatePageButtons() {
+		var verticalLayout = pageContainer.style.flexDirection == "column";
+	    var pages = document.getElementsByClassName("page");
+		for (var i = 0; i < pages.length; i++) {
+			pages[i].querySelector(".toggleButton").style.display = verticalLayout && i < pages.length - 1 ? "inline-block" : "none";
+			pages[i].querySelector(".closeButton").style.display = i > 0 ? "inline-block" : "none";
 		}
 	}
 
 	function togglePageActionMenu(event) {
-		for (var i = 0; i<pageContainerElement.childNodes.length; i++) {
+		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
 			var page = pageContainerElement.childNodes[i];
 			if (page.actionMenu && page.actionMenu.style.display === "block") {
 				page.actionMenu.style.display = "none";
@@ -343,21 +418,21 @@ $ICON
 				return;
 			}
 		}
-		
+	
 		var pageElement = event.target;
 		while ((pageElement.classList == null || !pageElement.classList.contains("page")) && (pageElement = pageElement.parentNode));
 		if (!pageElement) {
 			pageElement = document.getElementsByClassName("page")[0];
 		}
-		
-		if (pageElement && pageElement.actionMenu) {		
-		    var pageActionContainer = pageElement.actionMenu;
+	
+		if (pageElement && pageElement.actionMenu) {
+			var pageActionContainer = pageElement.actionMenu;
 			pageActionContainer.style.display = "block";
-			
+	
 			if (event.type === "contextmenu") {
 				pageActionContainer.style.left = event.x;
 				if (event.x + pageActionContainer.offsetWidth > window.innerWidth) {
-					pageActionContainer.style.left =  Math.max(0, window.innerWidth - pageActionContainer.offsetWidth);
+					pageActionContainer.style.left = Math.max(0, window.innerWidth - pageActionContainer.offsetWidth);
 				}
 				pageActionContainer.style.top = event.y;
 				pageActionContainer.style.maxHeight = "unset";
@@ -365,75 +440,76 @@ $ICON
 					pageActionContainer.style.top = Math.max(30, window.innerHeight - pageActionContainer.offsetHeight);
 					pageActionContainer.style.maxHeight = window.innerHeight - 70;
 				}
-				event.preventDefault();
 			} else {
-				pageActionContainer.style.left =event.target.getBoundingClientRect().right - pageActionContainer.offsetWidth;
+				pageActionContainer.style.left = event.target.getBoundingClientRect().right - pageActionContainer.offsetWidth;
 				pageActionContainer.style.top = event.target.getBoundingClientRect().bottom;
 			}
-			
-			pageActionContainer.onmousedown = function(e) { e.stopPropagation(); }
+			event.preventDefault();
+			event.stopPropagation();
 		}
 	}
 	
-	document.onmousewheel = closeActionMenu;
-	document.onmousedown = closeActionMenu;
-	window.onblur = closeActionMenu;
-	document.onkeydown = function(e) { if (e.keyCode === 27) { closeActionMenu(); } };
-
-	function closeActionMenu() {
-		for (var i = 0; i<pageContainerElement.childNodes.length; i++) {
+	function closeActionMenu(event) {
+		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
 			var page = pageContainerElement.childNodes[i];
 			if (page.actionMenu && page.actionMenu.style.display === "block") {
 				page.actionMenu.style.display = "none";
 			}
-		}	
+		}
+	    var dropdowns = document.getElementsByClassName("dropdown");
+	    for (var i = 0; i < dropdowns.length; i++) {
+	      dropdowns[i].style.display = "none";
+	    }
 	}
 	
 	function togglePage(event) {
 		var element = event.target;
-		while ((element = element.parentNode) && element.className != "page");
-		var pageContentElement = element.querySelector(".pageContentAndActions");
-		if (pageContentElement.style.display === "none") {
-			pageContentElement.style.display = null;
+		while ((element = element.parentNode) && !element.classList.contains("page"));
+		var pageElement = element;
+		if (pageElement.style.flexGrow == "0") {
+			pageElement.style.flexGrow = "1";
 			element.scrollIntoView();
 		} else {
-			pageContentElement.style.display = "none";
+			pageElement.style.flexGrow = "0";
 		}
 	}
 	
 	function closePage(event) {
 		addNewStateToHistory();
-		
+	
 		var element = event.target;
-		while ((element = element.parentNode) && element.className != "page");
-		
+		while ((element = element.parentNode) && !element.classList.contains("page"));
+	
 		var index = Array.prototype.indexOf.call(pageContainerElement.childNodes, element);
-		for (var i = pageContainerElement.childNodes.length - 1; i>= index; i--) {
+		for (var i = pageContainerElement.childNodes.length - 1; i >= index; i--) {
 			var e = pageContainerElement.childNodes[i];
 			pageContainerElement.removeChild(e);
 		}
-		
+	
 		saveStateInHistory();
 		
-		var data = {closePage : element.id};
+		updatePageButtons();
+		
+		var data = {
+			closePage: element.id
+		};
 		send(data, true);
 	}
-
+	
 	function createPageHeader(title) {
 		var element = document.createElement("div");
-		element.className = "pageHeader";
-		
+		element.className = "pageHeader secondHeader";
+	
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
 		titleElement.textContent = title;
 		element.appendChild(titleElement);
-		
+	
 		var b = document.getElementById("pageHeaderButtons");
 		var button = b.cloneNode(true);
 		button.id = "menu";
-		button.setAttribute("style", "position: absolute; right: 1em; top: 0.4em;"); 
 		element.appendChild(button);
-
+	
 		return element;
 	}
 	
@@ -452,7 +528,7 @@ $ICON
 		var editable = content.editable == undefined || content.editable;
 		if (type === "Form") {
 			element = document.createElement("div");
-			element.classList.add("form")	
+			element.classList.add("form")
 			element.dataset.columns = content.columns ? content.columns : 1;
 			element.dataset.columnWidth = content.columnWidth;
 			element.style.maxWidth = (content.columns * content.columnWidth * 1.5 / 6 + 3) + "em";
@@ -465,6 +541,31 @@ $ICON
 			removeChildren(element);
 			element.appendChild(document.createTextNode(content.caption));
 			element = document.getElementById("query").cloneNode(true);
+		} else if (type === "Login") {
+			element = document.createElement("div");
+			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
+			var formAndActions = document.createElement("div");
+			formAndActions.style = "width: 30em;";
+			element.appendChild(formAndActions);
+			var contentElement = createContent(content.content);
+			formAndActions.appendChild(contentElement);
+			var actions = content.actions;
+			var footer = document.createElement("div");
+			footer.style="float: right;"
+			for (var i = 0; i < actions.length; i++) {
+				var action = actions[i];
+				var button = document.createElement("button");
+				button.id = action.id;
+				button.style="margin-right: 1em;"
+				button.appendChild(document.createTextNode(action.name));
+				button.setAttribute("onclick", "action(\"" + action.id + "\");");
+				if (!action.enabled)
+					button.setAttribute("disabled", "true");
+				footer.appendChild(button);
+			}
+			formAndActions.appendChild(footer);
+			addEnterAction(content.loginAction, contentElement);
+		
 		} else if (type === "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -472,18 +573,23 @@ $ICON
 			if (content.multiSelect) {
 				element.classList.add("multiSelect");
 			}
+			var thead = document.createElement("thead");
+			element.appendChild(thead);
 			if (content.overview) {
-				var overview = document.createElement("thead");
-				overview.appendChild(createContent(content.overview));
-				element.appendChild(overview);
+				var tr = document.createElement("tr");
+				thead.appendChild(tr);
+				var th = document.createElement("th");
+				th.setAttribute("colspan", content.headers.length);
+				th.appendChild(createContent(content.overview));
+				tr.appendChild(th);
 			}
-			element.appendChild(createTableHeaders(content.id, content.headers));
-			element.appendChild(createTableRows(content.id, content.tableContent));
-			
+			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
+			element.appendChild(createTableRows(content.tableContent));
+	
 			if (content.extendable) {
 				var footer = document.createElement("tfoot");
 				var dots = document.createTextNode("...");
-				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");				
+				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
 				footer.appendChild(dots);
 				if (intersectionObserver) {
 					intersectionObserver.observe(footer);
@@ -510,11 +616,12 @@ $ICON
 			}
 		} else if (type === "Switch") {
 			element = document.createElement("div");
+			if (content.component != undefined) {
+				element.appendChild(createContent(content.component));
+			}
 		} else if (type === "Action") {
 			element = document.createElement("div");
-			element.className = "action";
-			element.textContent = content.name;
-			element.setAttribute("onclick", "action(\"" + content.id + "\");");
+			createAction(element, content);
 		} else if (type === "TextField") {
 			element = document.createElement("input");
 			try {
@@ -540,11 +647,22 @@ $ICON
 			if (content.value) {
 				element.value = content.value;
 			}
-			if (content.suggestions) {
-				element.setAttribute("autocomplete", "off");
-				element.setAttribute("list", content.id + "-list");
-				element.setAttribute("onkeydown", "if (event.keyCode == 40) loadSuggestions(this);");
+			if (content.autocomplete) {
+				element.autocomplete = content.autocomplete;
+			} else {
+				element.autocomplete = "off";
 			}
+			if (content.placeholder) {
+				element.setAttribute("placeholder", content.placeholder);
+			}
+			if (content.suggestions) {
+				element.setAttribute("list", content.id + "-list");
+				element.setAttribute("onkeydown", "clearSuggestions(this);");
+				element.setAttribute("onkeyup", "loadSuggestions(this);");
+				element.setAttribute("onfocus", "loadSuggestions(this);");
+				element.setAttribute("onblur", "clearSuggestions(this);");
+			}
+			element.changeOnFocus = content.changeOnFocus;
 		} else if (type === "AreaField") {
 			element = document.createElement("textarea");
 			element.setAttribute("onkeyup", "sendchange(this);");
@@ -558,12 +676,12 @@ $ICON
 			element.id = content.id;
 			element.setAttribute("style", "flex-grow: 1;");
 			element.setAttribute("onkeydown", "if (event.keyCode == 13) sendchange(this);");
-
+	
 			var button = document.createElement("button");
-			button.appendChild(document.createTextNode("$SEARCH"));
+			button.appendChild(document.createTextNode(content.textSearch));
 			button.setAttribute("onclick", "sendchange(this.previousSibling);");
 			button.setAttribute("style", "width: 10em;");
-
+	
 			var div = document.createElement("div");
 			div.setAttribute("style", "display: flex;");
 			div.appendChild(element);
@@ -574,11 +692,11 @@ $ICON
 			var option = document.createElement("option");
 			element.appendChild(option);
 			if (content.options) {
-				for ( var id in content.options) {
+				for (var id in content.options) {
 					var option = document.createElement("option");
 					option.value = id;
 					option.textContent = content.options[id].text;
-					var description = content.options[id].description; 
+					var description = content.options[id].description;
 					if (description) option.title = description;
 					element.appendChild(option);
 				}
@@ -606,28 +724,39 @@ $ICON
 			element = document.createElement("div");
 			element.className = "lookup";
 			element.appendChild(createContent(content.input));
-			var button = document.createElement("button");
-			button.appendChild(document.createTextNode(".."));
+			var button = document.createElement("div");
+			button.className = "lookupButton";
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
 			element.appendChild(button);
 		} else if (type === "LookupActions") {
 			element = document.createElement("div");
 			element.className = "lookup";
 			element.appendChild(createContent(content.input));
-			
-			var actionElement = document.createElement("select");
-			actionElement.onfocus = function(e) { actionElement.value = -1; }
-			actionElement.onchange = function(e) { action(e.srcElement.value); actionElement.value = -1; }
-			var option = document.createElement("option");
-			actionElement.appendChild(option);
+			var actionElement = document.createElement("div");
+			actionElement.className = "dropdownButton";
+			element.appendChild(actionElement);
+			var dropdownElement = document.createElement("div");
+			dropdownElement.className = "dropdown";
+			dropdownElement.style.display = "none";
+			element.appendChild(dropdownElement);
+			actionElement.onclick = function(e) {
+				var isOpen = dropdownElement.style.display == "block"; 
+				closeActionMenu();
+				if (!isOpen) {
+					dropdownElement.style.display = "block";
+					var actionElementRect = actionElement.getBoundingClientRect();
+					dropdownElement.style.right = document.body.getBoundingClientRect().right - actionElementRect.right;
+					dropdownElement.style.top = actionElementRect.bottom + 2;			
+				}
+				e.stopPropagation();
+			}
 			for (var i = 0; i < content.actions.length; i++) {
 				var a = content.actions[i];
-				var option = document.createElement("option");
-				option.innerHTML = escapeText(a.name);
-				option.value = a.id;
-				actionElement.appendChild(option);
+				var item = document.createElement("div");
+				item.innerHTML = escapeText(a.name);
+				item.setAttribute("onclick", "action(\"" + a.id + "\");");
+				dropdownElement.appendChild(item);
 			}
-			element.appendChild(actionElement);
 		} else if (type === "List") {
 			element = document.createElement("div");
 			element.id = content.id;
@@ -644,23 +773,23 @@ $ICON
 			element.src = content.htmlOrUrl;
 			element.height = "50%"; // cross origin doesn't allow to get childs height
 		} else if (type === "Html") {
-		    // this is not used at the moment as IE (before chrome) doesn't support it
+			// this is not used at the moment as IE (before chrome) doesn't support it
 			element = document.createElement("iframe");
 			element.srcdoc = content.htmlOrUrl;
 		} else if (type === "Image") {
-		    if (editable) {
+			if (editable) {
 				element = document.createElement("input");
 				element.type = "file";
 				element.setAttribute("onchange", "sendchange(this);");
-		    } else {
-		    	element = document.createElement("img");
-		    	if (content.value) {
-			    	element.src = "data:image;base64, " + content.value;
-			    }
-			    if (content.maxHeight) {
-			    	element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
-			    }
-		    }
+			} else {
+				element = document.createElement("img");
+				if (content.value) {
+					element.src = "data:image;base64, " + content.value;
+				}
+				if (content.maxHeight) {
+					element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
+				}
+			}
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
@@ -684,12 +813,18 @@ $ICON
 		}
 		return element;
 	}
+	
 	function createFormCell(cell, span, width) {
+		var cellContent = createContent(cell);
+
 		var cellElement = document.createElement("div");
 		var isTitle = cell.type === "Title";
 		if (!isTitle && cell.caption) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.firstId ? cell.firstId : cell.id);
+			if (cellContent.hasAttribute("disabled")) {
+				caption.setAttribute("disabled", "true");
+			}
 			caption.appendChild(document.createTextNode(cell.caption));
 			var tooltipTemplate = document.getElementById("tooltip");
 			var tooltip = tooltipTemplate.cloneNode(true);
@@ -705,17 +840,16 @@ $ICON
 		} else {
 			cellElement.style.display = "flex";
 		}
-		var cellContent = createContent(cell);
 		setWidths(cellElement, cellContent, span, width);
 		cellElement.appendChild(cellContent);
 		return cellElement;
 	}
+	
 	function setWidths(cellElement, cellContent, span, width) {
-		cellElement.style.minWidth = (width / 6) + "em";
-		cellElement.style.width = (width * span / 6) + "em";
+		cellElement.style.width = (width * span / 6 + (span - 1)) + "em";
 		cellElement.style.flexShrink = span;
 		cellElement.style.flexGrow = span;
-
+	
 		if (cellContent.classList.contains("groupHorizontal")) {
 			var childCount = cellContent.children.length;
 			for (var i = 0; i < childCount; i++) {
@@ -725,41 +859,63 @@ $ICON
 		}
 	}
 	
-	function createTableHeaders(tableId, headers) {
-		var element = document.createElement("thead");
+	function createTableHeaders(tableId, headers, headerNames) {
+		var element = document.createElement("tr");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
+			th.className = "col " + headerNames[i]; 
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
 			element.appendChild(th);
 		}
 		return element;
 	}
-	function createTableRows(tableId, rows) {
+
+	function createTableRows(rows) {
 		var element = document.createElement("tbody");
-		for (var i = 0; i < rows.length; i++) {
-			var rowElement = createTableRow(rows[i]);
-			rowElement.setAttribute("onmousedown", "tableSelection(event, this);");
-			rowElement.setAttribute("ondblclick", "tableAction(event, \"" + tableId + "\", this);");
-			element.appendChild(rowElement);
-		}
+		addTableRows(element, rows);
 		return element;
 	}
+	
+	function addTableRows(tbodyElement, rows) {
+		for (var i = 0; i < rows.length; i++) {
+			var rowElement = createTableRow(rows[i]);
+			tbodyElement.appendChild(rowElement);
+		}
+	}
+	
 	function createTableRow(row) {
 		var element = document.createElement("tr");
 		for (var i = 0; i < row.length; i++) {
 			element.appendChild(createTableCell(row[i]));
 		}
+		element.setAttribute("onclick", "tableSelection(event);");
+		element.setAttribute("ondblclick", "tableAction(event);");
+		element.setAttribute("tabindex", "0");
+		element.setAttribute("onkeydown", "tableKeyHandler(event);");
 		return element;
 	}
+	
 	function createTableCell(cell) {
 		var td = document.createElement("td");
-		if (cell) {
+		if (cell.action) {
+			createAction(td, cell.action);
+		} else if (cell.color) {
+			td.appendChild(document.createTextNode(cell.value));
+			td.classList.add(cell.color);
+		} else if (cell) {
 			td.appendChild(document.createTextNode(cell));
 		}
 		return td;
 	}
-
+	
+	function createAction(element, config) {
+		element.className = "action";
+		element.textContent = config.name;
+		if (config.description) element.setAttribute("title", config.description);
+		element.setAttribute("onclick", "action(\"" + config.id + "\");");
+	}
+	
 	function removeChildren(element) {
 		while (element.firstChild) {
 			element.removeChild(element.firstChild);
@@ -769,15 +925,15 @@ $ICON
 	function updateNavigation(menus) {
 		var navigationElement = document.getElementById("navigation");
 		removeChildren(navigationElement);
-
+	
 		var menuElement = createMenu(menus);
 		menuElement.style.marginTop = "0px";
-		navigationElement.appendChild(menuElement);		
+		navigationElement.appendChild(menuElement);
 	}
-
+	
 	function createMenu(items) {
 		var ul = document.createElement("ul");
-
+	
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
 			var li = document.createElement("li");
@@ -787,13 +943,16 @@ $ICON
 					li.appendChild(document.createTextNode(item.name));
 					li.appendChild(createMenu(item.items));
 				} else if (item.id) {
-					li.id = item.id;
-					li.classList.add("action");
-					li.setAttribute("onclick", "if (!this.getAttribute(\"disabled\")) action(\"" + item.id + "\");");
-					li.appendChild(document.createTextNode(item.name));
+					var a = document.createElement("a");
+					a.setAttribute("onclick", "action(\"" + item.id + "\"); return false;");
+					a.setAttribute("href", item.link != undefined ? item.link : ".");
 					if (!item.enabled) {
-						li.setAttribute("disabled", "true");
+						a.setAttribute("disabled", "true");
 					}
+					a.id = item.id;
+					a.classList.add("action");
+					a.appendChild(document.createTextNode(item.name));
+					li.appendChild(a);
 				}
 			} else {
 				li.appendChild(document.createElement("hr"));
@@ -801,7 +960,7 @@ $ICON
 		}
 		return ul;
 	}
-
+	
 	function toggleNavigation(openOrClose) {
 		var navigationElement = document.getElementById("navigationContainer");
 		var isClosed = navigationElement.style.display === "none";
@@ -817,24 +976,24 @@ $ICON
 		var dialog = document.createElement("dialog");
 		dialog.id = json.id;
 		dialog.setAttribute("type", json.type);
-
+	
 		var block = document.createElement("div");
 		block.classList.add("is-blocked");
 		dialog.appendChild(block);
-
+	
 		var header = document.createElement("div");
 		header.classList.add("dialogHeader");
 		var headerDiv = document.createElement("div");
 		headerDiv.appendChild(document.createTextNode(json.title));
-		var	buttons = document.getElementById("dialogButtons").cloneNode(true);
+		var buttons = document.getElementById("dialogButtons").cloneNode(true);
 		headerDiv.appendChild(buttons);
 		header.appendChild(headerDiv);
 		dialog.appendChild(header);
-
+	
 		var content = createContent(json["content"]);
 		content.classList.add("dialogContent");
 		dialog.appendChild(content);
-		
+	
 		var actions = json["actions"];
 		if (actions) {
 			var footer = document.createElement("div");
@@ -851,53 +1010,81 @@ $ICON
 			}
 			dialog.appendChild(footer);
 		}
-		
-		var saveAction = json.saveAction;
-		if (saveAction) {
-			var inputs = content.getElementsByTagName("input");
-			var lastInput;
-			var i = inputs.length - 1;
-			do {
-				lastInput = inputs[i--];
-			} while (lastInput && i > 0 && !(lastInput.type == "text" || lastInput.type == "password")) 
-			if (lastInput) {
-				lastInput.setAttribute("onkeyup", "if (event.keyCode == 13) { sendchange(this, \"" + saveAction.id + "\"); }");
-			}
-		}
+	
+		addEnterAction(json.saveAction, content);
 
 		var parent = document.getElementById("body");
 		parent.appendChild(dialog);
 		if (dialog.show == undefined) {
 			dialogPolyfill.registerDialog(dialog);
-        }
-        
-        dialog.addEventListener("close", event => dialogClosedListener(event, json.closeAction)); 
+		}
+	
+		if (json.closeAction != undefined) {
+		    dialog.closeAction = json.closeAction;
+			dialog.addEventListener("cancel", closeDialogButton);
+		}
+		dialog.addEventListener("close", dialogClosedListener);
+
 		dialog.showModal();
 		updateDialogSizes();
 	}
-  
-    function closeDialog(event) {
-		var dialog = event.target;
-		while (dialog.tagName.toUpperCase() != "DIALOG" && (dialog = dialog.parentNode));
-		dialog.close();
-    }
 
-    function dialogClosedListener(event, closeAction) {
-        document.getElementById("body").removeChild(event.target); 
-        updateDialogSizes();
-        action(closeAction.id);
-    }
-
-	function closeDialogs() {
-		var dialogElements = document.getElementsByTagName("dialog");
-		if (dialogElements) {
-	        for (var i = 0; i < dialogElements.length; i++) {
-	            var dialog = dialogElements[i];
-		        document.getElementById("body").removeChild(dialog); 
+	function addEnterAction(enterAction, form) {
+		var inputs = form.getElementsByTagName("input");
+		for (var i = 0; i < inputs.length; i++) {
+			inputs[i].onkeydown = function(event) {
+				if (event.keyCode === 13) focusNext(event, form, enterAction);
 			}
 		}
 	}
+	
+	function focusNext(event, form, enterAction) {
+		var inputs = form.querySelectorAll('input, select, textarea');
+		var i = 0;
+		while (inputs[i] != event.target && i < inputs.length - 1) {
+			i++;
+		}
+		var next = i + 1;
+		while (next < inputs.length - 1 && inputs[next].disabled) {
+			next++;
+		}
+		if (next < inputs.length) {
+			inputs[next].focus();			
+		} else if (enterAction != undefined && enterAction.enabled) {
+			if (timerTextFieldChange) {
+				clearTimeout(timerTextFieldChange);
+				timerTextFieldChange = null;
+			}
+			sendchange(event.target, enterAction.id);
+		}
+	}	
+	
+	function closeDialogButton(event) {
+		var dialog = event.target;
+		while (dialog.tagName.toUpperCase() != "DIALOG" && (dialog = dialog.parentNode));
+		if (dialog.closeAction != undefined) {
+			action(dialog.closeAction.id);		
+			event.preventDefault();
+		} else {
+			dialog.close();
+		}
+	}
 
+	function dialogClosedListener(event) {
+		document.getElementById("body").removeChild(event.target);
+		updateDialogSizes();
+	}
+	
+	function closeDialogs() {
+		var dialogElements = document.getElementsByTagName("dialog");
+		if (dialogElements) {
+			for (var i = 0; i < dialogElements.length; i++) {
+				var dialog = dialogElements[i];
+				document.getElementById("body").removeChild(dialog);
+			}
+		}
+	}
+	
 	function sendchange(source, saveAction) {
 		var data = {};
 		var changedValue = {};
@@ -905,19 +1092,19 @@ $ICON
 			/* for checkboxes value is always true */
 			changedValue[source.id] = source.checked;
 		} else if (source.type == "password") {
-			changedValue[source.id] = source.value.split("");		
+			changedValue[source.id] = source.value.split("");
 		} else if (source.type == "file") {
 			var reader = new FileReader();
 			reader.onload = function(e) {
 				var binary = "";
 				var bytes = new Uint8Array(reader.result);
-           		for (var i = 0; i < bytes.byteLength; i++) {
-               		binary += String.fromCharCode(bytes[i]);
-           		}
-		        changedValue[source.id] = btoa(binary);
-		        data.changedValue = changedValue;
-		        send(data, false);
-		    }
+				for (var i = 0; i < bytes.byteLength; i++) {
+					binary += String.fromCharCode(bytes[i]);
+				}
+				changedValue[source.id] = btoa(binary);
+				data.changedValue = changedValue;
+				send(data, false);
+			}
 			reader.readAsArrayBuffer(source.files[0]); // readAsBinaryString would be shorter but not supported on IE
 			return;
 		} else {
@@ -931,10 +1118,20 @@ $ICON
 			send(data, false);
 		}
 	}
-
+	
 	function loadSuggestions(source) {
-		var data = {"loadSuggestions" : source.id, "searchText" : source.value};
+		var data = {
+			"loadSuggestions": source.id,
+			"searchText": source.value
+		};
 		send(data, false);
+	}
+	
+	function clearSuggestions(source) {
+		var input = document.getElementById(source.id);
+		while (input.firstChild) {
+			input.removeChild(input.firstChild);
+		}
 	}
 	
 	function createSuggestions(id, suggestions) {
@@ -945,119 +1142,161 @@ $ICON
 			option.setAttribute("value", suggestions[i]);
 			datalist.appendChild(option);
 		}
-		
+	
 		var input = document.getElementById(id);
-		while (input.firstChild) {
-			input.removeChild(input.firstChild);
-		}
+		clearSuggestions(input);
 		input.appendChild(datalist);
+	}
+
+	function logout() {
+		send({"logout": "logout"}, true);
+	}
+
+	function login() {
+		send({"login": "login"}, true);
 	}
 	
 	function action(actionId) {
 		closeActionMenu();
-		var data = {"activatedAction" : actionId};
+		var data = {
+			"activatedAction": actionId
+		};
 		send(data, true);
 	}
-
+	
 	var lastSelectedTable;
 	var lastSelectedRow;
 	
-	function tableSelection(event, rowElement) {
-		var tableElement = rowElement;
-		while ((tableElement = tableElement.parentNode) && tableElement.tagName.toUpperCase() != "TABLE");
-
+	function tableKeyHandler(event) {
+		if (event.keyCode == 13) {
+			var rowElement = event.target;
+			if (rowElement.classList.contains("selected")) {
+				tableAction(event);
+			} else {
+				tableSelection(event);
+			}
+		}
+	}
+	
+	function tableSelection(event) {
+		if (event.type === "contextmenu") {
+			return;
+		}	
+		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
+		var tbodyElement = rowElement.parentElement;
+		var tableElement = tbodyElement.parentElement;
+	
 		var pageElement = tableElement;
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
-		
-		var row = rowElement.rowIndex;
+	
+		var headerRowCount = tableElement.tHead.childNodes.length;
+		var row = rowElement.rowIndex - headerRowCount;
 		var multiSelect = tableElement.classList.contains("multiSelect");
 		var rows = [];
 		if (multiSelect && lastSelectedTable == tableElement && event.shiftKey) {
-			for (var i = 0; i < tableElement.rows.length; i++) {
+			for (var i = 0; i < tbodyElement.rows.length; i++) {
 				if (i < row && i < lastSelectedRow || i > row && i > lastSelectedRow) {
-					tableElement.rows[i].classList.remove("selected");
+					tbodyElement.rows[i].classList.remove("selected");
 				} else if (i >= row && i <= lastSelectedRow || i >= lastSelectedRow && i <= row) {
 					rows.push(i);
-					tableElement.rows[i].classList.add("selected");
+					tbodyElement.rows[i].classList.add("selected");
 				}
 			}
 		} else {
-			for (var i = 0; i < tableElement.rows.length; i++) {
-				if (tableElement.rows[i].classList.contains("selected")) {
-					if (multiSelect && event.ctrlKey) {
-						rows.push(i);
-					} else {
-						tableElement.rows[i].classList.remove("selected");
-					}
+			if (!(multiSelect && event.ctrlKey)) {
+				for (var i = 0; i < tbodyElement.rows.length; i++) {
+					tbodyElement.rows[i].classList.remove("selected");
 				}
 			}
-			rows.push(row);
-			tableElement.rows[row].classList.add("selected");
+			tbodyElement.rows[row].classList.add("selected");
+			for (var i = 0; i < tbodyElement.rows.length; i++) {
+				if (tbodyElement.rows[i].classList.contains("selected")) {
+					rows.push(i);
+				}
+			}
 		}
 		lastSelectedTable = tableElement;
 		lastSelectedRow = row;
-		
-		var tableAction = {"table" : tableElement.id, "rows" : rows};
-		var data = {"tableSelection" : tableAction};
+	
+		var tableAction = {
+			"table": tableElement.id,
+			"rows": rows
+		};
+		var data = {
+			"tableSelection": tableAction
+		};
 		send(data, false);
+	}
+	
+	function tableAction(event) {
+		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
+		var tbodyElement = rowElement.parentElement;
+		var tableElement = tbodyElement.parentElement;
 		
-		event.preventDefault();
-	}
-
-	function tableAction(event, tableId, rowElement) {
-		var tableAction = {"table" : tableId, "row" : rowElement.rowIndex};
-		var data = {"tableAction" : tableAction};
+		var headerRowCount = tableElement.tHead.childNodes.length;
+		var tableAction = {
+			"table": tableElement.id,
+			"row": rowElement.rowIndex - headerRowCount
+		};
+		var data = {
+			"tableAction": tableAction
+		};
 		send(data, true);
-
+	
 		event.preventDefault();
 	}
 
+	
 	function tableSortAction(tableId, column) {
-		var tableAction = {"table" : tableId, "column" : column};
-		var data = {"tableSortAction" : tableAction};
+		var tableAction = {
+			"table": tableId,
+			"column": column
+		};
+		var data = {
+			"tableSortAction": tableAction
+		};
 		send(data, true);
 	}
 	
 	function intersectionListener(entries) {
-		for (var i = 0; i<entries.length; i++) {
-			if (entries[i].intersectionRatio > 0) {
+		for (var i = 0; i < entries.length; i++) {
+			if (entries[i].isIntersecting) {
 				var table = entries[i].target.parentNode;
-				// only a table in last page should scroll automatically
-				var pages = document.getElementsByClassName("page");
-				if (pages[pages.length-1].contains(table)) {
-					tableExtendContent(table.name);
-				}
+				tableExtendContent(table.name);
 			}
 		}
 	}
 	
 	function tableExtendContent(tableId) {
-		var data = {"tableExtendContent" : tableId};
+		var data = {
+			"tableExtendContent": tableId
+		};
 		send(data, true);
 	}
 	
 	function openLookupDialog(lookup) {
-		send({"openLookupDialog" : lookup}, true);
-	}	
+		send({
+			"openLookupDialog": lookup
+		}, true);
+	}
 	
 	function search() {
 		var searchElement = document.getElementById("search");
 		var search = searchElement.value;
 		if (search && search.length > 0) {
-			var data = {"search" : search};
+			var data = {
+				"search": search
+			};
 			send(data, true);
 		} else {
 			searchElement.style.display = "none";
 		}
 	}
-
+	
 	function querySearch() {
 		var searchElement = document.getElementById("querySearch");
-		var search = searchElement.value;
-		if (search && search.length > 0) {
-			var data = {"search" : search};
-			send(data, true);
-		}
+		var data = { "search": searchElement.value };
+		send(data, true);
 	}
 	
 	function searchButtonAction() {
@@ -1072,12 +1311,12 @@ $ICON
 	}
 	
 	function send(data, block) {
-	    data.inputTypes = isMobile && checkInput("date");
-	    data.session = session;
-	    	
+		data.inputTypes = isMobile && checkInput("date");
+		data.session = session;
+	
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements && dialogElements.length > 0;
-
+	
 		$SEND(data, block);
 	}
 	
@@ -1085,25 +1324,34 @@ $ICON
 		blockCount++;
 		if (!blockStyle.parentNode) {
 			document.body.appendChild(blockStyle);
-		}		
+		}
 	}
-
+	
 	function unblockUi() {
 		blockCount--;
 		if (blockCount < 1 && blockStyle.parentNode) {
 			blockStyle.parentNode.removeChild(blockStyle);
 			blockCount = 0;
-		}		
+		}
 	}
-
+	
+	var heartbeatTimer;
+	
 	function sendAjax(data, block) {
+		if (heartbeatTimer) {
+			clearInterval(heartbeatTimer);
+		}
+		heartbeatTimer = setInterval(heartbeat, 15 * 1000);
+	
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.open("POST", "ajax_request.xml", true);
-
+	
 		if (block) blockUi();
+		pendingRequests++;
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
 				unblockUi();
+				pendingRequests--;
 				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
@@ -1111,18 +1359,23 @@ $ICON
 		}
 		xmlhttp.send(JSON.stringify(data));
 	}
-		
+	
+	function heartbeat() {
+		send({}, false);
+	}
+	
 	function sendWebSocket(data, block) {
 		if (websocket == null || websocket.readyState > 1) {
 			var pathname = location.pathname;
 			var index = pathname.lastIndexOf("/");
 			pathname = pathname.substring(0, index + 1);
-			
+	
 			var wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
 			var hostAndPort = location.host + "$PORT";
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
+				pendingRequests--;
 				unblockUi();
 				onMessage(evt.data)
 			};
@@ -1131,175 +1384,178 @@ $ICON
 			}
 		} else {
 			if (block) blockUi();
+			pendingRequests++;
 			websocket.send(JSON.stringify(data));
 		}
 	}
-		
+	
 	function sendCheerpj(data, block) {
 		var sendStr = JSON.stringify(data);
 		console.log("send");
 		console.log(sendStr);
 		cjCall("org.minimalj.frontend.impl.cheerpj.Cheerpj", "receiveMessage", sendStr).then(receive);
-	}	
-		
+	}
+	
 	function receive(e) {
 		var resultStr = cjStringJavaToJs(e);
 		console.log("receive");
 		console.log(resultStr);
 		onMessage(resultStr);
-	}		
-		
+	}
+	
 	function updateDialogSizes() {
 		var dialogElements = document.getElementsByTagName("dialog");
 		if (dialogElements && dialogElements.length > 0) {
-            var maxDialogWidth = 0;
-            for (var i = 0; i < dialogElements.length; i++) {
-                var dialogElement = dialogElements[i];
+			var maxDialogWidth = 0;
+			for (var i = 0; i < dialogElements.length; i++) {
+				var dialogElement = dialogElements[i];
 				var maxWidthElement = dialogElement.querySelector(".form");
 				if (maxWidthElement) {
-                      var columns = maxWidthElement.dataset.columns;
-                      dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 3) + "em";
-                      maxDialogWidth = Math.max(maxDialogWidth, parseInt(window.getComputedStyle(dialogElement).maxWidth));
+					var columns = maxWidthElement.dataset.columns;
+					dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 1 * columns + 3.1) + "em";
+					maxDialogWidth = Math.max(maxDialogWidth, parseInt(window.getComputedStyle(dialogElement).maxWidth));
 				} else {
-                      dialogElement.style.maxWidth = "unset";
-                }
-            }
-			
-            if (maxDialogWidth < window.innerWidth - 20) {
-                var marginLeft = 0;
+					dialogElement.style.maxWidth = "unset";
+				}
+			}
+	
+			if (maxDialogWidth < window.innerWidth - 20) {
+				var marginLeft = 0;
 				var navigationContainer = document.getElementById("navigationContainer");
-                if (navigationContainer.display != "none" && navigationContainer.clientWidth + maxDialogWidth < window.innerWidth) {
-                    marginLeft += navigationContainer.clientWidth;
-                }
-
+				if (navigationContainer.display != "none" && navigationContainer.clientWidth + maxDialogWidth < window.innerWidth) {
+					marginLeft += navigationContainer.clientWidth;
+				}
+	
 				for (var i = 0; i < dialogElements.length; i++) {
 					var dialogElement = dialogElements[i];
-                    dialogElement.classList.remove("fullscreen");
-                    
+					dialogElement.classList.remove("fullscreen");
+	
 					dialogElement.style.top = (i + 4) + "em";
 					dialogElement.style.left = (i + 1) + "em";
-                    dialogElement.style.width = "unset";
-
+					dialogElement.style.width = "unset";
+	
 					dialogElement.style.marginLeft = marginLeft;
 					dialogElement.style.marginRight = "1em";
 					dialogElement.style.marginBottom = "1em";
-					
-                    var headerHeight = document.getElementById("header").clientHeight;
-                    var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-                    var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
-                    var top = parseInt(window.getComputedStyle(dialogElement).top);
-                    var dialogPadding = parseInt(window.getComputedStyle(dialogElement).marginTop) + parseInt(window.getComputedStyle(dialogElement).marginBottom);
+	
+					var headerHeight = document.getElementById("header").clientHeight;
+					var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
+					var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
+					var top = parseInt(window.getComputedStyle(dialogElement).top);
+					var dialogPadding = parseInt(window.getComputedStyle(dialogElement).marginTop) + parseInt(window.getComputedStyle(dialogElement).marginBottom);
 					var contentElement = dialogElement.querySelector(".dialogContent");
 					var height = Math.max(100, height = window.innerHeight - 10 - headerHeight - top - dialogPadding - dialogHeaderHeight - dialogFooterHeight);
 					contentElement.style.maxHeight = height + "px";
-
+	
 					var type = dialogElement.getAttribute("type");
 					if (type === "SearchDialog") {
 						contentElement.style.height = height + "px";
 						dialogElement.style.marginRight = "3em";
 						contentElement.style.paddingRight = "0em";
 					}
-					
+	
 					dialogElement.style.display = "block";
 				}
 			} else {
-                for (var i = 0; i < dialogElements.length - 1; i++) {
-                    dialogElements[i].style.display = "none";
-                }
-                var dialogElement = dialogElements[dialogElements.length - 1];
-                dialogElement.classList.add("fullscreen");
+				for (var i = 0; i < dialogElements.length - 1; i++) {
+					dialogElements[i].style.display = "none";
+				}
+				var dialogElement = dialogElements[dialogElements.length - 1];
+				dialogElement.classList.add("fullscreen");
 				dialogElement.style.display = "block";
-
-                dialogElement.style.top = "0em";
-                dialogElement.style.left = "0em";
-          
-                dialogElement.style.marginLeft = "0em";
-                dialogElement.style.marginRight = "0em";
-                dialogElement.style.marginBottom = "0em";
-          
+	
+				dialogElement.style.top = "0em";
+				dialogElement.style.left = "0em";
+	
+				dialogElement.style.marginLeft = "0em";
+				dialogElement.style.marginRight = "0em";
+				dialogElement.style.marginBottom = "0em";
+	
 				dialogElement.style.width = "100%";
 				dialogElement.style.maxWidth = null;
-        
-                var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-                var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
-
-                var dialogPadding = parseInt(window.getComputedStyle(dialogElement).padding);
-                var contentElement = dialogElement.querySelector(".dialogContent");
-                var height = window.innerHeight - dialogHeaderHeight - dialogFooterHeight - 2 * dialogPadding;
-                
-                contentElement.style.maxHeight = height;
+	
+				var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
+				var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
+	
+				var dialogPadding = parseInt(window.getComputedStyle(dialogElement).padding);
+				var contentElement = dialogElement.querySelector(".dialogContent");
+				var height = window.innerHeight - dialogHeaderHeight - dialogFooterHeight - 2 * dialogPadding;
+	
+				contentElement.style.maxHeight = height;
 			}
-      
+	
 			dialogElement.style.height = "unset";
 		}
 	}
-
-    var lastWidth = 10000;
-    
-    function resizeNavigation() {
-        var newWidth = window.innerWidth;
-        if (lastWidth > newWidth && newWidth < 800) {
+	
+	var lastWidth = 10000;
+	
+	function resizeNavigation() {
+		var newWidth = window.innerWidth;
+		if (lastWidth > newWidth && newWidth < 800) {
 			toggleNavigation("close");
-            // document.getElementById("search").style.display = "none";      
-        } else if (lastWidth < newWidth && newWidth >= 1200) {
-            toggleNavigation("open");
-        }
-        lastWidth = newWidth;
-        
-    }
-
+			// document.getElementById("search").style.display = "none";      
+		} else if (lastWidth < newWidth && newWidth >= 1200) {
+			toggleNavigation("open");
+		}
+		lastWidth = newWidth;
+	
+	}
+	
 	function changeLogin() {
 		send({
-			"login" : "login-" + (new Date().getTime())
+			"login": "login-" + (new Date().getTime())
 		}, true);
 	}
-
-    function init(e) {
-   		init();
+	
+	function init(e) {
+		init();
 	}
-
+	
 	function init() {
-		if (!$LOGIN) {
-			document.getElementById("loginButton").parentNode.removeChild(document.getElementById("loginButton"));
-		}
-
 		pageContainerElement = document.getElementById("pageContainer");
 		titleElement = document.getElementsByTagName("title")[0];
-		
+	
 		if (window.innerWidth >= 992) toggleNavigation("open");
-    
+	
+		window.addEventListener("resize", resizeNavigation);
 		window.addEventListener("resize", updateDialogSizes);
-        window.addEventListener("resize", closeActionMenu);
-        window.addEventListener("resize", resizeNavigation);
-
-        if ("$DISABLED_SEARCH" === "disabled") document.getElementById("searchButton").style.display = "none";
-
+		window.addEventListener("resize", closeActionMenu);
+		window.addEventListener("click", closeActionMenu);
+		window.addEventListener("scroll", closeActionMenu, true); // true -> capture the event on dispatch, even if that event does not normally bubble
+		window.addEventListener("mousewheel", closeActionMenu);
+		window.addEventListener("blur", closeActionMenu);
+		document.onkeydown = function(e) {
+			if (e.keyCode === 27) {
+				closeActionMenu();
+			}
+		};
+	
 		window.onpopstate = popState;
-
+	
 		var initParameters = {};
-		initParameters["initialize"] = window.history.state ? window.history.state : "$PATH";
-		initParameters["rememberMeToken"] = localStorage.rememberMeToken ? localStorage.rememberMeToken : null;
-		send(initParameters);
+		initParameters.initialize = window.history.state ? window.history.state : "$PATH";
+		if (localStorage.rememberMeToken != undefined) initParameters.rememberMeToken = localStorage.rememberMeToken;
+		send(initParameters, true);
 	}
 	
 	function checkInput(type) {
-	    var input = document.createElement("input");
-	    input.setAttribute("type", type);
-	    return input.type == type;
+		var input = document.createElement("input");
+		input.setAttribute("type", type);
+		return input.type == type;
 	}
 	
 	function escapeText(s) {
-	  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/\n/g, "<br>");
+		return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/\n/g, "<br>");
 	}
-
-	$INIT		
 	
+	$INIT
 </script>
-<meta name="viewport" content="width=device-width, minimum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width" />
 </head>
 <body onload="init();" id="body">
-	<div id="header">
-		<svg class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
+	<div id="header" class="hidden-print">
+		<svg id="navigationToggle" class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
               <g style="stroke-width:0px"> 		
   				<title>Show or hide navigation</title>
 				<rect x="0" y="5%" width="100%" height="0.25em"/>
@@ -1307,13 +1563,28 @@ $ICON
 				<rect x="0" y="75%" width="100%" height="0.25em"/>
 			</g>
 		</svg>
-		<svg id="loginButton" class="button headerButton" onclick="changeLogin()">
-			<g style="stroke-width:16%;stroke-linecap:square"> 	
-                  <title>Login / Logout</title>	
-  			<circle cx="50%" cy="27%" r="21%" stroke-width="0.18em" fill="none"></circle>
-  			<circle cx="50%" cy="100%" r="40%" stroke-width="0.18em" fill="none"></circle>
+		<svg id="logout" class="button headerButton" style="margin-left: 1.0em; display: none;" onclick="logout()">
+              <g style="stroke-width:13%;stroke-linecap:square"> 		
+  				<title>Logout</title>
+				<line x1="5%" y1="5%" x2="50%" y2="5%" />
+				<line x1="5%" y1="5%" x2="5%" y2="95%" />
+				<line x1="5%" y1="95%" x2="50%" y2="95%" />
+				<line x1="40%" y1="50%" x2="95%" y2="50%" />
+				<line x1="75%" y1="30%" x2="95%" y2="50%" />
+				<line x1="75%" y1="70%" x2="95%" y2="50%" />
 			</g>
-		</svg>
+		</svg>		
+		<svg id="login" class="button headerButton" style="margin-left: 1.0em; display: none;" onclick="login()">
+              <g style="stroke-width:13%;stroke-linecap:square"> 		
+  				<title>Logout</title>
+				<line x1="95%" y1="5%" x2="50%" y2="5%" />
+				<line x1="95%" y1="5%" x2="95%" y2="95%" />
+				<line x1="95%" y1="95%" x2="50%" y2="95%" />
+				<line x1="5%" y1="50%" x2="60%" y2="50%" />
+				<line x1="40%" y1="30%" x2="60%" y2="50%" />
+				<line x1="40%" y1="70%" x2="60%" y2="50%" />
+			</g>
+		</svg>		
 		<svg id="wait" class="button headerButton" style="width: 0em;">
 			<g style="stroke-width:3px;stroke-linecap:square"> 	
 				<line x1="6%" y1="93%" x2="93%" y2="93%" />
@@ -1321,7 +1592,7 @@ $ICON
 		</svg>
 		<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
 		<div id="searchSpan">
-			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" $DISABLED_SEARCH />
+			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" />
 			<svg id="searchButton" class="button headerButton" onclick="searchButtonAction();">
 				<g style="stroke-width:16%;stroke-linecap:square"> 		
 					<line x1="59%" y1="59%" x2="91%" y2="91%" />
@@ -1338,9 +1609,9 @@ $ICON
 		</div>			
 	</div>
 	<div id="container">
-		<div id="navigationContainer" style="display: none;">
-			<div id="navigationHeader">
-				<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.4em;" onclick="toggleNavigation()">
+		<div id="navigationContainer" style="display: none;" class="hidden-print">
+			<div id="navigationHeader" class="secondHeader">
+				<svg id="closeNavigation" class="pageButton button secondHeaderButtons" onclick="toggleNavigation()">
 				  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 				</svg>
@@ -1352,22 +1623,23 @@ $ICON
 		<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
 		</div>	
 	</div>
+	<div id="applicationVersion">$APPLICATION-VERSION</div>
 
 	<div id="templates" style="display: none">
-		<div id="pageHeaderButtons">
+		<div id="pageHeaderButtons" class="secondHeaderButtons hidden-print">
 			<svg style="stroke-width:0px" class="actionMenuButton pageButton button" onclick="togglePageActionMenu(evt);">
 				<rect x="73%" y="13%" width="20%" height="17%"/>
 				<rect x="73%" y="46%" width="20%" height="17%"/>
 				<rect x="73%" y="80%" width="20%" height="17%"/>
-			</svg><svg class="pageButton button" onclick="togglePage(evt);">
+			</svg><svg class="pageButton button toggleButton" onclick="togglePage(evt);">
 			  <rect x="20%" y="80%" width="100%" height="13%" />
-			</svg><svg class="pageButton button" onclick="closePage(evt);">
+			</svg><svg class="pageButton button closeButton" onclick="closePage(evt);">
 				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>
 		</div>
 		<div id="dialogButtons">
-			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialog(evt)">
+			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialogButton(evt)">
 			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
 			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
 			</svg>
@@ -1379,9 +1651,11 @@ $ICON
 	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
 			</svg>		
 		</span>
-		<div id="query">
-			<div id="queryCaption" style="text-align: center; margin-top: 17em"></div>
-			<div style="text-align: center; margin-top: 1em; margin-bottom: 8em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:600px; max-width: 600px; height: 2em;"></div>
+		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
+			<div style="flex-grow: 2;"></div>
+			<div id="queryCaption" style="text-align: center;"></div>
+			<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
+			<div style="flex-grow: 3;"></div>
 		</div>
 	</div>
 

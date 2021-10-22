@@ -19,10 +19,11 @@ import org.minimalj.example.minimalclinic.model.Pet;
 import org.minimalj.example.minimalclinic.model.Vet;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.impl.web.WebApplicationPage;
 import org.minimalj.frontend.impl.web.WebServer;
-import org.minimalj.frontend.page.HtmlPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.frontend.page.SearchPage;
 import org.minimalj.util.resources.Resources;
 
@@ -54,12 +55,17 @@ public class MinimalClinicApplication extends Application {
 	
 	@Override
 	public Page createDefaultPage() {
-		return new HtmlPage("intro.html");
+		return new WebApplicationPage("/intro.html");
 	}
 	
 	@Override
-	public Page createSearchPage(String query) {
-		return SearchPage.handle(new OwnerSearchPage(query), new VetSearchPage(query));
+	public Routing createRouting() {
+		return new MinimalClinicRouting();
+	}
+	
+	@Override
+	public void search(String query) {
+		SearchPage.handle(new OwnerSearchPage(query), new VetSearchPage(query));
 	}
 	
 	@Override
@@ -73,7 +79,7 @@ public class MinimalClinicApplication extends Application {
 		MinimalClinicApplication application = new MinimalClinicApplication();
 		WebServer.start(application);
 		// RestServer.start(application);
-		// MjVaadinSpringbootApplication.start(application);
+		// Vaadin.start(application);
 		// Lanterna.start(application);
 		// Swing.start(application);
 	}

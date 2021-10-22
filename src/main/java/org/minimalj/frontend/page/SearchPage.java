@@ -90,7 +90,7 @@ public abstract class SearchPage<T> extends Page implements TableActionListener<
 	//
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Page handle(SearchPage... searchPages) {
+	public static void handle(SearchPage... searchPages) {
 		List<SearchPage> searchPagesWithResult = new ArrayList<>();
 		for (SearchPage searchPage : searchPages) {
 			if (searchPage.getCount() > 0) {
@@ -102,12 +102,12 @@ public abstract class SearchPage<T> extends Page implements TableActionListener<
 			if (searchPage.getCount() == 1) {
 				Object singleSearchResult = searchPage.getList().get(0);
 				Page detailPage = searchPage.createDetailPage(singleSearchResult);
-				return detailPage != null ? detailPage : searchPage;
+				Frontend.show(detailPage != null ? detailPage : searchPage);
 			} else {
-				return searchPage;
+				Frontend.show(searchPage);
 			}
 		} else {
-			return new CombinedSearchPage(searchPagesWithResult);
+			Frontend.show(new CombinedSearchPage(searchPagesWithResult));
 		}
 	}
 }

@@ -23,7 +23,11 @@ public class Swing implements Runnable {
 
 		FrameManager.setSystemLookAndFeel();
 		
-		FrameManager.getInstance().openNavigationFrame(null);
+		if (Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
+			Backend.getInstance().getAuthentication().getLoginAction().run();
+		} else {
+			Frontend.getInstance().login(null);
+		}
 	}
 
 	public static void start(Application application) {

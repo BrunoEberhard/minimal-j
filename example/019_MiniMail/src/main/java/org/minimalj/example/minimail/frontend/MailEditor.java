@@ -9,21 +9,6 @@ import org.minimalj.frontend.form.element.StringFormElement;
 
 public class MailEditor extends SimpleEditor<Mail> {
 
-	private final class MailForm extends Form<Mail> {
-		public MailForm() {
-			line(new StringFormElement(Mail.$.from.address, StringFormElement.SINGLE_LINE));
-			line(new StringFormElement(Mail.$.to.address, StringFormElement.SINGLE_LINE));
-			line(Mail.$.date);
-			line(new StringFormElement(Mail.$.subject, StringFormElement.SINGLE_LINE));
-			line(Mail.$.text);
-		}
-		
-		@Override
-		protected int getColumnWidthPercentage() {
-			return 300;
-		}
-	}
-
 	@Override
 	protected Mail createObject() {
 		return new Mail();
@@ -31,7 +16,13 @@ public class MailEditor extends SimpleEditor<Mail> {
 
 	@Override
 	protected Form<Mail> createForm() {
-		return new MailForm();
+		Form<Mail> form = new Form<>(Form.EDITABLE, 1, 300);
+		form.line(new StringFormElement(Mail.$.from.address, StringFormElement.SINGLE_LINE));
+		form.line(new StringFormElement(Mail.$.to.address, StringFormElement.SINGLE_LINE));
+		form.line(Mail.$.date);
+		form.line(new StringFormElement(Mail.$.subject, StringFormElement.SINGLE_LINE));
+		form.line(Mail.$.text);
+		return form;
 	}
 
 	@Override

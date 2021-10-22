@@ -10,6 +10,7 @@ import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
 
 abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
@@ -38,6 +39,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	}
 	
 	protected T save(T object) {
+		// TODO only with ID
 		return Backend.save(object);
 	}
 	
@@ -63,7 +65,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	protected abstract VIEW view(T object);
 	
 	protected void openEditor(T selectedObject) {
-		new TableEditor(selectedObject).action();
+		new TableEditor(selectedObject).run();
 	}
 	
 	@Override
@@ -176,8 +178,13 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 		}
 
 		@Override
+		protected Object[] getNameArguments() {
+			return BaseTableEditorPage.this.getNameArguments();
+		}
+		
+		@Override
 		protected T createObject() {
-			return CloneHelper.clone(selection);
+			return IdUtils.hasId(getClazz()) ? CloneHelper.clone(selection) : selection;
 		}
 		
 		@Override
@@ -194,6 +201,11 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	
 	public class TableNewObjectEditor extends AbstractTableEditor {
 
+		@Override
+		protected Object[] getNameArguments() {
+			return BaseTableEditorPage.this.getNameArguments();
+		}
+		
 		@Override
 		protected Form<T> createForm() {
 			return BaseTableEditorPage.this.createForm(Form.EDITABLE, true);

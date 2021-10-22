@@ -1,0 +1,231 @@
+:root {
+	--background: #DEEAF6;
+	--button-background: #E5EEF8;
+	--button-shadow: 7px 7px 10px rgba(159, 191, 220, 0.6), -7px -7px 10px #FFFFFF, inset 2px 2px 4px #FFFFFF, inset -2px -2px 4px rgba(159, 191, 220, 0.6);
+	--button-color: #8DB4D8;
+	--text-shadow: 2px 2px 8px rgba(43, 118, 185, 0.4), -2px -2px 8px #F2F8FD;
+	--dialog-shadow: 10px 10px 20px rgba(159, 191, 220, 0.6), -10px -10px 20px #FFFFFF, inset 2px 2px 4px rgba(159, 191, 220, 0.6), inset -2px -2px 4px #FFFFFF;
+	--dialog-background: #F2F8FD;
+	--input-shadow: inset 4px 4px 20px rgba(159, 191, 220, 0.6), inset -4px -4px 18px #FFFFFF;
+}
+
+body {
+	background:var(--background);
+	font-family: 'Roboto', sans-serif;
+	font-size: 15px;
+	margin: 0px;
+	height: 100%;
+	color: rgb(21, 21, 21);
+}
+
+#header {
+	z-index: 1;
+  box-shadow: rgba(0, 0, 0, 0.26) 0px 2px 5px;
+}
+
+#navigationContainer {
+	background: rgb(0, 0, 0, 0.02);
+	z-index: 1;
+	border: none;
+}
+
+#navigationHeader {
+	background: rgb(0, 0, 0, 0.06);
+	height: 4em;
+	line-height: 4.1em;
+}
+
+.secondHeader {
+	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
+	border: none;
+	background: rgb(0, 0, 0, 0.06);
+	height: 4em;
+	line-height: 4.1em;
+}
+
+.pageButton {
+	border-radius: 50%;
+    background: var(--button-background);
+    box-shadow: var(--button-shadow);
+    padding: 15px;
+    color: var(--button-color);
+    text-shadow: var(--text-shadow);
+    
+	width: 1.2em;
+	height: 1.2em;
+}
+
+#navigation ul {
+	padding: 0.7ex 0em .7em 0em;
+}
+
+#navigation li {
+	padding: 1em 0em 0em 1em;
+}
+
+.action {
+	font-weight: 100;
+}
+
+.actionMenu {
+	padding: 1ex 2ex 1ex 2ex;
+	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
+}
+
+.actionMenu ul {
+}
+
+.actionMenu li {
+	padding: 0.5em;
+}
+
+dialog {
+	box-shadow: var(--dialog-shadow);
+	border-radius: 5px;
+	background: var(--dialog-background);
+	border: 0px;
+	padding: 1.2em;
+	right: 0em;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0);
+}
+
+.dialogContent {
+	padding: 0.8em;
+	box-sizing: border-box;
+}
+
+.dialogHeader {
+	border: none;
+	background: transparent;
+	padding: 0em;
+}
+
+@media (max-width: 991px) {
+	.dialogHeader {
+		line-height: unset;
+	}
+
+	.dialogFooter {
+		height: fit-content;
+	}
+}
+
+.dialogContent {
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.dialogFooter {
+	border: none;
+	background: transparent;
+}
+
+button {
+    background: var(--button-background);
+    border: var(--border);
+    box-sizing: border-box;
+    box-shadow: var(--button-shadow);
+    border-radius: 8px;
+    color: var(--second-color);
+    margin-bottom: 20px;
+
+	padding: .5em 1em;
+	border-width: 0;
+	outline: none;
+
+}
+
+button[disabled] {
+	color: #aaaaaa;
+}
+
+.dialogFooter button {
+	margin: 0.5em 1em;
+}
+
+button:hover {
+	background-color: #aaaaaa;
+}
+
+button:hover[disabled="true"] {
+	background-color: #888888;
+}
+
+label {
+	font-weight: unset;
+	color: gray;
+	font-size: small;
+}
+
+.form input, .form select, .form textarea, .form .lookup .text, #search {
+	box-shadow: var(--input-shadow);
+    border-radius: 1em;
+
+	font-family: inherit;
+	box-sizing: border-box;
+	background-color: transparent;
+	padding: 10px;
+	border: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+.form input[disabled] {
+	border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+}
+
+.form .groupItem:first-child .lookup .text {
+	border-top: none;
+}
+
+.form select {
+  background-image:
+    linear-gradient(45deg, transparent 47%, gray 53%),
+    linear-gradient(135deg, gray 47%, transparent 53%);
+  background-position:
+    calc(100% - 2.0ex) center,
+    calc(100% - 1.1ex) center;
+  background-size:
+    0.9ex 0.9ex,
+    0.9ex 0.9ex;
+  background-repeat: no-repeat;
+}
+
+/* TODO Checkbox */
+
+.form input[type="checkbox"] {
+	height: 1.2em;
+	-webkit-appearance: checkbox;
+	-moz-appearance: checkbox;
+	appearance: checkbox;
+}
+
+.form input:focus, .form select:focus, .form textarea:focus {
+	outline: none;
+}
+
+.form select:after {
+	position: absolute;
+	top: 0.75em;
+	right: 0.5em;
+	width: 0;
+	height: 0;
+	padding: 0;
+	content: '';
+	border-left: .25em solid transparent;
+	border-right: .25em solid transparent;
+	border-top: 0.375em solid rgba(0, 0, 0, 0.12);
+	pointer-events: none;
+}
+
+table tr:nth-child(even) {
+	background: rgba(0,0,0,.03);
+}
+
+table tr:nth-child(odd) {
+	background: rgba(255,255,255,.2);
+}

@@ -17,24 +17,29 @@ public class EmptyObjects {
 		} else if (object instanceof Collection) {
 			return ((Collection<?>) object).isEmpty();
 		} else if (object instanceof Integer) {
-			return (Integer) object == 0;		
+			return (Integer) object == 0;
 		} else if (object instanceof Long) {
-			return (Long) object == 0;		
+			return (Long) object == 0;
 		} else if (object instanceof BigDecimal) {
-			return ((BigDecimal) object).signum() == 0;		
+			return ((BigDecimal) object).signum() == 0;
+		} else if (object instanceof char[]) {
+			return ((char[]) object).length == 0;
+		} else if (object instanceof byte[]) {
+			return ((byte[]) object).length == 0;
 		} else {
 			Class<T> clazz = (Class<T>) object.getClass();
-			if (clazz.getName().startsWith("java") || Enum.class.isAssignableFrom(clazz)) return false;
-			
+			if (clazz.getName().startsWith("java") || Enum.class.isAssignableFrom(clazz))
+				return false;
+
 			T emptyObject = getEmptyObject(clazz);
 			return EqualsHelper.equals(emptyObject, object);
 		}
 	}
-	
+
 	public static <T> T getEmptyObject(Class<T> clazz) {
 		if (!emptyObjects.containsKey(clazz)) {
 			try {
-				Object emptyObject = clazz.newInstance();
+				Object emptyObject = clazz.getConstructor().newInstance();
 				emptyObjects.put(clazz, emptyObject);
 			} catch (Exception e) {
 				throw new RuntimeException(e);

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.LocaleContext;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -194,6 +196,11 @@ public class JsonFrontend extends Frontend {
 		return new JsonQueryContent(caption);
 	}
 	
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions) {
+		return getClientSession().showLogin(content, loginAction, actions);
+	}
+	
 	//
 	
 	public static String readStream(InputStream inputStream) {
@@ -224,18 +231,31 @@ public class JsonFrontend extends Frontend {
 		});
 	}
 	
+	private static String MINIMALJ_VERSION, APPLICATION_VERSION;
+	
+	static {
+		MINIMALJ_VERSION = Application.class.getPackage().getImplementationVersion();
+		if (MINIMALJ_VERSION == null) {
+			MINIMALJ_VERSION = "Development";
+		}
+		
+		APPLICATION_VERSION = Application.getInstance().getClass().getPackage().getImplementationVersion();
+		if (APPLICATION_VERSION == null) {
+			APPLICATION_VERSION = "Development " + LocalDateTime.now();
+		}
+	}
+	
 	public static String fillPlaceHolder(String html, String path) {
-		String result = html.replace("$LOGIN", Boolean.toString(Backend.getInstance().isAuthenticationActive()));
-		result = result.replace("$PORT", "");
+		String result = html.replace("$PORT", "");
 		result = result.replace("$WS", "ws");
-		result = result.replace("$DISABLED_SEARCH", Application.getInstance().hasSearchPages() ? "" : "disabled");
-		result = result.replace("$SEARCH", Resources.getString("SearchAction"));
-		result = result.replace("$MINIMALJ-VERSION", "Minimal-J Version: " + Application.class.getPackage().getImplementationVersion());
-		result = result.replace("$APPLICATION-VERSION", "Application Version: " + Application.getInstance().getClass().getPackage().getImplementationVersion());
+		result = result.replace("$MINIMALJ-VERSION", MINIMALJ_VERSION);
+		result = result.replace("$APPLICATION-VERSION", APPLICATION_VERSION);
 		result = result.replace("$TITLE", Application.getInstance().getName());
+		result = result.replace("$LANG", LocaleContext.getCurrent().getLanguage());
 		result = result.replace("$META", getMeta());
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$PATH", path);
+		result = result.replace("$BASE", base(path));
 		result = result.replace("$THEME", stylesheets);
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
@@ -244,6 +264,19 @@ public class JsonFrontend extends Frontend {
 		return result;
 	}
 
+   private static String base(String path) {
+	    if ("/".equals(path)) {
+	    	return "";
+	    } else {
+	    	String base = "";
+	    	int level = path.split("/").length - 2;
+	    	for (int i = 0; i<level; i++) {
+	    		base = base + "../";
+	    	}
+	    	return "<base href=\"" + base + "\">";
+	    }
+    }
+	   
 	private static String getIconLink() {
 		if (Application.getInstance().getIcon() != null) {
 			return "<link rel=\"icon\" href=\"application.png\" type=\"image/png\">";

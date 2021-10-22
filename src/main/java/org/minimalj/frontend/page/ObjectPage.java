@@ -44,6 +44,7 @@ public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage
 	private Object objectId;
 	private SoftReference<T> object;
 	private SoftReference<Form<T>> form;
+	private long lastLoad = Long.MIN_VALUE;
 	
 	@SuppressWarnings("unchecked")
 	public ObjectPage(T object) {
@@ -96,8 +97,9 @@ public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage
 
 	public T getObject() {
 		T object = this.object != null ? this.object.get() : null;
-		if (object == null) {
+		if (object == null || lastLoad < System.currentTimeMillis() - 30000) {
 			object = load();
+			lastLoad = System.currentTimeMillis();
 			this.object = new SoftReference<>(object);
 		}
 		return object;
@@ -110,7 +112,6 @@ public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage
 			form = createForm();
 			this.form = new SoftReference<>(form);
 		}
-		unload();
 		// TODO try catch around getObject to catch load problems and display stack trace
 		form.setObject(getObject());
 		return form.getContent();
@@ -120,12 +121,9 @@ public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage
 		return Backend.read(objectClass, objectId);
 	}
 	
-	public void unload() {
-		object = null;
-	}
-	
 	public void refresh() {
 		setObject(load());
+		lastLoad = System.currentTimeMillis();
 	}
 	
 	public abstract class ObjectEditor extends Editor<T, T> {

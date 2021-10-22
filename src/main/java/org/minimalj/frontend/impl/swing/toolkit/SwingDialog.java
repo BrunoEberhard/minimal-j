@@ -39,7 +39,7 @@ public class SwingDialog extends JDialog implements IDialog {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				if (closeAction != null) {
-					closeAction.action();
+					closeAction.run();
 				} else {
 					setVisible(false);
 				}
@@ -50,15 +50,19 @@ public class SwingDialog extends JDialog implements IDialog {
 		setContentPane((JComponent) content);
 		pack();
 
-		Dimension size = getSize();
-		size.height = Math.min(frame.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().height - 50, size.height);
-		size.width = Math.min(frame.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().width - 100, size.width);
-		setSize(size);
+		if (frame != null) {
+			Dimension size = getSize();
+			size.height = Math.min(frame.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().height - 50, size.height);
+			size.width = Math.min(frame.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().width - 100, size.width);
+			setSize(size);
+		}
 
 		setLocationRelativeTo(frame);
 
 		SwingFrontend.focusFirstComponent((JComponent) this.getContentPane());
-		SwingUtilities.invokeLater(() -> setVisible(true));
+		SwingUtilities.invokeLater(() -> {
+			setVisible(true);	
+		});
 	}
 
 	@Override

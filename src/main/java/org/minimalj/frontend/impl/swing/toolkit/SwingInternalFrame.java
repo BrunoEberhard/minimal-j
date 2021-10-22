@@ -56,7 +56,7 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 	@Override
 	public void doDefaultCloseAction() {
 		if (closeAction != null) {
-			closeAction.action();
+			closeAction.run();
 		} else {
 			closeDialog();
 		}

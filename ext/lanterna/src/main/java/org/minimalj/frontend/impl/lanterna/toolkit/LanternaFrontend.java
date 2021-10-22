@@ -2,12 +2,14 @@ package org.minimalj.frontend.impl.lanterna.toolkit;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.lanterna.component.LanternaForm;
+import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 
@@ -192,7 +194,7 @@ public class LanternaFrontend extends Frontend {
 
 		public LanternaActionText(Action action) {
 			super(action.getName());
-			addListener(b -> LanternaFrontend.run(b, () -> action.action()));
+			addListener(b -> LanternaFrontend.run(b, action));
 			action.setChangeListener(new ActionChangeListener() {
 				{
 					update();
@@ -211,4 +213,9 @@ public class LanternaFrontend extends Frontend {
 		}
 	}
 
+	@Override
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

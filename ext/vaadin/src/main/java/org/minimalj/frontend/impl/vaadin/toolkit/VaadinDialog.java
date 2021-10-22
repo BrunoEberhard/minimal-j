@@ -5,7 +5,6 @@ import org.minimalj.frontend.page.IDialog;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.dom.ElementConstants;
 
@@ -34,13 +33,7 @@ public class VaadinDialog extends Dialog implements IDialog {
 //		TODO: VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
         if (component instanceof VaadinFormContent) {
             VaadinFormContent form = (VaadinFormContent) component;
-			if (form.getLastField() != null) {
-				form.getLastField().addKeyPressListener(Key.ENTER, event -> {
-					if (saveAction.isEnabled()) {
-						saveAction.action();
-					}
-				});
-			}
+
 			setWidth((form.getDialogWidth() + 10) + "ex");
 			getElement().executeJs("this.$.overlay.$.overlay.style[$0]=$1", ElementConstants.STYLE_MIN_WIDTH, "50ex");
 		}
@@ -54,7 +47,7 @@ public class VaadinDialog extends Dialog implements IDialog {
 
 		@Override
 		public void onComponentEvent(DialogCloseActionEvent event) {
-			closeAction.action();
+			closeAction.run();
 		}
 	}
 	

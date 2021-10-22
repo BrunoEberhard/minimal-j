@@ -4,15 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -20,16 +25,17 @@ import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
 import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageList;
 import org.minimalj.frontend.impl.util.PageStore;
+import org.minimalj.frontend.page.ExpiredPage;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication;
-import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.RememberMeAuthentication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public class JsonPageManager implements PageManager {
 	private static final Logger logger = Logger.getLogger(JsonPageManager.class.getName());
@@ -39,10 +45,12 @@ public class JsonPageManager implements PageManager {
 	private long lastUsed = System.currentTimeMillis();
 	
 	private Subject subject;
-	private String rememberMeCookie;
+	private Runnable onLogin;
+	private boolean initializing;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
 	private final PageList visiblePageAndDetailsList = new PageList();
+	private final Set<String> horizontalPageIds = new HashSet<>();
 	// this makes this class not thread safe. Caller of handle have to synchronize.
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
@@ -69,11 +77,12 @@ public class JsonPageManager implements PageManager {
 		return lastUsed;
 	}
 
-	private void initialize() {
+	private void updateNavigation() {
 		componentById.clear();
 		navigation = createNavigation();
 		register(navigation);
 		output.add("navigation", navigation);
+		output.add("hasSearchPages", Application.getInstance().hasSearch());
 	}
 
 	public String handle(String inputString) {
@@ -103,6 +112,7 @@ public class JsonPageManager implements PageManager {
 						output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
 						logger.log(Level.SEVERE, x.getMessage(), x);
 					} finally {
+						subject = Subject.getCurrent();
 						Subject.setCurrent(null);
 						JsonFrontend.setSession(null);
 					}
@@ -118,9 +128,6 @@ public class JsonPageManager implements PageManager {
 
 		if (!thread.isAlive()) {
 			output.add("session", sessionId);
-			if (rememberMeCookie != null) {
-				output.add("rememberMeToken", rememberMeCookie);
-			}
 			return output;
 		} else {
 			JsonOutput output = new JsonOutput();
@@ -148,32 +155,25 @@ public class JsonPageManager implements PageManager {
 		output = new JsonOutput();
 
 		Object initialize = input.getObject(JsonInput.INITIALIZE);
-		if (initialize != null) {
-			if (subject == null && authentication instanceof RememberMeAuthentication) {
-				rememberMeCookie = (String) input.getObject("rememberMeToken");
-				if (rememberMeCookie != null) {
-					subject = ((RememberMeAuthentication) authentication).remember(rememberMeCookie);
-					Subject.setCurrent(subject);
+		initializing = initialize != null; 
+		if (initializing) {
+			if (initialize instanceof List) {
+				List<String> pageIds = (List<String>) initialize;
+				if (!pageIds.isEmpty() && pageStore.valid(pageIds)) {
+					onLogin = () -> show(pageIds);
 				}
 			}
 
-			initialize();
-
-			if (initialize instanceof List) {
-				List<String> pageIds = (List<String>) initialize;
-				if (pageStore.valid(pageIds)) {
-					show(pageIds);
-					return output;
+			Subject subject = null;
+			if (authentication instanceof RememberMeAuthentication) {
+				RememberMeAuthentication rememberMeAuthentication = (RememberMeAuthentication) authentication;
+				String token = (String) input.getObject("rememberMeToken");
+				if (token != null) {
+					subject = rememberMeAuthentication.remember(token);
 				}
-			} else if (initialize instanceof String) {
-				String path = (String) initialize;
-				Page page = Routing.createPageSafe(path);
-				show(page, null);
-				return output;
-			} 
-			
-			show(Application.getInstance().createDefaultPage());
-			return output;
+			}
+
+			login(subject);
 		}
 
 		if (input.containsObject("closePage")) {
@@ -195,7 +195,7 @@ public class JsonPageManager implements PageManager {
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
 		if (actionId != null) {
 			JsonAction action = (JsonAction) getComponentById(actionId);
-			action.action();
+			action.run();
 		}
 
 		Map<String, Object> tableAction = input.get(JsonInput.TABLE_ACTION);
@@ -228,9 +228,8 @@ public class JsonPageManager implements PageManager {
 		}
 
 		String search = (String) input.getObject("search");
-		if (search != null) {
-			Page searchPage = Application.getInstance().createSearchPage(search);
-			show(searchPage);
+		if (search != null && Application.getInstance().hasSearch()) {
+			Application.getInstance().search(search);
 		}
 
 		String loadSuggestions = (String) input.getObject("loadSuggestions");
@@ -238,6 +237,7 @@ public class JsonPageManager implements PageManager {
 			JsonTextField textField = (JsonTextField) getComponentById(loadSuggestions);
 			String searchText = (String) input.getObject("searchText");
 			List<String> suggestions = textField.getSuggestions().search(searchText);
+			suggestions = suggestions != null && suggestions.size() > 50 ? suggestions.subList(0, 50) : suggestions;
 			output.add("suggestions", suggestions);
 			output.add("loadSuggestions", loadSuggestions);
 		}
@@ -247,26 +247,28 @@ public class JsonPageManager implements PageManager {
 			JsonLookup lookup = (JsonLookup) getComponentById(openLookupDialog);
 			lookup.showLookupDialog();
 		}
-
-		String login = (String) input.getObject("login");
-		if (login != null) {
-			if (subject == null) {
-				authentication.login(new PageLoginListener(() -> {
-				}));
-			} else {
-				subject = null;
-				Subject.setCurrent(subject);
-				setRememberMeCookie(null);
-				initialize();
-				show(Application.getInstance().createDefaultPage());
+		
+		if (input.containsObject("logout")) {
+			Backend.getInstance().getAuthentication().getLogoutAction().run();
+			if (Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
+				Backend.getInstance().getAuthentication().showLogin();
 			}
+		}
+		if (input.containsObject("login")) {
+			Backend.getInstance().getAuthentication().getLoginAction().run();
 		}
 
 		List<String> pageIds = (List<String>) input.getObject("showPages");
 		if (pageIds != null) {
-			show(pageIds);
+			if (pageStore.valid(pageIds)) {
+				show(pageIds);
+			} else {
+				Page page = new ExpiredPage();
+				String pageId = pageStore.put(page);
+				output.add("showPages", List.of(createJson(page, pageId, null)));
+			}
 		}
-
+		
 		return output;
 	}
 
@@ -277,22 +279,33 @@ public class JsonPageManager implements PageManager {
 	}
 
 	@Override
-	public void showDetail(Page mainPage, Page detail) {
+	public void showDetail(Page mainPage, Page detail, boolean horizontalDetailLayout) {
 		int pageIndex = visiblePageAndDetailsList.indexOf(detail);
+		String pageId;
 		if (pageIndex < 0) {
 			String mainPageId = visiblePageAndDetailsList.getId(mainPage);
-			show(detail, mainPageId);
+			pageId = show(detail, mainPageId);
 		} else {
-			String pageId = visiblePageAndDetailsList.getId(pageIndex);
+			pageId = visiblePageAndDetailsList.getId(pageIndex);
 			output.add("pageId", pageId);
 			output.add("title", detail.getTitle());
 		}
+		if (horizontalDetailLayout) {
+			horizontalPageIds.add(pageId);
+		} else {
+			horizontalPageIds.remove(pageId);
+		}
+		output.add("horizontalDetailLayout", Boolean.valueOf(horizontalDetailLayout));
 	}
-
-	private void show(Page page, String masterPageId) {
-		if (!Authorization.hasAccess(subject, page)) {
-			authentication.login(new PageLoginListener(() -> show(page, masterPageId)));
-			return;
+	
+	private String show(Page page, String masterPageId) {
+		if (!Authorization.hasAccess(Subject.getCurrent(), page)) {
+			if (authentication == null) {
+				throw new IllegalStateException("Page " + page.getClass().getSimpleName() + " is annotated with @Role but authentication is not configured.");
+			}
+			onLogin = () -> show(page, masterPageId);
+			authentication.showLogin();
+			return null;
 		}
 		if (masterPageId == null) {
 			visiblePageAndDetailsList.clear();
@@ -305,11 +318,12 @@ public class JsonPageManager implements PageManager {
 		String pageId = pageStore.put(page);
 		output.add("showPage", createJson(page, pageId, masterPageId));
 		visiblePageAndDetailsList.put(pageId, page);
+		return pageId;
 	}
 
 	private void show(List<String> pageIds) {
 		if (!pageStore.valid(pageIds)) {
-			show(Application.getInstance().createDefaultPage());
+			Frontend.show(Application.getInstance().createDefaultPage());
 			return;
 		}
 		List<JsonComponent> jsonList = new ArrayList<>();
@@ -319,7 +333,7 @@ public class JsonPageManager implements PageManager {
 		boolean authorized = true;
 		for (String pageId : pageIds) {
 			Page page = pageStore.get(pageId);
-			if (Authorization.hasAccess(subject, page)) {
+			if (Authorization.hasAccess(Subject.getCurrent(), page)) {
 				visiblePageAndDetailsList.put(pageId, page);
 				jsonList.add(createJson(page, pageId, previousId));
 				if (previousId == null) {
@@ -331,27 +345,32 @@ public class JsonPageManager implements PageManager {
 			}
 		}
 		if (authorized) {
+			output.add("horizontalDetailLayout", pageIds.size() > 0 && horizontalPageIds.contains(pageIds.get(pageIds.size() - 1)));
 			output.add("showPages", jsonList);
 			updateTitle(firstPage != null ? firstPage : null);
 		} else {
-			authentication.login(new PageLoginListener(() -> show(pageIds)));
+			onLogin = () -> show(pageIds);
+			authentication.showLogin();
 		}
 	}
-
-	private class PageLoginListener implements LoginListener {
-		private final Runnable onLogin;
 	
-		public PageLoginListener(Runnable onLogin) {
-			this.onLogin = onLogin;
+	@Override
+	public void login(Subject subject) {
+		this.subject = subject;
+		Subject.setCurrent(subject);
+		
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+			output.add("canLogin", subject == null);
+			output.add("canLogout", subject != null);
 		}
-	
-		@Override
-		public void loginSucceded(Subject subject) {
-			JsonPageManager.this.subject = subject;
-			Subject.setCurrent(subject);
-	
-			initialize();
+		updateNavigation();
+		
+		if (subject == null && initializing && Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
+			Backend.getInstance().getAuthentication().showLogin();
+		} else if (onLogin != null) {
 			onLogin.run();
+		} else {
+			Frontend.show(Application.getInstance().createDefaultPage());
 		}
 	}
 
@@ -372,6 +391,7 @@ public class JsonPageManager implements PageManager {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
+		json.put("pageClass", page.getClass().getSimpleName());
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
 			json.put("route", route);
@@ -390,8 +410,10 @@ public class JsonPageManager implements PageManager {
 
 	@Override
 	public void hideDetail(Page page) {
-		output.add("hidePage", visiblePageAndDetailsList.getId(page));
-		visiblePageAndDetailsList.removeAllFrom(page);
+		if (isDetailShown(page)) {
+			output.add("hidePage", visiblePageAndDetailsList.getId(page));
+			visiblePageAndDetailsList.removeAllFrom(page);
+		}
 	}
 
 	@Override
@@ -405,7 +427,38 @@ public class JsonPageManager implements PageManager {
 		openDialog(dialog);
 		return dialog;
 	}
-
+	
+	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+		Action[] actions;
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+			SkipLoginAction skipLoginAction = new SkipLoginAction();
+			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
+		} else {
+			actions = new org.minimalj.frontend.action.Action[] {loginAction};
+		}
+		Page page = new Page() {
+			@Override
+			public IContent getContent() {
+				return new JsonLoginContent(content, loginAction, actions);
+			}
+			
+			@Override
+			public String getTitle() {
+				return Resources.getString("Login.title");
+			}
+		};
+		show(page);
+		return Optional.empty();
+	}
+	
+	private class SkipLoginAction extends Action {
+		
+		@Override
+		public void run() {
+			Frontend.getInstance().login(null);
+		}
+	}
+	
 	@Override
 	public void showMessage(String text) {
 		output.add("message", text);
@@ -493,12 +546,15 @@ public class JsonPageManager implements PageManager {
 	}
 
 	public void replaceContent(JsonSwitch jsonSwitch, JsonComponent content) {
-		if (JsonFrontend.getClientSession() != null) {
-			replaceContent(output, jsonSwitch, content);
-		} else {
-			JsonOutput output = new JsonOutput();
-			replaceContent(output, jsonSwitch, content);
-			push.push(output.toString());
+		boolean switchIsRegistred = componentById.containsKey(jsonSwitch.getId());
+		if (switchIsRegistred) {
+			if (JsonFrontend.getClientSession() != null) {
+				replaceContent(output, jsonSwitch, content);
+			} else {
+				JsonOutput output = new JsonOutput();
+				replaceContent(output, jsonSwitch, content);
+				push.push(output.toString());
+			}
 		}
 	}
 
@@ -523,9 +579,9 @@ public class JsonPageManager implements PageManager {
 	}
 
 	public void setRememberMeCookie(String rememberMeCookie) {
-		this.rememberMeCookie = rememberMeCookie;
+		output.add("rememberMeToken", rememberMeCookie != null ? rememberMeCookie : "");
 	}
-
+	
 	private class JsonSessionPropertyChangeListener implements JsonPropertyListener {
 
 		@Override

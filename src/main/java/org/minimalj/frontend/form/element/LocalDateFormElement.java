@@ -51,14 +51,8 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 	
 	@Override
 	public String render(LocalDate value) {
-		if (InvalidValues.isInvalid(value)) {
-			return typed ? InvalidValues.getInvalidValue(value) : null;
-		} else if (value != null) {
-			if (typed) {
-				return value.toString();
-			} else {
-				return DateUtils.format(value);
-			}
+		if (value != null) {
+			return typed ? value.toString() : DateUtils.format(value);
 		} else {
 			return null;
 		}

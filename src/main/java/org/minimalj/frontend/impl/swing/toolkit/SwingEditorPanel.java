@@ -24,8 +24,12 @@ public class SwingEditorPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	public SwingEditorPanel(IContent content, org.minimalj.frontend.action.Action[] actions) {
+		this((Component) content, actions);
+	}
+	
+	public SwingEditorPanel(Component content, org.minimalj.frontend.action.Action[] actions) {
 		super(new BorderLayout());
-		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel((Component) content));
+		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(content));
 		scrollPane.setBorder(new TopBottomBorder(scrollPane.getBorder()));
 		add(scrollPane, BorderLayout.CENTER);
 		

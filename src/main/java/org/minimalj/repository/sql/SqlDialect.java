@@ -81,7 +81,7 @@ public abstract class SqlDialect {
 		} else if (clazz == LocalTime.class) {
 			s.append("TIME");		
 		} else if (clazz == LocalDateTime.class) {
-			s.append("DATETIME"); // MariaDB. DerbyDB is different
+			s.append("DATETIME");
 		} else if (clazz == BigDecimal.class) {
 			s.append("DECIMAL");
 			int size = AnnotationUtil.getSize(property);
@@ -223,6 +223,15 @@ public abstract class SqlDialect {
 		}
 		
 		@Override
+		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
+			if (value instanceof Boolean) {
+				preparedStatement.setBoolean(param, (Boolean) value);
+			} else {
+				super.setParameter(preparedStatement, param, value);
+			}
+		}
+		
+		@Override
 		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
 			if (clazz.isArray()) {
 				preparedStatement.setNull(param, Types.ARRAY);			
@@ -260,7 +269,8 @@ public abstract class SqlDialect {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
-				if (size > 0) {
+				// https://docs.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql
+				if (size > 0 && size <= 8000) {
 					s.append("VARBINARY(" + size + ")");
 				} else {
 					s.append("VARBINARY(max)");
@@ -273,32 +283,6 @@ public abstract class SqlDialect {
 		@Override
 		protected void addAutoIncrement(StringBuilder s) {
 			s.append("IDENTITY(1,1)");
-		}
-
-		@Override
-		public int getMaxIdentifierLength() {
-			return 128;
-		}
-	}
-
-	public static class DerbySqlDialect extends SqlDialect {
-
-		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
-			Class<?> clazz = property.getClazz();
-			
-			if (clazz == LocalDateTime.class) {
-				s.append("TIMESTAMP");
-			} else if (clazz == Boolean.class) {
-				s.append("SMALLINT");
-			} else {
-				super.addColumnDefinition(s, property);
-			}
-		}
-		
-		@Override
-		public String createUniqueIndex(String tableName, String column) {
-			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
 		}
 
 		@Override
@@ -464,7 +448,13 @@ public abstract class SqlDialect {
 				throw new IllegalArgumentException(value.getClass().getSimpleName());
 			}
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
-			value = EnumUtils.valueList((Class<Enum>)fieldClass).get((Integer) value);
+			if (value instanceof Integer) {
+				value = EnumUtils.valueList((Class<Enum>)fieldClass).get((Integer) value);
+			} else if (value instanceof String) {
+				value = Enum.valueOf((Class<Enum>)fieldClass, (String) value);
+			} else if (value != null) {
+				throw new IllegalArgumentException(value.getClass().getSimpleName());
+			}
 		} else if (fieldClass == UUID.class) {
 			value = UUID.fromString((String) value);
 		}

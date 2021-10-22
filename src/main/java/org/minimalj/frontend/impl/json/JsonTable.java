@@ -3,14 +3,20 @@ package org.minimalj.frontend.impl.json;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
 
@@ -23,6 +29,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final List<PropertyInterface> properties;
 	private final TableActionListener<T> listener;
 	private List<T> objects;
+	private final List<T> selectedObjects = new ArrayList<>();
 	private int visibleRows = PAGE_SIZE;
 	private final List<Object> sortColumns = new ArrayList<>();
 	private final List<Boolean> sortDirections = new ArrayList<>();
@@ -34,11 +41,14 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		this.listener = listener;
 
 		List<String> headers = new ArrayList<>();
+		List<String> headerPathes = new ArrayList<>();
 		for (PropertyInterface property : properties) {
 			String header = Resources.getPropertyName(property);
 			headers.add(header);
+			headerPathes.add(property.getPath());
 		}
 		put("headers", headers);
+		put("headerPathes", headerPathes);
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
 	}
@@ -68,13 +78,43 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 
 		visibleRows = Math.min(objects.size(), Math.max(visibleRows, PAGE_SIZE));
-		List<List<String>> tableContent = createTableContent(objects.subList(0, visibleRows));
+		List<T> visibleObjects = objects.subList(0, visibleRows);
+		List<List> tableContent = createTableContent(visibleObjects);
 
+		List<String> selectedRows = new ArrayList<>();
+		List<T> newSelectedObjects = new ArrayList<>();
+		for (T object : visibleObjects) {
+			for (T selectedObject : selectedObjects) {
+				if (equalsByIdOrContent(selectedObject, object)) {
+					selectedRows.add("selected");
+					newSelectedObjects.add(object);
+				} else {
+					selectedRows.add("unselected");
+				}
+			}
+		}
+		
 		put("tableContent", tableContent);
+		putSilent("selectedRows", null); // allway fire this property change
+		put("selectedRows", selectedRows);
 		put("size", objects.size());
 		put("extendable", isExtendable());
+		
+		selectedObjects.clear();
+		selectedObjects.addAll(newSelectedObjects);
+		listener.selectionChanged(selectedObjects);
 	}
-
+	
+	public static <T> boolean equalsByIdOrContent(T a, T b) {
+		if (IdUtils.hasId(a.getClass())) {
+			Object idA = IdUtils.getId(a);
+			Object idB = IdUtils.getId(b);
+			return Objects.equals(idA, idB);
+		} else {
+			return EqualsHelper.equals(a, b);
+		}
+	}
+	
 	private void checkSortDirections() {
 		boolean sortable = ((objects) instanceof Sortable) && //
 				sortColumns.stream().allMatch(key -> ((Sortable) objects).canSortBy(key));
@@ -92,7 +132,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return result;
 	}
 
-	public List<List<String>> extendContent() {
+	@SuppressWarnings("rawtypes")
+	public List<List> extendContent() {
 		int newVisibleRows = Math.min(objects.size(), visibleRows + PAGE_SIZE);
 		List<T> newVisibleObjects = objects.subList(visibleRows, newVisibleRows);
 		visibleRows = newVisibleRows;
@@ -103,19 +144,40 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return visibleRows < objects.size();
 	}
 
-	private List<List<String>> createTableContent(List<T> objects) {
-		List<List<String>> tableContent = new ArrayList<>();
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private List<List> createTableContent(List<T> objects) {
+		List<List> tableContent = new ArrayList<>();
 		for (T object : objects) {
-			List<String> rowContent = new ArrayList<>();
+			List rowContent = new ArrayList();
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
-				String stringValue = Rendering.toString(value, property);
-				rowContent.add(stringValue);
+				if (value instanceof Action) {
+					Action action = (Action) value;
+					if (action.isEnabled()) {
+						rowContent.add(Map.of("action", new JsonAction(action)));
+					} else {
+						rowContent.add(action.getName());
+					}
+				} else {
+					String stringValue = Rendering.toString(value, property);
+					ColorName color = Rendering.getColor(object, value);
+					if (color == null) {
+						rowContent.add(stringValue);
+					} else {
+						rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+					}
+				}
 			}
 			tableContent.add(rowContent);
 		}
 		return tableContent;
 	}
+	
+//	private String toString(Color color) {
+//		return "#" + StringUtils.padLeft(Integer.toHexString(color.getRed()), 2, '0') + 
+//				StringUtils.padLeft(Integer.toHexString(color.getGreen()), 2, '0') + 
+//				StringUtils.padLeft(Integer.toHexString(color.getBlue()), 2, '0');
+//	}
 	
 	public void action(int row) {
 		T object = objects.get(row);
@@ -123,7 +185,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 	
 	public void selection(List<Number> selectedRows) {
-		List<T> selectedObjects = new ArrayList<>(selectedRows.size());
+		selectedObjects.clear();
 		for (Number r : selectedRows) {
 			selectedObjects.add(objects.get(r.intValue()));
 		}

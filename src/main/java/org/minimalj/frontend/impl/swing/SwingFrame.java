@@ -23,22 +23,21 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.security.Authentication.LoginListener;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
-	
+
 	private Subject subject;
 	final SwingFavorites favorites = new SwingFavorites(this::onFavoritesChange);
-	
+
 	private final JTabbedPane tabbedPane = new JTabbedPane();
 	private JScrollPane navigationScrollPane;
 	private SwingToolBar toolBar;
@@ -47,21 +46,21 @@ public class SwingFrame extends JFrame {
 	private JSplitPane splitPane;
 
 	public static SwingFrame activeFrameOverride = null;
-	
-	final Action loginAction, closeWindowAction, exitAction, newWindowAction, newWindowWithLoginAction, newTabAction, closeTabAction, navigationAction;
-	
+
+	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction, closeTabAction, navigationAction;
+
 	public SwingFrame() {
-		boolean authenticationActive = Backend.getInstance().isAuthenticationActive();
-		loginAction = authenticationActive ? new SwingLoginAction() : null;
-		
+		AuthenticatonMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
+		loginAction = authenticatonMode != AuthenticatonMode.NOT_AVAILABLE ? new SwingLoginAction() : null;
+		logoutAction = authenticatonMode != AuthenticatonMode.NOT_AVAILABLE && authenticatonMode != AuthenticatonMode.REQUIRED ? new SwingLogoutAction() : null;
+
 		closeWindowAction = new CloseWindowAction();
 		closeTabAction = new CloseTabAction();
 		exitAction = new ExitAction();
 		newWindowAction = new NewWindowAction();
-		newWindowWithLoginAction = authenticationActive ? new NewWindowWithLoginAction() : null;
 		newTabAction = new NewTabAction();
 		navigationAction = new NavigationAction();
-		
+
 		tabbedPane.getModel().addChangeListener(this::tabSelectionChanged);
 
 		setDefaultSize();
@@ -73,7 +72,7 @@ public class SwingFrame extends JFrame {
 
 		updateIcon();
 	}
-	
+
 	protected void setDefaultSize() {
 		Dimension screenSize = getToolkit().getScreenSize();
 		if (screenSize.width < 1280 || screenSize.height < 1024) {
@@ -85,7 +84,7 @@ public class SwingFrame extends JFrame {
 			setSize(width, height);
 		}
 	}
-	
+
 	private void addWindowListener() {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		WindowListener listener = new WindowAdapter() {
@@ -129,19 +128,23 @@ public class SwingFrame extends JFrame {
 	private void tabSelectionChanged(ChangeEvent event) {
 		toolBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
 		menuBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
+		// TODO resuse NavigationTree
+		updateNavigation();
 	}
 
 	public void updateNavigation() {
-		navigationScrollPane.setViewportView(new NavigationTree(Application.getInstance().getNavigation()));
+		SwingFrontend.run(this, () -> {
+			navigationScrollPane.setViewportView(new NavigationTree(Application.getInstance().getNavigation()));
+		});
 	}
 
 	private void addTab() {
-		SwingTab tab = new SwingTab(this);	
+		SwingTab tab = new SwingTab(this);
 		tabbedPane.addTab("", tab);
 		tabbedPane.setSelectedComponent(tab);
 		tab.show(new EmptyPage());
 	}
-	
+
 //	public void closeTabActionPerformed() {
 //		if (getVisibleTab().tryToClose()) {
 //			closeTab();
@@ -166,11 +169,11 @@ public class SwingFrame extends JFrame {
 		closeWindow();
 		return true;
 	}
-	
+
 	public void closeTab(SwingTab tab) {
 		tabbedPane.remove(tab);
 	}
-	
+
 	public void closeWindow() {
 		setVisible(false);
 		dispose();
@@ -192,48 +195,67 @@ public class SwingFrame extends JFrame {
 		SwingTab tab = (SwingTab) tabbedPane.getSelectedComponent();
 		return tab;
 	}
-	
+
+	public boolean moreThanOneTabOpen() {
+		return tabbedPane.getTabCount() > 1;
+	}
+
 	public void closeTab() {
 		closeTab((SwingTab) tabbedPane.getSelectedComponent());
 	}
 
 	public Page getVisiblePage() {
 		SwingTab tab = getVisibleTab();
-		if (tab == null) return null;
+		if (tab == null)
+			return null;
 		return tab.getVisiblePage();
 	}
-	
+
 	public List<Page> getPages() {
 		List<Page> result = new ArrayList<>();
-		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
+		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
 			SwingTab tab = (SwingTab) tabbedPane.getComponent(i); // myst: getTabComponent returns allways null
 			Page page = tab.getVisiblePage();
-			if (page != null) result.add(page);
+			if (page != null)
+				result.add(page);
 		}
 		return result;
 	}
-	
+
 	void onHistoryChanged() {
 		updateTitle();
 	}
-	
-	public void intialize(Subject subject, Page initialPage, boolean closeWithoutAuthentication) {
+
+	public void setSubject(Subject subject) {
+		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+			SwingTab swingTab = (SwingTab) tabbedPane.getComponentAt(i);
+			swingTab.setSubject(subject);
+		}
 		this.subject = subject;
 		Subject.setCurrent(subject);
-		favorites.setUser(subject != null ? subject.getName() : null);
-		for (int i = 0; i<tabbedPane.getTabCount(); i++) {
-			SwingTab swingTab = (SwingTab) tabbedPane.getComponentAt(i);
-			swingTab.clearHistory();
-			swingTab.show(initialPage, closeWithoutAuthentication);
+
+		if (loginAction != null) {
+			SwingResourceAction.initProperties(loginAction, subject != null ? "ReloginAction" : "LoginAction");
 		}
-		updateNavigation();
-		updateWindowTitle();
+		if (logoutAction != null) {
+			logoutAction.setEnabled(subject != null);
+		}
+
+		SwingFrontend.run(this, () -> {
+			favorites.setUser(subject != null ? subject.getName() : null);
+			setSearchEnabled(Application.getInstance().hasSearch());
+
+			updateNavigation();
+			updateWindowTitle();
+
+			Frontend.show(Application.getInstance().createDefaultPage());
+		});
 	}
 
 	public Subject getSubject() {
 		return subject;
 	}
-	
+
 	private void onFavoritesChange(LinkedHashMap<String, String> newFavorites) {
 		menuBar.updateFavorites(newFavorites);
 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
@@ -241,7 +263,7 @@ public class SwingFrame extends JFrame {
 			tab.updateFavorites(newFavorites);
 		}
 	}
-	
+
 	protected void updateWindowTitle() {
 		String title = Application.getInstance().getName();
 		if (subject != null && !StringUtils.isEmpty(subject.getName())) {
@@ -249,11 +271,12 @@ public class SwingFrame extends JFrame {
 		}
 		setTitle(title);
 	}
-	
+
 	protected void updateTitle() {
-		for (int index = 0; index<tabbedPane.getTabCount(); index++) {
+		for (int index = 0; index < tabbedPane.getTabCount(); index++) {
 			SwingTab tab = (SwingTab) tabbedPane.getComponentAt(index);
-			if (tab == null) throw new RuntimeException("Tab null");
+			if (tab == null)
+				throw new RuntimeException("Tab null");
 			Page page = tab.getVisiblePage();
 			if (page == null) {
 				throw new RuntimeException("Page null");
@@ -261,7 +284,7 @@ public class SwingFrame extends JFrame {
 			tabbedPane.setTitleAt(index, page.getTitle());
 		}
 	}
-	
+
 	protected void updateIcon() {
 		InputStream inputStream = Application.getInstance().getIcon();
 		if (inputStream != null) {
@@ -272,30 +295,33 @@ public class SwingFrame extends JFrame {
 			}
 		}
 	}
-	
+
 	private class SwingLoginAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
 		public SwingLoginAction() {
 			super("LoginAction");
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (tabbedPane.getTabCount() > 1) {
-				SwingFrontend.run(e, () -> Frontend.showMessage(Resources.getString("Login.moreThanOneTab")));
-				return;
-			}
-			LoginListener listener = new LoginListener() {
-				@Override
-				public void loginSucceded(Subject subject) {
-					intialize(subject, Application.getInstance().createDefaultPage(), false);
-				}
-			};
-			SwingFrontend.run(e, () -> Backend.getInstance().getAuthentication().login(listener));
+			SwingFrontend.run(e, Backend.getInstance().getAuthentication().getLoginAction());
 		}
 	}
-	
+
+	private class SwingLogoutAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		public SwingLogoutAction() {
+			super("LogoutAction");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			SwingFrontend.run(e, () -> Frontend.getInstance().login(null));
+		}
+	}
+
 	private class CloseWindowAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
@@ -304,7 +330,7 @@ public class SwingFrame extends JFrame {
 			tryToCloseWindow();
 		}
 	}
-	
+
 	private class ExitAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
@@ -319,16 +345,8 @@ public class SwingFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			FrameManager.getInstance().openNavigationFrame(subject);
-		}
-	}
-
-	private class NewWindowWithLoginAction extends SwingResourceAction {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			FrameManager.getInstance().openNavigationFrame(null);
+			SwingFrame frame = FrameManager.getInstance().openFrame();
+			SwingFrontend.run(frame, () -> frame.setSubject(subject));
 		}
 	}
 
@@ -380,6 +398,10 @@ public class SwingFrame extends JFrame {
 				}
 			}
 		}
+	}
+
+	public void setSearchEnabled(boolean hasSearchPages) {
+		toolBar.setSearchEnabled(hasSearchPages);
 	}
 
 }

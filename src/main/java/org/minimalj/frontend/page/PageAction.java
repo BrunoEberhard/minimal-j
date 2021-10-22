@@ -3,7 +3,7 @@ package org.minimalj.frontend.page;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 
-public class PageAction extends Action {
+public final class PageAction extends Action {
 
 	private final Page page;
 	
@@ -17,7 +17,7 @@ public class PageAction extends Action {
 	}
 
 	@Override
-	public void action() {
+	public void run() {
 		Frontend.show(page);
 	}
 	

@@ -60,7 +60,7 @@ public class OpenAPIFactory {
 		api.info.title = application.getName();
 		
 		Server server = new Server();
-		server.url = "http://localhost:8090/";
+		server.url = "http://localhost:8080/";
 		api.servers.add(server);
 
 		MjModel model = new MjModel(application.getEntityClasses());

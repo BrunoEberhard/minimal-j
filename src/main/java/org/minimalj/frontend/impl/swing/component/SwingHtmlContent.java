@@ -19,7 +19,7 @@ import javax.swing.text.html.ImageView;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
-import org.minimalj.frontend.impl.web.WebApplication;
+import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 
@@ -88,7 +88,8 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 	}
 
 	private static class MjImageView extends ImageView {
-
+		private static ResourcesHttpHandler resourceHandler = new ResourcesHttpHandler();
+		
 		public MjImageView(Element elem) {
 			super(elem);
 		}
@@ -105,7 +106,7 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 				if (reference != null) {
 					return new URL(reference, src);
 				} else {
-					return WebApplication.getResourceHandler().getUrl(src);
+					return resourceHandler.getUrl(src);
 				}
 			} catch (IOException e) {
 				return null;

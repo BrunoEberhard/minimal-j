@@ -70,10 +70,14 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		if (text != null) {
 			text.setValue("");
 			if (object != null) {
+				StringBuilder b = new StringBuilder();
 				for (T item : object) {
-					String newValue = text.getValue() + "\n" + render(item);
-					text.setValue(newValue.trim());
+					if (b.length() > 0) {
+						b.append("\n");
+					}
+					b.append(render(item));
 				}
+				text.setValue(b.toString());
 			}
 			component.show(text);
 		} else if (object != null && object.size() > 0) {
@@ -119,7 +123,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		return list;
 	}
 
-	protected abstract Form<T> createForm();
+	protected abstract Form<T> createForm(boolean newObject);
 	
 	private abstract class ListFormElementEditor extends Editor<T, Void> {
 		public ListFormElementEditor() {
@@ -160,7 +164,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		@Override
 		protected Form<T> createForm() {
-			return ListFormElement.this.createForm();
+			return ListFormElement.this.createForm(true);
 		}
 		
 		@Override
@@ -196,7 +200,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		@Override
 		protected Form<T> createForm() {
-			return ListFormElement.this.createForm();
+			return ListFormElement.this.createForm(false);
 		}
 
 		@Override
@@ -223,10 +227,14 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 		
 		@Override
-		public void action() {
-			getValue().remove(entry);
+		public void run() {
+			removeEntry(entry);
 			handleChange();
 		}
     };
+
+	protected void removeEntry(T entry) {
+		getValue().remove(entry);
+	}
 
 }

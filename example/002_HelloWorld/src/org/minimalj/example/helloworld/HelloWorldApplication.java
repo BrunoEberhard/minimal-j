@@ -9,5 +9,4 @@ public class HelloWorldApplication extends Application {
 	public Page createDefaultPage() {
 		return new HelloWorldPage();
 	}
-
 }

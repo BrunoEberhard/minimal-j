@@ -20,7 +20,7 @@ public class NotesApplication extends Application {
 	public Page createDefaultPage() {
 		return new NoteTablePage();
 	}
-
+	
 	@Override
 	public Class<?>[] getEntityClasses() {
 		return new Class[]{Note.class};

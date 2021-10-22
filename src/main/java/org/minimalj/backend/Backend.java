@@ -20,7 +20,6 @@ import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
-import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Transaction;
@@ -80,12 +79,18 @@ public class Backend {
 			throw new IllegalStateException("Not allowed to change instance of " + Backend.class.getSimpleName());
 		}
 		Backend.instance = instance;
-		instance.init();
+		Application.getInstance().initBackend();
+	}
+	
+	private static synchronized void createInstance() {
+		if (instance == null) {
+			setInstance(create());
+		}
 	}
 
 	public static Backend getInstance() {
 		if (instance == null) {
-			setInstance(create());
+			createInstance();
 		}
 		return instance;
 	}
@@ -118,7 +123,7 @@ public class Backend {
 		return Authentication.create();
 	}
 	
-	public final Authentication getAuthentication() {
+	public Authentication getAuthentication() {
 		if (authentication == null) {
 			if (authenticationActive == null) {
 				authentication = createAuthentication();
@@ -219,12 +224,4 @@ public class Backend {
 		}
 		return result;
 	}
-	
-	private void init() {
-		if (Configuration.available("MjInit")) {
-			Transaction<?> init = Configuration.getClazz("MjInit", Transaction.class);
-			init.execute();
-		}
-	}
-
 }

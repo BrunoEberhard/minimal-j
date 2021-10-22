@@ -31,7 +31,7 @@ public class MiniMail extends Application {
 	public Page createDefaultPage() {
 		return new MailTable();
 	}
-
+	
 	public static void main(String[] args) {
 		Swing.start(new MiniMail());
 	}

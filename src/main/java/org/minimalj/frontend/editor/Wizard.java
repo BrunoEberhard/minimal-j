@@ -46,7 +46,7 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 
 	@Override
-	public void action() {
+	public void run() {
 		switchContent = Frontend.getInstance().createSwitchContent();
 
 		stepIndex = 0;
@@ -150,21 +150,15 @@ public abstract class Wizard<RESULT> extends Action {
 	}	
 
 	protected final class NextWizardStepAction extends Action {
-		private String description;
 		private boolean valid = false;
 		
 		@Override
-		public void action() {
+		public void run() {
 			next(stepObject);
 		}
 		
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
 			valid = validationMessages == null || validationMessages.isEmpty();
-			if (valid) {
-				description = "Speichern und zum nächsten Schritt";
-			} else {
-				description = ValidationMessage.formatHtml(validationMessages);
-			}
 			fireChange();
 		}
 
@@ -172,16 +166,11 @@ public abstract class Wizard<RESULT> extends Action {
 		public boolean isEnabled() {
 			return valid && step.hasNext();
 		}
-		
-		@Override
-		public String getDescription() {
-			return description;
-		}
 	}
 	
 	protected final class PreviousWizardStepAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			previous();
 		}
 	}
@@ -195,21 +184,15 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 	
 	protected final class FinishAction extends Action {
-		private String description;
 		private boolean enabled = false;
 		
 		@Override
-		public void action() {
+		public void run() {
 			finish();
 		}
 		
 		public void setValidationMessages(List<ValidationMessage> validationMessages) {
 			boolean valid = validationMessages == null || validationMessages.isEmpty();
-			if (valid) {
-				description = "Eingaben speichern und Wizard beenden";
-			} else {
-				description = ValidationMessage.formatHtml(validationMessages);
-			}
 			enabled = valid & canFinish();
 			fireChange();
 		}
@@ -218,16 +201,11 @@ public abstract class Wizard<RESULT> extends Action {
 		public boolean isEnabled() {
 			return enabled;
 		}
-		
-		@Override
-		public String getDescription() {
-			return description;
-		}
 	}
 	
 	private class CancelAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			cancel();
 		}
 	}
@@ -238,7 +216,7 @@ public abstract class Wizard<RESULT> extends Action {
 
 	private class FillWithDemoDataAction extends Action {
 		@Override
-		public void action() {
+		public void run() {
 			fillWithDemoData();
 			validate(stepObject);
 		}

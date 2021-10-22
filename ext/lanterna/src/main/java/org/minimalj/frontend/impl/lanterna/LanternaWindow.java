@@ -2,7 +2,6 @@ package org.minimalj.frontend.impl.lanterna;
 
 import java.util.Arrays;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.lanterna.toolkit.LanternaSwitch;
 import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
@@ -40,8 +39,6 @@ public class LanternaWindow extends BasicWindow {
 		switchLayout = new LanternaSwitch();
 		content.addComponent((Component) switchLayout, Location.CENTER);
 		
-		history.add(Application.getInstance().createDefaultPage());
-
 		setComponent(content);
 	}
 	

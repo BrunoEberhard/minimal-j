@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -10,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,9 +34,12 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.Rendering.Coloring;
+import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
@@ -141,19 +146,31 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	}
 
 	private void setOffset(int offset) {
+		List<T> selectedObjects = getSelectedObjects();
+		
 		this.offset = offset;
 		tableModel.setObjects(list.subList(offset, Math.min(list.size(), offset + PAGE_SIZE)));
 		nextButton.setVisible(list.size() > offset + PAGE_SIZE);
 		prevButton.setVisible(offset > 0);
+		
+		// redo selection
+		for (int i = 0; i < table.getRowCount(); i++) {
+			T object = tableModel.getObject(table.convertRowIndexToModel(i));
+			for (T selectedObject : selectedObjects) {
+				if (JsonTable.equalsByIdOrContent(object, selectedObject)) {
+					table.setRowSelectionInterval(i, i);
+				}
+			}
+		}
 	}
 
-	public List<T> getSelectedObjects() {
-		List<T> selectedIds = new ArrayList<>(table.getSelectedRowCount());
+	private List<T> getSelectedObjects() {
+		List<T> selectedObjects = new ArrayList<>(table.getSelectedRowCount());
 		for (int row : table.getSelectedRows()) {
 			int rowInModel = table.convertRowIndexToModel(row);
-			selectedIds.add(tableModel.getObject(rowInModel));
+			selectedObjects.add(tableModel.getObject(rowInModel));
 		}
-		return selectedIds;
+		return selectedObjects;
 	}
 
 	private class SwingTableMouseListener extends MouseAdapter {
@@ -183,7 +200,6 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         @Override
         public void sorterChanged(RowSorterEvent e) {
         	if (e.getType() == Type.SORT_ORDER_CHANGED) {
-				@SuppressWarnings("unchecked")
 				List<? extends SortKey> sortKeys = e.getSource().getSortKeys();
         		Object[] keys = new Object[sortKeys.size()];
         		boolean[] directions = new boolean[sortKeys.size()];
@@ -276,10 +292,32 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				int column) {
 			
 			PropertyInterface property = properties.get(column);
+
+			Color color = null;
+			if (value instanceof Coloring) {
+				ColorName colorName = ((Coloring) value).getColor();
+				if (colorName != null) {
+					color = getColor(colorName);
+				}
+			}
+			if (!Objects.equals(getForeground(), color)) {
+				setForeground(color);
+			}
+
 			value = Rendering.toString(value, property);
 
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
+	}
+	
+	private static Color getColor(ColorName colorName) {
+		switch (colorName) {
+		case RED: return Color.RED;
+		case YELLOW: return Color.YELLOW;
+		case GREEN: return Color.GREEN;
+		case BLUE: return Color.BLUE;
+		}
+		return null;
 	}
 
 	@Override

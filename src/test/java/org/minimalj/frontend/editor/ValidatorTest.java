@@ -4,22 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.minimalj.TestApplication;
 import org.minimalj.application.Application;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.test.TestUtil;
 
 public class ValidatorTest {
 
 	@BeforeClass
 	public static void initApplication() {
-		Application.setInstance(TestApplication.INSTANCE);
+		Application.setInstance(new Application() {});
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		TestUtil.shutdown();
 	}
 
 	@Test

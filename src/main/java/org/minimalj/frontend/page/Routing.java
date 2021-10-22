@@ -3,6 +3,7 @@ package org.minimalj.frontend.page;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.StringUtils;
@@ -41,11 +42,28 @@ public abstract class Routing {
 			return null;
 		}
 	}
+	
+	public static final String getRouteSafe(Action action) {
+		if (routing == null || action == null) {
+			return null;
+		}
+		try {
+			String route = routing.getRoute(action);
+			if (route != null && Page.validateRoute(route)) {
+				return route;
+			} else {
+				return null;
+			}
+		} catch (Exception exception) {
+			ExceptionUtils.logReducedStackTrace(logger, exception);
+			return null;
+		}
+	}
 
 	public static final /* NonNull */ Page createPageSafe(String route) {
 		Page page = null;
 		if (StringUtils.isEmpty(route) || route.equals(WebApplication.mjHandlerPath())) {
-			page = Application.getInstance().createDefaultPage();
+			page = new EmptyPage();
 		} else if (routing != null && Page.validateRoute(route)) {
 			try {
 				page = routing.createPage(route);
@@ -69,6 +87,14 @@ public abstract class Routing {
 	}
 
 	protected abstract String getRoute(Page page);
+	
+	protected String getRoute(Action action) {
+		if (action instanceof PageAction) {
+			return getRoute(((PageAction) action).getPage());
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * @param route valid route string
@@ -76,5 +102,4 @@ public abstract class Routing {
 	 * @throws RuntimeException Don't try to catch everything in the implementation.
 	 */
 	protected abstract Page createPage(String route);
-
 }

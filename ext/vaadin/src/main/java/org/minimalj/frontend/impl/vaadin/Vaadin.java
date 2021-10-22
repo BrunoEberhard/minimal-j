@@ -20,6 +20,8 @@ import com.vaadin.flow.spring.RootMappedCondition;
 @SpringBootApplication
 public class Vaadin extends SpringBootServletInitializer {
 
+	private static boolean hasUrlMapping;
+	
     @Bean(name = "WebApplicationServletRegistration")
     @Conditional(IsWebApplication.class)
     public ServletRegistrationBean<MjWebApplicationServlet> servletRegistrationBean() {
@@ -30,21 +32,24 @@ public class Vaadin extends SpringBootServletInitializer {
 
 		@Override
 		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-			return Application.getInstance() instanceof WebApplication;
+			return Application.getInstance() instanceof WebApplication && hasUrlMapping;
 		}
+    }
+
+    public static boolean hasUrlMapping() {
+    	return hasUrlMapping;
     }
     
 	private static void start(String... args) {
 		Frontend.setInstance(new VaadinFrontend());
 
 		String mjHandlerPath = WebApplication.mjHandlerPath();
-		if (!StringUtils.isEmpty(mjHandlerPath) && mjHandlerPath.startsWith("/")) {
-			if (!mjHandlerPath.isEmpty()) {
-				mjHandlerPath += "*";
-				System.setProperty(RootMappedCondition.URL_MAPPING_PROPERTY, mjHandlerPath);
-			}
+		hasUrlMapping = !StringUtils.isEmpty(mjHandlerPath) && mjHandlerPath.startsWith("/") && !mjHandlerPath.equals("/");
+		if (hasUrlMapping) {
+			mjHandlerPath += "*";
+			System.setProperty(RootMappedCondition.URL_MAPPING_PROPERTY, mjHandlerPath);
 		}
-
+		
 		SpringApplication.run(Vaadin.class, args);
 	}
 	

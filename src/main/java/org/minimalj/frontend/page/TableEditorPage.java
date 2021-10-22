@@ -21,12 +21,16 @@ public abstract class TableEditorPage<VIEW extends View<T>, T> extends BaseTable
 
 	private final ClassHolder<T> classT;
 
-	@SuppressWarnings("unchecked")
 	public TableEditorPage() {
-		super();
-		this.classT = new ClassHolder<>((Class<T>) GenericUtils.getGenericClass(this.getClass(), 1));
+		this(false);
 	}
 
+	@SuppressWarnings("unchecked")
+	public TableEditorPage(boolean hasDetailPage) {
+		super(hasDetailPage);
+		this.classT = new ClassHolder<>((Class<T>) GenericUtils.getGenericClass(this.getClass(), 1));
+	}
+	
 	@Override
 	protected T createObject() {
 		return CloneHelper.newInstance(classT.getClazz());
