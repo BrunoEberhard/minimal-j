@@ -31,8 +31,7 @@ public class Keys {
 	private static final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 
 	private static final List<Object> keyObjects = new ArrayList<>();
-	private static final Map<String, Object> methodKeyByName = new HashMap<>();
-	
+	private static final Map<Object, Map<String, Object>> methodKeys = new IdentityHashMap<>();
 	
 	/**
 	 * Warning: Should only be called once per class
@@ -59,14 +58,9 @@ public class Keys {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T methodOf(Object keyObject, String propertyName, Object... dependencies) {
-		String qualifiedMethodName = null;
-		
 		PropertyInterface enclosingProperty = null;
 		if (properties.containsKey(keyObject)) {
 			enclosingProperty = properties.get(keyObject);
-			qualifiedMethodName = enclosingProperty.getDeclaringClass().getName() + "." + enclosingProperty.getPath() + "." + propertyName;
-		} else {
-			qualifiedMethodName = keyObject.getClass().getName() + "." + propertyName;
 		}
 		
 		PropertyInterface property = getMethodProperty(keyObject.getClass(), propertyName);
@@ -81,11 +75,12 @@ public class Keys {
 			property = new ChainedProperty(enclosingProperty, property);
 		}
 
-		if (methodKeyByName.containsKey(qualifiedMethodName)) {
-			return (T) methodKeyByName.get(qualifiedMethodName);
+		Map<String, Object> keysForObject = methodKeys.computeIfAbsent(keyObject, k -> new HashMap<>());
+		if (keysForObject.containsKey(propertyName)) {
+			return (T) keysForObject.get(propertyName);
 		}
-		T t = (T)createKey(property.getClazz(), qualifiedMethodName, null);
-		methodKeyByName.put(qualifiedMethodName, t);
+		T t = (T)createKey(property.getClazz(), propertyName, null);
+		keysForObject.put(propertyName, t);
 		
 		fillFields(t, property, 0);
 		properties.put(t, property);
@@ -297,6 +292,11 @@ public class Keys {
 		@Override
 		public boolean isFinal() {
 			return setterMethod == null;
+		}
+		
+		@Override
+		public String toString() {
+			return "[" + getterMethod.getDeclaringClass().getSimpleName() + "." + getterMethod.getName() + "]";
 		}
 	}
 	
