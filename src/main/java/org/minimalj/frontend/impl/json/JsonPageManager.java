@@ -80,7 +80,6 @@ public class JsonPageManager implements PageManager {
 	private void updateNavigation() {
 		componentById.clear();
 		navigation = createNavigation();
-		register(navigation);
 		output.add("navigation", navigation);
 		output.add("hasSearchPages", Application.getInstance().hasSearch());
 	}
@@ -106,6 +105,7 @@ public class JsonPageManager implements PageManager {
 						Subject.setCurrent(subject);
 						handle_(input);
 					} catch (ComponentUnknowException x) {
+						logger.log(Level.WARNING, x.getMessage(), x);
 						output = new JsonOutput();
 						show(visiblePageAndDetailsList.getPageIds());
 					} catch (Exception x) {
@@ -269,6 +269,7 @@ public class JsonPageManager implements PageManager {
 			}
 		}
 		
+		register(output);
 		return output;
 	}
 
@@ -310,6 +311,7 @@ public class JsonPageManager implements PageManager {
 		if (masterPageId == null) {
 			visiblePageAndDetailsList.clear();
 			componentById.clear();
+			// navigation is not part of the output. Needs special registration
 			register(navigation);
 		} else {
 			visiblePageAndDetailsList.removeAllAfter(masterPageId);
@@ -398,11 +400,9 @@ public class JsonPageManager implements PageManager {
 		}
 
 		JsonComponent content = (JsonComponent) PageAccess.getContent(page);
-		register(content);
 		json.put("content", content);
 
 		List<Object> actionMenu = createActionMenu(page);
-		register(actionMenu);
 		json.put("actionMenu", actionMenu);
 
 		return json;
@@ -509,21 +509,29 @@ public class JsonPageManager implements PageManager {
 	}
 
 	public void register(Object o) {
-		travers(o, component -> {
-			String id = component.getId();
-			if (id != null) {
-				componentById.put(component.getId(), component);
+		travers(o, c -> {
+			if (c instanceof JsonComponent) {
+				JsonComponent component = (JsonComponent) c;
+				String id = component.getId();
+				if (id != null) {
+					componentById.put(component.getId(), component);
+				}
+				component.setPropertyListener(propertyListener);
 			}
-			component.setPropertyListener(propertyListener);
 		});
 	}
 
 	public void unregister(Object o) {
-		travers(o, component -> componentById.remove(component.getId()));
+		travers(o, c -> {
+			if (c instanceof JsonComponent) {
+				JsonComponent component = (JsonComponent) c;
+				componentById.remove(component.getId());
+			}
+		}); 
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void travers(Object o, Consumer<JsonComponent> c) {
+	private void travers(Object o, Consumer<Object> c) {
 		if (o instanceof JsonComponent) {
 			c.accept((JsonComponent) o);
 		}
@@ -533,10 +541,12 @@ public class JsonPageManager implements PageManager {
 		if (o instanceof Collection) {
 			((Collection) o).forEach(v -> travers(v, c));
 		}
+		if (o instanceof JsonOutput) {
+			((JsonOutput) o).forEach(v -> travers(v, c));
+		}
 	}
 
 	public void openDialog(JsonDialog jsonDialog) {
-		register(jsonDialog);
 		output.add("dialog", jsonDialog);
 	}
 
@@ -564,13 +574,11 @@ public class JsonPageManager implements PageManager {
 			output.removeContent(jsonSwitch.getId());
 		}
 		if (content != null) {
-			register(content);
 			output.addContent(jsonSwitch.getId(), content);
 		}
 	}
 
 	public void addContent(String elementId, JsonComponent content) {
-		register(content);
 		output.addContent(elementId, content);
 	}
 

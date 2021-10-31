@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class JsonOutput {
 
@@ -62,6 +63,10 @@ public class JsonOutput {
 			output.put(name, new ArrayList());
 		}
 		((List) output.get(name)).add(object);
+	}
+	
+	public void forEach(Consumer<Object> c) {
+		output.values().forEach(c);
 	}
 
 	@Override

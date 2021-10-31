@@ -25,6 +25,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 	private static final int PAGE_SIZE = 50;
 
+	private final JsonPageManager pageManager;
 	private final Object[] keys;
 	private final List<PropertyInterface> properties;
 	private final TableActionListener<T> listener;
@@ -34,8 +35,9 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final List<Object> sortColumns = new ArrayList<>();
 	private final List<Boolean> sortDirections = new ArrayList<>();
 
-	public JsonTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
+		this.pageManager = pageManager;
 		this.keys = keys;
 		this.properties = convert(keys);
 		this.listener = listener;
@@ -71,6 +73,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 	@Override
 	public void setObjects(List<T> objects) {
+		pageManager.unregister(get("tableContent"));
 		this.objects = objects;
 		checkSortDirections();
 		if (!sortColumns.isEmpty()) {
